@@ -1,0 +1,16 @@
+{
+  "title": "Jump statements should not be used unconditionally",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug",
+    "misra",
+    "cert",
+    "unused"
+  ],
+  "defaultSeverity": "Major"
+}

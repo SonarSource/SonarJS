@@ -21,12 +21,16 @@ package org.sonar.javascript.checks.utils;
 
 import java.util.Iterator;
 import javax.annotation.Nullable;
+import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
 public class CheckUtils {
 
@@ -75,5 +79,19 @@ public class CheckUtils {
     return expressionTree;
   }
 
+  public static Tree parent(Tree tree) {
+    return ((JavaScriptTree) tree).getParent();
+  }
+
+  public static ControlFlowGraph buildControlFlowGraph(Tree tree) {
+    Tree parent = tree;
+    while (!parent.is(Kind.SCRIPT)) {
+      if (parent.is(Kind.BLOCK) && TreeKinds.isFunction(parent(parent))) {
+        return ControlFlowGraph.build((BlockTree) parent);
+      }
+      parent = parent(parent);
+    }
+    return ControlFlowGraph.build((ScriptTree) parent);
+  }
 }
 
