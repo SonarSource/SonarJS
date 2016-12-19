@@ -1,0 +1,39 @@
+<p>Unlike strongly typed languages, JavaScript does not enforce a return type on a function. This means that different paths through a function can
+return different types of values, which can be very confusing to the user and significantly harder to maintain.</p>
+<p>In particular a function, in JavaScript, will return <code>undefined</code> in any of these cases:</p>
+<ul>
+  <li> It exits without a <code>return</code> statement. </li>
+  <li> It executes a <code>return</code> with no value. </li>
+</ul>
+<p>This rule verifies that return values are either always or never specified for each path through a function.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function foo(a) { // Noncompliant, function exists without "return"
+  if (a == 1) {
+    return true;
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function foo(a) {
+  if (a == 1) {
+    return true;
+  }
+  return false;
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> MISRA C:2004, 16.8 - All exit paths from a function with non-void return type shall have an explicit return statement with an expression </li>
+  <li> MISRA C++:2008, 8-4-3 - All exit paths from a function with non-void return type shall have an explicit return statement with an expression
+  </li>
+  <li> MISRA C:2012, 17.4 - All exit paths from a function with non-void return type shall have an explicit return statement with an expression </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/394.html">MITRE, CWE-394</a> - Unexpected Status Code or Return Value </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/goCGAg">CERT, MSC37-C.</a> - Ensure that control never reaches the end of a non-void
+  function </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/ZoCKC">CERT, MSC54-CPP.</a> - Value-returning functions must return a value from all
+  exit paths </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/dICKC">CERT, MSC55-CPP.</a> - Do not return from a function declared [[noreturn]] </li>
+</ul>
+

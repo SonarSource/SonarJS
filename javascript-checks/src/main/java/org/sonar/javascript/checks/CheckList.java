@@ -58,6 +58,7 @@ public final class CheckList {
       CommaOperatorUseCheck.class,
       CommentedCodeCheck.class,
       CommentRegularExpressionCheck.class,
+      ConsistentReturnsCheck.class,
       ValuesNotConvertibleToNumbersCheck.class,
       ComparisonWithNaNCheck.class,
       ConditionalCommentCheck.class,
