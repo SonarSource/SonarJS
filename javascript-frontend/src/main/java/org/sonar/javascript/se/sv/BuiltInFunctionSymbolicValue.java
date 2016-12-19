@@ -36,19 +36,30 @@ public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
   private final Constraint returnedValueConstraint;
   private final ArgumentsConstrainer argumentsConstrainer;
   private final IntFunction<Constraint> signature;
+  private final boolean hasSideEffect;
 
   public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, IntFunction<Constraint> signature) {
-    this(returnedValueConstraint, null, signature);
+    this(returnedValueConstraint, null, signature, false);
+  }
+
+  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, IntFunction<Constraint> signature, boolean hasSideEffect) {
+    this(returnedValueConstraint, null, signature, hasSideEffect);
   }
 
   public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint) {
-    this(returnedValueConstraint, null, null);
+    this(returnedValueConstraint, null, null, false);
   }
 
-  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, @Nullable ArgumentsConstrainer argumentsConstrainer, @Nullable IntFunction<Constraint> signature) {
+  public BuiltInFunctionSymbolicValue(
+    Constraint returnedValueConstraint,
+    @Nullable ArgumentsConstrainer argumentsConstrainer,
+    @Nullable IntFunction<Constraint> signature,
+    boolean hasSideEffect) {
+
     this.returnedValueConstraint = returnedValueConstraint;
     this.argumentsConstrainer = argumentsConstrainer;
     this.signature = signature;
+    this.hasSideEffect = hasSideEffect;
   }
 
   @Override
@@ -72,6 +83,10 @@ public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
   @CheckForNull
   public IntFunction<Constraint> signature() {
     return signature;
+  }
+
+  public boolean hasSideEffect() {
+    return hasSideEffect;
   }
 
   @FunctionalInterface
