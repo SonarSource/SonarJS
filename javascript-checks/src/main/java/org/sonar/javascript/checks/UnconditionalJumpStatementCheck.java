@@ -45,8 +45,7 @@ public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
     Kind.WHILE_STATEMENT,
     Kind.DO_WHILE_STATEMENT,
     Kind.FOR_STATEMENT,
-    Kind.FOR_OF_STATEMENT
-  };
+    Kind.FOR_OF_STATEMENT};
 
   @Override
   public List<Kind> nodesToVisit() {
