@@ -45,6 +45,7 @@ public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
     Kind.WHILE_STATEMENT,
     Kind.DO_WHILE_STATEMENT,
     Kind.FOR_STATEMENT,
+    Kind.FOR_IN_STATEMENT,
     Kind.FOR_OF_STATEMENT};
 
   @Override
@@ -62,11 +63,16 @@ public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
     while (parent.is(Kind.BLOCK)) {
       parent =  parent(parent);
     }
-    if (parent.is(LOOP_KINDS) && (tree.is(Kind.CONTINUE_STATEMENT) || !canExecuteMoreThanOnce((IterationStatementTree) parent))) {
+
+    if (!parent.is(LOOP_KINDS)) {
+      return;
+    }
+
+    IterationStatementTree loopTree = (IterationStatementTree) parent;
+    if (tree.is(Kind.CONTINUE_STATEMENT) || (!parent.is(Kind.FOR_IN_STATEMENT) && !canExecuteMoreThanOnce(loopTree))) {
       SyntaxToken keyword = ((JavaScriptTree) tree).getFirstToken();
       addIssue(keyword, String.format("Remove this \"%s\" statement or make it conditional", keyword.text()));
     }
-
   }
 
   private static boolean canExecuteMoreThanOnce(IterationStatementTree loopTree) {

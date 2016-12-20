@@ -52,6 +52,11 @@ for(p in obj) {
   break; // Compliant: often used to check whether an object is "empty"
 }
 
+for (p in obj) { 
+  foo(); 
+  continue; // Noncompliant
+}
+
 for(p of obj) {
   bar();
   break; // Noncompliant
