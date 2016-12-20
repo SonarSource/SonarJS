@@ -150,6 +150,7 @@ public final class CheckList {
       ParsingErrorCheck.class,
       PostMessageCheck.class,
       PrimitiveWrappersCheck.class,
+      ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,
