@@ -19,7 +19,8 @@ function test() {
 //                      ^^
 
   myArray.reduce((a, b) => a + b);
-  myArray.reduce();
+  myArray.sort();
+  myArray.foobar();
   foo(myArray.reduce);
 }
 

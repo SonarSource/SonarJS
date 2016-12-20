@@ -74,10 +74,10 @@ public class ArrayCallbackWithoutReturnCheck extends SeCheck {
 
       if (isArrayPropertyExecuted(currentState) && METHODS_WITH_CALLBACK.contains(memberExpression.property().name())) {
         checkArgumentToBeFunctionWithReturn(memberExpression, 0);
-      }
 
-      if (isArrayFromMethod(memberExpression, currentState)) {
+      } else if (isArrayFromMethod(memberExpression, currentState)) {
         checkArgumentToBeFunctionWithReturn(memberExpression, 1);
+
       }
     }
 
