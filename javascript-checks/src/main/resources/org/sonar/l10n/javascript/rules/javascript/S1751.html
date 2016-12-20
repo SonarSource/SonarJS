@@ -1,0 +1,38 @@
+<p>Having an unconditional <code>break</code>, <code>return</code> or <code>throw</code> in a loop renders it useless; the loop will only execute once
+and the loop structure itself is simply wasted keystrokes.</p>
+<p>Having an unconditional <code>continue</code> in a loop is itself wasted keystrokes.</p>
+<p>For these reasons, unconditional jump statements should never be used except for the final <code>return</code> in a function or method.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+for (i = 0; i &lt; 10; i++) {
+  console.log("i is " + i);
+  break;  // loop only executes once
+}
+
+for (i = 0; i &lt; 10; i++) {
+  console.log("i is " + i);
+  continue;  // this is meaningless; the loop would continue anyway
+}
+
+for (i = 0; i &lt; 10; i++) {
+  console.log("i is " + i);
+  return;  // loop only executes once
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+for (i = 0; i &lt; 10; i++) {
+  console.log("i is " + i);
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> MISRA C:2004, 14.1 - There shall be no unreachable code. </li>
+  <li> MISRA C++:2008, 0-1-1 - A <em>project</em> shall not contain <em>unreachable code</em>. </li>
+  <li> MISRA C++:2008, 0-1-9 - There shall be no dead code. </li>
+  <li> MISRA C:2012, 2.2 - There shall be no dead code </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/NYA5">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never
+  executed </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/SIIyAQ">CERT, MSC12-CPP.</a> - Detect and remove code that has no effect </li>
+</ul>
+

@@ -29,12 +29,11 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -88,8 +87,8 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
     super.visitSwitchStatement(tree);
   }
 
-  private Map<CaseClauseTree, CfgBranchingBlock> caseClauseBlocksByTree(SwitchStatementTree switchTree) {
-    ControlFlowGraph cfg = getControlFlowGraph(switchTree);
+  private static Map<CaseClauseTree, CfgBranchingBlock> caseClauseBlocksByTree(SwitchStatementTree switchTree) {
+    ControlFlowGraph cfg = CheckUtils.buildControlFlowGraph(switchTree);
     Map<CaseClauseTree, CfgBranchingBlock> map = new HashMap<>();
     for (CfgBlock block : cfg.blocks()) {
       if (block instanceof CfgBranchingBlock) {
@@ -155,18 +154,6 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
       }
     }
     return null;
-  }
-
-  private ControlFlowGraph getControlFlowGraph(SwitchStatementTree tree) {
-    Scope scope = getContext().getSymbolModel().getScope(tree);
-    while (scope.isBlock()) {
-      scope = scope.outer();
-    }
-    if (scope.isGlobal()) {
-      return ControlFlowGraph.build(getContext().getTopTree());
-    } else {
-      return ControlFlowGraph.build((BlockTree) ((FunctionTree) scope.tree()).body());
-    }
   }
 
 }
