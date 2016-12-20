@@ -94,3 +94,8 @@ for (i = 0; foo();) {
   baz();
   break; // Noncompliant
 }
+
+for (i = 0; foo(); i++) {
+  baz();
+  continue; // Noncompliant
+}
