@@ -51,12 +51,12 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
   Map<String, SymbolicValue> getOwnMethods() {
     ImmutableList<Constraint> oneObject = ImmutableList.of(Constraint.OBJECT);
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("assign", method(Constraint.OBJECT, (int index) -> Constraint.OBJECT))
+      .put("assign", method(Constraint.OBJECT, (int index) -> Constraint.OBJECT, true))
       .put("create", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT.or(Constraint.NULL), Constraint.OBJECT)))
-      .put("defineProperty", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.ANY_VALUE, Constraint.OBJECT)))
-      .put("defineProperties", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.OBJECT)))
+      .put("defineProperty", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.ANY_VALUE, Constraint.OBJECT), true))
+      .put("defineProperties", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.OBJECT), true))
       .put("entries", method(Constraint.ARRAY, oneObject))
-      .put("freeze", method(Constraint.OBJECT, oneObject))
+      .put("freeze", method(Constraint.OBJECT, oneObject, true))
       .put("getOwnPropertyDescriptor", method(Constraint.OBJECT.or(Constraint.UNDEFINED), ImmutableList.of(Constraint.OBJECT, Constraint.ANY_VALUE)))
       .put("getOwnPropertyDescriptors", method(Constraint.OBJECT, oneObject))
       .put("getOwnPropertyNames", method(Constraint.ARRAY, oneObject))
@@ -67,9 +67,9 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
       .put("isFrozen", method(Constraint.BOOLEAN_PRIMITIVE, oneObject))
       .put("isSealed", method(Constraint.BOOLEAN_PRIMITIVE, oneObject))
       .put("keys", method(Constraint.ARRAY, oneObject))
-      .put("preventExtensions", method(Constraint.OBJECT, oneObject))
-      .put("seal", method(Constraint.OBJECT, oneObject))
-      .put("setPrototypeOf", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.OBJECT.or(Constraint.NULL))))
+      .put("preventExtensions", method(Constraint.OBJECT, oneObject, true))
+      .put("seal", method(Constraint.OBJECT, oneObject, true))
+      .put("setPrototypeOf", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.OBJECT.or(Constraint.NULL)), true))
       .put("values", method(Constraint.ARRAY, oneObject))
       .build();
   }

@@ -31,8 +31,8 @@ public class RegexpBuiltInProperties extends BuiltInProperties {
   @Override
   Map<String, SymbolicValue> getMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("compile", method(Constraint.UNDEFINED, ImmutableList.of(Constraint.ANY_STRING, Constraint.ANY_STRING)))
-      .put("exec", method(Constraint.ARRAY.or(Constraint.NULL), Type.ONE_STRING))
+      .put("compile", method(Constraint.UNDEFINED, ImmutableList.of(Constraint.ANY_STRING, Constraint.ANY_STRING), true))
+      .put("exec", method(Constraint.ARRAY.or(Constraint.NULL), Type.ONE_STRING, true))
       .put("test", method(Constraint.BOOLEAN_PRIMITIVE, Type.ONE_STRING))
 
       // overrides Object

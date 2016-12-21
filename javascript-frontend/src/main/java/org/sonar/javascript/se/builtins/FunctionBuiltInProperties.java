@@ -33,9 +33,9 @@ public class FunctionBuiltInProperties extends BuiltInProperties {
   Map<String, SymbolicValue> getMethods() {
     IntFunction<Constraint> anyValues = (int index) -> Constraint.ANY_VALUE;
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("apply", method(Constraint.ANY_VALUE, ImmutableList.of(Constraint.ANY_VALUE, Constraint.ANY_VALUE)))
+      .put("apply", method(Constraint.ANY_VALUE, ImmutableList.of(Constraint.ANY_VALUE, Constraint.ANY_VALUE), true))
       .put("bind", method(Constraint.FUNCTION, anyValues))
-      .put("call", method(Constraint.ANY_VALUE, anyValues))
+      .put("call", method(Constraint.ANY_VALUE, anyValues, true))
 
       // overrides Object
       .put("toString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))

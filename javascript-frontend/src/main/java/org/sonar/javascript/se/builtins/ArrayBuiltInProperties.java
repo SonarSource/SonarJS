@@ -44,19 +44,19 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
     IntFunction<Constraint> anyValues = (int index) -> ANY_VALUE;
 
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("copyWithin", method(Constraint.ARRAY, ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_NUMBER, Constraint.ANY_NUMBER)))
-      .put("fill", method(Constraint.ARRAY, ImmutableList.of(ANY_VALUE, ANY_NUMBER, ANY_NUMBER)))
-      .put("push", method(Constraint.NUMBER_PRIMITIVE, anyValues))
-      .put("reverse", method(Constraint.ARRAY, Type.EMPTY))
-      .put("sort", method(Constraint.ARRAY, ImmutableList.of(FUNCTION)))
+      .put("copyWithin", method(Constraint.ARRAY, ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_NUMBER, Constraint.ANY_NUMBER), true))
+      .put("fill", method(Constraint.ARRAY, ImmutableList.of(ANY_VALUE, ANY_NUMBER, ANY_NUMBER), true))
+      .put("push", method(Constraint.NUMBER_PRIMITIVE, anyValues, true))
+      .put("reverse", method(Constraint.ARRAY, Type.EMPTY, true))
+      .put("sort", method(Constraint.ARRAY, ImmutableList.of(FUNCTION), true))
       .put("splice", method(Constraint.ARRAY, (int index) -> {
         if (index == 0 || index == 1) {
           return ANY_NUMBER;
         } else {
           return ANY_VALUE;
         }
-      }))
-      .put("unshift", method(Constraint.NUMBER_PRIMITIVE, anyValues))
+      }, true))
+      .put("unshift", method(Constraint.NUMBER_PRIMITIVE, anyValues, true))
       .put("concat", method(Constraint.ARRAY, anyValues))
       .put("includes", method(Constraint.BOOLEAN_PRIMITIVE, anyValueAndNumber))
       .put("join", method(Constraint.STRING_PRIMITIVE, Type.ONE_STRING))
@@ -64,7 +64,7 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
       .put("indexOf", method(Constraint.NUMBER_PRIMITIVE, anyValueAndNumber))
       .put("lastIndexOf", method(Constraint.NUMBER_PRIMITIVE, anyValueAndNumber))
 
-      .put("forEach", method(UNDEFINED, functionAndObject))
+      .put("forEach", method(UNDEFINED, functionAndObject, true))
       .put("entries", method(Constraint.OTHER_OBJECT, Type.EMPTY))
       .put("every", method(Constraint.BOOLEAN_PRIMITIVE, functionAndObject))
       .put("some", method(Constraint.BOOLEAN_PRIMITIVE, functionAndObject))
@@ -74,8 +74,8 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
       .put("map", method(Constraint.ARRAY, functionAndObject))
       .put("values", method(Constraint.OTHER_OBJECT, Type.EMPTY))
 
-      .put("pop", method(ANY_VALUE, Type.EMPTY))
-      .put("shift", method(ANY_VALUE, Type.EMPTY))
+      .put("pop", method(ANY_VALUE, Type.EMPTY, true))
+      .put("shift", method(ANY_VALUE, Type.EMPTY, true))
       .put("find", method(ANY_VALUE, functionAndObject))
       .put("reduce", method(ANY_VALUE, ImmutableList.of(FUNCTION, Constraint.ANY_VALUE)))
       .put("reduceRight", method(ANY_VALUE, ImmutableList.of(FUNCTION, Constraint.ANY_VALUE)))

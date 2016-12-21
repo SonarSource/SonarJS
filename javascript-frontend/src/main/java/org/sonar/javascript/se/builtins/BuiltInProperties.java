@@ -79,15 +79,41 @@ public abstract class BuiltInProperties {
   }
 
   protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint, List<Constraint> parameterTypes) {
-    return method(returnConstraint, null, parameterTypes);
+    return method(returnConstraint, null, parameterTypes, false);
   }
 
-  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint, IntFunction<Constraint> signature) {
-    return new BuiltInFunctionSymbolicValue(returnConstraint, signature);
+  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint, List<Constraint> parameterTypes, boolean hasSideEffect) {
+    return method(returnConstraint, null, parameterTypes, hasSideEffect);
   }
 
-  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint, @Nullable ArgumentsConstrainer argumentsConstrainer, List<Constraint> parameterTypes) {
-    return new BuiltInFunctionSymbolicValue(returnConstraint, argumentsConstrainer, new ListSignature(parameterTypes));
+  protected static BuiltInFunctionSymbolicValue method(
+    Constraint returnConstraint,
+    IntFunction<Constraint> signature) {
+    return new BuiltInFunctionSymbolicValue(returnConstraint, signature, false);
+  }
+
+  protected static BuiltInFunctionSymbolicValue method(
+    Constraint returnConstraint,
+    IntFunction<Constraint> signature,
+    boolean hasSideEffect) {
+    return new BuiltInFunctionSymbolicValue(returnConstraint, signature, hasSideEffect);
+  }
+
+  protected static BuiltInFunctionSymbolicValue method(
+    Constraint returnConstraint,
+    @Nullable ArgumentsConstrainer argumentsConstrainer,
+    List<Constraint> parameterTypes) {
+
+    return new BuiltInFunctionSymbolicValue(returnConstraint, argumentsConstrainer, new ListSignature(parameterTypes), false);
+  }
+
+  protected static BuiltInFunctionSymbolicValue method(
+    Constraint returnConstraint,
+    @Nullable ArgumentsConstrainer argumentsConstrainer,
+    List<Constraint> parameterTypes,
+    boolean hasSideEffect) {
+
+    return new BuiltInFunctionSymbolicValue(returnConstraint, argumentsConstrainer, new ListSignature(parameterTypes), hasSideEffect);
   }
 
   protected static Constraint constraintOnRecentProperty(Constraint baseConstraint) {

@@ -74,7 +74,7 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
 
   private static final Map<String, SymbolicValue> ADDITIONAL_VALUES = ImmutableMap.of(
     "Math", new MathBuiltInObjectSymbolicValue(),
-    "isNaN", new BuiltInFunctionSymbolicValue(Constraint.BOOLEAN_PRIMITIVE, IS_NAN_ARGUMENT_CONSTRAINER, (int index) -> index == 0 ? Constraint.ANY_VALUE : null),
+    "isNaN", new BuiltInFunctionSymbolicValue(Constraint.BOOLEAN_PRIMITIVE, IS_NAN_ARGUMENT_CONSTRAINER, (int index) -> index == 0 ? Constraint.ANY_VALUE : null, false),
     "NaN", new SymbolicValueWithConstraint(Constraint.NAN)
   );
 
