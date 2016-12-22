@@ -27,6 +27,7 @@ function bindingElements({a: p1, p2}, [p3, p4], p5 = 42) {
 
 var arrow_function1 = (p1, p2) => {
   p2 = 42; // Noncompliant
+  p1.prop1 = 42; // OK
   foo(p1, p2);
 }
 
