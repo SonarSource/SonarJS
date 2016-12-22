@@ -1,0 +1,103 @@
+function var_returned() {
+  var x = 42; // Noncompliant {{Immediately return this expression instead of assigning it to the temporary variable "x".}}
+//        ^^
+  return x;
+}
+
+function let_returned() {
+  let x = 42; // Noncompliant
+  return x;
+}
+
+function const_returned() {
+  const x = 42; // Noncompliant
+  return x;
+}
+
+function code_before_declaration() {
+  foo();
+  var x = 42; // Noncompliant
+  return x;
+}
+
+function thrown_nok() {
+  const x = new Exception(); // Noncompliant {{Immediately throw this expression instead of assigning it to the temporary variable "x".}}
+  throw x;
+}
+
+function thrown_ok() {
+  throw new Exception();
+}
+
+function thrown_expression() {
+  const x = new Exception();
+  throw foo(x);
+}
+
+function thrown_different_variable() {
+  const x = new Exception();
+  throw y;
+}
+
+function code_between_declaration_and_return() {
+  let x = 42;
+  foo();
+  return x;
+}
+
+function return_expression() {
+  let x = 42;
+  return x + 5;
+}
+
+function return_without_value() {
+  let x = 42;
+  return;
+}
+
+function not_return_statement() {
+  let x = 42;
+  foo(x);
+}
+
+function no_init_value() {
+  let x;
+  return x;
+}
+
+function pattern_declared() {
+  let {x} = foo();
+  return x;
+}
+
+function two_variables_declared() {
+  let x = 42, y;
+  return x;
+}
+
+function different_variable_returned() {
+  let x = 42;
+  return y;
+}
+
+function only_return() {
+  return 42;
+}
+
+function one_statement() {
+  foo();
+}
+
+function empty() {
+}
+
+var arrow_function_nok = (a, b) => {
+  var x = a + b; // Noncompliant
+  return x;
+}
+
+var arrow_function_ok = (a, b) => {
+  return a + b;
+}
+
+var arrow_function_no_block = (a, b) =>  a + b;
