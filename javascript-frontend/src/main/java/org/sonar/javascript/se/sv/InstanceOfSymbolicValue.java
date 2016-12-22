@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Type;
+import org.sonar.javascript.se.builtins.BuiltInConstructorSymbolicValue;
 import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 
 /**
@@ -47,8 +48,10 @@ public class InstanceOfSymbolicValue implements SymbolicValue {
   public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
     Optional<ProgramState> newProgramState;
     Constraint constraintForObject = null;
-    if (constructorValue instanceof BuiltInObjectSymbolicValue) {
-      constraintForObject = ((BuiltInObjectSymbolicValue) constructorValue).type().constraint();
+    if (BuiltInObjectSymbolicValue.OBJECT.equals(constructorValue)) {
+      constraintForObject = Constraint.OBJECT;
+    } else if (constructorValue instanceof BuiltInConstructorSymbolicValue) {
+      constraintForObject = ((BuiltInConstructorSymbolicValue) constructorValue).getPrototypeOfInstances().baseConstraint();
     }
 
     if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
@@ -72,28 +75,17 @@ public class InstanceOfSymbolicValue implements SymbolicValue {
 
     Type objectType = objectConstraint.type();
 
-    if (objectType != null && constructorValue instanceof BuiltInObjectSymbolicValue) {
-      Type constructorType = ((BuiltInObjectSymbolicValue) constructorValue).type();
-      return resolveConstraint(objectType, constructorType);
-    }
-
-    return Constraint.BOOLEAN_PRIMITIVE;
-  }
-
-  private static Constraint resolveConstraint(Type objectType, Type constructorType) {
-    Type currentType = objectType;
-    if (objectType == Type.OBJECT) {
+    if (objectType == null || !(constructorValue instanceof BuiltInConstructorSymbolicValue) || Constraint.OTHER_OBJECT.isStricterOrEqualTo(objectConstraint)) {
       return Constraint.BOOLEAN_PRIMITIVE;
     }
 
-    while (currentType != null) {
-      if (constructorType == currentType) {
+    BuiltInObjectSymbolicValue prototype = objectType.prototype();
+    while (prototype != null) {
+      if (prototype.equals(((BuiltInConstructorSymbolicValue) constructorValue).getPrototypeOfInstances())) {
         return Constraint.TRUE;
       }
-
-      currentType = currentType.parentType();
+      prototype = prototype.prototype();
     }
-
     return Constraint.FALSE;
   }
 

@@ -27,17 +27,12 @@ import org.sonar.javascript.se.ProgramState;
 public interface FunctionSymbolicValue extends ObjectSymbolicValue {
 
   @Override
-  default Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
-    return Optional.of(state);
-  }
-
-  @Override
   default Constraint baseConstraint(ProgramState state) {
     return Constraint.FUNCTION;
   }
 
   @Override
-  default Optional<SymbolicValue> getValueForOwnProperty(String name) {
+  default Optional<SymbolicValue> getValueForProperty(String name) {
     return Optional.empty();
   }
 

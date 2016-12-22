@@ -23,66 +23,54 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.sv.SymbolicValue;
 
 import static org.sonar.javascript.se.Constraint.ANY_VALUE;
 import static org.sonar.javascript.se.Constraint.BOOLEAN_PRIMITIVE;
 import static org.sonar.javascript.se.Constraint.NAN;
-import static org.sonar.javascript.se.Type.TO_LOCALE_STRING_SIGNATURE;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.EMPTY;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.ONE_NUMBER;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.ONE_STRING;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.STRING_NUMBER;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.TO_LOCALE_STRING_SIGNATURE;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.constraintOnRecentProperty;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.method;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.property;
 
-public class NumberBuiltInProperties extends BuiltInProperties {
+public class NumberBuiltInProperties {
 
-  public static final NumberBuiltInProperties INSTANCE = new NumberBuiltInProperties();
+  private static final ImmutableList<Constraint> anyValue = ImmutableList.of(ANY_VALUE);
+
+  public static final Map<String, BuiltInProperty> PROTOTYPE_PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
+    .put("toExponential", method(Constraint.TRUTHY_STRING_PRIMITIVE, ONE_NUMBER))
+    .put("toFixed", method(Constraint.TRUTHY_STRING_PRIMITIVE, ONE_NUMBER))
+    .put("toPrecision", method(Constraint.TRUTHY_STRING_PRIMITIVE, ONE_NUMBER))
+
+    // overrides Object
+    .put("toLocaleString", method(Constraint.TRUTHY_STRING_PRIMITIVE, TO_LOCALE_STRING_SIGNATURE))
+    .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE, ONE_NUMBER))
+    .put("valueOf", method(Constraint.NUMBER_PRIMITIVE, EMPTY))
+
+    .build();
+
+  public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
+    .put("isNaN", method(BOOLEAN_PRIMITIVE, BuiltInProperty.getIsSomethingArgumentsConstrainer(NAN), anyValue))
+    .put("isFinite", method(Constraint.BOOLEAN_PRIMITIVE, anyValue))
+    .put("isInteger", method(Constraint.BOOLEAN_PRIMITIVE, anyValue))
+    .put("isSafeInteger", method(Constraint.BOOLEAN_PRIMITIVE, anyValue))
+    .put("parseFloat", method(Constraint.NUMBER_PRIMITIVE, ONE_STRING))
+    .put("parseInt", method(Constraint.NUMBER_PRIMITIVE, STRING_NUMBER))
+
+    .put("EPSILON", property(constraintOnRecentProperty(Constraint.TRUTHY_NUMBER_PRIMITIVE)))
+    .put("MAX_SAFE_INTEGER", property(constraintOnRecentProperty(Constraint.TRUTHY_NUMBER_PRIMITIVE)))
+    .put("MAX_VALUE", property(Constraint.TRUTHY_NUMBER_PRIMITIVE))
+    .put("MIN_SAFE_INTEGER", property(constraintOnRecentProperty(Constraint.TRUTHY_NUMBER_PRIMITIVE)))
+    .put("MIN_VALUE", property(Constraint.TRUTHY_NUMBER_PRIMITIVE))
+    .put("NaN", property(Constraint.NAN))
+    .put("NEGATIVE_INFINITY", property(Constraint.TRUTHY_NUMBER_PRIMITIVE))
+    .put("POSITIVE_INFINITY", property(Constraint.TRUTHY_NUMBER_PRIMITIVE))
+    .build();
 
   private NumberBuiltInProperties() {
   }
 
-  @Override
-  Map<String, SymbolicValue> getMethods() {
-
-    return ImmutableMap.<String, SymbolicValue>builder()
-      .put("toExponential", method(Constraint.TRUTHY_STRING_PRIMITIVE, Type.ONE_NUMBER))
-      .put("toFixed", method(Constraint.TRUTHY_STRING_PRIMITIVE, Type.ONE_NUMBER))
-      .put("toPrecision", method(Constraint.TRUTHY_STRING_PRIMITIVE, Type.ONE_NUMBER))
-
-      // overrides Object
-      .put("toLocaleString", method(Constraint.TRUTHY_STRING_PRIMITIVE, TO_LOCALE_STRING_SIGNATURE))
-      .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE, Type.ONE_NUMBER))
-      .put("valueOf", method(Constraint.NUMBER_PRIMITIVE, Type.EMPTY))
-
-      .build();
-  }
-
-  @Override
-  Map<String, Constraint> getPropertiesConstraints() {
-    return ImmutableMap.of();
-  }
-
-  @Override
-  Map<String, SymbolicValue> getOwnMethods() {
-    ImmutableList<Constraint> anyValue = ImmutableList.of(ANY_VALUE);
-    return ImmutableMap.<String, SymbolicValue>builder()
-      .put("isNaN", method(BOOLEAN_PRIMITIVE, BuiltInProperties.getIsSomethingArgumentsConstrainer(NAN), anyValue))
-      .put("isFinite", method(Constraint.BOOLEAN_PRIMITIVE, anyValue))
-      .put("isInteger", method(Constraint.BOOLEAN_PRIMITIVE, anyValue))
-      .put("isSafeInteger", method(Constraint.BOOLEAN_PRIMITIVE, anyValue))
-      .put("parseFloat", method(Constraint.NUMBER_PRIMITIVE, Type.ONE_STRING))
-      .put("parseInt", method(Constraint.NUMBER_PRIMITIVE, Type.STRING_NUMBER))
-      .build();
-  }
-
-  @Override
-  Map<String, Constraint> getOwnPropertiesConstraints() {
-    return ImmutableMap.<String, Constraint>builder()
-      .put("EPSILON", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER_PRIMITIVE))
-      .put("MAX_SAFE_INTEGER", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER_PRIMITIVE))
-      .put("MAX_VALUE", Constraint.TRUTHY_NUMBER_PRIMITIVE)
-      .put("MIN_SAFE_INTEGER", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER_PRIMITIVE))
-      .put("MIN_VALUE", Constraint.TRUTHY_NUMBER_PRIMITIVE)
-      .put("NaN", Constraint.NAN)
-      .put("NEGATIVE_INFINITY", Constraint.TRUTHY_NUMBER_PRIMITIVE)
-      .put("POSITIVE_INFINITY", Constraint.TRUTHY_NUMBER_PRIMITIVE)
-      .build();
-  }
 }

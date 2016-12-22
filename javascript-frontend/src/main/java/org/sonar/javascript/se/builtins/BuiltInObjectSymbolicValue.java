@@ -23,12 +23,13 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue.ArgumentsConstrainer;
-import org.sonar.javascript.se.sv.FunctionSymbolicValue;
+import org.sonar.javascript.se.sv.ObjectSymbolicValue;
+import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 
@@ -39,17 +40,29 @@ import static org.sonar.javascript.se.Constraint.TRUTHY;
 import static org.sonar.javascript.se.Constraint.TRUTHY_NUMBER_PRIMITIVE;
 import static org.sonar.javascript.se.Constraint.UNDEFINED;
 import static org.sonar.javascript.se.Constraint.ZERO;
+import static org.sonar.javascript.se.builtins.BuiltInConstructorSymbolicValue.constructor;
 
-public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
+public class BuiltInObjectSymbolicValue implements ObjectSymbolicValue {
 
-  NUMBER("Number", Type.NUMBER_OBJECT),
-  BOOLEAN("Boolean", Type.BOOLEAN_OBJECT),
-  STRING("String", Type.STRING_OBJECT),
-  FUNCTION("Function", Type.FUNCTION),
-  DATE("Date", Type.DATE),
-  REGEXP("RegExp", Type.REGEXP),
-  ARRAY("Array", Type.ARRAY),
-  OBJECT("Object", Type.OBJECT);
+  public static final BuiltInObjectSymbolicValue OBJECT_PROTOTYPE = create(ObjectBuiltInProperties.PROTOTYPE_PROPERTIES, null, Constraint.OTHER_OBJECT);
+  public static final BuiltInObjectSymbolicValue FUNCTION_PROTOTYPE = create(FunctionBuiltInProperties.PROTOTYPE_PROPERTIES, OBJECT_PROTOTYPE, Constraint.FUNCTION);
+  public static final BuiltInObjectSymbolicValue STRING_PROTOTYPE = create(StringBuiltInProperties.PROTOTYPE_PROPERTIES, OBJECT_PROTOTYPE, Constraint.STRING_OBJECT);
+  public static final BuiltInObjectSymbolicValue NUMBER_PROTOTYPE = create(NumberBuiltInProperties.PROTOTYPE_PROPERTIES, OBJECT_PROTOTYPE, Constraint.NUMBER_OBJECT);
+  public static final BuiltInObjectSymbolicValue BOOLEAN_PROTOTYPE = create(BooleanBuiltInProperties.PROTOTYPE_PROPERTIES, OBJECT_PROTOTYPE, Constraint.BOOLEAN_OBJECT);
+  public static final BuiltInObjectSymbolicValue ARRAY_PROTOTYPE = create(ArrayBuiltInProperties.PROTOTYPE_PROPERTIES, OBJECT_PROTOTYPE, Constraint.ARRAY);
+  public static final BuiltInObjectSymbolicValue DATE_PROTOTYPE = create(DateBuiltInProperties.PROTOTYPE_PROPERTIES, OBJECT_PROTOTYPE, Constraint.DATE);
+  public static final BuiltInObjectSymbolicValue REGEXP_PROTOTYPE = create(RegexpBuiltInProperties.PROTOTYPE_PROPERTIES, OBJECT_PROTOTYPE, Constraint.REGEXP);
+
+  public static final BuiltInObjectSymbolicValue MATH = create(MathBuiltInProperties.PROPERTIES, OBJECT_PROTOTYPE, Constraint.OTHER_OBJECT);
+
+  public static final BuiltInConstructorSymbolicValue OBJECT = constructor(ObjectBuiltInProperties.PROPERTIES, Constraint.OTHER_OBJECT, OBJECT_PROTOTYPE);
+  public static final BuiltInConstructorSymbolicValue FUNCTION = constructor(FunctionBuiltInProperties.PROPERTIES, Constraint.FUNCTION, FUNCTION_PROTOTYPE);
+  public static final BuiltInConstructorSymbolicValue STRING = constructor(StringBuiltInProperties.PROPERTIES, Constraint.STRING_PRIMITIVE, STRING_PROTOTYPE);
+  public static final BuiltInConstructorSymbolicValue NUMBER = constructor(NumberBuiltInProperties.PROPERTIES, Constraint.NUMBER_PRIMITIVE, NUMBER_PROTOTYPE);
+  public static final BuiltInConstructorSymbolicValue BOOLEAN = constructor(BooleanBuiltInProperties.PROPERTIES, Constraint.BOOLEAN_PRIMITIVE, BOOLEAN_PROTOTYPE);
+  public static final BuiltInConstructorSymbolicValue ARRAY = constructor(ArrayBuiltInProperties.PROPERTIES, Constraint.ARRAY, ARRAY_PROTOTYPE);
+  public static final BuiltInConstructorSymbolicValue DATE = constructor(DateBuiltInProperties.PROPERTIES, Constraint.STRING_PRIMITIVE, DATE_PROTOTYPE);
+  public static final BuiltInConstructorSymbolicValue REGEXP = constructor(RegexpBuiltInProperties.PROPERTIES, Constraint.REGEXP, REGEXP_PROTOTYPE);
 
   private static final ArgumentsConstrainer IS_NAN_ARGUMENT_CONSTRAINER = (List<SymbolicValue> arguments, ProgramState state, Constraint constraint) -> {
     boolean truthy = constraint.isStricterOrEqualTo(TRUTHY);
@@ -72,58 +85,68 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
     }
   };
 
-  private static final Map<String, SymbolicValue> ADDITIONAL_VALUES = ImmutableMap.of(
-    "Math", new MathBuiltInObjectSymbolicValue(),
-    "isNaN", new BuiltInFunctionSymbolicValue(Constraint.BOOLEAN_PRIMITIVE, IS_NAN_ARGUMENT_CONSTRAINER, (int index) -> index == 0 ? Constraint.ANY_VALUE : null, false),
-    "NaN", new SymbolicValueWithConstraint(Constraint.NAN)
-  );
+  public static final SymbolicValue IS_NAN = new BuiltInFunctionSymbolicValue(Constraint.BOOLEAN_PRIMITIVE, IS_NAN_ARGUMENT_CONSTRAINER,
+    (int index) -> index == 0 ? Constraint.ANY_VALUE : null, false);
 
-  private final String name;
-  private final Type type;
+  private static final Map<String, SymbolicValue> GLOBALS = ImmutableMap.<String, SymbolicValue>builder()
+    .put("Object", OBJECT)
+    .put("Function", FUNCTION)
+    .put("String", STRING)
+    .put("Number", NUMBER)
+    .put("Boolean", BOOLEAN)
+    .put("Array", ARRAY)
+    .put("Date", DATE)
+    .put("RegExp", REGEXP)
+    .put("Math", MATH)
+    .put("isNaN", IS_NAN)
+    .put("NaN", new SymbolicValueWithConstraint(Constraint.NAN))
+    .build();
 
-  BuiltInObjectSymbolicValue(String name, Type type) {
-    this.name = name;
-    this.type = type;
+  private final Map<String, BuiltInProperty> properties;
+  private final BuiltInObjectSymbolicValue prototype;
+  private final Constraint baseConstraint;
+
+  BuiltInObjectSymbolicValue(Map<String, BuiltInProperty> properties, @Nullable BuiltInObjectSymbolicValue prototype, Constraint baseConstraint) {
+    this.properties = properties;
+    this.prototype = prototype;
+    this.baseConstraint = baseConstraint;
   }
 
-  public Type type() {
-    return type;
-  }
-
-  @Override
-  public Optional<SymbolicValue> getValueForOwnProperty(String name) {
-    return type.getValueForOwnProperty(name);
-  }
-
-  @Override
-  public SymbolicValue instantiate() {
-    return new SymbolicValueWithConstraint(type.constraint());
-  }
-
-  @Override
-  public SymbolicValue call(List<SymbolicValue> argumentValues) {
-    if (this == DATE || this == STRING) {
-      return new SymbolicValueWithConstraint(Constraint.STRING_PRIMITIVE);
-    } else if (this == NUMBER) {
-      return new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE);
-    } else if (this == BOOLEAN) {
-      return new SymbolicValueWithConstraint(Constraint.BOOLEAN_PRIMITIVE);
-    } else {
-      return new SymbolicValueWithConstraint(type.constraint());
-    }
+  public static BuiltInObjectSymbolicValue create(Map<String, BuiltInProperty> properties, BuiltInObjectSymbolicValue prototype, Constraint baseConstraint) {
+    return new BuiltInObjectSymbolicValue(properties, prototype, baseConstraint);
   }
 
   public static Optional<SymbolicValue> find(String name) {
-    for (BuiltInObjectSymbolicValue builtInObject : values()) {
-      if (builtInObject.name.equals(name)) {
-        return Optional.of(builtInObject);
-      }
-    }
-
-    if (ADDITIONAL_VALUES.containsKey(name)) {
-      return Optional.of(ADDITIONAL_VALUES.get(name));
-    }
-
-    return Optional.empty();
+    return Optional.ofNullable(GLOBALS.get(name));
   }
+
+  public Constraint baseConstraint() {
+    return baseConstraint;
+  }
+
+  @Override
+  public Constraint baseConstraint(ProgramState state) {
+    return baseConstraint();
+  }
+
+  @Override
+  public Optional<SymbolicValue> getValueForProperty(String propertyName) {
+    return Optional.of(getPropertyValue(propertyName));
+  }
+
+  public SymbolicValue getPropertyValue(String propertyName) {
+    BuiltInProperty property = properties.get(propertyName);
+    if (property != null) {
+      return property.access();
+    }
+    if (prototype != null) {
+      return prototype.getPropertyValue(propertyName);
+    }
+    return SpecialSymbolicValue.UNDEFINED;
+  }
+
+  public BuiltInObjectSymbolicValue prototype() {
+    return prototype;
+  }
+
 }

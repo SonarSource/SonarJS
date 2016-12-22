@@ -28,7 +28,7 @@ function main() {
   foo(); // PS obj=OBJECT
 
   var unknown = Object.fooBar;
-  foo(); // PS unknown=ANY_VALUE
+  foo(); // PS unknown=UNDEFINED
 
   var maxNum = Number.MAX_VALUE;
   var isNanMethod = Number.isNaN(unknown);
@@ -43,7 +43,7 @@ function main() {
   var regexpProp = regexp.lastIndex;
   var regexpMethod = regexp.test();
   unknown = RegExp.fooBar;
-  foo(); // PS regexp=REGEXP & regexpProp=NUMBER & regexpMethod=BOOLEAN & unknown=ANY_VALUE
+  foo(); // PS regexp=REGEXP & regexpProp=NUMBER & regexpMethod=BOOLEAN & unknown=UNDEFINED
 
   // -------  METHOD BEHAVIOUR  -------
   var isArray = false;
@@ -79,6 +79,7 @@ function main() {
   foo(isArray); // PS isArray=TRUE
 
   isArray = false;
+  var unknown = foo();
   if (Array.isArray(unknown)) {
     isArray = true;
   }

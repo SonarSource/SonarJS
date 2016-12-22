@@ -23,44 +23,34 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.sv.SymbolicValue;
 
-public class RegexpBuiltInProperties extends BuiltInProperties {
+import static org.sonar.javascript.se.builtins.BuiltInProperty.constraintOnRecentProperty;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.method;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.property;
 
-  @Override
-  Map<String, SymbolicValue> getMethods() {
-    return ImmutableMap.<String, SymbolicValue>builder()
-      .put("compile", method(Constraint.UNDEFINED, ImmutableList.of(Constraint.ANY_STRING, Constraint.ANY_STRING), true))
-      .put("exec", method(Constraint.ARRAY.or(Constraint.NULL), Type.ONE_STRING, true))
-      .put("test", method(Constraint.BOOLEAN_PRIMITIVE, Type.ONE_STRING))
+public class RegexpBuiltInProperties {
 
-      // overrides Object
-      .put("toString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))
-      .build();
+  public static final Map<String, BuiltInProperty> PROTOTYPE_PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
+    .put("compile", method(Constraint.UNDEFINED, ImmutableList.of(Constraint.ANY_STRING, Constraint.ANY_STRING), true))
+    .put("exec", method(Constraint.ARRAY.or(Constraint.NULL), BuiltInProperty.ONE_STRING, true))
+    .put("test", method(Constraint.BOOLEAN_PRIMITIVE, BuiltInProperty.ONE_STRING))
+
+    // overrides Object
+    .put("toString", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.EMPTY))
+
+    .put("lastIndex", property(Constraint.NUMBER_PRIMITIVE))
+    .put("flags", property(constraintOnRecentProperty(Constraint.STRING_PRIMITIVE)))
+    .put("global", property(Constraint.BOOLEAN_PRIMITIVE))
+    .put("ignoreCase", property(Constraint.BOOLEAN_PRIMITIVE))
+    .put("multiline", property(Constraint.BOOLEAN_PRIMITIVE))
+    .put("source", property(Constraint.STRING_PRIMITIVE))
+    .put("sticky", property(constraintOnRecentProperty(Constraint.BOOLEAN_PRIMITIVE)))
+    .put("unicode", property(constraintOnRecentProperty(Constraint.BOOLEAN_PRIMITIVE)))
+    .build();
+
+  public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.of();
+
+  private RegexpBuiltInProperties() {
   }
 
-  @Override
-  Map<String, Constraint> getPropertiesConstraints() {
-    return ImmutableMap.<String, Constraint>builder()
-      .put("lastIndex", Constraint.NUMBER_PRIMITIVE)
-      .put("flags", constraintOnRecentProperty(Constraint.STRING_PRIMITIVE))
-      .put("global", Constraint.BOOLEAN_PRIMITIVE)
-      .put("ignoreCase", Constraint.BOOLEAN_PRIMITIVE)
-      .put("multiline", Constraint.BOOLEAN_PRIMITIVE)
-      .put("source", Constraint.STRING_PRIMITIVE)
-      .put("sticky", constraintOnRecentProperty(Constraint.BOOLEAN_PRIMITIVE))
-      .put("unicode", constraintOnRecentProperty(Constraint.BOOLEAN_PRIMITIVE))
-      .build();
-  }
-
-  @Override
-  Map<String, Constraint> getOwnPropertiesConstraints() {
-    return ImmutableMap.of();
-  }
-
-  @Override
-  Map<String, SymbolicValue> getOwnMethods() {
-    return ImmutableMap.of();
-  }
 }

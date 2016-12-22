@@ -24,20 +24,20 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.sv.SymbolicValue;
 
-import static org.sonar.javascript.se.Type.EMPTY;
-import static org.sonar.javascript.se.Type.TO_LOCALE_STRING_SIGNATURE;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.EMPTY;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.NUMBER_NUMBER;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.ONE_NUMBER;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.ONE_STRING;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.TO_LOCALE_STRING_SIGNATURE;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.method;
 
-public class DateBuiltInProperties extends BuiltInProperties {
+public class DateBuiltInProperties {
 
-  @Override
-  Map<String, SymbolicValue> getMethods() {
-    List<Constraint> threeNumbers = ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_NUMBER, Constraint.ANY_NUMBER);
-    List<Constraint> fourNumbers = ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_NUMBER, Constraint.ANY_NUMBER, Constraint.ANY_NUMBER);
+  private static final List<Constraint> threeNumbers = ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_NUMBER, Constraint.ANY_NUMBER);
+  private static final List<Constraint> fourNumbers = ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_NUMBER, Constraint.ANY_NUMBER, Constraint.ANY_NUMBER);
 
-    return ImmutableMap.<String, SymbolicValue>builder()
+  public static final Map<String, BuiltInProperty> PROTOTYPE_PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
       .put("getDate", method(Constraint.TRUTHY_NUMBER_PRIMITIVE, EMPTY))
       .put("getDay", method(Constraint.NUMBER_PRIMITIVE, EMPTY))
       .put("getFullYear", method(Constraint.NUMBER_PRIMITIVE, EMPTY))
@@ -58,22 +58,22 @@ public class DateBuiltInProperties extends BuiltInProperties {
       .put("getUTCSeconds", method(Constraint.NUMBER_PRIMITIVE, EMPTY))
       .put("getYear", method(Constraint.NUMBER_PRIMITIVE, EMPTY))
 
-      .put("setDate", method(Constraint.NUMBER_PRIMITIVE, Type.ONE_NUMBER, true))
+    .put("setDate", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER, true))
       .put("setFullYear", method(Constraint.NUMBER_PRIMITIVE, threeNumbers, true))
       .put("setHours", method(Constraint.NUMBER_PRIMITIVE, fourNumbers, true))
-      .put("setMilliseconds", method(Constraint.NUMBER_PRIMITIVE, Type.ONE_NUMBER, true))
+    .put("setMilliseconds", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER, true))
       .put("setMinutes", method(Constraint.NUMBER_PRIMITIVE, threeNumbers, true))
-      .put("setMonth", method(Constraint.NUMBER_PRIMITIVE, Type.NUMBER_NUMBER, true))
-      .put("setSeconds", method(Constraint.NUMBER_PRIMITIVE, Type.NUMBER_NUMBER, true))
-      .put("setTime", method(Constraint.NUMBER_PRIMITIVE, Type.ONE_NUMBER, true))
-      .put("setUTCDate", method(Constraint.NUMBER_PRIMITIVE, Type.ONE_NUMBER, true))
+    .put("setMonth", method(Constraint.NUMBER_PRIMITIVE, NUMBER_NUMBER, true))
+    .put("setSeconds", method(Constraint.NUMBER_PRIMITIVE, NUMBER_NUMBER, true))
+    .put("setTime", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER, true))
+    .put("setUTCDate", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER, true))
       .put("setUTCFullYear", method(Constraint.NUMBER_PRIMITIVE, threeNumbers, true))
       .put("setUTCHours", method(Constraint.NUMBER_PRIMITIVE, fourNumbers, true))
-      .put("setUTCMilliseconds", method(Constraint.NUMBER_PRIMITIVE, Type.ONE_NUMBER, true))
+    .put("setUTCMilliseconds", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER, true))
       .put("setUTCMinutes", method(Constraint.NUMBER_PRIMITIVE, threeNumbers, true))
-      .put("setUTCMonth", method(Constraint.NUMBER_PRIMITIVE, Type.NUMBER_NUMBER, true))
-      .put("setUTCSeconds", method(Constraint.NUMBER_PRIMITIVE, Type.NUMBER_NUMBER, true))
-      .put("setYear", method(Constraint.NUMBER_PRIMITIVE, Type.ONE_NUMBER, true))
+    .put("setUTCMonth", method(Constraint.NUMBER_PRIMITIVE, NUMBER_NUMBER, true))
+    .put("setUTCSeconds", method(Constraint.NUMBER_PRIMITIVE, NUMBER_NUMBER, true))
+    .put("setYear", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER, true))
 
       .put("toDateString", method(Constraint.TRUTHY_STRING_PRIMITIVE, EMPTY))
       .put("toISOString", method(Constraint.TRUTHY_STRING_PRIMITIVE, EMPTY))
@@ -89,30 +89,19 @@ public class DateBuiltInProperties extends BuiltInProperties {
       .put("toLocaleString", method(Constraint.TRUTHY_STRING_PRIMITIVE, TO_LOCALE_STRING_SIGNATURE))
       .put("valueOf", method(Constraint.NUMBER_PRIMITIVE, EMPTY))
       .build();
+
+  public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
+    .put("now", method(Constraint.NUMBER_PRIMITIVE, EMPTY))
+    .put("parse", method(Constraint.NUMBER_PRIMITIVE, ONE_STRING))
+    .put("UTC", method(Constraint.NUMBER_PRIMITIVE, (int index) -> {
+      if (index < 7) {
+        return Constraint.ANY_NUMBER;
+      }
+      return null;
+    }))
+    .build();
+
+  private DateBuiltInProperties() {
   }
 
-  @Override
-  Map<String, Constraint> getPropertiesConstraints() {
-    return ImmutableMap.of();
-  }
-
-
-  @Override
-  Map<String, Constraint> getOwnPropertiesConstraints() {
-    return ImmutableMap.of();
-  }
-
-  @Override
-  Map<String, SymbolicValue> getOwnMethods() {
-    return ImmutableMap.<String, SymbolicValue>builder()
-      .put("now", method(Constraint.NUMBER_PRIMITIVE, Type.EMPTY))
-      .put("parse", method(Constraint.NUMBER_PRIMITIVE, Type.ONE_STRING))
-      .put("UTC", method(Constraint.NUMBER_PRIMITIVE, (int index) -> {
-        if (index < 7) {
-          return Constraint.ANY_NUMBER;
-        }
-        return null;
-      }))
-      .build();
-  }
 }

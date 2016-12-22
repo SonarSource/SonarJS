@@ -19,62 +19,31 @@
  */
 package org.sonar.javascript.se;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.IntFunction;
-import javax.annotation.Nullable;
-import org.sonar.javascript.se.builtins.ArrayBuiltInProperties;
-import org.sonar.javascript.se.builtins.BooleanBuiltInProperties;
-import org.sonar.javascript.se.builtins.BuiltInProperties;
-import org.sonar.javascript.se.builtins.DateBuiltInProperties;
-import org.sonar.javascript.se.builtins.FunctionBuiltInProperties;
-import org.sonar.javascript.se.builtins.NullOrUndefinedBuiltInProperties;
-import org.sonar.javascript.se.builtins.NumberBuiltInProperties;
-import org.sonar.javascript.se.builtins.ObjectBuiltInProperties;
-import org.sonar.javascript.se.builtins.RegexpBuiltInProperties;
-import org.sonar.javascript.se.builtins.StringBuiltInProperties;
+import javax.annotation.CheckForNull;
+import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 
 public enum Type {
-  OBJECT(Constraint.OBJECT, null, new ObjectBuiltInProperties()),
-  NUMBER_PRIMITIVE(Constraint.NUMBER_PRIMITIVE, OBJECT, NumberBuiltInProperties.INSTANCE),
-  NUMBER_OBJECT(Constraint.NUMBER_OBJECT, OBJECT, NumberBuiltInProperties.INSTANCE),
-  STRING_PRIMITIVE(Constraint.STRING_PRIMITIVE, OBJECT, StringBuiltInProperties.INSTANCE),
-  STRING_OBJECT(Constraint.STRING_OBJECT, OBJECT, StringBuiltInProperties.INSTANCE),
-  BOOLEAN_PRIMITIVE(Constraint.BOOLEAN_PRIMITIVE, OBJECT, BooleanBuiltInProperties.INSTANCE),
-  BOOLEAN_OBJECT(Constraint.BOOLEAN_OBJECT, OBJECT, BooleanBuiltInProperties.INSTANCE),
-  FUNCTION(Constraint.FUNCTION, OBJECT, new FunctionBuiltInProperties()),
-  ARRAY(Constraint.ARRAY, OBJECT, new ArrayBuiltInProperties()),
-  DATE(Constraint.DATE, OBJECT, new DateBuiltInProperties()),
-  REGEXP(Constraint.REGEXP, OBJECT, new RegexpBuiltInProperties()),
-  NULL(Constraint.NULL, null, new NullOrUndefinedBuiltInProperties()),
-  UNDEFINED(Constraint.UNDEFINED, null, new NullOrUndefinedBuiltInProperties()),
+  OBJECT(Constraint.OBJECT, BuiltInObjectSymbolicValue.OBJECT_PROTOTYPE),
+  NUMBER_PRIMITIVE(Constraint.NUMBER_PRIMITIVE, BuiltInObjectSymbolicValue.NUMBER_PROTOTYPE),
+  NUMBER_OBJECT(Constraint.NUMBER_OBJECT, BuiltInObjectSymbolicValue.NUMBER_PROTOTYPE),
+  STRING_PRIMITIVE(Constraint.STRING_PRIMITIVE, BuiltInObjectSymbolicValue.STRING_PROTOTYPE),
+  STRING_OBJECT(Constraint.STRING_OBJECT, BuiltInObjectSymbolicValue.STRING_PROTOTYPE),
+  BOOLEAN_PRIMITIVE(Constraint.BOOLEAN_PRIMITIVE, BuiltInObjectSymbolicValue.BOOLEAN_PROTOTYPE),
+  BOOLEAN_OBJECT(Constraint.BOOLEAN_OBJECT, BuiltInObjectSymbolicValue.BOOLEAN_PROTOTYPE),
+  FUNCTION(Constraint.FUNCTION, BuiltInObjectSymbolicValue.FUNCTION_PROTOTYPE),
+  ARRAY(Constraint.ARRAY, BuiltInObjectSymbolicValue.ARRAY_PROTOTYPE),
+  DATE(Constraint.DATE, BuiltInObjectSymbolicValue.DATE_PROTOTYPE),
+  REGEXP(Constraint.REGEXP, BuiltInObjectSymbolicValue.REGEXP_PROTOTYPE),
+  NULL(Constraint.NULL, null),
+  UNDEFINED(Constraint.UNDEFINED, null),
   ;
-
-  public static final List<Constraint> ONE_NUMBER = ImmutableList.of(Constraint.ANY_NUMBER);
-  public static final List<Constraint> STRING_NUMBER = ImmutableList.of(Constraint.ANY_STRING, Constraint.ANY_NUMBER);
-  public static final List<Constraint> NUMBER_STRING = ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_STRING);
-  public static final List<Constraint> NUMBER_NUMBER = ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_NUMBER);
-  public static final List<Constraint> EMPTY = ImmutableList.of();
-  public static final List<Constraint> ONE_STRING = ImmutableList.of(Constraint.ANY_STRING);
-
-
-  public static final IntFunction<Constraint> TO_LOCALE_STRING_SIGNATURE = (int parameterIndex) -> {
-    switch (parameterIndex) {
-      case 0:
-        return Constraint.ANY_STRING.or(Constraint.ARRAY);
-      case 1:
-        return Constraint.OBJECT;
-      default:
-        return null;
-    }
-  };
 
   private static final List<Type> VALUES_REVERSED = Lists.reverse(Arrays.asList(Type.values()));
   private static final EnumSet<Type> PRIMITIVE_TYPES = EnumSet.of(
@@ -85,47 +54,32 @@ public enum Type {
     BOOLEAN_PRIMITIVE,
     BOOLEAN_OBJECT);
 
-  private Constraint constraint;
-  private BuiltInProperties builtInProperties;
-  private Type parentType;
+  private final Constraint constraint;
+  private final BuiltInObjectSymbolicValue prototype;
 
-  Type(Constraint constraint, @Nullable Type parentType, BuiltInProperties builtInProperties) {
+  Type(Constraint constraint, BuiltInObjectSymbolicValue prototype) {
     this.constraint = constraint;
-    this.builtInProperties = builtInProperties;
-    this.parentType = parentType;
+    this.prototype = prototype;
   }
 
   public Constraint constraint() {
     return constraint;
   }
 
-  public Type parentType() {
-    return parentType;
-  }
-
-  private SymbolicValue getValueFromPrototype(String propertyName) {
-    if (parentType != null) {
-      SymbolicValue valueForProperty = parentType.getValueForProperty(propertyName);
-      if (valueForProperty.equals(UnknownSymbolicValue.UNKNOWN) && PRIMITIVE_TYPES.contains(this)) {
-        return SpecialSymbolicValue.UNDEFINED;
-      }
-      return valueForProperty;
+  public SymbolicValue getValueForProperty(String propertyName) {
+    if (prototype == null) {
+      throw new IllegalStateException("Cannot access a property on a " + this);
     }
-
+    SymbolicValue propertyValue = prototype.getPropertyValue(propertyName);
+    if (!SpecialSymbolicValue.UNDEFINED.equals(propertyValue) || PRIMITIVE_TYPES.contains(this)) {
+      return propertyValue;
+    }
     return UnknownSymbolicValue.UNKNOWN;
   }
 
-  public SymbolicValue getValueForProperty(String propertyName) {
-    SymbolicValue valueForProperty = builtInProperties.getValueForProperty(propertyName);
-    if (valueForProperty == null) {
-      return getValueFromPrototype(propertyName);
-    }
-
-    return valueForProperty;
-  }
-
-  public Optional<SymbolicValue> getValueForOwnProperty(String name) {
-    return builtInProperties.getValueForOwnProperty(name);
+  @CheckForNull
+  public BuiltInObjectSymbolicValue prototype() {
+    return prototype;
   }
 
   public static Type find(Constraint constraint) {

@@ -286,7 +286,7 @@ public class ExpressionStack {
     String propertyName = dotMemberExpressionTree.property().name();
 
     if (objectValue instanceof ObjectSymbolicValue) {
-      Optional<SymbolicValue> value = ((ObjectSymbolicValue) objectValue).getValueForOwnProperty(propertyName);
+      Optional<SymbolicValue> value = ((ObjectSymbolicValue) objectValue).getValueForProperty(propertyName);
       if (value.isPresent()) {
         newStack.push(value.get());
         return;

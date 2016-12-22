@@ -19,32 +19,17 @@
  */
 package org.sonar.javascript.se.builtins;
 
-import java.util.Map;
-import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.sv.SymbolicValue;
+import org.junit.Test;
+import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 
-public class NullOrUndefinedBuiltInProperties extends BuiltInProperties {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private static final String ERROR_MESSAGE = "We should not try to execute properties on 'null' or 'undefined' as it leads to TypeError";
+public class BuiltInObjectSymbolicValueTest {
 
-  @Override
-  Map<String, Constraint> getPropertiesConstraints() {
-    throw new IllegalStateException(ERROR_MESSAGE);
-  }
-
-  @Override
-  Map<String, SymbolicValue> getMethods() {
-    throw new IllegalStateException(ERROR_MESSAGE);
-  }
-
-  @Override
-  Map<String, Constraint> getOwnPropertiesConstraints() {
-    throw new IllegalStateException(ERROR_MESSAGE);
-  }
-
-  @Override
-  Map<String, SymbolicValue> getOwnMethods() {
-    throw new IllegalStateException(ERROR_MESSAGE);
+  @Test
+  public void prototype_property() throws Exception {
+    assertThat(BuiltInObjectSymbolicValue.OBJECT.getPropertyValue("prototype")).isEqualTo(BuiltInObjectSymbolicValue.OBJECT_PROTOTYPE);
+    assertThat(BuiltInObjectSymbolicValue.OBJECT_PROTOTYPE.getPropertyValue("prototype")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
   }
 
 }

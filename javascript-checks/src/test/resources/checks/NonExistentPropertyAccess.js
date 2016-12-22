@@ -9,6 +9,7 @@ function assignment() {
   var s = "";
   x = s.lenght; // Noncompliant {{Remove this access to "lenght" property, it doesn't exist, as a built-in, on a String.}}
   s.lenght = 0; // ok
+  x = Array.xxx; // Noncompliant {{Remove this access to "xxx" property, it doesn't exist, as a built-in, on this object.}}
 }
 
 function single_issue_per_tree() {

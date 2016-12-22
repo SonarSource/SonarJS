@@ -24,39 +24,27 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.function.IntFunction;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.sv.SymbolicValue;
 
-public class FunctionBuiltInProperties extends BuiltInProperties {
+import static org.sonar.javascript.se.builtins.BuiltInProperty.method;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.property;
 
-  @Override
-  Map<String, SymbolicValue> getMethods() {
-    IntFunction<Constraint> anyValues = (int index) -> Constraint.ANY_VALUE;
-    return ImmutableMap.<String, SymbolicValue>builder()
-      .put("apply", method(Constraint.ANY_VALUE, ImmutableList.of(Constraint.ANY_VALUE, Constraint.ANY_VALUE), true))
-      .put("bind", method(Constraint.FUNCTION, anyValues))
-      .put("call", method(Constraint.ANY_VALUE, anyValues, true))
+public class FunctionBuiltInProperties {
 
-      // overrides Object
-      .put("toString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))
-      .build();
+  private static final IntFunction<Constraint> anyValues = (int index) -> Constraint.ANY_VALUE;
+
+  public static final Map<String, BuiltInProperty> PROTOTYPE_PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
+    .put("apply", method(Constraint.ANY_VALUE, ImmutableList.of(Constraint.ANY_VALUE, Constraint.ANY_VALUE), true))
+    .put("bind", method(Constraint.FUNCTION, anyValues))
+    .put("call", method(Constraint.ANY_VALUE, anyValues, true))
+    // overrides Object
+    .put("toString", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.EMPTY))
+    .put("length", property(Constraint.NUMBER_PRIMITIVE))
+    .put("name", property(Constraint.STRING_PRIMITIVE))
+    .build();
+
+  public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.of();
+
+  private FunctionBuiltInProperties() {
   }
 
-  @Override
-  Map<String, Constraint> getPropertiesConstraints() {
-    return ImmutableMap.of(
-      "length", Constraint.NUMBER_PRIMITIVE,
-      "name", Constraint.STRING_PRIMITIVE
-    );
-  }
-
-  @Override
-  Map<String, Constraint> getOwnPropertiesConstraints() {
-    return ImmutableMap.of();
-  }
-
-  @Override
-  Map<String, SymbolicValue> getOwnMethods() {
-    return ImmutableMap.of();
-  }
 }

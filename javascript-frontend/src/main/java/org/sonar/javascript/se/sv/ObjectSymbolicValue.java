@@ -20,9 +20,16 @@
 package org.sonar.javascript.se.sv;
 
 import java.util.Optional;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
 
 public interface ObjectSymbolicValue extends SymbolicValue {
 
-  Optional<SymbolicValue> getValueForOwnProperty(String name);
+  @Override
+  default Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
+    return Optional.of(state);
+  }
+
+  Optional<SymbolicValue> getValueForProperty(String name);
 
 }

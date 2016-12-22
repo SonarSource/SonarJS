@@ -22,38 +22,22 @@ package org.sonar.javascript.se.builtins;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.sv.SymbolicValue;
 
-public class BooleanBuiltInProperties extends BuiltInProperties {
+import static org.sonar.javascript.se.builtins.BuiltInProperty.method;
 
-  public static final BooleanBuiltInProperties INSTANCE = new BooleanBuiltInProperties();
+public class BooleanBuiltInProperties {
+
+  public static final Map<String, BuiltInProperty> PROTOTYPE_PROPERTIES =
+    ImmutableMap.<String, BuiltInProperty>builder()
+      // overrides Object
+      .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE, BuiltInProperty.EMPTY))
+      .put("valueOf", method(Constraint.BOOLEAN_PRIMITIVE, BuiltInProperty.EMPTY))
+
+      .build();
+
+  public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.of();
 
   private BooleanBuiltInProperties() {
   }
 
-  @Override
-  Map<String, SymbolicValue> getMethods() {
-    return ImmutableMap.<String, SymbolicValue>builder()
-      // overrides Object
-      .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE, Type.EMPTY))
-      .put("valueOf", method(Constraint.BOOLEAN_PRIMITIVE, Type.EMPTY))
-
-      .build();
-  }
-
-  @Override
-  Map<String, Constraint> getPropertiesConstraints() {
-    return ImmutableMap.of();
-  }
-
-  @Override
-  Map<String, Constraint> getOwnPropertiesConstraints() {
-    return ImmutableMap.of();
-  }
-
-  @Override
-  Map<String, SymbolicValue> getOwnMethods() {
-    return ImmutableMap.of();
-  }
 }

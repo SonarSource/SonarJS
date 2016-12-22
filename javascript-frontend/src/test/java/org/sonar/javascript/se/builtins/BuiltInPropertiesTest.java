@@ -111,12 +111,6 @@ public class BuiltInPropertiesTest {
   }
 
   @Test(expected=IllegalStateException.class)
-  public void test_null_own_prop() throws Exception {
-    type = Type.NULL;
-    type.getValueForOwnProperty("fooBar");
-  }
-
-  @Test(expected=IllegalStateException.class)
   public void test_undefined() throws Exception {
     type = Type.UNDEFINED;
     value("fooBar");
@@ -155,7 +149,8 @@ public class BuiltInPropertiesTest {
   @Test
   public void startsWith_method_signature() throws Exception {
     type = Type.STRING_PRIMITIVE;
-    IntFunction<Constraint> replaceSignature = ((BuiltInFunctionSymbolicValue) value("startsWith")).signature();
+    BuiltInFunctionSymbolicValue value = (BuiltInFunctionSymbolicValue) value("startsWith");
+    IntFunction<Constraint> replaceSignature = value.signature();
     assertThat(replaceSignature.apply(0)).isEqualTo(Constraint.ANY_STRING);
     assertThat(replaceSignature.apply(1)).isEqualTo(Constraint.ANY_NUMBER);
     assertThat(replaceSignature.apply(2)).isNull();
@@ -208,8 +203,8 @@ public class BuiltInPropertiesTest {
 
   @Test
   public void class_method_signature() throws Exception {
-    MathBuiltInObjectSymbolicValue mathValue = (MathBuiltInObjectSymbolicValue) BuiltInObjectSymbolicValue.find("Math").get();
-    BuiltInFunctionSymbolicValue minMethod = (BuiltInFunctionSymbolicValue) mathValue.getValueForOwnProperty("min").get();
+    BuiltInObjectSymbolicValue mathValue = (BuiltInObjectSymbolicValue) BuiltInObjectSymbolicValue.find("Math").get();
+    BuiltInFunctionSymbolicValue minMethod = (BuiltInFunctionSymbolicValue) mathValue.getValueForProperty("min").get();
     IntFunction<Constraint> signature = minMethod.signature();
     assertThat(signature.apply(0)).isEqualTo(Constraint.ANY_NUMBER);
     assertThat(signature.apply(1)).isEqualTo(Constraint.ANY_NUMBER);
@@ -240,7 +235,7 @@ public class BuiltInPropertiesTest {
   }
 
   private BuiltInFunctionSymbolicValue method(Constraint returnConstraint) {
-    return BuiltInProperties.method(returnConstraint);
+    return (BuiltInFunctionSymbolicValue) BuiltInProperty.method(returnConstraint).access();
   }
 
   private Constraint constraint(SymbolicValue value) {
