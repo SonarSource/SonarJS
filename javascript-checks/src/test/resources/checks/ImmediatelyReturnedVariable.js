@@ -88,12 +88,29 @@ function one_statement() {
   foo();
 }
 
-function empty() {
+function empty_block() {
 }
 
-var arrow_function_nok = (a, b) => {
-  var x = a + b; // Noncompliant
-  return x;
+function different_blocks() {
+  if (foo) {
+    let x = foo(); // Noncompliant
+    return x;
+  }
+
+  try {
+    let x = foo(); // Noncompliant
+    return x;
+
+  } catch (e) {
+    let x = foo(); // Noncompliant
+    return x;
+
+  } finally {
+    let x = foo(); // Noncompliant
+    return x;
+  }
+
+
 }
 
 var arrow_function_ok = (a, b) => {

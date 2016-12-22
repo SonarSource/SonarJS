@@ -21,12 +21,9 @@ package org.sonar.javascript.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.SeparatedList;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -35,28 +32,18 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S1488")
-public class ImmediatelyReturnedVariableCheck extends SubscriptionVisitorCheck {
+public class ImmediatelyReturnedVariableCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Immediately %s this expression instead of assigning it to the temporary variable \"%s\".";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return TreeKinds.functionKinds();
-  }
+  public void visitBlock(BlockTree tree) {
+    List<StatementTree> statements = tree.statements();
 
-  @Override
-  public void visitNode(Tree tree) {
-    FunctionTree functionTree = (FunctionTree) tree;
-
-    if (functionTree.body().is(Kind.BLOCK)) {
-      List<StatementTree> statements = ((BlockTree) functionTree.body()).statements();
-
-      if (statements.size() < 2) {
-        return;
-      }
+    if (statements.size() > 1) {
 
       StatementTree lastButOneStatement = statements.get(statements.size() - 2);
       StatementTree lastStatement = statements.get(statements.size() - 1);
@@ -66,6 +53,7 @@ public class ImmediatelyReturnedVariableCheck extends SubscriptionVisitorCheck {
       }
     }
 
+    super.visitBlock(tree);
   }
 
   private void checkStatements(VariableDeclarationTree variableDeclaration, StatementTree lastStatement) {
