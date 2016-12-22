@@ -1,0 +1,13 @@
+{
+  "title": "Destructuring patterns should not be empty",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major"
+}
