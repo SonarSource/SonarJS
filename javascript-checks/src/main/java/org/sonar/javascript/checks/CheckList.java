@@ -109,6 +109,7 @@ public final class CheckList {
       FutureReservedWordsCheck.class,
       FunctionReturnTypeCheck.class,
       GeneratorWithoutYieldCheck.class,
+      GetterSetterCheck.class,
       GlobalThisCheck.class,
       HtmlCommentsCheck.class,
       IdChildrenSelectorCheck.class,
