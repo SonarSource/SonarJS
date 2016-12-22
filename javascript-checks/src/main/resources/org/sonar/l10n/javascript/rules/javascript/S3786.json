@@ -1,0 +1,13 @@
+{
+  "title": "Template literal placeholder syntax should not be used in regular strings",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major"
+}
