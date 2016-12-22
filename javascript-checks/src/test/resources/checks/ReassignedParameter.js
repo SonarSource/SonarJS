@@ -35,6 +35,10 @@ var arrow_function2 = p1 => {
   foo(p1);
 }
 
+(function(p) {
+  p = 42; // Noncompliant
+})(1);
+
 // Ok, function call
 var p1;
 p1 = 42;
@@ -67,11 +71,11 @@ for (var x in obj) {
 }
 
 for (var [a, b] in obj) {
-  a = foo(); // FN Noncompliant (SYMBOL TABLE should be improved)
+  a = foo(); // FN (SYMBOL TABLE should be improved)
 }
 
 for (let {prop1, prop2} in obj) {
-  prop1 = foo(); // FN Noncompliant (SYMBOL TABLE should be improved)
+  prop1 = foo(); // FN (SYMBOL TABLE should be improved)
 }
 
 for (let x of obj) {
@@ -90,13 +94,13 @@ for (z in obj) {
 }
 
 for ([a, [b]] in obj) {
-  a = foo(); // FN Noncompliant
-  b = foo(); // FN Noncompliant
+  a = foo(); // FN
+  b = foo(); // FN
 }
 
 for ({a, b} in obj) {
-  a = foo(); // FN Noncompliant
-  b = foo(); // FN Noncompliant
+  a = foo(); // FN
+  b = foo(); // FN
 }
 
 // illegal code
