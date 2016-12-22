@@ -21,6 +21,7 @@ package org.sonar.javascript.se.builtins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
 
@@ -48,9 +49,30 @@ public class RegexpBuiltInProperties {
     .put("unicode", property(constraintOnRecentProperty(Constraint.BOOLEAN_PRIMITIVE)))
     .build();
 
-  public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.of();
+  public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
+    .put("input", property(Constraint.STRING_PRIMITIVE))
+    .put("lastMatch", property(Constraint.STRING_PRIMITIVE))
+    .put("lastParen", property(Constraint.STRING_PRIMITIVE))
+    .put("leftContext", property(Constraint.STRING_PRIMITIVE))
+    .put("rightContext", property(Constraint.STRING_PRIMITIVE))
+    .put("$_", property(Constraint.STRING_PRIMITIVE))
+    .put("$&", property(Constraint.STRING_PRIMITIVE))
+    .put("$+", property(Constraint.STRING_PRIMITIVE))
+    .put("$`", property(Constraint.STRING_PRIMITIVE))
+    .put("$'", property(Constraint.STRING_PRIMITIVE))
+    .putAll(dollarProperties())
+    .build();
 
   private RegexpBuiltInProperties() {
+  }
+
+  private static Map<String, BuiltInProperty> dollarProperties() {
+    Map<String, BuiltInProperty> properties = new HashMap<>();
+    BuiltInProperty property = property(Constraint.STRING_PRIMITIVE);
+    for (int i = 1; i <= 9; i++) {
+      properties.put("$" + i, property);
+    }
+    return properties;
   }
 
 }

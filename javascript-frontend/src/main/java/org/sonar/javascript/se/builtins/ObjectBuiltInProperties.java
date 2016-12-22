@@ -33,6 +33,10 @@ public class ObjectBuiltInProperties {
 
   public static final Map<String, BuiltInProperty> PROTOTYPE_PROPERTIES =
     ImmutableMap.<String, BuiltInProperty>builder()
+      .put("__defineGetter__", method(Constraint.UNDEFINED, ImmutableList.of(Constraint.ANY_STRING, Constraint.FUNCTION), true))
+      .put("__defineSetter__", method(Constraint.UNDEFINED, ImmutableList.of(Constraint.ANY_STRING, Constraint.FUNCTION), true))
+      .put("__lookupGetter__", method(Constraint.FUNCTION, ImmutableList.of(Constraint.ANY_STRING)))
+      .put("__lookupSetter__", method(Constraint.FUNCTION, ImmutableList.of(Constraint.ANY_STRING)))
       .put("hasOwnProperty", method(Constraint.BOOLEAN_PRIMITIVE, ImmutableList.of(Constraint.ANY_VALUE)))
       .put("isPrototypeOf", method(Constraint.BOOLEAN_PRIMITIVE, ImmutableList.of(Constraint.OBJECT)))
       .put("propertyIsEnumerable", method(Constraint.BOOLEAN_PRIMITIVE, ImmutableList.of(Constraint.ANY_VALUE)))
@@ -40,6 +44,7 @@ public class ObjectBuiltInProperties {
       .put("toString", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.EMPTY))
       .put("valueOf", method(Constraint.ANY_VALUE, BuiltInProperty.EMPTY))
       .put("constructor", property(Constraint.ANY_VALUE))
+      .put("__proto__", property(Constraint.OBJECT.or(Constraint.NULL)))
       .build();
 
   public static final Map<String, BuiltInProperty> PROPERTIES =
