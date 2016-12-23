@@ -105,10 +105,14 @@ public class TypeVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    Preconditions.checkState(tree.name().symbol() != null,
-      String.format("Symbol has not been created for this function %s declared at line %s", tree.name().name(), ((JavaScriptTree) tree).getLine()));
+    IdentifierTree name = tree.name();
 
-    tree.name().symbol().addType(FunctionType.create(tree));
+    Preconditions.checkState(name.symbol() != null,
+      "Symbol has not been created for this function %s declared at line %s",
+      name.name(),
+      ((JavaScriptTree) tree).getLine());
+
+    name.symbol().addType(FunctionType.create(tree));
     super.visitFunctionDeclaration(tree);
   }
 
@@ -183,18 +187,22 @@ public class TypeVisitor extends DoubleDispatchVisitor {
       for (int i = 0; i < minSize; i++) {
         Preconditions.checkState(arguments.get(i) instanceof ExpressionTree);
         Tree currentParameter = parameters.get(i);
-        if (currentParameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
-          Symbol symbol = ((IdentifierTree) currentParameter).symbol();
-          if (symbol != null) {
-            addTypes(symbol, ((ExpressionTree) arguments.get(i)).types());
-          } else {
-            throw new IllegalStateException(String.format(
-              "Parameter %s has no symbol associated with it (line %s)",
-              ((IdentifierTree) currentParameter).name(),
-              ((JavaScriptTree) currentParameter).getLine()
-            ));
-          }
-        }
+        inferParameterType(currentParameter, arguments, i);
+      }
+    }
+  }
+
+  private static void inferParameterType(Tree currentParameter, List<Tree> arguments, int index) {
+    if (currentParameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
+      Symbol symbol = ((IdentifierTree) currentParameter).symbol();
+      if (symbol != null) {
+        addTypes(symbol, ((ExpressionTree) arguments.get(index)).types());
+      } else {
+        throw new IllegalStateException(String.format(
+          "Parameter %s has no symbol associated with it (line %s)",
+          ((IdentifierTree) currentParameter).name(),
+          ((JavaScriptTree) currentParameter).getLine()
+        ));
       }
     }
   }
