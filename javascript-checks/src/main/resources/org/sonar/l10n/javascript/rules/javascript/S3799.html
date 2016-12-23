@@ -1,0 +1,19 @@
+<p>Destructuring is a convenient way of extracting multiple values from data stored in (possibly nested) objects and arrays. However, it is possible
+to create an empty pattern that has no effect. When empty curly braces or brackets are used to the right of a property name most of the time the
+intent was to use a default value instead.</p>
+<p>This rule raises an issue when empty destructuring pattern is used.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+var {a: {}, b} = myObj; // Noncompliant
+function foo({first: [], second}) { // Noncompliant
+  // ...
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+var {a = {}, b} = myObj;
+function foo({first = [], second}) {
+  // ...
+}
+</pre>
+

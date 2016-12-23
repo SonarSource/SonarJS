@@ -20,18 +20,15 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.HashSet;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -44,11 +41,9 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 
 @Rule(key = "S3796")
-public class ArrayCallbackWithoutReturnCheck extends SeCheck {
+public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
 
   private static final String MESSAGE = "Add a \"return\" statement to this callback.";
-
-  private Set<DotMemberExpressionTree> hasIssue = new HashSet<>();
 
   private static final Set<String> METHODS_WITH_CALLBACK = ImmutableSet.of(
     "every",
@@ -63,11 +58,6 @@ public class ArrayCallbackWithoutReturnCheck extends SeCheck {
   );
 
   @Override
-  public void startOfExecution(Scope functionScope) {
-    hasIssue.clear();
-  }
-
-  @Override
   public void beforeBlockElement(ProgramState currentState, Tree element) {
     if (element.is(Kind.DOT_MEMBER_EXPRESSION)) {
       DotMemberExpressionTree memberExpression = (DotMemberExpressionTree) element;
@@ -77,7 +67,6 @@ public class ArrayCallbackWithoutReturnCheck extends SeCheck {
 
       } else if (isArrayFromMethod(memberExpression, currentState)) {
         checkArgumentToBeFunctionWithReturn(memberExpression, 1);
-
       }
     }
 
@@ -93,18 +82,13 @@ public class ArrayCallbackWithoutReturnCheck extends SeCheck {
         Tree secondArgument = callExpressionTree.arguments().parameters().get(argumentIndex);
 
         if (secondArgument.is(Kind.FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION) && !hasReturnWithValue((FunctionTree)secondArgument)) {
-          raiseIssue(callee, secondArgument);
+          raiseIssue(secondArgument);
         }
-
       }
     }
   }
 
-  private void raiseIssue(DotMemberExpressionTree memberExpression, Tree firstArgument) {
-    if (hasIssue.contains(memberExpression)) {
-      return;
-    }
-
+  private void raiseIssue(Tree firstArgument) {
     SyntaxToken tokenToRaiseIssue;
 
     if (firstArgument.is(Kind.FUNCTION_EXPRESSION)) {
@@ -113,8 +97,7 @@ public class ArrayCallbackWithoutReturnCheck extends SeCheck {
       tokenToRaiseIssue = ((ArrowFunctionTree) firstArgument).doubleArrow();
     }
 
-    addIssue(tokenToRaiseIssue, MESSAGE);
-    hasIssue.add(memberExpression);
+    addUniqueIssue(tokenToRaiseIssue, MESSAGE);
   }
 
   private static boolean hasReturnWithValue(FunctionTree functionTree) {

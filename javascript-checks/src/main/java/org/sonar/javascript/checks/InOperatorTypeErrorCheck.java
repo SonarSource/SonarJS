@@ -19,42 +19,30 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 
 @Rule(key = "S3785")
-public class InOperatorTypeErrorCheck extends SeCheck {
+public class InOperatorTypeErrorCheck extends AbstractAnyPathSeCheck {
 
   private static final String MESSAGE = "TypeError can be thrown as this operand might have primitive type.";
-
-  private Set<Tree> hasIssue = new HashSet<>();
-
-  @Override
-  public void startOfExecution(Scope functionScope) {
-    hasIssue.clear();
-  }
 
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element) {
     if (element.is(Kind.RELATIONAL_IN)) {
       SymbolicValue rightOperandValue = currentState.peekStack();
       Constraint rightOperandConstraint = currentState.getConstraint(rightOperandValue);
-      if (rightOperandConstraint.isIncompatibleWith(Constraint.OBJECT) && !hasIssue.contains(element)) {
+      if (rightOperandConstraint.isIncompatibleWith(Constraint.OBJECT)) {
         BinaryExpressionTree inOperation = (BinaryExpressionTree) element;
-        addIssue(inOperation.rightOperand(), MESSAGE)
-          .secondary(inOperation.operator());
-
-        hasIssue.add(element);
+        addUniqueIssue(inOperation.rightOperand(), MESSAGE, new IssueLocation(inOperation.operator()));
       }
     }
   }
+
 }
