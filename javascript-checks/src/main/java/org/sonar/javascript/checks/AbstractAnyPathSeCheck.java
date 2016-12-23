@@ -58,8 +58,8 @@ public abstract class AbstractAnyPathSeCheck extends SeCheck {
   }
 
   /**
-   * Implementers of subclasses should not use this function, as this function
-   * bypasses the non-duplication mechanism implemented by this class.
+   * Subclasses should not use this function, as this function bypasses the
+   * non-duplication mechanism implemented by this class.
    * They should use one of the {@link AbstractAnyPathSeCheck#addUniqueIssue} methods.
    */
   @Override
@@ -68,13 +68,15 @@ public abstract class AbstractAnyPathSeCheck extends SeCheck {
   }
 
   @Override
-  public <T extends Issue> T addIssue(T issue) {
+  public final <T extends Issue> T addIssue(T issue) {
     throw new UnsupportedOperationException("Use one of 'addUniqueIssue' methods");
   }
 
   /**
-   * Adds the specified issue to the list of issues.
-   * Does nothing if an issue has already been added for the specified tree. 
+   * Creates an issue for the specified tree and message, then adds the issue
+   * to the list of issues.
+   * Does nothing if an issue has already been added for the specified tree.
+   * @return the created issue, or nothing if no issue was created
    */
   public Optional<PreciseIssue> addUniqueIssue(Tree tree, String message) {
     if (alreadyHasIssueOn(tree)) {
