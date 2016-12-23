@@ -93,5 +93,16 @@ public class CheckUtils {
     }
     return ControlFlowGraph.build((ScriptTree) parent);
   }
+
+  public static boolean isDescendant(Tree tree, Tree potentialParent) {
+    Tree parent = tree;
+    while (parent != null) {
+      if (parent.equals(potentialParent)) {
+        return true;
+      }
+      parent = parent(parent);
+    }
+    return false;
+  }
 }
 

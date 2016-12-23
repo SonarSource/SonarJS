@@ -36,6 +36,7 @@ import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
+import static org.sonar.javascript.checks.utils.CheckUtils.isDescendant;
 import static org.sonar.javascript.checks.utils.CheckUtils.parent;
 
 @Rule(key = "S1751")
@@ -101,17 +102,6 @@ public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
       if (isDescendant(predecessorLastElement, loopBody)) {
         return true;
       }
-    }
-    return false;
-  }
-
-  private static boolean isDescendant(Tree tree, Tree potentialParent) {
-    Tree parent = tree;
-    while (parent != null) {
-      if (parent.equals(potentialParent)) {
-        return true;
-      }
-      parent = parent(parent);
     }
     return false;
   }

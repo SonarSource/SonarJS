@@ -23,7 +23,9 @@ import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
 import org.junit.Test;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,5 +37,17 @@ public class CheckUtilsTest {
   public void testAsString() throws Exception {
     Tree tree = p.parse("[, a, , ]");
     assertThat(CheckUtils.asString(tree)).isEqualTo("[, a, , ]");
+  }
+
+  @Test
+  public void testIsDescendant() throws Exception {
+    ScriptTree scriptTree = (ScriptTree) p.parse("function foo(){}");
+    FunctionDeclarationTree functionDeclarationTree = (FunctionDeclarationTree) scriptTree.items().items().get(0);
+
+    assertThat(CheckUtils.isDescendant(functionDeclarationTree, scriptTree)).isTrue();
+    assertThat(CheckUtils.isDescendant(functionDeclarationTree.functionKeyword(), scriptTree)).isTrue();
+    assertThat(CheckUtils.isDescendant(functionDeclarationTree.parameterClause().closeParenthesis(), scriptTree)).isTrue();
+    assertThat(CheckUtils.isDescendant(scriptTree, functionDeclarationTree)).isFalse();
+    assertThat(CheckUtils.isDescendant(functionDeclarationTree.functionKeyword(), functionDeclarationTree.parameterClause())).isFalse();
   }
 }
