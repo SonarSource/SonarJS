@@ -20,14 +20,10 @@
 package org.sonar.javascript.checks;
 
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.Type;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
@@ -35,7 +31,6 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
 import static org.sonar.javascript.se.Type.BOOLEAN_OBJECT;
 import static org.sonar.javascript.se.Type.BOOLEAN_PRIMITIVE;
@@ -53,7 +48,7 @@ import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PLUS;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PLUS_ASSIGNMENT;
 
 @Rule(key = "S3760")
-public class NonNumberInArithmeticExpressionCheck extends SeCheck {
+public class NonNumberInArithmeticExpressionCheck extends AbstractAnyPathSeCheck {
 
   private static final String MESSAGE = "Convert this operand into a number.";
 
@@ -94,13 +89,6 @@ public class NonNumberInArithmeticExpressionCheck extends SeCheck {
   private static final EnumSet<Type> BOOLEAN_DATE = EnumSet.of(BOOLEAN_PRIMITIVE, BOOLEAN_OBJECT, DATE);
   private static final EnumSet<Type> ANY_NUMBER = EnumSet.of(NUMBER_PRIMITIVE, NUMBER_OBJECT);
 
-  private Set<Tree> treesWithIssue;
-
-  @Override
-  public void startOfExecution(Scope functionScope) {
-    treesWithIssue = new HashSet<>();
-  }
-
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element) {
     if (element.is(PLUS_KINDS) || element.is(COMPARISON_KINDS) || element.is(ARITHMETIC_KINDS)) {
@@ -115,7 +103,6 @@ public class NonNumberInArithmeticExpressionCheck extends SeCheck {
       }
     }
   }
-
 
   private void checkBinaryOperation(ProgramState currentState, Tree element) {
     Type rightType = currentState.getConstraint(currentState.peekStack(0)).type();
@@ -197,12 +184,7 @@ public class NonNumberInArithmeticExpressionCheck extends SeCheck {
   }
 
   private void raiseIssue(Tree tree, Tree ... secondaryLocations) {
-    if (!treesWithIssue.contains(tree)) {
-      PreciseIssue issue = addIssue(tree, MESSAGE);
-      for (Tree location : secondaryLocations) {
-        issue.secondary(location);
-      }
-      treesWithIssue.add(tree);
-    }
+    addUniqueIssue(tree, MESSAGE, secondaryLocations);
   }
+
 }

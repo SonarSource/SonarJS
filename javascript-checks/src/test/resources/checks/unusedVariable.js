@@ -103,4 +103,6 @@ function objectDestructuringException(obj) {
   var {a3, b: b3, c3, ...interestingProps3} = obj; // Noncompliant
 //            ^^
   foo(interestingProps3);
+
+  var {} = obj;
 }

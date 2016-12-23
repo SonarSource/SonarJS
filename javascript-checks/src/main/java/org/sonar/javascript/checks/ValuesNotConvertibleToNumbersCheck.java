@@ -19,33 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 @Rule(key = "S3758")
-public class ValuesNotConvertibleToNumbersCheck extends SeCheck {
+public class ValuesNotConvertibleToNumbersCheck extends AbstractAnyPathSeCheck {
 
-  private static final String MESSAGE = "Re-evaluate the data flow; this operand could be \"%s\" here.";
+  private static final String MESSAGE = "Re-evaluate the data flow; this operand of a numeric comparison could be %s.";
 
   private static final Constraint CONVERTIBLE_TO_NUMBER = Constraint.ANY_NUMBER.or(Constraint.ANY_BOOLEAN).or(Constraint.DATE).or(Constraint.NULL);
-
-  /**
-   * The operands for which an issue has already been raised.
-   */
-  private Set<ExpressionTree> operandsWithIssues = new HashSet<>();
-
-  @Override
-  public void startOfExecution(Scope functionScope) {
-    operandsWithIssues.clear();
-  }
 
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element) {
@@ -67,11 +53,11 @@ public class ValuesNotConvertibleToNumbersCheck extends SeCheck {
     boolean rightIsUndefined = rightConstraint.isStricterOrEqualTo(Constraint.UNDEFINED); 
 
     if (checkObjectIsComparedNumerically(leftConstraint, rightConstraint)) {
-      raiseIssue(element, true, false, "Object");
+      raiseIssue(element, true, false, "an Object");
     } else if (checkObjectIsComparedNumerically(rightConstraint, leftConstraint)) {
-      raiseIssue(element, false, true, "Object");
+      raiseIssue(element, false, true, "an Object");
     } else if (leftIsUndefined || rightIsUndefined) {
-      raiseIssue(element, leftIsUndefined, rightIsUndefined, "undefined");
+      raiseIssue(element, leftIsUndefined, rightIsUndefined, "\"undefined\"");
     }
   }
   
@@ -105,14 +91,8 @@ public class ValuesNotConvertibleToNumbersCheck extends SeCheck {
     }
   }
 
-  /**
-   * Raises an issue (but not twice for the same operand).
-   */
   private void raiseIssue(ExpressionTree operand, String messageParam) {
-    if (!operandsWithIssues.contains(operand)) {
-      operandsWithIssues.add(operand);
-      addIssue(operand, String.format(MESSAGE, messageParam));
-    }
+    addUniqueIssue(operand, String.format(MESSAGE, messageParam));
   }
 
 }

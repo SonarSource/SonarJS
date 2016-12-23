@@ -21,17 +21,13 @@ package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
@@ -39,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 @Rule(key = "S3759")
-public class NonExistentPropertyAccessCheck extends SeCheck {
+public class NonExistentPropertyAccessCheck extends AbstractAnyPathSeCheck {
 
   private static final String MESSAGE = "Remove this access to \"%s\" property, it doesn't exist, as a built-in, on a %s.";
 
@@ -52,13 +48,7 @@ public class NonExistentPropertyAccessCheck extends SeCheck {
     .put(Type.BOOLEAN_OBJECT, "Boolean")
     .build();
 
-  private final Set<Tree> treesWithIssues = new HashSet<>();
   private ProgramState programStateBefore = null;
-
-  @Override
-  public void startOfExecution(Scope functionScope) {
-    treesWithIssues.clear();
-  }
 
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element) {
@@ -69,11 +59,7 @@ public class NonExistentPropertyAccessCheck extends SeCheck {
   public void afterBlockElement(ProgramState currentState, Tree element) {
     if (isUndefinedProperty(currentState, element) && !isWrite(element) && !isInCondition(element)) {
       IdentifierTree propertyTree = ((DotMemberExpressionTree) element).property();
-
-      if (!treesWithIssues.contains(propertyTree)) {
-        addIssue(element, String.format(MESSAGE, propertyTree.name(), getTypeOfObject(programStateBefore)));
-        treesWithIssues.add(propertyTree);
-      }
+      addUniqueIssue(element, String.format(MESSAGE, propertyTree.name(), getTypeOfObject(programStateBefore)));
     }
   }
 
@@ -98,4 +84,5 @@ public class NonExistentPropertyAccessCheck extends SeCheck {
     Tree parentTree = ((JavaScriptTree) element).getParent();
     return parentTree.is(Kind.IF_STATEMENT, Kind.LOGICAL_COMPLEMENT, Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR, Kind.CONDITIONAL_EXPRESSION);
   }
+
 }

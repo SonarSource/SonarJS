@@ -48,6 +48,10 @@ public class UnusedVariableCheck extends DoubleDispatchVisitorCheck {
   public void visitObjectBindingPattern(ObjectBindingPatternTree tree) {
     super.visitObjectBindingPattern(tree);
 
+    if (tree.elements().isEmpty()) {
+      return;
+    }
+  
     BindingElementTree lastElement = tree.elements().get(tree.elements().size() - 1);
     if (lastElement.is(Kind.REST_ELEMENT)) {
 

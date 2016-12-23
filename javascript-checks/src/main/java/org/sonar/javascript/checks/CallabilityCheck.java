@@ -19,29 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 
 @Rule(key = "S2873")
-public class CallabilityCheck extends SeCheck {
+public class CallabilityCheck extends AbstractAnyPathSeCheck {
 
   private static final String MESSAGE = "This expression might have a value which cannot be called; it might not be a function.";
-
-  private Set<CallExpressionTree> hasIssue;
-
-  @Override
-  public void startOfExecution(Scope functionScope) {
-    hasIssue = new HashSet<>();
-  }
 
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element) {
@@ -51,9 +40,8 @@ public class CallabilityCheck extends SeCheck {
       SymbolicValue calleeSV = currentState.peekStack(callExpressionTree.arguments().parameters().size());
       Constraint constraint = currentState.getConstraint(calleeSV);
 
-      if (constraint.isIncompatibleWith(Constraint.FUNCTION) && !hasIssue.contains(callExpressionTree)) {
-        addIssue(callExpressionTree.callee(), MESSAGE);
-        hasIssue.add(callExpressionTree);
+      if (constraint.isIncompatibleWith(Constraint.FUNCTION)) {
+        addUniqueIssue(callExpressionTree.callee(), MESSAGE);
       }
     }
   }

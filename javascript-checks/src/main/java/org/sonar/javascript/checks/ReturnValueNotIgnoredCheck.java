@@ -19,17 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.expression.CallExpressionTreeImpl;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
@@ -37,29 +33,18 @@ import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 @Rule(key = "S2201")
-public class ReturnValueNotIgnoredCheck extends SeCheck {
+public class ReturnValueNotIgnoredCheck extends AbstractAnyPathSeCheck {
 
   private static final String MESSAGE = "The return value of \"%s\" must be used.";
-
-  /**
-   * Used to avoid multiple identical issues due to different execution paths.
-   */
-  private Set<CallExpressionTree> expressionsWithIssue = new HashSet<>();
-
-  @Override
-  public void startOfExecution(Scope functionScope) {
-    expressionsWithIssue.clear();
-  }
 
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element) {
     if (element.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTreeImpl callExpression = (CallExpressionTreeImpl) element;
       Tree parent = callExpression.getParent();
-      if (parent.is(Kind.EXPRESSION_STATEMENT) && isExemptFromSideEffects(callExpression, currentState) && !issueAlreadyReported(callExpression)) {
+      if (parent.is(Kind.EXPRESSION_STATEMENT) && isExemptFromSideEffects(callExpression, currentState)) {
         String message = String.format(MESSAGE, getCalleeName(callExpression));
-        addIssue(callExpression, message);
-        expressionsWithIssue.add(callExpression);
+        addUniqueIssue(callExpression, message);
       }
     }
   }
@@ -85,10 +70,6 @@ public class ReturnValueNotIgnoredCheck extends SeCheck {
     } else {
       return CheckUtils.asString(callee);
     }
-  }
-
-  private boolean issueAlreadyReported(CallExpressionTree callExpression) {
-    return expressionsWithIssue.contains(callExpression);
   }
 
 }
