@@ -7,7 +7,7 @@ function testObject() {
   var unknown = foo();
 
   // 1. compare an object with the other types
-  obj > 0;                     // Noncompliant {{Re-evaluate the data flow; this operand could be "Object" here.}}
+  obj > 0;                     // Noncompliant {{Re-evaluate the data flow; this operand of a numeric comparison could be an Object.}}
 //^^^
   obj > true;                  // Noncompliant
 //^^^
@@ -17,7 +17,7 @@ function testObject() {
 //^^^
   obj >= null;                 // Noncompliant
 //^^^
-  obj >= undefined;            // Noncompliant {{Re-evaluate the data flow; this operand could be "undefined" here.}}
+  obj >= undefined;            // Noncompliant {{Re-evaluate the data flow; this operand of a numeric comparison could be "undefined".}}
 //       ^^^^^^^^^
   obj >= num;                  // Noncompliant
 //^^^
@@ -28,7 +28,7 @@ function testObject() {
   obj > obj2;                  // OK
 
   // 2. same as 1., but swapping left-hand side and right-hand side
-  0 <= obj;                    // Noncompliant {{Re-evaluate the data flow; this operand could be "Object" here.}}
+  0 <= obj;                    // Noncompliant {{Re-evaluate the data flow; this operand of a numeric comparison could be an Object.}}
 //     ^^^
   true <= obj;                 // Noncompliant
   date < obj;                  // Noncompliant
@@ -44,7 +44,7 @@ function testObject() {
 }
 
 function testUndefined() {
-  undefined > 0;               // Noncompliant {{Re-evaluate the data flow; this operand could be "undefined" here.}}
+  undefined > 0;               // Noncompliant {{Re-evaluate the data flow; this operand of a numeric comparison could be "undefined".}}
 //^^^^^^^^^
   undefined >= "hello";        // Noncompliant
 // Noncompliant@+1
