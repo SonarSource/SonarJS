@@ -1,5 +1,5 @@
-<p>In JavaScript when an object is created with setter for a property but without a corresponding getter it renders the property inaccessible, so it
-ends up not being used.</p>
+<p>When an object is created with a setter for a property but without a getter for that property, the property is inaccessible and is thus
+useless.</p>
 <p>This rule also enforces the reverse situation (getter but no setter).</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -17,6 +17,14 @@ var obj = {
     },
     get foo() {
         return this.fooval;
+    }
+};
+</pre>
+<p>or </p>
+<pre>
+var obj = {
+    setFoo(value) {    // a standard method, not a setter
+        this.fooval = value;
     }
 };
 </pre>

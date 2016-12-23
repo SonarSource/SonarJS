@@ -1,5 +1,5 @@
 {
-  "title": "Property setters should not be defined without getters",
+  "title": "Property getters and setters should come in pairs",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

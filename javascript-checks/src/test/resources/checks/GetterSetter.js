@@ -10,8 +10,13 @@ var a = {
   },
 
   get p3() { return 42; },
-  set p3(value) { foo(value);  }
+  set p3(value) { foo(value);  },
 
+  nested() {
+    return {
+      get p3() {return 42;} // Noncompliant
+    }
+  }
 }
 
 class A {
@@ -26,5 +31,10 @@ class A {
   get p3() { return 42; }
   set p3(value) { foo(value);  }
 
+  nested() {
+   return {
+     get p3() {return 42;} // Noncompliant
+   }
+  }
 }
 
