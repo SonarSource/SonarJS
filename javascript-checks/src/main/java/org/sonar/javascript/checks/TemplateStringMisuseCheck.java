@@ -41,8 +41,10 @@ public class TemplateStringMisuseCheck extends SubscriptionVisitorCheck {
   public void visitNode(Tree tree) {
     LiteralTree stringLiteral = (LiteralTree) tree;
     String value = stringLiteral.value();
+    int startIndex = value.indexOf("${");
+    int endIndex = value.indexOf('}');
 
-    if (value.contains("${")) {
+    if (startIndex != -1 && startIndex < endIndex) {
       addIssue(tree, String.format(MESSAGE, value.charAt(0)));
     }
 

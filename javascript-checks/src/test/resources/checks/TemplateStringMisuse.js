@@ -4,3 +4,8 @@
 `Hello ${name}`; // OK
 `Hello name`; // OK
 `Hello {name}`; // OK
+
+"${"; // OK
+"} ${"; // OK
+"$   {   } "; // OK
+"${foo}}"; // Noncompliant

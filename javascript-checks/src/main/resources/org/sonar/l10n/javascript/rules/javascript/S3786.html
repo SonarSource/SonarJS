@@ -4,10 +4,10 @@ using expressions like <code>${variable} </code> in a string between two back-ti
 probably not what was intended.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-"Hello ${name}!"; // Noncompliant
+console.log("Today is ${date}"); // Noncompliant
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-`Hello ${name}`;
+console.log(`Today is ${date}`);
 </pre>
 
