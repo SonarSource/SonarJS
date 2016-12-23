@@ -34,7 +34,7 @@ class JsCfgForwardingBlock extends JsCfgBlock {
 
   @Override
   public ImmutableSet<CfgBlock> successors() {
-    Preconditions.checkState(successor != null, "No successor was set on " + this);
+    Preconditions.checkState(successor != null, "No successor was set on %s", this);
     return ImmutableSet.<CfgBlock>of(successor);
   }
 
