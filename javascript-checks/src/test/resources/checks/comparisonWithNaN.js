@@ -9,4 +9,11 @@ NaN != a;   // Noncompliant
 NaN === a;  // Noncompliant
 NaN !== a;  // Noncompliant
 
+a == Number.NaN;   // Noncompliant
+a != Number.NaN;   // Noncompliant
+
+a == Foo.NaN;   // OK
+a == Number.foo;   // OK
+a == Foo.bar.foo;   // OK
+
 a != a      // OK

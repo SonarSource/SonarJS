@@ -26,6 +26,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
@@ -34,6 +35,7 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Use a test of the format \"a %s a\" instead.";
+  private static final String NAN = "NaN";
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -55,8 +57,20 @@ public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
     }
   }
 
+  /**
+   * Returns true for "NaN" and "Number.NaN"
+   */
   private static boolean isNaN(ExpressionTree expression) {
-    return expression.is(Kind.IDENTIFIER_REFERENCE) && "NaN".equals(((IdentifierTree) expression).name());
+    if (expression.is(Kind.DOT_MEMBER_EXPRESSION)) {
+      DotMemberExpressionTree memberExpression = (DotMemberExpressionTree) expression;
+      return isIdentifier(memberExpression.object(), "Number") && isIdentifier(memberExpression.property(), NAN);
+    } else {
+      return isIdentifier(expression, NAN);
+    }
+  }
+
+  private static boolean isIdentifier(Tree tree, String value) {
+    return tree instanceof IdentifierTree && value.equals(((IdentifierTree) tree).name());
   }
 
   @CheckForNull
