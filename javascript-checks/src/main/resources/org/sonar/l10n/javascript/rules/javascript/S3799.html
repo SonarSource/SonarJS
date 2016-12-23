@@ -5,14 +5,14 @@ intent was to use a default value instead.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var {a: {}, b} = myObj; // Noncompliant
-function foo([first: {}, second]) { // Noncompliant
+function foo({first: [], second}) { // Noncompliant
   // ...
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
 var {a = {}, b} = myObj;
-function foo([first = {}, second]) {
+function foo({first = [], second}) {
   // ...
 }
 </pre>
