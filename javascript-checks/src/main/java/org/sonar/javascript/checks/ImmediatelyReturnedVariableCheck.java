@@ -20,11 +20,13 @@
 package org.sonar.javascript.checks;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
@@ -65,10 +67,10 @@ public class ImmediatelyReturnedVariableCheck extends DoubleDispatchVisitorCheck
       if (initializedBindingElementTree.left().is(Kind.BINDING_IDENTIFIER)) {
         String name = ((IdentifierTree) initializedBindingElementTree.left()).name();
 
-        if (lastStatementReturnsVariable(lastStatement, name)) {
+        if (returnsVariableInLastStatement(lastStatement, name)) {
           addIssue(initializedBindingElementTree.right(), String.format(MESSAGE, "return", name));
 
-        } else if (lastStatementThrowsVariable(lastStatement, name)) {
+        } else if (throwsVariableInLastStatement(lastStatement, name)) {
           addIssue(initializedBindingElementTree.right(), String.format(MESSAGE, "throw", name));
 
         }
@@ -76,27 +78,29 @@ public class ImmediatelyReturnedVariableCheck extends DoubleDispatchVisitorCheck
     }
   }
 
-  private static boolean lastStatementReturnsVariable(StatementTree lastStatement, String variableName) {
+  private static boolean returnsVariableInLastStatement(StatementTree lastStatement, String variableName) {
     if (lastStatement.is(Kind.RETURN_STATEMENT)) {
       ReturnStatementTree returnStatement = (ReturnStatementTree) lastStatement;
 
-      if (returnStatement.expression() != null && returnStatement.expression().is(Kind.IDENTIFIER_REFERENCE)) {
-        String returnedName = ((IdentifierTree) returnStatement.expression()).name();
-        return returnedName.equals(variableName);
-      }
+      return isVariable(returnStatement.expression(), variableName);
     }
 
     return false;
   }
 
-  private static boolean lastStatementThrowsVariable(StatementTree lastStatement, String variableName) {
+  private static boolean throwsVariableInLastStatement(StatementTree lastStatement, String variableName) {
     if (lastStatement.is(Kind.THROW_STATEMENT)) {
       ThrowStatementTree throwStatement = (ThrowStatementTree) lastStatement;
-      if (throwStatement.expression().is(Kind.IDENTIFIER_REFERENCE)) {
-        String thrownName = ((IdentifierTree) throwStatement.expression()).name();
+      return isVariable(throwStatement.expression(), variableName);
+    }
 
-        return thrownName.equals(variableName);
-      }
+    return false;
+  }
+
+  private static boolean isVariable(@Nullable ExpressionTree expressionTree, String variableName) {
+    if (expressionTree != null && expressionTree.is(Kind.IDENTIFIER_REFERENCE)) {
+      String thrownName = ((IdentifierTree) expressionTree).name();
+      return thrownName.equals(variableName);
     }
 
     return false;
