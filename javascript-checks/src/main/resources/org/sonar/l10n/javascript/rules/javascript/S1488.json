@@ -1,0 +1,13 @@
+{
+  "title": "Local Variables should not be declared and then immediately returned or thrown",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "clumsy"
+  ],
+  "defaultSeverity": "Minor"
+}

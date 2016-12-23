@@ -115,6 +115,7 @@ public final class CheckList {
       IdChildrenSelectorCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
       IfConditionalAlwaysTrueOrFalseCheck.class,
+      ImmediatelyReturnedVariableCheck.class,
       IncrementDecrementInSubExpressionCheck.class,
       IndexOfCompareToPositiveNumberCheck.class,
       InOperatorTypeErrorCheck.class,
