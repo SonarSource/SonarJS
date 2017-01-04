@@ -123,7 +123,7 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
 
   @Override
   public TreeVisitorContext getContext() {
-    Preconditions.checkState(context != null, "this#scanTree(context) should be called to initialised the context before accessing it");
+    Preconditions.checkState(context != null, "this#scanTree(context) should be called to initialise the context before accessing it");
     return context;
   }
 

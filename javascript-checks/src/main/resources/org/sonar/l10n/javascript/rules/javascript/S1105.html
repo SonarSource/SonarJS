@@ -1,0 +1,25 @@
+<p>Sharing some coding conventions is a key point to make it possible for a team to efficiently collaborate. This rule makes it mandatory to place
+open curly braces at the end of lines of code.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+if (condition)
+{
+  doSomething();
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+if (condition) {
+  doSomething();
+}
+</pre>
+<h2>Exceptions</h2>
+<p>Object literals not appearing as first argument can start on their own line.</p>
+<pre>
+functionWithObject(parameter1,
+   {                                                 //Compliant
+        g: "someValue"
+   }
+);
+</pre>
+
