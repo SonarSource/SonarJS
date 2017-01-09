@@ -109,4 +109,5 @@ public class ControlFlowGraph {
       return block.successors().iterator().next();
     }
   }
+
 }
