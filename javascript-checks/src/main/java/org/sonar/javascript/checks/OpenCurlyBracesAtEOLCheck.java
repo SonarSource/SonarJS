@@ -21,8 +21,6 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -75,22 +73,12 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
       SyntaxToken openCurly = objectLiteral.openCurlyBrace();
       Tree parent = CheckUtils.parent(objectLiteral);
       checkAssignment(openCurly, parent);
-      checkFunctionArguments(objectLiteral, openCurly, parent);
     }
     if (tree.is(Kind.SWITCH_STATEMENT)) {
       checkSwitch((SwitchStatementTree) tree);
     }
     if (tree.is(Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION)) {
       checkClass((ClassTree) tree);
-    }
-  }
-
-  private void checkFunctionArguments(ObjectLiteralTree objectLiteral, SyntaxToken openCurly, Tree parent) {
-    if (parent.is(Kind.ARGUMENTS)) {
-      ParameterListTree parameterListTree = (ParameterListTree) parent;
-      if (parameterListTree.parameters().get(0).equals(objectLiteral)) {
-        issueIfLineMismatch(openCurly, parameterListTree.openParenthesis());
-      }
     }
   }
 
@@ -159,30 +147,21 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
 
   private void checkFunction(Tree parent, SyntaxToken openCurly) {
     if (parent.is(Kind.FUNCTION_DECLARATION, Kind.METHOD, Kind.GENERATOR_DECLARATION, Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
-      atParameterClause((FunctionTree) parent, clause -> issueIfLineMismatch(openCurly, clause.closeParenthesis()));
+      issueIfLineMismatch(openCurly, getParameterList((FunctionTree) parent).closeParenthesis());
     }
     if (parent.is(Kind.ARROW_FUNCTION)) {
       issueIfLineMismatch(openCurly, ((ArrowFunctionTree) parent).doubleArrow());
     }
   }
 
-  private void issueIfLineMismatch(SyntaxToken curlyBrace, @Nullable SyntaxToken target) {
-    if (target == null) {
-      return;
-    }
+  private void issueIfLineMismatch(SyntaxToken curlyBrace, SyntaxToken target) {
     if (curlyBrace.line() != target.line()) {
       addIssue(new PreciseIssue(this, new IssueLocation(curlyBrace, "Move this open curly brace to the end of the previous line.")));
     }
   }
 
-  /*
-   * This method is required because, for some reason I don't yet know, not all functions seem to return a ParameterListTree,
-   * namely the arrow function, which receives a generic tree.
-   */
-  private static void atParameterClause(FunctionTree function, Consumer<ParameterListTree> clauseConsumer) {
-    if (function.parameterClause() instanceof ParameterListTree) {
-      clauseConsumer.accept((ParameterListTree) function.parameterClause());
-    }
+  private static ParameterListTree getParameterList(FunctionTree function) {
+    return (ParameterListTree) function.parameterClause();
   }
 
 }

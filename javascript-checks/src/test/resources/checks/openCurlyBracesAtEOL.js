@@ -10,12 +10,25 @@ class AGreatClass
 extends ASimpleClass
 {}                                          // Noncompliant
 
+var aClass = class ClassyExpression
+{                                           // Noncompliant
+}
+
+
 function declaredFunction() {               // OK
 }
 
 function declaredFunctionKo()
   {                                         // Noncompliant {{Move this open curly brace to the end of the previous line.}}
 //^
+}
+
+function functionWithCurlyComment()
+{                                           // Noncompliant
+    // { this is just a comment starting with a curly brace
+    /*
+        { and here are some more curly braces '{' strewn around
+    */
 }
 
 function declaredFunctionKoBodyOnSameLine()
@@ -60,6 +73,15 @@ if(true) {                                  // OK
 if(true)
 {                                           // Noncompliant
 } else
+{                                           // Noncompliant
+}
+
+if(true) {
+} else if(true) {                           // OK
+}
+
+if(true) {
+} else if(true)
 {                                           // Noncompliant
 }
 
@@ -150,9 +172,8 @@ functionWithObject({                        // OK
 });
 
 functionWithObject(
-   {                                        // Noncompliant
-        f: "ko"
-});
+   { f: "ko" }                              // OK
+);
 
 functionWithObjects(parameter1,             // OK
    {                                        // OK
