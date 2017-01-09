@@ -47,16 +47,18 @@ public class GeneratorWithoutYieldCheck extends SubscriptionVisitorCheck {
       Kind.GENERATOR_METHOD,
       Kind.GENERATOR_FUNCTION_EXPRESSION,
 
-      Kind.YIELD_EXPRESSION
-    );
+      Kind.YIELD_EXPRESSION);
   }
 
   @Override
   public void visitNode(Tree tree) {
     if (tree.is(Kind.YIELD_EXPRESSION)) {
+      if (hasYieldStack.isEmpty()) {
+        /* Guard clause to protect against misplaced yields */
+        return;
+      }
       hasYieldStack.removeLast();
       hasYieldStack.addLast(true);
-
     } else {
       hasYieldStack.addLast(false);
     }

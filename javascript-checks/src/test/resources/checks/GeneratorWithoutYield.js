@@ -19,3 +19,7 @@ function * foo() {  // Noncompliant
   }
 }
 
+function humbleSimpleFunction() {
+    let a = 3;
+    yield a;
+}
