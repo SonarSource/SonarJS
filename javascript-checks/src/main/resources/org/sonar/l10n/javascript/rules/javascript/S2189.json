@@ -1,0 +1,15 @@
+{
+  "title": "Loops should not be infinite",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "bug",
+    "cert",
+    "javascript"
+  ],
+  "defaultSeverity": "Blocker"
+}

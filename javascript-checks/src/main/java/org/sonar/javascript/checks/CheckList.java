@@ -127,6 +127,7 @@ public final class CheckList {
       LabelPlacementCheck.class,
       LineLengthCheck.class,
       LocalStorageCheck.class,
+      LoopsShouldNotBeInfiniteCheck.class,
       MisorderedParameterListCheck.class,
       MissingNewlineAtEndOfFileCheck.class,
       MissingTrailingCommaCheck.class,
