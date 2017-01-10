@@ -11,7 +11,9 @@ extends ASimpleClass
 {}                                          // Noncompliant
 
 var aClass = class ClassyExpression
-{                                           // Noncompliant
+
+
+{                                           // Noncompliant {{Move this open curly brace to the end of line 13.}}
 }
 
 

@@ -147,7 +147,7 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
 
   private void checkFunction(Tree parent, SyntaxToken openCurly) {
     if (parent.is(Kind.FUNCTION_DECLARATION, Kind.METHOD, Kind.GENERATOR_DECLARATION, Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
-      issueIfLineMismatch(openCurly, getParameterList((FunctionTree) parent).closeParenthesis());
+      issueIfLineMismatch(openCurly, ((ParameterListTree) ((FunctionTree) parent).parameterClause()).closeParenthesis());
     }
     if (parent.is(Kind.ARROW_FUNCTION)) {
       issueIfLineMismatch(openCurly, ((ArrowFunctionTree) parent).doubleArrow());
@@ -155,13 +155,28 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
   }
 
   private void issueIfLineMismatch(SyntaxToken curlyBrace, SyntaxToken target) {
-    if (curlyBrace.line() != target.line()) {
+    CodeLine curlyBraceLine = new CodeLine(curlyBrace.line());
+    if (curlyBraceLine.isJustBelow(target.line())) {
       addIssue(new PreciseIssue(this, new IssueLocation(curlyBrace, "Move this open curly brace to the end of the previous line.")));
+    }
+    if (curlyBraceLine.isFarBelow(target.line())) {
+      addIssue(new PreciseIssue(this, new IssueLocation(curlyBrace, "Move this open curly brace to the end of line " + target.line() + ".")));
     }
   }
 
-  private static ParameterListTree getParameterList(FunctionTree function) {
-    return (ParameterListTree) function.parameterClause();
-  }
+  private static class CodeLine {
+    private final int line;
 
+    CodeLine(int line) {
+      this.line = line;
+    }
+
+    boolean isJustBelow(int line) {
+      return this.line == line + 1;
+    }
+
+    boolean isFarBelow(int line) {
+      return this.line > line + 1;
+    }
+  }
 }
