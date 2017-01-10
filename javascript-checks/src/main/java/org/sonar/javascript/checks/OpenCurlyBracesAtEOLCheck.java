@@ -147,11 +147,15 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
 
   private void checkFunction(Tree parent, SyntaxToken openCurly) {
     if (parent.is(Kind.FUNCTION_DECLARATION, Kind.METHOD, Kind.GENERATOR_DECLARATION, Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
-      issueIfLineMismatch(openCurly, ((ParameterListTree) ((FunctionTree) parent).parameterClause()).closeParenthesis());
+      issueIfLineMismatch(openCurly, getParameterList((FunctionTree) parent).closeParenthesis());
     }
     if (parent.is(Kind.ARROW_FUNCTION)) {
       issueIfLineMismatch(openCurly, ((ArrowFunctionTree) parent).doubleArrow());
     }
+  }
+
+  private static ParameterListTree getParameterList(FunctionTree parent) {
+    return (ParameterListTree) parent.parameterClause();
   }
 
   private void issueIfLineMismatch(SyntaxToken curlyBrace, SyntaxToken target) {
