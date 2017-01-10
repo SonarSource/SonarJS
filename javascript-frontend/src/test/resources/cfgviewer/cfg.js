@@ -1,19 +1,5 @@
 var lastAnalyzed = "";
-
-window.onload = function() {
-  var textarea = document.getElementById("textarea");
-  textarea.onkeyup = function() {
-    displayCfg(this.value);
-  }
-  displayCfg(textarea.value);
-}
-
-function displayCfg(jsCode) {
-  if (jsCode != lastAnalyzed) {
-    loadCfg(analyzer.analyze(jsCode));
-    lastAnalyzed = jsCode;
-  }
-}
+var output;
 
 function loadCfg(dotString) {
   var parsedData = vis.network.convertDot(dotString.replace(/\\n/g, "\n"));
@@ -53,3 +39,21 @@ function loadCfg(dotString) {
 
   new vis.Network(container, data, options);
 };
+
+function displayCfg(jsCode, a) {
+
+    loadCfg(a.analyze(jsCode));
+    lastAnalyzed = jsCode;
+}
+
+window.onload = function() {
+  var textarea = document.getElementById("textarea");
+  var ana = window.analyzer;
+  textarea.onkeyup = function() {
+    displayCfg(this.value, ana)
+  }
+  output = document.getElementById("output");
+  output.innerHTML += "+" + ana + " " + (typeof ana);
+  displayCfg(textarea.value, ana);
+}
+

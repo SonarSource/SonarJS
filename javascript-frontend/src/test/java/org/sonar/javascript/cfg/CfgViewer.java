@@ -58,6 +58,7 @@ public class CfgViewer extends Application {
 
     public String analyze(String jsSourceCode) {
       try {
+        System.out.println("Source : " + jsSourceCode);
         Tree tree = parser.parse(jsSourceCode);
         ControlFlowGraph cfg = ControlFlowGraph.build((ScriptTree) tree);
         return CfgPrinter.toDot(cfg);

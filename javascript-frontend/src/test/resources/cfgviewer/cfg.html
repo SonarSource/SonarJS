@@ -10,13 +10,18 @@
 
 <div id="codeArea" style="float:left" >
   <textarea id="textarea"
->if(a && b) {
-  foo(a);
-} else {
-  bar;
-}
-return;
+>
+      for(;a;) {
+        foo();
+        if(b) {
+            bar();
+        } else {
+            break;
+        }
+      }
+
 </textarea>
+    <div id="output"></div>
 </div>
 
 <div id="container" style="float:right"></div>
