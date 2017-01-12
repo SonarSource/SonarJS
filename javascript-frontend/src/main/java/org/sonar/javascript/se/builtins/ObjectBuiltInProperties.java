@@ -23,34 +23,32 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.sv.SymbolicValue;
 
-public class ObjectBuiltInProperties extends BuiltInProperties {
+import static org.sonar.javascript.se.builtins.BuiltInProperty.method;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.property;
 
-  @Override
-  Map<String, SymbolicValue> getMethods() {
-    return ImmutableMap.<String, SymbolicValue>builder()
+public class ObjectBuiltInProperties {
+
+  private static final ImmutableList<Constraint> oneObject = ImmutableList.of(Constraint.OBJECT);
+
+  public static final Map<String, BuiltInProperty> PROTOTYPE_PROPERTIES =
+    ImmutableMap.<String, BuiltInProperty>builder()
+      .put("__defineGetter__", method(Constraint.UNDEFINED, ImmutableList.of(Constraint.ANY_STRING, Constraint.FUNCTION), true))
+      .put("__defineSetter__", method(Constraint.UNDEFINED, ImmutableList.of(Constraint.ANY_STRING, Constraint.FUNCTION), true))
+      .put("__lookupGetter__", method(Constraint.FUNCTION, ImmutableList.of(Constraint.ANY_STRING)))
+      .put("__lookupSetter__", method(Constraint.FUNCTION, ImmutableList.of(Constraint.ANY_STRING)))
       .put("hasOwnProperty", method(Constraint.BOOLEAN_PRIMITIVE, ImmutableList.of(Constraint.ANY_VALUE)))
       .put("isPrototypeOf", method(Constraint.BOOLEAN_PRIMITIVE, ImmutableList.of(Constraint.OBJECT)))
       .put("propertyIsEnumerable", method(Constraint.BOOLEAN_PRIMITIVE, ImmutableList.of(Constraint.ANY_VALUE)))
-      .put("toLocaleString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))
-      .put("toString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))
-      .put("valueOf", method(Constraint.ANY_VALUE, Type.EMPTY))
+      .put("toLocaleString", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.EMPTY))
+      .put("toString", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.EMPTY))
+      .put("valueOf", method(Constraint.ANY_VALUE, BuiltInProperty.EMPTY))
+      .put("constructor", property(Constraint.ANY_VALUE))
+      .put("__proto__", property(Constraint.OBJECT.or(Constraint.NULL)))
       .build();
-  }
 
-  @Override
-  Map<String, Constraint> getPropertiesConstraints() {
-    return ImmutableMap.of(
-      "constructor", Constraint.ANY_VALUE
-    );
-  }
-
-  @Override
-  Map<String, SymbolicValue> getOwnMethods() {
-    ImmutableList<Constraint> oneObject = ImmutableList.of(Constraint.OBJECT);
-    return ImmutableMap.<String, SymbolicValue>builder()
+  public static final Map<String, BuiltInProperty> PROPERTIES =
+    ImmutableMap.<String, BuiltInProperty>builder()
       .put("assign", method(Constraint.OBJECT, (int index) -> Constraint.OBJECT, true))
       .put("create", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT.or(Constraint.NULL), Constraint.OBJECT)))
       .put("defineProperty", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.ANY_VALUE, Constraint.OBJECT), true))
@@ -72,10 +70,8 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
       .put("setPrototypeOf", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.OBJECT.or(Constraint.NULL)), true))
       .put("values", method(Constraint.ARRAY, oneObject))
       .build();
+
+  private ObjectBuiltInProperties() {
   }
 
-  @Override
-  Map<String, Constraint> getOwnPropertiesConstraints() {
-    return ImmutableMap.of();
-  }
 }

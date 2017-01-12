@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.IntFunction;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.sv.SymbolicValue;
 
 import static org.sonar.javascript.se.Constraint.ANY_NUMBER;
 import static org.sonar.javascript.se.Constraint.ANY_VALUE;
@@ -34,76 +32,65 @@ import static org.sonar.javascript.se.Constraint.ARRAY;
 import static org.sonar.javascript.se.Constraint.FUNCTION;
 import static org.sonar.javascript.se.Constraint.OBJECT;
 import static org.sonar.javascript.se.Constraint.UNDEFINED;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.method;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.property;
 
-public class ArrayBuiltInProperties extends BuiltInProperties {
+public class ArrayBuiltInProperties {
 
-  @Override
-  Map<String, SymbolicValue> getMethods() {
-    List<Constraint> functionAndObject = ImmutableList.of(FUNCTION, OBJECT);
-    List<Constraint> anyValueAndNumber = ImmutableList.of(ANY_VALUE, ANY_NUMBER);
-    IntFunction<Constraint> anyValues = (int index) -> ANY_VALUE;
+  private static final List<Constraint> functionAndObject = ImmutableList.of(FUNCTION, OBJECT);
+  private static final List<Constraint> anyValueAndNumber = ImmutableList.of(ANY_VALUE, ANY_NUMBER);
+  private static final IntFunction<Constraint> anyValues = (int index) -> ANY_VALUE;
 
-    return ImmutableMap.<String, SymbolicValue>builder()
-      .put("copyWithin", method(Constraint.ARRAY, ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_NUMBER, Constraint.ANY_NUMBER), true))
-      .put("fill", method(Constraint.ARRAY, ImmutableList.of(ANY_VALUE, ANY_NUMBER, ANY_NUMBER), true))
-      .put("push", method(Constraint.NUMBER_PRIMITIVE, anyValues, true))
-      .put("reverse", method(Constraint.ARRAY, Type.EMPTY, true))
-      .put("sort", method(Constraint.ARRAY, ImmutableList.of(FUNCTION), true))
-      .put("splice", method(Constraint.ARRAY, (int index) -> {
-        if (index == 0 || index == 1) {
-          return ANY_NUMBER;
-        } else {
-          return ANY_VALUE;
-        }
-      }, true))
-      .put("unshift", method(Constraint.NUMBER_PRIMITIVE, anyValues, true))
-      .put("concat", method(Constraint.ARRAY, anyValues))
-      .put("includes", method(Constraint.BOOLEAN_PRIMITIVE, anyValueAndNumber))
-      .put("join", method(Constraint.STRING_PRIMITIVE, Type.ONE_STRING))
-      .put("slice", method(Constraint.ARRAY, Type.NUMBER_NUMBER))
-      .put("indexOf", method(Constraint.NUMBER_PRIMITIVE, anyValueAndNumber))
-      .put("lastIndexOf", method(Constraint.NUMBER_PRIMITIVE, anyValueAndNumber))
+  public static final Map<String, BuiltInProperty> PROTOTYPE_PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
+    .put("copyWithin", method(Constraint.ARRAY, ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_NUMBER, Constraint.ANY_NUMBER), true))
+    .put("fill", method(Constraint.ARRAY, ImmutableList.of(ANY_VALUE, ANY_NUMBER, ANY_NUMBER), true))
+    .put("push", method(Constraint.NUMBER_PRIMITIVE, anyValues, true))
+    .put("reverse", method(Constraint.ARRAY, BuiltInProperty.EMPTY, true))
+    .put("sort", method(Constraint.ARRAY, ImmutableList.of(FUNCTION), true))
+    .put("splice", method(Constraint.ARRAY, (int index) -> {
+      if (index == 0 || index == 1) {
+        return ANY_NUMBER;
+      } else {
+        return ANY_VALUE;
+      }
+    }, true))
+    .put("unshift", method(Constraint.NUMBER_PRIMITIVE, anyValues, true))
+    .put("concat", method(Constraint.ARRAY, anyValues))
+    .put("includes", method(Constraint.BOOLEAN_PRIMITIVE, anyValueAndNumber))
+    .put("join", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.ONE_STRING))
+    .put("slice", method(Constraint.ARRAY, BuiltInProperty.NUMBER_NUMBER))
+    .put("indexOf", method(Constraint.NUMBER_PRIMITIVE, anyValueAndNumber))
+    .put("lastIndexOf", method(Constraint.NUMBER_PRIMITIVE, anyValueAndNumber))
 
-      .put("forEach", method(UNDEFINED, functionAndObject, true))
-      .put("entries", method(Constraint.OTHER_OBJECT, Type.EMPTY))
-      .put("every", method(Constraint.BOOLEAN_PRIMITIVE, functionAndObject))
-      .put("some", method(Constraint.BOOLEAN_PRIMITIVE, functionAndObject))
-      .put("filter", method(Constraint.ARRAY, functionAndObject))
-      .put("findIndex", method(Constraint.NUMBER_PRIMITIVE, functionAndObject))
-      .put("keys", method(Constraint.OTHER_OBJECT, Type.EMPTY))
-      .put("map", method(Constraint.ARRAY, functionAndObject))
-      .put("values", method(Constraint.OTHER_OBJECT, Type.EMPTY))
+    .put("forEach", method(UNDEFINED, functionAndObject, true))
+    .put("entries", method(Constraint.OTHER_OBJECT, BuiltInProperty.EMPTY))
+    .put("every", method(Constraint.BOOLEAN_PRIMITIVE, functionAndObject))
+    .put("some", method(Constraint.BOOLEAN_PRIMITIVE, functionAndObject))
+    .put("filter", method(Constraint.ARRAY, functionAndObject))
+    .put("findIndex", method(Constraint.NUMBER_PRIMITIVE, functionAndObject))
+    .put("keys", method(Constraint.OTHER_OBJECT, BuiltInProperty.EMPTY))
+    .put("map", method(Constraint.ARRAY, functionAndObject))
+    .put("values", method(Constraint.OTHER_OBJECT, BuiltInProperty.EMPTY))
 
-      .put("pop", method(ANY_VALUE, Type.EMPTY, true))
-      .put("shift", method(ANY_VALUE, Type.EMPTY, true))
-      .put("find", method(ANY_VALUE, functionAndObject))
-      .put("reduce", method(ANY_VALUE, ImmutableList.of(FUNCTION, Constraint.ANY_VALUE)))
-      .put("reduceRight", method(ANY_VALUE, ImmutableList.of(FUNCTION, Constraint.ANY_VALUE)))
+    .put("pop", method(ANY_VALUE, BuiltInProperty.EMPTY, true))
+    .put("shift", method(ANY_VALUE, BuiltInProperty.EMPTY, true))
+    .put("find", method(ANY_VALUE, functionAndObject))
+    .put("reduce", method(ANY_VALUE, ImmutableList.of(FUNCTION, Constraint.ANY_VALUE)))
+    .put("reduceRight", method(ANY_VALUE, ImmutableList.of(FUNCTION, Constraint.ANY_VALUE)))
 
-      // overrides Object
-      .put("toString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))
-      .put("toLocaleString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))
-      .build();
+    // overrides Object
+    .put("toString", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.EMPTY))
+    .put("toLocaleString", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.EMPTY))
+    .put("length", property(Constraint.NUMBER_PRIMITIVE))
+    .build();
+
+  public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
+    .put("from", method(Constraint.ARRAY, ImmutableList.of(ANY_VALUE, FUNCTION, ANY_VALUE)))
+    .put("isArray", method(Constraint.BOOLEAN_PRIMITIVE, BuiltInProperty.getIsSomethingArgumentsConstrainer(ARRAY), ImmutableList.of(ANY_VALUE)))
+    .put("of", method(Constraint.ARRAY, (int index) -> ANY_VALUE))
+    .build();
+
+  private ArrayBuiltInProperties() {
   }
 
-  @Override
-  Map<String, Constraint> getPropertiesConstraints() {
-    return ImmutableMap.of(
-      "length", Constraint.NUMBER_PRIMITIVE
-    );
-  }
-
-  @Override
-  Map<String, Constraint> getOwnPropertiesConstraints() {
-    return ImmutableMap.of();
-  }
-
-  @Override
-  Map<String, SymbolicValue> getOwnMethods() {
-    return ImmutableMap.<String, SymbolicValue>builder()
-      .put("from", method(Constraint.ARRAY, ImmutableList.of(ANY_VALUE, FUNCTION, ANY_VALUE)))
-      .put("isArray", method(Constraint.BOOLEAN_PRIMITIVE, BuiltInProperties.getIsSomethingArgumentsConstrainer(ARRAY), ImmutableList.of(ANY_VALUE)))
-      .put("of", method(Constraint.ARRAY, (int index) -> ANY_VALUE))
-      .build();
-  }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.check.Rule;
@@ -37,7 +36,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 @Rule(key = "S3759")
 public class NonExistentPropertyAccessCheck extends AbstractAnyPathSeCheck {
 
-  private static final String MESSAGE = "Remove this access to \"%s\" property, it doesn't exist, as a built-in, on a %s.";
+  private static final String MESSAGE = "Remove this access to \"%s\" property, it doesn't exist, as a built-in, on %s.";
 
   private static final Map<Type, String> TYPE_NAMES = ImmutableMap.<Type, String>builder()
     .put(Type.NUMBER_PRIMITIVE, "Number")
@@ -66,9 +65,7 @@ public class NonExistentPropertyAccessCheck extends AbstractAnyPathSeCheck {
   private static String getTypeOfObject(ProgramState programState) {
     Constraint constraintOnObject = programState.getConstraint(programState.peekStack());
     Type type = Type.find(constraintOnObject);
-    Preconditions.checkState(type != null && TYPE_NAMES.containsKey(type));
-
-    return TYPE_NAMES.get(type);
+    return TYPE_NAMES.containsKey(type) ? ("a " + TYPE_NAMES.get(type)) : "this object";
   }
 
   private static boolean isUndefinedProperty(ProgramState currentState, Tree element) {
