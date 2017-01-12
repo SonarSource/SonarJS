@@ -36,6 +36,6 @@ public class FunctionSymbolicValueTest {
     assertThat(basicFunctionSV.baseConstraint(ps)).isEqualTo(Constraint.FUNCTION);
     assertThat(basicFunctionSV.call(ImmutableList.of()).baseConstraint(ps)).isEqualTo(Constraint.ANY_VALUE);
     assertThat(basicFunctionSV.instantiate().baseConstraint(ps)).isEqualTo(Constraint.OBJECT);
-    assertThat(basicFunctionSV.getValueForProperty("fooBar").isPresent()).isFalse();
+    assertThat(basicFunctionSV.getPropertyValue("fooBar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
   }
 }

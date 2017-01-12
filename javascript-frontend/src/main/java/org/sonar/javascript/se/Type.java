@@ -66,7 +66,7 @@ public enum Type {
     return constraint;
   }
 
-  public SymbolicValue getValueForProperty(String propertyName) {
+  public SymbolicValue getPropertyValue(String propertyName) {
     if (prototype == null) {
       throw new IllegalStateException("Cannot access a property on a " + this);
     }

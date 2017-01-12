@@ -204,7 +204,7 @@ public class BuiltInPropertiesTest {
   @Test
   public void class_method_signature() throws Exception {
     BuiltInObjectSymbolicValue mathValue = (BuiltInObjectSymbolicValue) BuiltInObjectSymbolicValue.find("Math").get();
-    BuiltInFunctionSymbolicValue minMethod = (BuiltInFunctionSymbolicValue) mathValue.getValueForProperty("min").get();
+    BuiltInFunctionSymbolicValue minMethod = (BuiltInFunctionSymbolicValue) mathValue.getPropertyValue("min");
     IntFunction<Constraint> signature = minMethod.signature();
     assertThat(signature.apply(0)).isEqualTo(Constraint.ANY_NUMBER);
     assertThat(signature.apply(1)).isEqualTo(Constraint.ANY_NUMBER);
@@ -231,7 +231,7 @@ public class BuiltInPropertiesTest {
   }
 
   private SymbolicValue value(String name) {
-    return type.getValueForProperty(name);
+    return type.getPropertyValue(name);
   }
 
   private BuiltInFunctionSymbolicValue method(Constraint returnConstraint) {

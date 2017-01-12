@@ -162,4 +162,7 @@ function main() {
   if (isNaN(unknownValue)) {
     foo(unknownValue); // PS unknownValue=UNDEFINED
   }
+  
+  var x = Function.prototype.bind.toString();
+  foo(x); // PS x=STRING
 }

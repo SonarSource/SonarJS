@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
@@ -286,9 +285,9 @@ public class ExpressionStack {
     String propertyName = dotMemberExpressionTree.property().name();
 
     if (objectValue instanceof ObjectSymbolicValue) {
-      Optional<SymbolicValue> value = ((ObjectSymbolicValue) objectValue).getValueForProperty(propertyName);
-      if (value.isPresent()) {
-        newStack.push(value.get());
+      SymbolicValue value = ((ObjectSymbolicValue) objectValue).getPropertyValue(propertyName);
+      if (!UnknownSymbolicValue.UNKNOWN.equals(value)) {
+        newStack.push(value);
         return;
       }
     }
@@ -296,7 +295,7 @@ public class ExpressionStack {
     Type type = constraints.getConstraint(objectValue).type();
 
     if (type != null) {
-      newStack.push(type.getValueForProperty(propertyName));
+      newStack.push(type.getPropertyValue(propertyName));
     } else {
       pushUnknown(newStack);
     }

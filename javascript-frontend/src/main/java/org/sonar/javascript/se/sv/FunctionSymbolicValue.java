@@ -20,7 +20,6 @@
 package org.sonar.javascript.se.sv;
 
 import java.util.List;
-import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
@@ -32,8 +31,8 @@ public interface FunctionSymbolicValue extends ObjectSymbolicValue {
   }
 
   @Override
-  default Optional<SymbolicValue> getValueForProperty(String name) {
-    return Optional.empty();
+  default SymbolicValue getPropertyValue(String name) {
+    return UnknownSymbolicValue.UNKNOWN;
   }
 
   default SymbolicValue instantiate() {

@@ -27,11 +27,11 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
-import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue.ArgumentsConstrainer;
 import org.sonar.javascript.se.sv.ObjectSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
+import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue.ArgumentsConstrainer;
 
 import static org.sonar.javascript.se.Constraint.NAN;
 import static org.sonar.javascript.se.Constraint.NULL;
@@ -130,10 +130,6 @@ public class BuiltInObjectSymbolicValue implements ObjectSymbolicValue {
   }
 
   @Override
-  public Optional<SymbolicValue> getValueForProperty(String propertyName) {
-    return Optional.of(getPropertyValue(propertyName));
-  }
-
   public SymbolicValue getPropertyValue(String propertyName) {
     BuiltInProperty property = properties.get(propertyName);
     if (property != null) {

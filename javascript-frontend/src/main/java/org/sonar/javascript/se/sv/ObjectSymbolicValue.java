@@ -30,6 +30,6 @@ public interface ObjectSymbolicValue extends SymbolicValue {
     return Optional.of(state);
   }
 
-  Optional<SymbolicValue> getValueForProperty(String name);
+  SymbolicValue getPropertyValue(String name);
 
 }
