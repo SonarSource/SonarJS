@@ -162,8 +162,7 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
     CodeLine curlyBraceLine = new CodeLine(curlyBrace.line());
     if (curlyBraceLine.isJustBelow(target.line())) {
       addIssue(new PreciseIssue(this, new IssueLocation(curlyBrace, "Move this open curly brace to the end of the previous line.")));
-    }
-    if (curlyBraceLine.isFarBelow(target.line())) {
+    } else if (curlyBraceLine.isFarBelow(target.line())) {
       addIssue(new PreciseIssue(this, new IssueLocation(curlyBrace, "Move this open curly brace to the end of line " + target.line() + ".")));
     }
   }
