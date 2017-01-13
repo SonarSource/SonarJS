@@ -19,9 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
@@ -33,29 +32,14 @@ public class MissingNewlineAtEndOfFileCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    try (RandomAccessFile randomAccessFile = new RandomAccessFile(getContext().getFile(), "r")) {
+    if (tree.items() != null) {
+      int lastLine = tree.EOFToken().line();
+      int lastTokenLine = ((JavaScriptTree) tree.items()).getLastToken().endLine();
 
-      if (!endsWithNewline(randomAccessFile)) {
+      if (lastLine == lastTokenLine) {
         addIssue(new FileIssue(this, MESSAGE));
       }
-
-    } catch (IOException e) {
-      String fileName = getContext().getFile().getName();
-      throw new IllegalStateException("Unable to execute rule \"MissingNewlineAtEndOfFile\" for file " + fileName, e);
     }
-  }
-
-  private static boolean endsWithNewline(RandomAccessFile randomAccessFile) throws IOException {
-    if (randomAccessFile.length() < 1) {
-      return false;
-    }
-    randomAccessFile.seek(randomAccessFile.length() - 1);
-    byte[] chars = new byte[1];
-    if (randomAccessFile.read(chars) < 1) {
-      return false;
-    }
-    String ch = new String(chars);
-    return "\n".equals(ch) || "\r".equals(ch);
   }
 
 }
