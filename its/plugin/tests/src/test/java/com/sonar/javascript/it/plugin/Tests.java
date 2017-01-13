@@ -23,9 +23,22 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.WsComponents.Component;
+import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.WsMeasures.Measure;
+import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.component.ShowWsRequest;
+import org.sonarqube.ws.client.measure.ComponentWsRequest;
+
+import static java.util.Collections.singletonList;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -73,6 +86,33 @@ public final class Tests {
 
   public static boolean is_before_sonar_6_2() {
     return !ORCHESTRATOR.getConfiguration().getSonarVersion().isGreaterThanOrEquals("6.2");
+  }
+
+  @CheckForNull
+  static Measure getMeasure(String componentKey, String metricKey) {
+    WsMeasures.ComponentWsResponse response = newWsClient().measures().component(new ComponentWsRequest()
+      .setComponentKey(componentKey)
+      .setMetricKeys(singletonList(metricKey)));
+    List<Measure> measures = response.getComponent().getMeasuresList();
+    return measures.size() == 1 ? measures.get(0) : null;
+  }
+
+  @CheckForNull
+  static Integer getMeasureAsInt(String componentKey, String metricKey) {
+    Measure measure = getMeasure(componentKey, metricKey);
+    return (measure == null) ? null : Integer.parseInt(measure.getValue());
+  }
+
+  @CheckForNull
+  static Double getMeasureAsDouble(String componentKey, String metricKey) {
+    Measure measure = getMeasure(componentKey, metricKey);
+    return (measure == null) ? null : Double.parseDouble(measure.getValue());
+  }
+
+  static WsClient newWsClient() {
+    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+      .url(ORCHESTRATOR.getServer().getUrl())
+      .build());
   }
 
 }

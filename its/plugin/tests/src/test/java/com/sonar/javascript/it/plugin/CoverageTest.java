@@ -26,10 +26,10 @@ import java.util.regex.Pattern;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsMeasures.Measure;
 
+import static com.sonar.javascript.it.plugin.Tests.getMeasure;
+import static com.sonar.javascript.it.plugin.Tests.getMeasureAsInt;
 import static com.sonar.javascript.it.plugin.Tests.is_before_sonar_6_2;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,10 +55,10 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(7);
-    assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(1);
-    assertThat(getProjectMeasure("conditions_to_cover").getValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("uncovered_conditions").getValue()).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
+    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
+    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
   }
 
   @Test
@@ -73,10 +73,10 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(7);
-    assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(1);
-    assertThat(getProjectMeasure("conditions_to_cover").getValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("uncovered_conditions").getValue()).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
+    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
+    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
   }
 
   @Test
@@ -92,16 +92,16 @@ public class CoverageTest {
     orchestrator.executeBuild(build);
 
     if (is_before_sonar_6_2()) {
-      assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(7);
-      assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(1);
-      assertThat(getProjectMeasure("it_conditions_to_cover").getValue()).isEqualTo(4);
-      assertThat(getProjectMeasure("it_uncovered_conditions").getValue()).isEqualTo(1);
+      assertThat(getProjectMeasureAsInt("it_lines_to_cover")).isEqualTo(7);
+      assertThat(getProjectMeasureAsInt("it_uncovered_lines")).isEqualTo(1);
+      assertThat(getProjectMeasureAsInt("it_conditions_to_cover")).isEqualTo(4);
+      assertThat(getProjectMeasureAsInt("it_uncovered_conditions")).isEqualTo(1);
 
     } else {
-      assertThat(getProjectMeasure("it_lines_to_cover")).isNull();
-      assertThat(getProjectMeasure("it_uncovered_lines")).isNull();
-      assertThat(getProjectMeasure("it_conditions_to_cover")).isNull();
-      assertThat(getProjectMeasure("it_uncovered_conditions")).isNull();
+      assertThat(getProjectMeasureAsInt("it_lines_to_cover")).isNull();
+      assertThat(getProjectMeasureAsInt("it_uncovered_lines")).isNull();
+      assertThat(getProjectMeasureAsInt("it_conditions_to_cover")).isNull();
+      assertThat(getProjectMeasureAsInt("it_uncovered_conditions")).isNull();
     }
   }
 
@@ -119,16 +119,16 @@ public class CoverageTest {
     orchestrator.executeBuild(build);
 
     if (is_before_sonar_6_2()) {
-      assertThat(getProjectMeasure("overall_lines_to_cover").getValue()).isEqualTo(7);
-      assertThat(getProjectMeasure("overall_uncovered_lines").getValue()).isEqualTo(1);
-      assertThat(getProjectMeasure("overall_conditions_to_cover").getValue()).isEqualTo(4);
-      assertThat(getProjectMeasure("overall_uncovered_conditions").getValue()).isEqualTo(1);
+      assertThat(getProjectMeasureAsInt("overall_lines_to_cover")).isEqualTo(7);
+      assertThat(getProjectMeasureAsInt("overall_uncovered_lines")).isEqualTo(1);
+      assertThat(getProjectMeasureAsInt("overall_conditions_to_cover")).isEqualTo(4);
+      assertThat(getProjectMeasureAsInt("overall_uncovered_conditions")).isEqualTo(1);
 
     } else {
-      assertThat(getProjectMeasure("overall_lines_to_cover")).isNull();
-      assertThat(getProjectMeasure("overall_uncovered_lines")).isNull();
-      assertThat(getProjectMeasure("overall_conditions_to_cover")).isNull();
-      assertThat(getProjectMeasure("overall_uncovered_conditions")).isNull();
+      assertThat(getProjectMeasureAsInt("overall_lines_to_cover")).isNull();
+      assertThat(getProjectMeasureAsInt("overall_uncovered_lines")).isNull();
+      assertThat(getProjectMeasureAsInt("overall_conditions_to_cover")).isNull();
+      assertThat(getProjectMeasureAsInt("overall_uncovered_conditions")).isNull();
     }
   }
 
@@ -146,16 +146,16 @@ public class CoverageTest {
 
     if (is_before_sonar_6_2()) {
       // property is ignored
-      assertThat(getProjectMeasure("lines_to_cover")).isNull();
-      assertThat(getProjectMeasure("uncovered_lines")).isNull();
-      assertThat(getProjectMeasure("conditions_to_cover")).isNull();
-      assertThat(getProjectMeasure("uncovered_conditions")).isNull();
+      assertThat(getProjectMeasureAsInt("lines_to_cover")).isNull();
+      assertThat(getProjectMeasureAsInt("uncovered_lines")).isNull();
+      assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();
+      assertThat(getProjectMeasureAsInt("uncovered_conditions")).isNull();
 
     } else {
-      assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(7);
-      assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(1);
-      assertThat(getProjectMeasure("conditions_to_cover").getValue()).isEqualTo(4);
-      assertThat(getProjectMeasure("uncovered_conditions").getValue()).isEqualTo(1);
+      assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
+      assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
+      assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
+      assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
     }
   }
 
@@ -172,30 +172,31 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     BuildResult result = orchestrator.executeBuild(build);
 
-    // NOTE that lines_to_cover is 10 here (instead of 7 in other tests) because this value is equal to NCLOC metric (computed on plugin side)
+    // NOTE that lines_to_cover is 10 here (instead of 7 in other tests) because this value is equal to NCLOC metric (computed on plugin
+    // side)
     // which counts every line containing code even if it's not executable (e.g. containing just "}").
-    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(10);
-    assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(10);
-    assertThat(getProjectMeasure("conditions_to_cover")).isNull();
-    assertThat(getProjectMeasure("uncovered_conditions")).isNull();
-    assertThat(getFileMeasure("coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
+    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(10);
+    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(10);
+    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();
+    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isNull();
+    assertThat(getFileMeasure("coverage_line_hits_data").getValue()).startsWith("1=0;2=0;3=0;5=0");
 
-    assertThat(getProjectMeasure("it_conditions_to_cover")).isNull();
-    assertThat(getProjectMeasure("it_uncovered_conditions")).isNull();
+    assertThat(getProjectMeasureAsInt("it_conditions_to_cover")).isNull();
+    assertThat(getProjectMeasureAsInt("it_uncovered_conditions")).isNull();
 
     String propertyRemoveMessage = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
 
     if (is_before_sonar_6_2()) {
-      assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(10);
-      assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(10);
-      assertThat(getFileMeasure("it_coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
+      assertThat(getProjectMeasureAsInt("it_lines_to_cover")).isEqualTo(10);
+      assertThat(getProjectMeasureAsInt("it_uncovered_lines")).isEqualTo(10);
+      assertThat(getFileMeasure("it_coverage_line_hits_data").getValue()).startsWith("1=0;2=0;3=0;5=0");
       assertThat(result.getLogs()).doesNotContain(propertyRemoveMessage);
 
     } else {
       assertThat(result.getLogs()).contains(propertyRemoveMessage);
-      assertThat(getProjectMeasure("it_lines_to_cover")).isNull();
-      assertThat(getProjectMeasure("it_uncovered_lines")).isNull();
-      assertThat(getFileMeasure("it_coverage_line_hits_data")).isNull();
+      assertThat(getProjectMeasureAsInt("it_lines_to_cover")).isNull();
+      assertThat(getProjectMeasureAsInt("it_uncovered_lines")).isNull();
+      assertThat(getFileMeasureAsInt("it_coverage_line_hits_data")).isNull();
     }
   }
 
@@ -211,15 +212,15 @@ public class CoverageTest {
     orchestrator.executeBuild(build);
 
     if (is_before_sonar_6_2()) {
-      assertThat(getProjectMeasure("lines_to_cover")).isNull();
-      assertThat(getProjectMeasure("uncovered_lines")).isNull();
+      assertThat(getProjectMeasureAsInt("lines_to_cover")).isNull();
+      assertThat(getProjectMeasureAsInt("uncovered_lines")).isNull();
     } else {
-      assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(10);
-      assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(10);
+      assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(10);
+      assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(10);
     }
 
-    assertThat(getProjectMeasure("conditions_to_cover")).isNull();
-    assertThat(getProjectMeasure("uncovered_conditions")).isNull();
+    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();
+    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isNull();
   }
 
   @Test
@@ -269,20 +270,22 @@ public class CoverageTest {
     assertThat(Pattern.compile("WARN  - Problem during processing LCOV report: can't save DA data for line 999.").matcher(logs).find()).isTrue();
     assertThat(Pattern.compile("WARN  - Problem during processing LCOV report: can't save BRDA data for line 0.").matcher(logs).find()).isTrue();
 
-    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(6);
-    assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(1);
-    assertThat(getProjectMeasure("conditions_to_cover").getValue()).isEqualTo(3);
-    assertThat(getProjectMeasure("uncovered_conditions").getValue()).isEqualTo(0);
+    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(6);
+    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(3);
+    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(0);
   }
 
-  private Measure getProjectMeasure(String metricKey) {
-    Resource resource = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("project", metricKey));
-    return resource == null ? null : resource.getMeasure(metricKey);
+  private Integer getProjectMeasureAsInt(String metricKey) {
+    return getMeasureAsInt("project", metricKey);
+  }
+
+  private Integer getFileMeasureAsInt(String metricKey) {
+    return getMeasureAsInt("project:file.js", metricKey);
   }
 
   private Measure getFileMeasure(String metricKey) {
-    Resource resource = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("project:file.js", metricKey));
-    return resource == null ? null : resource.getMeasure(metricKey);
+    return getMeasure("project:file.js", metricKey);
   }
 
 }
