@@ -10,7 +10,7 @@
      parent is 1.17 or above. If it is, remove the temporary override of <version.sonar-packaging.plugin>
      below in this file.
     -->
-    <version>37</version>
+    <version>38</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
