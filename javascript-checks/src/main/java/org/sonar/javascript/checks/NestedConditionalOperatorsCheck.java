@@ -19,16 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.Issue;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 @Rule(key = "S3358")
 public class NestedConditionalOperatorsCheck extends DoubleDispatchVisitorCheck {
@@ -38,10 +37,10 @@ public class NestedConditionalOperatorsCheck extends DoubleDispatchVisitorCheck 
   private int nestingLevel;
 
   @Override
-  public List<Issue> scanFile(TreeVisitorContext context) {
+  public void visitScript(ScriptTree tree) {
     nestingLevel = 0;
 
-    return super.scanFile(context);
+    super.visitScript(tree);
   }
 
   @Override
@@ -63,15 +62,15 @@ public class NestedConditionalOperatorsCheck extends DoubleDispatchVisitorCheck 
   private static boolean isNestingBroken(ConditionalExpressionTree conditionalExpression) {
     Tree parent = ((JavaScriptTree) conditionalExpression).getParent();
     while (!parent.is(Kind.CONDITIONAL_EXPRESSION)) {
-      if (breaksRecursion(parent)) {
+      if (breaksNesting(parent)) {
         return true;
       }
-      parent = ((JavaScriptTree) parent).getParent();
+      parent = CheckUtils.parent(parent);
     }
     return false;
   }
 
-  private static boolean breaksRecursion(Tree tree) {
+  private static boolean breaksNesting(Tree tree) {
     return tree.is(Kind.ARRAY_LITERAL, Kind.OBJECT_LITERAL) ||
       TreeKinds.isFunction(tree);
   }
