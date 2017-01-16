@@ -134,6 +134,7 @@ public final class CheckList {
       MultilineBlockCurlyBraceCheck.class,
       MultilineStringLiteralsCheck.class,
       NamedFunctionExpressionCheck.class,
+      NestedConditionalOperatorsCheck.class,
       NestedControlFlowDepthCheck.class,
       NewOperatorMisuseCheck.class,
       NonCaseLabelInSwitchCheck.class,

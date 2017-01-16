@@ -33,6 +33,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
 public class CheckUtils {
+  
+  public static final String CHECK_DIR = "src/test/resources/checks";
 
   private CheckUtils() {
   }
