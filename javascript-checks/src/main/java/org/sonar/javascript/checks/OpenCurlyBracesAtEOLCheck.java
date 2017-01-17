@@ -154,14 +154,32 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
     }
   }
 
+  private static ParameterListTree getParameterList(FunctionTree parent) {
+    return (ParameterListTree) parent.parameterClause();
+  }
+
   private void issueIfLineMismatch(SyntaxToken curlyBrace, SyntaxToken target) {
-    if (curlyBrace.line() != target.line()) {
+    CodeLine curlyBraceLine = new CodeLine(curlyBrace.line());
+    if (curlyBraceLine.isJustBelow(target.line())) {
       addIssue(new PreciseIssue(this, new IssueLocation(curlyBrace, "Move this open curly brace to the end of the previous line.")));
+    } else if (curlyBraceLine.isFarBelow(target.line())) {
+      addIssue(new PreciseIssue(this, new IssueLocation(curlyBrace, "Move this open curly brace to the end of line " + target.line() + ".")));
     }
   }
 
-  private static ParameterListTree getParameterList(FunctionTree function) {
-    return (ParameterListTree) function.parameterClause();
-  }
+  private static class CodeLine {
+    private final int line;
 
+    CodeLine(int line) {
+      this.line = line;
+    }
+
+    boolean isJustBelow(int line) {
+      return this.line == line + 1;
+    }
+
+    boolean isFarBelow(int line) {
+      return this.line > line + 1;
+    }
+  }
 }
