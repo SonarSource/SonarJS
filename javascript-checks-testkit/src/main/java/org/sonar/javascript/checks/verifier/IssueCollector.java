@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.checks.verifier;
 
 import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import java.io.IOException;
+import java.util.Iterator;
+import org.sonar.plugins.javascript.api.visitors.Issue;
 
-public class NullDereferenceCheckTest {
+public interface IssueCollector {
+  void writeIssues(Iterator<Issue> issues, File file) throws IOException;
 
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new NullDereferenceCheck(),
-      new File("src/test/resources/checks/NullDereference.js"));
-  }
+  void writeSummary() throws IOException;
 }

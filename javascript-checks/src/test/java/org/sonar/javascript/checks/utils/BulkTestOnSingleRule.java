@@ -1,7 +1,7 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2011-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,34 +20,56 @@
 package org.sonar.javascript.checks.utils;
 
 import java.io.File;
+import java.io.IOException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.verifier.BulkVerifier;
+import org.sonar.javascript.checks.verifier.DifferentialIssueCollector;
+import org.sonar.javascript.checks.verifier.ExpectedIssueCollector;
+import org.sonar.javascript.checks.verifier.ExpectedIssues;
+import org.sonar.javascript.checks.verifier.IssueCollector;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 /**
  * Class to test one single rule on a set of JavaScript files.
  */
 public class BulkTestOnSingleRule {
-  
+
   private static final Logger LOGGER = Loggers.get(BulkTestOnSingleRule.class);
 
-  /**
-   * Run a specific rule.
-   * @param ruleClassName, e.g., "org.sonar.javascript.checks.ComparisonReturningFalseCheck"
-   * @param sourceDirectory. If not provided, the ruling directory is used
-   */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     if (args.length == 1) {
-      execute(args[0], "../its/sources/src");
-    } else if (args.length == 2) {
-      execute(args[0], args[1]);
+      execute(args[0], "javascript-checks-testkit/target/expected.txt", "its/sources/src");
+    } else if (args.length == 3) {
+      execute(args[0], args[1], args[2]);
     } else {
-      LOGGER.error("First argument = fully-qualified check class name. Second argument (optional) = JS files directory"); 
+      LOGGER.error("First argument = fully-qualified check class name. Second argument (optional) = ignored issues file. Third argument (optional) = JS files directory");
     }
   }
 
-  private static void execute(String checkClassName, String sourceDirectory) {
-    new BulkVerifier().scanDirectory(checkClassName, new File(sourceDirectory));
+  private static void execute(String checkClassName, String expectedIssuesFileName, String sourceDirectory) throws IOException {
+    final File expectedIssuesFile = new File(expectedIssuesFileName);
+    IssueCollector issueCollector;
+    if (expectedIssuesFile.exists()) {
+      issueCollector = new DifferentialIssueCollector(ExpectedIssues.parse(expectedIssuesFile), LOGGER::warn);
+    } else {
+      issueCollector = new ExpectedIssueCollector(expectedIssuesFile);
+    }
+    new BulkVerifier(getCheckClass(checkClassName), issueCollector).scanDirectory(new File(sourceDirectory));
+  }
+
+  private static Class<JavaScriptCheck> getCheckClass(String checkClassName) {
+    Class<?> clazz;
+    try {
+      clazz = Class.forName(checkClassName);
+    } catch (ClassNotFoundException e) {
+      throw new IllegalArgumentException("Exception when attempting to load : " + checkClassName, e);
+    }
+    if (JavaScriptCheck.class.isAssignableFrom(clazz)) {
+      return (Class<JavaScriptCheck>) clazz;
+    } else {
+      throw new IllegalArgumentException("Class " + checkClassName + " is not a JavaScriptCheck");
+    }
   }
 
 }
