@@ -25,15 +25,12 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public abstract class JavaScriptTree implements Tree {
 
-  private Tree parent;
+  private JavaScriptTree parent;
 
   public int getLine() {
     return getFirstToken().line();
@@ -93,33 +90,18 @@ public abstract class JavaScriptTree implements Tree {
     return ((JavaScriptTree) child).getFirstToken();
   }
 
-  public Stream<Symbol> allSymbols() {
-    return thisAndKin().filter(tree -> tree instanceof IdentifierTree)
-      .map(tree -> (IdentifierTree) tree)
-      .filter(identifierTree -> identifierTree.symbol() != null)
-      .map(IdentifierTree::symbol);
-  }
-
-  public Stream<Usage> allSymbolsUsages() {
-    return allSymbols().flatMap(symbol -> symbol.usages().stream()).filter(usage -> this.isAncestorOf((JavaScriptTree) usage.identifierTree()));
-  }
-
   public boolean isAncestorOf(JavaScriptTree tree) {
     Tree parentTree = tree.getParent();
     if (this.equals(parentTree)) {
       return true;
     }
-    if (parentTree instanceof JavaScriptTree) {
-      return this.isAncestorOf((JavaScriptTree) parentTree);
+    if (parentTree == null) {
+      return false;
     }
-    return false;
+    return this.isAncestorOf((JavaScriptTree) parentTree);
   }
 
-  public Stream<JavaScriptTree> thisAndKin() {
-    return Stream.concat(Stream.<JavaScriptTree>builder().add(this).build(), kin());
-  }
-
-  public Stream<JavaScriptTree> kin() {
+  public Stream<JavaScriptTree> descendants() {
     if (this.isLeaf()) {
       return Stream.empty();
     }
@@ -129,7 +111,7 @@ public abstract class JavaScriptTree implements Tree {
     for (Iterator<Tree> iterator = this.childrenIterator(); iterator.hasNext();) {
       Tree tree = iterator.next();
       if (tree != null) {
-        kins = Stream.concat(kins, ((JavaScriptTree) tree).kin());
+        kins = Stream.concat(kins, ((JavaScriptTree) tree).descendants());
       }
     }
     return kins;
@@ -140,10 +122,10 @@ public abstract class JavaScriptTree implements Tree {
   }
 
   public void setParent(Tree parent) {
-    this.parent = parent;
+    this.parent = (JavaScriptTree) parent;
   }
 
-  public Tree getParent() {
+  public JavaScriptTree getParent() {
     return parent;
   }
 

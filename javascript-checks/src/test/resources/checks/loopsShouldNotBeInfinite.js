@@ -1,24 +1,16 @@
 /*
-*/
 for ( ; ; ) {       // Noncompliant {{Add an end condition for this loop}}
-//    ^^^
-}
-
-for (;;) {          // Noncompliant {{Add an end condition for this loop}}
-//   ^^
 }
 
 var a;
 var b;
 for (;a > b;) {     // OK
- a = true;
+    a = true;
 }
 
-
 var c;
-for (;c < 1;) {     // Noncompliant {{Correct this loop's end condition}}
-//    ^^^^^
- var d = 1;
+for (;c < 1;) {         // Noncompliant {{Correct this loop's end condition}}
+    var d = 1;
 }
 
 var e;
@@ -26,41 +18,14 @@ for(;e === false;) {    // Noncompliant
     var f = e;
 }
 
-while(true) {           // OK
+do {                    // Noncompliant [[secondary=+2]]
     foo();
-    if(g) {
-        break;
-    }
-}
-
-
-outer:
-while(true) {           // Noncompliant
-    foo();
-    while(true) {
-        break;
-    }
-}
-
-outer:
-while(true) {           // OK
-    foo();
-    while(true) {
-        break outer;
-    }
-}
-
-outer:
-  for(;;) {             // OK
-    foo();
-    while(true) {
-        break outer;
-    }
-  }
+} while (true);
 
 while(true) {           // Noncompliant
   foo();
 }
+
 
 var h;
 while(h) {              // OK
@@ -74,9 +39,36 @@ while(i < 0) {
     }
 }
 
-for(;;) {               // OK
+while(true) {           // OK
+    foo();
+    if(g) {
+        break;
+    }
+}
+
+outer:
+while(true) {           // Noncompliant
+    foo();
+    while(true) {
+        break;
+    }
+}
+
+outer:
+while(true) {           // OK
+    foo();
+    while(true) {
+        break outer;
+    }
+}
+
+while(true) {           // OK
+    return;
+}
+
+for(;;) {               // OK Doubly-nested return
     for(;;) {
-        return 0;
+        return;
     }
 }
 
@@ -84,88 +76,94 @@ for(;;) {               // OK
     throw "We are leaving!";
 }
 
-while(true) {           // OK
+while(true) {           // OK Doubly-nested throw
     while(true) {
-        return;
+        throw "We are leaving from deep inside!";
     }
-}
-
-while(true) {           // OK
-    while(true) {
-        throw new String("Some Object");
-    }
-}
-
-function someFunction() {
-    while(true) {           // OK
-        var a = false;
-        if(a) {
-            someFunction();
-        } else {
-            return "ok";
-        }
-    }
-}
-
-
-do {
-    foo();
-} while (true);         // Noncompliant
-
-var j=0,k=3;
-for (; j > 10 ; j++) {  // OK
-    foo();
 }
 
 var l = 45;
-while (l = bar()) {      // OK
+while (l = bar()) {     // OK assignment from function
     boo();
 }
+*/
+{
 
+    while (iterate()) {     // OK return from function
+    }
+
+    function iterate() {
+    }
+
+}
+/*
 var m = 100;
-for (var n=0; n < m; n--) {     // OK False negative
+for (var n=0; n < m; n--) {     // OK Covered by S2251
     m++;
 }
 
-var o = 5;
-while (o < 10) {        // OK False negative
-    o = o % 5;
+while(false) {          // OK Covered by S2583
 }
 
-while(false) {          // Noncompliant In fact this should be detected by a dead code check.
+while(0) {              // OK Covered by S2583
 }
 
-var q = 0
-while(q < 3) {          // OK False negative
+{
+    var q = 0
+    while(q < 3) {          // OK False negative
+    }
+
+    function unusedUpdateOutsideCFG() {
+        q++;
+    }
 }
 
-function update() {
-    q++;
+{
+    var r = 0
+    while(r < 3) {          // OK
+        updateOutsideCFG();
+    }
+
+    function updateOutsideCFG() {
+        r++;
+    }
 }
 
-var r = 0
-while(r < 3) {          // OK
-    updateAndUse();
+{
+    var s = 0
+    while(s < 3) {          // Noncompliant
+        readOutsideCFG();
+    }
+
+    function readOutsideCFG() {
+        var t = r;
+    }
 }
 
-function updateAndUse() {
-    r++;
+{
+    var u = {a:3};
+    while(u.a < 3) {        // OK U is an object so the function might change it
+        doSomethingWithTheArgument(u);
+    }
 }
 
 var arr;
-while(arr[0]--) {               // OK
+while(arr[0]--) {                   // OK value is updated in condition
+}
+
+var readonlyArr;
+while(readonlyArr[0]) {             // OK False Negative
 }
 
 var shrinkingArr;
-while(shrinkingArr.length) {           // OK
+while(shrinkingArr.length) {        // OK
     shrinkingArr.pop();
 }
 
 function * generator() {
-    while(true) {               // Noncompliant False POSITIVE!! Needs evolution in CFG to support yield.
+    while(true) {                   // Noncompliant False POSITIVE!! Needs evolution in CFG to support yield.
         foo();
         yield;
     }
 }
-/*
 */

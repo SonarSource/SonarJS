@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
@@ -35,10 +36,14 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
@@ -48,15 +53,20 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitForStatement(ForStatementTree tree) {
-    ControlFlowGraph controlFlow = CheckUtils.buildControlFlowGraph(tree);
-    if (!canBreakOutOfLoop(tree, controlFlow)) {
+    ControlFlowGraph flowGraph = CheckUtils.buildControlFlowGraph(tree);
+    if (!canBreakOutOfLoop(tree, flowGraph)) {
       JavaScriptTree condition = (JavaScriptTree) tree.condition();
+      if (willSkipLoop(condition)) {
+        return;
+      }
       if (condition == null) {
-        addIssue(new PreciseIssue(this, new IssueLocation(tree.firstSemicolon(), tree.secondSemicolon(), "Add an end condition for this loop")));
+        PreciseIssue issue = new PreciseIssue(this, new IssueLocation(tree.forKeyword(), tree.forKeyword(), "Add an end condition for this loop"));
+        issue.secondary(new IssueLocation(tree.firstSemicolon(), tree.secondSemicolon(), null));
+        addIssue(issue);
       } else {
-        Map<Tree, CfgBlock> treesOfFlowGraph = treesToBlocs(controlFlow);
+        Map<Tree, CfgBlock> treesOfFlowGraph = treesToBlocks(flowGraph);
         if (!conditionIsUpdated(condition, (JavaScriptTree) tree, treesOfFlowGraph)) {
-          incorrectLoopCondition(condition);
+          tree.accept(new LoopIssueCreator());
         }
       }
     }
@@ -76,56 +86,74 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void visitConditionalIterationStatement(IterationStatementTree tree, JavaScriptTree condition) {
-    ControlFlowGraph controlFlow = CheckUtils.buildControlFlowGraph(tree);
-    Map<Tree, CfgBlock> treesOfFlowGraph = treesToBlocs(controlFlow);
-    if (!canBreakOutOfLoop(tree, controlFlow) && !conditionIsUpdated(condition, (JavaScriptTree) tree, treesOfFlowGraph)) {
-      incorrectLoopCondition(condition);
+    if (willSkipLoop(condition)) {
+      return;
+    }
+    ControlFlowGraph flowGraph = CheckUtils.buildControlFlowGraph(tree);
+    Map<Tree, CfgBlock> treesOfFlowGraph = treesToBlocks(flowGraph);
+    if (!canBreakOutOfLoop(tree, flowGraph) && !conditionIsUpdated(condition, (JavaScriptTree) tree, treesOfFlowGraph)) {
+      tree.accept(new LoopIssueCreator());
     }
   }
 
-  private void incorrectLoopCondition(JavaScriptTree condition) {
-    addIssue(new PreciseIssue(this, new IssueLocation(condition.getFirstToken(), condition.getLastToken(), "Correct this loop's end condition")));
-  }
-
-  private static boolean canBreakOutOfLoop(IterationStatementTree iteration, ControlFlowGraph controlFlow) {
-    Loop loop = new Loop(controlFlow, iteration);
+  private static boolean canBreakOutOfLoop(IterationStatementTree loopTree, ControlFlowGraph flowGraph) {
+    Loop loop = new Loop(flowGraph, loopTree);
     return !loop.jumpingExits().isEmpty();
   }
 
-  private static boolean conditionIsUpdated(JavaScriptTree condition, JavaScriptTree iteration, Map<Tree, CfgBlock> treesOfFlowGraph) {
-    Set<Symbol> conditionSymbols = condition.allSymbols().collect(Collectors.toSet());
-    Stream<Symbol> symbolsGettingPotentiallyWritten = iteration.allSymbolsUsages().filter(LoopsShouldNotBeInfiniteCheck::mightBeAWrite).map(Usage::symbol);
-    boolean someSymbolWasTouchedOutsideFlowGraph = !symbolsTouchedOutsideFlowGraph(conditionSymbols, treesOfFlowGraph).isEmpty();
-    return symbolsGettingPotentiallyWritten.anyMatch(conditionSymbols::contains) || someSymbolWasTouchedOutsideFlowGraph;
+  private static boolean conditionIsUpdated(JavaScriptTree condition, JavaScriptTree loopTree, Map<Tree, CfgBlock> treesOfFlowGraph) {
+    Set<Symbol> conditionSymbols = allSymbols(condition).collect(Collectors.toSet());
+
+    Stream<Symbol> writtenSymbols = allSymbolsUsages(loopTree)
+      .filter(LoopsShouldNotBeInfiniteCheck::isWriteUsage)
+      .map(Usage::symbol);
+
+    Set<Symbol> symbolsTouchedOutsideFlowGraph = symbolsTouchedOutsideFlowGraph(conditionSymbols, treesOfFlowGraph);
+    boolean anySymbolTouchedInAnotherFunction = !symbolsTouchedOutsideFlowGraph.isEmpty();
+    return writtenSymbols.anyMatch(conditionSymbols::contains) || anySymbolTouchedInAnotherFunction;
+  }
+
+  private static boolean willSkipLoop(@Nullable JavaScriptTree condition) {
+    if (condition instanceof LiteralTree) {
+      LiteralTree literal = (LiteralTree) condition;
+      if ("false".equals(literal.value())) {
+        return true;
+      }
+      if ("0".equals(literal.value())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static Set<Symbol> symbolsTouchedOutsideFlowGraph(Set<Symbol> conditionSymbols, Map<Tree, CfgBlock> treesOfFlowGraph) {
     return conditionSymbols.stream()
       .flatMap(symbol -> symbol.usages().stream())
       .filter(usage -> !treesOfFlowGraph.containsKey(usage.identifierTree()))
+      .filter(LoopsShouldNotBeInfiniteCheck::isWriteUsage)
       .map(Usage::symbol).collect(Collectors.toSet());
   }
 
-  private static boolean mightBeAWrite(Usage usage) {
+  private static boolean isWriteUsage(Usage usage) {
     if (usage.isWrite()) {
       return true;
     }
-    return CheckUtils.parent(usage.identifierTree()).is(Tree.Kind.DOT_MEMBER_EXPRESSION, Tree.Kind.BRACKET_MEMBER_EXPRESSION);
+    return CheckUtils.parent(usage.identifierTree()).is(Tree.Kind.DOT_MEMBER_EXPRESSION, Tree.Kind.BRACKET_MEMBER_EXPRESSION, Tree.Kind.CALL_EXPRESSION);
   }
 
   private static class Loop {
     private final Optional<CfgBranchingBlock> branchBlock;
     private final Set<CfgBlock> loopBlocks;
 
-    public Loop(ControlFlowGraph controlFlow, IterationStatementTree iteration) {
-      this.branchBlock = findRootBranchingBlock(controlFlow, iteration);
-      Set<CfgBlock> foundLoopBlocks = findLoopBlocks((JavaScriptTree) iteration.statement(), treesToBlocs(controlFlow));
+    public Loop(ControlFlowGraph flowGraph, IterationStatementTree iteration) {
+      this.branchBlock = findRootBranchingBlock(flowGraph, iteration);
+      Set<CfgBlock> foundLoopBlocks = findLoopBlocks((JavaScriptTree) iteration.statement(), treesToBlocks(flowGraph));
       branchBlock.ifPresent(foundLoopBlocks::add);
       this.loopBlocks = foundLoopBlocks;
     }
 
-    private static Optional<CfgBranchingBlock> findRootBranchingBlock(ControlFlowGraph controlFlow, IterationStatementTree iteration) {
-      return controlFlow.blocks().stream()
+    private static Optional<CfgBranchingBlock> findRootBranchingBlock(ControlFlowGraph flowGraph, IterationStatementTree iteration) {
+      return flowGraph.blocks().stream()
         .filter(cfgBlock -> cfgBlock instanceof CfgBranchingBlock)
         .map(cfgBlock -> (CfgBranchingBlock) cfgBlock)
         .filter(cfgBranchingBlock -> iteration.equals(cfgBranchingBlock.branchingTree()))
@@ -133,28 +161,71 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
     }
 
     private static Set<CfgBlock> findLoopBlocks(JavaScriptTree iterationStatement, Map<Tree, CfgBlock> treesOfFlowGraph) {
-      return iterationStatement.kin().map(treesOfFlowGraph::get).filter(Objects::nonNull).collect(Collectors.toSet());
+      return iterationStatement.descendants().map(treesOfFlowGraph::get).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
-    public Set<CfgBlock> jumpingExits() {
+    Set<CfgBlock> jumpingExits() {
       Set<CfgBlock> exits = exits();
       branchBlock.ifPresent(exits::remove);
       return exits;
     }
 
-    public final Set<CfgBlock> exits() {
-      return loopBlocks.stream().filter(this::isAnExit).collect(Collectors.toSet());
+    final Set<CfgBlock> exits() {
+      return loopBlocks.stream().filter(this::isExit).collect(Collectors.toSet());
     }
 
-    private boolean isAnExit(CfgBlock cfgBlock) {
+    private boolean isExit(CfgBlock cfgBlock) {
       return cfgBlock.successors().stream().anyMatch(successor -> !loopBlocks.contains(successor));
     }
 
   }
 
-  private static Map<Tree, CfgBlock> treesToBlocs(ControlFlowGraph graph) {
-    Map<Tree, CfgBlock> treesToFlowBloc = new HashMap<>();
-    graph.blocks().forEach(cfgBlock -> cfgBlock.elements().forEach(element -> treesToFlowBloc.put(element, cfgBlock)));
-    return treesToFlowBloc;
+  private static Map<Tree, CfgBlock> treesToBlocks(ControlFlowGraph graph) {
+    Map<Tree, CfgBlock> treesToFlowBlock = new HashMap<>();
+    graph.blocks().forEach(cfgBlock -> cfgBlock.elements().forEach(element -> treesToFlowBlock.put(element, cfgBlock)));
+    return treesToFlowBlock;
+  }
+
+  private static Stream<Symbol> allSymbols(JavaScriptTree root) {
+    Stream<JavaScriptTree> thisAndDescendants = Stream.concat(Stream.<JavaScriptTree>builder().add(root).build(), root.descendants());
+    return thisAndDescendants.filter(tree -> tree instanceof IdentifierTree)
+      .map(tree -> (IdentifierTree) tree)
+      .filter(identifierTree -> identifierTree.symbol() != null)
+      .map(IdentifierTree::symbol);
+  }
+
+  private static Stream<Usage> allSymbolsUsages(JavaScriptTree root) {
+    return allSymbols(root).flatMap(symbol -> symbol.usages().stream()).filter(usage -> root.isAncestorOf((JavaScriptTree) usage.identifierTree()));
+  }
+
+  private class LoopIssueCreator extends DoubleDispatchVisitor {
+    @Override
+    public void visitWhileStatement(WhileStatementTree tree) {
+      JavaScriptTree condition = (JavaScriptTree) tree.condition();
+      addIssue(tree.whileKeyword(), condition.getFirstToken(), condition.getLastToken());
+    }
+
+    @Override
+    public void visitDoWhileStatement(DoWhileStatementTree tree) {
+      JavaScriptTree condition = (JavaScriptTree) tree.condition();
+      addIssue(tree.doKeyword(), condition.getFirstToken(), condition.getLastToken());
+    }
+
+    @Override
+    public void visitForStatement(ForStatementTree tree) {
+      JavaScriptTree condition = (JavaScriptTree) tree.condition();
+      if (condition == null) {
+        addIssue(tree.forKeyword(), tree.firstSemicolon(), tree.secondSemicolon());
+      } else {
+        addIssue(tree.forKeyword(), condition.getFirstToken(), condition.getLastToken());
+      }
+    }
+
+    private void addIssue(Tree keyword, SyntaxToken conditionStart, SyntaxToken conditionEnd) {
+      PreciseIssue issue = new PreciseIssue(LoopsShouldNotBeInfiniteCheck.this, new IssueLocation(keyword, keyword, "Correct this loop's end condition"));
+      issue.secondary(new IssueLocation(conditionStart, conditionEnd, null));
+      LoopsShouldNotBeInfiniteCheck.this.addIssue(issue);
+    }
+
   }
 }
