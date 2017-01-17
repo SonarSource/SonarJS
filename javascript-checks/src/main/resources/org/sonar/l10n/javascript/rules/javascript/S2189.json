@@ -8,8 +8,7 @@
   },
   "tags": [
     "bug",
-    "cert",
-    "javascript"
+    "cert"
   ],
   "defaultSeverity": "Blocker"
 }
