@@ -22,13 +22,17 @@ package org.sonar.javascript.tree.impl;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -80,6 +84,30 @@ public class JavaScriptTreeTest extends JavaScriptTreeModelTest {
     assertThat(tree.getLine()).isEqualTo(1967);
   }
 
+  @Test
+  public void no_descendants_in_token() throws Exception {
+    JavaScriptTree token = parse("a", Kind.TOKEN);
+    assertThat(token.descendants().count()).isEqualTo(0);
+  }
+
+  @Test
+  public void descendants_include_all_immediate_children() throws Exception {
+    VariableStatementTree variable = parse("var a;", Kind.VARIABLE_STATEMENT);
+    Set<JavaScriptTree> descendants = ((JavaScriptTree) variable).descendants().collect(Collectors.toSet());
+    assertThat(descendants.contains(variable.declaration())).isTrue();
+    assertThat(descendants.contains(variable.semicolonToken())).isTrue();
+  }
+
+  @Test
+  public void descendants_include_children_of_children() throws Exception {
+    VariableStatementTree variable = parse("var a;", Kind.VARIABLE_STATEMENT);
+    Set<JavaScriptTree> descendants = ((JavaScriptTree) variable).descendants().collect(Collectors.toSet());
+    assertThat(descendants.contains(variable.declaration().token())).isTrue();
+    IdentifierTree identifier = (IdentifierTree) variable.declaration().variables().get(0);
+    assertThat(descendants.contains(identifier)).isTrue();
+    assertThat(descendants.contains(identifier.identifierToken())).isTrue();
+  }
+
   private JavaScriptTree createTree() {
     // usage of Mockito.CALLS_REAL_METHODS allows us to use abstract classes
 
@@ -99,7 +127,7 @@ public class JavaScriptTreeTest extends JavaScriptTreeModelTest {
 
   /**
    * Test class for the children of a {@link JavaScriptTree}.
-   * In this case it is more readable to implement a class than to use all smart features of Mockito.  
+   * In this case it is more readable to implement a class than to use all smart features of Mockito.
    */
   private static abstract class TestChildTree extends JavaScriptTree {
 

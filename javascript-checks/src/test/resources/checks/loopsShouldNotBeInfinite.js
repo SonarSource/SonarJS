@@ -1,4 +1,4 @@
-/*
+
 for ( ; ; ) {       // Noncompliant {{Add an end condition for this loop}}
 }
 
@@ -86,7 +86,7 @@ var l = 45;
 while (l = bar()) {     // OK assignment from function
     boo();
 }
-*/
+
 {
 
     while (iterate()) {     // OK return from function
@@ -96,7 +96,7 @@ while (l = bar()) {     // OK assignment from function
     }
 
 }
-/*
+
 var m = 100;
 for (var n=0; n < m; n--) {     // OK Covered by S2251
     m++;
@@ -161,9 +161,8 @@ while(shrinkingArr.length) {        // OK
 }
 
 function * generator() {
-    while(true) {                   // Noncompliant False POSITIVE!! Needs evolution in CFG to support yield.
+    while(true) {                   // Noncompliant False POSITIVE!! Needs evolution in CFG to support yield. See SONARJS-877
         foo();
         yield;
     }
 }
-*/

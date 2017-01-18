@@ -56,12 +56,12 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
     ControlFlowGraph flowGraph = CheckUtils.buildControlFlowGraph(tree);
     if (!canBreakOutOfLoop(tree, flowGraph)) {
       JavaScriptTree condition = (JavaScriptTree) tree.condition();
-      if (willSkipLoop(condition)) {
+      if (isSkippedLoop(condition)) {
         return;
       }
       if (condition == null) {
-        PreciseIssue issue = new PreciseIssue(this, new IssueLocation(tree.forKeyword(), tree.forKeyword(), "Add an end condition for this loop"));
-        issue.secondary(new IssueLocation(tree.firstSemicolon(), tree.secondSemicolon(), null));
+        PreciseIssue issue = new PreciseIssue(this, new IssueLocation(tree.forKeyword(), "Add an end condition for this loop"))
+          .secondary(new IssueLocation(tree.firstSemicolon(), tree.secondSemicolon(), null));
         addIssue(issue);
       } else {
         Map<Tree, CfgBlock> treesOfFlowGraph = treesToBlocks(flowGraph);
@@ -86,7 +86,7 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void visitConditionalIterationStatement(IterationStatementTree tree, JavaScriptTree condition) {
-    if (willSkipLoop(condition)) {
+    if (isSkippedLoop(condition)) {
       return;
     }
     ControlFlowGraph flowGraph = CheckUtils.buildControlFlowGraph(tree);
@@ -113,7 +113,7 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
     return writtenSymbols.anyMatch(conditionSymbols::contains) || anySymbolTouchedInAnotherFunction;
   }
 
-  private static boolean willSkipLoop(@Nullable JavaScriptTree condition) {
+  private static boolean isSkippedLoop(@Nullable JavaScriptTree condition) {
     if (condition instanceof LiteralTree) {
       LiteralTree literal = (LiteralTree) condition;
       if ("false".equals(literal.value())) {
