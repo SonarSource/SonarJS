@@ -19,17 +19,18 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.SonarClient;
-import org.sonar.wsclient.jsonsimple.JSONValue;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.Rules;
+import org.sonarqube.ws.client.rule.SearchWsRequest;
 
+import static com.sonar.javascript.it.plugin.Tests.newWsClient;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultProfileTest {
@@ -40,40 +41,27 @@ public class DefaultProfileTest {
   @Test
   public void duplicatedBlocks_should_be_activated_by_default() {
     orchestrator.resetData();
-    SonarClient client = orchestrator.getServer().wsClient();
 
-    Map<String, String> jsProfileNameById = jsProfileNamesById(client);
+    Map<String, Rules.ActiveList> actives = newWsClient().rules().search(new SearchWsRequest()
+      .setLanguages(singletonList("js"))
+      .setRepositories(singletonList("common-js"))
+      .setFields(singletonList("actives"))).getActives().getActives();
 
-    String response = client.get("api/rules/search", ImmutableMap.<String, Object>of(
-      "language", "js",
-      "repositories", "common-js",
-      "f", "actives"));
-
-    Map jsonRoot = (Map) JSONValue.parse(response);
-    Map actives = (Map) jsonRoot.get("actives");
+    Map<String, String> jsProfileNameById = jsProfileNamesById();
     assertThat(ruleActivations(actives, jsProfileNameById, "common-js:InsufficientCommentDensity")).isEmpty();
-    assertThat(ruleActivations(actives, jsProfileNameById, "common-js:DuplicatedBlocks")).contains("Sonar way");
+    assertThat(ruleActivations(actives, jsProfileNameById, "common-js:DuplicatedBlocks")).containsExactly("Sonar way");
   }
 
-  private static Map<String, String> jsProfileNamesById(SonarClient client) {
-    Map<String, String> namesById = new HashMap<>();
-    String response = client.get("api/qualityprofiles/search", ImmutableMap.of("language", "js"));
-    Map jsonRoot = (Map) JSONValue.parse(response);
-    List<Map<String, String>> profiles = (List) jsonRoot.get("profiles");
-    for (Map<String, String> profile : profiles) {
-      namesById.put(profile.get("key"), profile.get("name"));
-    }
-    return namesById;
+  private static Map<String, String> jsProfileNamesById() {
+    return newWsClient().qualityProfiles()
+      .search(new org.sonarqube.ws.client.qualityprofile.SearchWsRequest().setLanguage("js")).getProfilesList()
+      .stream()
+      .collect(Collectors.toMap(QualityProfile::getKey, QualityProfile::getName));
   }
 
-  private static List<String> ruleActivations(Map actives, Map<String, String> jsProfileNameById, String ruleKey) {
-    List<String> profileNames = new ArrayList<>();
-    List<Map> activations = (List) actives.get(ruleKey);
-    for (Map activation : activations) {
-      String profileId = (String) activation.get("qProfile");
-      profileNames.add(jsProfileNameById.get(profileId));
-    }
-    return profileNames;
+  private static List<String> ruleActivations(Map<String, Rules.ActiveList> actives, Map<String, String> jsProfileNameById, String ruleKey) {
+    return actives.get(ruleKey).getActiveListList().stream()
+      .map(active -> jsProfileNameById.get(active.getQProfile()))
+      .collect(Collectors.toList());
   }
-
 }

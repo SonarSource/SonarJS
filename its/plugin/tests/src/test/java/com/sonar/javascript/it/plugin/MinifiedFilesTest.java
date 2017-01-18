@@ -24,19 +24,14 @@ import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.Sonar;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 
+import static com.sonar.javascript.it.plugin.Tests.getMeasureAsInt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MinifiedFilesTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
-
-  private static Sonar wsClient;
 
   @BeforeClass
   public static void prepare() {
@@ -50,21 +45,18 @@ public class MinifiedFilesTest {
       .setSourceDirs("src");
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
-
-    wsClient = orchestrator.getServer().getWsClient();
   }
 
   @Test
   public void test() throws Exception {
-    assertThat(getProjectMeasure("files").getIntValue()).isEqualTo(3);
-    assertThat(getProjectMeasure("functions").getIntValue()).isEqualTo(2);
-    assertThat(getProjectMeasure("statements").getIntValue()).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt("files")).isEqualTo(3);
+    assertThat(getProjectMeasureAsInt("functions")).isEqualTo(2);
+    assertThat(getProjectMeasureAsInt("statements")).isEqualTo(1);
   }
 
   /* Helper methods */
 
-  private Measure getProjectMeasure(String metricKey) {
-    Resource resource = wsClient.find(ResourceQuery.createForMetrics("project", metricKey));
-    return resource == null ? null : resource.getMeasure(metricKey);
+  private Integer getProjectMeasureAsInt(String metricKey) {
+    return getMeasureAsInt("project", metricKey);
   }
 }
