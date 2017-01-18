@@ -18,7 +18,7 @@ function condition_symbol_written_in_loop_statement() {
 
 function condition_symbol_not_used_at_all() {
     var a;
-    for (;a < 1;) {         // Noncompliant {{Correct this loop's end condition}}
+    for (;a < 1;) {         // Noncompliant {{Correct this loop's end condition as to not be invariant.}}
         var b = 1;
     }
 }

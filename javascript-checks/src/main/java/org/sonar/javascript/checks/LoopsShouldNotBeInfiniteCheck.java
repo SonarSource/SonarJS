@@ -208,7 +208,7 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
     }
 
     private void createIssue(Tree keyword, Tree condition) {
-      LoopsShouldNotBeInfiniteCheck.this.addIssue(keyword, "Correct this loop's end condition")
+      LoopsShouldNotBeInfiniteCheck.this.addIssue(keyword, "Correct this loop's end condition as to not be invariant.")
         .secondary(new IssueLocation(condition, null));
     }
 
