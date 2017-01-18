@@ -49,7 +49,7 @@ public class DefaultProfileTest {
 
     Map<String, String> jsProfileNameById = jsProfileNamesById();
     assertThat(ruleActivations(actives, jsProfileNameById, "common-js:InsufficientCommentDensity")).isEmpty();
-    assertThat(ruleActivations(actives, jsProfileNameById, "common-js:DuplicatedBlocks")).contains("Sonar way");
+    assertThat(ruleActivations(actives, jsProfileNameById, "common-js:DuplicatedBlocks")).containsExactly("Sonar way");
   }
 
   private static Map<String, String> jsProfileNamesById() {
