@@ -73,7 +73,7 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private boolean isInfiniteLoop(IterationStatementTree tree, @Nullable JavaScriptTree condition) {
+  private static boolean isInfiniteLoop(IterationStatementTree tree, @Nullable JavaScriptTree condition) {
     if (isNeverExecutedLoop(condition)) {
       return false;
     }
@@ -82,11 +82,7 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
     if (isBrokenLoop(tree, flowGraph)) {
       return false;
     }
-    if (condition != null && conditionIsUpdated(condition, (JavaScriptTree) tree, treesOfFlowGraph)) {
-      return false;
-    } else {
-      return true;
-    }
+    return condition == null || conditionIsUpdated(condition, (JavaScriptTree) tree, treesOfFlowGraph);
   }
 
   private static boolean isBrokenLoop(IterationStatementTree loopTree, ControlFlowGraph flowGraph) {
