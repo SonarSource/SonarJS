@@ -94,18 +94,19 @@ public class JavaScriptTreeTest extends JavaScriptTreeModelTest {
   public void descendants_include_all_immediate_children() throws Exception {
     VariableStatementTree variable = parse("var a;", Kind.VARIABLE_STATEMENT);
     Set<JavaScriptTree> descendants = ((JavaScriptTree) variable).descendants().collect(Collectors.toSet());
-    assertThat(descendants.contains(variable.declaration())).isTrue();
-    assertThat(descendants.contains(variable.semicolonToken())).isTrue();
+    JavaScriptTree declaration = (JavaScriptTree) variable.declaration();
+    JavaScriptTree semicolonToken = (JavaScriptTree) variable.semicolonToken();
+    assertThat(descendants).contains(declaration, semicolonToken);
   }
 
   @Test
   public void descendants_include_children_of_children() throws Exception {
     VariableStatementTree variable = parse("var a;", Kind.VARIABLE_STATEMENT);
     Set<JavaScriptTree> descendants = ((JavaScriptTree) variable).descendants().collect(Collectors.toSet());
-    assertThat(descendants.contains(variable.declaration().token())).isTrue();
     IdentifierTree identifier = (IdentifierTree) variable.declaration().variables().get(0);
-    assertThat(descendants.contains(identifier)).isTrue();
-    assertThat(descendants.contains(identifier.identifierToken())).isTrue();
+    JavaScriptTree declarationToken = (JavaScriptTree) variable.declaration().token();
+    JavaScriptTree identifierToken = (JavaScriptTree) identifier.identifierToken();
+    assertThat(descendants).contains(declarationToken, (JavaScriptTree) identifier, identifierToken);
   }
 
   private JavaScriptTree createTree() {

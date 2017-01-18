@@ -38,7 +38,6 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
@@ -46,57 +45,51 @@ import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
 @Rule(key = "S2189")
 public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitForStatement(ForStatementTree tree) {
-    ControlFlowGraph flowGraph = CheckUtils.buildControlFlowGraph(tree);
-    if (!canBreakOutOfLoop(tree, flowGraph)) {
-      JavaScriptTree condition = (JavaScriptTree) tree.condition();
-      if (isSkippedLoop(condition)) {
-        return;
-      }
-      if (condition == null) {
-        PreciseIssue issue = new PreciseIssue(this, new IssueLocation(tree.forKeyword(), "Add an end condition for this loop"))
-          .secondary(new IssueLocation(tree.firstSemicolon(), tree.secondSemicolon(), null));
-        addIssue(issue);
-      } else {
-        Map<Tree, CfgBlock> treesOfFlowGraph = treesToBlocks(flowGraph);
-        if (!conditionIsUpdated(condition, (JavaScriptTree) tree, treesOfFlowGraph)) {
-          tree.accept(new LoopIssueCreator());
-        }
-      }
-    }
+    visitLoop(tree, tree.condition());
     super.visitForStatement(tree);
   }
 
   @Override
   public void visitWhileStatement(WhileStatementTree tree) {
-    visitConditionalIterationStatement(tree, (JavaScriptTree) tree.condition());
+    visitLoop(tree, tree.condition());
     super.visitWhileStatement(tree);
   }
 
   @Override
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
-    visitConditionalIterationStatement(tree, (JavaScriptTree) tree.condition());
+    visitLoop(tree, tree.condition());
     super.visitDoWhileStatement(tree);
   }
 
-  private void visitConditionalIterationStatement(IterationStatementTree tree, JavaScriptTree condition) {
-    if (isSkippedLoop(condition)) {
-      return;
-    }
-    ControlFlowGraph flowGraph = CheckUtils.buildControlFlowGraph(tree);
-    Map<Tree, CfgBlock> treesOfFlowGraph = treesToBlocks(flowGraph);
-    if (!canBreakOutOfLoop(tree, flowGraph) && !conditionIsUpdated(condition, (JavaScriptTree) tree, treesOfFlowGraph)) {
+  private void visitLoop(IterationStatementTree tree, @Nullable Tree condition) {
+    if (isInfiniteLoop(tree, (JavaScriptTree) condition)) {
       tree.accept(new LoopIssueCreator());
     }
   }
 
-  private static boolean canBreakOutOfLoop(IterationStatementTree loopTree, ControlFlowGraph flowGraph) {
+  private boolean isInfiniteLoop(IterationStatementTree tree, @Nullable JavaScriptTree condition) {
+    if (isNeverExecutedLoop(condition)) {
+      return false;
+    }
+    ControlFlowGraph flowGraph = CheckUtils.buildControlFlowGraph(tree);
+    Map<Tree, CfgBlock> treesOfFlowGraph = treesToBlocks(flowGraph);
+    if (isBrokenLoop(tree, flowGraph)) {
+      return false;
+    }
+    if (condition != null && conditionIsUpdated(condition, (JavaScriptTree) tree, treesOfFlowGraph)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  private static boolean isBrokenLoop(IterationStatementTree loopTree, ControlFlowGraph flowGraph) {
     Loop loop = new Loop(flowGraph, loopTree);
     return !loop.jumpingExits().isEmpty();
   }
@@ -113,7 +106,7 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
     return writtenSymbols.anyMatch(conditionSymbols::contains) || anySymbolTouchedInAnotherFunction;
   }
 
-  private static boolean isSkippedLoop(@Nullable JavaScriptTree condition) {
+  private static boolean isNeverExecutedLoop(@Nullable JavaScriptTree condition) {
     if (condition instanceof LiteralTree) {
       LiteralTree literal = (LiteralTree) condition;
       if ("false".equals(literal.value())) {
@@ -145,7 +138,7 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
     private final Optional<CfgBranchingBlock> branchBlock;
     private final Set<CfgBlock> loopBlocks;
 
-    public Loop(ControlFlowGraph flowGraph, IterationStatementTree iteration) {
+    Loop(ControlFlowGraph flowGraph, IterationStatementTree iteration) {
       this.branchBlock = findRootBranchingBlock(flowGraph, iteration);
       Set<CfgBlock> foundLoopBlocks = findLoopBlocks((JavaScriptTree) iteration.statement(), treesToBlocks(flowGraph));
       branchBlock.ifPresent(foundLoopBlocks::add);
@@ -201,30 +194,26 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
   private class LoopIssueCreator extends DoubleDispatchVisitor {
     @Override
     public void visitWhileStatement(WhileStatementTree tree) {
-      JavaScriptTree condition = (JavaScriptTree) tree.condition();
-      addIssue(tree.whileKeyword(), condition.getFirstToken(), condition.getLastToken());
+      createIssue(tree.whileKeyword(), tree.condition());
     }
 
     @Override
     public void visitDoWhileStatement(DoWhileStatementTree tree) {
-      JavaScriptTree condition = (JavaScriptTree) tree.condition();
-      addIssue(tree.doKeyword(), condition.getFirstToken(), condition.getLastToken());
+      createIssue(tree.doKeyword(), tree.condition());
     }
 
     @Override
     public void visitForStatement(ForStatementTree tree) {
-      JavaScriptTree condition = (JavaScriptTree) tree.condition();
-      if (condition == null) {
-        addIssue(tree.forKeyword(), tree.firstSemicolon(), tree.secondSemicolon());
+      if (tree.condition() == null) {
+        addIssue(tree.forKeyword(), "Add an end condition for this loop").secondary(new IssueLocation(tree.firstSemicolon(), tree.secondSemicolon(), null));
       } else {
-        addIssue(tree.forKeyword(), condition.getFirstToken(), condition.getLastToken());
+        createIssue(tree.forKeyword(), tree.condition());
       }
     }
 
-    private void addIssue(Tree keyword, SyntaxToken conditionStart, SyntaxToken conditionEnd) {
-      PreciseIssue issue = new PreciseIssue(LoopsShouldNotBeInfiniteCheck.this, new IssueLocation(keyword, keyword, "Correct this loop's end condition"));
-      issue.secondary(new IssueLocation(conditionStart, conditionEnd, null));
-      LoopsShouldNotBeInfiniteCheck.this.addIssue(issue);
+    private void createIssue(Tree keyword, Tree condition) {
+      LoopsShouldNotBeInfiniteCheck.this.addIssue(keyword, "Correct this loop's end condition")
+        .secondary(new IssueLocation(condition, null));
     }
 
   }

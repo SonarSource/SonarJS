@@ -1,163 +1,191 @@
-
-for ( ; ; ) {       // Noncompliant {{Add an end condition for this loop}}
-}
-
-var a;
-var b;
-for (;a > b;) {     // OK
-    a = true;
-}
-
-var c;
-for (;c < 1;) {         // Noncompliant {{Correct this loop's end condition}}
-    var d = 1;
-}
-
-var e;
-for(;e === false;) {    // Noncompliant
-    var f = e;
-}
-
-do {                    // Noncompliant [[secondary=+2]]
-    foo();
-} while (true);
-
-while(true) {           // Noncompliant
-  foo();
-}
-
-
-var h;
-while(h) {              // OK
-  h = false;
-}
-
-var i = -2;
-while(i < 0) {
-    for(;;) {           // Noncompliant
-        i++;
+function null_condition_loop() {
+    for ( ; ; ) {       // Noncompliant {{Add an end condition for this loop}}
     }
 }
 
-while(true) {           // OK
-    foo();
-    if(g) {
-        break;
+function condition_symbol_written_in_loop_statement() {
+    var a;
+    var b;
+    for (;a > b;) {     // OK
+        a = true;
+    }
+
+    var c;
+    while(c) {              // OK
+      c = false;
     }
 }
 
-outer:
-while(true) {           // Noncompliant
-    foo();
-    while(true) {
-        break;
+function condition_symbol_not_used_at_all() {
+    var a;
+    for (;a < 1;) {         // Noncompliant {{Correct this loop's end condition}}
+        var b = 1;
     }
 }
 
-outer:
-while(true) {           // OK
-    foo();
-    while(true) {
-        break outer;
+function condition_symbol_is_only_read() {
+    var a;
+    for(;a === false;) {    // Noncompliant
+        var b = a;
     }
 }
 
-while(true) {           // OK
-    return;
+function condition_is_static() {
+    do {                    // Noncompliant [[secondary=+2]]
+        foo();
+    } while (true);
+
+    while(true) {           // Noncompliant
+      foo();
+    }
 }
 
-for(;;) {               // OK Doubly-nested return
-    for(;;) {
+function outer_loop_condition_changes_but_inner_loop_has_no_condition() {
+    var i = -2;
+    while(i < 0) {
+        for(;;) {           // Noncompliant
+            i++;
+        }
+    }
+}
+
+function break_interrupts_loop() {
+    while(true) {           // OK
+        foo();
+        if(g) {
+            break;
+        }
+    }
+}
+
+function break_interrupts_inner_loop_but_not_outer_loop() {
+    outer:
+    while(true) {           // Noncompliant
+        foo();
+        while(true) {
+            break;
+        }
+    }
+}
+
+function break_interrupts_outer_loop() {
+    outer:
+    while(true) {           // OK
+        foo();
+        while(true) {
+            break outer;
+        }
+    }
+}
+
+function return_interrupts_loop() {
+    while(true) {           // OK
         return;
     }
-}
 
-for(;;) {               // OK
-    throw "We are leaving!";
-}
-
-while(true) {           // OK Doubly-nested throw
-    while(true) {
-        throw "We are leaving from deep inside!";
+    for(;;) {               // OK Doubly-nested return
+        for(;;) {
+            return;
+        }
     }
 }
 
-var l = 45;
-while (l = bar()) {     // OK assignment from function
-    boo();
+function throws_interrupts_loop() {
+    for(;;) {               // OK
+        throw "We are leaving!";
+    }
+
+    while(true) {           // OK Doubly-nested throw
+        while(true) {
+            throw "We are leaving from deep inside!";
+        }
+    }
 }
 
-{
+function condition_symbol_updated_by_function() {
+    var i = 0;
+    while (i = bar()) {     // OK
+        boo();
+    }
+}
 
-    while (iterate()) {     // OK return from function
+function condition_is_a_function_call() {
+    while (iterate()) {     // OK
     }
 
     function iterate() {
     }
-
 }
 
-var m = 100;
-for (var n=0; n < m; n--) {     // OK Covered by S2251
-    m++;
-}
-
-while(false) {          // OK Covered by S2583
-}
-
-while(0) {              // OK Covered by S2583
-}
-
-{
-    var q = 0
-    while(q < 3) {          // OK False negative
-    }
-
-    function unusedUpdateOutsideCFG() {
-        q++;
+function diverging_values_in_condition() {
+    var j = 100;
+    for (var i=0; i < j; i--) {     // OK Covered by S2251
+        m++;
     }
 }
 
-{
-    var r = 0
-    while(r < 3) {          // OK
-        updateOutsideCFG();
+function loop_not_executed() {
+    while(false) {          // OK Covered by S2583
     }
 
-    function updateOutsideCFG() {
-        r++;
+    while(0) {              // OK Covered by S2583
     }
 }
 
-{
-    var s = 0
-    while(s < 3) {          // Noncompliant
-        readOutsideCFG();
+function conditions_being_touched_from_within_functions() {
+    {
+        var i = 0
+        while(i < 3) {          // OK False negative
+        }
+
+        function unusedUpdateOutsideCFG() {
+            i++;
+        }
     }
 
-    function readOutsideCFG() {
-        var t = r;
+    {
+        var j = 0
+        while(j < 3) {          // OK
+            updateOutsideCFG();
+        }
+
+        function updateOutsideCFG() {
+            j++;
+        }
+    }
+
+    {
+        var k = 0
+        while(k < 3) {          // Noncompliant
+            readOutsideCFG();
+        }
+
+        function readOutsideCFG() {
+            var someVariable = k;
+        }
+    }
+
+    {
+        var obj = {i:3};
+        while(obj.i < 3) {        // OK obj is an object so the function might change it
+            doSomethingWithTheArgument(u);
+        }
     }
 }
 
-{
-    var u = {a:3};
-    while(u.a < 3) {        // OK U is an object so the function might change it
-        doSomethingWithTheArgument(u);
+function arrays_used_in_conditions() {
+    var arr;
+    while(arr[0]--) {                   // OK value is updated in condition
     }
-}
 
-var arr;
-while(arr[0]--) {                   // OK value is updated in condition
-}
+    var readonlyArr;
+    while(readonlyArr[0]) {             // OK False Negative
+    }
 
-var readonlyArr;
-while(readonlyArr[0]) {             // OK False Negative
-}
-
-var shrinkingArr;
-while(shrinkingArr.length) {        // OK
-    shrinkingArr.pop();
+    var shrinkingArr;
+    while(shrinkingArr.length) {        // OK
+        shrinkingArr.pop();
+    }
 }
 
 function * generator() {
