@@ -20,12 +20,17 @@
 package org.sonar.javascript.tree.impl;
 
 import java.util.Iterator;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public abstract class JavaScriptTree implements Tree {
 
-  private Tree parent;
+  private JavaScriptTree parent;
 
   public int getLine() {
     return getFirstToken().line();
@@ -85,11 +90,42 @@ public abstract class JavaScriptTree implements Tree {
     return ((JavaScriptTree) child).getFirstToken();
   }
 
-  public void setParent(Tree parent) {
-    this.parent = parent;
+  public boolean isAncestorOf(JavaScriptTree tree) {
+    Tree parentTree = tree.getParent();
+    if (this.equals(parentTree)) {
+      return true;
+    }
+    if (parentTree == null) {
+      return false;
+    }
+    return this.isAncestorOf((JavaScriptTree) parentTree);
   }
 
-  public Tree getParent() {
+  public Stream<JavaScriptTree> descendants() {
+    if (this.isLeaf()) {
+      return Stream.empty();
+    }
+    Stream<JavaScriptTree> kins = childrenStream().filter(Objects::nonNull)
+      .filter(tree -> tree instanceof JavaScriptTree)
+      .map(tree -> (JavaScriptTree) tree);
+    for (Iterator<Tree> iterator = this.childrenIterator(); iterator.hasNext();) {
+      Tree tree = iterator.next();
+      if (tree != null) {
+        kins = Stream.concat(kins, ((JavaScriptTree) tree).descendants());
+      }
+    }
+    return kins;
+  }
+
+  private Stream<Tree> childrenStream() {
+    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(childrenIterator(), Spliterator.ORDERED), false);
+  }
+
+  public void setParent(Tree parent) {
+    this.parent = (JavaScriptTree) parent;
+  }
+
+  public JavaScriptTree getParent() {
     return parent;
   }
 
@@ -103,5 +139,4 @@ public abstract class JavaScriptTree implements Tree {
     }
     return sb.toString();
   }
-
 }

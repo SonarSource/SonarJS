@@ -1,0 +1,60 @@
+<p>An infinite loop is one that will never end while the program is running, I.E. you have to kill the program to get
+    out of the loop. Whether it is
+    by meeting the loop's end condition or via a <code>break</code>, every loop should have an end condition.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+for (;;) {  // Noncompliant; end condition omitted
+  // ...
+}
+
+var j = 0;
+while (true) { // Noncompliant; constant end condition
+  j++;
+}
+
+var k;
+var b = true;
+while (b) { // Noncompliant; constant end condition
+  k++;
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+
+while (true) { // break will potentially allow leaving the loop
+  if (someCondition) {
+    break;
+  }
+}
+
+var k;
+var b = true;
+while (b) {
+  k++;
+  b = k &lt; 10;
+}
+
+outer:
+while(true) {
+  while(true) {
+    break outer;
+  }
+}
+
+</pre>
+
+<h2>Known Limitations</h2>
+<ul>
+    <li>False positives: <code>yield</code> is used - <a
+            href="https://jira.sonarsource.com/browse/SONARJS-877">SONARJS-877</a></li>
+    <li>False positives: exceptions are raised by functions within the loop</li>
+    <li>False negatives: loop conditions are based on elements of arrays or objects.</li>
+</ul>
+
+<h2>See</h2>
+<ul>
+    <li><a href="https://www.securecoding.cert.org/confluence/x/PYHfAw">CERT, MSC01-J.</a> - Do not use an empty
+        infinite loop
+    </li>
+</ul>
+
