@@ -117,10 +117,7 @@ public class CheckUtils {
       }
       ancestor = parent(ancestor);
     }
-
     return null;
   }
 
-
 }
-
