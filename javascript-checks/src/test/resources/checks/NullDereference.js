@@ -264,3 +264,21 @@ function one_issue_per_symbol() {
     x.bar(); // no issue here as we already have issue for same symbol
   }
 }
+
+function for_of_undefined() {
+  var undefinedArray;
+  for(let i of undefinedArray) {        // Noncompliant
+  }
+
+  var nullArray = null;
+  for(let i of nullArray) {             // Noncompliant
+  }
+
+  var initializedArray = [];
+  for(let i of initializedArray) {      // OK
+  }
+
+  var x;
+  for(x of obj) {                       // OK we should not care about x being undefined
+  }
+}

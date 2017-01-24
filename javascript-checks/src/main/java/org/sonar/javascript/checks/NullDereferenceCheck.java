@@ -27,6 +27,7 @@ import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.Nullability;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -34,6 +35,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 
 @Rule(key = "S2259")
 public class NullDereferenceCheck extends SeCheck {
@@ -60,7 +62,6 @@ public class NullDereferenceCheck extends SeCheck {
         hasIssue.add(symbol);
       }
     }
-
   }
 
   private static Symbol getSymbol(@Nullable ExpressionTree object) {
@@ -74,6 +75,10 @@ public class NullDereferenceCheck extends SeCheck {
   private static ExpressionTree getObject(Tree element) {
     if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
       return ((MemberExpressionTree) element).object();
+    }
+    final JavaScriptTree parent = ((JavaScriptTree) element).getParent();
+    if (parent.is(Kind.FOR_OF_STATEMENT) && element == ((ForObjectStatementTree) parent).expression()) {
+      return (ExpressionTree) element;
     }
     return null;
   }
