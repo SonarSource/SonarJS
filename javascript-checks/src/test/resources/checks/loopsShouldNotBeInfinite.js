@@ -1,5 +1,6 @@
+
 function null_condition_loop() {
-    for ( ; ; ) {       // Noncompliant {{Add an end condition for this loop}}
+    for ( ; ; ) {       // Noncompliant {{Add an end condition for this loop.}}
     }
 }
 
@@ -27,6 +28,16 @@ function condition_symbol_is_only_read() {
     var a;
     for(;a === false;) {    // Noncompliant
         var b = a;
+    }
+
+    var d;
+    while(a > d) {          // OK
+        d = a;
+    }
+
+    var c;
+    while(a && c) {          // Noncompliant
+        var e = a;
     }
 }
 
