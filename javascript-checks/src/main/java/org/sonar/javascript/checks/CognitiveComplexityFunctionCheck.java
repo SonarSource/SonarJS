@@ -227,8 +227,8 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
     public void visitBinaryExpression(BinaryExpressionTree tree) {
       if (tree.is(CONDITIONAL_AND, CONDITIONAL_OR)) {
         JavaScriptTree javaScriptTree = (JavaScriptTree) tree;
-        boolean parentOfSameKind = javaScriptTree.getParent().is(javaScriptTree.getKind());
-        if (!parentOfSameKind) {
+        boolean childOfSameKind = tree.leftOperand().is(javaScriptTree.getKind());
+        if (!childOfSameKind) {
           addComplexityWithoutNesting(tree.operator());
         }
       }

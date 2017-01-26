@@ -209,15 +209,15 @@ function with_complexity_after_nested_function() { // Noncompliant [[effortToFix
 
 function and_or() {  // Noncompliant [[effortToFix=7;id=LOGICAL_OPS]]
     foo(1 && 2 && 3 && 4); // +1
-//S                 ^^ LOGICAL_OPS {{+1}}
+//S       ^^ LOGICAL_OPS {{+1}}
 
     foo(1 || 2 || 3 || 4); // +1
-//S                 ^^ LOGICAL_OPS {{+1}}
+//S       ^^ LOGICAL_OPS {{+1}}
 
     foo(1 && 2
 //S       ^^ LOGICAL_OPS {{+1}}
     || 3 || 4); // +2
-//S      ^^ LOGICAL_OPS {{+1}}
+//S ^^ LOGICAL_OPS {{+1}}
 
 
     foo(1 && 2
