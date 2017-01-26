@@ -28,3 +28,6 @@ function bar() {
     var a = new bar();
   }
 var b = bar(); // OK
+
+Number(x);
+new Number(x);

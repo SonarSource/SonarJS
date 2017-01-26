@@ -24,6 +24,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.Version;
+import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
@@ -57,6 +58,12 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String JQUERY_OBJECT_ALIASES = JQuery.JQUERY_OBJECT_ALIASES;
   public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
+
+  public static final String ENVIRONMENTS = GlobalVariableNames.ENVIRONMENTS_PROPERTY_KEY;
+  public static final String ENVIRONMENTS_DEFAULT_VALUE = GlobalVariableNames.ENVIRONMENTS_DEFAULT_VALUE;
+
+  public static final String GLOBALS = GlobalVariableNames.GLOBALS_PROPERTY_KEY;
+  public static final String GLOBALS_DEFAULT_VALUE = GlobalVariableNames.GLOBALS_DEFAULT_VALUE;
 
   public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
@@ -114,6 +121,23 @@ public class JavaScriptPlugin implements Plugin {
         .description("Comma-separated list of names used to address jQuery object.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(LIBRARIES)
+        .build(),
+
+      PropertyDefinition.builder(JavaScriptPlugin.ENVIRONMENTS)
+        .defaultValue(JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE)
+        .name("JavaScript execution environments")
+        .description("Comma-separated list of environments names. The analyzer automatically adds global variables based on that list. "
+          + "Available environment names: " + JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE + ".")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .subCategory(GENERAL)
+        .build(),
+
+      PropertyDefinition.builder(JavaScriptPlugin.GLOBALS)
+        .defaultValue(JavaScriptPlugin.GLOBALS_DEFAULT_VALUE)
+        .name("Global variables")
+        .description("Comma-separated list of global variables.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .subCategory(GENERAL)
         .build()
     );
 

@@ -28,3 +28,5 @@ func(); // function declared below is called
 function func() {
   console.log("function call");
 }
+
+Object.create(null);
