@@ -20,7 +20,7 @@ location = loc1;                       // OK, built-inNoncompliant (note : "loca
 window.location = loc2;                // OK
 window = newWindow;                    // OK
 
-if (!Node) var Node = {};              // Noncompliant
+if (!X1) var X1 = {};                  // Noncompliant
 
 [a1, a2] = [1, 2];                     // FN, symbol table should be improved
 [b1, b2, ...rest] = [1, 2, 3, 4];      // FN, symbol table should be improved
@@ -44,7 +44,7 @@ window.bar2 = function() {};           // OK
 this.bar3 = function() {};             // OK
 self.bar4 = function() {};             // OK
 
-function isNaN() {};                   // Noncompliant
+function isNaN() {};                   // OK
 window.isNaN = function() {};          // OK
 isNaN = function() {};
 

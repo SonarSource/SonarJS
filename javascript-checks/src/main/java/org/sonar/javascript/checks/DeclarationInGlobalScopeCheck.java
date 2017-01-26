@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 public class DeclarationInGlobalScopeCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Define this declaration in a local scope or bind explicitly the property to the global object.";
-  
+
   private static Set<Kind> kindsNotToBeChecked = EnumSet.of(
     Kind.CONST_VARIABLE,
     Kind.LET_VARIABLE,
@@ -43,7 +43,7 @@ public class DeclarationInGlobalScopeCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitScript(ScriptTree tree) {
     for (Symbol symbol : getContext().getSymbolModel().getSymbols()) {
-      if (symbol.scope().isGlobal() && !kindsNotToBeChecked.contains(symbol.kind())) {
+      if (symbol.scope().isGlobal() && !kindsNotToBeChecked.contains(symbol.kind()) && !symbol.builtIn()) {
         checkSymbol(symbol);
       }
     }

@@ -74,7 +74,7 @@ public class InconsistentFunctionCallCheck extends DoubleDispatchVisitorCheck {
     Map<Symbol, T2> otherTypeUsageMap, Map<Symbol, T1> thisTypeUsageMap, String tail
   ) {
     Symbol symbol = getSymbol(symbolTree);
-    if (symbol == null) {
+    if (symbol == null || symbol.builtIn()) {
       return;
     }
 

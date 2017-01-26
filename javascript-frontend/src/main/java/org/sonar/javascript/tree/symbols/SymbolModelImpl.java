@@ -41,7 +41,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   public static void build(TreeVisitorContext context, @Nullable Settings settings) {
     Map<Tree, Scope> treeScopeMap = getScopes(context);
 
-    new HoistedSymbolVisitor(treeScopeMap).scanTree(context);
+    new HoistedSymbolVisitor(treeScopeMap, settings).scanTree(context);
     new SymbolVisitor(treeScopeMap).scanTree(context);
     new TypeVisitor(settings).scanTree(context);
   }

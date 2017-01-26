@@ -21,6 +21,7 @@ package org.sonar.javascript.tree.symbols;
 
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
@@ -61,9 +62,11 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   private Scope currentScope;
   private Map<Tree, Scope> treeScopeMap;
   private boolean insideForLoopVariable = false;
+  private GlobalVariableNames globalVariableNames;
 
-  public HoistedSymbolVisitor(Map<Tree, Scope> treeScopeMap) {
+  public HoistedSymbolVisitor(Map<Tree, Scope> treeScopeMap, Settings settings) {
     this.treeScopeMap = treeScopeMap;
+    this.globalVariableNames = new GlobalVariableNames(settings);
   }
 
   @Override
@@ -147,7 +150,9 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   }
 
   private void addGlobalBuiltInSymbols() {
-    symbolModel.declareBuiltInSymbol("eval", Symbol.Kind.FUNCTION, currentScope);
+    for (String globalSymbolName : globalVariableNames.names()) {
+      symbolModel.declareBuiltInSymbol(globalSymbolName, Symbol.Kind.VARIABLE, currentScope);
+    }
 
     Symbol windowSymbol = symbolModel.declareBuiltInSymbol("window", Symbol.Kind.VARIABLE, currentScope);
     windowSymbol.addType(ObjectType.WebApiType.WINDOW);
