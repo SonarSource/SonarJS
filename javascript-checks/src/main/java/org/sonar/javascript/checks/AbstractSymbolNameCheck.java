@@ -50,7 +50,7 @@ public abstract class AbstractSymbolNameCheck extends DoubleDispatchVisitorCheck
   }
 
   protected void raiseIssuesOnDeclarations(Symbol symbol, String message) {
-    Preconditions.checkArgument(!symbol.builtIn());
+    Preconditions.checkArgument(!symbol.external());
 
     boolean issueRaised = false;
     for (Usage usage : symbol.usages()) {

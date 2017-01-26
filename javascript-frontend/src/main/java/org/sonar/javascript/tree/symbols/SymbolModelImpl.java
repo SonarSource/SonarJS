@@ -86,11 +86,11 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   }
 
   @Override
-  public Symbol declareBuiltInSymbol(String name, Symbol.Kind kind, Scope scope) {
+  public Symbol declareExternalSymbol(String name, Symbol.Kind kind, Scope scope) {
     Symbol symbol = scope.getSymbol(name);
     if (symbol == null) {
       symbol = new Symbol(name, kind, scope);
-      symbol.setBuiltIn(true);
+      symbol.setExternal(true);
       scope.addSymbol(symbol);
       symbols.add(symbol);
     }

@@ -193,7 +193,7 @@ public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
       }
 
       boolean isUsed = !argumentsBuiltInVariable.usages().isEmpty();
-      return argumentsBuiltInVariable.builtIn() && isUsed;
+      return argumentsBuiltInVariable.external() && isUsed;
     }
 
   }

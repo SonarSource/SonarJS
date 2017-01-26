@@ -61,9 +61,9 @@ public class UsageTest extends JavaScriptTreeModelTest {
     Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("arguments");
     for (Symbol symbol : symbols) {
       if (symbol.scope().tree().is(Tree.Kind.SCRIPT)) {
-        assertThat(symbol.builtIn()).isFalse();
+        assertThat(symbol.external()).isFalse();
       } else {
-        assertThat(symbol.builtIn()).isTrue();
+        assertThat(symbol.external()).isTrue();
       }
     }
   }

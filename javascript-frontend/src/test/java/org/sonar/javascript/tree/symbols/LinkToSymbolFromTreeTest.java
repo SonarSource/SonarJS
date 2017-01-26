@@ -73,11 +73,11 @@ public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
     List<StatementTree> statements = ((FunctionDeclarationTree) MODULE_ITEMS.get(3)).body().statements();
     IdentifierTree eval = (IdentifierTree) ((CallExpressionTree) ((ExpressionStatementTree) statements.get(1)).expression()).callee();
     assertThat(eval.symbol()).isNotNull();
-    assertThat(eval.symbol().builtIn()).isTrue();
+    assertThat(eval.symbol().external()).isTrue();
 
     IdentifierTree arguments = ((IdentifierTree) ((InitializedBindingElementTree) ((VariableStatementTree) statements.get(0)).declaration().variables().get(0)).right());
     assertThat(arguments.symbol()).isNotNull();
-    assertThat(arguments.symbol().builtIn()).isTrue();
+    assertThat(arguments.symbol().external()).isTrue();
   }
 
   @Test

@@ -42,7 +42,7 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitScript(ScriptTree tree) {
     for (Symbol symbol : getContext().getSymbolModel().getSymbols()) {
-      if (symbol.isVariable() && !symbol.builtIn()) {
+      if (symbol.isVariable() && !symbol.external()) {
         visitSymbol(symbol);
       }
     }

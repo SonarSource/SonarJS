@@ -54,7 +54,7 @@ public class JQueryVarNameConventionCheck extends DoubleDispatchVisitorCheck {
     for (Symbol symbol : symbolModel.getSymbols()) {
       if (symbol.isVariable()) {
         boolean onlyJQuerySelectorType = symbol.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT);
-        if (!symbol.builtIn() && onlyJQuerySelectorType && !pattern.matcher(symbol.name()).matches()) {
+        if (!symbol.external() && onlyJQuerySelectorType && !pattern.matcher(symbol.name()).matches()) {
           raiseIssuesOnDeclarations(symbol, String.format(MESSAGE, symbol.name(), format));
         }
       }
@@ -62,7 +62,7 @@ public class JQueryVarNameConventionCheck extends DoubleDispatchVisitorCheck {
   }
 
   protected void raiseIssuesOnDeclarations(Symbol symbol, String message) {
-    Preconditions.checkArgument(!symbol.builtIn());
+    Preconditions.checkArgument(!symbol.external());
 
     boolean issueRaised = false;
     for (Usage usage : symbol.usages()) {

@@ -32,5 +32,5 @@ public interface SymbolModelBuilder {
 
   Symbol declareSymbol(String name, Symbol.Kind kind, Scope scope);
 
-  Symbol declareBuiltInSymbol(String name, Symbol.Kind kind, Scope scope);
+  Symbol declareExternalSymbol(String name, Symbol.Kind kind, Scope scope);
 }

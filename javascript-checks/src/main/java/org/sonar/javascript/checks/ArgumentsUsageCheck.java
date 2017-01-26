@@ -35,7 +35,7 @@ public class ArgumentsUsageCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitScript(ScriptTree tree) {
     for (Symbol argumentsSymbol : getContext().getSymbolModel().getSymbols("arguments")) {
-      if (argumentsSymbol.builtIn() && !argumentsSymbol.usages().isEmpty()) {
+      if (argumentsSymbol.external() && !argumentsSymbol.usages().isEmpty()) {
 
         Iterator<Usage> usageIterator = argumentsSymbol.usages().iterator();
         PreciseIssue preciseIssue = addIssue(usageIterator.next().identifierTree(), MESSAGE);

@@ -45,7 +45,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends AbstractSymbolNameCheck
   @Override
   public void visitScript(ScriptTree tree) {
     for (Symbol symbol : getIllegalSymbols()) {
-      if (symbol.is(Symbol.Kind.PARAMETER) || !symbol.builtIn()) {
+      if (symbol.is(Symbol.Kind.PARAMETER) || !symbol.external()) {
         raiseIssuesOnDeclarations(symbol, String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
       } else {
         raiseIssuesOnWriteUsages(symbol);

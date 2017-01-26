@@ -50,7 +50,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
   private Set<String> symbols(Scope scope) {
     Set<String> result = new HashSet<>();
     for (Symbol symbol : scope.symbols.values()) {
-      if (!symbol.builtIn()) {
+      if (!symbol.external()) {
         result.add(symbol.name());
       }
     }
