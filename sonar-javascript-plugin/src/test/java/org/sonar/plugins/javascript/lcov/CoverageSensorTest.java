@@ -96,7 +96,6 @@ public class CoverageSensorTest {
     assertThat(context.lineHits("moduleKey:file1.js", 1)).isNull();
   }
 
-  // note: as of SQ 6.2, there is no more distinction of coverage types
   @Test
   public void test_ut_coverage() {
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
