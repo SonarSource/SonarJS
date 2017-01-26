@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -100,7 +101,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
     private boolean functionContainsStructuralComplexity;
 
-    private Set<IssueLocation> secondaryIssueLocations = new HashSet<>();
+    private List<IssueLocation> secondaryIssueLocations = new ArrayList<>();
 
     private Tree currentFunction = null;
     private Set<Tree> nestedFunctions = new HashSet<>();
