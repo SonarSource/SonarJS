@@ -158,6 +158,7 @@ public final class CheckList {
       PrimitiveWrappersCheck.class,
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,
+      ReferenceErrorCheck.class,
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,
       ReturnValueNotIgnoredCheck.class,
