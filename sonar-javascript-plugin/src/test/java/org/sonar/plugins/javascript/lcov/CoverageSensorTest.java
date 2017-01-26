@@ -96,6 +96,7 @@ public class CoverageSensorTest {
     assertThat(context.lineHits("moduleKey:file1.js", 1)).isNull();
   }
 
+  // note: as of SQ 6.2, there is no more distinction of coverage types
   @Test
   public void test_ut_coverage() {
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
@@ -131,8 +132,10 @@ public class CoverageSensorTest {
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(1);
   }
 
+  // note: as of SQ 6.2, there is no more distinction of coverage types
   @Test
   public void test_overall_coverage() {
+    // note: as of SQ 6.2, there is no more distinction of coverage types
     overallCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
 
     Integer[] file1Expected = {3, 3, 1, null};
@@ -172,6 +175,7 @@ public class CoverageSensorTest {
     assertThat(context.lineHits("moduleKey:file1.js", 1)).isEqualTo(0);
   }
 
+  // note: as of SQ 6.2, there is no more distinction of coverage types
   @Test
   public void test_no_report_path_no_force_zero() {
     context.setSettings(new MapSettings());
@@ -187,6 +191,7 @@ public class CoverageSensorTest {
     assertThat(context.lineHits("moduleKey:file1.js", 1)).isEqualTo(4);
   }
 
+  // note: as of SQ 6.2, there is no more distinction of coverage types
   @Test
   public void test_force_zero_coverage_no_report() {
     Settings newSettings = new MapSettings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true");
