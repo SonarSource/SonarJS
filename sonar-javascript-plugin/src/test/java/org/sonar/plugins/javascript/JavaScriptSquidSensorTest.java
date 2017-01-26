@@ -40,12 +40,10 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.internal.google.common.base.Charsets;
 import org.sonar.api.issue.NoSonarFilter;
@@ -394,7 +392,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void sq_greater_6_1_still_honor_it_ut_coverage_reports() throws Exception {
+  public void sq_greater_6_1_still_honor_coverage_reports() throws Exception {
     baseDir = new File("src/test/resources/coverage");
     context = SensorContextTester.create(baseDir);
     context.setRuntime(SONAR_RUNTIME_6_2);
@@ -406,9 +404,7 @@ public class JavaScriptSquidSensorTest {
     inputFile("file1.js");
     createSensor().execute(context);
 
-    // note that these coverages will be aggregated on platform side.
-    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(2);
-    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.IT, 1)).isEqualTo(1);
+    assertThat(context.lineHits("moduleKey:file1.js", 1)).isEqualTo(6);
   }
 
   @Test
@@ -424,13 +420,7 @@ public class JavaScriptSquidSensorTest {
     inputFile("file1.js");
     createSensor().execute(context);
 
-    // we check for "CoverageType.UNIT" which is workaround as we use sonar-api <6.2 (we have to provide some type)
-    // so in fact we assert aggregated measure computed based on sonar.javascript.lcov.reportPaths property
-    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(3);
-
-    // nothing is saved for other types
-    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.IT, 1)).isNull();
-    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.OVERALL, 1)).isNull();
+    assertThat(context.lineHits("moduleKey:file1.js", 1)).isEqualTo(3);
   }
 
   private DefaultInputFile inputFile(String relativePath) {
