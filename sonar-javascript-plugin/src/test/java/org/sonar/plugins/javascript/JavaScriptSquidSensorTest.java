@@ -44,6 +44,7 @@ import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.internal.google.common.base.Charsets;
@@ -325,7 +326,7 @@ public class JavaScriptSquidSensorTest {
   @Test
   public void test_logger_for_force_zero_property() throws Exception {
     String message = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
-    context.setSettings(new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "false"));
+    context.setSettings(new MapSettings().setProperty(FORCE_ZERO_COVERAGE_KEY, "false"));
 
 
     context.setRuntime(SONAR_RUNTIME_6_1);
@@ -336,7 +337,7 @@ public class JavaScriptSquidSensorTest {
     createSensor().execute(context);
     assertThat(logTester.logs()).doesNotContain(message);
 
-    context.setSettings(new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true"));
+    context.setSettings(new MapSettings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true"));
 
     context.setRuntime(SONAR_RUNTIME_6_1);
     createSensor().execute(context);
@@ -360,7 +361,7 @@ public class JavaScriptSquidSensorTest {
     assertThat(logTester.logs()).doesNotContain(utReportMessage);
     assertThat(logTester.logs()).doesNotContain(itDeprecationMessage);
     logTester.clear();
-    context.settings().clear();
+    context.setSettings(new MapSettings());
 
     // all report properties are set
     context.settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "foobar");
@@ -370,7 +371,7 @@ public class JavaScriptSquidSensorTest {
     assertThat(logTester.logs()).doesNotContain(utReportMessage);
     assertThat(logTester.logs()).doesNotContain(itDeprecationMessage);
     logTester.clear();
-    context.settings().clear();
+    context.setSettings(new MapSettings());
 
     context.setRuntime(SONAR_RUNTIME_6_2);
 
@@ -381,7 +382,7 @@ public class JavaScriptSquidSensorTest {
     assertThat(logTester.logs()).doesNotContain(utReportMessage);
     assertThat(logTester.logs()).doesNotContain(itDeprecationMessage);
     logTester.clear();
-    context.settings().clear();
+    context.setSettings(new MapSettings());
 
     // all report properties are set
     context.settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "foobar");

@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +33,7 @@ public class JavaScriptLanguageTest {
 
   @Before
   public void setUp() {
-    settings = new Settings();
+    settings = new MapSettings();
     javaScriptLanguage = new JavaScriptLanguage(settings);
   }
 

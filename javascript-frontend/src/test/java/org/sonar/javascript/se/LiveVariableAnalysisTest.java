@@ -23,7 +23,7 @@ import com.google.common.base.Charsets;
 import java.io.File;
 import java.util.Set;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
@@ -54,6 +54,6 @@ public class LiveVariableAnalysisTest {
 
   private static JavaScriptVisitorContext createContext(File file) {
     ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(Charsets.UTF_8).parse(file);
-    return new JavaScriptVisitorContext(scriptTree, file, new Settings());
+    return new JavaScriptVisitorContext(scriptTree, file, new MapSettings());
   }
 }

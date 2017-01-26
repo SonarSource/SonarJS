@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.internal.google.common.base.Charsets;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
@@ -59,7 +60,7 @@ public class CoverageSensorTest {
 
   @Before
   public void init() {
-    settings = new Settings();
+    settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV);
     settings.setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, IT_LCOV);
     context = SensorContextTester.create(moduleBaseDir);
@@ -183,11 +184,11 @@ public class CoverageSensorTest {
 
   @Test
   public void test_no_report_path_no_force_zero() {
-    context.setSettings(new Settings());
+    context.setSettings(new MapSettings());
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
 
-    context.setSettings(new Settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV));
+    context.setSettings(new MapSettings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV));
     itCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
     overallCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
@@ -200,7 +201,7 @@ public class CoverageSensorTest {
 
   @Test
   public void test_force_zero_coverage_no_report() {
-    Settings newSettings = new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true");
+    Settings newSettings = new MapSettings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true");
     context.setSettings(newSettings);
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(0);
@@ -214,7 +215,7 @@ public class CoverageSensorTest {
 
   @Test
   public void test_force_zero_coverage_no_lines_of_code() throws Exception {
-    Settings newSettings = new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true");
+    Settings newSettings = new MapSettings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true");
     context.setSettings(newSettings);
     utCoverageSensor.execute(context, new HashMap<>(), RUN_WITH_SQ_6_1);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
@@ -224,7 +225,7 @@ public class CoverageSensorTest {
   @Test
   public void not_save_zero_coverage_sq_62() throws Exception {
     // even with this property is true, when SQ>6.1 we should not save zero coverage (this will be done on platform side)
-    Settings newSettings = new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true");
+    Settings newSettings = new MapSettings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true");
     context.setSettings(newSettings);
 
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_2);
@@ -252,7 +253,7 @@ public class CoverageSensorTest {
   }
 
   private List<String> parsePaths(String input) {
-    settings = new Settings().setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, input);
+    settings = new MapSettings().setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, input);
     context.setSettings(settings);
     return coverageSensor.parseReportsProperty(context);
   }
