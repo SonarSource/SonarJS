@@ -75,7 +75,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
     enterScope(tree);
 
-    addGlobalBuiltInSymbols();
+    addExternalSymbols();
     super.visitScript(tree);
 
     leaveScope();
@@ -149,12 +149,12 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
       .addUsage(Usage.create(identifierTree, Usage.Kind.DECLARATION));
   }
 
-  private void addGlobalBuiltInSymbols() {
+  private void addExternalSymbols() {
     for (String globalSymbolName : globalVariableNames.names()) {
-      symbolModel.declareBuiltInSymbol(globalSymbolName, Symbol.Kind.VARIABLE, currentScope);
+      symbolModel.declareExternalSymbol(globalSymbolName, Symbol.Kind.VARIABLE, currentScope);
     }
 
-    Symbol windowSymbol = symbolModel.declareBuiltInSymbol("window", Symbol.Kind.VARIABLE, currentScope);
+    Symbol windowSymbol = symbolModel.declareExternalSymbol("window", Symbol.Kind.VARIABLE, currentScope);
     windowSymbol.addType(ObjectType.WebApiType.WINDOW);
 
     addThisSymbol();
@@ -179,17 +179,17 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   private void addFunctionBuiltInSymbols() {
     String arguments = "arguments";
     if (currentScope.symbols.get(arguments) == null) {
-      symbolModel.declareBuiltInSymbol(arguments, Symbol.Kind.VARIABLE, currentScope);
+      symbolModel.declareExternalSymbol(arguments, Symbol.Kind.VARIABLE, currentScope);
     }
   }
 
   private void addThisSymbol() {
-    Symbol thisSymbol = symbolModel.declareBuiltInSymbol("this", Symbol.Kind.VARIABLE, currentScope);
+    Symbol thisSymbol = symbolModel.declareExternalSymbol("this", Symbol.Kind.VARIABLE, currentScope);
     thisSymbol.addType(ObjectType.create());
   }
 
   private void addThisSymbol(ClassTree tree) {
-    Symbol thisSymbol = symbolModel.declareBuiltInSymbol("this", Symbol.Kind.VARIABLE, currentScope);
+    Symbol thisSymbol = symbolModel.declareExternalSymbol("this", Symbol.Kind.VARIABLE, currentScope);
     thisSymbol.addType(((ClassTreeImpl) tree).classType().createObject());
   }
 

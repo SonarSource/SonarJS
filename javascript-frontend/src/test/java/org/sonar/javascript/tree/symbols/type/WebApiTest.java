@@ -36,7 +36,7 @@ public class WebApiTest extends TypeTest {
   @Test
   public void window() {
     Symbol window = getSymbol("window");
-    assertThat(window.builtIn()).isTrue();
+    assertThat(window.external()).isTrue();
 
     Symbol windowCopy = getSymbol("windowCopy");
     assertThat(windowCopy.types().containsOnlyAndUnique(Type.Kind.WINDOW)).isTrue();

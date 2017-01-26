@@ -43,7 +43,7 @@ public class DeclarationInGlobalScopeCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitScript(ScriptTree tree) {
     for (Symbol symbol : getContext().getSymbolModel().getSymbols()) {
-      if (symbol.scope().isGlobal() && !kindsNotToBeChecked.contains(symbol.kind()) && !symbol.builtIn()) {
+      if (symbol.scope().isGlobal() && !kindsNotToBeChecked.contains(symbol.kind()) && !symbol.external()) {
         checkSymbol(symbol);
       }
     }

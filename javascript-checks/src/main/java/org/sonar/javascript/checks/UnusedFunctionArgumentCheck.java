@@ -128,7 +128,7 @@ public class UnusedFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
       return false;
     }
     boolean isUsed = !argumentsBuiltInVariable.usages().isEmpty();
-    return argumentsBuiltInVariable.builtIn() && isUsed;
+    return argumentsBuiltInVariable.external() && isUsed;
   }
 
   private static List<Boolean> getUsageInfo(List<Symbol> symbols) {

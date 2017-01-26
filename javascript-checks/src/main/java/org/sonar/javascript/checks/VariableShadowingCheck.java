@@ -44,13 +44,13 @@ public class VariableShadowingCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void visitSymbol(Symbol symbol) {
-    if ("arguments".equals(symbol.name()) && symbol.builtIn()) {
+    if ("arguments".equals(symbol.name()) && symbol.external()) {
       return;
     }
     Scope scope = symbol.scope();
     if (scope.outer() != null) {
       Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
-      if (outerSymbol != null && !outerSymbol.builtIn()) {
+      if (outerSymbol != null && !outerSymbol.external()) {
         IdentifierTree shadowedDeclaration = getDeclaration(outerSymbol).identifierTree();
         String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) shadowedDeclaration).getLine());
         raiseIssuesOnDeclarations(symbol, message, shadowedDeclaration);

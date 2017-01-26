@@ -55,7 +55,7 @@ public class Symbol {
   private final String name;
 
   private Kind kind;
-  private boolean builtIn;
+  private boolean external;
   private Scope scope;
   private List<Usage> usages = new LinkedList<>();
   private TypeSet types;
@@ -63,7 +63,7 @@ public class Symbol {
   public Symbol(String name, Kind kind, Scope scope) {
     this.name = name;
     this.kind = kind;
-    this.builtIn = false;
+    this.external = false;
     this.scope = scope;
     this.types = TypeSet.emptyTypeSet();
   }
@@ -77,8 +77,8 @@ public class Symbol {
     return Collections.unmodifiableList(usages);
   }
 
-  public Symbol setBuiltIn(boolean isBuiltIn) {
-    this.builtIn = isBuiltIn;
+  public Symbol setExternal(boolean external) {
+    this.external = external;
     return this;
   }
 
@@ -90,8 +90,12 @@ public class Symbol {
     return name;
   }
 
-  public boolean builtIn() {
-    return builtIn;
+  /**
+   * @return true if symbol is coming from global project context and/or is created implicitly by interpreter
+   * (e.g. "window" for browser environment or "arguments" for each function scope)
+   */
+  public boolean external() {
+    return external;
   }
 
   public boolean is(Symbol.Kind kind) {
