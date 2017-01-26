@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -38,6 +39,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -228,7 +230,9 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
     public void visitBinaryExpression(BinaryExpressionTree tree) {
       if (tree.is(CONDITIONAL_AND, CONDITIONAL_OR)) {
         JavaScriptTree javaScriptTree = (JavaScriptTree) tree;
-        boolean childOfSameKind = tree.leftOperand().is(javaScriptTree.getKind());
+        ExpressionTree child = CheckUtils.removeParenthesis(tree.leftOperand());
+        boolean childOfSameKind = child.is(javaScriptTree.getKind());
+
         if (!childOfSameKind) {
           addComplexityWithoutNesting(tree.operator());
         }
