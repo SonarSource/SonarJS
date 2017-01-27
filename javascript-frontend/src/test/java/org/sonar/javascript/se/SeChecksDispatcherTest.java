@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.util.List;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -76,6 +76,6 @@ public class SeChecksDispatcherTest {
 
   private static JavaScriptVisitorContext createContext(File file) {
     ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(Charsets.UTF_8).parse(file);
-    return new JavaScriptVisitorContext(scriptTree, file, new Settings());
+    return new JavaScriptVisitorContext(scriptTree, file, new MapSettings());
   }
 }
