@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 
-import static org.sonar.javascript.metrics.SonarLintHelper.*;
+import static org.sonar.javascript.compat.CompatibilityHelper.*;
 
 @Rule(key = "LineLength")
 public class LineLengthCheck extends DoubleDispatchVisitorCheck {

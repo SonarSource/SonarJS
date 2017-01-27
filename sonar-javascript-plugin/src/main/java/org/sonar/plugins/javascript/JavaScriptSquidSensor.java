@@ -87,9 +87,9 @@ import org.sonar.plugins.javascript.minify.MinificationAssessor;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
-import static org.sonar.javascript.metrics.SonarLintHelper.wrap;
-import static org.sonar.javascript.metrics.SonarLintHelper.contents;
-import static org.sonar.javascript.metrics.SonarLintHelper.unwrap;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
+import static org.sonar.javascript.compat.CompatibilityHelper.contents;
+import static org.sonar.javascript.compat.CompatibilityHelper.unwrap;
 
 public class JavaScriptSquidSensor implements Sensor {
 

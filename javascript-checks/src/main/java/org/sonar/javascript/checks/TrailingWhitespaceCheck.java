@@ -33,8 +33,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
-import static org.sonar.javascript.metrics.SonarLintHelper.charset;
-import static org.sonar.javascript.metrics.SonarLintHelper.inputStream;
+import static org.sonar.javascript.compat.CompatibilityHelper.charset;
+import static org.sonar.javascript.compat.CompatibilityHelper.inputStream;
 
 @Rule(key = "TrailingWhitespace")
 public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {

@@ -25,7 +25,7 @@ import java.io.InputStreamReader;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.squidbridge.api.AnalysisException;
 
-import static org.sonar.javascript.metrics.SonarLintHelper.inputStream;
+import static org.sonar.javascript.compat.CompatibilityHelper.inputStream;
 
 /**
  * An instance of this class computes the average line length of file.

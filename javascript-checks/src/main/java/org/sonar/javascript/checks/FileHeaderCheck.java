@@ -30,13 +30,13 @@ import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.metrics.SonarLintHelper;
+import org.sonar.javascript.compat.CompatibilityHelper;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 
-import static org.sonar.javascript.metrics.SonarLintHelper.charset;
-import static org.sonar.javascript.metrics.SonarLintHelper.inputStream;
+import static org.sonar.javascript.compat.CompatibilityHelper.charset;
+import static org.sonar.javascript.compat.CompatibilityHelper.inputStream;
 
 @Rule(key = "S1451")
 public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
@@ -96,7 +96,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     }
     String fileContent;
     try {
-      fileContent = SonarLintHelper.contents(getContext().getFile());
+      fileContent = CompatibilityHelper.contents(getContext().getFile());
     } catch (IOException e) {
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
     }

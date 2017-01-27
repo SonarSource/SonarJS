@@ -40,7 +40,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-import static org.sonar.javascript.metrics.SonarLintHelper.unwrap;
+import static org.sonar.javascript.compat.CompatibilityHelper.unwrap;
 
 public class MetricsVisitor extends SubscriptionVisitor {
 

@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
-import static org.sonar.javascript.metrics.SonarLintHelper.unwrap;
+import static org.sonar.javascript.compat.CompatibilityHelper.unwrap;
 
 public class CpdVisitor extends SubscriptionVisitor {
 

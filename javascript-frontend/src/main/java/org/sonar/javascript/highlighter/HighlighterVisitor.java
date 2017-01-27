@@ -38,7 +38,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
-import static org.sonar.javascript.metrics.SonarLintHelper.unwrap;
+import static org.sonar.javascript.compat.CompatibilityHelper.unwrap;
 
 public class HighlighterVisitor extends SubscriptionVisitor {
 
