@@ -169,11 +169,12 @@ public class MetricsVisitor extends SubscriptionVisitor {
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(this.inputFile);
     for (int line = 1; line <= linesNumber; line++) {
       int isCodeLine = linesOfCode.contains(line) ? 1 : 0;
-      if (saveExecutableLines) {
-        fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, isCodeLine);
-      }
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, isCodeLine);
       fileLinesContext.setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, line, commentLines.contains(line) ? 1 : 0);
+    }
+    if (saveExecutableLines) {
+      Set<Integer> executableLines = new ExecutableLineVisitor(context.getTopTree()).getExecutableLines();
+      executableLines.stream().forEach(line -> fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1));
     }
     fileLinesContext.save();
   }
