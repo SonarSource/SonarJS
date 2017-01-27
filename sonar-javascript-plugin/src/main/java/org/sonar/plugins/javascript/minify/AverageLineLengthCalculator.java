@@ -25,6 +25,8 @@ import java.io.InputStreamReader;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.squidbridge.api.AnalysisException;
 
+import static org.sonar.javascript.metrics.SonarLintHelper.inputStream;
+
 /**
  * An instance of this class computes the average line length of file.
  * Before making the computation, it discards all lines which are part
@@ -111,7 +113,7 @@ class AverageLineLengthCalculator {
   }
 
   private BufferedReader getReader(InputFile file) throws IOException {
-    return new BufferedReader(new InputStreamReader(file.inputStream()));
+    return new BufferedReader(new InputStreamReader(inputStream(file)));
   }
 
   private static void handleException(IOException e, InputFile file) {

@@ -40,6 +40,8 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
+import static org.sonar.javascript.metrics.SonarLintHelper.unwrap;
+
 public class MetricsVisitor extends SubscriptionVisitor {
 
   private static final Number[] LIMITS_COMPLEXITY_FUNCTIONS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
@@ -110,7 +112,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    this.inputFile = getContext().getFile();
+    this.inputFile = unwrap(getContext().getFile());
     init();
   }
 

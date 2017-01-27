@@ -30,9 +30,13 @@ import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.metrics.SonarLintHelper;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
+
+import static org.sonar.javascript.metrics.SonarLintHelper.charset;
+import static org.sonar.javascript.metrics.SonarLintHelper.inputStream;
 
 @Rule(key = "S1451")
 public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
@@ -72,7 +76,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     }
     InputFile inputFile = getContext().getFile();
     List<String> lines;
-    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
+    try (InputStreamReader inr = new InputStreamReader(inputStream(inputFile), charset(inputFile))) {
       lines = CharStreams.readLines(inr);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
@@ -92,7 +96,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     }
     String fileContent;
     try {
-      fileContent = getContext().getFile().contents();
+      fileContent = SonarLintHelper.contents(getContext().getFile());
     } catch (IOException e) {
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
     }

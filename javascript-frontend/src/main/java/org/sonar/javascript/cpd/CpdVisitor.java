@@ -31,6 +31,8 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
+import static org.sonar.javascript.metrics.SonarLintHelper.unwrap;
+
 public class CpdVisitor extends SubscriptionVisitor {
 
   private final SensorContext sensorContext;
@@ -48,8 +50,7 @@ public class CpdVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    inputFile = getContext().getFile();
-    ;
+    inputFile = unwrap(getContext().getFile());
     cpdTokens = sensorContext.newCpdTokens().onFile(inputFile);
     super.visitFile(scriptTree);
   }

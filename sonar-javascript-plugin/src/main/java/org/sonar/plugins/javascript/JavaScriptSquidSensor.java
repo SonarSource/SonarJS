@@ -87,7 +87,9 @@ import org.sonar.plugins.javascript.minify.MinificationAssessor;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
-import static org.sonar.plugins.javascript.SonarLintHelper.compatibleInputFiles;
+import static org.sonar.javascript.metrics.SonarLintHelper.wrap;
+import static org.sonar.javascript.metrics.SonarLintHelper.contents;
+import static org.sonar.javascript.metrics.SonarLintHelper.unwrap;
 
 public class JavaScriptSquidSensor implements Sensor {
 
@@ -166,7 +168,7 @@ public class JavaScriptSquidSensor implements Sensor {
     ScriptTree scriptTree;
 
     try {
-      scriptTree = (ScriptTree) parser.parse(inputFile.contents());
+      scriptTree = (ScriptTree) parser.parse(contents(inputFile));
       scanFile(sensorContext, inputFile, visitors, scriptTree);
 
     } catch (RecognitionException e) {
@@ -226,7 +228,7 @@ public class JavaScriptSquidSensor implements Sensor {
   private void scanFile(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.settings());
 
-    highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile), context);
+    highlightSymbols(sensorContext.newSymbolTable().onFile(unwrap(inputFile)), context);
 
     List<Issue> fileIssues = new ArrayList<>();
 
@@ -237,14 +239,12 @@ public class JavaScriptSquidSensor implements Sensor {
 
       if (visitor instanceof JavaScriptCheck) {
         fileIssues.addAll(((JavaScriptCheck) visitor).scanFile(context));
-
       } else {
         visitor.scanTree(context);
       }
-
     }
 
-    saveFileIssues(sensorContext, fileIssues, inputFile);
+    saveFileIssues(sensorContext, fileIssues, unwrap(inputFile));
   }
 
   private static void highlightSymbols(NewSymbolTable newSymbolTable, TreeVisitorContext context) {
@@ -347,9 +347,9 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    Iterable<InputFile> inputFiles = compatibleInputFiles(fileSystem.inputFiles(mainFilePredicate), context);
+    Iterable<InputFile> inputFiles = wrap(fileSystem.inputFiles(mainFilePredicate), context);
     Collection<File> files = StreamSupport.stream(inputFiles.spliterator(), false)
-      .map(f -> f.file())
+      .map(InputFile::file)
       .collect(Collectors.toList());
 
     ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
