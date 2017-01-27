@@ -12,9 +12,6 @@
 <code>sonar.javascript.environments</code> properties.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-console.log(x); // Noncompliant
-let x = 1;
-
 var john = {
   firstName: "john",
   show: function() { console.log(firstName); } // Noncompliant: firstName is not defined
@@ -23,9 +20,6 @@ john.show();
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-let x = 1;
-console.log(x);
-
 var john = {
   firstName: "john",
   show: function() { console.log(this.firstName); }
