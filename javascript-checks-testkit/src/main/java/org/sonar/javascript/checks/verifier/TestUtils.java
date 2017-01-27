@@ -24,6 +24,7 @@ import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
@@ -45,7 +46,7 @@ class TestUtils {
   }
 
   private static Settings settings() {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
 
     Map<String, String> properties = new HashMap<>();
     properties.put(JQuery.JQUERY_OBJECT_ALIASES, JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE);

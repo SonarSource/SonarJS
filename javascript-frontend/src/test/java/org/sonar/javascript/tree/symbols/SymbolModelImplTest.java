@@ -21,6 +21,7 @@ package org.sonar.javascript.tree.symbols;
 
 import java.io.File;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -80,7 +81,7 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
   }
 
   private Settings settings(String environmentNames, String globalNames) {
-    Settings settings = new Settings();
+    Settings settings = new MapSettings();
     settings.setProperty(GlobalVariableNames.ENVIRONMENTS_PROPERTY_KEY, environmentNames);
     settings.setProperty(GlobalVariableNames.GLOBALS_PROPERTY_KEY, globalNames);
     return settings;

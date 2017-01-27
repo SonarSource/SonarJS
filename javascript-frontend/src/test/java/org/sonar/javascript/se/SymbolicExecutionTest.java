@@ -23,7 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.MapSettings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -165,7 +165,7 @@ public class SymbolicExecutionTest {
 
   public static JavaScriptVisitorContext createContext(File file) {
     ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(Charsets.UTF_8).parse(file);
-    return new JavaScriptVisitorContext(scriptTree, file, new Settings());
+    return new JavaScriptVisitorContext(scriptTree, file, new MapSettings());
   }
 
 }
