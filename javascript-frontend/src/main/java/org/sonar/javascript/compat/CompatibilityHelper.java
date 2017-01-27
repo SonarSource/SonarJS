@@ -29,6 +29,29 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
 
+/**
+ * Provides helper methods to support newer APIs when running in older runtimes.
+ *
+ * Use "wrap" for objects on which you will want to call methods that may not be available in older runtimes.
+ * And when calling those methods, instead of calling them directly on the objects,
+ * call the helper method with the matching name in this class, with the object as parameter,
+ * for example "contents", "inputStream", "charset".
+ *
+ * Use "unwrap" for wrapped objects when passing them to platform methods.
+ * This is necessary, because the platform expects an instance compatible with the one it provided.
+ * (For example, all InputFile instances are created at platform side.)
+ *
+ * Alternative approaches considered:
+ *
+ * 1. Wrap instances in a class that extends the implementation of the platform.
+ * That would make direct calls possible on the wrapped objects, and unwrapping would be unnecessary.
+ * One problem with that is the platform implementation class is internal and should not be used.
+ * Another problem is the widespread signature changes that will be necessary to implement this.
+ *
+ * 2. Instead of wrapping, check the version at each use.
+ * The problem with that is the widespread use of if-else statements,
+ * and that the sensor context (to get the runtime version) is sometimes hard to access.
+ */
 public class CompatibilityHelper {
 
   public static final Version V6_0 = Version.create(6, 0);
