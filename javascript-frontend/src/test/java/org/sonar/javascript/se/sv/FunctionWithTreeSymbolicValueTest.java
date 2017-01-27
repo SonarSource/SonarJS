@@ -21,7 +21,7 @@ package org.sonar.javascript.se.sv;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -31,6 +31,7 @@ import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.SeChecksDispatcher;
 import org.sonar.javascript.se.SymbolicExecutionTest;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -51,7 +52,7 @@ public class FunctionWithTreeSymbolicValueTest {
     assertFunctionTreeLines(values, 6, 8);
   }
 
-  private static Set<SymbolicValue> symbolicValues(int line, String symbolName, String filename) {
+  private static Set<SymbolicValue> symbolicValues(int line, String symbolName, String filename) throws IOException {
     return FunctionSymbolicValueVerifier.getSymbolicValuesAtLine(line, symbolName, filename);
   }
 
@@ -89,10 +90,10 @@ public class FunctionWithTreeSymbolicValueTest {
       }
     }
 
-    static Set<SymbolicValue> getSymbolicValuesAtLine(int line, String symbolName, String filename) {
+    static Set<SymbolicValue> getSymbolicValuesAtLine(int line, String symbolName, String filename) throws IOException {
       FunctionSymbolicValueVerifier verifier = new FunctionSymbolicValueVerifier(line, symbolName);
 
-      JavaScriptVisitorContext context = SymbolicExecutionTest.createContext(new File("src/test/resources/se/functions", filename));
+      JavaScriptVisitorContext context = SymbolicExecutionTest.createContext(new TestInputFile("src/test/resources/se/functions", filename));
       SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of(verifier));
       seChecksDispatcher.scanTree(context);
 

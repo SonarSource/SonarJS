@@ -1,7 +1,7 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2011-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,15 +23,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 
-public class InputFileWrapper implements InputFile {
-  private InputFile wrapped;
+/**
+ * Delegate InputFile method calls to a wrapped instance.
+ * Implementors should override methods as needed.
+ */
+abstract class InputFileWrapper implements InputFile {
+  final InputFile wrapped;
 
   public InputFileWrapper(InputFile wrapped) {
     this.wrapped = wrapped;
@@ -79,12 +82,12 @@ public class InputFileWrapper implements InputFile {
 
   @Override
   public InputStream inputStream() throws IOException {
-    return Files.newInputStream(wrapped.path());
+    return wrapped.inputStream();
   }
 
   @Override
   public String contents() throws IOException {
-    return new String(Files.readAllBytes(wrapped.path()), wrapped.charset());
+    return wrapped.contents();
   }
 
   @Override

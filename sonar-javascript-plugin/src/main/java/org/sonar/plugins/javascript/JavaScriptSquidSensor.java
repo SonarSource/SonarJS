@@ -87,6 +87,8 @@ import org.sonar.plugins.javascript.minify.MinificationAssessor;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
+import static org.sonar.plugins.javascript.SonarLintHelper.compatibleInputFiles;
+
 public class JavaScriptSquidSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptSquidSensor.class);
@@ -345,16 +347,10 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate);
+    Iterable<InputFile> inputFiles = compatibleInputFiles(fileSystem.inputFiles(mainFilePredicate), context);
     Collection<File> files = StreamSupport.stream(inputFiles.spliterator(), false)
       .map(f -> f.file())
       .collect(Collectors.toList());
-
-    if (!context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2)) {
-      inputFiles = StreamSupport.stream(inputFiles.spliterator(), false)
-        .map(InputFileWrapper::new)
-        .collect(Collectors.toList());
-    }
 
     ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(files);
