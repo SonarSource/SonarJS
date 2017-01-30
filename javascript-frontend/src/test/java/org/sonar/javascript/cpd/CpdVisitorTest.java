@@ -29,9 +29,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.internal.google.common.io.Files;
 import org.sonar.duplications.internal.pmd.TokensLine;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -79,7 +78,7 @@ public class CpdVisitorTest {
     sensorContext = SensorContextTester.create(tempFolder.getRoot().toPath());
     CpdVisitor cpdVisitor = new CpdVisitor(sensorContext);
     ScriptTree tree = (ScriptTree) p.parse(source);
-    TreeVisitorContext visitorContext = new JavaScriptVisitorContext(tree, new InputFileWrapper(inputFile), null);
+    TreeVisitorContext visitorContext = new JavaScriptVisitorContext(tree, new CompatibleInputFile(inputFile), null);
     cpdVisitor.scanTree(visitorContext);
   }
 

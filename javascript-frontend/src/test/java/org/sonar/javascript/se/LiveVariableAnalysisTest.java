@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.MapSettings;
 import org.sonar.javascript.cfg.ControlFlowGraph;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
 import org.sonar.javascript.utils.TestInputFile;
@@ -56,6 +56,6 @@ public class LiveVariableAnalysisTest {
 
   private static JavaScriptVisitorContext createContext(InputFile file) throws IOException {
     ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(file.charset()).parse(file.contents());
-    return new JavaScriptVisitorContext(scriptTree, new InputFileWrapper(file), new MapSettings());
+    return new JavaScriptVisitorContext(scriptTree, new CompatibleInputFile(file), new MapSettings());
   }
 }

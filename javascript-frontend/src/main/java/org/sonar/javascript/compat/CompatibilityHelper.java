@@ -33,7 +33,7 @@ import org.sonar.api.utils.Version;
  * This helper will use a suitable class depending on the runtime version to implement missing features.
  * Important: do not pass a wrapped object back to the platform, for example in .on(InputFile) calls
  * when creating metrics. The platform expects the original objects back, and passing a wrapped
- * object may result in class cast exceptions. Pass the original object by getting it from InputFileWrapper.orig().
+ * object may result in class cast exceptions. Pass the original object by getting it from CompatibleInputFile.orig().
  *
  * Alternative approaches considered:
  *
@@ -55,10 +55,10 @@ public class CompatibilityHelper {
     // utility class, forbidden constructor
   }
 
-  public static Iterable<InputFileWrapper> wrap(Iterable<InputFile> inputFiles, SensorContext context) {
+  public static Iterable<CompatibleInputFile> wrap(Iterable<InputFile> inputFiles, SensorContext context) {
     Version version = context.getSonarQubeVersion();
     if (version.isGreaterThanOrEqual(V6_2)) {
-      return inputFileStream(inputFiles).map(InputFileWrapper::new).collect(Collectors.toList());
+      return inputFileStream(inputFiles).map(CompatibleInputFile::new).collect(Collectors.toList());
     }
     if (version.isGreaterThanOrEqual(V6_0)) {
       return inputFileStream(inputFiles).map(InputFileV60Compat::new).collect(Collectors.toList());

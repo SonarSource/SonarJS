@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import org.junit.Test;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UsageTest extends JavaScriptTreeModelTest {
 
-  private SymbolModelImpl SYMBOL_MODEL = symbolModel(new InputFileWrapper(new TestInputFile("src/test/resources/ast/resolve/usage.js")));
+  private SymbolModelImpl SYMBOL_MODEL = symbolModel(new CompatibleInputFile(new TestInputFile("src/test/resources/ast/resolve/usage.js")));
 
   @Test
   public void global_symbols() throws Exception {

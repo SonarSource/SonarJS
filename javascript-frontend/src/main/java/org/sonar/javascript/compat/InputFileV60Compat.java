@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import org.sonar.api.batch.fs.InputFile;
 
-class InputFileV60Compat extends InputFileWrapper {
+class InputFileV60Compat extends CompatibleInputFile {
   public InputFileV60Compat(InputFile wrapped) {
     super(wrapped);
   }

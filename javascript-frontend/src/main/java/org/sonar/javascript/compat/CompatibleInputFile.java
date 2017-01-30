@@ -28,11 +28,26 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 
-public class InputFileWrapper implements InputFile {
+/**
+ * A compatibility wrapper for InputFile. See class hierarchy.
+ * All methods of this class simply delegate to the wrapped instance.
+ * Descendants of this class override methods that were not available at certain past versions.
+ */
+public class CompatibleInputFile implements InputFile {
   private final InputFile wrapped;
 
-  public InputFileWrapper(InputFile wrapped) {
+  public CompatibleInputFile(InputFile wrapped) {
     this.wrapped = wrapped;
+  }
+
+  /**
+   * Get the original InputFile instance wrapped inside.
+   * Always use the original instance when passing back to the platform for issue reporting.
+   *
+   * @return origin InputFile instance
+   */
+  public InputFile orig() {
+    return wrapped;
   }
 
   @Override
@@ -123,9 +138,5 @@ public class InputFileWrapper implements InputFile {
   @Override
   public Charset charset() {
     return wrapped.charset();
-  }
-
-  public InputFile inputfile() {
-    return wrapped;
   }
 }

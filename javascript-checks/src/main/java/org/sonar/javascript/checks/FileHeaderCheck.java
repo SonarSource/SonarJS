@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
@@ -70,7 +70,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     if (expectedLines == null) {
       expectedLines = headerFormat.split("(?:\r)?\n|\r");
     }
-    InputFileWrapper inputFile = getContext().getFile();
+    CompatibleInputFile inputFile = getContext().getFile();
     List<String> lines;
     try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
       lines = CharStreams.readLines(inr);

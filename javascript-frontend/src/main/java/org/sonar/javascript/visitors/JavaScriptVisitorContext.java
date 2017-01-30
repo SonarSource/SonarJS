@@ -20,7 +20,7 @@
 package org.sonar.javascript.visitors;
 
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -29,10 +29,10 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 public class JavaScriptVisitorContext implements TreeVisitorContext {
 
   private final ScriptTree tree;
-  private final InputFileWrapper inputFile;
+  private final CompatibleInputFile inputFile;
   private final SymbolModel symbolModel;
 
-  public JavaScriptVisitorContext(ScriptTree tree, InputFileWrapper inputFile, Settings settings) {
+  public JavaScriptVisitorContext(ScriptTree tree, CompatibleInputFile inputFile, Settings settings) {
     this.tree = tree;
     this.inputFile = inputFile;
 
@@ -46,7 +46,7 @@ public class JavaScriptVisitorContext implements TreeVisitorContext {
   }
 
   @Override
-  public InputFileWrapper getFile() {
+  public CompatibleInputFile getFile() {
     return inputFile;
   }
 

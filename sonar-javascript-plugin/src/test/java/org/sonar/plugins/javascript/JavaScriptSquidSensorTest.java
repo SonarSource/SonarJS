@@ -56,7 +56,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -184,7 +184,7 @@ public class JavaScriptSquidSensorTest {
 
     JavaScriptCheck check = new ExceptionRaisingCheck(new NullPointerException("NPE forcibly raised by check class"));
 
-    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(new InputFileWrapper(inputFile("file.js"))), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(new CompatibleInputFile(inputFile("file.js"))), progressReport);
     assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
@@ -256,13 +256,13 @@ public class JavaScriptSquidSensorTest {
   @Test
   public void progress_report_should_be_stopped() throws Exception {
     InputFile inputFile = inputFile("cpd/Person.js");
-    createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.of(new InputFileWrapper(inputFile)), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.of(new CompatibleInputFile(inputFile)), progressReport);
     verify(progressReport).stop();
   }
 
   @Test
   public void progress_report_should_be_stopped_without_files() throws Exception {
-    createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.<InputFileWrapper>of(), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.<CompatibleInputFile>of(), progressReport);
     verify(progressReport).stop();
   }
 
@@ -293,7 +293,7 @@ public class JavaScriptSquidSensorTest {
     JavaScriptSquidSensor sensor = createSensor();
     SensorContextTester cancelledContext = SensorContextTester.create(baseDir);
     cancelledContext.setCancelled(true);
-    sensor.analyseFiles(cancelledContext, ImmutableList.of((TreeVisitor)check), ImmutableList.of(new InputFileWrapper(inputFile("cpd/Person.js"))), progressReport);
+    sensor.analyseFiles(cancelledContext, ImmutableList.of((TreeVisitor)check), ImmutableList.of(new CompatibleInputFile(inputFile("cpd/Person.js"))), progressReport);
     verify(progressReport).cancel();
   }
 
@@ -302,7 +302,7 @@ public class JavaScriptSquidSensorTest {
     thrown.expect(AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
     try {
-      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(new InputFileWrapper(inputFile)), progressReport);
+      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(new CompatibleInputFile(inputFile)), progressReport);
     } finally {
       verify(progressReport).cancel();
     }

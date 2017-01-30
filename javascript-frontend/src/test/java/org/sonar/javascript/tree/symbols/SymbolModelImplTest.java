@@ -22,7 +22,7 @@ package org.sonar.javascript.tree.symbols;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
-  private static final InputFileWrapper INPUT_FILE = new InputFileWrapper(new TestInputFile("src/test/resources/ast/resolve/symbolModel.js"));
+  private static final CompatibleInputFile INPUT_FILE = new CompatibleInputFile(new TestInputFile("src/test/resources/ast/resolve/symbolModel.js"));
   private SymbolModelImpl SYMBOL_MODEL = symbolModel(INPUT_FILE);
 
   @Test

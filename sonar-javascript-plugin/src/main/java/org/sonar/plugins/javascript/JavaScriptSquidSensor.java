@@ -60,7 +60,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.cpd.CpdVisitor;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
@@ -129,10 +129,10 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   @VisibleForTesting
-  protected void analyseFiles(SensorContext context, List<TreeVisitor> treeVisitors, Iterable<InputFileWrapper> inputFiles, ProgressReport progressReport) {
+  protected void analyseFiles(SensorContext context, List<TreeVisitor> treeVisitors, Iterable<CompatibleInputFile> inputFiles, ProgressReport progressReport) {
     boolean success = false;
     try {
-      for (InputFileWrapper inputFile : inputFiles) {
+      for (CompatibleInputFile inputFile : inputFiles) {
         // check for cancellation of the analysis (by SonarQube or SonarLint). See SONARJS-761.
         if (context.getSonarQubeVersion().isGreaterThanOrEqual(V6_0) && context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
@@ -163,7 +163,7 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void analyse(SensorContext sensorContext, InputFileWrapper inputFile, List<TreeVisitor> visitors) {
+  private void analyse(SensorContext sensorContext, CompatibleInputFile inputFile, List<TreeVisitor> visitors) {
     ScriptTree scriptTree;
 
     try {
@@ -191,13 +191,13 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void processRecognitionException(RecognitionException e, SensorContext sensorContext, InputFileWrapper inputFile) {
+  private void processRecognitionException(RecognitionException e, SensorContext sensorContext, CompatibleInputFile inputFile) {
     if (parsingErrorRuleKey != null) {
       NewIssue newIssue = sensorContext.newIssue();
 
       NewIssueLocation primaryLocation = newIssue.newLocation()
         .message(e.getMessage())
-        .on(inputFile.inputfile())
+        .on(inputFile.orig())
         .at(inputFile.selectLine(e.getLine()));
 
       newIssue
@@ -224,10 +224,10 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void scanFile(SensorContext sensorContext, InputFileWrapper inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
+  private void scanFile(SensorContext sensorContext, CompatibleInputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.settings());
 
-    highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile.inputfile()), context);
+    highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile.orig()), context);
 
     List<Issue> fileIssues = new ArrayList<>();
 
@@ -243,7 +243,7 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    saveFileIssues(sensorContext, fileIssues, inputFile.inputfile());
+    saveFileIssues(sensorContext, fileIssues, inputFile.orig());
   }
 
   private static void highlightSymbols(NewSymbolTable newSymbolTable, TreeVisitorContext context) {
@@ -305,7 +305,7 @@ public class JavaScriptSquidSensor implements Sensor {
     return ruleKey;
   }
 
-  public boolean isExcluded(InputFileWrapper file) {
+  public boolean isExcluded(CompatibleInputFile file) {
     boolean isMinified = new MinificationAssessor().isMinified(file);
     if (isMinified) {
       LOG.debug("File [" + file.absolutePath() + "] looks like a minified file and will not be analyzed");
@@ -346,7 +346,7 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    Iterable<InputFileWrapper> inputFiles = wrap(fileSystem.inputFiles(mainFilePredicate), context);
+    Iterable<CompatibleInputFile> inputFiles = wrap(fileSystem.inputFiles(mainFilePredicate), context);
     Collection<File> files = StreamSupport.stream(inputFiles.spliterator(), false)
       .map(InputFile::file)
       .collect(Collectors.toList());

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.lexer.JavaScriptLexer;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
@@ -45,7 +45,7 @@ public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    InputFileWrapper inputFile = getContext().getFile();
+    CompatibleInputFile inputFile = getContext().getFile();
     List<String> lines;
     try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
       lines = CharStreams.readLines(inr);

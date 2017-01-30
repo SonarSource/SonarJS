@@ -24,9 +24,8 @@ import java.nio.file.Paths;
 import org.assertj.core.api.AbstractBooleanAssert;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.squidbridge.api.AnalysisException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,10 +70,10 @@ public class MinificationAssessorTest {
     getAssert(assessor, "file2.js").isFalse();
   }
 
-  private InputFileWrapper getFile(String name) {
+  private CompatibleInputFile getFile(String name) {
     DefaultInputFile inputFile = new DefaultInputFile("module1", DIR + name);
     inputFile.setModuleBaseDir(Paths.get(""));
-    return new InputFileWrapper(inputFile);
+    return new CompatibleInputFile(inputFile);
   }
 
   private AbstractBooleanAssert getAssert(String fileName) {

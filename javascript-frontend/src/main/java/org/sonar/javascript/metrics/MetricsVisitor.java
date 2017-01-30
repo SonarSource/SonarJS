@@ -110,7 +110,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    this.inputFile = getContext().getFile().inputfile();
+    this.inputFile = getContext().getFile().orig();
     init();
   }
 

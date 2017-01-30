@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.minify;
 
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 
 /**
  * An object to assess if a .js file is a minified file or not.
@@ -49,7 +49,7 @@ public class MinificationAssessor {
     this.averageLineLengthThreshold = averageLineLengthThreshold;
   }
 
-  public boolean isMinified(InputFileWrapper file) {
+  public boolean isMinified(CompatibleInputFile file) {
     return isJavaScriptFile(file) &&
       (hasMinifiedFileName(file) || hasExcessiveAverageLineLength(file));
   }
@@ -63,7 +63,7 @@ public class MinificationAssessor {
     return file.path().getFileName().toString().endsWith(".js");
   }
 
-  private boolean hasExcessiveAverageLineLength(InputFileWrapper file) {
+  private boolean hasExcessiveAverageLineLength(CompatibleInputFile file) {
     int averageLineLength = new AverageLineLengthCalculator(file).getAverageLineLength();
     return averageLineLength > averageLineLengthThreshold;
   }

@@ -26,7 +26,7 @@ import com.sonar.sslr.api.typed.ActionParser;
 import java.io.IOException;
 import java.util.Iterator;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.compat.InputFileWrapper;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
@@ -55,11 +55,11 @@ public abstract class JavaScriptTreeModelTest {
     return (T) getFirstDescendant((JavaScriptTree) node, descendantToReturn);
   }
 
-  protected SymbolModelImpl symbolModel(InputFileWrapper file) {
+  protected SymbolModelImpl symbolModel(CompatibleInputFile file) {
     return symbolModel(file, null);
   }
 
-  protected SymbolModelImpl symbolModel(InputFileWrapper file, Settings settings) {
+  protected SymbolModelImpl symbolModel(CompatibleInputFile file, Settings settings) {
     try {
       ScriptTree root = (ScriptTree) p.parse(file.contents());
       return (SymbolModelImpl) new JavaScriptVisitorContext(root, file, settings).getSymbolModel();
@@ -68,7 +68,7 @@ public abstract class JavaScriptTreeModelTest {
     }
   }
 
-  protected JavaScriptVisitorContext context(InputFileWrapper file) {
+  protected JavaScriptVisitorContext context(CompatibleInputFile file) {
     try {
       ScriptTree root = (ScriptTree) p.parse(file.contents());
       return new JavaScriptVisitorContext(root, file, null);
