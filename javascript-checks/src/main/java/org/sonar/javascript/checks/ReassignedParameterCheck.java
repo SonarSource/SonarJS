@@ -24,7 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -114,7 +114,7 @@ public class ReassignedParameterCheck extends SubscriptionVisitorCheck {
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
-      .addAll(TreeKinds.functionKinds())
+      .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .add(Kind.CATCH_BLOCK)
       .add(Kind.FOR_IN_STATEMENT)
       .add(Kind.FOR_OF_STATEMENT)

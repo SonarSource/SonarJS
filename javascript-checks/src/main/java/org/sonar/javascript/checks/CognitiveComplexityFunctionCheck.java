@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -29,7 +30,7 @@ import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -80,7 +81,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
   @Override
   public List<Kind> nodesToVisit() {
-    return TreeKinds.functionKinds();
+    return ImmutableList.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
   }
 
   @Override
@@ -94,7 +95,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
   public void visitNode(Tree tree) {
     if (!ignoredNestedFunctions.contains(tree)) {
       ComplexityData complexityData = cognitiveComplexity.calculateComplexity(tree);
-      ignoredNestedFunctions.addAll(complexityData.aggregatedNestedFunctions);
+      ignoredNestedFunctions.addAll(complexityData.aggregatedNestedFunctions());
 
       if (complexityData.complexity > threshold) {
         raiseIssue(complexityData, tree);
@@ -103,14 +104,14 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
   }
 
   private void raiseIssue(ComplexityData complexityData, Tree function) {
-    String message = String.format(MESSAGE, complexityData.complexity, threshold);
+    String message = String.format(MESSAGE, complexityData.complexity(), threshold);
 
     SyntaxToken primaryLocation = ((JavaScriptTree) function).getFirstToken();
     if (function.is(ARROW_FUNCTION)) {
       primaryLocation = ((ArrowFunctionTree) function).doubleArrow();
     }
 
-    PreciseIssue issue = addIssue(primaryLocation, message).cost(complexityData.complexity - (double)threshold);
+    PreciseIssue issue = addIssue(primaryLocation, message).cost(complexityData.complexity() - (double)threshold);
 
     complexityData.secondaryLocations().forEach(issue::secondary);
   }
@@ -392,25 +393,25 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
   }
 
   private static class ComplexityData {
-    int complexity;
-    List<IssueLocation> secondaryLocations;
-    Set<Tree> aggregatedNestedFunctions;
+    private int complexity;
+    private List<IssueLocation> secondaryLocations;
+    private Set<Tree> aggregatedNestedFunctions;
 
-    public ComplexityData(int complexity, List<IssueLocation> secondaryLocations, Set<Tree> aggregatedNestedFunctions) {
+    ComplexityData(int complexity, List<IssueLocation> secondaryLocations, Set<Tree> aggregatedNestedFunctions) {
       this.complexity = complexity;
       this.secondaryLocations = secondaryLocations;
       this.aggregatedNestedFunctions = aggregatedNestedFunctions;
     }
 
-    public int complexity() {
+    int complexity() {
       return complexity;
     }
 
-    public List<IssueLocation> secondaryLocations() {
+    List<IssueLocation> secondaryLocations() {
       return secondaryLocations;
     }
 
-    public Set<Tree> aggregatedNestedFunctions() {
+    Set<Tree> aggregatedNestedFunctions() {
       return aggregatedNestedFunctions;
     }
   }

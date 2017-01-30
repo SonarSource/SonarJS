@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.SyntacticEquivalence;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
@@ -103,7 +103,7 @@ public class ForLoopConditionAndUpdateCheck extends DoubleDispatchVisitorCheck {
 
     @Override
     public void visitUnaryExpression(UnaryExpressionTree tree) {
-      if (TreeKinds.isIncrementOrDecrement(tree)) {
+      if (tree.is(KindSet.INC_DEC_KINDS)) {
         updatedExpressions.add(tree.expression());
       }
       super.visitUnaryExpression(tree);

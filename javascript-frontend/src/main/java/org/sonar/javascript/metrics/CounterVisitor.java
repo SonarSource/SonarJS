@@ -22,10 +22,10 @@ package org.sonar.javascript.metrics;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.sonar.javascript.tree.TreeKinds;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
 public class CounterVisitor extends SubscriptionVisitor {
 
@@ -55,7 +55,7 @@ public class CounterVisitor extends SubscriptionVisitor {
 
   @Override
   public List<Kind> nodesToVisit() {
-    List<Kind> result = new ArrayList<>(TreeKinds.functionKinds());
+    List<Kind> result = new ArrayList<>(KindSet.FUNCTION_KINDS.getSubKinds());
     result.addAll(Arrays.asList(STATEMENT_NODES));
     result.addAll(Arrays.asList(MetricsVisitor.getClassNodes()));
     return result;
@@ -79,7 +79,7 @@ public class CounterVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitNode(Tree tree) {
-    if (TreeKinds.isFunction(tree)) {
+    if (tree.is(KindSet.FUNCTION_KINDS)) {
       functionCounter++;
 
     } else if (tree.is(STATEMENT_NODES)) {

@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -257,7 +257,7 @@ class ControlFlowGraphBuilder {
       buildExpression(binary.rightOperand());
       buildExpression(binary.leftOperand());
 
-    } else if (TreeKinds.isAssignment(tree)) {
+    } else if (tree.is(KindSet.ASSIGNMENT_KINDS)) {
       AssignmentExpressionTree assignment = (AssignmentExpressionTree) tree;
       buildExpression(assignment.expression());
       buildExpression(assignment.variable());

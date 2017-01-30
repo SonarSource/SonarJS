@@ -21,7 +21,7 @@ package org.sonar.javascript.tree.symbols;
 
 import java.util.Map;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -196,7 +196,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (TreeKinds.isIncrementOrDecrement(tree) && tree.expression().is(Tree.Kind.IDENTIFIER_REFERENCE)) {
+    if (tree.is(KindSet.INC_DEC_KINDS) && tree.expression().is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       addUsageFor((IdentifierTree) tree.expression(), Usage.Kind.READ_WRITE);
     } else {
       super.visitUnaryExpression(tree);

@@ -117,11 +117,11 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 @Beta
 public interface Tree {
 
-  boolean is(Kind... kind);
+  boolean is(Kinds... kind);
 
   void accept(DoubleDispatchVisitor visitor);
 
-  public enum Kind implements GrammarRuleKey {
+  public enum Kind implements GrammarRuleKey, Kinds {
 
     /**
      * {@link ScriptTree}
@@ -992,6 +992,12 @@ public interface Tree {
     public Class<? extends Tree> getAssociatedInterface() {
       return associatedInterface;
     }
+
+    @Override
+    public boolean contains(Kinds other) {
+      return this.equals(other);
+    }
+
   }
 
 }

@@ -19,14 +19,16 @@
  */
 package org.sonar.javascript.tree;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
+import java.util.Set;
+import org.sonar.plugins.javascript.api.tree.Kinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
-public class TreeKinds {
+public enum KindSet implements Kinds {
 
-  private static final Kind[] ASSIGNMENT_KINDS = {
+  ASSIGNMENT_KINDS(
     Kind.ASSIGNMENT,
     Kind.EXPONENT_ASSIGNMENT,
     Kind.MULTIPLY_ASSIGNMENT,
@@ -39,17 +41,15 @@ public class TreeKinds {
     Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT,
     Kind.AND_ASSIGNMENT,
     Kind.XOR_ASSIGNMENT,
-    Kind.OR_ASSIGNMENT
-  };
+    Kind.OR_ASSIGNMENT),
 
-  private static final Kind[] INC_DEC_KINDS = {
+  INC_DEC_KINDS(
     Tree.Kind.POSTFIX_INCREMENT,
     Tree.Kind.PREFIX_INCREMENT,
     Tree.Kind.POSTFIX_DECREMENT,
-    Tree.Kind.PREFIX_DECREMENT
-  };
+    Tree.Kind.PREFIX_DECREMENT),
 
-  private static final Kind[] FUNCTION_KINDS = {
+  FUNCTION_KINDS(
     Kind.FUNCTION_DECLARATION,
     Kind.FUNCTION_EXPRESSION,
     Kind.METHOD,
@@ -58,27 +58,21 @@ public class TreeKinds {
     Kind.GENERATOR_DECLARATION,
     Kind.GET_METHOD,
     Kind.SET_METHOD,
-    Kind.ARROW_FUNCTION
-  };
+    Kind.ARROW_FUNCTION);
 
-  private TreeKinds() {
-    // This class has only static methods
+  private Set<Kind> subKinds;
+
+  KindSet(Kind... kinds) {
+    subKinds = ImmutableSet.copyOf(Arrays.asList(kinds));
   }
 
-  public static boolean isAssignment(Tree tree) {
-    return tree.is(ASSIGNMENT_KINDS);
+  public Set<Kind> getSubKinds() {
+    return subKinds;
   }
 
-  public static boolean isIncrementOrDecrement(Tree tree) {
-    return tree.is(INC_DEC_KINDS);
-  }
-
-  public static boolean isFunction(Tree tree) {
-    return tree.is(FUNCTION_KINDS);
-  }
-
-  public static List<Kind> functionKinds() {
-    return ImmutableList.copyOf(FUNCTION_KINDS);
+  @Override
+  public boolean contains(Kinds other) {
+    return this.equals(other) || (other instanceof Kind && subKinds.contains(other));
   }
 
 }

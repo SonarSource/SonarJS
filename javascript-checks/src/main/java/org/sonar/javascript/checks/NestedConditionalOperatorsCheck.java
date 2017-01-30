@@ -21,7 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -72,7 +72,7 @@ public class NestedConditionalOperatorsCheck extends DoubleDispatchVisitorCheck 
 
   private static boolean breaksNesting(Tree tree) {
     return tree.is(Kind.ARRAY_LITERAL, Kind.OBJECT_LITERAL) ||
-      TreeKinds.isFunction(tree);
+      tree.is(KindSet.FUNCTION_KINDS);
   }
 
 }

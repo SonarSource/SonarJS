@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -49,7 +49,7 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
-      .addAll(TreeKinds.functionKinds())
+      .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .add(Kind.CALL_EXPRESSION,
         Kind.NEW_EXPRESSION)
       .build();

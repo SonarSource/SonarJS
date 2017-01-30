@@ -25,13 +25,14 @@ import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 public abstract class SubscriptionVisitor implements TreeVisitor {
 
   private TreeVisitorContext context;
   private Collection<Tree.Kind> nodesToVisit;
 
-  public abstract List<Tree.Kind> nodesToVisit();
+  public abstract List<Kind> nodesToVisit();
 
   public void visitNode(Tree tree) {
     // Default behavior : do nothing.

@@ -26,7 +26,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -109,7 +109,7 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
     @Override
     public List<Kind> nodesToVisit() {
       return ImmutableList.<Kind>builder()
-        .addAll(TreeKinds.functionKinds())
+        .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
         .add(Kind.RETURN_STATEMENT)
         .build();
     }
