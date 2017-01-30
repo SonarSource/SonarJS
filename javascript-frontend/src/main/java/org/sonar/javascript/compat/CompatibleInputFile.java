@@ -30,8 +30,9 @@ import org.sonar.api.batch.fs.TextRange;
 
 /**
  * A compatibility wrapper for InputFile. See class hierarchy.
- * All methods of this class simply delegate to the wrapped instance.
- * Descendants of this class override methods that were not available at certain past versions.
+ *
+ * All methods of this class simply delegate to the wrapped instance, except `orig`.
+ * Descendants of this class override methods that were not available in earlier versions of InputFile.
  */
 public class CompatibleInputFile implements InputFile {
   private final InputFile wrapped;
@@ -44,7 +45,7 @@ public class CompatibleInputFile implements InputFile {
    * Get the original InputFile instance wrapped inside.
    * Always use the original instance when passing back to the platform for issue reporting.
    *
-   * @return origin InputFile instance
+   * @return original InputFile instance
    */
   public InputFile orig() {
     return wrapped;

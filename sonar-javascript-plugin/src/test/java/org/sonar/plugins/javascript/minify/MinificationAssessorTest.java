@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.minify;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
 import org.assertj.core.api.AbstractBooleanAssert;
@@ -73,6 +74,7 @@ public class MinificationAssessorTest {
   private CompatibleInputFile getFile(String name) {
     DefaultInputFile inputFile = new DefaultInputFile("module1", DIR + name);
     inputFile.setModuleBaseDir(Paths.get(""));
+    inputFile.setCharset(StandardCharsets.UTF_8);
     return new CompatibleInputFile(inputFile);
   }
 

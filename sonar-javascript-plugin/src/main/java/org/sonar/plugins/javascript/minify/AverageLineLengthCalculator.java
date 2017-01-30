@@ -112,7 +112,7 @@ class AverageLineLengthCalculator {
   }
 
   private static BufferedReader getReader(CompatibleInputFile file) throws IOException {
-    return new BufferedReader(new InputStreamReader(file.inputStream()));
+    return new BufferedReader(new InputStreamReader(file.inputStream(), file.charset()));
   }
 
   private static void handleException(IOException e, InputFile file) {
