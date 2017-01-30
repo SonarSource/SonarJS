@@ -122,8 +122,9 @@ public class ArgumentTypesCheck extends SeCheck {
   @Override
   public void endOfExecution(Scope functionScope) {
     for (Entry<Tree, Optional<String>> entry : hasIssue.entrySet()) {
-      if (entry.getValue().isPresent()) {
-        addIssue(entry.getKey(), entry.getValue().get());
+      Optional<String> value = entry.getValue();
+      if (value.isPresent()) {
+        addIssue(entry.getKey(), value.get());
       }
     }
   }

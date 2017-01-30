@@ -50,16 +50,17 @@ public final class EscapeUtils {
   }
 
   private static int consumeEscapeSequence(int i, int len, String value, StringBuilder escapeSequence, StringBuilder result) {
-    while (escapeSequence.length() != len && i < value.length()) {
-      i++;
-      escapeSequence.append(value.charAt(i));
+    int ii = i;
+    while (escapeSequence.length() != len && ii < value.length()) {
+      ii++;
+      escapeSequence.append(value.charAt(ii));
     }
     if (escapeSequence.length() == len) {
       result.append((char) Integer.parseInt(escapeSequence.toString(), 16));
       escapeSequence.setLength(0);
     }
-    i++;
-    return i;
+    ii++;
+    return ii;
   }
 
   private static char unescape(char ch) {
