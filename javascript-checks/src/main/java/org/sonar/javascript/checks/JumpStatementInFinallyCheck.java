@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import java.util.EnumSet;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -50,7 +50,7 @@ public class JumpStatementInFinallyCheck extends DoubleDispatchVisitorCheck {
       Kind.TRY_STATEMENT,
       Kind.CLASS_DECLARATION,
       Kind.CLASS_EXPRESSION);
-    SAFE_PARENTS_FOR_RETURN.addAll(TreeKinds.functionKinds());
+    SAFE_PARENTS_FOR_RETURN.addAll(KindSet.FUNCTION_KINDS.getSubKinds());
 
     SAFE_PARENTS_FOR_CONTINUE = EnumSet.of(
       Kind.FOR_IN_STATEMENT,

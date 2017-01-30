@@ -21,7 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -55,7 +55,7 @@ public class DefaultParameterSideEffectCheck extends DoubleDispatchVisitorCheck 
 
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (TreeKinds.isIncrementOrDecrement(tree) && currentParameterWithDefault != null) {
+    if (tree.is(KindSet.INC_DEC_KINDS) && currentParameterWithDefault != null) {
       addIssue(currentParameterWithDefault, String.format(MESSAGE, CheckUtils.asString(currentParameterWithDefault.left())));
       currentParameterWithDefault = null;
     }

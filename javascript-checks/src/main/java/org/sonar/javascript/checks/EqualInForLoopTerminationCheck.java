@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -38,15 +38,13 @@ import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+import static org.sonar.plugins.javascript.api.tree.Tree.Kind.MINUS_ASSIGNMENT;
+import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PLUS_ASSIGNMENT;
+
 @Rule(key = "S888")
 public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace '%s' operator with one of '<=', '>=', '<', or '>' comparison operators.";
-
-  private static final Kind[] INCREMENT_ASSIGNMENT = {
-    Tree.Kind.PLUS_ASSIGNMENT,
-    Tree.Kind.MINUS_ASSIGNMENT
-  };
 
   @Override
   public void visitForStatement(ForStatementTree tree) {
@@ -70,10 +68,10 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
       counters(commaExpressions.leftOperand(), counters);
       counters(commaExpressions.rightOperand(), counters);
 
-    } else if (TreeKinds.isIncrementOrDecrement(update)) {
+    } else if (update.is(KindSet.INC_DEC_KINDS)) {
       counter = ((UnaryExpressionTree) update).expression();
 
-    } else if (update.is(Kind.PLUS_ASSIGNMENT, Kind.MINUS_ASSIGNMENT)) {
+    } else if (update.is(PLUS_ASSIGNMENT, Kind.MINUS_ASSIGNMENT)) {
       counter = ((AssignmentExpressionTree) update).variable();
     }
 
@@ -168,7 +166,7 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static int checkForUpdateByOne(ExpressionTree update) {
-    if (update.is(Tree.Kind.POSTFIX_INCREMENT, Tree.Kind.PREFIX_INCREMENT) || (update.is(Tree.Kind.PLUS_ASSIGNMENT) && isUpdateOnOneWithAssign(update))) {
+    if (update.is(Tree.Kind.POSTFIX_INCREMENT, Tree.Kind.PREFIX_INCREMENT) || (update.is(PLUS_ASSIGNMENT) && isUpdateOnOneWithAssign(update))) {
       return +1;
     }
     if (update.is(Tree.Kind.POSTFIX_DECREMENT, Tree.Kind.PREFIX_DECREMENT) || (update.is(Tree.Kind.MINUS_ASSIGNMENT) && isUpdateOnOneWithAssign(update))) {
@@ -183,7 +181,7 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
       BinaryExpressionTree commaExpressions = (BinaryExpressionTree) update;
       result = isUpdateIncDec(commaExpressions.leftOperand()) && isUpdateIncDec(commaExpressions.rightOperand());
 
-    } else if (TreeKinds.isIncrementOrDecrement(update) || update.is(INCREMENT_ASSIGNMENT)) {
+    } else if (update.is(KindSet.INC_DEC_KINDS) || update.is(PLUS_ASSIGNMENT, MINUS_ASSIGNMENT)) {
       result = true;
     }
 
@@ -191,7 +189,7 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean isUpdateOnOneWithAssign(ExpressionTree update) {
-    if (update.is(Tree.Kind.PLUS_ASSIGNMENT, Tree.Kind.MINUS_ASSIGNMENT)) {
+    if (update.is(PLUS_ASSIGNMENT, Tree.Kind.MINUS_ASSIGNMENT)) {
       ExpressionTree rightExpression = ((AssignmentExpressionTree) update).expression();
       return rightExpression.is(Tree.Kind.NUMERIC_LITERAL) && "1".equals(((LiteralTree) rightExpression).value());
     }

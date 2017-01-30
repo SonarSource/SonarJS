@@ -21,7 +21,7 @@ package org.sonar.javascript.checks;
 
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -37,7 +37,7 @@ public class IncrementDecrementInSubExpressionCheck extends DoubleDispatchVisito
 
   @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
-    if (TreeKinds.isIncrementOrDecrement(tree.expression())) {
+    if (tree.expression().is(KindSet.INC_DEC_KINDS)) {
       scan(((UnaryExpressionTree) tree.expression()).expression());
     } else {
       scan(tree.expression());
@@ -46,7 +46,7 @@ public class IncrementDecrementInSubExpressionCheck extends DoubleDispatchVisito
 
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (TreeKinds.isIncrementOrDecrement(tree)) {
+    if (tree.is(KindSet.INC_DEC_KINDS)) {
       raiseIssue(tree);
     }
 
@@ -63,7 +63,7 @@ public class IncrementDecrementInSubExpressionCheck extends DoubleDispatchVisito
 
   private void scanUpdateClause(@Nullable ExpressionTree tree) {
     if (tree != null) {
-      if (TreeKinds.isIncrementOrDecrement(tree)) {
+      if (tree.is(KindSet.INC_DEC_KINDS)) {
         scan(((UnaryExpressionTree) tree).expression());
 
       } else if (tree.is(Kind.COMMA_OPERATOR)) {

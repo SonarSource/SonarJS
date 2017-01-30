@@ -35,7 +35,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
@@ -85,7 +85,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   @Override
   public List<Kind> nodesToVisit() {
-    List<Kind> result = new ArrayList<>(TreeKinds.functionKinds());
+    List<Kind> result = new ArrayList<>(KindSet.FUNCTION_KINDS.getSubKinds());
     result.addAll(Arrays.asList(CLASS_NODES));
     return result;
   }
@@ -102,7 +102,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
     if (tree.is(CLASS_NODES)) {
       classComplexity += new ComplexityVisitor(true).getComplexity(tree);
 
-    } else if (TreeKinds.isFunction(tree)) {
+    } else if (tree.is(KindSet.FUNCTION_KINDS)) {
       int currentFunctionComplexity = new ComplexityVisitor(false).getComplexity(tree);
       this.functionComplexity += currentFunctionComplexity;
       functionComplexityDistribution.add(currentFunctionComplexity);

@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -38,7 +39,7 @@ public class DefaultParametersNotLastCheck extends SubscriptionVisitorCheck {
 
   @Override
   public List<Kind> nodesToVisit() {
-    return TreeKinds.functionKinds();
+    return ImmutableList.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
   }
 
   @Override

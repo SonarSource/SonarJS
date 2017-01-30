@@ -25,7 +25,7 @@ import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -46,7 +46,7 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
-      .addAll(TreeKinds.functionKinds())
+      .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .add(Kind.SCRIPT)
       .build();
   }

@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -91,7 +91,7 @@ public class CounterUpdatedInLoopCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (inUpdate && TreeKinds.isIncrementOrDecrement(tree)) {
+    if (inUpdate && tree.is(KindSet.INC_DEC_KINDS)) {
       addCurrentLoopCounter(tree.expression());
     }
 

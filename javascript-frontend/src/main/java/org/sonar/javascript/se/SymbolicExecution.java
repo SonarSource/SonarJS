@@ -36,7 +36,7 @@ import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparateListUtils;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -220,7 +220,7 @@ public class SymbolicExecution {
         currentState = currentState.execute((ExpressionTree) element);
       }
 
-      if (TreeKinds.isAssignment(element)) {
+      if (element.is(KindSet.ASSIGNMENT_KINDS)) {
 
         AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
         currentState = assignment(currentState, assignment.variable());

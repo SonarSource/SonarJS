@@ -22,7 +22,7 @@ package org.sonar.javascript.checks.utils;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.ControlFlowGraph;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -88,7 +88,7 @@ public class CheckUtils {
   public static ControlFlowGraph buildControlFlowGraph(Tree tree) {
     Tree parent = tree;
     while (!parent.is(Kind.SCRIPT)) {
-      if (parent.is(Kind.BLOCK) && TreeKinds.isFunction(parent(parent))) {
+      if (parent.is(Kind.BLOCK) && (parent(parent)).is(KindSet.FUNCTION_KINDS)) {
         return ControlFlowGraph.build((BlockTree) parent);
       }
       parent = parent(parent);

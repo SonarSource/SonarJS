@@ -25,7 +25,9 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Kinds;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public abstract class JavaScriptTree implements Tree {
@@ -37,10 +39,10 @@ public abstract class JavaScriptTree implements Tree {
   }
 
   @Override
-  public final boolean is(Kind... kind) {
+  public final boolean is(Kinds... kind) {
     if (getKind() != null) {
-      for (Kind kindIter : kind) {
-        if (getKind() == kindIter) {
+      for (Kinds kindIter : kind) {
+        if (kindIter.contains(getKind())) {
           return true;
         }
       }
