@@ -32,6 +32,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.javascript.checks.verifier.TestIssue.Location;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -386,7 +388,7 @@ public class JavaScriptCheckVerifierTest {
 
   private void check(String sourceCode, TestIssue... actualIssues) throws Exception {
     JavaScriptCheck check = new CheckStub(Arrays.asList(actualIssues));
-    TestInputFile fakeFile = new TestInputFile(folder.getRoot(), "fakeFile.txt");
+    DefaultInputFile fakeFile = new TestInputFile(folder.getRoot(), "fakeFile.txt");
     fakeFile.setCharset(StandardCharsets.UTF_8);
     Files.write(fakeFile.path(), sourceCode.getBytes(fakeFile.charset()));
     JavaScriptCheckVerifier.verify(check, fakeFile);

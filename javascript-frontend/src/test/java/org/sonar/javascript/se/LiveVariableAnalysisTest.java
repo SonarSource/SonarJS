@@ -41,7 +41,8 @@ public class LiveVariableAnalysisTest {
 
   @Test
   public void testUsages() throws Exception {
-    JavaScriptVisitorContext context = createContext(new TestInputFile("src/test/resources/se/", "lva.js"));
+    InputFile inputFile = new TestInputFile("src/test/resources/se/", "lva.js");
+    JavaScriptVisitorContext context = createContext(inputFile);
     FunctionTree function = (FunctionTree) context.getTopTree().items().items().get(0);
     ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) function.body());
     LiveVariableAnalysis lva = LiveVariableAnalysis.create(cfg, context.getSymbolModel().getScope(function));
