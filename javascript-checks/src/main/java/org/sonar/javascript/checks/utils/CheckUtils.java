@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Kinds;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -106,5 +107,20 @@ public class CheckUtils {
     }
     return false;
   }
+
+  @Nullable
+  public static Tree getFirstAncestor(Tree tree, Kinds... kind) {
+    Tree ancestor = parent(tree);
+    while (ancestor != null) {
+      if (ancestor.is(kind)) {
+        return ancestor;
+      }
+      ancestor = parent(ancestor);
+    }
+
+    return null;
+  }
+
+
 }
 

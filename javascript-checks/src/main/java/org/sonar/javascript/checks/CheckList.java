@@ -173,6 +173,7 @@ public final class CheckList {
       StringConcatenatedWithNonStringCheck.class,
       StringConcatenationCheck.class,
       StringsComparisonCheck.class,
+      SymbolUsedAsConstructorCheck.class,
       SwitchWithNotEnoughCaseCheck.class,
       SwitchWithoutDefaultCheck.class,
       TabCharacterCheck.class,
