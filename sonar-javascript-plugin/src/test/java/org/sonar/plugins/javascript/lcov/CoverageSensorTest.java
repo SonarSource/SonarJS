@@ -131,7 +131,6 @@ public class CoverageSensorTest {
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(1);
   }
 
-  // note: as of SQ 6.2, there is no more distinction of coverage types
   @Test
   public void test_overall_coverage() {
     overallCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
