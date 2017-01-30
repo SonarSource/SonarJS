@@ -72,10 +72,10 @@ public class CompatibilityHelper {
     return new InputFileV56Compat(inputFile, context);
   }
 
-  public static Iterable<InputFile> wrap(Iterable<InputFile> inputFiles, SensorContext context) {
+  public static Iterable<InputFileWrapper> wrap(Iterable<InputFile> inputFiles, SensorContext context) {
     Version version = context.getSonarQubeVersion();
     if (version.isGreaterThanOrEqual(V6_2)) {
-      return inputFiles;
+      return inputFileStream(inputFiles).map(InputFileWrapper::new).collect(Collectors.toList());
     }
     if (version.isGreaterThanOrEqual(V6_0)) {
       return inputFileStream(inputFiles).map(InputFileV60Compat::new).collect(Collectors.toList());

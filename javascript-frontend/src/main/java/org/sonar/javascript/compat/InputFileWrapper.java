@@ -28,7 +28,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 
-abstract class InputFileWrapper implements InputFile {
+public class InputFileWrapper implements InputFile {
   private final InputFile wrapped;
 
   public InputFileWrapper(InputFile wrapped) {
