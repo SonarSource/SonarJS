@@ -208,17 +208,17 @@ public class JavaScriptSquidSensor implements Sensor {
 
     if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
       sensorContext.newAnalysisError()
-        .onFile(inputFile)
+        .onFile(inputFile.orig())
         .at(inputFile.newPointer(e.getLine(), 0))
         .message(e.getMessage())
         .save();
     }
   }
 
-  private static void processException(Exception e, SensorContext sensorContext, InputFile inputFile) {
+  private static void processException(Exception e, SensorContext sensorContext, CompatibleInputFile inputFile) {
     if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
       sensorContext.newAnalysisError()
-        .onFile(inputFile)
+        .onFile(inputFile.orig())
         .message(e.getMessage())
         .save();
     }
