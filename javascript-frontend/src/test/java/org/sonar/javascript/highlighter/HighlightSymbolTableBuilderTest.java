@@ -30,7 +30,6 @@ import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
-import org.sonar.api.internal.google.common.base.Charsets;
 import org.sonar.api.internal.google.common.io.Files;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
@@ -50,7 +49,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
       .setCharset(StandardCharsets.UTF_8);
     inputFile = new CompatibleInputFile(defaultInputFile);
 
-    defaultInputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
+    defaultInputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), defaultInputFile.charset()));
     return sensorContext.newSymbolTable().onFile(defaultInputFile);
   }
 
@@ -108,7 +107,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     String filename = "symbolHighlightingBom.js";
 
     HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile));
-    assertThat(Files.toString(inputFile.file(), Charsets.UTF_8).startsWith("\uFEFF")).isTrue();
+    assertThat(Files.toString(inputFile.file(), inputFile.charset()).startsWith("\uFEFF")).isTrue();
     assertThat(references("moduleKey:" + filename, 1, 4)).containsOnly(textRange(3, 0, 1));
   }
 
