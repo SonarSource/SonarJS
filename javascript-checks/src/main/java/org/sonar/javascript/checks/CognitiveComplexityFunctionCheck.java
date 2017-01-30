@@ -86,6 +86,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
   @Override
   public void visitFile(Tree scriptTree) {
     ignoredNestedFunctions.clear();
+    cognitiveComplexity.clear();
     super.visitFile(scriptTree);
   }
 
@@ -120,6 +121,10 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
         functionStack.push(tree);
         nestingLevel++;
       }
+    }
+
+    public void clear() {
+      currentFunction = null;
     }
 
     private void initComplexityCalculation(FunctionTree tree) {
@@ -337,7 +342,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
         return "+1";
 
       } else{
-        return String.format("+%s (incl %s for nesting)", complexity, complexity - 1);
+        return String.format("+%s (incl. %s for nesting)", complexity, complexity - 1);
       }
     }
 

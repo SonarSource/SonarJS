@@ -50,7 +50,7 @@ function else_if_nesting() {    // Noncompliant [[effortToFix=4]]
 
 
 
-function loops_complexity() {    // Noncompliant [[effortToFix=15;id=LOOPS]]
+function loops_complexity() {    // Noncompliant [[effortToFix=17;id=LOOPS]]
     while (condition) {             // +1 (nesting level +1)
 //S ^^^^^ LOOPS {{+1}}
         if (condition) {            // +2
@@ -69,6 +69,10 @@ function loops_complexity() {    // Noncompliant [[effortToFix=15;id=LOOPS]]
 //S ^^^ LOOPS {{+1}}
         if (condition) {            // +2
 //S     ^^ LOOPS
+        }
+
+        for (i = 0; i < length; i++) {  // +2
+//S     ^^^ LOOPS
         }
     }
 
@@ -92,10 +96,10 @@ function switch_statement() {   // Noncompliant [[effortToFix=6;id=SWITCH]]
 //S ^^ SWITCH
 
     switch (expr) {                // +2 (nesting level +1)
-//S ^^^^^^ SWITCH {{+2 (incl 1 for nesting)}}
+//S ^^^^^^ SWITCH {{+2 (incl. 1 for nesting)}}
        case "1":
           if (condition) {}        // +3
-//S       ^^ SWITCH {{+3 (incl 2 for nesting)}}
+//S       ^^ SWITCH {{+3 (incl. 2 for nesting)}}
           break;
        case "2":
           break;
@@ -126,6 +130,19 @@ function try_finally() {    // Noncompliant [[effortToFix=2]]
     } finally {
         if (condition) { } // +1
     }
+}
+
+function nested_try_catch() { // Noncompliant [[effortToFix=3;id=NESTED_TRY_CATCH]]
+  try {
+    if (condition) { // +1 (nesting level +1)
+//S ^^ NESTED_TRY_CATCH
+      try {}
+      catch (someError) { // +2
+//S   ^^^^^ NESTED_TRY_CATCH
+      }
+    }
+  } finally {
+  }
 }
 
 function jump_statements_no_complexity() {   // Noncompliant [[effortToFix=6]]
@@ -182,7 +199,7 @@ function nesting_func_with_not_structural_complexity() {  // Noncompliant [[effo
     }
 }
 
-function two_level_nesting() {
+function two_level_function_nesting() {
     function nested1() {
       function nested2() {   // Noncompliant [[effortToFix=1]]
           if (condition) { }     // +1
@@ -190,7 +207,7 @@ function two_level_nesting() {
     }
 }
 
-function two_level_nesting_2() {
+function two_level_function_nesting_2() {
     function nested1() {     // Noncompliant [[effortToFix=3]]
       if (condition) {}      // +1
       function nested2() {   // (nesting +1)
@@ -242,9 +259,10 @@ function conditional_expression() { // Noncompliant [[effortToFix=1;id=TERNARY]]
 //S                  ^ TERNARY {{+1}}
 }
 
-function nested_conditional_expression() { // Noncompliant [[effortToFix=6]]
+function nested_conditional_expression() { // Noncompliant [[effortToFix=11]]
     x = condition1 ? (condition2 ? trueValue2 : falseValue2) : falseValue1 ; // +3
     x = condition1 ? trueValue1 : (condition2 ? trueValue2 : falseValue2)  ; // +3
+    x = condition1 ? (condition2 ? trueValue2 : falseValue2) : (condition3 ? trueValue3 : falseValue3); // +5
 }
 
 class A {
@@ -275,3 +293,16 @@ function complexity_in_conditions(a, b) { // Noncompliant [[effortToFix=11]]
   for (var i = a && b; a && b; a && b) { // +1(for) +1(&&)  +1(&&)  +1(&&)
   }
 }
+
+function several_nested() { // Noncompliant [[effortToFix=5]]
+  if (condition) {    // +1 (+1 for nesting)
+    if (condition) {} // +2
+    if (condition) {} // +2
+  }
+}
+
+// Some spaghetti code
+(function(a) {  // Noncompliant [[effortToFix=1]]
+  if (cond) {}
+  return a;
+})(function(b) {return b + 1})(0);
