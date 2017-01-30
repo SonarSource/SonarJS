@@ -31,8 +31,6 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 
-import static org.sonar.javascript.compat.CompatibilityHelper.charset;
-
 @Rule(key = "LineLength")
 public class LineLengthCheck extends DoubleDispatchVisitorCheck {
 
@@ -49,7 +47,7 @@ public class LineLengthCheck extends DoubleDispatchVisitorCheck {
   public void visitScript(ScriptTree tree) {
     InputFileWrapper inputFile = getContext().getFile();
     List<String> lines;
-    try(InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), charset(inputFile))) {
+    try(InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
       lines = CharStreams.readLines(inr);
     } catch (IOException e) {
       throw new IllegalStateException(e);

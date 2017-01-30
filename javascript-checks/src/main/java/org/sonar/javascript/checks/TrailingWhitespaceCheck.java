@@ -33,8 +33,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
-import static org.sonar.javascript.compat.CompatibilityHelper.charset;
-
 @Rule(key = "TrailingWhitespace")
 public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
 
@@ -49,7 +47,7 @@ public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
   public void visitFile(Tree scriptTree) {
     InputFileWrapper inputFile = getContext().getFile();
     List<String> lines;
-    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), charset(inputFile))) {
+    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
       lines = CharStreams.readLines(inr);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to execute rule \"TrailingWhitespace\" for file " + getContext().getFileName(), e);

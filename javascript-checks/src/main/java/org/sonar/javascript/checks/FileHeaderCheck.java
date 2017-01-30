@@ -35,8 +35,6 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 
-import static org.sonar.javascript.compat.CompatibilityHelper.charset;
-
 @Rule(key = "S1451")
 public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
 
@@ -75,7 +73,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     }
     InputFileWrapper inputFile = getContext().getFile();
     List<String> lines;
-    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), charset(inputFile))) {
+    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
       lines = CharStreams.readLines(inr);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);

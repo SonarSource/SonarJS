@@ -99,11 +99,4 @@ public class CompatibilityHelper {
     }
     return inputFile.contents();
   }
-
-  public static Charset charset(InputFile inputFile) {
-    if (inputFile instanceof InputFileWrapper) {
-      return ((InputFileWrapper) inputFile).charset();
-    }
-    return inputFile.charset();
-  }
 }
