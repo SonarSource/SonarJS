@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.javascript.compat.InputFileWrapper;
 import org.sonar.squidbridge.api.AnalysisException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,10 +71,10 @@ public class MinificationAssessorTest {
     getAssert(assessor, "file2.js").isFalse();
   }
 
-  private InputFile getFile(String name) {
+  private InputFileWrapper getFile(String name) {
     DefaultInputFile inputFile = new DefaultInputFile("module1", DIR + name);
     inputFile.setModuleBaseDir(Paths.get(""));
-    return inputFile;
+    return new InputFileWrapper(inputFile);
   }
 
   private AbstractBooleanAssert getAssert(String fileName) {

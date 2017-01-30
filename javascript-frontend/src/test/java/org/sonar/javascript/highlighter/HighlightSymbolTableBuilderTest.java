@@ -32,6 +32,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.internal.google.common.base.Charsets;
 import org.sonar.api.internal.google.common.io.Files;
+import org.sonar.javascript.compat.InputFileWrapper;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,17 +40,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
 
   private SensorContextTester sensorContext;
-  private DefaultInputFile inputFile;
+  private InputFileWrapper inputFile;
 
   private NewSymbolTable newSymbolTable(String filename) {
     File moduleBaseDir = new File("src/test/resources/highlighter/");
     sensorContext = SensorContextTester.create(moduleBaseDir);
-    inputFile = new DefaultInputFile("moduleKey", filename)
+    DefaultInputFile defaultInputFile = new DefaultInputFile("moduleKey", filename)
       .setModuleBaseDir(moduleBaseDir.toPath())
       .setCharset(StandardCharsets.UTF_8);
+    inputFile = new InputFileWrapper(defaultInputFile);
 
-    inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
-    return sensorContext.newSymbolTable().onFile(inputFile);
+    defaultInputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
+    return sensorContext.newSymbolTable().onFile(defaultInputFile);
   }
 
   private static DefaultTextRange textRange(int line, int startColumn, int endColumn) {

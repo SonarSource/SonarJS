@@ -20,7 +20,6 @@
 package org.sonar.javascript.compat;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,13 +91,6 @@ public class CompatibilityHelper {
       return ((InputFileWrapper) inputFile).inputfile();
     }
     return inputFile;
-  }
-
-  public static InputStream inputStream(InputFile inputFile) throws IOException {
-    if (inputFile instanceof InputFileWrapper) {
-      return ((InputFileWrapper) inputFile).inputStream();
-    }
-    return inputFile.inputStream();
   }
 
   public static String contents(InputFile inputFile) throws IOException {

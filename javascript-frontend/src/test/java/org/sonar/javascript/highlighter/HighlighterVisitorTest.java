@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.javascript.compat.InputFileWrapper;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -70,7 +71,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
     visitorContext = mock(TreeVisitorContext.class);
 
     highlighterVisitor = new HighlighterVisitor(sensorContext);
-    when(visitorContext.getFile()).thenReturn(inputFile);
+    when(visitorContext.getFile()).thenReturn(new InputFileWrapper(inputFile));
   }
 
   private void highlight(String string) throws Exception {

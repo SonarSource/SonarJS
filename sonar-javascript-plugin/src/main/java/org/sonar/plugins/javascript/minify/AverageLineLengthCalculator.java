@@ -23,9 +23,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.javascript.compat.InputFileWrapper;
 import org.sonar.squidbridge.api.AnalysisException;
-
-import static org.sonar.javascript.compat.CompatibilityHelper.inputStream;
 
 /**
  * An instance of this class computes the average line length of file.
@@ -37,7 +36,7 @@ import static org.sonar.javascript.compat.CompatibilityHelper.inputStream;
  */
 class AverageLineLengthCalculator {
 
-  private InputFile file;
+  private InputFileWrapper file;
 
   private boolean isAtFirstLine = true;
 
@@ -45,7 +44,7 @@ class AverageLineLengthCalculator {
 
   private boolean isClike = false;
 
-  public AverageLineLengthCalculator(InputFile file) {
+  public AverageLineLengthCalculator(InputFileWrapper file) {
     this.file = file;
   }
 
@@ -112,8 +111,8 @@ class AverageLineLengthCalculator {
     }
   }
 
-  private BufferedReader getReader(InputFile file) throws IOException {
-    return new BufferedReader(new InputStreamReader(inputStream(file)));
+  private BufferedReader getReader(InputFileWrapper file) throws IOException {
+    return new BufferedReader(new InputStreamReader(file.inputStream()));
   }
 
   private static void handleException(IOException e, InputFile file) {

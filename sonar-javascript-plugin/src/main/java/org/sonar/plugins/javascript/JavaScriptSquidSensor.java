@@ -226,7 +226,7 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void scanFile(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
+  private void scanFile(SensorContext sensorContext, InputFileWrapper inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.settings());
 
     highlightSymbols(sensorContext.newSymbolTable().onFile(unwrap(inputFile)), context);
@@ -307,7 +307,7 @@ public class JavaScriptSquidSensor implements Sensor {
     return ruleKey;
   }
 
-  public boolean isExcluded(InputFile file) {
+  public boolean isExcluded(InputFileWrapper file) {
     boolean isMinified = new MinificationAssessor().isMinified(file);
     if (isMinified) {
       LOG.debug("File [" + file.absolutePath() + "] looks like a minified file and will not be analyzed");

@@ -27,16 +27,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.compat.CompatibilityHelper;
+import org.sonar.javascript.compat.InputFileWrapper;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 
 import static org.sonar.javascript.compat.CompatibilityHelper.charset;
-import static org.sonar.javascript.compat.CompatibilityHelper.inputStream;
 
 @Rule(key = "S1451")
 public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
@@ -74,9 +73,9 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     if (expectedLines == null) {
       expectedLines = headerFormat.split("(?:\r)?\n|\r");
     }
-    InputFile inputFile = getContext().getFile();
+    InputFileWrapper inputFile = getContext().getFile();
     List<String> lines;
-    try (InputStreamReader inr = new InputStreamReader(inputStream(inputFile), charset(inputFile))) {
+    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), charset(inputFile))) {
       lines = CharStreams.readLines(inr);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);

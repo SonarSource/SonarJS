@@ -24,14 +24,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
+import org.sonar.javascript.compat.InputFileWrapper;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 
 import static org.sonar.javascript.compat.CompatibilityHelper.charset;
-import static org.sonar.javascript.compat.CompatibilityHelper.inputStream;
 
 @Rule(key = "TabCharacter")
 public class TabCharacterCheck extends DoubleDispatchVisitorCheck {
@@ -40,9 +39,9 @@ public class TabCharacterCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    InputFile inputFile = getContext().getFile();
+    InputFileWrapper inputFile = getContext().getFile();
     List<String> lines;
-    try (InputStreamReader inr = new InputStreamReader(inputStream(inputFile), charset(inputFile))) {
+    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), charset(inputFile))) {
       lines = CharStreams.readLines(inr);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to execute rule \"TabCharacter\" for file " + getContext().getFileName(), e);
