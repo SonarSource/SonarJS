@@ -55,8 +55,7 @@ public class ExecutableLineVisitor extends SubscriptionVisitorCheck {
       Kind.EXPRESSION_STATEMENT,
       Kind.FOR_OF_STATEMENT,
       Kind.FOR_STATEMENT,
-      Kind.FOR_IN_STATEMENT,
-      Kind.FUNCTION_DECLARATION);
+      Kind.FOR_IN_STATEMENT);
   }
 
   @Override

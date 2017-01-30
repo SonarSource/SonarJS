@@ -180,9 +180,9 @@ public class CoverageTest {
       assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(10);
       assertThat(getFileMeasure("coverage_line_hits_data").getValue()).startsWith("1=0;2=0;3=0;5=0");
     } else {
-      assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
-      assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(7);
-      assertThat(getFileMeasure("coverage_line_hits_data").getValue()).startsWith("1=0;2=0;5=0;6=0");
+      assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(5);
+      assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(5);
+      assertThat(getFileMeasure("coverage_line_hits_data").getValue()).startsWith("2=0;6=0;7=0;9=0");
 
     }
     assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();
@@ -222,8 +222,8 @@ public class CoverageTest {
       assertThat(getProjectMeasureAsInt("lines_to_cover")).isNull();
       assertThat(getProjectMeasureAsInt("uncovered_lines")).isNull();
     } else {
-      assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
-      assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(7);
+      assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(5);
+      assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(5);
     }
 
     assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();

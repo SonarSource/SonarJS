@@ -1,6 +1,6 @@
 // Apart from this line, only executable lines should contain non-blank comments
 
-function f() { // 1
+function f() {
   return; // 1
 }
 
