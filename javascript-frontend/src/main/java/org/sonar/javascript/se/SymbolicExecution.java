@@ -174,7 +174,7 @@ public class SymbolicExecution {
         if (element.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION)) {
           FunctionDeclarationTree functionDeclaration = (FunctionDeclarationTree) element;
           Symbol symbol = functionDeclaration.name().symbol();
-          programStateWithFunctions =  programStateWithFunctions.newFunctionSymbolicValue(symbol, functionDeclaration);
+          programStateWithFunctions = programStateWithFunctions.newFunctionSymbolicValue(symbol, functionDeclaration);
         }
       }
     }
@@ -182,7 +182,7 @@ public class SymbolicExecution {
     return programStateWithFunctions;
   }
 
-  private static boolean symbolIs(Symbol symbol, Symbol.Kind ... kinds) {
+  private static boolean symbolIs(Symbol symbol, Symbol.Kind... kinds) {
     for (Symbol.Kind kind : kinds) {
       if (symbol.kind().equals(kind)) {
         return true;
@@ -201,7 +201,7 @@ public class SymbolicExecution {
       beforeBlockElement(currentState, element);
 
       if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
-        SymbolicValue symbolicValue = currentState.peekStack();
+        SymbolicValue symbolicValue = getMemberObjectSymbolicValue(currentState, element);
         Optional<ProgramState> constrainedPS = currentState.constrain(symbolicValue, Constraint.NOT_NULLY);
         if (constrainedPS.isPresent()) {
           currentState = constrainedPS.get();
@@ -221,7 +221,6 @@ public class SymbolicExecution {
       }
 
       if (TreeKinds.isAssignment(element)) {
-
         AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
         currentState = assignment(currentState, assignment.variable());
 
@@ -271,6 +270,10 @@ public class SymbolicExecution {
     }
   }
 
+  private SymbolicValue getMemberObjectSymbolicValue(ProgramState currentState, Tree element) {
+    return element.is(Kind.BRACKET_MEMBER_EXPRESSION) ? currentState.peekStack(1) : currentState.peekStack(0);
+  }
+
   private ProgramState executeInitializedBinding(InitializedBindingElementTree initializedBindingElementTree, ProgramState programState) {
     ProgramState newProgramState = programState;
     if (((JavaScriptTree) initializedBindingElementTree).getParent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN, Kind.BINDING_PROPERTY)) {
@@ -287,7 +290,7 @@ public class SymbolicExecution {
   }
 
   private static boolean isProducingUnconsumedValue(Tree element) {
-    if(element instanceof ExpressionTree) {
+    if (element instanceof ExpressionTree) {
       Tree tree = syntaxTree(element);
       Tree parent = getParent(tree);
       if (parent.is(
@@ -405,7 +408,7 @@ public class SymbolicExecution {
     Tree lastElement = block.elements().get(block.elements().size() - 1);
 
     Optional<ProgramState> constrainedTruePS = currentState.constrain(conditionSymbolicValue, Constraint.TRUTHY);
-    if (constrainedTruePS.isPresent()){
+    if (constrainedTruePS.isPresent()) {
       pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY, block.branchingTree());
       conditionResults.put(lastElement, Truthiness.TRUTHY);
     }
@@ -417,7 +420,7 @@ public class SymbolicExecution {
     }
 
     if (!constrainedTruePS.isPresent() && !constrainedFalsePS.isPresent()) {
-      throw new IllegalStateException("At least one branch of condition should be executed (condition on line "  + ((JavaScriptTree) lastElement).getLine() + ").");
+      throw new IllegalStateException("At least one branch of condition should be executed (condition on line " + ((JavaScriptTree) lastElement).getLine() + ").");
     }
   }
 

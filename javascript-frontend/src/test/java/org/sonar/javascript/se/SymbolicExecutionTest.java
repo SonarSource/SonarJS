@@ -145,10 +145,15 @@ public class SymbolicExecutionTest {
     verifySE("built_in.js");
   }
 
+  @Test
+  public void arrays() throws Exception {
+    verifySE("arrays.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);
-    SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of((SeCheck) verifier));
+    SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of(verifier));
     seChecksDispatcher.scanTree(context);
   }
 
