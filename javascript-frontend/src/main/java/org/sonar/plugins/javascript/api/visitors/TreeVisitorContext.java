@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.api.visitors;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.compat.InputFileWrapper;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
