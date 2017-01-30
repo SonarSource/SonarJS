@@ -108,6 +108,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
     private Tree currentFunction = null;
     private Set<Tree> nestedFunctions = new HashSet<>();
     private Deque<Tree> functionStack = new ArrayDeque<>();
+    private Set<Tree> logicalOperationsToIgnore = new HashSet<>();
 
 
     private void visitFunction(FunctionTree tree) {
@@ -129,6 +130,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
       functionContainsStructuralComplexity = false;
       currentFunction = tree;
       nestedFunctions.clear();
+      logicalOperationsToIgnore.clear();
 
       functionStack.clear();
       functionStack.push(currentFunction);
@@ -230,12 +232,24 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
     public void visitBinaryExpression(BinaryExpressionTree tree) {
       if (tree.is(CONDITIONAL_AND, CONDITIONAL_OR)) {
         JavaScriptTree javaScriptTree = (JavaScriptTree) tree;
-        ExpressionTree child = CheckUtils.removeParenthesis(tree.leftOperand());
-        boolean childOfSameKind = child.is(javaScriptTree.getKind());
 
-        if (!childOfSameKind) {
+        ExpressionTree leftChild = CheckUtils.removeParenthesis(tree.leftOperand());
+        ExpressionTree rightChild = CheckUtils.removeParenthesis(tree.rightOperand());
+
+        boolean leftChildOfSameKind = leftChild.is(javaScriptTree.getKind());
+        boolean rightChildOfSameKind = rightChild.is(javaScriptTree.getKind());
+
+        // For expressions with same-kind operators like "a && (b && c)" we want to have secondary location on leftmost operator
+        // So we "ignore" right operand
+        if (rightChildOfSameKind) {
+          logicalOperationsToIgnore.add(rightChild);
+        }
+
+        // And we add complexity for leftmost operator
+        if (!logicalOperationsToIgnore.contains(tree) && !leftChildOfSameKind) {
           addComplexityWithoutNesting(tree.operator());
         }
+
       }
 
       super.visitBinaryExpression(tree);
