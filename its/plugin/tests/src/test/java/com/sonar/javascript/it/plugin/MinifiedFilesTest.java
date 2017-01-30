@@ -49,7 +49,12 @@ public class MinifiedFilesTest {
 
   @Test
   public void test() throws Exception {
-    assertThat(getProjectMeasureAsInt("files")).isEqualTo(3);
+    if (Tests.is_before_sonar_6_3()) {
+      assertThat(getProjectMeasureAsInt("files")).isEqualTo(3);
+    } else {
+      // Minified files are not imported anymore in SQ 6.3 because SonarJS does not provide any data for them (SONAR-8631)
+      assertThat(getProjectMeasureAsInt("files")).isEqualTo(1);
+    }
     assertThat(getProjectMeasureAsInt("functions")).isEqualTo(2);
     assertThat(getProjectMeasureAsInt("statements")).isEqualTo(1);
   }
