@@ -38,8 +38,6 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
-import static org.sonar.javascript.compat.CompatibilityHelper.unwrap;
-
 public class HighlighterVisitor extends SubscriptionVisitor {
 
   private final SensorContext sensorContext;
@@ -72,7 +70,7 @@ public class HighlighterVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    highlighting = sensorContext.newHighlighting().onFile(unwrap(getContext().getFile()));
+    highlighting = sensorContext.newHighlighting().onFile(getContext().getFile().inputfile());
   }
 
   @Override

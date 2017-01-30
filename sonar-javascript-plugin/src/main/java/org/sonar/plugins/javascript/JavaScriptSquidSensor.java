@@ -89,7 +89,6 @@ import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
 import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
-import static org.sonar.javascript.compat.CompatibilityHelper.unwrap;
 
 public class JavaScriptSquidSensor implements Sensor {
 
@@ -228,7 +227,7 @@ public class JavaScriptSquidSensor implements Sensor {
   private void scanFile(SensorContext sensorContext, InputFileWrapper inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.settings());
 
-    highlightSymbols(sensorContext.newSymbolTable().onFile(unwrap(inputFile)), context);
+    highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile.inputfile()), context);
 
     List<Issue> fileIssues = new ArrayList<>();
 
@@ -244,7 +243,7 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    saveFileIssues(sensorContext, fileIssues, unwrap(inputFile));
+    saveFileIssues(sensorContext, fileIssues, inputFile.inputfile());
   }
 
   private static void highlightSymbols(NewSymbolTable newSymbolTable, TreeVisitorContext context) {

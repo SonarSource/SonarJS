@@ -30,21 +30,21 @@ import org.sonar.api.utils.Version;
  * Provides helper methods to support newer APIs when running in older runtimes.
  *
  * Use "wrap" for objects on which you will want to call methods that may not be available in older runtimes.
- *
- * Use "unwrap" for wrapped objects when passing them to platform methods.
- * This is necessary, because the platform expects an instance compatible with the one it provided.
- * (Note that all InputFile instances are created at platform side.)
+ * This helper will use a suitable class depending on the runtime version to implement missing features.
+ * Important: do not pass a wrapped object back to the platform, for example in .on(InputFile) calls
+ * when creating metrics. The platform expects the original objects back, and passing a wrapped
+ * object may result in class cast exceptions. Pass the original object by getting it from InputFileWrapper.orig().
  *
  * Alternative approaches considered:
  *
- * 1. Wrap instances in a class that extends the implementation of the platform.
- * That would make direct calls possible on the wrapped objects, and unwrapping would be unnecessary.
- * One problem with that is the platform implementation class is internal and should not be used.
- * Another problem is the widespread signature changes that will be necessary to implement this.
+ * 1. Wrap instances in a class that extends the implementation of the platform (DefaultInputFile).
+ * The problem with that is the platform implementation class is internal and should not be used,
+ * breaking its encapsulation would be very fragile and therefore dangerous.
  *
  * 2. Instead of wrapping, check the version at each use.
- * The problem with that is the widespread use of if-else statements (=> spaghetti),
- * and that the sensor context (to get the runtime version) is sometimes hard to access.
+ * The problem with that is the widespread use of if-else statements,
+ * that would be hard to keep track of (=> spaghetti), and very ugly.
+ * Also, often the sensor context (to get the runtime version) is hard to access.
  */
 public class CompatibilityHelper {
 
@@ -79,12 +79,5 @@ public class CompatibilityHelper {
 
   private static Stream<InputFile> inputFileStream(Iterable<InputFile> inputFiles) {
     return StreamSupport.stream(inputFiles.spliterator(), false);
-  }
-
-  public static InputFile unwrap(InputFile inputFile) {
-    if (inputFile instanceof InputFileWrapper) {
-      return ((InputFileWrapper) inputFile).inputfile();
-    }
-    return inputFile;
   }
 }
