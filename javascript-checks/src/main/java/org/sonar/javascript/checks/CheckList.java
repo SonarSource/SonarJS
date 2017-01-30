@@ -54,6 +54,7 @@ public final class CheckList {
       BuiltInObjectOverriddenCheck.class,
       CallabilityCheck.class,
       ClassPrototypeCheck.class,
+      CognitiveComplexityFunctionCheck.class,
       CollapsibleIfStatementsCheck.class,
       CommaOperatorInSwitchCaseCheck.class,
       CommaOperatorUseCheck.class,
