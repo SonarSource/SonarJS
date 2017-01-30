@@ -83,7 +83,7 @@ public class LiveVariableAnalysis {
     // As the CFG may contain cycles between blocks (that's the case for loops), we use a queue
     // to keep track of blocks which may need to be updated.
     // See "worklist algorithm" in http://www.cs.cornell.edu/courses/cs4120/2013fa/lectures/lec26-fa13.pdf
-    Deque<CfgBlock> queue = new ArrayDeque(cfg.blocks());
+    Deque<CfgBlock> queue = new ArrayDeque<>(cfg.blocks());
     while (!queue.isEmpty()) {
       CfgBlock block = queue.pop();
       BlockLiveness blockLiveness = livenessPerBlock.get(block);

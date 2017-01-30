@@ -106,10 +106,11 @@ public class TypeVisitor extends DoubleDispatchVisitor {
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     IdentifierTree name = tree.name();
+    String nameName = name.name();
 
     Preconditions.checkState(name.symbol() != null,
       "Symbol has not been created for this function %s declared at line %s",
-      name.name(),
+      nameName,
       ((JavaScriptTree) tree).getLine());
 
     name.symbol().addType(FunctionType.create(tree));

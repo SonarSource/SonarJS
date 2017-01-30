@@ -45,6 +45,7 @@ public abstract class JavaScriptTreeModelTest {
    * @param descendantToReturn the node kind to seek in the generated tree
    * @return the node found for the given kind, null if not found.
    */
+  @SuppressWarnings("unchecked")
   protected <T extends Tree> T parse(String s, Kind descendantToReturn) throws Exception {
     Tree node = p.parse(s);
     checkFullFidelity(node, s);

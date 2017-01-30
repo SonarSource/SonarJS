@@ -57,7 +57,9 @@ public class GlobalVariableNames {
   public GlobalVariableNames(@Nullable Settings settings) {
     ImmutableSet.Builder<String> namesBuilder = ImmutableSet.builder();
 
-    namesBuilder.addAll(globalsFromEnvironment("builtin").get());
+    if (globalsFromEnvironment("builtin").isPresent()) {
+      namesBuilder.addAll(globalsFromEnvironment("builtin").get());
+    }
 
     if (settings != null) {
       namesBuilder.add(settings.getStringArray(GLOBALS_PROPERTY_KEY));
