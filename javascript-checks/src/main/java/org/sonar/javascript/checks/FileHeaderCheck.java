@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.compat.CompatibilityHelper;
 import org.sonar.javascript.compat.InputFileWrapper;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -93,7 +92,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     }
     String fileContent;
     try {
-      fileContent = CompatibilityHelper.contents(getContext().getFile());
+      fileContent = getContext().getFile().contents();
     } catch (IOException e) {
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
     }

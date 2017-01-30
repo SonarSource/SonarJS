@@ -89,7 +89,6 @@ import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
 import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
-import static org.sonar.javascript.compat.CompatibilityHelper.contents;
 import static org.sonar.javascript.compat.CompatibilityHelper.unwrap;
 
 public class JavaScriptSquidSensor implements Sensor {
@@ -169,7 +168,7 @@ public class JavaScriptSquidSensor implements Sensor {
     ScriptTree scriptTree;
 
     try {
-      scriptTree = (ScriptTree) parser.parse(contents(inputFile));
+      scriptTree = (ScriptTree) parser.parse(inputFile.contents());
       scanFile(sensorContext, inputFile, visitors, scriptTree);
 
     } catch (RecognitionException e) {

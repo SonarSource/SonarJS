@@ -19,8 +19,6 @@
  */
 package org.sonar.javascript.compat;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -32,13 +30,10 @@ import org.sonar.api.utils.Version;
  * Provides helper methods to support newer APIs when running in older runtimes.
  *
  * Use "wrap" for objects on which you will want to call methods that may not be available in older runtimes.
- * And when calling those methods, instead of calling them directly on the objects,
- * call the helper method with the matching name in this class, with the object as parameter,
- * for example "contents", "inputStream", "charset".
  *
  * Use "unwrap" for wrapped objects when passing them to platform methods.
  * This is necessary, because the platform expects an instance compatible with the one it provided.
- * (For example, all InputFile instances are created at platform side.)
+ * (Note that all InputFile instances are created at platform side.)
  *
  * Alternative approaches considered:
  *
@@ -48,7 +43,7 @@ import org.sonar.api.utils.Version;
  * Another problem is the widespread signature changes that will be necessary to implement this.
  *
  * 2. Instead of wrapping, check the version at each use.
- * The problem with that is the widespread use of if-else statements,
+ * The problem with that is the widespread use of if-else statements (=> spaghetti),
  * and that the sensor context (to get the runtime version) is sometimes hard to access.
  */
 public class CompatibilityHelper {
@@ -91,12 +86,5 @@ public class CompatibilityHelper {
       return ((InputFileWrapper) inputFile).inputfile();
     }
     return inputFile;
-  }
-
-  public static String contents(InputFile inputFile) throws IOException {
-    if (inputFile instanceof InputFileWrapper) {
-      return ((InputFileWrapper) inputFile).contents();
-    }
-    return inputFile.contents();
   }
 }
