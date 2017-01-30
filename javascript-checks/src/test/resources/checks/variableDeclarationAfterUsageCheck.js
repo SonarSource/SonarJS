@@ -15,10 +15,10 @@ function* fun() {
 }
 var z = 1;
 
-print(a);           // Noncompliant
+print(a);           // OK, ReferenceError
 let a = 1;
 
-print(b);           // Noncompliant
+print(b);           // OK, ReferenceError
 const b = 1;
 
 var f = () => {

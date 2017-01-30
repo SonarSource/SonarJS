@@ -67,6 +67,12 @@ for(let i = i + 1; i < 20; i++) {}
 var j = 10;
 for (var j = j + 1; j < 20; j++) {}
 
+if (true) {
+  i2; // ReferenceError
+  let i2 = 2, j2 = i2; // OK
+  let x2 = x2; // ReferenceError
+}
+
 import DefaultMember from "module-name";
 import * as AllMembers from "module-name";
 import {member1} from "module-name";
