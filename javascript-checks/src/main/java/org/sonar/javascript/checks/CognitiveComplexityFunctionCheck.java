@@ -93,11 +93,29 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
   @Override
   public void visitNode(Tree tree) {
     if (!ignoredNestedFunctions.contains(tree)) {
-      tree.accept(cognitiveComplexity);
+      ComplexityData complexityData = cognitiveComplexity.calculateComplexity(tree);
+      ignoredNestedFunctions.addAll(complexityData.aggregatedNestedFunctions);
+
+      if (complexityData.complexity > threshold) {
+        raiseIssue(complexityData, tree);
+      }
     }
   }
 
-  private class CognitiveComplexity extends DoubleDispatchVisitor {
+  private void raiseIssue(ComplexityData complexityData, Tree function) {
+    String message = String.format(MESSAGE, complexityData.complexity, threshold);
+
+    SyntaxToken primaryLocation = ((JavaScriptTree) function).getFirstToken();
+    if (function.is(ARROW_FUNCTION)) {
+      primaryLocation = ((ArrowFunctionTree) function).doubleArrow();
+    }
+
+    PreciseIssue issue = addIssue(primaryLocation, message).cost(complexityData.complexity - (double)threshold);
+
+    complexityData.secondaryLocations().forEach(issue::secondary);
+  }
+
+  private static class CognitiveComplexity extends DoubleDispatchVisitor {
     private int nestingLevel;
     private int ownComplexity;
     private int nestedFunctionComplexity;
@@ -111,6 +129,11 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
     private Deque<Tree> functionStack = new ArrayDeque<>();
     private Set<Tree> logicalOperationsToIgnore = new HashSet<>();
 
+
+    public ComplexityData calculateComplexity(Tree functionTree) {
+      functionTree.accept(this);
+      return buildComplexityData();
+    }
 
     private void visitFunction(FunctionTree tree) {
       if (currentFunction == null) {
@@ -143,7 +166,6 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
     private void leaveFunction(FunctionTree tree) {
       if (tree.equals(currentFunction)) {
-        checkComplexity();
         currentFunction = null;
 
       } else {
@@ -152,20 +174,19 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
       }
     }
 
-    private void checkComplexity() {
+    private ComplexityData buildComplexityData() {
       int complexity;
+      Set<Tree> aggregatedNestedFunctions = new HashSet<>();
 
       if (functionContainsStructuralComplexity) {
         complexity = ownComplexity + nestedFunctionComplexity;
-        ignoredNestedFunctions.addAll(nestedFunctions);
+        aggregatedNestedFunctions.addAll(nestedFunctions);
 
       } else {
         complexity = ownComplexity;
       }
 
-      if (complexity > threshold) {
-        raiseIssue(complexity);
-      }
+      return new ComplexityData(complexity, secondaryIssueLocations, aggregatedNestedFunctions);
     }
 
     @Override
@@ -323,21 +344,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
       secondaryIssueLocations.add(new IssueLocation(secondaryLocationToken, secondaryMessage(addedComplexity)));
     }
 
-    private void raiseIssue(int complexity) {
-      String message = String.format(MESSAGE, complexity, threshold);
-
-      SyntaxToken primaryLocation = ((JavaScriptTree) currentFunction).getFirstToken();
-      if (currentFunction.is(ARROW_FUNCTION)) {
-        primaryLocation = ((ArrowFunctionTree) currentFunction).doubleArrow();
-      }
-
-      PreciseIssue issue = addIssue(primaryLocation, message).cost(complexity - (double)threshold);
-
-      secondaryIssueLocations.forEach(issue::secondary);
-    }
-
-
-    private String secondaryMessage(int complexity) {
+    private static String secondaryMessage(int complexity) {
       if (complexity == 1) {
         return "+1";
 
@@ -374,12 +381,38 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
       leaveFunction(tree);
     }
 
-    private boolean isElseIf(IfStatementTree tree) {
+    private static boolean isElseIf(IfStatementTree tree) {
       return ((JavaScriptTree)tree).getParent().is(Kind.ELSE_CLAUSE);
     }
 
   }
+
   public void setThreshold(int threshold) {
     this.threshold = threshold;
   }
+
+  private static class ComplexityData {
+    int complexity;
+    List<IssueLocation> secondaryLocations;
+    Set<Tree> aggregatedNestedFunctions;
+
+    public ComplexityData(int complexity, List<IssueLocation> secondaryLocations, Set<Tree> aggregatedNestedFunctions) {
+      this.complexity = complexity;
+      this.secondaryLocations = secondaryLocations;
+      this.aggregatedNestedFunctions = aggregatedNestedFunctions;
+    }
+
+    public int complexity() {
+      return complexity;
+    }
+
+    public List<IssueLocation> secondaryLocations() {
+      return secondaryLocations;
+    }
+
+    public Set<Tree> aggregatedNestedFunctions() {
+      return aggregatedNestedFunctions;
+    }
+  }
+
 }
