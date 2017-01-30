@@ -94,8 +94,8 @@ public class JavaScriptSquidSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptSquidSensor.class);
 
-  public static final Version V6_0 = Version.create(6, 0);
-  public static final Version V6_2 = Version.create(6, 2);
+  private static final Version V6_0 = Version.create(6, 0);
+  private static final Version V6_2 = Version.create(6, 2);
 
   private final JavaScriptChecks checks;
   private final FileLinesContextFactory fileLinesContextFactory;
