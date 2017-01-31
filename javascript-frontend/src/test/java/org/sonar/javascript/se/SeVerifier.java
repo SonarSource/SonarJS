@@ -251,7 +251,7 @@ class SeVerifier extends SeCheck {
           for (String oneSymbolValue : oneProgramState.split("&")) {
             oneSymbolValue = oneSymbolValue.trim();
             if (!oneSymbolValue.startsWith("!")) {
-              String[] pair = oneSymbolValue.split("=");
+              String[] pair = oneSymbolValue.split("\\s*=\\s*");
               Set<Symbol> symbols = getContext().getSymbolModel().getSymbols(pair[0]);
               if (symbols.size() > 1) {
                 throw new AssertionError("For name '" + pair[0] + "' there is more than 1 symbol found.");
@@ -267,7 +267,7 @@ class SeVerifier extends SeCheck {
           }
 
           if (!expectedProgramStates.containsKey(comment.line())) {
-            expectedProgramStates.put(comment.line(), new HashMap<ProgramState, Boolean>());
+            expectedProgramStates.put(comment.line(), new HashMap<>());
           }
           Map<ProgramState, Boolean> expectedForTheLine = expectedProgramStates.get(comment.line());
           expectedForTheLine.put(ps, false);
