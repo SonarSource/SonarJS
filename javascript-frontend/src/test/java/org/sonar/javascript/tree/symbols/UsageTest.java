@@ -212,6 +212,15 @@ public class UsageTest extends JavaScriptTreeModelTest {
   }
 
   @Test
+  public void let_variable_is_hoisted() throws Exception {
+    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("x3");
+    assertThat(symbols).hasSize(2);
+    for (Symbol symbol : symbols) {
+      assertThat(symbol.usages()).hasSize(1);
+    }
+  }
+
+  @Test
   public void imported_symbols() throws Exception {
     assertImported("DefaultMember", true);
     assertImported("AllMembers", false);

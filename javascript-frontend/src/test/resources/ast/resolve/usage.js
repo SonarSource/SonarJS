@@ -73,6 +73,12 @@ if (true) {
   let x2 = x2; // ReferenceError
 }
 
+var x3;
+if (condition) {
+  x3;
+  let x3 = 42;
+}
+
 import DefaultMember from "module-name";
 import * as AllMembers from "module-name";
 import {member1} from "module-name";
