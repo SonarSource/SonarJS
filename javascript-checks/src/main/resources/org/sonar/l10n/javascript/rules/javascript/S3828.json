@@ -1,0 +1,13 @@
+{
+  "title": "\"yield\" expressions should not be used outside generators",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "es2015"
+  ],
+  "defaultSeverity": "Blocker"
+}
