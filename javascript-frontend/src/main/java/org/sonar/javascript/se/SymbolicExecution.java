@@ -205,7 +205,6 @@ public class SymbolicExecution {
         Optional<ProgramState> constrainedPS = currentState.constrain(symbolicValue, Constraint.NOT_NULLY);
         if (constrainedPS.isPresent()) {
           currentState = constrainedPS.get();
-
         } else {
           stopExploring = true;
           break;

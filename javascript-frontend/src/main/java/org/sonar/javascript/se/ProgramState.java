@@ -158,7 +158,6 @@ public class ProgramState implements ProgramStateConstraints {
       for (SymbolicValue equivalentValue : equivalentValues) {
         if (ps.isPresent()) {
           ps = ps.get().constrainWithoutEquivalent(equivalentValue, newConstraint);
-
         } else {
           break;
         }
@@ -180,14 +179,13 @@ public class ProgramState implements ProgramStateConstraints {
     return value.constrainDependencies(newState, constraint);
   }
 
-  private Set<SymbolicValue> getEquivalentValues(SymbolicValue value) {
+  private Set<SymbolicValue> getEquivalentValues(@Nullable SymbolicValue value) {
     Set<SymbolicValue> equivalentValues = new HashSet<>();
     for (Relation relation : relations) {
       if (relation.operator() == STRICT_EQUAL_TO) {
 
         if (relation.leftOperand().equals(value)) {
           equivalentValues.add(relation.rightOperand());
-
         } else if (relation.rightOperand().equals(value)) {
           equivalentValues.add(relation.leftOperand());
         }
