@@ -71,6 +71,7 @@ public final class CheckList {
       CounterUpdatedInLoopCheck.class,
       DeadStoreCheck.class,
       DebuggerStatementCheck.class,
+      DeclarationInGlobalScopeCheck.class,
       DefaultParameterSideEffectCheck.class,
       DefaultParametersNotLastCheck.class,
       DeleteArrayElementCheck.class,
@@ -204,13 +205,13 @@ public final class CheckList {
       VarDeclarationCheck.class,
       VariableDeclarationAfterUsageCheck.class,
       VariableDeclarationWithoutVarCheck.class,
-      DeclarationInGlobalScopeCheck.class,
       VariableShadowingCheck.class,
       VoidUseCheck.class,
       WebSQLDatabaseCheck.class,
       WildcardImportCheck.class,
       WithStatementCheck.class,
-      WrongScopeDeclarationCheck.class);
+      WrongScopeDeclarationCheck.class,
+      YieldOutsideGeneratorCheck.class);
   }
 
 }
