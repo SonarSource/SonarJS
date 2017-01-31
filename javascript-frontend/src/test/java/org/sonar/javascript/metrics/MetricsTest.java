@@ -19,7 +19,10 @@
  */
 package org.sonar.javascript.metrics;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.io.File;
+import java.util.Set;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -88,6 +91,14 @@ public class MetricsTest extends JavaScriptTreeModelTest {
     commentLineVisitor = new CommentLineVisitor(tree, false);
     assertThat(commentLineVisitor.getCommentLineNumber()).isEqualTo(3);
     assertThat(commentLineVisitor.noSonarLines()).containsOnly(10);
+  }
+
+  @Test
+  public void executable_lines() throws Exception {
+    Tree tree = p.parse(new File("src/test/resources/metrics/executable_lines.js"));
+    Set<Integer> commentLines = new CommentLineVisitor(tree, false).getCommentLines();
+    Set<Integer> expectedExecutableLines = Sets.difference(commentLines, ImmutableSet.of(1));
+    assertThat(new ExecutableLineVisitor(tree).getExecutableLines()).isEqualTo(expectedExecutableLines);
   }
 
 }
