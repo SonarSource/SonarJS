@@ -1,6 +1,5 @@
-<p>An infinite loop is one that will never end while the program is running, I.E. you have to kill the program to get
-    out of the loop. Whether it is
-    by meeting the loop's end condition or via a <code>break</code>, every loop should have an end condition.</p>
+<p>An infinite loop is one that will never end while the program is running, i.e., you have to kill the program to get out of the loop. Whether it is
+by meeting the loop's end condition or via a <code>break</code>, every loop should have an end condition.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 for (;;) {  // Noncompliant; end condition omitted
@@ -45,16 +44,14 @@ while(true) {
 
 <h2>Known Limitations</h2>
 <ul>
-    <li>False positives: <code>yield</code> is used - <a
-            href="https://jira.sonarsource.com/browse/SONARJS-877">SONARJS-877</a></li>
-    <li>False positives: exceptions are raised by functions within the loop</li>
-    <li>False negatives: loop conditions are based on elements of arrays or objects.</li>
+    <li>False positives: when <code>yield</code> is used - <a
+            href="https://jira.sonarsource.com/browse/SONARJS-877">SONARJS-877</a>.</li>
+    <li>False positives: when an exception is raised by a function invoked within the loop.</li>
+    <li>False negatives: when a loop condition is based on an element of an array or object.</li>
 </ul>
 
 <h2>See</h2>
 <ul>
-    <li><a href="https://www.securecoding.cert.org/confluence/x/PYHfAw">CERT, MSC01-J.</a> - Do not use an empty
-        infinite loop
-    </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/PYHfAw">CERT, MSC01-J.</a> - Do not use an empty infinite loop </li>
 </ul>
 
