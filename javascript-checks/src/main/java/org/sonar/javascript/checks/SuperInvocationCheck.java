@@ -30,7 +30,7 @@ import javax.annotation.CheckForNull;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -265,7 +265,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
 
   @CheckForNull
   private static MethodDeclarationTree getEnclosingConstructor(Tree tree) {
-    FunctionTree function = (FunctionTree) CheckUtils.getFirstAncestor(tree, TreeKinds.functionKinds().toArray(new Tree.Kind[0]));
+    FunctionTree function = (FunctionTree) CheckUtils.getFirstAncestor(tree, KindSet.FUNCTION_KINDS);
     if (function != null && isConstructor(function)) {
       return (MethodDeclarationTree) function;
     }
