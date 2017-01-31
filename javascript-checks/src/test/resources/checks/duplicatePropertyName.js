@@ -48,4 +48,8 @@ class A {
 
   set prop5(p) {}    // OK
   get prop5() {}
+  
+  constructor() {}
+  constructor() {}   // Noncompliant
+  constructor(x) {}  // Noncompliant
 }
