@@ -58,14 +58,9 @@ public class BigProjectTest {
     // Size
     assertThat(getProjectMeasureAsDouble("ncloc")).isEqualTo(577829d);
     // SONAR-5077: computation of line is done on SQ side
-    if (Tests.is_before_sonar_6_3()) {
-      assertThat(getProjectMeasureAsDouble("lines")).isEqualTo(1029040d);
-      assertThat(getProjectMeasureAsDouble("files")).isEqualTo(4523d);
-    } else {
-      // Minified files are not imported anymore in SQ 6.3 because SonarJS does not provide any data for them (SONAR-8631)
-      assertThat(getProjectMeasureAsDouble("lines")).isEqualTo(1026726d);
-      assertThat(getProjectMeasureAsDouble("files")).isEqualTo(4387d);
-    }
+    assertThat(getProjectMeasureAsDouble("lines")).isEqualTo(1029040d);
+    assertThat(getProjectMeasureAsDouble("files")).isEqualTo(4523d);
+    assertThat(getProjectMeasureAsDouble("directories")).isEqualTo(972d);
     assertThat(getProjectMeasureAsDouble("functions")).isEqualTo(46609d);
     assertThat(getProjectMeasureAsDouble("statements")).isEqualTo(285817d);
 
