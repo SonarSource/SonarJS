@@ -77,7 +77,7 @@ public class NullDereferenceCheck extends SeCheck {
       return ((MemberExpressionTree) element).object();
     }
     final JavaScriptTree parent = ((JavaScriptTree) element).getParent();
-    if (parent.is(Kind.FOR_OF_STATEMENT) && element == ((ForObjectStatementTree) parent).expression()) {
+    if (parent.is(Kind.FOR_OF_STATEMENT) && element.equals(((ForObjectStatementTree) parent).expression())) {
       return (ExpressionTree) element;
     }
     return null;
