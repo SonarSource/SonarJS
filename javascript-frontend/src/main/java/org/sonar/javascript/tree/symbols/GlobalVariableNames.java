@@ -98,7 +98,6 @@ public class GlobalVariableNames {
   private static Optional<Set<String>> globalsFromEnvironment(String environment) {
     if (ENVIRONMENTS.containsKey(environment)) {
       return Optional.of(ENVIRONMENTS.get(environment));
-
     } else {
       return Optional.empty();
     }

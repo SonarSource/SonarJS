@@ -19,11 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.CharStreams;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
-
+import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -39,8 +39,8 @@ public class TabCharacterCheck extends DoubleDispatchVisitorCheck {
   public void visitScript(ScriptTree tree) {
     CompatibleInputFile inputFile = getContext().getFile();
     List<String> lines;
-    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
-      lines = CharStreams.readLines(inr);
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputFile.inputStream(), inputFile.charset()))) {
+      lines = reader.lines().collect(Collectors.toList());
     } catch (IOException e) {
       throw new IllegalStateException("Unable to execute rule \"TabCharacter\" for file " + getContext().getFileName(), e);
     }
