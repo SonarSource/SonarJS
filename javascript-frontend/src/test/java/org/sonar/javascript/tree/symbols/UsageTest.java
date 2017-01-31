@@ -158,7 +158,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(blockSymbol.is(Kind.LET_VARIABLE)).isTrue();
     assertThat(blockSymbol.scope().tree().is(Tree.Kind.FOR_STATEMENT)).isTrue();
 
-    assertThat(globalSymbol.usages()).hasSize(2);
+    assertThat(globalSymbol.usages()).hasSize(1);
     assertThat(blockSymbol.usages()).hasSize(3);
 
     assertThat(SYMBOL_MODEL.getSymbols("j")).hasSize(1);
@@ -197,6 +197,27 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(symbol.usages()).hasSize(2);
     assertDeclarationIsWrite(symbol);
 
+  }
+
+  @Test
+  public void let_variable_cannot_be_used_before_it_is_declared() throws Exception {
+    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("x2");
+    assertThat(symbols).hasSize(1);
+    Symbol symbol = symbols.iterator().next();
+    assertThat(symbol.is(Kind.LET_VARIABLE)).isTrue();
+    assertThat(symbol.usages()).hasSize(1);
+
+    assertThat(symbol("j2").usages()).hasSize(1);
+    assertThat(symbol("i2").usages()).hasSize(2);
+  }
+
+  @Test
+  public void let_variable_is_hoisted() throws Exception {
+    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("x3");
+    assertThat(symbols).hasSize(2);
+    for (Symbol symbol : symbols) {
+      assertThat(symbol.usages()).hasSize(1);
+    }
   }
 
   @Test

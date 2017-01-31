@@ -33,6 +33,9 @@ if (true) {
 foo(let1);
 //S ^^^^ let1
 
+foo(let2); // Noncompliant
+let let2 = 1;
+
 foo(undefined);
 
 with (Object) {

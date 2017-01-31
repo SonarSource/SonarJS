@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import java.util.Map;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.tree.KindSet;
@@ -27,6 +29,7 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
@@ -40,6 +43,7 @@ import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 /**
@@ -51,6 +55,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
   private SymbolModelBuilder symbolModel;
   private Scope currentScope;
   private Map<Tree, Scope> treeScopeMap;
+  private SetMultimap<Scope, String> declaredBlockScopeNames = HashMultimap.create();
 
   public SymbolVisitor(Map<Tree, Scope> treeScopeMap) {
     this.treeScopeMap = treeScopeMap;
@@ -81,14 +86,8 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitForStatement(ForStatementTree tree) {
-    scan(tree.init());
-
     enterScope(tree);
-
-    scan(tree.condition());
-    scan(tree.update());
-    scan(tree.statement());
-
+    super.visitForStatement(tree);
     leaveScope();
   }
 
@@ -158,6 +157,18 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
 
     super.visitClass(tree);
     leaveScope();
+  }
+
+  @Override
+  public void visitVariableDeclaration(VariableDeclarationTree tree) {
+    for (BindingElementTree variable : tree.variables()) {
+      scan(variable);
+      if (tree.is(Kind.LET_DECLARATION, Kind.CONST_DECLARATION)) {
+        for (IdentifierTree identifier : variable.bindingIdentifiers()) {
+          declaredBlockScopeNames.put(currentScope, identifier.name());
+        }
+      }
+    }
   }
 
   /**
@@ -242,11 +253,17 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
    */
   private boolean addUsageFor(IdentifierTree identifier, Usage.Kind kind) {
     Symbol symbol = currentScope.lookupSymbol(identifier.name());
-    if (symbol != null) {
+    if (symbol != null && !isUndeclaredBlockScopedSymbol(symbol)) {
       symbol.addUsage(Usage.create(identifier, kind));
       return true;
     }
     return false;
+  }
+
+  private boolean isUndeclaredBlockScopedSymbol(Symbol symbol) {
+    return (symbol.is(Symbol.Kind.LET_VARIABLE) || symbol.is(Symbol.Kind.CONST_VARIABLE))
+      && currentScope.equals(symbol.scope())
+      && !declaredBlockScopeNames.get(currentScope).contains(symbol.name());
   }
 
   private boolean isScopeAlreadyEntered(BlockTree tree) {
