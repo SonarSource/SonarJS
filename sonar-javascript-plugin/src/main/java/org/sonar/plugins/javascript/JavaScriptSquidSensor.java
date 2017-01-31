@@ -197,7 +197,7 @@ public class JavaScriptSquidSensor implements Sensor {
 
       NewIssueLocation primaryLocation = newIssue.newLocation()
         .message(e.getMessage())
-        .on(inputFile.orig())
+        .on(inputFile.wrapped())
         .at(inputFile.selectLine(e.getLine()));
 
       newIssue
@@ -208,7 +208,7 @@ public class JavaScriptSquidSensor implements Sensor {
 
     if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
       sensorContext.newAnalysisError()
-        .onFile(inputFile.orig())
+        .onFile(inputFile.wrapped())
         .at(inputFile.newPointer(e.getLine(), 0))
         .message(e.getMessage())
         .save();
@@ -218,7 +218,7 @@ public class JavaScriptSquidSensor implements Sensor {
   private static void processException(Exception e, SensorContext sensorContext, CompatibleInputFile inputFile) {
     if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
       sensorContext.newAnalysisError()
-        .onFile(inputFile.orig())
+        .onFile(inputFile.wrapped())
         .message(e.getMessage())
         .save();
     }
@@ -227,7 +227,7 @@ public class JavaScriptSquidSensor implements Sensor {
   private void scanFile(SensorContext sensorContext, CompatibleInputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.settings());
 
-    highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile.orig()), context);
+    highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile.wrapped()), context);
 
     List<Issue> fileIssues = new ArrayList<>();
 
@@ -243,7 +243,7 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    saveFileIssues(sensorContext, fileIssues, inputFile.orig());
+    saveFileIssues(sensorContext, fileIssues, inputFile.wrapped());
   }
 
   private static void highlightSymbols(NewSymbolTable newSymbolTable, TreeVisitorContext context) {

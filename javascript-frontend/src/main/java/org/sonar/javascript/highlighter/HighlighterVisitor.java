@@ -70,7 +70,7 @@ public class HighlighterVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    highlighting = sensorContext.newHighlighting().onFile(getContext().getFile().orig());
+    highlighting = sensorContext.newHighlighting().onFile(getContext().getFile().wrapped());
   }
 
   @Override

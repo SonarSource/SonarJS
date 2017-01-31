@@ -31,7 +31,7 @@ import org.sonar.api.batch.fs.TextRange;
 /**
  * A compatibility wrapper for InputFile. See class hierarchy.
  *
- * All methods of this class simply delegate to the wrapped instance, except `orig`.
+ * All methods of this class simply delegate to the wrapped instance, except `wrapped`.
  */
 public class CompatibleInputFile {
   private final InputFile wrapped;
@@ -45,7 +45,7 @@ public class CompatibleInputFile {
    *
    * @return original InputFile instance
    */
-  public InputFile orig() {
+  public InputFile wrapped() {
     return wrapped;
   }
 
