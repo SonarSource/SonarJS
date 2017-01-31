@@ -174,9 +174,15 @@ class A30 {
   constructor() {}
 }
 
-class B30a extends A30 {
+class B30 extends A30 {
   constructor(x) {
     super();                 // OK
+  }
+}
+
+class C30 extends B30 {
+  constructor(x, y) {
+    super(x);                // OK
   }
 }
 
@@ -192,24 +198,20 @@ class B30c extends A30 {
   }
 }
 
-class A31 {
-  constructor(x) {}
-}
-
-class B31 extends A31 {
-  constructor() {
-    super(x, y);             // Noncompliant {{super() must be invoked with 1 argument.}}
-  }
-}
-
 class A32 {
-  constructor(x, y, z) {}
+    constructor(x, y, z) {}
+//S            ^^^^^^^^^ 32
 }
 
 class B32 extends A32 {
   constructor() {
-    super(x, y);             // Noncompliant {{super() must be invoked with 3 arguments.}}
+    super(x, y);             // Noncompliant [[ID=32]] {{super() must be invoked with 3 arguments.}}
+//  ^^^^^^^^^^^
   }
+}
+
+class A33 {
+  constructor(x, y, z) {}
 }
 
 function f35() {
@@ -229,13 +231,13 @@ function f35() {
     }       
   }
   
-  class D34 extends A32 {
+  class D34a extends A33 {
     constructor(x) {
       super(x);              // Noncompliant {{super() must be invoked with 3 arguments.}}
     } 
   }
 
-  class D34 extends B32 {
+  class D34b extends B32 {
     constructor(x) {
       super(x, y);           // Noncompliant {{super() must be invoked with 0 arguments.}}
     } 

@@ -26,11 +26,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
+
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -82,9 +83,12 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitSuper(SuperTreeImpl tree) {
     if (tree.getParent().is(Kind.CALL_EXPRESSION)) {
-      checkSuperOnlyInvokedInDerivedClassConstructor(tree);
-      checkSuperInvokedBeforeThisOrSuper(tree);
-      checkSuperHasCorrectNumberOfArguments(tree);
+      if (!isInConstructor(tree) || isInBaseClass(getEnclosingConstructor(tree))) {
+        checkSuperOnlyInvokedInDerivedClassConstructor(tree);
+      } else {
+        checkSuperInvokedBeforeThisOrSuper(tree);
+        checkSuperHasCorrectNumberOfArguments(tree);
+      }
       pushSuperInvocation(tree);
     }
 
@@ -119,63 +123,54 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void checkSuperOnlyInvokedInDerivedClassConstructor(SuperTreeImpl superTree) {
-    if (!isInConstructor(superTree) || isInBaseClass(getEnclosingConstructor(superTree))) {
-      addIssue(superTree, MESSAGE_SUPER_ONLY_IN_DERIVED_CLASS_CONSTRUCTOR);
-    }
+    addIssue(superTree, MESSAGE_SUPER_ONLY_IN_DERIVED_CLASS_CONSTRUCTOR);
   }
 
   private void checkSuperInvokedInAnyDerivedClassConstructor(MethodDeclarationTree method) {
     if (isConstructor(method) && !isInBaseClass(method) && !isInDummyDerivedClass(method)) {
       Set<SuperTreeImpl> superTrees = new SuperDetector().detectIn(method);
-      if (!superTrees.stream().anyMatch(s -> s.getParent().is(Kind.CALL_EXPRESSION))) {
+      if (superTrees.stream().noneMatch(s -> s.getParent().is(Kind.CALL_EXPRESSION))) {
         addIssue(method.name(), MESSAGE_SUPER_REQUIRED_IN_ANY_DERIVED_CLASS_CONSTRUCTOR);
       }
     }
   }
 
   private void checkSuperInvokedBeforeThisOrSuper(SuperTreeImpl superTree) {
-    if (isInConstructor(superTree)) {
-      int line = superTree.getFirstToken().line();
-      int column = superTree.getFirstToken().column();
-      MethodDeclarationTree method = getEnclosingConstructor(superTree);
-      Set<IssueLocation> secondaryLocations = new HashSet<>();
+    int line = superTree.getFirstToken().line();
+    int column = superTree.getFirstToken().column();
+    MethodDeclarationTree method = getEnclosingConstructor(superTree);
+    Set<IssueLocation> secondaryLocations = new HashSet<>();
 
-      // get the usages of "super" before super()
-      Set<SuperTreeImpl> superTrees = new SuperDetector().detectIn(method);
-      superTrees.stream()
-        .filter(s -> !s.getParent().is(Kind.CALL_EXPRESSION))
-        .filter(s -> isBefore(s.getFirstToken(), line, column))
-        .map(IssueLocation::new)
-        .forEach(secondaryLocations::add);
+    // get the usages of "super" before super()
+    Set<SuperTreeImpl> superTrees = new SuperDetector().detectIn(method);
+    superTrees.stream()
+      .filter(s -> !s.getParent().is(Kind.CALL_EXPRESSION))
+      .filter(s -> isBefore(s.getFirstToken(), line, column))
+      .map(IssueLocation::new)
+      .forEach(secondaryLocations::add);
 
-      // get the usages of "this" before super()
-      Set<IdentifierTree> thisTrees = new ThisDetector().detectIn(method);
-      thisTrees.stream()
-        .filter(s -> isBefore(s.identifierToken(), line, column))
-        .map(IssueLocation::new)
-        .forEach(secondaryLocations::add);
+    // get the usages of "this" before super()
+    Set<IdentifierTree> thisTrees = new ThisDetector().detectIn(method);
+    thisTrees.stream()
+      .filter(s -> isBefore(s.identifierToken(), line, column))
+      .map(IssueLocation::new)
+      .forEach(secondaryLocations::add);
 
-      // create the issue
-      if (!secondaryLocations.isEmpty()) {
-        PreciseIssue issue = addIssue(superTree, MESSAGE_SUPER_BEFORE_THIS_OR_SUPER);
-        secondaryLocations.forEach(issue::secondary);
-      }
+    // create the issue
+    if (!secondaryLocations.isEmpty()) {
+      PreciseIssue issue = addIssue(superTree, MESSAGE_SUPER_BEFORE_THIS_OR_SUPER);
+      secondaryLocations.forEach(issue::secondary);
     }
   }
 
   private void checkSuperHasCorrectNumberOfArguments(SuperTreeImpl superTree) {
-    if (isInConstructor(superTree) && !isInBaseClass(getEnclosingConstructor(superTree))) {
-      ClassTree classTree = getEnclosingClass(superTree);
-      ExpressionTree superClassTree = classTree.superClass();
-      // we consider only the simple case "class A extends B", not cases such as "class A extends class {} ..."
-      if (superClassTree.is(Kind.IDENTIFIER_REFERENCE)) {
-        IdentifierTree superClassId = (IdentifierTree) superClassTree;
-        String superClassName = superClassId.identifierToken().text();
-        Scope constructorScope = getContext().getSymbolModel().getScope(getEnclosingConstructor(superTree));
-        Symbol superClassSymbol = constructorScope.lookupSymbol(superClassName);
-        if (superClassSymbol != null) {
-          compareNumberOfArguments(superTree, superClassSymbol);
-        }
+    ClassTree classTree = getEnclosingClass(superTree);
+    ExpressionTree superClassTree = classTree.superClass();
+    // we consider only the simple case "class A extends B", not cases such as "class A extends class {} ..."
+    if (superClassTree.is(Kind.IDENTIFIER_REFERENCE)) {
+      Symbol superClassSymbol = ((IdentifierTree) superClassTree).symbol();
+      if (superClassSymbol != null) {
+        compareNumberOfArguments(superTree, superClassSymbol);
       }
     }
   }
@@ -185,7 +180,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
       SuperTreeImpl firstSuper = superTrees.get(0);
       superTrees.stream()
         .skip(1)
-        .forEach(s -> raiseIssue(s, firstSuper));
+        .forEach(s -> addIssue(s, MESSAGE_SUPER_INVOKED_ONCE).secondary(new IssueLocation(firstSuper)));
     }
   }
 
@@ -204,7 +199,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
         int nbArguments = ((CallExpressionTree) superTree.getParent()).arguments().parameters().size();
         if (nbArguments != nbParams) {
           String message = String.format(MESSAGE_SUPER_WITH_CORRECT_NUMBER_OF_ARGUMENTS, nbParams, nbParams == 1 ? "" : "s");
-          addIssue(superTree, message);
+          addIssue(CheckUtils.parent(superTree), message).secondary(baseClassConstructor.get().parameterClause());
         }
       }
     }
@@ -268,6 +263,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
     return classTree.superClass().is(Kind.NULL_LITERAL);
   }
 
+  @CheckForNull
   private static MethodDeclarationTree getEnclosingConstructor(Tree tree) {
     FunctionTree function = (FunctionTree) CheckUtils.getFirstAncestor(tree, TreeKinds.functionKinds().toArray(new Tree.Kind[0]));
     if (function != null && isConstructor(function)) {
@@ -282,9 +278,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
       Tree nameTree = constructor.name();
       if (nameTree.is(Kind.IDENTIFIER_NAME)) {
         String name = ((IdentifierTree) nameTree).name();
-        if ("constructor".equals(name)) {
-          return true;
-        }
+        return "constructor".equals(name);
       }
     }
     return false;
@@ -292,10 +286,6 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
 
   private static ClassTree getEnclosingClass(Tree tree) {
     return (ClassTree) CheckUtils.getFirstAncestor(tree, Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION);
-  }
-
-  private void raiseIssue(SuperTreeImpl superTree, SuperTreeImpl firstSuperTree) {
-    addIssue(superTree, MESSAGE_SUPER_INVOKED_ONCE).secondary(new IssueLocation(firstSuperTree));
   }
 
   /**
