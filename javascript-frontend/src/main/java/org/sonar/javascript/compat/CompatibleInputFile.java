@@ -49,14 +49,6 @@ public class CompatibleInputFile {
     return wrapped;
   }
 
-  public String key() {
-    return wrapped.key();
-  }
-
-  public boolean isFile() {
-    return wrapped.isFile();
-  }
-
   public String absolutePath() {
     return wrapped.absolutePath();
   }
@@ -69,28 +61,12 @@ public class CompatibleInputFile {
     return wrapped.path();
   }
 
-  public InputFile.Type type() {
-    return wrapped.type();
-  }
-
   public InputStream inputStream() throws IOException {
     return wrapped.inputStream();
   }
 
   public String contents() throws IOException {
     return wrapped.contents();
-  }
-
-  public InputFile.Status status() {
-    return wrapped.status();
-  }
-
-  public int lines() {
-    return wrapped.lines();
-  }
-
-  public boolean isEmpty() {
-    return wrapped.isEmpty();
   }
 
   public TextPointer newPointer(int line, int lineOffset) {
