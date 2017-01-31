@@ -102,6 +102,7 @@
     "S3812",
     "S3827",
     "S3834",
+    "S3854",
     "SwitchWithoutDefault",
     "TooManyBreakOrContinueInLoop",
     "UnreachableCode",

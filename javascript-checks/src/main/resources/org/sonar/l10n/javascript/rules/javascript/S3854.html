@@ -1,0 +1,92 @@
+<p>There are situations where <code>super()</code> must be invoked and situations where <code>super()</code> cannot be invoked.</p>
+<p>The basic rule is: a constructor in a non-derived class cannot invoke <code>super()</code>; a constructor in a derived class must invoke
+<code>super()</code>.</p>
+<p>Furthermore:</p>
+<p>- <code>super()</code> must be invoked before the <code>this</code> and <code>super</code> keywords can be used.</p>
+<p>- <code>super()</code> must be invoked with the same number of arguments as the base class' constructor.</p>
+<p>- <code>super()</code> can only be invoked in a constructor - not in any other method.</p>
+<p>- <code>super()</code> cannot be invoked multiple times in the same constructor.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+class Animal {
+  constructor() {
+    super();         // Noncompliant, super() cannot be invoked in a base class
+  }
+
+  doSomething() {
+  }
+}
+
+class Dog extends Animal {
+  constructor(name) {
+    this.name = name;
+    super.doSomething();
+    super();         // Noncompliant, super() must be invoked before "this" or "super" is used
+  }
+
+  doSomething() {
+    super();         // Noncompliant, super() cannot be invoked outside of a constructor
+  }
+}
+
+class Labrador extends Dog {
+  constructor(name) {
+    super();         // Noncompliant, super() must be invoked with one argument
+  }
+}
+
+class GermanShepherd extends Dog {
+  constructor(name) {
+  }                  // Noncompliant, super() must be invoked in constructor of derived class
+}
+
+class FilaBrasileiro extends Dog {
+  constructor(name) {
+    super(name);
+    super(name);    // Noncompliant, super() can only be invoked once
+  }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+class Animal {
+  constructor() {
+  }
+
+  doSomething() {
+  }
+}
+
+class Dog extends Animal {
+  constructor(name) {
+    super();
+    this.name = name;
+    super.doSomething();
+  }
+
+  doSomething() {
+  }
+}
+
+class Labrador extends Dog {
+  constructor(name) {
+    super(name);
+  }
+}
+
+class GermanShepherd extends Dog {
+  constructor(name) {
+    super(name);
+  }
+}
+
+class FilaBrasileiro extends Dog {
+  constructor(name) {
+    super(name);
+  }
+}
+</pre>
+<h2>Known Limitations</h2>
+<ul>
+  <li>False negatives: some issues are not raised if the base class is not defined in the same file as the current class.</li>
+</ul>

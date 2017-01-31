@@ -1,0 +1,13 @@
+{
+  "title": "super() must be invoked appropriately",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Critical"
+}
