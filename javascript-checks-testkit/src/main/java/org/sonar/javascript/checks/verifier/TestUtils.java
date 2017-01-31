@@ -45,6 +45,11 @@ class TestUtils {
     return new JavaScriptVisitorContext(scriptTree, file, settings());
   }
 
+  public static JavaScriptVisitorContext createParallelContext(File file) {
+    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(Charsets.UTF_8).parse(file);
+    return new JavaScriptVisitorContext(scriptTree, file, settings());
+  }
+
   private static Settings settings() {
     Settings settings = new MapSettings();
 

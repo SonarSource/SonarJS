@@ -120,7 +120,7 @@ public class JavaScriptCheckVerifier {
     }
   }
 
-  private static Iterator<Issue> getActualIssues(JavaScriptCheck check, JavaScriptVisitorContext context) {
+  public static Iterator<Issue> getActualIssues(JavaScriptCheck check, JavaScriptVisitorContext context) {
     JavaScriptCheck checkToRun = check;
     if (check instanceof SeCheck) {
       checkToRun = new SeChecksDispatcher(ImmutableList.of((SeCheck) check));
