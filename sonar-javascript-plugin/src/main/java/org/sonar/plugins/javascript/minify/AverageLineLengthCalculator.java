@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript.minify;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.squidbridge.api.AnalysisException;
 
@@ -115,7 +114,7 @@ class AverageLineLengthCalculator {
     return new BufferedReader(new InputStreamReader(file.inputStream(), file.charset()));
   }
 
-  private static void handleException(IOException e, InputFile file) {
+  private static void handleException(IOException e, CompatibleInputFile file) {
     throw new AnalysisException("Unable to analyse file: " + file.absolutePath(), e);
   }
 

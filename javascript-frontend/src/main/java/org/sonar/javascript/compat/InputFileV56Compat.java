@@ -24,7 +24,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 
 /**
- * Makes the wrapped API 5.6+ instance compatible with API 6.0,
+ * Makes the wrapped API 5.6+ InputFile instance compatible with API 6.0,
  * by providing the charset() method.
  */
 class InputFileV56Compat extends InputFileV60Compat {

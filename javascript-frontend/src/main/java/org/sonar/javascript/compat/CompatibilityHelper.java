@@ -31,9 +31,6 @@ import org.sonar.api.utils.Version;
  *
  * Use "wrap" for objects on which you will want to call methods that may not be available in older runtimes.
  * This helper will use a suitable class depending on the runtime version to implement missing features.
- * Important: do not pass a wrapped object back to the platform, for example in .on(InputFile) calls
- * when creating metrics. The platform expects the original objects back, and passing a wrapped
- * object may result in class cast exceptions. Pass the original object by getting it from CompatibleInputFile.orig().
  *
  * Alternative approaches considered:
  *
@@ -43,8 +40,8 @@ import org.sonar.api.utils.Version;
  *
  * 2. Instead of wrapping, check the version at each use.
  * The problem with that is the widespread use of if-else statements,
- * that would be hard to keep track of (=> spaghetti), and very ugly.
- * Also, often the sensor context (to get the runtime version) is hard to access.
+ * which would be impossible to keep track of, and very ugly.
+ * Also, the sensor context to get the runtime version is often hard to access.
  */
 public class CompatibilityHelper {
 

@@ -32,9 +32,8 @@ import org.sonar.api.batch.fs.TextRange;
  * A compatibility wrapper for InputFile. See class hierarchy.
  *
  * All methods of this class simply delegate to the wrapped instance, except `orig`.
- * Descendants of this class override methods that were not available in earlier versions of InputFile.
  */
-public class CompatibleInputFile implements InputFile {
+public class CompatibleInputFile {
   private final InputFile wrapped;
 
   public CompatibleInputFile(InputFile wrapped) {
@@ -43,7 +42,6 @@ public class CompatibleInputFile implements InputFile {
 
   /**
    * Get the original InputFile instance wrapped inside.
-   * Always use the original instance when passing back to the platform for issue reporting.
    *
    * @return original InputFile instance
    */
@@ -51,92 +49,62 @@ public class CompatibleInputFile implements InputFile {
     return wrapped;
   }
 
-  @Override
   public String key() {
     return wrapped.key();
   }
 
-  @Override
   public boolean isFile() {
     return wrapped.isFile();
   }
 
-  @Override
-  public String relativePath() {
-    return wrapped.relativePath();
-  }
-
-  @Override
   public String absolutePath() {
     return wrapped.absolutePath();
   }
 
-  @Override
   public File file() {
     return wrapped.file();
   }
 
-  @Override
   public Path path() {
     return wrapped.path();
   }
 
-  @Override
-  public String language() {
-    return wrapped.language();
-  }
-
-  @Override
-  public Type type() {
+  public InputFile.Type type() {
     return wrapped.type();
   }
 
-  @Override
   public InputStream inputStream() throws IOException {
     return wrapped.inputStream();
   }
 
-  @Override
   public String contents() throws IOException {
     return wrapped.contents();
   }
 
-  @Override
-  public Status status() {
+  public InputFile.Status status() {
     return wrapped.status();
   }
 
-  @Override
   public int lines() {
     return wrapped.lines();
   }
 
-  @Override
   public boolean isEmpty() {
     return wrapped.isEmpty();
   }
 
-  @Override
   public TextPointer newPointer(int line, int lineOffset) {
     return wrapped.newPointer(line, lineOffset);
   }
 
-  @Override
-  public TextRange newRange(TextPointer start, TextPointer end) {
-    return wrapped.newRange(start, end);
-  }
-
-  @Override
   public TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
     return wrapped.newRange(startLine, startLineOffset, endLine, endLineOffset);
   }
 
-  @Override
   public TextRange selectLine(int line) {
     return wrapped.selectLine(line);
   }
 
-  @Override
   public Charset charset() {
     return wrapped.charset();
   }

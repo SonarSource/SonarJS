@@ -25,7 +25,7 @@ import java.nio.file.Files;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
- * Makes the wrapped API 6.0+ instance compatible with API 6.2,
+ * Makes the wrapped API 6.0+ InputFile instance compatible with API 6.2,
  * by providing the inputStream() and contents() methods.
  */
 class InputFileV60Compat extends CompatibleInputFile {

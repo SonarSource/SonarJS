@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.minify;
 
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.compat.CompatibleInputFile;
 
 /**
@@ -54,12 +53,12 @@ public class MinificationAssessor {
       (hasMinifiedFileName(file) || hasExcessiveAverageLineLength(file));
   }
 
-  private static boolean hasMinifiedFileName(InputFile file) {
+  private static boolean hasMinifiedFileName(CompatibleInputFile file) {
     String fileName = file.path().getFileName().toString();
     return fileName.endsWith("-min.js") || fileName.endsWith(".min.js");
   }
 
-  private static boolean isJavaScriptFile(InputFile file) {
+  private static boolean isJavaScriptFile(CompatibleInputFile file) {
     return file.path().getFileName().toString().endsWith(".js");
   }
 

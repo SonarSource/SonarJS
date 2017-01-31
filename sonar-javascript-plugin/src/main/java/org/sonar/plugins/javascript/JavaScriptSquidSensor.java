@@ -348,7 +348,7 @@ public class JavaScriptSquidSensor implements Sensor {
 
     Iterable<CompatibleInputFile> inputFiles = wrap(fileSystem.inputFiles(mainFilePredicate), context);
     Collection<File> files = StreamSupport.stream(inputFiles.spliterator(), false)
-      .map(InputFile::file)
+      .map(CompatibleInputFile::file)
       .collect(Collectors.toList());
 
     ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
