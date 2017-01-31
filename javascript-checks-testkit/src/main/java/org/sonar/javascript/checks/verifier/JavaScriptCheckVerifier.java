@@ -102,7 +102,11 @@ public class JavaScriptCheckVerifier {
    * JavaScriptCheckVerifier.verify(new MyCheck(), myFile));
    * </pre>
    */
-  public static void verify(JavaScriptCheck check, InputFile file) {
+  public static void verify(JavaScriptCheck check, File file) {
+    verify(check, new TestInputFile(file.getAbsolutePath()));
+  }
+
+  static void verify(JavaScriptCheck check, InputFile file) {
     JavaScriptVisitorContext context = TestUtils.createContext(file);
 
     List<TestIssue> expectedIssues = ExpectedIssuesParser.parseExpectedIssues(context);
@@ -120,10 +124,6 @@ public class JavaScriptCheckVerifier {
       Issue issue = actualIssues.next();
       throw new AssertionError("Unexpected issue at line " + line(issue) + ": \"" + message(issue) + "\"");
     }
-  }
-
-  public static void verify(JavaScriptCheck check, File file) {
-    verify(check, new TestInputFile(file.getAbsolutePath()));
   }
 
   public static Iterator<Issue> getActualIssues(JavaScriptCheck check, JavaScriptVisitorContext context) {
