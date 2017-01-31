@@ -28,11 +28,14 @@ import javax.annotation.CheckForNull;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.component.ShowWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
 import static java.util.Collections.singletonList;
@@ -83,10 +86,6 @@ public final class Tests {
 
   public static boolean is_before_sonar_6_2() {
     return !ORCHESTRATOR.getConfiguration().getSonarVersion().isGreaterThanOrEquals("6.2");
-  }
-
-  public static boolean is_before_sonar_6_3() {
-    return !ORCHESTRATOR.getConfiguration().getSonarVersion().isGreaterThanOrEquals("6.3");
   }
 
   @CheckForNull
