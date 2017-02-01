@@ -65,8 +65,18 @@ public class CompatibleInputFile {
     return wrapped.inputStream();
   }
 
-  public String contents() throws IOException {
-    return wrapped.contents();
+  public static class InputFileIOException extends RuntimeException {
+    InputFileIOException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  public String contents() {
+    try {
+      return wrapped.contents();
+    } catch (IOException e) {
+      throw new InputFileIOException(e);
+    }
   }
 
   public TextPointer newPointer(int line, int lineOffset) {

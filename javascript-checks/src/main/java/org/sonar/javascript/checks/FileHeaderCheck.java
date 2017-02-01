@@ -91,7 +91,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     String fileContent;
     try {
       fileContent = getContext().getFile().contents();
-    } catch (IOException e) {
+    } catch (CompatibleInputFile.InputFileIOException e) {
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
     }
 

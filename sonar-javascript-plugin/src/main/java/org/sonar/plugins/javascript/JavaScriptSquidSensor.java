@@ -169,19 +169,16 @@ public class JavaScriptSquidSensor implements Sensor {
     try {
       scriptTree = (ScriptTree) parser.parse(inputFile.contents());
       scanFile(sensorContext, inputFile, visitors, scriptTree);
-
     } catch (RecognitionException e) {
       checkInterrupted(e);
       LOG.error("Unable to parse file: " + inputFile.absolutePath());
       LOG.error(e.getMessage());
       processRecognitionException(e, sensorContext, inputFile);
-
     } catch (Exception e) {
       checkInterrupted(e);
       processException(e, sensorContext, inputFile);
       throw new AnalysisException("Unable to analyse file: " + inputFile.absolutePath(), e);
     }
-
   }
 
   private static void checkInterrupted(Exception e) {

@@ -20,10 +20,8 @@
 package org.sonar.javascript.utils;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Throwables;
 import com.sonar.sslr.api.typed.ActionParser;
 
-import java.io.IOException;
 import java.util.Iterator;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.compat.CompatibleInputFile;
@@ -60,21 +58,13 @@ public abstract class JavaScriptTreeModelTest {
   }
 
   protected SymbolModelImpl symbolModel(CompatibleInputFile file, Settings settings) {
-    try {
-      ScriptTree root = (ScriptTree) p.parse(file.contents());
-      return (SymbolModelImpl) new JavaScriptVisitorContext(root, file, settings).getSymbolModel();
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    ScriptTree root = (ScriptTree) p.parse(file.contents());
+    return (SymbolModelImpl) new JavaScriptVisitorContext(root, file, settings).getSymbolModel();
   }
 
   protected JavaScriptVisitorContext context(CompatibleInputFile file) {
-    try {
-      ScriptTree root = (ScriptTree) p.parse(file.contents());
-      return new JavaScriptVisitorContext(root, file, null);
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    ScriptTree root = (ScriptTree) p.parse(file.contents());
+    return new JavaScriptVisitorContext(root, file, null);
   }
 
   private Tree getFirstDescendant(JavaScriptTree node, Kind descendantToReturn) {
