@@ -21,6 +21,7 @@ package org.sonar.javascript.checks.verifier;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Before;
@@ -70,7 +71,7 @@ public class BulkVerifierTest {
   }
 
   private static class DummyIssueCollector implements IssueCollector {
-    public List<String> collectedIssues = new ArrayList<>();
+    public List<String> collectedIssues = Collections.synchronizedList(new ArrayList<>());
 
     @Override
     public void writeIssues(Iterator<Issue> issues, File file) {
