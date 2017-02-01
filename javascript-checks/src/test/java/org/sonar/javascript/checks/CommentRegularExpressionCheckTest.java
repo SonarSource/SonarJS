@@ -23,30 +23,29 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class CommentRegularExpressionCheckTest {
+
+  private final CommentRegularExpressionCheck check = new CommentRegularExpressionCheck();
+  private final String dir = "src/test/resources/checks/CommentRegularExpressionCheck";
 
   @Test
   public void test() {
-    CommentRegularExpressionCheck check = new CommentRegularExpressionCheck();
-
     check.setRegularExpression("(?i).*TODO.*");
     check.setMessage("Avoid TODO");
 
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/commentRegularExpression.js"))
-      .next().atLine(2).withMessage("Avoid TODO")
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File(dir, "commentRegularExpression.js"));
+  }
 
+  @Test
+  public void no_issue_with_empty_regular_expression() throws Exception {
     check.setRegularExpression("");
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/commentRegularExpression.js"))
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File(dir, "commentRegularExpression_no_issue.js"));
+  }
 
-    try {
-      check.setRegularExpression("[abc");
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Unable to compile regular expression: [abc");
-    }
+  @Test(expected = IllegalArgumentException.class)
+  public void bad_regex() {
+    check.setRegularExpression("[abc");
+    JavaScriptCheckVerifier.verify(check, new File(dir, "commentRegularExpression.js"));
   }
 
 }
