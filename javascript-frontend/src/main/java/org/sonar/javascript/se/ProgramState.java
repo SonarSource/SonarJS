@@ -230,10 +230,6 @@ public class ProgramState implements ProgramStateConstraints {
     return getConstraint(getSymbolicValue(symbol));
   }
 
-  public Nullability getNullability(@Nullable SymbolicValue value) {
-    return getConstraint(value).nullability();
-  }
-
   private Map<Symbol, Constraint> constraintsBySymbol() {
     ImmutableMap.Builder<Symbol, Constraint> builder = new Builder<>();
     for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {

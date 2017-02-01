@@ -64,6 +64,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
+import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.FUNCTION;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.IMPORT;
@@ -78,7 +79,7 @@ public class SymbolicExecution {
   private final Set<Symbol> functionParameters;
   private final Scope functionScope;
   private final Deque<BlockExecution> workList = new ArrayDeque<>();
-  private final SetMultimap<Tree, Truthiness> conditionResults = HashMultimap.create();
+  private final SetMultimap<Tree, Constraint> conditionResults = HashMultimap.create();
   private final Set<BlockExecution> alreadyProcessed = new HashSet<>();
   private final List<SeCheck> checks;
   private final LiveVariableAnalysis liveVariableAnalysis;
@@ -388,8 +389,12 @@ public class SymbolicExecution {
           variable = declaration.variables().get(0);
         }
         currentState = newSymbolicValue(currentState, variable);
+        SymbolicValue expressionSV = getSymbolicValue(forTree.expression(), currentState);
+        Constraint expressionConstraint = currentState.getConstraint(expressionSV);
 
-        if (currentState.getNullability(getSymbolicValue(forTree.expression(), currentState)) == Nullability.NULL) {
+        // FIXME "for-of" iteration over "null" or "undefined" value will raise "TypeError"
+        // so this logic should be applied to "for-in" loop only
+        if (expressionConstraint.isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
           pushSuccessor(branchingBlock.falseSuccessor(), currentState);
           shouldPushAllSuccessors = false;
         }
@@ -409,13 +414,13 @@ public class SymbolicExecution {
     Optional<ProgramState> constrainedTruePS = currentState.constrain(conditionSymbolicValue, Constraint.TRUTHY);
     if (constrainedTruePS.isPresent()) {
       pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY, block.branchingTree());
-      conditionResults.put(lastElement, Truthiness.TRUTHY);
+      conditionResults.put(lastElement, Constraint.TRUTHY);
     }
 
     Optional<ProgramState> constrainedFalsePS = currentState.constrain(conditionSymbolicValue, Constraint.FALSY);
     if (constrainedFalsePS.isPresent()) {
       pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY, block.branchingTree());
-      conditionResults.put(lastElement, Truthiness.FALSY);
+      conditionResults.put(lastElement, Constraint.FALSY);
     }
 
     if (!constrainedTruePS.isPresent() && !constrainedFalsePS.isPresent()) {

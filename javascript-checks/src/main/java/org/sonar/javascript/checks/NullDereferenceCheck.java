@@ -24,7 +24,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.Nullability;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -36,6 +35,8 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
+
+import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
 
 @Rule(key = "S2259")
 public class NullDereferenceCheck extends SeCheck {
@@ -57,7 +58,7 @@ public class NullDereferenceCheck extends SeCheck {
     if (symbol != null) {
       Constraint constraint = currentState.getConstraint(symbol);
 
-      if (constraint != null && constraint.nullability() == Nullability.NULL && !hasIssue.contains(symbol)) {
+      if (constraint != null && constraint.isStricterOrEqualTo(NULL_OR_UNDEFINED) && !hasIssue.contains(symbol)) {
         addIssue(object, String.format(MESSAGE, symbol.name()));
         hasIssue.add(symbol);
       }

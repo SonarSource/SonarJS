@@ -58,7 +58,7 @@ public class ProgramStateTest {
     state = state.newSymbolicValue(symbol1, null);
     SymbolicValue sv1 = state.getSymbolicValue(symbol1);
     SymbolicValue sv2 = state.getSymbolicValue(symbol2);
-    assertThat(state.constrain(sv1, Constraint.FALSY).get().getConstraint(symbol1).truthiness()).isEqualTo(Truthiness.FALSY);
+    assertThat(state.constrain(sv1, Constraint.FALSY).get().getConstraint(symbol1).isStricterOrEqualTo(Constraint.FALSY)).isTrue();
     assertThat(sv2).isNull();
     assertThat(state.constrain(sv2, Constraint.FALSY).get().getConstraint(symbol2)).isEqualTo(Constraint.ANY_VALUE);
 

@@ -26,8 +26,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.SeCheck;
-import org.sonar.javascript.se.Truthiness;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -51,14 +51,14 @@ public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
   }
 
   @Override
-  public void checkConditions(Map<Tree, Collection<Truthiness>> conditions) {
-    for (Entry<Tree, Collection<Truthiness>> entry : conditions.entrySet()) {
+  public void checkConditions(Map<Tree, Collection<Constraint>> conditions) {
+    for (Entry<Tree, Collection<Constraint>> entry : conditions.entrySet()) {
       if (ignoredLoopConditions.contains(entry.getKey())) {
         continue;
       }
-      Collection<Truthiness> results = entry.getValue();
-      if (results.size() == 1 && !Truthiness.UNKNOWN.equals(results.iterator().next())) {
-        String result = Truthiness.TRUTHY.equals(results.iterator().next()) ? "true" : "false";
+      Collection<Constraint> results = entry.getValue();
+      if (results.size() == 1) {
+        String result = Constraint.TRUTHY.equals(results.iterator().next()) ? "true" : "false";
         addIssue(entry.getKey(), String.format("Change this condition so that it does not always evaluate to \"%s\".", result));
       }
     }
