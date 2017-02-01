@@ -72,16 +72,6 @@ public class ConstraintTest {
   }
 
   @Test
-  public void nullability() throws Exception {
-    assertThat(ANY_VALUE.nullability()).isEqualTo(Nullability.UNKNOWN);
-    assertThat(NULL.nullability()).isEqualTo(Nullability.NULL);
-    assertThat(UNDEFINED.nullability()).isEqualTo(Nullability.NULL);
-    assertThat(NULL_OR_UNDEFINED.nullability()).isEqualTo(Nullability.NULL);
-    assertThat(FALSY.nullability()).isEqualTo(Nullability.UNKNOWN);
-    assertThat(TRUTHY.nullability()).isEqualTo(Nullability.NOT_NULL);
-  }
-
-  @Test
   public void equals() throws Exception {
     assertThat(Constraint.NULL).isEqualTo(Constraint.NULL);
     assertThat(Constraint.NULL).isNotEqualTo(Constraint.UNDEFINED);

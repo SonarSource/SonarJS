@@ -176,15 +176,6 @@ public class Constraint {
     return Truthiness.UNKNOWN;
   }
 
-  public Nullability nullability() {
-    if (isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
-      return Nullability.NULL;
-    } else if (isStricterOrEqualTo(NOT_NULLY)) {
-      return Nullability.NOT_NULL;
-    }
-    return Nullability.UNKNOWN;
-  }
-
   public Type type() {
     return Type.find(this);
   }

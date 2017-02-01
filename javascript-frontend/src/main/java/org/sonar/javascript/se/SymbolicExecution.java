@@ -64,6 +64,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
+import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.FUNCTION;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.IMPORT;
@@ -388,8 +389,12 @@ public class SymbolicExecution {
           variable = declaration.variables().get(0);
         }
         currentState = newSymbolicValue(currentState, variable);
+        SymbolicValue expressionSV = getSymbolicValue(forTree.expression(), currentState);
+        Constraint expressionConstraint = currentState.getConstraint(expressionSV);
 
-        if (currentState.getNullability(getSymbolicValue(forTree.expression(), currentState)) == Nullability.NULL) {
+        // FIXME "for-of" iteration over "null" or "undefined" value will raise "TypeError"
+        // so this logic should be applied to "for-in" loop only
+        if (expressionConstraint.isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
           pushSuccessor(branchingBlock.falseSuccessor(), currentState);
           shouldPushAllSuccessors = false;
         }
