@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.compat;
 
+import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -56,7 +57,7 @@ public class CompatibilityHelper {
     return new CompatibleInputFile(inputFile);
   }
 
-  public static Iterable<CompatibleInputFile> wrap(Iterable<InputFile> inputFiles, SensorContext context) {
+  public static Collection<CompatibleInputFile> wrap(Iterable<InputFile> inputFiles, SensorContext context) {
     Version version = context.getSonarQubeVersion();
     if (version.isGreaterThanOrEqual(V6_2)) {
       return inputFileStream(inputFiles).map(CompatibleInputFile::new).collect(Collectors.toList());
