@@ -30,6 +30,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.time.StopWatch;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -69,7 +70,8 @@ public class BulkVerifier {
     files.parallelStream().forEach(file -> {
       JavaScriptCheck check = instantiateCheck(checkClass);
       LOGGER.debug("Processing file " + file);
-      Iterator<Issue> issues = getIssues(check, file);
+      InputFile inputFile = new TestInputFile(directory, directory.toPath().relativize(file.toPath()).toString());
+      Iterator<Issue> issues = getIssues(check, inputFile);
       try {
         issueCollector.writeIssues(issues, file);
       } catch (IOException e) {
@@ -85,7 +87,7 @@ public class BulkVerifier {
     LOGGER.info("Execution time: " + timer.toString());
   }
 
-  private static Iterator<Issue> getIssues(JavaScriptCheck check, File file) {
+  private static Iterator<Issue> getIssues(JavaScriptCheck check, InputFile file) {
     Iterator<Issue> issues;
     try {
       JavaScriptVisitorContext context = TestUtils.createParallelContext(file);
