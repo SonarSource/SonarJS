@@ -52,6 +52,10 @@ public class CompatibilityHelper {
     // utility class, forbidden constructor
   }
 
+  public static CompatibleInputFile wrap(InputFile inputFile) {
+    return new CompatibleInputFile(inputFile);
+  }
+
   public static Iterable<CompatibleInputFile> wrap(Iterable<InputFile> inputFiles, SensorContext context) {
     Version version = context.getSonarQubeVersion();
     if (version.isGreaterThanOrEqual(V6_2)) {

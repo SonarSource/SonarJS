@@ -30,6 +30,7 @@ import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.squidbridge.api.AnalysisException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class MinificationAssessorTest {
 
@@ -75,7 +76,7 @@ public class MinificationAssessorTest {
     DefaultInputFile inputFile = new DefaultInputFile("module1", DIR + name);
     inputFile.setModuleBaseDir(Paths.get(""));
     inputFile.setCharset(StandardCharsets.UTF_8);
-    return new CompatibleInputFile(inputFile);
+    return wrap(inputFile);
   }
 
   private AbstractBooleanAssert getAssert(String fileName) {

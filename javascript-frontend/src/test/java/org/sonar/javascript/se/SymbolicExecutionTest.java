@@ -26,13 +26,13 @@ import java.io.IOException;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.MapSettings;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class SymbolicExecutionTest {
 
@@ -170,7 +170,7 @@ public class SymbolicExecutionTest {
   public static JavaScriptVisitorContext createContext(InputFile file) {
     try {
       ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(file.charset()).parse(file.contents());
-      return new JavaScriptVisitorContext(scriptTree, new CompatibleInputFile(file), new MapSettings());
+      return new JavaScriptVisitorContext(scriptTree, wrap(file), new MapSettings());
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

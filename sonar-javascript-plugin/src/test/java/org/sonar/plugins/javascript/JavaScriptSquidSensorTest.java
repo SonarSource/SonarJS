@@ -73,6 +73,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY;
 
 public class JavaScriptSquidSensorTest {
@@ -433,7 +434,7 @@ public class JavaScriptSquidSensorTest {
     context.fileSystem().add(inputFile);
 
     inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
-    return new CompatibleInputFile(inputFile);
+    return wrap(inputFile);
   }
 
   private final class ExceptionRaisingCheck extends DoubleDispatchVisitorCheck {

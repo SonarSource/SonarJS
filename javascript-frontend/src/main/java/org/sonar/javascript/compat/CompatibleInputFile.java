@@ -36,7 +36,7 @@ import org.sonar.api.batch.fs.TextRange;
 public class CompatibleInputFile {
   private final InputFile wrapped;
 
-  public CompatibleInputFile(InputFile wrapped) {
+  CompatibleInputFile(InputFile wrapped) {
     this.wrapped = wrapped;
   }
 

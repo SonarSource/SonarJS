@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.javascript.utils.TestInputFile;
@@ -34,10 +33,11 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class ScopeTest extends JavaScriptTreeModelTest {
 
-  private SymbolModelImpl SYMBOL_MODEL = symbolModel(new CompatibleInputFile(new TestInputFile("src/test/resources/ast/resolve/scope.js")));
+  private SymbolModelImpl SYMBOL_MODEL = symbolModel(wrap(new TestInputFile("src/test/resources/ast/resolve/scope.js")));
 
   private Scope scopeAtLine(int line) {
     for (Scope scope : SYMBOL_MODEL.getScopes()) {

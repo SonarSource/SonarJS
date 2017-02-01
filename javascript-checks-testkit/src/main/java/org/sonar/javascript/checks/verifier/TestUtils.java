@@ -28,13 +28,14 @@ import java.util.Map;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 class TestUtils {
 
@@ -59,7 +60,7 @@ class TestUtils {
   private static JavaScriptVisitorContext createContext(InputFile file, ActionParser<Tree> parser) {
     try {
       ScriptTree scriptTree = (ScriptTree) parser.parse(file.contents());
-      return new JavaScriptVisitorContext(scriptTree, new CompatibleInputFile(file), settings());
+      return new JavaScriptVisitorContext(scriptTree, wrap(file), settings());
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

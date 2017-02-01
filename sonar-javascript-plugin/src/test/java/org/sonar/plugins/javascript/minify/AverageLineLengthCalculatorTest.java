@@ -25,9 +25,9 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 import java.nio.file.Paths;
-import org.sonar.javascript.compat.CompatibleInputFile;
 
 public class AverageLineLengthCalculatorTest {
 
@@ -75,7 +75,7 @@ public class AverageLineLengthCalculatorTest {
     DefaultInputFile file = new DefaultInputFile("module", DIR + fileName);
     file.setModuleBaseDir(Paths.get(""));
     file.setCharset(StandardCharsets.UTF_8);
-    AverageLineLengthCalculator calc = new AverageLineLengthCalculator(new CompatibleInputFile(file));
+    AverageLineLengthCalculator calc = new AverageLineLengthCalculator(wrap(file));
     assertThat(calc.getAverageLineLength()).isEqualTo(expectedAverage);
   }
 

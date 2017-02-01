@@ -29,7 +29,6 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
@@ -41,6 +40,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class MetricsVisitorTest extends JavaScriptTreeModelTest {
 
@@ -86,7 +86,7 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
       saveExecutableLines);
 
     TreeVisitorContext treeVisitorContext = mock(TreeVisitorContext.class);
-    when(treeVisitorContext.getCompatibleInputFile()).thenReturn(new CompatibleInputFile(INPUT_FILE));
+    when(treeVisitorContext.getCompatibleInputFile()).thenReturn(wrap(INPUT_FILE));
     when(treeVisitorContext.getTopTree()).thenReturn((ScriptTree) p.parse(INPUT_FILE.file()));
 
     metricsVisitor.scanTree(treeVisitorContext);

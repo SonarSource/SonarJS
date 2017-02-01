@@ -39,6 +39,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.checks.utils.CheckUtils.readLines;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class CheckUtilsTest {
 
@@ -73,7 +74,7 @@ public class CheckUtilsTest {
 
     TestInputFile testInputFile = new TestInputFile(temporaryFolder.getRoot(), tmp.getName());
     testInputFile.setCharset(StandardCharsets.UTF_8);
-    CompatibleInputFile inputFile = new CompatibleInputFile(testInputFile);
+    CompatibleInputFile inputFile = wrap(testInputFile);
     assertThat(readLines(inputFile)).isEqualTo(lines);
   }
 }

@@ -31,7 +31,7 @@ class InputFileV56Compat extends InputFileV60Compat {
 
   private final Charset charset;
 
-  public InputFileV56Compat(InputFile wrapped, SensorContext context) {
+  InputFileV56Compat(InputFile wrapped, SensorContext context) {
     super(wrapped);
     this.charset = context.fileSystem().encoding();
   }

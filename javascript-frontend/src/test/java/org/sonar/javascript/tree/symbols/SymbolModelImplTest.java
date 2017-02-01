@@ -30,10 +30,11 @@ import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
-  private static final CompatibleInputFile INPUT_FILE = new CompatibleInputFile(new TestInputFile("src/test/resources/ast/resolve/symbolModel.js"));
+  private static final CompatibleInputFile INPUT_FILE = wrap(new TestInputFile("src/test/resources/ast/resolve/symbolModel.js"));
   private SymbolModelImpl SYMBOL_MODEL = symbolModel(INPUT_FILE);
 
   @Test

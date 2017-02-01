@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.MapSettings;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.utils.TestInputFile;
@@ -37,6 +36,7 @@ import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class SeChecksDispatcherTest {
 
@@ -79,6 +79,6 @@ public class SeChecksDispatcherTest {
 
   private static JavaScriptVisitorContext createContext(InputFile file) throws IOException {
     ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(file.charset()).parse(file.contents());
-    return new JavaScriptVisitorContext(scriptTree, new CompatibleInputFile(file), new MapSettings());
+    return new JavaScriptVisitorContext(scriptTree, wrap(file), new MapSettings());
   }
 }

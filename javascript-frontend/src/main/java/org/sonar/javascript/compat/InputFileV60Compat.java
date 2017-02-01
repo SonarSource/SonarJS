@@ -29,7 +29,7 @@ import org.sonar.api.batch.fs.InputFile;
  * by providing the inputStream() and contents() methods.
  */
 class InputFileV60Compat extends CompatibleInputFile {
-  public InputFileV60Compat(InputFile wrapped) {
+  InputFileV60Compat(InputFile wrapped) {
     super(wrapped);
   }
 

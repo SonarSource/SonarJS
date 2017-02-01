@@ -35,6 +35,7 @@ import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
 
@@ -47,7 +48,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     DefaultInputFile defaultInputFile = new DefaultInputFile("moduleKey", filename)
       .setModuleBaseDir(moduleBaseDir.toPath())
       .setCharset(StandardCharsets.UTF_8);
-    inputFile = new CompatibleInputFile(defaultInputFile);
+    inputFile = wrap(defaultInputFile);
 
     defaultInputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), defaultInputFile.charset()));
     return sensorContext.newSymbolTable().onFile(defaultInputFile);

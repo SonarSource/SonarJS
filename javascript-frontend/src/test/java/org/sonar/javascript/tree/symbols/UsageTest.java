@@ -32,10 +32,11 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class UsageTest extends JavaScriptTreeModelTest {
 
-  private SymbolModelImpl SYMBOL_MODEL = symbolModel(new CompatibleInputFile(new TestInputFile("src/test/resources/ast/resolve/usage.js")));
+  private SymbolModelImpl SYMBOL_MODEL = symbolModel(wrap(new TestInputFile("src/test/resources/ast/resolve/usage.js")));
 
   @Test
   public void global_symbols() throws Exception {
