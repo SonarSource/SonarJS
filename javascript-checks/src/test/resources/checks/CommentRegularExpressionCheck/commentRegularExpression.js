@@ -4,4 +4,10 @@ function sayHello() {
   // TODO implement me
   //
   // TODT should not raise issue
+
+  // Note that for multiline comment we raise issue on the first line
+  // Noncompliant@+1
+  /*
+  TODO
+  */
 }
