@@ -19,9 +19,15 @@
  */
 package org.sonar.javascript.checks.utils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Kinds;
@@ -118,6 +124,16 @@ public class CheckUtils {
       ancestor = parent(ancestor);
     }
     return null;
+  }
+
+  public static List<String> readLines(CompatibleInputFile inputFile) throws IOException {
+    try (BufferedReader reader = newBufferedReader(inputFile)) {
+      return reader.lines().collect(Collectors.toList());
+    }
+  }
+
+  public static BufferedReader newBufferedReader(CompatibleInputFile inputFile) throws IOException {
+    return new BufferedReader(new InputStreamReader(inputFile.inputStream(), inputFile.charset()));
   }
 
 }

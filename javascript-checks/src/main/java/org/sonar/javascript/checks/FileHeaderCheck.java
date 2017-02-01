@@ -19,17 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -73,8 +70,8 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     }
     CompatibleInputFile inputFile = getContext().getFile();
     List<String> lines;
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputFile.inputStream(), inputFile.charset()))) {
-      lines = reader.lines().collect(Collectors.toList());
+    try {
+      lines = CheckUtils.readLines(inputFile);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
     }

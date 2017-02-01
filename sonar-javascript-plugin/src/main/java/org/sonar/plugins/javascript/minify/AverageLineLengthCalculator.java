@@ -21,7 +21,7 @@ package org.sonar.plugins.javascript.minify;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.squidbridge.api.AnalysisException;
 
@@ -51,7 +51,7 @@ class AverageLineLengthCalculator {
     long nbLines = 0;
     long nbCharacters = 0;
 
-    try (BufferedReader reader = getReader(file)) {
+    try (BufferedReader reader = CheckUtils.newBufferedReader(file)) {
       String line;
       while ((line = reader.readLine()) != null) {
         if (!isLineInHeaderComment(line)) {
@@ -108,10 +108,6 @@ class AverageLineLengthCalculator {
         return false;
       }
     }
-  }
-
-  private static BufferedReader getReader(CompatibleInputFile file) throws IOException {
-    return new BufferedReader(new InputStreamReader(file.inputStream(), file.charset()));
   }
 
   private static void handleException(IOException e, CompatibleInputFile file) {

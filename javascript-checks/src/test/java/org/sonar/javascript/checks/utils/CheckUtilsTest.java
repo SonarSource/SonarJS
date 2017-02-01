@@ -21,17 +21,31 @@ package org.sonar.javascript.checks.utils;
 
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.javascript.checks.verifier.TestInputFile;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.checks.utils.CheckUtils.readLines;
 
 public class CheckUtilsTest {
 
   protected final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+
+  @Rule
+  public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Test
   public void testAsString() throws Exception {
@@ -49,5 +63,17 @@ public class CheckUtilsTest {
     assertThat(CheckUtils.isDescendant(functionDeclarationTree.parameterClause().closeParenthesis(), scriptTree)).isTrue();
     assertThat(CheckUtils.isDescendant(scriptTree, functionDeclarationTree)).isFalse();
     assertThat(CheckUtils.isDescendant(functionDeclarationTree.functionKeyword(), functionDeclarationTree.parameterClause())).isFalse();
+  }
+
+  @Test
+  public void testReadLines() throws IOException {
+    List<String> lines = Arrays.asList("first", "second", "third");
+    File tmp = temporaryFolder.newFile();
+    Files.write(tmp.toPath(), String.join("\n", lines).getBytes());
+
+    TestInputFile testInputFile = new TestInputFile(temporaryFolder.getRoot(), tmp.getName());
+    testInputFile.setCharset(StandardCharsets.UTF_8);
+    CompatibleInputFile inputFile = new CompatibleInputFile(testInputFile);
+    assertThat(readLines(inputFile)).isEqualTo(lines);
   }
 }

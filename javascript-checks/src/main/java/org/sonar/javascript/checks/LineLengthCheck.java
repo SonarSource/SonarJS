@@ -19,13 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -47,8 +45,8 @@ public class LineLengthCheck extends DoubleDispatchVisitorCheck {
   public void visitScript(ScriptTree tree) {
     CompatibleInputFile inputFile = getContext().getFile();
     List<String> lines;
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputFile.inputStream(), inputFile.charset()))) {
-      lines = reader.lines().collect(Collectors.toList());
+    try {
+      lines = CheckUtils.readLines(inputFile);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
