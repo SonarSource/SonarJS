@@ -184,7 +184,7 @@ public class JavaScriptSquidSensorTest {
 
     JavaScriptCheck check = new ExceptionRaisingCheck(new NullPointerException("NPE forcibly raised by check class"));
 
-    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(new CompatibleInputFile(inputFile("file.js"))), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(inputFile("file.js")), progressReport);
     assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
@@ -255,14 +255,14 @@ public class JavaScriptSquidSensorTest {
 
   @Test
   public void progress_report_should_be_stopped() throws Exception {
-    InputFile inputFile = inputFile("cpd/Person.js");
-    createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.of(new CompatibleInputFile(inputFile)), progressReport);
+    CompatibleInputFile inputFile = inputFile("cpd/Person.js");
+    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(inputFile), progressReport);
     verify(progressReport).stop();
   }
 
   @Test
   public void progress_report_should_be_stopped_without_files() throws Exception {
-    createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.<CompatibleInputFile>of(), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(), progressReport);
     verify(progressReport).stop();
   }
 
@@ -293,16 +293,16 @@ public class JavaScriptSquidSensorTest {
     JavaScriptSquidSensor sensor = createSensor();
     SensorContextTester cancelledContext = SensorContextTester.create(baseDir);
     cancelledContext.setCancelled(true);
-    sensor.analyseFiles(cancelledContext, ImmutableList.of((TreeVisitor)check), ImmutableList.of(new CompatibleInputFile(inputFile("cpd/Person.js"))), progressReport);
+    sensor.analyseFiles(cancelledContext, ImmutableList.of((TreeVisitor)check), ImmutableList.of(inputFile("cpd/Person.js")), progressReport);
     verify(progressReport).cancel();
   }
 
-  private void analyseFileWithException(JavaScriptCheck check, InputFile inputFile, String expectedMessageSubstring) {
+  private void analyseFileWithException(JavaScriptCheck check, CompatibleInputFile inputFile, String expectedMessageSubstring) {
     JavaScriptSquidSensor sensor = createSensor();
     thrown.expect(AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
     try {
-      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(new CompatibleInputFile(inputFile)), progressReport);
+      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(inputFile), progressReport);
     } finally {
       verify(progressReport).cancel();
     }
@@ -423,7 +423,7 @@ public class JavaScriptSquidSensorTest {
     assertThat(context.lineHits("moduleKey:file1.js", 1)).isEqualTo(3);
   }
 
-  private DefaultInputFile inputFile(String relativePath) {
+  private CompatibleInputFile inputFile(String relativePath) {
     DefaultInputFile inputFile = new DefaultInputFile("moduleKey", relativePath)
       .setModuleBaseDir(baseDir.toPath())
       .setType(Type.MAIN)
@@ -432,14 +432,15 @@ public class JavaScriptSquidSensorTest {
 
     context.fileSystem().add(inputFile);
 
-    return inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
+    inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
+    return new CompatibleInputFile(inputFile);
   }
 
   private final class ExceptionRaisingCheck extends DoubleDispatchVisitorCheck {
 
     private final RuntimeException exception;
 
-    public ExceptionRaisingCheck(RuntimeException exception) {
+    ExceptionRaisingCheck(RuntimeException exception) {
       this.exception = exception;
     }
 
