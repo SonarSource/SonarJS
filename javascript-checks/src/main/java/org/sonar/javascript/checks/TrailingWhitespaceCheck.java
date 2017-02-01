@@ -43,7 +43,7 @@ public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    CompatibleInputFile inputFile = getContext().getFile();
+    CompatibleInputFile inputFile = getContext().getCompatibleInputFile();
     List<String> lines;
     try {
       lines = CheckUtils.readLines(inputFile);

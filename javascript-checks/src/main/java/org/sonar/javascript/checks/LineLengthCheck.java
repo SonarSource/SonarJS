@@ -43,7 +43,7 @@ public class LineLengthCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    CompatibleInputFile inputFile = getContext().getFile();
+    CompatibleInputFile inputFile = getContext().getCompatibleInputFile();
     List<String> lines;
     try {
       lines = CheckUtils.readLines(inputFile);

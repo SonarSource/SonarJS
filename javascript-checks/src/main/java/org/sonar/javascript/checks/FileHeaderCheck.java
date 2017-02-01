@@ -68,7 +68,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     if (expectedLines == null) {
       expectedLines = headerFormat.split("(?:\r)?\n|\r");
     }
-    CompatibleInputFile inputFile = getContext().getFile();
+    CompatibleInputFile inputFile = getContext().getCompatibleInputFile();
     List<String> lines;
     try {
       lines = CheckUtils.readLines(inputFile);
@@ -90,7 +90,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     }
     String fileContent;
     try {
-      fileContent = getContext().getFile().contents();
+      fileContent = getContext().getCompatibleInputFile().contents();
     } catch (CompatibleInputFile.InputFileIOException e) {
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
     }
