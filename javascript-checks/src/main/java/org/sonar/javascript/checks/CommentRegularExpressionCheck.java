@@ -33,8 +33,6 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.RuleTemplate;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @Rule(key = "CommentRegularExpression")
 @RuleTemplate
 public class CommentRegularExpressionCheck extends SubscriptionVisitorCheck {
@@ -56,32 +54,24 @@ public class CommentRegularExpressionCheck extends SubscriptionVisitorCheck {
 
   private Pattern pattern = null;
 
-  public void init() {
-    checkNotNull(regularExpression, "getRegularExpression() should not return null");
-
-    if (!Strings.isNullOrEmpty(regularExpression)) {
-      try {
-        pattern = Pattern.compile(regularExpression, Pattern.DOTALL);
-      } catch (RuntimeException e) {
-        throw new IllegalStateException("Unable to compile regular expression: " + regularExpression, e);
-      }
-
-    } else {
-      pattern = null;
-    }
-  }
-
   public void setMessage(String message) {
     this.message = message;
   }
 
   public void setRegularExpression(String regularExpression) {
     this.regularExpression = regularExpression;
-    init();
   }
 
   @Override
   public void visitNode(Tree tree) {
+    if (pattern == null && !Strings.isNullOrEmpty(regularExpression)) {
+      try {
+        pattern = Pattern.compile(regularExpression, Pattern.DOTALL);
+      } catch (RuntimeException e) {
+        throw new IllegalArgumentException("Unable to compile regular expression: " + regularExpression, e);
+      }
+    }
+
     if (pattern != null) {
       SyntaxToken token = (SyntaxToken) tree;
       for (SyntaxTrivia trivia : token.trivias()) {
