@@ -114,4 +114,16 @@ public class ConstraintTest {
     assertThat(Constraint.NULL_OR_UNDEFINED.toString()).isEqualTo("NULL|UNDEFINED");
     assertThat(Constraint.ZERO.or(Constraint.NULL).toString()).isEqualTo("NULL|ZERO");
   }
+
+  @Test
+  public void test_isStricterOrEqual() throws Exception {
+    assertThat(Constraint.NULL.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)).isTrue();
+    assertThat(Constraint.UNDEFINED.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)).isTrue();
+    assertThat(Constraint.NULL_OR_UNDEFINED.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)).isTrue();
+
+    assertThat(Constraint.FALSY.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)).isFalse();
+    assertThat(Constraint.FALSE.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)).isFalse();
+
+    assertThat(Constraint.FALSE.isStricterOrEqualTo(Constraint.FALSY)).isTrue();
+  }
 }
