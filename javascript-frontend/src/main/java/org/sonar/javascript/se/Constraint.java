@@ -167,15 +167,6 @@ public class Constraint {
     return get(~this.bitSet & ANY_VALUE.bitSet);
   }
 
-  public Truthiness truthiness() {
-    if (isStricterOrEqualTo(TRUTHY)) {
-      return Truthiness.TRUTHY;
-    } else if (isIncompatibleWith(TRUTHY)) {
-      return Truthiness.FALSY;
-    }
-    return Truthiness.UNKNOWN;
-  }
-
   public Type type() {
     return Type.find(this);
   }

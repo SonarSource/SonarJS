@@ -43,10 +43,10 @@ public class SeCheck implements JavaScriptCheck {
   private TreeVisitorContext context;
 
   /**
-   * Override this method to check the truthiness of conditions in current execution (aka function scope).
+   * Override this method to check the constraints on conditions (TRUTHY or FALSY) in current execution (aka function scope).
    * This method is called after end of execution. Note that it's not called if execution was not finished due reaching the execution limit.
    */
-  public void checkConditions(Map<Tree, Collection<Truthiness>> conditions) {
+  public void checkConditions(Map<Tree, Collection<Constraint>> conditions) {
     // do nothing by default
   }
 

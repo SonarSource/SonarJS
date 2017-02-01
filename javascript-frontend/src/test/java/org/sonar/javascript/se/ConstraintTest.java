@@ -24,20 +24,15 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.se.Constraint.ANY_VALUE;
 import static org.sonar.javascript.se.Constraint.ARRAY;
-import static org.sonar.javascript.se.Constraint.BOOLEAN_OBJECT;
 import static org.sonar.javascript.se.Constraint.BOOLEAN_PRIMITIVE;
 import static org.sonar.javascript.se.Constraint.FALSY;
 import static org.sonar.javascript.se.Constraint.FUNCTION;
 import static org.sonar.javascript.se.Constraint.NO_POSSIBLE_VALUE;
 import static org.sonar.javascript.se.Constraint.NULL;
-import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
-import static org.sonar.javascript.se.Constraint.NUMBER_OBJECT;
 import static org.sonar.javascript.se.Constraint.NUMBER_PRIMITIVE;
 import static org.sonar.javascript.se.Constraint.OBJECT;
 import static org.sonar.javascript.se.Constraint.STRING_OBJECT;
 import static org.sonar.javascript.se.Constraint.STRING_PRIMITIVE;
-import static org.sonar.javascript.se.Constraint.TRUTHY;
-import static org.sonar.javascript.se.Constraint.UNDEFINED;
 
 public class ConstraintTest {
 
@@ -55,20 +50,6 @@ public class ConstraintTest {
     assertThat(NO_POSSIBLE_VALUE.and(NULL)).isEqualTo(NO_POSSIBLE_VALUE);
     assertThat(NO_POSSIBLE_VALUE.and(FALSY)).isEqualTo(NO_POSSIBLE_VALUE);
     assertThat(NO_POSSIBLE_VALUE.and(ANY_VALUE)).isEqualTo(NO_POSSIBLE_VALUE);
-  }
-
-  @Test
-  public void truthiness() throws Exception {
-    assertThat(ANY_VALUE.truthiness()).isEqualTo(Truthiness.UNKNOWN);
-    assertThat(NULL.truthiness()).isEqualTo(Truthiness.FALSY);
-    assertThat(UNDEFINED.truthiness()).isEqualTo(Truthiness.FALSY);
-    assertThat(NULL_OR_UNDEFINED.truthiness()).isEqualTo(Truthiness.FALSY);
-    assertThat(FALSY.truthiness()).isEqualTo(Truthiness.FALSY);
-    assertThat(TRUTHY.truthiness()).isEqualTo(Truthiness.TRUTHY);
-    assertThat(FUNCTION.truthiness()).isEqualTo(Truthiness.TRUTHY);
-    assertThat(BOOLEAN_OBJECT.truthiness()).isEqualTo(Truthiness.TRUTHY);
-    assertThat(NUMBER_OBJECT.truthiness()).isEqualTo(Truthiness.TRUTHY);
-    assertThat(STRING_OBJECT.truthiness()).isEqualTo(Truthiness.TRUTHY);
   }
 
   @Test
@@ -125,5 +106,12 @@ public class ConstraintTest {
     assertThat(Constraint.FALSE.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)).isFalse();
 
     assertThat(Constraint.FALSE.isStricterOrEqualTo(Constraint.FALSY)).isTrue();
+
+    assertThat(Constraint.ANY_VALUE.isStricterOrEqualTo(Constraint.TRUTHY)).isFalse();
+    assertThat(Constraint.ANY_VALUE.isStricterOrEqualTo(Constraint.FALSY)).isFalse();
+
+    assertThat(Constraint.NULL_OR_UNDEFINED.isStricterOrEqualTo(Constraint.FALSY)).isTrue();
+    assertThat(Constraint.STRING_OBJECT.isStricterOrEqualTo(Constraint.TRUTHY)).isTrue();
+    assertThat(Constraint.FUNCTION.isStricterOrEqualTo(Constraint.TRUTHY)).isTrue();
   }
 }

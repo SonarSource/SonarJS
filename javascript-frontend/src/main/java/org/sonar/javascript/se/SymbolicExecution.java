@@ -79,7 +79,7 @@ public class SymbolicExecution {
   private final Set<Symbol> functionParameters;
   private final Scope functionScope;
   private final Deque<BlockExecution> workList = new ArrayDeque<>();
-  private final SetMultimap<Tree, Truthiness> conditionResults = HashMultimap.create();
+  private final SetMultimap<Tree, Constraint> conditionResults = HashMultimap.create();
   private final Set<BlockExecution> alreadyProcessed = new HashSet<>();
   private final List<SeCheck> checks;
   private final LiveVariableAnalysis liveVariableAnalysis;
@@ -414,13 +414,13 @@ public class SymbolicExecution {
     Optional<ProgramState> constrainedTruePS = currentState.constrain(conditionSymbolicValue, Constraint.TRUTHY);
     if (constrainedTruePS.isPresent()) {
       pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY, block.branchingTree());
-      conditionResults.put(lastElement, Truthiness.TRUTHY);
+      conditionResults.put(lastElement, Constraint.TRUTHY);
     }
 
     Optional<ProgramState> constrainedFalsePS = currentState.constrain(conditionSymbolicValue, Constraint.FALSY);
     if (constrainedFalsePS.isPresent()) {
       pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY, block.branchingTree());
-      conditionResults.put(lastElement, Truthiness.FALSY);
+      conditionResults.put(lastElement, Constraint.FALSY);
     }
 
     if (!constrainedTruePS.isPresent() && !constrainedFalsePS.isPresent()) {
