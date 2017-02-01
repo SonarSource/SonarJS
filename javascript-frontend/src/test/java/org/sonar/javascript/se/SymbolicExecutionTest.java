@@ -155,15 +155,10 @@ public class SymbolicExecutionTest {
   }
 
   private void runSe(String filename) {
-    JavaScriptVisitorContext context;
-    try {
-      context = createContext(new TestInputFile("src/test/resources/se/", filename));
-      verifier.scanExpectedIssues(context);
-      SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of((SeCheck) verifier));
-      seChecksDispatcher.scanTree(context);
-    } catch (IOException e) {
-      Throwables.propagate(e);
-    }
+    JavaScriptVisitorContext context = createContext(new TestInputFile("src/test/resources/se/", filename));
+    verifier.scanExpectedIssues(context);
+    SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of((SeCheck) verifier));
+    seChecksDispatcher.scanTree(context);
   }
 
   private void verifySE(String filename) {
@@ -172,9 +167,13 @@ public class SymbolicExecutionTest {
     assertThat(verifier.endOfExecution).isTrue();
   }
 
-  public static JavaScriptVisitorContext createContext(InputFile file) throws IOException {
-    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(file.charset()).parse(file.contents());
-    return new JavaScriptVisitorContext(scriptTree, new CompatibleInputFile(file), new MapSettings());
+  public static JavaScriptVisitorContext createContext(InputFile file) {
+    try {
+      ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(file.charset()).parse(file.contents());
+      return new JavaScriptVisitorContext(scriptTree, new CompatibleInputFile(file), new MapSettings());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
 }
