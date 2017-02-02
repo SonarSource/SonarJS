@@ -19,13 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.IOException;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 
 @Rule(key = "TabCharacter")
@@ -35,13 +34,8 @@ public class TabCharacterCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    CompatibleInputFile inputFile = getContext().getCompatibleInputFile();
-    List<String> lines;
-    try {
-      lines = CheckUtils.readLines(inputFile);
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to execute rule \"TabCharacter\" for file " + getContext().getFileName(), e);
-    }
+    JavaScriptFile javaScriptFile = getContext().getFile();
+    List<String> lines = CheckUtils.readLines(javaScriptFile);
 
     for (int i = 0; i < lines.size(); i++) {
       if (lines.get(i).contains("\t")) {

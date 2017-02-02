@@ -19,11 +19,9 @@
  */
 package org.sonar.plugins.javascript.minify;
 
-import java.io.IOException;
 import java.util.List;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.compat.CompatibleInputFile;
-import org.sonar.squidbridge.api.AnalysisException;
 
 /**
  * An instance of this class computes the average line length of file.
@@ -51,20 +49,13 @@ class AverageLineLengthCalculator {
     long nbLines = 0;
     long nbCharacters = 0;
 
-    List<String> lines;
+    List<String> lines = CheckUtils.readLines(file);
 
-    try {
-      lines = CheckUtils.readLines(file);
-
-      for (String line : lines) {
-        if (!isLineInHeaderComment(line)) {
-          nbLines++;
-          nbCharacters += line.length();
-        }
+    for (String line : lines) {
+      if (!isLineInHeaderComment(line)) {
+        nbLines++;
+        nbCharacters += line.length();
       }
-
-    } catch (IOException e) {
-      handleException(e, file);
     }
 
     return nbLines > 0 ? (int) (nbCharacters / nbLines) : 0;
@@ -112,10 +103,6 @@ class AverageLineLengthCalculator {
         return false;
       }
     }
-  }
-
-  private static void handleException(IOException e, CompatibleInputFile file) {
-    throw new AnalysisException("Unable to analyse file: " + file.absolutePath(), e);
   }
 
 }

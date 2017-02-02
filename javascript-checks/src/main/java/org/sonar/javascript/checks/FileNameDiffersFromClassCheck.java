@@ -78,7 +78,7 @@ public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
   @Override
   public void leaveFile(Tree scriptTree) {
     if (isOnlyExport && nameOfExported != null) {
-      String fileName = getContext().getFileName().split("\\.")[0];
+      String fileName = getContext().getFile().path().getFileName().toString().split("\\.")[0];
       if (!"index".equals(fileName) && !nameOfExported.equals(fileName)) {
         addIssue(new FileIssue(this, String.format(MESSAGE, nameOfExported)));
       }

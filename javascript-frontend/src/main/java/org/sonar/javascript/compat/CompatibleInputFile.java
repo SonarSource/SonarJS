@@ -27,13 +27,14 @@ import java.nio.file.Path;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 
 /**
  * A compatibility wrapper for InputFile. See class hierarchy.
  *
  * All methods of this class simply delegate to the wrapped instance, except `wrapped`.
  */
-public class CompatibleInputFile {
+public class CompatibleInputFile implements JavaScriptFile {
   private final InputFile wrapped;
 
   CompatibleInputFile(InputFile wrapped) {
@@ -49,48 +50,60 @@ public class CompatibleInputFile {
     return wrapped;
   }
 
+  @Override
   public String absolutePath() {
     return wrapped.absolutePath();
   }
 
+  @Override
+  public String relativePath() {
+    return wrapped.relativePath();
+  }
+
+  @Override
   public File file() {
     return wrapped.file();
   }
 
+  @Override
   public Path path() {
     return wrapped.path();
   }
 
-  public InputStream inputStream() throws IOException {
-    return wrapped.inputStream();
-  }
-
-  public static class InputFileIOException extends RuntimeException {
-    InputFileIOException(Throwable cause) {
-      super(cause);
+  @Override
+  public InputStream inputStream() {
+    try {
+      return wrapped.inputStream();
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
     }
   }
 
+  @Override
   public String contents() {
     try {
       return wrapped.contents();
     } catch (IOException e) {
-      throw new InputFileIOException(e);
+      throw new IllegalStateException(e);
     }
   }
 
+  @Override
   public TextPointer newPointer(int line, int lineOffset) {
     return wrapped.newPointer(line, lineOffset);
   }
 
+  @Override
   public TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
     return wrapped.newRange(startLine, startLineOffset, endLine, endLineOffset);
   }
 
+  @Override
   public TextRange selectLine(int line) {
     return wrapped.selectLine(line);
   }
 
+  @Override
   public Charset charset() {
     return wrapped.charset();
   }

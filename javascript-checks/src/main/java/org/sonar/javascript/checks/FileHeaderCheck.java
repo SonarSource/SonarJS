@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -27,10 +26,10 @@ import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 
 @Rule(key = "S1451")
 public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
@@ -68,13 +67,8 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     if (expectedLines == null) {
       expectedLines = headerFormat.split("(?:\r)?\n|\r");
     }
-    CompatibleInputFile inputFile = getContext().getCompatibleInputFile();
-    List<String> lines;
-    try {
-      lines = CheckUtils.readLines(inputFile);
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
-    }
+    JavaScriptFile file = getContext().getFile();
+    List<String> lines = CheckUtils.readLines(file);
     if (!matches(expectedLines, lines)) {
       addIssue(new FileIssue(this, MESSAGE));
     }
@@ -88,12 +82,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
         throw new IllegalArgumentException("[" + getClass().getSimpleName() + "] Unable to compile the regular expression: " + headerFormat, e);
       }
     }
-    String fileContent;
-    try {
-      fileContent = getContext().getCompatibleInputFile().contents();
-    } catch (CompatibleInputFile.InputFileIOException e) {
-      throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
-    }
+    String fileContent = getContext().getFile().contents();
 
     Matcher matcher = searchPattern.matcher(fileContent);
     if (!matcher.find() || matcher.start() != 0) {

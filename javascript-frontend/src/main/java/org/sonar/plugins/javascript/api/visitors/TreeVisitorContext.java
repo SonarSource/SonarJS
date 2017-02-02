@@ -20,8 +20,6 @@
 package org.sonar.plugins.javascript.api.visitors;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
@@ -34,23 +32,12 @@ public interface TreeVisitorContext {
   ScriptTree getTopTree();
 
   /**
-   * @return the current InputFile
+   * @return the current file
    */
-  InputFile getInputFile();
-
-  /**
-   * @return the CompatibleInputFile wrapper of the underlying current InputFile
-   */
-  CompatibleInputFile getCompatibleInputFile();
+  JavaScriptFile getFile();
 
   /**
    * @return the symbol model that allows to access the symbols declared in the current file
    */
   SymbolModel getSymbolModel();
-
-  /**
-   * @return The name of the current file
-   */
-  String getFileName();
-
 }

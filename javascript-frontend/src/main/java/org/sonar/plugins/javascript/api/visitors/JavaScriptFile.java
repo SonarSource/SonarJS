@@ -17,37 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.compat;
+package org.sonar.plugins.javascript.api.visitors;
 
-import java.io.IOException;
+import java.io.File;
 import java.io.InputStream;
-import java.nio.file.Files;
-import org.sonar.api.batch.fs.InputFile;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.api.batch.fs.TextRange;
 
-/**
- * Makes the wrapped API 6.0+ InputFile instance compatible with API 6.2,
- * by providing the inputStream() and contents() methods.
- */
-class InputFileV60Compat extends CompatibleInputFile {
-  InputFileV60Compat(InputFile wrapped) {
-    super(wrapped);
-  }
+public interface JavaScriptFile {
 
-  @Override
-  public InputStream inputStream() {
-    try {
-      return Files.newInputStream(this.path());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
-  }
+  String absolutePath();
 
-  @Override
-  public String contents() {
-    try {
-      return new String(Files.readAllBytes(this.path()), this.charset());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
-  }
+  String relativePath();
+
+  File file();
+
+  Path path();
+
+  InputStream inputStream();
+
+  String contents();
+
+  TextPointer newPointer(int line, int lineOffset);
+
+  TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset);
+
+  TextRange selectLine(int line);
+
+  Charset charset();
 }

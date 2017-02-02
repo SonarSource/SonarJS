@@ -48,7 +48,7 @@ public class CpdVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    inputFile = getContext().getCompatibleInputFile();
+    inputFile = (CompatibleInputFile) getContext().getFile();
     cpdTokens = sensorContext.newCpdTokens().onFile(inputFile.wrapped());
     super.visitFile(scriptTree);
   }

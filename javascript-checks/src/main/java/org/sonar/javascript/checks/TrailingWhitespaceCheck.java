@@ -19,15 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.lexer.JavaScriptLexer;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
@@ -43,13 +42,8 @@ public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    CompatibleInputFile inputFile = getContext().getCompatibleInputFile();
-    List<String> lines;
-    try {
-      lines = CheckUtils.readLines(inputFile);
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to execute rule \"TrailingWhitespace\" for file " + getContext().getFileName(), e);
-    }
+    JavaScriptFile javaScriptFile = getContext().getFile();
+    List<String> lines = CheckUtils.readLines(javaScriptFile);
 
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);

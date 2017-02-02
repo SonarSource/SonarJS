@@ -24,6 +24,7 @@ import java.util.List;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -70,7 +71,7 @@ public class HighlighterVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    highlighting = sensorContext.newHighlighting().onFile(getContext().getCompatibleInputFile().wrapped());
+    highlighting = sensorContext.newHighlighting().onFile(((CompatibleInputFile) getContext().getFile()).wrapped());
   }
 
   @Override

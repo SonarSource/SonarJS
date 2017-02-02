@@ -20,7 +20,6 @@
 package org.sonar.javascript.highlighter;
 
 import com.google.common.base.Charsets;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -33,8 +32,6 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.javascript.compat.CompatibilityHelper;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -73,7 +70,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
     visitorContext = mock(TreeVisitorContext.class);
 
     highlighterVisitor = new HighlighterVisitor(sensorContext);
-    when(visitorContext.getCompatibleInputFile()).thenReturn(wrap(inputFile));
+    when(visitorContext.getFile()).thenReturn(wrap(inputFile));
   }
 
   private void highlight(String string) throws Exception {
