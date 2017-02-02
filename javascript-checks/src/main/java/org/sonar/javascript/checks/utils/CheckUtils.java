@@ -132,7 +132,7 @@ public class CheckUtils {
     }
   }
 
-  public static BufferedReader newBufferedReader(CompatibleInputFile inputFile) throws IOException {
+  private static BufferedReader newBufferedReader(CompatibleInputFile inputFile) throws IOException {
     return new BufferedReader(new InputStreamReader(inputFile.inputStream(), inputFile.charset()));
   }
 
