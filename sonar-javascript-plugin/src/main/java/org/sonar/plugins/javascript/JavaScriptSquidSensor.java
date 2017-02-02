@@ -28,7 +28,9 @@ import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -216,7 +219,9 @@ public class JavaScriptSquidSensor implements Sensor {
   private void scanFile(SensorContext sensorContext, CompatibleInputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.settings());
 
-    highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile.wrapped()), context);
+    if (!isSonarLint(sensorContext)) {
+      highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile.wrapped()), context);
+    }
 
     List<Issue> fileIssues = new ArrayList<>();
 
@@ -240,10 +245,8 @@ public class JavaScriptSquidSensor implements Sensor {
       RuleKey ruleKey = ruleKey(issue.check());
       if (issue instanceof FileIssue) {
         saveFileIssue(sensorContext, inputFile, ruleKey, (FileIssue) issue);
-
       } else if (issue instanceof LineIssue) {
         saveLineIssue(sensorContext, inputFile, ruleKey, (LineIssue) issue);
-
       } else {
         savePreciseIssue(sensorContext, inputFile, ruleKey, (PreciseIssue) issue);
       }
@@ -308,20 +311,11 @@ public class JavaScriptSquidSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
+    ContextDependentExecutor executor = createContextDependentExecutor(context);
+
     List<TreeVisitor> treeVisitors = Lists.newArrayList();
-    boolean isAtLeastSq62 = context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2);
-
-    MetricsVisitor metricsVisitor = new MetricsVisitor(
-      context,
-      noSonarFilter,
-      context.settings().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS),
-      fileLinesContextFactory,
-      isAtLeastSq62);
-
-    treeVisitors.add(metricsVisitor);
-    treeVisitors.add(new HighlighterVisitor(context));
+    treeVisitors.addAll(executor.createTreeVisitors());
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
-    treeVisitors.add(new CpdVisitor(context));
     treeVisitors.addAll(checks.visitorChecks());
 
     for (TreeVisitor check : treeVisitors) {
@@ -341,7 +335,70 @@ public class JavaScriptSquidSensor implements Sensor {
 
     analyseFiles(context, treeVisitors, inputFiles, progressReport);
 
-    executeCoverageSensors(context, metricsVisitor.linesOfCode(), isAtLeastSq62);
+    executor.executeCoverageSensors();
+  }
+
+  ContextDependentExecutor createContextDependentExecutor(SensorContext context) {
+    if (isSonarLint(context)) {
+      return new SonarLintContextExecutor();
+    }
+    return new SonarQubeContextExecutor(context, noSonarFilter, fileLinesContextFactory);
+  }
+
+  private interface ContextDependentExecutor {
+    List<TreeVisitor> createTreeVisitors();
+
+    void executeCoverageSensors();
+  }
+
+  private static class SonarQubeContextExecutor implements ContextDependentExecutor {
+    private final SensorContext context;
+    private final NoSonarFilter noSonarFilter;
+    private final FileLinesContextFactory fileLinesContextFactory;
+    private final boolean isAtLeastSq62;
+    private MetricsVisitor metricsVisitor;
+
+    SonarQubeContextExecutor(SensorContext context, NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory) {
+      this.context = context;
+      this.noSonarFilter = noSonarFilter;
+      this.fileLinesContextFactory = fileLinesContextFactory;
+      this.isAtLeastSq62 = context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2);
+    }
+
+    @Override
+    public List<TreeVisitor> createTreeVisitors() {
+      metricsVisitor = new MetricsVisitor(
+        context,
+        noSonarFilter,
+        context.settings().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS),
+        fileLinesContextFactory,
+        isAtLeastSq62);
+      return Arrays.asList(metricsVisitor, new HighlighterVisitor(context), new CpdVisitor(context));
+    }
+
+    @Override
+    public void executeCoverageSensors() {
+      if (metricsVisitor == null) {
+        throw new IllegalStateException("the metrics visitor should have been created (and executed)");
+      }
+      JavaScriptSquidSensor.executeCoverageSensors(context, metricsVisitor.linesOfCode(), isAtLeastSq62);
+    }
+  }
+
+  private static class SonarLintContextExecutor implements ContextDependentExecutor {
+    @Override
+    public List<TreeVisitor> createTreeVisitors() {
+      return Collections.emptyList();
+    }
+
+    @Override
+    public void executeCoverageSensors() {
+      // unnecessary in SonarLint context
+    }
+  }
+
+  private static boolean isSonarLint(SensorContext context) {
+    return context.getSonarQubeVersion().isGreaterThanOrEqual(V6_0) && context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
   private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
@@ -372,7 +429,7 @@ public class JavaScriptSquidSensor implements Sensor {
   private static void logDeprecationForReportProperty(Settings settings, String propertyKey) {
     String value = settings.getString(propertyKey);
     if (value != null && !value.isEmpty()) {
-      LOG.warn("Since SonarQube 6.2 property '"+ propertyKey + "' is deprecated. Use 'sonar.javascript.lcov.reportPaths' instead.");
+      LOG.warn("Since SonarQube 6.2 property '" + propertyKey + "' is deprecated. Use 'sonar.javascript.lcov.reportPaths' instead.");
     }
   }
 
