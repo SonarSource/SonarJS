@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.ControlFlowGraph;
@@ -37,7 +38,6 @@ import org.sonar.javascript.se.sv.InstanceOfSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.ObjectSymbolicValue;
-import org.sonar.javascript.se.sv.PlusSymbolicValue;
 import org.sonar.javascript.se.sv.RelationalSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
@@ -188,7 +188,7 @@ public class ExpressionStack {
         newStack.push(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
         break;
       case OBJECT_LITERAL:
-        popObjectLiteralProperties((ObjectLiteralTree)expression, newStack);
+        popObjectLiteralProperties((ObjectLiteralTree) expression, newStack);
         newStack.push(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
         break;
       case ARRAY_LITERAL:
@@ -200,10 +200,6 @@ public class ExpressionStack {
         newStack.push(new SymbolicValueWithConstraint(Constraint.STRING_PRIMITIVE));
         break;
       case EXPONENT_ASSIGNMENT:
-      case MULTIPLY_ASSIGNMENT:
-      case DIVIDE_ASSIGNMENT:
-      case REMAINDER_ASSIGNMENT:
-      case MINUS_ASSIGNMENT:
       case LEFT_SHIFT_ASSIGNMENT:
       case RIGHT_SHIFT_ASSIGNMENT:
       case UNSIGNED_RIGHT_SHIFT_ASSIGNMENT:
@@ -239,20 +235,21 @@ public class ExpressionStack {
         break;
       case PLUS_ASSIGNMENT:
       case PLUS:
-        newStack.push(new PlusSymbolicValue(newStack.pop(), newStack.pop()));
         break;
       case MINUS:
       case DIVIDE:
       case REMAINDER:
       case MULTIPLY:
+      case MULTIPLY_ASSIGNMENT:
+      case DIVIDE_ASSIGNMENT:
+      case REMAINDER_ASSIGNMENT:
+      case MINUS_ASSIGNMENT:
       case BITWISE_AND:
       case BITWISE_XOR:
       case BITWISE_OR:
       case LEFT_SHIFT:
       case RIGHT_SHIFT:
       case UNSIGNED_RIGHT_SHIFT:
-        pop(newStack, 2);
-        newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
         break;
       case COMMA_OPERATOR:
         SymbolicValue commaResult = newStack.pop();
@@ -425,8 +422,19 @@ public class ExpressionStack {
   }
 
   public ExpressionStack removeLastValue() {
-    Deque<SymbolicValue> newStack = copy();
-    newStack.pop();
+    return apply(Deque::pop);
+  }
+
+  /**
+   * This method allows to perform one or more operations on a copy of the internal stack.
+   * It thus guarantees ExpressionStack immutability.
+   *
+   * @param action the operation to perform on the internal stack
+   * @return a new instance of ExpressionStack containing the copy of the internal stack modified by the operation
+   */
+  public ExpressionStack apply(Consumer<Deque<SymbolicValue>> action) {
+    final Deque<SymbolicValue> newStack = copy();
+    action.accept(newStack);
     return new ExpressionStack(newStack);
   }
 

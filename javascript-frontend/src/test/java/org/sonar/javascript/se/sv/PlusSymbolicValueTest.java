@@ -36,6 +36,11 @@ public class PlusSymbolicValueTest {
     assertThat(plusConstraint(Constraint.TRUTHY_NUMBER_PRIMITIVE, Constraint.NAN)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
     assertThat(plusConstraint(Constraint.TRUTHY_NUMBER_PRIMITIVE, Constraint.BOOLEAN_PRIMITIVE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
     assertThat(plusConstraint(Constraint.TRUTHY_NUMBER_PRIMITIVE, Constraint.TRUTHY)).isEqualTo(Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE));
+    assertThat(plusConstraint(Constraint.ANY_NUMBER, Constraint.UNDEFINED)).isEqualTo(Constraint.NAN);
+    assertThat(plusConstraint(Constraint.UNDEFINED, Constraint.ANY_NUMBER)).isEqualTo(Constraint.NAN);
+    assertThat(plusConstraint(Constraint.UNDEFINED, Constraint.UNDEFINED)).isEqualTo(Constraint.NAN);
+    assertThat(plusConstraint(Constraint.UNDEFINED, Constraint.ANY_BOOLEAN)).isEqualTo(Constraint.NAN);
+    assertThat(plusConstraint(Constraint.UNDEFINED, Constraint.STRING_PRIMITIVE)).isEqualTo(Constraint.STRING_PRIMITIVE);
   }
 
   private Constraint plusConstraint(Constraint constraint1, Constraint constraint2) {

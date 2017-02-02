@@ -33,6 +33,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.impl.SeparatedList;
@@ -67,7 +68,7 @@ public class ArgumentTypesCheck extends SeCheck {
   }
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpression = (CallExpressionTree) element;
 

@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -33,7 +34,7 @@ public class CallabilityCheck extends AbstractAnyPathSeCheck {
   private static final String MESSAGE = "This expression might have a value which cannot be called; it might not be a function.";
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpressionTree = (CallExpressionTree) element;
 

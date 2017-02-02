@@ -26,6 +26,8 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.se.points.BinaryProgramPoint;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -42,13 +44,8 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
 
   private static final String MESSAGE = "Change the expression which uses this operand so that it can't evaluate to \"NaN\" (Not a Number).";
 
-  private static final Constraint NUMBER_OR_BOOLEAN = Constraint.ANY_NUMBER.or(Constraint.ANY_BOOLEAN);
-  private static final Constraint NUMBER_OR_BOOLEAN_OR_UNDEFINED = NUMBER_OR_BOOLEAN.or(Constraint.UNDEFINED);
   private static final Constraint NUMBER_LIKE_OBJECT = Constraint.NUMBER_OBJECT.or(Constraint.BOOLEAN_OBJECT).or(Constraint.DATE);
   private static final Constraint UNDEFINED_OR_NON_NUMBER_OBJECT = Constraint.UNDEFINED.or(Constraint.OBJECT.and(NUMBER_LIKE_OBJECT.not()));
-
-  private final BinaryOperationChecker plusChecker = new PlusChecker();
-  private final BinaryOperationChecker otherBinaryOperationChecker = new OtherBinaryOperationChecker();
 
   private final Set<Symbol> symbolsWithIssues = new HashSet<>();
   private final Set<Tree> operandsWithIssues = new HashSet<>();
@@ -60,22 +57,18 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
   }
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
-    if (element.is(Kind.PLUS, Kind.PLUS_ASSIGNMENT)) {
-
-      checkBinaryOperation(currentState, element, plusChecker);
-
-    } else if (element.is(
-      Kind.MINUS,
-      Kind.MULTIPLY,
-      Kind.DIVIDE,
-      Kind.REMAINDER,
-      Kind.MINUS_ASSIGNMENT,
-      Kind.MULTIPLY_ASSIGNMENT,
-      Kind.DIVIDE_ASSIGNMENT,
-      Kind.REMAINDER_ASSIGNMENT)) {
-
-      checkBinaryOperation(currentState, element, otherBinaryOperationChecker);
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
+    if (programPoint instanceof BinaryProgramPoint) {
+      final BinaryProgramPoint binaryPoint = (BinaryProgramPoint) programPoint;
+      final Constraint resultConstraint = binaryPoint.resultingConstraint(currentState);
+      if (resultConstraint.isStricterOrEqualTo(Constraint.NAN)) {
+        final ExpressionComponents components = new ExpressionComponents(element);
+        if (binaryPoint.firstOperandConstraint().isStricterOrEqualTo(UNDEFINED_OR_NON_NUMBER_OBJECT)) {
+          raiseIssue(components.leftOperand, components.operator, components.rightOperand);
+        } else {
+          raiseIssue(components.rightOperand, components.operator, components.leftOperand);
+        }
+      }
 
     } else if (element.is(
       Kind.UNARY_PLUS,
@@ -109,60 +102,24 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
     }
   }
 
-  private static void checkBinaryOperation(ProgramState currentState, Tree element, BinaryOperationChecker checker) {
-    Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
-    Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
-    ExpressionTree leftOperand;
-    ExpressionTree rightOperand;
-    Tree operator;
-    if (element instanceof AssignmentExpressionTree) {
-      AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
-      leftOperand = assignment.variable();
-      rightOperand = assignment.expression();
-      operator = assignment.operator();
-    } else {
-      BinaryExpressionTree binaryExpression = (BinaryExpressionTree) element;
-      leftOperand = binaryExpression.leftOperand();
-      rightOperand = binaryExpression.rightOperand();
-      operator = binaryExpression.operator();
-    }
-    checker.check(leftConstraint, rightConstraint, leftOperand, rightOperand, operator);
-  }
+  private static class ExpressionComponents {
+    private ExpressionTree leftOperand;
+    private ExpressionTree rightOperand;
+    private Tree operator;
 
-  @FunctionalInterface
-  private interface BinaryOperationChecker {
-
-    void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator);
-
-  }
-
-  private class PlusChecker implements BinaryOperationChecker {
-
-    @Override
-    public void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator) {
-      if (isAdditionWithUndefined(rightConstraint, leftConstraint)) {
-        raiseIssue(leftOperand, operator, rightOperand);
-      } else if (isAdditionWithUndefined(leftConstraint, rightConstraint)) {
-        raiseIssue(rightOperand, operator, leftOperand);
+    public ExpressionComponents(Tree element) {
+      if (element instanceof AssignmentExpressionTree) {
+        AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
+        leftOperand = assignment.variable();
+        rightOperand = assignment.expression();
+        operator = assignment.operator();
+      } else {
+        BinaryExpressionTree binaryExpression = (BinaryExpressionTree) element;
+        leftOperand = binaryExpression.leftOperand();
+        rightOperand = binaryExpression.rightOperand();
+        operator = binaryExpression.operator();
       }
     }
 
-    private boolean isAdditionWithUndefined(Constraint constraint1, Constraint constraint2) {
-      return constraint1.isStricterOrEqualTo(NUMBER_OR_BOOLEAN_OR_UNDEFINED)
-        && constraint2.isStricterOrEqualTo(Constraint.UNDEFINED);
-    }
-
   }
-
-  private class OtherBinaryOperationChecker implements BinaryOperationChecker {
-    @Override
-    public void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator) {
-      if (leftConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_NUMBER_OBJECT)) {
-        raiseIssue(leftOperand, operator, rightOperand);
-      } else if (rightConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_NUMBER_OBJECT)) {
-        raiseIssue(rightOperand, operator, leftOperand);
-      }
-    }
-  }
-
 }

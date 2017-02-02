@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
@@ -36,7 +37,7 @@ abstract class AbstractAllPathSeCheck<T extends Tree> extends SeCheck {
   private Map<T, Boolean> problemMap = new HashMap<>();
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     T tree = getTree(element);
 
     if (tree != null) {

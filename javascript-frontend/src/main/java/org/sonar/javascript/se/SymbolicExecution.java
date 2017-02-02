@@ -33,6 +33,7 @@ import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
@@ -232,7 +233,8 @@ public class SymbolicExecution {
     boolean stopExploring = false;
 
     for (Tree element : block.elements()) {
-      beforeBlockElement(currentState, element);
+      final ProgramPoint programPoint = ProgramPoint.create(element);
+      beforeBlockElement(currentState, element, programPoint);
 
       if (element.is(Kind.RETURN_STATEMENT)) {
         ReturnStatementTree returnStatement = (ReturnStatementTree) element;
@@ -254,6 +256,8 @@ public class SymbolicExecution {
           break;
         }
       }
+
+      currentState = programPoint.execute(currentState);
 
       if (element.is(Kind.IDENTIFIER_REFERENCE) && !isUndefined((IdentifierTree) element)) {
         SymbolicValue symbolicValue = getSymbolicValue(element, currentState);
@@ -298,7 +302,6 @@ public class SymbolicExecution {
         ObjectBindingPatternTree objectBindingPatternTree = (ObjectBindingPatternTree) element;
         List<BindingElementTree> assignedElements = objectBindingPatternTree.elements();
         currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
-
       }
 
       afterBlockElement(currentState, element);
@@ -393,9 +396,9 @@ public class SymbolicExecution {
     return newState;
   }
 
-  private void beforeBlockElement(ProgramState currentState, Tree element) {
+  private void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     for (SeCheck check : checks) {
-      check.beforeBlockElement(currentState, element);
+      check.beforeBlockElement(currentState, element, programPoint);
     }
   }
 

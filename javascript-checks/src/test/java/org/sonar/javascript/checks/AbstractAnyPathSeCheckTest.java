@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -61,7 +62,7 @@ public class AbstractAnyPathSeCheckTest {
   private static class DummyCheck extends AbstractAnyPathSeCheck {
 
     @Override
-    public void beforeBlockElement(ProgramState currentState, Tree element) {
+    public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
       if (element.is(Kind.DOT_MEMBER_EXPRESSION)) {
         addUniqueIssue(element, "DOT_MEMBER_EXPRESSION");
       } else if (element.is(Kind.OBJECT_LITERAL)) {

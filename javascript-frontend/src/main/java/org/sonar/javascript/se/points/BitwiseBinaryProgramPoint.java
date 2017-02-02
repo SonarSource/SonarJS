@@ -17,17 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.se.points;
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
-public class OpenCurlyBracesAtEOLCheckTest {
-
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new OpenCurlyBracesAtEOLCheck(), new File("src/test/resources/checks/openCurlyBracesAtEOL.js"));
+public class BitwiseBinaryProgramPoint extends BinaryProgramPoint {
+  @Override
+  public SymbolicValue resolveValue(Constraint firstOperandConstraint, Constraint secondOperandConstraint, SymbolicValue firstOperandValue, SymbolicValue secondOperandValue) {
+    return new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE);
   }
 
+  public static boolean originatesFrom(Tree element) {
+    return element.is(
+      Tree.Kind.BITWISE_AND,
+      Tree.Kind.BITWISE_XOR,
+      Tree.Kind.BITWISE_OR,
+      Tree.Kind.LEFT_SHIFT,
+      Tree.Kind.RIGHT_SHIFT,
+      Tree.Kind.UNSIGNED_RIGHT_SHIFT);
+  }
 }

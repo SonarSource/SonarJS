@@ -82,3 +82,21 @@ function testGeneralNonRegression() {
   1 < 2;                       // OK
   null > "hello";              // OK
 }
+
+function notANumber() {
+
+  Number.NaN < 42;            // Noncompliant
+
+  NaN < 42;            // Noncompliant
+
+  var array = [3,2];
+  array > 42;                 // Noncompliant
+
+  var obj = {};
+  obj <= 42;                  // Noncompliant
+
+  var undefinedVariable;
+  var nan = undefinedVariable + 42;
+  nan >= 42;                  // Noncompliant
+
+}

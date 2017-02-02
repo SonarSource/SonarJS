@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -34,7 +35,7 @@ public class ValuesNotConvertibleToNumbersCheck extends AbstractAnyPathSeCheck {
   private static final Constraint CONVERTIBLE_TO_NUMBER = Constraint.ANY_NUMBER.or(Constraint.ANY_BOOLEAN).or(Constraint.DATE).or(Constraint.NULL);
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(
       Tree.Kind.LESS_THAN,
       Tree.Kind.LESS_THAN_OR_EQUAL_TO,
@@ -46,11 +47,13 @@ public class ValuesNotConvertibleToNumbersCheck extends AbstractAnyPathSeCheck {
   }
 
   private void check(ProgramState state, BinaryExpressionTree element) {
-    Constraint leftConstraint = state.getConstraint(state.peekStack(1));
-    Constraint rightConstraint = state.getConstraint(state.peekStack(0));
+    final Constraint leftConstraint = state.getConstraint(state.peekStack(1));
+    final Constraint rightConstraint = state.getConstraint(state.peekStack(0));
 
-    boolean leftIsUndefined = leftConstraint.isStricterOrEqualTo(Constraint.UNDEFINED); 
-    boolean rightIsUndefined = rightConstraint.isStricterOrEqualTo(Constraint.UNDEFINED); 
+    final boolean leftIsUndefined = leftConstraint.isStricterOrEqualTo(Constraint.UNDEFINED);
+    final boolean rightIsUndefined = rightConstraint.isStricterOrEqualTo(Constraint.UNDEFINED);
+    final boolean leftIsNan = leftConstraint.isStricterOrEqualTo(Constraint.NAN);
+    final boolean rightIsNan = rightConstraint.isStricterOrEqualTo(Constraint.NAN);
 
     if (checkObjectIsComparedNumerically(leftConstraint, rightConstraint)) {
       raiseIssue(element, true, false, "an Object");
@@ -58,6 +61,8 @@ public class ValuesNotConvertibleToNumbersCheck extends AbstractAnyPathSeCheck {
       raiseIssue(element, false, true, "an Object");
     } else if (leftIsUndefined || rightIsUndefined) {
       raiseIssue(element, leftIsUndefined, rightIsUndefined, "\"undefined\"");
+    } else if (leftIsNan || rightIsNan) {
+      raiseIssue(element, leftIsNan, rightIsNan, "NaN");
     }
   }
   

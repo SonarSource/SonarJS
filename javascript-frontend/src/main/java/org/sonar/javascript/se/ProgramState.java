@@ -101,10 +101,10 @@ public class ProgramState implements ProgramStateConstraints {
 
   public static ProgramState emptyState() {
     return new ProgramState(
-      ImmutableMap.<Symbol, SymbolicValue>of(),
-      ImmutableMap.<SymbolicValue, Constraint>of(),
+      ImmutableMap.of(),
+      ImmutableMap.of(),
       ExpressionStack.emptyStack(),
-      ImmutableSet.<Relation>of(),
+      ImmutableSet.of(),
       0);
   }
 
@@ -280,6 +280,10 @@ public class ProgramState implements ProgramStateConstraints {
     return new ProgramState(values, constraints, stack.execute(expression, this), relations, counter);
   }
 
+  public ProgramState withStack(ExpressionStack newStack) {
+    return new ProgramState(values, constraints, newStack, relations, counter);
+  }
+
   public ProgramState assignment(Symbol variable) {
     SymbolicValue value = stack.peek();
     ExpressionStack newStack = stack;
@@ -322,6 +326,7 @@ public class ProgramState implements ProgramStateConstraints {
       && Objects.equals(functionsBySymbol(), that.functionsBySymbol())
       && Objects.equals(relationsOnSymbols(), that.relationsOnSymbols());
   }
+
   @Override
   public int hashCode() {
     return Objects.hash(constraintsBySymbol(), stack, constraintOnPeek(), relationsOnSymbols(), functionsBySymbol());
@@ -366,8 +371,18 @@ public class ProgramState implements ProgramStateConstraints {
     return new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, relations, counter);
   }
 
+  /**
+   * Temporary method
+   * @deprecated
+   */
+  @Deprecated
+  public ExpressionStack getStack() {
+    return stack;
+  }
+
   @Override
   public String toString() {
     return "[" + values + ";" + constraints + ";" + stack + ";" + relations + "]";
   }
+
 }

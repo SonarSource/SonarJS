@@ -27,6 +27,7 @@ import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -63,7 +64,7 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
   );
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(Kind.DOT_MEMBER_EXPRESSION)) {
       DotMemberExpressionTree memberExpression = (DotMemberExpressionTree) element;
 

@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Type;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
@@ -90,7 +91,7 @@ public class NonNumberInArithmeticExpressionCheck extends AbstractAnyPathSeCheck
   private static final EnumSet<Type> ANY_NUMBER = EnumSet.of(NUMBER_PRIMITIVE, NUMBER_OBJECT);
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(PLUS_KINDS) || element.is(COMPARISON_KINDS) || element.is(ARITHMETIC_KINDS)) {
       checkBinaryOperation(currentState, element);
     }

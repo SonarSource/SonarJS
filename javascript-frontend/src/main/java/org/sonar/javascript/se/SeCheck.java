@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.visitors.Issues;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -55,8 +56,9 @@ public class SeCheck implements JavaScriptCheck {
    * This method is called before each element until end of execution or reaching the execution limit.
    * @param currentState current state at the program point preceding <code>element</code>
    * @param element syntax tree to be executed next
+   * @param programPoint current programPoint associated to the element
    */
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     // do nothing by default
   }
 

@@ -1,3 +1,4 @@
+
 function f1() {
   42 - 7;
   42 - [1,2]; // Noncompliant {{Change the expression which uses this operand so that it can't evaluate to "NaN" (Not a Number).}}
@@ -44,8 +45,16 @@ function f1() {
   undefined + 42; // Noncompliant
   42 + undefined; // Noncompliant
   undefined + true; // Noncompliant
+
   var x = undefined;
   x += 42; // Noncompliant
+
+  var declaredUndefined;
+  declaredUndefined * 42; // Noncompliant
+//^^^^^^^^^^^^^^^^^
+  var anotherUndefined;
+  anotherUndefined + 1; // Noncompliant
+//^^^^^^^^^^^^^^^^
   
   undefined + ""; // ok
   undefined + {}; // ok

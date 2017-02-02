@@ -32,6 +32,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -67,7 +68,7 @@ public class FunctionReturnTypeCheck extends SeCheck {
   }
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(Kind.RETURN_STATEMENT)) {
       ReturnStatementTree returnStatement = (ReturnStatementTree) element;
       if (returnStatement.expression() != null) {
