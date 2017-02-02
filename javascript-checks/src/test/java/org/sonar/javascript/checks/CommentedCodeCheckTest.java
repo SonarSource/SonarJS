@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Charsets;
 import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
@@ -29,7 +28,6 @@ public class CommentedCodeCheckTest {
   @Test
   public void test() {
     CommentedCodeCheck check = new CommentedCodeCheck();
-    check.setCharset(Charsets.UTF_8);
     JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/commentedCode.js"));
   }
 

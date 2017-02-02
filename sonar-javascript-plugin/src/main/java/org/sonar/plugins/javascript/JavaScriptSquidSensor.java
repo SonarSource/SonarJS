@@ -67,7 +67,6 @@ import org.sonar.javascript.highlighter.HighlighterVisitor;
 import org.sonar.javascript.metrics.MetricsVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.SeChecksDispatcher;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -229,10 +228,6 @@ public class JavaScriptSquidSensor implements Sensor {
     List<Issue> fileIssues = new ArrayList<>();
 
     for (TreeVisitor visitor : visitors) {
-      if (visitor instanceof CharsetAwareVisitor) {
-        ((CharsetAwareVisitor) visitor).setCharset(fileSystem.encoding());
-      }
-
       if (visitor instanceof JavaScriptCheck) {
         fileIssues.addAll(((JavaScriptCheck) visitor).scanFile(context));
       } else {
