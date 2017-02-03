@@ -27,6 +27,7 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
@@ -44,6 +45,7 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
   private final ParameterListTree parameters;
   private final BlockTree body;
   private final Kind kind;
+  private Scope scope;
 
   private FunctionDeclarationTreeImpl(
     @Nullable SyntaxToken asyncToken,
@@ -124,5 +126,14 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitFunctionDeclaration(this);
+  }
+
+  @Override
+  public Scope scope() {
+    return scope;
+  }
+
+  public void scope(Scope scope) {
+    this.scope = scope;
   }
 }
