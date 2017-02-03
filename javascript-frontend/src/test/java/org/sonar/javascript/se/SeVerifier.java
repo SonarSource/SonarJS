@@ -78,6 +78,7 @@ class SeVerifier extends SeCheck {
     .put("ARRAY", Constraint.ARRAY)
     .put("DATE", Constraint.DATE)
     .put("REGEXP", Constraint.REGEXP)
+    .put("UNDEFINED_OR_TRUTHY_NUMBER", Constraint.TRUTHY_NUMBER_PRIMITIVE.or(Constraint.UNDEFINED))
     .build();
 
   // line - program state - asserted

@@ -62,9 +62,11 @@ import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
 import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
+import static org.sonar.javascript.se.Constraint.UNDEFINED;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.FUNCTION;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.IMPORT;
@@ -83,6 +85,9 @@ public class SymbolicExecution {
   private final Set<BlockExecution> alreadyProcessed = new HashSet<>();
   private final List<SeCheck> checks;
   private final LiveVariableAnalysis liveVariableAnalysis;
+
+  private Constraint returnConstraint = null;
+  private boolean executionInterrupted = false;
 
   public SymbolicExecution(Scope functionScope, ControlFlowGraph cfg, List<SeCheck> checks) {
     this.cfgStartBlock = cfg.start();
@@ -107,6 +112,7 @@ public class SymbolicExecution {
 
       if (!alreadyProcessed.contains(blockExecution)) {
         if (hasTryBranchingTree(blockExecution.block())) {
+          executionInterrupted = true;
           return;
         }
         execute(blockExecution);
@@ -119,6 +125,29 @@ public class SymbolicExecution {
         check.checkConditions(conditionResults.asMap());
         check.endOfExecution(functionScope);
       }
+
+    } else {
+      executionInterrupted = true;
+    }
+  }
+
+  public Constraint getReturnConstraint() {
+    if (executionInterrupted) {
+      return Constraint.ANY_VALUE;
+
+    } else if (returnConstraint == null) {
+      return Constraint.UNDEFINED;
+
+    } else {
+      return returnConstraint;
+    }
+  }
+
+  private void addReturnConstraint(Constraint constraint) {
+    if (returnConstraint == null) {
+      returnConstraint = constraint;
+    } else {
+      returnConstraint = returnConstraint.or(constraint);
     }
   }
 
@@ -201,6 +230,16 @@ public class SymbolicExecution {
     for (Tree element : block.elements()) {
       beforeBlockElement(currentState, element);
 
+      if (element.is(Kind.RETURN_STATEMENT)) {
+        ReturnStatementTree returnStatement = (ReturnStatementTree) element;
+        if (returnStatement.expression() != null) {
+          addReturnConstraint(currentState.getConstraint(currentState.peekStack()));
+
+        } else {
+          addReturnConstraint(UNDEFINED);
+        }
+      }
+
       if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
         SymbolicValue symbolicValue = getMemberObjectSymbolicValue(currentState, element);
         Optional<ProgramState> constrainedPS = currentState.constrain(symbolicValue, Constraint.NOT_NULLY);
@@ -265,8 +304,22 @@ public class SymbolicExecution {
       }
     }
 
+    checkForImplicitReturn(block);
+
     if (!stopExploring) {
       handleSuccessors(block, currentState);
+    }
+  }
+
+  private void checkForImplicitReturn(CfgBlock block) {
+    boolean blockLeadsToEnd = block.successors().contains(cfg.end());
+    if (blockLeadsToEnd) {
+      List<Tree> elements = block.elements();
+      Tree lastElement = elements.get(elements.size() - 1);
+
+      if (!lastElement.is(Kind.RETURN_STATEMENT)) {
+        addReturnConstraint(Constraint.UNDEFINED);
+      }
     }
   }
 

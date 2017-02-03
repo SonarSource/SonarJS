@@ -154,6 +154,11 @@ public class SymbolicExecutionTest {
     verifySE("arrays.js");
   }
 
+  @Test
+  public void cross_procedure() throws Exception {
+    verifySE("cross_procedure.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new TestInputFile("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);
