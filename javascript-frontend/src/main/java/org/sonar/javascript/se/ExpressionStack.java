@@ -20,6 +20,7 @@
 package org.sonar.javascript.se;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -28,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.InstanceOfSymbolicValue;
@@ -42,6 +44,7 @@ import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.TypeOfSymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -57,6 +60,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
 /**
  * This class stores the stack of symbolic values corresponding to the order of expression evaluation.
@@ -312,6 +316,20 @@ public class ExpressionStack {
     SymbolicValue callee = newStack.pop();
     if (callee instanceof FunctionSymbolicValue) {
       newStack.push(((FunctionSymbolicValue) callee).call(Lists.reverse(argumentConstraints)));
+
+    } else if (callee instanceof FunctionWithTreeSymbolicValue) {
+      FunctionTree functionTreeToExecute = ((FunctionWithTreeSymbolicValue) callee).getFunctionTree();
+      Scope scopeToExecute = functionTreeToExecute.scope();
+      if (!functionTreeToExecute.body().is(Kind.BLOCK)) {
+        pushUnknown(newStack);
+
+      } else {
+        ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTreeToExecute.body());
+        SymbolicExecution symbolicExecution = new SymbolicExecution(scopeToExecute, cfg, ImmutableList.of());
+        symbolicExecution.visitCfg();
+        newStack.push(new SymbolicValueWithConstraint(symbolicExecution.getReturnConstraint()));
+      }
+
     } else {
       pushUnknown(newStack);
     }

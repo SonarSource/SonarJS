@@ -84,6 +84,9 @@ public class SymbolicExecution {
   private final List<SeCheck> checks;
   private final LiveVariableAnalysis liveVariableAnalysis;
 
+  private Constraint returnConstraint = null;
+  private boolean executionInterrupted = false;
+
   public SymbolicExecution(Scope functionScope, ControlFlowGraph cfg, List<SeCheck> checks) {
     this.cfgStartBlock = cfg.start();
     this.cfg = cfg;
@@ -107,6 +110,7 @@ public class SymbolicExecution {
 
       if (!alreadyProcessed.contains(blockExecution)) {
         if (hasTryBranchingTree(blockExecution.block())) {
+          executionInterrupted = true;
           return;
         }
         execute(blockExecution);
@@ -119,6 +123,29 @@ public class SymbolicExecution {
         check.checkConditions(conditionResults.asMap());
         check.endOfExecution(functionScope);
       }
+
+    } else {
+      executionInterrupted = true;
+    }
+  }
+
+  public Constraint getReturnConstraint() {
+    if (executionInterrupted) {
+      return Constraint.ANY_VALUE;
+
+    } else if (returnConstraint == null) {
+      return Constraint.UNDEFINED;
+
+    } else {
+      return returnConstraint;
+    }
+  }
+
+  private void addReturnConstraint(Constraint constraint) {
+    if (returnConstraint == null) {
+      returnConstraint = constraint;
+    } else {
+      returnConstraint = returnConstraint.or(constraint);
     }
   }
 
@@ -200,6 +227,11 @@ public class SymbolicExecution {
 
     for (Tree element : block.elements()) {
       beforeBlockElement(currentState, element);
+
+      if (element.is(Kind.RETURN_STATEMENT)) {
+        Constraint returnValueConstraint = currentState.getConstraint(currentState.peekStack());
+        addReturnConstraint(returnValueConstraint);
+      }
 
       if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
         SymbolicValue symbolicValue = getMemberObjectSymbolicValue(currentState, element);
@@ -350,12 +382,18 @@ public class SymbolicExecution {
 
   private void pushAllSuccessors(CfgBlock block, ProgramState currentState) {
     for (CfgBlock successor : block.successors()) {
-      pushSuccessor(successor, currentState);
+      pushSuccessor(successor, block, currentState);
     }
   }
 
-  private void pushSuccessor(CfgBlock successor, @Nullable ProgramState currentState) {
+  private void pushSuccessor(CfgBlock successor, CfgBlock block, @Nullable ProgramState currentState) {
     if (currentState != null) {
+      List<Tree> elements = block.elements();
+      Tree lastElement = elements.get(elements.size() - 1);
+      if (successor.equals(cfg.end()) && !lastElement.is(Kind.RETURN_STATEMENT)) {
+        addReturnConstraint(Constraint.UNDEFINED);
+      }
+
       Set<Symbol> liveInSymbols = liveVariableAnalysis.getLiveInSymbols(successor);
       workList.addLast(new BlockExecution(successor, currentState.removeSymbols(liveInSymbols)));
     }
@@ -395,7 +433,7 @@ public class SymbolicExecution {
         // FIXME "for-of" iteration over "null" or "undefined" value will raise "TypeError"
         // so this logic should be applied to "for-in" loop only
         if (expressionConstraint.isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
-          pushSuccessor(branchingBlock.falseSuccessor(), currentState);
+          pushSuccessor(branchingBlock.falseSuccessor(), block, currentState);
           shouldPushAllSuccessors = false;
         }
       }
@@ -413,13 +451,13 @@ public class SymbolicExecution {
 
     Optional<ProgramState> constrainedTruePS = currentState.constrain(conditionSymbolicValue, Constraint.TRUTHY);
     if (constrainedTruePS.isPresent()) {
-      pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY, block.branchingTree());
+      pushConditionSuccessor(block.trueSuccessor(), block, constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY, block.branchingTree());
       conditionResults.put(lastElement, Constraint.TRUTHY);
     }
 
     Optional<ProgramState> constrainedFalsePS = currentState.constrain(conditionSymbolicValue, Constraint.FALSY);
     if (constrainedFalsePS.isPresent()) {
-      pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY, block.branchingTree());
+      pushConditionSuccessor(block.falseSuccessor(), block, constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY, block.branchingTree());
       conditionResults.put(lastElement, Constraint.FALSY);
     }
 
@@ -429,7 +467,7 @@ public class SymbolicExecution {
   }
 
   private void pushConditionSuccessor(
-    CfgBlock successor, ProgramState programState, SymbolicValue conditionSymbolicValue, Constraint constraint, Tree branchingTree) {
+    CfgBlock successor, CfgBlock block, ProgramState programState, SymbolicValue conditionSymbolicValue, Constraint constraint, Tree branchingTree) {
 
     ProgramState state = programState;
     if (!successor.elements().isEmpty() && successor.elements().get(0).is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
@@ -443,7 +481,7 @@ public class SymbolicExecution {
         state.assertEmptyStack(branchingTree);
       }
     }
-    pushSuccessor(successor, state);
+    pushSuccessor(successor, block, state);
   }
 
   private ProgramState newSymbolicValue(ProgramState currentState, Tree left) {

@@ -460,6 +460,14 @@
 ],
 'project:ecmascript6/di.js/example/angular-loader/traceur.js':[
 16067,
+18095,
+18230,
+18278,
+18302,
+18357,
+18383,
+18613,
+18834,
 ],
 'project:ecmascript6/di.js/visualize/lib/angular.js':[
 8171,
@@ -583,6 +591,7 @@
 3738,
 ],
 'project:ocanvas-2.2.2.js':[
+227,
 853,
 1077,
 ],
