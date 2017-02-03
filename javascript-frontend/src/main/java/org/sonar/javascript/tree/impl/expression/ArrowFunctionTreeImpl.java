@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -45,6 +46,7 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
   private final SyntaxToken doubleArrow;
   private Tree body;
   private Type functionType;
+  private Scope scope;
 
   public ArrowFunctionTreeImpl(@Nullable SyntaxToken asyncToken, Tree parameters, InternalSyntaxToken doubleArrow, Tree body) {
     this.asyncToken = asyncToken;
@@ -119,5 +121,14 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
   @Override
   public void add(Type type) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Scope scope() {
+    return scope;
+  }
+
+  public void scope(Scope scope) {
+    this.scope = scope;
   }
 }

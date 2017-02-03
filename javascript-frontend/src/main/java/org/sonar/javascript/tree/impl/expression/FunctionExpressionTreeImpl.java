@@ -25,6 +25,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -46,6 +47,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   private final BlockTreeImpl body;
   private final Kind kind;
   private Type functionType;
+  private Scope scope;
 
   private FunctionExpressionTreeImpl(
     @Nullable SyntaxToken asyncToken,
@@ -140,5 +142,14 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   @Override
   public void add(Type type) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Scope scope() {
+    return scope;
+  }
+
+  public void scope(Scope scope) {
+    this.scope = scope;
   }
 }
