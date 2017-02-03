@@ -21,7 +21,6 @@ package org.sonar.javascript.compat;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import org.sonar.api.batch.fs.InputFile;
@@ -50,7 +49,15 @@ public class CompatibleInputFile implements JavaScriptFile {
     return wrapped;
   }
 
+  public Path path() {
+    return wrapped.path();
+  }
+
   @Override
+  public String fileName() {
+    return path().getFileName().toString();
+  }
+
   public String absolutePath() {
     return wrapped.absolutePath();
   }
@@ -58,25 +65,6 @@ public class CompatibleInputFile implements JavaScriptFile {
   @Override
   public String relativePath() {
     return wrapped.relativePath();
-  }
-
-  @Override
-  public File file() {
-    return wrapped.file();
-  }
-
-  @Override
-  public Path path() {
-    return wrapped.path();
-  }
-
-  @Override
-  public InputStream inputStream() {
-    try {
-      return wrapped.inputStream();
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
   }
 
   @Override
@@ -88,22 +76,22 @@ public class CompatibleInputFile implements JavaScriptFile {
     }
   }
 
-  @Override
+  public File file() {
+    return wrapped.file();
+  }
+
   public TextPointer newPointer(int line, int lineOffset) {
     return wrapped.newPointer(line, lineOffset);
   }
 
-  @Override
   public TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
     return wrapped.newRange(startLine, startLineOffset, endLine, endLineOffset);
   }
 
-  @Override
   public TextRange selectLine(int line) {
     return wrapped.selectLine(line);
   }
 
-  @Override
   public Charset charset() {
     return wrapped.charset();
   }

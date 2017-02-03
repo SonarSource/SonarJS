@@ -19,32 +19,14 @@
  */
 package org.sonar.plugins.javascript.api.visitors;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
-import org.sonar.api.batch.fs.TextPointer;
-import org.sonar.api.batch.fs.TextRange;
-
 public interface JavaScriptFile {
-
-  String absolutePath();
 
   String relativePath();
 
-  File file();
-
-  Path path();
-
-  InputStream inputStream();
+  /**
+   * File name with extension
+   */
+  String fileName();
 
   String contents();
-
-  TextPointer newPointer(int line, int lineOffset);
-
-  TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset);
-
-  TextRange selectLine(int line);
-
-  Charset charset();
 }

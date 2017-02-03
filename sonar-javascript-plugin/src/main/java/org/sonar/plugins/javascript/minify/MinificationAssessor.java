@@ -54,12 +54,12 @@ public class MinificationAssessor {
   }
 
   private static boolean hasMinifiedFileName(CompatibleInputFile file) {
-    String fileName = file.path().getFileName().toString();
+    String fileName = file.fileName();
     return fileName.endsWith("-min.js") || fileName.endsWith(".min.js");
   }
 
   private static boolean isJavaScriptFile(CompatibleInputFile file) {
-    return file.path().getFileName().toString().endsWith(".js");
+    return file.fileName().endsWith(".js");
   }
 
   private boolean hasExcessiveAverageLineLength(CompatibleInputFile file) {

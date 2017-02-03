@@ -20,7 +20,6 @@
 package org.sonar.javascript.compat;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import org.sonar.api.batch.fs.InputFile;
 
@@ -31,15 +30,6 @@ import org.sonar.api.batch.fs.InputFile;
 class InputFileV60Compat extends CompatibleInputFile {
   InputFileV60Compat(InputFile wrapped) {
     super(wrapped);
-  }
-
-  @Override
-  public InputStream inputStream() {
-    try {
-      return Files.newInputStream(this.path());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
   }
 
   @Override
