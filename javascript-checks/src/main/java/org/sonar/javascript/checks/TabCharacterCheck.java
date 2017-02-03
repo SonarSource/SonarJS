@@ -34,7 +34,7 @@ public class TabCharacterCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    JavaScriptFile javaScriptFile = getContext().getFile();
+    JavaScriptFile javaScriptFile = getContext().getJavaScriptFile();
     List<String> lines = CheckUtils.readLines(javaScriptFile);
 
     for (int i = 0; i < lines.size(); i++) {

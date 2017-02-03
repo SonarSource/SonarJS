@@ -71,7 +71,7 @@ public class HighlighterVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    highlighting = sensorContext.newHighlighting().onFile(((CompatibleInputFile) getContext().getFile()).wrapped());
+    highlighting = sensorContext.newHighlighting().onFile(((CompatibleInputFile) getContext().getJavaScriptFile()).wrapped());
   }
 
   @Override

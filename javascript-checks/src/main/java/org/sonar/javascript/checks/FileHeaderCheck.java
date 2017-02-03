@@ -67,7 +67,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     if (expectedLines == null) {
       expectedLines = headerFormat.split("(?:\r)?\n|\r");
     }
-    JavaScriptFile file = getContext().getFile();
+    JavaScriptFile file = getContext().getJavaScriptFile();
     List<String> lines = CheckUtils.readLines(file);
     if (!matches(expectedLines, lines)) {
       addIssue(new FileIssue(this, MESSAGE));
@@ -82,7 +82,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
         throw new IllegalArgumentException("[" + getClass().getSimpleName() + "] Unable to compile the regular expression: " + headerFormat, e);
       }
     }
-    String fileContent = getContext().getFile().contents();
+    String fileContent = getContext().getJavaScriptFile().contents();
 
     Matcher matcher = searchPattern.matcher(fileContent);
     if (!matcher.find() || matcher.start() != 0) {

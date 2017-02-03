@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.visitors;
 
+import java.io.File;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
@@ -47,12 +48,17 @@ public class JavaScriptVisitorContext implements TreeVisitorContext {
   }
 
   @Override
-  public JavaScriptFile getFile() {
+  public JavaScriptFile getJavaScriptFile() {
     return compatibleInputFile;
   }
 
   @Override
   public SymbolModel getSymbolModel() {
     return symbolModel;
+  }
+
+  @Override
+  public File getFile() {
+    return compatibleInputFile.file();
   }
 }

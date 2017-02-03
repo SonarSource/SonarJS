@@ -111,7 +111,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    this.inputFile = ((CompatibleInputFile) getContext().getFile()).wrapped();
+    this.inputFile = ((CompatibleInputFile) getContext().getJavaScriptFile()).wrapped();
     init();
   }
 

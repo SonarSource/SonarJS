@@ -42,7 +42,7 @@ public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    JavaScriptFile javaScriptFile = getContext().getFile();
+    JavaScriptFile javaScriptFile = getContext().getJavaScriptFile();
     List<String> lines = CheckUtils.readLines(javaScriptFile);
 
     for (int i = 0; i < lines.size(); i++) {

@@ -70,7 +70,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
     visitorContext = mock(TreeVisitorContext.class);
 
     highlighterVisitor = new HighlighterVisitor(sensorContext);
-    when(visitorContext.getFile()).thenReturn(wrap(inputFile));
+    when(visitorContext.getJavaScriptFile()).thenReturn(wrap(inputFile));
   }
 
   private void highlight(String string) throws Exception {

@@ -51,7 +51,7 @@ public class TooManyLinesInFileCheck extends SubscriptionVisitorCheck {
     int lines = token.line();
 
     if (lines > maximum) {
-      String fileName = getContext().getFile().fileName();
+      String fileName = getContext().getJavaScriptFile().fileName();
       addIssue(new FileIssue(this, String.format(MESSAGE, fileName, lines, maximum)));
     }
   }
