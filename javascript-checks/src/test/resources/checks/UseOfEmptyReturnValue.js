@@ -11,7 +11,11 @@ function main() {
 //    ^^^^^^^^
   var x = noReturn(); // Noncompliant
   foo(noReturn()); // Noncompliant
-  noReturn().method(); // Noncompliant
+
+  if (condition) {
+    noReturn().method(); // Noncompliant
+  }
+
   for (var x in noReturn()) { }// Noncompliant
   for (var x of noReturn()) { }// Noncompliant
 

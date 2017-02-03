@@ -34,6 +34,10 @@
 389,
 550,
 ],
+'project:dojo-1.8.1/dojox/charting/plot2d/CartesianBase.js.uncompressed.js':[
+46,
+72,
+],
 'project:dojo-1.8.1/dojox/data/ClientFilter.js.uncompressed.js':[
 112,
 ],
@@ -158,6 +162,8 @@
 ],
 'project:ecmascript6/di.js/visualize/lib/d3.v3.js':[
 2981,
+4195,
+4918,
 8002,
 8010,
 8049,
