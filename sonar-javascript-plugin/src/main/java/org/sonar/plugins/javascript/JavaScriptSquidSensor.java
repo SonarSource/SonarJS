@@ -124,7 +124,8 @@ public class JavaScriptSquidSensor implements Sensor {
     this.mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
-    this.parser = JavaScriptParserBuilder.createParser(getEncoding());
+    // we can pass any charset, it's not used. To parse file, we use sting content of it.
+    this.parser = JavaScriptParserBuilder.createParser(Charset.defaultCharset());
   }
 
   @VisibleForTesting
@@ -148,10 +149,6 @@ public class JavaScriptSquidSensor implements Sensor {
     } finally {
       stopProgressReport(progressReport, success);
     }
-  }
-
-  private Charset getEncoding() {
-    return fileSystem.encoding();
   }
 
   private static void stopProgressReport(ProgressReport progressReport, boolean success) {
