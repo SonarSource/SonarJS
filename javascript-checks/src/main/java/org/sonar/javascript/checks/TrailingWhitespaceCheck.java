@@ -19,30 +19,21 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Files;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.lexer.JavaScriptLexer;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 @Rule(key = "TrailingWhitespace")
-public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck implements CharsetAwareVisitor {
+public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove the useless trailing whitespaces at the end of this line.";
-
-  private Charset charset;
-
-  @Override
-  public void setCharset(Charset charset) {
-    this.charset = charset;
-  }
 
   @Override
   public List<Tree.Kind> nodesToVisit() {
@@ -51,15 +42,8 @@ public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck implements
 
   @Override
   public void visitFile(Tree scriptTree) {
-    List<String> lines = Collections.emptyList();
-
-    try {
-      lines = Files.readLines(getContext().getFile(), charset);
-
-    } catch (IOException e) {
-      String fileName = getContext().getFile().getName();
-      throw new IllegalStateException("Unable to execute rule \"TrailingWhitespace\" for file " + fileName, e);
-    }
+    JavaScriptFile javaScriptFile = getContext().getJavaScriptFile();
+    List<String> lines = CheckUtils.readLines(javaScriptFile);
 
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);

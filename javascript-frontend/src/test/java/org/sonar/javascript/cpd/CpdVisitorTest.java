@@ -21,33 +21,30 @@ package org.sonar.javascript.cpd;
 
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.internal.google.common.io.Files;
 import org.sonar.duplications.internal.pmd.TokensLine;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class CpdVisitorTest {
 
   private static final Charset CHARSET = Charsets.UTF_8;
 
-  private final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(CHARSET);
+  private final ActionParser<Tree> p = JavaScriptParserBuilder.createParser();
 
   private DefaultInputFile inputFile;
   private SensorContextTester sensorContext;
@@ -58,7 +55,7 @@ public class CpdVisitorTest {
   @Test
   public void test() throws Exception {
     scan("var x = 'a' + 1 + 'line1';\nvar y = 2;\n");
-    List<TokensLine> cpdTokenLines = sensorContext.cpdTokens("moduleKey:" + inputFile.file().getName());
+    List<TokensLine> cpdTokenLines = sensorContext.cpdTokens("module1:" + inputFile.relativePath());
     assertThat(cpdTokenLines).hasSize(2);
     TokensLine firstTokensLine = cpdTokenLines.get(0);
     assertThat(firstTokensLine.getValue()).isEqualTo("varx=LITERAL+1+LITERAL;");
@@ -76,21 +73,12 @@ public class CpdVisitorTest {
   }
 
   private void scan(String source) throws IOException {
-    File file = tempFolder.newFile();
-    Files.write(source, file, CHARSET);
-
-    DefaultFileSystem fileSystem = new DefaultFileSystem(file.getParentFile());
-    fileSystem.setEncoding(CHARSET);
-    inputFile = new DefaultInputFile("moduleKey", file.getName())
-      .setLanguage("js")
-      .setType(Type.MAIN)
-      .initMetadata(new FileMetadata().readMetadata(file, CHARSET));
-    fileSystem.add(inputFile);
+    inputFile = new TestInputFile(tempFolder.newFile(), source, CHARSET);
 
     sensorContext = SensorContextTester.create(tempFolder.getRoot().toPath());
-    CpdVisitor cpdVisitor = new CpdVisitor(fileSystem, sensorContext);
-    ScriptTree tree = (ScriptTree)p.parse(file);
-    TreeVisitorContext visitorContext = new JavaScriptVisitorContext(tree, file, null);
+    CpdVisitor cpdVisitor = new CpdVisitor(sensorContext);
+    ScriptTree tree = (ScriptTree) p.parse(source);
+    TreeVisitorContext visitorContext = new JavaScriptVisitorContext(tree, wrap(inputFile), null);
     cpdVisitor.scanTree(visitorContext);
   }
 

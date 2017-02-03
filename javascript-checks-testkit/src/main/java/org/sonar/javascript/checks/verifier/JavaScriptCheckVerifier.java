@@ -26,6 +26,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.checks.verifier.TestIssue.Location;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.SeChecksDispatcher;
@@ -101,6 +103,10 @@ public class JavaScriptCheckVerifier {
    * </pre>
    */
   public static void verify(JavaScriptCheck check, File file) {
+    verify(check, new TestInputFile(file.getAbsolutePath()));
+  }
+
+  static void verify(JavaScriptCheck check, InputFile file) {
     JavaScriptVisitorContext context = TestUtils.createContext(file);
 
     List<TestIssue> expectedIssues = ExpectedIssuesParser.parseExpectedIssues(context);
@@ -142,7 +148,7 @@ public class JavaScriptCheckVerifier {
       assertThat(message(actual)).as("Bad message at line " + expected.line()).isEqualTo(expected.message());
     }
     if (expected.effortToFix() != null) {
-      assertThat(actual.cost()).as("Bad effortToFix at line " + expected.line()).isEqualTo((double)expected.effortToFix());
+      assertThat(actual.cost()).as("Bad effortToFix at line " + expected.line()).isEqualTo((double) expected.effortToFix());
     }
     if (expected.startColumn() != null) {
       assertThat(((PreciseIssue) actual).primaryLocation().startLineOffset() + 1).as("Bad start column at line " + expected.line()).isEqualTo(expected.startColumn());
@@ -162,7 +168,7 @@ public class JavaScriptCheckVerifier {
     List<Location> expectedLocations = expectedIssue.secondaryLocations();
     List<IssueLocation> actualLocations = actualIssue instanceof PreciseIssue ? ((PreciseIssue) actualIssue).secondaryLocations() : new ArrayList<>();
 
-    String format = "Bad secondary location at line %s (issue at line %s): %s" ;
+    String format = "Bad secondary location at line %s (issue at line %s): %s";
 
     for (Location expected : expectedLocations) {
       IssueLocation actual = secondary(expected.line(), actualLocations);
@@ -183,7 +189,7 @@ public class JavaScriptCheckVerifier {
 
     if (!actualLocations.isEmpty()) {
       IssueLocation location = actualLocations.get(0);
-      throw new AssertionError("Unexpected secondary location at line " + location.startLine() + " for issue at line " + line(actualIssue) );
+      throw new AssertionError("Unexpected secondary location at line " + location.startLine() + " for issue at line " + line(actualIssue));
     }
   }
 

@@ -19,12 +19,15 @@
  */
 package org.sonar.plugins.javascript.minify;
 
-import java.io.File;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
+
+import java.nio.file.Paths;
 
 public class AverageLineLengthCalculatorTest {
 
@@ -69,8 +72,10 @@ public class AverageLineLengthCalculatorTest {
   }
 
   private void check(String fileName, int expectedAverage) {
-    File file = new File(DIR + fileName);
-    AverageLineLengthCalculator calc = new AverageLineLengthCalculator(file, Charset.defaultCharset());
+    DefaultInputFile file = new DefaultInputFile("module", DIR + fileName);
+    file.setModuleBaseDir(Paths.get(""));
+    file.setCharset(StandardCharsets.UTF_8);
+    AverageLineLengthCalculator calc = new AverageLineLengthCalculator(wrap(file));
     assertThat(calc.getAverageLineLength()).isEqualTo(expectedAverage);
   }
 

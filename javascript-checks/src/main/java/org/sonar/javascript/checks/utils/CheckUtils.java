@@ -19,7 +19,12 @@
  */
 package org.sonar.javascript.checks.utils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.KindSet;
@@ -32,6 +37,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 
 public class CheckUtils {
   
@@ -118,6 +124,19 @@ public class CheckUtils {
       ancestor = parent(ancestor);
     }
     return null;
+  }
+
+  public static List<String> readLines(JavaScriptFile file) {
+    try (BufferedReader reader = newBufferedReader(file)) {
+      return reader.lines().collect(Collectors.toList());
+
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to read file " + file.relativePath(), e);
+    }
+  }
+
+  private static BufferedReader newBufferedReader(JavaScriptFile file) {
+    return new BufferedReader(new StringReader(file.contents()));
   }
 
 }

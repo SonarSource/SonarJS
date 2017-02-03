@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Charsets;
 import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
@@ -106,7 +105,6 @@ public class FileHeaderCheckTest {
   private static JavaScriptCheck checkWithRegex(String pattern) {
     FileHeaderCheck check = new FileHeaderCheck();
     check.isRegularExpression = true;
-    check.setCharset(Charsets.UTF_8);
     check.headerFormat = pattern;
     return check;
   }
@@ -114,7 +112,6 @@ public class FileHeaderCheckTest {
   private static JavaScriptCheck checkPlainText(String format) {
     FileHeaderCheck check = new FileHeaderCheck();
     check.isRegularExpression = false;
-    check.setCharset(Charsets.UTF_8);
     check.headerFormat = format;
     return check;
   }

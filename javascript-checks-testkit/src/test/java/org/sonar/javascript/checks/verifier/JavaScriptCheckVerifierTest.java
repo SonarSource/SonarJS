@@ -20,9 +20,8 @@
 package org.sonar.javascript.checks.verifier;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +32,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.javascript.checks.verifier.TestIssue.Location;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -387,8 +388,9 @@ public class JavaScriptCheckVerifierTest {
 
   private void check(String sourceCode, TestIssue... actualIssues) throws Exception {
     JavaScriptCheck check = new CheckStub(Arrays.asList(actualIssues));
-    File fakeFile = folder.newFile("fakeFile.txt");
-    Files.write(sourceCode, fakeFile, StandardCharsets.UTF_8);
+    DefaultInputFile fakeFile = new TestInputFile(folder.getRoot(), "fakeFile.txt");
+    fakeFile.setCharset(StandardCharsets.UTF_8);
+    Files.write(fakeFile.path(), sourceCode.getBytes(fakeFile.charset()));
     JavaScriptCheckVerifier.verify(check, fakeFile);
   }
 

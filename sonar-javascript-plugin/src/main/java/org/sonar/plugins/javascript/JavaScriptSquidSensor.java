@@ -27,12 +27,14 @@ import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.io.InterruptedIOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -55,13 +57,13 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.cpd.CpdVisitor;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
 import org.sonar.javascript.metrics.MetricsVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.SeChecksDispatcher;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -81,6 +83,8 @@ import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
 import org.sonar.plugins.javascript.minify.MinificationAssessor;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
+
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class JavaScriptSquidSensor implements Sensor {
 
@@ -117,19 +121,19 @@ public class JavaScriptSquidSensor implements Sensor {
     this.mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
-    this.parser = JavaScriptParserBuilder.createParser(getEncoding());
+    this.parser = JavaScriptParserBuilder.createParser();
   }
 
   @VisibleForTesting
-  protected void analyseFiles(SensorContext context, List<TreeVisitor> treeVisitors, Iterable<InputFile> inputFiles, ProgressReport progressReport) {
+  protected void analyseFiles(SensorContext context, List<TreeVisitor> treeVisitors, Iterable<CompatibleInputFile> inputFiles, ProgressReport progressReport) {
     boolean success = false;
     try {
-      for (InputFile inputFile : inputFiles) {
+      for (CompatibleInputFile inputFile : inputFiles) {
         // check for cancellation of the analysis (by SonarQube or SonarLint). See SONARJS-761.
         if (context.getSonarQubeVersion().isGreaterThanOrEqual(V6_0) && context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
-        if (!isExcluded(inputFile.file())) {
+        if (!isExcluded(inputFile)) {
           analyse(context, inputFile, treeVisitors);
         }
         progressReport.nextFile();
@@ -142,10 +146,6 @@ public class JavaScriptSquidSensor implements Sensor {
       stopProgressReport(progressReport, success);
     }
   }
-  
-  private Charset getEncoding() {
-    return fileSystem.encoding();
-  }
 
   private static void stopProgressReport(ProgressReport progressReport, boolean success) {
     if (success) {
@@ -155,25 +155,22 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void analyse(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors) {
+  private void analyse(SensorContext sensorContext, CompatibleInputFile inputFile, List<TreeVisitor> visitors) {
     ScriptTree scriptTree;
 
     try {
-      scriptTree = (ScriptTree) parser.parse(new java.io.File(inputFile.absolutePath()));
+      scriptTree = (ScriptTree) parser.parse(inputFile.contents());
       scanFile(sensorContext, inputFile, visitors, scriptTree);
-
     } catch (RecognitionException e) {
       checkInterrupted(e);
       LOG.error("Unable to parse file: " + inputFile.absolutePath());
       LOG.error(e.getMessage());
       processRecognitionException(e, sensorContext, inputFile);
-
     } catch (Exception e) {
       checkInterrupted(e);
       processException(e, sensorContext, inputFile);
       throw new AnalysisException("Unable to analyse file: " + inputFile.absolutePath(), e);
     }
-
   }
 
   private static void checkInterrupted(Exception e) {
@@ -183,13 +180,13 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void processRecognitionException(RecognitionException e, SensorContext sensorContext, InputFile inputFile) {
+  private void processRecognitionException(RecognitionException e, SensorContext sensorContext, CompatibleInputFile inputFile) {
     if (parsingErrorRuleKey != null) {
       NewIssue newIssue = sensorContext.newIssue();
 
       NewIssueLocation primaryLocation = newIssue.newLocation()
         .message(e.getMessage())
-        .on(inputFile)
+        .on(inputFile.wrapped())
         .at(inputFile.selectLine(e.getLine()));
 
       newIssue
@@ -200,46 +197,39 @@ public class JavaScriptSquidSensor implements Sensor {
 
     if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
       sensorContext.newAnalysisError()
-        .onFile(inputFile)
+        .onFile(inputFile.wrapped())
         .at(inputFile.newPointer(e.getLine(), 0))
         .message(e.getMessage())
         .save();
     }
   }
 
-  private static void processException(Exception e, SensorContext sensorContext, InputFile inputFile) {
+  private static void processException(Exception e, SensorContext sensorContext, CompatibleInputFile inputFile) {
     if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
       sensorContext.newAnalysisError()
-      .onFile(inputFile)
-      .message(e.getMessage())
-      .save();
+        .onFile(inputFile.wrapped())
+        .message(e.getMessage())
+        .save();
     }
   }
 
-  private void scanFile(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
-    JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile.file(), sensorContext.settings());
+  private void scanFile(SensorContext sensorContext, CompatibleInputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
+    JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.settings());
 
-    highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile), context);
+    highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile.wrapped()), context);
 
     List<Issue> fileIssues = new ArrayList<>();
 
     for (TreeVisitor visitor : visitors) {
-      if (visitor instanceof CharsetAwareVisitor) {
-        ((CharsetAwareVisitor) visitor).setCharset(fileSystem.encoding());
-      }
-
       if (visitor instanceof JavaScriptCheck) {
         fileIssues.addAll(((JavaScriptCheck) visitor).scanFile(context));
-
       } else {
         visitor.scanTree(context);
       }
-
     }
 
-    saveFileIssues(sensorContext, fileIssues, inputFile);
+    saveFileIssues(sensorContext, fileIssues, inputFile.wrapped());
   }
-
 
   private static void highlightSymbols(NewSymbolTable newSymbolTable, TreeVisitorContext context) {
     HighlightSymbolTableBuilder.build(newSymbolTable, context);
@@ -255,7 +245,7 @@ public class JavaScriptSquidSensor implements Sensor {
         saveLineIssue(sensorContext, inputFile, ruleKey, (LineIssue) issue);
 
       } else {
-        savePreciseIssue(sensorContext, inputFile, ruleKey, (PreciseIssue)issue);
+        savePreciseIssue(sensorContext, inputFile, ruleKey, (PreciseIssue) issue);
       }
     }
   }
@@ -277,7 +267,6 @@ public class JavaScriptSquidSensor implements Sensor {
     newIssue.save();
   }
 
-
   private static NewIssueLocation newLocation(InputFile inputFile, NewIssue issue, IssueLocation location) {
     TextRange range = inputFile.newRange(
       location.startLine(), location.startLineOffset(), location.endLine(), location.endLineOffset());
@@ -292,7 +281,6 @@ public class JavaScriptSquidSensor implements Sensor {
     return newLocation;
   }
 
-
   private RuleKey ruleKey(JavaScriptCheck check) {
     Preconditions.checkNotNull(check);
     RuleKey ruleKey = checks.ruleKeyFor(check);
@@ -302,10 +290,10 @@ public class JavaScriptSquidSensor implements Sensor {
     return ruleKey;
   }
 
-  public boolean isExcluded(File file) {
-    boolean isMinified = new MinificationAssessor(getEncoding()).isMinified(file);
+  public boolean isExcluded(CompatibleInputFile file) {
+    boolean isMinified = new MinificationAssessor().isMinified(file);
     if (isMinified) {
-      LOG.debug("File [" + file.getAbsolutePath() + "] looks like a minified file and will not be analyzed");
+      LOG.debug("File [" + file.absolutePath() + "] looks like a minified file and will not be analyzed");
     }
     return isMinified;
   }
@@ -331,9 +319,9 @@ public class JavaScriptSquidSensor implements Sensor {
       isAtLeastSq62);
 
     treeVisitors.add(metricsVisitor);
-    treeVisitors.add(new HighlighterVisitor(context, fileSystem));
+    treeVisitors.add(new HighlighterVisitor(context));
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
-    treeVisitors.add(new CpdVisitor(fileSystem, context));
+    treeVisitors.add(new CpdVisitor(context));
     treeVisitors.addAll(checks.visitorChecks());
 
     for (TreeVisitor check : treeVisitors) {
@@ -343,10 +331,15 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
-    progressReport.start(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
+    Iterable<CompatibleInputFile> inputFiles = wrap(fileSystem.inputFiles(mainFilePredicate), context);
+    Collection<File> files = StreamSupport.stream(inputFiles.spliterator(), false)
+      .map(CompatibleInputFile::file)
+      .collect(Collectors.toList());
 
-    analyseFiles(context, treeVisitors, fileSystem.inputFiles(mainFilePredicate), progressReport);
+    ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
+    progressReport.start(files);
+
+    analyseFiles(context, treeVisitors, inputFiles, progressReport);
 
     executeCoverageSensors(context, metricsVisitor.linesOfCode(), isAtLeastSq62);
   }

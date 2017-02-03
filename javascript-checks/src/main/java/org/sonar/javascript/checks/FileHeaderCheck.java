@@ -19,22 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Files;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 
 @Rule(key = "S1451")
-public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
+public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add or update the header of this file.";
   private static final String DEFAULT_HEADER_FORMAT = "";
@@ -52,14 +50,8 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements Chars
     defaultValue = "false")
   public boolean isRegularExpression = false;
 
-  private Charset charset;
   private String[] expectedLines = null;
   private Pattern searchPattern = null;
-
-  @Override
-  public void setCharset(Charset charset) {
-    this.charset = charset;
-  }
 
   @Override
   public void visitScript(ScriptTree tree) {
@@ -75,13 +67,8 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements Chars
     if (expectedLines == null) {
       expectedLines = headerFormat.split("(?:\r)?\n|\r");
     }
-    List<String> lines;
-    try {
-      lines = Files.readLines(getContext().getFile(), charset);
-    } catch (IOException e) {
-      String fileName = getContext().getFile().getName();
-      throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + fileName, e);
-    }
+    JavaScriptFile file = getContext().getJavaScriptFile();
+    List<String> lines = CheckUtils.readLines(file);
     if (!matches(expectedLines, lines)) {
       addIssue(new FileIssue(this, MESSAGE));
     }
@@ -95,13 +82,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements Chars
         throw new IllegalArgumentException("[" + getClass().getSimpleName() + "] Unable to compile the regular expression: " + headerFormat, e);
       }
     }
-    String fileContent;
-    try {
-      fileContent = Files.toString(getContext().getFile(), charset);
-    } catch (IOException e) {
-      String fileName = getContext().getFile().getName();
-      throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + fileName, e);
-    }
+    String fileContent = getContext().getJavaScriptFile().contents();
 
     Matcher matcher = searchPattern.matcher(fileContent);
     if (!matcher.find() || matcher.start() != 0) {

@@ -17,35 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.visitors;
+package org.sonar.javascript.checks.verifier;
 
-import com.google.common.annotations.Beta;
 import java.io.File;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
-@Beta
-public interface TreeVisitorContext {
+public class TestInputFile extends DefaultInputFile {
+  public TestInputFile(String relativePath) {
+    this("", relativePath);
+  }
 
-  /**
-   * @return the top tree node of the current file AST representation.
-   */
-  ScriptTree getTopTree();
+  public TestInputFile(String baseDir, String relativePath) {
+    super("module1", relativePath);
+    this.setModuleBaseDir(Paths.get(baseDir))
+      .setLanguage("js")
+      .setCharset(StandardCharsets.UTF_8)
+      .setType(Type.MAIN);
+  }
 
-  /**
-   * @return the current file
-   */
-  JavaScriptFile getJavaScriptFile();
-
-  /**
-   * @return the symbol model that allows to access the symbols declared in the current file
-   */
-  SymbolModel getSymbolModel();
-
-  /**
-   * @return the current file
-   * @deprecated since 2.21. Use {@link TreeVisitorContext#getJavaScriptFile()}
-   */
-  @Deprecated
-  File getFile();
+  public TestInputFile(File baseDir, String relativePath) {
+    this(baseDir.getAbsolutePath(), relativePath);
+  }
 }

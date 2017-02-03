@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.RecognitionException;
 import java.io.File;
 import java.io.InterruptedIOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
@@ -56,7 +56,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -73,6 +73,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY;
 
 public class JavaScriptSquidSensorTest {
@@ -255,14 +256,14 @@ public class JavaScriptSquidSensorTest {
 
   @Test
   public void progress_report_should_be_stopped() throws Exception {
-    InputFile inputFile = inputFile("cpd/Person.js");
-    createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.of(inputFile), progressReport);
+    CompatibleInputFile inputFile = inputFile("cpd/Person.js");
+    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(inputFile), progressReport);
     verify(progressReport).stop();
   }
 
   @Test
   public void progress_report_should_be_stopped_without_files() throws Exception {
-    createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.<InputFile>of(), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(), progressReport);
     verify(progressReport).stop();
   }
 
@@ -297,7 +298,7 @@ public class JavaScriptSquidSensorTest {
     verify(progressReport).cancel();
   }
 
-  private void analyseFileWithException(JavaScriptCheck check, InputFile inputFile, String expectedMessageSubstring) {
+  private void analyseFileWithException(JavaScriptCheck check, CompatibleInputFile inputFile, String expectedMessageSubstring) {
     JavaScriptSquidSensor sensor = createSensor();
     thrown.expect(AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
@@ -423,22 +424,24 @@ public class JavaScriptSquidSensorTest {
     assertThat(context.lineHits("moduleKey:file1.js", 1)).isEqualTo(3);
   }
 
-  private DefaultInputFile inputFile(String relativePath) {
+  private CompatibleInputFile inputFile(String relativePath) {
     DefaultInputFile inputFile = new DefaultInputFile("moduleKey", relativePath)
       .setModuleBaseDir(baseDir.toPath())
       .setType(Type.MAIN)
-      .setLanguage(JavaScriptLanguage.KEY);
+      .setLanguage(JavaScriptLanguage.KEY)
+      .setCharset(StandardCharsets.UTF_8);
 
     context.fileSystem().add(inputFile);
 
-    return inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
+    inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
+    return wrap(inputFile);
   }
 
   private final class ExceptionRaisingCheck extends DoubleDispatchVisitorCheck {
 
     private final RuntimeException exception;
 
-    public ExceptionRaisingCheck(RuntimeException exception) {
+    ExceptionRaisingCheck(RuntimeException exception) {
       this.exception = exception;
     }
 
@@ -463,19 +466,12 @@ public class JavaScriptSquidSensorTest {
     name = "name",
     description = "desc",
     tags = {"bug"})
-  public static class MyCustomRule extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
+  public static class MyCustomRule extends DoubleDispatchVisitorCheck {
     @RuleProperty(
       key = "customParam",
       description = "Custome parameter",
       defaultValue = "value")
     public String customParam = "value";
-
-    Charset charset;
-
-    @Override
-    public void setCharset(Charset charset) {
-      this.charset = charset;
-    }
 
     @Override
     public void visitScript(ScriptTree tree) {

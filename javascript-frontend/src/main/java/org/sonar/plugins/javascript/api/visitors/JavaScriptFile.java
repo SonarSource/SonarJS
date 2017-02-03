@@ -17,5 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.javascript.tree.visitors;
+package org.sonar.plugins.javascript.api.visitors;
+
+public interface JavaScriptFile {
+
+  String relativePath();
+
+  /**
+   * File name with extension
+   */
+  String fileName();
+
+  String contents();
+}

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.cfg;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
@@ -61,7 +60,7 @@ public class ControlFlowGraphTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private ActionParser<Tree> parser = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+  private ActionParser<Tree> parser = JavaScriptParserBuilder.createParser();
 
   @Test
   public void no_block() throws Exception {

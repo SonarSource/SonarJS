@@ -22,13 +22,11 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
-import java.nio.charset.Charset;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -41,11 +39,11 @@ import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 @Rule(key = "CommentedCode")
-public class CommentedCodeCheck extends SubscriptionVisitorCheck implements CharsetAwareVisitor {
+public class CommentedCodeCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this commented out code.";
   private static final JavaScriptCommentAnalyser COMMENT_ANALYSER = new JavaScriptCommentAnalyser();
-  private ActionParser<Tree> parser;
+  private final ActionParser<Tree> parser = JavaScriptParserBuilder.createParser();
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -145,10 +143,5 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck implements Char
 
   private static boolean isGlobals(SyntaxTrivia trivia) {
     return trivia.text().startsWith("/*global");
-  }
-
-  @Override
-  public void setCharset(Charset charset) {
-    this.parser = JavaScriptParserBuilder.createParser(charset);
   }
 }

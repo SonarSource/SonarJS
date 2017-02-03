@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.ce.measure.RangeDistributionBuilder;
@@ -35,6 +34,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -111,8 +111,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    FileSystem fs = sensorContext.fileSystem();
-    this.inputFile = fs.inputFile(fs.predicates().is(getContext().getFile()));
+    this.inputFile = ((CompatibleInputFile) getContext().getJavaScriptFile()).wrapped();
     init();
   }
 

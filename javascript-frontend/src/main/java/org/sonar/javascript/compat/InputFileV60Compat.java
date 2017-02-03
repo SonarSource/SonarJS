@@ -17,35 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.visitors;
+package org.sonar.javascript.compat;
 
-import com.google.common.annotations.Beta;
-import java.io.File;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import java.io.IOException;
+import java.nio.file.Files;
+import org.sonar.api.batch.fs.InputFile;
 
-@Beta
-public interface TreeVisitorContext {
+/**
+ * Makes the wrapped API 6.0+ InputFile instance compatible with API 6.2,
+ * by providing the inputStream() and contents() methods.
+ */
+class InputFileV60Compat extends CompatibleInputFile {
+  InputFileV60Compat(InputFile wrapped) {
+    super(wrapped);
+  }
 
-  /**
-   * @return the top tree node of the current file AST representation.
-   */
-  ScriptTree getTopTree();
-
-  /**
-   * @return the current file
-   */
-  JavaScriptFile getJavaScriptFile();
-
-  /**
-   * @return the symbol model that allows to access the symbols declared in the current file
-   */
-  SymbolModel getSymbolModel();
-
-  /**
-   * @return the current file
-   * @deprecated since 2.21. Use {@link TreeVisitorContext#getJavaScriptFile()}
-   */
-  @Deprecated
-  File getFile();
+  @Override
+  public String contents() {
+    try {
+      return new String(Files.readAllBytes(this.path()), this.charset());
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+  }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.se.sv;
 
-import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
 import org.junit.Test;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
@@ -37,7 +36,7 @@ import static org.sonar.javascript.se.Constraint.ZERO;
 
 public class LiteralSymbolicValueTest {
 
-  private ActionParser<Tree> parser = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+  private ActionParser<Tree> parser = JavaScriptParserBuilder.createParser();
 
   @Test
   public void boolean_literal() throws Exception {

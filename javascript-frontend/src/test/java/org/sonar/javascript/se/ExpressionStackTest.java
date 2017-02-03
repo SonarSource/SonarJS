@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.se;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.typed.ActionParser;
 import org.junit.Test;
@@ -50,7 +49,7 @@ import static org.sonar.javascript.se.sv.UnknownSymbolicValue.UNKNOWN;
 public class ExpressionStackTest {
 
   private ExpressionStack stack = ExpressionStack.emptyStack();
-  private ActionParser<Tree> parser = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+  private ActionParser<Tree> parser = JavaScriptParserBuilder.createParser();
   private SymbolicValue simple1 = new SimpleSymbolicValue(1);
   private SymbolicValue simple2 = new SimpleSymbolicValue(2);
 

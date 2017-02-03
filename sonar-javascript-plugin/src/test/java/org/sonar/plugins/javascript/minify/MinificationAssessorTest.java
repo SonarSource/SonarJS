@@ -19,14 +19,16 @@
  */
 package org.sonar.plugins.javascript.minify;
 
-import java.io.File;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import org.assertj.core.api.AbstractBooleanAssert;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.squidbridge.api.AnalysisException;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.javascript.compat.CompatibleInputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class MinificationAssessorTest {
 
@@ -53,7 +55,7 @@ public class MinificationAssessorTest {
 
   @Test
   public void assessNonExistingFile() {
-    thrown.expect(AnalysisException.class);
+    thrown.expect(IllegalStateException.class);
     getAssert("file-does-not-exist.js").isFalse();
   }
 
@@ -64,16 +66,19 @@ public class MinificationAssessorTest {
 
   @Test
   public void assessWithDefaultConstructor() {
-    MinificationAssessor assessor = new MinificationAssessor(Charset.forName("UTF-8"));
+    MinificationAssessor assessor = new MinificationAssessor();
     getAssert(assessor, "file2.js").isFalse();
   }
 
-  private File getFile(String name) {
-    return new File(DIR + name);
+  private CompatibleInputFile getFile(String name) {
+    DefaultInputFile inputFile = new DefaultInputFile("module1", DIR + name);
+    inputFile.setModuleBaseDir(Paths.get(""));
+    inputFile.setCharset(StandardCharsets.UTF_8);
+    return wrap(inputFile);
   }
 
   private AbstractBooleanAssert getAssert(String fileName) {
-    MinificationAssessor assessor = new MinificationAssessor(Charset.forName("UTF-8"), 20);
+    MinificationAssessor assessor = new MinificationAssessor(20);
     return getAssert(assessor, fileName);
   }
 

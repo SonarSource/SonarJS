@@ -20,13 +20,11 @@
 package org.sonar.javascript.cpd;
 
 import com.google.common.collect.ImmutableList;
-import java.io.File;
 import java.util.List;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -35,13 +33,11 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
 public class CpdVisitor extends SubscriptionVisitor {
 
-  private final FileSystem fileSystem;
   private final SensorContext sensorContext;
-  private InputFile inputFile;
+  private CompatibleInputFile inputFile;
   private NewCpdTokens cpdTokens;
 
-  public CpdVisitor(FileSystem fileSystem, SensorContext sensorContext) {
-    this.fileSystem = fileSystem;
+  public CpdVisitor(SensorContext sensorContext) {
     this.sensorContext = sensorContext;
   }
 
@@ -52,9 +48,8 @@ public class CpdVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    File file = getContext().getFile();
-    inputFile = fileSystem.inputFile(fileSystem.predicates().is(file));
-    cpdTokens = sensorContext.newCpdTokens().onFile(inputFile);
+    inputFile = (CompatibleInputFile) getContext().getJavaScriptFile();
+    cpdTokens = sensorContext.newCpdTokens().onFile(inputFile.wrapped());
     super.visitFile(scriptTree);
   }
 

@@ -19,13 +19,9 @@
  */
 package org.sonar.plugins.javascript.minify;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import org.sonar.squidbridge.api.AnalysisException;
+import java.util.List;
+import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.compat.CompatibleInputFile;
 
 /**
  * An instance of this class computes the average line length of file.
@@ -37,7 +33,7 @@ import org.sonar.squidbridge.api.AnalysisException;
  */
 class AverageLineLengthCalculator {
 
-  private File file;
+  private CompatibleInputFile file;
 
   private boolean isAtFirstLine = true;
 
@@ -45,27 +41,21 @@ class AverageLineLengthCalculator {
 
   private boolean isClike = false;
 
-  private Charset encoding;
-
-  public AverageLineLengthCalculator(File file, Charset encoding) {
+  public AverageLineLengthCalculator(CompatibleInputFile file) {
     this.file = file;
-    this.encoding = encoding;
   }
 
   public int getAverageLineLength() {
     long nbLines = 0;
     long nbCharacters = 0;
 
-    try (BufferedReader reader = getReader(file)) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        if (!isLineInHeaderComment(line)) {
-          nbLines++;
-          nbCharacters += line.length();
-        }
+    List<String> lines = CheckUtils.readLines(file);
+
+    for (String line : lines) {
+      if (!isLineInHeaderComment(line)) {
+        nbLines++;
+        nbCharacters += line.length();
       }
-    } catch (IOException e) {
-      handleException(e, file);
     }
 
     return nbLines > 0 ? (int) (nbCharacters / nbLines) : 0;
@@ -113,14 +103,6 @@ class AverageLineLengthCalculator {
         return false;
       }
     }
-  }
-
-  private BufferedReader getReader(File file) throws IOException {
-    return new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
-  }
-
-  private static void handleException(IOException e, File file) {
-    throw new AnalysisException("Unable to analyse file: " + file.getAbsolutePath(), e);
   }
 
 }

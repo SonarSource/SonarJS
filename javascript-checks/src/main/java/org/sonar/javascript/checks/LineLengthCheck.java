@@ -19,23 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Files;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 
 @Rule(key = "LineLength")
-public class LineLengthCheck extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
+public class LineLengthCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Split this %s characters long line (which is greater than %s authorized).";
   private static final int DEFAULT_MAXIMUM_LINE_LENGTH = 80;
-  private Charset charset;
 
   @RuleProperty(
     key = "maximumLineLength",
@@ -45,12 +42,8 @@ public class LineLengthCheck extends DoubleDispatchVisitorCheck implements Chars
 
   @Override
   public void visitScript(ScriptTree tree) {
-    List<String> lines;
-    try {
-      lines = Files.readLines(getContext().getFile(), charset);
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    JavaScriptFile file = getContext().getJavaScriptFile();
+    List<String> lines = CheckUtils.readLines(file);
 
     for (int i = 0; i < lines.size(); i++) {
       int length = lines.get(i).length();
@@ -62,10 +55,5 @@ public class LineLengthCheck extends DoubleDispatchVisitorCheck implements Chars
           String.format(MESSAGE, length, maximumLineLength)));
       }
     }
-  }
-
-  @Override
-  public void setCharset(Charset charset) {
-    this.charset = charset;
   }
 }

@@ -19,21 +19,23 @@
  */
 package org.sonar.javascript.tree.symbols;
 
-import java.io.File;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
-  private static final File FILE_NAME = new File("src/test/resources/ast/resolve/symbolModel.js");
-  private SymbolModelImpl SYMBOL_MODEL = symbolModel(FILE_NAME);
+  private static final CompatibleInputFile INPUT_FILE = wrap(new TestInputFile("src/test/resources/ast/resolve/symbolModel.js"));
+  private SymbolModelImpl SYMBOL_MODEL = symbolModel(INPUT_FILE);
 
   @Test
   public void symbols_filtering() {
@@ -69,15 +71,15 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
   @Test
   public void environment() throws Exception {
-    assertThat(symbolModel(FILE_NAME, settings("", "")).getSymbols("document")).hasSize(0);
-    assertThat(symbolModel(FILE_NAME, settings("xxx", "")).getSymbols("document")).hasSize(0);
-    assertThat(symbolModel(FILE_NAME, settings("browser", "")).getSymbols("document")).hasSize(1);
+    assertThat(symbolModel(INPUT_FILE, settings("", "")).getSymbols("document")).hasSize(0);
+    assertThat(symbolModel(INPUT_FILE, settings("xxx", "")).getSymbols("document")).hasSize(0);
+    assertThat(symbolModel(INPUT_FILE, settings("browser", "")).getSymbols("document")).hasSize(1);
   }
 
   @Test
   public void global_variable() throws Exception {
-    assertThat(symbolModel(FILE_NAME, settings("", "")).getSymbols("global1")).hasSize(0);
-    assertThat(symbolModel(FILE_NAME, settings("", "global1")).getSymbols("global1")).hasSize(1);
+    assertThat(symbolModel(INPUT_FILE, settings("", "")).getSymbols("global1")).hasSize(0);
+    assertThat(symbolModel(INPUT_FILE, settings("", "global1")).getSymbols("global1")).hasSize(1);
   }
 
   private Settings settings(String environmentNames, String globalNames) {

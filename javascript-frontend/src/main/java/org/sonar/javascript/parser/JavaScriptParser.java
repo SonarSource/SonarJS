@@ -28,9 +28,10 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 
 public class JavaScriptParser extends ActionParser<Tree> {
 
-  public JavaScriptParser(Charset charset) {
+  public JavaScriptParser() {
     super(
-      charset,
+      // we can pass any charset, it's not used. To parse file, we use sting content of it.
+      Charset.defaultCharset(),
       JavaScriptLegacyGrammar.createGrammarBuilder(),
       JavaScriptGrammar.class,
       new TreeFactory(),
@@ -40,7 +41,7 @@ public class JavaScriptParser extends ActionParser<Tree> {
 
   @Override
   public Tree parse(File file) {
-    return setParents(super.parse(file));
+    throw new IllegalStateException("Do not use parse(File) method. Use parse(String) instead.");
   }
 
   @Override

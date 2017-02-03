@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.checks.verifier;
 
-import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import com.sonar.sslr.api.typed.ActionParser;
-import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
@@ -33,21 +34,35 @@ import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
+import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
+
 class TestUtils {
 
-  protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+  protected static final ActionParser<Tree> p = newParser();
 
   private TestUtils() {
+    // utility class, forbidden constructor
   }
 
-  public static JavaScriptVisitorContext createContext(File file) {
-    ScriptTree scriptTree = (ScriptTree) p.parse(file);
-    return new JavaScriptVisitorContext(scriptTree, file, settings());
+  private static ActionParser<Tree> newParser() {
+    return JavaScriptParserBuilder.createParser();
   }
 
-  public static JavaScriptVisitorContext createParallelContext(File file) {
-    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(Charsets.UTF_8).parse(file);
-    return new JavaScriptVisitorContext(scriptTree, file, settings());
+  public static JavaScriptVisitorContext createContext(InputFile file) {
+    return createContext(file, p);
+  }
+
+  public static JavaScriptVisitorContext createParallelContext(InputFile file) {
+    return createContext(file, newParser());
+  }
+
+  private static JavaScriptVisitorContext createContext(InputFile file, ActionParser<Tree> parser) {
+    try {
+      ScriptTree scriptTree = (ScriptTree) parser.parse(file.contents());
+      return new JavaScriptVisitorContext(scriptTree, wrap(file), settings());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   private static Settings settings() {

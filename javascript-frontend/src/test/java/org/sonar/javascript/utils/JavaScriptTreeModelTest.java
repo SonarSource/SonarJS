@@ -19,11 +19,13 @@
  */
 package org.sonar.javascript.utils;
 
-import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Iterator;
 import org.sonar.api.config.Settings;
+import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
@@ -36,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class JavaScriptTreeModelTest {
 
-  protected final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+  protected final ActionParser<Tree> p = JavaScriptParserBuilder.createParser();
 
   /**
    * Parse the given string and return the first descendant of the given kind.
@@ -52,17 +54,30 @@ public abstract class JavaScriptTreeModelTest {
     return (T) getFirstDescendant((JavaScriptTree) node, descendantToReturn);
   }
 
-  protected SymbolModelImpl symbolModel(File file) {
-    return symbolModel(file, null);
+  protected SymbolModelImpl symbolModel(CompatibleInputFile file) {
+    try {
+      return symbolModel(file, null);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
-  protected SymbolModelImpl symbolModel(File file, Settings settings) {
-    ScriptTree root = (ScriptTree) p.parse(file);
+  protected ScriptTree parse(File file) {
+    try {
+      String content = new String(Files.readAllBytes(file.toPath()));
+      return (ScriptTree) p.parse(content);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  protected SymbolModelImpl symbolModel(CompatibleInputFile file, Settings settings) throws IOException {
+    ScriptTree root = (ScriptTree) p.parse(file.contents());
     return (SymbolModelImpl) new JavaScriptVisitorContext(root, file, settings).getSymbolModel();
   }
 
-  protected JavaScriptVisitorContext context(File file) {
-    ScriptTree root = (ScriptTree) p.parse(file);
+  protected JavaScriptVisitorContext context(CompatibleInputFile file) throws IOException {
+    ScriptTree root = (ScriptTree) p.parse(file.contents());
     return new JavaScriptVisitorContext(root, file, null);
   }
 

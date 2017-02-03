@@ -17,35 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.visitors;
+package org.sonar.javascript.compat;
 
-import com.google.common.annotations.Beta;
-import java.io.File;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import java.nio.charset.Charset;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 
-@Beta
-public interface TreeVisitorContext {
+/**
+ * Makes the wrapped API 5.6+ InputFile instance compatible with API 6.0,
+ * by providing the charset() method.
+ */
+class InputFileV56Compat extends InputFileV60Compat {
 
-  /**
-   * @return the top tree node of the current file AST representation.
-   */
-  ScriptTree getTopTree();
+  private final Charset charset;
 
-  /**
-   * @return the current file
-   */
-  JavaScriptFile getJavaScriptFile();
+  InputFileV56Compat(InputFile wrapped, SensorContext context) {
+    super(wrapped);
+    this.charset = context.fileSystem().encoding();
+  }
 
-  /**
-   * @return the symbol model that allows to access the symbols declared in the current file
-   */
-  SymbolModel getSymbolModel();
-
-  /**
-   * @return the current file
-   * @deprecated since 2.21. Use {@link TreeVisitorContext#getJavaScriptFile()}
-   */
-  @Deprecated
-  File getFile();
+  @Override
+  public Charset charset() {
+    return charset;
+  }
 }
