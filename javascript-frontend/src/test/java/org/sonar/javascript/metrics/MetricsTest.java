@@ -34,21 +34,21 @@ public class MetricsTest extends JavaScriptTreeModelTest {
   @Test
   public void complexity() {
     String path = "src/test/resources/metrics/complexity.js";
-    Tree tree = p.parse(new File(path));
+    Tree tree = parse(new File(path));
     assertThat(new ComplexityVisitor(true).getComplexity(tree)).isEqualTo(25);
   }
 
   @Test
   public void lines_of_code() {
     String path = "src/test/resources/metrics/lines_of_code.js";
-    Tree tree = p.parse(new File(path));
+    Tree tree = parse(new File(path));
     assertThat(new LineVisitor(tree).getLinesOfCodeNumber()).isEqualTo(3);
   }
 
   @Test
   public void lines() {
     String path = "src/test/resources/metrics/lines.js";
-    Tree tree = p.parse(new File(path));
+    Tree tree = parse(new File(path));
     LineVisitor lineVisitor = new LineVisitor(tree);
     assertThat(lineVisitor.getLinesNumber()).isEqualTo(5);
     assertThat(lineVisitor.getLinesOfCode()).containsOnly(2, 3, 4);
@@ -57,32 +57,32 @@ public class MetricsTest extends JavaScriptTreeModelTest {
   @Test
   public void functions() {
     String path = "src/test/resources/metrics/functions.js";
-    Tree tree = p.parse(new File(path));
+    Tree tree = parse(new File(path));
     assertThat(new CounterVisitor(tree).getFunctionNumber()).isEqualTo(14);
   }
 
   @Test
   public void statements() {
     String path = "src/test/resources/metrics/functions.js";
-    Tree tree = p.parse(new File(path));
+    Tree tree = parse(new File(path));
     assertThat(new CounterVisitor(tree).getStatementsNumber()).isEqualTo(16);
 
     path = "src/test/resources/metrics/statements.js";
-    tree = p.parse(new File(path));
+    tree = parse(new File(path));
     assertThat(new CounterVisitor(tree).getStatementsNumber()).isEqualTo(16);
   }
 
   @Test
   public void classes() {
     String path = "src/test/resources/metrics/classes.js";
-    Tree tree = p.parse(new File(path));
+    Tree tree = parse(new File(path));
     assertThat(new CounterVisitor(tree).getClassNumber()).isEqualTo(3);
   }
 
   @Test
   public void comments() {
     String path = "src/test/resources/metrics/comments.js";
-    Tree tree = p.parse(new File(path));
+    Tree tree = parse(new File(path));
     CommentLineVisitor commentLineVisitor = new CommentLineVisitor(tree, true);
     assertThat(commentLineVisitor.getCommentLineNumber()).isEqualTo(2);
     assertThat(commentLineVisitor.noSonarLines()).containsOnly(10);
@@ -95,7 +95,7 @@ public class MetricsTest extends JavaScriptTreeModelTest {
 
   @Test
   public void executable_lines() throws Exception {
-    Tree tree = p.parse(new File("src/test/resources/metrics/executable_lines.js"));
+    Tree tree = parse(new File("src/test/resources/metrics/executable_lines.js"));
     Set<Integer> commentLines = new CommentLineVisitor(tree, false).getCommentLines();
     Set<Integer> expectedExecutableLines = Sets.difference(commentLines, ImmutableSet.of(1));
     assertThat(new ExecutableLineVisitor(tree).getExecutableLines()).isEqualTo(expectedExecutableLines);

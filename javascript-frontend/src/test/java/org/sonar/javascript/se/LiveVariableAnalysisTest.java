@@ -56,7 +56,7 @@ public class LiveVariableAnalysisTest {
   }
 
   private static JavaScriptVisitorContext createContext(InputFile file) throws IOException {
-    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(file.charset()).parse(file.contents());
+    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser().parse(file.contents());
     return new JavaScriptVisitorContext(scriptTree, wrap(file), new MapSettings());
   }
 }

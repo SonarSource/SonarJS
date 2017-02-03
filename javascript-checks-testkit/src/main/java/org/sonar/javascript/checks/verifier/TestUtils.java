@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks.verifier;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.IOException;
@@ -46,7 +45,7 @@ class TestUtils {
   }
 
   private static ActionParser<Tree> newParser() {
-    return JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+    return JavaScriptParserBuilder.createParser();
   }
 
   public static JavaScriptVisitorContext createContext(InputFile file) {

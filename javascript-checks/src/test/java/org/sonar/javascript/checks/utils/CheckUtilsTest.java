@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks.utils;
 
-import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +42,7 @@ import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class CheckUtilsTest {
 
-  protected final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+  protected final ActionParser<Tree> p = JavaScriptParserBuilder.createParser();
 
   @Rule
   public final TemporaryFolder temporaryFolder = new TemporaryFolder();

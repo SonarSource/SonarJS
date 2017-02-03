@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
@@ -44,7 +43,7 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this commented out code.";
   private static final JavaScriptCommentAnalyser COMMENT_ANALYSER = new JavaScriptCommentAnalyser();
-  private final ActionParser<Tree> parser = JavaScriptParserBuilder.createParser(StandardCharsets.UTF_8);
+  private final ActionParser<Tree> parser = JavaScriptParserBuilder.createParser();
 
   @Override
   public List<Kind> nodesToVisit() {

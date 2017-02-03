@@ -169,7 +169,7 @@ public class SymbolicExecutionTest {
 
   public static JavaScriptVisitorContext createContext(InputFile file) {
     try {
-      ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(file.charset()).parse(file.contents());
+      ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser().parse(file.contents());
       return new JavaScriptVisitorContext(scriptTree, wrap(file), new MapSettings());
     } catch (IOException e) {
       throw Throwables.propagate(e);

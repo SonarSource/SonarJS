@@ -20,7 +20,6 @@
 package org.sonar.javascript.parser;
 
 import com.sonar.sslr.api.typed.ActionParser;
-import java.nio.charset.Charset;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 public final class JavaScriptParserBuilder {
@@ -28,8 +27,8 @@ public final class JavaScriptParserBuilder {
   private JavaScriptParserBuilder() {
   }
 
-  public static ActionParser<Tree> createParser(Charset charset) {
-    return new JavaScriptParser(charset);
+  public static ActionParser<Tree> createParser() {
+    return new JavaScriptParser();
   }
 
 }

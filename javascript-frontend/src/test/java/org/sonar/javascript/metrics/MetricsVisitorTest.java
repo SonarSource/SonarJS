@@ -30,7 +30,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,7 +86,7 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
 
     TreeVisitorContext treeVisitorContext = mock(TreeVisitorContext.class);
     when(treeVisitorContext.getJavaScriptFile()).thenReturn(wrap(INPUT_FILE));
-    when(treeVisitorContext.getTopTree()).thenReturn((ScriptTree) p.parse(INPUT_FILE.file()));
+    when(treeVisitorContext.getTopTree()).thenReturn(parse(INPUT_FILE.file()));
 
     metricsVisitor.scanTree(treeVisitorContext);
     Mockito.verify(linesContext, saveExecutableLines ? atLeastOnce() : times(0)).setIntValue(eq(CoreMetrics.EXECUTABLE_LINES_DATA_KEY), any(Integer.class), any(Integer.class));

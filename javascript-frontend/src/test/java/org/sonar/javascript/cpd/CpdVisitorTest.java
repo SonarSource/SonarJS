@@ -44,7 +44,7 @@ public class CpdVisitorTest {
 
   private static final Charset CHARSET = Charsets.UTF_8;
 
-  private final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(CHARSET);
+  private final ActionParser<Tree> p = JavaScriptParserBuilder.createParser();
 
   private DefaultInputFile inputFile;
   private SensorContextTester sensorContext;

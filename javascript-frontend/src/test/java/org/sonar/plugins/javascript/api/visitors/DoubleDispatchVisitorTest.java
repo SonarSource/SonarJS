@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.api.visitors;
 
-import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
 import org.junit.Test;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
@@ -103,7 +102,7 @@ public class DoubleDispatchVisitorTest {
   }
 
   private TestVisitor getTestVisitor(String code) {
-    ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+    ActionParser<Tree> p = JavaScriptParserBuilder.createParser();
     TestVisitor testVisitor = new TestVisitor();
     testVisitor.visitScript((ScriptTree) p.parse(code));
     return testVisitor;
