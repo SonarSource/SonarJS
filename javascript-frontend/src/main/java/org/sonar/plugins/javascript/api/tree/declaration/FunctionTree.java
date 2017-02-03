@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.api.tree.declaration;
 
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
@@ -35,4 +36,6 @@ public interface FunctionTree extends Tree {
   Tree body();
 
   List<Tree> parameterList();
+
+  Scope scope();
 }

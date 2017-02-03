@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -43,6 +44,7 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   private final Tree name;
   private final ParameterListTreeImpl parameters;
   private final BlockTreeImpl body;
+  private Scope scope;
 
   public MethodDeclarationTreeImpl(
     List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
@@ -112,5 +114,14 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   @Override
   public List<Tree> parameterList() {
     return parameters.parameters();
+  }
+
+  @Override
+  public Scope scope() {
+    return scope;
+  }
+
+  public void scope(Scope scope) {
+    this.scope = scope;
   }
 }

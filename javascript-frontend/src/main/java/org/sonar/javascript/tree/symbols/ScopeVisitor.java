@@ -23,6 +23,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.sonar.javascript.tree.impl.declaration.AccessorMethodDeclarationTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.FunctionDeclarationTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.GeneratorMethodDeclarationTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.MethodDeclarationTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
+import org.sonar.javascript.tree.impl.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -112,6 +118,15 @@ public class ScopeVisitor extends DoubleDispatchVisitor {
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     newFunctionScope(tree);
+    if (tree.is(Kind.GENERATOR_METHOD)) {
+      ((GeneratorMethodDeclarationTreeImpl) tree).scope(currentScope);
+
+    } else if (tree.is(Kind.GET_METHOD, Kind.SET_METHOD)) {
+      ((AccessorMethodDeclarationTreeImpl) tree).scope(currentScope);
+
+    } else {
+      ((MethodDeclarationTreeImpl) tree).scope(currentScope);
+    }
 
     skipBlock(tree.body());
     super.visitMethodDeclaration(tree);
@@ -132,6 +147,7 @@ public class ScopeVisitor extends DoubleDispatchVisitor {
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     newFunctionScope(tree);
+    ((FunctionDeclarationTreeImpl) tree).scope(currentScope);
 
     skipBlock(tree.body());
     super.visitFunctionDeclaration(tree);
@@ -142,6 +158,7 @@ public class ScopeVisitor extends DoubleDispatchVisitor {
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
     newFunctionScope(tree);
+    ((ArrowFunctionTreeImpl) tree).scope(currentScope);
 
     skipBlock(tree.body());
     super.visitArrowFunction(tree);
@@ -152,6 +169,7 @@ public class ScopeVisitor extends DoubleDispatchVisitor {
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     newFunctionScope(tree);
+    ((FunctionExpressionTreeImpl) tree).scope(currentScope);
 
     skipBlock(tree.body());
     super.visitFunctionExpression(tree);
