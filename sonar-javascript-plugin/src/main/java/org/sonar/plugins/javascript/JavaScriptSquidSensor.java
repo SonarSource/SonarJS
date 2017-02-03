@@ -338,7 +338,7 @@ public class JavaScriptSquidSensor implements Sensor {
     executor.executeCoverageSensors();
   }
 
-  ContextDependentExecutor createContextDependentExecutor(SensorContext context) {
+  private ContextDependentExecutor createContextDependentExecutor(SensorContext context) {
     if (isSonarLint(context)) {
       return new SonarLintContextExecutor();
     }
@@ -381,7 +381,48 @@ public class JavaScriptSquidSensor implements Sensor {
       if (metricsVisitor == null) {
         throw new IllegalStateException("the metrics visitor should have been created (and executed)");
       }
-      JavaScriptSquidSensor.executeCoverageSensors(context, metricsVisitor.linesOfCode(), isAtLeastSq62);
+      executeCoverageSensors(context, metricsVisitor.linesOfCode(), isAtLeastSq62);
+    }
+
+    private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
+      Settings settings = context.settings();
+      if (isAtLeastSq62 && settings.getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY)) {
+        LOG.warn("Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis");
+      }
+
+      if (isAtLeastSq62) {
+        logDeprecationForReportProperty(settings, JavaScriptPlugin.LCOV_UT_REPORT_PATH);
+        logDeprecationForReportProperty(settings, JavaScriptPlugin.LCOV_IT_REPORT_PATH);
+
+        String lcovReports = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATHS);
+
+        if (lcovReports == null || lcovReports.isEmpty()) {
+          executeDeprecatedCoverageSensors(context, linesOfCode, true);
+
+        } else {
+          LOG.info("Test Coverage Sensor is started");
+          (new LCOVCoverageSensor()).execute(context, linesOfCode, true);
+        }
+
+      } else {
+        executeDeprecatedCoverageSensors(context, linesOfCode, false);
+      }
+    }
+
+    private static void logDeprecationForReportProperty(Settings settings, String propertyKey) {
+      String value = settings.getString(propertyKey);
+      if (value != null && !value.isEmpty()) {
+        LOG.warn("Since SonarQube 6.2 property '" + propertyKey + "' is deprecated. Use 'sonar.javascript.lcov.reportPaths' instead.");
+      }
+    }
+
+    private static void executeDeprecatedCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
+      LOG.info("Unit Test Coverage Sensor is started");
+      (new UTCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
+      LOG.info("Integration Test Coverage Sensor is started");
+      (new ITCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
+      LOG.info("Overall Coverage Sensor is started");
+      (new OverallCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
     }
   }
 
@@ -399,47 +440,6 @@ public class JavaScriptSquidSensor implements Sensor {
 
   private static boolean isSonarLint(SensorContext context) {
     return context.getSonarQubeVersion().isGreaterThanOrEqual(V6_0) && context.runtime().getProduct() == SonarProduct.SONARLINT;
-  }
-
-  private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
-    Settings settings = context.settings();
-    if (isAtLeastSq62 && settings.getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY)) {
-      LOG.warn("Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis");
-    }
-
-    if (isAtLeastSq62) {
-      logDeprecationForReportProperty(settings, JavaScriptPlugin.LCOV_UT_REPORT_PATH);
-      logDeprecationForReportProperty(settings, JavaScriptPlugin.LCOV_IT_REPORT_PATH);
-
-      String lcovReports = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATHS);
-
-      if (lcovReports == null || lcovReports.isEmpty()) {
-        executeDeprecatedCoverageSensors(context, linesOfCode, true);
-
-      } else {
-        LOG.info("Test Coverage Sensor is started");
-        (new LCOVCoverageSensor()).execute(context, linesOfCode, true);
-      }
-
-    } else {
-      executeDeprecatedCoverageSensors(context, linesOfCode, false);
-    }
-  }
-
-  private static void logDeprecationForReportProperty(Settings settings, String propertyKey) {
-    String value = settings.getString(propertyKey);
-    if (value != null && !value.isEmpty()) {
-      LOG.warn("Since SonarQube 6.2 property '" + propertyKey + "' is deprecated. Use 'sonar.javascript.lcov.reportPaths' instead.");
-    }
-  }
-
-  private static void executeDeprecatedCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
-    LOG.info("Unit Test Coverage Sensor is started");
-    (new UTCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
-    LOG.info("Integration Test Coverage Sensor is started");
-    (new ITCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
-    LOG.info("Overall Coverage Sensor is started");
-    (new OverallCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
   }
 
   private static void saveLineIssue(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, LineIssue issue) {
