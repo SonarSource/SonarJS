@@ -128,7 +128,10 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   @VisibleForTesting
-  protected void analyseFiles(SensorContext context, List<TreeVisitor> treeVisitors, Iterable<CompatibleInputFile> inputFiles, ProgressReport progressReport) {
+  protected void analyseFiles(
+    SensorContext context, List<TreeVisitor> treeVisitors, Iterable<CompatibleInputFile> inputFiles,
+    ProductDependentExecutor executor, ProgressReport progressReport
+  ) {
     boolean success = false;
     try {
       for (CompatibleInputFile inputFile : inputFiles) {
@@ -137,7 +140,7 @@ public class JavaScriptSquidSensor implements Sensor {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
         if (!isExcluded(inputFile)) {
-          analyse(context, inputFile, treeVisitors);
+          analyse(context, inputFile, executor, treeVisitors);
         }
         progressReport.nextFile();
       }
@@ -158,12 +161,12 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void analyse(SensorContext sensorContext, CompatibleInputFile inputFile, List<TreeVisitor> visitors) {
+  private void analyse(SensorContext sensorContext, CompatibleInputFile inputFile, ProductDependentExecutor executor, List<TreeVisitor> visitors) {
     ScriptTree scriptTree;
 
     try {
       scriptTree = (ScriptTree) parser.parse(inputFile.contents());
-      scanFile(sensorContext, inputFile, visitors, scriptTree);
+      scanFile(sensorContext, inputFile, executor, visitors, scriptTree);
     } catch (RecognitionException e) {
       checkInterrupted(e);
       LOG.error("Unable to parse file: " + inputFile.absolutePath());
@@ -216,12 +219,8 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void scanFile(SensorContext sensorContext, CompatibleInputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
+  private void scanFile(SensorContext sensorContext, CompatibleInputFile inputFile, ProductDependentExecutor executor, List<TreeVisitor> visitors, ScriptTree scriptTree) {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.settings());
-
-    if (!isSonarLint(sensorContext)) {
-      highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile.wrapped()), context);
-    }
 
     List<Issue> fileIssues = new ArrayList<>();
 
@@ -234,10 +233,7 @@ public class JavaScriptSquidSensor implements Sensor {
     }
 
     saveFileIssues(sensorContext, fileIssues, inputFile.wrapped());
-  }
-
-  private static void highlightSymbols(NewSymbolTable newSymbolTable, TreeVisitorContext context) {
-    HighlightSymbolTableBuilder.build(newSymbolTable, context);
+    executor.highlightSymbols(inputFile.wrapped(), context);
   }
 
   private void saveFileIssues(SensorContext sensorContext, List<Issue> fileIssues, InputFile inputFile) {
@@ -311,10 +307,10 @@ public class JavaScriptSquidSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    ContextDependentExecutor executor = createContextDependentExecutor(context);
+    ProductDependentExecutor executor = createProductDependentExecutor(context);
 
     List<TreeVisitor> treeVisitors = Lists.newArrayList();
-    treeVisitors.addAll(executor.createTreeVisitors());
+    treeVisitors.addAll(executor.getProductDependentTreeVisitors());
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
     treeVisitors.addAll(checks.visitorChecks());
 
@@ -333,32 +329,35 @@ public class JavaScriptSquidSensor implements Sensor {
     ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(files);
 
-    analyseFiles(context, treeVisitors, inputFiles, progressReport);
+    analyseFiles(context, treeVisitors, inputFiles, executor, progressReport);
 
     executor.executeCoverageSensors();
   }
 
-  private ContextDependentExecutor createContextDependentExecutor(SensorContext context) {
+  private ProductDependentExecutor createProductDependentExecutor(SensorContext context) {
     if (isSonarLint(context)) {
-      return new SonarLintContextExecutor();
+      return new SonarLintProductExecutor();
     }
-    return new SonarQubeContextExecutor(context, noSonarFilter, fileLinesContextFactory);
+    return new SonarQubeProductExecutor(context, noSonarFilter, fileLinesContextFactory);
   }
 
-  private interface ContextDependentExecutor {
-    List<TreeVisitor> createTreeVisitors();
+  @VisibleForTesting
+  protected interface ProductDependentExecutor {
+    List<TreeVisitor> getProductDependentTreeVisitors();
+
+    void highlightSymbols(InputFile inputFile, TreeVisitorContext treeVisitorContext);
 
     void executeCoverageSensors();
   }
 
-  private static class SonarQubeContextExecutor implements ContextDependentExecutor {
+  private static class SonarQubeProductExecutor implements ProductDependentExecutor {
     private final SensorContext context;
     private final NoSonarFilter noSonarFilter;
     private final FileLinesContextFactory fileLinesContextFactory;
     private final boolean isAtLeastSq62;
     private MetricsVisitor metricsVisitor;
 
-    SonarQubeContextExecutor(SensorContext context, NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory) {
+    SonarQubeProductExecutor(SensorContext context, NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory) {
       this.context = context;
       this.noSonarFilter = noSonarFilter;
       this.fileLinesContextFactory = fileLinesContextFactory;
@@ -366,7 +365,7 @@ public class JavaScriptSquidSensor implements Sensor {
     }
 
     @Override
-    public List<TreeVisitor> createTreeVisitors() {
+    public List<TreeVisitor> getProductDependentTreeVisitors() {
       metricsVisitor = new MetricsVisitor(
         context,
         noSonarFilter,
@@ -377,9 +376,15 @@ public class JavaScriptSquidSensor implements Sensor {
     }
 
     @Override
+    public void highlightSymbols(InputFile inputFile, TreeVisitorContext treeVisitorContext) {
+      NewSymbolTable newSymbolTable = context.newSymbolTable().onFile(inputFile);
+      HighlightSymbolTableBuilder.build(newSymbolTable, treeVisitorContext);
+    }
+
+    @Override
     public void executeCoverageSensors() {
       if (metricsVisitor == null) {
-        throw new IllegalStateException("the metrics visitor should have been created (and executed)");
+        throw new IllegalStateException("Before starting coverage computation, metrics should have been calculated.");
       }
       executeCoverageSensors(context, metricsVisitor.linesOfCode(), isAtLeastSq62);
     }
@@ -426,10 +431,16 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private static class SonarLintContextExecutor implements ContextDependentExecutor {
+  @VisibleForTesting
+  protected static class SonarLintProductExecutor implements ProductDependentExecutor {
     @Override
-    public List<TreeVisitor> createTreeVisitors() {
+    public List<TreeVisitor> getProductDependentTreeVisitors() {
       return Collections.emptyList();
+    }
+
+    @Override
+    public void highlightSymbols(InputFile inputFile, TreeVisitorContext treeVisitorContext) {
+      // unnecessary in SonarLint context
     }
 
     @Override
