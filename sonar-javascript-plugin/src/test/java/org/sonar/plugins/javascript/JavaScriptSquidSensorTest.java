@@ -57,6 +57,8 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.compat.CompatibleInputFile;
+import org.sonar.plugins.javascript.JavaScriptSquidSensor.ProductDependentExecutor;
+import org.sonar.plugins.javascript.JavaScriptSquidSensor.SonarLintProductExecutor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -80,6 +82,12 @@ public class JavaScriptSquidSensorTest {
 
   private static final SonarRuntime SONAR_RUNTIME_6_1 = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
   private static final SonarRuntime SONAR_RUNTIME_6_2 = SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER);
+
+  private static final Version SONARLINT_DETECTABLE_VERSION = Version.create(6, 0);
+  private static final SonarRuntime SONARLINT_RUNTIME = SonarRuntimeImpl.forSonarLint(SONARLINT_DETECTABLE_VERSION);
+  private static final SonarRuntime NOSONARLINT_RUNTIME = SonarRuntimeImpl.forSonarQube(SONARLINT_DETECTABLE_VERSION, SonarQubeSide.SERVER);
+
+  private static final ProductDependentExecutor executor = new SonarLintProductExecutor();
 
   private static final String UT_LCOV = "reports/report_ut.lcov";
   private static final String IT_LCOV = "reports/report_it.lcov";
@@ -105,7 +113,7 @@ public class JavaScriptSquidSensorTest {
 
     @Override
     public Class[] checkClasses() {
-      return new Class[]{MyCustomRule.class};
+      return new Class[] {MyCustomRule.class};
     }
   }};
 
@@ -185,7 +193,7 @@ public class JavaScriptSquidSensorTest {
 
     JavaScriptCheck check = new ExceptionRaisingCheck(new NullPointerException("NPE forcibly raised by check class"));
 
-    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(inputFile("file.js")), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile("file.js")), executor, progressReport);
     assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
@@ -257,13 +265,13 @@ public class JavaScriptSquidSensorTest {
   @Test
   public void progress_report_should_be_stopped() throws Exception {
     CompatibleInputFile inputFile = inputFile("cpd/Person.js");
-    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(inputFile), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(inputFile), executor, progressReport);
     verify(progressReport).stop();
   }
 
   @Test
   public void progress_report_should_be_stopped_without_files() throws Exception {
-    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(), executor, progressReport);
     verify(progressReport).stop();
   }
 
@@ -294,7 +302,7 @@ public class JavaScriptSquidSensorTest {
     JavaScriptSquidSensor sensor = createSensor();
     SensorContextTester cancelledContext = SensorContextTester.create(baseDir);
     cancelledContext.setCancelled(true);
-    sensor.analyseFiles(cancelledContext, ImmutableList.of((TreeVisitor)check), ImmutableList.of(inputFile("cpd/Person.js")), progressReport);
+    sensor.analyseFiles(cancelledContext, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile("cpd/Person.js")), executor, progressReport);
     verify(progressReport).cancel();
   }
 
@@ -303,7 +311,7 @@ public class JavaScriptSquidSensorTest {
     thrown.expect(AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
     try {
-      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(inputFile), progressReport);
+      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile), executor, progressReport);
     } finally {
       verify(progressReport).cancel();
     }
@@ -326,7 +334,6 @@ public class JavaScriptSquidSensorTest {
   public void test_logger_for_force_zero_property() throws Exception {
     String message = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
     context.setSettings(new MapSettings().setProperty(FORCE_ZERO_COVERAGE_KEY, "false"));
-
 
     context.setRuntime(SONAR_RUNTIME_6_1);
     createSensor().execute(context);
@@ -422,6 +429,51 @@ public class JavaScriptSquidSensorTest {
     createSensor().execute(context);
 
     assertThat(context.lineHits("moduleKey:file1.js", 1)).isEqualTo(3);
+  }
+
+  @Test
+  public void should_disable_unnecessary_features_for_sonarlint() throws Exception {
+    baseDir = new File("src/test/resources/coverage");
+    context = SensorContextTester.create(baseDir);
+    context.settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV);
+    context.settings().setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, IT_LCOV);
+    String key = inputFile("file1.js").wrapped().key();
+
+    context.setRuntime(SONARLINT_RUNTIME);
+    createSensor().execute(context);
+
+    // no cpd tokens
+    assertThat(context.cpdTokens(key)).isNull();
+
+    // no highlighting
+    assertThat(context.highlightingTypeAt(key, 1, 0)).isEmpty();
+
+    // no coverage
+    assertThat(context.lineHits(key, 0)).isNull();
+
+    // metrics are not saved
+    assertThat(context.measure(key, CoreMetrics.NCLOC)).isNull();
+
+    // no symbol highlighting
+    assertThat(context.referencesForSymbolAt(key, 1, 13)).isNull();
+
+    context.setRuntime(NOSONARLINT_RUNTIME);
+    createSensor().execute(context);
+
+    // cpd tokens exist
+    assertThat(context.cpdTokens(key)).isNotEmpty();
+
+    // highlighting exists
+    assertThat(context.highlightingTypeAt(key, 1, 0)).isNotEmpty();
+
+    // coverage exists
+    assertThat(context.lineHits(key, 1)).isEqualTo(6);
+
+    // metrics are saved
+    assertThat(context.measure(key, CoreMetrics.NCLOC)).isNotNull();
+
+    // symbol highlighting is there
+    assertThat(context.referencesForSymbolAt(key, 1, 13)).isNotNull();
   }
 
   private CompatibleInputFile inputFile(String relativePath) {
