@@ -403,11 +403,11 @@ public class SymbolicExecution {
 
   private void pushAllSuccessors(CfgBlock block, ProgramState currentState) {
     for (CfgBlock successor : block.successors()) {
-      pushSuccessor(successor, block, currentState);
+      pushSuccessor(successor, currentState);
     }
   }
 
-  private void pushSuccessor(CfgBlock successor, CfgBlock block, @Nullable ProgramState currentState) {
+  private void pushSuccessor(CfgBlock successor, @Nullable ProgramState currentState) {
     if (currentState != null) {
       Set<Symbol> liveInSymbols = liveVariableAnalysis.getLiveInSymbols(successor);
       workList.addLast(new BlockExecution(successor, currentState.removeSymbols(liveInSymbols)));
@@ -448,7 +448,7 @@ public class SymbolicExecution {
         // FIXME "for-of" iteration over "null" or "undefined" value will raise "TypeError"
         // so this logic should be applied to "for-in" loop only
         if (expressionConstraint.isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
-          pushSuccessor(branchingBlock.falseSuccessor(), block, currentState);
+          pushSuccessor(branchingBlock.falseSuccessor(), currentState);
           shouldPushAllSuccessors = false;
         }
       }
@@ -466,13 +466,13 @@ public class SymbolicExecution {
 
     Optional<ProgramState> constrainedTruePS = currentState.constrain(conditionSymbolicValue, Constraint.TRUTHY);
     if (constrainedTruePS.isPresent()) {
-      pushConditionSuccessor(block.trueSuccessor(), block, constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY, block.branchingTree());
+      pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY, block.branchingTree());
       conditionResults.put(lastElement, Constraint.TRUTHY);
     }
 
     Optional<ProgramState> constrainedFalsePS = currentState.constrain(conditionSymbolicValue, Constraint.FALSY);
     if (constrainedFalsePS.isPresent()) {
-      pushConditionSuccessor(block.falseSuccessor(), block, constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY, block.branchingTree());
+      pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY, block.branchingTree());
       conditionResults.put(lastElement, Constraint.FALSY);
     }
 
@@ -482,7 +482,7 @@ public class SymbolicExecution {
   }
 
   private void pushConditionSuccessor(
-    CfgBlock successor, CfgBlock block, ProgramState programState, SymbolicValue conditionSymbolicValue, Constraint constraint, Tree branchingTree) {
+    CfgBlock successor, ProgramState programState, SymbolicValue conditionSymbolicValue, Constraint constraint, Tree branchingTree) {
 
     ProgramState state = programState;
     if (!successor.elements().isEmpty() && successor.elements().get(0).is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
@@ -496,7 +496,7 @@ public class SymbolicExecution {
         state.assertEmptyStack(branchingTree);
       }
     }
-    pushSuccessor(successor, block, state);
+    pushSuccessor(successor, state);
   }
 
   private ProgramState newSymbolicValue(ProgramState currentState, Tree left) {
