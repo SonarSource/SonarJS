@@ -49,5 +49,16 @@ function main(array, i) {
    barReturn = bar();
    foo(barReturn); // PS barReturn=UNDEFINED_OR_TRUTHY_NUMBER
 
+   bar = function() {
+      if (condition) {
+        return 5;
+      }
+
+      return; // implicit return of "undefined"
+   }
+
+   barReturn = bar();
+   foo(barReturn); // PS barReturn=UNDEFINED_OR_TRUTHY_NUMBER
+
 
 }

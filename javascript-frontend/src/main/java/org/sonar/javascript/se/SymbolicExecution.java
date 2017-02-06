@@ -62,9 +62,11 @@ import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
 import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
+import static org.sonar.javascript.se.Constraint.UNDEFINED;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.FUNCTION;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.IMPORT;
@@ -229,8 +231,13 @@ public class SymbolicExecution {
       beforeBlockElement(currentState, element);
 
       if (element.is(Kind.RETURN_STATEMENT)) {
-        Constraint returnValueConstraint = currentState.getConstraint(currentState.peekStack());
-        addReturnConstraint(returnValueConstraint);
+        ReturnStatementTree returnStatement = (ReturnStatementTree) element;
+        if (returnStatement.expression() != null) {
+          addReturnConstraint(currentState.getConstraint(currentState.peekStack()));
+
+        } else {
+          addReturnConstraint(UNDEFINED);
+        }
       }
 
       if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
@@ -297,8 +304,22 @@ public class SymbolicExecution {
       }
     }
 
+    checkForImplicitReturn(block);
+
     if (!stopExploring) {
       handleSuccessors(block, currentState);
+    }
+  }
+
+  private void checkForImplicitReturn(CfgBlock block) {
+    boolean blockLeadsToEnd = block.successors().contains(cfg.end());
+    if (blockLeadsToEnd) {
+      List<Tree> elements = block.elements();
+      Tree lastElement = elements.get(elements.size() - 1);
+
+      if (!lastElement.is(Kind.RETURN_STATEMENT)) {
+        addReturnConstraint(Constraint.UNDEFINED);
+      }
     }
   }
 
@@ -388,12 +409,6 @@ public class SymbolicExecution {
 
   private void pushSuccessor(CfgBlock successor, CfgBlock block, @Nullable ProgramState currentState) {
     if (currentState != null) {
-      List<Tree> elements = block.elements();
-      Tree lastElement = elements.get(elements.size() - 1);
-      if (successor.equals(cfg.end()) && !lastElement.is(Kind.RETURN_STATEMENT)) {
-        addReturnConstraint(Constraint.UNDEFINED);
-      }
-
       Set<Symbol> liveInSymbols = liveVariableAnalysis.getLiveInSymbols(successor);
       workList.addLast(new BlockExecution(successor, currentState.removeSymbols(liveInSymbols)));
     }
