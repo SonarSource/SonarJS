@@ -155,8 +155,13 @@ public class SymbolicExecutionTest {
   }
 
   @Test
-  public void cross_procedure() throws Exception {
-    verifySE("cross_procedure.js");
+  public void cross_procedure_single_return() throws Exception {
+    verifySE("cross_procedure_single_return.js");
+  }
+
+  @Test
+  public void cross_procedure_argument_constraints() throws Exception {
+    verifySE("cross_procedure_argument_constraints.js");
   }
 
   private void runSe(String filename) {

@@ -24,10 +24,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
@@ -45,6 +49,7 @@ import org.sonar.javascript.se.sv.TypeOfSymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -169,7 +174,7 @@ public class ExpressionStack {
         newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
         break;
       case CALL_EXPRESSION:
-        executeCallExpression((CallExpressionTree) expression, newStack);
+        executeCallExpression((CallExpressionTree) expression, newStack, constraints);
         break;
       case FUNCTION_EXPRESSION:
       case GENERATOR_FUNCTION_EXPRESSION:
@@ -305,17 +310,19 @@ public class ExpressionStack {
     }
   }
 
-  private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack) {
+  private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack, ProgramStateConstraints constraints) {
     int argumentsNumber = expression.arguments().parameters().size();
-    List<SymbolicValue> argumentConstraints = new ArrayList<>();
+    List<SymbolicValue> argumentValues = new ArrayList<>();
 
     for (int i = 0; i < argumentsNumber; i++) {
-      argumentConstraints.add(newStack.pop());
+      argumentValues.add(newStack.pop());
     }
+
+    argumentValues = Lists.reverse(argumentValues);
 
     SymbolicValue callee = newStack.pop();
     if (callee instanceof FunctionSymbolicValue) {
-      newStack.push(((FunctionSymbolicValue) callee).call(Lists.reverse(argumentConstraints)));
+      newStack.push(((FunctionSymbolicValue) callee).call(argumentValues));
 
     } else if (callee instanceof FunctionWithTreeSymbolicValue) {
       FunctionTree functionTreeToExecute = ((FunctionWithTreeSymbolicValue) callee).getFunctionTree();
@@ -324,15 +331,32 @@ public class ExpressionStack {
         pushUnknown(newStack);
 
       } else {
+        List<Constraint> argumentConstraints = argumentValues.stream().map(constraints::getConstraint).collect(Collectors.toList());
         ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTreeToExecute.body());
         SymbolicExecution symbolicExecution = new SymbolicExecution(scopeToExecute, cfg, ImmutableList.of());
-        symbolicExecution.visitCfg();
+        symbolicExecution.visitCfg(constraintsOnParameters(functionTreeToExecute, argumentConstraints));
         newStack.push(new SymbolicValueWithConstraint(symbolicExecution.getReturnConstraint()));
       }
 
     } else {
       pushUnknown(newStack);
     }
+  }
+
+  private static Optional<Map<Symbol, Constraint>> constraintsOnParameters(FunctionTree functionTree, List<Constraint> argumentConstraints) {
+    Map<Symbol, Constraint> constraintsOnParameters = new HashMap<>();
+
+    Iterator<Constraint> arguments = argumentConstraints.iterator();
+    for (Tree parameter : functionTree.parameterList()) {
+      if (!parameter.is(Kind.BINDING_IDENTIFIER)) {
+        return Optional.empty();
+      }
+
+      Constraint constraint = arguments.hasNext() ? arguments.next() : Constraint.UNDEFINED;
+      constraintsOnParameters.put(((IdentifierTree) parameter).symbol(), constraint);
+    }
+
+    return Optional.of(constraintsOnParameters);
   }
 
   private static void popObjectLiteralProperties(ObjectLiteralTree objectLiteralTree, Deque<SymbolicValue> newStack) {
