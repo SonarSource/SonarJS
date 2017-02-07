@@ -25,6 +25,8 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -100,12 +102,12 @@ public class SymbolicExecution {
     this.checks = checks;
   }
 
-  public void visitCfg() {
+  public void visitCfg(Optional<Map<Symbol, Constraint>> argumentConstraints) {
     for (SeCheck check : checks) {
       check.startOfExecution(functionScope);
     }
 
-    workList.addLast(new BlockExecution(cfgStartBlock, initialState()));
+    workList.addLast(new BlockExecution(cfgStartBlock, initialState(argumentConstraints)));
 
     for (int i = 0; i < MAX_BLOCK_EXECUTIONS && !workList.isEmpty(); i++) {
       BlockExecution blockExecution = workList.removeFirst();
@@ -158,7 +160,7 @@ public class SymbolicExecution {
     return false;
   }
 
-  private ProgramState initialState() {
+  private ProgramState initialState(Optional<Map<Symbol, Constraint>> argumentConstraints) {
     ProgramState initialState = ProgramState.emptyState();
 
     for (Symbol localVar : trackedVariables) {
@@ -182,6 +184,19 @@ public class SymbolicExecution {
     }
 
     initialState = initiateFunctionDeclarationSymbols(initialState);
+
+    if (argumentConstraints.isPresent()) {
+      return initialStateWithArgumentConstraints(initialState, argumentConstraints.get());
+    }
+
+    return initialState;
+  }
+
+  private ProgramState initialStateWithArgumentConstraints(ProgramState initialState, Map<Symbol, Constraint> argumentConstraints) {
+    for (Entry<Symbol, Constraint> entry : argumentConstraints.entrySet()) {
+      initialState = initialState.newSymbolicValue(entry.getKey(), entry.getValue());
+    }
+
     return initialState;
   }
 
