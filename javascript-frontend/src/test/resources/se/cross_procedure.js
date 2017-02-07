@@ -54,7 +54,7 @@ function main(array, i) {
         return 5;
       }
 
-      return; // implicit return of "undefined"
+      return; // expression-less return of "undefined"
    }
 
    barReturn = bar();
