@@ -47,7 +47,7 @@ public class GlobalVariableNames {
     "meteor, mocha, mongo, nashorn, node, phantomjs, prototypejs, protractor, qunit, rhino, serviceworker, shared-node-browser, shelljs, webextensions, worker, wsh, yui";
 
   public static final String GLOBALS_PROPERTY_KEY = "sonar.javascript.globals";
-  public static final String GLOBALS_DEFAULT_VALUE = "require,define,jQuery,$,angular,goog,google,OpenLayers,d3,dojo,dojox,dijit,Backbone,YUI,moment,casper";
+  public static final String GLOBALS_DEFAULT_VALUE = "angular,goog,google,OpenLayers,d3,dojo,dojox,dijit,Backbone,moment,casper";
 
   private static final Map<String, Set<String>> ENVIRONMENTS = environments();
   private static final Logger LOGGER = Loggers.get(GlobalVariableNames.class);
