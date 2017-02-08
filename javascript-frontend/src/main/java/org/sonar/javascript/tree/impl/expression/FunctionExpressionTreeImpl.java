@@ -23,9 +23,8 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.declaration.FunctionTreeImpl;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -37,7 +36,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class FunctionExpressionTreeImpl extends JavaScriptTree implements FunctionExpressionTree, TypableTree {
+public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements FunctionExpressionTree, TypableTree {
 
   private final SyntaxToken asyncToken;
   private final SyntaxToken functionKeyword;
@@ -47,7 +46,6 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   private final BlockTreeImpl body;
   private final Kind kind;
   private Type functionType;
-  private Scope scope;
 
   private FunctionExpressionTreeImpl(
     @Nullable SyntaxToken asyncToken,
@@ -142,14 +140,5 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   @Override
   public void add(Type type) {
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Scope scope() {
-    return scope;
-  }
-
-  public void scope(Scope scope) {
-    this.scope = scope;
   }
 }

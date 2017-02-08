@@ -24,10 +24,8 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
@@ -35,7 +33,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implements GeneratorMethodDeclarationTree {
+public class GeneratorMethodDeclarationTreeImpl extends FunctionTreeImpl implements GeneratorMethodDeclarationTree {
 
   private final Kind kind;
 
@@ -45,7 +43,6 @@ public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implement
   private final Tree name;
   private final ParameterListTreeImpl parameters;
   private final BlockTreeImpl body;
-  private Scope scope;
 
   public GeneratorMethodDeclarationTreeImpl(
     List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken, InternalSyntaxToken starToken,
@@ -120,14 +117,5 @@ public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implement
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitMethodDeclaration(this);
-  }
-
-  @Override
-  public Scope scope() {
-    return scope;
-  }
-
-  public void scope(Scope scope) {
-    this.scope = scope;
   }
 }

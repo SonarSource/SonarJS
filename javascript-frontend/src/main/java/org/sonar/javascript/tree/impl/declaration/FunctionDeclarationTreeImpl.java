@@ -23,11 +23,9 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
@@ -36,7 +34,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class FunctionDeclarationTreeImpl extends JavaScriptTree implements FunctionDeclarationTree {
+public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements FunctionDeclarationTree {
 
   private final SyntaxToken asyncToken;
   private final SyntaxToken functionKeyword;
@@ -45,7 +43,6 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
   private final ParameterListTree parameters;
   private final BlockTree body;
   private final Kind kind;
-  private Scope scope;
 
   private FunctionDeclarationTreeImpl(
     @Nullable SyntaxToken asyncToken,
@@ -126,14 +123,5 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitFunctionDeclaration(this);
-  }
-
-  @Override
-  public Scope scope() {
-    return scope;
-  }
-
-  public void scope(Scope scope) {
-    this.scope = scope;
   }
 }
