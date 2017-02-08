@@ -48,13 +48,24 @@ function several_paths(cond) {
   foo(cond);
 }
 
-function not_function_tree() {
+function not_function_tree_as_argument() {
   var myArray = [1, 2];
 
   myArray.reduce(42);
 
   var callback = function(){};
-  myArray.reduce(callback); // FN
+//S              ^^^^^^^^ ID1 {{Callback declaration}}
+  myArray.reduce(callback); // Noncompliant [[id=ID1]] {{Add a "return" statement to this callback.}}
+//               ^^^^^^^^
+
+  function callbackDeclaration() {}
+//S        ^^^^^^^^^^^^^^^^^^^ ID2
+  myArray.reduce(callbackDeclaration); // Noncompliant [[id=ID2]]
+
+  var identifierWithoutFunction = 42;
+  myArray.reduce(identifierWithoutFunction); // Ok
+
+  myArray.reduce(foo().bar()); // Ok
 }
 
 var globalArr = [1, 2];
