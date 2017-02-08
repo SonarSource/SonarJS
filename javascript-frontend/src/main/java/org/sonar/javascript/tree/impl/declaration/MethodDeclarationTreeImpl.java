@@ -23,10 +23,8 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -34,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodDeclarationTree {
+public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements MethodDeclarationTree {
 
   private final Kind kind;
 
@@ -44,7 +42,6 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   private final Tree name;
   private final ParameterListTreeImpl parameters;
   private final BlockTreeImpl body;
-  private Scope scope;
 
   public MethodDeclarationTreeImpl(
     List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
@@ -114,14 +111,5 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   @Override
   public List<Tree> parameterList() {
     return parameters.parameters();
-  }
-
-  @Override
-  public Scope scope() {
-    return scope;
-  }
-
-  public void scope(Scope scope) {
-    this.scope = scope;
   }
 }
