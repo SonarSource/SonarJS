@@ -79,7 +79,7 @@ public class GlobalVariableNames {
   }
 
   @VisibleForTesting
-  protected static Map<String, Set<String>> environments() {
+  static Map<String, Set<String>> environments() {
     InputStream stream = GlobalVariableNames.class.getResourceAsStream(GLOBALS_FILE);
     InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
     try {
