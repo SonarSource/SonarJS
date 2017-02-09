@@ -27,18 +27,23 @@ import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 
 @Rule(key = "S3796")
 public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
@@ -63,41 +68,64 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
       DotMemberExpressionTree memberExpression = (DotMemberExpressionTree) element;
 
       if (isArrayPropertyExecuted(currentState) && METHODS_WITH_CALLBACK.contains(memberExpression.property().name())) {
-        checkArgumentToBeFunctionWithReturn(memberExpression, 0);
+        checkArgumentToBeFunctionWithReturn(memberExpression, 0, currentState);
 
       } else if (isArrayFromMethod(memberExpression, currentState)) {
-        checkArgumentToBeFunctionWithReturn(memberExpression, 1);
+        checkArgumentToBeFunctionWithReturn(memberExpression, 1, currentState);
       }
     }
 
   }
 
-  private void checkArgumentToBeFunctionWithReturn(DotMemberExpressionTree callee, int argumentIndex) {
+  private void checkArgumentToBeFunctionWithReturn(DotMemberExpressionTree callee, int argumentIndex, ProgramState currentState) {
     Tree parent = ((JavaScriptTree) callee).getParent();
 
     if (parent.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpressionTree = (CallExpressionTree) parent;
 
       if (callExpressionTree.arguments().parameters().size() > argumentIndex) {
-        Tree secondArgument = callExpressionTree.arguments().parameters().get(argumentIndex);
+        Tree argument = callExpressionTree.arguments().parameters().get(argumentIndex);
 
-        if (secondArgument.is(Kind.FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION) && !hasReturnWithValue((FunctionTree)secondArgument)) {
-          raiseIssue(secondArgument);
+        if (argument.is(Kind.FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION) && !hasReturnWithValue((FunctionTree)argument)) {
+          addUniqueIssue(functionToken((FunctionTree) argument), MESSAGE);
+
+        } else if (argument.is(Kind.IDENTIFIER_REFERENCE)) {
+          checkArgumentIdentifier((IdentifierTree) argument, currentState);
         }
       }
     }
   }
 
-  private void raiseIssue(Tree firstArgument) {
-    SyntaxToken tokenToRaiseIssue;
+  private void checkArgumentIdentifier(IdentifierTree argument, ProgramState currentState) {
+    Symbol symbol = argument.symbol();
+    if (symbol != null) {
+      SymbolicValue symbolicValue = currentState.getSymbolicValue(symbol);
 
-    if (firstArgument.is(Kind.FUNCTION_EXPRESSION)) {
-      tokenToRaiseIssue = ((FunctionExpressionTree) firstArgument).functionKeyword();
+      if (symbolicValue instanceof FunctionWithTreeSymbolicValue) {
+        FunctionTree functionTree = ((FunctionWithTreeSymbolicValue) symbolicValue).getFunctionTree();
+
+        if (!hasReturnWithValue(functionTree)) {
+          IssueLocation secondaryLocation = new IssueLocation(functionToken(functionTree), "Callback declaration");
+          addUniqueIssue(argument, MESSAGE, secondaryLocation);
+        }
+      }
+    }
+  }
+
+  private static SyntaxToken functionToken(FunctionTree functionTree) {
+    SyntaxToken token;
+
+    if (functionTree.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION)) {
+      token = ((FunctionDeclarationTree) functionTree).name().identifierToken();
+
+    } else if (functionTree.is(Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
+      token = ((FunctionExpressionTree) functionTree).functionKeyword();
+
     } else {
-      tokenToRaiseIssue = ((ArrowFunctionTree) firstArgument).doubleArrow();
+      token = ((ArrowFunctionTree) functionTree).doubleArrow();
     }
 
-    addUniqueIssue(tokenToRaiseIssue, MESSAGE);
+    return token;
   }
 
   private static boolean hasReturnWithValue(FunctionTree functionTree) {
