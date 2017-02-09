@@ -66,7 +66,39 @@ function not_function_tree_as_argument() {
   myArray.reduce(identifierWithoutFunction); // Ok
 
   myArray.reduce(foo().bar()); // Ok
+
+  function emptyReturnCallback() {
+    return;
+  }
+
+  myArray.reduce(emptyReturnCallback); // Noncompliant
 }
 
 var globalArr = [1, 2];
 globalArr.reduce(function(){}); // FN, we are limited to the function scope
+
+function function_returned_by_function() {
+  var myArray = [1, 2];
+
+  var callbackProvider = function() {
+    return function() {};
+  };
+
+  myArray.map(callbackProvider);  // OK
+
+  myArray.map(callbackProvider()); // FN, not yet supported
+
+}
+
+function property_function() {
+  var myArray = [1, 2];
+
+  var obj = {
+    badCallback : function() {},
+    goodCallback : function() { return something; }
+  };
+
+  myArray.map(obj.goodCallback);    // OK
+  myArray.map(obj.badCallback);     // FN, not yet supported
+
+}
