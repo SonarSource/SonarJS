@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
@@ -47,7 +48,7 @@ public class GlobalVariableNames {
     "meteor, mocha, mongo, nashorn, node, phantomjs, prototypejs, protractor, qunit, rhino, serviceworker, shared-node-browser, shelljs, webextensions, worker, wsh, yui";
 
   public static final String GLOBALS_PROPERTY_KEY = "sonar.javascript.globals";
-  public static final String GLOBALS_DEFAULT_VALUE = "require,define,jQuery,$,angular,goog,google,OpenLayers,d3,dojo,dojox,dijit,Backbone,YUI,moment,casper";
+  public static final String GLOBALS_DEFAULT_VALUE = "angular,goog,google,OpenLayers,d3,dojo,dojox,dijit,Backbone,moment,casper";
 
   private static final Map<String, Set<String>> ENVIRONMENTS = environments();
   private static final Logger LOGGER = Loggers.get(GlobalVariableNames.class);
@@ -77,8 +78,8 @@ public class GlobalVariableNames {
     this.names = namesBuilder.build();
   }
 
-
-  private static Map<String, Set<String>> environments() {
+  @VisibleForTesting
+  static Map<String, Set<String>> environments() {
     InputStream stream = GlobalVariableNames.class.getResourceAsStream(GLOBALS_FILE);
     InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
     try {
