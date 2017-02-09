@@ -24,13 +24,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.ControlFlowGraph;
@@ -49,7 +46,6 @@ import org.sonar.javascript.se.sv.TypeOfSymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -334,7 +330,8 @@ public class ExpressionStack {
         List<Constraint> argumentConstraints = argumentValues.stream().map(constraints::getConstraint).collect(Collectors.toList());
         ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTreeToExecute.body());
         SymbolicExecution symbolicExecution = new SymbolicExecution(scopeToExecute, cfg, ImmutableList.of());
-        symbolicExecution.visitCfg(constraintsOnParameters(functionTreeToExecute, argumentConstraints));
+        ProgramState initialProgramState = initialProgramStateWithParameterConstraints(functionTreeToExecute, argumentConstraints);
+        symbolicExecution.visitCfg(initialProgramState);
         newStack.push(new SymbolicValueWithConstraint(symbolicExecution.getReturnConstraint()));
       }
 
@@ -343,20 +340,20 @@ public class ExpressionStack {
     }
   }
 
-  private static Optional<Map<Symbol, Constraint>> constraintsOnParameters(FunctionTree functionTree, List<Constraint> argumentConstraints) {
-    Map<Symbol, Constraint> constraintsOnParameters = new HashMap<>();
+  private static ProgramState initialProgramStateWithParameterConstraints(FunctionTree functionTree, List<Constraint> argumentConstraints) {
+    ProgramState initialProgramState = ProgramState.emptyState();
 
     Iterator<Constraint> arguments = argumentConstraints.iterator();
     for (Tree parameter : functionTree.parameterList()) {
       if (!parameter.is(Kind.BINDING_IDENTIFIER)) {
-        return Optional.empty();
+        return ProgramState.emptyState();
       }
 
       Constraint constraint = arguments.hasNext() ? arguments.next() : Constraint.UNDEFINED;
-      constraintsOnParameters.put(((IdentifierTree) parameter).symbol(), constraint);
+      initialProgramState = initialProgramState.newSymbolicValue(((IdentifierTree) parameter).symbol(), constraint);
     }
 
-    return Optional.of(constraintsOnParameters);
+    return initialProgramState;
   }
 
   private static void popObjectLiteralProperties(ObjectLiteralTree objectLiteralTree, Deque<SymbolicValue> newStack) {

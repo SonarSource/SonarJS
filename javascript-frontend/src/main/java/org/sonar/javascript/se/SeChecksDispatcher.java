@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -70,7 +69,7 @@ public class SeChecksDispatcher extends SubscriptionVisitorCheck {
     if (functionTree.body().is(Kind.BLOCK)) {
       ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTree.body());
       Scope functionScope = getContext().getSymbolModel().getScope(functionTree);
-      new SymbolicExecution(functionScope, cfg, checks).visitCfg(Optional.empty());
+      new SymbolicExecution(functionScope, cfg, checks).visitCfg(ProgramState.emptyState());
     }
   }
 

@@ -25,8 +25,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -102,12 +100,12 @@ public class SymbolicExecution {
     this.checks = checks;
   }
 
-  public void visitCfg(Optional<Map<Symbol, Constraint>> argumentConstraints) {
+  public void visitCfg(ProgramState initialStateWithParameters) {
     for (SeCheck check : checks) {
       check.startOfExecution(functionScope);
     }
 
-    workList.addLast(new BlockExecution(cfgStartBlock, initialState(argumentConstraints)));
+    workList.addLast(new BlockExecution(cfgStartBlock, initialState(initialStateWithParameters)));
 
     for (int i = 0; i < MAX_BLOCK_EXECUTIONS && !workList.isEmpty(); i++) {
       BlockExecution blockExecution = workList.removeFirst();
@@ -160,8 +158,8 @@ public class SymbolicExecution {
     return false;
   }
 
-  private ProgramState initialState(Optional<Map<Symbol, Constraint>> argumentConstraints) {
-    ProgramState initialState = ProgramState.emptyState();
+  private ProgramState initialState(ProgramState initialStateWithParameters) {
+    ProgramState initialState = initialStateWithParameters;
 
     for (Symbol localVar : trackedVariables) {
       Constraint initialConstraint = null;
@@ -174,7 +172,10 @@ public class SymbolicExecution {
       } else if (symbolIs(localVar, CLASS)) {
         initialConstraint = Constraint.OTHER_OBJECT;
       }
-      initialState = initialState.newSymbolicValue(localVar, initialConstraint);
+
+      if (initialState.getSymbolicValue(localVar) == null) {
+        initialState = initialState.newSymbolicValue(localVar, initialConstraint);
+      }
     }
 
     Symbol arguments = functionScope.getSymbol("arguments");
@@ -185,20 +186,7 @@ public class SymbolicExecution {
 
     initialState = initiateFunctionDeclarationSymbols(initialState);
 
-    if (argumentConstraints.isPresent()) {
-      return initialStateWithArgumentConstraints(initialState, argumentConstraints.get());
-    }
-
     return initialState;
-  }
-
-  private static ProgramState initialStateWithArgumentConstraints(ProgramState initialState, Map<Symbol, Constraint> argumentConstraints) {
-    ProgramState updatedInitialState = initialState;
-    for (Entry<Symbol, Constraint> entry : argumentConstraints.entrySet()) {
-      updatedInitialState = updatedInitialState.newSymbolicValue(entry.getKey(), entry.getValue());
-    }
-
-    return updatedInitialState;
   }
 
   /**
