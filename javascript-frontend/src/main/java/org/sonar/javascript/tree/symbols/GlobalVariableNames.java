@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
@@ -77,8 +78,8 @@ public class GlobalVariableNames {
     this.names = namesBuilder.build();
   }
 
-
-  private static Map<String, Set<String>> environments() {
+  @VisibleForTesting
+  protected static Map<String, Set<String>> environments() {
     InputStream stream = GlobalVariableNames.class.getResourceAsStream(GLOBALS_FILE);
     InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
     try {
