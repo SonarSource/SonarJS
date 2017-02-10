@@ -17,17 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.se.points;
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import org.sonar.javascript.se.ProgramState;
 
-public class OpenCurlyBracesAtEOLCheckTest {
+public class NoActionProgramPoint implements ProgramPoint {
 
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new OpenCurlyBracesAtEOLCheck(), new File("src/test/resources/checks/openCurlyBracesAtEOL.js"));
+  @Override
+  public ProgramState execute(ProgramState state) {
+    return state;
   }
-
 }

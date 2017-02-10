@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -34,7 +35,7 @@ public class InOperatorTypeErrorCheck extends AbstractAnyPathSeCheck {
   private static final String MESSAGE = "TypeError can be thrown as this operand might have primitive type.";
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(Kind.RELATIONAL_IN)) {
       SymbolicValue rightOperandValue = currentState.peekStack();
       Constraint rightOperandConstraint = currentState.getConstraint(rightOperandValue);

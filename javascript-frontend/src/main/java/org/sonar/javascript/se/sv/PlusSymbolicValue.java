@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.se.sv;
 
-import com.google.common.base.Preconditions;
 import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -32,12 +31,12 @@ import org.sonar.javascript.se.ProgramState;
  */
 public class PlusSymbolicValue implements SymbolicValue {
 
+  private static final Constraint NUMBER_OR_BOOLEAN = Constraint.ANY_NUMBER.or(Constraint.ANY_BOOLEAN);
+
   private final SymbolicValue firstOperandValue;
   private final SymbolicValue secondOperandValue;
 
   public PlusSymbolicValue(SymbolicValue firstOperandValue, SymbolicValue secondOperandValue) {
-    Preconditions.checkArgument(firstOperandValue != null, "operand value should not be null");
-    Preconditions.checkArgument(secondOperandValue != null, "operand value should not be null");
     this.firstOperandValue = firstOperandValue;
     this.secondOperandValue = secondOperandValue;
   }
@@ -49,18 +48,44 @@ public class PlusSymbolicValue implements SymbolicValue {
 
   @Override
   public Constraint baseConstraint(ProgramState state) {
-    Constraint numberOrBoolean = Constraint.NUMBER_PRIMITIVE.or(Constraint.BOOLEAN_PRIMITIVE);
 
     Constraint firstConstraint = state.getConstraint(firstOperandValue);
     Constraint secondConstraint = state.getConstraint(secondOperandValue);
 
-    if (firstConstraint.isStricterOrEqualTo(Constraint.ANY_STRING) || secondConstraint.isStricterOrEqualTo(Constraint.ANY_STRING)) {
+    if (atLeastOneUndefined(firstConstraint, secondConstraint) &&
+        (atLeastOneNumberOrBoolean(firstConstraint, secondConstraint) || bothUndefined(firstConstraint, secondConstraint))) {
+      return Constraint.NAN;
+    }
+
+    if (atLeastOneString(firstConstraint, secondConstraint)) {
       return Constraint.STRING_PRIMITIVE;
 
-    } else if (firstConstraint.isStricterOrEqualTo(numberOrBoolean) && secondConstraint.isStricterOrEqualTo(numberOrBoolean)) {
+    } else if (bothNumberOrBoolean(firstConstraint, secondConstraint)) {
       return Constraint.NUMBER_PRIMITIVE;
+
     }
+
     return Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE);
+  }
+
+  private static boolean bothUndefined(Constraint firstConstraint, Constraint secondConstraint) {
+    return firstConstraint.isStricterOrEqualTo(Constraint.UNDEFINED) && secondConstraint.isStricterOrEqualTo(Constraint.UNDEFINED);
+  }
+
+  private static boolean atLeastOneString(Constraint firstConstraint, Constraint secondConstraint) {
+    return firstConstraint.isStricterOrEqualTo(Constraint.ANY_STRING) || secondConstraint.isStricterOrEqualTo(Constraint.ANY_STRING);
+  }
+
+  private static boolean atLeastOneUndefined(Constraint firstConstraint, Constraint secondConstraint) {
+    return firstConstraint.isStricterOrEqualTo(Constraint.UNDEFINED) || secondConstraint.isStricterOrEqualTo(Constraint.UNDEFINED);
+  }
+
+  private static boolean atLeastOneNumberOrBoolean(Constraint firstConstraint, Constraint secondConstraint) {
+    return firstConstraint.isStricterOrEqualTo(NUMBER_OR_BOOLEAN) || secondConstraint.isStricterOrEqualTo(NUMBER_OR_BOOLEAN);
+  }
+
+  private static boolean bothNumberOrBoolean(Constraint firstConstraint, Constraint secondConstraint) {
+    return firstConstraint.isStricterOrEqualTo(NUMBER_OR_BOOLEAN) && secondConstraint.isStricterOrEqualTo(NUMBER_OR_BOOLEAN);
   }
 
   @Override

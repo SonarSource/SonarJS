@@ -25,6 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Type;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -50,7 +51,7 @@ public class NonExistentPropertyAccessCheck extends AbstractAnyPathSeCheck {
   private ProgramState programStateBefore = null;
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     programStateBefore = currentState;
   }
 

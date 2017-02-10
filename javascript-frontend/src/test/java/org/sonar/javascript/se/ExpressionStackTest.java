@@ -216,9 +216,6 @@ public class ExpressionStackTest {
     execute("x = {42: b}");
     assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
 
-    execute("x = {[1 + 2]: b}");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-
     execute("x = { method(){} }");
     assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
 
@@ -261,30 +258,6 @@ public class ExpressionStackTest {
 
   @Test
   public void number_expressions() throws Exception {
-    execute("a - b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-
-    execute("a * b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-
-    execute("a / b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-
-    execute("a % b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-
-    execute("a & b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-    execute("a | b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-    execute("a ^ b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-    execute("a << b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-    execute("a >> b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-    execute("a >>> b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("a++");
     assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
@@ -306,43 +279,6 @@ public class ExpressionStackTest {
 
     execute("~a");
     assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-  }
-
-  @Test
-  public void plus_binary_expression() throws Exception {
-    Constraint numberOrString = Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE);
-
-    execute("x = a + b");
-    assertSingleValueInStackWithConstraint(numberOrString);
-
-    execute("x = a + 'str'");
-    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
-
-    execute("x = a + 1");
-    assertSingleValueInStackWithConstraint(numberOrString);
-
-    execute("x = 'str' + 1");
-    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
-
-    execute("x = 'str' + true");
-    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
-
-    execute("x = a + true");
-    assertSingleValueInStackWithConstraint(numberOrString);
-  }
-
-  @Test
-  public void plus_assignment() throws Exception {
-    Constraint numberOrString = Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE);
-
-    execute("x += a");
-    assertSingleValueInStackWithConstraint(numberOrString);
-
-    execute("x += 'str'");
-    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
-
-    execute("x += 1");
-    assertSingleValueInStackWithConstraint(numberOrString);
   }
 
   @Test
@@ -432,7 +368,6 @@ public class ExpressionStackTest {
         stack = stack.execute((ExpressionTree) element, ProgramState.emptyState());
       }
     }
-
 
   }
 

@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.impl.SeparatedList;
@@ -38,7 +39,7 @@ public class ReturnValueNotIgnoredCheck extends AbstractAnyPathSeCheck {
   private static final String MESSAGE = "The return value of \"%s\" must be used.";
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTreeImpl callExpression = (CallExpressionTreeImpl) element;
       Tree parent = callExpression.getParent();

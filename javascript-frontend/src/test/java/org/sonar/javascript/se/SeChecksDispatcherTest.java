@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.MapSettings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -42,7 +43,7 @@ public class SeChecksDispatcherTest {
 
   @Test
   public void test() throws Exception {
-    SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.<SeCheck>of(new TestSeCheck()));
+    SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of(new TestSeCheck()));
     List<Issue> issues = seChecksDispatcher.scanFile(createContext(new TestInputFile("src/test/resources/se/se_dispatcher_test.js")));
     assertThat(issues).hasSize(4);
     assertThat(((PreciseIssue) issues.get(0)).primaryLocation().message()).isEqualTo("Start of execution");
@@ -65,8 +66,8 @@ public class SeChecksDispatcherTest {
     }
 
     @Override
-    public void beforeBlockElement(ProgramState currentState, Tree element) {
-      super.beforeBlockElement(currentState, element);
+    public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
+      super.beforeBlockElement(currentState, element, programPoint);
       addIssue(element, "before element");
     }
 
