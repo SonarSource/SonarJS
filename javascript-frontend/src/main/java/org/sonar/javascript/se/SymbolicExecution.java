@@ -100,12 +100,12 @@ public class SymbolicExecution {
     this.checks = checks;
   }
 
-  public void visitCfg() {
+  public void visitCfg(ProgramState initialStateWithParameters) {
     for (SeCheck check : checks) {
       check.startOfExecution(functionScope);
     }
 
-    workList.addLast(new BlockExecution(cfgStartBlock, initialState()));
+    workList.addLast(new BlockExecution(cfgStartBlock, initialState(initialStateWithParameters)));
 
     for (int i = 0; i < MAX_BLOCK_EXECUTIONS && !workList.isEmpty(); i++) {
       BlockExecution blockExecution = workList.removeFirst();
@@ -158,8 +158,8 @@ public class SymbolicExecution {
     return false;
   }
 
-  private ProgramState initialState() {
-    ProgramState initialState = ProgramState.emptyState();
+  private ProgramState initialState(ProgramState initialStateWithParameters) {
+    ProgramState initialState = initialStateWithParameters;
 
     for (Symbol localVar : trackedVariables) {
       Constraint initialConstraint = null;
@@ -172,7 +172,10 @@ public class SymbolicExecution {
       } else if (symbolIs(localVar, CLASS)) {
         initialConstraint = Constraint.OTHER_OBJECT;
       }
-      initialState = initialState.newSymbolicValue(localVar, initialConstraint);
+
+      if (initialState.getSymbolicValue(localVar) == null) {
+        initialState = initialState.newSymbolicValue(localVar, initialConstraint);
+      }
     }
 
     Symbol arguments = functionScope.getSymbol("arguments");
@@ -182,6 +185,7 @@ public class SymbolicExecution {
     }
 
     initialState = initiateFunctionDeclarationSymbols(initialState);
+
     return initialState;
   }
 

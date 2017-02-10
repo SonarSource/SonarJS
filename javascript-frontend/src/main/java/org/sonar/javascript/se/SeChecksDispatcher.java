@@ -69,7 +69,7 @@ public class SeChecksDispatcher extends SubscriptionVisitorCheck {
     if (functionTree.body().is(Kind.BLOCK)) {
       ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTree.body());
       Scope functionScope = getContext().getSymbolModel().getScope(functionTree);
-      new SymbolicExecution(functionScope, cfg, checks).visitCfg();
+      new SymbolicExecution(functionScope, cfg, checks).visitCfg(ProgramState.emptyState());
     }
   }
 

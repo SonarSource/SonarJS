@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
@@ -169,7 +170,7 @@ public class ExpressionStack {
         newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
         break;
       case CALL_EXPRESSION:
-        executeCallExpression((CallExpressionTree) expression, newStack);
+        executeCallExpression((CallExpressionTree) expression, newStack, constraints);
         break;
       case FUNCTION_EXPRESSION:
       case GENERATOR_FUNCTION_EXPRESSION:
@@ -305,17 +306,19 @@ public class ExpressionStack {
     }
   }
 
-  private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack) {
+  private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack, ProgramStateConstraints constraints) {
     int argumentsNumber = expression.arguments().parameters().size();
-    List<SymbolicValue> argumentConstraints = new ArrayList<>();
+    List<SymbolicValue> argumentValues = new ArrayList<>();
 
     for (int i = 0; i < argumentsNumber; i++) {
-      argumentConstraints.add(newStack.pop());
+      argumentValues.add(newStack.pop());
     }
+
+    argumentValues = Lists.reverse(argumentValues);
 
     SymbolicValue callee = newStack.pop();
     if (callee instanceof FunctionSymbolicValue) {
-      newStack.push(((FunctionSymbolicValue) callee).call(Lists.reverse(argumentConstraints)));
+      newStack.push(((FunctionSymbolicValue) callee).call(argumentValues));
 
     } else if (callee instanceof FunctionWithTreeSymbolicValue) {
       FunctionTree functionTreeToExecute = ((FunctionWithTreeSymbolicValue) callee).getFunctionTree();
@@ -324,15 +327,33 @@ public class ExpressionStack {
         pushUnknown(newStack);
 
       } else {
+        List<Constraint> argumentConstraints = argumentValues.stream().map(constraints::getConstraint).collect(Collectors.toList());
         ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTreeToExecute.body());
         SymbolicExecution symbolicExecution = new SymbolicExecution(scopeToExecute, cfg, ImmutableList.of());
-        symbolicExecution.visitCfg();
+        ProgramState initialProgramState = initialProgramStateWithParameterConstraints(functionTreeToExecute, argumentConstraints);
+        symbolicExecution.visitCfg(initialProgramState);
         newStack.push(new SymbolicValueWithConstraint(symbolicExecution.getReturnConstraint()));
       }
 
     } else {
       pushUnknown(newStack);
     }
+  }
+
+  private static ProgramState initialProgramStateWithParameterConstraints(FunctionTree functionTree, List<Constraint> argumentConstraints) {
+    ProgramState initialProgramState = ProgramState.emptyState();
+
+    Iterator<Constraint> arguments = argumentConstraints.iterator();
+    for (Tree parameter : functionTree.parameterList()) {
+      if (!parameter.is(Kind.BINDING_IDENTIFIER)) {
+        return ProgramState.emptyState();
+      }
+
+      Constraint constraint = arguments.hasNext() ? arguments.next() : Constraint.UNDEFINED;
+      initialProgramState = initialProgramState.newSymbolicValue(((IdentifierTree) parameter).symbol(), constraint);
+    }
+
+    return initialProgramState;
   }
 
   private static void popObjectLiteralProperties(ObjectLiteralTree objectLiteralTree, Deque<SymbolicValue> newStack) {
