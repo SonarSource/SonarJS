@@ -20,43 +20,15 @@
 package org.sonar.javascript.se.points;
 
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.ExpressionStack;
-import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.sv.PlusSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 public class PlusProgramPoint extends BinaryProgramPoint {
 
-  private Constraint firstOperandConstraint;
-  private Constraint secondOperandConstraint;
-
   @Override
-  public ProgramState execute(ProgramState state) {
-    ExpressionStack stack = state.getStack();
-    ExpressionStack stackAfterExecution = stack.apply(newStack -> {
-      final SymbolicValue secondOperandValue = newStack.pop();
-      secondOperandConstraint = state.getConstraint(secondOperandValue);
-      final SymbolicValue firstOperandValue = newStack.pop();
-      firstOperandConstraint = state.getConstraint(firstOperandValue);
-      newStack.push(resolveValue(firstOperandConstraint, secondOperandConstraint, firstOperandValue, secondOperandValue));
-    });
-    return state.withStack(stackAfterExecution);
-  }
-
-  @Override
-  public SymbolicValue resolveValue(Constraint firstOperandConstraint, Constraint secondOperandConstraint, SymbolicValue firstOperandValue, SymbolicValue secondOperandValue) {
+  protected SymbolicValue resolveValue(Constraint firstOperandConstraint, Constraint secondOperandConstraint, SymbolicValue firstOperandValue, SymbolicValue secondOperandValue) {
     return new PlusSymbolicValue(firstOperandValue, secondOperandValue);
-  }
-
-  @Override
-  public Constraint firstOperandConstraint() {
-    return firstOperandConstraint;
-  }
-
-  @Override
-  public Constraint secondOperandConstraint() {
-    return secondOperandConstraint;
   }
 
   public static boolean originatesFrom(Tree element) {

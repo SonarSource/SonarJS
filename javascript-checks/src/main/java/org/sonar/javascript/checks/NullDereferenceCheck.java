@@ -20,12 +20,14 @@
 package org.sonar.javascript.checks;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.se.points.MemberProgramPoint;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -53,36 +55,41 @@ public class NullDereferenceCheck extends SeCheck {
 
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
-    ExpressionTree object = getObject(element);
-    Symbol symbol = getSymbol(object);
-
-    if (symbol != null) {
+    if (programPoint instanceof MemberProgramPoint) {
+      final Optional<ProgramState> result = programPoint.execute(currentState);
+      if (!result.isPresent()) {
+        final ExpressionTree memberOwner = ((MemberExpressionTree) element).object();
+        Symbol symbol = getSymbol(memberOwner);
+        addUniqueIssueForSymbol(memberOwner, String.format(MESSAGE, memberOwner.toString()), symbol);
+      }
+    } else if (isForOfExpression(element)) {
+      Symbol symbol = getSymbol((ExpressionTree) element);
       Constraint constraint = currentState.getConstraint(symbol);
-
-      if (constraint != null && constraint.isStricterOrEqualTo(NULL_OR_UNDEFINED) && !hasIssue.contains(symbol)) {
-        addIssue(object, String.format(MESSAGE, symbol.name()));
-        hasIssue.add(symbol);
+      if (symbol != null && constraint != null && constraint.isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
+        addUniqueIssueForSymbol(element, String.format(MESSAGE, symbol.name()), symbol);
       }
     }
   }
 
-  private static Symbol getSymbol(@Nullable ExpressionTree object) {
-    if (object != null && object.is(Kind.IDENTIFIER_REFERENCE)) {
+  public void addUniqueIssueForSymbol(Tree element, String message, @Nullable Symbol symbol) {
+    if (!hasIssue.contains(symbol)) {
+      addIssue(element, message);
+    }
+    if (symbol != null) {
+      hasIssue.add(symbol);
+    }
+  }
+
+  private static Symbol getSymbol(ExpressionTree object) {
+    if (object.is(Kind.IDENTIFIER_REFERENCE)) {
       return ((IdentifierTree) object).symbol();
     }
     return null;
   }
 
-  @Nullable
-  private static ExpressionTree getObject(Tree element) {
-    if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
-      return ((MemberExpressionTree) element).object();
-    }
+  private static boolean isForOfExpression(Tree element) {
     final JavaScriptTree parent = ((JavaScriptTree) element).getParent();
-    if (parent.is(Kind.FOR_OF_STATEMENT) && element.equals(((ForObjectStatementTree) parent).expression())) {
-      return (ExpressionTree) element;
-    }
-    return null;
+    return parent.is(Kind.FOR_OF_STATEMENT) && element.equals(((ForObjectStatementTree) parent).expression());
   }
 
 }

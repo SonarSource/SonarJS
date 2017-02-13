@@ -24,6 +24,7 @@ import java.util.Map;
 import org.sonar.javascript.se.Constraint;
 
 import static org.sonar.javascript.se.builtins.BuiltInProperty.method;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.property;
 
 public class BooleanBuiltInProperties {
 
@@ -32,6 +33,9 @@ public class BooleanBuiltInProperties {
       // overrides Object
       .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE, BuiltInProperty.EMPTY))
       .put("valueOf", method(Constraint.BOOLEAN_PRIMITIVE, BuiltInProperty.EMPTY))
+
+      // Provided by Mocha test framework, not part of ES specification
+      .put("should", property(Constraint.ANY_VALUE))
 
       .build();
 

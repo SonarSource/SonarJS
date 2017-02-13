@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.se.points;
 
+import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ExpressionStack;
 import org.sonar.javascript.se.ProgramState;
@@ -29,7 +30,11 @@ public abstract class BinaryProgramPoint implements ProgramPoint {
   private Constraint secondOperandConstraint;
 
   @Override
-  public ProgramState execute(ProgramState state) {
+  public final Optional<ProgramState> execute(ProgramState state) {
+    return Optional.of(transformState(state));
+  }
+
+  private ProgramState transformState(ProgramState state) {
     ExpressionStack stack = state.getStack();
 
     ExpressionStack stackAfterExecution = stack.apply(newStack -> {
@@ -39,12 +44,11 @@ public abstract class BinaryProgramPoint implements ProgramPoint {
       this.firstOperandConstraint = state.getConstraint(firstOperandValue);
       newStack.push(resolveValue(firstOperandConstraint, secondOperandConstraint, firstOperandValue, secondOperandValue));
     });
-
     return state.withStack(stackAfterExecution);
   }
 
   public Constraint resultingConstraint(ProgramState currentState) {
-    ProgramState newPS = this.execute(currentState);
+    ProgramState newPS = this.transformState(currentState);
     return newPS.getConstraint(newPS.peekStack());
   }
 

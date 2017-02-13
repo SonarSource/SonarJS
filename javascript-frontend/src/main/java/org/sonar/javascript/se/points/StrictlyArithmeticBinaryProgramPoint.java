@@ -30,7 +30,7 @@ public class StrictlyArithmeticBinaryProgramPoint extends BinaryProgramPoint {
   private static final Constraint UNDEFINED_OR_NON_NUMBER_OBJECT = Constraint.UNDEFINED.or(Constraint.OBJECT.and(NUMBER_LIKE_OBJECT.not()));
 
   @Override
-  public SymbolicValue resolveValue(Constraint firstOperandConstraint, Constraint secondOperandConstraint, SymbolicValue firstOperandValue, SymbolicValue secondOperandValue) {
+  protected SymbolicValue resolveValue(Constraint firstOperandConstraint, Constraint secondOperandConstraint, SymbolicValue firstOperandValue, SymbolicValue secondOperandValue) {
     if (firstOperandConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_NUMBER_OBJECT) ||
       secondOperandConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_NUMBER_OBJECT)) {
       return new SymbolicValueWithConstraint(Constraint.NAN);

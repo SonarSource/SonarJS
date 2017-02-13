@@ -19,12 +19,13 @@
  */
 package org.sonar.javascript.se.points;
 
+import java.util.Optional;
 import org.sonar.javascript.se.ProgramState;
 
 public class NoActionProgramPoint implements ProgramPoint {
 
   @Override
-  public ProgramState execute(ProgramState state) {
-    return state;
+  public Optional<ProgramState> execute(ProgramState state) {
+    return Optional.of(state);
   }
 }

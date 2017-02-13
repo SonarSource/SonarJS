@@ -50,6 +50,9 @@ public class NumberBuiltInProperties {
     .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE, ONE_NUMBER))
     .put("valueOf", method(Constraint.NUMBER_PRIMITIVE, EMPTY))
 
+    // Provided by Mocha test framework, not part of ES specification
+    .put("should", property(Constraint.ANY_VALUE))
+
     .build();
 
   public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
