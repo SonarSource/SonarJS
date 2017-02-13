@@ -62,7 +62,7 @@ public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
         Constraint constraint = results.iterator().next();
 
         if (!isTruthyLiteral(entry.getKey(), constraint)) {
-          String result = isTruthy(constraint) ? "true" : "false";
+          String result = Constraint.TRUTHY.equals(constraint) ? "true" : "false";
           addIssue(entry.getKey(), String.format("Change this condition so that it does not always evaluate to \"%s\".", result));
         }
       }
