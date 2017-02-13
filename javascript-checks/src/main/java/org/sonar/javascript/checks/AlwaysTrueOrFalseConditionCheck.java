@@ -72,17 +72,13 @@ public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
   private static boolean isTruthyLiteral(Tree tree, Constraint constraint) {
     ExpressionTree conditionWithoutParentheses = CheckUtils.removeParenthesis((ExpressionTree) tree);
 
-    return isTruthy(constraint)
+    return Constraint.TRUTHY.equals(constraint)
       && conditionWithoutParentheses.is(
         Kind.ARRAY_LITERAL,
         Kind.OBJECT_LITERAL,
         Kind.NEW_EXPRESSION,
         Kind.NUMERIC_LITERAL,
         Kind.STRING_LITERAL);
-  }
-
-  private static boolean isTruthy(Constraint constraint) {
-    return Constraint.TRUTHY.equals(constraint);
   }
 
   private class LoopsVisitor extends DoubleDispatchVisitor {
