@@ -48,7 +48,7 @@ function main() {
   if (x === null) {
     y = null;  // never executed
   }
-  foo(); // PS y=TRUTHY_NUMBER
+  foo(); // PS y=POS_NUMBER
   makeLive(y);
 
   x = foo();

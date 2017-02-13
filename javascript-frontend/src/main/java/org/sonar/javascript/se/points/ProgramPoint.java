@@ -21,13 +21,14 @@ package org.sonar.javascript.se.points;
 
 import java.util.Optional;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.SymbolicExecution;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 public interface ProgramPoint {
 
   Optional<ProgramState> execute(ProgramState state);
 
-  static ProgramPoint create(Tree element) {
+  static ProgramPoint create(Tree element, SymbolicExecution execution) {
     if (MemberProgramPoint.originatesFrom(element)) {
       return new MemberProgramPoint(element);
     }
@@ -39,6 +40,9 @@ public interface ProgramPoint {
     }
     if (BitwiseBinaryProgramPoint.originatesFrom(element)) {
       return new BitwiseBinaryProgramPoint();
+    }
+    if (UnaryNumericProgramPoint.originatesFrom(element)) {
+      return new UnaryNumericProgramPoint(element, execution);
     }
     // Once everything is migrated to program points, we should consider raising an exception here.
     return new NoActionProgramPoint();

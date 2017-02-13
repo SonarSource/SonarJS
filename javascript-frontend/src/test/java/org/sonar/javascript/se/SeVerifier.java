@@ -62,6 +62,7 @@ class SeVerifier extends SeCheck {
     .put("FUNCTION", Constraint.FUNCTION)
     .put("NOT_FUNCTION", Constraint.FUNCTION.not())
     .put("NUMBER", Constraint.NUMBER_PRIMITIVE)
+    .put("POS_NUMBER", Constraint.POSITIVE_NUMBER_PRIMITIVE)
     .put("NOT_NUMBER", Constraint.NUMBER_PRIMITIVE.not())
     .put("NUMBER_OBJECT", Constraint.NUMBER_OBJECT)
     .put("STRING", Constraint.STRING_PRIMITIVE)
@@ -78,7 +79,7 @@ class SeVerifier extends SeCheck {
     .put("ARRAY", Constraint.ARRAY)
     .put("DATE", Constraint.DATE)
     .put("REGEXP", Constraint.REGEXP)
-    .put("UNDEFINED_OR_TRUTHY_NUMBER", Constraint.TRUTHY_NUMBER_PRIMITIVE.or(Constraint.UNDEFINED))
+    .put("UNDEFINED_OR_POS_NUMBER", Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.UNDEFINED))
     .build();
 
   // line - program state - asserted

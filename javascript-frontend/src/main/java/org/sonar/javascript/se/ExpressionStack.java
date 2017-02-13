@@ -165,6 +165,7 @@ public class ExpressionStack {
       case PREFIX_INCREMENT:
       case UNARY_MINUS:
       case UNARY_PLUS:
+        break;
       case BITWISE_COMPLEMENT:
         pop(newStack, 1);
         newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));

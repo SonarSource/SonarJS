@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.se;
 
+import com.google.common.collect.Range;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +34,7 @@ import static org.sonar.javascript.se.Constraint.NUMBER_PRIMITIVE;
 import static org.sonar.javascript.se.Constraint.OBJECT;
 import static org.sonar.javascript.se.Constraint.STRING_OBJECT;
 import static org.sonar.javascript.se.Constraint.STRING_PRIMITIVE;
+import static org.sonar.javascript.se.Constraint.ZERO;
 
 public class ConstraintTest {
 
@@ -113,5 +115,20 @@ public class ConstraintTest {
     assertThat(Constraint.NULL_OR_UNDEFINED.isStricterOrEqualTo(Constraint.FALSY)).isTrue();
     assertThat(Constraint.STRING_OBJECT.isStricterOrEqualTo(Constraint.TRUTHY)).isTrue();
     assertThat(Constraint.FUNCTION.isStricterOrEqualTo(Constraint.TRUTHY)).isTrue();
+  }
+
+  @Test
+  public void test_numericRange() throws Exception {
+    assertThat(Constraint.ANY_VALUE.numericRange()).isEmpty();
+    assertThat(Constraint.ZERO.or(ARRAY).numericRange()).isEmpty();
+    assertThat(Constraint.TRUTHY_NUMBER_PRIMITIVE.numericRange()).isEmpty();
+    assertThat(Constraint.NUMBER_OBJECT.numericRange()).isEmpty();
+    assertThat(Constraint.STRING_PRIMITIVE.numericRange()).isEmpty();
+
+    assertThat(Constraint.ZERO.numericRange().get()).isEqualTo(Range.singleton(0));
+    assertThat(Constraint.POSITIVE_NUMBER_PRIMITIVE.numericRange().get()).isEqualTo(Range.greaterThan(0));
+    assertThat(Constraint.NEGATIVE_NUMBER_PRIMITIVE.numericRange().get()).isEqualTo(Range.lessThan(0));
+    assertThat(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(ZERO).numericRange().get()).isEqualTo(Range.atLeast(0));
+    assertThat(Constraint.NEGATIVE_NUMBER_PRIMITIVE.or(ZERO).numericRange().get()).isEqualTo(Range.atMost(0));
   }
 }

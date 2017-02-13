@@ -38,7 +38,7 @@ public class FunctionBuiltInProperties {
     .put("call", method(Constraint.ANY_VALUE, anyValues, true))
     // overrides Object
     .put("toString", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.EMPTY))
-    .put("length", property(Constraint.NUMBER_PRIMITIVE))
+    .put("length", property(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO)))
     .put("name", property(Constraint.STRING_PRIMITIVE))
     .build();
 

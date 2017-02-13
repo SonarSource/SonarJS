@@ -297,6 +297,12 @@ public class ProgramState implements ProgramStateConstraints {
     return new ProgramState(ImmutableMap.copyOf(newValues), constraints, newStack, relations, counter);
   }
 
+  public ProgramState assignment(Symbol variable, SymbolicValue value) {
+    Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
+    newValues.put(variable, value);
+    return new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, relations, counter);
+  }
+
   public Set<Relation> relations() {
     return relations;
   }

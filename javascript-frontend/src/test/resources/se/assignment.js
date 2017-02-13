@@ -4,14 +4,14 @@ function main() {
 
   x = 0;  // PS x=ZERO
   x += 1; // PS x=NUMBER
-  y = 5;  // PS y=TRUTHY_NUMBER
+  y = 5;  // PS y=POS_NUMBER
   z = 0;  // PS z=ZERO
-  z++;    // PS z=NUMBER
+  z++;    // PS z=POS_NUMBER
   undef = undefined; // PS undef=UNDEFINED
   nan = NaN; // PS nan=NAN
   untracked = 5; // PS !untracked
   x = 0;
-  x = foo[ y++ ]; // PS x=ANY_VALUE & y=NUMBER
+  x = foo[ y++ ]; // PS x=ANY_VALUE & y=POS_NUMBER
 
   function nested() {
     untracked = 42;
@@ -23,7 +23,7 @@ function main() {
   x = 10;
   [x] = foo();              // PS x=ANY_VALUE
   
-  var z = 10;               // PS z=TRUTHY_NUMBER
+  var z = 10;               // PS z=POS_NUMBER
   [z = "hello"] = foo();    // PS z=ANY_VALUE
 
   var [x1, y1] = foo();     // PS x1=ANY_VALUE & y1=ANY_VALUE
@@ -58,6 +58,6 @@ function main() {
   var v = 0;                       // PS v=ZERO
   ({prop1:v} = foo());             // PS v=ANY_VALUE
 
-  var w = 10;                      // PS w=TRUTHY_NUMBER
+  var w = 10;                      // PS w=POS_NUMBER
   ({prop1:w = "hello"} = foo());   // PS w=ANY_VALUE
 }

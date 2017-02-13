@@ -39,7 +39,7 @@ public class LiteralSymbolicValue implements SymbolicValue {
     this.constraint = getConstraint(literal);
   }
 
-  public static LiteralSymbolicValue get(LiteralTree literal) {
+  public static SymbolicValue get(LiteralTree literal) {
     return new LiteralSymbolicValue(literal);
   }
 
@@ -69,7 +69,7 @@ public class LiteralSymbolicValue implements SymbolicValue {
       result = literal.value().length() > 2 ? Constraint.TRUTHY_STRING_PRIMITIVE : Constraint.EMPTY_STRING_PRIMITIVE;
     }
     if (literal.is(Kind.NUMERIC_LITERAL)) {
-      result = isTruthyNumeric(literal) ? Constraint.TRUTHY_NUMBER_PRIMITIVE : Constraint.ZERO;
+      result = isTruthyNumeric(literal) ? Constraint.POSITIVE_NUMBER_PRIMITIVE : Constraint.ZERO;
     }
 
     if (literal.is(Kind.REGULAR_EXPRESSION_LITERAL)) {

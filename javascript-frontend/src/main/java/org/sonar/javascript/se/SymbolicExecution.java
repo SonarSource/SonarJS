@@ -60,7 +60,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternP
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
@@ -233,7 +232,7 @@ public class SymbolicExecution {
     boolean stopExploring = false;
 
     for (Tree element : block.elements()) {
-      final ProgramPoint programPoint = ProgramPoint.create(element);
+      final ProgramPoint programPoint = ProgramPoint.create(element, this);
       beforeBlockElement(currentState, element, programPoint);
 
       if (element.is(Kind.RETURN_STATEMENT)) {
@@ -265,15 +264,6 @@ public class SymbolicExecution {
       if (element.is(KindSet.ASSIGNMENT_KINDS)) {
         AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
         currentState = assignment(currentState, assignment.variable());
-
-      } else if (element.is(
-        Kind.POSTFIX_DECREMENT,
-        Kind.POSTFIX_INCREMENT,
-        Kind.PREFIX_DECREMENT,
-        Kind.PREFIX_INCREMENT)) {
-
-        UnaryExpressionTree unary = (UnaryExpressionTree) element;
-        currentState = assignment(currentState, unary.expression());
 
       } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
         currentState = executeInitializedBinding((InitializedBindingElementTree) element, currentState);
@@ -514,7 +504,7 @@ public class SymbolicExecution {
   }
 
   @CheckForNull
-  private Symbol trackedVariable(Tree tree) {
+  public Symbol trackedVariable(Tree tree) {
     Symbol var = null;
 
     if (tree.is(Kind.PARENTHESISED_EXPRESSION)) {

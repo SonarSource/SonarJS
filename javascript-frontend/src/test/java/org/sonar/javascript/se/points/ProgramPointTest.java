@@ -20,7 +20,9 @@
 package org.sonar.javascript.se.points;
 
 import org.junit.Test;
+import org.sonar.javascript.se.SymbolicExecution;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.expression.PostfixExpressionTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
@@ -32,18 +34,31 @@ public class ProgramPointTest {
 
   @Test
   public void test_factory() throws Exception {
-    assertThat(ProgramPoint.create(tree(Kind.PLUS))).isInstanceOf(PlusProgramPoint.class);
-    assertThat(ProgramPoint.create(tree(Kind.MINUS))).isInstanceOf(StrictlyArithmeticBinaryProgramPoint.class);
-    assertThat(ProgramPoint.create(tree(Kind.BITWISE_XOR))).isInstanceOf(BitwiseBinaryProgramPoint.class);
-    assertThat(ProgramPoint.create(tree(Kind.RETURN_STATEMENT))).isInstanceOf(NoActionProgramPoint.class);
-    assertThat(ProgramPoint.create(tree(Kind.DOT_MEMBER_EXPRESSION))).isInstanceOf(MemberProgramPoint.class);
-    assertThat(ProgramPoint.create(tree(Kind.BRACKET_MEMBER_EXPRESSION))).isInstanceOf(MemberProgramPoint.class);
+    assertThat(ProgramPoint.create(tree(Kind.PLUS), execution())).isInstanceOf(PlusProgramPoint.class);
+    assertThat(ProgramPoint.create(tree(Kind.MINUS), execution())).isInstanceOf(StrictlyArithmeticBinaryProgramPoint.class);
+    assertThat(ProgramPoint.create(tree(Kind.BITWISE_XOR), execution())).isInstanceOf(BitwiseBinaryProgramPoint.class);
+    assertThat(ProgramPoint.create(tree(Kind.RETURN_STATEMENT), execution())).isInstanceOf(NoActionProgramPoint.class);
+    assertThat(ProgramPoint.create(tree(Kind.DOT_MEMBER_EXPRESSION), execution())).isInstanceOf(MemberProgramPoint.class);
+    assertThat(ProgramPoint.create(tree(Kind.BRACKET_MEMBER_EXPRESSION), execution())).isInstanceOf(MemberProgramPoint.class);
+    assertThat(ProgramPoint.create(postfixIncrementTree(), execution())).isInstanceOf(UnaryNumericProgramPoint.class);
   }
 
   public static Tree tree(Kind kind) {
     JavaScriptTree tree = mock(JavaScriptTree.class);
     when(tree.getKind()).thenReturn(kind);
+
     return tree;
+  }
+
+  private static PostfixExpressionTreeImpl postfixIncrementTree() {
+    PostfixExpressionTreeImpl tree = mock(PostfixExpressionTreeImpl.class);
+    when(tree.getKind()).thenReturn(Kind.POSTFIX_INCREMENT);
+
+    return tree;
+  }
+
+  public static SymbolicExecution execution() {
+    return mock(SymbolicExecution.class);
   }
 
 }
