@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -58,10 +59,26 @@ public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
       }
       Collection<Constraint> results = entry.getValue();
       if (results.size() == 1) {
-        String result = Constraint.TRUTHY.equals(results.iterator().next()) ? "true" : "false";
-        addIssue(entry.getKey(), String.format("Change this condition so that it does not always evaluate to \"%s\".", result));
+        Constraint constraint = results.iterator().next();
+
+        if (!isTruthyLiteral(entry.getKey(), constraint)) {
+          String result = Constraint.TRUTHY.equals(constraint) ? "true" : "false";
+          addIssue(entry.getKey(), String.format("Change this condition so that it does not always evaluate to \"%s\".", result));
+        }
       }
     }
+  }
+
+  private static boolean isTruthyLiteral(Tree tree, Constraint constraint) {
+    ExpressionTree conditionWithoutParentheses = CheckUtils.removeParenthesis((ExpressionTree) tree);
+
+    return Constraint.TRUTHY.equals(constraint)
+      && conditionWithoutParentheses.is(
+        Kind.ARRAY_LITERAL,
+        Kind.OBJECT_LITERAL,
+        Kind.NEW_EXPRESSION,
+        Kind.NUMERIC_LITERAL,
+        Kind.STRING_LITERAL);
   }
 
   private class LoopsVisitor extends DoubleDispatchVisitor {

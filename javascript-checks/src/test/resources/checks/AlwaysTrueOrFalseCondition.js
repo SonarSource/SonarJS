@@ -233,3 +233,22 @@ function logical_and(p1, p2, p3) {
     if (p3 == null) {} // Noncompliant
   }
 }
+
+function aka_ternary(a, b, c) {
+  var y;
+
+// if 'a' is truthy assign '[]' otherwise 'b'
+  y = a && [] || b;
+  y = a && {} || b;
+  y = a && 42 || b;
+  y = a && "hello" || b;
+  y = a && new Object() || b;
+  y = a && ([]) || b;
+  y = a && (new Object()) || b;
+
+  // still raise issue for falsy literals
+  y = a && 0 || b; // Noncompliant
+  y = a && "" || b; // Noncompliant
+
+  y = a && b && [] || c;
+}
