@@ -36,6 +36,8 @@ public class ProgramPointTest {
     assertThat(ProgramPoint.create(tree(Kind.MINUS))).isInstanceOf(StrictlyArithmeticBinaryProgramPoint.class);
     assertThat(ProgramPoint.create(tree(Kind.BITWISE_XOR))).isInstanceOf(BitwiseBinaryProgramPoint.class);
     assertThat(ProgramPoint.create(tree(Kind.RETURN_STATEMENT))).isInstanceOf(NoActionProgramPoint.class);
+    assertThat(ProgramPoint.create(tree(Kind.DOT_MEMBER_EXPRESSION))).isInstanceOf(MemberProgramPoint.class);
+    assertThat(ProgramPoint.create(tree(Kind.BRACKET_MEMBER_EXPRESSION))).isInstanceOf(MemberProgramPoint.class);
   }
 
   public static Tree tree(Kind kind) {
