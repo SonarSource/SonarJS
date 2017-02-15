@@ -45,6 +45,7 @@ import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
 public class NullDereferenceCheck extends SeCheck {
 
   private static final String MESSAGE = "TypeError can be thrown as \"%s\" might be null or undefined here.";
+  private static final String EXPRESSION_MESSAGE = "TypeError can be thrown as this expression might be null or undefined here.";
 
   private Set<Symbol> hasIssue;
 
@@ -60,22 +61,22 @@ public class NullDereferenceCheck extends SeCheck {
       if (!result.isPresent()) {
         final ExpressionTree memberOwner = ((MemberExpressionTree) element).object();
         Symbol symbol = getSymbol(memberOwner);
-        addUniqueIssueForSymbol(memberOwner, String.format(MESSAGE, memberOwner.toString()), symbol);
+        addUniqueIssue(memberOwner, symbol);
       }
     } else if (isForOfExpression(element)) {
       Symbol symbol = getSymbol((ExpressionTree) element);
       Constraint constraint = currentState.getConstraint(symbol);
       if (symbol != null && constraint != null && constraint.isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
-        addUniqueIssueForSymbol(element, String.format(MESSAGE, symbol.name()), symbol);
+        addUniqueIssue(element, symbol);
       }
     }
   }
 
-  public void addUniqueIssueForSymbol(Tree element, String message, @Nullable Symbol symbol) {
-    if (!hasIssue.contains(symbol)) {
-      addIssue(element, message);
-    }
-    if (symbol != null) {
+  private void addUniqueIssue(Tree element, @Nullable Symbol symbol) {
+    if (symbol == null) {
+      addIssue(element, EXPRESSION_MESSAGE);
+    } else if (!hasIssue.contains(symbol)) {
+      addIssue(element, String.format(MESSAGE, symbol.name()));
       hasIssue.add(symbol);
     }
   }

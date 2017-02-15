@@ -34,9 +34,6 @@ public class BooleanBuiltInProperties {
       .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE, BuiltInProperty.EMPTY))
       .put("valueOf", method(Constraint.BOOLEAN_PRIMITIVE, BuiltInProperty.EMPTY))
 
-      // Provided by Mocha test framework, not part of ES specification
-      .put("should", property(Constraint.ANY_VALUE))
-
       .build();
 
   public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.of();

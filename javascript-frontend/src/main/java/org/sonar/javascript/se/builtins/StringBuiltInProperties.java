@@ -121,9 +121,6 @@ public class StringBuiltInProperties {
     .put("underscore", method(Constraint.STRING_PRIMITIVE))
     .put("w", method(Constraint.ARRAY))
 
-    // Provided by Mocha test framework, not part of ES specification
-    .put("should", property(Constraint.ANY_VALUE))
-
     .build();
 
   public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()

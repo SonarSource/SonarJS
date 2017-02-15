@@ -45,6 +45,10 @@ public class ObjectBuiltInProperties {
       .put("valueOf", method(Constraint.ANY_VALUE, BuiltInProperty.EMPTY))
       .put("constructor", property(Constraint.ANY_VALUE))
       .put("__proto__", property(Constraint.OBJECT.or(Constraint.NULL)))
+
+      // Provided by Should.js assertion framework, not part of ES specification
+      .put("should", property(Constraint.ANY_VALUE))
+
       .build();
 
   public static final Map<String, BuiltInProperty> PROPERTIES =

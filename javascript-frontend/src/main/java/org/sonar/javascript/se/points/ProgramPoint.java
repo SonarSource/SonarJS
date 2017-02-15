@@ -40,7 +40,8 @@ public interface ProgramPoint {
     if (BitwiseBinaryProgramPoint.originatesFrom(element)) {
       return new BitwiseBinaryProgramPoint();
     }
-    return new NoActionProgramPoint(); // Once everything is migrated to program points, we should consider raising an exception here.
+    // Once everything is migrated to program points, we should consider raising an exception here.
+    return new NoActionProgramPoint();
   }
 
 }

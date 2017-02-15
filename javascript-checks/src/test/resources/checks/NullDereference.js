@@ -11,7 +11,8 @@ function builtin_property() {
 function chained_properties() {
   var str = "str";
   str.trim().trim(); // OK
-  str.undefinedProperty.trim(); // Noncompliant
+  str.undefinedProperty.trim(); // Noncompliant {{TypeError can be thrown as this expression might be null or undefined here.}}
+//^^^^^^^^^^^^^^^^^^^^^
 }
 
 function property_array() {
