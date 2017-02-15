@@ -67,8 +67,6 @@ public class UnaryNumericProgramPoint implements ProgramPoint {
   }
 
   private void execute(SymbolicValue operandValue, Constraint operandConstraint) {
-    boolean isNumberOperand = operandConstraint.isStricterOrEqualTo(Constraint.NUMBER_PRIMITIVE);
-
     if (element.is(Kind.PREFIX_INCREMENT, Kind.PREFIX_DECREMENT)) {
       Sign sign = element.is(Kind.PREFIX_INCREMENT) ? Sign.PLUS : Sign.MINUS;
       this.expressionValue = new IncDecSymbolicValue(sign, operandValue);
@@ -78,7 +76,7 @@ public class UnaryNumericProgramPoint implements ProgramPoint {
     if (element.is(Kind.POSTFIX_INCREMENT, Kind.POSTFIX_DECREMENT)) {
       Sign sign = element.is(Kind.POSTFIX_INCREMENT) ? Sign.PLUS : Sign.MINUS;
 
-      this.expressionValue = isNumberOperand ? operandValue : new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE);
+      this.expressionValue = convertToNumber(operandValue, operandConstraint);
       this.assignedValue = new IncDecSymbolicValue(sign, operandValue);
     }
 
@@ -86,13 +84,18 @@ public class UnaryNumericProgramPoint implements ProgramPoint {
       this.assignedValue = null;
 
       if (element.is(Kind.UNARY_PLUS)) {
-        this.expressionValue = isNumberOperand ? operandValue : new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE);
+        this.expressionValue = convertToNumber(operandValue, operandConstraint);
 
       } else {
         this.expressionValue = new UnaryMinusSymbolicValue(operandValue);
 
       }
     }
+  }
+
+  private SymbolicValue convertToNumber(SymbolicValue operandValue, Constraint operandConstraint) {
+    boolean requiresConversionToNumber = !operandConstraint.isStricterOrEqualTo(Constraint.NUMBER_PRIMITIVE);
+    return requiresConversionToNumber ? new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE) : operandValue;
   }
 
   private ProgramState executeAssignment(ProgramState state) {
