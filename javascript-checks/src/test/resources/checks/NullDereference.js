@@ -3,6 +3,24 @@ function property() {
   x.foo;   // Noncompliant {{TypeError can be thrown as "x" might be null or undefined here.}}
 }
 
+function builtin_property() {
+  var str = "str";
+  str.trim(); // OK
+}
+
+function chained_properties() {
+  var str = "str";
+  str.trim().trim(); // OK
+  str.undefinedProperty.trim(); // Noncompliant {{TypeError can be thrown as this expression might be null or undefined here.}}
+//^^^^^^^^^^^^^^^^^^^^^
+}
+
+function property_array() {
+  var str = "str";
+  str.trim().split("t")[0]; // OK
+  str.trim().undefinedArray[0]; // Noncompliant
+}
+
 function element() {
   var x;
   x[1];    // Noncompliant

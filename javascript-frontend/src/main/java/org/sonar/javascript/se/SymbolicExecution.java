@@ -246,18 +246,13 @@ public class SymbolicExecution {
         }
       }
 
-      if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
-        SymbolicValue symbolicValue = getMemberObjectSymbolicValue(currentState, element);
-        Optional<ProgramState> constrainedPS = currentState.constrain(symbolicValue, Constraint.NOT_NULLY);
-        if (constrainedPS.isPresent()) {
-          currentState = constrainedPS.get();
-        } else {
-          stopExploring = true;
-          break;
-        }
+      final Optional<ProgramState> executionResult = programPoint.execute(currentState);
+      if (executionResult.isPresent()) {
+        currentState = executionResult.get();
+      } else {
+        stopExploring = true;
+        break;
       }
-
-      currentState = programPoint.execute(currentState);
 
       if (element.is(Kind.IDENTIFIER_REFERENCE) && !isUndefined((IdentifierTree) element)) {
         SymbolicValue symbolicValue = getSymbolicValue(element, currentState);
@@ -328,10 +323,6 @@ public class SymbolicExecution {
         addReturnConstraint(Constraint.UNDEFINED);
       }
     }
-  }
-
-  private SymbolicValue getMemberObjectSymbolicValue(ProgramState currentState, Tree element) {
-    return element.is(Kind.BRACKET_MEMBER_EXPRESSION) ? currentState.peekStack(1) : currentState.peekStack(0);
   }
 
   private ProgramState executeInitializedBinding(InitializedBindingElementTree initializedBindingElementTree, ProgramState programState) {

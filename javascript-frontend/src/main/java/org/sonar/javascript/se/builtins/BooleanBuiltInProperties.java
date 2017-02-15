@@ -24,6 +24,7 @@ import java.util.Map;
 import org.sonar.javascript.se.Constraint;
 
 import static org.sonar.javascript.se.builtins.BuiltInProperty.method;
+import static org.sonar.javascript.se.builtins.BuiltInProperty.property;
 
 public class BooleanBuiltInProperties {
 

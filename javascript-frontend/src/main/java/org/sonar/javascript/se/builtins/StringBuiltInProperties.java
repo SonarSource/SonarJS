@@ -89,6 +89,7 @@ public class StringBuiltInProperties {
     .put("toLowerCase", method(Constraint.STRING_PRIMITIVE, EMPTY))
     .put("toUpperCase", method(Constraint.STRING_PRIMITIVE, EMPTY))
     .put("trim", method(Constraint.STRING_PRIMITIVE, EMPTY))
+    .put("length", property(Constraint.NUMBER_PRIMITIVE))
 
     // overrides Object
     .put("toString", method(Constraint.STRING_PRIMITIVE, EMPTY))
@@ -120,13 +121,13 @@ public class StringBuiltInProperties {
     .put("underscore", method(Constraint.STRING_PRIMITIVE))
     .put("w", method(Constraint.ARRAY))
 
-    .put("length", property(Constraint.NUMBER_PRIMITIVE))
     .build();
 
   public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()
     .put("fromCharCode", method(Constraint.STRING_PRIMITIVE, numbersSignature))
     .put("fromCodePoint", method(Constraint.STRING_PRIMITIVE, numbersSignature))
     .put("raw", method(Constraint.STRING_PRIMITIVE))
+
     .build();
 
   private StringBuiltInProperties() {

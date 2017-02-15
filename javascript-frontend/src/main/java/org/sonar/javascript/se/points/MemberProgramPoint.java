@@ -20,28 +20,31 @@
 package org.sonar.javascript.se.points;
 
 import java.util.Optional;
+import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-public interface ProgramPoint {
+public class MemberProgramPoint implements ProgramPoint {
 
-  Optional<ProgramState> execute(ProgramState state);
+  private final Tree element;
 
-  static ProgramPoint create(Tree element) {
-    if (MemberProgramPoint.originatesFrom(element)) {
-      return new MemberProgramPoint(element);
-    }
-    if (PlusProgramPoint.originatesFrom(element)) {
-      return new PlusProgramPoint();
-    }
-    if (StrictlyArithmeticBinaryProgramPoint.originatesFrom(element)) {
-      return new StrictlyArithmeticBinaryProgramPoint();
-    }
-    if (BitwiseBinaryProgramPoint.originatesFrom(element)) {
-      return new BitwiseBinaryProgramPoint();
-    }
-    // Once everything is migrated to program points, we should consider raising an exception here.
-    return new NoActionProgramPoint();
+  public MemberProgramPoint(Tree element) {
+    this.element = element;
+  }
+
+  public static boolean originatesFrom(Tree element) {
+    return element.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION, Tree.Kind.DOT_MEMBER_EXPRESSION);
+  }
+
+  @Override
+  public Optional<ProgramState> execute(ProgramState state) {
+    SymbolicValue symbolicValue = getObjectSymbolicValue(state);
+    return state.constrain(symbolicValue, Constraint.NOT_NULLY);
+  }
+
+  public final SymbolicValue getObjectSymbolicValue(ProgramState currentState) {
+    return element.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) ? currentState.peekStack(1) : currentState.peekStack(0);
   }
 
 }
