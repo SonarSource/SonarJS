@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.points.MemberProgramPoint;
@@ -65,8 +64,7 @@ public class NullDereferenceCheck extends SeCheck {
       }
     } else if (isForOfExpression(element)) {
       Symbol symbol = getSymbol((ExpressionTree) element);
-      Constraint constraint = currentState.getConstraint(symbol);
-      if (constraint != null && constraint.isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
+      if (currentState.getConstraint(symbol).isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
         addUniqueIssue(element, symbol);
       }
     }
