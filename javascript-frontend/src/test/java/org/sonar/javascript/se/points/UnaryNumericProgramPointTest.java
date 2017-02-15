@@ -23,11 +23,15 @@ import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SymbolicExecution;
+import org.sonar.javascript.se.sv.IncDecSymbolicValue;
+import org.sonar.javascript.se.sv.IncDecSymbolicValue.Sign;
+import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
+import org.sonar.javascript.se.sv.UnaryMinusSymbolicValue;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -36,146 +40,134 @@ import static org.mockito.Mockito.when;
 
 public class UnaryNumericProgramPointTest extends JavaScriptTreeModelTest {
 
+  private SymbolicValue operandValueBefore;
+  private SymbolicValue operandValueAfter;
+  private SymbolicValue expressionValue;
+
   @Test
   public void unary_plus() throws Exception {
-    Tree tree = tree("+x", Kind.UNARY_PLUS);
+    UnaryExpressionTree tree = tree("+x", Kind.UNARY_PLUS);
 
-    assertThat(resultingConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.ZERO);
-    assertThat(resultingConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.ANY_VALUE);
+    assertThat(operandValueAfter).isEqualTo(operandValueBefore);
+    assertThat(expressionValue).isInstanceOf(SymbolicValueWithConstraint.class);
+    assertThat(expressionValue.baseConstraint(ProgramState.emptyState())).isEqualTo(Constraint.NUMBER_PRIMITIVE);
 
-    assertThat(operandValueConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.ANY_VALUE);
-    assertThat(operandValueConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.ZERO);
-    assertThat(operandValueConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_OBJECT);
-    assertThat(operandValueConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.NUMBER_OBJECT);
+    assertThat(operandValueAfter).isEqualTo(operandValueBefore);
+    assertThat(expressionValue).isInstanceOf(SymbolicValueWithConstraint.class);
+    assertThat(expressionValue.baseConstraint(ProgramState.emptyState())).isEqualTo(Constraint.NUMBER_PRIMITIVE);
+
+    execute(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(operandValueAfter).isEqualTo(operandValueBefore);
+    assertThat(expressionValue).isEqualTo(operandValueBefore);
+
+    execute(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE);
+    assertThat(operandValueAfter).isEqualTo(operandValueBefore);
+    assertThat(expressionValue).isEqualTo(operandValueBefore);
+
+    execute(tree, Constraint.ZERO);
+    assertThat(operandValueAfter).isEqualTo(operandValueBefore);
+    assertThat(expressionValue).isEqualTo(operandValueBefore);
+
+    execute(tree, Constraint.NAN);
+    assertThat(operandValueAfter).isEqualTo(operandValueBefore);
+    assertThat(expressionValue).isEqualTo(operandValueBefore);
   }
 
   @Test
   public void unary_minus() throws Exception {
-    Tree tree = tree("-x", Kind.UNARY_MINUS);
+    UnaryExpressionTree tree = tree("-x", Kind.UNARY_MINUS);
 
-    assertThat(resultingConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.ZERO);
-    assertThat(resultingConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.ANY_VALUE);
+    assertThat(operandValueAfter).isEqualTo(operandValueBefore);
+    assertThat(expressionValue).isInstanceOf(UnaryMinusSymbolicValue.class);
 
-    assertThat(operandValueConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.ANY_VALUE);
-    assertThat(operandValueConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.ZERO);
-    assertThat(operandValueConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_OBJECT);
-    assertThat(operandValueConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(operandValueAfter).isEqualTo(operandValueBefore);
+    assertThat(expressionValue).isInstanceOf(UnaryMinusSymbolicValue.class);
   }
 
   @Test
   public void prefix_increment() throws Exception {
-    Tree tree = tree("++x", Kind.PREFIX_INCREMENT);
+    UnaryExpressionTree tree = tree("++x", Kind.PREFIX_INCREMENT);
 
-    assertThat(resultingConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
-    assertThat(resultingConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.ANY_VALUE);
+    assertThat(operandValueAfter).isEqualTo(expressionValue);
+    assertThat(expressionValue).isInstanceOf(IncDecSymbolicValue.class);
+    assertThat(((IncDecSymbolicValue) expressionValue).sign()).isEqualTo(Sign.PLUS);
 
-    assertThat(operandValueConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
-    assertThat(operandValueConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(operandValueAfter).isEqualTo(expressionValue);
+    assertThat(expressionValue).isInstanceOf(IncDecSymbolicValue.class);
+    assertThat(((IncDecSymbolicValue) expressionValue).sign()).isEqualTo(Sign.PLUS);
   }
 
   @Test
   public void prefix_decrement() throws Exception {
-    Tree tree = tree("--x", Kind.PREFIX_DECREMENT);
+    UnaryExpressionTree tree = tree("--x", Kind.PREFIX_DECREMENT);
 
-    assertThat(resultingConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
-    assertThat(resultingConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.ANY_VALUE);
+    assertThat(operandValueAfter).isEqualTo(expressionValue);
+    assertThat(expressionValue).isInstanceOf(IncDecSymbolicValue.class);
+    assertThat(((IncDecSymbolicValue) expressionValue).sign()).isEqualTo(Sign.MINUS);
 
-    assertThat(operandValueConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
-    assertThat(operandValueConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(operandValueAfter).isEqualTo(expressionValue);
+    assertThat(expressionValue).isInstanceOf(IncDecSymbolicValue.class);
+    assertThat(((IncDecSymbolicValue) expressionValue).sign()).isEqualTo(Sign.MINUS);
   }
 
   @Test
   public void postfix_increment() throws Exception {
-    Tree tree = tree("x++", Kind.POSTFIX_INCREMENT);
+    UnaryExpressionTree tree = tree("x++", Kind.POSTFIX_INCREMENT);
 
-    assertThat(resultingConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.ZERO);
-    assertThat(resultingConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.ANY_VALUE);
+    assertThat(expressionValue).isInstanceOf(SymbolicValueWithConstraint.class);
+    assertThat(expressionValue.baseConstraint(ProgramState.emptyState())).isEqualTo(Constraint.NUMBER_PRIMITIVE);
+    assertThat(operandValueAfter).isInstanceOf(IncDecSymbolicValue.class);
+    assertThat(((IncDecSymbolicValue) operandValueAfter).sign()).isEqualTo(Sign.PLUS);
 
-    assertThat(operandValueConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
-    assertThat(operandValueConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(expressionValue).isEqualTo(operandValueBefore);
+    assertThat(operandValueAfter).isInstanceOf(IncDecSymbolicValue.class);
+    assertThat(((IncDecSymbolicValue) operandValueAfter).sign()).isEqualTo(Sign.PLUS);
   }
 
   @Test
   public void postfix_decrement() throws Exception {
-    Tree tree = tree("x--", Kind.POSTFIX_DECREMENT);
+    UnaryExpressionTree tree = tree("x--", Kind.POSTFIX_DECREMENT);
 
-    assertThat(resultingConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.ZERO);
-    assertThat(resultingConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(resultingConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.ANY_VALUE);
+    assertThat(expressionValue).isInstanceOf(SymbolicValueWithConstraint.class);
+    assertThat(expressionValue.baseConstraint(ProgramState.emptyState())).isEqualTo(Constraint.NUMBER_PRIMITIVE);
+    assertThat(operandValueAfter).isInstanceOf(IncDecSymbolicValue.class);
+    assertThat(((IncDecSymbolicValue) operandValueAfter).sign()).isEqualTo(Sign.MINUS);
 
-    assertThat(operandValueConstraint(tree, Constraint.ANY_VALUE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
-    assertThat(operandValueConstraint(tree, Constraint.NEGATIVE_NUMBER_PRIMITIVE)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.ZERO)).isEqualTo(Constraint.NEGATIVE_NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NUMBER_OBJECT)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
-    assertThat(operandValueConstraint(tree, Constraint.NAN)).isEqualTo(Constraint.NAN);
+    execute(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(expressionValue).isEqualTo(operandValueBefore);
+    assertThat(operandValueAfter).isInstanceOf(IncDecSymbolicValue.class);
+    assertThat(((IncDecSymbolicValue) operandValueAfter).sign()).isEqualTo(Sign.MINUS);
   }
 
-  private Tree tree(String expression, Kind treeKind) throws Exception {
+  private UnaryExpressionTree tree(String expression, Kind treeKind) throws Exception {
     return parse(expression, treeKind);
   }
 
-  private Constraint resultingConstraint(Tree tree, Constraint operandConstraint) {
-    ProgramState state = ProgramState.emptyState();
-    SymbolicExecution execution = ProgramPointTest.execution();
-
-    ProgramPoint point = new UnaryNumericProgramPoint(tree, execution);
-    state = state.pushToStack(new SymbolicValueWithConstraint(operandConstraint));
-    ProgramState newState = point.execute(state).get();
-    return newState.getConstraint(newState.peekStack());
-  }
-
-  private Constraint operandValueConstraint(Tree tree, Constraint operandConstraint) {
-    SymbolicValueWithConstraint operandSymbolValue = new SymbolicValueWithConstraint(operandConstraint);
+  private void execute(UnaryExpressionTree tree, Constraint operandConstraint) {
+    operandValueBefore = new SymbolicValueWithConstraint(operandConstraint);
     ProgramState state = ProgramState.emptyState();
     SymbolicExecution execution = ProgramPointTest.execution();
 
     Symbol symbol = mock(Symbol.class);
     when(execution.trackedVariable(any())).thenReturn(symbol);
-    state = state.assignment(symbol, operandSymbolValue);
+    state = state.assignment(symbol, operandValueBefore);
 
     ProgramPoint point = new UnaryNumericProgramPoint(tree, execution);
-    state = state.pushToStack(operandSymbolValue);
+    state = state.pushToStack(operandValueBefore);
     ProgramState newState = point.execute(state).get();
-    return newState.getConstraint(symbol);
+
+    this.expressionValue = newState.peekStack();
+    this.operandValueAfter = newState.getSymbolicValue(symbol);
   }
 }

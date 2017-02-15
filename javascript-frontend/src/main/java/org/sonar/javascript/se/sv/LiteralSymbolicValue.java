@@ -69,7 +69,7 @@ public class LiteralSymbolicValue implements SymbolicValue {
       result = literal.value().length() > 2 ? Constraint.TRUTHY_STRING_PRIMITIVE : Constraint.EMPTY_STRING_PRIMITIVE;
     }
     if (literal.is(Kind.NUMERIC_LITERAL)) {
-      result = isTruthyNumeric(literal) ? Constraint.POSITIVE_NUMBER_PRIMITIVE : Constraint.ZERO;
+      result = isZero(literal) ? Constraint.ZERO : Constraint.POSITIVE_NUMBER_PRIMITIVE;
     }
 
     if (literal.is(Kind.REGULAR_EXPRESSION_LITERAL)) {
@@ -82,7 +82,7 @@ public class LiteralSymbolicValue implements SymbolicValue {
     throw new IllegalStateException("Unknown literal: " + literal);
   }
 
-  private static boolean isTruthyNumeric(LiteralTree literal) {
+  private static boolean isZero(LiteralTree literal) {
     String stringValue = literal.value();
 
     if (stringValue.startsWith("0x")
@@ -90,7 +90,7 @@ public class LiteralSymbolicValue implements SymbolicValue {
       || stringValue.startsWith("0o")
       || stringValue.startsWith("0O")) {
 
-      return hasNonZero(stringValue.substring(2));
+      return allZero(stringValue.substring(2));
     }
 
     int exponentIndex = stringValue.indexOf('e');
@@ -100,17 +100,17 @@ public class LiteralSymbolicValue implements SymbolicValue {
     if (exponentIndex > -1) {
       stringValue = stringValue.substring(0, exponentIndex);
     }
-    return hasNonZero(stringValue);
+    return allZero(stringValue);
   }
 
-  private static boolean hasNonZero(String str) {
+  private static boolean allZero(String str) {
     for (int i = 0; i < str.length(); i++) {
       char c = str.charAt(i);
       if (c != '0' && c != '.') {
-        return true;
+        return false;
       }
     }
-    return false;
+    return true;
   }
 
   @Override

@@ -24,8 +24,11 @@ import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ExpressionStack;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SymbolicExecution;
+import org.sonar.javascript.se.sv.IncDecSymbolicValue;
+import org.sonar.javascript.se.sv.IncDecSymbolicValue.Sign;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.se.sv.UnaryNumericSymbolicValue;
+import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
+import org.sonar.javascript.se.sv.UnaryMinusSymbolicValue;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -34,9 +37,10 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 
 public class UnaryNumericProgramPoint implements ProgramPoint {
   private UnaryExpressionTree element;
-  private Constraint operandConstraint;
-  private SymbolicValue operandValue;
   private SymbolicExecution execution;
+
+  private SymbolicValue expressionValue;
+  private SymbolicValue assignedValue = null;
 
   public UnaryNumericProgramPoint(Tree element, SymbolicExecution execution) {
     this.element = (UnaryExpressionTree) element;
@@ -48,10 +52,13 @@ public class UnaryNumericProgramPoint implements ProgramPoint {
     ExpressionStack stack = state.getStack();
 
     ExpressionStack stackAfterExecution = stack.apply(newStack -> {
-      this.operandValue = newStack.pop();
-      this.operandConstraint = state.getConstraint(operandValue);
-      newStack.push(stackValue());
+      SymbolicValue operandValue = newStack.pop();
+      Constraint operandConstraint = state.getConstraint(operandValue);
+
+      execute(operandValue, operandConstraint);
+      newStack.push(expressionValue);
     });
+
 
     ProgramState newPS = state.withStack(stackAfterExecution);
     newPS = executeAssignment(newPS);
@@ -59,34 +66,46 @@ public class UnaryNumericProgramPoint implements ProgramPoint {
     return Optional.of(newPS);
   }
 
+  private void execute(SymbolicValue operandValue, Constraint operandConstraint) {
+    boolean isNumberOperand = operandConstraint.isStricterOrEqualTo(Constraint.NUMBER_PRIMITIVE);
+
+    if (element.is(Kind.PREFIX_INCREMENT, Kind.PREFIX_DECREMENT)) {
+      Sign sign = element.is(Kind.PREFIX_INCREMENT) ? Sign.PLUS : Sign.MINUS;
+      this.expressionValue = new IncDecSymbolicValue(sign, operandValue);
+      this.assignedValue = this.expressionValue;
+    }
+
+    if (element.is(Kind.POSTFIX_INCREMENT, Kind.POSTFIX_DECREMENT)) {
+      Sign sign = element.is(Kind.POSTFIX_INCREMENT) ? Sign.PLUS : Sign.MINUS;
+
+      this.expressionValue = isNumberOperand ? operandValue : new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE);
+      this.assignedValue = new IncDecSymbolicValue(sign, operandValue);
+    }
+
+    if (element.is(Kind.UNARY_MINUS, Kind.UNARY_PLUS)) {
+      this.assignedValue = null;
+
+      if (element.is(Kind.UNARY_PLUS)) {
+        this.expressionValue = isNumberOperand ? operandValue : new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE);
+
+      } else {
+        this.expressionValue = new UnaryMinusSymbolicValue(operandValue);
+
+      }
+    }
+  }
+
   private ProgramState executeAssignment(ProgramState state) {
     ProgramState newPS = state;
 
-    if (element.is(KindSet.INC_DEC_KINDS)) {
+    if (assignedValue != null) {
       Symbol symbol = execution.trackedVariable(element.expression());
       if (symbol != null) {
-        newPS = newPS.assignment(symbol, assignmentValue(newPS));
+        newPS = newPS.assignment(symbol, assignedValue);
       }
     }
 
     return newPS;
-  }
-
-  private SymbolicValue assignmentValue(ProgramState state) {
-    if (element.is(Kind.PREFIX_INCREMENT, Kind.PREFIX_DECREMENT)) {
-      return state.peekStack();
-
-    } else {
-      return new UnaryNumericSymbolicValue(element, operandValue);
-    }
-
-  }
-
-  private SymbolicValue stackValue() {
-    if (element.is(Kind.POSTFIX_DECREMENT, Kind.POSTFIX_INCREMENT, Kind.UNARY_PLUS) && operandConstraint.isStricterOrEqualTo(Constraint.NUMBER_PRIMITIVE)) {
-      return operandValue;
-    }
-    return new UnaryNumericSymbolicValue(element, operandValue);
   }
 
   public static boolean originatesFrom(Tree element) {
