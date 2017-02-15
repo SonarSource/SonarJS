@@ -66,17 +66,17 @@ public class NullDereferenceCheck extends SeCheck {
     } else if (isForOfExpression(element)) {
       Symbol symbol = getSymbol((ExpressionTree) element);
       Constraint constraint = currentState.getConstraint(symbol);
-      if (symbol != null && constraint != null && constraint.isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
+      if (constraint != null && constraint.isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
         addUniqueIssue(element, symbol);
       }
     }
   }
 
-  private void addUniqueIssue(Tree element, @Nullable Symbol symbol) {
+  private void addUniqueIssue(Tree tree, @Nullable Symbol symbol) {
     if (symbol == null) {
-      addIssue(element, EXPRESSION_MESSAGE);
+      addIssue(tree, EXPRESSION_MESSAGE);
     } else if (!hasIssue.contains(symbol)) {
-      addIssue(element, String.format(MESSAGE, symbol.name()));
+      addIssue(tree, String.format(MESSAGE, symbol.name()));
       hasIssue.add(symbol);
     }
   }

@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.se.points;
 
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
@@ -30,6 +31,11 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.sonar.javascript.se.points.ProgramPointTest.tree;
 
 public class MemberProgramPointTest {
+
+  private static final SymbolicValueWithConstraint NULL = new SymbolicValueWithConstraint(Constraint.NULL);
+  private static final SymbolicValueWithConstraint UNDEFINED = new SymbolicValueWithConstraint(Constraint.UNDEFINED);
+  private static final SymbolicValueWithConstraint ZERO = new SymbolicValueWithConstraint(Constraint.ZERO);
+  private static final SymbolicValueWithConstraint ANY_VALUE = new SymbolicValueWithConstraint(Constraint.ANY_VALUE);
 
   private MemberProgramPoint dotMemberPoint;
   private ProgramState state;
@@ -44,18 +50,32 @@ public class MemberProgramPointTest {
 
   @Test
   public void returnProgramStateWhenObjectIsDefined() throws Exception {
-    state = state.pushToStack(new SymbolicValueWithConstraint(Constraint.ANY_VALUE));
+    state = state.pushToStack(ANY_VALUE);
+    Optional<ProgramState> stateAfterDot = dotMemberPoint.execute(state);
     assertThat(dotMemberPoint.execute(state).isPresent()).isTrue();
-    state = state.pushToStack(new SymbolicValueWithConstraint(Constraint.ANY_VALUE)).pushToStack(new SymbolicValueWithConstraint(Constraint.ZERO));
-    assertThat(bracketMemberPoint.execute(state).isPresent()).isTrue();
+    stateAfterDot.ifPresent(s -> assertThat(s.getConstraint(s.peekStack()).isStricterOrEqualTo(Constraint.NOT_NULLY)).isTrue());
+    state = state.pushToStack(ANY_VALUE).pushToStack(ZERO);
+    Optional<ProgramState> stateAfterBracket = bracketMemberPoint.execute(state);
+    assertThat(stateAfterBracket.isPresent()).isTrue();
+    stateAfterBracket.ifPresent(s -> assertThat(s.getConstraint(s.peekStack()).isStricterOrEqualTo(Constraint.NOT_NULLY)).isTrue());
   }
 
   @Test
-  public void returnNoProgramStateWhenObjectIsUndefined() throws Exception {
-    state = state.pushToStack(new SymbolicValueWithConstraint(Constraint.UNDEFINED));
+  public void returnNoProgramStateWhenObjectIsUndefinedOrNull() throws Exception {
+    state = state.pushToStack(UNDEFINED);
     assertThat(dotMemberPoint.execute(state).isPresent()).isFalse();
-    state = state.pushToStack(new SymbolicValueWithConstraint(Constraint.UNDEFINED)).pushToStack(new SymbolicValueWithConstraint(Constraint.ZERO));
+    state = state.pushToStack(NULL);
+    assertThat(dotMemberPoint.execute(state).isPresent()).isFalse();
+    state = state.pushToStack(UNDEFINED).pushToStack(ZERO);
     assertThat(bracketMemberPoint.execute(state).isPresent()).isFalse();
+    state = state.pushToStack(NULL).pushToStack(ZERO);
+    assertThat(bracketMemberPoint.execute(state).isPresent()).isFalse();
+  }
+
+  @Test
+  public void ignoresArrayIndexValue() throws Exception {
+    state = state.pushToStack(ANY_VALUE).pushToStack(UNDEFINED);
+    assertThat(bracketMemberPoint.execute(state).isPresent()).isTrue();
   }
 
   @Test
