@@ -227,16 +227,6 @@ function do_while() {
 }
 
 
-function with_parentheses() {
-
-  var trueValue = true;
-
-  while((trueValue)) {        // Noncompliant
-    trueValue = true;
-  }
-}
-
-
 function loop_broken() {
 
   var trueValue = true;

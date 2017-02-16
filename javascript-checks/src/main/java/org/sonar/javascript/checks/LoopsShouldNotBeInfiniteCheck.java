@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,7 +40,6 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
@@ -55,39 +53,47 @@ import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 @Rule(key = "S2189")
 public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
 
-  private Set<Tree> loopConditions = new HashSet<>();
-  private TreeVisitor treeVisitor = new TreeVisitor();
 
-  private Set<Tree> conditionsWithIssue = new HashSet<>();
-
+  private FileLoops fileLoops;
+  private Set<Tree> alwaysTrueConditions = new HashSet<>();
 
   @Override
   public void startOfFile(ScriptTree scriptTree) {
-    loopConditions.clear();
-    conditionsWithIssue.clear();
-
-    scriptTree.accept(treeVisitor);
+    alwaysTrueConditions.clear();
+    fileLoops = FileLoops.create(scriptTree);
   }
 
   @Override
   public void checkConditions(Map<Tree, Collection<Constraint>> conditions) {
-    for (Entry<Tree, Collection<Constraint>> entry : conditions.entrySet()) {
-      JavaScriptTree condition = (JavaScriptTree) entry.getKey();
+    alwaysTrueConditions.addAll(conditions.entrySet().stream()
+      .filter(treeCollectionEntry -> alwaysTrue(treeCollectionEntry.getValue()))
+      .map(Map.Entry::getKey)
+      .collect(Collectors.toSet()));
+  }
 
-      if (loopConditions.contains(condition) && !conditionsWithIssue.contains(condition)) {
-        IterationStatementTree loop = getLoop(condition);
+  @Override
+  public void endOfFile(ScriptTree scriptTree) {
+    fileLoops.loopsAndConditions.entrySet().stream()
+      .filter(entry -> isInfiniteLoop(entry.getKey(), (JavaScriptTree) entry.getValue()))
+      .forEach(entry -> addIssue(entry.getKey()));
+  }
 
-        if (alwaysTrue(entry.getValue()) && !isBrokenLoop(condition, loop, CheckUtils.buildControlFlowGraph(loop))) {
-          loop.accept(new LoopIssueCreator());
-        }
-      }
-    }
+  private void addIssue(IterationStatementTree loop) {
+    loop.accept(new LoopIssueCreator());
   }
 
   /**
-   * TreeVisitor looks for infinite loops based on syntax tree, control flow graph and symbol table
+   * FileLoops is a tree visitor that collects a map of loops and corresponding conditions
    */
-  private class TreeVisitor extends DoubleDispatchVisitor {
+  private static class FileLoops extends DoubleDispatchVisitor {
+
+    private Map<IterationStatementTree, ExpressionTree> loopsAndConditions = new HashMap<>();
+
+    static FileLoops create(ScriptTree scriptTree) {
+      FileLoops fileLoops = new FileLoops();
+      scriptTree.accept(fileLoops);
+      return fileLoops;
+    }
 
     @Override
     public void visitForStatement(ForStatementTree tree) {
@@ -108,13 +114,7 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
     }
 
     private void visitLoop(IterationStatementTree tree, @Nullable ExpressionTree condition) {
-      if (condition != null) {
-        loopConditions.add(CheckUtils.removeParenthesis(condition));
-      }
-
-      if (isInfiniteLoop(tree, (JavaScriptTree) condition)) {
-        tree.accept(new LoopIssueCreator());
-      }
+      loopsAndConditions.put(tree, condition);
     }
   }
 
@@ -127,11 +127,7 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
     return false;
   }
 
-  private static IterationStatementTree getLoop(JavaScriptTree condition) {
-    return (IterationStatementTree) CheckUtils.getFirstAncestor(condition, Kind.FOR_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT);
-  }
-
-  private static boolean isInfiniteLoop(IterationStatementTree tree, @Nullable JavaScriptTree condition) {
+  private boolean isInfiniteLoop(IterationStatementTree tree, @Nullable JavaScriptTree condition) {
     if (isNeverExecutedLoop(condition)) {
       return false;
     }
@@ -140,7 +136,7 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
     if (isBrokenLoop(condition, tree, flowGraph)) {
       return false;
     }
-    return condition == null || !conditionIsUpdated(condition, (JavaScriptTree) tree, treesOfFlowGraph);
+    return condition == null || !conditionIsUpdated(condition, (JavaScriptTree) tree, treesOfFlowGraph) || alwaysTrueConditions.contains(condition);
   }
 
   private static boolean isBrokenLoop(@Nullable JavaScriptTree condition, IterationStatementTree loopTree, ControlFlowGraph flowGraph) {
@@ -278,7 +274,6 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
     }
 
     private void createIssue(Tree keyword, ExpressionTree condition) {
-      conditionsWithIssue.add(condition);
       LoopsShouldNotBeInfiniteCheck.this.addIssue(keyword, "Correct this loop's end condition as to not be invariant.")
         .secondary(new IssueLocation(condition, null));
     }
