@@ -19,8 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Lists;
+import java.util.List;
+import org.sonar.api.internal.google.common.collect.ImmutableList;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -35,15 +39,26 @@ public class CommaOperatorInSwitchCaseCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitCaseClause(CaseClauseTree tree) {
     ExpressionTree expression = tree.expression();
+
     if (expression.is(Kind.COMMA_OPERATOR)) {
       int nbCommas = getNumberOfCommas(expression);
-      ExpressionTree rightOperand = ((BinaryExpressionTree)expression).rightOperand();
-      String lastCase = CheckUtils.asString(rightOperand);
-      String msg = String.format(MESSAGE, nbCommas + 1, lastCase);
-      addIssue(expression, msg);
+      raiseIssue(expression, nbCommas + 1, ((BinaryExpressionTree) expression).rightOperand());
+    }
+
+    if (expression.is(Kind.CONDITIONAL_OR)) {
+      List<ExpressionTree> expressionTrees = orExpressionOperands(expression);
+      if (!expressionTrees.isEmpty()) {
+        raiseIssue(expression, expressionTrees.size(), expressionTrees.get(0));
+      }
     }
     
     super.visitCaseClause(tree);
+  }
+
+  private void raiseIssue(ExpressionTree expression, int operandsNumber, ExpressionTree expressionResult) {
+    String lastCase = CheckUtils.asString(expressionResult);
+    String msg = String.format(MESSAGE, operandsNumber, lastCase);
+    addIssue(expression, msg);
   }
   
   /**
@@ -60,6 +75,30 @@ public class CommaOperatorInSwitchCaseCheck extends DoubleDispatchVisitorCheck {
       nbCommas = getNumberOfCommas(binaryExpression.leftOperand()) + 1;
     }
     return nbCommas;
+  }
+
+  /**
+   * Returns the list of "or" expression operands where all operands are literals
+   * Returns empty list if at least one operand is not literal
+   */
+  private static List<ExpressionTree> orExpressionOperands(ExpressionTree expression) {
+    if (expression.is(Kind.CONDITIONAL_OR)) {
+      BinaryExpressionTree binaryExpression = (BinaryExpressionTree) expression;
+
+      if (binaryExpression.rightOperand().is(KindSet.LITERAL_KINDS)) {
+        List<ExpressionTree> expressionTrees = orExpressionOperands(binaryExpression.leftOperand());
+        if (!expressionTrees.isEmpty()) {
+          expressionTrees.add(binaryExpression.rightOperand());
+          return expressionTrees;
+        }
+      }
+
+    } else if (expression.is(KindSet.LITERAL_KINDS)) {
+      return Lists.newArrayList(expression);
+
+    }
+
+    return ImmutableList.of();
   }
 
 }

@@ -58,7 +58,17 @@ public enum KindSet implements Kinds {
     Kind.GENERATOR_DECLARATION,
     Kind.GET_METHOD,
     Kind.SET_METHOD,
-    Kind.ARROW_FUNCTION);
+    Kind.ARROW_FUNCTION),
+
+  LITERAL_KINDS(
+    Kind.NULL_LITERAL,
+    Kind.NUMERIC_LITERAL,
+    Kind.STRING_LITERAL,
+    Kind.BOOLEAN_LITERAL,
+    Kind.REGULAR_EXPRESSION_LITERAL,
+    Kind.TEMPLATE_LITERAL,
+    Kind.ARRAY_LITERAL,
+    Kind.OBJECT_LITERAL);
 
   private Set<Kind> subKinds;
 
