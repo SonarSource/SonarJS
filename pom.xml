@@ -35,13 +35,23 @@
 
   <developers>
     <developer>
-      <id>eriks.nukis</id>
-      <name>Eriks Nukis</name>
-      <url>https://profiles.google.com/eriks.nukis</url>
+      <id>inverno</id>
+      <name>Carlo Bottiglieri</name>
+      <organization>SonarSource</organization>
     </developer>
     <developer>
-      <id>godin</id>
-      <name>Evgeny Mandrikov</name>
+      <id>ivandalbosco</id>
+      <name>Yves Dubois-Pèlerin</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>pynicolas</id>
+      <name>Pierre-Yves Nicolas</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>vilchik-elena</id>
+      <name>Elena Vilchik</name>
       <organization>SonarSource</organization>
     </developer>
   </developers>
