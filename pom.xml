@@ -18,8 +18,8 @@
   <version>2.21-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>JavaScript</name>
-  <description>Enables scanning of JavaScript source files</description>
+  <name>SonarQube JavaScript</name>
+  <description>SonarQube JavaScript Analyzer</description>
   <inceptionYear>2011</inceptionYear>
   <organization>
     <name>SonarSource and Eriks Nukis</name>

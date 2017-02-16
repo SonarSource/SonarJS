@@ -10,7 +10,7 @@
 
   <artifactId>javascript-frontend</artifactId>
 
-  <name>JavaScript :: Frontend</name>
+  <name>SonarQube JavaScript :: Frontend</name>
 
   <dependencies>
     <dependency>

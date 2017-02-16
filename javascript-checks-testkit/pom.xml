@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>javascript-checks-testkit</artifactId>
-  <name>JavaScript :: Check Test Toolkit</name>
+  <name>SonarQube JavaScript :: Check Test Toolkit</name>
 
   <dependencies>
     <dependency>

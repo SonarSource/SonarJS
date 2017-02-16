@@ -11,7 +11,7 @@
   <artifactId>sonar-javascript-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
 
-  <name>JavaScript :: Sonar Plugin</name>
+  <name>SonarQube JavaScript :: Plugin</name>
   <!-- Be careful when altering <description> as its value shows up in the SonarQube GUI -->
   <description>Code Analyzer for JavaScript</description>
   <url>http://redirect.sonarsource.com/plugins/javascript.html</url>
@@ -65,6 +65,7 @@
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <configuration>
+          <!-- This value is shows up in the SonarQube GUI -->
           <pluginName>SonarJS</pluginName>
           <pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</pluginClass>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
