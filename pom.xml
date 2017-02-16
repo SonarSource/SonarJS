@@ -5,12 +5,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <!--
-     When updating to parent 38 or above, check if <version.sonar-packaging.plugin> defined in the new
-     parent is 1.17 or above. If it is, remove the temporary override of <version.sonar-packaging.plugin>
-     below in this file.
-    -->
-    <version>38</version>
+    <version>39</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
@@ -82,8 +77,6 @@
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- depends on API 6.0 but backward compatible with LTS -->
     <sonarQubeMinVersion>5.6</sonarQubeMinVersion>
-    <!-- Temporary override of plugin version 1.16 inherited from parent 37 -->
-    <version.sonar-packaging.plugin>1.17</version.sonar-packaging.plugin>
 
     <assertj.version>3.5.2</assertj.version>
     <commons-io.version>2.5</commons-io.version>
