@@ -53,7 +53,7 @@ function condition_is_static() {
 
 function outer_loop_condition_changes_but_inner_loop_has_no_condition() {
     var i = -2;
-    while(i < 0) {
+    while(i < 0) {          // Noncompliant?
         for(;;) {           // Noncompliant
             i++;
         }
@@ -204,4 +204,74 @@ function * generator() {
         foo();
         yield;
     }
+}
+
+
+function always_true() {
+
+  var trueValue = true;
+
+  while(trueValue) {        // Noncompliant
+    trueValue = 42;
+  }
+}
+
+
+function do_while() {
+
+  var trueValue = true;
+
+  do {                      // Noncompliant
+    trueValue = true;
+  } while (trueValue);
+}
+
+
+function with_parentheses() {
+
+  var trueValue = true;
+
+  while((trueValue)) {        // Noncompliant
+    trueValue = true;
+  }
+}
+
+
+function loop_broken() {
+
+  var trueValue = true;
+
+  while(trueValue) {        // OK
+    trueValue = true;
+    if (condition) {
+      break;
+    }
+  }
+}
+
+
+function value_is_updated_to_false() {
+
+  var trueValue = true;
+
+  while(trueValue) {       // OK
+    trueValue = false;
+  }
+}
+
+
+function numeric_comparison() {
+
+  var i = 0;
+  while (i < 10) {         // OK
+    i--;
+    if (condition) {
+      break;
+    }
+  }
+
+  var i = 0;
+  while (i < 10) {         // Noncompliant
+    i--;
+  }
 }

@@ -19,8 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,10 +34,15 @@ import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
@@ -42,34 +50,85 @@ import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 
 @Rule(key = "S2189")
-public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
+public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
+
+  private Set<Tree> loopConditions = new HashSet<>();
+  private TreeVisitor treeVisitor = new TreeVisitor();
+
+  private Set<Tree> conditionsWithIssue = new HashSet<>();
+
 
   @Override
-  public void visitForStatement(ForStatementTree tree) {
-    visitLoop(tree, tree.condition());
-    super.visitForStatement(tree);
+  public void startOfFile(ScriptTree scriptTree) {
+    loopConditions.clear();
+    conditionsWithIssue.clear();
+
+    scriptTree.accept(treeVisitor);
   }
 
   @Override
-  public void visitWhileStatement(WhileStatementTree tree) {
-    visitLoop(tree, tree.condition());
-    super.visitWhileStatement(tree);
-  }
+  public void checkConditions(Map<Tree, Collection<Constraint>> conditions) {
+    for (Entry<Tree, Collection<Constraint>> entry : conditions.entrySet()) {
+      JavaScriptTree condition = (JavaScriptTree) entry.getKey();
 
-  @Override
-  public void visitDoWhileStatement(DoWhileStatementTree tree) {
-    visitLoop(tree, tree.condition());
-    super.visitDoWhileStatement(tree);
-  }
+      if (loopConditions.contains(condition) && !conditionsWithIssue.contains(condition)) {
+        IterationStatementTree loop = getLoop(condition);
 
-  private void visitLoop(IterationStatementTree tree, @Nullable Tree condition) {
-    if (isInfiniteLoop(tree, (JavaScriptTree) condition)) {
-      tree.accept(new LoopIssueCreator());
+        if (alwaysTrue(entry.getValue()) && !isBrokenLoop(condition, loop, CheckUtils.buildControlFlowGraph(loop))) {
+          loop.accept(new LoopIssueCreator());
+        }
+      }
     }
+  }
+
+  /**
+   * TreeVisitor looks for infinite loops based on syntax tree, control flow graph and symbol table
+   */
+  private class TreeVisitor extends DoubleDispatchVisitor {
+
+    @Override
+    public void visitForStatement(ForStatementTree tree) {
+      visitLoop(tree, tree.condition());
+      super.visitForStatement(tree);
+    }
+
+    @Override
+    public void visitWhileStatement(WhileStatementTree tree) {
+      visitLoop(tree, tree.condition());
+      super.visitWhileStatement(tree);
+    }
+
+    @Override
+    public void visitDoWhileStatement(DoWhileStatementTree tree) {
+      visitLoop(tree, tree.condition());
+      super.visitDoWhileStatement(tree);
+    }
+
+    private void visitLoop(IterationStatementTree tree, @Nullable ExpressionTree condition) {
+      if (condition != null) {
+        loopConditions.add(CheckUtils.removeParenthesis(condition));
+      }
+
+      if (isInfiniteLoop(tree, (JavaScriptTree) condition)) {
+        tree.accept(new LoopIssueCreator());
+      }
+    }
+  }
+
+  private static boolean alwaysTrue(Collection<Constraint> results) {
+    if (results.size() == 1) {
+      Constraint constraint = results.iterator().next();
+      return Constraint.TRUTHY.equals(constraint);
+    }
+
+    return false;
+  }
+
+  private static IterationStatementTree getLoop(JavaScriptTree condition) {
+    return (IterationStatementTree) CheckUtils.getFirstAncestor(condition, Kind.FOR_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT);
   }
 
   private static boolean isInfiniteLoop(IterationStatementTree tree, @Nullable JavaScriptTree condition) {
@@ -218,10 +277,12 @@ public class LoopsShouldNotBeInfiniteCheck extends DoubleDispatchVisitorCheck {
       }
     }
 
-    private void createIssue(Tree keyword, Tree condition) {
+    private void createIssue(Tree keyword, ExpressionTree condition) {
+      conditionsWithIssue.add(condition);
       LoopsShouldNotBeInfiniteCheck.this.addIssue(keyword, "Correct this loop's end condition as to not be invariant.")
         .secondary(new IssueLocation(condition, null));
     }
 
   }
+
 }
