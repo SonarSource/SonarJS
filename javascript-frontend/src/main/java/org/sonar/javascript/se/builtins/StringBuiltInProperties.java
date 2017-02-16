@@ -89,7 +89,7 @@ public class StringBuiltInProperties {
     .put("toLowerCase", method(Constraint.STRING_PRIMITIVE, EMPTY))
     .put("toUpperCase", method(Constraint.STRING_PRIMITIVE, EMPTY))
     .put("trim", method(Constraint.STRING_PRIMITIVE, EMPTY))
-    .put("length", property(Constraint.NUMBER_PRIMITIVE))
+    .put("length", property(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO)))
 
     // overrides Object
     .put("toString", method(Constraint.STRING_PRIMITIVE, EMPTY))

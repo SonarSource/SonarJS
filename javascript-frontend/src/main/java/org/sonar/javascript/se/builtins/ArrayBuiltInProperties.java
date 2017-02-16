@@ -32,6 +32,7 @@ import static org.sonar.javascript.se.Constraint.ARRAY;
 import static org.sonar.javascript.se.Constraint.FUNCTION;
 import static org.sonar.javascript.se.Constraint.OBJECT;
 import static org.sonar.javascript.se.Constraint.UNDEFINED;
+import static org.sonar.javascript.se.Constraint.ZERO;
 import static org.sonar.javascript.se.builtins.BuiltInProperty.method;
 import static org.sonar.javascript.se.builtins.BuiltInProperty.property;
 
@@ -81,7 +82,7 @@ public class ArrayBuiltInProperties {
     // overrides Object
     .put("toString", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.EMPTY))
     .put("toLocaleString", method(Constraint.STRING_PRIMITIVE, BuiltInProperty.EMPTY))
-    .put("length", property(Constraint.NUMBER_PRIMITIVE))
+    .put("length", property(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(ZERO)))
     .build();
 
   public static final Map<String, BuiltInProperty> PROPERTIES = ImmutableMap.<String, BuiltInProperty>builder()

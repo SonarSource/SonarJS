@@ -3,14 +3,14 @@ function main() {
   if (!x) {
     x = 42;
   }
-  bar(); // PS x=TRUTHY || x=TRUTHY_NUMBER
+  bar(); // PS x=TRUTHY || x=POS_NUMBER
   makeLive(x);
 
   x = foo2();
   if (!(x)) {
     x = 42;
   }
-  bar(); // PS x=TRUTHY || x=TRUTHY_NUMBER
+  bar(); // PS x=TRUTHY || x=POS_NUMBER
   makeLive(x);
 
   var notExecuted;
@@ -59,7 +59,7 @@ function main() {
     x = null;
   }
 
-  dummyStatement(); // PS x=TRUTHY_NUMBER
+  dummyStatement(); // PS x=POS_NUMBER
   makeLive(x);
 
   if (false) {
@@ -80,14 +80,14 @@ function main() {
     z = null;
   }
 
-  dummyStatement(); // PS z=TRUTHY_NUMBER
+  dummyStatement(); // PS z=POS_NUMBER
   makeLive(z);
 
   if (y2 == null) {
     z = null;
   }
 
-  makeLive(z); // PS z=TRUTHY_NUMBER
+  makeLive(z); // PS z=POS_NUMBER
 
   x = foo(), y1 = bar();
   z = x === null && y1;
@@ -106,7 +106,7 @@ function main() {
   }
 
   x = foo() && 42;
-  dummyStatement(); // PS x=FALSY || x=TRUTHY_NUMBER
+  dummyStatement(); // PS x=FALSY || x=POS_NUMBER
   makeLive(x);
 
   var p1 = foo(), p2 = foo(), p3 = foo();

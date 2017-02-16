@@ -19,11 +19,15 @@
  */
 package org.sonar.javascript.se;
 
+import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Range;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
@@ -35,68 +39,75 @@ public class Relation {
       Kind.EQUAL_TO,
       Kind.NOT_EQUAL_TO,
       Kind.EQUAL_TO,
-      ImmutableSet.of(Kind.STRICT_EQUAL_TO, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO)),
+      ImmutableSet.of(Kind.STRICT_EQUAL_TO, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO),
+      Operator::areEqual),
     NOT_EQUAL_TO(
       "!=",
       Kind.NOT_EQUAL_TO,
       Kind.EQUAL_TO,
       Kind.NOT_EQUAL_TO,
-      ImmutableSet.of(Kind.STRICT_NOT_EQUAL_TO, Kind.LESS_THAN, Kind.GREATER_THAN, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO)),
+      ImmutableSet.of(Kind.STRICT_NOT_EQUAL_TO, Kind.LESS_THAN, Kind.GREATER_THAN, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO),
+      Operator::areNotEqual),
     STRICT_EQUAL_TO(
       "===",
       Kind.STRICT_EQUAL_TO,
       Kind.STRICT_NOT_EQUAL_TO,
       Kind.STRICT_EQUAL_TO,
-      ImmutableSet.of(Kind.EQUAL_TO, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO)),
+      ImmutableSet.of(Kind.EQUAL_TO, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO),
+      Operator::areEqual),
     STRICT_NOT_EQUAL_TO(
       "!==",
       Kind.STRICT_NOT_EQUAL_TO,
       Kind.STRICT_EQUAL_TO,
       Kind.STRICT_NOT_EQUAL_TO,
-      ImmutableSet.of(Kind.NOT_EQUAL_TO, Kind.LESS_THAN, Kind.GREATER_THAN, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO, Kind.EQUAL_TO)),
+      ImmutableSet.of(Kind.NOT_EQUAL_TO, Kind.LESS_THAN, Kind.GREATER_THAN, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO, Kind.EQUAL_TO),
+      Operator::areNotEqual),
     LESS_THAN(
       "<",
       Kind.LESS_THAN,
       Kind.GREATER_THAN_OR_EQUAL_TO,
       Kind.GREATER_THAN,
-      ImmutableSet.of(Kind.NOT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.LESS_THAN_OR_EQUAL_TO)
-    ),
+      ImmutableSet.of(Kind.NOT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.LESS_THAN_OR_EQUAL_TO),
+      Operator::lessThan),
     GREATER_THAN(
       ">",
       Kind.GREATER_THAN,
       Kind.LESS_THAN_OR_EQUAL_TO,
       Kind.LESS_THAN,
-      ImmutableSet.of(Kind.NOT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO)
-    ),
+      ImmutableSet.of(Kind.NOT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO),
+      Operator::greaterThan),
     LESS_THAN_OR_EQUAL_TO(
       "<=",
       Kind.LESS_THAN_OR_EQUAL_TO,
       Kind.GREATER_THAN,
       Kind.GREATER_THAN_OR_EQUAL_TO,
-      ImmutableSet.of(Kind.EQUAL_TO, Kind.STRICT_EQUAL_TO, Kind.NOT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.LESS_THAN, Kind.GREATER_THAN_OR_EQUAL_TO)
-    ),
+      ImmutableSet.of(Kind.EQUAL_TO, Kind.STRICT_EQUAL_TO, Kind.NOT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.LESS_THAN, Kind.GREATER_THAN_OR_EQUAL_TO),
+      Operator::lessThan),
     GREATER_THAN_OR_EQUAL_TO(
       ">=",
       Kind.GREATER_THAN_OR_EQUAL_TO,
       Kind.LESS_THAN,
       Kind.LESS_THAN_OR_EQUAL_TO,
-      ImmutableSet.of(Kind.EQUAL_TO, Kind.NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.GREATER_THAN, Kind.LESS_THAN_OR_EQUAL_TO)
-    );
+      ImmutableSet.of(Kind.EQUAL_TO, Kind.NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.GREATER_THAN, Kind.LESS_THAN_OR_EQUAL_TO),
+      Operator::greaterThan);
 
     private final String operatorString;
     private final Kind kind;
     private final Kind negatedKind;
     private final Kind kindForReversedOperands;
     private final Set<Kind> compatibleKindsForSameOperands;
+    final BiFunction<Range<Integer>, Range<Integer>, Optional<Boolean>> numericComparison;
 
     private static final Map<Kind, Operator> OPERATOR_BY_KIND = buildOperatorByKind();
 
-    Operator(String operatorString, Kind kind, Kind negatedKind, Kind kindForReversedOperands, Set<Kind> compatibleKindsForSameOperands) {
+    Operator(String operatorString, Kind kind, Kind negatedKind, Kind kindForReversedOperands, Set<Kind> compatibleKindsForSameOperands,
+      BiFunction<Range<Integer>, Range<Integer>, Optional<Boolean>> numericComparison) {
       this.operatorString = operatorString;
       this.kind = kind;
       this.negatedKind = negatedKind;
       this.kindForReversedOperands = kindForReversedOperands;
       this.compatibleKindsForSameOperands = compatibleKindsForSameOperands;
+      this.numericComparison = numericComparison;
     }
 
     private static Map<Kind, Operator> buildOperatorByKind() {
@@ -125,6 +136,46 @@ public class Relation {
 
     public String operatorString() {
       return operatorString;
+    }
+
+    private static Optional<Boolean> areEqual(Range<Integer> range1, Range<Integer> range2) {
+      return !range1.isConnected(range2) || range1.intersection(range2).isEmpty() ? Optional.of(false) : Optional.empty();
+    }
+
+    private static Optional<Boolean> areNotEqual(Range range1, Range range2) {
+      return not(areEqual(range1, range2));
+    }
+
+    private static Optional<Boolean> lessThan(Range<Integer> range1, Range<Integer> range2) {
+      if (range1.hasUpperBound() && range2.hasLowerBound() && range1.upperEndpoint() <= range2.lowerEndpoint()
+        && atLeastOneBoundIsOpen(range2.lowerBoundType(), range1.upperBoundType())) {
+
+        return Optional.of(true);
+
+      } else if (range2.hasUpperBound() && range1.hasLowerBound() && range1.lowerEndpoint() >= range2.upperEndpoint()
+        && atLeastOneBoundIsOpen(range1.lowerBoundType(), range2.upperBoundType())) {
+
+        return Optional.of(false);
+
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    private static Optional<Boolean> greaterThan(Range<Integer> range1, Range<Integer> range2) {
+      return lessThan(range2, range1);
+    }
+
+    private static Optional<Boolean> not(Optional<Boolean> value) {
+      if (value.isPresent()) {
+        return Optional.of(!value.get());
+      }
+
+      return value;
+    }
+
+    private static boolean atLeastOneBoundIsOpen(BoundType type1, BoundType type2) {
+      return type1.equals(BoundType.OPEN) || type2.equals(BoundType.OPEN);
     }
 
   }
@@ -176,6 +227,17 @@ public class Relation {
 
   public Operator operator() {
     return operator;
+  }
+
+  public Optional<Boolean> applyNumericComparison(ProgramState state) {
+    Optional<Range<Integer>> leftRange = state.getConstraint(leftOperand()).numericRange();
+    Optional<Range<Integer>> rightRange = state.getConstraint(rightOperand()).numericRange();
+
+    if (leftRange.isPresent() && rightRange.isPresent()) {
+      return operator.numericComparison.apply(leftRange.get(), rightRange.get());
+    }
+
+    return Optional.empty();
   }
 
   @Override

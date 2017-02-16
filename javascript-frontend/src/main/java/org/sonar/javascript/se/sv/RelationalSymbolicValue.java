@@ -79,6 +79,11 @@ public class RelationalSymbolicValue implements SymbolicValue {
 
   @Override
   public Constraint baseConstraint(ProgramState state) {
+    Optional<Boolean> result = relationWhenTrue.applyNumericComparison(state);
+    if (result.isPresent()) {
+      return result.get() ? Constraint.TRUE : Constraint.FALSE;
+    }
+
     return Constraint.BOOLEAN_PRIMITIVE;
   }
 

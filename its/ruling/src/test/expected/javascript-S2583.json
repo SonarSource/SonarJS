@@ -6,9 +6,6 @@
 10034,
 10034,
 ],
-'project:dojo-1.8.1/dijit/_TemplatedMixin.js.uncompressed.js':[
-202,
-],
 'project:dojo-1.8.1/dijit/_base/focus.js.uncompressed.js':[
 146,
 ],
@@ -366,6 +363,7 @@
 75,
 80,
 80,
+390,
 658,
 ],
 'project:ecmascript6/http/test/mocks/Xhr.js':[
@@ -516,6 +514,7 @@
 8987,
 9137,
 11989,
+13751,
 ],
 'project:yui-3.7.3/datatable-sort/datatable-sort.js':[
 707,

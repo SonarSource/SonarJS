@@ -258,25 +258,6 @@ public class ExpressionStackTest {
 
   @Test
   public void number_expressions() throws Exception {
-
-    execute("a++");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-
-    execute("a--");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-
-    execute("++a");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-
-    execute("--a");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-
-    execute("-a");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-
-    execute("+a");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
-
     execute("~a");
     assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
   }
@@ -284,7 +265,7 @@ public class ExpressionStackTest {
   @Test
   public void dot_member_access() throws Exception {
     execute("x = 'abc'.length");
-    assertSingleValueInStackWithConstraint(Constraint.NUMBER_PRIMITIVE);
+    assertSingleValueInStackWithConstraint(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
 
     execute("x = 'abc'.charAt");
     assertSingleValueInStackWithConstraint(Constraint.FUNCTION.or(Constraint.UNDEFINED));

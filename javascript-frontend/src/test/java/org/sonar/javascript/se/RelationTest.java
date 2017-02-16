@@ -19,7 +19,10 @@
  */
 package org.sonar.javascript.se;
 
+import com.google.common.collect.Range;
+import java.util.Optional;
 import org.junit.Test;
+import org.sonar.javascript.se.Relation.Operator;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -95,6 +98,28 @@ public class RelationTest {
   @Test
   public void test_toString() {
     assertThat(new Relation(Kind.LESS_THAN, SV1, SV2).toString()).isEqualTo("SV_1 < SV_2");
+  }
+
+  @Test
+  public void ranges_comparison() {
+    Range<Integer> positive = Constraint.POSITIVE_NUMBER_PRIMITIVE.numericRange().get();
+    Range<Integer> positiveAndZero = Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO).numericRange().get();
+    Range<Integer> negativeAndZero = Constraint.NEGATIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO).numericRange().get();
+    Range<Integer> negative = Constraint.NEGATIVE_NUMBER_PRIMITIVE.numericRange().get();
+    Range<Integer> zero = Constraint.ZERO.numericRange().get();
+
+    assertThat(Operator.LESS_THAN.numericComparison.apply(positive, positiveAndZero)).isEmpty();
+    assertThat(Operator.LESS_THAN.numericComparison.apply(positive, negative)).isEqualTo(Optional.of(false));
+    assertThat(Operator.LESS_THAN.numericComparison.apply(negative, positive)).isEqualTo(Optional.of(true));
+    assertThat(Operator.LESS_THAN.numericComparison.apply(negativeAndZero, positiveAndZero)).isEmpty();
+
+    assertThat(Operator.NOT_EQUAL_TO.numericComparison.apply(positive, positiveAndZero)).isEmpty();
+    assertThat(Operator.NOT_EQUAL_TO.numericComparison.apply(positive, negative)).isEqualTo(Optional.of(true));
+    assertThat(Operator.NOT_EQUAL_TO.numericComparison.apply(negative, positive)).isEqualTo(Optional.of(true));
+
+    assertThat(Operator.GREATER_THAN_OR_EQUAL_TO.numericComparison.apply(zero, negative)).isEqualTo(Optional.of(true));
+    assertThat(Operator.GREATER_THAN_OR_EQUAL_TO.numericComparison.apply(zero, positive)).isEqualTo(Optional.of(false));
+    assertThat(Operator.GREATER_THAN_OR_EQUAL_TO.numericComparison.apply(zero, positiveAndZero)).isEmpty();
   }
 
   private static Relation relation(Kind kind, SymbolicValue leftOperand, SymbolicValue rightOperand) {

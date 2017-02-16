@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.javascript.se.Constraint.TRUTHY_NUMBER_PRIMITIVE;
+import static org.sonar.javascript.se.Constraint.POSITIVE_NUMBER_PRIMITIVE;
 import static org.sonar.javascript.se.Constraint.ZERO;
 
 public class LiteralSymbolicValueTest {
@@ -59,14 +59,14 @@ public class LiteralSymbolicValueTest {
 
   @Test
   public void numeric_literal() throws Exception {
-    assertThat(constraint("42")).isEqualTo(TRUTHY_NUMBER_PRIMITIVE);
-    assertThat(constraint("42.")).isEqualTo(TRUTHY_NUMBER_PRIMITIVE);
-    assertThat(constraint("42e2")).isEqualTo(TRUTHY_NUMBER_PRIMITIVE);
-    assertThat(constraint("0b01")).isEqualTo(TRUTHY_NUMBER_PRIMITIVE);
-    assertThat(constraint("0x42")).isEqualTo(TRUTHY_NUMBER_PRIMITIVE);
-    assertThat(constraint("0o42")).isEqualTo(TRUTHY_NUMBER_PRIMITIVE);
-    assertThat(constraint("0O42")).isEqualTo(TRUTHY_NUMBER_PRIMITIVE);
-    assertThat(constraint("042")).isEqualTo(TRUTHY_NUMBER_PRIMITIVE);
+    assertThat(constraint("42")).isEqualTo(POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(constraint("42.")).isEqualTo(POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(constraint("42e2")).isEqualTo(POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(constraint("0b01")).isEqualTo(POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(constraint("0x42")).isEqualTo(POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(constraint("0o42")).isEqualTo(POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(constraint("0O42")).isEqualTo(POSITIVE_NUMBER_PRIMITIVE);
+    assertThat(constraint("042")).isEqualTo(POSITIVE_NUMBER_PRIMITIVE);
 
     assertThat(constraint("0")).isEqualTo(ZERO);
     assertThat(constraint("0.0")).isEqualTo(ZERO);
@@ -97,7 +97,7 @@ public class LiteralSymbolicValueTest {
     return literal(source).baseConstraint(mock(ProgramState.class));
   }
 
-  private LiteralSymbolicValue literal(String source) {
+  private SymbolicValue literal(String source) {
     ScriptTree script = (ScriptTree) parser.parse(source);
     ExpressionStatementTree expressionStatement = (ExpressionStatementTree) script.items().items().get(0);
     return LiteralSymbolicValue.get((LiteralTree) expressionStatement.expression());

@@ -14,9 +14,9 @@ function main(array, i) {
     return condition ? p1 : p2;
   }
   barReturn = bar(1);
-  foo(barReturn); // PS barReturn=UNDEFINED_OR_TRUTHY_NUMBER
+  foo(barReturn); // PS barReturn=UNDEFINED_OR_POS_NUMBER
   barReturn = bar(1, 2);
-  foo(barReturn); // PS barReturn=TRUTHY_NUMBER
+  foo(barReturn); // PS barReturn=POS_NUMBER
   barReturn = bar();
   foo(barReturn); // PS barReturn=UNDEFINED
 

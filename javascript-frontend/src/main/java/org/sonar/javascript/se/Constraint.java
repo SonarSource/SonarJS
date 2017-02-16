@@ -23,7 +23,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import com.google.common.collect.Range;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
@@ -71,7 +73,8 @@ public class Constraint {
   public static final Constraint FALSE = new Constraint(ValueSubSet.FALSE);
   public static final Constraint TRUE = new Constraint(ValueSubSet.TRUE);
   public static final Constraint FUNCTION = new Constraint(ValueSubSet.FUNCTION);
-  public static final Constraint TRUTHY_NUMBER_PRIMITIVE = new Constraint(ValueSubSet.TRUTHY_NUMBER);
+  public static final Constraint POSITIVE_NUMBER_PRIMITIVE = new Constraint(ValueSubSet.POSITIVE_NUMBER);
+  public static final Constraint NEGATIVE_NUMBER_PRIMITIVE = new Constraint(ValueSubSet.NEGATIVE_NUMBER);
   public static final Constraint TRUTHY_STRING_PRIMITIVE = new Constraint(ValueSubSet.TRUTHY_STRING);
   public static final Constraint ARRAY = new Constraint(ValueSubSet.ARRAY);
   public static final Constraint DATE = new Constraint(ValueSubSet.DATE);
@@ -80,8 +83,9 @@ public class Constraint {
   public static final Constraint NUMBER_OBJECT = new Constraint(ValueSubSet.NUMBER_OBJECT);
   public static final Constraint BOOLEAN_OBJECT = new Constraint(ValueSubSet.BOOLEAN_OBJECT);
   public static final Constraint OTHER_OBJECT = new Constraint(ValueSubSet.OTHER_OBJECT);
-
   public static final Constraint NULL_OR_UNDEFINED = NULL.or(UNDEFINED);
+
+  public static final Constraint TRUTHY_NUMBER_PRIMITIVE = or(POSITIVE_NUMBER_PRIMITIVE, NEGATIVE_NUMBER_PRIMITIVE);
   public static final Constraint KNOWN_OBJECTS = or(FUNCTION, ARRAY, DATE, REGEXP, STRING_OBJECT, NUMBER_OBJECT, BOOLEAN_OBJECT);
   public static final Constraint NOT_NULLY = NULL_OR_UNDEFINED.not();
   public static final Constraint TRUTHY = or(TRUE, TRUTHY_NUMBER_PRIMITIVE, TRUTHY_STRING_PRIMITIVE, KNOWN_OBJECTS, OTHER_OBJECT);
@@ -102,6 +106,14 @@ public class Constraint {
     .put(NOT_NULLY, "NOT_NULLY")
     .build();
 
+  private static final Map<Constraint, Range<Integer>> NUMERIC_RANGES = ImmutableMap.<Constraint, Range<Integer>>builder()
+    .put(Constraint.POSITIVE_NUMBER_PRIMITIVE, Range.greaterThan(0))
+    .put(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO), Range.atLeast(0))
+    .put(Constraint.NEGATIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO), Range.atMost(0))
+    .put(Constraint.NEGATIVE_NUMBER_PRIMITIVE, Range.lessThan(0))
+    .put(Constraint.ZERO, Range.singleton(0))
+    .build();
+
   private enum ValueSubSet {
     NULL,
     UNDEFINED,
@@ -111,7 +123,8 @@ public class Constraint {
     FALSE,
     TRUE,
     FUNCTION,
-    TRUTHY_NUMBER,
+    NEGATIVE_NUMBER,
+    POSITIVE_NUMBER,
     TRUTHY_STRING,
     ARRAY,
     DATE,
@@ -169,6 +182,17 @@ public class Constraint {
 
   public Type type() {
     return Type.find(this);
+  }
+
+  /**
+   * Returns numeric range corresponding to the constraint (if constraint is pure numeric).
+   */
+  public Optional<Range<Integer>> numericRange() {
+    if (NUMERIC_RANGES.containsKey(this)) {
+      return Optional.of(NUMERIC_RANGES.get(this));
+    }
+
+    return Optional.empty();
   }
 
   public Set<Type> typeSet() {

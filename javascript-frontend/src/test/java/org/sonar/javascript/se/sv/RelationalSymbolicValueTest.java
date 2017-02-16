@@ -127,6 +127,33 @@ public class RelationalSymbolicValueTest {
         .getConstraint(sv1)).isEqualTo(Constraint.NULL);
   }
 
+  @Test
+  public void test_false_numeric_comparison() throws Exception {
+    state = state
+      .constrain(sv1, Constraint.POSITIVE_NUMBER_PRIMITIVE).get()
+      .constrain(sv2, Constraint.NEGATIVE_NUMBER_PRIMITIVE).get();
+
+    assertThat(relationalValue.baseConstraint(state)).isEqualTo(Constraint.FALSE);
+  }
+
+  @Test
+  public void test_true_numeric_comparison() throws Exception {
+    state = state
+      .constrain(sv1, Constraint.NEGATIVE_NUMBER_PRIMITIVE).get()
+      .constrain(sv2, Constraint.POSITIVE_NUMBER_PRIMITIVE).get();
+
+    assertThat(relationalValue.baseConstraint(state)).isEqualTo(Constraint.TRUE);
+  }
+
+  @Test
+  public void test_unknown_numeric_comparison() throws Exception {
+    state = state
+      .constrain(sv1, Constraint.NEGATIVE_NUMBER_PRIMITIVE).get()
+      .constrain(sv2, Constraint.NEGATIVE_NUMBER_PRIMITIVE).get();
+
+    assertThat(relationalValue.baseConstraint(state)).isEqualTo(Constraint.BOOLEAN_PRIMITIVE);
+  }
+
   private ProgramState singleConstrainedState(SymbolicValue value, Constraint constraint) {
     Optional<ProgramState> constrainedStates = value.constrainDependencies(state, constraint);
     assertThat(constrainedStates.isPresent()).isTrue();

@@ -37,7 +37,7 @@ function main(array, i) {
    }
 
    barReturn = bar();
-   foo(barReturn); // PS barReturn=TRUTHY_NUMBER
+   foo(barReturn); // PS barReturn=POS_NUMBER
 
    bar = function() {
       if (condition) {
@@ -47,7 +47,7 @@ function main(array, i) {
    }
 
    barReturn = bar();
-   foo(barReturn); // PS barReturn=UNDEFINED_OR_TRUTHY_NUMBER
+   foo(barReturn); // PS barReturn=UNDEFINED_OR_POS_NUMBER
 
    bar = function() {
       if (condition) {
@@ -58,7 +58,7 @@ function main(array, i) {
    }
 
    barReturn = bar();
-   foo(barReturn); // PS barReturn=UNDEFINED_OR_TRUTHY_NUMBER
+   foo(barReturn); // PS barReturn=UNDEFINED_OR_POS_NUMBER
 
 
 }

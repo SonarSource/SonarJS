@@ -40,7 +40,7 @@ public class BuiltInPropertiesTest {
   public void test_string() throws Exception {
     type = Type.STRING_PRIMITIVE;
     assertMethod(value("split"), method(Constraint.ARRAY));
-    assertProperty(value("length"), Constraint.NUMBER_PRIMITIVE);
+    assertProperty(value("length"), Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
     assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
     assertMethod(value("valueOf"), method(Constraint.STRING_PRIMITIVE));
   }
@@ -72,7 +72,7 @@ public class BuiltInPropertiesTest {
     type = Type.ARRAY;
     assertMethod(value("sort"), method(Constraint.ARRAY));
     assertMethod(value("pop"), method(Constraint.ANY_VALUE));
-    assertProperty(value("length"), Constraint.NUMBER_PRIMITIVE);
+    assertProperty(value("length"), Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
     // inherited
     assertMethod(value("valueOf"), method(Constraint.ANY_VALUE));
@@ -83,7 +83,7 @@ public class BuiltInPropertiesTest {
     type = Type.FUNCTION;
     assertMethod(value("bind"), method(Constraint.FUNCTION));
     assertProperty(value("name"), Constraint.STRING_PRIMITIVE);
-    assertProperty(value("length"), Constraint.NUMBER_PRIMITIVE);
+    assertProperty(value("length"), Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
   }
 
