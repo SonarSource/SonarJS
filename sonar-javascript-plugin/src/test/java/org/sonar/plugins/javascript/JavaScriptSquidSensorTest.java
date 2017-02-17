@@ -355,6 +355,17 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
+  public void sq_before_6_2_uses_executable_lines_for_zero_coverage() throws Exception {
+    inputFile("file.js");
+    context.setSettings(new MapSettings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true"));
+
+    context.setRuntime(SONAR_RUNTIME_6_1);
+    createSensor().execute(context);
+    assertThat(context.lineHits("moduleKey:file.js", 2)).isEqualTo(0);
+    assertThat(context.lineHits("moduleKey:file.js", 3)).isEqualTo(null);
+  }
+
+  @Test
   public void test_deprecation_log_for_report_properties() throws Exception {
     String deprecationMessage = "Since SonarQube 6.2 property '%s' is deprecated. Use 'sonar.javascript.lcov.reportPaths' instead.";
     String utReportMessage = String.format(deprecationMessage, JavaScriptPlugin.LCOV_UT_REPORT_PATH);

@@ -62,7 +62,7 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.STATEMENTS).value()).isEqualTo(1);
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.CLASSES).value()).isEqualTo(0);
 
-    assertThat(metricsVisitor.linesOfCode().get(INPUT_FILE)).containsOnly(2, 3, 4);
+    assertThat(metricsVisitor.executableLines().get(INPUT_FILE)).containsOnly(3);
   }
 
   @Test

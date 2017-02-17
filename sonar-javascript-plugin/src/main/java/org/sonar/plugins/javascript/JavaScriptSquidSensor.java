@@ -386,10 +386,10 @@ public class JavaScriptSquidSensor implements Sensor {
       if (metricsVisitor == null) {
         throw new IllegalStateException("Before starting coverage computation, metrics should have been calculated.");
       }
-      executeCoverageSensors(context, metricsVisitor.linesOfCode(), isAtLeastSq62);
+      executeCoverageSensors(context, metricsVisitor.executableLines(), isAtLeastSq62);
     }
 
-    private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
+    private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> executableLines, boolean isAtLeastSq62) {
       Settings settings = context.settings();
       if (isAtLeastSq62 && settings.getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY)) {
         LOG.warn("Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis");
@@ -402,15 +402,15 @@ public class JavaScriptSquidSensor implements Sensor {
         String lcovReports = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATHS);
 
         if (lcovReports == null || lcovReports.isEmpty()) {
-          executeDeprecatedCoverageSensors(context, linesOfCode, true);
+          executeDeprecatedCoverageSensors(context, executableLines, true);
 
         } else {
           LOG.info("Test Coverage Sensor is started");
-          (new LCOVCoverageSensor()).execute(context, linesOfCode, true);
+          (new LCOVCoverageSensor()).execute(context, executableLines, true);
         }
 
       } else {
-        executeDeprecatedCoverageSensors(context, linesOfCode, false);
+        executeDeprecatedCoverageSensors(context, executableLines, false);
       }
     }
 
@@ -421,13 +421,13 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    private static void executeDeprecatedCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
+    private static void executeDeprecatedCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> executableLines, boolean isAtLeastSq62) {
       LOG.info("Unit Test Coverage Sensor is started");
-      (new UTCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
+      (new UTCoverageSensor()).execute(context, executableLines, isAtLeastSq62);
       LOG.info("Integration Test Coverage Sensor is started");
-      (new ITCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
+      (new ITCoverageSensor()).execute(context, executableLines, isAtLeastSq62);
       LOG.info("Overall Coverage Sensor is started");
-      (new OverallCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
+      (new OverallCoverageSensor()).execute(context, executableLines, isAtLeastSq62);
     }
   }
 

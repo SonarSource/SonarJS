@@ -57,7 +57,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
   private NoSonarFilter noSonarFilter;
   private final Boolean ignoreHeaderComments;
   private FileLinesContextFactory fileLinesContextFactory;
-  private Map<InputFile, Set<Integer>> projectLinesOfCode;
+  private Map<InputFile, Set<Integer>> projectExecutableLines;
 
   private int classComplexity;
   private int functionComplexity;
@@ -72,15 +72,15 @@ public class MetricsVisitor extends SubscriptionVisitor {
     this.noSonarFilter = noSonarFilter;
     this.ignoreHeaderComments = ignoreHeaderComments;
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.projectLinesOfCode = new HashMap<>();
+    this.projectExecutableLines = new HashMap<>();
     this.saveExecutableLines = saveExecutableLines;
   }
 
   /**
-   * Returns lines of code for files in project
+   * Returns executable lines of code for files in project
    */
-  public Map<InputFile, Set<Integer>> linesOfCode() {
-    return projectLinesOfCode;
+  public Map<InputFile, Set<Integer>> executableLines() {
+    return projectExecutableLines;
   }
 
   @Override
@@ -155,7 +155,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
     LineVisitor lineVisitor = new LineVisitor(context.getTopTree());
     int linesNumber = lineVisitor.getLinesNumber();
     Set<Integer> linesOfCode = lineVisitor.getLinesOfCode();
-    projectLinesOfCode.put(inputFile, linesOfCode);
 
     saveMetricOnFile(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
 
@@ -171,8 +170,11 @@ public class MetricsVisitor extends SubscriptionVisitor {
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, isCodeLine);
       fileLinesContext.setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, line, commentLines.contains(line) ? 1 : 0);
     }
+
+    Set<Integer> executableLines = new ExecutableLineVisitor(context.getTopTree()).getExecutableLines();
+    projectExecutableLines.put(inputFile, executableLines);
+
     if (saveExecutableLines) {
-      Set<Integer> executableLines = new ExecutableLineVisitor(context.getTopTree()).getExecutableLines();
       executableLines.stream().forEach(line -> fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1));
     }
     fileLinesContext.save();
