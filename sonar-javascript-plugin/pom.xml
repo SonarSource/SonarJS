@@ -65,7 +65,7 @@
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <configuration>
-          <!-- This value is shows up in the SonarQube GUI -->
+          <!-- This value shows up in the SonarQube GUI -->
           <pluginName>SonarJS</pluginName>
           <pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</pluginClass>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
