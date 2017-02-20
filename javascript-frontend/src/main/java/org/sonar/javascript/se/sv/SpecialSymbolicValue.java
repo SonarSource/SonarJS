@@ -25,7 +25,6 @@ import org.sonar.javascript.se.ProgramState;
 
 public enum SpecialSymbolicValue implements SymbolicValue {
 
-  ZERO(Constraint.ZERO),
   NULL(Constraint.NULL),
   UNDEFINED(Constraint.UNDEFINED);
 

@@ -44,6 +44,12 @@ public interface ProgramPoint {
     if (UnaryNumericProgramPoint.originatesFrom(element)) {
       return new UnaryNumericProgramPoint(element, execution);
     }
+    if (IdentifierProgramPoint.originatesFrom(element)) {
+      return new IdentifierProgramPoint(element, execution);
+    }
+    if (LiteralProgramPoint.originatesFrom(element)) {
+      return new LiteralProgramPoint(element);
+    }
     // Once everything is migrated to program points, we should consider raising an exception here.
     return new NoActionProgramPoint();
   }

@@ -30,16 +30,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.InstanceOfSymbolicValue;
-import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.ObjectSymbolicValue;
 import org.sonar.javascript.se.sv.RelationalSymbolicValue;
-import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.TypeOfSymbolicValue;
@@ -49,17 +46,11 @@ import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
-import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
-import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
@@ -86,13 +77,9 @@ public class ExpressionStack {
     return EMPTY;
   }
 
-  public ExpressionStack push(@Nullable SymbolicValue newValue) {
-    SymbolicValue pushedValue = newValue;
-    if (pushedValue == null) {
-      pushedValue = UnknownSymbolicValue.UNKNOWN;
-    }
+  public ExpressionStack push(SymbolicValue newValue) {
     Deque<SymbolicValue> newStack = copy();
-    newStack.push(pushedValue);
+    newStack.push(newValue);
     return new ExpressionStack(newStack);
   }
 
@@ -109,21 +96,6 @@ public class ExpressionStack {
     Deque<SymbolicValue> newStack = copy();
     Kind kind = ((JavaScriptTree) expression).getKind();
     switch (kind) {
-      case IDENTIFIER_REFERENCE:
-        if (SymbolicExecution.isUndefined((IdentifierTree) expression)) {
-          newStack.push(SpecialSymbolicValue.UNDEFINED);
-          break;
-        }
-        throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
-      case NULL_LITERAL:
-        newStack.push(SpecialSymbolicValue.NULL);
-        break;
-      case NUMERIC_LITERAL:
-      case STRING_LITERAL:
-      case BOOLEAN_LITERAL:
-      case REGULAR_EXPRESSION_LITERAL:
-        newStack.push(LiteralSymbolicValue.get((LiteralTree) expression));
-        break;
       case LOGICAL_COMPLEMENT:
         SymbolicValue negatedValue = newStack.pop();
         newStack.push(LogicalNotSymbolicValue.create(negatedValue));
@@ -174,18 +146,6 @@ public class ExpressionStack {
         break;
       case CLASS_EXPRESSION:
         newStack.push(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-        break;
-      case OBJECT_LITERAL:
-        popObjectLiteralProperties((ObjectLiteralTree) expression, newStack);
-        newStack.push(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-        break;
-      case ARRAY_LITERAL:
-        pop(newStack, ((ArrayLiteralTree) expression).elements().size());
-        newStack.push(new SymbolicValueWithConstraint(Constraint.ARRAY));
-        break;
-      case TEMPLATE_LITERAL:
-        pop(newStack, ((TemplateLiteralTree) expression).expressions().size());
-        newStack.push(new SymbolicValueWithConstraint(Constraint.STRING_PRIMITIVE));
         break;
       case EXPONENT_ASSIGNMENT:
       case LEFT_SHIFT_ASSIGNMENT:
@@ -264,6 +224,18 @@ public class ExpressionStack {
       case CONDITIONAL_AND:
       case CONDITIONAL_OR:
       case CONDITIONAL_EXPRESSION:
+
+      case IDENTIFIER_REFERENCE:
+
+      case NULL_LITERAL:
+      case NUMERIC_LITERAL:
+      case STRING_LITERAL:
+      case BOOLEAN_LITERAL:
+      case REGULAR_EXPRESSION_LITERAL:
+      case OBJECT_LITERAL:
+      case ARRAY_LITERAL:
+      case TEMPLATE_LITERAL:
+
         break;
       default:
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
@@ -351,20 +323,6 @@ public class ExpressionStack {
     }
 
     return initialProgramState;
-  }
-
-  private static void popObjectLiteralProperties(ObjectLiteralTree objectLiteralTree, Deque<SymbolicValue> newStack) {
-    for (Tree property : objectLiteralTree.properties()) {
-      if (property.is(Kind.PAIR_PROPERTY)) {
-        Tree key = ((PairPropertyTree) property).key();
-        if (key.is(Kind.STRING_LITERAL, Kind.NUMERIC_LITERAL, Kind.COMPUTED_PROPERTY_NAME)) {
-          newStack.pop();
-        }
-      }
-      if (!(property instanceof MethodDeclarationTree)) {
-        newStack.pop();
-      }
-    }
   }
 
   private Deque<SymbolicValue> copy() {
