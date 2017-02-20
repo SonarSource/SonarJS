@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.se.points;
 
+import java.util.Optional;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -38,103 +39,119 @@ public class LiteralProgramPointTest extends JavaScriptTreeModelTest {
   @Test
   public void numeric_literal() throws Exception {
     Tree tree = tree("42", Kind.NUMERIC_LITERAL);
-    assertExpressionConstraint(tree, Constraint.POSITIVE_NUMBER_PRIMITIVE);
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
   }
 
   @Test
   public void template_literal() throws Exception {
     operandsNumber = 3;
     Tree tree = tree("`${a} ${b} ${c}`", Kind.TEMPLATE_LITERAL);
-    assertExpressionConstraint(tree, Constraint.STRING_PRIMITIVE);
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.STRING_PRIMITIVE);
   }
 
   @Test
   public void string_literal() throws Exception {
     Tree tree = tree("'str'", Kind.STRING_LITERAL);
-    assertExpressionConstraint(tree, Constraint.TRUTHY_STRING_PRIMITIVE);
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.TRUTHY_STRING_PRIMITIVE);
   }
 
   @Test
   public void boolean_literal() throws Exception {
     Tree tree = tree("true", Kind.BOOLEAN_LITERAL);
-    assertExpressionConstraint(tree, Constraint.TRUE);
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.TRUE);
   }
 
   @Test
   public void null_literal() throws Exception {
     Tree tree = tree("null", Kind.NULL_LITERAL);
-    assertExpressionValue(tree, SpecialSymbolicValue.NULL);
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingValue(newState)).isEqualTo(SpecialSymbolicValue.NULL);
+    assertThat(stackSize(newState)).isEqualTo(1);
   }
 
   @Test
   public void undefined() throws Exception {
     Tree tree = tree("undefined", Kind.IDENTIFIER_REFERENCE);
-    assertExpressionValue(tree, SpecialSymbolicValue.UNDEFINED);
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingValue(newState)).isEqualTo(SpecialSymbolicValue.UNDEFINED);
+    assertThat(stackSize(newState)).isEqualTo(1);
+  }
+
+  public int stackSize(Optional<ProgramState> newState) {
+    return newState.get().getStack().size();
   }
 
   @Test
   public void array_literal() throws Exception {
     operandsNumber = 4;
     Tree tree = tree("[a, b, c, d]", Kind.ARRAY_LITERAL);
-    assertExpressionConstraint(tree, Constraint.ARRAY);
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.ARRAY);
   }
 
   @Test
   public void object_literal() throws Exception {
     Tree tree;
 
-    operandsNumber = 1;
+    int operandsNumber = 1;
 
     tree = tree("x = {...a}", Kind.OBJECT_LITERAL);
-    assertExpressionConstraint(tree, Constraint.OTHER_OBJECT);
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.OTHER_OBJECT);
 
     tree = tree("x = {a: b}", Kind.OBJECT_LITERAL);
-    assertExpressionConstraint(tree, Constraint.OTHER_OBJECT);
+    newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.OTHER_OBJECT);
 
 
     operandsNumber = 2;
 
     tree = tree("x = {'str': b}", Kind.OBJECT_LITERAL);
-    assertExpressionConstraint(tree, Constraint.OTHER_OBJECT);
+    newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.OTHER_OBJECT);
 
     tree = tree("x = {42: b}", Kind.OBJECT_LITERAL);
-    assertExpressionConstraint(tree, Constraint.OTHER_OBJECT);
+    newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.OTHER_OBJECT);
 
     tree = tree("x = { method(){} }", Kind.OBJECT_LITERAL);
-    assertExpressionConstraint(tree, Constraint.OTHER_OBJECT);
+    newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.OTHER_OBJECT);
 
     tree = tree("x = { a }", Kind.OBJECT_LITERAL);
-    assertExpressionConstraint(tree, Constraint.OTHER_OBJECT);
+    newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.OTHER_OBJECT);
 
     tree = tree("x = { a, b }", Kind.OBJECT_LITERAL);
-    assertExpressionConstraint(tree, Constraint.OTHER_OBJECT);
+    newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.OTHER_OBJECT);
 
 
     operandsNumber = 3;
 
     tree = tree("x = { a, b: foo(), ... rest }", Kind.OBJECT_LITERAL);
-    assertExpressionConstraint(tree, Constraint.OTHER_OBJECT);
+    newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    assertThat(resultingConstraint(newState)).isEqualTo(Constraint.OTHER_OBJECT);
   }
 
-  private void assertExpressionConstraint(Tree tree, Constraint operandConstraint) {
-    ProgramState newState = getProgramState(tree);
-    assertThat(newState.getConstraint(newState.peekStack())).isEqualTo(operandConstraint);
+  private Constraint resultingConstraint(Optional<ProgramState> newState) {
+    return newState.get().getConstraint(resultingValue(newState));
   }
 
-  private void assertExpressionValue(Tree tree, SymbolicValue value) {
-    ProgramState newState = getProgramState(tree);
-    assertThat(newState.peekStack()).isEqualTo(value);
-    newState.clearStack(tree);
+  private SymbolicValue resultingValue(Optional<ProgramState> newState) {
+    return newState.get().peekStack();
   }
 
-  private ProgramState getProgramState(Tree tree) {
+  private ProgramState createProgramState(int operandsNumber) {
     ProgramState state = ProgramState.emptyState();
     for (int i = 0; i < operandsNumber; i++) {
       state = state.pushToStack(new SimpleSymbolicValue(42));
     }
-
-    ProgramPoint point = new LiteralProgramPoint(tree);
-    return point.execute(state).get();
+    return state;
   }
 
   private Tree tree(String expression, Kind treeKind) throws Exception {
