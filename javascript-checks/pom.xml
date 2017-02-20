@@ -10,7 +10,7 @@
 
   <artifactId>javascript-checks</artifactId>
 
-  <name>JavaScript :: Checks</name>
+  <name>SonarQube JavaScript :: Checks</name>
 
   <dependencies>
     <dependency>

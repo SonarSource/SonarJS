@@ -5,12 +5,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <!--
-     When updating to parent 38 or above, check if <version.sonar-packaging.plugin> defined in the new
-     parent is 1.17 or above. If it is, remove the temporary override of <version.sonar-packaging.plugin>
-     below in this file.
-    -->
-    <version>38</version>
+    <version>39</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
@@ -18,12 +13,11 @@
   <version>2.21-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>JavaScript</name>
-  <description>Enables scanning of JavaScript source files</description>
+  <name>SonarQube JavaScript</name>
+  <description>SonarQube JavaScript Analyzer</description>
   <inceptionYear>2011</inceptionYear>
   <organization>
     <name>SonarSource and Eriks Nukis</name>
-    <url>http://www.sonarsource.com</url>
   </organization>
   <licenses>
     <license>
@@ -35,13 +29,23 @@
 
   <developers>
     <developer>
-      <id>eriks.nukis</id>
-      <name>Eriks Nukis</name>
-      <url>https://profiles.google.com/eriks.nukis</url>
+      <id>inverno</id>
+      <name>Carlo Bottiglieri</name>
+      <organization>SonarSource</organization>
     </developer>
     <developer>
-      <id>godin</id>
-      <name>Evgeny Mandrikov</name>
+      <id>ivandalbosco</id>
+      <name>Yves Dubois-Pèlerin</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>pynicolas</id>
+      <name>Pierre-Yves Nicolas</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>vilchik-elena</id>
+      <name>Elena Vilchik</name>
       <organization>SonarSource</organization>
     </developer>
   </developers>
@@ -73,8 +77,6 @@
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- depends on API 6.0 but backward compatible with LTS -->
     <sonarQubeMinVersion>5.6</sonarQubeMinVersion>
-    <!-- Temporary override of plugin version 1.16 inherited from parent 37 -->
-    <version.sonar-packaging.plugin>1.17</version.sonar-packaging.plugin>
 
     <assertj.version>3.5.2</assertj.version>
     <commons-io.version>2.5</commons-io.version>
