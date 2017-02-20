@@ -24,9 +24,9 @@ import com.sonar.sslr.api.typed.ActionParser;
 import org.junit.Test;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.se.points.LiteralProgramPoint;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.InstanceOfSymbolicValue;
-import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.RelationalSymbolicValue;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
@@ -35,11 +35,11 @@ import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.TypeOfSymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -56,29 +56,12 @@ public class ExpressionStackTest {
   private ProgramState programState = ProgramState.emptyState();
 
   @Test
-  public void null_value() throws Exception {
-    execute("null");
-    assertSingleValueInStack(SpecialSymbolicValue.NULL);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void identifier() throws Exception {
-    executeTopExpression("a");
-  }
-
-  @Test
   public void assignment_patterns() throws Exception {
     execute("[a, b] = []");
     assertSingleValueInStackWithConstraint(Constraint.ARRAY);
 
     execute("({a, b} = {})");
     assertSingleValueInStackWithConstraint(Constraint.OTHER_OBJECT);
-  }
-
-  @Test
-  public void numeric_literal() throws Exception {
-    execute("42");
-    assertSingleValueInStack(LiteralSymbolicValue.class);
   }
 
   @Test
@@ -170,18 +153,6 @@ public class ExpressionStackTest {
   }
 
   @Test
-  public void array_literal() throws Exception {
-    execute("[a, b, c]");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.ARRAY));
-  }
-
-  @Test
-  public void template_literal() throws Exception {
-    execute("`${a} ${b} ${c}`");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.STRING_PRIMITIVE));
-  }
-
-  @Test
   public void comma_operator() throws Exception {
     execute("a, b");
     assertSingleValueInStack(SimpleSymbolicValue.class);
@@ -199,33 +170,6 @@ public class ExpressionStackTest {
   @Test
   public void empty_object_literal() throws Exception {
     execute("x = {}");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-  }
-
-  @Test
-  public void object_literal() throws Exception {
-    execute("x = {...a}");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-
-    execute("x = {a: b}");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-
-    execute("x = {'str': b}");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-
-    execute("x = {42: b}");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-
-    execute("x = { method(){} }");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-
-    execute("x = { a }");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-
-    execute("x = { a, b }");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
-
-    execute("x = { a, b: foo(), ... rest }");
     assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
   }
 
@@ -343,24 +287,18 @@ public class ExpressionStackTest {
 
     ControlFlowGraph cfg = ControlFlowGraph.build(script);
     for (Tree element : cfg.start().elements()) {
+
       if (element.is(Kind.IDENTIFIER_REFERENCE)) {
         pushValues(simple1);
+
+      } else if (element.is(KindSet.LITERAL_KINDS)) {
+        programState = new LiteralProgramPoint(element).execute(programState.withStack(stack)).get();
+        stack = programState.getStack();
+
       } else if (element instanceof ExpressionTree) {
         stack = stack.execute((ExpressionTree) element, ProgramState.emptyState());
       }
     }
 
-  }
-
-  private void executeTopExpression(String expressionSource) {
-    ScriptTree script = (ScriptTree) parser.parse(expressionSource);
-    Tree tree = script.items().items().get(0);
-    if (tree.is(Kind.EXPRESSION_STATEMENT)) {
-      ExpressionStatementTree expressionStatement = (ExpressionStatementTree) tree;
-      ExpressionTree expression = (ExpressionTree) expressionStatement.expression();
-      stack = stack.execute(expression, ProgramState.emptyState());
-    } else {
-      stack = stack.execute((ExpressionTree) tree, ProgramState.emptyState());
-    }
   }
 }

@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
@@ -45,6 +46,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import static org.sonar.javascript.se.Relation.Operator.STRICT_EQUAL_TO;
 
@@ -253,7 +255,7 @@ public class ProgramState implements ProgramStateConstraints {
     return builder.build();
   }
 
-  public ProgramState pushToStack(@Nullable SymbolicValue value) {
+  public ProgramState pushToStack(SymbolicValue value) {
     return new ProgramState(values, constraints, stack.push(value), relations, counter);
   }
 
@@ -391,4 +393,14 @@ public class ProgramState implements ProgramStateConstraints {
     return "[" + values + ";" + constraints + ";" + stack + ";" + relations + "]";
   }
 
+  @Nullable
+  public SymbolicValue getSymbolicValue(IdentifierTree identifier, SymbolicExecution execution) {
+    Symbol symbol = execution.trackedVariable(identifier);
+    if (symbol != null) {
+      return this.getSymbolicValue(symbol);
+
+    } else {
+      return BuiltInObjectSymbolicValue.find(identifier.name()).orElse(null);
+    }
+  }
 }

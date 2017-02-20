@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
-import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
@@ -65,6 +64,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
+import static org.sonar.javascript.se.Constraint.ANY_VALUE;
 import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
 import static org.sonar.javascript.se.Constraint.UNDEFINED;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
@@ -253,41 +253,11 @@ public class SymbolicExecution {
         break;
       }
 
-      if (element.is(Kind.IDENTIFIER_REFERENCE) && !isUndefined((IdentifierTree) element)) {
-        SymbolicValue symbolicValue = getSymbolicValue(element, currentState);
-        currentState = currentState.pushToStack(symbolicValue);
-
-      } else if (element instanceof ExpressionTree && !element.is(Kind.CLASS_DECLARATION)) {
+      if (element instanceof ExpressionTree && !element.is(Kind.CLASS_DECLARATION)) {
         currentState = currentState.execute((ExpressionTree) element);
       }
 
-      if (element.is(KindSet.ASSIGNMENT_KINDS)) {
-        AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
-        currentState = assignment(currentState, assignment.variable());
-
-      } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
-        currentState = executeInitializedBinding((InitializedBindingElementTree) element, currentState);
-
-      } else if (element.is(Kind.ARRAY_ASSIGNMENT_PATTERN)) {
-        ArrayAssignmentPatternTree arrayAssignmentPatternTree = (ArrayAssignmentPatternTree) element;
-        List<Tree> assignedElements = SeparateListUtils.presentsOf(arrayAssignmentPatternTree.elements());
-        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
-
-      } else if (element.is(Kind.OBJECT_ASSIGNMENT_PATTERN)) {
-        ObjectAssignmentPatternTree objectAssignmentPatternTree = (ObjectAssignmentPatternTree) element;
-        List<Tree> assignedElements = objectAssignmentPatternTree.elements();
-        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
-
-      } else if (element.is(Kind.ARRAY_BINDING_PATTERN)) {
-        ArrayBindingPatternTree arrayBindingPatternTree = (ArrayBindingPatternTree) element;
-        List<BindingElementTree> assignedElements = SeparateListUtils.presentsOf(arrayBindingPatternTree.elements());
-        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
-
-      } else if (element.is(Kind.OBJECT_BINDING_PATTERN)) {
-        ObjectBindingPatternTree objectBindingPatternTree = (ObjectBindingPatternTree) element;
-        List<BindingElementTree> assignedElements = objectBindingPatternTree.elements();
-        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
-      }
+      currentState = executeAssignment(currentState, element);
 
       afterBlockElement(currentState, element);
 
@@ -301,6 +271,40 @@ public class SymbolicExecution {
     if (!stopExploring) {
       handleSuccessors(block, currentState);
     }
+  }
+
+  private ProgramState executeAssignment(ProgramState state, Tree element) {
+    ProgramState currentState = state;
+
+    if (element.is(KindSet.ASSIGNMENT_KINDS)) {
+      AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
+      currentState = assignment(currentState, assignment.variable());
+
+    } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
+      currentState = executeInitializedBinding((InitializedBindingElementTree) element, currentState);
+
+    } else if (element.is(Kind.ARRAY_ASSIGNMENT_PATTERN)) {
+      ArrayAssignmentPatternTree arrayAssignmentPatternTree = (ArrayAssignmentPatternTree) element;
+      List<Tree> assignedElements = SeparateListUtils.presentsOf(arrayAssignmentPatternTree.elements());
+      currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+
+    } else if (element.is(Kind.OBJECT_ASSIGNMENT_PATTERN)) {
+      ObjectAssignmentPatternTree objectAssignmentPatternTree = (ObjectAssignmentPatternTree) element;
+      List<Tree> assignedElements = objectAssignmentPatternTree.elements();
+      currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+
+    } else if (element.is(Kind.ARRAY_BINDING_PATTERN)) {
+      ArrayBindingPatternTree arrayBindingPatternTree = (ArrayBindingPatternTree) element;
+      List<BindingElementTree> assignedElements = SeparateListUtils.presentsOf(arrayBindingPatternTree.elements());
+      currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+
+    } else if (element.is(Kind.OBJECT_BINDING_PATTERN)) {
+      ObjectBindingPatternTree objectBindingPatternTree = (ObjectBindingPatternTree) element;
+      List<BindingElementTree> assignedElements = objectBindingPatternTree.elements();
+      currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+    }
+
+    return currentState;
   }
 
   private void checkForImplicitReturn(CfgBlock block) {
@@ -360,10 +364,6 @@ public class SymbolicExecution {
       syntaxTree = ((JavaScriptTree) syntaxTree).getParent();
     }
     return syntaxTree;
-  }
-
-  public static boolean isUndefined(IdentifierTree tree) {
-    return "undefined".equals(tree.name());
   }
 
   private ProgramState createSymbolicValuesForTrackedVariables(List<? extends Tree> trees, ProgramState state) {
@@ -430,8 +430,12 @@ public class SymbolicExecution {
           variable = declaration.variables().get(0);
         }
         currentState = newSymbolicValue(currentState, variable);
-        SymbolicValue expressionSV = getSymbolicValue(forTree.expression(), currentState);
-        Constraint expressionConstraint = currentState.getConstraint(expressionSV);
+
+        Constraint expressionConstraint = ANY_VALUE;
+        if (forTree.expression().is(Kind.IDENTIFIER_REFERENCE)) {
+          SymbolicValue expressionSV = currentState.getSymbolicValue((IdentifierTree) forTree.expression(), this);
+          expressionConstraint = currentState.getConstraint(expressionSV);
+        }
 
         // FIXME "for-of" iteration over "null" or "undefined" value will raise "TypeError"
         // so this logic should be applied to "for-in" loop only
@@ -535,18 +539,5 @@ public class SymbolicExecution {
     }
 
     return var;
-  }
-
-  @CheckForNull
-  private SymbolicValue getSymbolicValue(@Nullable Tree tree, ProgramState currentState) {
-    if (tree != null) {
-      Symbol symbol = trackedVariable(tree);
-      if (symbol != null) {
-        return currentState.getSymbolicValue(symbol);
-      } else if (tree instanceof IdentifierTree) {
-        return BuiltInObjectSymbolicValue.find(((IdentifierTree) tree).name()).orElse(null);
-      }
-    }
-    return null;
   }
 }
