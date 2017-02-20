@@ -78,6 +78,11 @@ public class SymbolicExecutionTest {
   }
 
   @Test
+  public void single_value_constraints() throws Exception {
+    verifySE("single_value_constraints.js");
+  }
+
+  @Test
   public void ternary() throws Exception {
     verifySE("ternary.js");
   }

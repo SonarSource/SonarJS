@@ -34,8 +34,8 @@
 202,
 ],
   'project:dojo-1.8.1/dojox/data/OpenSearchStore.js.uncompressed.js': [
-    36,
-  ],
+36,
+],
 'project:dojo-1.8.1/dojox/date/timezone.js.uncompressed.js':[
 446,
 454,
@@ -120,12 +120,9 @@
 3187,
 ],
 'project:mootools-core-1.4.5-full-nocompat.js':[
-  1469,
+1469,
 1989,
 3251,
-],
-'project:open-layers-2.12/OpenLayers/BaseTypes.js':[
-131,
 ],
 'project:open-layers-2.12/OpenLayers/Control/Graticule.js':[
 319,
@@ -161,12 +158,12 @@
 3291,
 ],
 'project:prototype-1.7.js':[
-  683,
+683,
 5603,
 ],
   'project:scriptaculous-1.9.0/effects.js': [
-    1054,
-  ],
+1054,
+],
 'project:yui-3.7.3/base-core/base-core.js':[
 408,
 ],
