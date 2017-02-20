@@ -115,12 +115,6 @@ public class ExpressionStack {
           break;
         }
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
-      case IDENTIFIER_NAME:
-      case BINDING_IDENTIFIER:
-      case CONDITIONAL_AND:
-      case CONDITIONAL_OR:
-      case CONDITIONAL_EXPRESSION:
-        break;
       case NULL_LITERAL:
         newStack.push(SpecialSymbolicValue.NULL);
         break;
@@ -158,13 +152,6 @@ public class ExpressionStack {
           pop(newStack, 1);
         }
         pushUnknown(newStack);
-        break;
-      case POSTFIX_DECREMENT:
-      case POSTFIX_INCREMENT:
-      case PREFIX_DECREMENT:
-      case PREFIX_INCREMENT:
-      case UNARY_MINUS:
-      case UNARY_PLUS:
         break;
       case BITWISE_COMPLEMENT:
         pop(newStack, 1);
@@ -234,9 +221,22 @@ public class ExpressionStack {
         SymbolicValue leftOperand = newStack.pop();
         newStack.push(RelationalSymbolicValue.create(kind, leftOperand, rightOperand));
         break;
+      case COMMA_OPERATOR:
+        SymbolicValue commaResult = newStack.pop();
+        newStack.pop();
+        newStack.push(commaResult);
+        break;
+      case ASSIGNMENT:
+        SymbolicValue assignedValue = newStack.pop();
+        newStack.pop();
+        newStack.push(assignedValue);
+        break;
+      case ARRAY_ASSIGNMENT_PATTERN:
+      case OBJECT_ASSIGNMENT_PATTERN:
+        newStack.push(UnknownSymbolicValue.UNKNOWN);
+        break;
       case PLUS_ASSIGNMENT:
       case PLUS:
-        break;
       case MINUS:
       case DIVIDE:
       case REMAINDER:
@@ -251,20 +251,19 @@ public class ExpressionStack {
       case LEFT_SHIFT:
       case RIGHT_SHIFT:
       case UNSIGNED_RIGHT_SHIFT:
-        break;
-      case COMMA_OPERATOR:
-        SymbolicValue commaResult = newStack.pop();
-        newStack.pop();
-        newStack.push(commaResult);
-        break;
-      case ASSIGNMENT:
-        SymbolicValue assignedValue = newStack.pop();
-        newStack.pop();
-        newStack.push(assignedValue);
-        break;
-      case ARRAY_ASSIGNMENT_PATTERN:
-      case OBJECT_ASSIGNMENT_PATTERN:
-        newStack.push(UnknownSymbolicValue.UNKNOWN);
+
+      case POSTFIX_DECREMENT:
+      case POSTFIX_INCREMENT:
+      case PREFIX_DECREMENT:
+      case PREFIX_INCREMENT:
+      case UNARY_MINUS:
+      case UNARY_PLUS:
+
+      case IDENTIFIER_NAME:
+      case BINDING_IDENTIFIER:
+      case CONDITIONAL_AND:
+      case CONDITIONAL_OR:
+      case CONDITIONAL_EXPRESSION:
         break;
       default:
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
