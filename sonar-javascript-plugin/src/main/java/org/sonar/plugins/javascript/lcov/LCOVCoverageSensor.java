@@ -94,20 +94,20 @@ public class LCOVCoverageSensor {
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
   }
 
-  public void execute(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
+  public void execute(SensorContext context, Map<InputFile, Set<Integer>> executableLines, boolean isAtLeastSq62) {
     this.isAtLeastSq62 = isAtLeastSq62;
 
     List<String> reportPaths = parseReportsProperty(context);
 
     if (!reportPaths.isEmpty()) {
-      saveMeasureFromLCOVFile(context, linesOfCode, reportPaths);
+      saveMeasureFromLCOVFile(context, executableLines, reportPaths);
 
     } else if (!isAtLeastSq62 && isForceZeroCoverageActivated(context)) {
-      saveZeroValueForAllFiles(context, linesOfCode);
+      saveZeroValueForAllFiles(context, executableLines);
     }
   }
 
-  private void saveMeasureFromLCOVFile(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, List<String> reportPaths) {
+  private void saveMeasureFromLCOVFile(SensorContext context, Map<InputFile, Set<Integer>> executableLines, List<String> reportPaths) {
     LinkedList<File> lcovFiles=new LinkedList<>();
     for(String providedPath: reportPaths) {
 
@@ -148,7 +148,7 @@ public class LCOVCoverageSensor {
         // colour all lines as not executed
         LOG.debug("Default value of zero will be saved for file: {}", inputFile.relativePath());
         LOG.debug("Because was not present in LCOV report.");
-        saveZeroValue(inputFile, context, linesOfCode.get(inputFile));
+        saveZeroValue(inputFile, context, executableLines.get(inputFile));
       }
     }
 
@@ -161,20 +161,20 @@ public class LCOVCoverageSensor {
     }
   }
 
-  private void saveZeroValueForAllFiles(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode) {
+  private void saveZeroValueForAllFiles(SensorContext context, Map<InputFile, Set<Integer>> executableLines) {
     for (InputFile inputFile : context.fileSystem().inputFiles(mainFilePredicate(context.fileSystem()))) {
-      saveZeroValue(inputFile, context, linesOfCode.get(inputFile));
+      saveZeroValue(inputFile, context, executableLines.get(inputFile));
     }
   }
 
-  private void saveZeroValue(InputFile inputFile, SensorContext context, @Nullable Set<Integer> linesOfCode) {
-    // linesOfCode is null if file was not parsed (e.g. parsing error or minified file)
-    if (linesOfCode != null) {
+  private void saveZeroValue(InputFile inputFile, SensorContext context, @Nullable Set<Integer> executableLines) {
+    // executableLines is null if file was not parsed (e.g. parsing error or minified file)
+    if (executableLines != null) {
       NewCoverage newCoverage = context.newCoverage()
         .onFile(inputFile)
         .ofType(getCoverageType());
 
-      linesOfCode.forEach((Integer line) -> newCoverage.lineHits(line, 0));
+      executableLines.forEach((Integer line) -> newCoverage.lineHits(line, 0));
       newCoverage.save();
     }
   }
