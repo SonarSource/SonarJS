@@ -20,6 +20,7 @@
 package org.sonar.javascript.metrics;
 
 import java.io.File;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.InputFile;
@@ -37,7 +38,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
@@ -51,13 +51,24 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
     .setType(InputFile.Type.MAIN);
 
   private static final String COMPONENT_KEY = "moduleKey:lines.js";
+  private FileLinesContext linesContext;
+  private SensorContextTester context;
+  private TreeVisitorContext treeVisitorContext;
+
+  @Before
+  public void setUp() throws Exception {
+    context = SensorContextTester.create(MODULE_BASE_DIR);
+    context.fileSystem().add(INPUT_FILE);
+    linesContext = mock(FileLinesContext.class);
+    treeVisitorContext = mock(TreeVisitorContext.class);
+    when(treeVisitorContext.getJavaScriptFile()).thenReturn(wrap(INPUT_FILE));
+    when(treeVisitorContext.getTopTree()).thenReturn(parse(INPUT_FILE.file()));
+  }
 
   @Test
   public void test() {
-    SensorContextTester context = SensorContextTester.create(MODULE_BASE_DIR);
-
-    MetricsVisitor metricsVisitor = saveMetrics(context, false);
-
+    MetricsVisitor metricsVisitor = createMetricsVisitor(false);
+    metricsVisitor.scanTree(treeVisitorContext);
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.STATEMENTS).value()).isEqualTo(1);
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.CLASSES).value()).isEqualTo(0);
@@ -67,30 +78,15 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
 
   @Test
   public void save_executable_lines() {
-    saveMetrics(SensorContextTester.create(MODULE_BASE_DIR), true);
+    final MetricsVisitor metricsVisitorWithSave = createMetricsVisitor(true);
+    metricsVisitorWithSave.scanTree(treeVisitorContext);
+    Mockito.verify(linesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.EXECUTABLE_LINES_DATA_KEY), any(Integer.class), any(Integer.class));
   }
 
-  private MetricsVisitor saveMetrics(SensorContextTester context, boolean saveExecutableLines) {
-    context.fileSystem().add(INPUT_FILE);
-
+  private MetricsVisitor createMetricsVisitor(boolean saveExecutableLines) {
     FileLinesContextFactory linesContextFactory = mock(FileLinesContextFactory.class);
-    FileLinesContext linesContext = mock(FileLinesContext.class);
     when(linesContextFactory.createFor(INPUT_FILE)).thenReturn(linesContext);
-
-    MetricsVisitor metricsVisitor = new MetricsVisitor(
-      context,
-      mock(NoSonarFilter.class),
-      false,
-      linesContextFactory,
-      saveExecutableLines);
-
-    TreeVisitorContext treeVisitorContext = mock(TreeVisitorContext.class);
-    when(treeVisitorContext.getJavaScriptFile()).thenReturn(wrap(INPUT_FILE));
-    when(treeVisitorContext.getTopTree()).thenReturn(parse(INPUT_FILE.file()));
-
-    metricsVisitor.scanTree(treeVisitorContext);
-    Mockito.verify(linesContext, saveExecutableLines ? atLeastOnce() : times(0)).setIntValue(eq(CoreMetrics.EXECUTABLE_LINES_DATA_KEY), any(Integer.class), any(Integer.class));
-
-    return metricsVisitor;
+    return new MetricsVisitor(context, mock(NoSonarFilter.class), false, linesContextFactory, saveExecutableLines);
   }
+
 }
