@@ -34,18 +34,16 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class LiteralProgramPointTest extends JavaScriptTreeModelTest {
 
-  private int operandsNumber = 0;
-
   @Test
   public void numeric_literal() throws Exception {
     Tree tree = tree("42", Kind.NUMERIC_LITERAL);
-    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(ProgramState.emptyState());
     assertThat(resultingConstraint(newState)).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE);
   }
 
   @Test
   public void template_literal() throws Exception {
-    operandsNumber = 3;
+    int operandsNumber = 3;
     Tree tree = tree("`${a} ${b} ${c}`", Kind.TEMPLATE_LITERAL);
     Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
     assertThat(resultingConstraint(newState)).isEqualTo(Constraint.STRING_PRIMITIVE);
@@ -54,21 +52,21 @@ public class LiteralProgramPointTest extends JavaScriptTreeModelTest {
   @Test
   public void string_literal() throws Exception {
     Tree tree = tree("'str'", Kind.STRING_LITERAL);
-    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(ProgramState.emptyState());
     assertThat(resultingConstraint(newState)).isEqualTo(Constraint.TRUTHY_STRING_PRIMITIVE);
   }
 
   @Test
   public void boolean_literal() throws Exception {
     Tree tree = tree("true", Kind.BOOLEAN_LITERAL);
-    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(ProgramState.emptyState());
     assertThat(resultingConstraint(newState)).isEqualTo(Constraint.TRUE);
   }
 
   @Test
   public void null_literal() throws Exception {
     Tree tree = tree("null", Kind.NULL_LITERAL);
-    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(ProgramState.emptyState());
     assertThat(resultingValue(newState)).isEqualTo(SpecialSymbolicValue.NULL);
     assertThat(stackSize(newState)).isEqualTo(1);
   }
@@ -76,18 +74,14 @@ public class LiteralProgramPointTest extends JavaScriptTreeModelTest {
   @Test
   public void undefined() throws Exception {
     Tree tree = tree("undefined", Kind.IDENTIFIER_REFERENCE);
-    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
+    Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(ProgramState.emptyState());
     assertThat(resultingValue(newState)).isEqualTo(SpecialSymbolicValue.UNDEFINED);
     assertThat(stackSize(newState)).isEqualTo(1);
   }
 
-  public int stackSize(Optional<ProgramState> newState) {
-    return newState.get().getStack().size();
-  }
-
   @Test
   public void array_literal() throws Exception {
-    operandsNumber = 4;
+    int operandsNumber = 4;
     Tree tree = tree("[a, b, c, d]", Kind.ARRAY_LITERAL);
     Optional<ProgramState> newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
     assertThat(resultingConstraint(newState)).isEqualTo(Constraint.ARRAY);
@@ -136,6 +130,10 @@ public class LiteralProgramPointTest extends JavaScriptTreeModelTest {
     tree = tree("x = { a, b: foo(), ... rest }", Kind.OBJECT_LITERAL);
     newState = new LiteralProgramPoint(tree).execute(createProgramState(operandsNumber));
     assertThat(resultingConstraint(newState)).isEqualTo(Constraint.OTHER_OBJECT);
+  }
+
+  private int stackSize(Optional<ProgramState> newState) {
+    return newState.get().getStack().size();
   }
 
   private Constraint resultingConstraint(Optional<ProgramState> newState) {
