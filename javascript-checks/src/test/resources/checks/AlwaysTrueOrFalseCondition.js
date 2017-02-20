@@ -234,6 +234,23 @@ function logical_and(p1, p2, p3) {
   }
 }
 
+function strict_equality(p1) {
+  if (p1 === 0) {
+    if (p1 === 0) {}      // Noncompliant always true
+    if (p1 == 0) {}       // Noncompliant always true
+    if (p1 === "") {}     // Noncompliant always false
+    if (p1 != 0) {}       // Noncompliant always false
+    if (p1 == "") {}      // OK Can't tell, yet
+    if (p1 != "str") {}   // OK Can't tell
+  }
+
+  if (p1 !== 0) {
+    if (p1 === 0) {}      // Noncompliant always false
+    if (p1 == 0) {}       // OK Can't tell
+  }
+
+}
+
 function aka_ternary(a, b, c) {
   var y;
 

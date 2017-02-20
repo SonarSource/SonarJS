@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.Range;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -113,6 +114,13 @@ public class Constraint {
     .put(Constraint.NEGATIVE_NUMBER_PRIMITIVE, Range.lessThan(0))
     .put(Constraint.ZERO, Range.singleton(0))
     .build();
+  private static final Set<Constraint> SINGLE_VALUE_CONSTRAINTS = new HashSet<>();
+  static {
+    SINGLE_VALUE_CONSTRAINTS.add(ZERO);
+    SINGLE_VALUE_CONSTRAINTS.add(TRUE);
+    SINGLE_VALUE_CONSTRAINTS.add(FALSE);
+    SINGLE_VALUE_CONSTRAINTS.add(EMPTY_STRING_PRIMITIVE);
+  }
 
   private enum ValueSubSet {
     NULL,
@@ -137,6 +145,7 @@ public class Constraint {
     private int bitSet() {
       return 1 << ordinal();
     }
+
   }
 
   private Constraint(ValueSubSet subSet) {
@@ -193,6 +202,10 @@ public class Constraint {
     }
 
     return Optional.empty();
+  }
+
+  public boolean isSingleValue() {
+    return SINGLE_VALUE_CONSTRAINTS.contains(this);
   }
 
   public Set<Type> typeSet() {

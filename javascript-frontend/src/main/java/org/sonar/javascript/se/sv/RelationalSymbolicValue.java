@@ -51,7 +51,7 @@ public class RelationalSymbolicValue implements SymbolicValue {
   private static SymbolicValue createEquality(Kind kind, SymbolicValue leftOperand, SymbolicValue rightOperand) {
     SymbolicValue typeOfComparison = TypeOfComparisonSymbolicValue.create(leftOperand, rightOperand);
     if (typeOfComparison != null) {
-      return EqualitySymbolicValue.NEGATION_KINDS.contains(kind) ? LogicalNotSymbolicValue.create(typeOfComparison) : typeOfComparison;
+      return EqualitySymbolicValue.EQUALITY_NEGATION_KINDS.contains(kind) ? LogicalNotSymbolicValue.create(typeOfComparison) : typeOfComparison;
     }
     return new EqualitySymbolicValue(kind, leftOperand, rightOperand);
   }

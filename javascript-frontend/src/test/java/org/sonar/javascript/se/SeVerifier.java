@@ -58,6 +58,8 @@ class SeVerifier extends SeCheck {
     .put("NULL_OR_NON_FUNCTION_OBJECT", Constraint.NULL.or(Constraint.OBJECT).and(Constraint.FUNCTION.not()))
     .put("NOT_NULL_OR_NON_FUNCTION_OBJECT", Constraint.NULL.or(Constraint.OBJECT).and(Constraint.FUNCTION.not()).not())
     .put("ZERO", Constraint.ZERO)
+    .put("NOT_ZERO", Constraint.ZERO.not())
+    .put("NOT_ZERO_NUMBER", Constraint.ZERO.not().and(Constraint.NUMBER_PRIMITIVE))
     .put("TRUTHY_NUMBER", Constraint.TRUTHY_NUMBER_PRIMITIVE)
     .put("FUNCTION", Constraint.FUNCTION)
     .put("NOT_FUNCTION", Constraint.FUNCTION.not())

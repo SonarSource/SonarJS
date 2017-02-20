@@ -32,6 +32,9 @@
 200,
 210,
 ],
+  'project:ecmascript6/di.js/visualize/lib/angular.js': [
+    260,
+  ],
 'project:ecmascript6/di.js/visualize/lib/d3.v3.js':[
 45,
 48,
