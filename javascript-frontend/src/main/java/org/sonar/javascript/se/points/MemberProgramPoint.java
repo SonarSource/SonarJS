@@ -21,9 +21,14 @@ package org.sonar.javascript.se.points;
 
 import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ExpressionStack;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.Type;
+import org.sonar.javascript.se.sv.ObjectSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 
 public class MemberProgramPoint implements ProgramPoint {
 
@@ -38,13 +43,53 @@ public class MemberProgramPoint implements ProgramPoint {
   }
 
   @Override
-  public Optional<ProgramState> execute(ProgramState state) {
-    SymbolicValue symbolicValue = getObjectSymbolicValue(state);
-    return state.constrain(symbolicValue, Constraint.NOT_NULLY);
+  public Optional<ProgramState> execute(final ProgramState state) {
+    final SymbolicValue objectValue;
+    final ExpressionStack expressionStack = state.getStack();
+    final ExpressionStack newExpressionStack;
+    Optional<ProgramState> newState;
+    if (element.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
+      objectValue = state.peekStack(1);
+      newState = state.constrain(objectValue, Constraint.NOT_NULLY);
+      if(!newState.isPresent()) {
+        return newState;
+      }
+      newExpressionStack = expressionStack.apply(stack -> {
+        stack.pop(); // popping the array index
+        stack.pop();
+        stack.push(UnknownSymbolicValue.UNKNOWN);
+      });
+    } else {
+      objectValue = state.peekStack(0);
+      newState = state.constrain(objectValue, Constraint.NOT_NULLY);
+      if(!newState.isPresent()) {
+        return newState;
+      }
+      newExpressionStack = expressionStack.apply(stack -> {
+        stack.pop();
+        stack.push(resolvePropertyValue(newState.get(), objectValue));
+      });
+    }
+    return Optional.of(newState.get().withStack(newExpressionStack));
   }
 
-  public final SymbolicValue getObjectSymbolicValue(ProgramState currentState) {
-    return element.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) ? currentState.peekStack(1) : currentState.peekStack(0);
+  private SymbolicValue resolvePropertyValue(ProgramState state, SymbolicValue objectValue) {
+    String propertyName = ((DotMemberExpressionTree) element).property().name();
+
+    if (objectValue instanceof ObjectSymbolicValue) {
+      SymbolicValue value = ((ObjectSymbolicValue) objectValue).getPropertyValue(propertyName);
+      if (!UnknownSymbolicValue.UNKNOWN.equals(value)) {
+        return value;
+      }
+    }
+
+    Type type = state.getConstraint(objectValue).type();
+
+    if (type != null) {
+      return type.getPropertyValue(propertyName);
+    } else {
+      return UnknownSymbolicValue.UNKNOWN;
+    }
   }
 
 }

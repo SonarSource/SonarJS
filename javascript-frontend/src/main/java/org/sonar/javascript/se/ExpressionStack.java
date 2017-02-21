@@ -107,7 +107,6 @@ public class ExpressionStack {
         executeNewExpression((NewExpressionTree) expression, newStack);
         break;
       case DOT_MEMBER_EXPRESSION:
-        executeDotMemberExpression((DotMemberExpressionTree) expression, constraints, newStack);
         break;
       case SPREAD_ELEMENT:
       case VOID:
@@ -154,7 +153,6 @@ public class ExpressionStack {
       case AND_ASSIGNMENT:
       case XOR_ASSIGNMENT:
       case OR_ASSIGNMENT:
-      case BRACKET_MEMBER_EXPRESSION:
       case TAGGED_TEMPLATE:
       case EXPONENT:
         pop(newStack, 2);
@@ -235,7 +233,7 @@ public class ExpressionStack {
       case OBJECT_LITERAL:
       case ARRAY_LITERAL:
       case TEMPLATE_LITERAL:
-
+      case BRACKET_MEMBER_EXPRESSION:
         break;
       default:
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
