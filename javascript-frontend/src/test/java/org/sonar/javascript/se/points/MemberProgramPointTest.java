@@ -19,15 +19,20 @@
  */
 package org.sonar.javascript.se.points;
 
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.javascript.se.points.ProgramPointTest.tree;
 
 public class MemberProgramPointTest {
@@ -43,21 +48,26 @@ public class MemberProgramPointTest {
 
   @Before
   public void setUp() throws Exception {
-    dotMemberPoint = new MemberProgramPoint(tree(Tree.Kind.DOT_MEMBER_EXPRESSION));
-    bracketMemberPoint = new MemberProgramPoint(tree(Tree.Kind.BRACKET_MEMBER_EXPRESSION));
+    DotMemberExpressionTreeImpl dotMemberTree = mock(DotMemberExpressionTreeImpl.class);
+    when(dotMemberTree.getKind()).thenReturn(Tree.Kind.DOT_MEMBER_EXPRESSION);
+    final IdentifierTree identifierTree = mock(IdentifierTree.class);
+    when(identifierTree.name()).thenReturn("length");
+    when(dotMemberTree.property()).thenReturn(identifierTree);
+
+    dotMemberPoint = new MemberProgramPoint(dotMemberTree);
+    JavaScriptTree tree = mock(JavaScriptTree.class);
+    when(tree.getKind()).thenReturn(Tree.Kind.BRACKET_MEMBER_EXPRESSION);
+
+    bracketMemberPoint = new MemberProgramPoint(tree);
     state = ProgramState.emptyState();
   }
 
   @Test
   public void returnProgramStateWhenObjectIsDefined() throws Exception {
     state = state.pushToStack(ANY_VALUE);
-    Optional<ProgramState> stateAfterDot = dotMemberPoint.execute(state);
     assertThat(dotMemberPoint.execute(state).isPresent()).isTrue();
-    stateAfterDot.ifPresent(s -> assertThat(s.getConstraint(s.peekStack()).isStricterOrEqualTo(Constraint.NOT_NULLY)).isTrue());
     state = state.pushToStack(ANY_VALUE).pushToStack(ZERO);
-    Optional<ProgramState> stateAfterBracket = bracketMemberPoint.execute(state);
-    assertThat(stateAfterBracket.isPresent()).isTrue();
-    stateAfterBracket.ifPresent(s -> assertThat(s.getConstraint(s.peekStack()).isStricterOrEqualTo(Constraint.NOT_NULLY)).isTrue());
+    assertThat(bracketMemberPoint.execute(state).isPresent()).isTrue();
   }
 
   @Test
@@ -85,5 +95,13 @@ public class MemberProgramPointTest {
 
     assertThat(MemberProgramPoint.originatesFrom(tree(Tree.Kind.FOR_OF_STATEMENT))).isFalse();
     assertThat(MemberProgramPoint.originatesFrom(tree(Tree.Kind.AND_ASSIGNMENT))).isFalse();
+  }
+
+  @Test
+  public void fillStackWithResolvedDotMemberValue() throws Exception {
+    state = state.pushToStack(BuiltInObjectSymbolicValue.STRING_PROTOTYPE);
+    assertThat(dotMemberPoint.execute(state).isPresent()).isTrue();
+    dotMemberPoint.execute(state).ifPresent(s ->
+      assertThat(s.getConstraint(s.peekStack())).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO)));
   }
 }

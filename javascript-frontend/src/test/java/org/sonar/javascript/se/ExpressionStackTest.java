@@ -207,24 +207,6 @@ public class ExpressionStackTest {
   }
 
   @Test
-  public void dot_member_access() throws Exception {
-    execute("x = 'abc'.length");
-    assertSingleValueInStackWithConstraint(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
-
-    execute("x = 'abc'.charAt");
-    assertSingleValueInStackWithConstraint(Constraint.FUNCTION.or(Constraint.UNDEFINED));
-
-    execute("x = 'abc'.lenght");
-    assertSingleValueInStack(SpecialSymbolicValue.UNDEFINED);
-  }
-
-  @Test
-  public void built_in_method_call() throws Exception {
-    execute("x = 'abc'.charAt()");
-    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
-  }
-
-  @Test
   public void isEmpty() throws Exception {
     assertThat(emptyStack().isEmpty()).isTrue();
     assertThat(emptyStack().push(simple1).isEmpty()).isFalse();
