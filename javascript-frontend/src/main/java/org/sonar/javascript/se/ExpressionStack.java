@@ -35,7 +35,6 @@ import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.InstanceOfSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
-import org.sonar.javascript.se.sv.ObjectSymbolicValue;
 import org.sonar.javascript.se.sv.RelationalSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
@@ -47,7 +46,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
@@ -105,8 +103,6 @@ public class ExpressionStack {
         break;
       case NEW_EXPRESSION:
         executeNewExpression((NewExpressionTree) expression, newStack);
-        break;
-      case DOT_MEMBER_EXPRESSION:
         break;
       case SPREAD_ELEMENT:
       case VOID:
@@ -234,6 +230,7 @@ public class ExpressionStack {
       case ARRAY_LITERAL:
       case TEMPLATE_LITERAL:
       case BRACKET_MEMBER_EXPRESSION:
+      case DOT_MEMBER_EXPRESSION:
         break;
       default:
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
@@ -249,27 +246,6 @@ public class ExpressionStack {
       newStack.push(((FunctionSymbolicValue) constructor).instantiate());
     } else {
       newStack.push(new SymbolicValueWithConstraint(Constraint.OBJECT));
-    }
-  }
-
-  private static void executeDotMemberExpression(DotMemberExpressionTree dotMemberExpressionTree, ProgramStateConstraints constraints, Deque<SymbolicValue> newStack) {
-    SymbolicValue objectValue = newStack.pop();
-    String propertyName = dotMemberExpressionTree.property().name();
-
-    if (objectValue instanceof ObjectSymbolicValue) {
-      SymbolicValue value = ((ObjectSymbolicValue) objectValue).getPropertyValue(propertyName);
-      if (!UnknownSymbolicValue.UNKNOWN.equals(value)) {
-        newStack.push(value);
-        return;
-      }
-    }
-
-    Type type = constraints.getConstraint(objectValue).type();
-
-    if (type != null) {
-      newStack.push(type.getPropertyValue(propertyName));
-    } else {
-      pushUnknown(newStack);
     }
   }
 

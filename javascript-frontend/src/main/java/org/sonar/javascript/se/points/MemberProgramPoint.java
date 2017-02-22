@@ -48,6 +48,7 @@ public class MemberProgramPoint implements ProgramPoint {
     final ExpressionStack expressionStack = state.getStack();
     final ExpressionStack newExpressionStack;
     Optional<ProgramState> newState;
+
     if (element.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
       objectValue = state.peekStack(1);
       newState = state.constrain(objectValue, Constraint.NOT_NULLY);
@@ -55,10 +56,12 @@ public class MemberProgramPoint implements ProgramPoint {
         return newState;
       }
       newExpressionStack = expressionStack.apply(stack -> {
-        stack.pop(); // popping the array index
+        // popping the array index
+        stack.pop();
         stack.pop();
         stack.push(UnknownSymbolicValue.UNKNOWN);
       });
+
     } else {
       objectValue = state.peekStack(0);
       newState = state.constrain(objectValue, Constraint.NOT_NULLY);
@@ -70,6 +73,7 @@ public class MemberProgramPoint implements ProgramPoint {
         stack.push(resolvePropertyValue(newState.get(), objectValue));
       });
     }
+
     return Optional.of(newState.get().withStack(newExpressionStack));
   }
 

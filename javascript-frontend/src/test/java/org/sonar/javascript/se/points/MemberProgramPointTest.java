@@ -19,25 +19,18 @@
  */
 package org.sonar.javascript.se.points;
 
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
-import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.javascript.se.points.ProgramPointTest.tree;
@@ -108,6 +101,7 @@ public class MemberProgramPointTest {
   public void fillStackWithResolvedDotMemberValue() throws Exception {
     state = state.pushToStack(BuiltInObjectSymbolicValue.STRING_PROTOTYPE);
     assertThat(dotMemberPoint.execute(state).isPresent()).isTrue();
-    dotMemberPoint.execute(state).ifPresent(s -> assertThat(s.getConstraint(s.peekStack())).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO)));
+    dotMemberPoint.execute(state).ifPresent(s ->
+      assertThat(s.getConstraint(s.peekStack())).isEqualTo(Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO)));
   }
 }
