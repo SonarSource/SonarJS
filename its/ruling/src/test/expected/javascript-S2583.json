@@ -103,9 +103,6 @@
 'project:dojo-1.8.1/dojox/data/RailsStore.js.uncompressed.js':[
 57,
 ],
-'project:dojo-1.8.1/dojox/data/ServiceStore.js.uncompressed.js':[
-161,
-],
 'project:dojo-1.8.1/dojox/data/XmlStore.js.uncompressed.js':[
 253,
 ],
@@ -266,9 +263,6 @@
 'project:dojo-1.8.1/dojox/secure/DOM.js.uncompressed.js':[
 36,
 ],
-'project:dojo-1.8.1/dojox/socket.js.uncompressed.js':[
-120,
-],
 'project:dojo-1.8.1/dojox/storage/AirDBStorageProvider.js.uncompressed.js':[
 10,
 203,
@@ -377,9 +371,6 @@
 ],
 'project:ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
 1488,
-1698,
-1704,
-1710,
 ],
 'project:ecmascript6/sonar-web/src/main/js/apps/custom-measures/form-view.js':[
 46,
@@ -492,7 +483,6 @@
 'project:prototype-1.7.js':[
 316,
 1193,
-4995,
 ],
 'project:qunit-1.8.0.js':[
 1532,
