@@ -22,11 +22,13 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
+import java.util.LinkedList;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.check.Rule;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -43,7 +45,7 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this commented out code.";
   private static final JavaScriptCommentAnalyser COMMENT_ANALYSER = new JavaScriptCommentAnalyser();
-  private final ActionParser<Tree> parser = JavaScriptParserBuilder.createParser();
+  private static final ActionParser<Tree> PARSER = JavaScriptParserBuilder.createParser();
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -52,49 +54,65 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    SyntaxToken token = (SyntaxToken) tree;
-    for (SyntaxTrivia trivia : token.trivias()) {
-      if (!isJsDoc(trivia) && !isJsLint(trivia) && !isJsHint(trivia) && !isGlobals(trivia)) {
-        checkCommentText(trivia);
-      }
-    }
+    List<List<SyntaxTrivia>> commentGroups = groupComments((SyntaxToken) tree);
+    commentGroups.forEach(this::checkCommentGroup);
   }
 
-  private void checkCommentText(SyntaxTrivia trivia) {
-    String content = COMMENT_ANALYSER.getContents(trivia.text());
-
-    if (content.endsWith("{")) {
-      content += "}";
-    }
+  private void checkCommentGroup(List<SyntaxTrivia> commentGroup) {
+    String uncommentedText = uncomment(commentGroup);
+    uncommentedText = appendCloseBraces(uncommentedText);
 
     try {
-      ScriptTree parsed = (ScriptTree)parser.parse(content);
-      if (!isExclusion(parsed)) {
-        addIssue(trivia, MESSAGE);
+      ScriptTree parsedUncommentedText = (ScriptTree) PARSER.parse(uncommentedText);
+      if (!isExclusion(parsedUncommentedText)) {
+        addIssue(commentGroup.get(0), MESSAGE);
       }
     } catch (RecognitionException e) {
       // do nothing, it's just a comment
     }
   }
 
-  private static boolean isExclusion(ScriptTree parsed) {
-    if (isEmptyScriptTree(parsed)) {
+  private static String appendCloseBraces(String uncommentedText) {
+    StringBuilder toParse = new StringBuilder(uncommentedText);
+
+    int openCurlyBraceNum = StringUtils.countMatches(uncommentedText, "{");
+    int closeCurlyBraceNum = StringUtils.countMatches(uncommentedText, "}");
+
+    for (int i = 0; i < openCurlyBraceNum - closeCurlyBraceNum; i++) {
+      toParse.append("}");
+    }
+
+    return toParse.toString();
+  }
+
+  private static String uncomment(List<SyntaxTrivia> triviaGroup) {
+    StringBuilder uncommentedText = new StringBuilder();
+    for (SyntaxTrivia trivia : triviaGroup) {
+      String value = COMMENT_ANALYSER.getContents(trivia.text());
+      uncommentedText.append("\n");
+      uncommentedText.append(value);
+    }
+    return uncommentedText.toString().trim();
+  }
+
+  private static boolean isExclusion(ScriptTree scriptTree) {
+    ModuleTree scriptContent = scriptTree.items();
+    if (scriptContent == null) {
       return true;
     }
 
-    if (parsed.items().items().size() == 1) {
-      Tree item = parsed.items().items().get(0);
+    if (scriptContent.items().size() == 1) {
+      Tree statement = scriptContent.items().get(0);
 
-      if (item.is(Kind.LABELLED_STATEMENT) || isExpressionExclusion(item) || isReturnThrowExclusion(item) || isBreakContinueExclusion(item)) {
+      if (statement.is(Kind.LABELLED_STATEMENT, Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)
+        || isExpressionExclusion(statement)
+        || isReturnThrowExclusion(statement)) {
+
         return true;
       }
     }
 
     return false;
-  }
-
-  private static boolean isEmptyScriptTree(ScriptTree parsed) {
-    return parsed.items() == null || parsed.items().items().isEmpty();
   }
 
   private static boolean isReturnThrowExclusion(Tree item) {
@@ -114,19 +132,46 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
     if (item.is(Kind.EXPRESSION_STATEMENT)) {
       ExpressionStatementTree expressionStatement = (ExpressionStatementTree) item;
 
-      if (expressionStatement.semicolonToken() == null || expressionStatement.expression().is(Kind.COMMA_OPERATOR)) {
+      if (expressionStatement.expression().is(Kind.IDENTIFIER_REFERENCE, Kind.UNARY_PLUS, Kind.UNARY_MINUS, Kind.STRING_LITERAL)
+        || expressionStatement.semicolonToken() == null
+        || expressionStatement.expression().is(Kind.COMMA_OPERATOR)) {
+
         return true;
       }
     }
     return false;
   }
 
-  private static boolean isBreakContinueExclusion(Tree item) {
-    return item.is(Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT) && !endsWithSemicolon((JavaScriptTree) item);
-  }
+  /**
+   * Returns comments by groups which come sequentially, without empty lines between.
+   */
+  private static List<List<SyntaxTrivia>> groupComments(SyntaxToken token) {
+    List<List<SyntaxTrivia>> groups = new LinkedList<>();
+    List<SyntaxTrivia> currentGroup = null;
 
-  private static boolean endsWithSemicolon(JavaScriptTree item) {
-    return ";".equals(item.getLastToken().text());
+    for (SyntaxTrivia trivia : token.trivias()) {
+      if (isJsDoc(trivia) || isJsLint(trivia) || isJsHint(trivia) || isGlobals(trivia)) {
+        continue;
+      }
+
+      if (currentGroup == null) {
+        currentGroup = new LinkedList<>();
+        currentGroup.add(trivia);
+
+      } else if (currentGroup.get(currentGroup.size() - 1).line() + 1 == trivia.line()) {
+        currentGroup.add(trivia);
+
+      } else {
+        groups.add(currentGroup);
+        currentGroup = new LinkedList<>();
+        currentGroup.add(trivia);
+      }
+    }
+
+    if (currentGroup != null) {
+      groups.add(currentGroup);
+    }
+    return groups;
   }
 
   private static boolean isJsDoc(SyntaxTrivia trivia) {
