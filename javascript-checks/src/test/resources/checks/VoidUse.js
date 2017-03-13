@@ -2,7 +2,8 @@
 //^^^^
 }();
 
-void(0); // Noncompliant
-void 0; // Noncompliant
-
 foo(void 42); // Noncompliant
+
+// void 0 is ok
+void(0);
+void 0;

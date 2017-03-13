@@ -22,8 +22,11 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
@@ -39,6 +42,14 @@ public class VoidUseCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    addIssue(((UnaryExpressionTree) tree).operator(), MESSAGE);
+    UnaryExpressionTree voidExpression = (UnaryExpressionTree) tree;
+    ExpressionTree operand = CheckUtils.removeParenthesis(voidExpression.expression());
+    if (!isZero(operand)) {
+      addIssue(voidExpression.operator(), MESSAGE);
+    }
+  }
+
+  private static boolean isZero(ExpressionTree expression) {
+    return expression.is(Kind.NUMERIC_LITERAL) && "0".equals(((LiteralTree) expression).value());
   }
 }
