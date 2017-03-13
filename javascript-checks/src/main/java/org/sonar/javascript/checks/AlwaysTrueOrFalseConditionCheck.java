@@ -54,16 +54,20 @@ public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
   @Override
   public void checkConditions(Map<Tree, Collection<Constraint>> conditions) {
     for (Entry<Tree, Collection<Constraint>> entry : conditions.entrySet()) {
-      if (ignoredLoopConditions.contains(entry.getKey())) {
+      Tree conditionTree = entry.getKey();
+
+      if (ignoredLoopConditions.contains(conditionTree)) {
         continue;
       }
+
       Collection<Constraint> results = entry.getValue();
+
       if (results.size() == 1) {
         Constraint constraint = results.iterator().next();
 
-        if (!isTruthyLiteral(entry.getKey(), constraint)) {
+        if (!isTruthyLiteral(conditionTree, constraint) && !conditionTree.is(Kind.ASSIGNMENT)) {
           String result = Constraint.TRUTHY.equals(constraint) ? "true" : "false";
-          addIssue(entry.getKey(), String.format("Change this condition so that it does not always evaluate to \"%s\".", result));
+          addIssue(conditionTree, String.format("Change this condition so that it does not always evaluate to \"%s\".", result));
         }
       }
     }

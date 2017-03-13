@@ -269,3 +269,19 @@ function aka_ternary(a, b, c) {
 
   y = a && b && [] || c;
 }
+
+function ignore_assignment_expression() {
+  var x, y;
+
+  while ((x = y = 42) && condition) {
+    doSomething();
+  }
+
+  while ((x = y = 0) || condition) {
+    doSomething();
+  }
+
+  if ((x = 0) || foo(x)) {
+    doSomething();
+  }
+}
