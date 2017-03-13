@@ -22,7 +22,9 @@ var fn = function () {
         param
     );
 
-`characters` ()
-()                         // Noncompliant {{Make those call arguments start on line 25}}
-
 a()()();
+
+// OK, if callee expression is call
+foo(1)
+  (2)
+  (3);
