@@ -20,81 +20,143 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
+import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 @Rule(key = "FunctionDefinitionInsideLoop")
 public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Define this function outside of a loop.";
-  private Deque<Integer> scope = new ArrayDeque<>();
+  private static final Set<String> ALLOWED_CALLBACKS = ImmutableSet.of("replace", "forEach", "filter", "map");
 
-  private static final Kind[] ITERATION_STATEMENTS = {
-    Kind.DO_WHILE_STATEMENT,
-    Kind.WHILE_STATEMENT,
-    Kind.FOR_IN_STATEMENT,
-    Kind.FOR_OF_STATEMENT,
-    Kind.FOR_STATEMENT};
+  private Deque<Tree> functionAndLoopScopes = new ArrayDeque<>();
 
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
-      .add(ITERATION_STATEMENTS)
-      .add(Kind.FUNCTION_EXPRESSION,
-        Kind.FUNCTION_DECLARATION,
-        Kind.GENERATOR_FUNCTION_EXPRESSION,
-        Kind.GENERATOR_DECLARATION)
+      .addAll(KindSet.LOOP_KINDS.getSubKinds())
+      .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .build();
   }
 
   @Override
   public void visitFile(Tree scriptTree) {
-    scope.clear();
-    scope.push(0);
+    functionAndLoopScopes.clear();
+    functionAndLoopScopes.push(scriptTree);
   }
 
   @Override
   public void visitNode(Tree tree) {
-    if (tree.is(ITERATION_STATEMENTS)) {
-      incrementLoopLevelinScope();
+    if (tree.is(KindSet.FUNCTION_KINDS) && insideLoop()) {
+      FunctionTree functionTree = (FunctionTree) tree;
 
-    } else {
-      if (isInLoop()) {
-        addIssue(((JavaScriptTree) tree).getFirstToken(), MESSAGE);
+      if (!isIIFE(functionTree)
+        && !isAllowedCallback(functionTree)
+        && ReferencesVisitor.usesVariableFromOuterScope(functionTree, functionAndLoopScopes.peek())) {
+
+        addIssue(getTokenForIssueLocation(tree), MESSAGE);
       }
-      enterScope();
     }
+
+    functionAndLoopScopes.push(tree);
   }
 
   @Override
   public void leaveNode(Tree tree) {
-    if (tree.is(ITERATION_STATEMENTS)) {
-      decrementLoopLevelinScope();
+    functionAndLoopScopes.pop();
+  }
 
+  private static boolean isAllowedCallback(FunctionTree functionTree) {
+    JavaScriptTree parent = ((JavaScriptTree) functionTree).getParent();
+
+    if (parent.is(Kind.ARGUMENTS)) {
+      CallExpressionTree callExpression = (CallExpressionTree) parent.getParent();
+
+      if (callExpression.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
+        String calledMethod = ((DotMemberExpressionTree) callExpression.callee()).property().name();
+        return ALLOWED_CALLBACKS.contains(calledMethod);
+      }
+
+    }
+    return false;
+  }
+
+  private static boolean isIIFE(FunctionTree functionTree) {
+    JavaScriptTree parent = ((JavaScriptTree) functionTree).getParent();
+    return parent.is(Kind.PARENTHESISED_EXPRESSION) && parent.getParent().is(Kind.CALL_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION);
+  }
+
+  private static Tree getTokenForIssueLocation(Tree tree) {
+    if (tree.is(Kind.ARROW_FUNCTION)) {
+      return ((ArrowFunctionTree) tree).doubleArrow();
     } else {
-      scope.pop();
+      return ((JavaScriptTree) tree).getFirstToken();
     }
   }
 
-  private void enterScope() {
-    scope.push(0);
+  private boolean insideLoop() {
+    return functionAndLoopScopes.peek().is(KindSet.LOOP_KINDS);
   }
 
-  private void incrementLoopLevelinScope() {
-    scope.push(scope.pop() + 1);
-  }
+  private static class ReferencesVisitor extends DoubleDispatchVisitor {
 
-  private void decrementLoopLevelinScope() {
-    scope.push(scope.pop() - 1);
-  }
+    private FunctionTree functionTree;
+    private Tree loopTree;
+    private boolean usesVariableFromOuterScope = false;
 
-  public boolean isInLoop() {
-    return scope.peek() > 0;
+    private ReferencesVisitor(FunctionTree functionTree, Tree loopTree) {
+      this.functionTree = functionTree;
+      this.loopTree = loopTree;
+    }
+
+    static boolean usesVariableFromOuterScope(FunctionTree functionTree, Tree loop) {
+      ReferencesVisitor referencesVisitor = new ReferencesVisitor(functionTree, loop);
+      referencesVisitor.scan(functionTree);
+      return referencesVisitor.usesVariableFromOuterScope;
+    }
+
+    @Override
+    public void visitIdentifier(IdentifierTree tree) {
+      Symbol symbol = tree.symbol();
+      if (symbol != null && !symbol.is(Symbol.Kind.LET_VARIABLE)) {
+        Tree symbolScopeTree = symbol.scope().tree();
+        if (((JavaScriptTree) symbolScopeTree).isAncestorOf((JavaScriptTree) functionTree) && !hasConstValue(symbol)) {
+          usesVariableFromOuterScope = true;
+        }
+      }
+    }
+
+    /**
+     * Returns true is symbol is written only once and outside the loop
+     */
+    private boolean hasConstValue(Symbol symbol) {
+      for (Usage usage : symbol.usages()) {
+        if (!usage.isDeclaration() && usage.isWrite()) {
+          return false;
+        }
+
+        if (usage.isDeclaration() && usage.isWrite() && ((JavaScriptTree) loopTree).isAncestorOf((JavaScriptTree) usage.identifierTree())) {
+          return false;
+        }
+      }
+      return true;
+    }
   }
 }
