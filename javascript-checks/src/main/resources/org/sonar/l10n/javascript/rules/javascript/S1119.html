@@ -2,27 +2,21 @@
 which reduces the code's readability.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-var matrix = [
-  [1, 2, 3],
-  [4, 5, 6],
-  [7, 8, 9]
-];
-
-outer: for (var row = 0; row &lt; matrix.length; row++) {   // Noncompliant
-  for (var col = 0; col &lt; matrix[row].length; col++) {
-    if (col == row) {
-      continue outer;
-    }
-    console.log(matrix[row][col]);                // Prints the elements under the diagonal, i.e. 4, 7 and 8
+myLabel: {
+  let x = doSomething();
+  if (x &gt; 0) {
+    break myLabel;
   }
+  doSomethingElse();
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-for (var row = 1; row &lt; matrix.length; row++) {          // Compliant
-  for (var col = 0; col &lt; row; col++) {
-    console.log(matrix[row][col]);                // Also prints 4, 7 and 8
-  }
+let x = doSomething();
+if (x &lt;= 0) {
+  doSomethingElse();
 }
 </pre>
+<h2>Exceptions</h2>
+<p>Labeled loops are ignored.</p>
 
