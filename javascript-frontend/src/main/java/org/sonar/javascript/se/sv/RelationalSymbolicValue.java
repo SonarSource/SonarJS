@@ -19,21 +19,14 @@
  */
 package org.sonar.javascript.se.sv;
 
-import java.util.EnumSet;
 import java.util.Optional;
-import java.util.Set;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Relation;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 public class RelationalSymbolicValue implements SymbolicValue {
-
-  private static final Set<Kind> EQUALITY_KINDS = EnumSet.of(
-    Kind.EQUAL_TO,
-    Kind.NOT_EQUAL_TO,
-    Kind.STRICT_EQUAL_TO,
-    Kind.STRICT_NOT_EQUAL_TO);
 
   private final Relation relationWhenTrue;
 
@@ -42,7 +35,7 @@ public class RelationalSymbolicValue implements SymbolicValue {
   }
 
   public static SymbolicValue create(Kind kind, SymbolicValue leftOperand, SymbolicValue rightOperand) {
-    if (EQUALITY_KINDS.contains(kind)) {
+    if (KindSet.EQUALITY_KINDS.getSubKinds().contains(kind)) {
       return createEquality(kind, leftOperand, rightOperand);
     }
     return new RelationalSymbolicValue(kind, leftOperand, rightOperand);
