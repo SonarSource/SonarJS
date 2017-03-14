@@ -20,9 +20,9 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.javascript.tree.KindSet;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -34,38 +34,12 @@ public class EmptyBlockCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitBlock(BlockTree tree) {
-    if (tree.statements().isEmpty() && !hasComment(tree.closeCurlyBrace())) {
+    JavaScriptTree parent = ((JavaScriptTree) tree).getParent();
+
+    if (!parent.is(KindSet.FUNCTION_KINDS, Kind.CATCH_BLOCK) && tree.statements().isEmpty() && !hasComment(tree.closeCurlyBrace())) {
       addIssue(tree, MESSAGE);
     }
     super.visitBlock(tree);
-  }
-
-  @Override
-  public void visitFunctionExpression(FunctionExpressionTree tree) {
-    scan(tree.name());
-    scan(tree.parameterClause());
-    // Ignoring empty function
-    scan(tree.body().statements());
-  }
-
-  @Override
-  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    scan(tree.name());
-    scan(tree.parameterClause());
-    // Ignoring empty function
-    scan(tree.body().statements());
-  }
-
-  @Override
-  public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    visitMethodDeclarationTree(tree);
-  }
-
-  private void visitMethodDeclarationTree(MethodDeclarationTree tree) {
-    scan(tree.name());
-    scan(tree.parameterClause());
-    // Ignoring empty function
-    scan(tree.body().statements());
   }
 
   private static boolean hasComment(SyntaxToken closingBrace) {

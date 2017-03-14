@@ -23,3 +23,8 @@ var myObject = {
   myProperty: function() {},
   myProperty2: function*() {}
 }
+
+// Noncompliant@+1
+try {
+} catch (e) { // OK
+}
