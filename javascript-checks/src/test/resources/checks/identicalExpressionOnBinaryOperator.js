@@ -1,9 +1,6 @@
 /**
  * NOK
  */
-a == a; // Noncompliant {{Correct one of the identical sub-expressions on both sides of operator "=="}}
-
-a != a; // Noncompliant {{Correct one of the identical sub-expressions on both sides of operator "!="}}
 
 a == b && a == b // Noncompliant [[sc=11;ec=17;secondary=+0]]
 
@@ -24,6 +21,10 @@ a !== a;
 
 a === a;
 
+a == a;
+
+a != a;
+
 a == b;
 
 a != b;
@@ -42,4 +43,9 @@ a == b || a == c
 
 function f() {
   if (+a !== +a);
+}
+
+foo(), foo();
+
+if (Foo instanceof Foo) {
 }
