@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
@@ -35,7 +36,7 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends DoubleDispatchVisi
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
     if (!tree.is(Kind.MULTIPLY, Kind.PLUS, Kind.ASSIGNMENT)
-      && SyntacticEquivalence.areEquivalent(tree.leftOperand(), tree.rightOperand()) && isExcluded(tree)) {
+      && SyntacticEquivalence.areEquivalent(tree.leftOperand(), tree.rightOperand()) && !isExcluded(tree)) {
 
       String message = String.format(MESSAGE, tree.operator().text());
       addIssue(tree.rightOperand(), message)
@@ -46,11 +47,11 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends DoubleDispatchVisi
   }
 
   private static boolean isExcluded(BinaryExpressionTree tree) {
-    return !isOneOntoOneShifting(tree) && !isPotentialNanComparison(tree);
+    return tree.is(Kind.COMMA_OPERATOR, Kind.INSTANCE_OF) || isOneOntoOneShifting(tree) || isPotentialNanComparison(tree);
   }
 
   private static boolean isPotentialNanComparison(BinaryExpressionTree tree) {
-    return tree.is(Kind.STRICT_NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO)
+    return tree.is(KindSet.EQUALITY_KINDS)
       && (tree.leftOperand().is(
       Kind.IDENTIFIER_REFERENCE,
       Kind.BRACKET_MEMBER_EXPRESSION,
