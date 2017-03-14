@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -154,10 +155,7 @@ public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
 
   private static boolean isRelationalExpression(Tree tree) {
     return tree.is(
-      Kind.EQUAL_TO,
-      Kind.STRICT_EQUAL_TO,
-      Kind.NOT_EQUAL_TO,
-      Kind.STRICT_NOT_EQUAL_TO,
+      KindSet.EQUALITY_KINDS,
       Kind.LESS_THAN,
       Kind.LESS_THAN_OR_EQUAL_TO,
       Kind.GREATER_THAN,

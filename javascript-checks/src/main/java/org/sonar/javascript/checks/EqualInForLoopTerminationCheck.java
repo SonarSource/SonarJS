@@ -19,6 +19,24 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.HashSet;
+import java.util.Set;
+import javax.annotation.Nullable;
+import org.sonar.check.Rule;
+import org.sonar.javascript.tree.KindSet;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+
 import static org.sonar.javascript.tree.KindSet.INC_DEC_KINDS;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.ASSIGNMENT;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.COMMA_OPERATOR;
@@ -33,28 +51,7 @@ import static org.sonar.plugins.javascript.api.tree.Tree.Kind.POSTFIX_DECREMENT;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.POSTFIX_INCREMENT;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PREFIX_DECREMENT;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PREFIX_INCREMENT;
-import static org.sonar.plugins.javascript.api.tree.Tree.Kind.STRICT_EQUAL_TO;
-import static org.sonar.plugins.javascript.api.tree.Tree.Kind.STRICT_NOT_EQUAL_TO;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.VAR_DECLARATION;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
-import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S888")
 public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
@@ -137,7 +134,7 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
   private static boolean isNontrivialConditionException(ForStatementTree forStatement) {
     ExpressionTree condition = forStatement.condition();
     ExpressionTree update = forStatement.update();
-    if (update != null && condition != null && condition.is(EQUAL_TO, NOT_EQUAL_TO, STRICT_EQUAL_TO, STRICT_NOT_EQUAL_TO)) {
+    if (update != null && condition != null && condition.is(KindSet.EQUALITY_KINDS)) {
       Set<String> counters = new HashSet<>();
       counters(update, counters);
       ExpressionTree leftOperand = ((BinaryExpressionTree) condition).leftOperand();

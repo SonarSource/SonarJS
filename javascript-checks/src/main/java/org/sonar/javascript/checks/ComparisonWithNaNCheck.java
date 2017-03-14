@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
@@ -39,11 +40,7 @@ public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
 
   @Override
   public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
-      Kind.EQUAL_TO,
-      Kind.NOT_EQUAL_TO,
-      Kind.STRICT_EQUAL_TO,
-      Kind.STRICT_NOT_EQUAL_TO);
+    return ImmutableList.copyOf(KindSet.EQUALITY_KINDS.getSubKinds());
   }
 
   @Override

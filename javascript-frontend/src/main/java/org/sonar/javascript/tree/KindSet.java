@@ -49,6 +49,12 @@ public enum KindSet implements Kinds {
     Tree.Kind.POSTFIX_DECREMENT,
     Tree.Kind.PREFIX_DECREMENT),
 
+  EQUALITY_KINDS(
+    Kind.EQUAL_TO,
+    Kind.STRICT_EQUAL_TO,
+    Kind.NOT_EQUAL_TO,
+    Kind.STRICT_NOT_EQUAL_TO),
+
   FUNCTION_KINDS(
     Kind.FUNCTION_DECLARATION,
     Kind.FUNCTION_EXPRESSION,
