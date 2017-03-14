@@ -1,16 +1,23 @@
-<p>Useless parentheses can sometimes be misleading and so should be removed. </p>
+<p>The use of parentheses, even those not required to enforce a desired order of operations, can clarify the intent behind a piece of code. But
+redundant pairs of parentheses could be misleading, and should be removed. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-return 3;
-return (x);           // Noncompliant
-return (x + 1);       // Noncompliant
-int x = (y / 2 + 1);  // Noncompliant
+let x = (y / 2 + 1);   //Compliant even if those parenthesis are useless for the compiler
+
+if (a &amp;&amp; ((x+y &gt; 0))) {  // Noncompliant
+  //...
+}
+
+return ((x + 1));  // Noncompliant
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-return 3;
-return x;
-return x + 1;
-int x = y / 2 + 1;
+let x = (y / 2 + 1);
+
+if (a &amp;&amp; (x+y &gt; 0)) {
+  //...
+}
+
+return (x + 1);
 </pre>
 
