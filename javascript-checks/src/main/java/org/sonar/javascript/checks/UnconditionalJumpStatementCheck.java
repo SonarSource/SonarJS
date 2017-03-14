@@ -38,16 +38,10 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 import static org.sonar.javascript.checks.utils.CheckUtils.isDescendant;
 import static org.sonar.javascript.checks.utils.CheckUtils.parent;
+import static org.sonar.javascript.tree.KindSet.LOOP_KINDS;
 
 @Rule(key = "S1751")
 public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
-
-  private static final Kind[] LOOP_KINDS = {
-    Kind.WHILE_STATEMENT,
-    Kind.DO_WHILE_STATEMENT,
-    Kind.FOR_STATEMENT,
-    Kind.FOR_IN_STATEMENT,
-    Kind.FOR_OF_STATEMENT};
 
   @Override
   public List<Kind> nodesToVisit() {

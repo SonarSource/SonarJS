@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -42,10 +43,7 @@ public class AlwaysUseCurlyBracesCheck extends SubscriptionVisitorCheck {
     return ImmutableList.<Kind>builder()
       .add(Kind.IF_STATEMENT)
       .add(Kind.ELSE_CLAUSE)
-      .add(Kind.FOR_IN_STATEMENT)
-      .add(Kind.FOR_STATEMENT)
-      .add(Kind.WHILE_STATEMENT)
-      .add(Kind.DO_WHILE_STATEMENT)
+      .addAll(KindSet.LOOP_KINDS.getSubKinds())
       .build();
   }
 

@@ -37,4 +37,7 @@ function sayHello() {
   for(var p in a)  something()  // Noncompliant
 //^^^
 
+  for(var p of a)  something()  // Noncompliant
+//^^^
+
 }

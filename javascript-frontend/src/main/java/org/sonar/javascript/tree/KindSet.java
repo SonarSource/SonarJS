@@ -60,6 +60,13 @@ public enum KindSet implements Kinds {
     Kind.SET_METHOD,
     Kind.ARROW_FUNCTION),
 
+  LOOP_KINDS(
+    Kind.DO_WHILE_STATEMENT,
+    Kind.WHILE_STATEMENT,
+    Kind.FOR_IN_STATEMENT,
+    Kind.FOR_OF_STATEMENT,
+    Kind.FOR_STATEMENT),
+
   LITERAL_KINDS(
     Kind.NULL_LITERAL,
     Kind.NUMERIC_LITERAL,

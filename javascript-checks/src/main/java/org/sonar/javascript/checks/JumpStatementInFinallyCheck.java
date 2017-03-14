@@ -52,12 +52,7 @@ public class JumpStatementInFinallyCheck extends DoubleDispatchVisitorCheck {
       Kind.CLASS_EXPRESSION);
     SAFE_PARENTS_FOR_RETURN.addAll(KindSet.FUNCTION_KINDS.getSubKinds());
 
-    SAFE_PARENTS_FOR_CONTINUE = EnumSet.of(
-      Kind.FOR_IN_STATEMENT,
-      Kind.FOR_OF_STATEMENT,
-      Kind.FOR_STATEMENT,
-      Kind.WHILE_STATEMENT,
-      Kind.DO_WHILE_STATEMENT);
+    SAFE_PARENTS_FOR_CONTINUE = EnumSet.copyOf(KindSet.LOOP_KINDS.getSubKinds());
     SAFE_PARENTS_FOR_CONTINUE.addAll(SAFE_PARENTS_FOR_RETURN);
 
     SAFE_PARENTS_FOR_BREAK = EnumSet.of(
