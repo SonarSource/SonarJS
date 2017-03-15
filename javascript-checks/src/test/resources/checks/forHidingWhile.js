@@ -2,7 +2,7 @@
 //^^^
 }
 
-for(;;) {                         // Noncompliant
+for(;;) {                         // OK
 }
 
 for(var i = 0; condition;) {      // OK
