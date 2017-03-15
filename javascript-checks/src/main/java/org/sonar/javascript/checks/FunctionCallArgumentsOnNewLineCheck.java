@@ -19,10 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Iterator;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
@@ -33,31 +32,14 @@ public class FunctionCallArgumentsOnNewLineCheck extends DoubleDispatchVisitorCh
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
+    if (!tree.callee().is(Kind.CALL_EXPRESSION)) {
+      int calleeLastLine = ((JavaScriptTree) tree.callee()).getLastToken().endLine();
+      int argumentsFirstLine = ((JavaScriptTree) tree.arguments()).getLine();
 
-    int calleeLastLine = getLastLine(tree.callee());
-    int argumentsLine = ((JavaScriptTree) tree.arguments()).getLine();
-
-    if (calleeLastLine != argumentsLine) {
-      addIssue(tree.arguments(), String.format(MESSAGE, calleeLastLine));
+      if (calleeLastLine != argumentsFirstLine) {
+        addIssue(tree.arguments(), String.format(MESSAGE, calleeLastLine));
+      }
     }
     super.visitCallExpression(tree);
   }
-
-  private int getLastLine(Tree tree) {
-    JavaScriptTree jsTree = (JavaScriptTree) tree;
-    if (jsTree.isLeaf()) {
-      return jsTree.getLine();
-    } else {
-      return getLastLine(getLastElement(jsTree.childrenIterator()));
-    }
-  }
-
-  public Tree getLastElement(Iterator<Tree> itr) {
-    Tree lastElement = itr.next();
-    while (itr.hasNext()) {
-      lastElement = itr.next();
-    }
-    return lastElement;
-  }
-
 }
