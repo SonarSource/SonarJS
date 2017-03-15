@@ -133,7 +133,7 @@ public class ArgumentTypesCheck extends SeCheck {
 
   private static Constraint extendSignatureArgumentConstraint(Constraint constraint) {
     if (Constraint.REGEXP.isStricterOrEqualTo(constraint)) {
-      return constraint.or(Constraint.ANY_STRING);
+      return constraint.or(Constraint.ANY_STRING).or(Constraint.ANY_NUMBER);
 
     } else if (Constraint.STRING_PRIMITIVE.isStricterOrEqualTo(constraint)) {
       return constraint.or(Constraint.ANY_NUMBER).or(Constraint.DATE);

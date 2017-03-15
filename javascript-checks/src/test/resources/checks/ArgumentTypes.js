@@ -8,7 +8,7 @@ function foo() {
   str.concat("1", "2", "3", [1, 2]);  // Noncompliant {{Change this argument to the documented type: String.}}
 //                          ^^^^^^
 
-  str.replace(1,  // Noncompliant {{Change this argument to the documented type: String or RegExp.}}
+  str.replace(false,  // Noncompliant {{Change this argument to the documented type: String or RegExp.}}
               true); // Noncompliant {{Change this argument to the documented type: String or Function.}}
 
   str.replace("str", function(){});
@@ -40,4 +40,9 @@ function foo() {
   "str".search("str"); // OK, string can be used instead of RegExp
   str.concat("1", "2", "3", 1 + 2); // OK, number can be used instead of string
   str.concat("1", "2", "3", new Date()); // OK, date can be used instead of string
+  str.charAt(new Date()); // OK, date can be used instead of number
+  "str".search(42); // OK, number can be used instead of RegExp
+
+  str.charAt(42, unexpectedArgument); // OK
+
 }
