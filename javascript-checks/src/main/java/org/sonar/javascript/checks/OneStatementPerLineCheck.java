@@ -76,11 +76,11 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
   @Override
   public void visitNode(Tree tree) {
     if (tree.is(Kind.IF_STATEMENT)) {
-      excludedStatements.add(((IfStatementTree) tree).statement());
+      checkForExcludedStatement(((IfStatementTree) tree).statement(), tree);
     }
 
     if (tree.is(KindSet.LOOP_KINDS)) {
-      excludedStatements.add(((IterationStatementTree) tree).statement());
+      checkForExcludedStatement(((IterationStatementTree) tree).statement(), tree);
     }
 
     if (tree.is(Kind.FUNCTION_EXPRESSION)){
@@ -89,6 +89,15 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
 
     if (!tree.is(Kind.SCRIPT, Kind.FUNCTION_EXPRESSION) && !excludedStatements.contains(tree)){
       statementsPerLine.put(((JavaScriptTree) tree).getLine(), (StatementTree) tree);
+    }
+  }
+
+  private void checkForExcludedStatement(StatementTree nestedStatement, Tree statement) {
+    int nestedStatementLine = ((JavaScriptTree) nestedStatement).getLine();
+    int statementLine = ((JavaScriptTree) statement).getLine();
+
+    if (nestedStatementLine == statementLine) {
+      excludedStatements.add(nestedStatement);
     }
   }
 

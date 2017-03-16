@@ -47,5 +47,7 @@ function singleNestedStatementIsOk() {
 
   if (a) { doSomething(); } // Noncompliant
   if (a) doSomething(); doSomethingElse(); // Noncompliant
+  if (a
+      && b) doSomething(); doSomethingElse(); // Noncompliant
 
 }
