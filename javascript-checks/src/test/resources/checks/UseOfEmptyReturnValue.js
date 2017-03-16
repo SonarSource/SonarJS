@@ -57,6 +57,12 @@ function main() {
   returnsValue();
 
 
-  x = (function(){}()) // Noncompliant {{Remove this use of the output from this function; this function doesn't return anything.}}
+  x = (function(){}()); // Noncompliant {{Remove this use of the output from this function; this function doesn't return anything.}}
 //     ^^^^^^^^^^^^
+
+  (function(){}());
+  !function(){}();
+
+  return noReturn(); // OK with return
+
 }

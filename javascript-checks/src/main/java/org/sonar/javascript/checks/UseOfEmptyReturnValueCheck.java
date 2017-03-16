@@ -43,7 +43,9 @@ import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_AND;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_EXPRESSION;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_OR;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.IDENTIFIER_REFERENCE;
+import static org.sonar.plugins.javascript.api.tree.Tree.Kind.LOGICAL_COMPLEMENT;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PARENTHESISED_EXPRESSION;
+import static org.sonar.plugins.javascript.api.tree.Tree.Kind.RETURN_STATEMENT;
 
 @Rule(key="S3699")
 public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpressionTree> {
@@ -52,10 +54,19 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
 
   @Override
   CallExpressionTree getTree(Tree element) {
-    if (element.is(Kind.CALL_EXPRESSION)) {
+    JavaScriptTree parent = ((JavaScriptTree) element).getParent();
+
+    if (element.is(Kind.CALL_EXPRESSION) && !parent.is(RETURN_STATEMENT) && !isModulePattern((CallExpressionTree) element)) {
       return (CallExpressionTree) element;
     }
+
     return null;
+  }
+
+  private static boolean isModulePattern(CallExpressionTree callExpression) {
+    JavaScriptTree parent = ((JavaScriptTree) callExpression).getParent();
+
+    return callExpression.callee().is(KindSet.FUNCTION_KINDS) && parent.is(PARENTHESISED_EXPRESSION, LOGICAL_COMPLEMENT) && parent.getParent().is(Kind.EXPRESSION_STATEMENT);
   }
 
   @Override
