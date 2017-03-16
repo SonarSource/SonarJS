@@ -64,10 +64,19 @@ public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
     }
 
     IterationStatementTree loopTree = (IterationStatementTree) parent;
-    if (tree.is(Kind.CONTINUE_STATEMENT) || (!parent.is(Kind.FOR_IN_STATEMENT) && !canExecuteMoreThanOnce(loopTree))) {
+    if (tree.is(Kind.CONTINUE_STATEMENT) || (!parent.is(Kind.FOR_IN_STATEMENT) && !isInfiniteFor(loopTree) && !canExecuteMoreThanOnce(loopTree))) {
       SyntaxToken keyword = ((JavaScriptTree) tree).getFirstToken();
       addIssue(keyword, String.format("Remove this \"%s\" statement or make it conditional", keyword.text()));
     }
+  }
+
+  private boolean isInfiniteFor(IterationStatementTree loopTree) {
+    if (loopTree.is(Kind.FOR_STATEMENT)) {
+      ForStatementTree forLoop = (ForStatementTree) loopTree;
+      return forLoop.update() == null && forLoop.init() == null && forLoop.condition() == null;
+    }
+
+    return false;
   }
 
   private static boolean canExecuteMoreThanOnce(IterationStatementTree loopTree) {
