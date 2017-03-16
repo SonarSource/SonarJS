@@ -1,16 +1,25 @@
-<p>The use of wrapper objects for primitive types is gratuitous, confusing and dangerous. Simple literals should be used instead.</p>
+<p>The use of wrapper objects for primitive types is gratuitous, confusing and dangerous. If you use a wrapper object constructor for type conversion,
+just remove the <code>new</code> keyword, and you'll get a primitive value automatically. If you use a wrapper object as a way to add properties to a
+primitive, you should re-think the design. Such uses are considered bad practice, and should be refactored.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-var x = new Boolean(false);
+let x = new Number("0");
 if (x) {
   alert('hi');  // Shows 'hi'.
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-var x = false;
+let x = Number("0");
 if (x) {
   alert('hi');
 }
+</pre>
+<h2>Exceptions</h2>
+<p>Cases when argument of primitive type constructor is a literal of the same type are ignored.</p>
+<pre>
+let booleanObject = new Boolean(true);
+let numberObject = new Number(0);
+let stringObject = new String('');
 </pre>
 
