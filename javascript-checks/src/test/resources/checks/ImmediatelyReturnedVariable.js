@@ -118,3 +118,11 @@ var arrow_function_ok = (a, b) => {
 }
 
 var arrow_function_no_block = (a, b) =>  a + b;
+
+function variable_is_used() {
+  var bar = {  // OK
+     doSomethingElse(p) { },
+     doSomething() {  bar.doSomethingElse(1);  }
+  };
+  return bar;
+}

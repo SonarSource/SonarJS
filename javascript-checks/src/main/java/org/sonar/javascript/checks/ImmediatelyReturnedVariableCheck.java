@@ -65,7 +65,15 @@ public class ImmediatelyReturnedVariableCheck extends DoubleDispatchVisitorCheck
       InitializedBindingElementTree initializedBindingElementTree = (InitializedBindingElementTree) variables.get(0);
 
       if (initializedBindingElementTree.left().is(Kind.BINDING_IDENTIFIER)) {
-        String name = ((IdentifierTree) initializedBindingElementTree.left()).name();
+        IdentifierTree identifier = (IdentifierTree) initializedBindingElementTree.left();
+
+        // identifier.symbol() is never null here, as it's part of declaration statement
+        // 2 usages: declaration and return. If there are more, variable is not useless
+        if (identifier.symbol().usages().size() > 2) {
+          return;
+        }
+
+        String name = identifier.name();
 
         if (returnsVariableInLastStatement(lastStatement, name)) {
           addIssue(initializedBindingElementTree.right(), String.format(MESSAGE, "return", name));
