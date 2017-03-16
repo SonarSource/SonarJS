@@ -20,19 +20,37 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 @Rule(key = "BitwiseOperators")
 public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove the use of \"%s\" operator.";
+
+  private Set<SyntaxToken> bitwiseAndOrOperators = new HashSet<>();
+  private boolean fileContainsBitwiseOperations = false;
+
+  @Override
+  public void visitFile(Tree scriptTree) {
+    bitwiseAndOrOperators.clear();
+    fileContainsBitwiseOperations = false;
+  }
 
   @Override
   public List<Tree.Kind> nodesToVisit() {
@@ -55,15 +73,56 @@ public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    SyntaxToken operator;
-    if (tree.is(Tree.Kind.BITWISE_COMPLEMENT)) {
-      operator = ((UnaryExpressionTree) tree).operator();
-    } else if (tree instanceof BinaryExpressionTree) {
-      operator = ((BinaryExpressionTree) tree).operator();
+    if (tree.is(Kind.BITWISE_AND, Kind.BITWISE_OR) && !((BinaryExpressionTree) tree).rightOperand().is(Kind.NUMERIC_LITERAL)) {
+      SyntaxToken operator = ((BinaryExpressionTree) tree).operator();
+      bitwiseAndOrOperators.add(operator);
+
     } else {
-      operator = ((AssignmentExpressionTree) tree).operator();
+      fileContainsBitwiseOperations = true;
     }
-    addIssue(operator, String.format(MESSAGE, operator.text()));
   }
 
+  @Override
+  public void leaveFile(Tree scriptTree) {
+    if (!fileContainsBitwiseOperations && bitwiseAndOrOperators.size() == 1) {
+
+      bitwiseAndOrOperators.stream()
+        .filter(BitwiseOperatorsCheck::insideCondition)
+        .forEach(syntaxToken ->
+          addIssue(syntaxToken, String.format(MESSAGE, syntaxToken.text())));
+    }
+  }
+
+  private static boolean insideCondition(SyntaxToken token) {
+    Tree treeWithCondition = CheckUtils.getFirstAncestor(token, Kind.IF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT, Kind.FOR_STATEMENT, Kind.CONDITIONAL_EXPRESSION);
+
+    Tree condition = condition(treeWithCondition);
+    return condition != null && ((JavaScriptTree) condition).isAncestorOf((JavaScriptTree) token);
+  }
+
+  @Nullable
+  private static Tree condition(@Nullable Tree treeWithCondition) {
+    Tree condition = null;
+
+    if (treeWithCondition != null) {
+
+      if (treeWithCondition.is(Kind.IF_STATEMENT)) {
+        condition = ((IfStatementTree) treeWithCondition).condition();
+
+      } else if (treeWithCondition.is(Kind.WHILE_STATEMENT)) {
+        condition = ((WhileStatementTree) treeWithCondition).condition();
+
+      } else if (treeWithCondition.is(Kind.DO_WHILE_STATEMENT)) {
+        condition = ((DoWhileStatementTree) treeWithCondition).condition();
+
+      } else if (treeWithCondition.is(Kind.FOR_STATEMENT)) {
+        condition = ((ForStatementTree) treeWithCondition).condition();
+
+      } else {
+        condition = ((ConditionalExpressionTree) treeWithCondition).condition();
+      }
+    }
+
+    return condition;
+  }
 }
