@@ -33,7 +33,8 @@ public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitParenthesisedExpression(ParenthesisedExpressionTree tree) {
     if (tree.expression().is(Kind.PARENTHESISED_EXPRESSION)) {
-      addIssue(tree, MESSAGE);
+      addIssue(tree.openParenthesis(), MESSAGE)
+        .secondary(tree.closeParenthesis());
     }
 
     super.visitParenthesisedExpression(tree);
