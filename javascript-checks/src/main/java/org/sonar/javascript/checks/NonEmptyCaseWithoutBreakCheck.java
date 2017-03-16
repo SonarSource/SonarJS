@@ -74,7 +74,10 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
           firstBlockInClauseBody = caseClauseBlocksByTree.get(lastCaseClause).falseSuccessor();
         }
 
-        if (canBeFallenInto(switchClause, firstBlockInClauseBody, caseExpressions) || hasOnlyEmptyStatements(previousClauseWithStatement)) {
+        boolean canBeFallenInto = canBeFallenInto(switchClause, firstBlockInClauseBody, caseExpressions);
+        boolean hasOnlyEmptyStatements = hasOnlyEmptyStatements(previousClauseWithStatement);
+
+        if ((canBeFallenInto || hasOnlyEmptyStatements) && !hasCommentFallThroughIntentional(previousClauseWithStatement, tree)) {
           addIssue(previousClauseWithStatement.keyword(), MESSAGE);
         }
       }
@@ -85,6 +88,16 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
 
     }
     super.visitSwitchStatement(tree);
+  }
+
+  private static boolean hasCommentFallThroughIntentional(SwitchClauseTree caseClause, SwitchStatementTree switchStatement) {
+    List<SwitchClauseTree> cases = switchStatement.cases();
+    for (int i = 0; i < cases.size() - 1; i++) {
+      if (cases.get(i).equals(caseClause)) {
+        return !((JavaScriptTree) cases.get(i + 1)).getFirstToken().trivias().isEmpty();
+      }
+    }
+    return false;
   }
 
   private static Map<CaseClauseTree, CfgBranchingBlock> caseClauseBlocksByTree(SwitchStatementTree switchTree) {

@@ -108,3 +108,43 @@ switch(x) {
     break;
 }
 
+// OK with comment
+switch (x) {
+  case 0:
+    foo(); // fallthrough
+
+  case 2:
+    foo();
+    // fall-through
+
+  case 3:
+    foo();
+    // one more comment
+    // fall through
+
+  case 4:
+    if (condition) {
+      return foo();
+    }
+    /* falls through */
+
+  case 5:
+    foo();
+    // passthrough because of this and that
+
+  case 6:
+    foo();
+    // nobreak
+
+  case 7:
+    foo();
+    // proceed
+
+  case 8:  // Noncompliant
+    if (condition) {
+      return foo();
+    }
+  case 9: // some comment
+  case 10:
+    bar();
+}
