@@ -108,8 +108,9 @@ public class ArgumentTypesCheck extends SeCheck {
   @Nullable
   private static String errorMessage(@Nullable Constraint argumentConstraint, ProgramState currentState, SymbolicValue argumentValue) {
     if (argumentConstraint != null) {
+
       Constraint actualConstraint = currentState.getConstraint(argumentValue);
-      if (argumentConstraint.isIncompatibleWith(actualConstraint)) {
+      if (extendSignatureArgumentConstraint(argumentConstraint).isIncompatibleWith(actualConstraint)) {
         String type = CONSTRAINT_TO_STRING_MAP.get(argumentConstraint);
         // untested condition. To avoid having null in message.
         type = type == null ? "" : (": " + type);
@@ -128,6 +129,20 @@ public class ArgumentTypesCheck extends SeCheck {
         addIssue(entry.getKey(), value.get());
       }
     }
+  }
+
+  private static Constraint extendSignatureArgumentConstraint(Constraint constraint) {
+    if (Constraint.REGEXP.isStricterOrEqualTo(constraint)) {
+      return constraint.or(Constraint.ANY_STRING).or(Constraint.ANY_NUMBER);
+
+    } else if (Constraint.STRING_PRIMITIVE.isStricterOrEqualTo(constraint)) {
+      return constraint.or(Constraint.ANY_NUMBER).or(Constraint.DATE);
+
+    } else if (Constraint.NUMBER_PRIMITIVE.isStricterOrEqualTo(constraint)) {
+      return constraint.or(Constraint.DATE);
+    }
+
+    return constraint;
   }
 
 }
