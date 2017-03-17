@@ -564,7 +564,8 @@ class ControlFlowGraphBuilder {
   private void visitLabelledStatement(LabelledStatementTree tree) {
     String label = tree.label().name();
 
-    boolean isLoopStatement = tree.statement().is(KindSet.LOOP_KINDS);
+    boolean isLoopStatement = tree.statement().is(
+      Kind.FOR_STATEMENT, Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT);
 
     if (!isLoopStatement) {
       addBreakable(currentBlock, null, label);
