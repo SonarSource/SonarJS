@@ -1,5 +1,5 @@
 {
-  "title": "Bitwise operators should not be used",
+  "title": "Bitwise operators should not be used in boolean contexts",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -7,8 +7,7 @@
     "constantCost": "5min"
   },
   "tags": [
-    "bug",
-    "pitfall"
+    
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Major"
 }
