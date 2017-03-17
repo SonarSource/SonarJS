@@ -9,14 +9,14 @@ TEST:
 
 SQ_VERSION: 
   - DEV
-  - LATEST_RELEASE
+  - 6.2
   - LTS
 
 
 exclude:
   - TEST: plugin
     SLAVE: linux
-    SQ_VERSION: LATEST_RELEASE
+    SQ_VERSION: 6.2
 
   - SLAVE: linux 
     SQ_VERSION: DEV 
@@ -29,7 +29,7 @@ exclude:
 #remove all jobs on performance slave
   - TEST: plugin
     SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE
+    SQ_VERSION: 6.2
 
   - SLAVE: performance 
     SQ_VERSION: DEV 
@@ -44,14 +44,14 @@ exclude:
     TEST: plugin
 
   - SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE 
+    SQ_VERSION: 6.2 
     TEST: ruling
 
   - SLAVE: performance
     SQ_VERSION: LTS 
     TEST: plugin
 
-#remove all jobs on windows slave plugin on LATEST_RELEASE
+#remove all jobs on windows slave plugin on 6.2
   - SLAVE: windows 
     SQ_VERSION: DEV 
     TEST: ruling
@@ -65,14 +65,14 @@ exclude:
     TEST: plugin
 
   - SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE 
+    SQ_VERSION: 6.2 
     TEST: ruling
 
   - SLAVE: windows
     SQ_VERSION: LTS 
     TEST: plugin
 
-# only run performancing on DEV LATEST_RELEASE on performance Slave
+# only run performancing on DEV 6.2 on performance Slave
   - SLAVE: performance
     SQ_VERSION: LTS 
     TEST: performancing
@@ -90,7 +90,7 @@ exclude:
     TEST: performancing
 
   - SLAVE: linux
-    SQ_VERSION: LATEST_RELEASE
+    SQ_VERSION: 6.2
     TEST: performancing
 
   - SLAVE: windows
@@ -102,5 +102,5 @@ exclude:
     TEST: performancing          
 
   - SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE
+    SQ_VERSION: 6.2
     TEST: performancing 
