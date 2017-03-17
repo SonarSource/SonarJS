@@ -46,7 +46,7 @@ public class JavaScriptTest {
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
-    .setOrchestratorProperty("litsVersion", "0.5")
+    .setOrchestratorProperty("litsVersion", "0.6")
     .addPlugin("lits")
     .build();
 
