@@ -19,67 +19,32 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Iterables;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.metrics.LineVisitor;
-import org.sonar.javascript.tree.SyntacticEquivalence;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 
 @Rule(key = "S1871")
-public class DuplicateBranchImplementationCheck extends DoubleDispatchVisitorCheck {
+public class DuplicateBranchImplementationCheck extends AbstractDuplicateBranchImplementationCheck {
 
   private static final String MESSAGE = "Either merge this %s with the identical one on line \"%s\" or change one of the implementations.";
 
-  private Set<IfStatementTree> chainedIfStatements = new HashSet<>();
-
   @Override
-  public void visitScript(ScriptTree tree) {
-    chainedIfStatements.clear();
-    super.visitScript(tree);
-  }
-
-  @Override
-  public void visitIfStatement(IfStatementTree tree) {
-    if (!chainedIfStatements.contains(tree)) {
-      checkTopIfStatement(tree);
-    }
-
-    super.visitIfStatement(tree);
-  }
-
-  private void checkTopIfStatement(IfStatementTree ifStatement) {
-    List<StatementTree> branches = collectBranches(ifStatement);
-
-    if (allBranchesPresent(ifStatement) && allBranchesEquivalent(branches)) {
-      // issue for bug rule will be raised
-      return;
-    }
-
-    checkDuplicatedBranches(branches);
-  }
-
-  private <T extends Tree> void checkDuplicatedBranches(List<T> branches) {
-    Set<T> withIssue = new HashSet<>();
+  protected void checkDuplicatedBranches(List<Tree> branches) {
+    Set<Tree> withIssue = new HashSet<>();
 
     for (int i = 0; i < branches.size(); i++) {
-      T currentBranch = branches.get(i);
+      Tree currentBranch = branches.get(i);
 
       for (int j = i + 1; j < branches.size(); j++) {
-        T comparedBranch = branches.get(j);
+        Tree comparedBranch = branches.get(j);
 
         if (!withIssue.contains(comparedBranch)
           && syntacticallyEqual(currentBranch, comparedBranch)
@@ -95,95 +60,10 @@ public class DuplicateBranchImplementationCheck extends DoubleDispatchVisitorChe
     }
   }
 
-  // T could be StatementTree (for IF statement) or SwitchClauseTree (for SWITCH statement)
-  private static <T extends Tree> boolean allBranchesEquivalent(List<T> branches) {
-    T firstBranch = branches.get(0);
-
-    for (int i = 1; i < branches.size(); i++) {
-      if (!syntacticallyEqual(firstBranch, branches.get(i))) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  private List<StatementTree> collectBranches(IfStatementTree ifStatement) {
-    List<StatementTree> branches = new ArrayList<>();
-    branches.add(ifStatement.statement());
-
-    ElseClauseTree elseClause = ifStatement.elseClause();
-
-    while (elseClause != null) {
-      if (elseClause.statement().is(Kind.IF_STATEMENT)) {
-        IfStatementTree chainedIfStatement = (IfStatementTree) elseClause.statement();
-        chainedIfStatements.add(chainedIfStatement);
-        branches.add(chainedIfStatement.statement());
-        elseClause = chainedIfStatement.elseClause();
-
-      } else {
-        branches.add(elseClause.statement());
-        elseClause = null;
-      }
-    }
-
-    return branches;
-  }
-
-  private static boolean allBranchesPresent(IfStatementTree tree) {
-    IfStatementTree lastIfStatement = tree;
-
-    while (lastIfStatement.elseClause() != null) {
-      StatementTree elseStatement = lastIfStatement.elseClause().statement();
-
-      if (elseStatement.is(Kind.IF_STATEMENT)) {
-        lastIfStatement = (IfStatementTree) elseStatement;
-      } else {
-        break;
-      }
-    }
-
-    return lastIfStatement.elseClause() != null;
-  }
 
   @Override
-  public void visitSwitchStatement(SwitchStatementTree tree) {
-    boolean hasClauseWithoutJump = false;
-    boolean hasDefaultCase = false;
-
-    List<SwitchClauseTree> branches = new ArrayList<>();
-
-    for (int i = 0; i < tree.cases().size(); i++) {
-      SwitchClauseTree caseTree = tree.cases().get(i);
-      boolean isLast = (i == tree.cases().size() - 1);
-
-      if (caseTree.is(Kind.DEFAULT_CLAUSE)) {
-        hasDefaultCase = true;
-      }
-
-      if (!caseTree.statements().isEmpty() || isLast) {
-        branches.add(caseTree);
-      }
-
-      if (!endsWithJump(caseTree) && !isLast) {
-        hasClauseWithoutJump = true;
-      }
-    }
-
-    if (!hasClauseWithoutJump && hasDefaultCase) {
-      boolean allSwitchBranchesEquivalent = allBranchesEquivalent(branches);
-      if (allSwitchBranchesEquivalent) {
-        // covered by another rule S3923
-        return;
-      }
-    }
-
-    checkDuplicatedBranches(branches);
-  }
-
-  private static boolean endsWithJump(SwitchClauseTree caseTree) {
-    return !caseTree.statements().isEmpty()
-      && Iterables.getLast(caseTree.statements()).is(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.CONTINUE_STATEMENT, Kind.THROW_STATEMENT);
+  protected void allBranchesDuplicated(Tree tree) {
+    // do nothing, covered with S3923
   }
 
   private static <T> int linesOfCodeForBranch(T branch) {
@@ -194,24 +74,6 @@ public class DuplicateBranchImplementationCheck extends DoubleDispatchVisitorChe
       StatementTree statementBranch = (StatementTree) branch;
       LineVisitor lineVisitor = statementBranch.is(Kind.BLOCK) ? new LineVisitor(((BlockTree) statementBranch).statements()) : new LineVisitor(statementBranch);
       return lineVisitor.getLinesOfCodeNumber();
-    }
-  }
-
-  private static List<StatementTree> normalize(SwitchClauseTree switchClause) {
-    List<StatementTree> list = switchClause.statements();
-    if (!list.isEmpty() && list.get(list.size() - 1).is(Kind.BREAK_STATEMENT)) {
-      return list.subList(0, list.size() - 1);
-    } else {
-      return list;
-    }
-  }
-
-  private static <T extends Tree> boolean syntacticallyEqual(T first, T second) {
-    if (first instanceof SwitchClauseTree) {
-      return SyntacticEquivalence.areEquivalent(normalize((SwitchClauseTree) first), normalize((SwitchClauseTree) second));
-
-    } else {
-      return SyntacticEquivalence.areEquivalent(first, second);
     }
   }
 

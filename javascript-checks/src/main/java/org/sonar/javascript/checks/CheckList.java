@@ -79,6 +79,7 @@ public final class CheckList {
       DeprecatedJQueryAPICheck.class,
       DestructuringAssignmentSyntaxCheck.class,
       DifferentTypesComparisonCheck.class,
+      DuplicateAllBranchImplementationCheck.class,
       DuplicateBranchImplementationCheck.class,
       DuplicateConditionIfElseAndSwitchCasesCheck.class,
       DuplicateFunctionArgumentCheck.class,
