@@ -144,7 +144,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
     }
 
     /**
-     * Returns true is symbol is written only once and outside the loop
+     * Returns true if symbol is written only once and outside the loop
      */
     private boolean hasConstValue(Symbol symbol) {
       for (Usage usage : symbol.usages()) {
