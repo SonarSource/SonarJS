@@ -153,7 +153,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   private void saveLineMetrics(TreeVisitorContext context) {
     LineVisitor lineVisitor = new LineVisitor(context.getTopTree());
-    int linesNumber = lineVisitor.getLinesNumber();
     Set<Integer> linesOfCode = lineVisitor.getLinesOfCode();
 
     saveMetricOnFile(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
@@ -165,11 +164,9 @@ public class MetricsVisitor extends SubscriptionVisitor {
     noSonarFilter.noSonarInFile(this.inputFile, commentVisitor.noSonarLines());
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(this.inputFile);
-    for (int line = 1; line <= linesNumber; line++) {
-      int isCodeLine = linesOfCode.contains(line) ? 1 : 0;
-      fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, isCodeLine);
-      fileLinesContext.setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, line, commentLines.contains(line) ? 1 : 0);
-    }
+
+    linesOfCode.forEach(line -> fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1));
+    commentLines.forEach(line -> fileLinesContext.setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, line, 1));
 
     Set<Integer> executableLines = new ExecutableLineVisitor(context.getTopTree()).getExecutableLines();
     projectExecutableLines.put(inputFile, executableLines);

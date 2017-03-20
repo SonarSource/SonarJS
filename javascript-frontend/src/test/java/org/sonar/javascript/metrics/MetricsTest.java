@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.Set;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,9 +49,11 @@ public class MetricsTest extends JavaScriptTreeModelTest {
   @Test
   public void lines() {
     String path = "src/test/resources/metrics/lines.js";
-    Tree tree = parse(new File(path));
+    ScriptTree tree = parse(new File(path));
     LineVisitor lineVisitor = new LineVisitor(tree);
-    assertThat(lineVisitor.getLinesNumber()).isEqualTo(5);
+    assertThat(lineVisitor.getLinesOfCode()).containsOnly(2, 3, 4);
+
+    lineVisitor = new LineVisitor(tree.items().items());
     assertThat(lineVisitor.getLinesOfCode()).containsOnly(2, 3, 4);
   }
 

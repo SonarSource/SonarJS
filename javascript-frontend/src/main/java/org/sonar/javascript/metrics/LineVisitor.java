@@ -19,41 +19,33 @@
  */
 package org.sonar.javascript.metrics;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 /**
  * Visitor that computes the number of lines of code of a file.
  */
-public class LineVisitor extends SubscriptionVisitor {
+public class LineVisitor extends DoubleDispatchVisitor {
 
   private Set<Integer> lines = Sets.newHashSet();
-  private int lastLine = 0;
 
   public LineVisitor(Tree tree) {
-    scanTree(tree);
+    scan(tree);
+  }
+
+  public <T extends Tree> LineVisitor(List<T> treeList) {
+    scan(treeList);
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.TOKEN);
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    SyntaxToken token = (SyntaxToken) tree;
+  public void visitToken(SyntaxToken token) {
     if (!((InternalSyntaxToken) token).isEOF()) {
       lines.add(token.line());
-
-    } else {
-      lastLine = token.line();
     }
   }
 
@@ -63,9 +55,5 @@ public class LineVisitor extends SubscriptionVisitor {
 
   public Set<Integer> getLinesOfCode() {
     return lines;
-  }
-
-  public int getLinesNumber() {
-    return lastLine;
   }
 }
