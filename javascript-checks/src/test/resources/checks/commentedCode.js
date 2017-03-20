@@ -140,4 +140,11 @@ function unfinished_block() {
    // if (condition) {
    //   while (condition) {
    //     doSomething();
+
+   // Noncompliant@+2
+
+   //   while (condition) {
+   //     doSomething();
+   //   }
+   // }
 }

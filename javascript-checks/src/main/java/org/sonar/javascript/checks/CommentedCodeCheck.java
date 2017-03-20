@@ -62,7 +62,7 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
 
   private void checkCommentGroup(List<SyntaxTrivia> commentGroup) {
     String uncommentedText = uncomment(commentGroup);
-    uncommentedText = appendCloseBraces(uncommentedText);
+    uncommentedText = injectMissingBraces(uncommentedText);
 
     try {
       ScriptTree parsedUncommentedText = (ScriptTree) PARSER.parse(uncommentedText);
@@ -75,14 +75,18 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
     }
   }
 
-  private static String appendCloseBraces(String uncommentedText) {
+  private static String injectMissingBraces(String uncommentedText) {
     StringBuilder toParse = new StringBuilder(uncommentedText);
 
     int openCurlyBraceNum = StringUtils.countMatches(uncommentedText, "{");
     int closeCurlyBraceNum = StringUtils.countMatches(uncommentedText, "}");
 
-    for (int i = 0; i < openCurlyBraceNum - closeCurlyBraceNum; i++) {
+    final int missingBraces = openCurlyBraceNum - closeCurlyBraceNum;
+    for (int i = 0; i < missingBraces; i++) {
       toParse.append("}");
+    }
+    for (int i = missingBraces; i < 0; i++) {
+      toParse.insert(0, "{");
     }
 
     return toParse.toString();

@@ -282,6 +282,7 @@
 146,
 325,
 343,
+345,
 474,
 ],
 'project:dojo-1.8.1/dojox/drawing/manager/StencilUI.js.uncompressed.js':[
@@ -325,6 +326,7 @@
 ],
 'project:dojo-1.8.1/dojox/drawing/stencil/Text.js.uncompressed.js':[
 69,
+72,
 156,
 ],
 'project:dojo-1.8.1/dojox/drawing/stencil/_Base.js.uncompressed.js':[
@@ -645,6 +647,7 @@
 158,
 191,
 193,
+212,
 224,
 237,
 334,
@@ -833,6 +836,7 @@
 ],
 'project:dojo-1.8.1/dojox/secure/sandbox.js.uncompressed.js':[
 241,
+245,
 253,
 298,
 ],
@@ -1032,6 +1036,7 @@
 181,
 185,
 190,
+192,
 199,
 218,
 243,
@@ -1135,6 +1140,9 @@
 'project:ecmascript6/react-router/modules/createTransitionManager.js':[
 282,
 ],
+'project:ecmascript6/reddit-mobile/buildTasks/js.js':[
+139,
+],
 'project:ecmascript6/sonar-web/test/medium/api-documentation.spec.js':[
 61,
 ],
@@ -1200,6 +1208,7 @@
 468,
 536,
 588,
+590,
 ],
 'project:yui-3.7.3/dd-drag/dd-drag.js':[
 1164,
@@ -1304,6 +1313,9 @@
 ],
 'project:yui-3.7.3/imageloader/imageloader.js':[
 351,
+],
+'project:yui-3.7.3/jsonp/jsonp.js':[
+182,
 ],
 'project:yui-3.7.3/loader-base/loader-base.js':[
 227,
