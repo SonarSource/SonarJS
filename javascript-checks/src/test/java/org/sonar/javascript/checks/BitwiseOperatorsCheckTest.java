@@ -25,9 +25,24 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class BitwiseOperatorsCheckTest {
 
+  private static File DIR = new File("src/test/resources/checks/BitwiseOperatorsCheck");
+  private BitwiseOperatorsCheck check = new BitwiseOperatorsCheck();
+
   @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new BitwiseOperatorsCheck(), new File("src/test/resources/checks/bitwiseOperators.js"));
+  public void test_ok() {
+    JavaScriptCheckVerifier.verify(check, new File(DIR, "file_ok_with_bitwise_operator.js"));
+    JavaScriptCheckVerifier.verify(check, new File(DIR, "file_ok_outside_condition.js"));
+    JavaScriptCheckVerifier.verify(check, new File(DIR, "file_ok_with_literal.js"));
+    JavaScriptCheckVerifier.verify(check, new File(DIR, "file_ok_several_suspicious.js"));
+    JavaScriptCheckVerifier.verify(check, new File(DIR, "file_ok_for_init.js"));
+    JavaScriptCheckVerifier.verify(check, new File(DIR, "file_ok_for_no_condition.js"));
   }
 
+  @Test
+  public void test_nok() {
+    JavaScriptCheckVerifier.verify(check, new File(DIR, "file_nok_if.js"));
+    JavaScriptCheckVerifier.verify(check, new File(DIR, "file_nok_while.js"));
+    JavaScriptCheckVerifier.verify(check, new File(DIR, "file_nok_ternary.js"));
+    JavaScriptCheckVerifier.verify(check, new File(DIR, "file_nok_do_while.js"));
+  }
 }
