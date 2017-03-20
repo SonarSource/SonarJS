@@ -20,9 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -41,14 +39,14 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 @Rule(key = "BitwiseOperators")
 public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
 
-  private static final String MESSAGE = "Remove the use of \"%s\" operator.";
+  private static final String MESSAGE = "Review this use of bitwise \"%s\" operator; conditional \"%<s%<s\" might have been intended.";
 
-  private Set<SyntaxToken> bitwiseAndOrOperators = new HashSet<>();
+  private SyntaxToken lonelyBitwiseAndOr = null;
   private boolean fileContainsBitwiseOperations = false;
 
   @Override
   public void visitFile(Tree scriptTree) {
-    bitwiseAndOrOperators.clear();
+    lonelyBitwiseAndOr = null;
     fileContainsBitwiseOperations = false;
   }
 
@@ -73,9 +71,8 @@ public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    if (tree.is(Kind.BITWISE_AND, Kind.BITWISE_OR) && !((BinaryExpressionTree) tree).rightOperand().is(Kind.NUMERIC_LITERAL)) {
-      SyntaxToken operator = ((BinaryExpressionTree) tree).operator();
-      bitwiseAndOrOperators.add(operator);
+    if (lonelyBitwiseAndOr == null && tree.is(Kind.BITWISE_AND, Kind.BITWISE_OR) && !((BinaryExpressionTree) tree).rightOperand().is(Kind.NUMERIC_LITERAL)) {
+      lonelyBitwiseAndOr = ((BinaryExpressionTree) tree).operator();
 
     } else {
       fileContainsBitwiseOperations = true;
@@ -84,43 +81,41 @@ public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void leaveFile(Tree scriptTree) {
-    if (!fileContainsBitwiseOperations && bitwiseAndOrOperators.size() == 1) {
-
-      bitwiseAndOrOperators.stream()
-        .filter(BitwiseOperatorsCheck::insideCondition)
-        .forEach(syntaxToken ->
-          addIssue(syntaxToken, String.format(MESSAGE, syntaxToken.text())));
+    if (!fileContainsBitwiseOperations && lonelyBitwiseAndOr != null && insideCondition(lonelyBitwiseAndOr)) {
+      String message = String.format(MESSAGE, lonelyBitwiseAndOr.text());
+      addIssue(lonelyBitwiseAndOr, message);
     }
   }
 
   private static boolean insideCondition(SyntaxToken token) {
     Tree treeWithCondition = CheckUtils.getFirstAncestor(token, Kind.IF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT, Kind.FOR_STATEMENT, Kind.CONDITIONAL_EXPRESSION);
 
+    if (treeWithCondition == null) {
+      return false;
+    }
+
     Tree condition = condition(treeWithCondition);
     return condition != null && ((JavaScriptTree) condition).isAncestorOf((JavaScriptTree) token);
   }
 
   @Nullable
-  private static Tree condition(@Nullable Tree treeWithCondition) {
-    Tree condition = null;
+  private static Tree condition(Tree treeWithCondition) {
+    Tree condition;
 
-    if (treeWithCondition != null) {
+    if (treeWithCondition.is(Kind.IF_STATEMENT)) {
+      condition = ((IfStatementTree) treeWithCondition).condition();
 
-      if (treeWithCondition.is(Kind.IF_STATEMENT)) {
-        condition = ((IfStatementTree) treeWithCondition).condition();
+    } else if (treeWithCondition.is(Kind.WHILE_STATEMENT)) {
+      condition = ((WhileStatementTree) treeWithCondition).condition();
 
-      } else if (treeWithCondition.is(Kind.WHILE_STATEMENT)) {
-        condition = ((WhileStatementTree) treeWithCondition).condition();
+    } else if (treeWithCondition.is(Kind.DO_WHILE_STATEMENT)) {
+      condition = ((DoWhileStatementTree) treeWithCondition).condition();
 
-      } else if (treeWithCondition.is(Kind.DO_WHILE_STATEMENT)) {
-        condition = ((DoWhileStatementTree) treeWithCondition).condition();
+    } else if (treeWithCondition.is(Kind.FOR_STATEMENT)) {
+      condition = ((ForStatementTree) treeWithCondition).condition();
 
-      } else if (treeWithCondition.is(Kind.FOR_STATEMENT)) {
-        condition = ((ForStatementTree) treeWithCondition).condition();
-
-      } else {
-        condition = ((ConditionalExpressionTree) treeWithCondition).condition();
-      }
+    } else {
+      condition = ((ConditionalExpressionTree) treeWithCondition).condition();
     }
 
     return condition;
