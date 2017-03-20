@@ -69,6 +69,14 @@ function value_written_once() {
     };
   }
 
+  var notConst = 42;
+  for (let i = 0; i < 13; i++) {
+    notConst++;
+    funs[i] = function() {              // Noncompliant, written inside loop
+      return notConst;
+    };
+  }
+
 }
 
 function iife_ok() {
