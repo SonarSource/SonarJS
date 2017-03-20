@@ -20,12 +20,17 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.Iterables;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.javascript.metrics.LineVisitor;
 import org.sonar.javascript.tree.SyntacticEquivalence;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
@@ -38,91 +43,176 @@ import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 public class DuplicateBranchImplementationCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Either merge this %s with the identical one on line \"%s\" or change one of the implementations.";
-  private static final String CONDITIONAL_EXPRESSION_MESSAGE = "This conditional operation returns the same value whether the condition is \"true\" or \"false\".";
+
+  private Set<IfStatementTree> chainedIfStatements = new HashSet<>();
+
+  @Override
+  public void visitScript(ScriptTree tree) {
+    chainedIfStatements.clear();
+    super.visitScript(tree);
+  }
 
   @Override
   public void visitIfStatement(IfStatementTree tree) {
-    StatementTree implementation = tree.statement();
-    ElseClauseTree elseClause = tree.elseClause();
-
-    while (elseClause != null) {
-      StatementTree implementationToCompare = getImplementationFromElseClause(elseClause);
-
-      if (SyntacticEquivalence.areEquivalent(implementation, implementationToCompare)) {
-        addIssue(implementation, implementationToCompare, "branch");
-        break;
-      }
-      elseClause = getNextElse(elseClause);
+    if (!chainedIfStatements.contains(tree)) {
+      checkTopIfStatement(tree);
     }
 
     super.visitIfStatement(tree);
   }
 
-  @Override
-  public void visitSwitchStatement(SwitchStatementTree tree) {
-    for (int i = 0; i < tree.cases().size(); i++) {
-      SwitchClauseTree caseTree = tree.cases().get(i);
+  private void checkTopIfStatement(IfStatementTree ifStatement) {
+    List<StatementTree> branches = collectBranches(ifStatement);
 
-      // FIXME martin: Don't check duplication for case with fall through on the next case.
-      if (caseTree.statements().isEmpty() || isCaseEndingWithoutJumpStmt(caseTree)) {
-        continue;
-      }
-
-      compareWithNextCases(tree, i, caseTree);
+    if (allBranchesPresent(ifStatement) && allBranchesEquivalent(branches)) {
+      // issue for bug rule will be raised
+      return;
     }
+
+    checkDuplicatedBranches(branches);
   }
 
-  private void compareWithNextCases(SwitchStatementTree tree, int indexCaseReference, SwitchClauseTree caseTree) {
-    for (int j = indexCaseReference + 1; j < tree.cases().size(); j++) {
-      SwitchClauseTree caseTreeToCompare = tree.cases().get(j);
+  private <T extends Tree> void checkDuplicatedBranches(List<T> branches) {
+    Set<T> withIssue = new HashSet<>();
 
-      // FIXME martin: Don't check duplication for case with fall through on the next case.
-      if (!caseTreeToCompare.statements().isEmpty() && !isCaseEndingWithoutJumpStmt(caseTreeToCompare)) {
-        // Remove the jump statement if comparing to default case
-        List<StatementTree> caseStatements = caseTreeToCompare.is(Kind.DEFAULT_CLAUSE) ? caseTree.statements().subList(0, caseTree.statements().size() - 1) : caseTree.statements();
+    for (int i = 0; i < branches.size(); i++) {
+      T currentBranch = branches.get(i);
 
-        if (SyntacticEquivalence.areEquivalent(caseStatements, caseTreeToCompare.statements())) {
-          addIssue(caseTree, caseTreeToCompare, "case");
-          // break the inner loop
-          break;
+      for (int j = i + 1; j < branches.size(); j++) {
+        T comparedBranch = branches.get(j);
+
+        if (!withIssue.contains(comparedBranch)
+          && syntacticallyEqual(currentBranch, comparedBranch)
+          && linesOfCodeForBranch(comparedBranch) > 1) {
+
+          IssueLocation secondary = new IssueLocation(currentBranch, "Original");
+          String branchType = currentBranch instanceof SwitchClauseTree ? "case" : "branch";
+          String message = String.format(MESSAGE, branchType, secondary.startLine());
+          addIssue(comparedBranch, message).secondary(secondary);
+          withIssue.add(comparedBranch);
         }
       }
     }
   }
 
-  private void addIssue(Tree original, Tree duplicate, String type) {
-    IssueLocation secondary = new IssueLocation(original, "Original");
-    String message = String.format(MESSAGE, type, secondary.startLine());
-    addIssue(duplicate, message).secondary(secondary);
+  // T could be StatementTree (for IF statement) or SwitchClauseTree (for SWITCH statement)
+  private static <T extends Tree> boolean allBranchesEquivalent(List<T> branches) {
+    T firstBranch = branches.get(0);
+
+    for (int i = 1; i < branches.size(); i++) {
+      if (!syntacticallyEqual(firstBranch, branches.get(i))) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
-  private static boolean isCaseEndingWithoutJumpStmt(SwitchClauseTree caseTree) {
-    return caseTree.is(Kind.CASE_CLAUSE) && !isJumpStatement(Iterables.getLast(caseTree.statements()));
+  private List<StatementTree> collectBranches(IfStatementTree ifStatement) {
+    List<StatementTree> branches = new ArrayList<>();
+    branches.add(ifStatement.statement());
+
+    ElseClauseTree elseClause = ifStatement.elseClause();
+
+    while (elseClause != null) {
+      if (elseClause.statement().is(Kind.IF_STATEMENT)) {
+        IfStatementTree chainedIfStatement = (IfStatementTree) elseClause.statement();
+        chainedIfStatements.add(chainedIfStatement);
+        branches.add(chainedIfStatement.statement());
+        elseClause = chainedIfStatement.elseClause();
+
+      } else {
+        branches.add(elseClause.statement());
+        elseClause = null;
+      }
+    }
+
+    return branches;
   }
 
-  private static boolean isJumpStatement(StatementTree statement) {
-    return statement.is(
-      Kind.BREAK_STATEMENT,
-      Kind.RETURN_STATEMENT,
-      Kind.CONTINUE_STATEMENT,
-      Kind.THROW_STATEMENT);
-  }
+  private static boolean allBranchesPresent(IfStatementTree tree) {
+    IfStatementTree lastIfStatement = tree;
 
-  private static StatementTree getImplementationFromElseClause(ElseClauseTree elseClause) {
-    return elseClause.statement().is(Kind.IF_STATEMENT) ? ((IfStatementTree) elseClause.statement()).statement() : elseClause.statement();
-  }
+    while (lastIfStatement.elseClause() != null) {
+      StatementTree elseStatement = lastIfStatement.elseClause().statement();
 
-  public ElseClauseTree getNextElse(ElseClauseTree elseClause) {
-    return elseClause.statement().is(Kind.IF_STATEMENT) ? ((IfStatementTree) elseClause.statement()).elseClause() : null;
+      if (elseStatement.is(Kind.IF_STATEMENT)) {
+        lastIfStatement = (IfStatementTree) elseStatement;
+      } else {
+        break;
+      }
+    }
+
+    return lastIfStatement.elseClause() != null;
   }
 
   @Override
-  public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    if (SyntacticEquivalence.areEquivalent(tree.trueExpression(), tree.falseExpression())) {
-      addIssue(tree.query(), CONDITIONAL_EXPRESSION_MESSAGE)
-        .secondary(tree.trueExpression())
-        .secondary(tree.falseExpression());
+  public void visitSwitchStatement(SwitchStatementTree tree) {
+    boolean hasClauseWithoutJump = false;
+    boolean hasDefaultCase = false;
+
+    List<SwitchClauseTree> branches = new ArrayList<>();
+
+    for (int i = 0; i < tree.cases().size(); i++) {
+      SwitchClauseTree caseTree = tree.cases().get(i);
+      boolean isLast = (i == tree.cases().size() - 1);
+
+      if (caseTree.is(Kind.DEFAULT_CLAUSE)) {
+        hasDefaultCase = true;
+      }
+
+      if (!caseTree.statements().isEmpty() || isLast) {
+        branches.add(caseTree);
+      }
+
+      if (!endsWithJump(caseTree) && !isLast) {
+        hasClauseWithoutJump = true;
+      }
     }
-    super.visitConditionalExpression(tree);
+
+    if (!hasClauseWithoutJump && hasDefaultCase) {
+      boolean allSwitchBranchesEquivalent = allBranchesEquivalent(branches);
+      if (allSwitchBranchesEquivalent) {
+        // covered by another rule S3923
+        return;
+      }
+    }
+
+    checkDuplicatedBranches(branches);
   }
+
+  private static boolean endsWithJump(SwitchClauseTree caseTree) {
+    return !caseTree.statements().isEmpty()
+      && Iterables.getLast(caseTree.statements()).is(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.CONTINUE_STATEMENT, Kind.THROW_STATEMENT);
+  }
+
+  private static <T> int linesOfCodeForBranch(T branch) {
+    if (branch instanceof SwitchClauseTree) {
+      return new LineVisitor(normalize((SwitchClauseTree) branch)).getLinesOfCodeNumber();
+
+    } else {
+      StatementTree statementBranch = (StatementTree) branch;
+      LineVisitor lineVisitor = statementBranch.is(Kind.BLOCK) ? new LineVisitor(((BlockTree) statementBranch).statements()) : new LineVisitor(statementBranch);
+      return lineVisitor.getLinesOfCodeNumber();
+    }
+  }
+
+  private static List<StatementTree> normalize(SwitchClauseTree switchClause) {
+    List<StatementTree> list = switchClause.statements();
+    if (!list.isEmpty() && list.get(list.size() - 1).is(Kind.BREAK_STATEMENT)) {
+      return list.subList(0, list.size() - 1);
+    } else {
+      return list;
+    }
+  }
+
+  private static <T extends Tree> boolean syntacticallyEqual(T first, T second) {
+    if (first instanceof SwitchClauseTree) {
+      return SyntacticEquivalence.areEquivalent(normalize((SwitchClauseTree) first), normalize((SwitchClauseTree) second));
+
+    } else {
+      return SyntacticEquivalence.areEquivalent(first, second);
+    }
+  }
+
 }
