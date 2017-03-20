@@ -68,18 +68,19 @@ public class JavaScriptPerformanceTest {
   }
 
   private static SonarScanner getSonarScanner(String projectKey) {
-    return (SonarScanner) SonarScanner.create(FileLocation.of("../sources/src").getFile())
-        .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
-        .setProperty("sonar.importSources", "false")
-        .setProperty("sonar.showProfiling", "true")
-        .setProperty("sonar.analysis.mode", "preview")
-        .setProperty("sonar.issuesReport.console.enable", "true")
-        .setProjectKey(projectKey)
-        .setProjectName(projectKey)
-        .setProjectVersion("1")
-        .setLanguage("js")
-        .setSourceEncoding("UTF-8")
-        .setSourceDirs(".");
+    return SonarScanner.create(FileLocation.of("../sources/src").getFile())
+      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
+      .setProperty("sonar.importSources", "false")
+      .setProperty("sonar.showProfiling", "true")
+      .setProperty("sonar.analysis.mode", "preview")
+      .setProperty("sonar.issuesReport.console.enable", "true")
+      .setProperty("sonar.preloadFileMetadata", "true")
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
+      .setProjectVersion("1")
+      .setLanguage("js")
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".");
   }
 
   private static double sensorTime(File projectDir, String sensor, String projectKey) throws IOException {
