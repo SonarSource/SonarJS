@@ -38,6 +38,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 @Rule(key = "CommentedCode")
@@ -65,7 +67,8 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
     try {
       ScriptTree parsedUncommentedText = (ScriptTree) PARSER.parse(uncommentedText);
       if (!isExclusion(parsedUncommentedText)) {
-        addIssue(commentGroup.get(0), MESSAGE);
+        IssueLocation primaryLocation = new IssueLocation(commentGroup.get(0), commentGroup.get(commentGroup.size() - 1), MESSAGE);
+        addIssue(new PreciseIssue(this, primaryLocation));
       }
     } catch (RecognitionException e) {
       // do nothing, it's just a comment

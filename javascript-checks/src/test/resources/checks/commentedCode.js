@@ -96,7 +96,7 @@ function noncompliant() {
   // throw foo().bar()
 
 
-  // Noncompliant@+2
+  // Noncompliant@+2 [[el=+3;sc=3;ec=9]]
 
   // // nested comment
   // foo(a, function(){
