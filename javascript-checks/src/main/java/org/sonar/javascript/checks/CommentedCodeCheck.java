@@ -155,16 +155,14 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
       }
 
       if (currentGroup == null) {
-        currentGroup = new LinkedList<>();
-        currentGroup.add(trivia);
+        currentGroup = initNewGroup(trivia);
 
-      } else if (currentGroup.get(currentGroup.size() - 1).line() + 1 == trivia.line()) {
+      } else if (isAdjacent(trivia, currentGroup)) {
         currentGroup.add(trivia);
 
       } else {
         groups.add(currentGroup);
-        currentGroup = new LinkedList<>();
-        currentGroup.add(trivia);
+        currentGroup = initNewGroup(trivia);
       }
     }
 
@@ -172,6 +170,16 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
       groups.add(currentGroup);
     }
     return groups;
+  }
+
+  private static List<SyntaxTrivia> initNewGroup(SyntaxTrivia trivia) {
+    List<SyntaxTrivia> group = new LinkedList<>();
+    group.add(trivia);
+    return group;
+  }
+
+  private static boolean isAdjacent(SyntaxTrivia trivia, List<SyntaxTrivia> currentGroup) {
+    return currentGroup.get(currentGroup.size() - 1).line() + 1 == trivia.line();
   }
 
   private static boolean isJsDoc(SyntaxTrivia trivia) {
