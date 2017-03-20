@@ -2,6 +2,10 @@
 'project:dojo-1.8.1/dojox/charting/action2d/Tooltip.js.uncompressed.js':[
 92,
 ],
+'project:dojo-1.8.1/dojox/charting/axis2d/Default.js.uncompressed.js':[
+613,
+627,
+],
 'project:dojo-1.8.1/dojox/data/AppStore.js.uncompressed.js':[
 615,
 703,
@@ -19,9 +23,15 @@
 'project:ecmascript6/watchtower.js/src/dirty_checking.js':[
 155,
 ],
+'project:jshint-2012.06.15.js':[
+1661,
+],
 'project:open-layers-2.12/OpenLayers/Format/Atom.js':[
 155,
 472,
+],
+'project:open-layers-2.12/OpenLayers/Format/XML.js':[
+787,
 ],
 'project:open-layers-2.12/OpenLayers/Popup.js':[
 797,

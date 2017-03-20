@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.metrics;
 
-import com.google.common.collect.Sets;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
  */
 public class LineVisitor extends DoubleDispatchVisitor {
 
-  private Set<Integer> lines = Sets.newHashSet();
+  private Set<Integer> lines = new HashSet<>();
 
   public LineVisitor(Tree tree) {
     scan(tree);

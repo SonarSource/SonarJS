@@ -1,0 +1,29 @@
+<p>Having all branches in a <code>switch</code> or <code>if</code> chain with the same implementation is an error. Either a copy-paste error was made
+and something different should be executed, or there shouldn't be a <code>switch</code>/<code>if</code> chain at all. Note that this rule does not
+apply to <code>if</code> chains without <code>else</code>s, or to <code>switch</code>es without <code>default</code> clauses.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+if (b == 0) {  // Noncompliant
+  doOneMoreThing();
+}
+else {
+  doOneMoreThing();
+}
+
+let a = (b == 0) ? getValue() : getValue();   // Noncompliant
+
+switch (i) {  // Noncompliant
+  case 1:
+    doSomething();
+    break;
+  case 2:
+    doSomething();
+    break;
+  case 3:
+    doSomething();
+    break;
+  default:
+    doSomething();
+}
+</pre>
+

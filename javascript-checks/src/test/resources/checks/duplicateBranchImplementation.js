@@ -71,7 +71,7 @@ function if_statement() {
     second();
   }
 
-  if (a) {
+  if (a) {              // OK, just a single if, no problem with it.
     foo();
     bar();
   }

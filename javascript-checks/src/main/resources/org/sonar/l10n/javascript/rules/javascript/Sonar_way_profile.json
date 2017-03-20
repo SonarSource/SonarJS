@@ -104,6 +104,7 @@
     "S3828",
     "S3834",
     "S3854",
+    "S3923",
     "SwitchWithoutDefault",
     "TooManyBreakOrContinueInLoop",
     "UnreachableCode",
