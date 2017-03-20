@@ -126,3 +126,21 @@ function variable_is_used() {
   };
   return bar;
 }
+
+function two_declarations() {
+  if (true) {
+    var x = foo(); // Noncompliant
+    return x;
+  } else {
+    var x = bar();
+    return x + 42;
+  }
+}
+
+function homonymous_is_used() {
+  const bar = {           // Noncompliant
+     doSomethingElse(p) { var bar = 2; return p + bar; },
+     doSomething() { return doSomethingElse(1); }
+  };
+  return bar;
+}

@@ -36,6 +36,9 @@
 'project:dojo-1.8.1/dojox/charting/plot2d/Stacked.js.uncompressed.js':[
 14,
 ],
+'project:dojo-1.8.1/dojox/charting/themes/Claro.js.uncompressed.js':[
+91,
+],
 'project:dojo-1.8.1/dojox/css3/transit.js.uncompressed.js':[
 6,
 ],
@@ -72,6 +75,9 @@
 ],
 'project:dojo-1.8.1/dojox/drawing/Drawing.js.uncompressed.js':[
 323,
+],
+'project:dojo-1.8.1/dojox/drawing/plugins/drawing/Silverlight.js.uncompressed.js':[
+169,
 ],
 'project:dojo-1.8.1/dojox/flash/_base.js.uncompressed.js':[
 336,
@@ -156,6 +162,7 @@
 'project:dojo-1.8.1/dojox/jq.js.uncompressed.js':[
 706,
 785,
+1755,
 ],
 'project:dojo-1.8.1/dojox/lang/docs.js.uncompressed.js':[
 133,
@@ -235,6 +242,9 @@
 'project:ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/status-facet.js':[
 9,
 ],
+'project:ecmascript6/watchtower.js/test/watchgroup.spec.js':[
+593,
+],
 'project:frameworks/wordpress/customize-controls.js':[
 136,
 ],
@@ -275,6 +285,10 @@
 ],
 'project:google-closure-library/math/long.js':[
 623,
+],
+'project:google-closure-library/testing/mockclassfactory.js':[
+509,
+517,
 ],
 'project:google-closure-library/tweak/tweakui.js':[
 517,
