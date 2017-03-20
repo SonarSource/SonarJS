@@ -1,18 +1,18 @@
-<p>Having two <code>cases</code> in the same <code>switch</code> statement or branches in the same <code>if</code> structure with the same
-implementation is at best duplicate code, and at worst a coding error. If the same logic is truly needed for both instances, then in an
-<code>if</code> structure they should be combined, or for a <code>switch</code>, one should fall through to the other. </p>
-<p>Moreover when the second and third operands of a ternary operator are the same, the operator will always return the same value regardless of the
-condition. Either the operator itself is pointless, or a mistake was made in coding it.</p>
+<p>Having two <code>cases</code> in a <code>switch</code> statement or two branches in an <code>if</code> chain with the same implementation is at
+best duplicate code, and at worst a coding error. If the same logic is truly needed for both instances, then in an <code>if</code> chain they should
+be combined, or for a <code>switch</code>, one should fall through to the other. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 switch (i) {
   case 1:
+    doFirstThing();
     doSomething();
     break;
   case 2:
     doSomethingDifferent();
     break;
   case 3:  // Noncompliant; duplicates case 1's implementation
+    doFirstThing();
     doSomething();
     break;
   default:
@@ -20,31 +20,26 @@ switch (i) {
 }
 
 if (a &gt;= 0 &amp;&amp; a &lt; 10) {
+  doFirstThing();
   doTheThing();
+}
 else if (a &gt;= 10 &amp;&amp; a &lt; 20) {
   doTheOtherThing();
 }
 else if (a &gt;= 20 &amp;&amp; a &lt; 50) {
+  doFirstThing();
   doTheThing();  // Noncompliant; duplicates first condition
 }
 else {
   doTheRest();
 }
-
-if (b == 0) {
-  doOneMoreThing();
-}
-else {
-  doOneMoreThing(); // Noncompliant; duplicates then-branch
-}
-
-a = (b == 0) ? getValue() : getValue();   // Noncompliant
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
 switch (i) {
   case 1:
   case 3:
+    doFirstThing();
     doSomething();
     break;
   case 2:
@@ -55,28 +50,28 @@ switch (i) {
 }
 
 if ((a &gt;= 0 &amp;&amp; a &lt; 10) || (a &gt;= 20 &amp;&amp; a &lt; 50)) {
+  doFirstThing();
   doTheThing();
+}
 else if (a &gt;= 10 &amp;&amp; a &lt; 20) {
   doTheOtherThing();
 }
 else {
   doTheRest();
 }
-
-doOneMoreThing();
-
-a = getValue();
 </pre>
 <p>or </p>
 <pre>
 switch (i) {
   case 1:
+    doFirstThing();
     doSomething();
     break;
   case 2:
     doSomethingDifferent();
     break;
   case 3:
+    doFirstThing();
     doThirdThing();
     break;
   default:
@@ -84,24 +79,21 @@ switch (i) {
 }
 
 if (a &gt;= 0 &amp;&amp; a &lt; 10) {
+  doFirstThing();
   doTheThing();
+}
 else if (a &gt;= 10 &amp;&amp; a &lt; 20) {
   doTheOtherThing();
 }
 else if (a &gt;= 20 &amp;&amp; a &lt; 50) {
+  doFirstThing();
   doTheThirdThing();
 }
 else {
   doTheRest();
 }
-
-if (b == 0) {
-  doOneMoreThing();
-}
-else {
-  doTheRest();
-}
-
-a = (b == 0) ? 0 : getValue();
 </pre>
+<h2>Exceptions</h2>
+<p>Blocks in an <code>if</code> chain that contain a single line of code are ignored, as are blocks in a <code>switch</code> statement that contain a
+single line of code with or without a following <code>break</code>.</p>
 
