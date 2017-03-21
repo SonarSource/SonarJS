@@ -38,3 +38,18 @@ function bar() {
 }
 
 new Object(); // is not covered by this rule
+
+// ok, directives
+function foo() {
+'$:nomunge';
+}
+function foo() {
+"$:nomunge";
+}
+function foo() {
+'ngInject';
+}
+function foo() {
+"ngInject";
+foo();
+}
