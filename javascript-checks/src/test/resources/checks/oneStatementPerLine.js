@@ -35,3 +35,19 @@ function sayHello() {
 
     });
 }
+
+function singleNestedStatementIsOk() {
+
+  if (a) doSomething();
+  while (a) doSomething();
+  do doSomething(); while(a);
+  for(x in obj) doSomething();
+  for(x of obj) doSomething();
+  for(;;) doSomething();
+
+  if (a) { doSomething(); } // Noncompliant
+  if (a) doSomething(); doSomethingElse(); // Noncompliant
+  if (a
+      && b) doSomething(); doSomethingElse(); // Noncompliant
+
+}

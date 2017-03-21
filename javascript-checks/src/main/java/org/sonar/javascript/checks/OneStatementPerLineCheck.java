@@ -25,10 +25,13 @@ import com.google.common.collect.ListMultimap;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
@@ -72,12 +75,29 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
+    if (tree.is(Kind.IF_STATEMENT)) {
+      checkForExcludedStatement(((IfStatementTree) tree).statement(), tree);
+    }
+
+    if (tree.is(KindSet.LOOP_KINDS)) {
+      checkForExcludedStatement(((IterationStatementTree) tree).statement(), tree);
+    }
+
     if (tree.is(Kind.FUNCTION_EXPRESSION)){
       checkFunctionExpressionException((FunctionExpressionTree)tree);
     }
 
     if (!tree.is(Kind.SCRIPT, Kind.FUNCTION_EXPRESSION) && !excludedStatements.contains(tree)){
       statementsPerLine.put(((JavaScriptTree) tree).getLine(), (StatementTree) tree);
+    }
+  }
+
+  private void checkForExcludedStatement(StatementTree nestedStatement, Tree statement) {
+    int nestedStatementLine = ((JavaScriptTree) nestedStatement).getLine();
+    int statementLine = ((JavaScriptTree) statement).getLine();
+
+    if (nestedStatementLine == statementLine) {
+      excludedStatements.add(nestedStatement);
     }
   }
 
@@ -100,6 +120,8 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
           addIssue(statementsAtLine);
         }
       }
+
+      excludedStatements.clear();
     }
   }
 
