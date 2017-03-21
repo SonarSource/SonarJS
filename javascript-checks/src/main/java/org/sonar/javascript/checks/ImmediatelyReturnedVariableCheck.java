@@ -22,7 +22,10 @@ package org.sonar.javascript.checks;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -65,7 +68,14 @@ public class ImmediatelyReturnedVariableCheck extends DoubleDispatchVisitorCheck
       InitializedBindingElementTree initializedBindingElementTree = (InitializedBindingElementTree) variables.get(0);
 
       if (initializedBindingElementTree.left().is(Kind.BINDING_IDENTIFIER)) {
-        String name = ((IdentifierTree) initializedBindingElementTree.left()).name();
+        IdentifierTree identifier = (IdentifierTree) initializedBindingElementTree.left();
+
+        // identifier.symbol() is never null here, as it's part of declaration statement
+        if (hasUsageInsideExpression(identifier.symbol(), initializedBindingElementTree.right())) {
+          return;
+        }
+
+        String name = identifier.name();
 
         if (returnsVariableInLastStatement(lastStatement, name)) {
           addIssue(initializedBindingElementTree.right(), String.format(MESSAGE, "return", name));
@@ -76,6 +86,16 @@ public class ImmediatelyReturnedVariableCheck extends DoubleDispatchVisitorCheck
         }
       }
     }
+  }
+
+  private static boolean hasUsageInsideExpression(Symbol symbol, ExpressionTree expression) {
+    for (Usage usage : symbol.usages()) {
+      if (((JavaScriptTree) expression).isAncestorOf((JavaScriptTree) usage.identifierTree())) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private static boolean returnsVariableInLastStatement(StatementTree lastStatement, String variableName) {
