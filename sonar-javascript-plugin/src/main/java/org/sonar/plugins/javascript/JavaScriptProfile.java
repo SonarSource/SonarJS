@@ -44,18 +44,8 @@ public class JavaScriptProfile extends ProfileDefinition {
   public RulesProfile createProfile(ValidationMessages messages) {
     RulesProfile profile = RulesProfile.create(CheckList.SONAR_WAY_PROFILE, JavaScriptLanguage.KEY);
 
-    loadFromCommonRepository(profile);
     loadActiveKeysFromJsonProfile(profile);
     return profile;
-  }
-
-  private void loadFromCommonRepository(RulesProfile profile) {
-    Rule duplicatedBlocksRule = ruleFinder.findByKey("common-" + JavaScriptLanguage.KEY, "DuplicatedBlocks");
-
-    // in SonarLint duplicatedBlocksRule == null
-    if (duplicatedBlocksRule != null) {
-      profile.activateRule(duplicatedBlocksRule, null);
-    }
   }
 
   private void loadActiveKeysFromJsonProfile(RulesProfile rulesProfile) {
