@@ -42,7 +42,7 @@ public final class CheckList {
       ArgumentsUsageCheck.class,
       ArgumentTypesCheck.class,
       ArithmeticOperationReturningNanCheck.class,
-      ArrayAndObjectConstructorsCheck.class,
+      ArrayConstructorsCheck.class,
       ArrayCallbackWithoutReturnCheck.class,
       ArrowFunctionConventionCheck.class,
       AssignmentWithinConditionCheck.class,

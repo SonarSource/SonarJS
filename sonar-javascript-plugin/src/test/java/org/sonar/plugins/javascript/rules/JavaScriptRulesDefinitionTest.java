@@ -74,7 +74,7 @@ public class JavaScriptRulesDefinitionTest {
   private void assertRuleProperties(Repository repository) {
     Rule rule = repository.rule("ArrayAndObjectConstructors");
     assertThat(rule).isNotNull();
-    assertThat(rule.name()).isEqualTo("Array and Object constructors should not be used");
+    assertThat(rule.name()).isEqualTo("Array constructors should not be used");
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(Type.CONSTANT_ISSUE);
     assertThat(rule.type()).isEqualTo(RuleType.BUG);
     assertThat(repository.rule("CommentRegularExpression").template()).isTrue();

@@ -1,5 +1,5 @@
 {
-  "title": "Array and Object constructors should not be used",
+  "title": "Array constructors should not be used",
   "type": "BUG",
   "status": "ready",
   "remediation": {

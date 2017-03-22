@@ -27,17 +27,17 @@ import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "ArrayAndObjectConstructors")
-public class ArrayAndObjectConstructorsCheck extends DoubleDispatchVisitorCheck {
+public class ArrayConstructorsCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Use a literal instead of the %s constructor.";
+  private static final String MESSAGE = "Use a literal instead of the Array constructor.";
 
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
     ExpressionTree expression = tree.expression();
     if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       String next = ((IdentifierTree) expression).name();
-      if ("Array".equals(next) || "Object".equals(next)) {
-        addIssue(tree, String.format(MESSAGE, next));
+      if ("Array".equals(next)) {
+        addIssue(tree, MESSAGE);
       }
     }
     super.visitNewExpression(tree);
