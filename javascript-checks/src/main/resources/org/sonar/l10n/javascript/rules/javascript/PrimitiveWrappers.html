@@ -16,7 +16,7 @@ if (x) {
 }
 </pre>
 <h2>Exceptions</h2>
-<p>Cases when argument of primitive type constructor is a literal of the same type are ignored.</p>
+<p>Cases when argument of primitive type constructor is a literal of the same type are ignored, except <code>new Boolean(false)</code>.</p>
 <pre>
 let booleanObject = new Boolean(true);
 let numberObject = new Number(0);

@@ -23,10 +23,12 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
@@ -58,7 +60,14 @@ public class PrimitiveWrappersCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean isAllowedUsage(@Nullable ParameterListTree arguments, Kind allowedArgument) {
-    return arguments != null && arguments.parameters().size() == 1 && arguments.parameters().get(0).is(allowedArgument);
+    if (arguments != null && arguments.parameters().size() == 1) {
+      Tree argument = arguments.parameters().get(0);
+      if (argument.is(allowedArgument)) {
+        return !"false".equals(((LiteralTree) argument).value());
+      }
+    }
+
+    return false;
   }
 
 }

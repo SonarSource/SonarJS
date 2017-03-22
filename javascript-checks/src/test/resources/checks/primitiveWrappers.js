@@ -5,6 +5,7 @@ function sayHello(y) {
   x = new Number; // Noncompliant
   x = new Number(y); // Noncompliant
   x = new Number(true); // Noncompliant
+  x = new Number(false); // Noncompliant
 
   x = new String(y); // Noncompliant
   x = new String(42); // Noncompliant
@@ -17,9 +18,9 @@ function sayHello(y) {
   x = new Foo.MyObject();
   x = new MyObject;
 
-  // OK with literals of the same type
+  // OK with literals of the same type, except "new Boolean(false)"
   x = new Boolean(true);
-  x = new Boolean(false);
+  x = new Boolean(false); // Noncompliant
   x = new String("");
   x = new Number(0);
 
