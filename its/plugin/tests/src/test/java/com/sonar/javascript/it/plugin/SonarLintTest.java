@@ -77,7 +77,7 @@ public class SonarLintTest {
     ClientInputFile inputFile = prepareInputFile("foo.js",
       "function foo() { \n"
         + "  var a; \n"
-        + "  var b = 1; \n"
+        + "  var b = 42; \n"
         + "} \n",
       false);
 

@@ -19,14 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.LiveVariableAnalysis;
 import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -34,9 +37,13 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
@@ -47,6 +54,7 @@ import static org.sonar.javascript.se.LiveVariableAnalysis.isWrite;
 public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this useless assignment to local variable \"%s\"";
+  private static final Set<String> BASIC_VALUES = ImmutableSet.of("true", "false", "1", "0", "null", "''", "\"\"");
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
@@ -122,7 +130,11 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     Symbol symbol = usage.symbol();
 
     if (isWrite(usage)) {
-      if (!liveSymbols.contains(symbol) && !usages.hasUsagesInNestedFunctions(symbol) && !usages.neverReadSymbols().contains(symbol)) {
+      if (!liveSymbols.contains(symbol)
+        && !usages.hasUsagesInNestedFunctions(symbol)
+        && !usages.neverReadSymbols().contains(symbol)
+        && !initializedToBasicValue(usage)) {
+
         addIssue(usage.identifierTree(), symbol);
       }
       liveSymbols.remove(symbol);
@@ -132,10 +144,39 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
+  private static boolean initializedToBasicValue(Usage usage) {
+    if (usage.isDeclaration()) {
+      JavaScriptTree parent = ((JavaScriptTree) usage.identifierTree()).getParent();
+      if (parent.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
+        ExpressionTree expression = ((InitializedBindingElementTree) parent).right();
+        return isBasicValue(expression);
+      }
+    }
+    return false;
+  }
+
+  private static boolean isBasicValue(ExpressionTree expression) {
+    if (expression.is(Kind.BOOLEAN_LITERAL, Kind.NUMERIC_LITERAL, Kind.STRING_LITERAL, Kind.NULL_LITERAL)) {
+      return BASIC_VALUES.contains(((LiteralTree) expression).value());
+
+    } else if (expression.is(Kind.UNARY_MINUS)) {
+      ExpressionTree operand = ((UnaryExpressionTree) expression).expression();
+      return operand.is(Kind.NUMERIC_LITERAL) && "1".equals(((LiteralTree) operand).value());
+
+    }
+
+    ExpressionTree withoutParenthesis = CheckUtils.removeParenthesis(expression);
+    if (withoutParenthesis.is(Kind.VOID)) {
+      ExpressionTree operand = ((UnaryExpressionTree) withoutParenthesis).expression();
+      return operand.is(Kind.NUMERIC_LITERAL) && "0".equals(((LiteralTree) operand).value());
+    }
+    return false;
+  }
+
   private void raiseIssuesForNeverReadSymbols(Usages usages) {
     for (Symbol symbol : usages.neverReadSymbols()) {
       for (Usage usage : symbol.usages()) {
-        if (isWrite(usage)) {
+        if (isWrite(usage) && !initializedToBasicValue(usage)) {
           addIssue(usage.identifierTree(), symbol);
         }
       }
