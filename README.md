@@ -1,6 +1,8 @@
-# SonarJS [![Build Status](https://travis-ci.org/SonarSource/sonar-javascript.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-javascript)
+# SonarJS [![Build Status](https://travis-ci.org/SonarSource/sonar-javascript.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-javascript) [![Quality Gate](https://next.sonarqube.com/sonarqube/api/badges/gate?key=org.sonarsource.javascript%3Ajavascript)](https://next.sonarqube.com/sonarqube/dashboard?id=org.sonarsource.javascript%3Ajavascript)
 
 SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program_analysis) for JavaScript language used as an extension for the [SonarQube](http://www.sonarqube.org/) platform. It will allow you to produce stable and easily supported code by helping you to find and to correct bugs, vulnerabilities and smells in your code.
+
+**[Feedback](#support)**
 
 # Features
 
@@ -13,23 +15,29 @@ SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program
 
 # Useful links
 
-* [Project homepage](https://www.sonarsource.com/why-us/products/languages/javascript.html)
+* [Project homepage](https://redirect.sonarsource.com/plugins/javascript.html)
 * [Documentation](https://docs.sonarqube.org/display/PLUG/SonarJS)
 * [Issue tracking](http://jira.sonarsource.com/browse/SONARJS)
 * [Available rules](https://sonarqube.com/coding_rules#languages=js)
 * [Google Group for feedback](https://groups.google.com/forum/#!forum/sonarqube) (sonarqube@googlegroups.com)
 * [Demo project analysis](https://sonarqube.com/dashboard?id=react)
 
-# Have question or feedback?
-To provide feedback (request a feature, report a bug etc.) send an email to sonarqube@googlegroups.com, the [SonarQube Google Group](https://groups.google.com/forum/#!forum/sonarqube). Please do not forget to specify the language (JavaScript!), plugin version and SonarQube version.
-If you have a question on how to use plugin (and the [docs](https://docs.sonarqube.org/display/PLUG/SonarJS) don't help you) direct it to [StackOverflow](http://stackoverflow.com/questions/tagged/sonarqube+javascript) tagged `sonarjs`.
+# <a name="support"></a>Have question or feedback?
+### Stack Overflow
+If you have a question on how to use analyser (and the [docs](https://docs.sonarqube.org/display/PLUG/SonarJS) don't help you) [ask it](http://stackoverflow.com/questions/ask?tags=sonarjs) on Stack Overflow with `sonarjs` tag.
+
+### GitHub issues
+If you want to report a bug, request a feature or provide other kind of feedback, [create a GitHub issue](https://github.com/SonarSource/sonar-javascript/issues/new). 
+
+### SonarQube Google Group
+To provide feedback or to report a bug for a SonarQube platform send an email to sonarqube@googlegroups.com, the [SonarQube Google Group](https://groups.google.com/forum/#!forum/sonarqube). Please do not forget to specify the details of your request, as well as analysers' and SonarQube versions.
 
 # Contributing
 
-### Topic in SonarQube Google Group
-To request a new feature, please send an email to sonarqube@googlegroups.com, the [SonarQube Google Group](https://groups.google.com/forum/#!forum/sonarqube). Even if you plan to implement it yourself and submit it back to the community, please start a new Google Group thread first to be sure that we can follow up on it.
+### 1. GitHub issue
+To request a new feature, [create a GitHub issue](https://github.com/SonarSource/sonar-javascript/issues/new). Even if you plan to implement it yourself and submit it back to the community, please create an issue to be sure that we can follow up on it.
 
-### Pull Request (PR)
+### 2. Pull Request
 To submit a contribution, create a pull request for this repository. Please make sure that you follow our [code style](https://github.com/SonarSource/sonar-developer-toolset) and all [tests](#testing) are passing (Travis build is created for each PR).
 
 ### Custom Rules
