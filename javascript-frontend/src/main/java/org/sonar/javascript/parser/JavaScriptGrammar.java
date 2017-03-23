@@ -161,25 +161,9 @@ public class JavaScriptGrammar {
           BINDING_ELEMENT_LIST()));
   }
 
-  public VariableDeclarationTreeImpl VARIABLE_DECLARATION_NO_IN() {
-    return b.<VariableDeclarationTreeImpl>nonterminal()
-      .is(
-        f.variableDeclaration2(
-          b.firstOf(
-            b.token(JavaScriptKeyword.VAR),
-            b.token(JavaScriptLegacyGrammar.LET),
-            b.token(JavaScriptKeyword.CONST)),
-          BINDING_ELEMENT_NO_IN_LIST()));
-  }
-
   public SeparatedList<BindingElementTree> BINDING_ELEMENT_LIST() {
     return b.<SeparatedList<BindingElementTree>>nonterminal()
       .is(f.bindingElementList1(BINDING_ELEMENT(), b.zeroOrMore(f.newTuple1(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
-  }
-
-  public SeparatedList<BindingElementTree> BINDING_ELEMENT_NO_IN_LIST() {
-    return b.<SeparatedList<BindingElementTree>>nonterminal()
-      .is(f.bindingElementList2(BINDING_ELEMENT_NO_IN(), b.zeroOrMore(f.newTuple30(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT_NO_IN()))));
   }
 
   public LabelledStatementTreeImpl LABELLED_STATEMENT() {
@@ -437,8 +421,8 @@ public class JavaScriptGrammar {
 
           b.optional(
             b.firstOf(
-              VARIABLE_DECLARATION_NO_IN(),
-              f.skipLookahead1(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LET_AND_BRACKET), EXPRESSION_NO_IN()))),
+              VARIABLE_DECLARATION(),
+              f.skipLookahead1(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LET_AND_BRACKET), EXPRESSION()))),
           b.token(JavaScriptPunctuator.SEMI),
 
           b.optional(EXPRESSION()),
@@ -616,18 +600,6 @@ public class JavaScriptGrammar {
       .is(f.skipLookahead4(CONDITIONAL_EXPRESSION(), b.token(JavaScriptLegacyGrammar.NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION)));
   }
 
-  public ExpressionTree CONDITIONAL_EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal()
-      .is(f.completeConditionalExpressionNoIn(
-        CONDITIONAL_OR_EXPRESSION_NO_IN(),
-        b.optional(f.newConditionalExpressionNoIn(
-          b.token(JavaScriptPunctuator.QUERY),
-          ASSIGNMENT_EXPRESSION(),
-          b.token(JavaScriptPunctuator.COLON),
-          ASSIGNMENT_EXPRESSION_NO_IN()
-        ))));
-  }
-
   public ExpressionTree CONDITIONAL_OR_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_OR)
       .is(f.newConditionalOr(
@@ -635,17 +607,6 @@ public class JavaScriptGrammar {
         b.zeroOrMore(f.newTuple6(
           b.token(JavaScriptPunctuator.OROR),
           CONDITIONAL_AND_EXPRESSION()
-        ))
-      ));
-  }
-
-  public ExpressionTree CONDITIONAL_OR_EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal()
-      .is(f.newConditionalOrNoIn(
-        CONDITIONAL_AND_EXPRESSION_NO_IN(),
-        b.zeroOrMore(f.newTuple19(
-          b.token(JavaScriptPunctuator.OROR),
-          CONDITIONAL_AND_EXPRESSION_NO_IN()
         ))
       ));
   }
@@ -661,17 +622,6 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public ExpressionTree CONDITIONAL_AND_EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal()
-      .is(f.newConditionalAndNoIn(
-        BITWISE_OR_EXPRESSION_NO_IN(),
-        b.zeroOrMore(f.newTuple20(
-          b.token(JavaScriptPunctuator.ANDAND),
-          BITWISE_OR_EXPRESSION_NO_IN()
-        ))
-      ));
-  }
-
   public ExpressionTree BITWISE_OR_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.BITWISE_OR)
       .is(f.newBitwiseOr(
@@ -679,17 +629,6 @@ public class JavaScriptGrammar {
         b.zeroOrMore(f.newTuple8(
           b.token(JavaScriptPunctuator.OR),
           BITWISE_XOR_EXPRESSION()
-        ))
-      ));
-  }
-
-  public ExpressionTree BITWISE_OR_EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal()
-      .is(f.newBitwiseOrNoIn(
-        BITWISE_XOR_EXPRESSION_NO_IN(),
-        b.zeroOrMore(f.newTuple21(
-          b.token(JavaScriptPunctuator.OR),
-          BITWISE_XOR_EXPRESSION_NO_IN()
         ))
       ));
   }
@@ -705,17 +644,6 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public ExpressionTree BITWISE_XOR_EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal()
-      .is(f.newBitwiseXorNoIn(
-        BITWISE_AND_EXPRESSION_NO_IN(),
-        b.zeroOrMore(f.newTuple22(
-          b.token(JavaScriptPunctuator.XOR),
-          BITWISE_AND_EXPRESSION_NO_IN()
-        ))
-      ));
-  }
-
   public ExpressionTree BITWISE_AND_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.BITWISE_AND)
       .is(f.newBitwiseAnd(
@@ -723,17 +651,6 @@ public class JavaScriptGrammar {
         b.zeroOrMore(f.newTuple10(
           b.token(JavaScriptPunctuator.AND),
           EQUALITY_EXPRESSION()
-        ))
-      ));
-  }
-
-  public ExpressionTree BITWISE_AND_EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal()
-      .is(f.newBitwiseAndNoIn(
-        EQUALITY_EXPRESSION_NO_IN(),
-        b.zeroOrMore(f.newTuple23(
-          b.token(JavaScriptPunctuator.AND),
-          EQUALITY_EXPRESSION_NO_IN()
         ))
       ));
   }
@@ -754,22 +671,6 @@ public class JavaScriptGrammar {
       );
   }
 
-  public ExpressionTree EQUALITY_EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal()
-      .is(f.newEqualityNoIn(
-        RELATIONAL_EXPRESSION_NO_IN(),
-        b.zeroOrMore(f.newTuple24(
-          b.firstOf(
-            b.token(JavaScriptPunctuator.EQUAL),
-            b.token(JavaScriptPunctuator.NOTEQUAL),
-            b.token(JavaScriptPunctuator.EQUAL2),
-            b.token(JavaScriptPunctuator.NOTEQUAL2)),
-          RELATIONAL_EXPRESSION_NO_IN()
-        ))
-        )
-      );
-  }
-
   public ExpressionTree RELATIONAL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.RELATIONAL_EXPRESSION)
       .is(f.newRelational(
@@ -782,23 +683,6 @@ public class JavaScriptGrammar {
             b.token(JavaScriptPunctuator.GE),
             b.token(JavaScriptKeyword.INSTANCEOF),
             b.token(JavaScriptKeyword.IN)),
-          SHIFT_EXPRESSION()
-        ))
-        )
-      );
-  }
-
-  public ExpressionTree RELATIONAL_EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal()
-      .is(f.newRelationalNoIn(
-        SHIFT_EXPRESSION(),
-        b.zeroOrMore(f.newTuple25(
-          b.firstOf(
-            b.token(JavaScriptPunctuator.LT),
-            b.token(JavaScriptPunctuator.GT),
-            b.token(JavaScriptPunctuator.LE),
-            b.token(JavaScriptPunctuator.GE),
-            b.token(JavaScriptKeyword.INSTANCEOF)),
           SHIFT_EXPRESSION()
         ))
         )
@@ -912,18 +796,6 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public YieldExpressionTreeImpl YIELD_EXPRESSION_NO_IN() {
-    return b.<YieldExpressionTreeImpl>nonterminal()
-      .is(f.completeYieldExpressionNoIn(
-        b.token(JavaScriptKeyword.YIELD),
-        b.optional(f.newYieldExpressionNoIn(
-          b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
-          b.optional(b.token(JavaScriptPunctuator.STAR)),
-          ASSIGNMENT_EXPRESSION_NO_IN())
-        )
-      ));
-  }
-
   public IdentifierTreeImpl IDENTIFIER_REFERENCE() {
     return b.<IdentifierTreeImpl>nonterminal(JavaScriptLegacyGrammar.IDENTIFIER_REFERENCE)
       .is(f.identifierReference(b.firstOf(
@@ -971,21 +843,6 @@ public class JavaScriptGrammar {
         b.firstOf(
           BLOCK(),
           f.assignmentNoCurly(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION()))
-      ));
-  }
-
-  public ArrowFunctionTreeImpl ARROW_FUNCTION_NO_IN() {
-    return b.<ArrowFunctionTreeImpl>nonterminal()
-      .is(f.arrowFunctionNoIn(
-        b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
-        b.firstOf(
-          BINDING_IDENTIFIER(),
-          FORMAL_PARAMETER_CLAUSE()),
-        b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
-        b.token(JavaScriptPunctuator.DOUBLEARROW),
-        b.firstOf(
-          BLOCK(),
-          f.assignmentNoCurlyNoIn(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION_NO_IN()))
       ));
   }
 
@@ -1235,11 +1092,6 @@ public class JavaScriptGrammar {
         ));
   }
 
-  public ExpressionTree ES6_ASSIGNMENT_EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal()
-      .is(b.firstOf(YIELD_EXPRESSION_NO_IN(), ARROW_FUNCTION_NO_IN()));
-  }
-
   public ExpressionTree ASSIGNMENT_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
       .is(
@@ -1273,40 +1125,9 @@ public class JavaScriptGrammar {
         ));
   }
 
-  public ExpressionTree ASSIGNMENT_EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION_NO_IN)
-      .is(
-        b.firstOf(
-          f.assignmentExpressionNoIn(
-            LEFT_HAND_SIDE_EXPRESSION(),
-            b.firstOf(
-              b.token(JavaScriptPunctuator.EQU),
-              b.token(JavaScriptPunctuator.STAR_EQU),
-              b.token(JavaScriptPunctuator.EXP_EQU),
-              b.token(JavaScriptPunctuator.DIV_EQU),
-              b.token(JavaScriptPunctuator.MOD_EQU),
-              b.token(JavaScriptPunctuator.PLUS_EQU),
-              b.token(JavaScriptPunctuator.MINUS_EQU),
-              b.token(JavaScriptPunctuator.SL_EQU),
-              b.token(JavaScriptPunctuator.SR_EQU),
-              b.token(JavaScriptPunctuator.SR_EQU2),
-              b.token(JavaScriptPunctuator.AND_EQU),
-              b.token(JavaScriptPunctuator.XOR_EQU),
-              b.token(JavaScriptPunctuator.OR_EQU)),
-            ASSIGNMENT_EXPRESSION_NO_IN()),
-          ES6_ASSIGNMENT_EXPRESSION_NO_IN(),
-          CONDITIONAL_EXPRESSION_NO_IN()
-        ));
-  }
-
   public ExpressionTree EXPRESSION() {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.EXPRESSION)
       .is(f.expression(ASSIGNMENT_EXPRESSION(), b.zeroOrMore(f.newTuple26(b.token(JavaScriptPunctuator.COMMA), ASSIGNMENT_EXPRESSION()))));
-  }
-
-  public ExpressionTree EXPRESSION_NO_IN() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.EXPRESSION_NO_IN)
-      .is(f.expressionNoIn(ASSIGNMENT_EXPRESSION_NO_IN(), b.zeroOrMore(f.newTuple54(b.token(JavaScriptPunctuator.COMMA), ASSIGNMENT_EXPRESSION_NO_IN()))));
   }
 
   public ExpressionTree EXPRESSION_NO_LINE_BREAK() {
@@ -1526,11 +1347,6 @@ public class JavaScriptGrammar {
       .is(f.newInitializedBindingElement1(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
   }
 
-  public InitializedBindingElementTreeImpl INITIALISER_NO_IN() {
-    return b.<InitializedBindingElementTreeImpl>nonterminal()
-      .is(f.newInitializedBindingElement2(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION_NO_IN()));
-  }
-
   public ObjectBindingPatternTreeImpl OBJECT_BINDING_PATTERN() {
     return b.<ObjectBindingPatternTreeImpl>nonterminal(Kind.OBJECT_BINDING_PATTERN)
       .is(b.firstOf(
@@ -1572,16 +1388,6 @@ public class JavaScriptGrammar {
             BINDING_IDENTIFIER(),
             BINDING_PATTERN()),
           b.optional(INITIALISER())));
-  }
-
-  public BindingElementTree BINDING_ELEMENT_NO_IN() {
-    return b.<BindingElementTree>nonterminal()
-      .is(
-        f.completeBindingElement2(
-          b.firstOf(
-            BINDING_IDENTIFIER(),
-            BINDING_PATTERN()),
-          b.optional(INITIALISER_NO_IN())));
   }
 
   public ArrayBindingPatternTreeImpl ARRAY_BINDING_PATTERN() {

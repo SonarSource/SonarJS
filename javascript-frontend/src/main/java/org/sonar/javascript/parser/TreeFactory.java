@@ -282,10 +282,6 @@ public class TreeFactory {
     return variableDeclaration(token, variables);
   }
 
-  public VariableDeclarationTreeImpl variableDeclaration2(InternalSyntaxToken token, SeparatedList<BindingElementTree> variables) {
-    return variableDeclaration(token, variables);
-  }
-
   private static SeparatedList<BindingElementTree> bindingElementList(BindingElementTree element, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> rest) {
 
     ImmutableList.Builder<BindingElementTree> elements = ImmutableList.builder();
@@ -306,10 +302,6 @@ public class TreeFactory {
   }
 
   public SeparatedList<BindingElementTree> bindingElementList1(BindingElementTree element, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> rest) {
-    return bindingElementList(element, rest);
-  }
-
-  public SeparatedList<BindingElementTree> bindingElementList2(BindingElementTree element, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> rest) {
     return bindingElementList(element, rest);
   }
 
@@ -716,18 +708,7 @@ public class TreeFactory {
     return new ConditionalExpressionTreeImpl(queryToken, trueExpression, colonToken, falseExpression);
   }
 
-  public ConditionalExpressionTreeImpl newConditionalExpressionNoIn(
-    InternalSyntaxToken queryToken, ExpressionTree trueExpression,
-    InternalSyntaxToken colonToken, ExpressionTree falseExpression
-  ) {
-    return new ConditionalExpressionTreeImpl(queryToken, trueExpression, colonToken, falseExpression);
-  }
-
   public ExpressionTree completeConditionalExpression(ExpressionTree expression, Optional<ConditionalExpressionTreeImpl> partial) {
-    return partial.isPresent() ? partial.get().complete(expression) : expression;
-  }
-
-  public ExpressionTree completeConditionalExpressionNoIn(ExpressionTree expression, Optional<ConditionalExpressionTreeImpl> partial) {
     return partial.isPresent() ? partial.get().complete(expression) : expression;
   }
 
@@ -735,15 +716,7 @@ public class TreeFactory {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newConditionalOrNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
-    return buildBinaryExpression(expression, operatorAndOperands);
-  }
-
   public ExpressionTree newConditionalAnd(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
-    return buildBinaryExpression(expression, operatorAndOperands);
-  }
-
-  public ExpressionTree newConditionalAndNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
@@ -751,15 +724,7 @@ public class TreeFactory {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newBitwiseOrNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
-    return buildBinaryExpression(expression, operatorAndOperands);
-  }
-
   public ExpressionTree newBitwiseXor(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
-    return buildBinaryExpression(expression, operatorAndOperands);
-  }
-
-  public ExpressionTree newBitwiseXorNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
@@ -767,23 +732,11 @@ public class TreeFactory {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newBitwiseAndNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
-    return buildBinaryExpression(expression, operatorAndOperands);
-  }
-
   public ExpressionTree newEquality(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newEqualityNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
-    return buildBinaryExpression(expression, operatorAndOperands);
-  }
-
   public ExpressionTree newRelational(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
-    return buildBinaryExpression(expression, operatorAndOperands);
-  }
-
-  public ExpressionTree newRelationalNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
@@ -859,21 +812,7 @@ public class TreeFactory {
     return new YieldExpressionTreeImpl(yieldToken);
   }
 
-  public YieldExpressionTreeImpl completeYieldExpressionNoIn(InternalSyntaxToken yieldToken, Optional<YieldExpressionTreeImpl> partial) {
-    if (partial.isPresent()) {
-      return partial.get().complete(yieldToken);
-    }
-    return new YieldExpressionTreeImpl(yieldToken);
-  }
-
   public YieldExpressionTreeImpl newYieldExpression(Tree spacingNoLB, Optional<InternalSyntaxToken> starToken, ExpressionTree expression) {
-    if (starToken.isPresent()) {
-      return new YieldExpressionTreeImpl(starToken.get(), expression);
-    }
-    return new YieldExpressionTreeImpl(expression);
-  }
-
-  public YieldExpressionTreeImpl newYieldExpressionNoIn(Tree spacingNoLB, Optional<InternalSyntaxToken> starToken, ExpressionTree expression) {
     if (starToken.isPresent()) {
       return new YieldExpressionTreeImpl(starToken.get(), expression);
     }
@@ -889,10 +828,6 @@ public class TreeFactory {
   }
 
   public ArrowFunctionTreeImpl arrowFunction(Optional<InternalSyntaxToken> asyncToken, Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
-    return new ArrowFunctionTreeImpl(asyncToken.orNull(), parameters, doubleArrow, body);
-  }
-
-  public ArrowFunctionTreeImpl arrowFunctionNoIn(Optional<InternalSyntaxToken> asyncToken, Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
     return new ArrowFunctionTreeImpl(asyncToken.orNull(), parameters, doubleArrow, body);
   }
 
@@ -1164,19 +1099,11 @@ public class TreeFactory {
     return commonAssignmentExpression(variable, operator, expression);
   }
 
-  public ExpressionTree assignmentExpressionNoIn(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
-    return commonAssignmentExpression(variable, operator, expression);
-  }
-
   private static ExpressionTree commonAssignmentExpression(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
     return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_VALUE.get(operator.text()), variable, operator, expression);
   }
 
   public ExpressionTree expression(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
-    return buildBinaryExpression(expression, operatorAndOperands);
-  }
-
-  public ExpressionTree expressionNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
@@ -1214,13 +1141,6 @@ public class TreeFactory {
   }
 
   public SpecifierTreeImpl exportSpecifier(IdentifierTreeImpl name) {
-    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name);
-  }
-
-  public SpecifierTreeImpl completeExportSpecifier(IdentifierTreeImpl name, Optional<SpecifierTreeImpl> localName) {
-    if (localName.isPresent()) {
-      return localName.get().complete(name);
-    }
     return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name);
   }
 
@@ -1446,10 +1366,6 @@ public class TreeFactory {
     return new InitializedBindingElementTreeImpl(equalToken, expression);
   }
 
-  public InitializedBindingElementTreeImpl newInitializedBindingElement2(InternalSyntaxToken equalToken, ExpressionTree expression) {
-    return new InitializedBindingElementTreeImpl(equalToken, expression);
-  }
-
   private static BindingElementTree completeBindingElement(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
     if (!initializer.isPresent()) {
       return left;
@@ -1458,10 +1374,6 @@ public class TreeFactory {
   }
 
   public BindingElementTree completeBindingElement1(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
-    return completeBindingElement(left, initializer);
-  }
-
-  public BindingElementTree completeBindingElement2(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
     return completeBindingElement(left, initializer);
   }
 
@@ -1601,10 +1513,6 @@ public class TreeFactory {
 
   public ExpressionTree assignmentNoCurly(Tree lookahead, ExpressionTree expression) {
     return expression;
-  }
-
-  public ExpressionTree assignmentNoCurlyNoIn(Tree lookahead, ExpressionTree expressionNoIn) {
-    return expressionNoIn;
   }
 
   public ExpressionTree skipLookahead1(Tree lookahead, ExpressionTree expression) {
