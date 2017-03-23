@@ -173,69 +173,62 @@ public class JavaScriptGrammar {
 
   public ContinueStatementTreeImpl CONTINUE_STATEMENT() {
     return b.<ContinueStatementTreeImpl>nonterminal(Kind.CONTINUE_STATEMENT)
-      .is(f.completeContinueStatement(
-        b.token(JavaScriptKeyword.CONTINUE),
-        b.firstOf(
-          CONTINUE_WITH_LABEL(),
-          CONTINUE_WITHOUT_LABEL())
-      ));
+      .is(b.firstOf(
+        CONTINUE_WITH_LABEL(),
+        CONTINUE_WITHOUT_LABEL()));
   }
 
   public ContinueStatementTreeImpl CONTINUE_WITH_LABEL() {
     return b.<ContinueStatementTreeImpl>nonterminal()
-      .is(f.newContinueWithLabel(
+      .is(f.continueWithLabel(
+        b.token(JavaScriptKeyword.CONTINUE),
         LABEL_IDENTIFIER_NO_LB(),
         b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
   public ContinueStatementTreeImpl CONTINUE_WITHOUT_LABEL() {
     return b.<ContinueStatementTreeImpl>nonterminal()
-      .is(f.newContinueWithoutLabel(b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
+      .is(f.continueWithoutLabel(b.token(JavaScriptKeyword.CONTINUE), b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
   }
 
   public BreakStatementTreeImpl BREAK_STATEMENT() {
     return b.<BreakStatementTreeImpl>nonterminal(Kind.BREAK_STATEMENT)
-      .is(f.completeBreakStatement(
-        b.token(JavaScriptKeyword.BREAK),
-        b.firstOf(
-          BREAK_WITH_LABEL(),
-          BREAK_WITHOUT_LABEL())
-      ));
+      .is(b.firstOf(
+        BREAK_WITH_LABEL(),
+        BREAK_WITHOUT_LABEL()));
   }
 
   public BreakStatementTreeImpl BREAK_WITH_LABEL() {
     return b.<BreakStatementTreeImpl>nonterminal()
-      .is(f.newBreakWithLabel(
+      .is(f.breakWithLabel(
+        b.token(JavaScriptKeyword.BREAK),
         LABEL_IDENTIFIER_NO_LB(),
         b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
   public BreakStatementTreeImpl BREAK_WITHOUT_LABEL() {
     return b.<BreakStatementTreeImpl>nonterminal()
-      .is(f.newBreakWithoutLabel(b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
+      .is(f.breakWithoutLabel(b.token(JavaScriptKeyword.BREAK), b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
   }
 
   public ReturnStatementTreeImpl RETURN_STATEMENT() {
     return b.<ReturnStatementTreeImpl>nonterminal(Kind.RETURN_STATEMENT)
-      .is(f.completeReturnStatement(
-        b.token(JavaScriptKeyword.RETURN),
-        b.firstOf(
-          RETURN_WITH_EXPRESSION(),
-          RETURN_WITHOUT_EXPRESSION())
-      ));
+      .is(b.firstOf(
+        RETURN_WITH_EXPRESSION(),
+        RETURN_WITHOUT_EXPRESSION()));
   }
 
   public ReturnStatementTreeImpl RETURN_WITH_EXPRESSION() {
     return b.<ReturnStatementTreeImpl>nonterminal()
-      .is(
-        f.newReturnWithExpression(
-          EXPRESSION_NO_LINE_BREAK(),
-          b.token(JavaScriptLegacyGrammar.EOS)));
+      .is(f.returnWithExpression(
+        b.token(JavaScriptKeyword.RETURN),
+        EXPRESSION_NO_LINE_BREAK(),
+        b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
   public ReturnStatementTreeImpl RETURN_WITHOUT_EXPRESSION() {
     return b.<ReturnStatementTreeImpl>nonterminal()
-      .is(f.newReturnWithoutExpression(b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
+      .is(f.returnWithoutExpression(b.token(JavaScriptKeyword.RETURN), b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
   }
 
   public ThrowStatementTreeImpl THROW_STATEMENT() {

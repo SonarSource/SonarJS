@@ -310,40 +310,28 @@ public class TreeFactory {
     return new LabelledStatementTreeImpl(identifier, colon, statement);
   }
 
-  public ContinueStatementTreeImpl completeContinueStatement(InternalSyntaxToken continueToken, ContinueStatementTreeImpl labelOrEndOfStatement) {
-    return labelOrEndOfStatement.complete(continueToken);
+  public ContinueStatementTreeImpl continueWithLabel(InternalSyntaxToken continueToken, IdentifierTreeImpl identifier, Tree semicolonToken) {
+    return new ContinueStatementTreeImpl(continueToken, identifier, nullableSemicolonToken(semicolonToken));
   }
 
-  public ContinueStatementTreeImpl newContinueWithLabel(IdentifierTreeImpl identifier, Tree semicolonToken) {
-    return new ContinueStatementTreeImpl(identifier, nullableSemicolonToken(semicolonToken));
+  public ContinueStatementTreeImpl continueWithoutLabel(InternalSyntaxToken continueToken, Tree semicolonToken) {
+    return new ContinueStatementTreeImpl(continueToken, null, nullableSemicolonToken(semicolonToken));
   }
 
-  public ContinueStatementTreeImpl newContinueWithoutLabel(Tree semicolonToken) {
-    return new ContinueStatementTreeImpl(nullableSemicolonToken(semicolonToken));
+  public BreakStatementTreeImpl breakWithLabel(InternalSyntaxToken breakToken, IdentifierTreeImpl identifier, Tree semicolonToken) {
+    return new BreakStatementTreeImpl(breakToken, identifier, nullableSemicolonToken(semicolonToken));
   }
 
-  public BreakStatementTreeImpl completeBreakStatement(InternalSyntaxToken breakToken, BreakStatementTreeImpl labelOrEndOfStatement) {
-    return labelOrEndOfStatement.complete(breakToken);
+  public BreakStatementTreeImpl breakWithoutLabel(InternalSyntaxToken breakToken, Tree semicolonToken) {
+    return new BreakStatementTreeImpl(breakToken, null, nullableSemicolonToken(semicolonToken));
   }
 
-  public BreakStatementTreeImpl newBreakWithLabel(IdentifierTreeImpl identifier, Tree semicolonToken) {
-    return new BreakStatementTreeImpl(identifier, nullableSemicolonToken(semicolonToken));
+  public ReturnStatementTreeImpl returnWithExpression(InternalSyntaxToken returnToken, ExpressionTree expression, Tree semicolonToken) {
+    return new ReturnStatementTreeImpl(returnToken, expression, nullableSemicolonToken(semicolonToken));
   }
 
-  public BreakStatementTreeImpl newBreakWithoutLabel(Tree semicolonToken) {
-    return new BreakStatementTreeImpl(nullableSemicolonToken(semicolonToken));
-  }
-
-  public ReturnStatementTreeImpl completeReturnStatement(InternalSyntaxToken returnToken, ReturnStatementTreeImpl expressionOrEndOfStatement) {
-    return expressionOrEndOfStatement.complete(returnToken);
-  }
-
-  public ReturnStatementTreeImpl newReturnWithExpression(ExpressionTree expression, Tree semicolonToken) {
-    return new ReturnStatementTreeImpl(expression, nullableSemicolonToken(semicolonToken));
-  }
-
-  public ReturnStatementTreeImpl newReturnWithoutExpression(Tree semicolonToken) {
-    return new ReturnStatementTreeImpl(nullableSemicolonToken(semicolonToken));
+  public ReturnStatementTreeImpl returnWithoutExpression(InternalSyntaxToken returnToken, Tree semicolonToken) {
+    return new ReturnStatementTreeImpl(returnToken, null, nullableSemicolonToken(semicolonToken));
   }
 
   public ThrowStatementTreeImpl newThrowStatement(InternalSyntaxToken throwToken, ExpressionTree expression, Tree semicolonToken) {

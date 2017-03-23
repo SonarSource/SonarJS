@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.tree.impl.statement;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -37,22 +35,10 @@ public class ContinueStatementTreeImpl extends JavaScriptTree implements Continu
   private final IdentifierTree label;
   private final SyntaxToken semicolonToken;
 
-  public ContinueStatementTreeImpl(SyntaxToken semicolonToken) {
-    this.label = null;
-    this.semicolonToken = semicolonToken;
-  }
-
-  public ContinueStatementTreeImpl(IdentifierTree label, SyntaxToken semicolonToken) {
+  public ContinueStatementTreeImpl(SyntaxToken continueKeyword, @Nullable IdentifierTree label, @Nullable SyntaxToken semicolonToken) {
+    this.continueKeyword = continueKeyword;
     this.label = label;
     this.semicolonToken = semicolonToken;
-
-  }
-
-  public ContinueStatementTreeImpl complete(InternalSyntaxToken continueKeyword) {
-    Preconditions.checkState(this.continueKeyword == null, "Already completed");
-    this.continueKeyword = continueKeyword;
-
-    return this;
   }
 
   @Override
