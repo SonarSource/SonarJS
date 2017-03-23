@@ -51,7 +51,6 @@ import org.sonar.javascript.tree.impl.expression.ParenthesisedExpressionTreeImpl
 import org.sonar.javascript.tree.impl.expression.RestElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TaggedTemplateTreeImpl;
-import org.sonar.javascript.tree.impl.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.javascript.tree.impl.statement.BreakStatementTreeImpl;
@@ -107,6 +106,7 @@ import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeValueTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxChildTree;
@@ -777,16 +777,13 @@ public class JavaScriptGrammar {
           NEW_EXPRESSION()));
   }
 
-  public YieldExpressionTreeImpl YIELD_EXPRESSION() {
-    return b.<YieldExpressionTreeImpl>nonterminal(Kind.YIELD_EXPRESSION)
-      .is(f.completeYieldExpression(
+  public YieldExpressionTree YIELD_EXPRESSION() {
+    return b.<YieldExpressionTree>nonterminal(Kind.YIELD_EXPRESSION)
+      .is(f.yieldExpression(
         b.token(JavaScriptKeyword.YIELD),
-        b.optional(f.newYieldExpression(
+        b.optional(f.newTuple19(
           b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
-          b.optional(b.token(JavaScriptPunctuator.STAR)),
-          ASSIGNMENT_EXPRESSION())
-        )
-      ));
+          f.newTuple20(b.optional(b.token(JavaScriptPunctuator.STAR)), ASSIGNMENT_EXPRESSION())))));
   }
 
   public IdentifierTreeImpl IDENTIFIER_REFERENCE() {

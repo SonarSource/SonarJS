@@ -157,6 +157,7 @@ import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeValueTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxChildTree;
@@ -792,20 +793,6 @@ public class TreeFactory {
     }
     Kind kind = operatorNoLB.get().second().is(JavaScriptPunctuator.INC) ? Kind.POSTFIX_INCREMENT : Kind.POSTFIX_DECREMENT;
     return new PostfixExpressionTreeImpl(kind, expression, operatorNoLB.get().second());
-  }
-
-  public YieldExpressionTreeImpl completeYieldExpression(InternalSyntaxToken yieldToken, Optional<YieldExpressionTreeImpl> partial) {
-    if (partial.isPresent()) {
-      return partial.get().complete(yieldToken);
-    }
-    return new YieldExpressionTreeImpl(yieldToken);
-  }
-
-  public YieldExpressionTreeImpl newYieldExpression(Tree spacingNoLB, Optional<InternalSyntaxToken> starToken, ExpressionTree expression) {
-    if (starToken.isPresent()) {
-      return new YieldExpressionTreeImpl(starToken.get(), expression);
-    }
-    return new YieldExpressionTreeImpl(expression);
   }
 
   public IdentifierTreeImpl identifierReference(InternalSyntaxToken identifier) {
@@ -1693,6 +1680,17 @@ public class TreeFactory {
     }
 
     return new ObjectAssignmentPatternTreeImpl(lBrace, new SeparatedList<>(propertyList, separators), rBrace);
+  }
+
+  public YieldExpressionTree yieldExpression(InternalSyntaxToken yieldToken, Optional<Tuple<InternalSyntaxToken, Tuple<Optional<InternalSyntaxToken>, ExpressionTree>>> optional) {
+    InternalSyntaxToken starToken = null;
+    ExpressionTree expressionTree = null;
+
+    if (optional.isPresent()) {
+      starToken = optional.get().second.first.orNull();
+      expressionTree = optional.get().second.second;
+    }
+    return new YieldExpressionTreeImpl(yieldToken, starToken, expressionTree);
   }
 
   public static class Tuple<T, U> {
