@@ -670,12 +670,13 @@ public class TreeFactory {
     return new RestElementTreeImpl(ellipsis, identifier);
   }
 
-  public ConditionalExpressionTreeImpl conditionalExpression(
-    ExpressionTree conditionExpression,
-    InternalSyntaxToken queryToken, ExpressionTree trueExpression,
-    InternalSyntaxToken colonToken, ExpressionTree falseExpression
-  ) {
-    return new ConditionalExpressionTreeImpl(conditionExpression, queryToken, trueExpression, colonToken, falseExpression);
+  public ExpressionTree optionalConditionalExpression(ExpressionTree conditionExpression, Optional<ConditionalExpressionTail> conditionalExpressionTail) {
+    if (conditionalExpressionTail.isPresent()) {
+      ConditionalExpressionTail tail = conditionalExpressionTail.get();
+      return new ConditionalExpressionTreeImpl(conditionExpression, tail.queryToken, tail.trueExpr, tail.colonToken, tail.falseExpr);
+    } else {
+      return conditionExpression;
+    }
   }
 
   public ExpressionTree newConditionalOr(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
@@ -1646,6 +1647,24 @@ public class TreeFactory {
       expressionTree = optional.get().second.second;
     }
     return new YieldExpressionTreeImpl(yieldToken, starToken, expressionTree);
+  }
+
+  public ConditionalExpressionTail conditionalExpressionTail(InternalSyntaxToken queryToken, ExpressionTree trueExpr, InternalSyntaxToken colonToken, ExpressionTree falseExpr) {
+    return new ConditionalExpressionTail(queryToken, trueExpr, colonToken, falseExpr);
+  }
+
+  private static class ConditionalExpressionTail {
+    InternalSyntaxToken queryToken;
+    ExpressionTree trueExpr;
+    InternalSyntaxToken colonToken;
+    ExpressionTree falseExpr;
+
+    public ConditionalExpressionTail(InternalSyntaxToken queryToken, ExpressionTree trueExpr, InternalSyntaxToken colonToken, ExpressionTree falseExpr) {
+      this.queryToken = queryToken;
+      this.trueExpr = trueExpr;
+      this.colonToken = colonToken;
+      this.falseExpr = falseExpr;
+    }
   }
 
   public static class Tuple<T, U> {

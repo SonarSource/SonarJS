@@ -590,14 +590,14 @@ public class JavaScriptGrammar {
 
   public ExpressionTree CONDITIONAL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_EXPRESSION)
-      .is(b.firstOf(
-        f.conditionalExpression(
+      .is(f.optionalConditionalExpression(
           CONDITIONAL_OR_EXPRESSION(),
-          b.token(JavaScriptPunctuator.QUERY),
-          ASSIGNMENT_EXPRESSION(),
-          b.token(JavaScriptPunctuator.COLON),
-          ASSIGNMENT_EXPRESSION()),
-        CONDITIONAL_OR_EXPRESSION()));
+          b.optional(
+            f.conditionalExpressionTail(
+            b.token(JavaScriptPunctuator.QUERY),
+            ASSIGNMENT_EXPRESSION(),
+            b.token(JavaScriptPunctuator.COLON),
+            ASSIGNMENT_EXPRESSION()))));
   }
 
   public ExpressionTree CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION() {
