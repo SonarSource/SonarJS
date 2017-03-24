@@ -671,15 +671,12 @@ public class TreeFactory {
     return new RestElementTreeImpl(ellipsis, identifier);
   }
 
-  public ConditionalExpressionTreeImpl newConditionalExpression(
+  public ConditionalExpressionTreeImpl conditionalExpression(
+    ExpressionTree conditionExpression,
     InternalSyntaxToken queryToken, ExpressionTree trueExpression,
     InternalSyntaxToken colonToken, ExpressionTree falseExpression
   ) {
-    return new ConditionalExpressionTreeImpl(queryToken, trueExpression, colonToken, falseExpression);
-  }
-
-  public ExpressionTree completeConditionalExpression(ExpressionTree expression, Optional<ConditionalExpressionTreeImpl> partial) {
-    return partial.isPresent() ? partial.get().complete(expression) : expression;
+    return new ConditionalExpressionTreeImpl(conditionExpression, queryToken, trueExpression, colonToken, falseExpression);
   }
 
   public ExpressionTree newConditionalOr(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
