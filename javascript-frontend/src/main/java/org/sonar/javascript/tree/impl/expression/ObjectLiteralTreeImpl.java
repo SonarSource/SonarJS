@@ -21,7 +21,6 @@ package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
-import java.util.Collections;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
@@ -36,27 +35,15 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiteralTree, TypableTree {
 
-  private SyntaxToken openCurlyBrace;
+  private final SyntaxToken openCurlyBrace;
   private final SeparatedList<Tree> properties;
-  private SyntaxToken closeCurlyBrace;
+  private final SyntaxToken closeCurlyBrace;
   private TypeSet types = TypeSet.emptyTypeSet();
 
-  public ObjectLiteralTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
+  public ObjectLiteralTreeImpl(InternalSyntaxToken openCurlyBrace, SeparatedList<Tree> properties, InternalSyntaxToken closeCurlyBrace) {
     this.openCurlyBrace = openCurlyBrace;
-    this.closeCurlyBrace = closeCurlyBrace;
-    this.properties = new SeparatedList<>(Collections.<Tree>emptyList(), Collections.<InternalSyntaxToken>emptyList());
-
-  }
-
-  public ObjectLiteralTreeImpl(SeparatedList<Tree> properties) {
     this.properties = properties;
-  }
-
-  public ObjectLiteralTreeImpl complete(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
-    this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
-
-    return this;
   }
 
   @Override

@@ -153,6 +153,7 @@ import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPat
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternPairElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -964,7 +965,7 @@ public class TreeFactory {
     return new SpreadElementTreeImpl(ellipsis, expression);
   }
 
-  public ObjectLiteralTreeImpl newObjectLiteral(Tree property, Optional<List<Tuple<InternalSyntaxToken, Tree>>> restProperties, Optional<InternalSyntaxToken> trailingComma) {
+  public SeparatedList<Tree> properties(Tree property, Optional<List<Tuple<InternalSyntaxToken, Tree>>> restProperties, Optional<InternalSyntaxToken> trailingComma) {
     List<InternalSyntaxToken> commas = Lists.newArrayList();
     List<Tree> properties = Lists.newArrayList();
 
@@ -982,14 +983,11 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new ObjectLiteralTreeImpl(new SeparatedList<>(properties, commas));
+    return new SeparatedList(properties, commas);
   }
 
-  public ObjectLiteralTreeImpl completeObjectLiteral(InternalSyntaxToken openCurlyToken, Optional<ObjectLiteralTreeImpl> partial, InternalSyntaxToken closeCurlyToken) {
-    if (partial.isPresent()) {
-      return partial.get().complete(openCurlyToken, closeCurlyToken);
-    }
-    return new ObjectLiteralTreeImpl(openCurlyToken, closeCurlyToken);
+  public ObjectLiteralTree objectLiteral(InternalSyntaxToken openCurlyToken, Optional<SeparatedList<Tree>> properties, InternalSyntaxToken closeCurlyToken) {
+    return new ObjectLiteralTreeImpl(openCurlyToken, properties.or(new SeparatedList<>(ImmutableList.of(), ImmutableList.of())), closeCurlyToken);
   }
 
   public NewExpressionTreeImpl newExpressionWithArgument(InternalSyntaxToken newToken, ExpressionTree expression, ParameterListTreeImpl arguments) {

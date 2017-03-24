@@ -45,7 +45,6 @@ import org.sonar.javascript.tree.impl.expression.ComputedPropertyNameTreeImpl;
 import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ObjectLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ParenthesisedExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.RestElementTreeImpl;
@@ -101,6 +100,7 @@ import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPat
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewTargetTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
@@ -1005,16 +1005,21 @@ public class JavaScriptGrammar {
       .is(f.spreadElement(b.token(JavaScriptPunctuator.ELLIPSIS), ASSIGNMENT_EXPRESSION()));
   }
 
-  public ObjectLiteralTreeImpl OBJECT_LITERAL() {
-    return b.<ObjectLiteralTreeImpl>nonterminal(Kind.OBJECT_LITERAL)
-      .is(f.completeObjectLiteral(
+  public ObjectLiteralTree OBJECT_LITERAL() {
+    return b.<ObjectLiteralTree>nonterminal(Kind.OBJECT_LITERAL)
+      .is(f.objectLiteral(
         b.token(JavaScriptPunctuator.LCURLYBRACE),
-        b.optional(f.newObjectLiteral(
-          PROPERTY_DEFINITION(),
-          b.zeroOrMore(f.newTuple18(b.token(JavaScriptPunctuator.COMMA), PROPERTY_DEFINITION())),
-          b.optional(b.token(JavaScriptPunctuator.COMMA)))),
+        b.optional(PROPERTIES()),
         b.token(JavaScriptPunctuator.RCURLYBRACE)
       ));
+  }
+
+  public SeparatedList<Tree> PROPERTIES() {
+    return b.<SeparatedList<Tree>>nonterminal()
+      .is(f.properties(
+          PROPERTY_DEFINITION(),
+          b.zeroOrMore(f.newTuple18(b.token(JavaScriptPunctuator.COMMA), PROPERTY_DEFINITION())),
+          b.optional(b.token(JavaScriptPunctuator.COMMA))));
   }
 
   public ExpressionTree NEW_EXPRESSION() {
