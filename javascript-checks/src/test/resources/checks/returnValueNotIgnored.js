@@ -109,3 +109,13 @@ function builtIn_OneIssueAtMost(cond) {
   s.charAt(1, 2);                                     // Noncompliant (1 issue here, not 2)
   foo(cond);                                          // to keep cond alive and thus force 2 execution paths
 }
+
+function ok_if_callback_with_possible_side_effect() {
+  var foo = 0;
+  var arr = [];
+  arr.map(function(el) {  // OK, foo might be changed
+    bar(foo, el);
+  });
+
+  arr.map(function noSideEffects() { return 2; });    // Noncompliant
+}
