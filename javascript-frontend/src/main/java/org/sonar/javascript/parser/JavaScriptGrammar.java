@@ -852,7 +852,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.MEMBER_EXPRESSION)
       .is(f.completeMemberExpression(
         b.firstOf(
-          ES6(SUPER_PROPERTY()),
+          ES6(SUPER()),
           ES6(NEW_TARGET()),
           f.newExpressionWithArgument(b.token(JavaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), MEMBER_EXPRESSION()), ARGUMENT_CLAUSE()),
           PRIMARY_EXPRESSION()),
@@ -861,16 +861,6 @@ public class JavaScriptGrammar {
             BRACKET_EXPRESSION(),
             OBJECT_PROPERTY_ACCESS(),
             ES6(TAGGED_TEMPLATE())))
-      ));
-  }
-
-  public MemberExpressionTree SUPER_PROPERTY() {
-    return b.<MemberExpressionTree>nonterminal()
-      .is(f.completeSuperMemberExpression(
-        SUPER(),
-        b.firstOf(
-          OBJECT_PROPERTY_ACCESS(),
-          BRACKET_EXPRESSION())
       ));
   }
 

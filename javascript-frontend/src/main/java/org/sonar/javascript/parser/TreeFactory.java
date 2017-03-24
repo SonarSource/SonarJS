@@ -151,7 +151,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternPairElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
@@ -794,13 +793,6 @@ public class TreeFactory {
 
   public BracketMemberExpressionTreeImpl newBracketMemberExpression(InternalSyntaxToken openBracket, ExpressionTree expression, InternalSyntaxToken closeBracket) {
     return new BracketMemberExpressionTreeImpl(openBracket, expression, closeBracket);
-  }
-
-  public MemberExpressionTree completeSuperMemberExpression(SuperTreeImpl superExpression, MemberExpressionTree partial) {
-    if (partial.is(Kind.DOT_MEMBER_EXPRESSION)) {
-      return ((DotMemberExpressionTreeImpl) partial).complete(superExpression);
-    }
-    return ((BracketMemberExpressionTreeImpl) partial).complete(superExpression);
   }
 
   public SuperTreeImpl superExpression(InternalSyntaxToken superToken) {
