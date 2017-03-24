@@ -25,7 +25,9 @@ import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.javascript.tree.impl.declaration.FunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.CallExpressionTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -43,31 +45,40 @@ public class ReturnValueNotIgnoredCheck extends AbstractAnyPathSeCheck {
     if (element.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTreeImpl callExpression = (CallExpressionTreeImpl) element;
       Tree parent = callExpression.getParent();
-      if (parent.is(Kind.EXPRESSION_STATEMENT) && isExemptFromSideEffects(callExpression, currentState)) {
+      if (parent.is(Kind.EXPRESSION_STATEMENT) && !hasSideEffects(callExpression, currentState) && !hasCallbackArgumentWithSideEffects(callExpression)) {
         String message = String.format(MESSAGE, getCalleeName(callExpression));
         addUniqueIssue(callExpression, message);
       }
     }
   }
 
-  /**
-   * Returns true if the specified call has no side effects.
-   * Returns false if the specified call has or may have side effects. 
-   */
-  private static boolean isExemptFromSideEffects(CallExpressionTree callExpression, ProgramState state) {
-    SeparatedList<Tree> arguments = callExpression.arguments().parameters();
-    SymbolicValue calleeValue = state.peekStack(arguments.size());
-    if (calleeValue instanceof BuiltInFunctionSymbolicValue) {
-      BuiltInFunctionSymbolicValue builtInFunction = (BuiltInFunctionSymbolicValue) calleeValue;
-      return !builtInFunction.hasSideEffect();
+  private static boolean hasCallbackArgumentWithSideEffects(CallExpressionTreeImpl callExpression) {
+    for (Tree argument : callExpression.arguments().parameters()) {
+      if (argument.is(KindSet.FUNCTION_KINDS) && ((FunctionTreeImpl) argument).outerScopeSymbolUsages().findAny().isPresent()) {
+        return true;
+      }
     }
     return false;
   }
 
+  /**
+   * Returns true if the specified call has no side effects.
+   * Returns false if the specified call has or may have side effects. 
+   */
+  private static boolean hasSideEffects(CallExpressionTree callExpression, ProgramState state) {
+    SeparatedList<Tree> arguments = callExpression.arguments().parameters();
+    SymbolicValue calleeValue = state.peekStack(arguments.size());
+    if (calleeValue instanceof BuiltInFunctionSymbolicValue) {
+      BuiltInFunctionSymbolicValue builtInFunction = (BuiltInFunctionSymbolicValue) calleeValue;
+      return builtInFunction.hasSideEffect();
+    }
+    return true;
+  }
+
   private static String getCalleeName(CallExpressionTree callExpression) {
-    ExpressionTree callee = CheckUtils.removeParenthesis(callExpression.callee()); 
+    ExpressionTree callee = CheckUtils.removeParenthesis(callExpression.callee());
     if (callee.is(Kind.DOT_MEMBER_EXPRESSION)) {
-      return ((DotMemberExpressionTree)callee).property().name();
+      return ((DotMemberExpressionTree) callee).property().name();
     } else {
       return CheckUtils.asString(callee);
     }
