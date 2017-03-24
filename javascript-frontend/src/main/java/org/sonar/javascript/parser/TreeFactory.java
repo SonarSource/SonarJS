@@ -141,6 +141,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
@@ -1336,19 +1337,8 @@ public class TreeFactory {
 
   // [START] Destructuring pattern
 
-  public InitializedBindingElementTreeImpl newInitializedBindingElement1(InternalSyntaxToken equalToken, ExpressionTree expression) {
-    return new InitializedBindingElementTreeImpl(equalToken, expression);
-  }
-
-  private static BindingElementTree completeBindingElement(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
-    if (!initializer.isPresent()) {
-      return left;
-    }
-    return initializer.get().completeWithLeft(left);
-  }
-
-  public BindingElementTree completeBindingElement1(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
-    return completeBindingElement(left, initializer);
+  public InitializedBindingElementTree initializedBindingElement(BindingElementTree left, InternalSyntaxToken equalToken, ExpressionTree expression) {
+    return new InitializedBindingElementTreeImpl(left, equalToken, expression);
   }
 
   public BindingPropertyTreeImpl bindingProperty(Tree propertyName, InternalSyntaxToken colonToken, BindingElementTree bindingElement) {

@@ -34,19 +34,14 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class InitializedBindingElementTreeImpl extends JavaScriptTree implements InitializedBindingElementTree {
 
-  private BindingElementTree left;
+  private final BindingElementTree left;
   private final SyntaxToken equalToken;
   private final ExpressionTree right;
 
-  public InitializedBindingElementTreeImpl(InternalSyntaxToken equalToken, ExpressionTree right) {
+  public InitializedBindingElementTreeImpl(BindingElementTree left, InternalSyntaxToken equalToken, ExpressionTree right) {
+    this.left = left;
     this.equalToken = equalToken;
     this.right = right;
-  }
-
-  public InitializedBindingElementTreeImpl completeWithLeft(BindingElementTree left) {
-    this.left = left;
-
-    return this;
   }
 
   @Override

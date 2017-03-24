@@ -29,7 +29,6 @@ import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ImportClauseTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ModuleTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ObjectBindingPatternTreeImpl;
@@ -87,6 +86,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWit
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
@@ -1337,9 +1337,9 @@ public class JavaScriptGrammar {
           ARRAY_BINDING_PATTERN()));
   }
 
-  public InitializedBindingElementTreeImpl INITIALISER() {
-    return b.<InitializedBindingElementTreeImpl>nonterminal(JavaScriptLegacyGrammar.INITIALISER)
-      .is(f.newInitializedBindingElement1(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
+  public InitializedBindingElementTree INITIALISED_BINDING_ELEMENT() {
+    return b.<InitializedBindingElementTree>nonterminal(JavaScriptLegacyGrammar.INITIALISED_BINDING_ELEMENT)
+      .is(f.initializedBindingElement(b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
   }
 
   public ObjectBindingPatternTreeImpl OBJECT_BINDING_PATTERN() {
@@ -1377,12 +1377,10 @@ public class JavaScriptGrammar {
 
   public BindingElementTree BINDING_ELEMENT() {
     return b.<BindingElementTree>nonterminal(JavaScriptLegacyGrammar.BINDING_ELEMENT)
-      .is(
-        f.completeBindingElement1(
-          b.firstOf(
-            BINDING_IDENTIFIER(),
-            BINDING_PATTERN()),
-          b.optional(INITIALISER())));
+      .is(b.firstOf(
+        INITIALISED_BINDING_ELEMENT(),
+        BINDING_IDENTIFIER(),
+        BINDING_PATTERN()));
   }
 
   public ArrayBindingPatternTreeImpl ARRAY_BINDING_PATTERN() {
