@@ -531,9 +531,6 @@ public class TreeFactory {
   // Expressions
 
   /**
-   * Creates a new array literal. Undefined element is added to the array elements list when array element is elided.
-   * <p/>
-   * <p/>
    * From ECMAScript 6 draft:
    * <blockquote>
    * Whenever a comma in the element list is not preceded by an AssignmentExpression i.e., a comma at the beginning
@@ -541,7 +538,7 @@ public class TreeFactory {
    * index of subsequent elements.
    * </blockquote>
    */
-  public ArrayLiteralTreeImpl newArrayLiteralWithElements(
+  public List<Tree> arrayLiteralElements(
     Optional<List<InternalSyntaxToken>> commaTokens, ExpressionTree element,
     Optional<List<Tuple<List<InternalSyntaxToken>, ExpressionTree>>> restElements,
     Optional<List<InternalSyntaxToken>> restCommas
@@ -569,18 +566,11 @@ public class TreeFactory {
       elementsAndCommas.addAll(restCommas.get());
     }
 
-    return new ArrayLiteralTreeImpl(elementsAndCommas);
+    return elementsAndCommas;
   }
 
-  public ArrayLiteralTreeImpl completeArrayLiteral(InternalSyntaxToken openBracketToken, Optional<ArrayLiteralTreeImpl> elements, InternalSyntaxToken closeBracket) {
-    if (elements.isPresent()) {
-      return elements.get().complete(openBracketToken, closeBracket);
-    }
-    return new ArrayLiteralTreeImpl(openBracketToken, closeBracket);
-  }
-
-  public ArrayLiteralTreeImpl newArrayLiteralWithElidedElements(List<InternalSyntaxToken> commaTokens) {
-    return new ArrayLiteralTreeImpl(new ArrayList<Tree>(commaTokens));
+  public ArrayLiteralTreeImpl arrayLiteral(InternalSyntaxToken openBracketToken, Optional<List<Tree>> elements, InternalSyntaxToken closeBracket) {
+    return new ArrayLiteralTreeImpl(openBracketToken, elements.or(ImmutableList.of()), closeBracket);
   }
 
   // End of expressions
@@ -595,6 +585,10 @@ public class TreeFactory {
 
   public LiteralTreeImpl nullLiteral(InternalSyntaxToken nullToken) {
     return new LiteralTreeImpl(Kind.NULL_LITERAL, nullToken);
+  }
+
+  public List<Tree> tokenList(List<InternalSyntaxToken> list) {
+    return new ArrayList<>(list);
   }
 
   public LiteralTreeImpl booleanLiteral(InternalSyntaxToken trueFalseToken) {

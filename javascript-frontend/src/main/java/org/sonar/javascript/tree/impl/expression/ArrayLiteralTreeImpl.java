@@ -19,14 +19,11 @@
  */
 package org.sonar.javascript.tree.impl.expression;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
@@ -38,28 +35,22 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteralTree, TypableTree {
 
-  private SyntaxToken openBracket;
   private final List<ExpressionTree> elements;
+
+  private final SyntaxToken openBracket;
   private final List<Tree> elementsAndCommas;
-  private SyntaxToken closeBracket;
+  private final SyntaxToken closeBracket;
+
   private TypeSet types = TypeSet.emptyTypeSet();
 
-  public ArrayLiteralTreeImpl(InternalSyntaxToken openBracket, InternalSyntaxToken closeBracket) {
+  public ArrayLiteralTreeImpl(SyntaxToken openBracket, List<Tree> elementsAndCommas, SyntaxToken closeBracket) {
     this.openBracket = openBracket;
-    this.elements = Collections.emptyList();
-    this.elementsAndCommas = Collections.emptyList();
-    this.closeBracket = closeBracket;
-  }
-
-  public ArrayLiteralTreeImpl(List<Tree> elementsAndCommas) {
     this.elementsAndCommas = elementsAndCommas;
-    this.elements = ImmutableList.copyOf(Iterables.filter(elementsAndCommas, ExpressionTree.class));
-  }
-
-  public ArrayLiteralTreeImpl complete(InternalSyntaxToken openBracket, InternalSyntaxToken closeBracket) {
-    this.openBracket = openBracket;
     this.closeBracket = closeBracket;
-    return this;
+    this.elements = elementsAndCommas.stream()
+      .filter(x -> !x.is(Kind.TOKEN))
+      .map(element -> (ExpressionTree) element)
+      .collect(Collectors.toList());
   }
 
   @Override

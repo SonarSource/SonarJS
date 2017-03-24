@@ -39,7 +39,15 @@ public class ArrayLiteralTest {
       .matches("[ assignmentExpression , assignmentExpression , ]")
       .matches("[ , , , ]")
       .matches("[ , assignment ]")
-      .matches("[ assignmentExpression , , , ]");
+      .matches("[ assignmentExpression , , , ]")
+      .matches("[assignmentExpression]")
+      .matches("[, , , assignmentExpression]")
+      .matches("[... assignmentExpression]")
+      .matches("[assignmentExpression , assignmentExpression]")
+      .matches("[assignmentExpression , , , assignmentExpression]")
+      .matches("[... assignmentExpression , assignmentExpression]")
+
+    ;
   }
 
 }

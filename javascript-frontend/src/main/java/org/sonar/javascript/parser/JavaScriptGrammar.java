@@ -36,7 +36,6 @@ import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ScriptTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.SpecifierTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
@@ -88,6 +87,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarat
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -502,22 +502,6 @@ public class JavaScriptGrammar {
       .is(f.stringLiteral(b.token(JavaScriptLegacyGrammar.STRING_LITERAL)));
   }
 
-  public ExpressionTree ARRAY_LITERAL_ELEMENT() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ARRAY_LITERAL_ELEMENT)
-      .is(b.firstOf(SPREAD_ELEMENT(), ASSIGNMENT_EXPRESSION()));
-  }
-
-  public ArrayLiteralTreeImpl ARRAY_ELEMENT_LIST() {
-    return b.<ArrayLiteralTreeImpl>nonterminal(JavaScriptLegacyGrammar.ELEMENT_LIST)
-      .is(f.newArrayLiteralWithElements(
-        b.zeroOrMore(b.token(JavaScriptPunctuator.COMMA)),
-        ARRAY_LITERAL_ELEMENT(),
-        b.zeroOrMore(
-          f.newTuple3(b.oneOrMore(b.token(JavaScriptPunctuator.COMMA)), ARRAY_LITERAL_ELEMENT())),
-        b.zeroOrMore(b.token(JavaScriptPunctuator.COMMA))
-      ));
-  }
-
   public ParameterListTreeImpl FORMAL_PARAMETER_CLAUSE() {
     return b.<ParameterListTreeImpl>nonterminal(Kind.FORMAL_PARAMETER_LIST)
       .is(b.firstOf(
@@ -554,15 +538,29 @@ public class JavaScriptGrammar {
       .is(f.bindingRestElement(b.token(JavaScriptPunctuator.ELLIPSIS), BINDING_IDENTIFIER()));
   }
 
-  public ArrayLiteralTreeImpl ARRAY_LITERAL() {
-    return b.<ArrayLiteralTreeImpl>nonterminal(Kind.ARRAY_LITERAL)
-      .is(f.completeArrayLiteral(
+  public ArrayLiteralTree ARRAY_LITERAL() {
+    return b.<ArrayLiteralTree>nonterminal(Kind.ARRAY_LITERAL)
+      .is(f.arrayLiteral(
         b.token(JavaScriptPunctuator.LBRACKET),
-        b.optional(b.firstOf(
-          ARRAY_ELEMENT_LIST(),
-          f.newArrayLiteralWithElidedElements(b.oneOrMore(b.token(JavaScriptPunctuator.COMMA))))),
+        b.optional(ARRAY_ELEMENT_LIST()),
         b.token(JavaScriptPunctuator.RBRACKET)
       ));
+  }
+
+  public ExpressionTree ARRAY_LITERAL_ELEMENT() {
+    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ARRAY_LITERAL_ELEMENT)
+      .is(b.firstOf(SPREAD_ELEMENT(), ASSIGNMENT_EXPRESSION()));
+  }
+
+  public List<Tree> ARRAY_ELEMENT_LIST() {
+    return b.<List<Tree>>nonterminal()
+      .is(b.firstOf(
+        f.arrayLiteralElements(
+          b.zeroOrMore(b.token(JavaScriptPunctuator.COMMA)),
+          ARRAY_LITERAL_ELEMENT(),
+          b.zeroOrMore(f.newTuple3(b.oneOrMore(b.token(JavaScriptPunctuator.COMMA)), ARRAY_LITERAL_ELEMENT())),
+          b.zeroOrMore(b.token(JavaScriptPunctuator.COMMA))),
+        f.tokenList(b.oneOrMore(b.token(JavaScriptPunctuator.COMMA)))));
   }
 
   /**
