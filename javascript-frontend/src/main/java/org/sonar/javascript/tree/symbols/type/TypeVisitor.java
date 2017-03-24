@@ -293,7 +293,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
       if (propertySymbol != null) {
         addTypes(tree, propertySymbol.types());
         // fixme might be write usage
-        propertySymbol.addUsage(Usage.create((IdentifierTree) tree.property(), Usage.Kind.READ));
+        propertySymbol.addUsage((IdentifierTree) tree.property(), Usage.Kind.READ);
       }
     }
   }

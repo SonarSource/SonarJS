@@ -35,20 +35,23 @@ public class Usage {
     READ_WRITE;
   }
 
-  private Kind kind;
-  private IdentifierTree identifierTree;
+  private final Kind kind;
+  private final IdentifierTree identifierTree;
+  private final Symbol symbol;
 
   /**
    * @param identifierTree - this tree contains only symbol name identifier (we need it for symbol highlighting)
    * @param kind           - kind of usage
+   * @param symbol
    */
-  private Usage(IdentifierTree identifierTree, Kind kind) {
+  Usage(IdentifierTree identifierTree, Kind kind, Symbol symbol) {
     this.kind = kind;
     this.identifierTree = identifierTree;
+    this.symbol = symbol;
   }
 
   public Symbol symbol() {
-    return identifierTree.symbol();
+    return symbol;
   }
 
   public Kind kind() {
@@ -57,10 +60,6 @@ public class Usage {
 
   public IdentifierTree identifierTree() {
     return identifierTree;
-  }
-
-  public static Usage create(IdentifierTree symbolTree, Kind kind) {
-    return new Usage(symbolTree, kind);
   }
 
   public boolean isDeclaration() {

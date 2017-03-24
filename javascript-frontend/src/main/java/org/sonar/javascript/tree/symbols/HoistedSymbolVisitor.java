@@ -146,7 +146,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
   private void declareImportedSymbol(IdentifierTree identifierTree) {
     symbolModel.declareSymbol(identifierTree.name(), Symbol.Kind.IMPORT, symbolModel.globalScope())
-      .addUsage(Usage.create(identifierTree, Usage.Kind.DECLARATION));
+      .addUsage(identifierTree, Usage.Kind.DECLARATION);
   }
 
   private void addExternalSymbols() {
@@ -199,7 +199,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
     for (IdentifierTree identifier : ((CatchBlockTreeImpl) tree).parameterIdentifiers()) {
       symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, currentScope)
-        .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION));
+        .addUsage(identifier, Usage.Kind.DECLARATION);
     }
 
     super.visitCatchBlock(tree);
@@ -210,7 +210,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     symbolModel.declareSymbol(tree.name().name(), Symbol.Kind.FUNCTION, getFunctionScope())
-      .addUsage(Usage.create(tree.name(), Usage.Kind.DECLARATION));
+      .addUsage(tree.name(), Usage.Kind.DECLARATION);
 
     enterScope(tree);
 
@@ -241,7 +241,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
     IdentifierTree name = tree.name();
     if (name != null) {
       // Not available in enclosing scope
-      symbolModel.declareSymbol(name.name(), Symbol.Kind.FUNCTION, currentScope).addUsage(Usage.create(name, Usage.Kind.DECLARATION));
+      symbolModel.declareSymbol(name.name(), Symbol.Kind.FUNCTION, currentScope).addUsage(name, Usage.Kind.DECLARATION);
 
     }
     declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
@@ -283,13 +283,13 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
       if (bindingElement.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
         for (IdentifierTree identifier :  bindingElement.bindingIdentifiers()) {
           symbolModel.declareSymbol(identifier.name(), variableKind, scope)
-            .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION_WRITE));
+            .addUsage(identifier, Usage.Kind.DECLARATION_WRITE);
         }
       }
       if (bindingElement.is(Kind.BINDING_IDENTIFIER)) {
         IdentifierTree identifierTree = (IdentifierTree) bindingElement;
         symbolModel.declareSymbol(identifierTree.name(), variableKind, scope)
-          .addUsage(Usage.create(identifierTree, insideForLoopVariable ? Usage.Kind.DECLARATION_WRITE : Usage.Kind.DECLARATION));
+          .addUsage(identifierTree, insideForLoopVariable ? Usage.Kind.DECLARATION_WRITE : Usage.Kind.DECLARATION);
       }
     }
   }
@@ -297,7 +297,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   private void declareParameters(List<IdentifierTree> identifiers) {
     for (IdentifierTree identifier : identifiers) {
       symbolModel.declareSymbol(identifier.name(), Symbol.Kind.PARAMETER, currentScope)
-        .addUsage(Usage.create(identifier, Usage.Kind.LEXICAL_DECLARATION));
+        .addUsage(identifier, Usage.Kind.LEXICAL_DECLARATION);
     }
   }
 

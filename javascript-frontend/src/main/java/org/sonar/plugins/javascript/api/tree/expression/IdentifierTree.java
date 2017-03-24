@@ -20,9 +20,11 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
@@ -35,6 +37,8 @@ public interface IdentifierTree extends ExpressionTree, BindingElementTree {
   SyntaxToken identifierToken();
 
   String name();
+
+  Optional<Usage> symbolUsage();
 
   @Nullable
   Symbol symbol();

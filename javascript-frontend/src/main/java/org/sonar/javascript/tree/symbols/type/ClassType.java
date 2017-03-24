@@ -53,7 +53,7 @@ public class ClassType extends ObjectType {
   public void addMethod(IdentifierTree name, FunctionType functionType) {
     // fixme null scope
     Symbol symbol = new Symbol(name.name(), Symbol.Kind.METHOD, null);
-    symbol.addUsage(Usage.create(name, Usage.Kind.DECLARATION));
+    symbol.addUsage(name, Usage.Kind.DECLARATION);
     symbol.addType(functionType);
     properties.put(
       name.name(),

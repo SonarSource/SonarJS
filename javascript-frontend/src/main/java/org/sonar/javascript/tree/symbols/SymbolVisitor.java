@@ -186,9 +186,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
 
       if (!addUsageFor(identifier, usageKind)) {
         Symbol symbol = symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope());
-        symbol.addUsage(
-          Usage.create(identifier, usageKind)
-        );
+        symbol.addUsage(identifier, usageKind);
       }
       // no need to inferType variable has it has been handle
       scan(tree.expression());
@@ -222,7 +220,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
       if (!addUsageFor(identifier, Usage.Kind.WRITE)) {
-        symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope()).addUsage(Usage.create(identifier, Usage.Kind.WRITE));
+        symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope()).addUsage(identifier, Usage.Kind.WRITE);
       }
 
       scan(tree.expression());
@@ -254,7 +252,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
   private boolean addUsageFor(IdentifierTree identifier, Usage.Kind kind) {
     Symbol symbol = currentScope.lookupSymbol(identifier.name());
     if (symbol != null && !isUndeclaredBlockScopedSymbol(symbol)) {
-      symbol.addUsage(Usage.create(identifier, kind));
+      symbol.addUsage(identifier, kind);
       return true;
     }
     return false;
@@ -279,7 +277,9 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
   }
 
   private void declareClassSymbol(IdentifierTree classNameIdentifier, Scope scope) {
-    symbolModel.declareSymbol(classNameIdentifier.name(), Symbol.Kind.CLASS, scope)
-      .addUsage(Usage.create(classNameIdentifier, Usage.Kind.DECLARATION));
+    final Usage.Kind usageKind = Usage.Kind.DECLARATION;
+    final Symbol symbol = symbolModel.declareSymbol(classNameIdentifier.name(), Symbol.Kind.CLASS, scope);
+    symbol.addUsage(classNameIdentifier, usageKind);
   }
+
 }
