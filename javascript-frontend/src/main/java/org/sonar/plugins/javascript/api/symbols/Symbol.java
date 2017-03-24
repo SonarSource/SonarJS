@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 @Beta
 public class Symbol {
@@ -52,14 +53,14 @@ public class Symbol {
     }
 
   }
-  private final String name;
 
+  private final String name;
   private Kind kind;
+
   private boolean external;
   private Scope scope;
   private List<Usage> usages = new LinkedList<>();
   private TypeSet types;
-
   public Symbol(String name, Kind kind, Scope scope) {
     this.name = name;
     this.kind = kind;
@@ -68,9 +69,14 @@ public class Symbol {
     this.types = TypeSet.emptyTypeSet();
   }
 
-  public void addUsage(Usage usage) {
+  private void addUsage(Usage usage) {
     usages.add(usage);
-    ((IdentifierTreeImpl) usage.identifierTree()).setSymbol(this);
+    ((IdentifierTreeImpl) usage.identifierTree()).setSymbolUsage(usage);
+  }
+
+  public void addUsage(IdentifierTree identifierTree, Usage.Kind usageKind) {
+    final Usage usage = new Usage(identifierTree, usageKind, this);
+    addUsage(usage);
   }
 
   public Collection<Usage> usages() {

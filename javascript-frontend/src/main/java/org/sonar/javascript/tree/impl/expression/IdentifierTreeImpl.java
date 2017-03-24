@@ -24,6 +24,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -31,6 +33,7 @@ import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -40,7 +43,7 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
 
   private final InternalSyntaxToken nameToken;
   private final Kind kind;
-  private Symbol symbol = null;
+  private Usage usage = null;
   private TypeSet types = TypeSet.emptyTypeSet();
   private Scope scope;
 
@@ -70,16 +73,26 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
   }
 
   @Override
-  public Symbol symbol() {
-    return symbol;
+  public Optional<Usage> symbolUsage() {
+    return Optional.ofNullable(usage);
   }
 
-  public void setSymbol(Symbol symbol) {
-    this.symbol = symbol;
+  @Nullable
+  @Override
+  public final Symbol symbol() {
+    if (usage == null) {
+      return null;
+    }
+    return usage.symbol();
+  }
+
+  public void setSymbolUsage(Usage usage) {
+    this.usage = usage;
   }
 
   @Override
   public TypeSet types() {
+    final Symbol symbol = symbol();
     if (symbol == null) {
       return types.immutableCopy();
     } else {
@@ -89,6 +102,7 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
 
   @Override
   public void add(Type type) {
+    final Symbol symbol = symbol();
     if (symbol == null) {
       types.add(type);
     } else {
