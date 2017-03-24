@@ -68,7 +68,6 @@ import org.sonar.javascript.tree.impl.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ReturnStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ThrowStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.TryStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.WhileStatementTreeImpl;
@@ -119,7 +118,9 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElemen
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.FinallyBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
 
 public class JavaScriptGrammar {
 
@@ -258,20 +259,33 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.RCURLYBRACE)));
   }
 
-  public TryStatementTreeImpl TRY_STATEMENT() {
-    return b.<TryStatementTreeImpl>nonterminal(Kind.TRY_STATEMENT)
-      .is(f.completeTryStatement(
-        b.token(JavaScriptKeyword.TRY),
-        BLOCK(),
-        b.firstOf(
-          f.newTryStatementWithCatch(CATCH_CLAUSE(), b.optional(FINALLY_CLAUSE())),
-          FINALLY_CLAUSE())
-      ));
+  public TryStatementTree TRY_STATEMENT() {
+    return b.<TryStatementTree>nonterminal(Kind.TRY_STATEMENT)
+      .is(b.firstOf(
+        TRY_STATEMENT_WITHOUT_CATCH(),
+        TRY_STATEMENT_WITH_CATCH()));
   }
 
-  public TryStatementTreeImpl FINALLY_CLAUSE() {
-    return b.<TryStatementTreeImpl>nonterminal(JavaScriptLegacyGrammar.FINALLY)
-      .is(f.newTryStatementWithFinally(b.token(JavaScriptKeyword.FINALLY), BLOCK()));
+  public TryStatementTree TRY_STATEMENT_WITHOUT_CATCH() {
+    return b.<TryStatementTree>nonterminal()
+      .is(f.tryStatementWithoutCatch(
+        b.token(JavaScriptKeyword.TRY),
+        BLOCK(),
+        FINALLY_CLAUSE()));
+  }
+
+  public TryStatementTree TRY_STATEMENT_WITH_CATCH() {
+    return b.<TryStatementTree>nonterminal()
+      .is(f.tryStatementWithCatch(
+        b.token(JavaScriptKeyword.TRY),
+        BLOCK(),
+        CATCH_CLAUSE(),
+        b.optional(FINALLY_CLAUSE())));
+  }
+
+  public FinallyBlockTree FINALLY_CLAUSE() {
+    return b.<FinallyBlockTree>nonterminal()
+      .is(f.finallyBlock(b.token(JavaScriptKeyword.FINALLY), BLOCK()));
   }
 
   public CatchBlockTreeImpl CATCH_CLAUSE() {

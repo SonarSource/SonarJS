@@ -224,7 +224,6 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   OF,
   RETURN_STATEMENT,
   WITH_STATEMENT,
-  FINALLY,
 
   // A.5 Declarations
 

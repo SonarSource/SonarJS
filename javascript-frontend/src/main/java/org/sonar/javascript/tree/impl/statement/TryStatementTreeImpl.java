@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.tree.impl.statement;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -35,34 +33,16 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class TryStatementTreeImpl extends JavaScriptTree implements TryStatementTree {
 
-  private SyntaxToken tryKeyword;
-  private BlockTree block;
-  private CatchBlockTree catchBlock;
-  private FinallyBlockTree finallyBlock;
+  private final SyntaxToken tryKeyword;
+  private final BlockTree block;
+  private final CatchBlockTree catchBlock;
+  private final FinallyBlockTree finallyBlock;
 
-
-  public TryStatementTreeImpl(CatchBlockTreeImpl catchBlock) {
-    this.catchBlock = catchBlock;
-
-  }
-
-  public TryStatementTreeImpl(FinallyBlockTree finallyBlock) {
-    this.finallyBlock = finallyBlock;
-  }
-
-  public TryStatementTreeImpl complete(CatchBlockTreeImpl catchBlock) {
-    Preconditions.checkState(this.catchBlock == null, "Catch block already completed");
-    this.catchBlock = catchBlock;
-
-    return this;
-  }
-
-  public TryStatementTreeImpl complete(InternalSyntaxToken tryKeyword, BlockTreeImpl block) {
-    Preconditions.checkState(this.tryKeyword == null, "Already completed");
+  public TryStatementTreeImpl(SyntaxToken tryKeyword, BlockTree block, @Nullable CatchBlockTree catchBlock, @Nullable FinallyBlockTree finallyBlock) {
     this.tryKeyword = tryKeyword;
     this.block = block;
-
-    return this;
+    this.catchBlock = catchBlock;
+    this.finallyBlock = finallyBlock;
   }
 
   @Override

@@ -174,8 +174,11 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttribute
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.FinallyBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
 
 public class TreeFactory {
 
@@ -355,19 +358,16 @@ public class TreeFactory {
     return new BlockTreeImpl(openingCurlyBrace, closingCurlyBrace);
   }
 
-  public TryStatementTreeImpl newTryStatementWithCatch(CatchBlockTreeImpl catchBlock, Optional<TryStatementTreeImpl> partial) {
-    if (partial.isPresent()) {
-      return partial.get().complete(catchBlock);
-    }
-    return new TryStatementTreeImpl(catchBlock);
+  public FinallyBlockTree finallyBlock(InternalSyntaxToken finallyKeyword, BlockTreeImpl finallyBlock) {
+    return new FinallyBlockTreeImpl(finallyKeyword, finallyBlock);
   }
 
-  public TryStatementTreeImpl newTryStatementWithFinally(InternalSyntaxToken finallyKeyword, BlockTreeImpl block) {
-    return new TryStatementTreeImpl(new FinallyBlockTreeImpl(finallyKeyword, block));
+  public TryStatementTree tryStatementWithoutCatch(InternalSyntaxToken tryToken, BlockTreeImpl block, FinallyBlockTree finallyBlockTree) {
+    return new TryStatementTreeImpl(tryToken, block, null, finallyBlockTree);
   }
 
-  public TryStatementTreeImpl completeTryStatement(InternalSyntaxToken tryToken, BlockTreeImpl block, TryStatementTreeImpl catchFinallyBlock) {
-    return catchFinallyBlock.complete(tryToken, block);
+  public TryStatementTree tryStatementWithCatch(InternalSyntaxToken tryToken, BlockTreeImpl block, CatchBlockTree catchBlock, Optional<FinallyBlockTree> finallyBlockTree) {
+    return new TryStatementTreeImpl(tryToken, block, catchBlock, finallyBlockTree.orNull());
   }
 
   public CatchBlockTreeImpl newCatchBlock(
