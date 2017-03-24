@@ -35,8 +35,8 @@ public class ArrayConstructorsCheck extends DoubleDispatchVisitorCheck {
   public void visitNewExpression(NewExpressionTree tree) {
     ExpressionTree expression = tree.expression();
     if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-      String next = ((IdentifierTree) expression).name();
-      if ("Array".equals(next)) {
+      String name = ((IdentifierTree) expression).name();
+      if ("Array".equals(name)) {
         addIssue(tree, MESSAGE);
       }
     }
