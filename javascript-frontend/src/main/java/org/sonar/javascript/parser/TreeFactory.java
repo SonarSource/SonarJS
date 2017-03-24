@@ -1087,7 +1087,7 @@ public class TreeFactory {
     return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name);
   }
 
-  public SpecifierListTreeImpl newExportSpecifierList(
+  public SeparatedList<SpecifierTree> exportListBody(
     SpecifierTreeImpl specifier, Optional<List<Tuple<InternalSyntaxToken, SpecifierTreeImpl>>> restSpecifier,
     Optional<InternalSyntaxToken> trailingComma
   ) {
@@ -1107,14 +1107,11 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SpecifierListTreeImpl(Kind.EXPORT_LIST, new SeparatedList<>(specifiers, commas));
+    return new SeparatedList<>(specifiers, commas);
   }
 
-  public SpecifierListTreeImpl exportList(InternalSyntaxToken openCurlyBraceToken, Optional<SpecifierListTreeImpl> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
-    if (specifierList.isPresent()) {
-      return specifierList.get().complete(openCurlyBraceToken, closeCurlyBraceToken);
-    }
-    return new SpecifierListTreeImpl(Kind.EXPORT_LIST, openCurlyBraceToken, closeCurlyBraceToken);
+  public SpecifierListTreeImpl exportList(InternalSyntaxToken openCurlyBraceToken, Optional<SeparatedList<SpecifierTree>> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
+    return new SpecifierListTreeImpl(Kind.EXPORT_LIST, openCurlyBraceToken, specifierList.or(new SeparatedList<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
   }
 
   public NameSpaceExportDeclarationTree namespaceExportDeclaration(
@@ -1179,7 +1176,7 @@ public class TreeFactory {
     return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, name);
   }
 
-  public SpecifierListTreeImpl newImportSpecifierList(
+  public SeparatedList<SpecifierTree> newImportSpecifierList(
     SpecifierTreeImpl specifier, Optional<List<Tuple<InternalSyntaxToken, SpecifierTreeImpl>>> restSpecifier,
     Optional<InternalSyntaxToken> trailingComma
   ) {
@@ -1199,14 +1196,11 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SpecifierListTreeImpl(Kind.IMPORT_LIST, new SeparatedList<>(specifiers, commas));
+    return new SeparatedList<>(specifiers, commas);
   }
 
-  public SpecifierListTreeImpl importList(InternalSyntaxToken openCurlyBraceToken, Optional<SpecifierListTreeImpl> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
-    if (specifierList.isPresent()) {
-      return specifierList.get().complete(openCurlyBraceToken, closeCurlyBraceToken);
-    }
-    return new SpecifierListTreeImpl(Kind.IMPORT_LIST, openCurlyBraceToken, closeCurlyBraceToken);
+  public SpecifierListTreeImpl importList(InternalSyntaxToken openCurlyBraceToken, Optional<SeparatedList<SpecifierTree>> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
+    return new SpecifierListTreeImpl(Kind.IMPORT_LIST, openCurlyBraceToken, specifierList.or(new SeparatedList<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
   }
 
   public NameSpaceSpecifierTreeImpl nameSpaceImport(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTreeImpl localName) {

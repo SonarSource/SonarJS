@@ -1216,12 +1216,17 @@ public class JavaScriptGrammar {
     return b.<SpecifierListTreeImpl>nonterminal(Kind.EXPORT_LIST)
       .is(f.exportList(
         b.token(JavaScriptPunctuator.LCURLYBRACE),
-        b.optional(f.newExportSpecifierList(
-          EXPORT_SPECIFIER(),
-          b.zeroOrMore(f.newTuple50(b.token(JavaScriptPunctuator.COMMA), EXPORT_SPECIFIER())),
-          b.optional(b.token(JavaScriptPunctuator.COMMA)))),
+        b.optional(EXPORT_LIST_BODY()),
         b.token(JavaScriptPunctuator.RCURLYBRACE)
       ));
+  }
+
+  public SeparatedList<SpecifierTree> EXPORT_LIST_BODY() {
+    return b.<SeparatedList<SpecifierTree>>nonterminal()
+      .is(f.exportListBody(
+        EXPORT_SPECIFIER(),
+        b.zeroOrMore(f.newTuple50(b.token(JavaScriptPunctuator.COMMA), EXPORT_SPECIFIER())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA))));
   }
 
   public SpecifierTreeImpl EXPORT_SPECIFIER() {
