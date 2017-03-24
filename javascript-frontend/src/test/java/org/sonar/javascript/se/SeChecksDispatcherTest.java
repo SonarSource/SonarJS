@@ -20,24 +20,17 @@
 package org.sonar.javascript.se;
 
 import com.google.common.collect.ImmutableList;
-
-import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.config.MapSettings;
-import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.utils.TestInputFile;
-import org.sonar.javascript.visitors.JavaScriptVisitorContext;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
+import static org.sonar.javascript.utils.TestUtils.createContext;
 
 public class SeChecksDispatcherTest {
 
@@ -78,8 +71,4 @@ public class SeChecksDispatcherTest {
     }
   }
 
-  private static JavaScriptVisitorContext createContext(InputFile file) throws IOException {
-    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser().parse(file.contents());
-    return new JavaScriptVisitorContext(scriptTree, wrap(file), new MapSettings());
-  }
 }

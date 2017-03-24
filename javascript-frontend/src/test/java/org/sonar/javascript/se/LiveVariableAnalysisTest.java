@@ -19,23 +19,19 @@
  */
 package org.sonar.javascript.se;
 
-import java.io.IOException;
 import java.util.Set;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.config.MapSettings;
 import org.sonar.javascript.cfg.ControlFlowGraph;
-import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
 import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
+import static org.sonar.javascript.utils.TestUtils.createContext;
 
 public class LiveVariableAnalysisTest {
 
@@ -55,8 +51,4 @@ public class LiveVariableAnalysisTest {
     assertThat(usages.hasUsagesInNestedFunctions(neverReadSymbol)).isFalse();
   }
 
-  private static JavaScriptVisitorContext createContext(InputFile file) throws IOException {
-    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser().parse(file.contents());
-    return new JavaScriptVisitorContext(scriptTree, wrap(file), new MapSettings());
-  }
 }
