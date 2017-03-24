@@ -114,6 +114,7 @@ import org.sonar.javascript.tree.impl.statement.DoWhileStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.tree.impl.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ExpressionStatementTreeImpl;
+import org.sonar.javascript.tree.impl.statement.FinallyBlockTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ForObjectStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ForStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
@@ -371,7 +372,7 @@ public class TreeFactory {
   }
 
   public TryStatementTreeImpl newTryStatementWithFinally(InternalSyntaxToken finallyKeyword, BlockTreeImpl block) {
-    return new TryStatementTreeImpl(finallyKeyword, block);
+    return new TryStatementTreeImpl(new FinallyBlockTreeImpl(finallyKeyword, block));
   }
 
   public TryStatementTreeImpl completeTryStatement(InternalSyntaxToken tryToken, BlockTreeImpl block, TryStatementTreeImpl catchFinallyBlock) {

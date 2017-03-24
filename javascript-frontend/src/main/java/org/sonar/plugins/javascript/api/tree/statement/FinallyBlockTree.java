@@ -20,28 +20,20 @@
 package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
-import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.14">try Statement</a>.
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.14">Finally Block</a>.
  * <pre>
- *   try {@link #block()} {@link #catchBlock()}
- *   try {@link #block()} {@link #finallyBlock()}
- *   try {@link #block()} {@link #catchBlock()} {@link #finallyBlock()}
+ *   finally {@link #block()}
  * </pre>
  */
 @Beta
-public interface TryStatementTree extends StatementTree {
+public interface FinallyBlockTree extends Tree {
 
-  SyntaxToken tryKeyword();
+  SyntaxToken finallyKeyword();
 
   BlockTree block();
-
-  @Nullable
-  CatchBlockTree catchBlock();
-
-  @Nullable
-  FinallyBlockTree finallyBlock();
 
 }

@@ -586,7 +586,7 @@ class ControlFlowGraphBuilder {
 
     if (tree.finallyBlock() != null) {
       currentBlock = createSimpleBlock(currentBlock);
-      build(tree.finallyBlock());
+      build(tree.finallyBlock().block());
       throwTargets.push(currentBlock);
       catchOrFinallyBlock = currentBlock;
     }

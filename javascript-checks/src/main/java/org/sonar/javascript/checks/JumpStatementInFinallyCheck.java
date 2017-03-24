@@ -29,10 +29,10 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.FinallyBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S1143")
@@ -107,12 +107,8 @@ public class JumpStatementInFinallyCheck extends DoubleDispatchVisitorCheck {
     if (tree.is(Kind.BLOCK)) {
       Tree parent = parent(tree);
 
-      if (parent.is(Kind.TRY_STATEMENT)) {
-        TryStatementTree tryStatementTree = (TryStatementTree) parent;
-
-        if (tree.equals(tryStatementTree.finallyBlock())) {
-          return tryStatementTree.finallyKeyword();
-        }
+      if (parent.is(Kind.FINALLY_BLOCK)) {
+        return ((FinallyBlockTree) parent).finallyKeyword();
       }
     }
 

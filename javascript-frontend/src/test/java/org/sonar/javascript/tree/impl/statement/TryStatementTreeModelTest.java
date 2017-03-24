@@ -37,8 +37,6 @@ public class TryStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.tryKeyword().text()).isEqualTo(JavaScriptKeyword.TRY.getValue());
     assertThat(tree.block()).isNotNull();
     assertThat(tree.catchBlock()).isNotNull();
-
-    assertThat(tree.finallyKeyword()).isNull();
     assertThat(tree.finallyBlock()).isNull();
 
   }
@@ -50,8 +48,8 @@ public class TryStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.TRY_STATEMENT)).isTrue();
     assertThat(tree.tryKeyword().text()).isEqualTo(JavaScriptKeyword.TRY.getValue());
     assertThat(tree.block()).isNotNull();
-    assertThat(tree.finallyKeyword().text()).isEqualTo(JavaScriptKeyword.FINALLY.getValue());
-    assertThat(tree.finallyBlock()).isNotNull();
+    assertThat(tree.finallyBlock().finallyKeyword().text()).isEqualTo(JavaScriptKeyword.FINALLY.getValue());
+    assertThat(tree.finallyBlock().block()).isNotNull();
 
     assertThat(tree.catchBlock()).isNull();
   }
@@ -63,7 +61,7 @@ public class TryStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.TRY_STATEMENT)).isTrue();
     assertThat(tree.tryKeyword().text()).isEqualTo(JavaScriptKeyword.TRY.getValue());
     assertThat(tree.block()).isNotNull();
-    assertThat(tree.finallyKeyword().text()).isEqualTo(JavaScriptKeyword.FINALLY.getValue());
+    assertThat(tree.finallyBlock().finallyKeyword().text()).isEqualTo(JavaScriptKeyword.FINALLY.getValue());
     assertThat(tree.finallyBlock()).isNotNull();
     assertThat(tree.catchBlock()).isNotNull();
   }

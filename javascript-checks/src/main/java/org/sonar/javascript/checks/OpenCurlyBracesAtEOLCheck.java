@@ -36,6 +36,7 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.FinallyBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
@@ -112,12 +113,12 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
       if (tryStatementTree.block().equals(body)) {
         issueIfLineMismatch(openCurly, tryStatementTree.tryKeyword());
       }
-      if (body.equals(tryStatementTree.finallyBlock())) {
-        issueIfLineMismatch(openCurly, tryStatementTree.finallyKeyword());
-      }
     }
     if (parent.is(Kind.CATCH_BLOCK)) {
       issueIfLineMismatch(openCurly, ((CatchBlockTree) parent).catchKeyword());
+    }
+    if (parent.is(Kind.FINALLY_BLOCK)) {
+      issueIfLineMismatch(openCurly, ((FinallyBlockTree) parent).finallyKeyword());
     }
   }
 
