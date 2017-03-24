@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.SeChecksDispatcher;
-import org.sonar.javascript.se.SymbolicExecutionTest;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -37,6 +36,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.javascript.utils.TestUtils.createContext;
 
 public class FunctionWithTreeSymbolicValueTest {
 
@@ -93,7 +93,7 @@ public class FunctionWithTreeSymbolicValueTest {
     static Set<SymbolicValue> getSymbolicValuesAtLine(int line, String symbolName, String filename) throws IOException {
       FunctionSymbolicValueVerifier verifier = new FunctionSymbolicValueVerifier(line, symbolName);
 
-      JavaScriptVisitorContext context = SymbolicExecutionTest.createContext(new TestInputFile("src/test/resources/se/functions", filename));
+      JavaScriptVisitorContext context = createContext(new TestInputFile("src/test/resources/se/functions", filename));
       SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of(verifier));
       seChecksDispatcher.scanTree(context);
 

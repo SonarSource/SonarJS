@@ -19,20 +19,13 @@
  */
 package org.sonar.javascript.se;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-
 import org.junit.Test;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.config.MapSettings;
-import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
+import static org.sonar.javascript.utils.TestUtils.createContext;
 
 public class SymbolicExecutionTest {
 
@@ -180,15 +173,6 @@ public class SymbolicExecutionTest {
     runSe(filename);
     verifier.verify();
     assertThat(verifier.endOfExecution).isTrue();
-  }
-
-  public static JavaScriptVisitorContext createContext(InputFile file) {
-    try {
-      ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser().parse(file.contents());
-      return new JavaScriptVisitorContext(scriptTree, wrap(file), new MapSettings());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
   }
 
 }
