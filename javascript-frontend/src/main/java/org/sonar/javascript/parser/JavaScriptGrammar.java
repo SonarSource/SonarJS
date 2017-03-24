@@ -52,11 +52,9 @@ import org.sonar.javascript.tree.impl.expression.TaggedTemplateTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.javascript.tree.impl.statement.BreakStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.CaseClauseTreeImpl;
 import org.sonar.javascript.tree.impl.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.DebuggerStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.DefaultClauseTreeImpl;
 import org.sonar.javascript.tree.impl.statement.DoWhileStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.tree.impl.statement.EmptyStatementTreeImpl;
@@ -66,7 +64,6 @@ import org.sonar.javascript.tree.impl.statement.ForStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ReturnStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ThrowStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.statement.VariableStatementTreeImpl;
@@ -117,9 +114,13 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTre
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.FinallyBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
 
 public class JavaScriptGrammar {
@@ -301,37 +302,36 @@ public class JavaScriptGrammar {
         BLOCK()));
   }
 
-  public SwitchStatementTreeImpl SWITCH_STATEMENT() {
-    return b.<SwitchStatementTreeImpl>nonterminal(Kind.SWITCH_STATEMENT)
-      .is(f.completeSwitchStatement(
+  public SwitchStatementTree SWITCH_STATEMENT() {
+    return b.<SwitchStatementTree>nonterminal(Kind.SWITCH_STATEMENT)
+      .is(f.switchStatement(
         b.token(JavaScriptKeyword.SWITCH),
         b.token(JavaScriptPunctuator.LPARENTHESIS),
         EXPRESSION(),
         b.token(JavaScriptPunctuator.RPARENTHESIS),
-        CASE_BLOCK()));
-  }
-
-  public SwitchStatementTreeImpl CASE_BLOCK() {
-    return b.<SwitchStatementTreeImpl>nonterminal()
-      .is(f.newSwitchStatement(
         b.token(JavaScriptPunctuator.LCURLYBRACE),
-        b.zeroOrMore(CASE_CLAUSE()),
-        b.optional(f.newTuple2(DEFAULT_CLAUSE(), b.zeroOrMore(CASE_CLAUSE()))),
-        b.token(JavaScriptPunctuator.RCURLYBRACE)));
+        b.optional(SWITCH_CASES()),
+        b.token(JavaScriptPunctuator.RCURLYBRACE)
+        ));
   }
 
-  public CaseClauseTreeImpl CASE_CLAUSE() {
-    return b.<CaseClauseTreeImpl>nonterminal(Kind.CASE_CLAUSE)
-      .is(
-        f.caseClause(
-          b.token(JavaScriptKeyword.CASE),
-          EXPRESSION(),
-          b.token(JavaScriptPunctuator.COLON),
-          b.optional(b.oneOrMore(STATEMENT()))));
+  public List<SwitchClauseTree> SWITCH_CASES() {
+    return b.<List<SwitchClauseTree>>nonterminal()
+      .is(f.switchCases(
+        b.zeroOrMore(b.firstOf(CASE_CLAUSE(), DEFAULT_CLAUSE()))));
   }
 
-  public DefaultClauseTreeImpl DEFAULT_CLAUSE() {
-    return b.<DefaultClauseTreeImpl>nonterminal(Kind.DEFAULT_CLAUSE)
+  public CaseClauseTree CASE_CLAUSE() {
+    return b.<CaseClauseTree>nonterminal(Kind.CASE_CLAUSE)
+      .is(f.caseClause(
+        b.token(JavaScriptKeyword.CASE),
+        EXPRESSION(),
+        b.token(JavaScriptPunctuator.COLON),
+        b.optional(b.oneOrMore(STATEMENT()))));
+  }
+
+  public DefaultClauseTree DEFAULT_CLAUSE() {
+    return b.<DefaultClauseTree>nonterminal(Kind.DEFAULT_CLAUSE)
       .is(f.defaultClause(
         b.token(JavaScriptKeyword.DEFAULT),
         b.token(JavaScriptPunctuator.COLON),

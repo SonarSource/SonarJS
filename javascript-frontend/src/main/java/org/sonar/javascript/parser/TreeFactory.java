@@ -178,6 +178,7 @@ import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.FinallyBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
 
 public class TreeFactory {
@@ -382,40 +383,23 @@ public class TreeFactory {
       block);
   }
 
-  public SwitchStatementTreeImpl newSwitchStatement(
-    InternalSyntaxToken openCurlyBrace, Optional<List<CaseClauseTreeImpl>> caseClauseList,
-    Optional<Tuple<DefaultClauseTreeImpl, Optional<List<CaseClauseTreeImpl>>>> defaultAndRestCases, InternalSyntaxToken closeCurlyBrace
-  ) {
-    List<SwitchClauseTree> cases = Lists.newArrayList();
-
-    // First case list
-    if (caseClauseList.isPresent()) {
-      cases.addAll(caseClauseList.get());
-    }
-
-    // default case
-    if (defaultAndRestCases.isPresent()) {
-      cases.add(defaultAndRestCases.get().first());
-
-      // case list following default
-      if (defaultAndRestCases.get().second().isPresent()) {
-        cases.addAll(defaultAndRestCases.get().second().get());
-      }
-    }
-
-    return new SwitchStatementTreeImpl(openCurlyBrace, cases, closeCurlyBrace);
-  }
-
-  public SwitchStatementTreeImpl completeSwitchStatement(
-    InternalSyntaxToken switchToken, InternalSyntaxToken openParenthesis,
-    ExpressionTree expression, InternalSyntaxToken closeParenthesis, SwitchStatementTreeImpl caseBlock
+  public SwitchStatementTree switchStatement(
+    InternalSyntaxToken switchToken, InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis,
+    InternalSyntaxToken openCurly, Optional<List<SwitchClauseTree>> switchCases, InternalSyntaxToken closeCurly
   ) {
 
-    return caseBlock.complete(
+    return new SwitchStatementTreeImpl(
       switchToken,
       openParenthesis,
       expression,
-      closeParenthesis);
+      closeParenthesis,
+      openCurly,
+      switchCases.or(ImmutableList.of()),
+      closeCurly);
+  }
+
+  public List<SwitchClauseTree> switchCases(Optional<List<SwitchClauseTree>> switchCases) {
+    return switchCases.or(ImmutableList.of());
   }
 
   public DefaultClauseTreeImpl defaultClause(InternalSyntaxToken defaultToken, InternalSyntaxToken colonToken, Optional<List<StatementTree>> statements) {

@@ -34,7 +34,8 @@ public class SwitchStatementTest {
       .matches("switch ( expression ) { case expression: break; }")
       .matches("switch ( expression ) { case expression: break; default: break; }")
       .matches("switch ( expression ) { case expression: break; case expression: break; case expression: break; }")
-      .notMatches("switch ( expression ) { default : break; default : break; }");
+      // while this case is not supported by grammar, but interpreter parses it
+      .matches("switch ( expression ) { case expression: break; default : break; default : break; }");
   }
 
 }
