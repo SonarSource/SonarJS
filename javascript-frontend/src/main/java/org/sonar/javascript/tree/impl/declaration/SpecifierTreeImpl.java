@@ -38,7 +38,7 @@ public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
   private final SyntaxToken asToken;
   private final IdentifierTree localName;
 
-  public SpecifierTreeImpl(Kind kind, IdentifierTreeImpl name) {
+  public SpecifierTreeImpl(Kind kind, IdentifierTree name) {
     this.kind = kind;
     this.name = name;
     this.asToken = null;
@@ -46,7 +46,7 @@ public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
   }
 
-  public SpecifierTreeImpl(Kind kind, IdentifierTreeImpl name, InternalSyntaxToken asToken, IdentifierTreeImpl localName) {
+  public SpecifierTreeImpl(Kind kind, IdentifierTree name, InternalSyntaxToken asToken, IdentifierTree localName) {
     this.kind = kind;
     this.name = name;
     this.asToken = asToken;

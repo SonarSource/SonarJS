@@ -34,7 +34,7 @@ public class FinallyBlockTreeImpl extends JavaScriptTree implements FinallyBlock
   private final SyntaxToken finallyKeyword;
   private final BlockTree block;
 
-  public FinallyBlockTreeImpl(InternalSyntaxToken finallyKeyword, BlockTreeImpl block) {
+  public FinallyBlockTreeImpl(InternalSyntaxToken finallyKeyword, BlockTree block) {
     this.finallyKeyword = finallyKeyword;
     this.block = block;
   }

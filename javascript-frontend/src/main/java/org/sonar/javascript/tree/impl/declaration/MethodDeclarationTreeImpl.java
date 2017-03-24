@@ -24,12 +24,12 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements MethodDeclarationTree {
@@ -40,15 +40,15 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
   private final InternalSyntaxToken staticToken;
   private final SyntaxToken asyncToken;
   private final Tree name;
-  private final ParameterListTreeImpl parameters;
-  private final BlockTreeImpl body;
+  private final ParameterListTree parameters;
+  private final BlockTree body;
 
   public MethodDeclarationTreeImpl(
     List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
     @Nullable InternalSyntaxToken asyncToken,
     Tree name,
-    ParameterListTreeImpl parameters,
-    BlockTreeImpl body
+    ParameterListTree parameters,
+    BlockTree body
   ) {
     this.decorators = decorators;
     this.staticToken = staticToken;
@@ -87,7 +87,7 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
   }
 
   @Override
-  public BlockTreeImpl body() {
+  public BlockTree body() {
     return body;
   }
 

@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.declaration.FunctionTreeImpl;
-import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -34,6 +33,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements FunctionExpressionTree, TypableTree {
@@ -43,7 +43,7 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
   private final SyntaxToken star;
   private final IdentifierTree name;
   private final ParameterListTree parameters;
-  private final BlockTreeImpl body;
+  private final BlockTree body;
   private final Kind kind;
   private Type functionType;
 
@@ -51,7 +51,7 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
     @Nullable SyntaxToken asyncToken,
     SyntaxToken functionKeyword,
     @Nullable SyntaxToken star, IdentifierTree name,
-    ParameterListTree parameters, BlockTreeImpl body) {
+    ParameterListTree parameters, BlockTree body) {
     this.asyncToken = asyncToken;
     this.functionKeyword = functionKeyword;
     this.star = star;
@@ -65,14 +65,14 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
 
   public static FunctionExpressionTree createGenerator(
     SyntaxToken functionKeyword, SyntaxToken star, @Nullable IdentifierTree name,
-    ParameterListTree parameters, BlockTreeImpl body
+    ParameterListTree parameters, BlockTree body
   ) {
     return new FunctionExpressionTreeImpl(null, functionKeyword, star, name, parameters, body);
   }
 
   public static FunctionExpressionTree create(
     @Nullable SyntaxToken asyncToken, SyntaxToken functionToken, @Nullable IdentifierTree name,
-    ParameterListTree parameters, BlockTreeImpl body
+    ParameterListTree parameters, BlockTree body
   ) {
     return new FunctionExpressionTreeImpl(asyncToken, functionToken, null, name, parameters, body);
   }
@@ -111,7 +111,7 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
   }
 
   @Override
-  public BlockTreeImpl body() {
+  public BlockTree body() {
     return body;
   }
 

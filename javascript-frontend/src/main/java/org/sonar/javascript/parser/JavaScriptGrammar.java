@@ -25,80 +25,56 @@ import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.lexer.JavaScriptTokenType;
 import org.sonar.javascript.tree.impl.SeparatedList;
-import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.DefaultExportDeclarationTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.FromClauseTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.ImportClauseTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.ModuleTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.NamedExportDeclarationTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.ObjectBindingPatternTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.ScriptTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.SpecifierListTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.SpecifierTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ComputedPropertyNameTreeImpl;
-import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
-import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
-import org.sonar.javascript.tree.impl.expression.PairPropertyTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ParenthesisedExpressionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.RestElementTreeImpl;
-import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
-import org.sonar.javascript.tree.impl.expression.TaggedTemplateTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
-import org.sonar.javascript.tree.impl.statement.BreakStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.CatchBlockTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ContinueStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.DebuggerStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.DoWhileStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ElseClauseTreeImpl;
-import org.sonar.javascript.tree.impl.statement.EmptyStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ExpressionStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ForObjectStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ForStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.LabelledStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ReturnStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ThrowStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
-import org.sonar.javascript.tree.impl.statement.VariableStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.WhileStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.WithStatementTreeImpl;
+import org.sonar.plugins.javascript.api.tree.ModuleTree;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
+import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewTargetTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
+import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
@@ -114,14 +90,32 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTre
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.EmptyStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.FinallyBlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
 
 public class JavaScriptGrammar {
 
@@ -137,23 +131,23 @@ public class JavaScriptGrammar {
    * A.4 Statement
    */
 
-  public EmptyStatementTreeImpl EMPTY_STATEMENT() {
-    return b.<EmptyStatementTreeImpl>nonterminal(Kind.EMPTY_STATEMENT)
+  public EmptyStatementTree EMPTY_STATEMENT() {
+    return b.<EmptyStatementTree>nonterminal(Kind.EMPTY_STATEMENT)
       .is(f.emptyStatement(b.token(JavaScriptPunctuator.SEMI)));
   }
 
   public DebuggerStatementTree DEBUGGER_STATEMENT() {
-    return b.<DebuggerStatementTreeImpl>nonterminal(Kind.DEBUGGER_STATEMENT)
+    return b.<DebuggerStatementTree>nonterminal(Kind.DEBUGGER_STATEMENT)
       .is(f.debuggerStatement(b.token(JavaScriptKeyword.DEBUGGER), b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
-  public VariableStatementTreeImpl VARIABLE_STATEMENT() {
-    return b.<VariableStatementTreeImpl>nonterminal(Kind.VARIABLE_STATEMENT)
+  public VariableStatementTree VARIABLE_STATEMENT() {
+    return b.<VariableStatementTree>nonterminal(Kind.VARIABLE_STATEMENT)
       .is(f.variableStatement(VARIABLE_DECLARATION(), b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
-  public VariableDeclarationTreeImpl VARIABLE_DECLARATION() {
-    return b.<VariableDeclarationTreeImpl>nonterminal()
+  public VariableDeclarationTree VARIABLE_DECLARATION() {
+    return b.<VariableDeclarationTree>nonterminal()
       .is(
         f.variableDeclaration1(
           b.firstOf(
@@ -168,73 +162,73 @@ public class JavaScriptGrammar {
       .is(f.bindingElementList1(BINDING_ELEMENT(), b.zeroOrMore(f.newTuple1(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
   }
 
-  public LabelledStatementTreeImpl LABELLED_STATEMENT() {
-    return b.<LabelledStatementTreeImpl>nonterminal(Kind.LABELLED_STATEMENT)
+  public LabelledStatementTree LABELLED_STATEMENT() {
+    return b.<LabelledStatementTree>nonterminal(Kind.LABELLED_STATEMENT)
       .is(f.labelledStatement(LABEL_IDENTIFIER(), b.token(JavaScriptPunctuator.COLON), STATEMENT()));
   }
 
-  public ContinueStatementTreeImpl CONTINUE_STATEMENT() {
-    return b.<ContinueStatementTreeImpl>nonterminal(Kind.CONTINUE_STATEMENT)
+  public ContinueStatementTree CONTINUE_STATEMENT() {
+    return b.<ContinueStatementTree>nonterminal(Kind.CONTINUE_STATEMENT)
       .is(b.firstOf(
         CONTINUE_WITH_LABEL(),
         CONTINUE_WITHOUT_LABEL()));
   }
 
-  public ContinueStatementTreeImpl CONTINUE_WITH_LABEL() {
-    return b.<ContinueStatementTreeImpl>nonterminal()
+  public ContinueStatementTree CONTINUE_WITH_LABEL() {
+    return b.<ContinueStatementTree>nonterminal()
       .is(f.continueWithLabel(
         b.token(JavaScriptKeyword.CONTINUE),
         LABEL_IDENTIFIER_NO_LB(),
         b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
-  public ContinueStatementTreeImpl CONTINUE_WITHOUT_LABEL() {
-    return b.<ContinueStatementTreeImpl>nonterminal()
+  public ContinueStatementTree CONTINUE_WITHOUT_LABEL() {
+    return b.<ContinueStatementTree>nonterminal()
       .is(f.continueWithoutLabel(b.token(JavaScriptKeyword.CONTINUE), b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
   }
 
-  public BreakStatementTreeImpl BREAK_STATEMENT() {
-    return b.<BreakStatementTreeImpl>nonterminal(Kind.BREAK_STATEMENT)
+  public BreakStatementTree BREAK_STATEMENT() {
+    return b.<BreakStatementTree>nonterminal(Kind.BREAK_STATEMENT)
       .is(b.firstOf(
         BREAK_WITH_LABEL(),
         BREAK_WITHOUT_LABEL()));
   }
 
-  public BreakStatementTreeImpl BREAK_WITH_LABEL() {
-    return b.<BreakStatementTreeImpl>nonterminal()
+  public BreakStatementTree BREAK_WITH_LABEL() {
+    return b.<BreakStatementTree>nonterminal()
       .is(f.breakWithLabel(
         b.token(JavaScriptKeyword.BREAK),
         LABEL_IDENTIFIER_NO_LB(),
         b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
-  public BreakStatementTreeImpl BREAK_WITHOUT_LABEL() {
-    return b.<BreakStatementTreeImpl>nonterminal()
+  public BreakStatementTree BREAK_WITHOUT_LABEL() {
+    return b.<BreakStatementTree>nonterminal()
       .is(f.breakWithoutLabel(b.token(JavaScriptKeyword.BREAK), b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
   }
 
-  public ReturnStatementTreeImpl RETURN_STATEMENT() {
-    return b.<ReturnStatementTreeImpl>nonterminal(Kind.RETURN_STATEMENT)
+  public ReturnStatementTree RETURN_STATEMENT() {
+    return b.<ReturnStatementTree>nonterminal(Kind.RETURN_STATEMENT)
       .is(b.firstOf(
         RETURN_WITH_EXPRESSION(),
         RETURN_WITHOUT_EXPRESSION()));
   }
 
-  public ReturnStatementTreeImpl RETURN_WITH_EXPRESSION() {
-    return b.<ReturnStatementTreeImpl>nonterminal()
+  public ReturnStatementTree RETURN_WITH_EXPRESSION() {
+    return b.<ReturnStatementTree>nonterminal()
       .is(f.returnWithExpression(
         b.token(JavaScriptKeyword.RETURN),
         EXPRESSION_NO_LINE_BREAK(),
         b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
-  public ReturnStatementTreeImpl RETURN_WITHOUT_EXPRESSION() {
-    return b.<ReturnStatementTreeImpl>nonterminal()
+  public ReturnStatementTree RETURN_WITHOUT_EXPRESSION() {
+    return b.<ReturnStatementTree>nonterminal()
       .is(f.returnWithoutExpression(b.token(JavaScriptKeyword.RETURN), b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
   }
 
-  public ThrowStatementTreeImpl THROW_STATEMENT() {
-    return b.<ThrowStatementTreeImpl>nonterminal(Kind.THROW_STATEMENT)
+  public ThrowStatementTree THROW_STATEMENT() {
+    return b.<ThrowStatementTree>nonterminal(Kind.THROW_STATEMENT)
       .is(
         f.newThrowStatement(
           b.token(JavaScriptKeyword.THROW),
@@ -242,8 +236,8 @@ public class JavaScriptGrammar {
           b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
-  public WithStatementTreeImpl WITH_STATEMENT() {
-    return b.<WithStatementTreeImpl>nonterminal(Kind.WITH_STATEMENT)
+  public WithStatementTree WITH_STATEMENT() {
+    return b.<WithStatementTree>nonterminal(Kind.WITH_STATEMENT)
       .is(f.newWithStatement(
         b.token(JavaScriptKeyword.WITH),
         b.token(JavaScriptPunctuator.LPARENTHESIS),
@@ -252,8 +246,8 @@ public class JavaScriptGrammar {
         STATEMENT()));
   }
 
-  public BlockTreeImpl BLOCK() {
-    return b.<BlockTreeImpl>nonterminal(Kind.BLOCK)
+  public BlockTree BLOCK() {
+    return b.<BlockTree>nonterminal(Kind.BLOCK)
       .is(f.newBlock(
         b.token(JavaScriptPunctuator.LCURLYBRACE),
         b.optional(b.oneOrMore(STATEMENT())),
@@ -289,8 +283,8 @@ public class JavaScriptGrammar {
       .is(f.finallyBlock(b.token(JavaScriptKeyword.FINALLY), BLOCK()));
   }
 
-  public CatchBlockTreeImpl CATCH_CLAUSE() {
-    return b.<CatchBlockTreeImpl>nonterminal(Kind.CATCH_BLOCK)
+  public CatchBlockTree CATCH_CLAUSE() {
+    return b.<CatchBlockTree>nonterminal(Kind.CATCH_BLOCK)
       .is(f.newCatchBlock(
         b.token(JavaScriptKeyword.CATCH),
         b.token(JavaScriptPunctuator.LPARENTHESIS),
@@ -338,8 +332,8 @@ public class JavaScriptGrammar {
         b.optional(b.oneOrMore(STATEMENT()))));
   }
 
-  public IfStatementTreeImpl IF_STATEMENT() {
-    return b.<IfStatementTreeImpl>nonterminal(Kind.IF_STATEMENT)
+  public IfStatementTree IF_STATEMENT() {
+    return b.<IfStatementTree>nonterminal(Kind.IF_STATEMENT)
       .is(
         f.ifStatement(
           b.token(JavaScriptKeyword.IF),
@@ -350,15 +344,15 @@ public class JavaScriptGrammar {
           b.optional(ELSE_CLAUSE())));
   }
 
-  public ElseClauseTreeImpl ELSE_CLAUSE() {
-    return b.<ElseClauseTreeImpl>nonterminal(Kind.ELSE_CLAUSE)
+  public ElseClauseTree ELSE_CLAUSE() {
+    return b.<ElseClauseTree>nonterminal(Kind.ELSE_CLAUSE)
       .is(f.elseClause(
         b.token(JavaScriptKeyword.ELSE),
         STATEMENT()));
   }
 
-  public WhileStatementTreeImpl WHILE_STATEMENT() {
-    return b.<WhileStatementTreeImpl>nonterminal(Kind.WHILE_STATEMENT)
+  public WhileStatementTree WHILE_STATEMENT() {
+    return b.<WhileStatementTree>nonterminal(Kind.WHILE_STATEMENT)
       .is(
         f.whileStatement(
           b.token(JavaScriptKeyword.WHILE),
@@ -368,8 +362,8 @@ public class JavaScriptGrammar {
           STATEMENT()));
   }
 
-  public DoWhileStatementTreeImpl DO_WHILE_STATEMENT() {
-    return b.<DoWhileStatementTreeImpl>nonterminal(Kind.DO_WHILE_STATEMENT)
+  public DoWhileStatementTree DO_WHILE_STATEMENT() {
+    return b.<DoWhileStatementTree>nonterminal(Kind.DO_WHILE_STATEMENT)
       .is(
         f.doWhileStatement(
           b.token(JavaScriptKeyword.DO),
@@ -381,16 +375,16 @@ public class JavaScriptGrammar {
           b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
-  public ExpressionStatementTreeImpl EXPRESSION_STATEMENT() {
-    return b.<ExpressionStatementTreeImpl>nonterminal(Kind.EXPRESSION_STATEMENT)
+  public ExpressionStatementTree EXPRESSION_STATEMENT() {
+    return b.<ExpressionStatementTree>nonterminal(Kind.EXPRESSION_STATEMENT)
       .is(f.expressionStatement(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LCURLY_AND_FUNCTION), EXPRESSION(), b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
   /**
    * ECMAScript 6
    */
-  public ForObjectStatementTreeImpl FOR_OF_STATEMENT() {
-    return b.<ForObjectStatementTreeImpl>nonterminal(Kind.FOR_OF_STATEMENT)
+  public ForObjectStatementTree FOR_OF_STATEMENT() {
+    return b.<ForObjectStatementTree>nonterminal(Kind.FOR_OF_STATEMENT)
       .is(f.forOfStatement(
         b.token(JavaScriptKeyword.FOR),
         b.optional(b.token(JavaScriptKeyword.AWAIT)),
@@ -404,8 +398,8 @@ public class JavaScriptGrammar {
         STATEMENT()));
   }
 
-  public ForObjectStatementTreeImpl FOR_IN_STATEMENT() {
-    return b.<ForObjectStatementTreeImpl>nonterminal(Kind.FOR_IN_STATEMENT)
+  public ForObjectStatementTree FOR_IN_STATEMENT() {
+    return b.<ForObjectStatementTree>nonterminal(Kind.FOR_IN_STATEMENT)
       .is(
         f.forInStatement(
           b.token(JavaScriptKeyword.FOR),
@@ -419,8 +413,8 @@ public class JavaScriptGrammar {
           STATEMENT()));
   }
 
-  public ForStatementTreeImpl FOR_STATEMENT() {
-    return b.<ForStatementTreeImpl>nonterminal(Kind.FOR_STATEMENT)
+  public ForStatementTree FOR_STATEMENT() {
+    return b.<ForStatementTree>nonterminal(Kind.FOR_STATEMENT)
       .is(
         f.forStatement(
           b.token(JavaScriptKeyword.FOR),
@@ -482,8 +476,8 @@ public class JavaScriptGrammar {
    * A.3 Expressions
    */
 
-  public LiteralTreeImpl LITERAL() {
-    return b.<LiteralTreeImpl>nonterminal(JavaScriptLegacyGrammar.LITERAL)
+  public LiteralTree LITERAL() {
+    return b.<LiteralTree>nonterminal(JavaScriptLegacyGrammar.LITERAL)
       .is(b.firstOf(
         f.nullLiteral(b.token(JavaScriptKeyword.NULL)),
         f.booleanLiteral(b.firstOf(b.token(JavaScriptKeyword.TRUE), b.token(JavaScriptKeyword.FALSE))),
@@ -492,18 +486,18 @@ public class JavaScriptGrammar {
         f.regexpLiteral(b.token(JavaScriptTokenType.REGULAR_EXPRESSION_LITERAL))));
   }
 
-  public LiteralTreeImpl NUMERIC_LITERAL() {
-    return b.<LiteralTreeImpl>nonterminal(Kind.NUMERIC_LITERAL)
+  public LiteralTree NUMERIC_LITERAL() {
+    return b.<LiteralTree>nonterminal(Kind.NUMERIC_LITERAL)
       .is(f.numericLiteral(b.token(JavaScriptTokenType.NUMERIC_LITERAL)));
   }
 
-  public LiteralTreeImpl STRING_LITERAL() {
-    return b.<LiteralTreeImpl>nonterminal(Kind.STRING_LITERAL)
+  public LiteralTree STRING_LITERAL() {
+    return b.<LiteralTree>nonterminal(Kind.STRING_LITERAL)
       .is(f.stringLiteral(b.token(JavaScriptLegacyGrammar.STRING_LITERAL)));
   }
 
-  public ParameterListTreeImpl FORMAL_PARAMETER_CLAUSE() {
-    return b.<ParameterListTreeImpl>nonterminal(Kind.FORMAL_PARAMETER_LIST)
+  public ParameterListTree FORMAL_PARAMETER_CLAUSE() {
+    return b.<ParameterListTree>nonterminal(Kind.FORMAL_PARAMETER_LIST)
       .is(b.firstOf(
         f.formalParameterClause1(
           b.token(JavaScriptPunctuator.LPARENTHESIS),
@@ -533,8 +527,8 @@ public class JavaScriptGrammar {
   /**
    * ECMAScript 6
    */
-  public RestElementTreeImpl BINDING_REST_ELEMENT() {
-    return b.<RestElementTreeImpl>nonterminal(JavaScriptLegacyGrammar.BINDING_REST_ELEMENT)
+  public RestElementTree BINDING_REST_ELEMENT() {
+    return b.<RestElementTree>nonterminal(JavaScriptLegacyGrammar.BINDING_REST_ELEMENT)
       .is(f.bindingRestElement(b.token(JavaScriptPunctuator.ELLIPSIS), BINDING_IDENTIFIER()));
   }
 
@@ -798,8 +792,8 @@ public class JavaScriptGrammar {
           f.newTuple20(b.optional(b.token(JavaScriptPunctuator.STAR)), ASSIGNMENT_EXPRESSION())))));
   }
 
-  public IdentifierTreeImpl IDENTIFIER_REFERENCE() {
-    return b.<IdentifierTreeImpl>nonterminal(JavaScriptLegacyGrammar.IDENTIFIER_REFERENCE)
+  public IdentifierTree IDENTIFIER_REFERENCE() {
+    return b.<IdentifierTree>nonterminal(JavaScriptLegacyGrammar.IDENTIFIER_REFERENCE)
       .is(f.identifierReference(b.firstOf(
         b.token(JavaScriptKeyword.YIELD),
         b.token(JavaScriptKeyword.AWAIT),
@@ -807,8 +801,8 @@ public class JavaScriptGrammar {
       );
   }
 
-  public IdentifierTreeImpl BINDING_IDENTIFIER() {
-    return b.<IdentifierTreeImpl>nonterminal(JavaScriptLegacyGrammar.BINDING_IDENTIFIER)
+  public IdentifierTree BINDING_IDENTIFIER() {
+    return b.<IdentifierTree>nonterminal(JavaScriptLegacyGrammar.BINDING_IDENTIFIER)
       .is(f.bindingIdentifier(b.firstOf(
         b.token(JavaScriptKeyword.YIELD),
         b.token(JavaScriptKeyword.AWAIT),
@@ -816,25 +810,25 @@ public class JavaScriptGrammar {
       );
   }
 
-  public IdentifierTreeImpl LABEL_IDENTIFIER_NO_LB() {
-    return b.<IdentifierTreeImpl>nonterminal()
+  public IdentifierTree LABEL_IDENTIFIER_NO_LB() {
+    return b.<IdentifierTree>nonterminal()
       .is(f.labelIdentifier(
         b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptTokenType.IDENTIFIER)));
   }
 
-  public IdentifierTreeImpl LABEL_IDENTIFIER() {
-    return b.<IdentifierTreeImpl>nonterminal()
+  public IdentifierTree LABEL_IDENTIFIER() {
+    return b.<IdentifierTree>nonterminal()
       .is(f.labelIdentifier(b.token(JavaScriptTokenType.IDENTIFIER)));
   }
 
-  public IdentifierTreeImpl IDENTIFIER_NAME() {
-    return b.<IdentifierTreeImpl>nonterminal()
+  public IdentifierTree IDENTIFIER_NAME() {
+    return b.<IdentifierTree>nonterminal()
       .is(f.identifierName(b.token(JavaScriptLegacyGrammar.IDENTIFIER_NAME)));
   }
 
-  public ArrowFunctionTreeImpl ARROW_FUNCTION() {
-    return b.<ArrowFunctionTreeImpl>nonterminal(Kind.ARROW_FUNCTION)
+  public ArrowFunctionTree ARROW_FUNCTION() {
+    return b.<ArrowFunctionTree>nonterminal(Kind.ARROW_FUNCTION)
       .is(f.arrowFunction(
         b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
         b.firstOf(
@@ -864,8 +858,8 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public SuperTreeImpl SUPER() {
-    return b.<SuperTreeImpl>nonterminal(Kind.SUPER)
+  public LiteralTree SUPER() {
+    return b.<LiteralTree>nonterminal(Kind.SUPER)
       .is(f.superExpression(b.token(JavaScriptKeyword.SUPER)));
   }
 
@@ -878,14 +872,14 @@ public class JavaScriptGrammar {
   }
 
   public MemberExpressionTree OBJECT_PROPERTY_ACCESS() {
-    return b.<DotMemberExpressionTreeImpl>nonterminal(Kind.DOT_MEMBER_EXPRESSION)
+    return b.<DotMemberExpressionTree>nonterminal(Kind.DOT_MEMBER_EXPRESSION)
       .is(f.newDotMemberExpression(
         b.token(JavaScriptPunctuator.DOT),
         IDENTIFIER_NAME()));
   }
 
   public MemberExpressionTree BRACKET_EXPRESSION() {
-    return b.<BracketMemberExpressionTreeImpl>nonterminal(Kind.BRACKET_MEMBER_EXPRESSION)
+    return b.<BracketMemberExpressionTree>nonterminal(Kind.BRACKET_MEMBER_EXPRESSION)
       .is(
         f.newBracketMemberExpression(
           b.token(JavaScriptPunctuator.LBRACKET),
@@ -894,13 +888,13 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree TAGGED_TEMPLATE() {
-    return b.<TaggedTemplateTreeImpl>nonterminal(Kind.TAGGED_TEMPLATE)
+    return b.<TaggedTemplateTree>nonterminal(Kind.TAGGED_TEMPLATE)
       .is(f.newTaggedTemplate(TEMPLATE_LITERAL()));
 
   }
 
-  public ParameterListTreeImpl ARGUMENT_CLAUSE() {
-    return b.<ParameterListTreeImpl>nonterminal(Kind.ARGUMENTS)
+  public ParameterListTree ARGUMENT_CLAUSE() {
+    return b.<ParameterListTree>nonterminal(Kind.ARGUMENTS)
       .is(f.argumentClause(
         b.token(JavaScriptPunctuator.LPARENTHESIS),
         b.optional(ARGUMENT_LIST()),
@@ -934,8 +928,8 @@ public class JavaScriptGrammar {
         ))));
   }
 
-  public ParenthesisedExpressionTreeImpl PARENTHESISED_EXPRESSION() {
-    return b.<ParenthesisedExpressionTreeImpl>nonterminal(Kind.PARENTHESISED_EXPRESSION)
+  public ParenthesisedExpressionTree PARENTHESISED_EXPRESSION() {
+    return b.<ParenthesisedExpressionTree>nonterminal(Kind.PARENTHESISED_EXPRESSION)
       .is(
         f.parenthesisedExpression(
           b.token(JavaScriptPunctuator.LPARENTHESIS),
@@ -943,8 +937,8 @@ public class JavaScriptGrammar {
           b.token(JavaScriptPunctuator.RPARENTHESIS)));
   }
 
-  public ClassTreeImpl CLASS_EXPRESSION() {
-    return b.<ClassTreeImpl>nonterminal(Kind.CLASS_EXPRESSION)
+  public ClassTree CLASS_EXPRESSION() {
+    return b.<ClassTree>nonterminal(Kind.CLASS_EXPRESSION)
       .is(
         f.classExpression(
           b.zeroOrMore(DECORATOR()),
@@ -957,8 +951,8 @@ public class JavaScriptGrammar {
           b.token(JavaScriptPunctuator.RCURLYBRACE)));
   }
 
-  public ComputedPropertyNameTreeImpl COMPUTED_PROPERTY_NAME() {
-    return b.<ComputedPropertyNameTreeImpl>nonterminal(Kind.COMPUTED_PROPERTY_NAME)
+  public ComputedPropertyNameTree COMPUTED_PROPERTY_NAME() {
+    return b.<ComputedPropertyNameTree>nonterminal(Kind.COMPUTED_PROPERTY_NAME)
       .is(f.computedPropertyName(
         b.token(JavaScriptPunctuator.LBRACKET),
         ASSIGNMENT_EXPRESSION(),
@@ -983,8 +977,8 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public PairPropertyTreeImpl PAIR_PROPERTY() {
-    return b.<PairPropertyTreeImpl>nonterminal(Kind.PAIR_PROPERTY)
+  public PairPropertyTree PAIR_PROPERTY() {
+    return b.<PairPropertyTree>nonterminal(Kind.PAIR_PROPERTY)
       .is(f.pairProperty(
         PROPERTY_NAME(),
         b.token(JavaScriptPunctuator.COLON),
@@ -1141,13 +1135,13 @@ public class JavaScriptGrammar {
    */
 
   // [START] Module, import & export
-  public FromClauseTreeImpl FROM_CLAUSE() {
-    return b.<FromClauseTreeImpl>nonterminal(Kind.FROM_CLAUSE)
+  public FromClauseTree FROM_CLAUSE() {
+    return b.<FromClauseTree>nonterminal(Kind.FROM_CLAUSE)
       .is(f.fromClause(b.token(JavaScriptLegacyGrammar.FROM), STRING_LITERAL()));
   }
 
-  public DefaultExportDeclarationTreeImpl DEFAULT_EXPORT_DECLARATION() {
-    return b.<DefaultExportDeclarationTreeImpl>nonterminal(Kind.DEFAULT_EXPORT_DECLARATION)
+  public DefaultExportDeclarationTree DEFAULT_EXPORT_DECLARATION() {
+    return b.<DefaultExportDeclarationTree>nonterminal(Kind.DEFAULT_EXPORT_DECLARATION)
       .is(f.defaultExportDeclaration(
         b.token(JavaScriptKeyword.EXPORT),
         b.token(JavaScriptKeyword.DEFAULT),
@@ -1159,8 +1153,8 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public NamedExportDeclarationTreeImpl NAMED_EXPORT_DECLARATION() {
-    return b.<NamedExportDeclarationTreeImpl>nonterminal(Kind.NAMED_EXPORT_DECLARATION)
+  public NamedExportDeclarationTree NAMED_EXPORT_DECLARATION() {
+    return b.<NamedExportDeclarationTree>nonterminal(Kind.NAMED_EXPORT_DECLARATION)
       .is(
         f.namedExportDeclaration(
           b.token(JavaScriptKeyword.EXPORT),
@@ -1212,8 +1206,8 @@ public class JavaScriptGrammar {
         b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
-  public SpecifierListTreeImpl EXPORT_LIST() {
-    return b.<SpecifierListTreeImpl>nonterminal(Kind.EXPORT_LIST)
+  public SpecifierListTree EXPORT_LIST() {
+    return b.<SpecifierListTree>nonterminal(Kind.EXPORT_LIST)
       .is(f.exportList(
         b.token(JavaScriptPunctuator.LCURLYBRACE),
         b.optional(EXPORT_LIST_BODY()),
@@ -1229,8 +1223,8 @@ public class JavaScriptGrammar {
         b.optional(b.token(JavaScriptPunctuator.COMMA))));
   }
 
-  public SpecifierTreeImpl EXPORT_SPECIFIER() {
-    return b.<SpecifierTreeImpl>nonterminal(Kind.EXPORT_SPECIFIER)
+  public SpecifierTree EXPORT_SPECIFIER() {
+    return b.<SpecifierTree>nonterminal(Kind.EXPORT_SPECIFIER)
       .is(b.firstOf(
         f.exportSpecifier(IDENTIFIER_NAME(), b.token(JavaScriptLegacyGrammar.AS), IDENTIFIER_NAME()),
         f.exportSpecifier(IDENTIFIER_NAME())
@@ -1277,8 +1271,8 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public SpecifierTreeImpl IMPORT_SPECIFIER() {
-    return b.<SpecifierTreeImpl>nonterminal(Kind.IMPORT_SPECIFIER)
+  public SpecifierTree IMPORT_SPECIFIER() {
+    return b.<SpecifierTree>nonterminal(Kind.IMPORT_SPECIFIER)
       .is(b.firstOf(
         f.newImportSpecifier(IDENTIFIER_NAME(), b.token(JavaScriptLegacyGrammar.AS), BINDING_IDENTIFIER()),
         f.importSpecifier(BINDING_IDENTIFIER())
@@ -1294,8 +1288,8 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public ImportClauseTreeImpl IMPORT_CLAUSE() {
-    return b.<ImportClauseTreeImpl>nonterminal(Kind.IMPORT_CLAUSE)
+  public ImportClauseTree IMPORT_CLAUSE() {
+    return b.<ImportClauseTree>nonterminal(Kind.IMPORT_CLAUSE)
       .is(f.importClause(
         b.firstOf(
           IMPORT_LIST(),
@@ -1319,8 +1313,8 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public ModuleTreeImpl MODULE_BODY() {
-    return b.<ModuleTreeImpl>nonterminal(JavaScriptLegacyGrammar.MODULE_BODY)
+  public ModuleTree MODULE_BODY() {
+    return b.<ModuleTree>nonterminal(JavaScriptLegacyGrammar.MODULE_BODY)
       .is(
         f.module(
           b.oneOrMore(
@@ -1349,8 +1343,8 @@ public class JavaScriptGrammar {
       .is(f.initializedBindingElement(b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
   }
 
-  public ObjectBindingPatternTreeImpl OBJECT_BINDING_PATTERN() {
-    return b.<ObjectBindingPatternTreeImpl>nonterminal(Kind.OBJECT_BINDING_PATTERN)
+  public ObjectBindingPatternTree OBJECT_BINDING_PATTERN() {
+    return b.<ObjectBindingPatternTree>nonterminal(Kind.OBJECT_BINDING_PATTERN)
       .is(b.firstOf(
         f.objectBindingPattern(
           b.token(JavaScriptPunctuator.LCURLYBRACE),
@@ -1390,8 +1384,8 @@ public class JavaScriptGrammar {
         BINDING_PATTERN()));
   }
 
-  public ArrayBindingPatternTreeImpl ARRAY_BINDING_PATTERN() {
-    return b.<ArrayBindingPatternTreeImpl>nonterminal(JavaScriptLegacyGrammar.ARRAY_BINDING_PATTERN)
+  public ArrayBindingPatternTree ARRAY_BINDING_PATTERN() {
+    return b.<ArrayBindingPatternTree>nonterminal(JavaScriptLegacyGrammar.ARRAY_BINDING_PATTERN)
       .is(f.arrayBindingPattern(
         b.token(JavaScriptPunctuator.LBRACKET),
         b.optional(BINDING_ELEMENT()),
@@ -1465,8 +1459,8 @@ public class JavaScriptGrammar {
 
   // [START] Classes, methods, functions & generators
 
-  public ClassTreeImpl CLASS_DECLARATION() {
-    return b.<ClassTreeImpl>nonterminal(Kind.CLASS_DECLARATION)
+  public ClassTree CLASS_DECLARATION() {
+    return b.<ClassTree>nonterminal(Kind.CLASS_DECLARATION)
       .is(
         f.classDeclaration(
           b.zeroOrMore(DECORATOR()),
@@ -1661,8 +1655,8 @@ public class JavaScriptGrammar {
   // [END] JSX
 
 
-  public ScriptTreeImpl SCRIPT() {
-    return b.<ScriptTreeImpl>nonterminal(JavaScriptLegacyGrammar.SCRIPT)
+  public ScriptTree SCRIPT() {
+    return b.<ScriptTree>nonterminal(JavaScriptLegacyGrammar.SCRIPT)
       .is(
         f.script(
           b.optional(b.token(JavaScriptLegacyGrammar.SHEBANG)),

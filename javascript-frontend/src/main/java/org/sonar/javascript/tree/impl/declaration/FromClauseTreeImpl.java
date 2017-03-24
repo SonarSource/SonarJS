@@ -22,7 +22,6 @@ package org.sonar.javascript.tree.impl.declaration;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
@@ -35,7 +34,7 @@ public class FromClauseTreeImpl extends JavaScriptTree implements FromClauseTree
   private final SyntaxToken fromToken;
   private final LiteralTree module;
 
-  public FromClauseTreeImpl(InternalSyntaxToken fromToken, LiteralTreeImpl module) {
+  public FromClauseTreeImpl(InternalSyntaxToken fromToken, LiteralTree module) {
 
     this.fromToken = fromToken;
     this.module = module;

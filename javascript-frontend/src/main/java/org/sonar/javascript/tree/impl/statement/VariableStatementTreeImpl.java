@@ -25,15 +25,16 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class VariableStatementTreeImpl extends JavaScriptTree implements VariableStatementTree {
 
-  private final VariableDeclarationTreeImpl declaration;
+  private final VariableDeclarationTree declaration;
   private final SyntaxToken semicolonToken;
 
-  public VariableStatementTreeImpl(VariableDeclarationTreeImpl declaration, SyntaxToken semicolonToken) {
+  public VariableStatementTreeImpl(VariableDeclarationTree declaration, SyntaxToken semicolonToken) {
     this.declaration = declaration;
     this.semicolonToken = semicolonToken;
   }
@@ -44,7 +45,7 @@ public class VariableStatementTreeImpl extends JavaScriptTree implements Variabl
   }
 
   @Override
-  public VariableDeclarationTreeImpl declaration() {
+  public VariableDeclarationTree declaration() {
     return declaration;
   }
 

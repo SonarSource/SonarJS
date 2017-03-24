@@ -23,7 +23,6 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -51,12 +50,11 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
 
   }
 
-  public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, ExpressionTree expression, ParameterListTreeImpl arguments) {
+  public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, ExpressionTree expression, ParameterListTree arguments) {
     this.kind = kind;
     this.newKeyword = newKeyword;
     this.expression = expression;
     this.arguments = arguments;
-
   }
 
   @Override

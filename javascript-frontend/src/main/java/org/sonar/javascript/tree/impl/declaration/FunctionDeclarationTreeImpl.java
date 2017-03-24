@@ -23,9 +23,7 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
@@ -47,7 +45,7 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
   private FunctionDeclarationTreeImpl(
     @Nullable SyntaxToken asyncToken,
     InternalSyntaxToken functionKeyword, @Nullable InternalSyntaxToken starToken,
-    IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body
+    IdentifierTree name, ParameterListTree parameters, BlockTree body
   ) {
 
     this.asyncToken = asyncToken;
@@ -61,14 +59,14 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
 
   public static FunctionDeclarationTree create(
     @Nullable SyntaxToken asyncToken, InternalSyntaxToken functionKeyword,
-    IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body
+    IdentifierTree name, ParameterListTree parameters, BlockTree body
   ) {
     return new FunctionDeclarationTreeImpl(asyncToken, functionKeyword, null, name, parameters, body);
   }
 
   public static FunctionDeclarationTree createGenerator(
     InternalSyntaxToken functionKeyword, InternalSyntaxToken starToken,
-    IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body
+    IdentifierTree name, ParameterListTree parameters, BlockTree body
   ) {
     return new FunctionDeclarationTreeImpl(null, functionKeyword, starToken, name, parameters, body);
   }

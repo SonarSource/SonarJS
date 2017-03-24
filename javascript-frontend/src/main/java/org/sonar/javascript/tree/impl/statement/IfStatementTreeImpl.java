@@ -56,7 +56,7 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
 
   public IfStatementTreeImpl(
     InternalSyntaxToken ifKeyword, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis,
-    StatementTree statement, ElseClauseTreeImpl elseClause
+    StatementTree statement, ElseClauseTree elseClause
   ) {
     this.ifKeyword = ifKeyword;
     this.openParenthesis = openParenthesis;

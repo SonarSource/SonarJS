@@ -36,14 +36,14 @@ public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClause
   private final FromClauseTree fromClause;
   private final SyntaxToken semicolonToken;
 
-  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, @Nullable SyntaxToken semicolonToken) {
+  public ExportClauseTreeImpl(SpecifierListTree exports, @Nullable SyntaxToken semicolonToken) {
 
     this.exports = exports;
     this.fromClause = null;
     this.semicolonToken = semicolonToken;
   }
 
-  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, FromClauseTreeImpl fromClause, @Nullable SyntaxToken semicolonToken) {
+  public ExportClauseTreeImpl(SpecifierListTree exports, FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken) {
 
     this.exports = exports;
     this.fromClause = fromClause;
