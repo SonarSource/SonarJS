@@ -28,6 +28,7 @@ import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.declaration.FunctionTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -36,8 +37,6 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 @Rule(key = "FunctionDefinitionInsideLoop")
@@ -69,7 +68,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
 
       if (!isIIFE(functionTree)
         && !isAllowedCallback(functionTree)
-        && ReferencesVisitor.usesVariableFromOuterScope(functionTree, functionAndLoopScopes.peek())) {
+        && usesVariableFromOuterScope(functionTree, functionAndLoopScopes.peek())) {
 
         addIssue(getTokenForIssueLocation(tree), MESSAGE);
       }
@@ -115,48 +114,27 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
     return functionAndLoopScopes.peek().is(KindSet.LOOP_KINDS);
   }
 
-  private static class ReferencesVisitor extends DoubleDispatchVisitor {
-
-    private FunctionTree functionTree;
-    private Tree loopTree;
-    private boolean usesVariableFromOuterScope = false;
-
-    private ReferencesVisitor(FunctionTree functionTree, Tree loopTree) {
-      this.functionTree = functionTree;
-      this.loopTree = loopTree;
-    }
-
-    static boolean usesVariableFromOuterScope(FunctionTree functionTree, Tree loop) {
-      ReferencesVisitor referencesVisitor = new ReferencesVisitor(functionTree, loop);
-      referencesVisitor.scan(functionTree);
-      return referencesVisitor.usesVariableFromOuterScope;
-    }
-
-    @Override
-    public void visitIdentifier(IdentifierTree tree) {
-      Symbol symbol = tree.symbol();
-      if (symbol != null && !symbol.is(Symbol.Kind.LET_VARIABLE)) {
-        Tree symbolScopeTree = symbol.scope().tree();
-        if (((JavaScriptTree) symbolScopeTree).isAncestorOf((JavaScriptTree) functionTree) && !hasConstValue(symbol)) {
-          usesVariableFromOuterScope = true;
-        }
-      }
-    }
-
-    /**
-     * Returns true if symbol is written only once and outside the loop
-     */
-    private boolean hasConstValue(Symbol symbol) {
-      for (Usage usage : symbol.usages()) {
-        if (!usage.isDeclaration() && usage.isWrite()) {
-          return false;
-        }
-
-        if (usage.isDeclaration() && usage.isWrite() && ((JavaScriptTree) loopTree).isAncestorOf((JavaScriptTree) usage.identifierTree())) {
-          return false;
-        }
-      }
-      return true;
-    }
+  private static boolean usesVariableFromOuterScope(FunctionTree functionTree, Tree loop) {
+    return ((FunctionTreeImpl) functionTree).outerScopeSymbolUsages()
+      .map(Usage::symbol)
+      .filter(symbol -> !symbol.is(Symbol.Kind.LET_VARIABLE))
+      .anyMatch(symbol -> !hasConstValue(symbol, loop));
   }
+
+  /**
+   * Returns true if symbol is written only once and outside the loop
+   */
+  private static boolean hasConstValue(Symbol symbol, Tree loopTree) {
+    for (Usage usage : symbol.usages()) {
+      if (!usage.isDeclaration() && usage.isWrite()) {
+        return false;
+      }
+
+      if (usage.isDeclaration() && usage.isWrite() && ((JavaScriptTree) loopTree).isAncestorOf((JavaScriptTree) usage.identifierTree())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
 }

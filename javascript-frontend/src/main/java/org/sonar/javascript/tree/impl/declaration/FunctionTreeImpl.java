@@ -19,9 +19,14 @@
  */
 package org.sonar.javascript.tree.impl.declaration;
 
+import java.util.stream.Stream;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.plugins.javascript.api.symbols.Usage;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public abstract class FunctionTreeImpl extends JavaScriptTree implements FunctionTree {
 
@@ -36,4 +41,34 @@ public abstract class FunctionTreeImpl extends JavaScriptTree implements Functio
     this.scope = scope;
   }
 
+  public Stream<Usage> outerScopeSymbolUsages() {
+    return SymbolUsagesVisitor.outerScopeSymbolUsages(this);
+  }
+
+  private static class SymbolUsagesVisitor extends DoubleDispatchVisitor {
+
+    private FunctionTree functionTree;
+    private Stream.Builder<Usage> outerScopeUsages = Stream.builder();
+
+    private SymbolUsagesVisitor(FunctionTree functionTree) {
+      this.functionTree = functionTree;
+    }
+
+    private static Stream<Usage> outerScopeSymbolUsages(FunctionTree functionTree) {
+      SymbolUsagesVisitor symbolUsagesVisitor = new SymbolUsagesVisitor(functionTree);
+      symbolUsagesVisitor.scan(functionTree.body());
+      symbolUsagesVisitor.scan(functionTree.parameterClause());
+      return symbolUsagesVisitor.outerScopeUsages.build();
+    }
+
+    @Override
+    public void visitIdentifier(IdentifierTree tree) {
+      tree.symbolUsage().ifPresent(usage -> {
+        Tree symbolScopeTree = usage.symbol().scope().tree();
+        if (((JavaScriptTree) symbolScopeTree).isAncestorOf((JavaScriptTree) functionTree)) {
+          outerScopeUsages.add(usage);
+        }
+      });
+    }
+  }
 }
