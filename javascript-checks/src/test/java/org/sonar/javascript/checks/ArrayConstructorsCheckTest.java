@@ -23,11 +23,11 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ArrayAndObjectConstructorsCheckTest {
+public class ArrayConstructorsCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new ArrayAndObjectConstructorsCheck(), new File("src/test/resources/checks/arrayAndObjectConstructors.js"));
+    JavaScriptCheckVerifier.verify(new ArrayConstructorsCheck(), new File("src/test/resources/checks/arrayConstructors.js"));
   }
 
 }
