@@ -103,6 +103,7 @@ import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.EmptyStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.FinallyBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
@@ -357,6 +358,9 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
+  public void visitFinallyBlock(FinallyBlockTree tree) {
+    scanChildren(tree);
+  }
 
   public void visitDebugger(DebuggerStatementTree tree) {
     scanChildren(tree);
