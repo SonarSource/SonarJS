@@ -1,6 +1,6 @@
 {
-  "title": "Expressions should not unconditionally evaluate to \"true\"",
-  "type": "CODE_SMELL",
+  "title": "Expressions should not unconditionally evaluate to \"false\"",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +15,5 @@
   "standards": [
     "CWE"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Major"
 }

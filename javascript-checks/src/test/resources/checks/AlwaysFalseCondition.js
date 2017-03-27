@@ -15,7 +15,7 @@ function unknown_value() {
 
 function undefined_variable() {
   var a;
-  if (a) {} // Noncompliant  [[sc=7;ec=8]] {{Change this condition so that it does not always evaluate to "false".}}
+  if (a) {} // Noncompliant  [[sc=7;ec=8]] {{Change this expression so that it does not always evaluate to "false".}}
 }
 
 function null_variable() {
@@ -36,12 +36,12 @@ function function_arguments() {
 
 function not_condition() {
   var a;
-  if (!a) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (!a) {} // OK, always true
 }
 
 function and_condition() {
   var a = random();
-  if (a && !a) {} // Noncompliant {{Change this condition so that it does not always evaluate to "false".}}
+  if (a && !a) {} // Noncompliant {{Change this expression so that it does not always evaluate to "false".}}
 //         ^^
   while (a && !a) {} // Noncompliant
 //            ^^
@@ -62,21 +62,20 @@ function ternary_operator() {
 
 function condition_in_expression() {
   var x = foo();
-  return x && x !== null && foo; // Noncompliant
-//            ^^^^^^^^^^
+  return x && x !== null && foo; // OK, always true
 }
 
 function or_condition() {
   var a = random();
-  if (a || !a) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (a || !a) {} // OK, always true
 }
 
 function true_literal() {
-  if (true) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (true) {} // OK, always true
 }
 
 function false_literal() {
-  if (false) {} // Noncompliant {{Change this condition so that it does not always evaluate to "false".}}
+  if (false) {} // Noncompliant {{Change this expression so that it does not always evaluate to "false".}}
 }
 
 function while_true() {
@@ -133,7 +132,7 @@ function loop() {
 }
 
 function function_arguments() {
-  if (arguments) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (arguments) {}// OK, always true
 }
 
 function for_in(obj) {
@@ -194,7 +193,7 @@ function big_number_of_paths() {
 function nested_if() {
   var a = random();
   if (a) {
-    if (a) {  // Noncompliant
+    if (a) {  // Ok, always true
 
     }
 
@@ -207,37 +206,37 @@ function nested_if() {
 function tro(x, y) {
   x = y && true;
   x = y && false;
-  x = true && y;  // Noncompliant
+  x = true && y;  // OK, always true
   x = false && y;  // Noncompliant
 
   x = y || true;
   x = y || false;
-  x = true || y;  // Noncompliant
+  x = true || y;  // OK, always true
   x = false || y;  // Noncompliant
 
-  if (y && true) {} // Noncompliant
+  if (y && true) {} // OK, always true
   if (y && false) {} // Noncompliant
-  if (true && y) {} // Noncompliant
+  if (true && y) {} // OK, always true
   if (false && y) {} // Noncompliant
 
-  if (y || true) {} // Noncompliant
+  if (y || true) {} // OK, always true
   if (y || false) {} // Noncompliant
-  if (true || y) {} // Noncompliant
+  if (true || y) {} // OK, always true
   if (false || y) {} // Noncompliant
 }
 
 function logical_and(p1, p2, p3) {
   var combi = p1 && p2 == 42 && p3 === null;
   if (combi) {
-    if (p1) {} // Noncompliant
-    if (p3 == null) {} // Noncompliant
+    if (p1) {} // OK, always true
+    if (p3 == null) {} // OK, always true
   }
 }
 
 function strict_equality(p1) {
   if (p1 === 0) {
-    if (p1 === 0) {}      // Noncompliant always true
-    if (p1 == 0) {}       // Noncompliant always true
+    if (p1 === 0) {}      // OK, always true
+    if (p1 == 0) {}       // OK, always true
     if (p1 === "") {}     // Noncompliant always false
     if (p1 != 0) {}       // Noncompliant always false
     if (p1 == "") {}      // OK Can't tell, yet
@@ -284,4 +283,33 @@ function ignore_assignment_expression() {
   if ((x = 0) || foo(x)) {
     doSomething();
   }
+}
+
+function issue_for_true_if_bug() {
+  var x = 42;
+
+  if (x) {
+//S   ^ 1 {{Always "true"}}
+    foo();
+
+  } else { // Noncompliant [[id=1]] {{Change corresponding condition which is always "true" so that this block will be executed.}}
+//  ^^^^
+    foobar();
+  }
+
+  if (x) { // OK, no 'else'
+    foo();
+  }
+
+  if (foo() && x) { // OK, not entire condition is true
+    foo();
+
+  } else {
+    foobar();
+  }
+
+  return x ? bar()
+//S      ^ 2 {{Always "true"}}
+    : foo(); // Noncompliant [[id=2]] {{Change corresponding condition which is always "true" so that this expression will be evaluated.}}
+//    ^^^^^
 }

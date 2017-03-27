@@ -23,24 +23,26 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-@Rule(key = "S2583")
-public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
+public abstract class AbstractAlwaysTrueOrFalseConditionCheck extends SeCheck {
 
   private Set<LiteralTree> ignoredLoopConditions;
 
@@ -62,27 +64,39 @@ public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
 
       Collection<Constraint> results = entry.getValue();
 
-      if (results.size() == 1) {
+      if (results.size() == 1 && !conditionTree.is(Kind.ASSIGNMENT)) {
         Constraint constraint = results.iterator().next();
-
-        if (!isTruthyLiteral(conditionTree, constraint) && !conditionTree.is(Kind.ASSIGNMENT)) {
-          String result = Constraint.TRUTHY.equals(constraint) ? "true" : "false";
-          addIssue(conditionTree, String.format("Change this condition so that it does not always evaluate to \"%s\".", result));
-        }
+        checkCondition(conditionTree, constraint);
       }
     }
   }
 
-  private static boolean isTruthyLiteral(Tree tree, Constraint constraint) {
-    ExpressionTree conditionWithoutParentheses = CheckUtils.removeParenthesis((ExpressionTree) tree);
+  abstract void checkCondition(Tree conditionTree, Constraint constraint);
 
-    return Constraint.TRUTHY.equals(constraint)
-      && conditionWithoutParentheses.is(
-        Kind.ARRAY_LITERAL,
-        Kind.OBJECT_LITERAL,
-        Kind.NEW_EXPRESSION,
-        Kind.NUMERIC_LITERAL,
-        Kind.STRING_LITERAL);
+  static Optional<ElseClauseTree> neverExecutedElseClause(Tree conditionTree, Constraint constraint) {
+    if (constraint.equals(Constraint.TRUTHY)) {
+      JavaScriptTree parent = ((JavaScriptTree) conditionTree).getParent();
+      if (parent.is(Kind.IF_STATEMENT)) {
+        IfStatementTree ifStatement = (IfStatementTree) parent;
+        return Optional.ofNullable(ifStatement.elseClause());
+      }
+
+    }
+
+    return Optional.empty();
+  }
+
+  static Optional<ExpressionTree> neverEvaluatedTernaryFalseResult(Tree conditionTree, Constraint constraint) {
+    if (constraint.equals(Constraint.TRUTHY)) {
+      JavaScriptTree parent = ((JavaScriptTree) conditionTree).getParent();
+      if (parent.is(Kind.CONDITIONAL_EXPRESSION)) {
+        ConditionalExpressionTree conditionalExpression = (ConditionalExpressionTree) parent;
+        return Optional.of(conditionalExpression.falseExpression());
+      }
+
+    }
+
+    return Optional.empty();
   }
 
   private class LoopsVisitor extends DoubleDispatchVisitor {
