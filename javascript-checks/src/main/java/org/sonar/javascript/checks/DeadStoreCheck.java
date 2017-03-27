@@ -54,7 +54,7 @@ import static org.sonar.javascript.se.LiveVariableAnalysis.isWrite;
 public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this useless assignment to local variable \"%s\"";
-  private static final Set<String> BASIC_VALUES = ImmutableSet.of("true", "false", "1", "0", "null", "''", "\"\"");
+  private static final Set<String> BASIC_VALUES = ImmutableSet.of("true", "false", "1", "0", "-1", "null", "''", "\"\"");
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
@@ -161,7 +161,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
     } else if (expression.is(Kind.UNARY_MINUS)) {
       ExpressionTree operand = ((UnaryExpressionTree) expression).expression();
-      return operand.is(Kind.NUMERIC_LITERAL) && "1".equals(((LiteralTree) operand).value());
+      return BASIC_VALUES.contains("-" + ((LiteralTree) operand).value());
 
     }
 
