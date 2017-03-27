@@ -19,18 +19,39 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 
 @Rule(key = "S3915")
 public class AlwaysFalseConditionCheck extends AbstractAlwaysTrueOrFalseConditionCheck {
+
+  private static final String MESSAGE_ELSE = "Change corresponding condition which is always \"true\" so that this block will be executed.";
+  private static final String MESSAGE_TERNARY = "Change corresponding condition which is always \"true\" so that this expression will be evaluated.";
 
   @Override
   void checkCondition(Tree conditionTree, Constraint constraint) {
     if (Constraint.FALSY.equals(constraint)) {
       addIssue(conditionTree, "Change this expression so that it does not always evaluate to \"false\".");
+      return;
     }
+
+    Optional<ElseClauseTree> neverExecutedElseClause = neverExecutedElseClause(conditionTree, constraint);
+    if (neverExecutedElseClause.isPresent()) {
+      addIssue(neverExecutedElseClause.get().elseKeyword(), MESSAGE_ELSE)
+        .secondary(conditionTree, "Always \"true\"");
+      return;
+    }
+
+    Optional<ExpressionTree> neverEvaluatedTernaryFalseResult = neverEvaluatedTernaryFalseResult(conditionTree, constraint);
+    if (neverEvaluatedTernaryFalseResult.isPresent()) {
+      addIssue(neverEvaluatedTernaryFalseResult.get(), MESSAGE_TERNARY)
+        .secondary(conditionTree, "Always \"true\"");
+    }
+
   }
 
 }

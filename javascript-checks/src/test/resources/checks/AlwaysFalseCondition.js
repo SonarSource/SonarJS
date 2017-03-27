@@ -284,3 +284,32 @@ function ignore_assignment_expression() {
     doSomething();
   }
 }
+
+function issue_for_true_if_bug() {
+  var x = 42;
+
+  if (x) {
+//S   ^ 1 {{Always "true"}}
+    foo();
+
+  } else { // Noncompliant [[id=1]] {{Change corresponding condition which is always "true" so that this block will be executed.}}
+//  ^^^^
+    foobar();
+  }
+
+  if (x) { // OK, no 'else'
+    foo();
+  }
+
+  if (foo() && x) { // OK, not entire condition is true
+    foo();
+
+  } else {
+    foobar();
+  }
+
+  return x ? bar()
+//S      ^ 2 {{Always "true"}}
+    : foo(); // Noncompliant [[id=2]] {{Change corresponding condition which is always "true" so that this expression will be evaluated.}}
+//    ^^^^^
+}

@@ -23,17 +23,22 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
@@ -67,6 +72,32 @@ public abstract class AbstractAlwaysTrueOrFalseConditionCheck extends SeCheck {
   }
 
   abstract void checkCondition(Tree conditionTree, Constraint constraint);
+
+  static Optional<ElseClauseTree> neverExecutedElseClause(Tree conditionTree, Constraint constraint) {
+    if (constraint.equals(Constraint.TRUTHY)) {
+      JavaScriptTree parent = ((JavaScriptTree) conditionTree).getParent();
+      if (parent.is(Kind.IF_STATEMENT)) {
+        IfStatementTree ifStatement = (IfStatementTree) parent;
+        return Optional.ofNullable(ifStatement.elseClause());
+      }
+
+    }
+
+    return Optional.empty();
+  }
+
+  static Optional<ExpressionTree> neverEvaluatedTernaryFalseResult(Tree conditionTree, Constraint constraint) {
+    if (constraint.equals(Constraint.TRUTHY)) {
+      JavaScriptTree parent = ((JavaScriptTree) conditionTree).getParent();
+      if (parent.is(Kind.CONDITIONAL_EXPRESSION)) {
+        ConditionalExpressionTree conditionalExpression = (ConditionalExpressionTree) parent;
+        return Optional.of(conditionalExpression.falseExpression());
+      }
+
+    }
+
+    return Optional.empty();
+  }
 
   private class LoopsVisitor extends DoubleDispatchVisitor {
     @Override

@@ -280,3 +280,28 @@ function ignore_assignment_expression() {
     doSomething();
   }
 }
+
+function no_issue_for_bug() {
+  var x = 42;
+
+  if (x) { // OK
+    foo();
+
+  } else {
+    foobar();
+  }
+
+  if (x) { // Noncompliant, no 'else'
+    foo();
+  }
+
+  if (foo() && x) { // Noncompliant
+//             ^
+    foo();
+
+  } else {
+    foobar();
+  }
+
+  return x ? 0 : 1; // OK
+}

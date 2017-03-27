@@ -31,9 +31,13 @@ public class AlwaysTrueConditionCheck extends AbstractAlwaysTrueOrFalseCondition
 
   @Override
   void checkCondition(Tree conditionTree, Constraint constraint) {
-    if (Constraint.TRUTHY.equals(constraint) && !isTruthyLiteral(conditionTree, constraint)) {
+    if (Constraint.TRUTHY.equals(constraint) && !isTruthyLiteral(conditionTree, constraint) && !makesSomeCodeNeverExecuted(conditionTree, constraint)) {
       addIssue(conditionTree, "Change this expression so that it does not always evaluate to \"true\".");
     }
+  }
+
+  private static boolean makesSomeCodeNeverExecuted(Tree conditionTree, Constraint constraint) {
+    return neverExecutedElseClause(conditionTree, constraint).isPresent() || neverEvaluatedTernaryFalseResult(conditionTree, constraint).isPresent();
   }
 
   private static boolean isTruthyLiteral(Tree tree, Constraint constraint) {
