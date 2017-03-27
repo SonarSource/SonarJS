@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -31,6 +33,8 @@ public class UselessExpressionStatementCheck extends DoubleDispatchVisitorCheck 
 
   private static final String MESSAGE = "Refactor or remove this statement.";
 
+  private static final Set<String> KNOWN_DIRECTIVES = ImmutableSet.of("use strict", "$:nomunge", "ngInject");
+
   @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
     Tree expression = tree.expression();
@@ -39,20 +43,22 @@ public class UselessExpressionStatementCheck extends DoubleDispatchVisitorCheck 
       addIssue(tree, MESSAGE);
     }
 
-    if (expression.is(Kind.STRING_LITERAL) && !isUseStrictDirective((LiteralTree) expression)) {
+    if (expression.is(Kind.STRING_LITERAL) && !isDirective((LiteralTree) expression)) {
       addIssue(tree, MESSAGE);
     }
 
     super.visitExpressionStatement(tree);
   }
 
-  private static boolean isUseStrictDirective(LiteralTree tree) {
+  private static boolean isDirective(LiteralTree tree) {
     if (tree.is(Kind.STRING_LITERAL)) {
-      String value = (tree).value();
-      value = value.substring(1, value.length() - 1);
-      return "use strict".equals(value);
+      return KNOWN_DIRECTIVES.contains(trimQuotes((tree).value()));
     }
 
     return false;
+  }
+
+  private static String trimQuotes(String value) {
+    return value.substring(1, value.length() - 1);
   }
 }
