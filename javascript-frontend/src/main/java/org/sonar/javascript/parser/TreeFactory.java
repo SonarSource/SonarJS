@@ -161,11 +161,9 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTr
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -180,7 +178,6 @@ import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
@@ -834,14 +831,6 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.IDENTIFIER_NAME, identifier);
   }
 
-  public DotMemberExpressionTree newDotMemberExpression(InternalSyntaxToken dotToken, IdentifierTree identifier) {
-    return new DotMemberExpressionTreeImpl(dotToken, identifier);
-  }
-
-  public BracketMemberExpressionTree newBracketMemberExpression(InternalSyntaxToken openBracket, ExpressionTree expression, InternalSyntaxToken closeBracket) {
-    return new BracketMemberExpressionTreeImpl(openBracket, expression, closeBracket);
-  }
-
   public LiteralTree superExpression(InternalSyntaxToken superToken) {
     return new SuperTreeImpl(superToken);
   }
@@ -850,28 +839,9 @@ public class TreeFactory {
     return new NewTargetTreeImpl(newKeyword, dot, target);
   }
 
-  public TaggedTemplateTree newTaggedTemplate(TemplateLiteralTree template) {
-    return new TaggedTemplateTreeImpl(template);
-  }
 
-  public ExpressionTree completeMemberExpression(ExpressionTree object, Optional<List<ExpressionTree>> properties) {
-    if (!properties.isPresent()) {
-      return object;
-    }
-
-    ExpressionTree result = object;
-    for (ExpressionTree property : properties.get()) {
-      if (property.is(Kind.DOT_MEMBER_EXPRESSION)) {
-        result = ((DotMemberExpressionTreeImpl) property).complete(result);
-
-      } else if (property.is(Kind.BRACKET_MEMBER_EXPRESSION)) {
-        result = ((BracketMemberExpressionTreeImpl) property).complete(result);
-
-      } else {
-        result = ((TaggedTemplateTreeImpl) property).complete(result);
-      }
-    }
-    return result;
+  public ExpressionTree memberExpression(ExpressionTree object, Optional<List<ExpressionTail>> tails) {
+    return tailedExpression(object, tails);
   }
 
   public SeparatedList<Tree> argumentList(
@@ -910,26 +880,34 @@ public class TreeFactory {
     return new CallExpressionTreeImpl(expression, arguments);
   }
 
-  public ExpressionTree callExpression(CallExpressionTree callExpression, Optional<List<ExpressionTree>> arguments) {
+  public ExpressionTree callExpression(CallExpressionTree callExpression, Optional<List<ExpressionTail>> tails) {
+    return tailedExpression(callExpression, tails);
+  }
 
-    if (!arguments.isPresent()) {
-      return callExpression;
+  private static ExpressionTree tailedExpression(ExpressionTree mainExpression, Optional<List<ExpressionTail>> tails) {
+    if (!tails.isPresent()) {
+      return mainExpression;
     }
 
-    ExpressionTree callee = callExpression;
+    ExpressionTree result = mainExpression;
 
-    for (ExpressionTree arg : arguments.get()) {
-      if (arg instanceof BracketMemberExpressionTree) {
-        callee = ((BracketMemberExpressionTreeImpl) arg).complete(callee);
-      } else if (arg instanceof DotMemberExpressionTreeImpl) {
-        callee = ((DotMemberExpressionTreeImpl) arg).complete(callee);
-      } else if (arg instanceof TaggedTemplateTreeImpl) {
-        callee = ((TaggedTemplateTreeImpl) arg).complete(callee);
+    for (ExpressionTail tail : tails.get()) {
+      if (tail instanceof BracketAccessTail) {
+        BracketAccessTail bracketAccessTail = (BracketAccessTail) tail;
+        result = new BracketMemberExpressionTreeImpl(result, bracketAccessTail.lBracket, bracketAccessTail.expressionTree, bracketAccessTail.rBracket);
+
+      } else if (tail instanceof DotAccessTail) {
+        DotAccessTail dotAccessTail = (DotAccessTail) tail;
+        result = new DotMemberExpressionTreeImpl(result, dotAccessTail.dot, dotAccessTail.identifierTree);
+
+      } else if (tail instanceof TemplateLiteralTail) {
+        result = new TaggedTemplateTreeImpl(result, ((TemplateLiteralTail) tail).templateLiteralTree);
+
       } else {
-        callee = new CallExpressionTreeImpl(callee, (ParameterListTreeImpl) arg);
+        result = new CallExpressionTreeImpl(result, ((ArgumentsTail) tail).argumentClause);
       }
     }
-    return callee;
+    return result;
   }
 
   public ParenthesisedExpressionTree parenthesisedExpression(InternalSyntaxToken openParenToken, ExpressionTree expression, InternalSyntaxToken closeParenToken) {
@@ -1590,9 +1568,7 @@ public class TreeFactory {
   public ExpressionTree jsxMemberExpression(IdentifierTree identifierTree, List<Tuple<InternalSyntaxToken, IdentifierTree>> rest) {
     ExpressionTree currentObject = identifierTree;
     for (Tuple<InternalSyntaxToken, IdentifierTree> tuple : rest) {
-      DotMemberExpressionTreeImpl newMemberExpression = new DotMemberExpressionTreeImpl(tuple.first, tuple.second);
-      newMemberExpression.complete(currentObject);
-      currentObject = newMemberExpression;
+      currentObject = new DotMemberExpressionTreeImpl(currentObject, tuple.first, tuple.second);
     }
 
     return currentObject;
@@ -1693,19 +1669,81 @@ public class TreeFactory {
     return new ConditionalExpressionTail(queryToken, trueExpr, colonToken, falseExpr);
   }
 
+  public BracketAccessTail newBracketAccess(InternalSyntaxToken lBracket, ExpressionTree expression, InternalSyntaxToken rBracket) {
+    return new BracketAccessTail(lBracket, expression, rBracket);
+  }
+
+  public ArgumentsTail argumentClauseTail(ParameterListTree parameterListTree) {
+    return new ArgumentsTail(parameterListTree);
+  }
+
+  public DotAccessTail dotAccess(InternalSyntaxToken dotToken, IdentifierTree identifierTree) {
+    return new DotAccessTail(dotToken, identifierTree);
+  }
+
+  public TemplateLiteralTail templateLiteralTailForMember(TemplateLiteralTree templateLiteralTree) {
+    return new TemplateLiteralTail(templateLiteralTree);
+  }
+
+  public TemplateLiteralTail templateLiteralTailForCall(TemplateLiteralTree templateLiteralTree) {
+    return new TemplateLiteralTail(templateLiteralTree);
+  }
+
   private static class ConditionalExpressionTail {
     InternalSyntaxToken queryToken;
     ExpressionTree trueExpr;
     InternalSyntaxToken colonToken;
     ExpressionTree falseExpr;
 
-    public ConditionalExpressionTail(InternalSyntaxToken queryToken, ExpressionTree trueExpr, InternalSyntaxToken colonToken, ExpressionTree falseExpr) {
+    ConditionalExpressionTail(InternalSyntaxToken queryToken, ExpressionTree trueExpr, InternalSyntaxToken colonToken, ExpressionTree falseExpr) {
       this.queryToken = queryToken;
       this.trueExpr = trueExpr;
       this.colonToken = colonToken;
       this.falseExpr = falseExpr;
     }
   }
+
+  interface ExpressionTail {
+  }
+
+  private static class ArgumentsTail implements ExpressionTail {
+    ParameterListTree argumentClause;
+
+    private ArgumentsTail(ParameterListTree argumentClause) {
+      this.argumentClause = argumentClause;
+    }
+  }
+
+  private static class TemplateLiteralTail implements ExpressionTail {
+    TemplateLiteralTree templateLiteralTree;
+
+    private TemplateLiteralTail(TemplateLiteralTree templateLiteralTree) {
+      this.templateLiteralTree = templateLiteralTree;
+    }
+  }
+
+  static class BracketAccessTail implements ExpressionTail {
+    SyntaxToken lBracket;
+    ExpressionTree expressionTree;
+    SyntaxToken rBracket;
+
+    private BracketAccessTail(SyntaxToken lBracket, ExpressionTree expressionTree, SyntaxToken rBracket) {
+      this.lBracket = lBracket;
+      this.expressionTree = expressionTree;
+      this.rBracket = rBracket;
+    }
+  }
+
+  static class DotAccessTail implements ExpressionTail {
+    SyntaxToken dot;
+    IdentifierTree identifierTree;
+
+    private DotAccessTail(SyntaxToken dot, IdentifierTree identifierTree) {
+      this.dot = dot;
+      this.identifierTree = identifierTree;
+    }
+  }
+
 
   public static class Tuple<T, U> {
 

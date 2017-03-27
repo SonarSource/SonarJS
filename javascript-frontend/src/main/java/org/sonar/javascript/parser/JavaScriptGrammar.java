@@ -24,6 +24,9 @@ import java.util.List;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.lexer.JavaScriptTokenType;
+import org.sonar.javascript.parser.TreeFactory.BracketAccessTail;
+import org.sonar.javascript.parser.TreeFactory.DotAccessTail;
+import org.sonar.javascript.parser.TreeFactory.ExpressionTail;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
@@ -57,16 +60,13 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTr
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewTargetTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
@@ -74,7 +74,6 @@ import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
@@ -844,18 +843,22 @@ public class JavaScriptGrammar {
 
   public ExpressionTree MEMBER_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.MEMBER_EXPRESSION)
-      .is(f.completeMemberExpression(
+      .is(f.memberExpression(
         b.firstOf(
           ES6(SUPER()),
           ES6(NEW_TARGET()),
           f.newExpressionWithArgument(b.token(JavaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), MEMBER_EXPRESSION()), ARGUMENT_CLAUSE()),
           PRIMARY_EXPRESSION()),
-        b.zeroOrMore(
-          b.firstOf(
-            BRACKET_EXPRESSION(),
-            OBJECT_PROPERTY_ACCESS(),
-            ES6(TAGGED_TEMPLATE())))
-      ));
+        // we use "zeroOrMore" here as in specification we have left recursion, which can't be coded with our means
+        b.zeroOrMore(MEMBER_EXPRESSION_TAIL())));
+  }
+
+  public ExpressionTail MEMBER_EXPRESSION_TAIL() {
+    return b.<ExpressionTail>nonterminal()
+      .is(b.firstOf(
+        BRACKET_ACCESS(),
+        DOT_ACCESS(),
+        f.templateLiteralTailForMember(TEMPLATE_LITERAL())));
   }
 
   public LiteralTree SUPER() {
@@ -869,28 +872,6 @@ public class JavaScriptGrammar {
         b.token(JavaScriptKeyword.NEW),
         b.token(JavaScriptPunctuator.DOT),
         b.token(JavaScriptLegacyGrammar.TARGET)));
-  }
-
-  public MemberExpressionTree OBJECT_PROPERTY_ACCESS() {
-    return b.<DotMemberExpressionTree>nonterminal(Kind.DOT_MEMBER_EXPRESSION)
-      .is(f.newDotMemberExpression(
-        b.token(JavaScriptPunctuator.DOT),
-        IDENTIFIER_NAME()));
-  }
-
-  public MemberExpressionTree BRACKET_EXPRESSION() {
-    return b.<BracketMemberExpressionTree>nonterminal(Kind.BRACKET_MEMBER_EXPRESSION)
-      .is(
-        f.newBracketMemberExpression(
-          b.token(JavaScriptPunctuator.LBRACKET),
-          EXPRESSION(),
-          b.token(JavaScriptPunctuator.RBRACKET)));
-  }
-
-  public ExpressionTree TAGGED_TEMPLATE() {
-    return b.<TaggedTemplateTree>nonterminal(Kind.TAGGED_TEMPLATE)
-      .is(f.newTaggedTemplate(TEMPLATE_LITERAL()));
-
   }
 
   public ParameterListTree ARGUMENT_CLAUSE() {
@@ -920,12 +901,32 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(Kind.CALL_EXPRESSION)
       .is(f.callExpression(
         f.simpleCallExpression(b.firstOf(MEMBER_EXPRESSION(), SUPER()), ARGUMENT_CLAUSE()),
-        b.zeroOrMore(b.firstOf(
-          ARGUMENT_CLAUSE(),
-          BRACKET_EXPRESSION(),
-          OBJECT_PROPERTY_ACCESS(),
-          ES6(TAGGED_TEMPLATE())
-        ))));
+        // we use "zeroOrMore" here as in specification we have left recursion, which can't be coded with our means
+        b.zeroOrMore(CALL_EXPRESSION_TAIL())));
+  }
+
+  public ExpressionTail CALL_EXPRESSION_TAIL() {
+    return b.<ExpressionTail>nonterminal()
+      .is(b.firstOf(
+        f.argumentClauseTail(ARGUMENT_CLAUSE()),
+        BRACKET_ACCESS(),
+        DOT_ACCESS(),
+        f.templateLiteralTailForCall(TEMPLATE_LITERAL())));
+  }
+
+  public BracketAccessTail BRACKET_ACCESS() {
+    return b.<BracketAccessTail>nonterminal()
+      .is(f.newBracketAccess(
+        b.token(JavaScriptPunctuator.LBRACKET),
+        EXPRESSION(),
+        b.token(JavaScriptPunctuator.RBRACKET)));
+  }
+
+  public DotAccessTail DOT_ACCESS() {
+    return b.<DotAccessTail>nonterminal()
+      .is(f.dotAccess(
+        b.token(JavaScriptPunctuator.DOT),
+        IDENTIFIER_NAME()));
   }
 
   public ParenthesisedExpressionTree PARENTHESISED_EXPRESSION() {
