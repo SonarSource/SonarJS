@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -39,8 +37,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-@Rule(key = "S2583")
-public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
+public abstract class AbstractAlwaysTrueOrFalseConditionCheck extends SeCheck {
 
   private Set<LiteralTree> ignoredLoopConditions;
 
@@ -62,28 +59,14 @@ public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
 
       Collection<Constraint> results = entry.getValue();
 
-      if (results.size() == 1) {
+      if (results.size() == 1 && !conditionTree.is(Kind.ASSIGNMENT)) {
         Constraint constraint = results.iterator().next();
-
-        if (!isTruthyLiteral(conditionTree, constraint) && !conditionTree.is(Kind.ASSIGNMENT)) {
-          String result = Constraint.TRUTHY.equals(constraint) ? "true" : "false";
-          addIssue(conditionTree, String.format("Change this condition so that it does not always evaluate to \"%s\".", result));
-        }
+        checkCondition(conditionTree, constraint);
       }
     }
   }
 
-  private static boolean isTruthyLiteral(Tree tree, Constraint constraint) {
-    ExpressionTree conditionWithoutParentheses = CheckUtils.removeParenthesis((ExpressionTree) tree);
-
-    return Constraint.TRUTHY.equals(constraint)
-      && conditionWithoutParentheses.is(
-        Kind.ARRAY_LITERAL,
-        Kind.OBJECT_LITERAL,
-        Kind.NEW_EXPRESSION,
-        Kind.NUMERIC_LITERAL,
-        Kind.STRING_LITERAL);
-  }
+  abstract void checkCondition(Tree conditionTree, Constraint constraint);
 
   private class LoopsVisitor extends DoubleDispatchVisitor {
     @Override

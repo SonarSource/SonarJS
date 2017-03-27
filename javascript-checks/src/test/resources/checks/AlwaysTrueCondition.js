@@ -15,49 +15,44 @@ function unknown_value() {
 
 function undefined_variable() {
   var a;
-  if (a) {} // Noncompliant  [[sc=7;ec=8]] {{Change this condition so that it does not always evaluate to "false".}}
+  if (a) {} // OK always false
 }
 
 function null_variable() {
   var a = null;
-  if (a) {} // Noncompliant
+  if (a) {} // OK always false
 }
 
 function function_parameter(param1) {
   if (param1) {}
   param1 = null;
-  if (param1) {} // Noncompliant
+  if (param1) {} // OK always false
 }
 
 function function_arguments() {
   arguments = null;
-  if (arguments) {} // Noncompliant 
+  if (arguments) {} // OK  always false
 }
 
 function not_condition() {
   var a;
-  if (!a) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (!a) {} // Noncompliant {{Change this expression so that it does not always evaluate to "true".}}
+//    ^^
 }
 
 function and_condition() {
   var a = random();
-  if (a && !a) {} // Noncompliant {{Change this condition so that it does not always evaluate to "false".}}
-//         ^^
-  while (a && !a) {} // Noncompliant
-//            ^^
-  do {} while (a && !a) // Noncompliant
-//                  ^^
-  for(;a && !a;) {} // Noncompliant
-//          ^^
+  if (a && !a) {} // OK always false
+  while (a && !a) {} // OK always false
+  do {} while (a && !a) // OK always false
+  for(;a && !a;) {} // OK always false
 }
 
 function ternary_operator() {
   var x
-  x ? 0 : 42; // Noncompliant
-//^
+  x ? 0 : 42; // OK always false
   x = foo();
-  (x && !x) ? 0 : 42; // Noncompliant
-//      ^^
+  (x && !x) ? 0 : 42; // OK always false
 }
 
 function condition_in_expression() {
@@ -68,15 +63,15 @@ function condition_in_expression() {
 
 function or_condition() {
   var a = random();
-  if (a || !a) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (a || !a) {} // Noncompliant {{Change this expression so that it does not always evaluate to "true".}}
 }
 
 function true_literal() {
-  if (true) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (true) {} // Noncompliant {{Change this expression so that it does not always evaluate to "true".}}
 }
 
 function false_literal() {
-  if (false) {} // Noncompliant {{Change this condition so that it does not always evaluate to "false".}}
+  if (false) {} // OK always false
 }
 
 function while_true() {
@@ -133,7 +128,7 @@ function loop() {
 }
 
 function function_arguments() {
-  if (arguments) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (arguments) {} // Noncompliant {{Change this expression so that it does not always evaluate to "true".}}
 }
 
 function for_in(obj) {
@@ -208,22 +203,22 @@ function tro(x, y) {
   x = y && true;
   x = y && false;
   x = true && y;  // Noncompliant
-  x = false && y;  // Noncompliant
+  x = false && y;  // OK always false
 
   x = y || true;
   x = y || false;
   x = true || y;  // Noncompliant
-  x = false || y;  // Noncompliant
+  x = false || y;  // OK always false
 
   if (y && true) {} // Noncompliant
-  if (y && false) {} // Noncompliant
+  if (y && false) {} // OK always false
   if (true && y) {} // Noncompliant
-  if (false && y) {} // Noncompliant
+  if (false && y) {} // OK always false
 
   if (y || true) {} // Noncompliant
-  if (y || false) {} // Noncompliant
+  if (y || false) {} // OK always false
   if (true || y) {} // Noncompliant
-  if (false || y) {} // Noncompliant
+  if (false || y) {} // OK always false
 }
 
 function logical_and(p1, p2, p3) {
@@ -238,14 +233,14 @@ function strict_equality(p1) {
   if (p1 === 0) {
     if (p1 === 0) {}      // Noncompliant always true
     if (p1 == 0) {}       // Noncompliant always true
-    if (p1 === "") {}     // Noncompliant always false
-    if (p1 != 0) {}       // Noncompliant always false
+    if (p1 === "") {}     // OK always false
+    if (p1 != 0) {}       // OK always false
     if (p1 == "") {}      // OK Can't tell, yet
     if (p1 != "str") {}   // OK Can't tell
   }
 
   if (p1 !== 0) {
-    if (p1 === 0) {}      // Noncompliant always false
+    if (p1 === 0) {}      // OK always false
     if (p1 == 0) {}       // OK Can't tell
   }
 
@@ -263,9 +258,9 @@ function aka_ternary(a, b, c) {
   y = a && ([]) || b;
   y = a && (new Object()) || b;
 
-  // still raise issue for falsy literals
-  y = a && 0 || b; // Noncompliant
-  y = a && "" || b; // Noncompliant
+  // falsy literals
+  y = a && 0 || b; // OK always false
+  y = a && "" || b; // OK always false
 
   y = a && b && [] || c;
 }
