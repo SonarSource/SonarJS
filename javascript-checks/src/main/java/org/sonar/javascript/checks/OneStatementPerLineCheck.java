@@ -96,11 +96,19 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
   }
 
   private void checkForExcludedStatement(StatementTree nestedStatement, Tree statement) {
-    int nestedStatementLine = ((JavaScriptTree) nestedStatement).getLine();
     int statementLine = ((JavaScriptTree) statement).getLine();
 
-    if (nestedStatementLine == statementLine) {
-      excludedStatements.add(nestedStatement);
+    if (nestedStatement.is(Kind.BLOCK)) {
+      BlockTree blockTree = (BlockTree) nestedStatement;
+      if (blockTree.closeCurlyBrace().line() == statementLine && blockTree.statements().size() == 1) {
+        excludedStatements.add(blockTree.statements().get(0));
+      }
+    } else {
+      int nestedStatementLine = ((JavaScriptTree) nestedStatement).getLine();
+
+      if (nestedStatementLine == statementLine) {
+        excludedStatements.add(nestedStatement);
+      }
     }
   }
 
