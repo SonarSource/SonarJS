@@ -30,6 +30,7 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
@@ -93,11 +94,19 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
   }
 
   private void checkForExcludedStatement(StatementTree nestedStatement, Tree statement) {
-    int nestedStatementLine = ((JavaScriptTree) nestedStatement).getLine();
     int statementLine = ((JavaScriptTree) statement).getLine();
 
-    if (nestedStatementLine == statementLine) {
-      excludedStatements.add(nestedStatement);
+    if (nestedStatement.is(Kind.BLOCK)) {
+      BlockTree blockTree = (BlockTree) nestedStatement;
+      if (blockTree.closeCurlyBrace().line() == statementLine && blockTree.statements().size() == 1) {
+        excludedStatements.add(blockTree.statements().get(0));
+      }
+    } else {
+      int nestedStatementLine = ((JavaScriptTree) nestedStatement).getLine();
+
+      if (nestedStatementLine == statementLine) {
+        excludedStatements.add(nestedStatement);
+      }
     }
   }
 
