@@ -34,6 +34,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
@@ -67,6 +68,10 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
     for (CfgBlock unreachable : cfg.unreachableBlocks()) {
       Tree element = unreachableTree(unreachable.elements());
       if (element != null) {
+        if (isLastBreakInSwitchCase(element)) {
+          continue;
+        }
+
         Set<SyntaxToken> disconnectingJumps = cfg.disconnectingJumps(unreachable);
         String message = MESSAGE_WITHOUT_KEYWORD;
         if (disconnectingJumps.size() == 1) {
@@ -79,6 +84,18 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
         }
       }
     }
+  }
+
+  private static boolean isLastBreakInSwitchCase(Tree tree) {
+    if (tree.is(Kind.BREAK_STATEMENT)) {
+      JavaScriptTree parent = ((JavaScriptTree) tree).getParent();
+
+      if (parent.is(Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE)) {
+        SwitchClauseTree switchClause = (SwitchClauseTree) parent;
+        return switchClause.statements().get(switchClause.statements().size() - 1).equals(tree);
+      }
+    }
+    return false;
   }
 
   private static Tree unreachableTree(List<Tree> elements) {
