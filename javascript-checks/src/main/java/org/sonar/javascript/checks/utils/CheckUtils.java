@@ -88,6 +88,16 @@ public class CheckUtils {
     return expressionTree;
   }
 
+  public static Tree parentIgnoreParentheses(Tree tree) {
+    Tree parent = parent(tree);
+
+    if (parent.is(Kind.PARENTHESISED_EXPRESSION)) {
+      return parentIgnoreParentheses(parent);
+    }
+
+    return parent;
+  }
+
   public static Tree parent(Tree tree) {
     return ((JavaScriptTree) tree).getParent();
   }

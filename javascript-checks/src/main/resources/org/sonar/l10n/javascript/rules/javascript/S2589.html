@@ -1,22 +1,40 @@
-<p>Conditional expressions which are always <code>true</code> or <code>false</code> can lead to dead code. Such code is always buggy and should never
-be used in production.</p>
+<p>If a boolean expression doesn't change the evaluation of the condition, then it is entirely unnecessary, and can be removed. If it is gratuitous
+because it does not match the programmer's intent, then it's a bug and the expression should be fixed.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-a = false;
+a = true;
 if (a) { // Noncompliant
-  doSomething(); // never executed
+  doSomething();
 }
 
-if (!a || b) { // Noncompliant; "!a" is always "true", "b" is never evaluated
+if (b &amp;&amp; a) { // Noncompliant; "a" is always "true"
   doSomething();
-} else {
-  doSomethingElse(); // never executed
+}
+
+if (c || !a) { // Noncompliant; "!a" is always "false"
+  doSomething();
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+a = true;
+if (foo(a)) {
+  doSomething();
+}
+
+if (b) {
+  doSomething();
+}
+
+if (c) {
+  doSomething();
 }
 </pre>
 <h2>See</h2>
 <ul>
   <li> MISRA C:2004, 13.7 - Boolean operations whose results are invariant shall not be permitted. </li>
   <li> MISRA C:2012, 14.3 - Controlling expressions shall not be invariant </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/489">MITRE, CWE-489</a> - Leftover Debug Code </li>
   <li> <a href="http://cwe.mitre.org/data/definitions/571">MITRE, CWE-571</a> - Expression is Always True </li>
   <li> <a href="https://www.securecoding.cert.org/confluence/x/NYA5">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never
   executed </li>

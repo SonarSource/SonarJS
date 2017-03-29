@@ -1,0 +1,16 @@
+{
+  "title": "Boolean expressions should not be gratuitous",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "cwe",
+    "misra",
+    "cert",
+    "redundant"
+  ],
+  "defaultSeverity": "Major"
+}

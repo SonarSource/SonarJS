@@ -1,5 +1,5 @@
 {
-  "title": "Conditions should not unconditionally evaluate to \"true\" or to \"false\"",
+  "title": "Conditionally executed blocks should be reachable",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -10,8 +10,7 @@
     "cwe",
     "bug",
     "misra",
-    "cert",
-    "pitfall"
+    "cert"
   ],
   "standards": [
     "CWE"
