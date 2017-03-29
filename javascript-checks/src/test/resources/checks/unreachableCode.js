@@ -40,9 +40,16 @@ function sayHello() {
   case 2:
     break; // OK
   case 3:
+    return 42;
     break; // OK
+  case 4:
+    return 42;
+    break; // Noncompliant
+    foo(); // Noncompliant
+    bar();
   default:
     var g;
+    break; // OK
   }
   
   switch (a) {
@@ -51,6 +58,13 @@ function sayHello() {
     break;
   case 1:  // OK
     bar();
+  }
+
+  while (true) {
+    if (condition) {
+      return 42;
+      break;  // Noncompliant
+    }
   }
   
 }
