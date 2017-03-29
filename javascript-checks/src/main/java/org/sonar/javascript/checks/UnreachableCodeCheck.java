@@ -27,14 +27,17 @@ import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
@@ -68,7 +71,7 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
     for (CfgBlock unreachable : cfg.unreachableBlocks()) {
       Tree element = unreachableTree(unreachable.elements());
       if (element != null) {
-        if (isLastBreakInSwitchCase(element)) {
+        if (isLastBreakInSwitchCase(element) || isDeclarationWithoutInit(element)) {
           continue;
         }
 
@@ -84,6 +87,20 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
         }
       }
     }
+  }
+
+  private static boolean isDeclarationWithoutInit(Tree tree) {
+    if (tree.is(Kind.VAR_DECLARATION)) {
+      SeparatedList<BindingElementTree> bindingElements = ((VariableDeclarationTree) tree).variables();
+      for (BindingElementTree bindingElement : bindingElements) {
+        if (bindingElement.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+    return false;
   }
 
   private static boolean isLastBreakInSwitchCase(Tree tree) {
