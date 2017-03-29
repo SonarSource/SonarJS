@@ -1,20 +1,20 @@
 function sayHello() {
   return;
-  var a; // Noncompliant [[sc=3;ec=8]] [[secondary=-1]] {{Remove this code after the "return" statement.}}
+  foo(); // Noncompliant [[sc=3;ec=8]] [[secondary=-1]] {{Remove this code after the "return" statement.}}
 
   if (true) {
     return;
-    var b; // Noncompliant {{Remove this code after the "return" statement.}}
+    foo(); // Noncompliant {{Remove this code after the "return" statement.}}
   } else {
-    var c;
+    foo();
   }
 
   while (true) {
     break;
-    var d; // Noncompliant {{Remove this code after the "break" statement.}}
+    foo(); // Noncompliant {{Remove this code after the "break" statement.}}
 
     continue;
-    var e; // Noncompliant {{Remove this code after the "continue" statement.}}
+    foo(); // Noncompliant {{Remove this code after the "continue" statement.}}
 
     if (true) {
       break;
@@ -35,7 +35,7 @@ function sayHello() {
   switch (a) {
   case 1: {
     break;
-    var e; // Noncompliant {{Remove this code after the "break" statement.}}
+    foo(); // Noncompliant {{Remove this code after the "break" statement.}}
   }
   case 2:
     break; // OK
@@ -48,10 +48,10 @@ function sayHello() {
     foo(); // Noncompliant
     bar();
   default:
-    var g;
+    foo();
     break; // OK
   }
-  
+
   switch (a) {
   default:
     foo();
@@ -66,7 +66,7 @@ function sayHello() {
       break;  // Noncompliant
     }
   }
-  
+
 }
 
 function tryCatchFinally() {
@@ -74,12 +74,12 @@ function tryCatchFinally() {
   try {
     var h;
     throw ("MyException");
-    var i; // Noncompliant {{Remove this code after the "throw" statement.}}
+    foo(); // Noncompliant {{Remove this code after the "throw" statement.}}
   } catch (e) {
-    var j;
+    foo();
     throw ("MyException");
   } finally {
-    var k;
+    foo();
   }
 
   try {
@@ -91,16 +91,16 @@ function tryCatchFinally() {
   try {
     throw ("MyException");
   } catch (e) {
-    var m; // OK
+    foo(); // OK
   }
-  
+
   try {
     doSomething();
   } catch (e) {
     return;
   }
   doSomethingElse(); // OK
-  
+
 }
 
 function f1() {
@@ -113,7 +113,7 @@ function f1() {
     else {
       return;
     }
-    var n; // Noncompliant [[secondary=-6,-4,-2]] {{Remove this unreachable code.}}
+    foo(); // Noncompliant [[secondary=-6,-4,-2]] {{Remove this unreachable code.}}
   }
 
   return;
@@ -137,4 +137,18 @@ function a() {
 function b() {
   return;
   class C {} // OK
+}
+
+function declarations() {
+  return;
+  var foo, bar;
+
+  return;
+  var foo, bar = 42; // Noncompliant, with initializer
+
+  return;
+  let foo, bar; // Noncompliant, "let" declarations are not hoisted
+
+  return;
+  const foo, bar; // Noncompliant, "const" declarations are not hoisted
 }

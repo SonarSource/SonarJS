@@ -3,7 +3,7 @@ current code block. Typically, any statements in a block that come after a jump 
 confuse the unwary. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-fun(a) {
+function fun(a) {
   var i = 10;
   return i + a;
   i++;             // Noncompliant; this is never executed
@@ -11,9 +11,29 @@ fun(a) {
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-int fun(int a) {
-  int i = 10;
+function fun(int a) {
+  var i = 10;
   return i + a;
+}
+</pre>
+<h2>Exceptions</h2>
+<p>This rule ignores unreachable <code>break</code> statements in <code>switch</code> clauses.</p>
+<pre>
+switch (x) {
+  case 42:
+     return 43;
+     break;   // Compliant
+  default:
+    doSomething();
+}
+</pre>
+<p>Hoisted variables declarations without initialization are always considered reachable.</p>
+<pre>
+function bar() {
+  return x = function() {
+    x.foo = 42;
+  }
+  var x;
 }
 </pre>
 <h2>See</h2>
