@@ -216,7 +216,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
 
   STATEMENT,
   VARIABLE_DECLARATION,
-  INITIALISER,
+  INITIALISED_BINDING_ELEMENT,
   ITERATION_STATEMENT,
   /**
    * ECMAScrip 6
@@ -224,7 +224,6 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   OF,
   RETURN_STATEMENT,
   WITH_STATEMENT,
-  FINALLY,
 
   // A.5 Declarations
 

@@ -40,16 +40,11 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
   private final SyntaxToken closeBracket;
   private TypeSet types = TypeSet.emptyTypeSet();
 
-  public BracketMemberExpressionTreeImpl(InternalSyntaxToken openBracket, ExpressionTree property, InternalSyntaxToken closeBracket) {
+  public BracketMemberExpressionTreeImpl(ExpressionTree object, SyntaxToken openBracket, ExpressionTree property, SyntaxToken closeBracket) {
+    this.object = object;
     this.openBracket = openBracket;
     this.property = property;
     this.closeBracket = closeBracket;
-  }
-
-  public BracketMemberExpressionTreeImpl complete(ExpressionTree object) {
-    this.object = object;
-
-    return this;
   }
 
   @Override

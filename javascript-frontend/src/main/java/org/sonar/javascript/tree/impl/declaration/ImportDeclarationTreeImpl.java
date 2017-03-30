@@ -39,7 +39,7 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
   private FromClauseTree fromClause;
   private final SyntaxToken semicolonToken;
 
-  public ImportDeclarationTreeImpl(InternalSyntaxToken importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, @Nullable SyntaxToken semicolonToken) {
+  public ImportDeclarationTreeImpl(InternalSyntaxToken importToken, ImportClauseTree importClause, FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken) {
     this.importToken = importToken;
     this.importClause = importClause;
     this.fromClause = fromClause;

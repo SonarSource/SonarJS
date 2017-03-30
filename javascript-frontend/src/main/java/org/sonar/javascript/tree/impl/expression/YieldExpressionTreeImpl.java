@@ -36,33 +36,14 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpressionTree, TypableTree {
 
   private InternalSyntaxToken yieldKeyword;
-  @Nullable
   private final InternalSyntaxToken star;
   private final ExpressionTree argument;
 
-  public YieldExpressionTreeImpl(InternalSyntaxToken yieldKeyword) {
+  public YieldExpressionTreeImpl(InternalSyntaxToken yieldKeyword, @Nullable InternalSyntaxToken star, @Nullable ExpressionTree argument) {
     this.yieldKeyword = yieldKeyword;
-    this.star = null;
-    this.argument = null;
-
-  }
-
-  public YieldExpressionTreeImpl(InternalSyntaxToken star, ExpressionTree argument) {
     this.star = star;
     this.argument = argument;
 
-  }
-
-  public YieldExpressionTreeImpl(ExpressionTree argument) {
-    this.star = null;
-    this.argument = argument;
-
-  }
-
-  public YieldExpressionTreeImpl complete(InternalSyntaxToken yieldKeyword) {
-    this.yieldKeyword = yieldKeyword;
-
-    return this;
   }
 
   @Override

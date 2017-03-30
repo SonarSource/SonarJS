@@ -24,8 +24,6 @@ import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -45,7 +43,7 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
 
   public CatchBlockTreeImpl(
     InternalSyntaxToken catchKeyword, InternalSyntaxToken openParenthesis,
-    BindingElementTree parameter, InternalSyntaxToken closeParenthesis, BlockTreeImpl block
+    BindingElementTree parameter, InternalSyntaxToken closeParenthesis, BlockTree block
   ) {
 
     this.catchKeyword = catchKeyword;
@@ -101,11 +99,8 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
     if (parameter.is(Kind.BINDING_IDENTIFIER)) {
       return Lists.newArrayList((IdentifierTree) parameter);
 
-    } else if (parameter.is(Kind.OBJECT_BINDING_PATTERN)) {
-      bindingIdentifiers.addAll(((ObjectBindingPatternTreeImpl) parameter).bindingIdentifiers());
-
     } else {
-      bindingIdentifiers.addAll(((ArrayBindingPatternTreeImpl) parameter).bindingIdentifiers());
+      bindingIdentifiers.addAll(parameter.bindingIdentifiers());
     }
 
     return bindingIdentifiers;

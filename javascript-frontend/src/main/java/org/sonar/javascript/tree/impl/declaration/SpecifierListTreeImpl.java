@@ -38,24 +38,12 @@ public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierLi
   private SyntaxToken closeCurlyBraceToken;
   private final Kind kind;
 
-  public SpecifierListTreeImpl(Kind kind, InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken) {
+  public SpecifierListTreeImpl(Kind kind, InternalSyntaxToken openCurlyBraceToken, SeparatedList<SpecifierTree> specifiers, InternalSyntaxToken closeCurlyBraceToken) {
     this.kind = kind;
     this.openCurlyBraceToken = openCurlyBraceToken;
-    this.specifiers = null;
-    this.closeCurlyBraceToken = closeCurlyBraceToken;
-
-  }
-
-  public SpecifierListTreeImpl(Kind kind, SeparatedList<SpecifierTree> specifiers) {
-    this.kind = kind;
     this.specifiers = specifiers;
-
-  }
-
-  public SpecifierListTreeImpl complete(InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken) {
-    this.openCurlyBraceToken = openCurlyBraceToken;
     this.closeCurlyBraceToken = closeCurlyBraceToken;
-    return this;
+
   }
 
   @Override

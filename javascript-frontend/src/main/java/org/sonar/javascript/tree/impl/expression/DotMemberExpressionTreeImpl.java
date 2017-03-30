@@ -22,7 +22,6 @@ package org.sonar.javascript.tree.impl.expression;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
@@ -40,16 +39,10 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
   private final IdentifierTree property;
   private TypeSet types = TypeSet.emptyTypeSet();
 
-  public DotMemberExpressionTreeImpl(InternalSyntaxToken dot, IdentifierTree property) {
+  public DotMemberExpressionTreeImpl(ExpressionTree object, SyntaxToken dot, IdentifierTree property) {
+    this.object = object;
     this.dot = dot;
     this.property = property;
-
-  }
-
-  public DotMemberExpressionTreeImpl complete(ExpressionTree object) {
-    this.object = object;
-
-    return this;
   }
 
   @Override

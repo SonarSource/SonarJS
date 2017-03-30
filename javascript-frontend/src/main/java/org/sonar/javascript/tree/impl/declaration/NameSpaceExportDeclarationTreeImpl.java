@@ -43,7 +43,7 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
   public NameSpaceExportDeclarationTreeImpl(
     InternalSyntaxToken exportToken, InternalSyntaxToken starToken,
     @Nullable InternalSyntaxToken asToken, @Nullable IdentifierTree synonymIdentifier,
-    FromClauseTreeImpl fromClause, @Nullable SyntaxToken semicolonToken
+    FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken
   ) {
     this.exportToken = exportToken;
     this.starToken = starToken;

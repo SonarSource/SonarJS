@@ -34,24 +34,21 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ConditionalExpressionTreeImpl extends JavaScriptTree implements ConditionalExpressionTree, TypableTree {
 
-  private ExpressionTree condition;
+  private final ExpressionTree condition;
   private final SyntaxToken query;
   private final ExpressionTree trueExpression;
   private final SyntaxToken colon;
   private final ExpressionTree falseExpression;
 
-  public ConditionalExpressionTreeImpl(InternalSyntaxToken query, ExpressionTree trueExpression, InternalSyntaxToken colon, ExpressionTree falseExpression) {
+  public ConditionalExpressionTreeImpl(
+    ExpressionTree condition, InternalSyntaxToken query,
+    ExpressionTree trueExpression, InternalSyntaxToken colon, ExpressionTree falseExpression
+  ) {
+    this.condition = condition;
     this.query = query;
     this.trueExpression = trueExpression;
     this.colon = colon;
     this.falseExpression = falseExpression;
-
-  }
-
-  public ConditionalExpressionTreeImpl complete(ExpressionTree condition) {
-    this.condition = condition;
-
-    return this;
   }
 
   @Override
@@ -91,7 +88,7 @@ public class ConditionalExpressionTreeImpl extends JavaScriptTree implements Con
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(condition, query, trueExpression, colon, falseExpression);
+    return Iterators.forArray(condition, query, trueExpression, colon, falseExpression);
   }
 
   @Override

@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.tree.impl.statement;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -37,21 +35,10 @@ public class BreakStatementTreeImpl extends JavaScriptTree implements BreakState
   private final IdentifierTree label;
   private final SyntaxToken semicolonToken;
 
-  public BreakStatementTreeImpl(SyntaxToken semicolonToken) {
-    this.label = null;
-    this.semicolonToken = semicolonToken;
-  }
-
-  public BreakStatementTreeImpl(IdentifierTree label, SyntaxToken semicolonToken) {
+  public BreakStatementTreeImpl(SyntaxToken breakKeyword, @Nullable IdentifierTree label, @Nullable SyntaxToken semicolonToken) {
+    this.breakKeyword = breakKeyword;
     this.label = label;
     this.semicolonToken = semicolonToken;
-  }
-
-  public BreakStatementTreeImpl complete(InternalSyntaxToken breakKeyword) {
-    Preconditions.checkState(this.breakKeyword == null, "Already completed");
-    this.breakKeyword = breakKeyword;
-
-    return this;
   }
 
   @Override

@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.tree.impl.statement;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -37,20 +35,10 @@ public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnSta
   private ExpressionTree expression;
   private final SyntaxToken semicolonToken;
 
-  public ReturnStatementTreeImpl(@Nullable SyntaxToken semicolonToken) {
-    this.semicolonToken = semicolonToken;
-  }
-
-  public ReturnStatementTreeImpl(ExpressionTree expression, @Nullable SyntaxToken semicolonToken) {
+  public ReturnStatementTreeImpl(SyntaxToken returnKeyword, @Nullable ExpressionTree expression, @Nullable SyntaxToken semicolonToken) {
+    this.returnKeyword = returnKeyword;
     this.expression = expression;
     this.semicolonToken = semicolonToken;
-  }
-
-  public ReturnStatementTreeImpl complete(InternalSyntaxToken returnKeyword) {
-    Preconditions.checkState(this.returnKeyword == null, "Already completed");
-    this.returnKeyword = returnKeyword;
-
-    return this;
   }
 
   @Override

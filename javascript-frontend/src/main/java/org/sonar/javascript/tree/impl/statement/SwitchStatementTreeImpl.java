@@ -23,7 +23,6 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -33,30 +32,28 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchStatementTree {
 
-  private SyntaxToken switchKeyword;
+  private final SyntaxToken switchKeyword;
 
-  private SyntaxToken openParenthesis;
-  private ExpressionTree expression;
-  private SyntaxToken closeParenthesis;
+  private final SyntaxToken openParenthesis;
+  private final ExpressionTree expression;
+  private final SyntaxToken closeParenthesis;
 
   private final SyntaxToken openCurlyBrace;
   private final List<SwitchClauseTree> cases;
   private final SyntaxToken closeCurlyBrace;
 
-  public SwitchStatementTreeImpl(InternalSyntaxToken openCurlyBrace, List<SwitchClauseTree> cases, InternalSyntaxToken closeCurlyBrace) {
-    this.openCurlyBrace = openCurlyBrace;
-    this.cases = cases;
-    this.closeCurlyBrace = closeCurlyBrace;
+  public SwitchStatementTreeImpl(
+    SyntaxToken switchKeyword, SyntaxToken openParenthesis, ExpressionTree expression, SyntaxToken closeParenthesis,
+    SyntaxToken openCurlyBrace, List<SwitchClauseTree> cases, SyntaxToken closeCurlyBrace
+  ) {
 
-  }
-
-  public SwitchStatementTreeImpl complete(InternalSyntaxToken switchKeyword, InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis) {
     this.switchKeyword = switchKeyword;
     this.openParenthesis = openParenthesis;
     this.expression = expression;
     this.closeParenthesis = closeParenthesis;
-
-    return this;
+    this.openCurlyBrace = openCurlyBrace;
+    this.cases = cases;
+    this.closeCurlyBrace = closeCurlyBrace;
   }
 
   @Override

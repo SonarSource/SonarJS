@@ -23,7 +23,6 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
@@ -37,7 +36,7 @@ public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements I
   private LiteralTree moduleName;
   private final SyntaxToken semicolonToken;
 
-  public ImportModuleDeclarationTreeImpl(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, @Nullable SyntaxToken semicolonToken) {
+  public ImportModuleDeclarationTreeImpl(InternalSyntaxToken importToken, LiteralTree moduleName, @Nullable SyntaxToken semicolonToken) {
     this.importToken = importToken;
     this.moduleName = moduleName;
     this.semicolonToken = semicolonToken;

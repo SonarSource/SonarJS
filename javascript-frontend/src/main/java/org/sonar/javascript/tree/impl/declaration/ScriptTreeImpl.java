@@ -24,6 +24,7 @@ import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -32,10 +33,10 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class ScriptTreeImpl extends JavaScriptTree implements ScriptTree {
 
   private final InternalSyntaxToken shebangToken;
-  private final ModuleTreeImpl items;
+  private final ModuleTree items;
   private final InternalSyntaxToken eof;
 
-  public ScriptTreeImpl(@Nullable InternalSyntaxToken shebangToken, @Nullable ModuleTreeImpl items, InternalSyntaxToken eof) {
+  public ScriptTreeImpl(@Nullable InternalSyntaxToken shebangToken, @Nullable ModuleTree items, InternalSyntaxToken eof) {
     this.shebangToken = shebangToken;
     this.items = items;
     this.eof = eof;
@@ -49,7 +50,7 @@ public class ScriptTreeImpl extends JavaScriptTree implements ScriptTree {
   }
 
   @Override
-  public ModuleTreeImpl items() {
+  public ModuleTree items() {
     return items;
   }
 

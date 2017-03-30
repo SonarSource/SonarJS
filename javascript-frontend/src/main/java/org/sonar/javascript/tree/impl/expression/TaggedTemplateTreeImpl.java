@@ -36,14 +36,9 @@ public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemp
   private ExpressionTree callee;
   private final TemplateLiteralTree template;
 
-  public TaggedTemplateTreeImpl(TemplateLiteralTree template) {
-    this.template = template;
-  }
-
-  public TaggedTemplateTreeImpl complete(ExpressionTree callee) {
+  public TaggedTemplateTreeImpl(ExpressionTree callee, TemplateLiteralTree template) {
     this.callee = callee;
-
-    return this;
+    this.template = template;
   }
 
   @Override

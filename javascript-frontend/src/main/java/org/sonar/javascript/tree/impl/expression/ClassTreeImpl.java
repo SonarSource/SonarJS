@@ -44,7 +44,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   private List<DecoratorTree> decorators;
   private InternalSyntaxToken classToken;
   @Nullable
-  private IdentifierTreeImpl name;
+  private IdentifierTree name;
   @Nullable
   private InternalSyntaxToken extendsToken;
   @Nullable
@@ -56,7 +56,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   private ClassType classType;
 
   private ClassTreeImpl(
-    Kind kind, List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
+    Kind kind, List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTree name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass,
     InternalSyntaxToken openCurlyBraceToken, List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
   ) {
@@ -76,7 +76,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   }
 
   public static ClassTreeImpl newClassExpression(
-    List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
+    List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTree name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass, InternalSyntaxToken openCurlyBraceToken,
     List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
   ) {
@@ -85,7 +85,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   }
 
   public static ClassTreeImpl newClassDeclaration(
-    List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
+    List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTree name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass, InternalSyntaxToken openCurlyBraceToken,
     List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
   ) {

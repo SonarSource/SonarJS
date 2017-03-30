@@ -23,7 +23,6 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
@@ -37,7 +36,7 @@ public class NameSpaceSpecifierTreeImpl extends JavaScriptTree implements Specif
   private final SyntaxToken asToken;
   private final IdentifierTree localName;
 
-  public NameSpaceSpecifierTreeImpl(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTreeImpl localName) {
+  public NameSpaceSpecifierTreeImpl(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTree localName) {
     this.starToken = starToken;
     this.asToken = asToken;
     this.localName = localName;
