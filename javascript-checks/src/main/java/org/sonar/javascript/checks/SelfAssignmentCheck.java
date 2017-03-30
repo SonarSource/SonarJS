@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -34,9 +35,11 @@ public class SelfAssignmentCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     ExpressionTree variable = tree.variable();
-    if (tree.is(Tree.Kind.ASSIGNMENT) && SyntacticEquivalence.areEquivalent(variable, tree.expression())) {
+
+    if (tree.is(Tree.Kind.ASSIGNMENT) && variable.is(Kind.IDENTIFIER_REFERENCE) && SyntacticEquivalence.areEquivalent(variable, tree.expression())) {
       addIssue(tree, MESSAGE);
     }
+
     super.visitAssignmentExpression(tree);
   }
 
