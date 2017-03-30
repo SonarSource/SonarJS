@@ -13,9 +13,9 @@ if(someCondition) {
 <p>Anonymous functions containing a single statement are ignored. Control flow statements with a single nested statement are ignored as well.</p>
 <pre>
 onEvent(function() { doSomething(); });               // Compliant
-onEvent(function(p) { doSomething(); return p %2 ;}); // Noncompliant
+onEvent(function(p) { doSomething(); return p % 2; }); // Noncompliant
 
 if (condition) doSomething();                         // Compliant
-if (condition) { doSomething(); }                     // Noncompliant
+if (condition) { doSomething(); }                     // Compliant
 </pre>
 
