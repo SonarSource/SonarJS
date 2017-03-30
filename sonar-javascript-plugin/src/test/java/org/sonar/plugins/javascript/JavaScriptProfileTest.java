@@ -46,24 +46,9 @@ public class JavaScriptProfileTest {
 
     assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
     assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
-    assertThat(profile.getActiveRules()).extracting("repositoryKey").containsOnly("common-js", CheckList.REPOSITORY_KEY);
-    assertThat(validation.hasErrors()).isFalse();
-    assertThat(profile.getActiveRules().size()).isGreaterThan(87);
-  }
-
-  @Test
-  public void test_sonarlint() {
-    ValidationMessages validation = ValidationMessages.create();
-
-    RuleFinder ruleFinder = sonarLintRuleFinder();
-    JavaScriptProfile definition = new JavaScriptProfile(ruleFinder);
-    RulesProfile profile = definition.createProfile(validation);
-
-    assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
-    assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
     assertThat(profile.getActiveRules()).extracting("repositoryKey").containsOnly(CheckList.REPOSITORY_KEY);
     assertThat(validation.hasErrors()).isFalse();
-    assertThat(profile.getActiveRules().size()).isGreaterThan(86);
+    assertThat(profile.getActiveRules().size()).isGreaterThan(60);
   }
 
   static RuleFinder ruleFinder() {

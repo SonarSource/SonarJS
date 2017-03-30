@@ -51,7 +51,7 @@ public class JavaScriptRulesDefinitionTest {
   public void sonarlint() {
     RulesDefinition.Repository repository = buildRepository(Version.parse("6.0"));
     assertThat(repository.rule("ContinueStatement").activatedByDefault()).isFalse();
-    assertThat(repository.rule("S2583").activatedByDefault()).isTrue();
+    assertThat(repository.rule("S930").activatedByDefault()).isTrue();
   }
 
   private RulesDefinition.Repository buildRepository(Version sonarRuntimeVersion) {

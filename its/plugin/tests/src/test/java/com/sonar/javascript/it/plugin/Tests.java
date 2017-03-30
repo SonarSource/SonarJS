@@ -28,14 +28,11 @@ import javax.annotation.CheckForNull;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
-import org.sonarqube.ws.client.component.ShowWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
 import static java.util.Collections.singletonList;
@@ -47,8 +44,7 @@ import static java.util.Collections.singletonList;
   CustomRulesTests.class,
   MetricsTest.class,
   MinifiedFilesTest.class,
-  SonarLintTest.class,
-  DefaultProfileTest.class
+  SonarLintTest.class
 })
 public final class Tests {
 
