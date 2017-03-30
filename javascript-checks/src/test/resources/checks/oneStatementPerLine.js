@@ -51,3 +51,7 @@ function singleNestedStatementIsOk() {
       && b) doSomething(); doSomethingElse(); // Noncompliant
 
 }
+
+foo(function(){bar;});
+foo(function * (){bar;});
+foo(() => {bar;});

@@ -29,7 +29,8 @@ import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
@@ -48,24 +49,26 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.of(
-        Kind.VARIABLE_STATEMENT,
-        Kind.EXPRESSION_STATEMENT,
-        Kind.IF_STATEMENT,
-        Kind.DO_WHILE_STATEMENT,
-        Kind.WHILE_STATEMENT,
-        Kind.FOR_IN_STATEMENT,
-        Kind.FOR_OF_STATEMENT,
-        Kind.FOR_STATEMENT,
-        Kind.CONTINUE_STATEMENT,
-        Kind.BREAK_STATEMENT,
-        Kind.RETURN_STATEMENT,
-        Kind.WITH_STATEMENT,
-        Kind.SWITCH_STATEMENT,
-        Kind.THROW_STATEMENT,
-        Kind.TRY_STATEMENT,
-        Kind.DEBUGGER_STATEMENT,
-        Kind.FUNCTION_EXPRESSION,
-        Kind.SCRIPT);
+      Kind.VARIABLE_STATEMENT,
+      Kind.EXPRESSION_STATEMENT,
+      Kind.IF_STATEMENT,
+      Kind.DO_WHILE_STATEMENT,
+      Kind.WHILE_STATEMENT,
+      Kind.FOR_IN_STATEMENT,
+      Kind.FOR_OF_STATEMENT,
+      Kind.FOR_STATEMENT,
+      Kind.CONTINUE_STATEMENT,
+      Kind.BREAK_STATEMENT,
+      Kind.RETURN_STATEMENT,
+      Kind.WITH_STATEMENT,
+      Kind.SWITCH_STATEMENT,
+      Kind.THROW_STATEMENT,
+      Kind.TRY_STATEMENT,
+      Kind.DEBUGGER_STATEMENT,
+      Kind.FUNCTION_EXPRESSION,
+      Kind.GENERATOR_FUNCTION_EXPRESSION,
+      Kind.ARROW_FUNCTION,
+      Kind.SCRIPT);
   }
 
   @Override
@@ -83,11 +86,11 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
       checkForExcludedStatement(((IterationStatementTree) tree).statement(), tree);
     }
 
-    if (tree.is(Kind.FUNCTION_EXPRESSION)){
-      checkFunctionExpressionException((FunctionExpressionTree)tree);
+    if (tree.is(Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION)){
+      checkFunctionException((FunctionTree)tree);
     }
 
-    if (!tree.is(Kind.SCRIPT, Kind.FUNCTION_EXPRESSION) && !excludedStatements.contains(tree)){
+    if (!tree.is(Kind.SCRIPT, Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION) && !excludedStatements.contains(tree)){
       statementsPerLine.put(((JavaScriptTree) tree).getLine(), (StatementTree) tree);
     }
   }
@@ -102,9 +105,13 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
   }
 
   // Exception - if function expression has 1 statement in the same line as declaration, ignore this case.
-  private void checkFunctionExpressionException(FunctionExpressionTree functionExpressionTree){
-    int line = ((JavaScriptTree) functionExpressionTree).getLine();
-    List<StatementTree> statements = functionExpressionTree.body().statements();
+  private void checkFunctionException(FunctionTree functionTree){
+    if (!functionTree.body().is(Kind.BLOCK)) {
+      return;
+    }
+
+    int line = ((JavaScriptTree) functionTree).getLine();
+    List<StatementTree> statements = ((BlockTree) functionTree.body()).statements();
     if (statements.size() == 1 && ((JavaScriptTree)statements.get(0)).getLine() == line && statementsPerLine.containsKey(line)) {
       excludedStatements.add(statements.get(0));
     }
