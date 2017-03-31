@@ -20,7 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.KindSet;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
@@ -29,9 +29,17 @@ public class LabelPlacementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this \"%s\" label.";
 
+  private static final Kind[] ITERATION_STATEMENTS = {
+    Kind.DO_WHILE_STATEMENT,
+    Kind.WHILE_STATEMENT,
+    Kind.FOR_IN_STATEMENT,
+    Kind.FOR_OF_STATEMENT,
+    Kind.FOR_STATEMENT
+  };
+
   @Override
   public void visitLabelledStatement(LabelledStatementTree tree) {
-    if (!tree.statement().is(KindSet.LOOP_KINDS)) {
+    if (!tree.statement().is(ITERATION_STATEMENTS)) {
       addIssue(tree.label(), String.format(MESSAGE, tree.label().name()));
     }
 
