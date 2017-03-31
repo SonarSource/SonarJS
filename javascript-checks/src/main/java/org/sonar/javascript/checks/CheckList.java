@@ -36,7 +36,7 @@ public final class CheckList {
   public static List<Class> getChecks() {
     return ImmutableList.<Class>of(
       AlertUseCheck.class,
-      AlwaysTrueOrFalseConditionCheck.class,
+      ConditionalUnreachableCodeCheck.class,
       AlwaysUseCurlyBracesCheck.class,
       ArgumentsCallerCalleeUsageCheck.class,
       ArgumentsUsageCheck.class,
@@ -161,6 +161,7 @@ public final class CheckList {
       PrimitiveWrappersCheck.class,
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,
+      GratuitousConditionCheck.class,
       ReferenceErrorCheck.class,
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,

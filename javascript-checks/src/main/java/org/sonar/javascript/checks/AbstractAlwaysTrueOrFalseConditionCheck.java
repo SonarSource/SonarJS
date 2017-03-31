@@ -25,22 +25,25 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-@Rule(key = "S2583")
-public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
+public abstract class AbstractAlwaysTrueOrFalseConditionCheck extends SeCheck {
 
   private Set<LiteralTree> ignoredLoopConditions;
 
@@ -64,25 +67,77 @@ public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
 
       if (results.size() == 1) {
         Constraint constraint = results.iterator().next();
+        boolean isTruthy = Constraint.TRUTHY.equals(constraint);
 
-        if (!isTruthyLiteral(conditionTree, constraint) && !conditionTree.is(Kind.ASSIGNMENT)) {
-          String result = Constraint.TRUTHY.equals(constraint) ? "true" : "false";
-          addIssue(conditionTree, String.format("Change this condition so that it does not always evaluate to \"%s\".", result));
+        Set<Tree> neverExecutedCode = getNeverExecutedCode(conditionTree, isTruthy);
+
+        if (neverExecutedCode.isEmpty()) {
+          redundantCondition(conditionTree, isTruthy);
+        } else {
+          conditionWithDeadCode(conditionTree, isTruthy, neverExecutedCode);
         }
       }
     }
   }
 
-  private static boolean isTruthyLiteral(Tree tree, Constraint constraint) {
-    ExpressionTree conditionWithoutParentheses = CheckUtils.removeParenthesis((ExpressionTree) tree);
+  private static Set<Tree> getNeverExecutedCode(Tree condition, boolean isTruthy) {
+    Set<Tree> neverExecutedCode = new HashSet<>();
+    Tree biggestTreeWithSameTruthiness = biggestTreeWithSameTruthiness(condition, isTruthy, neverExecutedCode);
+    Tree parent = CheckUtils.parentIgnoreParentheses(biggestTreeWithSameTruthiness);
 
-    return Constraint.TRUTHY.equals(constraint)
-      && conditionWithoutParentheses.is(
-        Kind.ARRAY_LITERAL,
-        Kind.OBJECT_LITERAL,
-        Kind.NEW_EXPRESSION,
-        Kind.NUMERIC_LITERAL,
-        Kind.STRING_LITERAL);
+    if (parent.is(Kind.IF_STATEMENT)) {
+      IfStatementTree ifStatementTree = (IfStatementTree) parent;
+      if (isTruthy) {
+        if (ifStatementTree.elseClause() != null) {
+          neverExecutedCode.add(ifStatementTree.elseClause());
+        }
+      } else {
+        neverExecutedCode.add(ifStatementTree.statement());
+      }
+
+    } else if (parent.is(KindSet.LOOP_KINDS) && !isTruthy) {
+      neverExecutedCode.add(((IterationStatementTree) parent).statement());
+
+    } else if (parent.is(Kind.CONDITIONAL_EXPRESSION)) {
+      ConditionalExpressionTree conditionalExpressionTree = (ConditionalExpressionTree) parent;
+      neverExecutedCode.add(isTruthy ? conditionalExpressionTree.falseExpression() : conditionalExpressionTree.trueExpression());
+    }
+
+    return neverExecutedCode;
+  }
+
+  private static Tree biggestTreeWithSameTruthiness(Tree condition, boolean isTruthy, Set<Tree> neverExecutedCode) {
+    Tree parent = CheckUtils.parentIgnoreParentheses(condition);
+    if ((parent.is(Kind.CONDITIONAL_OR) && isTruthy) || (parent.is(Kind.CONDITIONAL_AND) && !isTruthy)) {
+      BinaryExpressionTree binaryExpressionTree = (BinaryExpressionTree) parent;
+      if (binaryExpressionTree.leftOperand().equals(condition)) {
+        neverExecutedCode.add(binaryExpressionTree.rightOperand());
+      }
+      return biggestTreeWithSameTruthiness(parent, isTruthy, neverExecutedCode);
+    }
+
+    return condition;
+  }
+
+  /**
+   * Implement this to react (raise an issue, update a metric...) to dead code
+   *
+   * @param condition
+   * @param isTruthy
+   * @param deadCode
+   */
+  protected void conditionWithDeadCode(Tree condition, boolean isTruthy, Set<Tree> deadCode) {
+
+  }
+
+  /**
+   * Implement this to react (raise an issue, update a metric...) to gratuitous boolean conditions
+   *
+   * @param condition
+   * @param isTruthy
+   */
+  protected void redundantCondition(Tree condition, boolean isTruthy) {
+
   }
 
   private class LoopsVisitor extends DoubleDispatchVisitor {

@@ -15,7 +15,7 @@ function unknown_value() {
 
 function undefined_variable() {
   var a;
-  if (a) {} // Noncompliant  [[sc=7;ec=8]] {{Change this condition so that it does not always evaluate to "false".}}
+  if (a) {} // Noncompliant
 }
 
 function null_variable() {
@@ -31,17 +31,17 @@ function function_parameter(param1) {
 
 function function_arguments() {
   arguments = null;
-  if (arguments) {} // Noncompliant 
+  if (arguments) {} // Noncompliant
 }
 
 function not_condition() {
   var a;
-  if (!a) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (!a) {} else {}// Noncompliant
 }
 
 function and_condition() {
   var a = random();
-  if (a && !a) {} // Noncompliant {{Change this condition so that it does not always evaluate to "false".}}
+  if (a && !a) {} // Noncompliant
 //         ^^
   while (a && !a) {} // Noncompliant
 //            ^^
@@ -62,21 +62,20 @@ function ternary_operator() {
 
 function condition_in_expression() {
   var x = foo();
-  return x && x !== null && foo; // Noncompliant
-//            ^^^^^^^^^^
+  return x && x !== null && foo; // OK, redundant
 }
 
 function or_condition() {
   var a = random();
-  if (a || !a) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (a || !a) {} // OK, redundant
 }
 
 function true_literal() {
-  if (true) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (true) {} // OK, redundant
 }
 
 function false_literal() {
-  if (false) {} // Noncompliant {{Change this condition so that it does not always evaluate to "false".}}
+  if (false) {} // Noncompliant
 }
 
 function while_true() {
@@ -133,16 +132,16 @@ function loop() {
 }
 
 function function_arguments() {
-  if (arguments) {} // Noncompliant {{Change this condition so that it does not always evaluate to "true".}}
+  if (arguments) {} // OK, redundant
 }
 
 function for_in(obj) {
   for (var prop in obj) {
-    if (prop) {} 
+    if (prop) {}
   }
   prop = null;
   for (prop of obj) {
-    if (prop) {} 
+    if (prop) {}
   }
 }
 
@@ -162,7 +161,7 @@ function try_catch() {
     return a;
   } catch (e) {
     if (a) {}
-  } 
+  }
 }
 
 function big_number_of_paths() {
@@ -175,7 +174,7 @@ function big_number_of_paths() {
   var g = foo();
   var h = foo();
   var i = foo();
-  
+
   if (a) {}
   if (b) {}
   if (c) {}
@@ -185,7 +184,7 @@ function big_number_of_paths() {
   if (g) {}
   if (h) {}
   if (i) {}
-  
+
   var x;
   if (x) {} // false negative, too many paths to explore
   makeLive(a, b, c, d, e, f, g, h, i);
@@ -194,7 +193,7 @@ function big_number_of_paths() {
 function nested_if() {
   var a = random();
   if (a) {
-    if (a) {  // Noncompliant
+    if (a) {  // OK Noncompliant
 
     }
 
@@ -207,37 +206,37 @@ function nested_if() {
 function tro(x, y) {
   x = y && true;
   x = y && false;
-  x = true && y;  // Noncompliant
+  x = true && y;  // OK, redundant
   x = false && y;  // Noncompliant
 
   x = y || true;
   x = y || false;
   x = true || y;  // Noncompliant
-  x = false || y;  // Noncompliant
+  x = false || y;  // OK, redundant
 
-  if (y && true) {} // Noncompliant
+  if (y && true) {} // OK, redundant
   if (y && false) {} // Noncompliant
-  if (true && y) {} // Noncompliant
+  if (true && y) {} // OK, redundant
   if (false && y) {} // Noncompliant
 
-  if (y || true) {} // Noncompliant
-  if (y || false) {} // Noncompliant
-  if (true || y) {} // Noncompliant
-  if (false || y) {} // Noncompliant
+  if (y || true) {} else {}// Noncompliant
+  if (y || false) {} // OK, redundant
+  if (true || y) {} else {} // Noncompliant
+  if (false || y) {} // OK, redundant
 }
 
 function logical_and(p1, p2, p3) {
   var combi = p1 && p2 == 42 && p3 === null;
   if (combi) {
-    if (p1) {} // Noncompliant
-    if (p3 == null) {} // Noncompliant
+    if (p1) {} // OK, redundant
+    if (p3 == null) {} // OK, redundant
   }
 }
 
 function strict_equality(p1) {
   if (p1 === 0) {
-    if (p1 === 0) {}      // Noncompliant always true
-    if (p1 == 0) {}       // Noncompliant always true
+    if (p1 === 0) {}      // OK, redundant
+    if (p1 == 0) {}       // OK, redundant
     if (p1 === "") {}     // Noncompliant always false
     if (p1 != 0) {}       // Noncompliant always false
     if (p1 == "") {}      // OK Can't tell, yet
@@ -264,8 +263,8 @@ function aka_ternary(a, b, c) {
   y = a && (new Object()) || b;
 
   // still raise issue for falsy literals
-  y = a && 0 || b; // Noncompliant
-  y = a && "" || b; // Noncompliant
+  y = a && 0 || b; // OK, redundant
+  y = a && "" || b; // OK, redundant
 
   y = a && b && [] || c;
 }
@@ -284,4 +283,33 @@ function ignore_assignment_expression() {
   if ((x = 0) || foo(x)) {
     doSomething();
   }
+}
+
+function secondary_locations(p) {
+  if (!p) {
+    if (p  // Noncompliant [[id=1]]
+      && foo())
+// S     ^^^^^ 1 {{Never reached}}
+      bar();
+//S   ^^^^^^ 1 {{Never reached}}
+
+    var x = !p || foo(); // Noncompliant {{Change this condition so that it does not always evaluate to "true"; some subsequent code is never executed.}}
+//          ^^
+
+    var x = p && foo() && bar(); // Noncompliant {{Change this condition so that it does not always evaluate to "false"; some subsequent code is never executed.}}
+//          ^
+    return p && foo(); // Noncompliant
+//         ^
+  }
+}
+
+function truthy_literal() {
+  if (42) { // Noncompliant
+  } else {
+  }
+}
+
+function parentheses() {
+  ((42)) ? 0 : 1; // Noncompliant
+//  ^^
 }

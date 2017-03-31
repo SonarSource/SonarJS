@@ -23,12 +23,12 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class AlwaysTrueOrFalseConditionCheckTest {
+public class ConditionalUnreachableCodeCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new AlwaysTrueOrFalseConditionCheck(),
-      new File("src/test/resources/checks/AlwaysTrueOrFalseCondition.js"));
+    JavaScriptCheckVerifier.verify(new ConditionalUnreachableCodeCheck(),
+      new File("src/test/resources/checks/ConditionalUnreachableCode.js"));
   }
 
 }
