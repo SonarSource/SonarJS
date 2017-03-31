@@ -55,3 +55,7 @@ delete foo1; // Noncompliant
 
 foo2 = function() {}
 delete foo2; // Compliant
+
+function checkParameter(p) {
+  delete p; // Noncompliant
+}

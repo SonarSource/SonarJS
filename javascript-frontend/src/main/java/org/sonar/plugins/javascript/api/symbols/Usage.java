@@ -63,7 +63,7 @@ public class Usage {
   }
 
   public boolean isDeclaration() {
-    return kind == Kind.DECLARATION_WRITE || kind == Kind.DECLARATION;
+    return kind == Kind.DECLARATION_WRITE || kind == Kind.DECLARATION || kind == Kind.LEXICAL_DECLARATION;
   }
 
   public boolean isWrite() {
