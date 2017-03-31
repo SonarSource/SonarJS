@@ -294,3 +294,8 @@ class B40 extends A40 {
     super();                 // Noncompliant [[secondary=-2]] {{super() can only be invoked once.}}
   }
 }
+
+var obj = {
+  constructor() {
+  }
+}
