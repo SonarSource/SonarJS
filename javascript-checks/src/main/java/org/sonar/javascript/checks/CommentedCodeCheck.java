@@ -79,7 +79,7 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
     }
   }
 
-  private boolean isRawExclusion(String uncommentedText) {
+  private static boolean isRawExclusion(String uncommentedText) {
     return uncommentedText.trim().matches("}");
   }
 
