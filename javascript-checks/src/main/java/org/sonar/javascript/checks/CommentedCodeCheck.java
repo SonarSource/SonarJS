@@ -62,17 +62,25 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
 
   private void checkCommentGroup(List<SyntaxTrivia> commentGroup) {
     String uncommentedText = uncomment(commentGroup);
+    if (isRawExclusion(uncommentedText)) {
+      return;
+    }
     uncommentedText = injectMissingBraces(uncommentedText);
 
     try {
       ScriptTree parsedUncommentedText = (ScriptTree) PARSER.parse(uncommentedText);
-      if (!isExclusion(parsedUncommentedText)) {
-        IssueLocation primaryLocation = new IssueLocation(commentGroup.get(0), commentGroup.get(commentGroup.size() - 1), MESSAGE);
-        addIssue(new PreciseIssue(this, primaryLocation));
+      if (isExclusion(parsedUncommentedText)) {
+        return;
       }
+      IssueLocation primaryLocation = new IssueLocation(commentGroup.get(0), commentGroup.get(commentGroup.size() - 1), MESSAGE);
+      addIssue(new PreciseIssue(this, primaryLocation));
     } catch (RecognitionException e) {
       // do nothing, it's just a comment
     }
+  }
+
+  private static boolean isRawExclusion(String uncommentedText) {
+    return uncommentedText.trim().matches("}");
   }
 
   private static String injectMissingBraces(String uncommentedText) {
