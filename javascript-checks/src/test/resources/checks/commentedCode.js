@@ -148,3 +148,18 @@ function unfinished_block() {
    //   }
    // }
 }
+
+function ignore_a_single_closed_curly_brace() {
+
+   // }
+
+   // Noncompliant@+2
+
+   // }}
+
+   // Noncompliant@+2
+
+   //   }
+   // }
+}
+
