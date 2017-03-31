@@ -119,9 +119,26 @@ public abstract class AbstractAlwaysTrueOrFalseConditionCheck extends SeCheck {
     return condition;
   }
 
-  abstract void conditionWithDeadCode(Tree condition, boolean isTruthy, Set<Tree> deadCode);
+  /**
+   * Implement this to react (raise an issue, update a metric...) to dead code
+   *
+   * @param condition
+   * @param isTruthy
+   * @param deadCode
+   */
+  protected void conditionWithDeadCode(Tree condition, boolean isTruthy, Set<Tree> deadCode) {
 
-  abstract void redundantCondition(Tree condition, boolean isTruthy);
+  }
+
+  /**
+   * Implement this to react (raise an issue, update a metric...) to gratuitous boolean conditions
+   *
+   * @param condition
+   * @param isTruthy
+   */
+  protected void redundantCondition(Tree condition, boolean isTruthy) {
+
+  }
 
   private class LoopsVisitor extends DoubleDispatchVisitor {
     @Override

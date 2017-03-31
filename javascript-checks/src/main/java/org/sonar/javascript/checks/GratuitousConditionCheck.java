@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -32,16 +31,11 @@ public class GratuitousConditionCheck extends AbstractAlwaysTrueOrFalseCondition
   private static final String MESSAGE = "Remove this expression which always evaluates to \"%s\".";
 
   @Override
-  void redundantCondition(Tree condition, boolean isTruthy) {
+  protected void redundantCondition(Tree condition, boolean isTruthy) {
     if (!isTruthyLiteral(condition, isTruthy) && !condition.is(Kind.ASSIGNMENT)) {
       String result = isTruthy ? "true" : "false";
       addIssue(condition, String.format(MESSAGE, result));
     }
-  }
-
-  @Override
-  void conditionWithDeadCode(Tree condition, boolean isTruthy, Set<Tree> deadCode) {
-    // covered by S2583
   }
 
   private static boolean isTruthyLiteral(Tree tree, boolean isTruthy) {

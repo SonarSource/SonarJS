@@ -30,15 +30,10 @@ public class ConditionalUnreachableCodeCheck extends AbstractAlwaysTrueOrFalseCo
   private static final String MESSAGE = "Change this condition so that it does not always evaluate to \"%s\"; some subsequent code is never executed.";
 
   @Override
-  void conditionWithDeadCode(Tree condition, boolean isTruthy, Set<Tree> deadCode) {
+  protected void conditionWithDeadCode(Tree condition, boolean isTruthy, Set<Tree> deadCode) {
     String result = isTruthy ? "true" : "false";
     PreciseIssue preciseIssue = addIssue(condition, String.format(MESSAGE, result));
     deadCode.forEach(deadCodeTree -> preciseIssue.secondary(deadCodeTree, "Never reached"));
-  }
-
-  @Override
-  void redundantCondition(Tree condition, boolean isTruthy) {
-    // covered by S2589
   }
 
 }
