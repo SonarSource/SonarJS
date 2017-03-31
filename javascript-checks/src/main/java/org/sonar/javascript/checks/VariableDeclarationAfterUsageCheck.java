@@ -65,7 +65,7 @@ public class VariableDeclarationAfterUsageCheck extends DoubleDispatchVisitorChe
 
       Collections.sort(usages, new LineComparator());
 
-      if (usages.get(0).isDeclaration() || usages.get(0).kind() == Usage.Kind.LEXICAL_DECLARATION) {
+      if (usages.get(0).isDeclaration()) {
         return;
       }
 

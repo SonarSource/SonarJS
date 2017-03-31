@@ -48,10 +48,10 @@ public class RedeclaredSymbolCheck extends DoubleDispatchVisitorCheck {
     for (Usage usage : symbol.usages()) {
 
       if (firstDeclaration == null) {
-        if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION) {
+        if (usage.isDeclaration()) {
           firstDeclaration = usage;
         }
-      } else if (usage.isDeclaration()) {
+      } else if (usage.isDeclaration() && usage.kind() != Usage.Kind.LEXICAL_DECLARATION) {
         String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.identifierTree()).getLine());
         addIssue(usage.identifierTree(), message).secondary(firstDeclaration.identifierTree());
       }

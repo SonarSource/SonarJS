@@ -60,7 +60,7 @@ public class VariableShadowingCheck extends DoubleDispatchVisitorCheck {
 
   private void raiseIssuesOnDeclarations(Symbol symbol, String message, IdentifierTree shadowedDeclaration) {
     for (Usage usage : symbol.usages()) {
-      if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION) {
+      if (usage.isDeclaration()) {
         addIssue(usage.identifierTree(), message).secondary(shadowedDeclaration);
       }
     }
@@ -68,7 +68,7 @@ public class VariableShadowingCheck extends DoubleDispatchVisitorCheck {
 
   private static Usage getDeclaration(Symbol symbol) {
     for (Usage usage : symbol.usages()) {
-      if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION) {
+      if (usage.isDeclaration()) {
         return usage;
       }
     }
