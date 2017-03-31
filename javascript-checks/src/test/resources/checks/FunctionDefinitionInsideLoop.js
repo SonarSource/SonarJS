@@ -116,3 +116,8 @@ function some_callbacks_ok() {
     });
   }
 }
+
+while (true) {
+  new Promise((resolve) => setTimeout(resolve, 5000))
+  await ping()
+}

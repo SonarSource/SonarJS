@@ -85,7 +85,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
   private static boolean isAllowedCallback(FunctionTree functionTree) {
     JavaScriptTree parent = ((JavaScriptTree) functionTree).getParent();
 
-    if (parent.is(Kind.ARGUMENTS)) {
+    if (parent.is(Kind.ARGUMENTS) && parent.getParent().is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpression = (CallExpressionTree) parent.getParent();
 
       if (callExpression.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
