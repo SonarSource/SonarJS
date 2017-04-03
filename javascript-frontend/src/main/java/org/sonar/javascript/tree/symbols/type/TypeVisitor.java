@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.tree.symbols.type.ObjectType.BuiltInObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -135,7 +136,9 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     for (MethodDeclarationTree methodDeclarationTree : tree.methods()) {
       Tree name = methodDeclarationTree.name();
       if (name.is(Tree.Kind.IDENTIFIER_NAME)) {
-        classType.addMethod((IdentifierTree) name, FunctionType.create(methodDeclarationTree));
+        // classScope is never null, ScopeVisitor#visitClass guarantees that
+        Scope classScope = getContext().getSymbolModel().getScope(tree);
+        classType.addMethod((IdentifierTree) name, FunctionType.create(methodDeclarationTree), classScope);
       }
     }
 
