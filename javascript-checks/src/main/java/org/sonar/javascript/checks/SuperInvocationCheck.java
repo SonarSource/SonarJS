@@ -284,7 +284,12 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static Optional<ClassTree> getEnclosingClass(Tree tree) {
-    return Optional.ofNullable((ClassTree) CheckUtils.getFirstAncestor(tree, Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION));
+    final Tree classBoundary = CheckUtils.getFirstAncestor(tree, Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION, Kind.OBJECT_LITERAL);
+    if (classBoundary.is(Kind.OBJECT_LITERAL)) {
+      return Optional.empty();
+    } else {
+      return Optional.ofNullable((ClassTree) classBoundary);
+    }
   }
 
   /**

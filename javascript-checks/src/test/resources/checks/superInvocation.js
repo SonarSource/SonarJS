@@ -295,7 +295,35 @@ class B40 extends A40 {
   }
 }
 
-var obj = {
+class B41 extends A40 {
+
   constructor() {
+    super();
+  }
+
+  createObject() {
+    var obj = {
+      constructor() {       // OK
+      }
+    }
+    return obj;
+  }
+
+  passObject() {
+    innerFunction({
+      constructor() {       // OK
+      }
+    });
+  }
+
+  nesting() {
+    function constructor() {  // OK
+    }
+  }
+}
+
+var top_level_object = {
+  constructor() {         // OK
+    super();              // Noncompliant
   }
 }
