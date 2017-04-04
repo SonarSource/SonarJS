@@ -10,7 +10,7 @@
 
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>2.21-SNAPSHOT</version>
+  <version>2.21.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarQube JavaScript</name>
