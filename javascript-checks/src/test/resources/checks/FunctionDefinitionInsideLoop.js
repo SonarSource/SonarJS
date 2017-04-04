@@ -121,3 +121,16 @@ while (true) {
   new Promise((resolve) => setTimeout(resolve, 5000))
   await ping()
 }
+
+class A {
+
+  foo() {}
+
+  bar() {
+    while(true) {
+       var x = () => {
+          this.foo();   // ok to use method
+       };
+    }
+  }
+}

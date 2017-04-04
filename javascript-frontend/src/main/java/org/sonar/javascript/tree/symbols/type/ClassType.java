@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -50,9 +51,8 @@ public class ClassType extends ObjectType {
     return objectType;
   }
 
-  public void addMethod(IdentifierTree name, FunctionType functionType) {
-    // fixme null scope
-    Symbol symbol = new Symbol(name.name(), Symbol.Kind.METHOD, null);
+  public void addMethod(IdentifierTree name, FunctionType functionType, Scope scope) {
+    Symbol symbol = new Symbol(name.name(), Symbol.Kind.METHOD, scope);
     symbol.addUsage(name, Usage.Kind.DECLARATION);
     symbol.addType(functionType);
     properties.put(

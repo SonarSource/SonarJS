@@ -82,7 +82,14 @@ public class ClassTypeTest extends TypeTest {
 
     assertThat(type.callability()).isEqualTo(Callability.NON_CALLABLE);
     assertThat(type.classType()).isNotNull();
-    assertThat(type.classType().properties()).isNotEmpty();
+    assertThat(type.classType().properties()).hasSize(2);
+
+    Symbol barProperty = type.property("bar");
+    assertThat(barProperty).isNotNull();
+    assertThat(barProperty.name()).isEqualTo("bar");
+    assertThat(barProperty.kind()).isEqualTo(Kind.METHOD);
+    assertThat(barProperty.scope().tree().is(Tree.Kind.CLASS_EXPRESSION)).isTrue();
+
 
   }
 
