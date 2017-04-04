@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
@@ -30,7 +31,6 @@ import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,6 +65,7 @@ import org.sonar.javascript.cpd.CpdVisitor;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
 import org.sonar.javascript.metrics.MetricsVisitor;
+import org.sonar.javascript.metrics.NoSonarVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.SeChecksDispatcher;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -310,6 +311,9 @@ public class JavaScriptSquidSensor implements Sensor {
     ProductDependentExecutor executor = createProductDependentExecutor(context);
 
     List<TreeVisitor> treeVisitors = Lists.newArrayList();
+
+    // it's important to have an order here:
+    // NoSonarVisitor (part of executor.getProductDependentTreeVisitors()) should go before all checks
     treeVisitors.addAll(executor.getProductDependentTreeVisitors());
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
     treeVisitors.addAll(checks.visitorChecks());
@@ -336,7 +340,7 @@ public class JavaScriptSquidSensor implements Sensor {
 
   private ProductDependentExecutor createProductDependentExecutor(SensorContext context) {
     if (isSonarLint(context)) {
-      return new SonarLintProductExecutor();
+      return new SonarLintProductExecutor(noSonarFilter, context);
     }
     return new SonarQubeProductExecutor(context, noSonarFilter, fileLinesContextFactory);
   }
@@ -366,13 +370,19 @@ public class JavaScriptSquidSensor implements Sensor {
 
     @Override
     public List<TreeVisitor> getProductDependentTreeVisitors() {
+      boolean ignoreHeaderComments = ignoreHeaderComments(context);
+
       metricsVisitor = new MetricsVisitor(
         context,
-        noSonarFilter,
-        context.settings().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS),
+        ignoreHeaderComments,
         fileLinesContextFactory,
         isAtLeastSq62);
-      return Arrays.asList(metricsVisitor, new HighlighterVisitor(context), new CpdVisitor(context));
+
+      return Arrays.asList(
+        metricsVisitor,
+        new NoSonarVisitor(noSonarFilter, ignoreHeaderComments),
+        new HighlighterVisitor(context),
+        new CpdVisitor(context));
     }
 
     @Override
@@ -433,9 +443,17 @@ public class JavaScriptSquidSensor implements Sensor {
 
   @VisibleForTesting
   protected static class SonarLintProductExecutor implements ProductDependentExecutor {
+    private final NoSonarFilter noSonarFilter;
+    private final SensorContext context;
+
+    SonarLintProductExecutor(NoSonarFilter noSonarFilter, SensorContext context) {
+      this.noSonarFilter = noSonarFilter;
+      this.context = context;
+    }
+
     @Override
     public List<TreeVisitor> getProductDependentTreeVisitors() {
-      return Collections.emptyList();
+      return ImmutableList.of(new NoSonarVisitor(noSonarFilter, ignoreHeaderComments(context)));
     }
 
     @Override
@@ -447,6 +465,10 @@ public class JavaScriptSquidSensor implements Sensor {
     public void executeCoverageSensors() {
       // unnecessary in SonarLint context
     }
+  }
+
+  private static boolean ignoreHeaderComments(SensorContext context) {
+    return context.settings().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS);
   }
 
   private static boolean isSonarLint(SensorContext context) {

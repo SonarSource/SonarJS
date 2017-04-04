@@ -44,7 +44,8 @@ import static java.util.Collections.singletonList;
   CustomRulesTests.class,
   MetricsTest.class,
   MinifiedFilesTest.class,
-  SonarLintTest.class
+  SonarLintTest.class,
+  NoSonarTest.class
 })
 public final class Tests {
 
@@ -62,6 +63,7 @@ public final class Tests {
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../plugins/" + CUSTOM_RULES_ARTIFACT_ID + "/target"), CUSTOM_RULES_ARTIFACT_ID + "-*.jar"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
     .build();
 
   private Tests() {

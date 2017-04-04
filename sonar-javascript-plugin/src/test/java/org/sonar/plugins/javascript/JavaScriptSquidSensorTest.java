@@ -87,8 +87,6 @@ public class JavaScriptSquidSensorTest {
   private static final SonarRuntime SONARLINT_RUNTIME = SonarRuntimeImpl.forSonarLint(SONARLINT_DETECTABLE_VERSION);
   private static final SonarRuntime NOSONARLINT_RUNTIME = SonarRuntimeImpl.forSonarQube(SONARLINT_DETECTABLE_VERSION, SonarQubeSide.SERVER);
 
-  private static final ProductDependentExecutor executor = new SonarLintProductExecutor();
-
   private static final String UT_LCOV = "reports/report_ut.lcov";
   private static final String IT_LCOV = "reports/report_it.lcov";
 
@@ -120,6 +118,7 @@ public class JavaScriptSquidSensorTest {
   private File baseDir = new File("src/test/resources");
   private final ProgressReport progressReport = mock(ProgressReport.class);
   private SensorContextTester context = SensorContextTester.create(baseDir);
+  private ProductDependentExecutor executor = new SonarLintProductExecutor(new NoSonarFilter(), context);
 
   private JavaScriptSquidSensor createSensor() {
     return new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(), CUSTOM_RULES);
