@@ -77,6 +77,7 @@ public class SonarLintTest {
     ClientInputFile inputFile = prepareInputFile("foo.js",
       "function foo() { \n"
         + "  var a; \n"
+        + "  var c; // NOSONAR\n"
         + "  var b = 1; \n"
         + "} \n",
       false);
@@ -88,8 +89,8 @@ public class SonarLintTest {
 
     assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
       tuple("javascript:UnusedVariable", 2, inputFile.getPath(), "MINOR"),
-      tuple("javascript:UnusedVariable", 3, inputFile.getPath(), "MINOR"),
-      tuple("javascript:S1854", 3, inputFile.getPath(), "MAJOR"));
+      tuple("javascript:UnusedVariable", 4, inputFile.getPath(), "MINOR"),
+      tuple("javascript:S1854", 4, inputFile.getPath(), "MAJOR"));
   }
 
   private ClientInputFile prepareInputFile(String relativePath, String content, final boolean isTest) throws IOException {

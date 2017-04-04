@@ -28,14 +28,11 @@ import javax.annotation.CheckForNull;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
-import org.sonarqube.ws.client.component.ShowWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
 import static java.util.Collections.singletonList;
@@ -48,7 +45,8 @@ import static java.util.Collections.singletonList;
   MetricsTest.class,
   MinifiedFilesTest.class,
   SonarLintTest.class,
-  DefaultProfileTest.class
+  DefaultProfileTest.class,
+  NoSonarTest.class
 })
 public final class Tests {
 
@@ -66,6 +64,7 @@ public final class Tests {
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../plugins/" + CUSTOM_RULES_ARTIFACT_ID + "/target"), CUSTOM_RULES_ARTIFACT_ID + "-*.jar"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
     .build();
 
   private Tests() {

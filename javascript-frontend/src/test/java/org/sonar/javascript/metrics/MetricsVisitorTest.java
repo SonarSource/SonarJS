@@ -26,7 +26,6 @@ import org.mockito.Mockito;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -86,7 +85,7 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
   private MetricsVisitor createMetricsVisitor(boolean saveExecutableLines) {
     FileLinesContextFactory linesContextFactory = mock(FileLinesContextFactory.class);
     when(linesContextFactory.createFor(INPUT_FILE)).thenReturn(linesContext);
-    return new MetricsVisitor(context, mock(NoSonarFilter.class), false, linesContextFactory, saveExecutableLines);
+    return new MetricsVisitor(context, false, linesContextFactory, saveExecutableLines);
   }
 
 }
