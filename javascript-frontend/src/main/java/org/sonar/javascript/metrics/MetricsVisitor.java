@@ -29,7 +29,6 @@ import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.ce.measure.RangeDistributionBuilder;
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -54,7 +53,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
   private final SensorContext sensorContext;
   private final boolean saveExecutableLines;
   private InputFile inputFile;
-  private NoSonarFilter noSonarFilter;
   private final Boolean ignoreHeaderComments;
   private FileLinesContextFactory fileLinesContextFactory;
   private Map<InputFile, Set<Integer>> projectExecutableLines;
@@ -64,12 +62,8 @@ public class MetricsVisitor extends SubscriptionVisitor {
   private RangeDistributionBuilder functionComplexityDistribution;
   private RangeDistributionBuilder fileComplexityDistribution;
 
-  public MetricsVisitor(
-    SensorContext context, NoSonarFilter noSonarFilter, Boolean ignoreHeaderComments,
-    FileLinesContextFactory fileLinesContextFactory, boolean saveExecutableLines
-  ) {
+  public MetricsVisitor(SensorContext context, Boolean ignoreHeaderComments, FileLinesContextFactory fileLinesContextFactory, boolean saveExecutableLines) {
     this.sensorContext = context;
-    this.noSonarFilter = noSonarFilter;
     this.ignoreHeaderComments = ignoreHeaderComments;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.projectExecutableLines = new HashMap<>();
@@ -161,7 +155,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
     Set<Integer> commentLines = commentVisitor.getCommentLines();
 
     saveMetricOnFile(CoreMetrics.COMMENT_LINES, commentVisitor.getCommentLineNumber());
-    noSonarFilter.noSonarInFile(this.inputFile, commentVisitor.noSonarLines());
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(this.inputFile);
 
