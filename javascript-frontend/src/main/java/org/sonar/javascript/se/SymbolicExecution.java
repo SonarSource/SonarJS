@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.se.limitations.CrossProceduralLimitation;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
@@ -454,15 +455,17 @@ public class SymbolicExecution {
 
   private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState) {
     SymbolicValue conditionSymbolicValue = currentState.peekStack();
-    Tree lastElement = block.elements().get(block.elements().size() - 1);
 
-    Optional<ProgramState> constrainedTruePS = currentState.constrain(conditionSymbolicValue, Constraint.TRUTHY);
+    Tree lastElement = block.elements().get(block.elements().size() - 1);
+    ProgramState programStateForBranching = new CrossProceduralLimitation().prepareForBranching(lastElement, currentState);
+
+    Optional<ProgramState> constrainedTruePS = programStateForBranching.constrain(conditionSymbolicValue, Constraint.TRUTHY);
     if (constrainedTruePS.isPresent()) {
       pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY, block.branchingTree());
       conditionResults.put(lastElement, Constraint.TRUTHY);
     }
 
-    Optional<ProgramState> constrainedFalsePS = currentState.constrain(conditionSymbolicValue, Constraint.FALSY);
+    Optional<ProgramState> constrainedFalsePS = programStateForBranching.constrain(conditionSymbolicValue, Constraint.FALSY);
     if (constrainedFalsePS.isPresent()) {
       pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY, block.branchingTree());
       conditionResults.put(lastElement, Constraint.FALSY);

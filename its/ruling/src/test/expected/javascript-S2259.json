@@ -53,9 +53,6 @@
 'project:dojo-1.8.1/dojox/gfx/vml.js.uncompressed.js':[
 1158,
 ],
-'project:dojo-1.8.1/dojox/grid/LazyTreeGrid.js.uncompressed.js':[
-101,
-],
 'project:dojo-1.8.1/dojox/mobile/app/ListSelector.js.uncompressed.js':[
 95,
 ],
@@ -86,9 +83,6 @@
 6548,
 6741,
 9200,
-],
-'project:ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
-2243,
 ],
 'project:ecmascript6/sonar-web/src/main/js/apps/coding-rules/bulk-change-modal-view.js':[
 18,
@@ -131,9 +125,6 @@
 ],
 'project:open-layers-2.12/OpenLayers/Geometry/LineString.js':[
 330,
-],
-'project:open-layers-2.12/OpenLayers/Map.js':[
-1877,
 ],
 'project:open-layers-2.12/OpenLayers/Renderer/VML.js':[
 297,

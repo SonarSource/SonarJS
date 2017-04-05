@@ -6,6 +6,9 @@
 10034,
 10034,
 ],
+'project:dojo-1.8.1/dijit/_TemplatedMixin.js.uncompressed.js':[
+202,
+],
 'project:dojo-1.8.1/dijit/_base/focus.js.uncompressed.js':[
 146,
 ],
@@ -383,9 +386,6 @@
 'project:yui-3.7.3/dd-ddm-drop/dd-ddm-drop.js':[
 190,
 ],
-'project:yui-3.7.3/dom-core/dom-core.js':[
-122,
-],
 'project:yui-3.7.3/editor-base/editor-base.js':[
 112,
 524,
@@ -420,13 +420,6 @@
 ],
 'project:yui-3.7.3/node-menunav/node-menunav.js':[
 1450,
-],
-'project:yui-3.7.3/selector-css2/selector-css2.js':[
-141,
-181,
-],
-'project:yui-3.7.3/stylesheet/stylesheet.js':[
-136,
 ],
 'project:yui-3.7.3/widget-modality/widget-modality.js':[
 518,

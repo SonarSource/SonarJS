@@ -162,6 +162,11 @@ public class SymbolicExecutionTest {
     verifySE("cross_procedure_argument_constraints.js");
   }
 
+  @Test
+  public void should_drop_constraints_on_arguments_of_functions_used_in_conditions() throws Exception {
+    verifySE("drop_arguments_constraints_in_conditions.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new TestInputFile("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);

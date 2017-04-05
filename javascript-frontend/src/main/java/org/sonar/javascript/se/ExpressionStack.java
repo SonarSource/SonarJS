@@ -262,25 +262,27 @@ public class ExpressionStack {
     SymbolicValue callee = newStack.pop();
     if (callee instanceof FunctionSymbolicValue) {
       newStack.push(((FunctionSymbolicValue) callee).call(argumentValues));
-
     } else if (callee instanceof FunctionWithTreeSymbolicValue) {
       FunctionTree functionTreeToExecute = ((FunctionWithTreeSymbolicValue) callee).getFunctionTree();
-      Scope scopeToExecute = functionTreeToExecute.scope();
-      if (!functionTreeToExecute.body().is(Kind.BLOCK)) {
-        pushUnknown(newStack);
-
+      if (functionTreeToExecute.body().is(Kind.BLOCK)) {
+        runNestedSymbolicExecution(newStack, constraints, argumentValues, functionTreeToExecute);
       } else {
-        List<Constraint> argumentConstraints = argumentValues.stream().map(constraints::getConstraint).collect(Collectors.toList());
-        ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTreeToExecute.body());
-        SymbolicExecution symbolicExecution = new SymbolicExecution(scopeToExecute, cfg, ImmutableList.of());
-        ProgramState initialProgramState = initialProgramStateWithParameterConstraints(functionTreeToExecute, argumentConstraints);
-        symbolicExecution.visitCfg(initialProgramState);
-        newStack.push(new SymbolicValueWithConstraint(symbolicExecution.getReturnConstraint()));
+        pushUnknown(newStack);
       }
-
     } else {
       pushUnknown(newStack);
     }
+  }
+
+  private static void runNestedSymbolicExecution(Deque<SymbolicValue> newStack, ProgramStateConstraints constraints, List<SymbolicValue> argumentValues,
+    FunctionTree functionTreeToExecute) {
+    Scope scopeToExecute = functionTreeToExecute.scope();
+    List<Constraint> argumentConstraints = argumentValues.stream().map(constraints::getConstraint).collect(Collectors.toList());
+    ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTreeToExecute.body());
+    SymbolicExecution symbolicExecution = new SymbolicExecution(scopeToExecute, cfg, ImmutableList.of());
+    ProgramState initialProgramState = initialProgramStateWithParameterConstraints(functionTreeToExecute, argumentConstraints);
+    symbolicExecution.visitCfg(initialProgramState);
+    newStack.push(new SymbolicValueWithConstraint(symbolicExecution.getReturnConstraint()));
   }
 
   private static ProgramState initialProgramStateWithParameterConstraints(FunctionTree functionTree, List<Constraint> argumentConstraints) {

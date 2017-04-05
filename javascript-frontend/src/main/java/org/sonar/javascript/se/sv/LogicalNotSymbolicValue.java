@@ -62,6 +62,10 @@ public class LogicalNotSymbolicValue implements SymbolicValue {
     return Constraint.BOOLEAN_PRIMITIVE;
   }
 
+  public SymbolicValue negatedValue() {
+    return negatedValue;
+  }
+
   @Override
   public String toString() {
     return "!" + negatedValue;
