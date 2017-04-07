@@ -294,3 +294,54 @@ class B40 extends A40 {
     super();                 // Noncompliant [[secondary=-2]] {{super() can only be invoked once.}}
   }
 }
+
+class B41 extends A40 {
+
+  constructor() {
+    super();
+  }
+
+  createObject() {
+    var obj = {
+      constructor() {       // OK
+      }
+    }
+    return obj;
+  }
+
+  passObject() {
+    innerFunction({
+      constructor() {       // OK
+      }
+    });
+  }
+
+  nesting() {
+    function constructor() {  // OK
+    }
+  }
+
+  delayedConstructorCreation() {
+    var obj = {};
+    obj.constructor = function() {  // OK
+
+    };
+    var obj2 = {};
+    obj.constructor = function() {
+      super();  // Noncompliant
+    }
+  }
+
+  constructorInArray() {
+    var array = [{
+      constructor() {   // OK
+      }
+    }];
+  }
+}
+
+var top_level_object = {
+  constructor() {         // OK
+    super();              // Noncompliant
+  }
+}

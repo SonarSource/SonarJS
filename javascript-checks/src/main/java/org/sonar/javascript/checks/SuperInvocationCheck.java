@@ -164,15 +164,16 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void checkSuperHasCorrectNumberOfArguments(SuperTreeImpl superTree) {
-    ClassTree classTree = getEnclosingClass(superTree);
-    ExpressionTree superClassTree = classTree.superClass();
-    // we consider only the simple case "class A extends B", not cases such as "class A extends class {} ..."
-    if (superClassTree.is(Kind.IDENTIFIER_REFERENCE)) {
-      Symbol superClassSymbol = ((IdentifierTree) superClassTree).symbol();
-      if (superClassSymbol != null) {
-        compareNumberOfArguments(superTree, superClassSymbol);
+    getEnclosingType(superTree).ifPresent(classTree -> {
+      ExpressionTree superClassTree = classTree.superClass();
+      // we consider only the simple case "class A extends B", not cases such as "class A extends class {} ..."
+      if (superClassTree.is(Kind.IDENTIFIER_REFERENCE)) {
+        Symbol superClassSymbol = ((IdentifierTree) superClassTree).symbol();
+        if (superClassSymbol != null) {
+          compareNumberOfArguments(superTree, superClassSymbol);
+        }
       }
-    }
+    });
   }
 
   private void checkSuperInvokedOnlyOnce(MethodDeclarationTree tree, List<SuperTreeImpl> superTrees) {
@@ -250,8 +251,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean isInBaseClass(MethodDeclarationTree method) {
-    ClassTree classTree = getEnclosingClass(method);
-    return classTree.extendsToken() == null;
+    return getEnclosingType(method).map(classTree -> classTree.extendsToken() == null).orElse(true);
   }
 
   /**
@@ -259,8 +259,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
    * It is assumed that the class is a derived class.
    */
   private static boolean isInDummyDerivedClass(MethodDeclarationTree method) {
-    ClassTree classTree = getEnclosingClass(method);
-    return classTree.superClass().is(Kind.NULL_LITERAL);
+    return getEnclosingType(method).map(classTree -> classTree.superClass().is(Kind.NULL_LITERAL)).orElse(false);
   }
 
   @CheckForNull
@@ -284,8 +283,13 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
     return false;
   }
 
-  private static ClassTree getEnclosingClass(Tree tree) {
-    return (ClassTree) CheckUtils.getFirstAncestor(tree, Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION);
+  private static Optional<ClassTree> getEnclosingType(Tree tree) {
+    final Tree classBoundary = CheckUtils.getFirstAncestor(tree, Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION, Kind.OBJECT_LITERAL);
+    if (classBoundary.is(Kind.OBJECT_LITERAL)) {
+      return Optional.empty();
+    } else {
+      return Optional.ofNullable((ClassTree) classBoundary);
+    }
   }
 
   /**
