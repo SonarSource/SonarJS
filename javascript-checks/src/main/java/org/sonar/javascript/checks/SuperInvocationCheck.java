@@ -164,7 +164,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void checkSuperHasCorrectNumberOfArguments(SuperTreeImpl superTree) {
-    getEnclosingClass(superTree).ifPresent(classTree -> {
+    getEnclosingType(superTree).ifPresent(classTree -> {
       ExpressionTree superClassTree = classTree.superClass();
       // we consider only the simple case "class A extends B", not cases such as "class A extends class {} ..."
       if (superClassTree.is(Kind.IDENTIFIER_REFERENCE)) {
@@ -251,7 +251,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean isInBaseClass(MethodDeclarationTree method) {
-    return getEnclosingClass(method).map(classTree -> classTree.extendsToken() == null).orElse(true);
+    return getEnclosingType(method).map(classTree -> classTree.extendsToken() == null).orElse(true);
   }
 
   /**
@@ -259,7 +259,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
    * It is assumed that the class is a derived class.
    */
   private static boolean isInDummyDerivedClass(MethodDeclarationTree method) {
-    return getEnclosingClass(method).map(classTree -> classTree.superClass().is(Kind.NULL_LITERAL)).orElse(false);
+    return getEnclosingType(method).map(classTree -> classTree.superClass().is(Kind.NULL_LITERAL)).orElse(false);
   }
 
   @CheckForNull
@@ -283,7 +283,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
     return false;
   }
 
-  private static Optional<ClassTree> getEnclosingClass(Tree tree) {
+  private static Optional<ClassTree> getEnclosingType(Tree tree) {
     final Tree classBoundary = CheckUtils.getFirstAncestor(tree, Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION, Kind.OBJECT_LITERAL);
     if (classBoundary.is(Kind.OBJECT_LITERAL)) {
       return Optional.empty();
