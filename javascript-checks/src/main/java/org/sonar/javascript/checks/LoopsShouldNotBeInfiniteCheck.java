@@ -190,7 +190,8 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
 
     Loop(ControlFlowGraph flowGraph, IterationStatementTree iteration, @Nullable JavaScriptTree condition) {
       branchBlocks = findRootBranchingBlocks(flowGraph, iteration, condition);
-      Set<CfgBlock> foundLoopBlocks = findLoopBlocks((JavaScriptTree) iteration.statement(), treesToBlocks(flowGraph));
+      final Map<Tree, CfgBlock> treesOfFlowGraph = treesToBlocks(flowGraph);
+      Set<CfgBlock> foundLoopBlocks = findLoopBlocks(iteration, treesOfFlowGraph);
       branchBlocks.forEach(foundLoopBlocks::add);
       this.loopBlocks = foundLoopBlocks;
     }
@@ -215,8 +216,17 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
       return false;
     }
 
-    private static Set<CfgBlock> findLoopBlocks(JavaScriptTree iterationStatement, Map<Tree, CfgBlock> treesOfFlowGraph) {
-      return iterationStatement.descendants().map(treesOfFlowGraph::get).filter(Objects::nonNull).collect(Collectors.toSet());
+    private static Set<CfgBlock> findLoopBlocks(IterationStatementTree iterationStatement, Map<Tree, CfgBlock> treesOfFlowGraph) {
+      Stream<JavaScriptTree> iterationTrees = ((JavaScriptTree) iterationStatement.statement()).descendants();
+      iterationTrees = addUpdateExpression(iterationStatement, iterationTrees);
+      return iterationTrees.map(treesOfFlowGraph::get).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    private static Stream<JavaScriptTree> addUpdateExpression(IterationStatementTree iterationStatement, Stream<JavaScriptTree> iterationTrees) {
+      if (iterationStatement instanceof ForStatementTree) {
+        return Stream.concat(iterationTrees, Stream.of((JavaScriptTree) ((ForStatementTree) iterationStatement).update()));
+      }
+      return iterationTrees;
     }
 
     Set<CfgBlock> jumpingExits() {

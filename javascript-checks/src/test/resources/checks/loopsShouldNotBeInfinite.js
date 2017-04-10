@@ -1,4 +1,3 @@
-
 function null_condition_loop() {
     for ( ; ; ) {       // Noncompliant {{Add an end condition for this loop.}}
     }
@@ -39,6 +38,13 @@ function condition_symbol_is_only_read() {
     while(a && c) {          // Noncompliant
         var e = a;
     }
+}
+
+function condition_symbol_is_only_read_and_another_symbol_is_used_in_incrementer() {
+  var j = 0;
+  for(var i = 0; i < 10; j++) {   // Noncompliant
+    foo();
+  }
 }
 
 function condition_is_static() {
@@ -130,7 +136,7 @@ function condition_is_a_function_call() {
 
 function diverging_values_in_condition() {
     var j = 100;
-    for (var i=0; i < j; i--) {     // OK Covered by S2251
+    for (var i=0; i < j; i--) {     // Noncompliant also covered by S2251
         m++;
     }
 }
