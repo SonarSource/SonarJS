@@ -19,9 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
@@ -44,8 +45,8 @@ import static org.sonar.javascript.tree.KindSet.LOOP_KINDS;
 public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(
       Kind.BREAK_STATEMENT,
       Kind.CONTINUE_STATEMENT,
       Kind.RETURN_STATEMENT,

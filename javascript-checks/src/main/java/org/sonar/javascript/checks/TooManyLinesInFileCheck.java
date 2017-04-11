@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -57,8 +57,8 @@ public class TooManyLinesInFileCheck extends SubscriptionVisitorCheck {
   }
 
   @Override
-  public List<Tree.Kind> nodesToVisit() {
-    return ImmutableList.of(Tree.Kind.TOKEN);
+  public Set<Tree.Kind> nodesToVisit() {
+    return ImmutableSet.of(Tree.Kind.TOKEN);
   }
 
 }

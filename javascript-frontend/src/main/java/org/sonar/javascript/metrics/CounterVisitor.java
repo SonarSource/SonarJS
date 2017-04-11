@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.metrics;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -53,16 +53,16 @@ public class CounterVisitor extends SubscriptionVisitor {
     Kind.DEBUGGER_STATEMENT
   };
 
+  public CounterVisitor(Tree tree) {
+    scanTree(tree);
+  }
+
   @Override
-  public List<Kind> nodesToVisit() {
-    List<Kind> result = new ArrayList<>(KindSet.FUNCTION_KINDS.getSubKinds());
+  public Set<Kind> nodesToVisit() {
+    HashSet<Kind> result = new HashSet<>(KindSet.FUNCTION_KINDS.getSubKinds());
     result.addAll(Arrays.asList(STATEMENT_NODES));
     result.addAll(Arrays.asList(MetricsVisitor.getClassNodes()));
     return result;
-  }
-
-  public CounterVisitor(Tree tree) {
-    scanTree(tree);
   }
 
   public int getFunctionNumber() {

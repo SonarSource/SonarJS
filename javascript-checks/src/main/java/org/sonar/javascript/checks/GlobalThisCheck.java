@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -36,8 +36,8 @@ public class GlobalThisCheck extends SubscriptionVisitorCheck {
   private int scopeLevel = 0;
 
   @Override
-  public List<Tree.Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .add(Tree.Kind.DOT_MEMBER_EXPRESSION)
       .build();

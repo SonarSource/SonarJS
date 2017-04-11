@@ -20,13 +20,12 @@
 package org.sonar.javascript.se;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -234,8 +233,8 @@ class SeVerifier extends SeCheck {
     }
 
     @Override
-    public List<Kind> nodesToVisit() {
-      return ImmutableList.of(Kind.TOKEN);
+    public Set<Kind> nodesToVisit() {
+      return ImmutableSet.of(Kind.TOKEN);
     }
 
     @Override

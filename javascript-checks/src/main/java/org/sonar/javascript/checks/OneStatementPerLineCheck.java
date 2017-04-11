@@ -20,10 +20,11 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -47,8 +48,8 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
   private List<StatementTree> excludedStatements = new ArrayList<>();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(
       Kind.VARIABLE_STATEMENT,
       Kind.EXPRESSION_STATEMENT,
       Kind.IF_STATEMENT,

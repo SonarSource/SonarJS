@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -80,8 +80,8 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
   private final CognitiveComplexity cognitiveComplexity = new CognitiveComplexity();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
   }
 
   @Override

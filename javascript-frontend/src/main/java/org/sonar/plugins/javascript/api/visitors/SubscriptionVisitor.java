@@ -22,7 +22,7 @@ package org.sonar.plugins.javascript.api.visitors;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -32,7 +32,7 @@ public abstract class SubscriptionVisitor implements TreeVisitor {
   private TreeVisitorContext context;
   private Collection<Tree.Kind> nodesToVisit;
 
-  public abstract List<Kind> nodesToVisit();
+  public abstract Set<Kind> nodesToVisit();
 
   public void visitNode(Tree tree) {
     // Default behavior : do nothing.

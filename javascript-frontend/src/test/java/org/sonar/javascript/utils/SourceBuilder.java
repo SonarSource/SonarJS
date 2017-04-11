@@ -19,12 +19,12 @@
  */
 package org.sonar.javascript.utils;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
 public class SourceBuilder extends SubscriptionVisitor {
 
@@ -39,8 +39,8 @@ public class SourceBuilder extends SubscriptionVisitor {
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Tree.Kind.TOKEN);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Tree.Kind.TOKEN);
   }
 
   @Override

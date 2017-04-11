@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -51,8 +51,8 @@ public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
   }
 
   @Override
-  public List<Tree.Kind> nodesToVisit() {
-    return ImmutableList.<Tree.Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Tree.Kind>builder()
       .add(Tree.Kind.BITWISE_AND)
       .add(Tree.Kind.BITWISE_OR)
       .add(Tree.Kind.BITWISE_XOR)

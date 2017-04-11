@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -52,8 +52,8 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.BLOCK, Kind.OBJECT_LITERAL, Kind.SWITCH_STATEMENT, Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Kind.BLOCK, Kind.OBJECT_LITERAL, Kind.SWITCH_STATEMENT, Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION);
   }
 
   @Override

@@ -20,10 +20,9 @@
 package org.sonar.javascript.metrics;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
@@ -78,8 +77,8 @@ public class MetricsVisitor extends SubscriptionVisitor {
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    List<Kind> result = new ArrayList<>(KindSet.FUNCTION_KINDS.getSubKinds());
+  public Set<Kind> nodesToVisit() {
+    Set<Kind> result = new HashSet<>(KindSet.FUNCTION_KINDS.getSubKinds());
     result.addAll(Arrays.asList(CLASS_NODES));
     return result;
   }

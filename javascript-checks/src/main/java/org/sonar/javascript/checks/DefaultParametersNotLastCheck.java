@@ -19,9 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
@@ -38,8 +39,8 @@ public class DefaultParametersNotLastCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "Move parameter%s \"%s\" after parameters without default value.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
   }
 
   @Override

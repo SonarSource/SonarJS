@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
@@ -48,8 +49,8 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE_WITHOUT_KEYWORD = "Remove this unreachable code.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .add(Kind.SCRIPT)
       .build();

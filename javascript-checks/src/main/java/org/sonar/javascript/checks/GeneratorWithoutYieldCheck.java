@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -41,8 +41,8 @@ public class GeneratorWithoutYieldCheck extends SubscriptionVisitorCheck {
   private Deque<Boolean> hasYieldStack = new ArrayDeque<>();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(
       Kind.GENERATOR_DECLARATION,
       Kind.GENERATOR_METHOD,
       Kind.GENERATOR_FUNCTION_EXPRESSION,

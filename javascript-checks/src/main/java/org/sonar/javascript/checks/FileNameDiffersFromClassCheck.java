@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -43,8 +43,8 @@ public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
   private String nameOfExported = null;
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(
       Kind.DEFAULT_EXPORT_DECLARATION,
       Kind.NAMESPACE_EXPORT_DECLARATION,
       Kind.NAMED_EXPORT_DECLARATION

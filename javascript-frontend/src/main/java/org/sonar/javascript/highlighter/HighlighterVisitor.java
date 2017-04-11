@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.highlighter;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -56,8 +56,8 @@ public class HighlighterVisitor extends SubscriptionVisitor {
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .add(METHODS)
       .add(
         Kind.FIELD,

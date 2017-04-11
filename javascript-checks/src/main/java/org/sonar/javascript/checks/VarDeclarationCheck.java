@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -33,8 +33,8 @@ public class VarDeclarationCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "Replace \"var\" with \"let\" or \"const\"";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.VAR_DECLARATION);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Kind.VAR_DECLARATION);
   }
 
   @Override

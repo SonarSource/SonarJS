@@ -19,11 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
@@ -48,8 +46,8 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
   private Deque<Tree> functionAndLoopScopes = new ArrayDeque<>();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .addAll(KindSet.LOOP_KINDS.getSubKinds())
       .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .build();

@@ -19,8 +19,8 @@
  */
 package org.sonar.samples.javascript;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -36,8 +36,8 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 public class SubscriptionBaseVisitorCheck extends SubscriptionVisitorCheck {
 
   @Override
-  public List<Tree.Kind> nodesToVisit() {
-    return ImmutableList.of(
+  public Set<Tree.Kind> nodesToVisit() {
+    return ImmutableSet.of(
       Tree.Kind.FOR_IN_STATEMENT
     );
   }

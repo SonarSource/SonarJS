@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -41,8 +41,8 @@ public class UselessStringOperationCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "%s is an immutable object; you must either store or return the result of the operation.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.EXPRESSION_STATEMENT);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Kind.EXPRESSION_STATEMENT);
   }
 
   @Override

@@ -20,16 +20,15 @@
 package org.sonar.javascript.metrics;
 
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import java.util.List;
 import java.util.Set;
 import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
 public class CommentLineVisitor extends SubscriptionVisitor {
 
@@ -42,11 +41,6 @@ public class CommentLineVisitor extends SubscriptionVisitor {
   private boolean ignoreHeaderComments;
   private JavaScriptCommentAnalyser commentAnalyser = new JavaScriptCommentAnalyser();
 
-  @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Tree.Kind.TOKEN);
-  }
-
   public CommentLineVisitor(Tree tree, boolean ignoreHeaderComments) {
     this.ignoreHeaderComments = ignoreHeaderComments;
 
@@ -54,6 +48,11 @@ public class CommentLineVisitor extends SubscriptionVisitor {
     this.noSonarLines.clear();
     this.seenFirstToken = false;
     scanTree(tree);
+  }
+
+  @Override
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Tree.Kind.TOKEN);
   }
 
   @Override

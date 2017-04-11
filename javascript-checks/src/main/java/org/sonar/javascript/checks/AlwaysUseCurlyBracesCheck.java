@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -39,8 +39,8 @@ public class AlwaysUseCurlyBracesCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "Add curly braces around the nested statement(s) in this \"%s\" block.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .add(Kind.IF_STATEMENT)
       .add(Kind.ELSE_CLAUSE)
       .addAll(KindSet.LOOP_KINDS.getSubKinds())

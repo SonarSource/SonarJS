@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -44,8 +44,8 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
   LinkedList<String> scope = Lists.newLinkedList();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .add(Kind.DOT_MEMBER_EXPRESSION)
       .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .build();

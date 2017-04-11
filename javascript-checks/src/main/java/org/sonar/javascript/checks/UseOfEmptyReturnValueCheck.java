@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.ProgramState;
@@ -118,8 +118,8 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
     int nestingLevel = 0;
 
     @Override
-    public List<Kind> nodesToVisit() {
-      return ImmutableList.<Kind>builder()
+    public Set<Kind> nodesToVisit() {
+      return ImmutableSet.<Kind>builder()
         .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
         .add(Kind.RETURN_STATEMENT)
         .build();

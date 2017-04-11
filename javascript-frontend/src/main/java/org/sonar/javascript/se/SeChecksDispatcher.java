@@ -21,8 +21,10 @@ package org.sonar.javascript.se;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -46,8 +48,8 @@ public class SeChecksDispatcher extends SubscriptionVisitorCheck {
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(
       Kind.SCRIPT,
       Kind.FUNCTION_DECLARATION,
       Kind.GENERATOR_DECLARATION,
