@@ -32,7 +32,6 @@ import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWit
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
@@ -780,9 +779,9 @@ public interface Tree {
     GET_METHOD(AccessorMethodDeclarationTree.class),
 
     /**
-     * {@link AccessorMethodDeclarationTree}
+     * {@link MethodDeclarationTree}
      */
-    GENERATOR_METHOD(GeneratorMethodDeclarationTree.class),
+    GENERATOR_METHOD(MethodDeclarationTree.class),
 
     /**
      * {@link MethodDeclarationTree}

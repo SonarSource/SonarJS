@@ -1505,7 +1505,7 @@ public class JavaScriptGrammar {
     return b.<MethodDeclarationTree>nonterminal(JavaScriptLegacyGrammar.METHOD_DEFINITION)
       .is(
         b.firstOf(
-          f.generator(
+          f.generatorMethod(
             b.zeroOrMore(DECORATOR()),
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
             b.token(JavaScriptPunctuator.STAR),

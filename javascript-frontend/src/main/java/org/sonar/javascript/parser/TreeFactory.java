@@ -45,7 +45,6 @@ import org.sonar.javascript.tree.impl.declaration.ExportDefaultBindingWithNameSp
 import org.sonar.javascript.tree.impl.declaration.FieldDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FunctionDeclarationTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.GeneratorMethodDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ImportClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ImportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ImportModuleDeclarationTreeImpl;
@@ -145,7 +144,6 @@ import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWit
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
@@ -1287,19 +1285,19 @@ public class TreeFactory {
       closeCurlyBraceToken);
   }
 
-  public GeneratorMethodDeclarationTree generator(
+  public MethodDeclarationTree generatorMethod(
     Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken starToken,
     Tree name, ParameterListTree parameters,
     BlockTree body
   ) {
-    return new GeneratorMethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), starToken, name, parameters, body);
+    return MethodDeclarationTreeImpl.generator(optionalList(decorators), staticToken.orNull(), starToken, name, parameters, body);
   }
 
   public MethodDeclarationTree method(
     Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, Optional<InternalSyntaxToken> asyncToken, Tree name, ParameterListTree parameters,
     BlockTree body
   ) {
-    return new MethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), asyncToken.orNull(), name, parameters, body);
+    return MethodDeclarationTreeImpl.method(optionalList(decorators), staticToken.orNull(), asyncToken.orNull(), name, parameters, body);
   }
 
   public AccessorMethodDeclarationTree accessor(

@@ -71,6 +71,12 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
     return staticToken;
   }
 
+  @Nullable
+  @Override
+  public SyntaxToken starToken() {
+    return null;
+  }
+
   @Override
   public InternalSyntaxToken accessorToken() {
     Preconditions.checkState(this.is(Kind.GET_METHOD) || this.is(Kind.SET_METHOD));

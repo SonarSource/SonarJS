@@ -84,7 +84,7 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
 
   @Nullable
   @Override
-  public SyntaxToken star() {
+  public SyntaxToken starToken() {
     return star;
   }
 

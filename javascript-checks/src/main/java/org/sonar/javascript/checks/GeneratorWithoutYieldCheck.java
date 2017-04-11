@@ -27,7 +27,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
@@ -84,7 +84,7 @@ public class GeneratorWithoutYieldCheck extends SubscriptionVisitorCheck {
       lastTree = functionDeclarationTree.name();
 
     } else if (tree.is(Kind.GENERATOR_METHOD)) {
-      GeneratorMethodDeclarationTree methodDeclarationTree = (GeneratorMethodDeclarationTree) tree;
+      MethodDeclarationTree methodDeclarationTree = (MethodDeclarationTree) tree;
       firstTree = methodDeclarationTree.starToken();
       lastTree = methodDeclarationTree.name();
 
@@ -94,7 +94,7 @@ public class GeneratorWithoutYieldCheck extends SubscriptionVisitorCheck {
       if (functionExpressionTree.name() != null) {
         lastTree = functionExpressionTree.name();
       } else {
-        lastTree = functionExpressionTree.star();
+        lastTree = functionExpressionTree.starToken();
       }
     }
 

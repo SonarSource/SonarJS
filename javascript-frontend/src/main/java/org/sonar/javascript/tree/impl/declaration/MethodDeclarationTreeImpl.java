@@ -38,13 +38,15 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
 
   private final List<DecoratorTree> decorators;
   private final InternalSyntaxToken staticToken;
+  private final InternalSyntaxToken starToken;
   private final SyntaxToken asyncToken;
   private final Tree name;
   private final ParameterListTree parameters;
   private final BlockTree body;
 
-  public MethodDeclarationTreeImpl(
+  private MethodDeclarationTreeImpl(
     List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
+    @Nullable InternalSyntaxToken starToken,
     @Nullable InternalSyntaxToken asyncToken,
     Tree name,
     ParameterListTree parameters,
@@ -53,10 +55,31 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
     this.decorators = decorators;
     this.staticToken = staticToken;
     this.asyncToken = asyncToken;
-    this.kind = Kind.METHOD;
+    this.starToken = starToken;
+    this.kind = starToken == null ? Kind.METHOD : Kind.GENERATOR_METHOD;
     this.name = name;
     this.parameters = parameters;
     this.body = body;
+  }
+
+  public static MethodDeclarationTreeImpl generator(
+    List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
+    InternalSyntaxToken starToken,
+    Tree name,
+    ParameterListTree parameters,
+    BlockTree body
+  ) {
+    return new MethodDeclarationTreeImpl(decorators, staticToken, starToken, null, name, parameters, body);
+  }
+
+  public static MethodDeclarationTreeImpl method(
+    List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
+    @Nullable InternalSyntaxToken asyncToken,
+    Tree name,
+    ParameterListTree parameters,
+    BlockTree body
+  ) {
+    return new MethodDeclarationTreeImpl(decorators, staticToken, null, asyncToken, name, parameters, body);
   }
 
   @Override
@@ -68,6 +91,12 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
   @Override
   public SyntaxToken staticToken() {
     return staticToken;
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken starToken() {
+    return starToken;
   }
 
   @Override
@@ -100,7 +129,7 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
       decorators.iterator(),
-      Iterators.forArray(staticToken, asyncToken, name, parameters, body));
+      Iterators.forArray(staticToken, asyncToken, starToken, name, parameters, body));
   }
 
   @Override

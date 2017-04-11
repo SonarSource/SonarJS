@@ -28,12 +28,16 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public interface FunctionTree extends Tree {
 
+  // ---------- CHILDREN -----------------
+
   @Nullable
   SyntaxToken asyncToken();
 
   Tree parameterClause();
 
   Tree body();
+
+  // ---------- ADDITIONAL LOGIC -----------------
 
   List<Tree> parameterList();
 
