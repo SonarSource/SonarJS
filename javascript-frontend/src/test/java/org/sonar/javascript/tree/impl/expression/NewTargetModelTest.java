@@ -35,8 +35,8 @@ public class NewTargetModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.NEW_TARGET)).isTrue();
     assertThat(tree.newKeyword().text()).isEqualTo(JavaScriptKeyword.NEW.getValue());
-    assertThat(tree.dot().text()).isEqualTo(JavaScriptPunctuator.DOT.getValue());
-    assertThat(tree.target().text()).isEqualTo("target");
+    assertThat(tree.dotToken().text()).isEqualTo(JavaScriptPunctuator.DOT.getValue());
+    assertThat(tree.targetKeyword().text()).isEqualTo("target");
     assertThat(tree.types()).isEmpty();
   }
 

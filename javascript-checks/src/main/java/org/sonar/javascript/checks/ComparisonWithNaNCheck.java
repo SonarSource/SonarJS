@@ -49,8 +49,8 @@ public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
     ExpressionTree nan = getNaN(expression);
 
     if (nan != null) {
-      addIssue(nan, String.format(MESSAGE, expression.operator().text()))
-        .secondary(expression.operator());
+      addIssue(nan, String.format(MESSAGE, expression.operatorToken().text()))
+        .secondary(expression.operatorToken());
     }
   }
 

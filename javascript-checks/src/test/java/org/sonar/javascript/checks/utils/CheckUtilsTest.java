@@ -60,7 +60,7 @@ public class CheckUtilsTest {
 
     assertThat(CheckUtils.isDescendant(functionDeclarationTree, scriptTree)).isTrue();
     assertThat(CheckUtils.isDescendant(functionDeclarationTree.functionKeyword(), scriptTree)).isTrue();
-    assertThat(CheckUtils.isDescendant(functionDeclarationTree.parameterClause().closeParenthesis(), scriptTree)).isTrue();
+    assertThat(CheckUtils.isDescendant(functionDeclarationTree.parameterClause().closeParenthesisToken(), scriptTree)).isTrue();
     assertThat(CheckUtils.isDescendant(scriptTree, functionDeclarationTree)).isFalse();
     assertThat(CheckUtils.isDescendant(functionDeclarationTree.functionKeyword(), functionDeclarationTree.parameterClause())).isFalse();
   }

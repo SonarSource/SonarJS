@@ -61,7 +61,7 @@ public class EmptyFunctionCheck extends DoubleDispatchVisitorCheck {
   private void checkFunction(FunctionTree tree, Tree issueLocationTree) {
     if (tree.body() instanceof BlockTree) {
       BlockTree body = (BlockTree) tree.body();
-      if (body.statements().isEmpty() && body.closeCurlyBrace().trivias().isEmpty()) {
+      if (body.statements().isEmpty() && body.closeCurlyBraceToken().trivias().isEmpty()) {
         addIssue(issueLocationTree, MESSAGE);
       }
     }

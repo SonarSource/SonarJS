@@ -36,7 +36,7 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
     ParameterListTree tree = parse("function f(p1, p2, ...p3) {};", Kind.PARAMETER_LIST);
 
     assertThat(tree.is(Kind.PARAMETER_LIST)).isTrue();
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
 
     assertThat(tree.parameters().size()).isEqualTo(3);
     assertThat(expressionToString(tree.parameters().get(0))).isEqualTo("p1");
@@ -44,7 +44,7 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(expressionToString(tree.parameters().get(2))).isEqualTo("...p3");
 
     assertThat(tree.parameters().getSeparators().size()).isEqualTo(2);
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
   }
 
 
@@ -53,12 +53,12 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
     ParameterListTree tree = parse("function f() {};", Kind.PARAMETER_LIST);
 
     assertThat(tree.is(Kind.PARAMETER_LIST)).isTrue();
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
 
     assertThat(tree.parameters().size()).isEqualTo(0);
     assertThat(tree.parameters().getSeparators().size()).isEqualTo(0);
 
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
   }
 
   @Test

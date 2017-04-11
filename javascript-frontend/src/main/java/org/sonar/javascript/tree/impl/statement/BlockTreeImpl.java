@@ -56,7 +56,7 @@ public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
   }
 
   @Override
-  public SyntaxToken openCurlyBrace() {
+  public SyntaxToken openCurlyBraceToken() {
     return openCurlyBrace;
   }
 
@@ -66,7 +66,7 @@ public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
   }
 
   @Override
-  public SyntaxToken closeCurlyBrace() {
+  public SyntaxToken closeCurlyBraceToken() {
     return closeCurlyBrace;
   }
 

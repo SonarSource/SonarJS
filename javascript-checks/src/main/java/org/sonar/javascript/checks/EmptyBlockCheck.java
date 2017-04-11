@@ -36,7 +36,7 @@ public class EmptyBlockCheck extends DoubleDispatchVisitorCheck {
   public void visitBlock(BlockTree tree) {
     JavaScriptTree parent = ((JavaScriptTree) tree).getParent();
 
-    if (!parent.is(KindSet.FUNCTION_KINDS, Kind.CATCH_BLOCK) && tree.statements().isEmpty() && !hasComment(tree.closeCurlyBrace())) {
+    if (!parent.is(KindSet.FUNCTION_KINDS, Kind.CATCH_BLOCK) && tree.statements().isEmpty() && !hasComment(tree.closeCurlyBraceToken())) {
       addIssue(tree, MESSAGE);
     }
     super.visitBlock(tree);

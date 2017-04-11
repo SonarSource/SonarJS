@@ -102,7 +102,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
 
   private static Tree getTokenForIssueLocation(Tree tree) {
     if (tree.is(Kind.ARROW_FUNCTION)) {
-      return ((ArrowFunctionTree) tree).doubleArrow();
+      return ((ArrowFunctionTree) tree).doubleArrowToken();
     } else {
       return ((JavaScriptTree) tree).getFirstToken();
     }

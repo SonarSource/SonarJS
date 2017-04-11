@@ -38,7 +38,7 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends DoubleDispatchVisi
     if (!tree.is(Kind.MULTIPLY, Kind.PLUS, Kind.ASSIGNMENT)
       && SyntacticEquivalence.areEquivalent(tree.leftOperand(), tree.rightOperand()) && !isExcluded(tree)) {
 
-      String message = String.format(MESSAGE, tree.operator().text());
+      String message = String.format(MESSAGE, tree.operatorToken().text());
       addIssue(tree.rightOperand(), message)
         .secondary(tree.leftOperand());
     }

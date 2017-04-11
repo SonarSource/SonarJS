@@ -43,7 +43,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface UnaryExpressionTree extends ExpressionTree {
 
-  SyntaxToken operator();
+  SyntaxToken operatorToken();
 
   ExpressionTree expression();
 

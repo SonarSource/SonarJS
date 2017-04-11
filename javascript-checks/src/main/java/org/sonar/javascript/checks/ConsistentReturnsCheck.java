@@ -65,7 +65,7 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
   private void raiseIssue(Tree functionTree, FunctionReturns functionReturns, BlockTree body) {
     SyntaxToken tokenToRaiseIssue = ((JavaScriptTree) functionTree).getFirstToken();
     if (functionTree.is(Kind.ARROW_FUNCTION)) {
-      tokenToRaiseIssue = ((ArrowFunctionTree) functionTree).doubleArrow();
+      tokenToRaiseIssue = ((ArrowFunctionTree) functionTree).doubleArrowToken();
     }
 
     PreciseIssue issue = addIssue(tokenToRaiseIssue, MESSAGE);
@@ -74,7 +74,7 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
     }
 
     if (functionReturns.containsImplicitReturn) {
-      issue.secondary(body.closeCurlyBrace(), "Implicit return without value");
+      issue.secondary(body.closeCurlyBraceToken(), "Implicit return without value");
     }
   }
 

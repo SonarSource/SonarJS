@@ -37,10 +37,10 @@ public class ForObjectStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.FOR_IN_STATEMENT)).isTrue();
     assertThat(tree.forKeyword().text()).isEqualTo(JavaScriptKeyword.FOR.getValue());
     assertThat(tree.awaitToken()).isNull();
-    assertThat(tree.openParenthesis().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.openParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.ofOrInKeyword().text()).isEqualTo(JavaScriptKeyword.IN.getValue());
     assertThat(tree.expression()).isNotNull();
-    assertThat(tree.closeParenthesis().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
 
@@ -51,10 +51,10 @@ public class ForObjectStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.FOR_OF_STATEMENT)).isTrue();
     assertThat(tree.forKeyword().text()).isEqualTo("for");
     assertThat(tree.awaitToken()).isNull();
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
     assertThat(tree.ofOrInKeyword().text()).isEqualTo("of");
     assertThat(expressionToString(tree.expression())).isEqualTo("expression");
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
     assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
 
@@ -65,10 +65,10 @@ public class ForObjectStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.FOR_OF_STATEMENT)).isTrue();
     assertThat(tree.forKeyword().text()).isEqualTo("for");
     assertThat(tree.awaitToken().text()).isEqualTo("await");
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
     assertThat(tree.ofOrInKeyword().text()).isEqualTo("of");
     assertThat(expressionToString(tree.expression())).isEqualTo("expression");
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
     assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
 }

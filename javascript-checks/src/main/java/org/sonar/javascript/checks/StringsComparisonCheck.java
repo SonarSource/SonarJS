@@ -58,9 +58,9 @@ public class StringsComparisonCheck extends AbstractAllPathSeCheck<BinaryExpress
   @Override
   void raiseIssue(BinaryExpressionTree tree) {
     if (!hasOneSymbolLiteralOperand(tree)) {
-      String message = String.format(MESSAGE, tree.operator().text());
+      String message = String.format(MESSAGE, tree.operatorToken().text());
 
-      addIssue(tree.operator(), message)
+      addIssue(tree.operatorToken(), message)
         .secondary(tree.leftOperand())
         .secondary(tree.rightOperand());
     }

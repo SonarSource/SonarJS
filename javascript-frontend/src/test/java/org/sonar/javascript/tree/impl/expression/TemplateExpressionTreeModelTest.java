@@ -33,10 +33,10 @@ public class TemplateExpressionTreeModelTest extends JavaScriptTreeModelTest {
     TemplateExpressionTreeImpl tree = parse("` ${ expression } `", Kind.TEMPLATE_EXPRESSION);
 
     assertThat(tree.is(Kind.TEMPLATE_EXPRESSION)).isTrue();
-    assertThat(tree.dollar().text()).isEqualTo("$");
-    assertThat(tree.openCurlyBrace().text()).isEqualTo(JavaScriptPunctuator.LCURLYBRACE.getValue());
+    assertThat(tree.dollarToken().text()).isEqualTo("$");
+    assertThat(tree.openCurlyBraceToken().text()).isEqualTo(JavaScriptPunctuator.LCURLYBRACE.getValue());
     assertThat(tree.expression()).isNotNull();
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo(JavaScriptPunctuator.RCURLYBRACE.getValue());
+    assertThat(tree.closeCurlyBraceToken().text()).isEqualTo(JavaScriptPunctuator.RCURLYBRACE.getValue());
   }
 
 }

@@ -61,7 +61,7 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
     if (tree.is(Kind.BLOCK)) {
       BlockTree body = (BlockTree) tree;
       Tree parent = CheckUtils.parent(body);
-      SyntaxToken openCurly = body.openCurlyBrace();
+      SyntaxToken openCurly = body.openCurlyBraceToken();
       openCurly.column();
       checkFunction(parent, openCurly);
       checkConditional(parent, openCurly);
@@ -71,7 +71,7 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
     }
     if (tree.is(Kind.OBJECT_LITERAL)) {
       ObjectLiteralTree objectLiteral = (ObjectLiteralTree) tree;
-      SyntaxToken openCurly = objectLiteral.openCurlyBrace();
+      SyntaxToken openCurly = objectLiteral.openCurlyBraceToken();
       Tree parent = CheckUtils.parent(objectLiteral);
       checkAssignment(openCurly, parent);
     }
@@ -98,12 +98,12 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
   }
 
   private void checkSwitch(SwitchStatementTree switchStatement) {
-    issueIfLineMismatch(switchStatement.openCurlyBrace(), switchStatement.closeParenthesis());
+    issueIfLineMismatch(switchStatement.openCurlyBraceToken(), switchStatement.closeParenthesisToken());
   }
 
   private void checkWith(Tree parent, SyntaxToken openCurly) {
     if (parent.is(Kind.WITH_STATEMENT)) {
-      issueIfLineMismatch(openCurly, ((WithStatementTree) parent).closingParenthesis());
+      issueIfLineMismatch(openCurly, ((WithStatementTree) parent).closingParenthesisToken());
     }
   }
 
@@ -127,19 +127,19 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
       issueIfLineMismatch(openCurly, ((DoWhileStatementTree) parent).doKeyword());
     }
     if (parent.is(Kind.WHILE_STATEMENT)) {
-      issueIfLineMismatch(openCurly, ((WhileStatementTree) parent).closeParenthesis());
+      issueIfLineMismatch(openCurly, ((WhileStatementTree) parent).closeParenthesisToken());
     }
     if (parent.is(Kind.FOR_STATEMENT)) {
-      issueIfLineMismatch(openCurly, ((ForStatementTree) parent).closeParenthesis());
+      issueIfLineMismatch(openCurly, ((ForStatementTree) parent).closeParenthesisToken());
     }
     if (parent.is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
-      issueIfLineMismatch(openCurly, ((ForObjectStatementTree) parent).closeParenthesis());
+      issueIfLineMismatch(openCurly, ((ForObjectStatementTree) parent).closeParenthesisToken());
     }
   }
 
   private void checkConditional(Tree parent, SyntaxToken openCurly) {
     if (parent.is(Kind.IF_STATEMENT)) {
-      issueIfLineMismatch(openCurly, ((IfStatementTree) parent).closeParenthesis());
+      issueIfLineMismatch(openCurly, ((IfStatementTree) parent).closeParenthesisToken());
     }
     if (parent.is(Kind.ELSE_CLAUSE)) {
       issueIfLineMismatch(openCurly, ((ElseClauseTree) parent).elseKeyword());
@@ -148,10 +148,10 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
 
   private void checkFunction(Tree parent, SyntaxToken openCurly) {
     if (parent.is(Kind.FUNCTION_DECLARATION, Kind.METHOD, Kind.GENERATOR_DECLARATION, Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
-      issueIfLineMismatch(openCurly, getParameterList((FunctionTree) parent).closeParenthesis());
+      issueIfLineMismatch(openCurly, getParameterList((FunctionTree) parent).closeParenthesisToken());
     }
     if (parent.is(Kind.ARROW_FUNCTION)) {
-      issueIfLineMismatch(openCurly, ((ArrowFunctionTree) parent).doubleArrow());
+      issueIfLineMismatch(openCurly, ((ArrowFunctionTree) parent).doubleArrowToken());
     }
   }
 

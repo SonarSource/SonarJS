@@ -47,7 +47,7 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
   }
 
   @Override
-  public SyntaxToken openCurlyBrace() {
+  public SyntaxToken openCurlyBraceToken() {
     return openCurlyBrace;
   }
 
@@ -57,7 +57,7 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
   }
 
   @Override
-  public SyntaxToken closeCurlyBrace() {
+  public SyntaxToken closeCurlyBraceToken() {
     return closeCurlyBrace;
   }
 

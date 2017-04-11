@@ -57,7 +57,7 @@ public class DefaultClauseTreeImpl extends JavaScriptTree implements DefaultClau
   }
 
   @Override
-  public SyntaxToken colon() {
+  public SyntaxToken colonToken() {
     return colon;
   }
 

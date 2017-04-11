@@ -50,8 +50,8 @@ public class NonExistentAssignmentOperatorCheck extends SubscriptionVisitorCheck
     ExpressionTree expression = assignment.expression();
     if (expression.is(Kind.UNARY_PLUS, Kind.UNARY_MINUS)) {
       UnaryExpressionTree unaryExpression = (UnaryExpressionTree) expression;
-      SyntaxToken assignmentOperator = assignment.operator();
-      SyntaxToken expressionOperator = unaryExpression.operator();
+      SyntaxToken assignmentOperator = assignment.operatorToken();
+      SyntaxToken expressionOperator = unaryExpression.operatorToken();
       if (areAdjacent(assignmentOperator, expressionOperator) && !areAdjacent(expressionOperator, unaryExpression.expression())) {
         String message = expression.is(Kind.UNARY_PLUS) ? PLUS_MESSAGE : MINUS_MESSAGE;
         addIssue(new PreciseIssue(this, new IssueLocation(assignmentOperator, expressionOperator, message)));

@@ -45,6 +45,6 @@ public class PostfixExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(kind)).isTrue();
     assertThat(tree.expression()).isNotNull();
-    assertThat(tree.operator().text()).isEqualTo(operator.getValue());
+    assertThat(tree.operatorToken().text()).isEqualTo(operator.getValue());
   }
 }

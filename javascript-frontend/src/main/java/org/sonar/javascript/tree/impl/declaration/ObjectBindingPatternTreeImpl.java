@@ -46,7 +46,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   }
 
   @Override
-  public SyntaxToken openCurlyBrace() {
+  public SyntaxToken openCurlyBraceToken() {
     return openCurlyBrace;
   }
 
@@ -56,7 +56,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   }
 
   @Override
-  public SyntaxToken closeCurlyBrace() {
+  public SyntaxToken closeCurlyBraceToken() {
     return closeCurlyBrace;
   }
 

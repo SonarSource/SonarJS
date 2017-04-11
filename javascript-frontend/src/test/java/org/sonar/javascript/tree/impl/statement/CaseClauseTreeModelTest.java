@@ -35,7 +35,7 @@ public class CaseClauseTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.CASE_CLAUSE)).isTrue();
     assertThat(tree.keyword().text()).isEqualTo("case");
     assertThat(expressionToString(tree.expression())).isEqualTo("1");
-    assertThat(tree.colon().text()).isEqualTo(":");
+    assertThat(tree.colonToken().text()).isEqualTo(":");
 
 
     assertThat(tree.statements()).hasSize(0);
@@ -48,7 +48,7 @@ public class CaseClauseTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.CASE_CLAUSE)).isTrue();
     assertThat(tree.keyword().text()).isEqualTo("case");
     assertThat(expressionToString(tree.expression())).isEqualTo("1");
-    assertThat(tree.colon().text()).isEqualTo(":");
+    assertThat(tree.colonToken().text()).isEqualTo(":");
 
     assertThat(tree.statements()).hasSize(2);
     assertThat(expressionToString(tree.statements().get(0))).isEqualTo("expr ;");

@@ -47,7 +47,7 @@ public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements P
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openParenthesis;
   }
 
@@ -57,7 +57,7 @@ public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements P
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closeParenthesis;
   }
 

@@ -54,7 +54,7 @@ public class TemplateLiteralTreeImpl extends JavaScriptTree implements TemplateL
   }
 
   @Override
-  public SyntaxToken openBacktick() {
+  public SyntaxToken openBacktickToken() {
     return openBacktick;
   }
 
@@ -69,7 +69,7 @@ public class TemplateLiteralTreeImpl extends JavaScriptTree implements TemplateL
   }
 
   @Override
-  public SyntaxToken closeBacktick() {
+  public SyntaxToken closeBacktickToken() {
     return closeBacktick;
   }
 

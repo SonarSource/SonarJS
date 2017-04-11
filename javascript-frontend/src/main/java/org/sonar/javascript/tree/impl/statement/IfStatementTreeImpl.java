@@ -73,7 +73,7 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openParenthesis;
   }
 
@@ -83,7 +83,7 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closeParenthesis;
   }
 

@@ -64,7 +64,7 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openParenthesis;
   }
 
@@ -74,7 +74,7 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closeParenthesis;
   }
 

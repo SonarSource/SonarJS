@@ -101,7 +101,7 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
 
     if (nestedStatement.is(Kind.BLOCK)) {
       BlockTree blockTree = (BlockTree) nestedStatement;
-      if (blockTree.closeCurlyBrace().line() == statementLine && blockTree.statements().size() == 1) {
+      if (blockTree.closeCurlyBraceToken().line() == statementLine && blockTree.statements().size() == 1) {
         excludedStatements.add(blockTree.statements().get(0));
       }
     } else {

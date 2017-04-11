@@ -52,7 +52,7 @@ public class PrefixExpressionTreeImpl extends JavaScriptTree implements UnaryExp
   }
 
   @Override
-  public SyntaxToken operator() {
+  public SyntaxToken operatorToken() {
     return operator;
   }
 

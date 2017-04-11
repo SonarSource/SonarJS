@@ -34,7 +34,7 @@ public class ArgumentsTreeModelTest extends JavaScriptTreeModelTest {
     ArgumentListTree tree = parse("f(p1, p2, ... p3)", Kind.ARGUMENT_LIST);
 
     assertThat(tree.is(Kind.ARGUMENT_LIST)).isTrue();
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
 
     assertThat(tree.arguments().size()).isEqualTo(3);
     assertThat(expressionToString(tree.arguments().get(0))).isEqualTo("p1");
@@ -43,7 +43,7 @@ public class ArgumentsTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.arguments().getSeparators().size()).isEqualTo(2);
 
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
   }
 
 
@@ -52,12 +52,12 @@ public class ArgumentsTreeModelTest extends JavaScriptTreeModelTest {
     ArgumentListTree tree = parse("f()", Kind.ARGUMENT_LIST);
 
     assertThat(tree.is(Kind.ARGUMENT_LIST)).isTrue();
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
 
     assertThat(tree.arguments().size()).isEqualTo(0);
     assertThat(tree.arguments().getSeparators().size()).isEqualTo(0);
 
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
   }
 
 }

@@ -33,13 +33,13 @@ public class SwitchStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.SWITCH_STATEMENT)).isTrue();
     assertThat(tree.switchKeyword().text()).isEqualTo("switch");
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
     assertThat(expressionToString(tree.expression())).isEqualTo("a");
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
 
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
     assertThat(tree.cases()).hasSize(0);
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
+    assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
   @Test
@@ -48,17 +48,17 @@ public class SwitchStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.SWITCH_STATEMENT)).isTrue();
     assertThat(tree.switchKeyword().text()).isEqualTo("switch");
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
     assertThat(expressionToString(tree.expression())).isEqualTo("a");
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
 
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
 
     assertThat(tree.cases()).hasSize(2);
     assertThat(expressionToString(tree.cases().get(0))).isEqualTo("case 1 :");
     assertThat(expressionToString(tree.cases().get(1))).isEqualTo("case 2 :");
 
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
+    assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
 }

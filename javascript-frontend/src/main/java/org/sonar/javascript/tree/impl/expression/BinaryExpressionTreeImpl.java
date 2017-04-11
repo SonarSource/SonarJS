@@ -55,7 +55,7 @@ public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryEx
   }
 
   @Override
-  public SyntaxToken operator() {
+  public SyntaxToken operatorToken() {
     return operand;
   }
 

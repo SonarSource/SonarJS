@@ -36,11 +36,11 @@ public interface IfStatementTree extends StatementTree {
 
   SyntaxToken ifKeyword();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   ExpressionTree condition();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
   StatementTree statement();
 

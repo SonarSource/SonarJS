@@ -45,7 +45,7 @@ public class VoidUseCheck extends SubscriptionVisitorCheck {
     UnaryExpressionTree voidExpression = (UnaryExpressionTree) tree;
     ExpressionTree operand = CheckUtils.removeParenthesis(voidExpression.expression());
     if (!isZero(operand)) {
-      addIssue(voidExpression.operator(), MESSAGE);
+      addIssue(voidExpression.operatorToken(), MESSAGE);
     }
   }
 

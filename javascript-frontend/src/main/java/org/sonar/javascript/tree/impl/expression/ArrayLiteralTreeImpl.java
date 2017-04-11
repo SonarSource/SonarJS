@@ -54,7 +54,7 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
   }
 
   @Override
-  public SyntaxToken openBracket() {
+  public SyntaxToken openBracketToken() {
     return openBracket;
   }
 
@@ -69,7 +69,7 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
   }
 
   @Override
-  public SyntaxToken closeBracket() {
+  public SyntaxToken closeBracketToken() {
     return closeBracket;
   }
 

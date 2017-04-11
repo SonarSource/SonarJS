@@ -117,8 +117,8 @@ public class HighlighterVisitor extends SubscriptionVisitor {
   }
 
   private void highlightTemplateLiteral(TemplateLiteralTree tree) {
-    highlight(tree.openBacktick(), TypeOfText.STRING);
-    highlight(tree.closeBacktick(), TypeOfText.STRING);
+    highlight(tree.openBacktickToken(), TypeOfText.STRING);
+    highlight(tree.closeBacktickToken(), TypeOfText.STRING);
 
     for (TemplateCharactersTree templateCharactersTree : tree.strings()) {
       templateCharactersTree.characters().forEach(token -> highlight(token, TypeOfText.STRING));

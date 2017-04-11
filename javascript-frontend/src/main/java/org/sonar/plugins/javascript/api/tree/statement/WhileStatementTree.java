@@ -34,11 +34,11 @@ public interface WhileStatementTree extends IterationStatementTree {
 
   SyntaxToken whileKeyword();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   ExpressionTree condition();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
   @Override
   StatementTree statement();

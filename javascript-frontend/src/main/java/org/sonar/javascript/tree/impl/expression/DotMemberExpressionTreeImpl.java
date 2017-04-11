@@ -51,7 +51,7 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
   }
 
   @Override
-  public SyntaxToken dot() {
+  public SyntaxToken dotToken() {
     return dot;
   }
 

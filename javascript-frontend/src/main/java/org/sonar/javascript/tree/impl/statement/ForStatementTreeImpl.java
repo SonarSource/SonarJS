@@ -70,7 +70,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openParenthesis;
   }
 
@@ -81,7 +81,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
   }
 
   @Override
-  public SyntaxToken firstSemicolon() {
+  public SyntaxToken firstSemicolonToken() {
     return firstSemicolon;
   }
 
@@ -92,7 +92,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
   }
 
   @Override
-  public SyntaxToken secondSemicolon() {
+  public SyntaxToken secondSemicolonToken() {
     return secondSemicolon;
   }
 
@@ -103,7 +103,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closeParenthesis;
   }
 

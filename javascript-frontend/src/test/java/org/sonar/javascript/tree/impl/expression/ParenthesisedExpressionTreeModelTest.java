@@ -33,9 +33,9 @@ public class ParenthesisedExpressionTreeModelTest extends JavaScriptTreeModelTes
     ParenthesisedExpressionTree tree = parse("(a)", Kind.PARENTHESISED_EXPRESSION);
 
     assertThat(tree.is(Kind.PARENTHESISED_EXPRESSION)).isTrue();
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
     assertThat(tree.expression()).isNotNull();
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
   }
 
 }

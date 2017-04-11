@@ -34,11 +34,11 @@ public interface ConditionalExpressionTree extends ExpressionTree {
 
   ExpressionTree condition();
 
-  SyntaxToken query();
+  SyntaxToken queryToken();
 
   ExpressionTree trueExpression();
 
-  SyntaxToken colon();
+  SyntaxToken colonToken();
 
   ExpressionTree falseExpression();
 

@@ -88,7 +88,7 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    visitFunction(tree, tree.doubleArrow());
+    visitFunction(tree, tree.doubleArrowToken());
   }
 
   @Override
@@ -129,14 +129,14 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    add(tree.query());
+    add(tree.queryToken());
     super.visitConditionalExpression(tree);
   }
 
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
     if (tree.is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
-      add(tree.operator());
+      add(tree.operatorToken());
     }
     super.visitBinaryExpression(tree);
   }

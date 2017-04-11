@@ -88,7 +88,7 @@ public class ShorthandPropertiesNotGroupedCheck extends DoubleDispatchVisitorChe
   }
 
   private void raiseIssue(ObjectLiteralTree tree, int begin, int end, String primaryMessage, String secondaryMessage) {
-    PreciseIssue preciseIssue = addIssue(tree.openCurlyBrace(), primaryMessage);
+    PreciseIssue preciseIssue = addIssue(tree.openCurlyBraceToken(), primaryMessage);
     for (int i = begin; i < end; i++) {
       if (isShorthand(tree.properties().get(i))) {
         preciseIssue.secondary(tree.properties().get(i), secondaryMessage);

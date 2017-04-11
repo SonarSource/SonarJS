@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface RestElementTree extends BindingElementTree {
 
-  SyntaxToken ellipsis();
+  SyntaxToken ellipsisToken();
 
   BindingElementTree element();
 

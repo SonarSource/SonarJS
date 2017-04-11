@@ -40,11 +40,11 @@ public interface DoWhileStatementTree extends IterationStatementTree {
 
   SyntaxToken whileKeyword();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   ExpressionTree condition();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
   @Nullable
   SyntaxToken semicolonToken();

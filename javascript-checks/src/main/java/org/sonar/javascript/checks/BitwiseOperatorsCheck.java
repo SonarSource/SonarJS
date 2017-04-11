@@ -72,7 +72,7 @@ public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
   @Override
   public void visitNode(Tree tree) {
     if (lonelyBitwiseAndOr == null && tree.is(Kind.BITWISE_AND, Kind.BITWISE_OR) && !((BinaryExpressionTree) tree).rightOperand().is(Kind.NUMERIC_LITERAL)) {
-      lonelyBitwiseAndOr = ((BinaryExpressionTree) tree).operator();
+      lonelyBitwiseAndOr = ((BinaryExpressionTree) tree).operatorToken();
 
     } else {
       fileContainsBitwiseOperations = true;

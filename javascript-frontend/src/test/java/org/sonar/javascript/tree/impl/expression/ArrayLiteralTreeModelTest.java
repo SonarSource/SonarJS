@@ -33,26 +33,26 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
     ArrayLiteralTree tree = parse("[ ];", Kind.ARRAY_LITERAL);
 
     assertThat(tree.is(Kind.ARRAY_LITERAL)).isTrue();
-    assertThat(tree.openBracket().text()).isEqualTo("[");
+    assertThat(tree.openBracketToken().text()).isEqualTo("[");
 
     assertThat(tree.elements().isEmpty()).isTrue();
     assertThat(tree.elementsAndCommas().isEmpty()).isTrue();
 
-    assertThat(tree.closeBracket().text()).isEqualTo("]");
+    assertThat(tree.closeBracketToken().text()).isEqualTo("]");
   }
 
   @Test
   public void with_trailing_comma_at_the_end() throws Exception {
     ArrayLiteralTree tree = parse("[ a, a , ];", Kind.ARRAY_LITERAL);
 
-    assertThat(tree.openBracket().text()).isEqualTo("[");
+    assertThat(tree.openBracketToken().text()).isEqualTo("[");
 
     assertThat(tree.elements().size()).isEqualTo(2);
     assertThat(expressionToString(tree.elements().get(0))).isEqualTo("a");
     assertThat(expressionToString(tree.elements().get(1))).isEqualTo("a");
     assertThat(tree.elementsAndCommas().size()).isEqualTo(4);
 
-    assertThat(tree.closeBracket().text()).isEqualTo("]");
+    assertThat(tree.closeBracketToken().text()).isEqualTo("]");
 
   }
 
@@ -61,24 +61,24 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
     // One elided element
     ArrayLiteralTree tree1 = parse("[ ,a, , ];", Kind.ARRAY_LITERAL);
 
-    assertThat(tree1.openBracket().text()).isEqualTo("[");
+    assertThat(tree1.openBracketToken().text()).isEqualTo("[");
 
     assertThat(tree1.elements().size()).isEqualTo(1);
     assertThat(expressionToString(tree1.elements().get(0))).isEqualTo("a");
     assertThat(tree1.elementsAndCommas().size()).isEqualTo(4);
 
-    assertThat(tree1.closeBracket().text()).isEqualTo("]");
+    assertThat(tree1.closeBracketToken().text()).isEqualTo("]");
 
     // Two elided element
     ArrayLiteralTree tree2 = parse("[ ,a, , ,];", Kind.ARRAY_LITERAL);
 
-    assertThat(tree1.openBracket().text()).isEqualTo("[");
+    assertThat(tree1.openBracketToken().text()).isEqualTo("[");
 
     assertThat(tree2.elements().size()).isEqualTo(1);
     assertThat(expressionToString(tree1.elements().get(0))).isEqualTo("a");
     assertThat(tree2.elementsAndCommas().size()).isEqualTo(5);
 
-    assertThat(tree1.closeBracket().text()).isEqualTo("]");
+    assertThat(tree1.closeBracketToken().text()).isEqualTo("]");
   }
 
   @Test
@@ -86,26 +86,26 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
     // One elided element
     ArrayLiteralTree tree1 = parse("[ a, ,a ];", Kind.ARRAY_LITERAL);
 
-    assertThat(tree1.openBracket().text()).isEqualTo("[");
+    assertThat(tree1.openBracketToken().text()).isEqualTo("[");
 
     assertThat(tree1.elements().size()).isEqualTo(2);
     assertThat(expressionToString(tree1.elements().get(0))).isEqualTo("a");
     assertThat(expressionToString(tree1.elements().get(1))).isEqualTo("a");
     assertThat(tree1.elementsAndCommas().size()).isEqualTo(4);
 
-    assertThat(tree1.closeBracket().text()).isEqualTo("]");
+    assertThat(tree1.closeBracketToken().text()).isEqualTo("]");
 
     // One elided element
     ArrayLiteralTree tree2 = parse("[ a, , ,a ];", Kind.ARRAY_LITERAL);
 
-    assertThat(tree1.openBracket().text()).isEqualTo("[");
+    assertThat(tree1.openBracketToken().text()).isEqualTo("[");
 
     assertThat(tree2.elements().size()).isEqualTo(2);
     assertThat(expressionToString(tree2.elements().get(0))).isEqualTo("a");
     assertThat(expressionToString(tree2.elements().get(1))).isEqualTo("a");
     assertThat(tree2.elementsAndCommas().size()).isEqualTo(5);
 
-    assertThat(tree2.closeBracket().text()).isEqualTo("]");
+    assertThat(tree2.closeBracketToken().text()).isEqualTo("]");
   }
 
 }

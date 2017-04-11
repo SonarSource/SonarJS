@@ -46,7 +46,7 @@ public interface ArrowFunctionTree extends ExpressionTree, FunctionTree {
   @Override
   Tree parameterClause();
 
-  SyntaxToken doubleArrow();
+  SyntaxToken doubleArrowToken();
 
   /**
    * Either {@link BlockTree} or {@link ExpressionTree}

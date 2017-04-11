@@ -37,7 +37,7 @@ public interface YieldExpressionTree extends ExpressionTree {
   SyntaxToken yieldKeyword();
 
   @Nullable
-  SyntaxToken star();
+  SyntaxToken starToken();
 
   @Nullable
   ExpressionTree argument();

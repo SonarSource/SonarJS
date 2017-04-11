@@ -51,7 +51,7 @@ public class CollapsibleIfStatementsCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static IssueLocation issueLocation(IfStatementTree tree, String message) {
-    return new IssueLocation(tree.ifKeyword(), tree.closeParenthesis(), message);
+    return new IssueLocation(tree.ifKeyword(), tree.closeParenthesisToken(), message);
   }
 
   @Nullable

@@ -53,11 +53,11 @@ public class MissingTrailingCommaCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean isMultiline(ObjectLiteralTree objectLiteral) {
-    return isMultilineInternal(objectLiteral.properties(), objectLiteral.closeCurlyBrace());
+    return isMultilineInternal(objectLiteral.properties(), objectLiteral.closeCurlyBraceToken());
   }
 
   private static boolean isMultiline(ArrayLiteralTree arrayLiteral) {
-    return isMultilineInternal(arrayLiteral.elements(), arrayLiteral.closeBracket());
+    return isMultilineInternal(arrayLiteral.elements(), arrayLiteral.closeBracketToken());
   }
   
   private static boolean isMultilineInternal(List<? extends Tree> list, SyntaxToken closingToken) {

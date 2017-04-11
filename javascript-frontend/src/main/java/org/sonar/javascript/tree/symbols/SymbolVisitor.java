@@ -180,7 +180,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
     if (tree.variable().is(Kind.IDENTIFIER_REFERENCE)) {
       IdentifierTree identifier = (IdentifierTree) tree.variable();
       Usage.Kind usageKind = Usage.Kind.WRITE;
-      if (!tree.operator().text().equals(JavaScriptPunctuator.EQU.getValue())) {
+      if (!tree.operatorToken().text().equals(JavaScriptPunctuator.EQU.getValue())) {
         usageKind = Usage.Kind.READ_WRITE;
       }
 

@@ -50,7 +50,7 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openParenthesis;
   }
 
@@ -60,7 +60,7 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closeParenthesis;
   }
 

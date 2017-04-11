@@ -61,7 +61,7 @@ public class WithStatementTreeImpl extends JavaScriptTree implements WithStateme
   }
 
   @Override
-  public SyntaxToken openingParenthesis() {
+  public SyntaxToken openingParenthesisToken() {
     return openingParenthesis;
   }
 
@@ -71,7 +71,7 @@ public class WithStatementTreeImpl extends JavaScriptTree implements WithStateme
   }
 
   @Override
-  public SyntaxToken closingParenthesis() {
+  public SyntaxToken closingParenthesisToken() {
     return closingParenthesis;
   }
 

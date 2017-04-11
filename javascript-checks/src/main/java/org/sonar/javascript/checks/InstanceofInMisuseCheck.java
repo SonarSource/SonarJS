@@ -45,7 +45,7 @@ public class InstanceofInMisuseCheck extends SubscriptionVisitorCheck {
   public void visitNode(Tree tree) {
     BinaryExpressionTree expression = (BinaryExpressionTree) tree;
     if (expression.leftOperand().is(LOGICAL_COMPLEMENT)) {
-      addIssue(tree, String.format(MESSAGE, expression.operator().text()));
+      addIssue(tree, String.format(MESSAGE, expression.operatorToken().text()));
     }
   }
 }

@@ -53,7 +53,7 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
   }
 
   @Override
-  public SyntaxToken openBracket() {
+  public SyntaxToken openBracketToken() {
     return openBracket;
   }
 
@@ -68,7 +68,7 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
   }
 
   @Override
-  public SyntaxToken closeBracket() {
+  public SyntaxToken closeBracketToken() {
     return closeBracket;
   }
 

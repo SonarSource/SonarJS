@@ -72,7 +72,7 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openingParenthesis;
   }
 
@@ -82,7 +82,7 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closingParenthesis;
   }
 

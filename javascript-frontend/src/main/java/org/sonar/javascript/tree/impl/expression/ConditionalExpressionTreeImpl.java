@@ -57,7 +57,7 @@ public class ConditionalExpressionTreeImpl extends JavaScriptTree implements Con
   }
 
   @Override
-  public SyntaxToken query() {
+  public SyntaxToken queryToken() {
     return query;
   }
 
@@ -67,7 +67,7 @@ public class ConditionalExpressionTreeImpl extends JavaScriptTree implements Con
   }
 
   @Override
-  public SyntaxToken colon() {
+  public SyntaxToken colonToken() {
     return colon;
   }
 

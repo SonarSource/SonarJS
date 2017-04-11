@@ -93,8 +93,8 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void addIssue(BinaryExpressionTree condition) {
-    String message = String.format(MESSAGE, condition.operator().text());
-    addIssue(condition.operator(), message);
+    String message = String.format(MESSAGE, condition.operatorToken().text());
+    addIssue(condition.operatorToken(), message);
   }
 
   private static boolean isEquality(ExpressionTree condition) {

@@ -33,12 +33,12 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface TemplateLiteralTree extends ExpressionTree {
 
-  SyntaxToken openBacktick();
+  SyntaxToken openBacktickToken();
 
   List<TemplateCharactersTree> strings();
 
   List<TemplateExpressionTree> expressions();
 
-  SyntaxToken closeBacktick();
+  SyntaxToken closeBacktickToken();
 
 }

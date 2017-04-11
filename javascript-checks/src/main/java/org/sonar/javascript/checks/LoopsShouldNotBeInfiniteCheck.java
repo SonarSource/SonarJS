@@ -279,7 +279,7 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
     @Override
     public void visitForStatement(ForStatementTree tree) {
       if (tree.condition() == null) {
-        addIssue(tree.forKeyword(), "Add an end condition for this loop.").secondary(new IssueLocation(tree.firstSemicolon(), tree.secondSemicolon(), null));
+        addIssue(tree.forKeyword(), "Add an end condition for this loop.").secondary(new IssueLocation(tree.firstSemicolonToken(), tree.secondSemicolonToken(), null));
       } else {
         createIssue(tree.forKeyword(), tree.condition());
       }

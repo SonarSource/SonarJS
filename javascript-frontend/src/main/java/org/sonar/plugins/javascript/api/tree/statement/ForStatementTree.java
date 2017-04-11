@@ -38,22 +38,22 @@ public interface ForStatementTree extends IterationStatementTree {
 
   SyntaxToken forKeyword();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   @Nullable
   Tree init();
 
-  SyntaxToken firstSemicolon();
+  SyntaxToken firstSemicolonToken();
 
   @Nullable
   ExpressionTree condition();
 
-  SyntaxToken secondSemicolon();
+  SyntaxToken secondSemicolonToken();
 
   @Nullable
   ExpressionTree update();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
   @Override
   StatementTree statement();

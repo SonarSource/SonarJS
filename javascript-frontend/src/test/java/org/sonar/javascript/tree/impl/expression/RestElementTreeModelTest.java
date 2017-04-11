@@ -34,7 +34,7 @@ public class RestElementTreeModelTest extends JavaScriptTreeModelTest {
     RestElementTree tree = parse("function f (... a) {}", Kind.REST_ELEMENT);
 
     assertThat(tree.is(Kind.REST_ELEMENT)).isTrue();
-    assertThat(tree.ellipsis().text()).isEqualTo(JavaScriptPunctuator.ELLIPSIS.getValue());
+    assertThat(tree.ellipsisToken().text()).isEqualTo(JavaScriptPunctuator.ELLIPSIS.getValue());
   }
 
 }

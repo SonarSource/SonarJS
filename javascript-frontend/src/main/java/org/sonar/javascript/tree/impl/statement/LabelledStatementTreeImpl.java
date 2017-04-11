@@ -53,7 +53,7 @@ public class LabelledStatementTreeImpl extends JavaScriptTree implements Labelle
   }
 
   @Override
-  public SyntaxToken colon() {
+  public SyntaxToken colonToken() {
     return colon;
   }
 

@@ -68,7 +68,7 @@ public class ArrowFunctionTreeImpl extends FunctionTreeImpl implements ArrowFunc
   }
 
   @Override
-  public SyntaxToken doubleArrow() {
+  public SyntaxToken doubleArrowToken() {
     return doubleArrow;
   }
 

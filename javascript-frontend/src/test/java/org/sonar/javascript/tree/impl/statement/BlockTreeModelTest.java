@@ -33,9 +33,9 @@ public class BlockTreeModelTest extends JavaScriptTreeModelTest {
     BlockTree tree = parse("{ }", Kind.BLOCK);
 
     assertThat(tree.is(Kind.BLOCK)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
     assertThat(tree.statements()).hasSize(0);
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
+    assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
   @Test
@@ -43,13 +43,13 @@ public class BlockTreeModelTest extends JavaScriptTreeModelTest {
     BlockTree tree = parse("{ expr ; var a ; }", Kind.BLOCK);
 
     assertThat(tree.is(Kind.BLOCK)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
 
     assertThat(tree.statements()).hasSize(2);
     assertThat(expressionToString(tree.statements().get(0))).isEqualTo("expr ;");
     assertThat(expressionToString(tree.statements().get(1))).isEqualTo("var a ;");
 
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
+    assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
 }

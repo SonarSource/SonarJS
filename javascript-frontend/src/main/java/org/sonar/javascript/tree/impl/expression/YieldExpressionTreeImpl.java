@@ -53,7 +53,7 @@ public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpr
 
   @Nullable
   @Override
-  public SyntaxToken star() {
+  public SyntaxToken starToken() {
     return star;
   }
 

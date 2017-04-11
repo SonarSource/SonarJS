@@ -81,7 +81,7 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
       Constraint constraint = currentState.getConstraint(currentState.peekStack(0));
       if (constraint.isStricterOrEqualTo(UNDEFINED_OR_NON_NUMBER_OBJECT)) {
         UnaryExpressionTree unaryExpression = (UnaryExpressionTree) element;
-        raiseIssue(unaryExpression.expression(), unaryExpression.operator());
+        raiseIssue(unaryExpression.expression(), unaryExpression.operatorToken());
       }
     }
   }
@@ -112,12 +112,12 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
         AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
         leftOperand = assignment.variable();
         rightOperand = assignment.expression();
-        operator = assignment.operator();
+        operator = assignment.operatorToken();
       } else {
         BinaryExpressionTree binaryExpression = (BinaryExpressionTree) element;
         leftOperand = binaryExpression.leftOperand();
         rightOperand = binaryExpression.rightOperand();
-        operator = binaryExpression.operator();
+        operator = binaryExpression.operatorToken();
       }
     }
 

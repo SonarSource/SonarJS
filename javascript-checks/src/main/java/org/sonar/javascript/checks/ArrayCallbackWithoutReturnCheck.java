@@ -124,7 +124,7 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
       token = ((FunctionExpressionTree) functionTree).functionKeyword();
 
     } else {
-      token = ((ArrowFunctionTree) functionTree).doubleArrow();
+      token = ((ArrowFunctionTree) functionTree).doubleArrowToken();
     }
 
     return token;

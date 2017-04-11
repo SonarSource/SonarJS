@@ -46,7 +46,7 @@ public class ArgumentListTreeImpl extends JavaScriptTree implements ArgumentList
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openParenthesis;
   }
 
@@ -56,7 +56,7 @@ public class ArgumentListTreeImpl extends JavaScriptTree implements ArgumentList
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closeParenthesis;
   }
 

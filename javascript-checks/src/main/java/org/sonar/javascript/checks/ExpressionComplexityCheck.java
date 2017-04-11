@@ -114,10 +114,10 @@ public class ExpressionComplexityCheck extends SubscriptionVisitorCheck {
 
   private static SyntaxToken getOperatorToken(Tree tree) {
     if (tree.is(Kind.CONDITIONAL_EXPRESSION)) {
-      return ((ConditionalExpressionTree) tree).query();
+      return ((ConditionalExpressionTree) tree).queryToken();
 
     } else if (tree.is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
-      return ((BinaryExpressionTree) tree).operator();
+      return ((BinaryExpressionTree) tree).operatorToken();
     }
 
     throw new IllegalStateException("Cannot get operator for " + tree);

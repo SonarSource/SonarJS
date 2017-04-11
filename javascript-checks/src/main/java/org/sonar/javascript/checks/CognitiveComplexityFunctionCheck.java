@@ -108,7 +108,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
     SyntaxToken primaryLocation = ((JavaScriptTree) function).getFirstToken();
     if (function.is(ARROW_FUNCTION)) {
-      primaryLocation = ((ArrowFunctionTree) function).doubleArrow();
+      primaryLocation = ((ArrowFunctionTree) function).doubleArrowToken();
     }
 
     PreciseIssue issue = addIssue(primaryLocation, message).cost(complexityData.complexity() - (double)threshold);
@@ -274,7 +274,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
         // And we add complexity for leftmost operator
         if (!logicalOperationsToIgnore.contains(tree) && !leftChildOfSameKind) {
-          addComplexityWithoutNesting(tree.operator());
+          addComplexityWithoutNesting(tree.operatorToken());
         }
 
       }
@@ -284,7 +284,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
     @Override
     public void visitConditionalExpression(ConditionalExpressionTree tree) {
-      addComplexityWithNesting(tree.query());
+      addComplexityWithNesting(tree.queryToken());
 
       visit(tree.condition());
 

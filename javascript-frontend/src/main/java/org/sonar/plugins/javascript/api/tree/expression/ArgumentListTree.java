@@ -27,10 +27,10 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface ArgumentListTree extends Tree {
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   SeparatedList<ExpressionTree> arguments();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
 }

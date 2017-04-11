@@ -41,7 +41,7 @@ public class InOperatorTypeErrorCheck extends AbstractAnyPathSeCheck {
       Constraint rightOperandConstraint = currentState.getConstraint(rightOperandValue);
       if (rightOperandConstraint.isIncompatibleWith(Constraint.OBJECT)) {
         BinaryExpressionTree inOperation = (BinaryExpressionTree) element;
-        addUniqueIssue(inOperation.rightOperand(), MESSAGE, new IssueLocation(inOperation.operator()));
+        addUniqueIssue(inOperation.rightOperand(), MESSAGE, new IssueLocation(inOperation.operatorToken()));
       }
     }
   }

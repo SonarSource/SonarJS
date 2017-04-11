@@ -85,7 +85,7 @@ public class EqEqEqCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
       .stream()
       .filter(equalityExpression -> !ignoredList.contains(equalityExpression))
       .forEach(equalityExpression ->
-        addIssue(equalityExpression.operator(), equalityExpression.is(Kind.EQUAL_TO) ? "Replace \"==\" with \"===\"." : "Replace \"!=\" with \"!==\".")
+        addIssue(equalityExpression.operatorToken(), equalityExpression.is(Kind.EQUAL_TO) ? "Replace \"==\" with \"===\"." : "Replace \"!=\" with \"!==\".")
           .secondary(equalityExpression.leftOperand())
           .secondary(equalityExpression.rightOperand()));
 

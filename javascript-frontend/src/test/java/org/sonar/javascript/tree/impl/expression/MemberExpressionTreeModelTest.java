@@ -35,14 +35,14 @@ public class MemberExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
     assertThat(tree.object().is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
-    assertThat(tree.dot().text()).isEqualTo(JavaScriptPunctuator.DOT.getValue());
+    assertThat(tree.dotToken().text()).isEqualTo(JavaScriptPunctuator.DOT.getValue());
     assertThat(tree.property().is(Kind.IDENTIFIER_NAME)).isTrue();
 
     tree = (DotMemberExpressionTree) tree.object();
 
     assertThat(tree.is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
     assertThat(tree.object().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
-    assertThat(tree.dot().text()).isEqualTo(JavaScriptPunctuator.DOT.getValue());
+    assertThat(tree.dotToken().text()).isEqualTo(JavaScriptPunctuator.DOT.getValue());
     assertThat(tree.property().is(Kind.IDENTIFIER_NAME)).isTrue();
 
   }
@@ -52,9 +52,9 @@ public class MemberExpressionTreeModelTest extends JavaScriptTreeModelTest {
     BracketMemberExpressionTreeImpl tree = parse("a[0][0]", Kind.BRACKET_MEMBER_EXPRESSION);
 
     assertThat(tree.is(Kind.BRACKET_MEMBER_EXPRESSION)).isTrue();
-    assertThat(tree.openBracket().text()).isEqualTo(JavaScriptPunctuator.LBRACKET.getValue());
+    assertThat(tree.openBracketToken().text()).isEqualTo(JavaScriptPunctuator.LBRACKET.getValue());
     assertThat(tree.property()).isNotNull();
-    assertThat(tree.closeBracket().text()).isEqualTo(JavaScriptPunctuator.RBRACKET.getValue());
+    assertThat(tree.closeBracketToken().text()).isEqualTo(JavaScriptPunctuator.RBRACKET.getValue());
   }
 
 }

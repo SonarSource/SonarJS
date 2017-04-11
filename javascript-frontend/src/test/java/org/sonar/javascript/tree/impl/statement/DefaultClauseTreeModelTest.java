@@ -34,7 +34,7 @@ public class DefaultClauseTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.DEFAULT_CLAUSE)).isTrue();
     assertThat(tree.keyword().text()).isEqualTo("default");
-    assertThat(tree.colon().text()).isEqualTo(":");
+    assertThat(tree.colonToken().text()).isEqualTo(":");
 
     assertThat(tree.statements()).hasSize(0);
   }
@@ -45,7 +45,7 @@ public class DefaultClauseTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.DEFAULT_CLAUSE)).isTrue();
     assertThat(tree.keyword().text()).isEqualTo("default");
-    assertThat(tree.colon().text()).isEqualTo(":");
+    assertThat(tree.colonToken().text()).isEqualTo(":");
 
     assertThat(tree.statements()).hasSize(2);
     assertThat(expressionToString(tree.statements().get(0))).isEqualTo("expr ;");
