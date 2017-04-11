@@ -17,65 +17,64 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.tree.impl.declaration;
+package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
-import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class DecoratorTreeImpl extends JavaScriptTree implements DecoratorTree {
+public class ArgumentListTreeImpl extends JavaScriptTree implements ArgumentListTree {
 
-  private final SyntaxToken atToken;
-  private final SeparatedList<IdentifierTree> body;
-  private final ArgumentListTree arguments;
+  private InternalSyntaxToken openParenthesis;
+  private final SeparatedList<ExpressionTree> arguments;
+  private InternalSyntaxToken closeParenthesis;
+  private final Kind kind;
 
-  public DecoratorTreeImpl(SyntaxToken atToken, SeparatedList<IdentifierTree> body, @Nullable ArgumentListTree arguments) {
-    this.atToken = atToken;
-    this.body = body;
+  public ArgumentListTreeImpl(InternalSyntaxToken openParenthesis, SeparatedList<ExpressionTree> arguments, InternalSyntaxToken closeParenthesis) {
+    this.openParenthesis = openParenthesis;
     this.arguments = arguments;
+    this.closeParenthesis = closeParenthesis;
+    this.kind = Kind.ARGUMENT_LIST;
+  }
+
+  @Override
+  public SyntaxToken openParenthesis() {
+    return openParenthesis;
+  }
+
+  @Override
+  public SeparatedList<ExpressionTree> arguments() {
+    return arguments;
+  }
+
+  @Override
+  public SyntaxToken closeParenthesis() {
+    return closeParenthesis;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.DECORATOR;
+    return kind;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
-      Iterators.singletonIterator(atToken),
-      body.elementsAndSeparators(Functions.identity()),
-      Iterators.singletonIterator(arguments)
-    );
-  }
-
-  @Override
-  public SyntaxToken atToken() {
-    return atToken;
-  }
-
-  @Override
-  public SeparatedList<IdentifierTree> body() {
-    return body;
-  }
-
-  @Nullable
-  @Override
-  public ArgumentListTree argumentClause() {
-    return arguments;
+      Iterators.singletonIterator(openParenthesis),
+      arguments.elementsAndSeparators(Functions.identity()),
+      Iterators.singletonIterator(closeParenthesis));
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitDecorator(this);
+    visitor.visitArgumentList(this);
   }
 }

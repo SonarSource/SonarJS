@@ -24,8 +24,8 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -107,14 +107,14 @@ public class ArrowFunctionConventionCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void checkParameterClause(ArrowFunctionTree tree) {
-    boolean hasParameterParens = tree.parameterClause().is(Kind.FORMAL_PARAMETER_LIST);
+    boolean hasParameterParens = tree.parameterClause().is(Kind.PARAMETER_LIST);
 
     if (parameterParens && !hasParameterParens) {
       addIssue(tree.parameterClause(), MESSAGE_ADD_PARAMETER);
     }
 
     if (!parameterParens && hasParameterParens) {
-      SeparatedList<Tree> parameters = ((ParameterListTree) tree.parameterClause()).parameters();
+      SeparatedList<BindingElementTree> parameters = ((ParameterListTree) tree.parameterClause()).parameters();
       if (parameters.size() == 1 && parameters.get(0).is(Kind.BINDING_IDENTIFIER)) {
         addIssue(tree.parameterClause(), MESSAGE_REMOVE_PARAMETER);
       }

@@ -731,7 +731,7 @@ public interface Tree {
     /**
      * {@link ParameterListTree}
      */
-    FORMAL_PARAMETER_LIST(ParameterListTree.class),
+    PARAMETER_LIST(ParameterListTree.class),
 
     /**
      * {@link TaggedTemplateTree}
@@ -741,7 +741,7 @@ public interface Tree {
     /**
      * {@link ParameterListTree}
      */
-    ARGUMENTS(ParameterListTree.class),
+    ARGUMENT_LIST(ParameterListTree.class),
 
     /**
      * {@link org.sonar.plugins.javascript.api.tree.expression.ClassTree}

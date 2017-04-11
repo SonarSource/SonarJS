@@ -120,7 +120,7 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static LiteralTree getSelectorParameter(CallExpressionTree tree) {
-    SeparatedList<Tree> parameters = tree.arguments().parameters();
+    SeparatedList<ExpressionTree> parameters = tree.argumentClause().arguments();
     if (parameters.size() == 1 && parameters.get(0).is(Tree.Kind.STRING_LITERAL) && !isElementCreation((LiteralTree) parameters.get(0))) {
       return (LiteralTree) parameters.get(0);
     }

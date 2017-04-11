@@ -58,7 +58,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     ArrowFunctionTree tree = parse("(p1, p2) => p;", Kind.ARROW_FUNCTION);
 
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
-    assertThat(tree.parameterClause().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
+    assertThat(tree.parameterClause().is(Kind.PARAMETER_LIST)).isTrue();
     assertThat(tree.doubleArrow().text()).isEqualTo(JavaScriptPunctuator.DOUBLEARROW.getValue());
     assertThat(expressionToString(tree.body())).isEqualTo("p");
   }
@@ -68,7 +68,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     ArrowFunctionTree tree = parse("(p1, p2) => p;", Kind.ARROW_FUNCTION);
 
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
-    assertThat(tree.parameterClause().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
+    assertThat(tree.parameterClause().is(Kind.PARAMETER_LIST)).isTrue();
     assertThat(tree.doubleArrow().text()).isEqualTo(JavaScriptPunctuator.DOUBLEARROW.getValue());
     assertThat(expressionToString(tree.body())).isEqualTo("p");
   }

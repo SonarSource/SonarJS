@@ -56,6 +56,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTre
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
@@ -496,7 +497,7 @@ public class JavaScriptGrammar {
   }
 
   public ParameterListTree FORMAL_PARAMETER_CLAUSE() {
-    return b.<ParameterListTree>nonterminal(Kind.FORMAL_PARAMETER_LIST)
+    return b.<ParameterListTree>nonterminal(Kind.PARAMETER_LIST)
       .is(b.firstOf(
         f.formalParameterClause1(
           b.token(JavaScriptPunctuator.LPARENTHESIS),
@@ -516,8 +517,8 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public SeparatedList<Tree> FORMAL_PARAMETER_LIST() {
-    return b.<SeparatedList<Tree>>nonterminal()
+  public SeparatedList<BindingElementTree> FORMAL_PARAMETER_LIST() {
+    return b.<SeparatedList<BindingElementTree>>nonterminal()
       .is(f.formalParameters(
         BINDING_ELEMENT(),
         b.zeroOrMore(f.newTuple4(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
@@ -874,16 +875,16 @@ public class JavaScriptGrammar {
         b.token(JavaScriptLegacyGrammar.TARGET)));
   }
 
-  public ParameterListTree ARGUMENT_CLAUSE() {
-    return b.<ParameterListTree>nonterminal(Kind.ARGUMENTS)
+  public ArgumentListTree ARGUMENT_CLAUSE() {
+    return b.<ArgumentListTree>nonterminal(Kind.ARGUMENT_LIST)
       .is(f.argumentClause(
         b.token(JavaScriptPunctuator.LPARENTHESIS),
         b.optional(ARGUMENT_LIST()),
         b.token(JavaScriptPunctuator.RPARENTHESIS)));
   }
 
-  public SeparatedList<Tree> ARGUMENT_LIST() {
-    return b.<SeparatedList<Tree>>nonterminal()
+  public SeparatedList<ExpressionTree> ARGUMENT_LIST() {
+    return b.<SeparatedList<ExpressionTree>>nonterminal()
       .is(f.argumentList(
         ARGUMENT(),
         b.zeroOrMore(f.newTuple17(

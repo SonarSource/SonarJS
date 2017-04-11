@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
@@ -46,7 +46,7 @@ public class PrimitiveWrappersCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
     ExpressionTree constructor = tree.expression();
-    ParameterListTree arguments = tree.arguments();
+    ArgumentListTree arguments = tree.argumentClause();
 
     if (constructor.is(Kind.IDENTIFIER_REFERENCE)) {
       Kind allowedArgument = ALLOWED_ARGUMENT_PER_WRAPPER.get(((IdentifierTree) constructor).name());
@@ -59,9 +59,9 @@ public class PrimitiveWrappersCheck extends DoubleDispatchVisitorCheck {
     super.visitNewExpression(tree);
   }
 
-  private static boolean isAllowedUsage(@Nullable ParameterListTree arguments, Kind allowedArgument) {
-    if (arguments != null && arguments.parameters().size() == 1) {
-      Tree argument = arguments.parameters().get(0);
+  private static boolean isAllowedUsage(@Nullable ArgumentListTree arguments, Kind allowedArgument) {
+    if (arguments != null && arguments.arguments().size() == 1) {
+      Tree argument = arguments.arguments().get(0);
       if (argument.is(allowedArgument)) {
         return !"false".equals(((LiteralTree) argument).value());
       }

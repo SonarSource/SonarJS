@@ -36,8 +36,8 @@ public class ModelDefaultsWithArrayOrObjectCheck extends DoubleDispatchVisitorCh
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (tree.types().contains(Type.Kind.BACKBONE_MODEL) && !tree.arguments().parameters().isEmpty()) {
-      Tree parameter = tree.arguments().parameters().get(0);
+    if (tree.types().contains(Type.Kind.BACKBONE_MODEL) && !tree.argumentClause().arguments().isEmpty()) {
+      Tree parameter = tree.argumentClause().arguments().get(0);
 
       if (parameter.is(Kind.OBJECT_LITERAL)) {
         PairPropertyTree defaultsProp = Backbone.getModelProperty((ObjectLiteralTree) parameter, "defaults");

@@ -38,7 +38,7 @@ public class GeneratorExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.functionKeyword().text()).isEqualTo(JavaScriptKeyword.FUNCTION.getValue());
     assertThat(tree.name().name()).isEqualTo("f");
     assertThat(tree.starToken().text()).isEqualTo(JavaScriptPunctuator.STAR.getValue());
-    assertThat(tree.parameterClause().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
+    assertThat(tree.parameterClause().is(Kind.PARAMETER_LIST)).isTrue();
     assertThat(tree.body()).isNotNull();
   }
 
@@ -51,7 +51,7 @@ public class GeneratorExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.functionKeyword().text()).isEqualTo(JavaScriptKeyword.FUNCTION.getValue());
     assertThat(tree.name()).isNull();
     assertThat(tree.starToken().text()).isEqualTo(JavaScriptPunctuator.STAR.getValue());
-    assertThat(tree.parameterClause().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
+    assertThat(tree.parameterClause().is(Kind.PARAMETER_LIST)).isTrue();
     assertThat(tree.body()).isNotNull();
   }
 

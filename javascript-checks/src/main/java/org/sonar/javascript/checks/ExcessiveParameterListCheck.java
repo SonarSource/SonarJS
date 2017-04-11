@@ -62,7 +62,7 @@ public class ExcessiveParameterListCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
     Tree parameterClause = tree.parameterClause();
-    if (parameterClause.is(Kind.FORMAL_PARAMETER_LIST)) {
+    if (parameterClause.is(Kind.PARAMETER_LIST)) {
       checkNumberOfParameters((ParameterListTree) parameterClause);
     }
     super.visitArrowFunction(tree);

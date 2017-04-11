@@ -28,7 +28,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
@@ -42,7 +41,7 @@ public class SpaceInModelPropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (tree.types().contains(Type.Kind.BACKBONE_MODEL) && !tree.arguments().parameters().isEmpty()) {
+    if (tree.types().contains(Type.Kind.BACKBONE_MODEL) && !tree.argumentClause().arguments().isEmpty()) {
       visitDefaults(tree);
     }
 
@@ -54,20 +53,20 @@ public class SpaceInModelPropertyNameCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void visitSetMethodCall(CallExpressionTree tree) {
-    Tree firstParameter = tree.arguments().parameters().get(0);
+    Tree firstArgument = tree.argumentClause().arguments().get(0);
 
-    if (firstParameter.is(Kind.OBJECT_LITERAL)) {
-      checkForSpaceInPropertyNames((ObjectLiteralTree) firstParameter);
+    if (firstArgument.is(Kind.OBJECT_LITERAL)) {
+      checkForSpaceInPropertyNames((ObjectLiteralTree) firstArgument);
     }
 
-    if (firstParameter.is(Kind.STRING_LITERAL)) {
-      checkString((ExpressionTree) firstParameter);
+    if (firstArgument.is(Kind.STRING_LITERAL)) {
+      checkString(firstArgument);
     }
 
   }
 
   private void visitDefaults(CallExpressionTree tree) {
-    Tree parameter = tree.arguments().parameters().get(0);
+    Tree parameter = tree.argumentClause().arguments().get(0);
 
     if (parameter.is(Kind.OBJECT_LITERAL)) {
       PairPropertyTree defaultsProp = Backbone.getModelProperty((ObjectLiteralTree) parameter, "defaults");

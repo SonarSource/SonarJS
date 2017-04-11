@@ -38,7 +38,7 @@ public class CallabilityCheck extends AbstractAnyPathSeCheck {
     if (element.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpressionTree = (CallExpressionTree) element;
 
-      SymbolicValue calleeSV = currentState.peekStack(callExpressionTree.arguments().parameters().size());
+      SymbolicValue calleeSV = currentState.peekStack(callExpressionTree.argumentClause().arguments().size());
       Constraint constraint = currentState.getConstraint(calleeSV);
 
       if (constraint.isIncompatibleWith(Constraint.FUNCTION)) {

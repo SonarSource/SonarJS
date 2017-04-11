@@ -85,8 +85,8 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
     if (parent.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpressionTree = (CallExpressionTree) parent;
 
-      if (callExpressionTree.arguments().parameters().size() > argumentIndex) {
-        Tree argument = callExpressionTree.arguments().parameters().get(argumentIndex);
+      if (callExpressionTree.argumentClause().arguments().size() > argumentIndex) {
+        Tree argument = callExpressionTree.argumentClause().arguments().get(argumentIndex);
 
         if (argument.is(Kind.FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION) && !hasReturnWithValue((FunctionTree)argument)) {
           addUniqueIssue(functionToken((FunctionTree) argument), MESSAGE);

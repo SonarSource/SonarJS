@@ -39,6 +39,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
@@ -66,7 +67,7 @@ public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
   public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpression = (CallExpressionTree) element;
-      SeparatedList<Tree> actualArguments = callExpression.arguments().parameters();
+      SeparatedList<ExpressionTree> actualArguments = callExpression.argumentClause().arguments();
       int nbActualArguments = actualArguments.size();
 
       SymbolicValue calleeValue = currentState.peekStack(nbActualArguments);
@@ -79,7 +80,7 @@ public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
         if (builtInFunction.signature() != null && hasTooManyArguments(builtInFunction.signature(), nbActualArguments)) {
           int nbExpectedArguments = getNbParameters(builtInFunction.signature());
           String message = getMessage(callExpression, nbExpectedArguments, nbActualArguments);
-          addUniqueIssue(callExpression.arguments(), message);
+          addUniqueIssue(callExpression.argumentClause(), message);
         }
       }
     }
@@ -148,11 +149,11 @@ public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
 
       if (functionTree != null) {
         int parametersNumber = functionTree.parameterList().size();
-        int argumentsNumber = tree.arguments().parameters().size();
+        int argumentsNumber = tree.argumentClause().arguments().size();
 
         if (!hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber) {
           String message = getMessage(tree, parametersNumber, argumentsNumber);
-          addUniqueIssue(tree.arguments(), message, new IssueLocation(functionTree.parameterClause(), "Formal parameters"));
+          addUniqueIssue(tree.argumentClause(), message, new IssueLocation(functionTree.parameterClause(), "Formal parameters"));
         }
       }
 
@@ -163,7 +164,7 @@ public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
     * @return true if function's last parameter has "... p" format and stands for all rest parameters
     */
     private boolean hasRestParameter(FunctionTree functionTree) {
-      List<Tree> parameters = functionTree.parameterList();
+      List<BindingElementTree> parameters = functionTree.parameterList();
       return !parameters.isEmpty() && (parameters.get(parameters.size() - 1).is(Tree.Kind.REST_ELEMENT));
     }
 

@@ -24,7 +24,6 @@ import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -46,7 +45,7 @@ public class NonStandardImportCheck extends DoubleDispatchVisitorCheck {
 
       if (callee.scope().isGlobal()) {
         String name = callee.name();
-        SeparatedList<Tree> parameters = tree.arguments().parameters();
+        SeparatedList<ExpressionTree> parameters = tree.argumentClause().arguments();
 
         if (isAmdImport(name, parameters) || isCommonJsImport(name, parameters)) {
           addIssue(tree.callee(), String.format(MESSAGE, name));
@@ -55,7 +54,7 @@ public class NonStandardImportCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private static boolean isAmdImport(String callee, SeparatedList<Tree> parameters) {
+  private static boolean isAmdImport(String callee, SeparatedList<ExpressionTree> parameters) {
     if (AMD_IMPORT_FUNCTIONS.contains(callee)) {
       if (parameters.size() == 3) {
         return firstIsStringLiteral(parameters) && lastIsFunction(parameters);
@@ -67,15 +66,15 @@ public class NonStandardImportCheck extends DoubleDispatchVisitorCheck {
     return false;
   }
 
-  private static boolean lastIsFunction(SeparatedList<Tree> parameters) {
-    return ((ExpressionTree) parameters.get(parameters.size() - 1)).types().contains(Type.Kind.FUNCTION);
+  private static boolean lastIsFunction(SeparatedList<ExpressionTree> parameters) {
+    return (parameters.get(parameters.size() - 1)).types().contains(Type.Kind.FUNCTION);
   }
 
-  private static boolean isCommonJsImport(String callee, SeparatedList<Tree> parameters) {
+  private static boolean isCommonJsImport(String callee, SeparatedList<ExpressionTree> parameters) {
     return COMMON_JS_IMPORT_FUNCTION.equals(callee) && parameters.size() == 1 && firstIsStringLiteral(parameters);
   }
 
-  private static boolean firstIsStringLiteral(SeparatedList<Tree> parameters) {
+  private static boolean firstIsStringLiteral(SeparatedList<ExpressionTree> parameters) {
     return parameters.get(0).is(Kind.STRING_LITERAL);
   }
 }

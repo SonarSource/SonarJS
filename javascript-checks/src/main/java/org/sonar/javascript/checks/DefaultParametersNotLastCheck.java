@@ -28,6 +28,7 @@ import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
@@ -45,7 +46,7 @@ public class DefaultParametersNotLastCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    List<Tree> parameterList = ((FunctionTree) tree).parameterList();
+    List<BindingElementTree> parameterList = ((FunctionTree) tree).parameterList();
 
     List<InitializedBindingElementTree> parametersWithDefault = new ArrayList<>();
     boolean raiseIssue = false;

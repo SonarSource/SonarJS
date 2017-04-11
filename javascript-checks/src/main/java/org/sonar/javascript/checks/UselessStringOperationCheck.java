@@ -26,7 +26,7 @@ import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -56,17 +56,17 @@ public class UselessStringOperationCheck extends SubscriptionVisitorCheck {
         DotMemberExpressionTree memberExpression = (DotMemberExpressionTree) callee;
 
         if (memberExpression.object().types().containsOnly(Type.Kind.STRING)
-          && !isReplaceExclusion(memberExpression.property(), ((CallExpressionTree) expression).arguments())) {
+          && !isReplaceExclusion(memberExpression.property(), ((CallExpressionTree) expression).argumentClause())) {
           addIssue(memberExpression.property(), String.format(MESSAGE, getVariable(memberExpression)));
         }
       }
     }
   }
 
-  private static boolean isReplaceExclusion(IdentifierTree property, ParameterListTree arguments) {
-    if ("replace".equals(property.name()) && arguments.parameters().size() == 2) {
-      Tree secondArgument = arguments.parameters().get(1);
-      return secondArgument instanceof ExpressionTree && !((ExpressionTree) secondArgument).types().containsOnly(Type.Kind.STRING);
+  private static boolean isReplaceExclusion(IdentifierTree property, ArgumentListTree arguments) {
+    if ("replace".equals(property.name()) && arguments.arguments().size() == 2) {
+      Tree secondArgument = arguments.arguments().get(1);
+      return !((ExpressionTree) secondArgument).types().containsOnly(Type.Kind.STRING);
     }
 
     return false;

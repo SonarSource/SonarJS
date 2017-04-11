@@ -34,10 +34,10 @@ public class FunctionCallArgumentsOnNewLineCheck extends DoubleDispatchVisitorCh
   public void visitCallExpression(CallExpressionTree tree) {
     if (!tree.callee().is(Kind.CALL_EXPRESSION)) {
       int calleeLastLine = ((JavaScriptTree) tree.callee()).getLastToken().endLine();
-      int argumentsFirstLine = ((JavaScriptTree) tree.arguments()).getLine();
+      int argumentsFirstLine = ((JavaScriptTree) tree.argumentClause()).getLine();
 
       if (calleeLastLine != argumentsFirstLine) {
-        addIssue(tree.arguments(), String.format(MESSAGE, calleeLastLine));
+        addIssue(tree.argumentClause(), String.format(MESSAGE, calleeLastLine));
       }
     }
     super.visitCallExpression(tree);

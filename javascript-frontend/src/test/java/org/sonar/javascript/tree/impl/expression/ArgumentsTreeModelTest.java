@@ -22,7 +22,7 @@ package org.sonar.javascript.tree.impl.expression;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,32 +30,32 @@ public class ArgumentsTreeModelTest extends JavaScriptTreeModelTest {
 
 
   @Test
-  public void parameters() throws Exception {
-    ParameterListTree tree = parse("f(p1, p2, ... p3)", Kind.ARGUMENTS);
+  public void arguments() throws Exception {
+    ArgumentListTree tree = parse("f(p1, p2, ... p3)", Kind.ARGUMENT_LIST);
 
-    assertThat(tree.is(Kind.ARGUMENTS)).isTrue();
+    assertThat(tree.is(Kind.ARGUMENT_LIST)).isTrue();
     assertThat(tree.openParenthesis().text()).isEqualTo("(");
 
-    assertThat(tree.parameters().size()).isEqualTo(3);
-    assertThat(expressionToString(tree.parameters().get(0))).isEqualTo("p1");
-    assertThat(expressionToString(tree.parameters().get(1))).isEqualTo("p2");
-    assertThat(expressionToString(tree.parameters().get(2))).isEqualTo("... p3");
+    assertThat(tree.arguments().size()).isEqualTo(3);
+    assertThat(expressionToString(tree.arguments().get(0))).isEqualTo("p1");
+    assertThat(expressionToString(tree.arguments().get(1))).isEqualTo("p2");
+    assertThat(expressionToString(tree.arguments().get(2))).isEqualTo("... p3");
 
-    assertThat(tree.parameters().getSeparators().size()).isEqualTo(2);
+    assertThat(tree.arguments().getSeparators().size()).isEqualTo(2);
 
     assertThat(tree.closeParenthesis().text()).isEqualTo(")");
   }
 
 
   @Test
-  public void no_parameter() throws Exception {
-    ParameterListTree tree = parse("f()", Kind.ARGUMENTS);
+  public void no_arguments() throws Exception {
+    ArgumentListTree tree = parse("f()", Kind.ARGUMENT_LIST);
 
-    assertThat(tree.is(Kind.ARGUMENTS)).isTrue();
+    assertThat(tree.is(Kind.ARGUMENT_LIST)).isTrue();
     assertThat(tree.openParenthesis().text()).isEqualTo("(");
 
-    assertThat(tree.parameters().size()).isEqualTo(0);
-    assertThat(tree.parameters().getSeparators().size()).isEqualTo(0);
+    assertThat(tree.arguments().size()).isEqualTo(0);
+    assertThat(tree.arguments().getSeparators().size()).isEqualTo(0);
 
     assertThat(tree.closeParenthesis().text()).isEqualTo(")");
   }

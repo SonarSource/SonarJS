@@ -20,28 +20,17 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
-import javax.annotation.Nullable;
+import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.2">New Expression</a>.
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2">New Member Expression</a>.
- * <pre>
- *   new {@link #expression()}
- *   new {@link #expression()} {@link #argumentClause()}
- *   new {@link Tree.Kind#NEW_SUPER super}
- *   new {@link Tree.Kind#NEW_SUPER super} {@link #argumentClause()}
- * </pre>
- */
 @Beta
-public interface NewExpressionTree extends ExpressionTree {
+public interface ArgumentListTree extends Tree {
 
-  SyntaxToken newKeyword();
+  SyntaxToken openParenthesis();
 
-  ExpressionTree expression();
+  SeparatedList<ExpressionTree> arguments();
 
-  @Nullable
-  ArgumentListTree argumentClause();
+  SyntaxToken closeParenthesis();
 
 }

@@ -197,7 +197,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
       Optional<MethodDeclarationTree> baseClassConstructor = getConstructor(baseClassTree.get());
       if (baseClassConstructor.isPresent()) {
         Integer nbParams = baseClassConstructor.get().parameterList().size();
-        int nbArguments = ((CallExpressionTree) superTree.getParent()).arguments().parameters().size();
+        int nbArguments = ((CallExpressionTree) superTree.getParent()).argumentClause().arguments().size();
         if (nbArguments != nbParams) {
           String message = String.format(MESSAGE_SUPER_WITH_CORRECT_NUMBER_OF_ARGUMENTS, nbParams, nbParams == 1 ? "" : "s");
           addIssue(CheckUtils.parent(superTree), message).secondary(baseClassConstructor.get().parameterClause());

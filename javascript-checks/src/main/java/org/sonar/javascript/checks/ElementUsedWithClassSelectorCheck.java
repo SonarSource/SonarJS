@@ -34,7 +34,7 @@ public class ElementUsedWithClassSelectorCheck extends AbstractJQuerySelectorOpt
   protected void visitSelector(String selector, CallExpressionTree tree) {
     Matcher matcher = elementUsedWithClassSelectorPattern.matcher(selector);
     // ignore 2 parameters to not consider such cases: $("div.className", someContext)
-    if (tree.arguments().parameters().size() == 1 && matcher.matches()) {
+    if (tree.argumentClause().arguments().size() == 1 && matcher.matches()) {
       addIssue(tree, String.format(MESSAGE, matcher.group(1)));
     }
   }

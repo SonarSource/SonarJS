@@ -29,7 +29,7 @@ public class ArgumentsTest {
 
   @Test
   public void test() {
-    assertThat(Kind.ARGUMENTS)
+    assertThat(Kind.ARGUMENT_LIST)
       .matches("( )")
       .matches("( assignmentExpression )")
       .matches("( ... assignmentExpression )")

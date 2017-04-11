@@ -95,7 +95,7 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
 
   @CheckForNull
   private static FunctionTree functionTree(CallExpressionTree tree, ProgramState currentState) {
-    SymbolicValue calleeSV = currentState.peekStack(tree.arguments().parameters().size());
+    SymbolicValue calleeSV = currentState.peekStack(tree.argumentClause().arguments().size());
 
     if (calleeSV instanceof FunctionWithTreeSymbolicValue) {
       return ((FunctionWithTreeSymbolicValue) calleeSV).getFunctionTree();

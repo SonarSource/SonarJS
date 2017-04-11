@@ -37,19 +37,13 @@ public class DefaultParameterSideEffectCheck extends DoubleDispatchVisitorCheck 
 
   @Override
   public void visitParameterList(ParameterListTree tree) {
-    if (tree.is(Kind.FORMAL_PARAMETER_LIST)) {
+    for (Tree parameter : tree.parameters()) {
 
-      for (Tree parameter : tree.parameters()) {
-
-        if (parameter.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
-          currentParameterWithDefault = (InitializedBindingElementTree) parameter;
-          scan(parameter);
-          currentParameterWithDefault = null;
-        }
+      if (parameter.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
+        currentParameterWithDefault = (InitializedBindingElementTree) parameter;
+        scan(parameter);
+        currentParameterWithDefault = null;
       }
-
-    } else {
-      super.visitParameterList(tree);
     }
   }
 

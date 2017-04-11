@@ -41,6 +41,7 @@ import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 @Rule(key = "S3782")
 public class ArgumentTypesCheck extends SeCheck {
@@ -72,7 +73,7 @@ public class ArgumentTypesCheck extends SeCheck {
     if (element.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpression = (CallExpressionTree) element;
 
-      SeparatedList<Tree> arguments = callExpression.arguments().parameters();
+      SeparatedList<ExpressionTree> arguments = callExpression.argumentClause().arguments();
       SymbolicValue calleeValue = currentState.peekStack(arguments.size());
 
       if (calleeValue instanceof BuiltInFunctionSymbolicValue) {
@@ -85,7 +86,7 @@ public class ArgumentTypesCheck extends SeCheck {
     }
   }
 
-  private void check(IntFunction<Constraint> signature, ProgramState currentState, List<Tree> arguments) {
+  private void check(IntFunction<Constraint> signature, ProgramState currentState, List<ExpressionTree> arguments) {
     List<SymbolicValue> argumentValues = new ArrayList<>();
 
     for (int i = 0; i < arguments.size(); i++) {

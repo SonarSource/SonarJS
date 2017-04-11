@@ -55,7 +55,7 @@ public class IndexOfCompareToPositiveNumberCheck extends SubscriptionVisitorChec
     if (expression.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpr = (CallExpressionTree) expression;
 
-      if (callExpr.arguments().parameters().size() == 1 && callExpr.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
+      if (callExpr.argumentClause().arguments().size() == 1 && callExpr.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
         DotMemberExpressionTree memberExpr = (DotMemberExpressionTree) ((CallExpressionTree) expression).callee();
         return "indexOf".equals(memberExpr.property().name());
       }

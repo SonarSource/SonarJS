@@ -53,7 +53,7 @@ public class ReturnValueNotIgnoredCheck extends AbstractAnyPathSeCheck {
   }
 
   private static boolean hasCallbackArgumentWithSideEffects(CallExpressionTreeImpl callExpression) {
-    for (Tree argument : callExpression.arguments().parameters()) {
+    for (Tree argument : callExpression.argumentClause().arguments()) {
       if (argument.is(KindSet.FUNCTION_KINDS) && ((FunctionTreeImpl) argument).outerScopeSymbolUsages().findAny().isPresent()) {
         return true;
       }
@@ -66,7 +66,7 @@ public class ReturnValueNotIgnoredCheck extends AbstractAnyPathSeCheck {
    * Returns false if the specified call has or may have side effects. 
    */
   private static boolean hasSideEffects(CallExpressionTree callExpression, ProgramState state) {
-    SeparatedList<Tree> arguments = callExpression.arguments().parameters();
+    SeparatedList<ExpressionTree> arguments = callExpression.argumentClause().arguments();
     SymbolicValue calleeValue = state.peekStack(arguments.size());
     if (calleeValue instanceof BuiltInFunctionSymbolicValue) {
       BuiltInFunctionSymbolicValue builtInFunction = (BuiltInFunctionSymbolicValue) calleeValue;

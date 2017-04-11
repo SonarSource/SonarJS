@@ -35,6 +35,7 @@ import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -185,8 +186,8 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     Type functionType = tree.callee().types().getUniqueType(Type.Kind.FUNCTION);
     if (functionType != null) {
 
-      List<Tree> parameters = ((FunctionType) functionType).functionTree().parameterList();
-      List<Tree> arguments = tree.arguments().parameters();
+      List<BindingElementTree> parameters = ((FunctionType) functionType).functionTree().parameterList();
+      List<ExpressionTree> arguments = tree.argumentClause().arguments();
       int minSize = arguments.size() < parameters.size() ? arguments.size() : parameters.size();
 
       for (int i = 0; i < minSize; i++) {
@@ -197,11 +198,11 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     }
   }
 
-  private static void inferParameterType(Tree currentParameter, List<Tree> arguments, int index) {
+  private static void inferParameterType(Tree currentParameter, List<ExpressionTree> arguments, int index) {
     if (currentParameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
       Optional<Symbol> symbol = ((IdentifierTree) currentParameter).symbol();
       if (symbol.isPresent()) {
-        addTypes(symbol.get(), ((ExpressionTree) arguments.get(index)).types());
+        addTypes(symbol.get(), arguments.get(index).types());
       } else {
         throw new IllegalStateException(String.format(
           "Parameter %s has no symbol associated with it (line %s)",

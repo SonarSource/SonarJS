@@ -51,6 +51,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTre
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
@@ -253,6 +254,9 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
+  public void visitArgumentList(ArgumentListTree tree) {
+    scanChildren(tree);
+  }
 
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     scanChildren(tree);

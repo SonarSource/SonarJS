@@ -59,6 +59,7 @@ import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ScriptTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.SpecifierTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ArgumentListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrayAssignmentPatternTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
@@ -155,6 +156,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTre
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
@@ -654,10 +656,10 @@ public class TreeFactory {
     return FunctionExpressionTreeImpl.create(asyncToken.orNull(), functionKeyword, functionName.orNull(), parameters, body);
   }
 
-  public SeparatedList<Tree> formalParameters(
+  public SeparatedList<BindingElementTree> formalParameters(
     BindingElementTree formalParameter, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> formalParameters
   ) {
-    List<Tree> parameters = Lists.newArrayList();
+    List<BindingElementTree> parameters = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
     parameters.add(formalParameter);
@@ -675,20 +677,20 @@ public class TreeFactory {
 
   public ParameterListTree formalParameterClause1(
     InternalSyntaxToken lParenthesis,
-    SeparatedList<Tree> parameters,
+    SeparatedList<BindingElementTree> parameters,
     Optional<InternalSyntaxToken> trailingComma,
     InternalSyntaxToken rParenthesis
   ) {
     if (trailingComma.isPresent()) {
       parameters.getSeparators().add(trailingComma.get());
     }
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
+    return new ParameterListTreeImpl(lParenthesis, parameters, rParenthesis);
   }
 
 
   public ParameterListTree formalParameterClause2(
     InternalSyntaxToken lParenthesis,
-    SeparatedList<Tree> parameters,
+    SeparatedList<BindingElementTree> parameters,
     InternalSyntaxToken comma,
     RestElementTree restElementTree,
     InternalSyntaxToken rParenthesis
@@ -696,15 +698,15 @@ public class TreeFactory {
     parameters.getSeparators().add(comma);
     parameters.add(restElementTree);
 
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
+    return new ParameterListTreeImpl(lParenthesis, parameters, rParenthesis);
   }
 
   public ParameterListTree formalParameterClause3(InternalSyntaxToken lParenthesis, Optional<RestElementTree> restElementTree, InternalSyntaxToken rParenthesis) {
-    SeparatedList<Tree> parameters = new SeparatedList<>(Lists.<Tree>newArrayList(), Collections.emptyList());
+    SeparatedList<BindingElementTree> parameters = new SeparatedList(Lists.newArrayList(), Collections.emptyList());
     if (restElementTree.isPresent()) {
       parameters.add(restElementTree.get());
     }
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
+    return new ParameterListTreeImpl(lParenthesis, parameters, rParenthesis);
   }
 
   public RestElementTree bindingRestElement(InternalSyntaxToken ellipsis, IdentifierTree identifier) {
@@ -842,12 +844,12 @@ public class TreeFactory {
     return tailedExpression(object, tails);
   }
 
-  public SeparatedList<Tree> argumentList(
+  public SeparatedList<ExpressionTree> argumentList(
     ExpressionTree argument,
     Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> restArguments,
     Optional<InternalSyntaxToken> trailingComma
   ) {
-    List<Tree> arguments = Lists.newArrayList();
+    List<ExpressionTree> arguments = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
     arguments.add(argument);
@@ -863,18 +865,17 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SeparatedList<>(arguments, commas);
+    return new SeparatedList(arguments, commas);
   }
 
-  public ParameterListTree argumentClause(InternalSyntaxToken openParenToken, Optional<SeparatedList<Tree>> arguments, InternalSyntaxToken closeParenToken) {
-    return new ParameterListTreeImpl(
-      Kind.ARGUMENTS,
+  public ArgumentListTree argumentClause(InternalSyntaxToken openParenToken, Optional<SeparatedList<ExpressionTree>> arguments, InternalSyntaxToken closeParenToken) {
+    return new ArgumentListTreeImpl(
       openParenToken,
-      arguments.isPresent() ? arguments.get() : new SeparatedList<>(Collections.<Tree>emptyList(), Collections.<InternalSyntaxToken>emptyList()),
+      arguments.isPresent() ? arguments.get() : new SeparatedList<>(Collections.emptyList(), Collections.emptyList()),
       closeParenToken);
   }
 
-  public CallExpressionTree simpleCallExpression(ExpressionTree expression, ParameterListTree arguments) {
+  public CallExpressionTree simpleCallExpression(ExpressionTree expression, ArgumentListTree arguments) {
     return new CallExpressionTreeImpl(expression, arguments);
   }
 
@@ -981,7 +982,7 @@ public class TreeFactory {
     return new ObjectLiteralTreeImpl(openCurlyToken, properties.or(new SeparatedList<>(ImmutableList.of(), ImmutableList.of())), closeCurlyToken);
   }
 
-  public NewExpressionTree newExpressionWithArgument(InternalSyntaxToken newToken, ExpressionTree expression, ParameterListTree arguments) {
+  public NewExpressionTree newExpressionWithArgument(InternalSyntaxToken newToken, ExpressionTree expression, ArgumentListTree arguments) {
     return new NewExpressionTreeImpl(
       expression.is(Kind.SUPER) ? Kind.NEW_SUPER : Kind.NEW_EXPRESSION,
       newToken,
@@ -1600,7 +1601,7 @@ public class TreeFactory {
 
   public DecoratorTree decorator(
     InternalSyntaxToken atToken, IdentifierTree name,
-    Optional<List<Tuple<InternalSyntaxToken, IdentifierTree>>> rest, Optional<ParameterListTree> arguments
+    Optional<List<Tuple<InternalSyntaxToken, IdentifierTree>>> rest, Optional<ArgumentListTree> arguments
   ) {
     Builder<IdentifierTree> listBuilder = ImmutableList.builder();
     Builder<InternalSyntaxToken> dotsListBuilder = ImmutableList.builder();
@@ -1679,8 +1680,8 @@ public class TreeFactory {
     return new BracketAccessTail(lBracket, expression, rBracket);
   }
 
-  public ArgumentsTail argumentClauseTail(ParameterListTree parameterListTree) {
-    return new ArgumentsTail(parameterListTree);
+  public ArgumentsTail argumentClauseTail(ArgumentListTree argumentListTree) {
+    return new ArgumentsTail(argumentListTree);
   }
 
   public DotAccessTail dotAccess(InternalSyntaxToken dotToken, IdentifierTree identifierTree) {
@@ -1713,9 +1714,9 @@ public class TreeFactory {
   }
 
   private static class ArgumentsTail implements ExpressionTail {
-    ParameterListTree argumentClause;
+    ArgumentListTree argumentClause;
 
-    private ArgumentsTail(ParameterListTree argumentClause) {
+    private ArgumentsTail(ArgumentListTree argumentClause) {
       this.argumentClause = argumentClause;
     }
   }

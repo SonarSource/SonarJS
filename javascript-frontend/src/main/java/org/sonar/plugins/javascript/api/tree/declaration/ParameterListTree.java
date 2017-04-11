@@ -36,7 +36,7 @@ public interface ParameterListTree extends Tree {
 
   SyntaxToken openParenthesis();
 
-  SeparatedList<Tree> parameters();
+  SeparatedList<BindingElementTree> parameters();
 
   SyntaxToken closeParenthesis();
 

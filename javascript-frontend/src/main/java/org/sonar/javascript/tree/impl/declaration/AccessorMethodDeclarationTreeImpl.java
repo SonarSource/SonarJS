@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -105,7 +106,7 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
   }
 
   @Override
-  public List<Tree> parameterList() {
+  public List<BindingElementTree> parameterList() {
     return parameters.parameters();
   }
 

@@ -285,7 +285,7 @@ class ControlFlowGraphBuilder {
 
     } else if (tree.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpression = (CallExpressionTree) tree;
-      buildExpressions(callExpression.arguments().parameters());
+      buildExpressions(callExpression.argumentClause().arguments());
       buildExpression(callExpression.callee());
 
     } else if (tree.is(Kind.VAR_DECLARATION, Kind.LET_DECLARATION, Kind.CONST_DECLARATION)) {
@@ -308,8 +308,8 @@ class ControlFlowGraphBuilder {
 
     } else if (tree.is(Kind.NEW_EXPRESSION)) {
       NewExpressionTree newExpression = (NewExpressionTree) tree;
-      if (newExpression.arguments() != null) {
-        buildExpressions(newExpression.arguments().parameters());
+      if (newExpression.argumentClause() != null) {
+        buildExpressions(newExpression.argumentClause().arguments());
       }
       buildExpression(newExpression.expression());
 

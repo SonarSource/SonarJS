@@ -39,7 +39,7 @@ public interface FunctionTree extends Tree {
 
   // ---------- ADDITIONAL LOGIC -----------------
 
-  List<Tree> parameterList();
+  List<BindingElementTree> parameterList();
 
   Scope scope();
 }
