@@ -23,10 +23,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.javascript.compat.CompatibleInputFile;
-import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.javascript.utils.TestInputFile;
+import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -57,43 +56,41 @@ public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
 
   @Test
   public void variable() {
-    Symbol symbolX = ((IdentifierTree) ((VariableStatementTree) MODULE_ITEMS.get(0)).declaration().variables().get(0)).symbol();
+    Symbol symbolX = ((IdentifierTree) ((VariableStatementTree) MODULE_ITEMS.get(0)).declaration().variables().get(0)).symbol().get();
     assertThat(symbolX).isNotNull();
     assertThat(symbolX.name()).isEqualTo("x");
 
     BindingElementTree bindingElementTree = ((VariableStatementTree) MODULE_ITEMS.get(1)).declaration().variables().get(0);
-    Symbol symbolY = ((IdentifierTree) ((InitializedBindingElementTree) bindingElementTree).left()).symbol();
-    assertThat(symbolY).isNotNull();
+    Symbol symbolY = ((IdentifierTree) ((InitializedBindingElementTree) bindingElementTree).left()).symbol().get();
     assertThat(symbolY.name()).isEqualTo("y");
 
 
     IdentifierTree variableX = (IdentifierTree) ((AssignmentExpressionTree) ((ExpressionStatementTree) MODULE_ITEMS.get(2)).expression()).variable();
-    assertThat(variableX.symbol()).isEqualTo(symbolX);
+    assertThat(variableX.symbol().get()).isEqualTo(symbolX);
   }
 
   @Test
   public void built_ins() {
     List<StatementTree> statements = ((FunctionDeclarationTree) MODULE_ITEMS.get(3)).body().statements();
     IdentifierTree eval = (IdentifierTree) ((CallExpressionTree) ((ExpressionStatementTree) statements.get(1)).expression()).callee();
-    assertThat(eval.symbol()).isNotNull();
-    assertThat(eval.symbol().external()).isTrue();
+    assertThat(eval.symbol()).isPresent();
+    assertThat(eval.symbol().get().external()).isTrue();
 
     IdentifierTree arguments = ((IdentifierTree) ((InitializedBindingElementTree) ((VariableStatementTree) statements.get(0)).declaration().variables().get(0)).right());
-    assertThat(arguments.symbol()).isNotNull();
-    assertThat(arguments.symbol().external()).isTrue();
+    assertThat(arguments.symbol()).isPresent();
+    assertThat(arguments.symbol().get().external()).isTrue();
   }
 
   @Test
   public void function() throws Exception {
     FunctionDeclarationTree function = ((FunctionDeclarationTree) MODULE_ITEMS.get(3));
     IdentifierTree fooDeclaration = function.name();
-    assertThat(fooDeclaration.symbol()).isNotNull();
-    assertThat(fooDeclaration.symbol().is(Symbol.Kind.FUNCTION)).isTrue();
+    assertThat(fooDeclaration.symbol()).isPresent();
+    assertThat(fooDeclaration.symbol().get().is(Symbol.Kind.FUNCTION)).isTrue();
 
     IdentifierTree parameterDeclaration = (IdentifierTree) function.parameterClause().parameters().get(0);
-    assertThat(parameterDeclaration.symbol()).isNotNull();
-    assertThat(parameterDeclaration.symbol()).isNotNull();
-    assertThat(parameterDeclaration.symbol().is(Symbol.Kind.PARAMETER)).isTrue();
-    assertThat(parameterDeclaration.symbol().name()).isEqualTo("p");
+    assertThat(parameterDeclaration.symbol()).isPresent();
+    assertThat(parameterDeclaration.symbol().get().is(Symbol.Kind.PARAMETER)).isTrue();
+    assertThat(parameterDeclaration.symbol().get().name()).isEqualTo("p");
   }
 }

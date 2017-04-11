@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -51,10 +52,10 @@ public class DeleteNonPropertyCheck extends DoubleDispatchVisitorCheck {
   private static boolean isGlobalProperty(ExpressionTree expression) {
     if (expression.is(Kind.IDENTIFIER_REFERENCE)) {
 
-      Symbol symbol = ((IdentifierTree) expression).symbol();
-      if (symbol != null) {
+      Optional<Symbol> symbol = ((IdentifierTree) expression).symbol();
+      if (symbol.isPresent()) {
 
-        for (Usage usage : symbol.usages()) {
+        for (Usage usage : symbol.get().usages()) {
           if (usage.isDeclaration()) {
             return false;
           }

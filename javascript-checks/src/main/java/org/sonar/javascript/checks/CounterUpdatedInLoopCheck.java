@@ -24,6 +24,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
@@ -143,9 +144,9 @@ public class CounterUpdatedInLoopCheck extends DoubleDispatchVisitorCheck {
     Map<IdentifierTree, IdentifierTree> writeUsages = new HashMap<>();
 
     for (IdentifierTree identifierTree : currentLoopCounters) {
-      Symbol symbol = identifierTree.symbol();
-      if (symbol != null) {
-        for (Usage usage : symbol.usages()) {
+      Optional<Symbol> symbol = identifierTree.symbol();
+      if (symbol.isPresent()) {
+        for (Usage usage : symbol.get().usages()) {
           if (usage.isWrite()) {
             writeUsages.put(usage.identifierTree(), identifierTree);
           }

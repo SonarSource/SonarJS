@@ -58,7 +58,7 @@ public class UnusedVariableCheck extends DoubleDispatchVisitorCheck {
       for (int i = 0; i < tree.elements().size() - 1; i++) {
         BindingElementTree currentElement = tree.elements().get(i);
         if (currentElement.is(Kind.BINDING_IDENTIFIER)) {
-          ignoredSymbols.add(((IdentifierTree) currentElement).symbol());
+          ignoredSymbols.add(((IdentifierTree) currentElement).symbol().orElse(null));
         }
 
       }

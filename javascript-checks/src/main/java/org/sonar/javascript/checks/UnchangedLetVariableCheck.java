@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
@@ -95,6 +96,8 @@ public class UnchangedLetVariableCheck extends DoubleDispatchVisitorCheck {
     if (identifiers.size() > 1) {
       identifiers.stream()
         .map(IdentifierTree::symbol)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
         .forEach(ignoredSymbols::add);
     }
   }

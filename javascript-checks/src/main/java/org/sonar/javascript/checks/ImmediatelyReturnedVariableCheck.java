@@ -70,8 +70,8 @@ public class ImmediatelyReturnedVariableCheck extends DoubleDispatchVisitorCheck
       if (initializedBindingElementTree.left().is(Kind.BINDING_IDENTIFIER)) {
         IdentifierTree identifier = (IdentifierTree) initializedBindingElementTree.left();
 
-        // identifier.symbol() is never null here, as it's part of declaration statement
-        if (hasUsageInsideExpression(identifier.symbol(), initializedBindingElementTree.right())) {
+        // identifier.symbol() is always there, as it's part of declaration statement
+        if (hasUsageInsideExpression(identifier.symbol().get(), initializedBindingElementTree.right())) {
           return;
         }
 

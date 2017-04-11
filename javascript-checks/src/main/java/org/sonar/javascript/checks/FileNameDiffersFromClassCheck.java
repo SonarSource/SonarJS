@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -57,10 +58,10 @@ public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
       Tree exported = ((DefaultExportDeclarationTree) tree).object();
 
       if (exported.is(Kind.IDENTIFIER_REFERENCE)) {
-        Symbol symbol = ((IdentifierTree) exported).symbol();
+        Optional<Symbol> symbol = ((IdentifierTree) exported).symbol();
 
-        if (symbol != null && CONSIDERED_KINDS.contains(symbol.kind())) {
-          nameOfExported = symbol.name();
+        if (symbol.isPresent() && CONSIDERED_KINDS.contains(symbol.get().kind())) {
+          nameOfExported = symbol.get().name();
         }
 
       } else if (exported.is(Kind.CLASS_DECLARATION)) {

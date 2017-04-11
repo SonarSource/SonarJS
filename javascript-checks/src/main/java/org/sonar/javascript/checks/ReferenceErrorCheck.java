@@ -59,7 +59,7 @@ public class ReferenceErrorCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitIdentifier(IdentifierTree identifier) {
     if (identifier.is(Kind.IDENTIFIER_REFERENCE)
-      && identifier.symbol() == null
+      && !identifier.symbol().isPresent()
       && !"undefined".equals(identifier.name())
       && !excludedNames.contains(identifier.name())) {
 

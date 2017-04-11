@@ -117,7 +117,7 @@ public class InconsistentFunctionCallCheck extends DoubleDispatchVisitorCheck {
   @CheckForNull
   private static Symbol getSymbol(ExpressionTree expression) {
     if (expression.is(Kind.IDENTIFIER_REFERENCE)) {
-      return ((IdentifierTree) expression).symbol();
+      return ((IdentifierTree) expression).symbol().orElse(null);
     }
     return null;
   }

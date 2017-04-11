@@ -21,6 +21,7 @@ package org.sonar.javascript.tree.symbols.type;
 
 import com.google.common.base.Preconditions;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -109,19 +110,19 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     IdentifierTree name = tree.name();
     String nameName = name.name();
 
-    Preconditions.checkState(name.symbol() != null,
+    Preconditions.checkState(name.symbol().isPresent(),
       "Symbol has not been created for this function %s declared at line %s",
       nameName,
       ((JavaScriptTree) tree).getLine());
 
-    name.symbol().addType(FunctionType.create(tree));
+    name.symbol().get().addType(FunctionType.create(tree));
     super.visitFunctionDeclaration(tree);
   }
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     if (tree.name() != null) {
-      addTypes(tree.name().symbol(), tree.types());
+      addTypes(tree.name().symbol().get(), tree.types());
     }
     super.visitFunctionExpression(tree);
   }
@@ -130,7 +131,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
   public void visitClass(ClassTree tree) {
     ClassType classType = ((ClassTreeImpl) tree).classType();
     if (tree.name() != null) {
-      tree.name().symbol().addType(classType);
+      tree.name().symbol().get().addType(classType);
     }
 
     for (MethodDeclarationTree methodDeclarationTree : tree.methods()) {
@@ -198,9 +199,9 @@ public class TypeVisitor extends DoubleDispatchVisitor {
 
   private static void inferParameterType(Tree currentParameter, List<Tree> arguments, int index) {
     if (currentParameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
-      Symbol symbol = ((IdentifierTree) currentParameter).symbol();
-      if (symbol != null) {
-        addTypes(symbol, ((ExpressionTree) arguments.get(index)).types());
+      Optional<Symbol> symbol = ((IdentifierTree) currentParameter).symbol();
+      if (symbol.isPresent()) {
+        addTypes(symbol.get(), ((ExpressionTree) arguments.get(index)).types());
       } else {
         throw new IllegalStateException(String.format(
           "Parameter %s has no symbol associated with it (line %s)",
@@ -341,10 +342,10 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     super.scan(assignedTree);
 
     if (identifier instanceof IdentifierTree) {
-      Symbol symbol = ((IdentifierTree) identifier).symbol();
+      Optional<Symbol> symbol = ((IdentifierTree) identifier).symbol();
 
-      if (symbol != null) {
-        addTypes(symbol, assignedTree.types());
+      if (symbol.isPresent()) {
+        addTypes(symbol.get(), assignedTree.types());
       }
     }
   }

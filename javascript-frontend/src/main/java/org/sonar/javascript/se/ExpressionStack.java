@@ -295,7 +295,8 @@ public class ExpressionStack {
       }
 
       Constraint constraint = arguments.hasNext() ? arguments.next() : Constraint.UNDEFINED;
-      initialProgramState = initialProgramState.newSymbolicValue(((IdentifierTree) parameter).symbol(), constraint);
+      // Kind.BINDING_IDENTIFIER always has symbol
+      initialProgramState = initialProgramState.newSymbolicValue(((IdentifierTree) parameter).symbol().get(), constraint);
     }
 
     return initialProgramState;

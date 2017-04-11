@@ -208,7 +208,8 @@ public class SymbolicExecution {
       for (Tree element : cfgBlock.elements()) {
         if (element.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION)) {
           FunctionDeclarationTree functionDeclaration = (FunctionDeclarationTree) element;
-          Symbol symbol = functionDeclaration.name().symbol();
+          // Kind.BINDING_IDENTIFIER always has symbol
+          Symbol symbol = functionDeclaration.name().symbol().get();
           programStateWithFunctions = programStateWithFunctions.newFunctionSymbolicValue(symbol, functionDeclaration);
         }
       }
@@ -519,7 +520,7 @@ public class SymbolicExecution {
 
     } else if (tree.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
       IdentifierTree identifier = (IdentifierTree) tree;
-      Symbol symbol = identifier.symbol();
+      Symbol symbol = identifier.symbol().orElse(null);
       var = trackedVariables.contains(symbol) ? symbol : null;
 
     } else if (tree.is(Kind.ASSIGNMENT_PATTERN_REST_ELEMENT)) {

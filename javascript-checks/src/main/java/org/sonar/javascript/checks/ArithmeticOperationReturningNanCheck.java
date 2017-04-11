@@ -90,7 +90,7 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
     Symbol operandSymbol = null;
     if (operand.is(Kind.IDENTIFIER_REFERENCE)) {
       IdentifierTree identifier = (IdentifierTree) operand;
-      operandSymbol = identifier.symbol();
+      operandSymbol = identifier.symbol().orElse(null);
     }
     if (!symbolsWithIssues.contains(operandSymbol) && !operandsWithIssues.contains(operand)) {
       PreciseIssue issue = addIssue(operand, MESSAGE);

@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
@@ -98,9 +99,9 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
   }
 
   private void checkArgumentIdentifier(IdentifierTree argument, ProgramState currentState) {
-    Symbol symbol = argument.symbol();
-    if (symbol != null) {
-      SymbolicValue symbolicValue = currentState.getSymbolicValue(symbol);
+    Optional<Symbol> symbol = argument.symbol();
+    if (symbol.isPresent()) {
+      SymbolicValue symbolicValue = currentState.getSymbolicValue(symbol.get());
 
       if (symbolicValue instanceof FunctionWithTreeSymbolicValue) {
         FunctionTree functionTree = ((FunctionWithTreeSymbolicValue) symbolicValue).getFunctionTree();

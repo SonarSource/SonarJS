@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -255,8 +256,9 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
     Stream<JavaScriptTree> thisAndDescendants = Stream.concat(Stream.<JavaScriptTree>builder().add(root).build(), root.descendants());
     return thisAndDescendants.filter(tree -> tree instanceof IdentifierTree)
       .map(tree -> (IdentifierTree) tree)
-      .filter(identifierTree -> identifierTree.symbol() != null)
-      .map(IdentifierTree::symbol);
+      .map(IdentifierTree::symbol)
+      .filter(Optional::isPresent)
+      .map(Optional::get);
   }
 
   private static Stream<Usage> allSymbolsUsages(JavaScriptTree root) {

@@ -79,9 +79,10 @@ public class NullDereferenceCheck extends SeCheck {
     }
   }
 
+  @Nullable
   private static Symbol getSymbol(ExpressionTree object) {
     if (object.is(Kind.IDENTIFIER_REFERENCE)) {
-      return ((IdentifierTree) object).symbol();
+      return ((IdentifierTree) object).symbol().orElse(null);
     }
     return null;
   }

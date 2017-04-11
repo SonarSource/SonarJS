@@ -168,9 +168,9 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
       ExpressionTree superClassTree = classTree.superClass();
       // we consider only the simple case "class A extends B", not cases such as "class A extends class {} ..."
       if (superClassTree.is(Kind.IDENTIFIER_REFERENCE)) {
-        Symbol superClassSymbol = ((IdentifierTree) superClassTree).symbol();
-        if (superClassSymbol != null) {
-          compareNumberOfArguments(superTree, superClassSymbol);
+        Optional<Symbol> superClassSymbol = ((IdentifierTree) superClassTree).symbol();
+        if (superClassSymbol.isPresent()) {
+          compareNumberOfArguments(superTree, superClassSymbol.get());
         }
       }
     });
