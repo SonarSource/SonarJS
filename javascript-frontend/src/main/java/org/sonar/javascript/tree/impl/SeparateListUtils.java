@@ -21,6 +21,7 @@ package org.sonar.javascript.tree.impl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 public class SeparateListUtils {
@@ -31,9 +32,9 @@ public class SeparateListUtils {
   /**
    * Returns a new list containing the present (in the sense of Optional#isPresent) elements in <code>list</code>.
    */
-  public static <T extends Tree> List<T> presentsOf(List<com.sonar.sslr.api.typed.Optional<T>> list) {
+  public static <T extends Tree> List<T> presentsOf(List<Optional<T>> list) {
     List<T> newList = new LinkedList<>();
-    for (com.sonar.sslr.api.typed.Optional<T> element : list) {
+    for (Optional<T> element : list) {
       if (element.isPresent()) {
         newList.add(element.get());
       }

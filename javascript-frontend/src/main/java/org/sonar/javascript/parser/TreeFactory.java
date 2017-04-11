@@ -1417,19 +1417,19 @@ public class TreeFactory {
       closeBracketToken);
   }
 
-  private static <T extends Tree> SeparatedList<Optional<T>> getSeparatedListOfOptional(
+  private static <T extends Tree> SeparatedList<java.util.Optional<T>> getSeparatedListOfOptional(
     Optional<T> firstElement,
     Optional<List<Tuple<InternalSyntaxToken, Optional<T>>>> optionalElements,
     Optional<T> restElement
   ) {
 
-    ImmutableList.Builder<Optional<T>> elements = ImmutableList.builder();
+    ImmutableList.Builder<java.util.Optional<T>> elements = ImmutableList.builder();
     ImmutableList.Builder<InternalSyntaxToken> separators = ImmutableList.builder();
 
     boolean skipComma = false;
 
     if (firstElement.isPresent()) {
-      elements.add(firstElement);
+      elements.add(convertOptional(firstElement));
       skipComma = true;
     }
 
@@ -1437,14 +1437,14 @@ public class TreeFactory {
       List<Tuple<InternalSyntaxToken, Optional<T>>> list = optionalElements.get();
       for (Tuple<InternalSyntaxToken, Optional<T>> pair : list) {
         if (!skipComma) {
-          elements.add(Optional.absent());
+          elements.add(java.util.Optional.empty());
         }
 
         InternalSyntaxToken commaToken = pair.first();
         separators.add(commaToken);
 
         if (pair.second().isPresent()) {
-          elements.add(pair.second());
+          elements.add(convertOptional(pair.second()));
           skipComma = true;
         } else {
           skipComma = false;
@@ -1453,10 +1453,18 @@ public class TreeFactory {
     }
 
     if (restElement.isPresent()) {
-      elements.add(Optional.of(restElement.get()));
+      elements.add(convertOptional(restElement));
     }
 
     return new SeparatedList<>(elements.build(), separators.build());
+  }
+
+  private static <T extends Tree> java.util.Optional<T> convertOptional(Optional<T> optional) {
+    if (optional.isPresent()) {
+      return java.util.Optional.of(optional.get());
+    } else {
+      return java.util.Optional.empty();
+    }
   }
 
   public ExpressionTree assignmentNoCurly(Tree lookahead, ExpressionTree expression) {
