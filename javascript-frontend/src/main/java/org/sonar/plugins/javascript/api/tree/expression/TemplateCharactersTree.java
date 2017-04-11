@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
 import java.util.List;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
@@ -28,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  */
 @Beta
-public interface TemplateCharactersTree extends ExpressionTree {
+public interface TemplateCharactersTree extends Tree {
 
   String value();
 

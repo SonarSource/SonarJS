@@ -27,7 +27,6 @@ import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -108,10 +107,5 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
       }
     }
     return identifiers;
-  }
-
-  @Override
-  public TypeSet types() {
-    return TypeSet.emptyTypeSet();
   }
 }
