@@ -42,15 +42,8 @@ import static org.sonar.javascript.se.Type.STRING_PRIMITIVE;
 public class MemberProgramPoint implements ProgramPoint {
 
   private final Tree element;
-  private boolean strictMode = false;
 
-  private static final EnumSet<Type> PRIMITIVE_TYPES = EnumSet.of(
-    NUMBER_PRIMITIVE,
-    NUMBER_OBJECT,
-    STRING_PRIMITIVE,
-    STRING_OBJECT,
-    BOOLEAN_PRIMITIVE,
-    BOOLEAN_OBJECT);
+  private PropertyResolutionMode mode = PropertyResolutionMode.ASSUME_PARTIAL_PROPERTY_KNOWLEDGE;
 
   public MemberProgramPoint(Tree element) {
     this.element = element;
@@ -96,9 +89,9 @@ public class MemberProgramPoint implements ProgramPoint {
   }
 
   public Optional<ProgramState> executeStrictMode(final  ProgramState state) {
-    strictMode = true;
+    mode = PropertyResolutionMode.ASSUME_FULL_PROPERTY_KNOWLEDGE;
     Optional<ProgramState> result = this.execute(state);
-    strictMode = false;
+    mode = PropertyResolutionMode.ASSUME_PARTIAL_PROPERTY_KNOWLEDGE;
 
     return result;
   }
@@ -107,27 +100,63 @@ public class MemberProgramPoint implements ProgramPoint {
     String propertyName = ((DotMemberExpressionTree) element).property().name();
 
     if (objectValue instanceof ObjectSymbolicValue) {
-      SymbolicValue value = ((ObjectSymbolicValue) objectValue).getPropertyValue(propertyName);
-      if ((strictMode && SpecialSymbolicValue.UNDEFINED.equals(value)) || (!UnknownSymbolicValue.UNKNOWN.equals(value) && !SpecialSymbolicValue.UNDEFINED.equals(value))) {
-        return value;
+      final SymbolicValue propertyValue = mode.resolveObjectPropertyValue((ObjectSymbolicValue) objectValue, propertyName);
+      if (!UnknownSymbolicValue.UNKNOWN.equals(propertyValue)) {
+        return propertyValue;
       }
     }
 
     Type type = state.getConstraint(objectValue).type();
 
     if (type != null) {
-      SymbolicValue propertyValue = type.getPropertyValue(propertyName);
-
-      if (PRIMITIVE_TYPES.contains(type) && strictMode) {
-        return propertyValue;
-      }
-
-      if (!SpecialSymbolicValue.UNDEFINED.equals(propertyValue)) {
-        return propertyValue;
-      }
+      return mode.resolvePrototypePropertyValue(type, propertyName);
     }
 
     return UnknownSymbolicValue.UNKNOWN;
+  }
+
+  private enum PropertyResolutionMode {
+
+    ASSUME_PARTIAL_PROPERTY_KNOWLEDGE {
+      @Override
+      SymbolicValue resolveObjectPropertyValue(ObjectSymbolicValue objectValue, String propertyName) {
+        SymbolicValue value = objectValue.getPropertyValue(propertyName);
+        return SpecialSymbolicValue.UNDEFINED.equals(value) ? UnknownSymbolicValue.UNKNOWN : value;
+      }
+
+      @Override
+      SymbolicValue resolvePrototypePropertyValue(Type type, String propertyName) {
+        SymbolicValue value = type.getPropertyValue(propertyName);
+        return SpecialSymbolicValue.UNDEFINED.equals(value) ? UnknownSymbolicValue.UNKNOWN : value;
+      }
+    },
+    ASSUME_FULL_PROPERTY_KNOWLEDGE {
+
+      private final EnumSet<Type> primitiveTypes = EnumSet.of(
+        NUMBER_PRIMITIVE,
+        NUMBER_OBJECT,
+        STRING_PRIMITIVE,
+        STRING_OBJECT,
+        BOOLEAN_PRIMITIVE,
+        BOOLEAN_OBJECT);
+
+      @Override
+      SymbolicValue resolveObjectPropertyValue(ObjectSymbolicValue objectValue, String propertyName) {
+        return objectValue.getPropertyValue(propertyName);
+      }
+
+      @Override
+      SymbolicValue resolvePrototypePropertyValue(Type type, String propertyName) {
+        if (primitiveTypes.contains(type)) {
+          return type.getPropertyValue(propertyName);
+        }
+        return ASSUME_PARTIAL_PROPERTY_KNOWLEDGE.resolvePrototypePropertyValue(type, propertyName);
+      }
+    };
+
+    abstract SymbolicValue resolveObjectPropertyValue(ObjectSymbolicValue objectValue, String propertyName);
+
+    abstract SymbolicValue resolvePrototypePropertyValue(Type type, String propertyName);
   }
 
 }
