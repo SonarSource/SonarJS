@@ -21,13 +21,11 @@ package org.sonar.javascript.se;
 
 import com.google.common.collect.Lists;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
-import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 
 public enum Type {
   OBJECT(Constraint.OBJECT, BuiltInObjectSymbolicValue.OBJECT_PROTOTYPE),
@@ -46,18 +44,11 @@ public enum Type {
   ;
 
   private static final List<Type> VALUES_REVERSED = Lists.reverse(Arrays.asList(Type.values()));
-  private static final EnumSet<Type> PRIMITIVE_TYPES = EnumSet.of(
-    NUMBER_PRIMITIVE,
-    NUMBER_OBJECT,
-    STRING_PRIMITIVE,
-    STRING_OBJECT,
-    BOOLEAN_PRIMITIVE,
-    BOOLEAN_OBJECT);
 
   private final Constraint constraint;
   private final BuiltInObjectSymbolicValue prototype;
 
-  Type(Constraint constraint, BuiltInObjectSymbolicValue prototype) {
+  Type(Constraint constraint, @Nullable BuiltInObjectSymbolicValue prototype) {
     this.constraint = constraint;
     this.prototype = prototype;
   }
@@ -70,11 +61,7 @@ public enum Type {
     if (prototype == null) {
       throw new IllegalStateException("Cannot access a property on a " + this);
     }
-    SymbolicValue propertyValue = prototype.getPropertyValue(propertyName);
-    if (!SpecialSymbolicValue.UNDEFINED.equals(propertyValue) || PRIMITIVE_TYPES.contains(this)) {
-      return propertyValue;
-    }
-    return UnknownSymbolicValue.UNKNOWN;
+    return prototype.getPropertyValue(propertyName);
   }
 
   @CheckForNull

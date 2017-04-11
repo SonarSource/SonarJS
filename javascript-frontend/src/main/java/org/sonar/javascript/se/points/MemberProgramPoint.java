@@ -19,20 +19,38 @@
  */
 package org.sonar.javascript.se.points;
 
+import java.util.EnumSet;
 import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ExpressionStack;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.ObjectSymbolicValue;
+import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 
+import static org.sonar.javascript.se.Type.BOOLEAN_OBJECT;
+import static org.sonar.javascript.se.Type.BOOLEAN_PRIMITIVE;
+import static org.sonar.javascript.se.Type.NUMBER_OBJECT;
+import static org.sonar.javascript.se.Type.NUMBER_PRIMITIVE;
+import static org.sonar.javascript.se.Type.STRING_OBJECT;
+import static org.sonar.javascript.se.Type.STRING_PRIMITIVE;
+
 public class MemberProgramPoint implements ProgramPoint {
 
   private final Tree element;
+  private boolean strictMode = false;
+
+  private static final EnumSet<Type> PRIMITIVE_TYPES = EnumSet.of(
+    NUMBER_PRIMITIVE,
+    NUMBER_OBJECT,
+    STRING_PRIMITIVE,
+    STRING_OBJECT,
+    BOOLEAN_PRIMITIVE,
+    BOOLEAN_OBJECT);
 
   public MemberProgramPoint(Tree element) {
     this.element = element;
@@ -77,12 +95,20 @@ public class MemberProgramPoint implements ProgramPoint {
     return Optional.of(newState.get().withStack(newExpressionStack));
   }
 
+  public Optional<ProgramState> executeStrictMode(final  ProgramState state) {
+    strictMode = true;
+    Optional<ProgramState> result = this.execute(state);
+    strictMode = false;
+
+    return result;
+  }
+
   private SymbolicValue resolvePropertyValue(ProgramState state, SymbolicValue objectValue) {
     String propertyName = ((DotMemberExpressionTree) element).property().name();
 
     if (objectValue instanceof ObjectSymbolicValue) {
       SymbolicValue value = ((ObjectSymbolicValue) objectValue).getPropertyValue(propertyName);
-      if (!UnknownSymbolicValue.UNKNOWN.equals(value)) {
+      if ((strictMode && SpecialSymbolicValue.UNDEFINED.equals(value)) || (!UnknownSymbolicValue.UNKNOWN.equals(value) && !SpecialSymbolicValue.UNDEFINED.equals(value))) {
         return value;
       }
     }
@@ -90,10 +116,18 @@ public class MemberProgramPoint implements ProgramPoint {
     Type type = state.getConstraint(objectValue).type();
 
     if (type != null) {
-      return type.getPropertyValue(propertyName);
-    } else {
-      return UnknownSymbolicValue.UNKNOWN;
+      SymbolicValue propertyValue = type.getPropertyValue(propertyName);
+
+      if (PRIMITIVE_TYPES.contains(type) && strictMode) {
+        return propertyValue;
+      }
+
+      if (!SpecialSymbolicValue.UNDEFINED.equals(propertyValue)) {
+        return propertyValue;
+      }
     }
+
+    return UnknownSymbolicValue.UNKNOWN;
   }
 
 }

@@ -13,9 +13,6 @@
 'project:dojo-1.8.1/dojox/flash/_base.js.uncompressed.js':[
 651,
 ],
-'project:dojo-1.8.1/dojox/gfx/vml_attach.js.uncompressed.js':[
-376,
-],
 'project:dojo-1.8.1/dojox/grid/TreeSelection.js.uncompressed.js':[
 101,
 ],
@@ -69,9 +66,6 @@
 ],
 'project:yui-3.7.3/charts-base/charts-base.js':[
 13791,
-],
-'project:yui-3.7.3/querystring-stringify/querystring-stringify.js':[
-77,
 ],
 'project:yui-3.7.3/widget-position-constrain/widget-position-constrain.js':[
 253,
