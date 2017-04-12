@@ -35,7 +35,7 @@ public class BreakStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.BREAK_STATEMENT)).isTrue();
     assertThat(tree.breakKeyword().text()).isEqualTo(JavaScriptKeyword.BREAK.getValue());
-    assertThat(tree.label().name()).isEqualTo("label");
+    assertThat(tree.labelToken().text()).isEqualTo("label");
     assertThat(tree.semicolonToken()).isNotNull();
   }
 
@@ -45,7 +45,7 @@ public class BreakStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.BREAK_STATEMENT)).isTrue();
     assertThat(tree.breakKeyword().text()).isEqualTo(JavaScriptKeyword.BREAK.getValue());
-    assertThat(tree.label()).isNull();
+    assertThat(tree.labelToken()).isNull();
     assertThat(tree.semicolonToken()).isNotNull();
   }
 }

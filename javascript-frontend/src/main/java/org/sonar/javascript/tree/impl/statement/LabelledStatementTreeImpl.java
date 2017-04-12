@@ -32,12 +32,12 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class LabelledStatementTreeImpl extends JavaScriptTree implements LabelledStatementTree {
 
-  private final IdentifierTree label;
+  private final SyntaxToken labelToken;
   private final SyntaxToken colon;
   private final StatementTree statement;
 
-  public LabelledStatementTreeImpl(IdentifierTree label, InternalSyntaxToken colon, StatementTree statement) {
-    this.label = label;
+  public LabelledStatementTreeImpl(SyntaxToken labelToken, InternalSyntaxToken colon, StatementTree statement) {
+    this.labelToken = labelToken;
     this.colon = colon;
     this.statement = statement;
   }
@@ -48,8 +48,8 @@ public class LabelledStatementTreeImpl extends JavaScriptTree implements Labelle
   }
 
   @Override
-  public IdentifierTree label() {
-    return label;
+  public SyntaxToken labelToken() {
+    return labelToken;
   }
 
   @Override
@@ -64,7 +64,7 @@ public class LabelledStatementTreeImpl extends JavaScriptTree implements Labelle
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(label, colon, statement);
+    return Iterators.forArray(labelToken, colon, statement);
   }
 
   @Override

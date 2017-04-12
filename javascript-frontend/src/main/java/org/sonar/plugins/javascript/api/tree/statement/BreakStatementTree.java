@@ -21,14 +21,13 @@ package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
 import javax.annotation.Nullable;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.8">Break Statement</a>.
  * <pre>
  *   break ;
- *   break {@link #label()} ;
+ *   break {@link #labelToken()} ;
  * </pre>
  */
 @Beta
@@ -37,7 +36,7 @@ public interface BreakStatementTree extends StatementTree {
   SyntaxToken breakKeyword();
 
   @Nullable
-  IdentifierTree label();
+  SyntaxToken labelToken();
 
   @Nullable
   SyntaxToken semicolonToken();

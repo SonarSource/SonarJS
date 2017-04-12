@@ -294,17 +294,17 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
     @Override
     public void visitBreakStatement(BreakStatementTree tree) {
-      visitJumpStatement(tree.breakKeyword(), tree.label());
+      visitJumpStatement(tree.breakKeyword(), tree.labelToken());
       super.visitBreakStatement(tree);
     }
 
     @Override
     public void visitContinueStatement(ContinueStatementTree tree) {
-      visitJumpStatement(tree.continueKeyword(), tree.label());
+      visitJumpStatement(tree.continueKeyword(), tree.labelToken());
       super.visitContinueStatement(tree);
     }
 
-    private void visitJumpStatement(SyntaxToken keyword, @Nullable IdentifierTree label) {
+    private void visitJumpStatement(SyntaxToken keyword, @Nullable SyntaxToken label) {
       if (label != null) {
         addComplexityWithoutNesting(keyword);
       }

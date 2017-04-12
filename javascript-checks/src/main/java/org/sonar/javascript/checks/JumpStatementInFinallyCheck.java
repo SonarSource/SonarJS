@@ -74,7 +74,7 @@ public class JumpStatementInFinallyCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitBreakStatement(BreakStatementTree tree) {
-    EnumSet<Kind> safeParents = tree.label() == null ? SAFE_PARENTS_FOR_BREAK : SAFE_PARENTS_FOR_RETURN;
+    EnumSet<Kind> safeParents = tree.labelToken() == null ? SAFE_PARENTS_FOR_BREAK : SAFE_PARENTS_FOR_RETURN;
     check(tree, tree.breakKeyword(), safeParents);
   }
 

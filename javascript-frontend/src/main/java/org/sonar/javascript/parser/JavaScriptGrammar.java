@@ -164,7 +164,7 @@ public class JavaScriptGrammar {
 
   public LabelledStatementTree LABELLED_STATEMENT() {
     return b.<LabelledStatementTree>nonterminal(Kind.LABELLED_STATEMENT)
-      .is(f.labelledStatement(LABEL_IDENTIFIER(), b.token(JavaScriptPunctuator.COLON), STATEMENT()));
+      .is(f.labelledStatement(b.token(JavaScriptTokenType.IDENTIFIER), b.token(JavaScriptPunctuator.COLON), STATEMENT()));
   }
 
   public ContinueStatementTree CONTINUE_STATEMENT() {
@@ -810,16 +810,11 @@ public class JavaScriptGrammar {
       );
   }
 
-  public IdentifierTree LABEL_IDENTIFIER_NO_LB() {
-    return b.<IdentifierTree>nonterminal()
-      .is(f.labelIdentifier(
+  public InternalSyntaxToken LABEL_IDENTIFIER_NO_LB() {
+    return b.<InternalSyntaxToken>nonterminal()
+      .is(f.labelToken(
         b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptTokenType.IDENTIFIER)));
-  }
-
-  public IdentifierTree LABEL_IDENTIFIER() {
-    return b.<IdentifierTree>nonterminal()
-      .is(f.labelIdentifier(b.token(JavaScriptTokenType.IDENTIFIER)));
   }
 
   public IdentifierTree IDENTIFIER_NAME() {

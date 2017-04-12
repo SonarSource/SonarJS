@@ -30,7 +30,6 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
@@ -78,13 +77,13 @@ public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorChec
 
   @Override
   public void visitBreakStatement(BreakStatementTree tree) {
-    increaseNumberOfJumpInScopes(tree.breakKeyword(), tree.label());
+    increaseNumberOfJumpInScopes(tree.breakKeyword(), tree.labelToken());
     super.visitBreakStatement(tree);
   }
 
   @Override
   public void visitContinueStatement(ContinueStatementTree tree) {
-    increaseNumberOfJumpInScopes(tree.continueKeyword(), tree.label());
+    increaseNumberOfJumpInScopes(tree.continueKeyword(), tree.labelToken());
     super.visitContinueStatement(tree);
   }
 
@@ -139,7 +138,7 @@ public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorChec
 
   @Override
   public void visitLabelledStatement(LabelledStatementTree tree) {
-    jumpTargets.push(new JumpTarget(tree.label().name()));
+    jumpTargets.push(new JumpTarget(tree.labelToken().text()));
     super.visitLabelledStatement(tree);
     leaveScope();
   }
@@ -152,9 +151,9 @@ public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorChec
     jumpTargets.pop();
   }
 
-  private void increaseNumberOfJumpInScopes(SyntaxToken jump, @Nullable IdentifierTree label) {
+  private void increaseNumberOfJumpInScopes(SyntaxToken jump, @Nullable SyntaxToken label) {
     for (JumpTarget jumpTarget : jumpTargets) {
-      String labelName = label == null ? null : label.name();
+      String labelName = label == null ? null : label.text();
       jumpTarget.jumps.add(jump);
 
       if (Objects.equal(labelName, jumpTarget.label)) {

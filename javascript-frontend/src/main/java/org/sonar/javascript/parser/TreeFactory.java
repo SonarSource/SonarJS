@@ -356,20 +356,20 @@ public class TreeFactory {
     return bindingElementList(element, rest);
   }
 
-  public LabelledStatementTree labelledStatement(IdentifierTree identifier, InternalSyntaxToken colon, StatementTree statement) {
-    return new LabelledStatementTreeImpl(identifier, colon, statement);
+  public LabelledStatementTree labelledStatement(InternalSyntaxToken labelToken, InternalSyntaxToken colon, StatementTree statement) {
+    return new LabelledStatementTreeImpl(labelToken, colon, statement);
   }
 
-  public ContinueStatementTree continueWithLabel(InternalSyntaxToken continueToken, IdentifierTree identifier, Tree semicolonToken) {
-    return new ContinueStatementTreeImpl(continueToken, identifier, nullableSemicolonToken(semicolonToken));
+  public ContinueStatementTree continueWithLabel(InternalSyntaxToken continueToken, InternalSyntaxToken labelToken, Tree semicolonToken) {
+    return new ContinueStatementTreeImpl(continueToken, labelToken, nullableSemicolonToken(semicolonToken));
   }
 
   public ContinueStatementTree continueWithoutLabel(InternalSyntaxToken continueToken, Tree semicolonToken) {
     return new ContinueStatementTreeImpl(continueToken, null, nullableSemicolonToken(semicolonToken));
   }
 
-  public BreakStatementTree breakWithLabel(InternalSyntaxToken breakToken, IdentifierTree identifier, Tree semicolonToken) {
-    return new BreakStatementTreeImpl(breakToken, identifier, nullableSemicolonToken(semicolonToken));
+  public BreakStatementTree breakWithLabel(InternalSyntaxToken breakToken, InternalSyntaxToken labelToken, Tree semicolonToken) {
+    return new BreakStatementTreeImpl(breakToken, labelToken, nullableSemicolonToken(semicolonToken));
   }
 
   public BreakStatementTree breakWithoutLabel(InternalSyntaxToken breakToken, Tree semicolonToken) {
@@ -1050,12 +1050,8 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.THIS, thisKeyword);
   }
 
-  public IdentifierTree labelIdentifier(Tree spacing, InternalSyntaxToken identifier) {
-    return new IdentifierTreeImpl(Kind.LABEL_IDENTIFIER, identifier);
-  }
-
-  public IdentifierTree labelIdentifier(InternalSyntaxToken identifier) {
-    return new IdentifierTreeImpl(Kind.LABEL_IDENTIFIER, identifier);
+  public InternalSyntaxToken labelToken(Tree spacing, InternalSyntaxToken labelToken) {
+    return labelToken;
   }
 
   public ExpressionTree assignmentExpression(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {

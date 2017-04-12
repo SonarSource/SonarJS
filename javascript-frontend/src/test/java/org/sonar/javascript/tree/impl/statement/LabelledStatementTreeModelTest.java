@@ -33,7 +33,7 @@ public class LabelledStatementTreeModelTest extends JavaScriptTreeModelTest {
     LabelledStatementTree tree = parse("label: doSomething();", Kind.LABELLED_STATEMENT);
 
     assertThat(tree.is(Kind.LABELLED_STATEMENT)).isTrue();
-    assertThat(tree.label().name()).isEqualTo("label");
+    assertThat(tree.labelToken().text()).isEqualTo("label");
     assertThat(tree.colonToken().text()).isEqualTo(":");
     assertThat(tree.statement().is(Kind.EXPRESSION_STATEMENT)).isTrue();
   }

@@ -446,7 +446,7 @@ class ControlFlowGraphBuilder {
 
   private void visitContinueStatement(ContinueStatementTree tree) {
     JsCfgBlock target = null;
-    String label = tree.label() == null ? null : tree.label().name();
+    String label = tree.labelToken() == null ? null : tree.labelToken().text();
     for (Breakable breakable : breakables) {
       if (breakable.continueTarget != null && (label == null || label.equals(breakable.label))) {
         target = breakable.continueTarget;
@@ -462,7 +462,7 @@ class ControlFlowGraphBuilder {
 
   private void visitBreakStatement(BreakStatementTree tree) {
     JsCfgBlock target = null;
-    String label = tree.label() == null ? null : tree.label().name();
+    String label = tree.labelToken() == null ? null : tree.labelToken().text();
     for (Breakable breakable : breakables) {
       if (label == null || label.equals(breakable.label)) {
         target = breakable.breakTarget;
@@ -562,7 +562,7 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitLabelledStatement(LabelledStatementTree tree) {
-    String label = tree.label().name();
+    String label = tree.labelToken().text();
 
     boolean isLoopStatement = tree.statement().is(KindSet.LOOP_KINDS);
 

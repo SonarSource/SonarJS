@@ -32,12 +32,12 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class ContinueStatementTreeImpl extends JavaScriptTree implements ContinueStatementTree {
 
   private SyntaxToken continueKeyword;
-  private final IdentifierTree label;
+  private final SyntaxToken labelToken;
   private final SyntaxToken semicolonToken;
 
-  public ContinueStatementTreeImpl(SyntaxToken continueKeyword, @Nullable IdentifierTree label, @Nullable SyntaxToken semicolonToken) {
+  public ContinueStatementTreeImpl(SyntaxToken continueKeyword, @Nullable SyntaxToken labelToken, @Nullable SyntaxToken semicolonToken) {
     this.continueKeyword = continueKeyword;
-    this.label = label;
+    this.labelToken = labelToken;
     this.semicolonToken = semicolonToken;
   }
 
@@ -53,13 +53,13 @@ public class ContinueStatementTreeImpl extends JavaScriptTree implements Continu
 
   @Nullable
   @Override
-  public IdentifierTree label() {
-    return label;
+  public SyntaxToken labelToken() {
+    return labelToken;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(continueKeyword, label, semicolonToken);
+    return Iterators.forArray(continueKeyword, labelToken, semicolonToken);
   }
 
   @Override

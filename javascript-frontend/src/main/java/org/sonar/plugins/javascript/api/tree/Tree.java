@@ -282,12 +282,6 @@ public interface Tree {
     BINDING_IDENTIFIER(IdentifierTree.class),
 
     /**
-     * {@link IdentifierTree}
-     * Used in label statement and break/continue statements with label
-     */
-    LABEL_IDENTIFIER(IdentifierTree.class),
-
-    /**
      * {@link LiteralTree}
      * {@code null}
      */
