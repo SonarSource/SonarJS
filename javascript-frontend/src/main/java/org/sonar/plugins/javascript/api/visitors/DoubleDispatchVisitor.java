@@ -29,6 +29,7 @@ import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
@@ -243,6 +244,10 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
     scanChildren(tree);
   }
 

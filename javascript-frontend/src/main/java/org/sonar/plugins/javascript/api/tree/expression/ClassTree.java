@@ -24,7 +24,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
@@ -55,10 +54,8 @@ public interface ClassTree extends ExpressionTree, StatementTree {
 
   SyntaxToken openCurlyBraceToken();
 
-  // elements can be either method declarations, class field declarations or semi-colons
+  // elements can be either method declarations, accessor declarations, class field declarations or semi-colons
   List<Tree> elements();
-
-  Iterable<MethodDeclarationTree> methods();
 
   Iterable<SyntaxToken> semicolons();
 

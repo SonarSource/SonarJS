@@ -34,6 +34,7 @@ import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -379,6 +380,13 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
     public void visitMethodDeclaration(MethodDeclarationTree tree) {
       visitFunction(tree);
       super.visitMethodDeclaration(tree);
+      leaveFunction(tree);
+    }
+
+    @Override
+    public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+      visitFunction(tree);
+      super.visitAccessorMethodDeclaration(tree);
       leaveFunction(tree);
     }
 

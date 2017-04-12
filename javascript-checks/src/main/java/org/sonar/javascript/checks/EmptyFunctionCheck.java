@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -50,6 +51,12 @@ public class EmptyFunctionCheck extends DoubleDispatchVisitorCheck {
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     checkFunction(tree, tree.name());
     super.visitMethodDeclaration(tree);
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    checkFunction(tree, tree.name());
+    super.visitAccessorMethodDeclaration(tree);
   }
 
   @Override

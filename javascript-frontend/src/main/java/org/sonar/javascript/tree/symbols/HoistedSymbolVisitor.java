@@ -32,6 +32,7 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
@@ -162,16 +163,24 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    visitMethod(tree);
-  }
-
-  private void visitMethod(MethodDeclarationTree tree) {
     enterScope(tree);
 
     declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
     super.visitMethodDeclaration(tree);
+
+    leaveScope();
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    enterScope(tree);
+
+    declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
+    addFunctionBuiltInSymbols();
+
+    super.visitAccessorMethodDeclaration(tree);
 
     leaveScope();
   }

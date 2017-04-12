@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.tree.impl.declaration;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
@@ -72,15 +71,8 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
     return staticToken;
   }
 
-  @Nullable
-  @Override
-  public SyntaxToken starToken() {
-    return null;
-  }
-
   @Override
   public InternalSyntaxToken accessorToken() {
-    Preconditions.checkState(this.is(Kind.GET_METHOD) || this.is(Kind.SET_METHOD));
     return accessorToken;
   }
 
@@ -124,6 +116,6 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitMethodDeclaration(this);
+    visitor.visitAccessorMethodDeclaration(this);
   }
 }

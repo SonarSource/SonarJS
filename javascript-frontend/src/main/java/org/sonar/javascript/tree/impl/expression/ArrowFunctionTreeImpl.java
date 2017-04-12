@@ -62,6 +62,12 @@ public class ArrowFunctionTreeImpl extends FunctionTreeImpl implements ArrowFunc
     return asyncToken;
   }
 
+  @Nullable
+  @Override
+  public Tree name() {
+    return null;
+  }
+
   @Override
   public Tree parameterClause() {
     return parameters;

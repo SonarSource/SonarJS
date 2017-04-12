@@ -32,7 +32,6 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -128,11 +127,6 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   @Override
   public List<Tree> elements() {
     return elements;
-  }
-
-  @Override
-  public Iterable<MethodDeclarationTree> methods() {
-    return Iterables.filter(elements, MethodDeclarationTree.class);
   }
 
   @Override

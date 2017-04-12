@@ -35,8 +35,10 @@ import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
@@ -135,12 +137,22 @@ public class TypeVisitor extends DoubleDispatchVisitor {
       tree.name().symbol().get().addType(classType);
     }
 
-    for (MethodDeclarationTree methodDeclarationTree : tree.methods()) {
-      Tree name = methodDeclarationTree.name();
+    for (Tree element : tree.elements()) {
+      Tree name;
+      if (element.is(Tree.Kind.GET_METHOD, Tree.Kind.SET_METHOD)) {
+        name = ((AccessorMethodDeclarationTree) element).name();
+
+      } else if (element.is(Tree.Kind.METHOD, Tree.Kind.GENERATOR_METHOD)) {
+        name = ((MethodDeclarationTree) element).name();
+
+      } else {
+        continue;
+      }
+
       if (name.is(Tree.Kind.IDENTIFIER_NAME)) {
         // classScope is never null, ScopeVisitor#visitClass guarantees that
         Scope classScope = getContext().getSymbolModel().getScope(tree);
-        classType.addMethod((IdentifierTree) name, FunctionType.create(methodDeclarationTree), classScope);
+        classType.addMethod((IdentifierTree) name, FunctionType.create((FunctionTree) element), classScope);
       }
     }
 

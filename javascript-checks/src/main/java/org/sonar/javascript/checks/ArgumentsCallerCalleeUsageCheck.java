@@ -27,10 +27,8 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
@@ -53,17 +51,15 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    if (!tree.is(Kind.ARROW_FUNCTION)) {
-      if (tree.is(KindSet.FUNCTION_KINDS)) {
-        IdentifierTree name = getFunctionName(tree);
+    if (tree.is(KindSet.FUNCTION_KINDS)) {
+      Tree name = ((FunctionTree) tree).name();
 
-        if (name != null) {
-          scope.add(name.name());
-        }
-
-      } else {
-        checkExpression((DotMemberExpressionTree) tree);
+      if (name != null && name instanceof IdentifierTree) {
+        scope.add(((IdentifierTree) name).name());
       }
+
+    } else {
+      checkExpression((DotMemberExpressionTree) tree);
     }
   }
 
@@ -103,21 +99,8 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void leaveNode(Tree tree) {
-    if (!tree.is(Kind.ARROW_FUNCTION) && tree.is(KindSet.FUNCTION_KINDS) && getFunctionName(tree) != null) {
+    if (tree.is(KindSet.FUNCTION_KINDS) && ((FunctionTree) tree).name() != null) {
       scope.removeLast();
-    }
-  }
-
-  private static IdentifierTree getFunctionName(Tree tree) {
-    if (tree instanceof FunctionExpressionTree) {
-      return ((FunctionExpressionTree) tree).name();
-
-    } else if (tree instanceof FunctionDeclarationTree) {
-      return ((FunctionDeclarationTree) tree).name();
-
-    } else {
-      Tree name = ((MethodDeclarationTree) tree).name();
-      return name.is(Kind.IDENTIFIER_NAME) ? (IdentifierTree) name : null;
     }
   }
 }

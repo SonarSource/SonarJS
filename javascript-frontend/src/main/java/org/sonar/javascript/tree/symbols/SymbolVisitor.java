@@ -29,6 +29,7 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -105,6 +106,13 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     enterScope(tree);
     super.visitMethodDeclaration(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    enterScope(tree);
+    super.visitAccessorMethodDeclaration(tree);
     leaveScope();
   }
 

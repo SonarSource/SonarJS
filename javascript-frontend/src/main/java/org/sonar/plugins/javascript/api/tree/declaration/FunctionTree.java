@@ -33,6 +33,9 @@ public interface FunctionTree extends Tree {
   @Nullable
   SyntaxToken asyncToken();
 
+  @Nullable
+  Tree name();
+
   Tree parameterClause();
 
   Tree body();

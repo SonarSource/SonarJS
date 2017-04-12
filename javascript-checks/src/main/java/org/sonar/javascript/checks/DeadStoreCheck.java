@@ -35,6 +35,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -72,6 +73,12 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     checkFunction(tree);
     super.visitMethodDeclaration(tree);
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    checkFunction(tree);
+    super.visitAccessorMethodDeclaration(tree);
   }
 
   @Override

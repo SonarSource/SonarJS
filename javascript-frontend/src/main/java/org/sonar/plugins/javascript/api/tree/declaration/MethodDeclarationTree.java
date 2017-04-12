@@ -46,6 +46,7 @@ public interface MethodDeclarationTree extends FunctionTree {
   @Nullable
   SyntaxToken starToken();
 
+  @Override
   Tree name();
 
   @Override

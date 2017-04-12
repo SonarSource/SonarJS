@@ -31,6 +31,10 @@ class
       i.caller                  // Noncompliant
       h.arguments;              // OK - out of scope
     }
+
+    get e() {
+      e.arguments;              // Noncompliant
+    }
   }
 
   arguments.bugspot;            // OK

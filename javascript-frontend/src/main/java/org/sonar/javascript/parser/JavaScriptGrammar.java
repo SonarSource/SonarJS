@@ -46,10 +46,10 @@ import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWit
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
@@ -1497,8 +1497,8 @@ public class JavaScriptGrammar {
         b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
-  public MethodDeclarationTree METHOD_DEFINITION() {
-    return b.<MethodDeclarationTree>nonterminal(JavaScriptLegacyGrammar.METHOD_DEFINITION)
+  public FunctionTree METHOD_DEFINITION() {
+    return b.<FunctionTree>nonterminal(JavaScriptLegacyGrammar.METHOD_DEFINITION)
       .is(
         b.firstOf(
           f.generatorMethod(

@@ -55,9 +55,7 @@ public class FunctionNameCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    if (tree.is(Kind.GENERATOR_METHOD, Kind.METHOD)) {
-      checkName(tree.name());
-    }
+    checkName(tree.name());
     super.visitMethodDeclaration(tree);
   }
 

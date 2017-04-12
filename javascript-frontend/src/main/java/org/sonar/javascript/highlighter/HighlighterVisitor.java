@@ -30,6 +30,7 @@ import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
@@ -45,10 +46,7 @@ public class HighlighterVisitor extends SubscriptionVisitor {
   private NewHighlighting highlighting;
 
   private static final Kind[] METHODS = {
-    Kind.GENERATOR_METHOD,
-    Kind.METHOD,
-    Kind.GET_METHOD,
-    Kind.SET_METHOD
+
   };
 
   public HighlighterVisitor(SensorContext sensorContext) {
@@ -58,8 +56,13 @@ public class HighlighterVisitor extends SubscriptionVisitor {
   @Override
   public Set<Kind> nodesToVisit() {
     return ImmutableSet.<Kind>builder()
-      .add(METHODS)
       .add(
+        Kind.GENERATOR_METHOD,
+        Kind.METHOD,
+
+        Kind.GET_METHOD,
+        Kind.SET_METHOD,
+
         Kind.FIELD,
         Kind.LET_DECLARATION,
         Kind.NUMERIC_LITERAL,
@@ -84,8 +87,12 @@ public class HighlighterVisitor extends SubscriptionVisitor {
     SyntaxToken token = null;
     TypeOfText code = null;
 
-    if (tree.is(METHODS)) {
+    if (tree.is(Kind.GENERATOR_METHOD,Kind.METHOD)) {
       token = ((MethodDeclarationTree) tree).staticToken();
+      code = TypeOfText.KEYWORD;
+
+    } else if (tree.is(Kind.GET_METHOD, Kind.SET_METHOD)) {
+      token = ((AccessorMethodDeclarationTree) tree).staticToken();
       code = TypeOfText.KEYWORD;
 
     } else if (tree.is(Kind.FIELD)) {

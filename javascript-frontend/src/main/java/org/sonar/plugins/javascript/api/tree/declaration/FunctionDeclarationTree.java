@@ -45,6 +45,7 @@ public interface FunctionDeclarationTree extends StatementTree, FunctionTree {
   @Nullable
   SyntaxToken starToken();
 
+  @Override
   IdentifierTree name();
 
   @Override
