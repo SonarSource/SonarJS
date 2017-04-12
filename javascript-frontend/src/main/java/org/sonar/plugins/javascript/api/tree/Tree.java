@@ -20,6 +20,8 @@
 package org.sonar.plugins.javascript.api.tree;
 
 import com.google.common.annotations.Beta;
+import java.util.stream.Stream;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
@@ -119,7 +121,19 @@ public interface Tree {
 
   boolean is(Kinds... kind);
 
+  SyntaxToken lastToken();
+
+  SyntaxToken firstToken();
+
   void accept(DoubleDispatchVisitor visitor);
+
+  boolean isAncestorOf(Tree tree);
+
+  Stream<JavaScriptTree> descendants();
+
+  Stream<Tree> childrenStream();
+
+  Tree parent();
 
   public enum Kind implements GrammarRuleKey, Kinds {
 

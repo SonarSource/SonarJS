@@ -27,7 +27,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -57,7 +56,7 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
       Scope declarationScope = declaration.identifierTree().scope();
 
       if (!deepestCommonScope.equals(declarationScope) && !isFunctionException(deepestCommonScope, declarationScope)) {
-        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) deepestCommonScope.tree()).getLine() + 1);
+        String message = String.format(MESSAGE, symbol.name(), deepestCommonScope.tree().firstToken().line() + 1);
         addIssue(declaration.identifierTree(), message);
       }
     }

@@ -31,7 +31,6 @@ import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -80,7 +79,7 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
   }
 
   private void checkArgumentToBeFunctionWithReturn(DotMemberExpressionTree callee, int argumentIndex, ProgramState currentState) {
-    Tree parent = ((JavaScriptTree) callee).getParent();
+    Tree parent = callee.parent();
 
     if (parent.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpressionTree = (CallExpressionTree) parent;

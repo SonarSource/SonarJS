@@ -33,7 +33,6 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -477,7 +476,7 @@ class ControlFlowGraphBuilder {
   }
 
   private static void raiseRecognitionException(Tree tree, String type, @Nullable String label) {
-    int line = ((JavaScriptTree) tree).getLine();
+    int line = tree.firstToken().line();
     String message = "No \'" + type + "\' target can be found at line " + line;
     if (label != null) {
       message += " (label '" + label + "')";

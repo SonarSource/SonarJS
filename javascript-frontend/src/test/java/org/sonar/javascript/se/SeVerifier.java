@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -203,7 +202,7 @@ class SeVerifier extends SeCheck {
 
   @Override
   public void afterBlockElement(ProgramState currentState, Tree element) {
-    int line = ((JavaScriptTree) element).getLine();
+    int line = element.firstToken().line();
 
     if (previousPS != null && line != previousPSLine) {
       actualProgramStates.put(previousPSLine, previousPS);

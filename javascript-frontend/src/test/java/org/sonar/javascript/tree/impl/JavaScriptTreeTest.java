@@ -60,7 +60,7 @@ public class JavaScriptTreeTest extends JavaScriptTreeModelTest {
 
   @Test
   public void get_first_token() throws Exception {
-    SyntaxToken token = tree.getFirstToken();
+    SyntaxToken token = tree.firstToken();
 
     assertThat(token).isNotNull();
     assertThat(token.toString()).isEqualTo("first");
@@ -68,7 +68,7 @@ public class JavaScriptTreeTest extends JavaScriptTreeModelTest {
 
   @Test
   public void get_last_token() throws Exception {
-    SyntaxToken token = tree.getLastToken();
+    SyntaxToken token = tree.lastToken();
 
     assertThat(token).isNotNull();
     assertThat(token.toString()).isEqualTo("last");
@@ -77,11 +77,6 @@ public class JavaScriptTreeTest extends JavaScriptTreeModelTest {
   @Test
   public void to_string() throws Exception {
     assertThat(tree.toString()).isEqualTo("child child ");
-  }
-
-  @Test
-  public void get_line() throws Exception {
-    assertThat(tree.getLine()).isEqualTo(1967);
   }
 
   @Test
@@ -117,9 +112,8 @@ public class JavaScriptTreeTest extends JavaScriptTreeModelTest {
 
     JavaScriptTree tree = mock(JavaScriptTree.class);
     when(tree.toString()).thenCallRealMethod();
-    when(tree.getFirstToken()).thenCallRealMethod();
-    when(tree.getLastToken()).thenCallRealMethod();
-    when(tree.getLine()).thenCallRealMethod();
+    when(tree.firstToken()).thenCallRealMethod();
+    when(tree.lastToken()).thenCallRealMethod();
     when(tree.getKind()).thenReturn(Kind.SCRIPT);
     when(tree.childrenIterator()).thenReturn(Arrays.asList((Tree) child1, (Tree) child2).iterator());
 
@@ -138,7 +132,7 @@ public class JavaScriptTreeTest extends JavaScriptTreeModelTest {
     }
 
     @Override
-    public SyntaxToken getFirstToken() {
+    public SyntaxToken firstToken() {
       SyntaxToken token = Mockito.mock(SyntaxToken.class);
       Mockito.when(token.toString()).thenReturn("first");
       Mockito.when(token.line()).thenReturn(1967);
@@ -146,7 +140,7 @@ public class JavaScriptTreeTest extends JavaScriptTreeModelTest {
     }
 
     @Override
-    public SyntaxToken getLastToken() {
+    public SyntaxToken lastToken() {
       SyntaxToken token = Mockito.mock(SyntaxToken.class);
       Mockito.when(token.toString()).thenReturn("last");
       return token;

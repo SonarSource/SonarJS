@@ -182,7 +182,7 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
     if (usage.isWrite()) {
       return true;
     }
-    return CheckUtils.parent(usage.identifierTree()).is(Tree.Kind.DOT_MEMBER_EXPRESSION, Tree.Kind.BRACKET_MEMBER_EXPRESSION, Tree.Kind.CALL_EXPRESSION);
+    return usage.identifierTree().parent().is(Tree.Kind.DOT_MEMBER_EXPRESSION, Tree.Kind.BRACKET_MEMBER_EXPRESSION, Tree.Kind.CALL_EXPRESSION);
   }
 
   private static class Loop {
@@ -212,13 +212,13 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
       }
       if (condition != null) {
         return condition.equals(branchingTree)
-          || condition.isAncestorOf((JavaScriptTree) branchingTree);
+          || condition.isAncestorOf(branchingTree);
       }
       return false;
     }
 
     private static Set<CfgBlock> findLoopBlocks(IterationStatementTree iterationStatement, Map<Tree, CfgBlock> treesOfFlowGraph) {
-      Stream<JavaScriptTree> iterationTrees = ((JavaScriptTree) iterationStatement.statement()).descendants();
+      Stream<JavaScriptTree> iterationTrees = iterationStatement.statement().descendants();
       iterationTrees = addUpdateExpression(iterationStatement, iterationTrees);
       return iterationTrees.map(treesOfFlowGraph::get).filter(Objects::nonNull).collect(Collectors.toSet());
     }
@@ -262,7 +262,7 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
   }
 
   private static Stream<Usage> allSymbolsUsages(JavaScriptTree root) {
-    return allSymbols(root).flatMap(symbol -> symbol.usages().stream()).filter(usage -> root.isAncestorOf((JavaScriptTree) usage.identifierTree()));
+    return allSymbols(root).flatMap(symbol -> symbol.usages().stream()).filter(usage -> root.isAncestorOf(usage.identifierTree()));
   }
 
   private class LoopIssueCreator extends DoubleDispatchVisitor {

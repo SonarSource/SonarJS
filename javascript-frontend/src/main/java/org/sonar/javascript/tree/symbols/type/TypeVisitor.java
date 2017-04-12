@@ -116,7 +116,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     Preconditions.checkState(name.symbol().isPresent(),
       "Symbol has not been created for this function %s declared at line %s",
       nameName,
-      ((JavaScriptTree) tree).getLine());
+      tree.firstToken().line());
 
     name.symbol().get().addType(FunctionType.create(tree));
     super.visitFunctionDeclaration(tree);
@@ -219,7 +219,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
         throw new IllegalStateException(String.format(
           "Parameter %s has no symbol associated with it (line %s)",
           ((IdentifierTree) currentParameter).name(),
-          ((JavaScriptTree) currentParameter).getLine()
+          currentParameter.firstToken().line()
         ));
       }
     }

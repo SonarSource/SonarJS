@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -33,8 +32,8 @@ public class FunctionCallArgumentsOnNewLineCheck extends DoubleDispatchVisitorCh
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (!tree.callee().is(Kind.CALL_EXPRESSION)) {
-      int calleeLastLine = ((JavaScriptTree) tree.callee()).getLastToken().endLine();
-      int argumentsFirstLine = ((JavaScriptTree) tree.argumentClause()).getLine();
+      int calleeLastLine = tree.callee().lastToken().endLine();
+      int argumentsFirstLine = tree.argumentClause().firstToken().line();
 
       if (calleeLastLine != argumentsFirstLine) {
         addIssue(tree.argumentClause(), String.format(MESSAGE, calleeLastLine));

@@ -34,7 +34,6 @@ import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -102,7 +101,7 @@ public class FunctionReturnTypeCheck extends SeCheck {
   }
 
   private void raiseIssue(Tree functionTree) {
-    SyntaxToken firstFunctionToken = ((JavaScriptTree) functionTree).getFirstToken();
+    SyntaxToken firstFunctionToken = functionTree.firstToken();
     PreciseIssue issue = addIssue(firstFunctionToken, MESSAGE);
 
     for (ReturnStatementTree returnStatement : returnedValueConstraintsByReturnStatement.keySet()) {

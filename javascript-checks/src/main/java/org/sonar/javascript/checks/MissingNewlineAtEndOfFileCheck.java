@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
@@ -34,7 +33,7 @@ public class MissingNewlineAtEndOfFileCheck extends DoubleDispatchVisitorCheck {
   public void visitScript(ScriptTree tree) {
     if (tree.items() != null) {
       int lastLine = tree.EOFToken().line();
-      int lastTokenLine = ((JavaScriptTree) tree.items()).getLastToken().endLine();
+      int lastTokenLine = tree.items().lastToken().endLine();
 
       if (lastLine == lastTokenLine) {
         addIssue(new FileIssue(this, MESSAGE));

@@ -28,7 +28,6 @@ import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -38,7 +37,6 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 import static org.sonar.javascript.checks.utils.CheckUtils.isDescendant;
-import static org.sonar.javascript.checks.utils.CheckUtils.parent;
 import static org.sonar.javascript.tree.KindSet.LOOP_KINDS;
 
 @Rule(key = "S1751")
@@ -55,9 +53,9 @@ public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    Tree parent = parent(tree);
+    Tree parent = tree.parent();
     while (parent.is(Kind.BLOCK)) {
-      parent =  parent(parent);
+      parent = parent.parent();
     }
 
     if (!parent.is(LOOP_KINDS)) {
@@ -66,7 +64,7 @@ public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
 
     IterationStatementTree loopTree = (IterationStatementTree) parent;
     if (tree.is(Kind.CONTINUE_STATEMENT) || (!parent.is(Kind.FOR_IN_STATEMENT) && !isInfiniteFor(loopTree) && !canExecuteMoreThanOnce(loopTree))) {
-      SyntaxToken keyword = ((JavaScriptTree) tree).getFirstToken();
+      SyntaxToken keyword = tree.firstToken();
       addIssue(keyword, String.format("Remove this \"%s\" statement or make it conditional", keyword.text()));
     }
   }

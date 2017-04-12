@@ -42,13 +42,13 @@ public class TooManyLinesInFunctionCheck extends AbstractFunctionSizeCheck {
   @Override
   void checkFunction(FunctionTree functionTree) {
     JavaScriptTree body = (JavaScriptTree) functionTree.body();
-    int firstLine = body.getLine();
-    int lastLine = body.getLastToken().endLine();
+    int firstLine = body.firstToken().line();
+    int lastLine = body.lastToken().endLine();
 
     int nbLines = lastLine - firstLine + 1;
     if (nbLines > max) {
       String message = String.format(MESSAGE, nbLines, max);
-      IssueLocation primaryLocation = new IssueLocation(((JavaScriptTree) functionTree).getFirstToken(), functionTree.parameterClause(), message);
+      IssueLocation primaryLocation = new IssueLocation(functionTree.firstToken(), functionTree.parameterClause(), message);
       addIssue(new PreciseIssue(this, primaryLocation));
     }
   }

@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
@@ -61,8 +60,8 @@ public class NonExistentAssignmentOperatorCheck extends SubscriptionVisitorCheck
   }
 
   private static boolean areAdjacent(Tree tree1, Tree tree2) {
-    SyntaxToken tree1LastToken = ((JavaScriptTree) tree1).getLastToken();
-    SyntaxToken tree2FirstToken = ((JavaScriptTree) tree2).getFirstToken();
+    SyntaxToken tree1LastToken = tree1.lastToken();
+    SyntaxToken tree2FirstToken = tree2.firstToken();
     return tree1LastToken.endColumn() == tree2FirstToken.column() && tree1LastToken.endLine() == tree2FirstToken.line();
   }
 

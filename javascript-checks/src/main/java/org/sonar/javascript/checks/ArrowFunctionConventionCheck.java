@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -97,8 +96,8 @@ public class ArrowFunctionConventionCheck extends DoubleDispatchVisitorCheck {
       ExpressionTree expression = ((ReturnStatementTree) tree).expression();
 
       if (expression != null && !expression.is(Kind.OBJECT_LITERAL)) {
-        int firstLine = ((JavaScriptTree) expression).getLine();
-        int lastLine = ((JavaScriptTree) expression).getLastToken().line();
+        int firstLine = expression.firstToken().line();
+        int lastLine = expression.lastToken().line();
         return firstLine == lastLine;
       }
     }

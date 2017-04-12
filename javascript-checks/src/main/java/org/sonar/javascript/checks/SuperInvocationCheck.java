@@ -82,7 +82,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
    */
   @Override
   public void visitSuper(SuperTreeImpl tree) {
-    if (tree.getParent().is(Kind.CALL_EXPRESSION)) {
+    if (tree.parent().is(Kind.CALL_EXPRESSION)) {
       if (!isInConstructor(tree) || isInBaseClass(getEnclosingConstructor(tree))) {
         checkSuperOnlyInvokedInDerivedClassConstructor(tree);
       } else {
@@ -129,23 +129,23 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   private void checkSuperInvokedInAnyDerivedClassConstructor(MethodDeclarationTree method) {
     if (isConstructor(method) && !isInBaseClass(method) && !isInDummyDerivedClass(method)) {
       Set<SuperTreeImpl> superTrees = new SuperDetector().detectIn(method);
-      if (superTrees.stream().noneMatch(s -> s.getParent().is(Kind.CALL_EXPRESSION))) {
+      if (superTrees.stream().noneMatch(s -> s.parent().is(Kind.CALL_EXPRESSION))) {
         addIssue(method.name(), MESSAGE_SUPER_REQUIRED_IN_ANY_DERIVED_CLASS_CONSTRUCTOR);
       }
     }
   }
 
   private void checkSuperInvokedBeforeThisOrSuper(SuperTreeImpl superTree) {
-    int line = superTree.getFirstToken().line();
-    int column = superTree.getFirstToken().column();
+    int line = superTree.firstToken().line();
+    int column = superTree.firstToken().column();
     MethodDeclarationTree method = getEnclosingConstructor(superTree);
     Set<IssueLocation> secondaryLocations = new HashSet<>();
 
     // get the usages of "super" before super()
     Set<SuperTreeImpl> superTrees = new SuperDetector().detectIn(method);
     superTrees.stream()
-      .filter(s -> !s.getParent().is(Kind.CALL_EXPRESSION))
-      .filter(s -> isBefore(s.getFirstToken(), line, column))
+      .filter(s -> !s.parent().is(Kind.CALL_EXPRESSION))
+      .filter(s -> isBefore(s.firstToken(), line, column))
       .map(IssueLocation::new)
       .forEach(secondaryLocations::add);
 
@@ -197,10 +197,10 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
       Optional<MethodDeclarationTree> baseClassConstructor = getConstructor(baseClassTree.get());
       if (baseClassConstructor.isPresent()) {
         Integer nbParams = baseClassConstructor.get().parameterList().size();
-        int nbArguments = ((CallExpressionTree) superTree.getParent()).argumentClause().arguments().size();
+        int nbArguments = ((CallExpressionTree) superTree.parent()).argumentClause().arguments().size();
         if (nbArguments != nbParams) {
           String message = String.format(MESSAGE_SUPER_WITH_CORRECT_NUMBER_OF_ARGUMENTS, nbParams, nbParams == 1 ? "" : "s");
-          addIssue(CheckUtils.parent(superTree), message).secondary(baseClassConstructor.get().parameterClause());
+          addIssue(superTree.parent(), message).secondary(baseClassConstructor.get().parameterClause());
         }
       }
     }
@@ -224,7 +224,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
       .findFirst();
     if (tree.isPresent()) {
       IdentifierTree id = tree.get().identifierTree();
-      Tree parent = CheckUtils.parent(id);
+      Tree parent = id.parent();
       if (parent.is(Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION)) {
         return Optional.of((ClassTree) parent);
       }

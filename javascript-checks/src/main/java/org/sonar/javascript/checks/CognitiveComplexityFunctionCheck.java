@@ -43,7 +43,6 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
@@ -107,7 +106,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
   private void raiseIssue(ComplexityData complexityData, Tree function) {
     String message = String.format(MESSAGE, complexityData.complexity(), threshold);
 
-    SyntaxToken primaryLocation = ((JavaScriptTree) function).getFirstToken();
+    SyntaxToken primaryLocation = function.firstToken();
     if (function.is(ARROW_FUNCTION)) {
       primaryLocation = ((ArrowFunctionTree) function).doubleArrowToken();
     }
@@ -391,7 +390,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
     }
 
     private static boolean isElseIf(IfStatementTree tree) {
-      return ((JavaScriptTree)tree).getParent().is(Kind.ELSE_CLAUSE);
+      return tree.parent().is(Kind.ELSE_CLAUSE);
     }
 
   }

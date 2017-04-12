@@ -28,7 +28,6 @@ import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.points.MemberProgramPoint;
 import org.sonar.javascript.se.points.ProgramPoint;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -88,7 +87,7 @@ public class NullDereferenceCheck extends SeCheck {
   }
 
   private static boolean isForOfExpression(Tree element) {
-    final JavaScriptTree parent = ((JavaScriptTree) element).getParent();
+    final Tree parent = element.parent();
     return parent.is(Kind.FOR_OF_STATEMENT) && element.equals(((ForObjectStatementTree) parent).expression());
   }
 

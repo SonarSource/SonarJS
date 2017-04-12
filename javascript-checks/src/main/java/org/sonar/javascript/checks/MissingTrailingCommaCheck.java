@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
@@ -63,7 +62,7 @@ public class MissingTrailingCommaCheck extends DoubleDispatchVisitorCheck {
   private static boolean isMultilineInternal(List<? extends Tree> list, SyntaxToken closingToken) {
     if (!list.isEmpty()) {
       Tree last = list.get(list.size() - 1);
-      return ((JavaScriptTree)last).getLastToken().endLine() != closingToken.line();
+      return last.lastToken().endLine() != closingToken.line();
     }
     return false;
   }

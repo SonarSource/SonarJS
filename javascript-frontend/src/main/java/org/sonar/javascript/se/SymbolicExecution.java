@@ -39,7 +39,6 @@ import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -336,7 +335,7 @@ public class SymbolicExecution {
 
   private ProgramState executeInitializedBinding(InitializedBindingElementTree initializedBindingElementTree, ProgramState programState) {
     ProgramState newProgramState = programState;
-    if (((JavaScriptTree) initializedBindingElementTree).getParent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN, Kind.BINDING_PROPERTY)) {
+    if (initializedBindingElementTree.parent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN, Kind.BINDING_PROPERTY)) {
       newProgramState = programState.removeLastValue();
     } else {
       BindingElementTree variable = initializedBindingElementTree.left();
@@ -370,13 +369,13 @@ public class SymbolicExecution {
   }
 
   private static Tree getParent(Tree tree) {
-    return syntaxTree(((JavaScriptTree) tree).getParent());
+    return syntaxTree(tree.parent());
   }
 
   private static Tree syntaxTree(Tree tree) {
     Tree syntaxTree = tree;
     while (syntaxTree.is(Kind.PARENTHESISED_EXPRESSION)) {
-      syntaxTree = ((JavaScriptTree) syntaxTree).getParent();
+      syntaxTree = syntaxTree.parent();
     }
     return syntaxTree;
   }
@@ -486,7 +485,7 @@ public class SymbolicExecution {
     }
 
     if (!constrainedTruePS.isPresent() && !constrainedFalsePS.isPresent()) {
-      throw new IllegalStateException("At least one branch of condition should be executed (condition on line " + ((JavaScriptTree) lastElement).getLine() + ").");
+      throw new IllegalStateException("At least one branch of condition should be executed (condition on line " + lastElement.firstToken().line() + ").");
     }
   }
 

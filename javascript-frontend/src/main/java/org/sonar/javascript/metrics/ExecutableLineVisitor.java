@@ -22,7 +22,6 @@ package org.sonar.javascript.metrics;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.Set;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
@@ -59,7 +58,7 @@ public class ExecutableLineVisitor extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    executableLines.add(((JavaScriptTree) tree).getLine());
+    executableLines.add(tree.firstToken().line());
   }
 
   public Set<Integer> getExecutableLines() {

@@ -95,7 +95,7 @@ public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
     }
 
     Tree condition = condition(treeWithCondition);
-    return condition != null && ((JavaScriptTree) condition).isAncestorOf((JavaScriptTree) token);
+    return condition != null && condition.isAncestorOf((JavaScriptTree) token);
   }
 
   @Nullable

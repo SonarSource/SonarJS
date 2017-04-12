@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Collection;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -52,7 +51,7 @@ public class RedeclaredSymbolCheck extends DoubleDispatchVisitorCheck {
           firstDeclaration = usage;
         }
       } else if (usage.isDeclaration() && usage.kind() != Usage.Kind.LEXICAL_DECLARATION) {
-        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.identifierTree()).getLine());
+        String message = String.format(MESSAGE, symbol.name(), firstDeclaration.identifierTree().identifierToken().line());
         addIssue(usage.identifierTree(), message).secondary(firstDeclaration.identifierTree());
       }
     }

@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -118,11 +117,11 @@ public class MultilineBlockCurlyBraceCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static int column(Tree tree) {
-    return ((JavaScriptTree) tree).getFirstToken().column();
+    return tree.firstToken().column();
   }
 
   private static int line(Tree tree) {
-    return ((JavaScriptTree) tree).getLine();
+    return tree.firstToken().line();
   }
 
 }

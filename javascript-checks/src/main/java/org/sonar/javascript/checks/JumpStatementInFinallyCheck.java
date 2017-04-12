@@ -99,7 +99,7 @@ public class JumpStatementInFinallyCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static Tree parent(Tree tree) {
-    return ((JavaScriptTree) tree).getParent();
+    return tree.parent();
   }
 
   @CheckForNull

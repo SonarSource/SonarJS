@@ -29,7 +29,6 @@ import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.LiveVariableAnalysis;
 import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -153,7 +152,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   private static boolean initializedToBasicValue(Usage usage) {
     if (usage.isDeclaration()) {
-      JavaScriptTree parent = ((JavaScriptTree) usage.identifierTree()).getParent();
+      Tree parent = usage.identifierTree().parent();
       if (parent.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
         ExpressionTree expression = ((InitializedBindingElementTree) parent).right();
         return isBasicValue(expression);

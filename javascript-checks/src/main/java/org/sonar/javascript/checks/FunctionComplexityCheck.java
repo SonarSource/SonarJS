@@ -23,7 +23,6 @@ import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.metrics.ComplexityVisitor;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
@@ -54,7 +53,7 @@ public class FunctionComplexityCheck extends AbstractFunctionSizeCheck {
     int complexity = complexityTrees.size();
     String message = String.format(MESSAGE, complexity, maximumFunctionComplexityThreshold);
 
-    IssueLocation primaryIssueLocation = new IssueLocation(((JavaScriptTree) tree).getFirstToken(), tree.parameterClause(), message);
+    IssueLocation primaryIssueLocation = new IssueLocation(tree.firstToken(), tree.parameterClause(), message);
 
     PreciseIssue issue = addIssue(new PreciseIssue(this, primaryIssueLocation));
 

@@ -31,7 +31,7 @@ public class BinaryExpressionTreeModelTest extends JavaScriptTreeModelTest {
   @Test
   public void parent() throws Exception {
     BinaryExpressionTreeImpl tree = parse("a + b", Kind.PLUS);
-    assertThat(tree.getParent().is(Kind.EXPRESSION_STATEMENT)).isTrue();
+    assertThat(tree.parent().is(Kind.EXPRESSION_STATEMENT)).isTrue();
   }
 
   @Test

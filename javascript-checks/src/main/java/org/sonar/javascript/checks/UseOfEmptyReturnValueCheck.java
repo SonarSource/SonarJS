@@ -27,7 +27,6 @@ import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -54,7 +53,7 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
 
   @Override
   CallExpressionTree getTree(Tree element) {
-    JavaScriptTree parent = ((JavaScriptTree) element).getParent();
+    Tree parent = element.parent();
 
     if (element.is(Kind.CALL_EXPRESSION) && !parent.is(RETURN_STATEMENT) && !isModulePattern((CallExpressionTree) element)) {
       return (CallExpressionTree) element;
@@ -64,9 +63,9 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
   }
 
   private static boolean isModulePattern(CallExpressionTree callExpression) {
-    JavaScriptTree parent = ((JavaScriptTree) callExpression).getParent();
+    Tree parent = callExpression.parent();
 
-    return callExpression.callee().is(KindSet.FUNCTION_KINDS) && parent.is(PARENTHESISED_EXPRESSION, LOGICAL_COMPLEMENT) && parent.getParent().is(Kind.EXPRESSION_STATEMENT);
+    return callExpression.callee().is(KindSet.FUNCTION_KINDS) && parent.is(PARENTHESISED_EXPRESSION, LOGICAL_COMPLEMENT) && parent.parent().is(Kind.EXPRESSION_STATEMENT);
   }
 
   @Override
@@ -160,7 +159,7 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
   }
 
   private static Tree getParentIgnoreParenthesis(Tree tree) {
-    Tree parent = ((JavaScriptTree) tree).getParent();
+    Tree parent = tree.parent();
     if (parent.is(PARENTHESISED_EXPRESSION)) {
       return getParentIgnoreParenthesis(parent);
     }

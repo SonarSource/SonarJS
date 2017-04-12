@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -60,7 +59,7 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
   public void visitNode(Tree tree) {
     if (tree.is(Kind.BLOCK)) {
       BlockTree body = (BlockTree) tree;
-      Tree parent = CheckUtils.parent(body);
+      Tree parent = body.parent();
       SyntaxToken openCurly = body.openCurlyBraceToken();
       openCurly.column();
       checkFunction(parent, openCurly);
@@ -72,7 +71,7 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
     if (tree.is(Kind.OBJECT_LITERAL)) {
       ObjectLiteralTree objectLiteral = (ObjectLiteralTree) tree;
       SyntaxToken openCurly = objectLiteral.openCurlyBraceToken();
-      Tree parent = CheckUtils.parent(objectLiteral);
+      Tree parent = objectLiteral.parent();
       checkAssignment(openCurly, parent);
     }
     if (tree.is(Kind.SWITCH_STATEMENT)) {

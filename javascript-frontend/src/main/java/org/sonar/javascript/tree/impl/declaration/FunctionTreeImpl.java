@@ -65,7 +65,7 @@ public abstract class FunctionTreeImpl extends JavaScriptTree implements Functio
     public void visitIdentifier(IdentifierTree tree) {
       tree.symbolUsage().ifPresent(usage -> {
         Tree symbolScopeTree = usage.symbol().scope().tree();
-        if (((JavaScriptTree) symbolScopeTree).isAncestorOf((JavaScriptTree) functionTree)) {
+        if (symbolScopeTree.isAncestorOf(functionTree)) {
           outerScopeUsages.add(usage);
         }
       });

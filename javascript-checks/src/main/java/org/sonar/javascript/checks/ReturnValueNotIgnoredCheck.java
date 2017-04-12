@@ -44,7 +44,7 @@ public class ReturnValueNotIgnoredCheck extends AbstractAnyPathSeCheck {
   public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTreeImpl callExpression = (CallExpressionTreeImpl) element;
-      Tree parent = callExpression.getParent();
+      Tree parent = callExpression.parent();
       if (parent.is(Kind.EXPRESSION_STATEMENT) && !hasSideEffects(callExpression, currentState) && !hasCallbackArgumentWithSideEffects(callExpression)) {
         String message = String.format(MESSAGE, getCalleeName(callExpression));
         addUniqueIssue(callExpression, message);

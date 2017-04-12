@@ -83,15 +83,6 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
     return trivias;
   }
 
-  /**
-   * @deprecated Use {@link SyntaxToken#line()} instead.
-   */
-  @Deprecated
-  @Override
-  public int getLine() {
-    return line();
-  }
-
   @Override
   public int line() {
     return line;
@@ -135,12 +126,12 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
   }
 
   @Override
-  public SyntaxToken getFirstToken() {
+  public SyntaxToken firstToken() {
     return this;
   }
 
   @Override
-  public SyntaxToken getLastToken() {
+  public SyntaxToken lastToken() {
     return this;
   }
 

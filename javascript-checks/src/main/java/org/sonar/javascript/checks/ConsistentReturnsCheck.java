@@ -27,7 +27,6 @@ import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -63,7 +62,7 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
   }
 
   private void raiseIssue(Tree functionTree, FunctionReturns functionReturns, BlockTree body) {
-    SyntaxToken tokenToRaiseIssue = ((JavaScriptTree) functionTree).getFirstToken();
+    SyntaxToken tokenToRaiseIssue = functionTree.firstToken();
     if (functionTree.is(Kind.ARROW_FUNCTION)) {
       tokenToRaiseIssue = ((ArrowFunctionTree) functionTree).doubleArrowToken();
     }
@@ -123,7 +122,7 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
   }
 
   private static boolean isThrowStatement(Tree lastElement) {
-    return ((JavaScriptTree) lastElement).getParent().is(Kind.THROW_STATEMENT);
+    return lastElement.parent().is(Kind.THROW_STATEMENT);
   }
 
   private static boolean isReachableBlock(CfgBlock cfgBlock, ControlFlowGraph cfg) {
