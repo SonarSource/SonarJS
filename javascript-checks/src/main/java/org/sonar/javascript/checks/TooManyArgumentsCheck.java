@@ -31,7 +31,7 @@ import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;

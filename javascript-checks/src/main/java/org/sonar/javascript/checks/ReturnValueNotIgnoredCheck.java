@@ -26,7 +26,7 @@ import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.javascript.tree.impl.declaration.FunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.CallExpressionTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;

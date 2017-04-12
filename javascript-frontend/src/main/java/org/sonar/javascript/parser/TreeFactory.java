@@ -32,7 +32,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.javascript.tree.impl.SeparatedListImpl;
 import org.sonar.javascript.tree.impl.declaration.AccessorMethodDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.BindingPropertyTreeImpl;
@@ -129,6 +129,7 @@ import org.sonar.javascript.tree.impl.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.WithStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
@@ -348,7 +349,7 @@ public class TreeFactory {
       }
     }
 
-    return new SeparatedList<>(elements.build(), commas.build());
+    return new SeparatedListImpl<>(elements.build(), commas.build());
   }
 
   public SeparatedList<BindingElementTree> bindingElementList1(BindingElementTree element, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> rest) {
@@ -671,7 +672,7 @@ public class TreeFactory {
       }
     }
 
-    return new SeparatedList<>(parameters, commas);
+    return new SeparatedListImpl<>(parameters, commas);
   }
 
 
@@ -702,7 +703,7 @@ public class TreeFactory {
   }
 
   public ParameterListTree formalParameterClause3(InternalSyntaxToken lParenthesis, Optional<RestElementTree> restElementTree, InternalSyntaxToken rParenthesis) {
-    SeparatedList<BindingElementTree> parameters = new SeparatedList(Lists.newArrayList(), Collections.emptyList());
+    SeparatedListImpl<BindingElementTree> parameters = new SeparatedListImpl(Lists.newArrayList(), Collections.emptyList());
     if (restElementTree.isPresent()) {
       parameters.add(restElementTree.get());
     }
@@ -865,13 +866,13 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SeparatedList(arguments, commas);
+    return new SeparatedListImpl(arguments, commas);
   }
 
   public ArgumentListTree argumentClause(InternalSyntaxToken openParenToken, Optional<SeparatedList<ExpressionTree>> arguments, InternalSyntaxToken closeParenToken) {
     return new ArgumentListTreeImpl(
       openParenToken,
-      arguments.isPresent() ? arguments.get() : new SeparatedList<>(Collections.emptyList(), Collections.emptyList()),
+      arguments.isPresent() ? arguments.get() : new SeparatedListImpl<>(Collections.emptyList(), Collections.emptyList()),
       closeParenToken);
   }
 
@@ -975,11 +976,11 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SeparatedList(properties, commas);
+    return new SeparatedListImpl(properties, commas);
   }
 
   public ObjectLiteralTree objectLiteral(InternalSyntaxToken openCurlyToken, Optional<SeparatedList<Tree>> properties, InternalSyntaxToken closeCurlyToken) {
-    return new ObjectLiteralTreeImpl(openCurlyToken, properties.or(new SeparatedList<>(ImmutableList.of(), ImmutableList.of())), closeCurlyToken);
+    return new ObjectLiteralTreeImpl(openCurlyToken, properties.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyToken);
   }
 
   public NewExpressionTree newExpressionWithArgument(InternalSyntaxToken newToken, ExpressionTree expression, ArgumentListTree arguments) {
@@ -1130,11 +1131,11 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SeparatedList<>(specifiers, commas);
+    return new SeparatedListImpl<>(specifiers, commas);
   }
 
   public SpecifierListTree exportList(InternalSyntaxToken openCurlyBraceToken, Optional<SeparatedList<SpecifierTree>> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
-    return new SpecifierListTreeImpl(Kind.EXPORT_LIST, openCurlyBraceToken, specifierList.or(new SeparatedList<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
+    return new SpecifierListTreeImpl(Kind.EXPORT_LIST, openCurlyBraceToken, specifierList.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
   }
 
   public NameSpaceExportDeclarationTree namespaceExportDeclaration(
@@ -1219,11 +1220,11 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SeparatedList<>(specifiers, commas);
+    return new SeparatedListImpl<>(specifiers, commas);
   }
 
   public SpecifierListTree importList(InternalSyntaxToken openCurlyBraceToken, Optional<SeparatedList<SpecifierTree>> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
-    return new SpecifierListTreeImpl(Kind.IMPORT_LIST, openCurlyBraceToken, specifierList.or(new SeparatedList<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
+    return new SpecifierListTreeImpl(Kind.IMPORT_LIST, openCurlyBraceToken, specifierList.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
   }
 
   public SpecifierTree nameSpaceImport(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTree localName) {
@@ -1353,7 +1354,7 @@ public class TreeFactory {
       }
     }
 
-    return new SeparatedList<>(properties, commas);
+    return new SeparatedListImpl<>(properties, commas);
   }
 
   public ObjectBindingPatternTree objectBindingPattern(
@@ -1368,7 +1369,7 @@ public class TreeFactory {
     if (list.isPresent()) {
       elements = list.get();
     } else {
-      elements = new SeparatedList<>(new ArrayList<BindingElementTree>(), new ArrayList<InternalSyntaxToken>());
+      elements = new SeparatedListImpl<>(new ArrayList<BindingElementTree>(), new ArrayList<InternalSyntaxToken>());
     }
 
     if (commaAndRest.isPresent()) {
@@ -1388,7 +1389,7 @@ public class TreeFactory {
   public ObjectBindingPatternTree objectBindingPattern2(InternalSyntaxToken lCurlyBrace, RestElementTree rest, InternalSyntaxToken rCurlyBrace) {
     return new ObjectBindingPatternTreeImpl(
       lCurlyBrace,
-      new SeparatedList<>(ImmutableList.<BindingElementTree>of(rest), ImmutableList.<InternalSyntaxToken>of()),
+      new SeparatedListImpl<>(ImmutableList.<BindingElementTree>of(rest), ImmutableList.<InternalSyntaxToken>of()),
       rCurlyBrace);
   }
 
@@ -1457,7 +1458,7 @@ public class TreeFactory {
       elements.add(convertOptional(restElement));
     }
 
-    return new SeparatedList<>(elements.build(), separators.build());
+    return new SeparatedListImpl<>(elements.build(), separators.build());
   }
 
   private static <T extends Tree> java.util.Optional<T> convertOptional(Optional<T> optional) {
@@ -1612,7 +1613,7 @@ public class TreeFactory {
       listBuilder.add(tuple.second);
     }
 
-    SeparatedList<IdentifierTree> body = new SeparatedList<>(listBuilder.build(), dotsListBuilder.build());
+    SeparatedListImpl<IdentifierTree> body = new SeparatedListImpl<>(listBuilder.build(), dotsListBuilder.build());
 
     return new DecoratorTreeImpl(atToken, body, arguments.orNull());
   }
@@ -1634,7 +1635,7 @@ public class TreeFactory {
   }
 
   public ObjectAssignmentPatternTree emptyObjectAssignmentPattern(InternalSyntaxToken lBrace, InternalSyntaxToken rBrace) {
-    return new ObjectAssignmentPatternTreeImpl(lBrace, new SeparatedList<>(new ArrayList<>(), new ArrayList<>()), rBrace);
+    return new ObjectAssignmentPatternTreeImpl(lBrace, new SeparatedListImpl<>(new ArrayList<>(), new ArrayList<>()), rBrace);
   }
 
   public ObjectAssignmentPatternTree objectAssignmentPattern(
@@ -1658,7 +1659,7 @@ public class TreeFactory {
       separators.add(comma.get());
     }
 
-    return new ObjectAssignmentPatternTreeImpl(lBrace, new SeparatedList<>(propertyList, separators), rBrace);
+    return new ObjectAssignmentPatternTreeImpl(lBrace, new SeparatedListImpl<>(propertyList, separators), rBrace);
   }
 
   public YieldExpressionTree yieldExpression(InternalSyntaxToken yieldToken, Optional<Tuple<InternalSyntaxToken, Tuple<Optional<InternalSyntaxToken>, ExpressionTree>>> optional) {

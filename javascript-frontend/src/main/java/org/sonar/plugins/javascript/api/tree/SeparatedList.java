@@ -17,29 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.tree.impl;
+package org.sonar.plugins.javascript.api.tree;
 
-import java.util.LinkedList;
+import com.google.common.base.Function;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
-import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 
-public class SeparateListUtils {
-  
-  private SeparateListUtils() {
-  }
 
-  /**
-   * Returns a new list containing the present (in the sense of Optional#isPresent) elements in <code>list</code>.
-   */
-  public static <T extends Tree> List<T> presentsOf(List<Optional<T>> list) {
-    List<T> newList = new LinkedList<>();
-    for (Optional<T> element : list) {
-      if (element.isPresent()) {
-        newList.add(element.get());
-      }
-    }
-    return newList;
-  }
+public interface SeparatedList<T> extends List<T> {
 
+  InternalSyntaxToken getSeparator(int i);
+
+  List<InternalSyntaxToken> getSeparators();
+
+  Iterator<Tree> elementsAndSeparators(final Function<T, ? extends Tree> elementTransformer);
 }

@@ -24,6 +24,7 @@ import com.google.common.collect.SetMultimap;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,7 +40,6 @@ import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparateListUtils;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -287,7 +287,7 @@ public class SymbolicExecution {
 
     } else if (element.is(Kind.ARRAY_ASSIGNMENT_PATTERN)) {
       ArrayAssignmentPatternTree arrayAssignmentPatternTree = (ArrayAssignmentPatternTree) element;
-      List<Tree> assignedElements = SeparateListUtils.presentsOf(arrayAssignmentPatternTree.elements());
+      List<Tree> assignedElements = presentsOf(arrayAssignmentPatternTree.elements());
       currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
 
     } else if (element.is(Kind.OBJECT_ASSIGNMENT_PATTERN)) {
@@ -297,7 +297,7 @@ public class SymbolicExecution {
 
     } else if (element.is(Kind.ARRAY_BINDING_PATTERN)) {
       ArrayBindingPatternTree arrayBindingPatternTree = (ArrayBindingPatternTree) element;
-      List<BindingElementTree> assignedElements = SeparateListUtils.presentsOf(arrayBindingPatternTree.elements());
+      List<BindingElementTree> assignedElements = presentsOf(arrayBindingPatternTree.elements());
       currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
 
     } else if (element.is(Kind.OBJECT_BINDING_PATTERN)) {
@@ -307,6 +307,19 @@ public class SymbolicExecution {
     }
 
     return currentState;
+  }
+
+  /**
+   * Returns a new list containing the present (in the sense of Optional#isPresent) elements in <code>list</code>.
+   */
+  private static <T extends Tree> List<T> presentsOf(List<Optional<T>> list) {
+    List<T> newList = new LinkedList<>();
+    for (Optional<T> element : list) {
+      if (element.isPresent()) {
+        newList.add(element.get());
+      }
+    }
+    return newList;
   }
 
   private void checkForImplicitReturn(CfgBlock block) {
