@@ -42,7 +42,6 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.superClass()).isNull();
     assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
     assertThat(tree.elements()).isEmpty();
-    assertThat(tree.semicolons()).isEmpty();
     assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
@@ -57,7 +56,6 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.superClass()).isNull();
     assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
     assertThat(tree.elements()).hasSize(3);
-    assertThat(tree.semicolons()).hasSize(1);
     assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 

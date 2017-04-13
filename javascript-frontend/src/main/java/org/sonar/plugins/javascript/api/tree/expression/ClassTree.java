@@ -57,8 +57,6 @@ public interface ClassTree extends ExpressionTree, StatementTree {
   // elements can be either method declarations, accessor declarations, class field declarations or semi-colons
   List<Tree> elements();
 
-  Iterable<SyntaxToken> semicolons();
-
   SyntaxToken closeCurlyBraceToken();
 
 }

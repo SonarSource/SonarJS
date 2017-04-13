@@ -130,11 +130,6 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   }
 
   @Override
-  public Iterable<SyntaxToken> semicolons() {
-    return Iterables.filter(elements, SyntaxToken.class);
-  }
-
-  @Override
   public SyntaxToken closeCurlyBraceToken() {
     return closeCurlyBraceToken;
   }
