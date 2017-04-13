@@ -19,33 +19,20 @@
  */
 package org.sonar.plugins.javascript.api.tree.statement;
 
-import com.google.common.annotations.Beta;
 import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.5">if Statement</a>.
- * <pre>
- *   if ({@link #condition()}) {@link #statement()}
- *   if ({@link #condition()}) {@link #statement()} {@link #elseClause()}
- * </pre>
+ * {@link Kind#CONDITIONAL_EXPRESSION}
+ * {@link Kind#IF_STATEMENT}
+ * {@link Kind#WHILE_STATEMENT}
+ * {@link Kind#DO_WHILE_STATEMENT}
+ * {@link Kind#FOR_STATEMENT}
  */
-@Beta
-public interface IfStatementTree extends StatementTree, ConditionalTree {
-
-  SyntaxToken ifKeyword();
-
-  SyntaxToken openParenthesisToken();
-
-  ExpressionTree condition();
-
-  SyntaxToken closeParenthesisToken();
-
-  StatementTree statement();
+public interface ConditionalTree extends Tree {
 
   @Nullable
-  ElseClauseTree elseClause();
+  ExpressionTree condition();
 
 }
-

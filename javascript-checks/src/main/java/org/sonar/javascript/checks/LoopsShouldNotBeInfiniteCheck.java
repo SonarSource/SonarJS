@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,15 +42,18 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.statement.ConditionalTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
 @Rule(key = "S2189")
 public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
@@ -86,36 +90,24 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
   /**
    * FileLoops is a tree visitor that collects a map of loops and corresponding conditions
    */
-  private static class FileLoops extends DoubleDispatchVisitor {
+  private static class FileLoops extends SubscriptionVisitor {
 
     private Map<IterationStatementTree, ExpressionTree> loopsAndConditions = new HashMap<>();
 
     static FileLoops create(ScriptTree scriptTree) {
       FileLoops fileLoops = new FileLoops();
-      scriptTree.accept(fileLoops);
+      fileLoops.scanTree(scriptTree);
       return fileLoops;
     }
 
     @Override
-    public void visitForStatement(ForStatementTree tree) {
-      visitLoop(tree, tree.condition());
-      super.visitForStatement(tree);
+    public Set<Kind> nodesToVisit() {
+      return ImmutableSet.of(Kind.FOR_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT);
     }
 
     @Override
-    public void visitWhileStatement(WhileStatementTree tree) {
-      visitLoop(tree, tree.condition());
-      super.visitWhileStatement(tree);
-    }
-
-    @Override
-    public void visitDoWhileStatement(DoWhileStatementTree tree) {
-      visitLoop(tree, tree.condition());
-      super.visitDoWhileStatement(tree);
-    }
-
-    private void visitLoop(IterationStatementTree tree, @Nullable ExpressionTree condition) {
-      loopsAndConditions.put(tree, condition);
+    public void visitNode(Tree tree) {
+      loopsAndConditions.put((IterationStatementTree) tree, ((ConditionalTree) tree).condition());
     }
   }
 

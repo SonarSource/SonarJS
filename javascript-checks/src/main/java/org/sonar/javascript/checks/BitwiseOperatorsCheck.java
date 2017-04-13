@@ -21,19 +21,13 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ConditionalTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 @Rule(key = "BitwiseOperators")
@@ -94,30 +88,7 @@ public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
       return false;
     }
 
-    Tree condition = condition(treeWithCondition);
-    return condition != null && condition.isAncestorOf((JavaScriptTree) token);
-  }
-
-  @Nullable
-  private static Tree condition(Tree treeWithCondition) {
-    Tree condition;
-
-    if (treeWithCondition.is(Kind.IF_STATEMENT)) {
-      condition = ((IfStatementTree) treeWithCondition).condition();
-
-    } else if (treeWithCondition.is(Kind.WHILE_STATEMENT)) {
-      condition = ((WhileStatementTree) treeWithCondition).condition();
-
-    } else if (treeWithCondition.is(Kind.DO_WHILE_STATEMENT)) {
-      condition = ((DoWhileStatementTree) treeWithCondition).condition();
-
-    } else if (treeWithCondition.is(Kind.FOR_STATEMENT)) {
-      condition = ((ForStatementTree) treeWithCondition).condition();
-
-    } else {
-      condition = ((ConditionalExpressionTree) treeWithCondition).condition();
-    }
-
-    return condition;
+    Tree condition = ((ConditionalTree) treeWithCondition).condition();
+    return condition != null && condition.isAncestorOf(token);
   }
 }

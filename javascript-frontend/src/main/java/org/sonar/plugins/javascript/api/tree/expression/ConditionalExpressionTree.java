@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.ConditionalTree;
 
 
 /**
@@ -30,8 +31,9 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </pre>
  */
 @Beta
-public interface ConditionalExpressionTree extends ExpressionTree {
+public interface ConditionalExpressionTree extends ExpressionTree, ConditionalTree {
 
+  @Override
   ExpressionTree condition();
 
   SyntaxToken queryToken();

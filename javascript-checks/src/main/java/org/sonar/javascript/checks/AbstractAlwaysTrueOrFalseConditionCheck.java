@@ -19,12 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.SeCheck;
@@ -36,12 +36,10 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ConditionalTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
 public abstract class AbstractAlwaysTrueOrFalseConditionCheck extends SeCheck {
 
@@ -51,7 +49,7 @@ public abstract class AbstractAlwaysTrueOrFalseConditionCheck extends SeCheck {
   public void startOfExecution(Scope functionScope) {
     ignoredLoopConditions = new HashSet<>();
     Tree tree = functionScope.tree();
-    tree.accept(new LoopsVisitor());
+    new LoopsVisitor().scanTree(tree);
   }
 
   @Override
@@ -140,26 +138,16 @@ public abstract class AbstractAlwaysTrueOrFalseConditionCheck extends SeCheck {
 
   }
 
-  private class LoopsVisitor extends DoubleDispatchVisitor {
+  private class LoopsVisitor extends SubscriptionVisitor {
+
     @Override
-    public void visitForStatement(ForStatementTree tree) {
-      checkCondition(tree.condition());
-      super.visitForStatement(tree);
+    public Set<Kind> nodesToVisit() {
+      return ImmutableSet.of(Kind.FOR_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT);
     }
 
     @Override
-    public void visitWhileStatement(WhileStatementTree tree) {
-      checkCondition(tree.condition());
-      super.visitWhileStatement(tree);
-    }
-
-    @Override
-    public void visitDoWhileStatement(DoWhileStatementTree tree) {
-      checkCondition(tree.condition());
-      super.visitDoWhileStatement(tree);
-    }
-
-    private void checkCondition(@Nullable ExpressionTree condition) {
+    public void visitNode(Tree tree) {
+      ExpressionTree condition = ((ConditionalTree) tree).condition();
       if (condition != null && condition.is(Kind.BOOLEAN_LITERAL, Kind.NUMERIC_LITERAL)) {
         ignoredLoopConditions.add((LiteralTree) condition);
       }
