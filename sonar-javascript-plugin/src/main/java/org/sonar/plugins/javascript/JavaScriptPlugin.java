@@ -35,7 +35,7 @@ public class JavaScriptPlugin implements Plugin {
   private static final String GENERAL = "General";
   private static final String TEST_AND_COVERAGE = "Tests and Coverage";
   private static final String LIBRARIES = "Libraries";
-
+  private static final String JAVASCRIPT_CATEGORY = "JavaScript";
 
   // Global JavaScript constants
 
@@ -87,6 +87,7 @@ public class JavaScriptPlugin implements Plugin {
         .name("File Suffixes")
         .description("Comma-separated list of suffixes for files to analyze.")
         .subCategory(GENERAL)
+        .category(JAVASCRIPT_CATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
 
@@ -96,6 +97,7 @@ public class JavaScriptPlugin implements Plugin {
         .description("True to not count file header comments in comment metrics.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(GENERAL)
+        .category(JAVASCRIPT_CATEGORY)
         .type(PropertyType.BOOLEAN)
         .build(),
 
@@ -105,6 +107,7 @@ public class JavaScriptPlugin implements Plugin {
         .description(reportPropertyDeprecationMessage + "Path (absolute or relative) to the file with LCOV data for unit tests.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(TEST_AND_COVERAGE)
+        .category(JAVASCRIPT_CATEGORY)
         .build(),
 
       PropertyDefinition.builder(LCOV_IT_REPORT_PATH)
@@ -113,6 +116,7 @@ public class JavaScriptPlugin implements Plugin {
         .description(reportPropertyDeprecationMessage + "Path (absolute or relative) to the file with LCOV data for integration tests.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(TEST_AND_COVERAGE)
+        .category(JAVASCRIPT_CATEGORY)
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
@@ -121,6 +125,7 @@ public class JavaScriptPlugin implements Plugin {
         .description("Comma-separated list of names used to address jQuery object.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(LIBRARIES)
+        .category(JAVASCRIPT_CATEGORY)
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.ENVIRONMENTS)
@@ -130,6 +135,7 @@ public class JavaScriptPlugin implements Plugin {
           + "Available environment names: " + JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE + ".")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(GENERAL)
+        .category(JAVASCRIPT_CATEGORY)
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.GLOBALS)
@@ -138,6 +144,7 @@ public class JavaScriptPlugin implements Plugin {
         .description("Comma-separated list of global variables.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(GENERAL)
+        .category(JAVASCRIPT_CATEGORY)
         .build()
     );
 
@@ -150,6 +157,7 @@ public class JavaScriptPlugin implements Plugin {
         .description("Paths (absolute or relative) to the files with LCOV data.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(TEST_AND_COVERAGE)
+        .category(JAVASCRIPT_CATEGORY)
         .build());
 
     } else {
@@ -161,6 +169,7 @@ public class JavaScriptPlugin implements Plugin {
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .type(PropertyType.BOOLEAN)
         .subCategory(TEST_AND_COVERAGE)
+        .category(JAVASCRIPT_CATEGORY)
         .build());
     }
 
