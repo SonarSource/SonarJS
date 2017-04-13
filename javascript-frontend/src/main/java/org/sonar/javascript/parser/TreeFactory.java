@@ -42,6 +42,7 @@ import org.sonar.javascript.tree.impl.declaration.ExportClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ExportDefaultBindingImpl;
 import org.sonar.javascript.tree.impl.declaration.ExportDefaultBindingWithExportListImpl;
 import org.sonar.javascript.tree.impl.declaration.ExportDefaultBindingWithNameSpaceExportImpl;
+import org.sonar.javascript.tree.impl.declaration.ExtendsClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FieldDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FunctionDeclarationTreeImpl;
@@ -143,6 +144,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
+import org.sonar.plugins.javascript.api.tree.declaration.ExtendsClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -916,7 +918,7 @@ public class TreeFactory {
   }
 
   public ClassTree classExpression(
-    Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, Optional<IdentifierTree> name, Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
+    Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, Optional<IdentifierTree> name, Optional<ExtendsClauseTree> extendsClause,
     InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
@@ -928,23 +930,13 @@ public class TreeFactory {
       }
     }
 
-    if (extendsClause.isPresent()) {
-      return ClassTreeImpl.newClassExpression(
+    return ClassTreeImpl.newClassExpression(
         optionalList(decorators),
         classToken, name.orNull(),
-        extendsClause.get().first(), extendsClause.get().second(),
+        extendsClause.orNull(),
         openCurlyBraceToken,
         elements,
         closeCurlyBraceToken);
-    }
-
-    return ClassTreeImpl.newClassExpression(
-      optionalList(decorators),
-      classToken, name.orNull(),
-      null, null,
-      openCurlyBraceToken,
-      elements,
-      closeCurlyBraceToken);
   }
 
   public ComputedPropertyNameTree computedPropertyName(InternalSyntaxToken openBracketToken, ExpressionTree expression, InternalSyntaxToken closeBracketToken) {
@@ -1254,7 +1246,7 @@ public class TreeFactory {
 
   public ClassTree classDeclaration(
     Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, IdentifierTree name,
-    Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
+    Optional<ExtendsClauseTree> extendsClause,
     InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
@@ -1265,20 +1257,9 @@ public class TreeFactory {
         elements.add(member);
       }
     }
-
-    if (extendsClause.isPresent()) {
-      return ClassTreeImpl.newClassDeclaration(
-        optionalList(decorators), classToken, name,
-        extendsClause.get().first(), extendsClause.get().second(),
-        openCurlyBraceToken,
-        elements,
-        closeCurlyBraceToken);
-    }
-
     return ClassTreeImpl.newClassDeclaration(
-      optionalList(decorators),
-      classToken, name,
-      null, null,
+      optionalList(decorators), classToken, name,
+      extendsClause.orNull(),
       openCurlyBraceToken,
       elements,
       closeCurlyBraceToken);
@@ -1692,6 +1673,10 @@ public class TreeFactory {
 
   public TemplateLiteralTail templateLiteralTailForCall(TemplateLiteralTree templateLiteralTree) {
     return new TemplateLiteralTail(templateLiteralTree);
+  }
+
+  public ExtendsClauseTree extendsClause(InternalSyntaxToken extendsToken, ExpressionTree superClass) {
+    return new ExtendsClauseTreeImpl(extendsToken, superClass);
   }
 
   private static class ConditionalExpressionTail {

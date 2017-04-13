@@ -31,6 +31,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
+import org.sonar.plugins.javascript.api.tree.declaration.ExtendsClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -805,6 +806,11 @@ public interface Tree {
      * {@link ClassTree}
      */
     CLASS_DECLARATION(ClassTree.class),
+
+    /**
+     * {@link ExtendsClauseTree}
+     */
+    EXTENDS_CLAUSE(ExtendsClauseTree.class),
 
     /**
      * {@link DecoratorTree}

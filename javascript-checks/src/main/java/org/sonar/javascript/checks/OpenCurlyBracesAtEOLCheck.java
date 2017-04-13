@@ -89,8 +89,8 @@ public class OpenCurlyBracesAtEOLCheck extends SubscriptionVisitorCheck {
   }
 
   private void checkClass(ClassTree classTree) {
-    if (classTree.extendsToken() != null) {
-      issueIfLineMismatch(classTree.openCurlyBraceToken(), classTree.extendsToken());
+    if (classTree.extendsClause() != null) {
+      issueIfLineMismatch(classTree.openCurlyBraceToken(), classTree.extendsClause().extendsToken());
     } else {
       issueIfLineMismatch(classTree.openCurlyBraceToken(), classTree.classToken());
     }

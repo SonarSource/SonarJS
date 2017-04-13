@@ -163,7 +163,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
 
   private void checkSuperHasCorrectNumberOfArguments(SuperTree superTree) {
     getEnclosingType(superTree).ifPresent(classTree -> {
-      ExpressionTree superClassTree = classTree.superClass();
+      ExpressionTree superClassTree = classTree.extendsClause().superClass();
       // we consider only the simple case "class A extends B", not cases such as "class A extends class {} ..."
       if (superClassTree.is(Kind.IDENTIFIER_REFERENCE)) {
         Optional<Symbol> superClassSymbol = ((IdentifierTree) superClassTree).symbol();
@@ -249,7 +249,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean isInBaseClass(MethodDeclarationTree method) {
-    return getEnclosingType(method).map(classTree -> classTree.extendsToken() == null).orElse(true);
+    return getEnclosingType(method).map(classTree -> classTree.extendsClause() == null).orElse(true);
   }
 
   /**
@@ -257,7 +257,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
    * It is assumed that the class is a derived class.
    */
   private static boolean isInDummyDerivedClass(MethodDeclarationTree method) {
-    return getEnclosingType(method).map(classTree -> classTree.superClass().is(Kind.NULL_LITERAL)).orElse(false);
+    return getEnclosingType(method).map(classTree -> classTree.extendsClause().superClass().is(Kind.NULL_LITERAL)).orElse(false);
   }
 
   @CheckForNull

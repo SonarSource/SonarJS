@@ -43,6 +43,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
+import org.sonar.plugins.javascript.api.tree.declaration.ExtendsClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -943,10 +944,15 @@ public class JavaScriptGrammar {
           b.token(JavaScriptKeyword.CLASS),
           b.optional(BINDING_IDENTIFIER()),
           // TODO Factor the duplication with CLASS_DECLARATION() into CLASS_TRAIT() ?
-          b.optional(f.newTuple28(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
+          b.optional(EXTENDS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.zeroOrMore(CLASS_ELEMENT()),
           b.token(JavaScriptPunctuator.RCURLYBRACE)));
+  }
+
+  public ExtendsClauseTree EXTENDS_CLAUSE() {
+    return b.<ExtendsClauseTree>nonterminal(Kind.EXTENDS_CLAUSE)
+      .is(f.extendsClause(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION()));
   }
 
   public ComputedPropertyNameTree COMPUTED_PROPERTY_NAME() {
@@ -1464,7 +1470,7 @@ public class JavaScriptGrammar {
           b.zeroOrMore(DECORATOR()),
           b.token(JavaScriptKeyword.CLASS), BINDING_IDENTIFIER(),
           // TODO Factor the duplication with CLASS_EXPRESSION() into CLASS_TRAIT() ?
-          b.optional(f.newTuple27(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
+          b.optional(EXTENDS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.zeroOrMore(CLASS_ELEMENT()),
           b.token(JavaScriptPunctuator.RCURLYBRACE)));
