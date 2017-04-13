@@ -113,8 +113,6 @@
 ],
 'project:jquery-1.7.2.js':[
 5353,
-5695,
-6027,
 ],
 'project:jshint-2012.06.15.js':[
 866,
@@ -374,8 +372,6 @@
 420,
 488,
 627,
-628,
-629,
 631,
 632,
 639,
@@ -482,9 +478,6 @@
 458,
 473,
 540,
-],
-'project:yui-3.7.3/querystring-stringify/querystring-stringify.js':[
-76,
 ],
 'project:yui-3.7.3/selector-css2/selector-css2.js':[
 162,

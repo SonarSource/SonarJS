@@ -65,6 +65,7 @@ class SeVerifier extends SeCheck {
     .put("NOT_FUNCTION", Constraint.FUNCTION.not())
     .put("NUMBER", Constraint.NUMBER_PRIMITIVE)
     .put("POS_NUMBER", Constraint.POSITIVE_NUMBER_PRIMITIVE)
+    .put("NEG_NUMBER", Constraint.NEGATIVE_NUMBER_PRIMITIVE)
     .put("NOT_NUMBER", Constraint.NUMBER_PRIMITIVE.not())
     .put("NUMBER_OBJECT", Constraint.NUMBER_OBJECT)
     .put("STRING", Constraint.STRING_PRIMITIVE)
