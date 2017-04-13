@@ -75,6 +75,7 @@ import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.SuperTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
@@ -857,8 +858,8 @@ public class JavaScriptGrammar {
         f.templateLiteralTailForMember(TEMPLATE_LITERAL())));
   }
 
-  public LiteralTree SUPER() {
-    return b.<LiteralTree>nonterminal(Kind.SUPER)
+  public SuperTree SUPER() {
+    return b.<SuperTree>nonterminal(Kind.SUPER)
       .is(f.superExpression(b.token(JavaScriptKeyword.SUPER)));
   }
 

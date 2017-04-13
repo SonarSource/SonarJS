@@ -179,6 +179,7 @@ import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.SuperTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
@@ -832,7 +833,7 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.IDENTIFIER_NAME, identifier);
   }
 
-  public LiteralTree superExpression(InternalSyntaxToken superToken) {
+  public SuperTree superExpression(InternalSyntaxToken superToken) {
     return new SuperTreeImpl(superToken);
   }
 

@@ -25,13 +25,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import javax.annotation.CheckForNull;
-
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -45,6 +42,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.SuperTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -68,7 +66,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
    * The invocations of super() in the current method or function.
    * Used for detecting multiple invocations of super() in the same constructor.
    */
-  private Deque<List<SuperTreeImpl>> superInvocations = new LinkedList<>();
+  private Deque<List<SuperTree>> superInvocations = new LinkedList<>();
 
   @Override
   public void visitScript(ScriptTree tree) {
@@ -81,7 +79,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
    * Entry point for 3 of the 5 checks in this rule.
    */
   @Override
-  public void visitSuper(SuperTreeImpl tree) {
+  public void visitSuper(SuperTree tree) {
     if (tree.parent().is(Kind.CALL_EXPRESSION)) {
       if (!isInConstructor(tree) || isInBaseClass(getEnclosingConstructor(tree))) {
         checkSuperOnlyInvokedInDerivedClassConstructor(tree);
@@ -122,27 +120,27 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
     superInvocations.pop();
   }
 
-  private void checkSuperOnlyInvokedInDerivedClassConstructor(SuperTreeImpl superTree) {
+  private void checkSuperOnlyInvokedInDerivedClassConstructor(SuperTree superTree) {
     addIssue(superTree, MESSAGE_SUPER_ONLY_IN_DERIVED_CLASS_CONSTRUCTOR);
   }
 
   private void checkSuperInvokedInAnyDerivedClassConstructor(MethodDeclarationTree method) {
     if (isConstructor(method) && !isInBaseClass(method) && !isInDummyDerivedClass(method)) {
-      Set<SuperTreeImpl> superTrees = new SuperDetector().detectIn(method);
+      Set<SuperTree> superTrees = new SuperDetector().detectIn(method);
       if (superTrees.stream().noneMatch(s -> s.parent().is(Kind.CALL_EXPRESSION))) {
         addIssue(method.name(), MESSAGE_SUPER_REQUIRED_IN_ANY_DERIVED_CLASS_CONSTRUCTOR);
       }
     }
   }
 
-  private void checkSuperInvokedBeforeThisOrSuper(SuperTreeImpl superTree) {
+  private void checkSuperInvokedBeforeThisOrSuper(SuperTree superTree) {
     int line = superTree.firstToken().line();
     int column = superTree.firstToken().column();
     MethodDeclarationTree method = getEnclosingConstructor(superTree);
     Set<IssueLocation> secondaryLocations = new HashSet<>();
 
     // get the usages of "super" before super()
-    Set<SuperTreeImpl> superTrees = new SuperDetector().detectIn(method);
+    Set<SuperTree> superTrees = new SuperDetector().detectIn(method);
     superTrees.stream()
       .filter(s -> !s.parent().is(Kind.CALL_EXPRESSION))
       .filter(s -> isBefore(s.firstToken(), line, column))
@@ -163,7 +161,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private void checkSuperHasCorrectNumberOfArguments(SuperTreeImpl superTree) {
+  private void checkSuperHasCorrectNumberOfArguments(SuperTree superTree) {
     getEnclosingType(superTree).ifPresent(classTree -> {
       ExpressionTree superClassTree = classTree.superClass();
       // we consider only the simple case "class A extends B", not cases such as "class A extends class {} ..."
@@ -176,22 +174,22 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
     });
   }
 
-  private void checkSuperInvokedOnlyOnce(MethodDeclarationTree tree, List<SuperTreeImpl> superTrees) {
+  private void checkSuperInvokedOnlyOnce(MethodDeclarationTree tree, List<SuperTree> superTrees) {
     if (isConstructor(tree) && superTrees.size() > 1) {
-      SuperTreeImpl firstSuper = superTrees.get(0);
+      SuperTree firstSuper = superTrees.get(0);
       superTrees.stream()
         .skip(1)
         .forEach(s -> addIssue(s, MESSAGE_SUPER_INVOKED_ONCE).secondary(new IssueLocation(firstSuper)));
     }
   }
 
-  private void pushSuperInvocation(SuperTreeImpl tree) {
+  private void pushSuperInvocation(SuperTree tree) {
     if (superInvocations.peek() != null) {
       superInvocations.peek().add(tree);
     }
   }
 
-  private void compareNumberOfArguments(SuperTreeImpl superTree, Symbol superClassSymbol) {
+  private void compareNumberOfArguments(SuperTree superTree, Symbol superClassSymbol) {
     Optional<ClassTree> baseClassTree = getDeclarationTree(superClassSymbol);
     if (baseClassTree.isPresent()) {
       Optional<MethodDeclarationTree> baseClassConstructor = getConstructor(baseClassTree.get());
@@ -297,16 +295,16 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
    */
   private static class SuperDetector extends DoubleDispatchVisitor {
 
-    private Set<SuperTreeImpl> collectionOfSupers = new HashSet<>();
+    private Set<SuperTree> collectionOfSupers = new HashSet<>();
 
-    public Set<SuperTreeImpl> detectIn(FunctionTree function) {
+    public Set<SuperTree> detectIn(FunctionTree function) {
       collectionOfSupers.clear();
       scan(function);
       return collectionOfSupers;
     }
 
     @Override
-    public void visitSuper(SuperTreeImpl superTree) {
+    public void visitSuper(SuperTree superTree) {
       collectionOfSupers.add(superTree);
     }
 
