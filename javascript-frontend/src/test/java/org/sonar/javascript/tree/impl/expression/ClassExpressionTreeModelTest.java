@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
