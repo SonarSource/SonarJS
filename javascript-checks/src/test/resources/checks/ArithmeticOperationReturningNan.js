@@ -100,7 +100,7 @@ function single_issue_per_expression() {
   if (condition) {
     x = 42;
   }
-  x.y / 42; // Noncompliant we should have only 1 issue here
+  x.y / 42; // Ok, we don't know what is x.y
 }
 
 function single_issue_per_symbol() {

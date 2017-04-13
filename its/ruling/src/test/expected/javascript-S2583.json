@@ -173,14 +173,8 @@
 'project:frameworks/wordpress/editor-expand.js':[
 410,
 ],
-'project:google-closure-library/string/string.js':[
-799,
-],
 'project:google-closure-library/testing/mockmatchers.js':[
 386,
-],
-'project:jstorage-0.3.0.js':[
-39,
 ],
 'project:ocanvas-2.2.2.js':[
 227,
@@ -205,9 +199,5 @@
 ],
 'project:yui-3.7.3/transition/transition.js':[
 563,
-],
-'project:yui-3.7.3/yui-core/yui-core.js':[
-2238,
-2251,
 ],
 }

@@ -11,14 +11,13 @@ function builtin_property() {
 function chained_properties() {
   var str = "str";
   str.trim().trim(); // OK
-  str.undefinedProperty.trim(); // Noncompliant {{TypeError can be thrown as this expression might be null or undefined here.}}
-//^^^^^^^^^^^^^^^^^^^^^
+  str.undefinedProperty.trim(); // OK, we don't know property "undefinedProperty" and consider it to have ANY_VALUE
 }
 
 function property_array() {
   var str = "str";
   str.trim().split("t")[0]; // OK
-  str.trim().undefinedArray[0]; // Noncompliant
+  str.trim().undefinedArray[0]; // OK
 }
 
 function element() {

@@ -21,16 +21,16 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Type;
+import org.sonar.javascript.se.points.MemberProgramPoint;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
@@ -48,18 +48,11 @@ public class NonExistentPropertyAccessCheck extends AbstractAnyPathSeCheck {
     .put(Type.BOOLEAN_OBJECT, "Boolean")
     .build();
 
-  private ProgramState programStateBefore = null;
-
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
-    programStateBefore = currentState;
-  }
-
-  @Override
-  public void afterBlockElement(ProgramState currentState, Tree element) {
-    if (isUndefinedProperty(currentState, element) && !isWrite(element) && !isInCondition(element)) {
+    if (isUndefinedProperty(currentState, element, programPoint)) {
       IdentifierTree propertyTree = ((DotMemberExpressionTree) element).property();
-      addUniqueIssue(element, String.format(MESSAGE, propertyTree.name(), getTypeOfObject(programStateBefore)));
+      addUniqueIssue(element, String.format(MESSAGE, propertyTree.name(), getTypeOfObject(currentState)));
     }
   }
 
@@ -69,18 +62,12 @@ public class NonExistentPropertyAccessCheck extends AbstractAnyPathSeCheck {
     return TYPE_NAMES.containsKey(type) ? ("a " + TYPE_NAMES.get(type)) : "this object";
   }
 
-  private static boolean isUndefinedProperty(ProgramState currentState, Tree element) {
-    return element.is(Kind.DOT_MEMBER_EXPRESSION) && SpecialSymbolicValue.UNDEFINED.equals(currentState.peekStack());
-  }
+  private static boolean isUndefinedProperty(ProgramState currentState, Tree element, ProgramPoint programPoint) {
+    if (element.is(Kind.DOT_MEMBER_EXPRESSION)) {
+      Optional<ProgramState> programState = ((MemberProgramPoint) programPoint).executeStrictMode(currentState);
+      return programState.isPresent() && SpecialSymbolicValue.UNDEFINED.equals(programState.get().peekStack());
+    }
 
-  private static boolean isWrite(Tree element) {
-    Tree parentTree = ((JavaScriptTree) element).getParent();
-    return parentTree.is(Kind.ASSIGNMENT) &&  !((AssignmentExpressionTree) parentTree).expression().equals(element);
+    return false;
   }
-
-  private static boolean isInCondition(Tree element) {
-    Tree parentTree = ((JavaScriptTree) element).getParent();
-    return parentTree.is(Kind.IF_STATEMENT, Kind.LOGICAL_COMPLEMENT, Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR, Kind.CONDITIONAL_EXPRESSION);
-  }
-
 }

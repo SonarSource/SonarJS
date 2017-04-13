@@ -1,3 +1,8 @@
+function unknownObj() {
+  var a = {}
+  return a.foo;
+}
+
 function foo() {
   var s = "";
   s.length;
@@ -5,10 +10,10 @@ function foo() {
 //^^^^^^^^
 }
 
-function assignment() {
+function assignment_nok() {
   var s = "";
   x = s.lenght; // Noncompliant {{Remove this access to "lenght" property, it doesn't exist, as a built-in, on a String.}}
-  s.lenght = 0; // ok
+  s.lenght = 0; // Noncompliant
   x = Array.xxx; // Noncompliant {{Remove this access to "xxx" property, it doesn't exist, as a built-in, on this object.}}
 }
 
@@ -20,30 +25,33 @@ function single_issue_per_tree() {
   s.lenght; // Noncompliant
 }
 
-function ignore_conditions() {
+function not_ignore_conditions() {
   var s = foo() || "";
-  if (s.bar) {
-    s.bar();
+  if (s.bar) {// Noncompliant
+    s.bar();// Noncompliant
   }
 
-  if (!s.bar) {
+  if (!s.bar) {// Noncompliant
     foo(s);
   } else {
-    s.bar();
+    s.bar();// Noncompliant
   }
 
-  if (s.bar && s.bar() == 42) {
+  if (s.bar // Noncompliant
+      && s.bar() == 42) {// Noncompliant
     foo();
   }
 
-  if (!s.bar || s.bar() == 42) {
+  if (!s.bar // Noncompliant
+    || s.bar() == 42) {// Noncompliant
     foo();
   }
 
-  s.bar ? s.bar() : foo();
-  condition() ? s.bar : foo; // also OK, extra caution
+  s.bar ? // Noncompliant
+    s.bar() : foo();// Noncompliant
+  condition() ? s.bar : foo; // Noncompliant
 
-  var foo = s.foo; // Noncompliant FP
+  var foo = s.foo; // Noncompliant
   if (foo) {
     doSomething();
   }

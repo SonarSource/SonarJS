@@ -120,6 +120,7 @@ public class StringBuiltInProperties {
     .put("loc", method(Constraint.STRING_PRIMITIVE))
     .put("underscore", method(Constraint.STRING_PRIMITIVE))
     .put("w", method(Constraint.ARRAY))
+    .put("quote", method(Constraint.STRING_PRIMITIVE))
 
     .build();
 

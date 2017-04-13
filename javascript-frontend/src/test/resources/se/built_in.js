@@ -28,7 +28,7 @@ function main() {
   foo(); // PS obj=OBJECT
 
   var unknown = Object.fooBar;
-  foo(); // PS unknown=UNDEFINED
+  foo(); // PS unknown=ANY_VALUE
 
   var maxNum = Number.MAX_VALUE;
   var isNanMethod = Number.isNaN(unknown);
@@ -37,13 +37,14 @@ function main() {
 
   var mathAbs = Math.abs(-4);
   var squareRoot = Math.SQRT2;
-  foo(); // PS mathAbs=NUMBER & squareRoot=TRUTHY_NUMBER
+  unknown = mathAbs.fooBar;
+  foo(); // PS mathAbs=NUMBER & squareRoot=TRUTHY_NUMBER & unknown=ANY_VALUE
 
   var regexp = new RegExp();
   var regexpProp = regexp.lastIndex;
   var regexpMethod = regexp.test();
   unknown = RegExp.fooBar;
-  foo(); // PS regexp=REGEXP & regexpProp=NUMBER & regexpMethod=BOOLEAN & unknown=UNDEFINED
+  foo(); // PS regexp=REGEXP & regexpProp=NUMBER & regexpMethod=BOOLEAN & unknown=ANY_VALUE
 
   // -------  METHOD BEHAVIOUR  -------
   var isArray = false;

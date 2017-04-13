@@ -28,7 +28,6 @@ import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
-import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,7 +72,7 @@ public class BuiltInPropertiesTest {
     assertMethod(value("sort"), method(Constraint.ARRAY));
     assertMethod(value("pop"), method(Constraint.ANY_VALUE));
     assertProperty(value("length"), Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
-    assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+    assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
     // inherited
     assertMethod(value("valueOf"), method(Constraint.ANY_VALUE));
   }
@@ -84,7 +83,7 @@ public class BuiltInPropertiesTest {
     assertMethod(value("bind"), method(Constraint.FUNCTION));
     assertProperty(value("name"), Constraint.STRING_PRIMITIVE);
     assertProperty(value("length"), Constraint.POSITIVE_NUMBER_PRIMITIVE.or(Constraint.ZERO));
-    assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+    assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
   }
 
   @Test
@@ -92,7 +91,7 @@ public class BuiltInPropertiesTest {
     type = Type.OBJECT;
     assertMethod(value("hasOwnProperty"), method(Constraint.BOOLEAN_PRIMITIVE));
     assertProperty(value("constructor"), Constraint.ANY_VALUE);
-    assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+    assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
   }
 
   @Test
@@ -101,7 +100,7 @@ public class BuiltInPropertiesTest {
     assertMethod(value("getDate"), method(Constraint.TRUTHY_NUMBER_PRIMITIVE));
     assertMethod(value("setDate"), method(Constraint.NUMBER_PRIMITIVE));
     assertMethod(value("toString"), method(Constraint.TRUTHY_STRING_PRIMITIVE));
-    assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+    assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
   }
 
   @Test(expected=IllegalStateException.class)
@@ -122,7 +121,7 @@ public class BuiltInPropertiesTest {
     assertProperty(value("constructor"), Constraint.ANY_VALUE);
     assertMethod(value("hasOwnProperty"), method(Constraint.BOOLEAN_PRIMITIVE));
 
-    assertThat(value("split")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+    assertThat(value("split")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
 
   }
 
