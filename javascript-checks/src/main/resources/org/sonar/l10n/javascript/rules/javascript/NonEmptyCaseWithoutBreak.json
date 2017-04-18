@@ -1,6 +1,6 @@
 {
   "title": "Switch cases should end with an unconditional \"break\" statement",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -8,7 +8,6 @@
   },
   "tags": [
     "cwe",
-    "bug",
     "misra",
     "cert",
     "suspicious"
@@ -16,5 +15,5 @@
   "standards": [
     "CWE"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Blocker"
 }

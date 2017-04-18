@@ -22,7 +22,8 @@ var k = 5 - 5; //always 0
 </pre>
 <h2>Exceptions</h2>
 <p>The specific case of testing one variable against itself is a valid test for <code>NaN</code> and is therefore ignored.</p>
-<p>Similarly, left-shifting 1 onto 1 is common in the construction of bit masks, and is ignored.</p>
+<p>Similarly, left-shifting 1 onto 1 is common in the construction of bit masks, and is ignored. </p>
+<p>Moreover comma operator <code>,</code> and <code>instanceof</code> operator are ignored as there are use-cases when there usage is valid.</p>
 <pre>
 if(f !== f) { // test for NaN value
   console.log("f is NaN");

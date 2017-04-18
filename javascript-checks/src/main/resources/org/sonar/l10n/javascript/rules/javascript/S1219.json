@@ -1,15 +1,14 @@
 {
   "title": "\"switch\" statements should not contain non-case labels",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "10min"
   },
   "tags": [
-    "bug",
     "misra",
     "suspicious"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Blocker"
 }

@@ -15,10 +15,10 @@ if (a !== NaN) { // Noncompliant; always true
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-if (a !== a) {
+if (Number.isNaN(a)) {
   console.log("a is not a number");
 }
-if (a === a) {
+if (!Number.isNaN(a)) {
   console.log("a is not NaN");
 }
 </pre>

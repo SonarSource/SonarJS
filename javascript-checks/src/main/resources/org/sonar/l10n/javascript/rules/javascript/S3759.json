@@ -1,5 +1,5 @@
 {
-  "title": "Non-existent properties shouldn't be accessed for reading",
+  "title": "Non-existent properties should not be read",
   "type": "BUG",
   "status": "ready",
   "remediation": {

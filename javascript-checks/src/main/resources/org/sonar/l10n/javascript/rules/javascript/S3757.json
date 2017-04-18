@@ -1,6 +1,6 @@
 {
   "title": "Arithmetic operations should not result in \"NaN\"",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,13 +1,12 @@
 {
   "title": "Multiline string literals should not be used",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "bug",
     "bad-practice"
   ],
   "defaultSeverity": "Minor"

@@ -10,7 +10,9 @@
     "cwe",
     "bug",
     "misra",
-    "cert"
+    "cert",
+    "unused",
+    "pitfall"
   ],
   "standards": [
     "CWE"

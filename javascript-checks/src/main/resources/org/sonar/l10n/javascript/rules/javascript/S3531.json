@@ -7,9 +7,9 @@
     "constantCost": "5min"
   },
   "tags": [
+    "api-design",
     "bug",
-    "es2015",
-    "suspicious"
+    "es2015"
   ],
   "defaultSeverity": "Major"
 }

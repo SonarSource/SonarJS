@@ -1,16 +1,13 @@
 <p>While not technically incorrect, the omission of curly braces can be misleading, and may lead to the introduction of errors during maintenance.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-// the two statements seems to be attached to the if statement, but that is only true for the first one:
-if (condition)
+if (condition)  // Noncompliant
   executeSomething();
-  checkSomething();
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
 if (condition) {
   executeSomething();
-  checkSomething();
 }
 </pre>
 <h2>See</h2>

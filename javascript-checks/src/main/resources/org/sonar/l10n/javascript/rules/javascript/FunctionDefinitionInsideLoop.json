@@ -1,13 +1,12 @@
 {
   "title": "Functions should not be defined inside loops",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "30min"
   },
   "tags": [
-    "bug",
     "suspicious"
   ],
   "defaultSeverity": "Major"

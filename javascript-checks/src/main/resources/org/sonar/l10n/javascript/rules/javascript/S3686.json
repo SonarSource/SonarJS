@@ -1,6 +1,6 @@
 {
   "title": "Functions should not be called both with and without \"new\"",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -9,5 +9,5 @@
   "tags": [
     
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Major"
 }
