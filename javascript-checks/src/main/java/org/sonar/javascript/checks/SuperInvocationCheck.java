@@ -273,7 +273,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
     if (tree.is(Kind.METHOD)) {
       MethodDeclarationTree constructor = (MethodDeclarationTree) tree;
       Tree nameTree = constructor.name();
-      if (nameTree.is(Kind.IDENTIFIER_NAME)) {
+      if (nameTree.is(Kind.PROPERTY_IDENTIFIER)) {
         String name = ((IdentifierTree) nameTree).name();
         return "constructor".equals(name);
       }

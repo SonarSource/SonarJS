@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-7.6">Identifier</a>
  * <ul>
- *   <li>{@link Kind#IDENTIFIER_NAME}</li>
+ *   <li>{@link Kind#PROPERTY_IDENTIFIER}</li>
  *   <li>{@link Kind#IDENTIFIER_REFERENCE}</li>
  *   <li>{@link Kind#BINDING_IDENTIFIER}</li>
  *   <li>{@link Kind#THIS}</li>
@@ -51,7 +51,7 @@ public interface IdentifierTree extends ExpressionTree, BindingElementTree {
   /**
    * @return {@link Symbol} which is referenced by this identifier. No {@link Symbol} is returned in several cases:
    * <ul>
-   *   <li>for {@link Kind#IDENTIFIER_NAME}</li>
+   *   <li>for {@link Kind#PROPERTY_IDENTIFIER}</li>
    *   <li>for unresolved symbol (i.e. symbol being read without being written)</li>
    * </ul>
    * Note that {@link Kind#BINDING_IDENTIFIER} (used for symbol declaration) always has corresponding symbol.

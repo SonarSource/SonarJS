@@ -64,7 +64,7 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
   }
 
   private void checkExpression(DotMemberExpressionTree expression) {
-    if (!expression.object().is(Kind.IDENTIFIER_REFERENCE) || !expression.property().is(Kind.IDENTIFIER_NAME)) {
+    if (!expression.object().is(Kind.IDENTIFIER_REFERENCE) || !expression.property().is(Kind.PROPERTY_IDENTIFIER)) {
       return;
     }
 

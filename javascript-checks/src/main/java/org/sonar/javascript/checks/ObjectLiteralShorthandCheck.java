@@ -33,7 +33,7 @@ public class ObjectLiteralShorthandCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitPairProperty(PairPropertyTree tree) {
-    if (tree.key().is(Kind.IDENTIFIER_NAME)) {
+    if (tree.key().is(Kind.PROPERTY_IDENTIFIER)) {
       String keyName = ((IdentifierTree) tree.key()).name();
 
       if (tree.value().is(Kind.IDENTIFIER_REFERENCE) && ((IdentifierTree) tree.value()).name().equals(keyName)) {

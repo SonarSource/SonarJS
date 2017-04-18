@@ -213,7 +213,7 @@ public class ExpressionStack {
       case UNARY_MINUS:
       case UNARY_PLUS:
 
-      case IDENTIFIER_NAME:
+      case PROPERTY_IDENTIFIER:
       case BINDING_IDENTIFIER:
       case CONDITIONAL_AND:
       case CONDITIONAL_OR:

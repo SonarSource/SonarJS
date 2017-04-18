@@ -36,14 +36,14 @@ public class MemberExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
     assertThat(tree.object().is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
     assertThat(tree.dotToken().text()).isEqualTo(JavaScriptPunctuator.DOT.getValue());
-    assertThat(tree.property().is(Kind.IDENTIFIER_NAME)).isTrue();
+    assertThat(tree.property().is(Kind.PROPERTY_IDENTIFIER)).isTrue();
 
     tree = (DotMemberExpressionTree) tree.object();
 
     assertThat(tree.is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
     assertThat(tree.object().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
     assertThat(tree.dotToken().text()).isEqualTo(JavaScriptPunctuator.DOT.getValue());
-    assertThat(tree.property().is(Kind.IDENTIFIER_NAME)).isTrue();
+    assertThat(tree.property().is(Kind.PROPERTY_IDENTIFIER)).isTrue();
 
   }
 

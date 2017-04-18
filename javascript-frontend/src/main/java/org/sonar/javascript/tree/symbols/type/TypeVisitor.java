@@ -149,7 +149,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
         continue;
       }
 
-      if (name.is(Tree.Kind.IDENTIFIER_NAME)) {
+      if (name.is(Tree.Kind.PROPERTY_IDENTIFIER)) {
         // classScope is never null, ScopeVisitor#visitClass guarantees that
         Scope classScope = getContext().getSymbolModel().getScope(tree);
         classType.addMethod((IdentifierTree) name, FunctionType.create((FunctionTree) element), classScope);
@@ -304,7 +304,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
 
   private static void resolveObjectPropertyAccess(MemberExpressionTree tree) {
     ObjectType objectType = (ObjectType) tree.object().types().getUniqueType(Kind.OBJECT);
-    if (objectType != null && tree.property().is(Tree.Kind.IDENTIFIER_NAME)) {
+    if (objectType != null && tree.property().is(Tree.Kind.PROPERTY_IDENTIFIER)) {
       String property = ((IdentifierTree) tree.property()).name();
       Symbol propertySymbol = objectType.property(property);
       if (propertySymbol != null) {

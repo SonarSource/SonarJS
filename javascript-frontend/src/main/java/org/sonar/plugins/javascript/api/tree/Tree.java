@@ -287,8 +287,9 @@ public interface Tree {
     /**
      * {@link IdentifierTree}
      * Used for identifiers which don't exist in any scope (e.g. object properties, exported and imported names)
+     * Corresponds to <a href="https://tc39.github.io/ecma262/#prod-IdentifierName">IdentifierName</a> in ECMAScript Grammar
      */
-    IDENTIFIER_NAME(IdentifierTree.class),
+    PROPERTY_IDENTIFIER(IdentifierTree.class),
 
     /**
      * {@link IdentifierTree}

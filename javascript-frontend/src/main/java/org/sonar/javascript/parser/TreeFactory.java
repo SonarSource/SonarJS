@@ -832,7 +832,7 @@ public class TreeFactory {
   }
 
   public IdentifierTree identifierName(InternalSyntaxToken identifier) {
-    return new IdentifierTreeImpl(Kind.IDENTIFIER_NAME, identifier);
+    return new IdentifierTreeImpl(Kind.PROPERTY_IDENTIFIER, identifier);
   }
 
   public SuperTree superExpression(InternalSyntaxToken superToken) {

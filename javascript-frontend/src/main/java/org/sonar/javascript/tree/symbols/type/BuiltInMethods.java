@@ -63,7 +63,7 @@ public class BuiltInMethods {
     if (tree.callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       MemberExpressionTree callee = (MemberExpressionTree) tree.callee();
 
-      if (callee.property().is(Tree.Kind.IDENTIFIER_NAME)) {
+      if (callee.property().is(Tree.Kind.PROPERTY_IDENTIFIER)) {
         String methodName = ((IdentifierTree) callee.property()).name();
         return inferStringMethodReturnType(callee.object(), methodName);
       }

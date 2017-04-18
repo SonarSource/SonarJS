@@ -121,7 +121,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
       return value.substring(1, value.length() - 1);
     }
 
-    if (propertyKey.is(Kind.IDENTIFIER_NAME, Kind.IDENTIFIER_REFERENCE)) {
+    if (propertyKey.is(Kind.PROPERTY_IDENTIFIER, Kind.IDENTIFIER_REFERENCE)) {
       return ((IdentifierTree) propertyKey).name();
     }
 
