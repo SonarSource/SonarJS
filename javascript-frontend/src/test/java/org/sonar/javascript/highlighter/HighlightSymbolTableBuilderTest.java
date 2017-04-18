@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.highlighter;
 
+import com.google.common.io.Files;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -30,7 +31,6 @@ import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
-import org.sonar.api.internal.google.common.io.Files;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 
