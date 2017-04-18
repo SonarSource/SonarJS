@@ -38,10 +38,13 @@ public class ExportDeclarationTest {
       .matches("export var a;")
       .matches("export class C {}")
 
+      .matches("@dec export class C {}")
+
       // Default export
       .matches("export default function f() {}")
       .matches("export default function * f() {}")
       .matches("export default class C {}")
+      .matches("@dec export default class C {}")
       .matches("export default expression ;")
       .matches("export default expression")
 

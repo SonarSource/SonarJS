@@ -21,22 +21,31 @@ package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class NamedExportDeclarationTreeImpl extends JavaScriptTree implements NamedExportDeclarationTree {
 
+  private final List<DecoratorTree> decorators;
   private final SyntaxToken exportToken;
   private final Tree object;
 
-  public NamedExportDeclarationTreeImpl(InternalSyntaxToken exportToken, Tree object) {
+  public NamedExportDeclarationTreeImpl(List<DecoratorTree> decorators, InternalSyntaxToken exportToken, Tree object) {
+    this.decorators = decorators;
     this.exportToken = exportToken;
     this.object = object;
 
+  }
+
+  @Override
+  public List<DecoratorTree> decorators() {
+    return decorators;
   }
 
   @Override
@@ -56,7 +65,7 @@ public class NamedExportDeclarationTreeImpl extends JavaScriptTree implements Na
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(exportToken, object);
+    return  Iterators.concat(decorators.iterator(), Iterators.forArray(exportToken, object));
   }
 
   @Override

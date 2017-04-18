@@ -53,11 +53,12 @@ public class NamedExportDeclarationTreeModelTest extends JavaScriptTreeModelTest
 
   @Test
   public void declaration() throws Exception {
-    NamedExportDeclarationTree tree = parse("export class C { }", Kind.NAMED_EXPORT_DECLARATION);
+    NamedExportDeclarationTree tree = parse("@dec export class C { }", Kind.NAMED_EXPORT_DECLARATION);
 
     assertThat(tree.is(Kind.NAMED_EXPORT_DECLARATION)).isTrue();
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(expressionToString(tree.object())).isEqualTo("class C { }");
+    assertThat(tree.decorators()).hasSize(1);
     // TODO: add eos
   }
 

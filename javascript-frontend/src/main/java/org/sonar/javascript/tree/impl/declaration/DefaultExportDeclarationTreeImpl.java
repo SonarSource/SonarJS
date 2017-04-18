@@ -21,10 +21,12 @@ package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -35,12 +37,22 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
   private final SyntaxToken defaultToken;
   private final Tree object;
   private final InternalSyntaxToken eos;
+  private final List<DecoratorTree> decorators;
 
-  public DefaultExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Tree object, @Nullable InternalSyntaxToken semicolon) {
+  public DefaultExportDeclarationTreeImpl(
+    List<DecoratorTree> decorators,
+    InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Tree object, @Nullable InternalSyntaxToken semicolon) {
+
     this.exportToken = exportToken;
     this.defaultToken = defaultToken;
     this.object = object;
     this.eos = semicolon;
+    this.decorators = decorators;
+  }
+
+  @Override
+  public List<DecoratorTree> decorators() {
+    return decorators;
   }
 
   @Override
@@ -71,7 +83,7 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(exportToken, defaultToken, object, eos);
+    return Iterators.concat(decorators.iterator(), Iterators.forArray(exportToken, defaultToken, object, eos));
   }
 
   @Override
