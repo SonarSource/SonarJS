@@ -50,7 +50,7 @@ public class ExportDeclarationTest {
 
       // ES2017 proposal
       .matches("export * as someIdentifier from \"someModule\";")
-      .matches("export someIdentifier from \"someModule\";")
+      .matches("export someIdentifier from \'someModule\';")
       .matches("export someIdentifier from \"someModule\"")
       .matches("export someIdentifier, * as someIdentifier from \"someModule\";")
       .matches("export someIdentifier, * as someIdentifier from \"someModule\"")

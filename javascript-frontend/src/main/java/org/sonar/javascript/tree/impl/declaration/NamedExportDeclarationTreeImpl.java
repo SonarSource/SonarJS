@@ -65,7 +65,7 @@ public class NamedExportDeclarationTreeImpl extends JavaScriptTree implements Na
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return  Iterators.concat(decorators.iterator(), Iterators.forArray(exportToken, object));
+    return Iterators.concat(decorators.iterator(), Iterators.forArray(exportToken, object));
   }
 
   @Override
