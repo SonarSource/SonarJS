@@ -34,7 +34,8 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.JavaScriptProfile;
+import org.sonar.plugins.javascript.JsonProfileReader;
+import org.sonar.plugins.javascript.SonarWayProfile;
 import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
 
 public class JavaScriptRulesDefinition implements RulesDefinition {
@@ -65,7 +66,7 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
 
     boolean shouldSetupSonarLintProfile = sonarRuntimeVersion.isGreaterThanOrEqual(Version.parse("6.0"));
     if (shouldSetupSonarLintProfile) {
-      Set<String> activatedRuleKeys = JavaScriptProfile.activatedRuleKeys();
+      Set<String> activatedRuleKeys = JsonProfileReader.ruleKeys(SonarWayProfile.PATH_TO_JSON);
       for (NewRule rule : repository.rules()) {
         rule.setActivatedByDefault(activatedRuleKeys.contains(rule.key()));
       }
