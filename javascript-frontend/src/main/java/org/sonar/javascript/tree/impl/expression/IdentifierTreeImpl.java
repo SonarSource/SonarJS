@@ -90,12 +90,7 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
 
   @Override
   public TypeSet types() {
-    final Optional<Symbol> symbol = symbol();
-    if (symbol.isPresent()) {
-      return symbol.get().types();
-    } else {
-      return types.immutableCopy();
-    }
+    return symbol().map(Symbol::types).orElse(types.immutableCopy());
   }
 
   @Override

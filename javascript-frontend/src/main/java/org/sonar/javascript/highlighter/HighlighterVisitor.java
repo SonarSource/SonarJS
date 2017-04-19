@@ -45,10 +45,6 @@ public class HighlighterVisitor extends SubscriptionVisitor {
   private final SensorContext sensorContext;
   private NewHighlighting highlighting;
 
-  private static final Kind[] METHODS = {
-
-  };
-
   public HighlighterVisitor(SensorContext sensorContext) {
     this.sensorContext = sensorContext;
   }
