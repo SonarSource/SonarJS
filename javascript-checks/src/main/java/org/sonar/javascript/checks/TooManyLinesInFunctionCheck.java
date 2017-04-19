@@ -31,7 +31,7 @@ public class TooManyLinesInFunctionCheck extends AbstractFunctionSizeCheck {
 
   private static final String MESSAGE = "This function has %s lines, which is greater than the %s lines authorized. Split it into smaller functions.";
 
-  private static final int DEFAULT = 100;
+  private static final int DEFAULT = 200;
 
   @RuleProperty(
     key = "max",

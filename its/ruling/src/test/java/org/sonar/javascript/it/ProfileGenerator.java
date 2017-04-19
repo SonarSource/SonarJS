@@ -42,7 +42,6 @@ public class ProfileGenerator {
   private static Multimap<String, Parameter> parameters = ImmutableListMultimap.<String, Parameter>builder()
     .put("S1451", new Parameter("headerFormat", "<![CDATA[// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.]]>"))
     .put("S1451", new Parameter("isRegularExpression", "true"))
-    .put("S138", new Parameter("max", "200"))
     .put("S2762", new Parameter("threshold", "1"))
     .build();
 
