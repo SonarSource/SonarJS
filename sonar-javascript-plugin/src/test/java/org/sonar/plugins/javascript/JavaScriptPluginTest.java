@@ -19,10 +19,13 @@
  */
 package org.sonar.plugins.javascript;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 
@@ -35,6 +38,23 @@ public class JavaScriptPluginTest {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(5, 6), SonarQubeSide.SERVER));
 
     assertThat(context.getExtensions()).hasSize(12);
+  }
+
+  @Test
+  public void should_contain_right_properties_number() throws Exception {
+    assertThat(properties()).hasSize(8);
+  }
+
+  @Test
+  public void should_have_javascript_as_category_for_properties() throws Exception {
+
+    List<PropertyDefinition> properties = properties();
+
+    assertThat(properties).isNotEmpty();
+
+    for (PropertyDefinition propertyDefinition : properties) {
+      assertThat(propertyDefinition.category()).isEqualTo("JavaScript");
+    }
   }
 
   @Test
@@ -56,6 +76,19 @@ public class JavaScriptPluginTest {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(Version.create(6, 0)));
 
     assertThat(context.getExtensions()).hasSize(12);
+  }
+
+  private List<PropertyDefinition> properties() {
+    List<PropertyDefinition> propertiesList = new ArrayList<>();
+    List extensions = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(5, 6), SonarQubeSide.SERVER)).getExtensions();
+
+    for (Object extension : extensions) {
+      if (extension instanceof PropertyDefinition) {
+        propertiesList.add((PropertyDefinition) extension);
+      }
+    }
+
+    return propertiesList;
   }
 
   private Plugin.Context setupContext(SonarRuntime runtime) {
