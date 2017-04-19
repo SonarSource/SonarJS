@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -37,8 +37,8 @@ public class IndexOfCompareToPositiveNumberCheck extends SubscriptionVisitorChec
   private static final String MESSAGE = "0 is a valid index, but is ignored by this check.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.GREATER_THAN);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Kind.GREATER_THAN);
   }
 
   @Override
@@ -55,7 +55,7 @@ public class IndexOfCompareToPositiveNumberCheck extends SubscriptionVisitorChec
     if (expression.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpr = (CallExpressionTree) expression;
 
-      if (callExpr.arguments().parameters().size() == 1 && callExpr.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
+      if (callExpr.argumentClause().arguments().size() == 1 && callExpr.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
         DotMemberExpressionTree memberExpr = (DotMemberExpressionTree) ((CallExpressionTree) expression).callee();
         return "indexOf".equals(memberExpr.property().name());
       }

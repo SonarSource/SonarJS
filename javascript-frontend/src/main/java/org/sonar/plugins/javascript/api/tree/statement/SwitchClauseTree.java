@@ -32,7 +32,7 @@ public interface SwitchClauseTree extends Tree {
 
   SyntaxToken keyword();
 
-  SyntaxToken colon();
+  SyntaxToken colonToken();
 
   List<StatementTree> statements();
 

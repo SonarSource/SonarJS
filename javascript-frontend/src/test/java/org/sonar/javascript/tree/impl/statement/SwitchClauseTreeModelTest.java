@@ -34,7 +34,7 @@ public class SwitchClauseTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.CASE_CLAUSE)).isTrue();
     assertThat(tree.keyword().text()).isEqualTo("case");
     assertThat(expressionToString(tree.expression())).isEqualTo("1");
-    assertThat(tree.colon().text()).isEqualTo(":");
+    assertThat(tree.colonToken().text()).isEqualTo(":");
   }
 
   @Test
@@ -43,7 +43,7 @@ public class SwitchClauseTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.DEFAULT_CLAUSE)).isTrue();
     assertThat(tree.keyword().text()).isEqualTo("default");
-    assertThat(tree.colon().text()).isEqualTo(":");
+    assertThat(tree.colonToken().text()).isEqualTo(":");
   }
 
 }

@@ -36,9 +36,9 @@ public class IfStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.IF_STATEMENT)).isTrue();
     assertThat(tree.ifKeyword().text()).isEqualTo(JavaScriptKeyword.IF.getValue());
-    assertThat(tree.openParenthesis().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.openParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.condition()).isNotNull();
-    assertThat(tree.closeParenthesis().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
 
@@ -48,9 +48,9 @@ public class IfStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.IF_STATEMENT)).isTrue();
     assertThat(tree.ifKeyword().text()).isEqualTo(JavaScriptKeyword.IF.getValue());
-    assertThat(tree.openParenthesis().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.openParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.condition()).isNotNull();
-    assertThat(tree.closeParenthesis().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
 
     assertThat(tree.elseClause().elseKeyword().text()).isEqualTo(JavaScriptKeyword.ELSE.getValue());

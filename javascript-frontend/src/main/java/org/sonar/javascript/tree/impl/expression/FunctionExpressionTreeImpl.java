@@ -29,6 +29,7 @@ import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -84,7 +85,7 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
 
   @Nullable
   @Override
-  public SyntaxToken star() {
+  public SyntaxToken starToken() {
     return star;
   }
 
@@ -116,7 +117,7 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
   }
 
   @Override
-  public List<Tree> parameterList() {
+  public List<BindingElementTree> parameterList() {
     return parameters.parameters();
   }
 

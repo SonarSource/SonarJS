@@ -20,13 +20,13 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -47,8 +47,8 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
   private List<StatementTree> excludedStatements = new ArrayList<>();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(
       Kind.VARIABLE_STATEMENT,
       Kind.EXPRESSION_STATEMENT,
       Kind.IF_STATEMENT,
@@ -91,20 +91,20 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
     }
 
     if (!tree.is(Kind.SCRIPT, Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION) && !excludedStatements.contains(tree)){
-      statementsPerLine.put(((JavaScriptTree) tree).getLine(), (StatementTree) tree);
+      statementsPerLine.put(tree.firstToken().line(), (StatementTree) tree);
     }
   }
 
   private void checkForExcludedStatement(StatementTree nestedStatement, Tree statement) {
-    int statementLine = ((JavaScriptTree) statement).getLine();
+    int statementLine = statement.firstToken().line();
 
     if (nestedStatement.is(Kind.BLOCK)) {
       BlockTree blockTree = (BlockTree) nestedStatement;
-      if (blockTree.closeCurlyBrace().line() == statementLine && blockTree.statements().size() == 1) {
+      if (blockTree.closeCurlyBraceToken().line() == statementLine && blockTree.statements().size() == 1) {
         excludedStatements.add(blockTree.statements().get(0));
       }
     } else {
-      int nestedStatementLine = ((JavaScriptTree) nestedStatement).getLine();
+      int nestedStatementLine = nestedStatement.firstToken().line();
 
       if (nestedStatementLine == statementLine) {
         excludedStatements.add(nestedStatement);
@@ -118,9 +118,9 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
       return;
     }
 
-    int line = ((JavaScriptTree) functionTree).getLine();
+    int line = functionTree.firstToken().line();
     List<StatementTree> statements = ((BlockTree) functionTree.body()).statements();
-    if (statements.size() == 1 && ((JavaScriptTree)statements.get(0)).getLine() == line && statementsPerLine.containsKey(line)) {
+    if (statements.size() == 1 && statements.get(0).firstToken().line() == line && statementsPerLine.containsKey(line)) {
       excludedStatements.add(statements.get(0));
     }
   }

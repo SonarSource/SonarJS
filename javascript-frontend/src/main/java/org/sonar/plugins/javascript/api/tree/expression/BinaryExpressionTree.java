@@ -66,7 +66,7 @@ public interface BinaryExpressionTree extends ExpressionTree {
 
   ExpressionTree leftOperand();
 
-  SyntaxToken operator();
+  SyntaxToken operatorToken();
 
   ExpressionTree rightOperand();
 

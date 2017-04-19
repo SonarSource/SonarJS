@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
@@ -30,7 +31,6 @@ import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -79,13 +79,13 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
   }
 
   private void checkArgumentToBeFunctionWithReturn(DotMemberExpressionTree callee, int argumentIndex, ProgramState currentState) {
-    Tree parent = ((JavaScriptTree) callee).getParent();
+    Tree parent = callee.parent();
 
     if (parent.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpressionTree = (CallExpressionTree) parent;
 
-      if (callExpressionTree.arguments().parameters().size() > argumentIndex) {
-        Tree argument = callExpressionTree.arguments().parameters().get(argumentIndex);
+      if (callExpressionTree.argumentClause().arguments().size() > argumentIndex) {
+        Tree argument = callExpressionTree.argumentClause().arguments().get(argumentIndex);
 
         if (argument.is(Kind.FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION) && !hasReturnWithValue((FunctionTree)argument)) {
           addUniqueIssue(functionToken((FunctionTree) argument), MESSAGE);
@@ -98,9 +98,9 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
   }
 
   private void checkArgumentIdentifier(IdentifierTree argument, ProgramState currentState) {
-    Symbol symbol = argument.symbol();
-    if (symbol != null) {
-      SymbolicValue symbolicValue = currentState.getSymbolicValue(symbol);
+    Optional<Symbol> symbol = argument.symbol();
+    if (symbol.isPresent()) {
+      SymbolicValue symbolicValue = currentState.getSymbolicValue(symbol.get());
 
       if (symbolicValue instanceof FunctionWithTreeSymbolicValue) {
         FunctionTree functionTree = ((FunctionWithTreeSymbolicValue) symbolicValue).getFunctionTree();
@@ -123,7 +123,7 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
       token = ((FunctionExpressionTree) functionTree).functionKeyword();
 
     } else {
-      token = ((ArrowFunctionTree) functionTree).doubleArrow();
+      token = ((ArrowFunctionTree) functionTree).doubleArrowToken();
     }
 
     return token;

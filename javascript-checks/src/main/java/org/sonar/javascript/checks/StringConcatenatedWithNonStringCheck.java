@@ -50,7 +50,7 @@ public class StringConcatenatedWithNonStringCheck extends AbstractAllPathSeCheck
 
   @Override
   void raiseIssue(BinaryExpressionTree tree) {
-    addIssue(tree.operator(), MESSAGE)
+    addIssue(tree.operatorToken(), MESSAGE)
       .secondary(tree.leftOperand())
       .secondary(tree.rightOperand());
   }

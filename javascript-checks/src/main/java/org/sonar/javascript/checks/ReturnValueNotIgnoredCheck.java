@@ -26,7 +26,7 @@ import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.javascript.tree.impl.declaration.FunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.CallExpressionTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -44,7 +44,7 @@ public class ReturnValueNotIgnoredCheck extends AbstractAnyPathSeCheck {
   public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
     if (element.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTreeImpl callExpression = (CallExpressionTreeImpl) element;
-      Tree parent = callExpression.getParent();
+      Tree parent = callExpression.parent();
       if (parent.is(Kind.EXPRESSION_STATEMENT) && !hasSideEffects(callExpression, currentState) && !hasCallbackArgumentWithSideEffects(callExpression)) {
         String message = String.format(MESSAGE, getCalleeName(callExpression));
         addUniqueIssue(callExpression, message);
@@ -53,7 +53,7 @@ public class ReturnValueNotIgnoredCheck extends AbstractAnyPathSeCheck {
   }
 
   private static boolean hasCallbackArgumentWithSideEffects(CallExpressionTreeImpl callExpression) {
-    for (Tree argument : callExpression.arguments().parameters()) {
+    for (Tree argument : callExpression.argumentClause().arguments()) {
       if (argument.is(KindSet.FUNCTION_KINDS) && ((FunctionTreeImpl) argument).outerScopeSymbolUsages().findAny().isPresent()) {
         return true;
       }
@@ -66,7 +66,7 @@ public class ReturnValueNotIgnoredCheck extends AbstractAnyPathSeCheck {
    * Returns false if the specified call has or may have side effects. 
    */
   private static boolean hasSideEffects(CallExpressionTree callExpression, ProgramState state) {
-    SeparatedList<Tree> arguments = callExpression.arguments().parameters();
+    SeparatedList<ExpressionTree> arguments = callExpression.argumentClause().arguments();
     SymbolicValue calleeValue = state.peekStack(arguments.size());
     if (calleeValue instanceof BuiltInFunctionSymbolicValue) {
       BuiltInFunctionSymbolicValue builtInFunction = (BuiltInFunctionSymbolicValue) calleeValue;

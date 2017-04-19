@@ -85,7 +85,7 @@ public class DifferentTypesComparisonCheck extends SeCheck {
   private void raiseIssue(BinaryExpressionTree tree) {
     String message = tree.is(Kind.STRICT_EQUAL_TO) ? MESSAGE_EQUAL : MESSAGE_NOT_EQUAL;
 
-    addIssue(tree.operator(), message)
+    addIssue(tree.operatorToken(), message)
       .secondary(tree.leftOperand())
       .secondary(tree.rightOperand());
   }

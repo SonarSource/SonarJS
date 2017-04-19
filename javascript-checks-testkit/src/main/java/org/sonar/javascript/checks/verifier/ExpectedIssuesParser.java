@@ -20,9 +20,10 @@
 package org.sonar.javascript.checks.verifier;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -45,8 +46,8 @@ class ExpectedIssuesParser extends SubscriptionVisitorCheck {
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.TOKEN);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Kind.TOKEN);
   }
 
   @Override

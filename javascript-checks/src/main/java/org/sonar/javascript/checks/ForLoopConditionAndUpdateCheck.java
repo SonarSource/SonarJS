@@ -152,7 +152,7 @@ public class ForLoopConditionAndUpdateCheck extends DoubleDispatchVisitorCheck {
       } else {
         logTestedExpression(tree.callee());
       }
-      scan(tree.arguments());
+      scan(tree.argumentClause());
     }
 
     private void checkForUpdate(ExpressionTree tree) {

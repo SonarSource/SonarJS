@@ -25,7 +25,7 @@ import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
@@ -46,7 +46,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   }
 
   @Override
-  public SyntaxToken openCurlyBrace() {
+  public SyntaxToken openCurlyBraceToken() {
     return openCurlyBrace;
   }
 
@@ -56,7 +56,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   }
 
   @Override
-  public SyntaxToken closeCurlyBrace() {
+  public SyntaxToken closeCurlyBraceToken() {
     return closeCurlyBrace;
   }
 

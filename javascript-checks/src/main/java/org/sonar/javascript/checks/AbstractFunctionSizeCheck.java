@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -47,8 +48,8 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
   abstract void checkFunction(FunctionTree functionTree);
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .add(Kind.CALL_EXPRESSION,
         Kind.NEW_EXPRESSION)
@@ -71,7 +72,7 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
     }
 
     if (tree.is(Kind.NEW_EXPRESSION)) {
-      if (((NewExpressionTree) tree).arguments() != null) {
+      if (((NewExpressionTree) tree).argumentClause() != null) {
         checkForImmediatelyInvokedFunction(((NewExpressionTree) tree).expression());
       }
       return;
@@ -86,7 +87,7 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
 
   private void checkForAMDPattern(CallExpressionTree tree) {
     if (tree.callee().is(Kind.IDENTIFIER_REFERENCE) && "define".equals(((IdentifierTree) tree.callee()).name())) {
-      for (Tree parameter : tree.arguments().parameters()) {
+      for (Tree parameter : tree.argumentClause().arguments()) {
         if (parameter.is(Kind.FUNCTION_EXPRESSION)) {
           amdPattern = true;
         }
@@ -108,10 +109,10 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
       DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
 
       if (callee.object().types().contains(Type.Kind.ANGULAR_MODULE)) {
-        SeparatedList<Tree> parameters = tree.arguments().parameters();
+        SeparatedList<ExpressionTree> arguments = tree.argumentClause().arguments();
 
-        if (!parameters.isEmpty()) {
-          Tree lastArgument = parameters.get(parameters.size() - 1);
+        if (!arguments.isEmpty()) {
+          Tree lastArgument = arguments.get(arguments.size() - 1);
 
           checkArrayLiteral(lastArgument);
           checkSimpleArgument(lastArgument);

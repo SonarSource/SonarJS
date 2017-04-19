@@ -29,12 +29,13 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
@@ -105,6 +106,13 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     enterScope(tree);
     super.visitMethodDeclaration(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    enterScope(tree);
+    super.visitAccessorMethodDeclaration(tree);
     leaveScope();
   }
 
@@ -180,7 +188,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
     if (tree.variable().is(Kind.IDENTIFIER_REFERENCE)) {
       IdentifierTree identifier = (IdentifierTree) tree.variable();
       Usage.Kind usageKind = Usage.Kind.WRITE;
-      if (!tree.operator().text().equals(JavaScriptPunctuator.EQU.getValue())) {
+      if (!tree.operatorToken().text().equals(JavaScriptPunctuator.EQU.getValue())) {
         usageKind = Usage.Kind.READ_WRITE;
       }
 

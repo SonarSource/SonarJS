@@ -38,9 +38,9 @@ public class DoWhileStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.doKeyword().text()).isEqualTo(JavaScriptKeyword.DO.getValue());
     assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
     assertThat(tree.whileKeyword().text()).isEqualTo(JavaScriptKeyword.WHILE.getValue());
-    assertThat(tree.openParenthesis().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.openParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.condition()).isNotNull();
-    assertThat(tree.closeParenthesis().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.semicolonToken()).isNotNull();
   }
 

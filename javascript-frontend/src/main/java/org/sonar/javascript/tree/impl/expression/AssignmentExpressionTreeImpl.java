@@ -53,7 +53,7 @@ public class AssignmentExpressionTreeImpl extends JavaScriptTree implements Assi
   }
 
   @Override
-  public SyntaxToken operator() {
+  public SyntaxToken operatorToken() {
     return operator;
   }
 

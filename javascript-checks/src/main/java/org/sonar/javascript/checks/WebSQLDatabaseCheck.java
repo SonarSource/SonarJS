@@ -55,6 +55,6 @@ public class WebSQLDatabaseCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean isOpenDatabase(ExpressionTree callee) {
-    return callee.is(Kind.IDENTIFIER_REFERENCE, Kind.IDENTIFIER_NAME) && ((IdentifierTree) callee).name().equals(OPEN_DATABASE);
+    return callee.is(Kind.IDENTIFIER_REFERENCE, Kind.PROPERTY_IDENTIFIER) && ((IdentifierTree) callee).name().equals(OPEN_DATABASE);
   }
 }

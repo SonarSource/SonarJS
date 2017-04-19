@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -54,7 +53,7 @@ public class VariableDeclarationAfterUsageCheck extends DoubleDispatchVisitorChe
     }
 
     private static int getLine(Usage usage) {
-      return ((JavaScriptTree) usage.identifierTree()).getLine();
+      return usage.identifierTree().identifierToken().line();
     }
   }
 

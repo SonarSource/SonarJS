@@ -21,7 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -34,9 +34,9 @@ public class EmptyBlockCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitBlock(BlockTree tree) {
-    JavaScriptTree parent = ((JavaScriptTree) tree).getParent();
+    Tree parent = tree.parent();
 
-    if (!parent.is(KindSet.FUNCTION_KINDS, Kind.CATCH_BLOCK) && tree.statements().isEmpty() && !hasComment(tree.closeCurlyBrace())) {
+    if (!parent.is(KindSet.FUNCTION_KINDS, Kind.CATCH_BLOCK) && tree.statements().isEmpty() && !hasComment(tree.closeCurlyBraceToken())) {
       addIssue(tree, MESSAGE);
     }
     super.visitBlock(tree);

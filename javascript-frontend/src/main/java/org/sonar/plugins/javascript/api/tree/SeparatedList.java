@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.declaration;
+package org.sonar.plugins.javascript.api.tree;
 
-import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import com.google.common.base.Function;
+import java.util.Iterator;
+import java.util.List;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 
-/**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator Method</a>
- * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>)
- * <pre>
- *   {@link Tree.Kind#GENERATOR_METHOD *} {@link #name()} {@link #parameterClause()} {@link #body()}
- * </pre>
- */
-@Beta
-public interface GeneratorMethodDeclarationTree extends MethodDeclarationTree {
 
-  SyntaxToken starToken();
+public interface SeparatedList<T> extends List<T> {
 
+  InternalSyntaxToken getSeparator(int i);
+
+  List<InternalSyntaxToken> getSeparators();
+
+  Iterator<Tree> elementsAndSeparators(final Function<T, ? extends Tree> elementTransformer);
 }

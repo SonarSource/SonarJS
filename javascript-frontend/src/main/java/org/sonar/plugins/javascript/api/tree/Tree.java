@@ -20,6 +20,8 @@
 package org.sonar.plugins.javascript.api.tree;
 
 import com.google.common.annotations.Beta;
+import java.util.stream.Stream;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
@@ -29,10 +31,10 @@ import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
+import org.sonar.plugins.javascript.api.tree.declaration.ExtendsClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
@@ -51,7 +53,7 @@ import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -120,7 +122,19 @@ public interface Tree {
 
   boolean is(Kinds... kind);
 
+  SyntaxToken lastToken();
+
+  SyntaxToken firstToken();
+
   void accept(DoubleDispatchVisitor visitor);
+
+  boolean isAncestorOf(Tree tree);
+
+  Stream<JavaScriptTree> descendants();
+
+  Stream<Tree> childrenStream();
+
+  Tree parent();
 
   public enum Kind implements GrammarRuleKey, Kinds {
 
@@ -273,20 +287,15 @@ public interface Tree {
     /**
      * {@link IdentifierTree}
      * Used for identifiers which don't exist in any scope (e.g. object properties, exported and imported names)
+     * Corresponds to <a href="https://tc39.github.io/ecma262/#prod-IdentifierName">IdentifierName</a> in ECMAScript Grammar
      */
-    IDENTIFIER_NAME(IdentifierTree.class),
+    PROPERTY_IDENTIFIER(IdentifierTree.class),
 
     /**
      * {@link IdentifierTree}
      * Used for identifiers which create new variable existing in some scope (e.g. class/function names, exported names, variable declaration)
      */
     BINDING_IDENTIFIER(IdentifierTree.class),
-
-    /**
-     * {@link IdentifierTree}
-     * Used in label statement and break/continue statements with label
-     */
-    LABEL_IDENTIFIER(IdentifierTree.class),
 
     /**
      * {@link LiteralTree}
@@ -732,7 +741,7 @@ public interface Tree {
     /**
      * {@link ParameterListTree}
      */
-    FORMAL_PARAMETER_LIST(ParameterListTree.class),
+    PARAMETER_LIST(ParameterListTree.class),
 
     /**
      * {@link TaggedTemplateTree}
@@ -742,10 +751,10 @@ public interface Tree {
     /**
      * {@link ParameterListTree}
      */
-    ARGUMENTS(ParameterListTree.class),
+    ARGUMENT_LIST(ParameterListTree.class),
 
     /**
-     * {@link org.sonar.plugins.javascript.api.tree.expression.ClassTree}
+     * {@link ClassTree}
      */
     CLASS_EXPRESSION(ClassTree.class),
 
@@ -780,9 +789,9 @@ public interface Tree {
     GET_METHOD(AccessorMethodDeclarationTree.class),
 
     /**
-     * {@link AccessorMethodDeclarationTree}
+     * {@link MethodDeclarationTree}
      */
-    GENERATOR_METHOD(GeneratorMethodDeclarationTree.class),
+    GENERATOR_METHOD(MethodDeclarationTree.class),
 
     /**
      * {@link MethodDeclarationTree}
@@ -798,6 +807,11 @@ public interface Tree {
      * {@link ClassTree}
      */
     CLASS_DECLARATION(ClassTree.class),
+
+    /**
+     * {@link ExtendsClauseTree}
+     */
+    EXTENDS_CLAUSE(ExtendsClauseTree.class),
 
     /**
      * {@link DecoratorTree}

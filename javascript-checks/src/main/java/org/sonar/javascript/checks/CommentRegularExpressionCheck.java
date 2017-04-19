@@ -20,8 +20,8 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -83,7 +83,7 @@ public class CommentRegularExpressionCheck extends SubscriptionVisitorCheck {
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.TOKEN);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Kind.TOKEN);
   }
 }

@@ -19,11 +19,9 @@
  */
 package org.sonar.javascript.metrics;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
@@ -37,8 +35,8 @@ public class ExecutableLineVisitor extends SubscriptionVisitorCheck {
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(
       Kind.DEBUGGER_STATEMENT,
       Kind.VARIABLE_STATEMENT,
       Kind.LABELLED_STATEMENT,
@@ -60,7 +58,7 @@ public class ExecutableLineVisitor extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    executableLines.add(((JavaScriptTree) tree).getLine());
+    executableLines.add(tree.firstToken().line());
   }
 
   public Set<Integer> getExecutableLines() {

@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -44,8 +45,8 @@ public class UntrustedContentCheck extends SubscriptionVisitorCheck {
   private List<Pattern> patterns = null;
 
   @Override
-  public List<Tree.Kind> nodesToVisit() {
-    return ImmutableList.of(Tree.Kind.STRING_LITERAL);
+  public Set<Tree.Kind> nodesToVisit() {
+    return ImmutableSet.of(Tree.Kind.STRING_LITERAL);
   }
 
   @Override
@@ -72,7 +73,7 @@ public class UntrustedContentCheck extends SubscriptionVisitorCheck {
           addIssue(tree, MESSAGE);
         }
       } catch (URISyntaxException e) {
-        // we don't consider uri, which could not be parsed
+        // we don't consider uris which could not be parsed
       }
     }
   }

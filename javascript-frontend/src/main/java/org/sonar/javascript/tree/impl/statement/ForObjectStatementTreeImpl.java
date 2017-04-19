@@ -75,7 +75,7 @@ public class ForObjectStatementTreeImpl extends JavaScriptTree implements ForObj
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openParenthesis;
   }
 
@@ -95,7 +95,7 @@ public class ForObjectStatementTreeImpl extends JavaScriptTree implements ForObj
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closeParenthesis;
   }
 

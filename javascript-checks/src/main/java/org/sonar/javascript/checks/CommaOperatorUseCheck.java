@@ -93,10 +93,10 @@ public class CommaOperatorUseCheck extends DoubleDispatchVisitorCheck {
 
   private static List<SyntaxToken> getCommas(BinaryExpressionTree tree) {
     List<SyntaxToken> commas = new ArrayList<>();
-    commas.add(tree.operator());
+    commas.add(tree.operatorToken());
     ExpressionTree currentExpression = tree.leftOperand();
     while (currentExpression.is(Kind.COMMA_OPERATOR)) {
-      commas.add(((BinaryExpressionTree) currentExpression).operator());
+      commas.add(((BinaryExpressionTree) currentExpression).operatorToken());
       currentExpression = ((BinaryExpressionTree) currentExpression).leftOperand();
     }
     return Lists.reverse(commas);

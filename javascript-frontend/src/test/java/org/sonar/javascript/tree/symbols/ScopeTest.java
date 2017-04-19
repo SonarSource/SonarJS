@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -41,7 +40,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
 
   private Scope scopeAtLine(int line) {
     for (Scope scope : SYMBOL_MODEL.getScopes()) {
-      if (((JavaScriptTree) scope.tree()).getLine() == line) {
+      if (scope.tree().firstToken().line() == line) {
         return scope;
       }
     }

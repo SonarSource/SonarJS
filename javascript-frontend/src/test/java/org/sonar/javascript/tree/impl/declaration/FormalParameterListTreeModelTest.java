@@ -33,10 +33,10 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void parameters() throws Exception {
-    ParameterListTree tree = parse("function f(p1, p2, ...p3) {};", Kind.FORMAL_PARAMETER_LIST);
+    ParameterListTree tree = parse("function f(p1, p2, ...p3) {};", Kind.PARAMETER_LIST);
 
-    assertThat(tree.is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.is(Kind.PARAMETER_LIST)).isTrue();
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
 
     assertThat(tree.parameters().size()).isEqualTo(3);
     assertThat(expressionToString(tree.parameters().get(0))).isEqualTo("p1");
@@ -44,26 +44,26 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(expressionToString(tree.parameters().get(2))).isEqualTo("...p3");
 
     assertThat(tree.parameters().getSeparators().size()).isEqualTo(2);
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
   }
 
 
   @Test
   public void no_parameter() throws Exception {
-    ParameterListTree tree = parse("function f() {};", Kind.FORMAL_PARAMETER_LIST);
+    ParameterListTree tree = parse("function f() {};", Kind.PARAMETER_LIST);
 
-    assertThat(tree.is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.is(Kind.PARAMETER_LIST)).isTrue();
+    assertThat(tree.openParenthesisToken().text()).isEqualTo("(");
 
     assertThat(tree.parameters().size()).isEqualTo(0);
     assertThat(tree.parameters().getSeparators().size()).isEqualTo(0);
 
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(")");
   }
 
   @Test
   public void parametersIdentifiers() throws Exception {
-    ParameterListTree tree = parse("function f(p1, p2 = 0, { name:p3 }, [,,p4], ...p5) {};", Kind.FORMAL_PARAMETER_LIST);
+    ParameterListTree tree = parse("function f(p1, p2 = 0, { name:p3 }, [,,p4], ...p5) {};", Kind.PARAMETER_LIST);
 
     List<IdentifierTree> parameters = ((ParameterListTreeImpl) tree).parameterIdentifiers();
     assertThat(parameters.size()).isEqualTo(5);
@@ -74,9 +74,4 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(parameters.get(4).name()).isEqualTo("p5");
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void actual_parameters_identifiers() throws Exception {
-    ParameterListTree tree = parse("foo(p1, 1 + 1)", Kind.ARGUMENTS);
-    ((ParameterListTreeImpl) tree).parameterIdentifiers();
-  }
 }

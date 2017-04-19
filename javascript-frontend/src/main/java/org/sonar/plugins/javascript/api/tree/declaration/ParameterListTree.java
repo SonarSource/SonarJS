@@ -20,9 +20,8 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
@@ -33,12 +32,12 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </pre>
  */
 @Beta
-public interface ParameterListTree extends DeclarationTree, ExpressionTree {
+public interface ParameterListTree extends Tree {
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
-  SeparatedList<Tree> parameters();
+  SeparatedList<BindingElementTree> parameters();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
 }

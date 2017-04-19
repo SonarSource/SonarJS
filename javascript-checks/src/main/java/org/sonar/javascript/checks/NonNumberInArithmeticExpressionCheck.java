@@ -100,7 +100,7 @@ public class NonNumberInArithmeticExpressionCheck extends AbstractAnyPathSeCheck
       Type operandType = currentState.getConstraint(currentState.peekStack()).type();
       ExpressionTree operand = ((UnaryExpressionTree) element).expression();
       if (BOOLEAN_STRING_DATE.contains(operandType)) {
-        raiseIssue(operand, ((UnaryExpressionTree) element).operator());
+        raiseIssue(operand, ((UnaryExpressionTree) element).operatorToken());
       }
     }
   }
@@ -116,13 +116,13 @@ public class NonNumberInArithmeticExpressionCheck extends AbstractAnyPathSeCheck
       AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
       leftOperand = assignment.variable();
       rightOperand = assignment.expression();
-      operator = assignment.operator();
+      operator = assignment.operatorToken();
 
     } else {
       BinaryExpressionTree binaryExpression = (BinaryExpressionTree) element;
       leftOperand = binaryExpression.leftOperand();
       rightOperand = binaryExpression.rightOperand();
-      operator = binaryExpression.operator();
+      operator = binaryExpression.operatorToken();
     }
 
     if (element.is(PLUS_KINDS)) {

@@ -25,10 +25,10 @@ import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
@@ -38,29 +38,29 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class ParameterListTreeImpl extends JavaScriptTree implements ParameterListTree {
 
   private InternalSyntaxToken openParenthesis;
-  private final SeparatedList<Tree> parameters;
+  private final SeparatedList<BindingElementTree> parameters;
   private InternalSyntaxToken closeParenthesis;
   private final Kind kind;
 
-  public ParameterListTreeImpl(Kind kind, InternalSyntaxToken openParenthesis, SeparatedList<Tree> parameters, InternalSyntaxToken closeParenthesis) {
+  public ParameterListTreeImpl(InternalSyntaxToken openParenthesis, SeparatedList<BindingElementTree> parameters, InternalSyntaxToken closeParenthesis) {
     this.openParenthesis = openParenthesis;
     this.parameters = parameters;
     this.closeParenthesis = closeParenthesis;
-    this.kind = kind;
+    this.kind = Kind.PARAMETER_LIST;
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openParenthesis;
   }
 
   @Override
-  public SeparatedList<Tree> parameters() {
+  public SeparatedList<BindingElementTree> parameters() {
     return parameters;
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closeParenthesis;
   }
 
@@ -73,7 +73,7 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
       Iterators.singletonIterator(openParenthesis),
-      parameters.elementsAndSeparators(Functions.<Tree>identity()),
+      parameters.elementsAndSeparators(Functions.identity()),
       Iterators.singletonIterator(closeParenthesis));
   }
 
@@ -83,10 +83,6 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   }
 
   public List<IdentifierTree> parameterIdentifiers() {
-    if (kind != Kind.FORMAL_PARAMETER_LIST) {
-      throw new IllegalStateException("ParameterListTreeImpl#parameterIdentifiers() can be called for Tree.Kind.FORMAL_PARAMETER_LIST only.");
-    }
-
     List<IdentifierTree> identifiers = Lists.newArrayList();
 
     for (Tree parameter : parameters) {
@@ -108,10 +104,5 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
       }
     }
     return identifiers;
-  }
-
-  @Override
-  public TypeSet types() {
-    return TypeSet.emptyTypeSet();
   }
 }

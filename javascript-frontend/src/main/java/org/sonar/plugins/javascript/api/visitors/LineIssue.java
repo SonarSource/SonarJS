@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.api.visitors;
 
 import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
@@ -47,7 +46,7 @@ public class LineIssue implements Issue {
   public LineIssue(JavaScriptCheck check, Tree tree, String message) {
     this.check = check;
     this.message = message;
-    this.line = ((JavaScriptTree) tree).getLine();
+    this.line = tree.firstToken().line();
     this.cost = null;
   }
 

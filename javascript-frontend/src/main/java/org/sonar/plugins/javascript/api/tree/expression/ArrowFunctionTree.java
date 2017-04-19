@@ -41,12 +41,12 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 public interface ArrowFunctionTree extends ExpressionTree, FunctionTree {
 
   /**
-   * Either {@link IdentifierTree} or {@link ParameterListTree} ({@link Tree.Kind#FORMAL_PARAMETER_LIST})
+   * Either {@link IdentifierTree} or {@link ParameterListTree} ({@link Tree.Kind#PARAMETER_LIST})
    */
   @Override
   Tree parameterClause();
 
-  SyntaxToken doubleArrow();
+  SyntaxToken doubleArrowToken();
 
   /**
    * Either {@link BlockTree} or {@link ExpressionTree}

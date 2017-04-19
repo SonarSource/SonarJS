@@ -36,7 +36,7 @@ public class ObjectBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
     ObjectBindingPatternTree tree = parse("var { a, b = 1, c : z, } = obj", Kind.OBJECT_BINDING_PATTERN);
 
     assertThat(tree.is(Kind.OBJECT_BINDING_PATTERN)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
 
     assertThat(tree.elements().size()).isEqualTo(3);
     assertThat(tree.elements().getSeparators().size()).isEqualTo(3);
@@ -45,7 +45,7 @@ public class ObjectBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.elements().get(1).is(Kind.INITIALIZED_BINDING_ELEMENT)).isTrue();
     assertThat(tree.elements().get(2).is(Kind.BINDING_PROPERTY)).isTrue();
 
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
+    assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
   @Test

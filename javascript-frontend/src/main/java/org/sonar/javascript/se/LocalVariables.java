@@ -22,6 +22,7 @@ package org.sonar.javascript.se;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
@@ -86,9 +87,9 @@ public class LocalVariables {
   }
 
   private void add(IdentifierTree identifier, SetMultimap<Symbol, IdentifierTree> localVarIdentifiersInCfg) {
-    Symbol symbol = identifier.symbol();
-    if (symbol != null && isLocalVariable(symbol)) {
-      localVarIdentifiersInCfg.put(identifier.symbol(), identifier);
+    Optional<Symbol> symbol = identifier.symbol();
+    if (symbol.isPresent() && isLocalVariable(symbol.get())) {
+      localVarIdentifiersInCfg.put(symbol.get(), identifier);
     }
   }
 

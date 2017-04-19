@@ -36,7 +36,7 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.NEW_SUPER)).isTrue();
     assertThat(tree.newKeyword().text()).isEqualTo(JavaScriptKeyword.NEW.getValue());
     assertThat(tree.expression().is(Kind.SUPER)).isTrue();
-    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.argumentClause()).isNotNull();
   }
 
   @Test
@@ -46,7 +46,7 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.NEW_SUPER)).isTrue();
     assertThat(tree.newKeyword().text()).isEqualTo(JavaScriptKeyword.NEW.getValue());
     assertThat(tree.expression().is(Kind.SUPER)).isTrue();
-    assertThat(tree.arguments()).isNull();
+    assertThat(tree.argumentClause()).isNull();
   }
 
   @Test
@@ -56,7 +56,7 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
     assertThat(tree.newKeyword().text()).isEqualTo(JavaScriptKeyword.NEW.getValue());
     assertThat(tree.expression().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
-    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.argumentClause()).isNotNull();
   }
 
   @Test
@@ -66,7 +66,7 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
     assertThat(tree.newKeyword().text()).isEqualTo(JavaScriptKeyword.NEW.getValue());
     assertThat(tree.expression().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
-    assertThat(tree.arguments()).isNull();
+    assertThat(tree.argumentClause()).isNull();
   }
 
   @Test
@@ -76,14 +76,14 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
     assertThat(tree.newKeyword().text()).isEqualTo(JavaScriptKeyword.NEW.getValue());
     assertThat(tree.expression().is(Kind.NEW_EXPRESSION)).isTrue();
-    assertThat(tree.arguments()).isNull();
+    assertThat(tree.argumentClause()).isNull();
 
     tree = (NewExpressionTree) tree.expression();
 
     assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
     assertThat(tree.newKeyword().text()).isEqualTo(JavaScriptKeyword.NEW.getValue());
     assertThat(tree.expression().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
-    assertThat(tree.arguments()).isNull();
+    assertThat(tree.argumentClause()).isNull();
   }
 
 }

@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -33,8 +33,8 @@ public class ConditionalCommentCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "Refactor your code to avoid using Internet Explorer's conditional comments.";
 
   @Override
-  public List<Tree.Kind> nodesToVisit() {
-    return ImmutableList.of(Tree.Kind.TOKEN);
+  public Set<Tree.Kind> nodesToVisit() {
+    return ImmutableSet.of(Tree.Kind.TOKEN);
   }
 
   @Override

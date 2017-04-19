@@ -31,6 +31,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -46,13 +47,13 @@ public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitCallExpression(CallExpressionTree callExpression) {
-    List<String> argumentNames = names(callExpression.arguments().parameters());
+    List<String> argumentNames = names(callExpression.argumentClause().arguments());
     if (argumentNames != null) {
       FunctionTree functionDeclaration = functionDeclaration(callExpression);
       if (functionDeclaration != null) {
         List<String> parameterNames = names(parameters(functionDeclaration));
         if (parameterNames != null && haveSameNamesAndDifferentOrders(argumentNames, parameterNames)) {
-          addIssue(callExpression.arguments(), message(functionDeclaration))
+          addIssue(callExpression.argumentClause(), message(functionDeclaration))
             .secondary(functionDeclaration.parameterClause());
         }
       }
@@ -60,12 +61,13 @@ public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
     super.visitCallExpression(callExpression);
   }
 
-  private static List<Tree> parameters(FunctionTree functionTree) {
-    if (functionTree.parameterClause().is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
+  private static List<BindingElementTree> parameters(FunctionTree functionTree) {
+    if (functionTree.parameterClause().is(Tree.Kind.PARAMETER_LIST)) {
       return ((ParameterListTree) functionTree.parameterClause()).parameters();
 
     } else {
-      return ImmutableList.of(functionTree.parameterClause());
+      // arrow function with single parameter
+      return ImmutableList.of((IdentifierTree) functionTree.parameterClause());
     }
   }
 
@@ -81,7 +83,7 @@ public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
   }
 
   @CheckForNull
-  private static List<String> names(List<Tree> list) {
+  private static <T extends Tree> List<String> names(List<T> list) {
     List<String> names = new ArrayList<>();
     for (Tree param : list) {
       Tree paramId = param;

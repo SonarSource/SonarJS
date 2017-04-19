@@ -44,7 +44,7 @@ public class SpreadElementTreeImpl extends JavaScriptTree implements SpreadEleme
   }
 
   @Override
-  public SyntaxToken ellipsis() {
+  public SyntaxToken ellipsisToken() {
     return ellipsis;
   }
 

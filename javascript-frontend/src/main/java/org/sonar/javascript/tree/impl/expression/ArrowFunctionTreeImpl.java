@@ -32,6 +32,7 @@ import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -61,13 +62,19 @@ public class ArrowFunctionTreeImpl extends FunctionTreeImpl implements ArrowFunc
     return asyncToken;
   }
 
+  @Nullable
+  @Override
+  public Tree name() {
+    return null;
+  }
+
   @Override
   public Tree parameterClause() {
     return parameters;
   }
 
   @Override
-  public SyntaxToken doubleArrow() {
+  public SyntaxToken doubleArrowToken() {
     return doubleArrow;
   }
 
@@ -77,12 +84,12 @@ public class ArrowFunctionTreeImpl extends FunctionTreeImpl implements ArrowFunc
   }
 
   @Override
-  public List<Tree> parameterList() {
-    if (this.parameters.is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
+  public List<BindingElementTree> parameterList() {
+    if (this.parameters.is(Tree.Kind.PARAMETER_LIST)) {
       return ((ParameterListTree) this.parameters).parameters();
 
     } else {
-      return ImmutableList.of(this.parameterClause());
+      return ImmutableList.of((IdentifierTree) this.parameterClause());
     }
   }
 

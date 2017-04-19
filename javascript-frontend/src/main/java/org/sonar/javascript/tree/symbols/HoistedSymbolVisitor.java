@@ -24,7 +24,7 @@ import java.util.Map;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.ClassTreeImpl;
 import org.sonar.javascript.tree.impl.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.tree.symbols.type.ObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -32,13 +32,14 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -162,16 +163,24 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    visitMethod(tree);
-  }
-
-  private void visitMethod(MethodDeclarationTree tree) {
     enterScope(tree);
 
     declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
     super.visitMethodDeclaration(tree);
+
+    leaveScope();
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    enterScope(tree);
+
+    declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
+    addFunctionBuiltInSymbols();
+
+    super.visitAccessorMethodDeclaration(tree);
 
     leaveScope();
   }

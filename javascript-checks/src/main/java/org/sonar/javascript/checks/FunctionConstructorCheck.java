@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -50,7 +50,7 @@ public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
    */
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
-    if (isNonEmptyFunctionConstructor(tree.expression(), tree.arguments())) {
+    if (isNonEmptyFunctionConstructor(tree.expression(), tree.argumentClause())) {
       addIssue(new PreciseIssue(this, new IssueLocation(tree.newKeyword(), tree.expression(), MESSAGE)));
     }
 
@@ -62,18 +62,18 @@ public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
    */
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (isNonEmptyFunctionConstructor(tree.callee(), tree.arguments())) {
+    if (isNonEmptyFunctionConstructor(tree.callee(), tree.argumentClause())) {
       addIssue(tree.callee(), MESSAGE);
     }
     
     super.visitCallExpression(tree);
   }
   
-  private static boolean isNonEmptyFunctionConstructor(ExpressionTree tree, @Nullable ParameterListTree arguments) {
+  private static boolean isNonEmptyFunctionConstructor(ExpressionTree tree, @Nullable ArgumentListTree arguments) {
     boolean result = false;
     if (tree.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       String name = ((IdentifierTree)tree).name();
-      result = "Function".equals(name) && arguments != null && !arguments.parameters().isEmpty();
+      result = "Function".equals(name) && arguments != null && !arguments.arguments().isEmpty();
     }
     return result;
   }

@@ -31,8 +31,8 @@ public interface NewTargetTree extends ExpressionTree {
 
   SyntaxToken newKeyword();
 
-  SyntaxToken dot();
+  SyntaxToken dotToken();
 
-  SyntaxToken target();
+  SyntaxToken targetKeyword();
 
 }

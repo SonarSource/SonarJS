@@ -20,12 +20,11 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.3">Call Expression</a>.
  * <pre>
- *   {@link #callee()} ( {@link #arguments()} )
+ *   {@link #callee()} ( {@link #argumentClause()} )
  * </pre>
  */
 @Beta
@@ -33,6 +32,6 @@ public interface CallExpressionTree extends ExpressionTree {
 
   ExpressionTree callee();
 
-  ParameterListTree arguments();
+  ArgumentListTree argumentClause();
 
 }

@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Type.Callability;
@@ -84,7 +83,7 @@ public class NewOperatorMisuseCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean hasJSDocAnnotation(FunctionTree funcDec) {
-    for (SyntaxTrivia trivia : ((JavaScriptTree) funcDec).getFirstToken().trivias()) {
+    for (SyntaxTrivia trivia : funcDec.firstToken().trivias()) {
       if (trivia.text().contains("@constructor") || trivia.text().contains("@class")) {
         return true;
       }

@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -107,13 +107,13 @@ public class HighlightSymbolTableBuilder {
 
     @Override
     public void visitBlock(BlockTree tree) {
-      highlightBraces(tree.openCurlyBrace(), tree.closeCurlyBrace());
+      highlightBraces(tree.openCurlyBraceToken(), tree.closeCurlyBraceToken());
       super.visitBlock(tree);
     }
 
     @Override
     public void visitObjectLiteral(ObjectLiteralTree tree) {
-      highlightBraces(tree.openCurlyBrace(), tree.closeCurlyBrace());
+      highlightBraces(tree.openCurlyBraceToken(), tree.closeCurlyBraceToken());
       super.visitObjectLiteral(tree);
     }
 
@@ -125,7 +125,7 @@ public class HighlightSymbolTableBuilder {
 
     @Override
     public void visitTemplateExpression(TemplateExpressionTree tree) {
-      highlightBraces(tree.openCurlyBrace(), tree.closeCurlyBrace());
+      highlightBraces(tree.openCurlyBraceToken(), tree.closeCurlyBraceToken());
       super.visitTemplateExpression(tree);
     }
 
@@ -137,7 +137,7 @@ public class HighlightSymbolTableBuilder {
 
     @Override
     public void visitObjectBindingPattern(ObjectBindingPatternTree tree) {
-      highlightBraces(tree.openCurlyBrace(), tree.closeCurlyBrace());
+      highlightBraces(tree.openCurlyBraceToken(), tree.closeCurlyBraceToken());
       super.visitObjectBindingPattern(tree);
     }
 
@@ -155,7 +155,7 @@ public class HighlightSymbolTableBuilder {
 
     @Override
     public void visitSwitchStatement(SwitchStatementTree tree) {
-      highlightBraces(tree.openCurlyBrace(), tree.closeCurlyBrace());
+      highlightBraces(tree.openCurlyBraceToken(), tree.closeCurlyBraceToken());
       super.visitSwitchStatement(tree);
     }
 

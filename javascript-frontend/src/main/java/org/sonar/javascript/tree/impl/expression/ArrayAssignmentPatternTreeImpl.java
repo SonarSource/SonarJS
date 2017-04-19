@@ -21,11 +21,11 @@ package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.typed.Optional;
 import java.util.Iterator;
+import java.util.Optional;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;

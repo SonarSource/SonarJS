@@ -38,7 +38,7 @@ public class UselessIncrementCheck extends DoubleDispatchVisitorCheck {
       if (SyntacticEquivalence.areEquivalent(assignment.variable(), postfix.expression())) {
         String type = postfix.is(Tree.Kind.POSTFIX_INCREMENT) ? "increment" : "decrement";
         String message = String.format(MESSAGE, type);
-        addIssue(postfix.operator(), message);
+        addIssue(postfix.operatorToken(), message);
       }
     }
     super.visitAssignmentExpression(assignment);

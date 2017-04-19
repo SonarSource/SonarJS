@@ -60,7 +60,7 @@ public class CheckUtils {
 
         if (child != null) {
           appendChild(sb, prevToken, child);
-          prevToken = ((JavaScriptTree) child).getLastToken();
+          prevToken = child.lastToken();
         }
       }
       return sb.toString();
@@ -69,7 +69,7 @@ public class CheckUtils {
 
   private static void appendChild(StringBuilder sb, @Nullable SyntaxToken prevToken, Tree child) {
     if (prevToken != null) {
-      SyntaxToken firstToken = ((JavaScriptTree) child).getFirstToken();
+      SyntaxToken firstToken = child.firstToken();
       if (isSpaceRequired(prevToken, firstToken)) {
         sb.append(" ");
       }
@@ -89,7 +89,7 @@ public class CheckUtils {
   }
 
   public static Tree parentIgnoreParentheses(Tree tree) {
-    Tree parent = parent(tree);
+    Tree parent = tree.parent();
 
     if (parent.is(Kind.PARENTHESISED_EXPRESSION)) {
       return parentIgnoreParentheses(parent);
@@ -98,17 +98,13 @@ public class CheckUtils {
     return parent;
   }
 
-  public static Tree parent(Tree tree) {
-    return ((JavaScriptTree) tree).getParent();
-  }
-
   public static ControlFlowGraph buildControlFlowGraph(Tree tree) {
     Tree parent = tree;
     while (!parent.is(Kind.SCRIPT)) {
-      if (parent.is(Kind.BLOCK) && (parent(parent)).is(KindSet.FUNCTION_KINDS)) {
+      if (parent.is(Kind.BLOCK) && (parent.parent()).is(KindSet.FUNCTION_KINDS)) {
         return ControlFlowGraph.build((BlockTree) parent);
       }
-      parent = parent(parent);
+      parent = parent.parent();
     }
     return ControlFlowGraph.build((ScriptTree) parent);
   }
@@ -119,19 +115,19 @@ public class CheckUtils {
       if (parent.equals(potentialParent)) {
         return true;
       }
-      parent = parent(parent);
+      parent = parent.parent();
     }
     return false;
   }
 
   @Nullable
   public static Tree getFirstAncestor(Tree tree, Kinds... kind) {
-    Tree ancestor = parent(tree);
+    Tree ancestor = tree.parent();
     while (ancestor != null) {
       if (ancestor.is(kind)) {
         return ancestor;
       }
-      ancestor = parent(ancestor);
+      ancestor = ancestor.parent();
     }
     return null;
   }

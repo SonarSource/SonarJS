@@ -21,7 +21,7 @@ package org.sonar.javascript.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;

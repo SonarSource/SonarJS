@@ -71,7 +71,7 @@ public class AngularJS {
   }
 
   private static String getIdentifierName(ExpressionTree tree) {
-    if (tree.is(Kind.IDENTIFIER_NAME, Kind.IDENTIFIER_REFERENCE)) {
+    if (tree.is(Kind.PROPERTY_IDENTIFIER, Kind.IDENTIFIER_REFERENCE)) {
       return ((IdentifierTree) tree).name();
     } else {
       return null;

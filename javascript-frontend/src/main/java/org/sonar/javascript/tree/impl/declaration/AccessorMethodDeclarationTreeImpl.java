@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.tree.impl.declaration;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -73,7 +73,6 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
 
   @Override
   public InternalSyntaxToken accessorToken() {
-    Preconditions.checkState(this.is(Kind.GET_METHOD) || this.is(Kind.SET_METHOD));
     return accessorToken;
   }
 
@@ -99,7 +98,7 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
   }
 
   @Override
-  public List<Tree> parameterList() {
+  public List<BindingElementTree> parameterList() {
     return parameters.parameters();
   }
 
@@ -117,6 +116,6 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitMethodDeclaration(this);
+    visitor.visitAccessorMethodDeclaration(this);
   }
 }

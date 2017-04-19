@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -34,6 +34,7 @@ import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -42,7 +43,6 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
@@ -80,8 +80,8 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
   private final CognitiveComplexity cognitiveComplexity = new CognitiveComplexity();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
   }
 
   @Override
@@ -106,9 +106,9 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
   private void raiseIssue(ComplexityData complexityData, Tree function) {
     String message = String.format(MESSAGE, complexityData.complexity(), threshold);
 
-    SyntaxToken primaryLocation = ((JavaScriptTree) function).getFirstToken();
+    SyntaxToken primaryLocation = function.firstToken();
     if (function.is(ARROW_FUNCTION)) {
-      primaryLocation = ((ArrowFunctionTree) function).doubleArrow();
+      primaryLocation = ((ArrowFunctionTree) function).doubleArrowToken();
     }
 
     PreciseIssue issue = addIssue(primaryLocation, message).cost(complexityData.complexity() - (double)threshold);
@@ -274,7 +274,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
         // And we add complexity for leftmost operator
         if (!logicalOperationsToIgnore.contains(tree) && !leftChildOfSameKind) {
-          addComplexityWithoutNesting(tree.operator());
+          addComplexityWithoutNesting(tree.operatorToken());
         }
 
       }
@@ -284,7 +284,7 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
     @Override
     public void visitConditionalExpression(ConditionalExpressionTree tree) {
-      addComplexityWithNesting(tree.query());
+      addComplexityWithNesting(tree.queryToken());
 
       visit(tree.condition());
 
@@ -294,17 +294,17 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
     @Override
     public void visitBreakStatement(BreakStatementTree tree) {
-      visitJumpStatement(tree.breakKeyword(), tree.label());
+      visitJumpStatement(tree.breakKeyword(), tree.labelToken());
       super.visitBreakStatement(tree);
     }
 
     @Override
     public void visitContinueStatement(ContinueStatementTree tree) {
-      visitJumpStatement(tree.continueKeyword(), tree.label());
+      visitJumpStatement(tree.continueKeyword(), tree.labelToken());
       super.visitContinueStatement(tree);
     }
 
-    private void visitJumpStatement(SyntaxToken keyword, @Nullable IdentifierTree label) {
+    private void visitJumpStatement(SyntaxToken keyword, @Nullable SyntaxToken label) {
       if (label != null) {
         addComplexityWithoutNesting(keyword);
       }
@@ -382,8 +382,15 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
       leaveFunction(tree);
     }
 
+    @Override
+    public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+      visitFunction(tree);
+      super.visitAccessorMethodDeclaration(tree);
+      leaveFunction(tree);
+    }
+
     private static boolean isElseIf(IfStatementTree tree) {
-      return ((JavaScriptTree)tree).getParent().is(Kind.ELSE_CLAUSE);
+      return tree.parent().is(Kind.ELSE_CLAUSE);
     }
 
   }

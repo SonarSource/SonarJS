@@ -32,15 +32,15 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </pre>
  */
 @Beta
-public interface IfStatementTree extends StatementTree {
+public interface IfStatementTree extends StatementTree, ConditionalTree {
 
   SyntaxToken ifKeyword();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   ExpressionTree condition();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
   StatementTree statement();
 

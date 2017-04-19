@@ -20,18 +20,17 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.14">Comma separated expression</a>.
- * <pre>
- * {@link #expressions()}
- * {@link #expressions()} , {@link #expressions()}
- * </pre>
- */
 @Beta
-public interface SequenceExpressionTree extends ExpressionTree {
+public interface ArgumentListTree extends Tree {
 
-  SeparatedList<ExpressionTree> expressions();
+  SyntaxToken openParenthesisToken();
+
+  SeparatedList<ExpressionTree> arguments();
+
+  SyntaxToken closeParenthesisToken();
 
 }

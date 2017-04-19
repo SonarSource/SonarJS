@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
@@ -39,8 +39,8 @@ public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
   private static final String NAN = "NaN";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.copyOf(KindSet.EQUALITY_KINDS.getSubKinds());
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.copyOf(KindSet.EQUALITY_KINDS.getSubKinds());
   }
 
   @Override
@@ -49,8 +49,8 @@ public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
     ExpressionTree nan = getNaN(expression);
 
     if (nan != null) {
-      addIssue(nan, String.format(MESSAGE, expression.operator().text()))
-        .secondary(expression.operator());
+      addIssue(nan, String.format(MESSAGE, expression.operatorToken().text()))
+        .secondary(expression.operatorToken());
     }
   }
 

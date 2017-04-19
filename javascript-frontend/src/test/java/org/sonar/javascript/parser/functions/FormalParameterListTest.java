@@ -28,7 +28,7 @@ public class FormalParameterListTest {
 
   @Test
   public void test() {
-    assertThat(Kind.FORMAL_PARAMETER_LIST)
+    assertThat(Kind.PARAMETER_LIST)
       .matches("( )")
       .matches("( IDENTIFIER )")
       .matches("( IDENTIFIER = a )")

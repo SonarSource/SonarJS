@@ -24,10 +24,10 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -36,9 +36,9 @@ public class DecoratorTreeImpl extends JavaScriptTree implements DecoratorTree {
 
   private final SyntaxToken atToken;
   private final SeparatedList<IdentifierTree> body;
-  private final ParameterListTree arguments;
+  private final ArgumentListTree arguments;
 
-  public DecoratorTreeImpl(SyntaxToken atToken, SeparatedList<IdentifierTree> body, @Nullable ParameterListTree arguments) {
+  public DecoratorTreeImpl(SyntaxToken atToken, SeparatedList<IdentifierTree> body, @Nullable ArgumentListTree arguments) {
     this.atToken = atToken;
     this.body = body;
     this.arguments = arguments;
@@ -70,7 +70,7 @@ public class DecoratorTreeImpl extends JavaScriptTree implements DecoratorTree {
 
   @Nullable
   @Override
-  public ParameterListTree arguments() {
+  public ArgumentListTree argumentClause() {
     return arguments;
   }
 

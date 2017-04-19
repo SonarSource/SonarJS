@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,25 +51,25 @@ public class SyntacticEquivalenceTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test_equivalence_for_tree_list() throws Exception {
-    ParameterListTree tree1 = parse("f(a, b, c) ;", Tree.Kind.ARGUMENTS);
-    ParameterListTree tree2 = parse("f(a, b, c) ;", Tree.Kind.ARGUMENTS);
-    ParameterListTree tree3 = parse("f(a, b) ;", Tree.Kind.ARGUMENTS);
-    ParameterListTree tree4 = parse("f(a, b, b) ;", Tree.Kind.ARGUMENTS);
+    ArgumentListTree tree1 = parse("f(a, b, c) ;", Tree.Kind.ARGUMENT_LIST);
+    ArgumentListTree tree2 = parse("f(a, b, c) ;", Tree.Kind.ARGUMENT_LIST);
+    ArgumentListTree tree3 = parse("f(a, b) ;", Tree.Kind.ARGUMENT_LIST);
+    ArgumentListTree tree4 = parse("f(a, b, b) ;", Tree.Kind.ARGUMENT_LIST);
 
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree1.parameters())).isTrue();
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree2.parameters())).isTrue();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.arguments(), tree1.arguments())).isTrue();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.arguments(), tree2.arguments())).isTrue();
 
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree3.parameters())).isFalse();
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree4.parameters())).isFalse();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.arguments(), tree3.arguments())).isFalse();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.arguments(), tree4.arguments())).isFalse();
   }
 
   @Test
   public void test_equivalence_for_empty_tree_list() throws Exception {
-    ParameterListTree tree1 = parse("f() ;", Tree.Kind.ARGUMENTS);
-    ParameterListTree tree2 = parse("f() ;", Tree.Kind.ARGUMENTS);
+    ArgumentListTree tree1 = parse("f() ;", Tree.Kind.ARGUMENT_LIST);
+    ArgumentListTree tree2 = parse("f() ;", Tree.Kind.ARGUMENT_LIST);
 
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree1.parameters())).isFalse();
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree2.parameters())).isFalse();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.arguments(), tree1.arguments())).isFalse();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.arguments(), tree2.arguments())).isFalse();
   }
 
   @Test

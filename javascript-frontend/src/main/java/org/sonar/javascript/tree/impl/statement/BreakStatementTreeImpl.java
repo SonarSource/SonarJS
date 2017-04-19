@@ -32,12 +32,12 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class BreakStatementTreeImpl extends JavaScriptTree implements BreakStatementTree {
 
   private SyntaxToken breakKeyword;
-  private final IdentifierTree label;
+  private final SyntaxToken labelToken;
   private final SyntaxToken semicolonToken;
 
-  public BreakStatementTreeImpl(SyntaxToken breakKeyword, @Nullable IdentifierTree label, @Nullable SyntaxToken semicolonToken) {
+  public BreakStatementTreeImpl(SyntaxToken breakKeyword, @Nullable SyntaxToken labelToken, @Nullable SyntaxToken semicolonToken) {
     this.breakKeyword = breakKeyword;
-    this.label = label;
+    this.labelToken = labelToken;
     this.semicolonToken = semicolonToken;
   }
 
@@ -53,8 +53,8 @@ public class BreakStatementTreeImpl extends JavaScriptTree implements BreakState
 
   @Nullable
   @Override
-  public IdentifierTree label() {
-    return label;
+  public SyntaxToken labelToken() {
+    return labelToken;
   }
 
   @Nullable
@@ -65,7 +65,7 @@ public class BreakStatementTreeImpl extends JavaScriptTree implements BreakState
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(breakKeyword, label, semicolonToken);
+    return Iterators.forArray(breakKeyword, labelToken, semicolonToken);
   }
 
   @Override

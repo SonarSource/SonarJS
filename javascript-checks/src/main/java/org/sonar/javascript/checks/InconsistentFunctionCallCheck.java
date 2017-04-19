@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -82,7 +81,7 @@ public class InconsistentFunctionCallCheck extends DoubleDispatchVisitorCheck {
 
     if (otherTypeUsage != null && !hasIssue.contains(symbol)) {
 
-      String message = String.format(MESSAGE, ((JavaScriptTree) otherTypeUsage).getLine(), tail);
+      String message = String.format(MESSAGE, otherTypeUsage.firstToken().line(), tail);
       String secondaryMessage = String.format(SECONDARY_MESSAGE, tail);
 
       addIssue(new PreciseIssue(this, issueLocation(tree, message)))
@@ -117,7 +116,7 @@ public class InconsistentFunctionCallCheck extends DoubleDispatchVisitorCheck {
   @CheckForNull
   private static Symbol getSymbol(ExpressionTree expression) {
     if (expression.is(Kind.IDENTIFIER_REFERENCE)) {
-      return ((IdentifierTree) expression).symbol();
+      return ((IdentifierTree) expression).symbol().orElse(null);
     }
     return null;
   }

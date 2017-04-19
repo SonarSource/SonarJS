@@ -38,7 +38,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.utils.SourceBuilder;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -877,7 +876,7 @@ public class ControlFlowGraphTest {
 
     @Override
     public Integer apply(Tree tree) {
-      InternalSyntaxToken firstToken = (InternalSyntaxToken) ((JavaScriptTree) tree).getFirstToken();
+      InternalSyntaxToken firstToken = (InternalSyntaxToken) tree.firstToken();
       return firstToken.startIndex();
     }
 

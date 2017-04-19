@@ -19,10 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.javascript.tree.symbols.type.ObjectType;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
@@ -33,7 +34,7 @@ public abstract class AbstractJQuerySelectorOptimizationCheck extends DoubleDisp
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (tree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT)) {
-      SeparatedList<Tree> parameters = tree.arguments().parameters();
+      SeparatedList<ExpressionTree> parameters = tree.argumentClause().arguments();
 
       if (!parameters.isEmpty() && parameters.get(0).is(Tree.Kind.STRING_LITERAL)) {
         String value = ((LiteralTree) parameters.get(0)).value();

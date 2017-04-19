@@ -28,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
@@ -46,11 +45,11 @@ public class UnusedFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
   private static class PositionComparator implements Comparator<Symbol> {
 
     private static int getLine(Symbol symbol) {
-      return ((JavaScriptTree) getDeclarationUsage(symbol).identifierTree()).getLine();
+      return getDeclarationUsage(symbol).identifierTree().identifierToken().line();
     }
 
     private static int getColumn(Symbol symbol) {
-      return ((JavaScriptTree) getDeclarationUsage(symbol).identifierTree()).getFirstToken().column();
+      return getDeclarationUsage(symbol).identifierTree().firstToken().column();
     }
 
     @Override

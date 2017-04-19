@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -36,8 +36,8 @@ public class VoidUseCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "Remove \"void\" operator";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.VOID);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Kind.VOID);
   }
 
   @Override
@@ -45,7 +45,7 @@ public class VoidUseCheck extends SubscriptionVisitorCheck {
     UnaryExpressionTree voidExpression = (UnaryExpressionTree) tree;
     ExpressionTree operand = CheckUtils.removeParenthesis(voidExpression.expression());
     if (!isZero(operand)) {
-      addIssue(voidExpression.operator(), MESSAGE);
+      addIssue(voidExpression.operatorToken(), MESSAGE);
     }
   }
 

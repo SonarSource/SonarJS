@@ -33,7 +33,7 @@ public class ObjectLiteralTreeModelTest extends JavaScriptTreeModelTest {
     ObjectLiteralTree tree = parse("var a = { key : value , method ( ) { } , ... spreadObject, identifier , }", Kind.OBJECT_LITERAL);
 
     assertThat(tree.is(Kind.OBJECT_LITERAL)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
 
     assertThat(tree.properties()).hasSize(4);
     assertThat(expressionToString(tree.properties().get(0))).isEqualTo("key : value");
@@ -46,7 +46,7 @@ public class ObjectLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.properties().getSeparators()).hasSize(4);
 
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
+    assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
   @Test
@@ -54,12 +54,12 @@ public class ObjectLiteralTreeModelTest extends JavaScriptTreeModelTest {
     ObjectLiteralTree tree = parse("var a = { }", Kind.OBJECT_LITERAL);
 
     assertThat(tree.is(Kind.OBJECT_LITERAL)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
 
     assertThat(tree.properties()).hasSize(0);
     assertThat(tree.properties().getSeparators()).hasSize(0);
 
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
+    assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
 }

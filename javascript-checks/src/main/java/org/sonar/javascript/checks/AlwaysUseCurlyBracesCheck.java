@@ -19,11 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -39,8 +38,8 @@ public class AlwaysUseCurlyBracesCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "Add curly braces around the nested statement(s) in this \"%s\" block.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .add(Kind.IF_STATEMENT)
       .add(Kind.ELSE_CLAUSE)
       .addAll(KindSet.LOOP_KINDS.getSubKinds())
@@ -66,7 +65,7 @@ public class AlwaysUseCurlyBracesCheck extends SubscriptionVisitorCheck {
 
   private void checkAreCurlyBracesUsed(StatementTree statement, Tree tree) {
     if (!statement.is(Kind.BLOCK)) {
-      SyntaxToken firstToken = ((JavaScriptTree) tree).getFirstToken();
+      SyntaxToken firstToken = tree.firstToken();
       addIssue(firstToken, String.format(MESSAGE, firstToken.text()));
     }
   }

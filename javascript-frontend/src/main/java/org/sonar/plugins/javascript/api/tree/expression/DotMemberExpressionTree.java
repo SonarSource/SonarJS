@@ -34,7 +34,7 @@ public interface DotMemberExpressionTree extends MemberExpressionTree {
   @Override
   ExpressionTree object();
 
-  SyntaxToken dot();
+  SyntaxToken dotToken();
 
   @Override
   IdentifierTree property();

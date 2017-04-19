@@ -19,16 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -45,8 +43,8 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "Refactor this function to use \"return\" consistently.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
   }
 
   @Override
@@ -64,9 +62,9 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
   }
 
   private void raiseIssue(Tree functionTree, FunctionReturns functionReturns, BlockTree body) {
-    SyntaxToken tokenToRaiseIssue = ((JavaScriptTree) functionTree).getFirstToken();
+    SyntaxToken tokenToRaiseIssue = functionTree.firstToken();
     if (functionTree.is(Kind.ARROW_FUNCTION)) {
-      tokenToRaiseIssue = ((ArrowFunctionTree) functionTree).doubleArrow();
+      tokenToRaiseIssue = ((ArrowFunctionTree) functionTree).doubleArrowToken();
     }
 
     PreciseIssue issue = addIssue(tokenToRaiseIssue, MESSAGE);
@@ -75,7 +73,7 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
     }
 
     if (functionReturns.containsImplicitReturn) {
-      issue.secondary(body.closeCurlyBrace(), "Implicit return without value");
+      issue.secondary(body.closeCurlyBraceToken(), "Implicit return without value");
     }
   }
 
@@ -124,7 +122,7 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
   }
 
   private static boolean isThrowStatement(Tree lastElement) {
-    return ((JavaScriptTree) lastElement).getParent().is(Kind.THROW_STATEMENT);
+    return lastElement.parent().is(Kind.THROW_STATEMENT);
   }
 
   private static boolean isReachableBlock(CfgBlock cfgBlock, ControlFlowGraph cfg) {

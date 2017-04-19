@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </pre>
  */
 @Beta
-public interface DoWhileStatementTree extends IterationStatementTree {
+public interface DoWhileStatementTree extends IterationStatementTree, ConditionalTree {
 
   SyntaxToken doKeyword();
 
@@ -40,11 +40,12 @@ public interface DoWhileStatementTree extends IterationStatementTree {
 
   SyntaxToken whileKeyword();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
+  @Override
   ExpressionTree condition();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
   @Nullable
   SyntaxToken semicolonToken();

@@ -36,12 +36,12 @@ public class ForStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.FOR_STATEMENT)).isTrue();
     assertThat(tree.forKeyword().text()).isEqualTo(JavaScriptKeyword.FOR.getValue());
-    assertThat(tree.openParenthesis().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
-    assertThat(tree.firstSemicolon().text()).isEqualTo(JavaScriptPunctuator.SEMI.getValue());
+    assertThat(tree.openParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.firstSemicolonToken().text()).isEqualTo(JavaScriptPunctuator.SEMI.getValue());
     assertThat(tree.condition()).isNull();
-    assertThat(tree.secondSemicolon().text()).isEqualTo(JavaScriptPunctuator.SEMI.getValue());
+    assertThat(tree.secondSemicolonToken().text()).isEqualTo(JavaScriptPunctuator.SEMI.getValue());
     assertThat(tree.condition()).isNull();
-    assertThat(tree.closeParenthesis().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
 

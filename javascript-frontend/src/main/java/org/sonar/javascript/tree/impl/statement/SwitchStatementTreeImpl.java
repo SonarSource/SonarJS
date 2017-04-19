@@ -62,7 +62,7 @@ public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchSta
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openParenthesis;
   }
 
@@ -72,12 +72,12 @@ public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchSta
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closeParenthesis;
   }
 
   @Override
-  public SyntaxToken openCurlyBrace() {
+  public SyntaxToken openCurlyBraceToken() {
     return openCurlyBrace;
   }
 
@@ -87,7 +87,7 @@ public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchSta
   }
 
   @Override
-  public SyntaxToken closeCurlyBrace() {
+  public SyntaxToken closeCurlyBraceToken() {
     return closeCurlyBrace;
   }
 

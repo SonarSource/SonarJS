@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -30,6 +29,12 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-7.6">Identifier</a>
+ * <ul>
+ *   <li>{@link Kind#PROPERTY_IDENTIFIER}</li>
+ *   <li>{@link Kind#IDENTIFIER_REFERENCE}</li>
+ *   <li>{@link Kind#BINDING_IDENTIFIER}</li>
+ *   <li>{@link Kind#THIS}</li>
+ * </ul>
  */
 @Beta
 public interface IdentifierTree extends ExpressionTree, BindingElementTree {
@@ -38,10 +43,24 @@ public interface IdentifierTree extends ExpressionTree, BindingElementTree {
 
   String name();
 
+  /**
+   * @return {@link Usage} corresponding to this identifier. Empty optional is returned when there is no symbol available for this identifier (see {@link IdentifierTree#symbol()})
+   */
   Optional<Usage> symbolUsage();
 
-  @Nullable
-  Symbol symbol();
+  /**
+   * @return {@link Symbol} which is referenced by this identifier. No {@link Symbol} is returned in several cases:
+   * <ul>
+   *   <li>for {@link Kind#PROPERTY_IDENTIFIER}</li>
+   *   <li>for unresolved symbol (i.e. symbol being read without being written)</li>
+   * </ul>
+   * Note that {@link Kind#BINDING_IDENTIFIER} (used for symbol declaration) always has corresponding symbol.
+   * Note that this method is a shortcut for {@link IdentifierTree#symbolUsage()#symbol()}.
+   */
+  Optional<Symbol> symbol();
 
+  /**
+   * @return {@link Scope} instance in which this identifier appear
+   */
   Scope scope();
 }

@@ -104,22 +104,17 @@ public class InternalSyntaxTrivia extends JavaScriptTree implements SyntaxTrivia
   }
 
   @Override
-  public int getLine() {
-    return startLine;
-  }
-
-  @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitComment(this);
   }
 
   @Override
-  public SyntaxToken getFirstToken() {
+  public SyntaxToken firstToken() {
     return this;
   }
 
   @Override
-  public SyntaxToken getLastToken() {
+  public SyntaxToken lastToken() {
     return this;
   }
 }

@@ -26,7 +26,7 @@ import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -34,10 +34,10 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class CallExpressionTreeImpl extends JavaScriptTree implements CallExpressionTree, TypableTree {
 
   private final ExpressionTree callee;
-  private final ParameterListTree arguments;
+  private final ArgumentListTree arguments;
   private TypeSet types = TypeSet.emptyTypeSet();
 
-  public CallExpressionTreeImpl(ExpressionTree callee, ParameterListTree arguments) {
+  public CallExpressionTreeImpl(ExpressionTree callee, ArgumentListTree arguments) {
     this.callee = callee;
     this.arguments = arguments;
 
@@ -49,7 +49,7 @@ public class CallExpressionTreeImpl extends JavaScriptTree implements CallExpres
   }
 
   @Override
-  public ParameterListTree arguments() {
+  public ArgumentListTree argumentClause() {
     return arguments;
   }
 

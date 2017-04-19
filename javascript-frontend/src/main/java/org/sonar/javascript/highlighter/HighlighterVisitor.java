@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.highlighter;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -30,6 +30,7 @@ import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
@@ -44,22 +45,20 @@ public class HighlighterVisitor extends SubscriptionVisitor {
   private final SensorContext sensorContext;
   private NewHighlighting highlighting;
 
-  private static final Kind[] METHODS = {
-    Kind.GENERATOR_METHOD,
-    Kind.METHOD,
-    Kind.GET_METHOD,
-    Kind.SET_METHOD
-  };
-
   public HighlighterVisitor(SensorContext sensorContext) {
     this.sensorContext = sensorContext;
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
-      .add(METHODS)
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .add(
+        Kind.GENERATOR_METHOD,
+        Kind.METHOD,
+
+        Kind.GET_METHOD,
+        Kind.SET_METHOD,
+
         Kind.FIELD,
         Kind.LET_DECLARATION,
         Kind.NUMERIC_LITERAL,
@@ -84,8 +83,12 @@ public class HighlighterVisitor extends SubscriptionVisitor {
     SyntaxToken token = null;
     TypeOfText code = null;
 
-    if (tree.is(METHODS)) {
+    if (tree.is(Kind.GENERATOR_METHOD,Kind.METHOD)) {
       token = ((MethodDeclarationTree) tree).staticToken();
+      code = TypeOfText.KEYWORD;
+
+    } else if (tree.is(Kind.GET_METHOD, Kind.SET_METHOD)) {
+      token = ((AccessorMethodDeclarationTree) tree).staticToken();
       code = TypeOfText.KEYWORD;
 
     } else if (tree.is(Kind.FIELD)) {
@@ -117,8 +120,8 @@ public class HighlighterVisitor extends SubscriptionVisitor {
   }
 
   private void highlightTemplateLiteral(TemplateLiteralTree tree) {
-    highlight(tree.openBacktick(), TypeOfText.STRING);
-    highlight(tree.closeBacktick(), TypeOfText.STRING);
+    highlight(tree.openBacktickToken(), TypeOfText.STRING);
+    highlight(tree.closeBacktickToken(), TypeOfText.STRING);
 
     for (TemplateCharactersTree templateCharactersTree : tree.strings()) {
       templateCharactersTree.characters().forEach(token -> highlight(token, TypeOfText.STRING));

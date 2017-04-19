@@ -33,10 +33,10 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface ComputedPropertyNameTree extends Tree {
 
-  SyntaxToken openCurlyBrace();
+  SyntaxToken openCurlyBraceToken();
 
   ExpressionTree expression();
 
-  SyntaxToken closeCurlyBrace();
+  SyntaxToken closeCurlyBraceToken();
 }
 

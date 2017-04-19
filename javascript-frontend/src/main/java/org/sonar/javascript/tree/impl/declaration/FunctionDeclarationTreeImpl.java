@@ -25,6 +25,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -104,7 +105,7 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
   }
 
   @Override
-  public List<Tree> parameterList() {
+  public List<BindingElementTree> parameterList() {
     return parameters.parameters();
   }
 

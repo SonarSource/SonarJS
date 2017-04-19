@@ -78,7 +78,7 @@ public class IncrementDecrementInSubExpressionCheck extends DoubleDispatchVisito
   }
 
   private void raiseIssue(UnaryExpressionTree tree) {
-    String message = String.format(MESSAGE, "++".equals(tree.operator().text()) ? "increment" : "decrement");
-    addIssue(tree.operator(), message);
+    String message = String.format(MESSAGE, "++".equals(tree.operatorToken().text()) ? "increment" : "decrement");
+    addIssue(tree.operatorToken(), message);
   }
 }

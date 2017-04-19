@@ -20,8 +20,8 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
-import com.sonar.sslr.api.typed.Optional;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import java.util.Optional;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**

@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -37,15 +37,15 @@ public class InstanceofInMisuseCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "Add parentheses to perform \"%s\" operator before logical NOT operator.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(INSTANCE_OF, RELATIONAL_IN);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(INSTANCE_OF, RELATIONAL_IN);
   }
 
   @Override
   public void visitNode(Tree tree) {
     BinaryExpressionTree expression = (BinaryExpressionTree) tree;
     if (expression.leftOperand().is(LOGICAL_COMPLEMENT)) {
-      addIssue(tree, String.format(MESSAGE, expression.operator().text()));
+      addIssue(tree, String.format(MESSAGE, expression.operatorToken().text()));
     }
   }
 }

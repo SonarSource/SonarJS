@@ -34,11 +34,11 @@ public interface WithStatementTree extends StatementTree {
 
   SyntaxToken withKeyword();
 
-  SyntaxToken openingParenthesis();
+  SyntaxToken openingParenthesisToken();
 
   Tree expression();
 
-  SyntaxToken closingParenthesis();
+  SyntaxToken closingParenthesisToken();
 
   StatementTree statement();
 

@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.cpd;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
@@ -42,8 +42,8 @@ public class CpdVisitor extends SubscriptionVisitor {
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.TOKEN);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Kind.TOKEN);
   }
 
   @Override

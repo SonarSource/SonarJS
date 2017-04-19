@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -53,6 +54,12 @@ public class EmptyFunctionCheck extends DoubleDispatchVisitorCheck {
   }
 
   @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    checkFunction(tree, tree.name());
+    super.visitAccessorMethodDeclaration(tree);
+  }
+
+  @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
     checkFunction(tree, tree.body());
     super.visitArrowFunction(tree);
@@ -61,7 +68,7 @@ public class EmptyFunctionCheck extends DoubleDispatchVisitorCheck {
   private void checkFunction(FunctionTree tree, Tree issueLocationTree) {
     if (tree.body() instanceof BlockTree) {
       BlockTree body = (BlockTree) tree.body();
-      if (body.statements().isEmpty() && body.closeCurlyBrace().trivias().isEmpty()) {
+      if (body.statements().isEmpty() && body.closeCurlyBraceToken().trivias().isEmpty()) {
         addIssue(issueLocationTree, MESSAGE);
       }
     }

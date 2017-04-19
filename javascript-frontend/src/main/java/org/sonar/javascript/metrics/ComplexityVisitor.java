@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -77,6 +78,11 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
   }
 
   @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    visitFunction(tree, tree.name());
+  }
+
+  @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     visitFunction(tree, tree.functionKeyword());
   }
@@ -88,7 +94,7 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    visitFunction(tree, tree.doubleArrow());
+    visitFunction(tree, tree.doubleArrowToken());
   }
 
   @Override
@@ -129,14 +135,14 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    add(tree.query());
+    add(tree.queryToken());
     super.visitConditionalExpression(tree);
   }
 
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
     if (tree.is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
-      add(tree.operator());
+      add(tree.operatorToken());
     }
     super.visitBinaryExpression(tree);
   }

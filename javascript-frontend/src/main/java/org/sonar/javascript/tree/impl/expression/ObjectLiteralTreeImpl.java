@@ -23,11 +23,11 @@ import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -47,7 +47,7 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
   }
 
   @Override
-  public SyntaxToken openCurlyBrace() {
+  public SyntaxToken openCurlyBraceToken() {
     return openCurlyBrace;
   }
 
@@ -57,7 +57,7 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
   }
 
   @Override
-  public SyntaxToken closeCurlyBrace() {
+  public SyntaxToken closeCurlyBraceToken() {
     return closeCurlyBrace;
   }
 

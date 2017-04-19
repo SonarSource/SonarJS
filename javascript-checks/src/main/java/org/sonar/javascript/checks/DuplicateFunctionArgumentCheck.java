@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -37,29 +36,28 @@ public class DuplicateFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitParameterList(ParameterListTree tree) {
-    if (tree.is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
-      Map<String, List<IdentifierTree>> duplicatedParameters = new HashMap<>();
+    Map<String, List<IdentifierTree>> duplicatedParameters = new HashMap<>();
 
-      for (IdentifierTree identifier : ((ParameterListTreeImpl) tree).parameterIdentifiers()) {
-        String value = identifier.name();
-        String unescaped = EscapeUtils.unescape(value);
+    for (IdentifierTree identifier : ((ParameterListTreeImpl) tree).parameterIdentifiers()) {
+      String value = identifier.name();
+      String unescaped = EscapeUtils.unescape(value);
 
-        if (!duplicatedParameters.containsKey(unescaped)) {
-          duplicatedParameters.put(unescaped, new ArrayList<>());
-        }
-
-        duplicatedParameters.get(unescaped).add(identifier);
+      if (!duplicatedParameters.containsKey(unescaped)) {
+        duplicatedParameters.put(unescaped, new ArrayList<>());
       }
 
-      for (List<IdentifierTree> sameNameParameters : duplicatedParameters.values()) {
-        if (sameNameParameters.size() > 1) {
-          for (IdentifierTree duplicatingParameter : sameNameParameters.subList(1, sameNameParameters.size())) {
-            String message = String.format(MESSAGE, duplicatingParameter.name());
-            addIssue(duplicatingParameter, message).secondary(sameNameParameters.get(0));
-          }
+      duplicatedParameters.get(unescaped).add(identifier);
+    }
+
+    for (List<IdentifierTree> sameNameParameters : duplicatedParameters.values()) {
+      if (sameNameParameters.size() > 1) {
+        for (IdentifierTree duplicatingParameter : sameNameParameters.subList(1, sameNameParameters.size())) {
+          String message = String.format(MESSAGE, duplicatingParameter.name());
+          addIssue(duplicatingParameter, message).secondary(sameNameParameters.get(0));
         }
       }
     }
+
     super.visitParameterList(tree);
   }
 

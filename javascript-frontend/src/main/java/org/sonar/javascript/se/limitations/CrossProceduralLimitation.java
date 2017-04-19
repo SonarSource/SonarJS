@@ -70,9 +70,9 @@ public class CrossProceduralLimitation {
 
     @Override
     public void visitCallExpression(CallExpressionTree tree) {
-      for (Tree parameter : tree.arguments().parameters()) {
+      for (Tree parameter : tree.argumentClause().arguments()) {
         if (parameter instanceof IdentifierTree) {
-          symbols.add(((IdentifierTree) parameter).symbol());
+          ((IdentifierTree) parameter).symbol().ifPresent(symbols::add);
         }
       }
       super.visitCallExpression(tree);

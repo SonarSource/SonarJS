@@ -19,18 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
@@ -44,8 +42,8 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
   LinkedList<String> scope = Lists.newLinkedList();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .add(Kind.DOT_MEMBER_EXPRESSION)
       .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .build();
@@ -53,22 +51,20 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    if (!tree.is(Kind.ARROW_FUNCTION)) {
-      if (tree.is(KindSet.FUNCTION_KINDS)) {
-        IdentifierTree name = getFunctionName(tree);
+    if (tree.is(KindSet.FUNCTION_KINDS)) {
+      Tree name = ((FunctionTree) tree).name();
 
-        if (name != null) {
-          scope.add(name.name());
-        }
-
-      } else {
-        checkExpression((DotMemberExpressionTree) tree);
+      if (name != null && name instanceof IdentifierTree) {
+        scope.add(((IdentifierTree) name).name());
       }
+
+    } else {
+      checkExpression((DotMemberExpressionTree) tree);
     }
   }
 
   private void checkExpression(DotMemberExpressionTree expression) {
-    if (!expression.object().is(Kind.IDENTIFIER_REFERENCE) || !expression.property().is(Kind.IDENTIFIER_NAME)) {
+    if (!expression.object().is(Kind.IDENTIFIER_REFERENCE) || !expression.property().is(Kind.PROPERTY_IDENTIFIER)) {
       return;
     }
 
@@ -103,21 +99,8 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void leaveNode(Tree tree) {
-    if (!tree.is(Kind.ARROW_FUNCTION) && tree.is(KindSet.FUNCTION_KINDS) && getFunctionName(tree) != null) {
+    if (tree.is(KindSet.FUNCTION_KINDS) && ((FunctionTree) tree).name() != null) {
       scope.removeLast();
-    }
-  }
-
-  private static IdentifierTree getFunctionName(Tree tree) {
-    if (tree instanceof FunctionExpressionTree) {
-      return ((FunctionExpressionTree) tree).name();
-
-    } else if (tree instanceof FunctionDeclarationTree) {
-      return ((FunctionDeclarationTree) tree).name();
-
-    } else {
-      Tree name = ((MethodDeclarationTree) tree).name();
-      return name.is(Kind.IDENTIFIER_NAME) ? (IdentifierTree) name : null;
     }
   }
 }

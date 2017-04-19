@@ -19,10 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
@@ -40,8 +39,8 @@ public class NonExistentAssignmentOperatorCheck extends SubscriptionVisitorCheck
   private static final String MINUS_MESSAGE = "Was \"-=\" meant instead?";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.ASSIGNMENT);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Kind.ASSIGNMENT);
   }
 
   @Override
@@ -50,8 +49,8 @@ public class NonExistentAssignmentOperatorCheck extends SubscriptionVisitorCheck
     ExpressionTree expression = assignment.expression();
     if (expression.is(Kind.UNARY_PLUS, Kind.UNARY_MINUS)) {
       UnaryExpressionTree unaryExpression = (UnaryExpressionTree) expression;
-      SyntaxToken assignmentOperator = assignment.operator();
-      SyntaxToken expressionOperator = unaryExpression.operator();
+      SyntaxToken assignmentOperator = assignment.operatorToken();
+      SyntaxToken expressionOperator = unaryExpression.operatorToken();
       if (areAdjacent(assignmentOperator, expressionOperator) && !areAdjacent(expressionOperator, unaryExpression.expression())) {
         String message = expression.is(Kind.UNARY_PLUS) ? PLUS_MESSAGE : MINUS_MESSAGE;
         addIssue(new PreciseIssue(this, new IssueLocation(assignmentOperator, expressionOperator, message)));
@@ -61,8 +60,8 @@ public class NonExistentAssignmentOperatorCheck extends SubscriptionVisitorCheck
   }
 
   private static boolean areAdjacent(Tree tree1, Tree tree2) {
-    SyntaxToken tree1LastToken = ((JavaScriptTree) tree1).getLastToken();
-    SyntaxToken tree2FirstToken = ((JavaScriptTree) tree2).getFirstToken();
+    SyntaxToken tree1LastToken = tree1.lastToken();
+    SyntaxToken tree2FirstToken = tree2.firstToken();
     return tree1LastToken.endColumn() == tree2FirstToken.column() && tree1LastToken.endLine() == tree2FirstToken.line();
   }
 

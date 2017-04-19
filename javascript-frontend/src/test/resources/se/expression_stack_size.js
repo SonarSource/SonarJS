@@ -82,5 +82,9 @@ function main(a, b, c) {
       x,
       y: {a, b} = {}
   } = obj;
+
+  var x = {
+    get a() {}
+  }
 }
 

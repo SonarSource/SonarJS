@@ -63,7 +63,7 @@ public class UnaryPlusMinusWithObjectCheck extends AbstractAllPathSeCheck<UnaryE
   @Override
   void raiseIssue(UnaryExpressionTree tree) {
     if (!isDateException(tree)) {
-      SyntaxToken operator = tree.operator();
+      SyntaxToken operator = tree.operatorToken();
       addIssue(operator, String.format(MESSAGE, operator.text()));
     }
   }

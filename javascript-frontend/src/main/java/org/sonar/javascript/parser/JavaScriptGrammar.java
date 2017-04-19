@@ -27,10 +27,10 @@ import org.sonar.javascript.lexer.JavaScriptTokenType;
 import org.sonar.javascript.parser.TreeFactory.BracketAccessTail;
 import org.sonar.javascript.parser.TreeFactory.DotAccessTail;
 import org.sonar.javascript.parser.TreeFactory.ExpressionTail;
-import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
@@ -43,24 +43,26 @@ import org.sonar.plugins.javascript.api.tree.declaration.ExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
+import org.sonar.plugins.javascript.api.tree.declaration.ExtendsClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -74,6 +76,7 @@ import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.SuperTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
@@ -163,7 +166,7 @@ public class JavaScriptGrammar {
 
   public LabelledStatementTree LABELLED_STATEMENT() {
     return b.<LabelledStatementTree>nonterminal(Kind.LABELLED_STATEMENT)
-      .is(f.labelledStatement(LABEL_IDENTIFIER(), b.token(JavaScriptPunctuator.COLON), STATEMENT()));
+      .is(f.labelledStatement(b.token(JavaScriptTokenType.IDENTIFIER), b.token(JavaScriptPunctuator.COLON), STATEMENT()));
   }
 
   public ContinueStatementTree CONTINUE_STATEMENT() {
@@ -496,7 +499,7 @@ public class JavaScriptGrammar {
   }
 
   public ParameterListTree FORMAL_PARAMETER_CLAUSE() {
-    return b.<ParameterListTree>nonterminal(Kind.FORMAL_PARAMETER_LIST)
+    return b.<ParameterListTree>nonterminal(Kind.PARAMETER_LIST)
       .is(b.firstOf(
         f.formalParameterClause1(
           b.token(JavaScriptPunctuator.LPARENTHESIS),
@@ -516,8 +519,8 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public SeparatedList<Tree> FORMAL_PARAMETER_LIST() {
-    return b.<SeparatedList<Tree>>nonterminal()
+  public SeparatedList<BindingElementTree> FORMAL_PARAMETER_LIST() {
+    return b.<SeparatedList<BindingElementTree>>nonterminal()
       .is(f.formalParameters(
         BINDING_ELEMENT(),
         b.zeroOrMore(f.newTuple4(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
@@ -809,16 +812,11 @@ public class JavaScriptGrammar {
       );
   }
 
-  public IdentifierTree LABEL_IDENTIFIER_NO_LB() {
-    return b.<IdentifierTree>nonterminal()
-      .is(f.labelIdentifier(
+  public InternalSyntaxToken LABEL_IDENTIFIER_NO_LB() {
+    return b.<InternalSyntaxToken>nonterminal()
+      .is(f.labelToken(
         b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptTokenType.IDENTIFIER)));
-  }
-
-  public IdentifierTree LABEL_IDENTIFIER() {
-    return b.<IdentifierTree>nonterminal()
-      .is(f.labelIdentifier(b.token(JavaScriptTokenType.IDENTIFIER)));
   }
 
   public IdentifierTree IDENTIFIER_NAME() {
@@ -861,8 +859,8 @@ public class JavaScriptGrammar {
         f.templateLiteralTailForMember(TEMPLATE_LITERAL())));
   }
 
-  public LiteralTree SUPER() {
-    return b.<LiteralTree>nonterminal(Kind.SUPER)
+  public SuperTree SUPER() {
+    return b.<SuperTree>nonterminal(Kind.SUPER)
       .is(f.superExpression(b.token(JavaScriptKeyword.SUPER)));
   }
 
@@ -874,16 +872,16 @@ public class JavaScriptGrammar {
         b.token(JavaScriptLegacyGrammar.TARGET)));
   }
 
-  public ParameterListTree ARGUMENT_CLAUSE() {
-    return b.<ParameterListTree>nonterminal(Kind.ARGUMENTS)
+  public ArgumentListTree ARGUMENT_CLAUSE() {
+    return b.<ArgumentListTree>nonterminal(Kind.ARGUMENT_LIST)
       .is(f.argumentClause(
         b.token(JavaScriptPunctuator.LPARENTHESIS),
         b.optional(ARGUMENT_LIST()),
         b.token(JavaScriptPunctuator.RPARENTHESIS)));
   }
 
-  public SeparatedList<Tree> ARGUMENT_LIST() {
-    return b.<SeparatedList<Tree>>nonterminal()
+  public SeparatedList<ExpressionTree> ARGUMENT_LIST() {
+    return b.<SeparatedList<ExpressionTree>>nonterminal()
       .is(f.argumentList(
         ARGUMENT(),
         b.zeroOrMore(f.newTuple17(
@@ -946,10 +944,15 @@ public class JavaScriptGrammar {
           b.token(JavaScriptKeyword.CLASS),
           b.optional(BINDING_IDENTIFIER()),
           // TODO Factor the duplication with CLASS_DECLARATION() into CLASS_TRAIT() ?
-          b.optional(f.newTuple28(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
+          b.optional(EXTENDS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.zeroOrMore(CLASS_ELEMENT()),
           b.token(JavaScriptPunctuator.RCURLYBRACE)));
+  }
+
+  public ExtendsClauseTree EXTENDS_CLAUSE() {
+    return b.<ExtendsClauseTree>nonterminal(Kind.EXTENDS_CLAUSE)
+      .is(f.extendsClause(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION()));
   }
 
   public ComputedPropertyNameTree COMPUTED_PROPERTY_NAME() {
@@ -1467,7 +1470,7 @@ public class JavaScriptGrammar {
           b.zeroOrMore(DECORATOR()),
           b.token(JavaScriptKeyword.CLASS), BINDING_IDENTIFIER(),
           // TODO Factor the duplication with CLASS_EXPRESSION() into CLASS_TRAIT() ?
-          b.optional(f.newTuple27(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
+          b.optional(EXTENDS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.zeroOrMore(CLASS_ELEMENT()),
           b.token(JavaScriptPunctuator.RCURLYBRACE)));
@@ -1501,11 +1504,11 @@ public class JavaScriptGrammar {
         b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
-  public MethodDeclarationTree METHOD_DEFINITION() {
-    return b.<MethodDeclarationTree>nonterminal(JavaScriptLegacyGrammar.METHOD_DEFINITION)
+  public FunctionTree METHOD_DEFINITION() {
+    return b.<FunctionTree>nonterminal(JavaScriptLegacyGrammar.METHOD_DEFINITION)
       .is(
         b.firstOf(
-          f.generator(
+          f.generatorMethod(
             b.zeroOrMore(DECORATOR()),
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
             b.token(JavaScriptPunctuator.STAR),

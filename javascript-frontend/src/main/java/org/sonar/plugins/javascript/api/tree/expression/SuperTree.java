@@ -17,28 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.tree.impl;
+package org.sonar.plugins.javascript.api.tree.expression;
 
-import java.util.LinkedList;
-import java.util.List;
-import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-public class SeparateListUtils {
-  
-  private SeparateListUtils() {
-  }
+public interface SuperTree extends ExpressionTree {
 
-  /**
-   * Returns a new list containing the present (in the sense of Optional#isPresent) elements in <code>list</code>.
-   */
-  public static <T extends Tree> List<T> presentsOf(List<com.sonar.sslr.api.typed.Optional<T>> list) {
-    List<T> newList = new LinkedList<>();
-    for (com.sonar.sslr.api.typed.Optional<T> element : list) {
-      if (element.isPresent()) {
-        newList.add(element.get());
-      }
-    }
-    return newList;
-  }
+  SyntaxToken token();
 
 }

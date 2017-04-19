@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,8 +36,7 @@ public class ClassExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.CLASS_EXPRESSION)).isTrue();
     assertThat(tree.classToken().text()).isEqualTo("class");
     assertThat(tree.name().name()).isEqualTo("C");
-    assertThat(tree.extendsToken()).isNull();
-    assertThat(tree.superClass()).isNull();
+    assertThat(tree.extendsClause()).isNull();
     assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
     // TODO members
     assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
@@ -50,8 +49,7 @@ public class ClassExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.CLASS_EXPRESSION)).isTrue();
     assertThat(tree.classToken().text()).isEqualTo(JavaScriptKeyword.CLASS.getValue());
     assertThat(tree.name()).isNull();
-    assertThat(tree.extendsToken()).isNull();
-    assertThat(tree.superClass()).isNull();
+    assertThat(tree.extendsClause()).isNull();
     assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
     // TODO members
     assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
@@ -61,8 +59,8 @@ public class ClassExpressionTreeModelTest extends JavaScriptTreeModelTest {
   public void extends_clause() throws Exception {
     ClassTree tree = parse("var c = class extends S { }", Kind.CLASS_EXPRESSION);
 
-    assertThat(tree.extendsToken().text()).isEqualTo("extends");
-    assertThat(tree.superClass()).isNotNull();
+    assertThat(tree.extendsClause().extendsToken().text()).isEqualTo("extends");
+    assertThat(tree.extendsClause().superClass()).isNotNull();
   }
 
 }

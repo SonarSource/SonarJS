@@ -48,12 +48,12 @@ public class NewTargetTreeImpl extends JavaScriptTree implements NewTargetTree {
   }
 
   @Override
-  public SyntaxToken dot() {
+  public SyntaxToken dotToken() {
     return dot;
   }
 
   @Override
-  public SyntaxToken target() {
+  public SyntaxToken targetKeyword() {
     return target;
   }
 

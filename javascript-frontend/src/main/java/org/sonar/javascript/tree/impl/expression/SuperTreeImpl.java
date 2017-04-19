@@ -27,11 +27,11 @@ import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.SuperTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class SuperTreeImpl extends JavaScriptTree implements LiteralTree, TypableTree {
+public class SuperTreeImpl extends JavaScriptTree implements SuperTree, TypableTree {
 
   private final InternalSyntaxToken token;
 
@@ -50,13 +50,8 @@ public class SuperTreeImpl extends JavaScriptTree implements LiteralTree, Typabl
   }
 
   @Override
-  public String value() {
-    return token.text();
-  }
-
-  @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(
+    return Iterators.singletonIterator(
       token);
   }
 

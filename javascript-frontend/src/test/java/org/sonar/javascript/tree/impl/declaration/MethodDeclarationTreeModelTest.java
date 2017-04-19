@@ -63,4 +63,32 @@ public class MethodDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.asyncToken()).isNull();
   }
 
+  @Test
+  public void generator_method() throws Exception {
+    MethodDeclarationTree tree = parse("var a = { @decorator * method () {} }", Kind.GENERATOR_METHOD);
+
+    assertThat(tree.is(Kind.GENERATOR_METHOD)).isTrue();
+    assertThat(tree.decorators()).hasSize(1);
+    assertThat(tree.staticToken()).isNull();
+    assertThat(tree.asyncToken()).isNull();
+    assertThat(tree.starToken().text()).isEqualTo("*");
+    assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
+    assertThat(tree.parameterClause()).isNotNull();
+    assertThat(tree.body()).isNotNull();
+  }
+
+
+  @Test
+  public void static_generator_method() throws Exception {
+    MethodDeclarationTree tree = parse("var a = { static * method () {} }", Kind.GENERATOR_METHOD);
+
+    assertThat(tree.is(Kind.GENERATOR_METHOD)).isTrue();
+    assertThat(tree.staticToken()).isNotNull();
+    assertThat(tree.starToken().text()).isEqualTo("*");
+    assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
+    assertThat(tree.parameterClause()).isNotNull();
+    assertThat(tree.body()).isNotNull();
+  }
+
+
 }

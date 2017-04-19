@@ -24,6 +24,7 @@ import com.google.common.collect.SetMultimap;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,8 +39,6 @@ import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparateListUtils;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -208,7 +207,8 @@ public class SymbolicExecution {
       for (Tree element : cfgBlock.elements()) {
         if (element.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION)) {
           FunctionDeclarationTree functionDeclaration = (FunctionDeclarationTree) element;
-          Symbol symbol = functionDeclaration.name().symbol();
+          // Kind.BINDING_IDENTIFIER always has symbol
+          Symbol symbol = functionDeclaration.name().symbol().get();
           programStateWithFunctions = programStateWithFunctions.newFunctionSymbolicValue(symbol, functionDeclaration);
         }
       }
@@ -286,7 +286,7 @@ public class SymbolicExecution {
 
     } else if (element.is(Kind.ARRAY_ASSIGNMENT_PATTERN)) {
       ArrayAssignmentPatternTree arrayAssignmentPatternTree = (ArrayAssignmentPatternTree) element;
-      List<Tree> assignedElements = SeparateListUtils.presentsOf(arrayAssignmentPatternTree.elements());
+      List<Tree> assignedElements = presentsOf(arrayAssignmentPatternTree.elements());
       currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
 
     } else if (element.is(Kind.OBJECT_ASSIGNMENT_PATTERN)) {
@@ -296,7 +296,7 @@ public class SymbolicExecution {
 
     } else if (element.is(Kind.ARRAY_BINDING_PATTERN)) {
       ArrayBindingPatternTree arrayBindingPatternTree = (ArrayBindingPatternTree) element;
-      List<BindingElementTree> assignedElements = SeparateListUtils.presentsOf(arrayBindingPatternTree.elements());
+      List<BindingElementTree> assignedElements = presentsOf(arrayBindingPatternTree.elements());
       currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
 
     } else if (element.is(Kind.OBJECT_BINDING_PATTERN)) {
@@ -306,6 +306,19 @@ public class SymbolicExecution {
     }
 
     return currentState;
+  }
+
+  /**
+   * Returns a new list containing the present (in the sense of Optional#isPresent) elements in <code>list</code>.
+   */
+  private static <T extends Tree> List<T> presentsOf(List<Optional<T>> list) {
+    List<T> newList = new LinkedList<>();
+    for (Optional<T> element : list) {
+      if (element.isPresent()) {
+        newList.add(element.get());
+      }
+    }
+    return newList;
   }
 
   private void checkForImplicitReturn(CfgBlock block) {
@@ -322,7 +335,7 @@ public class SymbolicExecution {
 
   private ProgramState executeInitializedBinding(InitializedBindingElementTree initializedBindingElementTree, ProgramState programState) {
     ProgramState newProgramState = programState;
-    if (((JavaScriptTree) initializedBindingElementTree).getParent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN, Kind.BINDING_PROPERTY)) {
+    if (initializedBindingElementTree.parent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN, Kind.BINDING_PROPERTY)) {
       newProgramState = programState.removeLastValue();
     } else {
       BindingElementTree variable = initializedBindingElementTree.left();
@@ -356,13 +369,13 @@ public class SymbolicExecution {
   }
 
   private static Tree getParent(Tree tree) {
-    return syntaxTree(((JavaScriptTree) tree).getParent());
+    return syntaxTree(tree.parent());
   }
 
   private static Tree syntaxTree(Tree tree) {
     Tree syntaxTree = tree;
     while (syntaxTree.is(Kind.PARENTHESISED_EXPRESSION)) {
-      syntaxTree = ((JavaScriptTree) syntaxTree).getParent();
+      syntaxTree = syntaxTree.parent();
     }
     return syntaxTree;
   }
@@ -472,7 +485,7 @@ public class SymbolicExecution {
     }
 
     if (!constrainedTruePS.isPresent() && !constrainedFalsePS.isPresent()) {
-      throw new IllegalStateException("At least one branch of condition should be executed (condition on line " + ((JavaScriptTree) lastElement).getLine() + ").");
+      throw new IllegalStateException("At least one branch of condition should be executed (condition on line " + lastElement.firstToken().line() + ").");
     }
   }
 
@@ -519,7 +532,7 @@ public class SymbolicExecution {
 
     } else if (tree.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
       IdentifierTree identifier = (IdentifierTree) tree;
-      Symbol symbol = identifier.symbol();
+      Symbol symbol = identifier.symbol().orElse(null);
       var = trackedVariables.contains(symbol) ? symbol : null;
 
     } else if (tree.is(Kind.ASSIGNMENT_PATTERN_REST_ELEMENT)) {

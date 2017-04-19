@@ -19,15 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.declaration.FunctionTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -48,8 +45,8 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
   private Deque<Tree> functionAndLoopScopes = new ArrayDeque<>();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .addAll(KindSet.LOOP_KINDS.getSubKinds())
       .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .build();
@@ -83,10 +80,10 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
   }
 
   private static boolean isAllowedCallback(FunctionTree functionTree) {
-    JavaScriptTree parent = ((JavaScriptTree) functionTree).getParent();
+    Tree parent = functionTree.parent();
 
-    if (parent.is(Kind.ARGUMENTS) && parent.getParent().is(Kind.CALL_EXPRESSION)) {
-      CallExpressionTree callExpression = (CallExpressionTree) parent.getParent();
+    if (parent.is(Kind.ARGUMENT_LIST) && parent.parent().is(Kind.CALL_EXPRESSION)) {
+      CallExpressionTree callExpression = (CallExpressionTree) parent.parent();
 
       if (callExpression.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
         String calledMethod = ((DotMemberExpressionTree) callExpression.callee()).property().name();
@@ -98,15 +95,15 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
   }
 
   private static boolean isIIFE(FunctionTree functionTree) {
-    JavaScriptTree parent = ((JavaScriptTree) functionTree).getParent();
-    return parent.is(Kind.PARENTHESISED_EXPRESSION) && parent.getParent().is(Kind.CALL_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION);
+    Tree parent = functionTree.parent();
+    return parent.is(Kind.PARENTHESISED_EXPRESSION) && parent.parent().is(Kind.CALL_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION);
   }
 
   private static Tree getTokenForIssueLocation(Tree tree) {
     if (tree.is(Kind.ARROW_FUNCTION)) {
-      return ((ArrowFunctionTree) tree).doubleArrow();
+      return ((ArrowFunctionTree) tree).doubleArrowToken();
     } else {
-      return ((JavaScriptTree) tree).getFirstToken();
+      return tree.firstToken();
     }
   }
 
@@ -130,7 +127,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
         return false;
       }
 
-      if (usage.isDeclaration() && usage.isWrite() && ((JavaScriptTree) loopTree).isAncestorOf((JavaScriptTree) usage.identifierTree())) {
+      if (usage.isDeclaration() && usage.isWrite() && loopTree.isAncestorOf(usage.identifierTree())) {
         return false;
       }
     }

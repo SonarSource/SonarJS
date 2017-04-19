@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,12 +38,9 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.decorators()).hasSize(1);
     assertThat(tree.classToken().text()).isEqualTo("class");
     assertThat(tree.name().name()).isEqualTo("C");
-    assertThat(tree.extendsToken()).isNull();
-    assertThat(tree.superClass()).isNull();
+    assertThat(tree.extendsClause()).isNull();
     assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
     assertThat(tree.elements()).isEmpty();
-    assertThat(tree.methods()).isEmpty();
-    assertThat(tree.semicolons()).isEmpty();
     assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
@@ -54,12 +51,9 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.CLASS_DECLARATION)).isTrue();
     assertThat(tree.classToken().text()).isEqualTo("class");
     assertThat(tree.name().name()).isEqualTo("C");
-    assertThat(tree.extendsToken()).isNull();
-    assertThat(tree.superClass()).isNull();
+    assertThat(tree.extendsClause()).isNull();
     assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
     assertThat(tree.elements()).hasSize(3);
-    assertThat(tree.methods()).hasSize(2);
-    assertThat(tree.semicolons()).hasSize(1);
     assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
@@ -67,8 +61,8 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
   public void extends_clause() throws Exception {
     ClassTree tree = parse("class C extends S { }", Kind.CLASS_DECLARATION);
 
-    assertThat(tree.extendsToken().text()).isEqualTo("extends");
-    assertThat(tree.superClass()).isNotNull();
+    assertThat(tree.extendsClause().extendsToken().text()).isEqualTo("extends");
+    assertThat(tree.extendsClause().superClass()).isNotNull();
   }
 
   @Test

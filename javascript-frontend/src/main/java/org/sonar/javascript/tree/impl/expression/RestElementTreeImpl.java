@@ -43,7 +43,7 @@ public class RestElementTreeImpl extends JavaScriptTree implements RestElementTr
   }
 
   @Override
-  public SyntaxToken ellipsis() {
+  public SyntaxToken ellipsisToken() {
     return ellipsis;
   }
 

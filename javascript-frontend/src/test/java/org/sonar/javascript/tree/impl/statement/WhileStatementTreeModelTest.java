@@ -36,9 +36,9 @@ public class WhileStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.WHILE_STATEMENT)).isTrue();
     assertThat(tree.whileKeyword().text()).isEqualTo(JavaScriptKeyword.WHILE.getValue());
-    assertThat(tree.openParenthesis().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.openParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.condition()).isNotNull();
-    assertThat(tree.closeParenthesis().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.closeParenthesisToken().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
 

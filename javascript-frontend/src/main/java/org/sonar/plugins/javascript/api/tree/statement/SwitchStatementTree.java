@@ -37,16 +37,16 @@ public interface SwitchStatementTree extends StatementTree {
 
   SyntaxToken switchKeyword();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   ExpressionTree expression();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
-  SyntaxToken openCurlyBrace();
+  SyntaxToken openCurlyBraceToken();
 
   List<SwitchClauseTree> cases();
 
-  SyntaxToken closeCurlyBrace();
+  SyntaxToken closeCurlyBraceToken();
 
 }

@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
@@ -52,7 +51,7 @@ public class VariableShadowingCheck extends DoubleDispatchVisitorCheck {
       Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
       if (outerSymbol != null && !outerSymbol.external()) {
         IdentifierTree shadowedDeclaration = getDeclaration(outerSymbol).identifierTree();
-        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) shadowedDeclaration).getLine());
+        String message = String.format(MESSAGE, symbol.name(), shadowedDeclaration.identifierToken().line());
         raiseIssuesOnDeclarations(symbol, message, shadowedDeclaration);
       }
     }

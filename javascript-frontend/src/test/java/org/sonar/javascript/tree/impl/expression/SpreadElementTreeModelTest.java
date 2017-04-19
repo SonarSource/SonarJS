@@ -34,7 +34,7 @@ public class SpreadElementTreeModelTest extends JavaScriptTreeModelTest {
     SpreadElementTree tree = parse("var x = [1, ... expression];", Kind.SPREAD_ELEMENT);
 
     assertThat(tree.is(Kind.SPREAD_ELEMENT)).isTrue();
-    assertThat(tree.ellipsis().text()).isEqualTo(JavaScriptPunctuator.ELLIPSIS.getValue());
+    assertThat(tree.ellipsisToken().text()).isEqualTo(JavaScriptPunctuator.ELLIPSIS.getValue());
     assertThat(tree.element().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
   }
 

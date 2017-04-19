@@ -49,7 +49,7 @@ public interface AssignmentExpressionTree extends ExpressionTree {
 
   ExpressionTree variable();
 
-  SyntaxToken operator();
+  SyntaxToken operatorToken();
 
   ExpressionTree expression();
 

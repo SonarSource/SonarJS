@@ -35,12 +35,12 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface ArrayLiteralTree extends ExpressionTree {
 
-  SyntaxToken openBracket();
+  SyntaxToken openBracketToken();
 
   List<ExpressionTree> elements();
 
   List<Tree> elementsAndCommas();
 
-  SyntaxToken closeBracket();
+  SyntaxToken closeBracketToken();
 
 }

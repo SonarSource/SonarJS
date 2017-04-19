@@ -22,18 +22,17 @@ package org.sonar.javascript.cfg;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.RecognitionException;
-import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -285,7 +284,7 @@ class ControlFlowGraphBuilder {
 
     } else if (tree.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpression = (CallExpressionTree) tree;
-      buildExpressions(callExpression.arguments().parameters());
+      buildExpressions(callExpression.argumentClause().arguments());
       buildExpression(callExpression.callee());
 
     } else if (tree.is(Kind.VAR_DECLARATION, Kind.LET_DECLARATION, Kind.CONST_DECLARATION)) {
@@ -308,8 +307,8 @@ class ControlFlowGraphBuilder {
 
     } else if (tree.is(Kind.NEW_EXPRESSION)) {
       NewExpressionTree newExpression = (NewExpressionTree) tree;
-      if (newExpression.arguments() != null) {
-        buildExpressions(newExpression.arguments().parameters());
+      if (newExpression.argumentClause() != null) {
+        buildExpressions(newExpression.argumentClause().arguments());
       }
       buildExpression(newExpression.expression());
 
@@ -446,7 +445,7 @@ class ControlFlowGraphBuilder {
 
   private void visitContinueStatement(ContinueStatementTree tree) {
     JsCfgBlock target = null;
-    String label = tree.label() == null ? null : tree.label().name();
+    String label = tree.labelToken() == null ? null : tree.labelToken().text();
     for (Breakable breakable : breakables) {
       if (breakable.continueTarget != null && (label == null || label.equals(breakable.label))) {
         target = breakable.continueTarget;
@@ -462,7 +461,7 @@ class ControlFlowGraphBuilder {
 
   private void visitBreakStatement(BreakStatementTree tree) {
     JsCfgBlock target = null;
-    String label = tree.label() == null ? null : tree.label().name();
+    String label = tree.labelToken() == null ? null : tree.labelToken().text();
     for (Breakable breakable : breakables) {
       if (label == null || label.equals(breakable.label)) {
         target = breakable.breakTarget;
@@ -477,7 +476,7 @@ class ControlFlowGraphBuilder {
   }
 
   private static void raiseRecognitionException(Tree tree, String type, @Nullable String label) {
-    int line = ((JavaScriptTree) tree).getLine();
+    int line = tree.firstToken().line();
     String message = "No \'" + type + "\' target can be found at line " + line;
     if (label != null) {
       message += " (label '" + label + "')";
@@ -562,7 +561,7 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitLabelledStatement(LabelledStatementTree tree) {
-    String label = tree.label().name();
+    String label = tree.labelToken().text();
 
     boolean isLoopStatement = tree.statement().is(KindSet.LOOP_KINDS);
 

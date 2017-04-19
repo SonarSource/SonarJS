@@ -34,7 +34,7 @@ public class YieldExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.YIELD_EXPRESSION)).isTrue();
     assertThat(tree.yieldKeyword().text()).isEqualTo("yield");
-    assertThat(tree.star()).isNull();
+    assertThat(tree.starToken()).isNull();
     assertThat(tree.argument()).isNull();
   }
 
@@ -44,7 +44,7 @@ public class YieldExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.YIELD_EXPRESSION)).isTrue();
     assertThat(tree.yieldKeyword().text()).isEqualTo("yield");
-    assertThat(tree.star().text()).isEqualTo("*");
+    assertThat(tree.starToken().text()).isEqualTo("*");
     assertThat(expressionToString(tree.argument())).isEqualTo("expression");
   }
 
@@ -54,7 +54,7 @@ public class YieldExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.YIELD_EXPRESSION)).isTrue();
     assertThat(tree.yieldKeyword().text()).isEqualTo("yield");
-    assertThat(tree.star()).isNull();
+    assertThat(tree.starToken()).isNull();
     assertThat(expressionToString(tree.argument())).isEqualTo("expression");
   }
 

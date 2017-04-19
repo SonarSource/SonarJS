@@ -20,9 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -60,12 +58,12 @@ public class NestedConditionalOperatorsCheck extends DoubleDispatchVisitorCheck 
    * there is a construct that functionally "disconnects" the two ConditionExpressions. 
    */
   private static boolean isNestingBroken(ConditionalExpressionTree conditionalExpression) {
-    Tree parent = ((JavaScriptTree) conditionalExpression).getParent();
+    Tree parent = conditionalExpression.parent();
     while (!parent.is(Kind.CONDITIONAL_EXPRESSION)) {
       if (breaksNesting(parent)) {
         return true;
       }
-      parent = CheckUtils.parent(parent);
+      parent = parent.parent();
     }
     return false;
   }

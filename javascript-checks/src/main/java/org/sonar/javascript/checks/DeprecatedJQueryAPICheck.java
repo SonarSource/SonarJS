@@ -110,7 +110,7 @@ public class DeprecatedJQueryAPICheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean propertyIsDeprecated(ExpressionTree property, List<String> deprecated) {
-    if (property.is(Tree.Kind.IDENTIFIER_NAME)) {
+    if (property.is(Tree.Kind.PROPERTY_IDENTIFIER)) {
       IdentifierTree identifier = (IdentifierTree) property;
       return deprecated.contains(identifier.name());
     }

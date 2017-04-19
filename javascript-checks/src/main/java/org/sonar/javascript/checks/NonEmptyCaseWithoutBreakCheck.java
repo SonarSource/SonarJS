@@ -30,7 +30,6 @@ import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -94,7 +93,7 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
     List<SwitchClauseTree> cases = switchStatement.cases();
     for (int i = 0; i < cases.size() - 1; i++) {
       if (cases.get(i).equals(caseClause)) {
-        return !((JavaScriptTree) cases.get(i + 1)).getFirstToken().trivias().isEmpty();
+        return !cases.get(i + 1).firstToken().trivias().isEmpty();
       }
     }
     return false;
@@ -150,8 +149,7 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static int tokenIndex(Tree tree) {
-    JavaScriptTree jsTree = (JavaScriptTree) tree;
-    InternalSyntaxToken firstToken = (InternalSyntaxToken) jsTree.getFirstToken();
+    InternalSyntaxToken firstToken = (InternalSyntaxToken) tree.firstToken();
     return firstToken.startIndex();
   }
 

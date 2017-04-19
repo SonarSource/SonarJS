@@ -37,8 +37,9 @@ public interface FunctionExpressionTree extends ExpressionTree, FunctionTree {
   SyntaxToken functionKeyword();
 
   @Nullable
-  SyntaxToken star();
+  SyntaxToken starToken();
 
+  @Override
   @Nullable
   IdentifierTree name();
 

@@ -19,14 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
@@ -37,8 +37,8 @@ public class NonCaseLabelInSwitchCheck extends SubscriptionVisitorCheck {
   private Deque<Integer> stack = new ArrayDeque<>();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .add(Kind.LABELLED_STATEMENT, Kind.CASE_CLAUSE)
       .add(
         Kind.FUNCTION_EXPRESSION,
@@ -62,8 +62,8 @@ public class NonCaseLabelInSwitchCheck extends SubscriptionVisitorCheck {
     } else if (tree.is(Kind.LABELLED_STATEMENT)) {
 
       if (inCase()) {
-        IdentifierTree label = ((LabelledStatementTree) tree).label();
-        addIssue(label, String.format(MESSAGE, label.name()));
+        SyntaxToken label = ((LabelledStatementTree) tree).labelToken();
+        addIssue(label, String.format(MESSAGE, label.text()));
       }
 
     } else {

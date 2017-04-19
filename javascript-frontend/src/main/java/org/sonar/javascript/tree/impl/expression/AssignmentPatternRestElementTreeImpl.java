@@ -40,7 +40,7 @@ public class AssignmentPatternRestElementTreeImpl extends JavaScriptTree impleme
   }
 
   @Override
-  public SyntaxToken ellipsis() {
+  public SyntaxToken ellipsisToken() {
     return ellipsis;
   }
 

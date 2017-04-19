@@ -40,7 +40,7 @@ public interface ForObjectStatementTree extends IterationStatementTree {
   @Nullable
   SyntaxToken awaitToken();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   Tree variableOrExpression();
 
@@ -48,7 +48,7 @@ public interface ForObjectStatementTree extends IterationStatementTree {
 
   ExpressionTree expression();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
   @Override
   StatementTree statement();

@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -36,8 +37,8 @@ public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "Remove the useless trailing whitespaces at the end of this line.";
 
   @Override
-  public List<Tree.Kind> nodesToVisit() {
-    return Collections.emptyList();
+  public Set<Tree.Kind> nodesToVisit() {
+    return Collections.emptySet();
   }
 
   @Override

@@ -20,16 +20,16 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -48,8 +48,8 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE_WITHOUT_KEYWORD = "Remove this unreachable code.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .add(Kind.SCRIPT)
       .build();
@@ -105,7 +105,7 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
 
   private static boolean isLastBreakInSwitchCase(Tree tree) {
     if (tree.is(Kind.BREAK_STATEMENT)) {
-      JavaScriptTree parent = ((JavaScriptTree) tree).getParent();
+      Tree parent = tree.parent();
 
       if (parent.is(Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE)) {
         SwitchClauseTree switchClause = (SwitchClauseTree) parent;
@@ -143,12 +143,12 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
   }
 
   private static int startIndex(Tree element) {
-    InternalSyntaxToken firstToken = (InternalSyntaxToken) ((JavaScriptTree) element).getFirstToken();
+    InternalSyntaxToken firstToken = (InternalSyntaxToken) element.firstToken();
     return firstToken.startIndex();
   }
 
   private static int endIndex(Tree element) {
-    InternalSyntaxToken lastToken = (InternalSyntaxToken) ((JavaScriptTree) element).getLastToken();
+    InternalSyntaxToken lastToken = (InternalSyntaxToken) element.lastToken();
     return lastToken.toIndex();
   }
 

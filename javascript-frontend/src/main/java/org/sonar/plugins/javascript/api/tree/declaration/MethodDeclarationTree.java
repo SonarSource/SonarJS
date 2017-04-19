@@ -32,6 +32,7 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
  * <pre>
  *   {@link #name()} {@link #parameterClause()} {@link #body()}
  *   static {@link #name()} {@link #parameterClause()} {@link #body()}
+ *   {@link Tree.Kind#GENERATOR_METHOD *} {@link #name()} {@link #parameterClause()} {@link #body()}
  * </pre>
  */
 @Beta
@@ -42,6 +43,10 @@ public interface MethodDeclarationTree extends FunctionTree {
   @Nullable
   SyntaxToken staticToken();
 
+  @Nullable
+  SyntaxToken starToken();
+
+  @Override
   Tree name();
 
   @Override

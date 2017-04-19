@@ -22,10 +22,9 @@ package org.sonar.javascript.checks;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -70,8 +69,8 @@ public class ImmediatelyReturnedVariableCheck extends DoubleDispatchVisitorCheck
       if (initializedBindingElementTree.left().is(Kind.BINDING_IDENTIFIER)) {
         IdentifierTree identifier = (IdentifierTree) initializedBindingElementTree.left();
 
-        // identifier.symbol() is never null here, as it's part of declaration statement
-        if (hasUsageInsideExpression(identifier.symbol(), initializedBindingElementTree.right())) {
+        // identifier.symbol() is always there, as it's part of declaration statement
+        if (hasUsageInsideExpression(identifier.symbol().get(), initializedBindingElementTree.right())) {
           return;
         }
 
@@ -90,7 +89,7 @@ public class ImmediatelyReturnedVariableCheck extends DoubleDispatchVisitorCheck
 
   private static boolean hasUsageInsideExpression(Symbol symbol, ExpressionTree expression) {
     for (Usage usage : symbol.usages()) {
-      if (((JavaScriptTree) expression).isAncestorOf((JavaScriptTree) usage.identifierTree())) {
+      if (expression.isAncestorOf(usage.identifierTree())) {
         return true;
       }
     }

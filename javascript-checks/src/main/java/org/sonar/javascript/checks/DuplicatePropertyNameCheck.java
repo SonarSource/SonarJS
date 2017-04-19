@@ -26,9 +26,10 @@ import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
@@ -94,8 +95,11 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   @Nullable
   private static Tree getPropertyNameTree(Tree property) {
-    if (property instanceof MethodDeclarationTree) {
+    if (property.is(Kind.METHOD, Kind.GENERATOR_METHOD)) {
       return ((MethodDeclarationTree) property).name();
+
+    } else if (property.is(Kind.GET_METHOD, Kind.SET_METHOD)) {
+      return ((AccessorMethodDeclarationTree) property).name();
 
     } else if (property.is(Kind.FIELD)) {
       return ((FieldDeclarationTree) property).propertyName();
@@ -117,7 +121,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
       return value.substring(1, value.length() - 1);
     }
 
-    if (propertyKey.is(Kind.IDENTIFIER_NAME, Kind.IDENTIFIER_REFERENCE)) {
+    if (propertyKey.is(Kind.PROPERTY_IDENTIFIER, Kind.IDENTIFIER_REFERENCE)) {
       return ((IdentifierTree) propertyKey).name();
     }
 

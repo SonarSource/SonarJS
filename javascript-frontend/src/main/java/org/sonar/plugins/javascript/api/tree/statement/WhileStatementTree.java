@@ -30,15 +30,16 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </pre>
  */
 @Beta
-public interface WhileStatementTree extends IterationStatementTree {
+public interface WhileStatementTree extends IterationStatementTree, ConditionalTree {
 
   SyntaxToken whileKeyword();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
+  @Override
   ExpressionTree condition();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
   @Override
   StatementTree statement();

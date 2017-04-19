@@ -33,11 +33,11 @@ public class TemplateLiteralTreeModelTest extends JavaScriptTreeModelTest {
     TemplateLiteralTree tree = parse("` characters `", Kind.TEMPLATE_LITERAL);
 
     assertThat(tree.is(Kind.TEMPLATE_LITERAL)).isTrue();
-    assertThat(tree.openBacktick().text()).isEqualTo("`");
+    assertThat(tree.openBacktickToken().text()).isEqualTo("`");
     assertThat(tree.strings()).hasSize(1);
     assertThat(tree.strings().get(0).value()).isEqualTo(" characters ");
     assertThat(tree.expressions()).isEmpty();
-    assertThat(tree.closeBacktick().text()).isEqualTo("`");
+    assertThat(tree.closeBacktickToken().text()).isEqualTo("`");
   }
 
   @Test
@@ -45,7 +45,7 @@ public class TemplateLiteralTreeModelTest extends JavaScriptTreeModelTest {
     TemplateLiteralTree tree = parse("` characters1 ${ expression1 } characters2 ${ expression2 } characters3 `", Kind.TEMPLATE_LITERAL);
 
     assertThat(tree.is(Kind.TEMPLATE_LITERAL)).isTrue();
-    assertThat(tree.openBacktick().text()).isEqualTo("`");
+    assertThat(tree.openBacktickToken().text()).isEqualTo("`");
 
     assertThat(tree.strings()).hasSize(3);
     assertThat(tree.strings().get(0).value()).isEqualTo(" characters1 ");
@@ -53,7 +53,7 @@ public class TemplateLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.expressions()).hasSize(2);
 
-    assertThat(tree.closeBacktick().text()).isEqualTo("`");
+    assertThat(tree.closeBacktickToken().text()).isEqualTo("`");
   }
 
 }

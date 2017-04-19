@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.SeChecksDispatcher;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -59,7 +58,7 @@ public class FunctionWithTreeSymbolicValueTest {
   private void assertFunctionTreeLines(Set<SymbolicValue> values, Integer ... expectedLines) {
     Set<Integer> actualLines = new HashSet<>();
     for (SymbolicValue value : values) {
-      actualLines.add(((JavaScriptTree) ((FunctionWithTreeSymbolicValue) value).getFunctionTree()).getLine());
+      actualLines.add(((FunctionWithTreeSymbolicValue) value).getFunctionTree().firstToken().line());
     }
 
     assertThat(actualLines).as("Lines of function trees of function symbolic values").isEqualTo(Sets.newHashSet(expectedLines));
@@ -80,7 +79,7 @@ public class FunctionWithTreeSymbolicValueTest {
 
     @Override
     public void afterBlockElement(ProgramState currentState, Tree element) {
-      if (((JavaScriptTree) element).getLine() == line) {
+      if (element.firstToken().line() == line) {
         for (Entry<Symbol, SymbolicValue> entry : currentState.values().entrySet()) {
           if (entry.getKey().name().equals(symbolName)) {
             values.add(entry.getValue());

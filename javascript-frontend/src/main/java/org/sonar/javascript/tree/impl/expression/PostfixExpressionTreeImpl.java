@@ -53,7 +53,7 @@ public class PostfixExpressionTreeImpl extends JavaScriptTree implements UnaryEx
   }
 
   @Override
-  public SyntaxToken operator() {
+  public SyntaxToken operatorToken() {
     return operator;
   }
 

@@ -19,9 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
@@ -86,7 +85,7 @@ public class EqEqEqCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
       .stream()
       .filter(equalityExpression -> !ignoredList.contains(equalityExpression))
       .forEach(equalityExpression ->
-        addIssue(equalityExpression.operator(), equalityExpression.is(Kind.EQUAL_TO) ? "Replace \"==\" with \"===\"." : "Replace \"!=\" with \"!==\".")
+        addIssue(equalityExpression.operatorToken(), equalityExpression.is(Kind.EQUAL_TO) ? "Replace \"==\" with \"===\"." : "Replace \"!=\" with \"!==\".")
           .secondary(equalityExpression.leftOperand())
           .secondary(equalityExpression.rightOperand()));
 
@@ -97,8 +96,8 @@ public class EqEqEqCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
     Set<BinaryExpressionTree> equalityExpressions = new HashSet<>();
 
     @Override
-    public List<Kind> nodesToVisit() {
-      return Lists.newArrayList(EQUALITY_KINDS);
+    public Set<Kind> nodesToVisit() {
+      return new HashSet<>(Arrays.asList(EQUALITY_KINDS));
     }
 
     @Override

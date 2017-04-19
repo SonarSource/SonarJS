@@ -19,16 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
@@ -43,8 +44,8 @@ public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
   private String nameOfExported = null;
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(
       Kind.DEFAULT_EXPORT_DECLARATION,
       Kind.NAMESPACE_EXPORT_DECLARATION,
       Kind.NAMED_EXPORT_DECLARATION
@@ -57,10 +58,10 @@ public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
       Tree exported = ((DefaultExportDeclarationTree) tree).object();
 
       if (exported.is(Kind.IDENTIFIER_REFERENCE)) {
-        Symbol symbol = ((IdentifierTree) exported).symbol();
+        Optional<Symbol> symbol = ((IdentifierTree) exported).symbol();
 
-        if (symbol != null && CONSIDERED_KINDS.contains(symbol.kind())) {
-          nameOfExported = symbol.name();
+        if (symbol.isPresent() && CONSIDERED_KINDS.contains(symbol.get().kind())) {
+          nameOfExported = symbol.get().name();
         }
 
       } else if (exported.is(Kind.CLASS_DECLARATION)) {

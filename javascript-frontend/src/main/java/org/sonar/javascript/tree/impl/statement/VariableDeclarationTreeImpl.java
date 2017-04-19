@@ -25,11 +25,11 @@ import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -68,9 +68,9 @@ public class VariableDeclarationTreeImpl extends JavaScriptTree implements Varia
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>concat(
+    return Iterators.concat(
       Iterators.singletonIterator(token),
-      variables.elementsAndSeparators(Functions.<BindingElementTree>identity())
+      variables.elementsAndSeparators(Functions.identity())
     );
   }
 

@@ -23,20 +23,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.sonar.javascript.tree.impl.declaration.AccessorMethodDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FunctionDeclarationTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.GeneratorMethodDeclarationTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.MethodDeclarationTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.FunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -118,18 +117,23 @@ public class ScopeVisitor extends DoubleDispatchVisitor {
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     newFunctionScope(tree);
-    if (tree.is(Kind.GENERATOR_METHOD)) {
-      ((GeneratorMethodDeclarationTreeImpl) tree).scope(currentScope);
 
-    } else if (tree.is(Kind.GET_METHOD, Kind.SET_METHOD)) {
-      ((AccessorMethodDeclarationTreeImpl) tree).scope(currentScope);
-
-    } else {
-      ((MethodDeclarationTreeImpl) tree).scope(currentScope);
-    }
+    ((FunctionTreeImpl) tree).scope(currentScope);
 
     skipBlock(tree.body());
     super.visitMethodDeclaration(tree);
+
+    leaveScope();
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    newFunctionScope(tree);
+
+    ((FunctionTreeImpl) tree).scope(currentScope);
+
+    skipBlock(tree.body());
+    super.visitAccessorMethodDeclaration(tree);
 
     leaveScope();
   }

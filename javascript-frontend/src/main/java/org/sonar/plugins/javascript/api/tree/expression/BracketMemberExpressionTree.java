@@ -31,9 +31,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface BracketMemberExpressionTree extends MemberExpressionTree {
 
+  SyntaxToken openBracketToken();
 
-  SyntaxToken openBracket();
-
-  SyntaxToken closeBracket();
+  SyntaxToken closeBracketToken();
 
 }

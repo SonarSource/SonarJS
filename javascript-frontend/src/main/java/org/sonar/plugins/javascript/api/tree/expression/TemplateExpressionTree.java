@@ -34,11 +34,11 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface TemplateExpressionTree extends Tree {
 
-  SyntaxToken dollar();
+  SyntaxToken dollarToken();
 
-  SyntaxToken openCurlyBrace();
+  SyntaxToken openCurlyBraceToken();
 
   ExpressionTree expression();
 
-  SyntaxToken closeCurlyBrace();
+  SyntaxToken closeCurlyBraceToken();
 }

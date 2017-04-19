@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.expression;
+package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
@@ -34,7 +34,7 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
  * <pre>
  *  class { {@link #elements()} }
  *  class {@link #name()} { {@link #elements()} }
- *  class {@link #name()} extends {@link #superClass()}} { {@link #elements()} }
+ *  class {@link #name()} {@link #extendsClause()}} { {@link #elements()} }
  * </pre>
  */
 @Beta
@@ -48,19 +48,12 @@ public interface ClassTree extends ExpressionTree, StatementTree {
   IdentifierTree name();
 
   @Nullable
-  SyntaxToken extendsToken();
-
-  @Nullable
-  ExpressionTree superClass();
+  ExtendsClauseTree extendsClause();
 
   SyntaxToken openCurlyBraceToken();
 
-  // elements can be either method declarations, class field declarations or semi-colons
+  // elements can be either method declarations, accessor declarations, class field declarations or semi-colons
   List<Tree> elements();
-
-  Iterable<MethodDeclarationTree> methods();
-
-  Iterable<SyntaxToken> semicolons();
 
   SyntaxToken closeCurlyBraceToken();
 

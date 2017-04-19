@@ -34,11 +34,11 @@ public interface CatchBlockTree extends Tree {
 
   SyntaxToken catchKeyword();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   Tree parameter();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
   BlockTree block();
 

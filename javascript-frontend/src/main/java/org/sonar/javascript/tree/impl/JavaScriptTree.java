@@ -34,10 +34,6 @@ public abstract class JavaScriptTree implements Tree {
 
   private JavaScriptTree parent;
 
-  public int getLine() {
-    return getFirstToken().line();
-  }
-
   @Override
   public final boolean is(Kinds... kind) {
     if (getKind() != null) {
@@ -64,13 +60,14 @@ public abstract class JavaScriptTree implements Tree {
     return false;
   }
 
-  public SyntaxToken getLastToken() {
+  @Override
+  public SyntaxToken lastToken() {
     SyntaxToken lastToken = null;
     Iterator<Tree> childrenIterator = childrenIterator();
     while (childrenIterator.hasNext()) {
       JavaScriptTree child = (JavaScriptTree) childrenIterator.next();
       if (child != null) {
-        SyntaxToken childLastToken = child.getLastToken();
+        SyntaxToken childLastToken = child.lastToken();
         if (childLastToken != null) {
           lastToken = childLastToken;
         }
@@ -79,7 +76,8 @@ public abstract class JavaScriptTree implements Tree {
     return lastToken;
   }
 
-  public SyntaxToken getFirstToken() {
+  @Override
+  public SyntaxToken firstToken() {
     Iterator<Tree> childrenIterator = childrenIterator();
     Tree child;
     do {
@@ -89,20 +87,22 @@ public abstract class JavaScriptTree implements Tree {
         throw new IllegalStateException("Tree has no non-null children " + getKind());
       }
     } while (child == null);
-    return ((JavaScriptTree) child).getFirstToken();
+    return child.firstToken();
   }
 
-  public boolean isAncestorOf(JavaScriptTree tree) {
-    Tree parentTree = tree.getParent();
+  @Override
+  public boolean isAncestorOf(Tree tree) {
+    Tree parentTree = tree.parent();
     if (this.equals(parentTree)) {
       return true;
     }
     if (parentTree == null) {
       return false;
     }
-    return this.isAncestorOf((JavaScriptTree) parentTree);
+    return this.isAncestorOf(parentTree);
   }
 
+  @Override
   public Stream<JavaScriptTree> descendants() {
     if (this.isLeaf()) {
       return Stream.empty();
@@ -113,13 +113,14 @@ public abstract class JavaScriptTree implements Tree {
     for (Iterator<Tree> iterator = this.childrenIterator(); iterator.hasNext();) {
       Tree tree = iterator.next();
       if (tree != null) {
-        kins = Stream.concat(kins, ((JavaScriptTree) tree).descendants());
+        kins = Stream.concat(kins, tree.descendants());
       }
     }
     return kins;
   }
 
-  private Stream<Tree> childrenStream() {
+  @Override
+  public Stream<Tree> childrenStream() {
     return StreamSupport.stream(Spliterators.spliteratorUnknownSize(childrenIterator(), Spliterator.ORDERED), false);
   }
 
@@ -127,7 +128,8 @@ public abstract class JavaScriptTree implements Tree {
     this.parent = (JavaScriptTree) parent;
   }
 
-  public JavaScriptTree getParent() {
+  @Override
+  public Tree parent() {
     return parent;
   }
 

@@ -38,7 +38,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
     assertThat(tree.parameterClause() instanceof IdentifierTree).isTrue();
     assertThat(((IdentifierTree) tree.parameterClause()).name()).isEqualTo("p");
-    assertThat(tree.doubleArrow().text()).isEqualTo("=>");
+    assertThat(tree.doubleArrowToken().text()).isEqualTo("=>");
     assertThat(expressionToString(tree.body())).isEqualTo("p");
   }
 
@@ -49,7 +49,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
     assertThat(tree.parameterClause() instanceof IdentifierTree).isTrue();
     assertThat(((IdentifierTree) tree.parameterClause()).name()).isEqualTo("p");
-    assertThat(tree.doubleArrow().text()).isEqualTo(JavaScriptPunctuator.DOUBLEARROW.getValue());
+    assertThat(tree.doubleArrowToken().text()).isEqualTo(JavaScriptPunctuator.DOUBLEARROW.getValue());
     assertThat(tree.body().is(Kind.BLOCK)).isTrue();
   }
 
@@ -58,8 +58,8 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     ArrowFunctionTree tree = parse("(p1, p2) => p;", Kind.ARROW_FUNCTION);
 
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
-    assertThat(tree.parameterClause().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
-    assertThat(tree.doubleArrow().text()).isEqualTo(JavaScriptPunctuator.DOUBLEARROW.getValue());
+    assertThat(tree.parameterClause().is(Kind.PARAMETER_LIST)).isTrue();
+    assertThat(tree.doubleArrowToken().text()).isEqualTo(JavaScriptPunctuator.DOUBLEARROW.getValue());
     assertThat(expressionToString(tree.body())).isEqualTo("p");
   }
 
@@ -68,8 +68,8 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     ArrowFunctionTree tree = parse("(p1, p2) => p;", Kind.ARROW_FUNCTION);
 
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
-    assertThat(tree.parameterClause().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
-    assertThat(tree.doubleArrow().text()).isEqualTo(JavaScriptPunctuator.DOUBLEARROW.getValue());
+    assertThat(tree.parameterClause().is(Kind.PARAMETER_LIST)).isTrue();
+    assertThat(tree.doubleArrowToken().text()).isEqualTo(JavaScriptPunctuator.DOUBLEARROW.getValue());
     assertThat(expressionToString(tree.body())).isEqualTo("p");
   }
 

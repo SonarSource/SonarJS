@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
@@ -73,6 +74,11 @@ public class FunctionDeclarationsWithinBlocksCheck extends DoubleDispatchVisitor
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
+    scan(tree.body().statements());
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
     scan(tree.body().statements());
   }
 }

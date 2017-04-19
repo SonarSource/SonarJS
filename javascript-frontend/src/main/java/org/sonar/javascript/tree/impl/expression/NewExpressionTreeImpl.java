@@ -28,7 +28,7 @@ import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -39,7 +39,7 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
   private final Kind kind;
   private final SyntaxToken newKeyword;
   private final ExpressionTree expression;
-  private final ParameterListTree arguments;
+  private final ArgumentListTree arguments;
   private TypeSet types = TypeSet.emptyTypeSet();
 
   public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, ExpressionTree expression) {
@@ -50,7 +50,7 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
 
   }
 
-  public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, ExpressionTree expression, ParameterListTree arguments) {
+  public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, ExpressionTree expression, ArgumentListTree arguments) {
     this.kind = kind;
     this.newKeyword = newKeyword;
     this.expression = expression;
@@ -69,7 +69,7 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
 
   @Nullable
   @Override
-  public ParameterListTree arguments() {
+  public ArgumentListTree argumentClause() {
     return arguments;
   }
 

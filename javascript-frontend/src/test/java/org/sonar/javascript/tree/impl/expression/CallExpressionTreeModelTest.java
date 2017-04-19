@@ -34,13 +34,13 @@ public class CallExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.CALL_EXPRESSION)).isTrue();
     assertThat(tree.callee().is(Kind.CALL_EXPRESSION)).isTrue();
-    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.argumentClause()).isNotNull();
 
     tree = (CallExpressionTree) tree.callee();
 
     assertThat(tree.is(Kind.CALL_EXPRESSION)).isTrue();
     assertThat(tree.callee().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
-    assertThat(tree.arguments()).isNotNull();
+    assertThat(tree.argumentClause()).isNotNull();
   }
 
 }

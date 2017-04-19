@@ -21,8 +21,9 @@ package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
 import javax.annotation.Nullable;
-import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
@@ -39,5 +40,5 @@ public interface DecoratorTree extends Tree {
   SeparatedList<IdentifierTree> body();
 
   @Nullable
-  ParameterListTree arguments();
+  ArgumentListTree argumentClause();
 }

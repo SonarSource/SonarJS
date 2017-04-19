@@ -19,8 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -95,25 +96,25 @@ public class ReassignedParameterCheck extends SubscriptionVisitorCheck {
     }
   }
 
-  private void checkSymbol(@Nullable Symbol symbol, IdentifierTree declarationIdentifier, @Nullable ForObjectStatementTree loop, String title) {
-    if (symbol == null) {
+  private void checkSymbol(Optional<Symbol> symbol, IdentifierTree declarationIdentifier, @Nullable ForObjectStatementTree loop, String title) {
+    if (!symbol.isPresent()) {
       return;
     }
 
-    for (Usage usage : symbol.usages()) {
+    for (Usage usage : symbol.get().usages()) {
 
       if (usage.isWrite() &&
         !usage.identifierTree().equals(declarationIdentifier)
         && (loop == null || CheckUtils.isDescendant(usage.identifierTree(), loop))) {
 
-        addIssue(usage.identifierTree(), String.format(MESSAGE, title, symbol.name()));
+        addIssue(usage.identifierTree(), String.format(MESSAGE, title, symbol.get().name()));
       }
     }
   }
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
       .add(Kind.CATCH_BLOCK)
       .add(Kind.FOR_IN_STATEMENT)

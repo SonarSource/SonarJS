@@ -64,7 +64,7 @@ public class CaseClauseTreeImpl extends JavaScriptTree implements CaseClauseTree
   }
 
   @Override
-  public SyntaxToken colon() {
+  public SyntaxToken colonToken() {
     return colon;
   }
 

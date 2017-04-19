@@ -34,26 +34,27 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </pre>
  */
 @Beta
-public interface ForStatementTree extends IterationStatementTree {
+public interface ForStatementTree extends IterationStatementTree, ConditionalTree {
 
   SyntaxToken forKeyword();
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   @Nullable
   Tree init();
 
-  SyntaxToken firstSemicolon();
+  SyntaxToken firstSemicolonToken();
 
   @Nullable
+  @Override
   ExpressionTree condition();
 
-  SyntaxToken secondSemicolon();
+  SyntaxToken secondSemicolonToken();
 
   @Nullable
   ExpressionTree update();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
   @Override
   StatementTree statement();

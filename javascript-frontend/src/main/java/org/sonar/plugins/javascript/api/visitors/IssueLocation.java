@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.api.visitors;
 
 import javax.annotation.Nullable;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
@@ -39,8 +38,8 @@ public class IssueLocation {
   }
 
   public IssueLocation(Tree firstTree, Tree lastTree, @Nullable String message) {
-    this.firstToken = ((JavaScriptTree) firstTree).getFirstToken();
-    this.lastToken = ((JavaScriptTree) lastTree).getLastToken();
+    this.firstToken = firstTree.firstToken();
+    this.lastToken = lastTree.lastToken();
     this.message = message;
   }
 

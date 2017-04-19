@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.check.Rule;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
@@ -50,8 +51,8 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
   private static final ActionParser<Tree> PARSER = JavaScriptParserBuilder.createParser();
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.TOKEN);
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.of(Kind.TOKEN);
   }
 
   @Override

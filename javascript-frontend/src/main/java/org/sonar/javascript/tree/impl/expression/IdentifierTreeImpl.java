@@ -25,7 +25,6 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -77,13 +76,12 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
     return Optional.ofNullable(usage);
   }
 
-  @Nullable
   @Override
-  public final Symbol symbol() {
+  public final Optional<Symbol> symbol() {
     if (usage == null) {
-      return null;
+      return Optional.empty();
     }
-    return usage.symbol();
+    return Optional.of(usage.symbol());
   }
 
   public void setSymbolUsage(Usage usage) {
@@ -92,21 +90,16 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
 
   @Override
   public TypeSet types() {
-    final Symbol symbol = symbol();
-    if (symbol == null) {
-      return types.immutableCopy();
-    } else {
-      return symbol.types();
-    }
+    return symbol().map(Symbol::types).orElse(types.immutableCopy());
   }
 
   @Override
   public void add(Type type) {
-    final Symbol symbol = symbol();
-    if (symbol == null) {
-      types.add(type);
+    final Optional<Symbol> symbol = symbol();
+    if (symbol.isPresent()) {
+      symbol.get().addType(type);
     } else {
-      symbol.addType(type);
+      types.add(type);
     }
   }
 
@@ -131,6 +124,6 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
 
   @Override
   public List<IdentifierTree> bindingIdentifiers() {
-    return ImmutableList.of((IdentifierTree) this);
+    return ImmutableList.of(this);
   }
 }

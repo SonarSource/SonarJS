@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -59,8 +60,8 @@ public class ExpressionComplexityCheck extends SubscriptionVisitorCheck {
   };
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
       .add(CONDITIONAL_EXPRS)
       .add(SCOPES).build();
   }
@@ -113,10 +114,10 @@ public class ExpressionComplexityCheck extends SubscriptionVisitorCheck {
 
   private static SyntaxToken getOperatorToken(Tree tree) {
     if (tree.is(Kind.CONDITIONAL_EXPRESSION)) {
-      return ((ConditionalExpressionTree) tree).query();
+      return ((ConditionalExpressionTree) tree).queryToken();
 
     } else if (tree.is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
-      return ((BinaryExpressionTree) tree).operator();
+      return ((BinaryExpressionTree) tree).operatorToken();
     }
 
     throw new IllegalStateException("Cannot get operator for " + tree);

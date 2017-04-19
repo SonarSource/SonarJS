@@ -43,7 +43,7 @@ public class ComputedPropertyNameTreeImpl extends JavaScriptTree implements Comp
   }
 
   @Override
-  public SyntaxToken openCurlyBrace() {
+  public SyntaxToken openCurlyBraceToken() {
     return openBracket;
   }
 
@@ -53,7 +53,7 @@ public class ComputedPropertyNameTreeImpl extends JavaScriptTree implements Comp
   }
 
   @Override
-  public SyntaxToken closeCurlyBrace() {
+  public SyntaxToken closeCurlyBraceToken() {
     return closeBracket;
   }
 

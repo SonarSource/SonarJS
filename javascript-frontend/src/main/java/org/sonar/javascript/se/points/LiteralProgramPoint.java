@@ -31,7 +31,6 @@ import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
@@ -102,7 +101,7 @@ public class LiteralProgramPoint implements ProgramPoint {
           newStack.pop();
         }
       }
-      if (!(property instanceof MethodDeclarationTree)) {
+      if (!property.is(Kind.GENERATOR_METHOD, Kind.METHOD, Kind.SET_METHOD, Kind.GET_METHOD)) {
         newStack.pop();
       }
     }

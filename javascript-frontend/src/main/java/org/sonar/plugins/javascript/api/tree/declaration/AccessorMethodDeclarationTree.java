@@ -20,8 +20,12 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
 /**
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-method-definitions">Accessors Method</a>
@@ -33,8 +37,19 @@ import org.sonar.plugins.javascript.api.tree.Tree;
  * </pre>
  */
 @Beta
-public interface AccessorMethodDeclarationTree extends MethodDeclarationTree {
+public interface AccessorMethodDeclarationTree extends FunctionTree {
+
+  List<DecoratorTree> decorators();
+
+  @Nullable
+  SyntaxToken staticToken();
 
   InternalSyntaxToken accessorToken();
+
+  @Override
+  Tree name();
+
+  @Override
+  BlockTree body();
 
 }

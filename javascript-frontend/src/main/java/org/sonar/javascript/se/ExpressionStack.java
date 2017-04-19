@@ -213,7 +213,7 @@ public class ExpressionStack {
       case UNARY_MINUS:
       case UNARY_PLUS:
 
-      case IDENTIFIER_NAME:
+      case PROPERTY_IDENTIFIER:
       case BINDING_IDENTIFIER:
       case CONDITIONAL_AND:
       case CONDITIONAL_OR:
@@ -239,7 +239,7 @@ public class ExpressionStack {
   }
 
   private static void executeNewExpression(NewExpressionTree newExpressionTree, Deque<SymbolicValue> newStack) {
-    int arguments = newExpressionTree.arguments() == null ? 0 : newExpressionTree.arguments().parameters().size();
+    int arguments = newExpressionTree.argumentClause() == null ? 0 : newExpressionTree.argumentClause().arguments().size();
     pop(newStack, arguments);
     SymbolicValue constructor = newStack.pop();
     if (constructor instanceof FunctionSymbolicValue) {
@@ -250,7 +250,7 @@ public class ExpressionStack {
   }
 
   private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack, ProgramStateConstraints constraints) {
-    int argumentsNumber = expression.arguments().parameters().size();
+    int argumentsNumber = expression.argumentClause().arguments().size();
     List<SymbolicValue> argumentValues = new ArrayList<>();
 
     for (int i = 0; i < argumentsNumber; i++) {
@@ -295,7 +295,8 @@ public class ExpressionStack {
       }
 
       Constraint constraint = arguments.hasNext() ? arguments.next() : Constraint.UNDEFINED;
-      initialProgramState = initialProgramState.newSymbolicValue(((IdentifierTree) parameter).symbol(), constraint);
+      // Kind.BINDING_IDENTIFIER always has symbol
+      initialProgramState = initialProgramState.newSymbolicValue(((IdentifierTree) parameter).symbol().get(), constraint);
     }
 
     return initialProgramState;

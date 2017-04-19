@@ -19,14 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
@@ -38,13 +40,13 @@ public class DefaultParametersNotLastCheck extends SubscriptionVisitorCheck {
   private static final String MESSAGE = "Move parameter%s \"%s\" after parameters without default value.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
   }
 
   @Override
   public void visitNode(Tree tree) {
-    List<Tree> parameterList = ((FunctionTree) tree).parameterList();
+    List<BindingElementTree> parameterList = ((FunctionTree) tree).parameterList();
 
     List<InitializedBindingElementTree> parametersWithDefault = new ArrayList<>();
     boolean raiseIssue = false;

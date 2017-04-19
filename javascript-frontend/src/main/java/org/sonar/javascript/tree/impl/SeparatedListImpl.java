@@ -27,14 +27,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-public class SeparatedList<T> implements List<T> {
+public class SeparatedListImpl<T> implements SeparatedList<T> {
 
   private final List<T> list;
   private final List<InternalSyntaxToken> separators;
 
-  public SeparatedList(List<T> list, List<InternalSyntaxToken> separators) {
+  public SeparatedListImpl(List<T> list, List<InternalSyntaxToken> separators) {
     Preconditions.checkArgument(
       list.size() == separators.size() + 1 || list.size() == separators.size(),
       "Instanciating a SeparatedList with inconsistent number of elements (%s) and separators (%s)",
@@ -43,10 +44,12 @@ public class SeparatedList<T> implements List<T> {
     this.separators = separators;
   }
 
+  @Override
   public InternalSyntaxToken getSeparator(int i) {
     return separators.get(i);
   }
 
+  @Override
   public List<InternalSyntaxToken> getSeparators() {
     return separators;
   }
@@ -167,6 +170,7 @@ public class SeparatedList<T> implements List<T> {
     return list.subList(fromIndex, toIndex);
   }
 
+  @Override
   public Iterator<Tree> elementsAndSeparators(final Function<T, ? extends Tree> elementTransformer) {
     return new ElementAndSeparatorIterator(elementTransformer);
   }

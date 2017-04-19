@@ -20,21 +20,20 @@
 package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.12">Labelled Statement</a>.
  * <pre>
- *   {@link #label()} : {@link #statement()}
+ *   {@link #labelToken()} : {@link #statement()}
  * </pre>
  */
 @Beta
 public interface LabelledStatementTree extends StatementTree {
 
-  IdentifierTree label();
+  SyntaxToken labelToken();
 
-  SyntaxToken colon();
+  SyntaxToken colonToken();
 
   StatementTree statement();
 

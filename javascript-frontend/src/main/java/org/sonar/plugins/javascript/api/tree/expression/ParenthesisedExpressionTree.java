@@ -31,10 +31,10 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface ParenthesisedExpressionTree extends ExpressionTree {
 
-  SyntaxToken openParenthesis();
+  SyntaxToken openParenthesisToken();
 
   ExpressionTree expression();
 
-  SyntaxToken closeParenthesis();
+  SyntaxToken closeParenthesisToken();
 
 }

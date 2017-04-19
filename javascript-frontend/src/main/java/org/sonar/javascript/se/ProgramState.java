@@ -41,7 +41,6 @@ import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -275,7 +274,7 @@ public class ProgramState implements ProgramStateConstraints {
   }
 
   private static int line(Tree element) {
-    return ((JavaScriptTree) element).getLine();
+    return element.firstToken().line();
   }
 
   public ProgramState execute(ExpressionTree expression) {

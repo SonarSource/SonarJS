@@ -25,10 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
@@ -37,6 +37,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
+import org.sonar.plugins.javascript.api.tree.declaration.ExtendsClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -51,6 +52,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTre
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
@@ -58,7 +60,7 @@ import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -75,6 +77,7 @@ import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.SuperTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -237,11 +240,19 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
+  public void visitExtendsClause(ExtendsClauseTree tree) {
+    scanChildren(tree);
+  }
+
   public void visitDecorator(DecoratorTree tree) {
     scanChildren(tree);
   }
 
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
     scanChildren(tree);
   }
 
@@ -253,6 +264,9 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
+  public void visitArgumentList(ArgumentListTree tree) {
+    scanChildren(tree);
+  }
 
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     scanChildren(tree);
@@ -496,7 +510,7 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
 
-  public void visitSuper(SuperTreeImpl tree) {
+  public void visitSuper(SuperTree tree) {
     scanChildren(tree);
   }
 

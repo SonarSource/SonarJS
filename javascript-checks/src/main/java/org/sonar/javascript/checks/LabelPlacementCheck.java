@@ -32,7 +32,7 @@ public class LabelPlacementCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitLabelledStatement(LabelledStatementTree tree) {
     if (!tree.statement().is(KindSet.LOOP_KINDS)) {
-      addIssue(tree.label(), String.format(MESSAGE, tree.label().name()));
+      addIssue(tree.labelToken(), String.format(MESSAGE, tree.labelToken().text()));
     }
 
     super.visitLabelledStatement(tree);

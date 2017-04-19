@@ -32,9 +32,9 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface BlockTree extends StatementTree {
 
-  SyntaxToken openCurlyBrace();
+  SyntaxToken openCurlyBraceToken();
 
   List<StatementTree> statements();
 
-  SyntaxToken closeCurlyBrace();
+  SyntaxToken closeCurlyBraceToken();
 }

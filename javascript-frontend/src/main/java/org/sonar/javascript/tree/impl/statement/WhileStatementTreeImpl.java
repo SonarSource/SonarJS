@@ -56,7 +56,7 @@ public class WhileStatementTreeImpl extends JavaScriptTree implements WhileState
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
+  public SyntaxToken openParenthesisToken() {
     return openingParenthesis;
   }
 
@@ -66,7 +66,7 @@ public class WhileStatementTreeImpl extends JavaScriptTree implements WhileState
   }
 
   @Override
-  public SyntaxToken closeParenthesis() {
+  public SyntaxToken closeParenthesisToken() {
     return closingParenthesis;
   }
 

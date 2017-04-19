@@ -44,12 +44,12 @@ public class TemplateExpressionTreeImpl extends JavaScriptTree implements Templa
   }
 
   @Override
-  public SyntaxToken dollar() {
+  public SyntaxToken dollarToken() {
     return dollar;
   }
 
   @Override
-  public SyntaxToken openCurlyBrace() {
+  public SyntaxToken openCurlyBraceToken() {
     return openCurlyBrace;
   }
 
@@ -59,7 +59,7 @@ public class TemplateExpressionTreeImpl extends JavaScriptTree implements Templa
   }
 
   @Override
-  public SyntaxToken closeCurlyBrace() {
+  public SyntaxToken closeCurlyBraceToken() {
     return closeCurlyBrace;
   }
 

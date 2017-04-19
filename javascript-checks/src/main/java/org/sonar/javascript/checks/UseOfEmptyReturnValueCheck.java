@@ -19,15 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -54,7 +53,7 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
 
   @Override
   CallExpressionTree getTree(Tree element) {
-    JavaScriptTree parent = ((JavaScriptTree) element).getParent();
+    Tree parent = element.parent();
 
     if (element.is(Kind.CALL_EXPRESSION) && !parent.is(RETURN_STATEMENT) && !isModulePattern((CallExpressionTree) element)) {
       return (CallExpressionTree) element;
@@ -64,9 +63,9 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
   }
 
   private static boolean isModulePattern(CallExpressionTree callExpression) {
-    JavaScriptTree parent = ((JavaScriptTree) callExpression).getParent();
+    Tree parent = callExpression.parent();
 
-    return callExpression.callee().is(KindSet.FUNCTION_KINDS) && parent.is(PARENTHESISED_EXPRESSION, LOGICAL_COMPLEMENT) && parent.getParent().is(Kind.EXPRESSION_STATEMENT);
+    return callExpression.callee().is(KindSet.FUNCTION_KINDS) && parent.is(PARENTHESISED_EXPRESSION, LOGICAL_COMPLEMENT) && parent.parent().is(Kind.EXPRESSION_STATEMENT);
   }
 
   @Override
@@ -95,7 +94,7 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
 
   @CheckForNull
   private static FunctionTree functionTree(CallExpressionTree tree, ProgramState currentState) {
-    SymbolicValue calleeSV = currentState.peekStack(tree.arguments().parameters().size());
+    SymbolicValue calleeSV = currentState.peekStack(tree.argumentClause().arguments().size());
 
     if (calleeSV instanceof FunctionWithTreeSymbolicValue) {
       return ((FunctionWithTreeSymbolicValue) calleeSV).getFunctionTree();
@@ -118,8 +117,8 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
     int nestingLevel = 0;
 
     @Override
-    public List<Kind> nodesToVisit() {
-      return ImmutableList.<Kind>builder()
+    public Set<Kind> nodesToVisit() {
+      return ImmutableSet.<Kind>builder()
         .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
         .add(Kind.RETURN_STATEMENT)
         .build();
@@ -160,7 +159,7 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
   }
 
   private static Tree getParentIgnoreParenthesis(Tree tree) {
-    Tree parent = ((JavaScriptTree) tree).getParent();
+    Tree parent = tree.parent();
     if (parent.is(PARENTHESISED_EXPRESSION)) {
       return getParentIgnoreParenthesis(parent);
     }

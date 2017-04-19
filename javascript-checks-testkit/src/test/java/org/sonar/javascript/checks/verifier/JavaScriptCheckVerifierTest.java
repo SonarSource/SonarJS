@@ -32,7 +32,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.javascript.checks.verifier.TestIssue.Location;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -450,8 +449,8 @@ public class JavaScriptCheckVerifierTest {
 
     private Tree createTree(int line, Integer startColumn, Integer endLine, Integer endColumn) {
       JavaScriptTree tree = mock(JavaScriptTree.class);
-      when(tree.getFirstToken()).thenReturn(createToken(line, startColumn, 1));
-      when(tree.getLastToken()).thenReturn(createToken(endLine == null ? line : endLine, endColumn, 0));
+      when(tree.firstToken()).thenReturn(createToken(line, startColumn, 1));
+      when(tree.lastToken()).thenReturn(createToken(endLine == null ? line : endLine, endColumn, 0));
       return tree;
     }
 
