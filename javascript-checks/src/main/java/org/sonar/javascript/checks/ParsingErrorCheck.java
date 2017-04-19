@@ -24,4 +24,6 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "ParsingError")
 public class ParsingErrorCheck extends DoubleDispatchVisitorCheck {
+
+  public static final String MESSAGE = "Parse error";
 }

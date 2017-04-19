@@ -192,7 +192,7 @@ public class JavaScriptSquidSensor implements Sensor {
       NewIssue newIssue = sensorContext.newIssue();
 
       NewIssueLocation primaryLocation = newIssue.newLocation()
-        .message(e.getMessage())
+        .message(ParsingErrorCheck.MESSAGE)
         .on(inputFile.wrapped())
         .at(inputFile.selectLine(e.getLine()));
 
