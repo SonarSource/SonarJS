@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.RecognitionException;
 import java.io.File;
@@ -45,7 +46,6 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.internal.google.common.base.Charsets;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
