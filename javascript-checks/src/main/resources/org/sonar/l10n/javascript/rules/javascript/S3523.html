@@ -11,4 +11,6 @@ var obj =  new Function("return " + data)();  // Noncompliant
 <pre>
 var obj = JSON.parse(data);
 </pre>
+<h2>Exceptions</h2>
+<p>Function calls where the argument is a string literal (e.g. <code>(Function('return this'))()</code>) are ignored. </p>
 

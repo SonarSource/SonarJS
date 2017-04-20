@@ -14,15 +14,15 @@ var foo5 = new Function;                                   // OK  (no argument l
 
 var foo6 = new Function();                                 // OK  (empty argument list)
 
-bar2 = new Function('b', 'console.log(b);');               // Noncompliant {{Declare this function instead of using the "Function" constructor.}}
+bar2 = new Function('b', funcBody);               // Noncompliant {{Declare this function instead of using the "Function" constructor.}}
 //     ^^^^^^^^^^^^
 
 function bar3(a) {
-  var bar4 = new Function('c', 'console.log(c);');         // Noncompliant
+  var bar4 = new Function('c', funcBody);         // Noncompliant
   return bar5(a);
 }
 
-var bar6 = bar7(a, new Function('d', 'console.log(d);'));  // Noncompliant
+var bar6 = bar7(a, new Function('d', funcBody));  // Noncompliant
 //                 ^^^^^^^^^^^^
 
 function bar8(a) {
@@ -34,7 +34,7 @@ function Person(name) {
   this.desc1 = function() {
     return name;
   }
-  this.desc2 = new Function('return name;');               // Noncompliant
+  this.desc2 = new Function(funcBody);               // Noncompliant
 }
 
 
@@ -49,11 +49,14 @@ function baz2() {
 }
 
 function baz3() {
-  return Function('return "hello";');                      // Noncompliant {{Declare this function instead of using the "Function" constructor.}}
+  return Function(funcBody);                      // Noncompliant {{Declare this function instead of using the "Function" constructor.}}
 //       ^^^^^^^^
 }
 
-var bar1 = Function('a', 'console.log(a);');               // Noncompliant
+var bar1 = Function('a', funcBody);               // Noncompliant
 //         ^^^^^^^^
 
-bar2 = Function('a', 'console.log(a);');                   // Noncompliant
+bar2 = Function('a', funcBody);                   // Noncompliant
+
+// OK if all arguments are string literals, then it's safe
+var myFunc = new Function('a', "return a + 2;");
