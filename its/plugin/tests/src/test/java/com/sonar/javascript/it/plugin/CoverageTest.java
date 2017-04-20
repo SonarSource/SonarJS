@@ -265,8 +265,8 @@ public class CoverageTest {
 
     // Check that a log is printed
     String logs = result.getLogs();
-    assertThat(Pattern.compile("WARN  - Problem during processing LCOV report: can't save DA data for line 999.").matcher(logs).find()).isTrue();
-    assertThat(Pattern.compile("WARN  - Problem during processing LCOV report: can't save BRDA data for line 0.").matcher(logs).find()).isTrue();
+    assertThat(Pattern.compile("WARN  - Problem during processing LCOV report: can't save DA data for line 12 of coverage report file ").matcher(logs).find()).isTrue();
+    assertThat(Pattern.compile("WARN  - Problem during processing LCOV report: can't save BRDA data for line 18 of coverage report file ").matcher(logs).find()).isTrue();
 
     assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(6);
     assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);

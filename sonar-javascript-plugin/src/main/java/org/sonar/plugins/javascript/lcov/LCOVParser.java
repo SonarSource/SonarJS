@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.File;
@@ -79,35 +79,19 @@ public final class LCOVParser {
   private Map<InputFile, NewCoverage> parse(List<String> lines) {
     final Map<InputFile, FileData> files = Maps.newHashMap();
     FileData fileData = null;
+    int reportLineNum = 0;
 
     for (String line : lines) {
+      reportLineNum++;
       if (line.startsWith(SF)) {
-        // SF:<absolute path to the source file>
         fileData = loadCurrentFileData(files, line);
+
       } else if (fileData != null) {
         if (line.startsWith(DA)) {
-          // DA:<line number>,<execution count>[,<checksum>]
-          String execution = line.substring(DA.length());
-          String executionCount = execution.substring(execution.indexOf(',') + 1);
-          String lineNumber = execution.substring(0, execution.indexOf(','));
+          parseLineCoverage(fileData, reportLineNum, line);
 
-          try {
-            fileData.addLine(Integer.valueOf(lineNumber), Integer.valueOf(executionCount));
-          } catch (IllegalArgumentException e) {
-            logWrongDataWarning("DA", lineNumber, e);
-          }
         } else if (line.startsWith(BRDA)) {
-          // BRDA:<line number>,<block number>,<branch number>,<taken>
-          String[] tokens = line.substring(BRDA.length()).trim().split(",");
-          String lineNumber = tokens[0];
-          String branchNumber = tokens[1] + tokens[2];
-          String taken = tokens[3];
-
-          try {
-            fileData.addBranch(Integer.valueOf(lineNumber), branchNumber, "-".equals(taken) ? 0 : Integer.valueOf(taken));
-          } catch (IllegalArgumentException e) {
-            logWrongDataWarning("BRDA", lineNumber, e);
-          }
+          parseBranchCoverage(fileData, reportLineNum, line);
         }
       }
 
@@ -122,12 +106,40 @@ public final class LCOVParser {
     return coveredFiles;
   }
 
-  private static void logWrongDataWarning(String dataType, String lineNumber, IllegalArgumentException e) {
-    LOG.warn(String.format("Problem during processing LCOV report: can't save %s data for line %s (%s).", dataType, lineNumber, e.getMessage()));
+  private static void parseBranchCoverage(FileData fileData, int reportLineNum, String line) {
+    try {
+      // BRDA:<line number>,<block number>,<branch number>,<taken>
+      String[] tokens = line.substring(BRDA.length()).trim().split(",");
+      String lineNumber = tokens[0];
+      String branchNumber = tokens[1] + tokens[2];
+      String taken = tokens[3];
+
+      fileData.addBranch(Integer.valueOf(lineNumber), branchNumber, "-".equals(taken) ? 0 : Integer.valueOf(taken));
+    } catch (Exception e) {
+      logWrongDataWarning("BRDA", reportLineNum, e);
+    }
+  }
+
+  private static void parseLineCoverage(FileData fileData, int reportLineNum, String line) {
+    try {
+      // DA:<line number>,<execution count>[,<checksum>]
+      String execution = line.substring(DA.length());
+      String executionCount = execution.substring(execution.indexOf(',') + 1);
+      String lineNumber = execution.substring(0, execution.indexOf(','));
+
+      fileData.addLine(Integer.valueOf(lineNumber), Integer.valueOf(executionCount));
+    } catch (Exception e) {
+      logWrongDataWarning("DA", reportLineNum, e);
+    }
+  }
+
+  private static void logWrongDataWarning(String dataType, int reportLineNum, Exception e) {
+    LOG.warn(String.format("Problem during processing LCOV report: can't save %s data for line %s of coverage report file (%s).", dataType, reportLineNum, e.toString()));
   }
 
   @CheckForNull
   private FileData loadCurrentFileData(final Map<InputFile, FileData> files, String line) {
+    // SF:<absolute path to the source file>
     String filePath = line.substring(SF.length());
     FileData fileData = null;
     // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
@@ -178,14 +190,14 @@ public final class LCOVParser {
         branches.put(lineNumber, branchesForLine);
       }
       Integer currentValue = branchesForLine.get(branchNumber);
-      branchesForLine.put(branchNumber, Objects.firstNonNull(currentValue, 0) + taken);
+      branchesForLine.put(branchNumber, MoreObjects.firstNonNull(currentValue, 0) + taken);
     }
 
     void addLine(Integer lineNumber, Integer executionCount) {
       checkLine(lineNumber);
 
       Integer currentValue = hits.get(lineNumber);
-      hits.put(lineNumber, Objects.firstNonNull(currentValue, 0) + executionCount);
+      hits.put(lineNumber, MoreObjects.firstNonNull(currentValue, 0) + executionCount);
     }
 
     void save(NewCoverage newCoverage) {
