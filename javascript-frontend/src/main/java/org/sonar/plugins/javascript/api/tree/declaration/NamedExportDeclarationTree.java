@@ -20,7 +20,9 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
+import java.util.List;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Named Export Declarations</a>
@@ -31,6 +33,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
  */
 @Beta
 public interface NamedExportDeclarationTree extends ExportDeclarationTree {
+
+  List<DecoratorTree> decorators();
+
+  @Override
+  SyntaxToken exportToken();
 
   Tree object();
 

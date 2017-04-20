@@ -1071,7 +1071,9 @@ public class TreeFactory {
     return new FromClauseTreeImpl(fromToken, module);
   }
 
-  public DefaultExportDeclarationTree defaultExportDeclaration(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Object declaration) {
+  public DefaultExportDeclarationTree defaultExportDeclaration(
+    Optional<List<DecoratorTree>> decorators, InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Object declaration) {
+
     Tree deducedDeclaration;
     InternalSyntaxToken eos = null;
     if (declaration instanceof Tuple) {
@@ -1082,14 +1084,15 @@ public class TreeFactory {
     }
 
     return new DefaultExportDeclarationTreeImpl(
+      decorators.or(ImmutableList.of()),
       exportToken,
       defaultToken,
       deducedDeclaration,
       eos);
   }
 
-  public NamedExportDeclarationTree namedExportDeclaration(InternalSyntaxToken exportToken, Tree object) {
-    return new NamedExportDeclarationTreeImpl(exportToken, object);
+  public NamedExportDeclarationTree namedExportDeclaration(Optional<List<DecoratorTree>> decorators, InternalSyntaxToken exportToken, Tree object) {
+    return new NamedExportDeclarationTreeImpl(decorators.or(ImmutableList.of()), exportToken, object);
   }
 
   public SpecifierTree exportSpecifier(IdentifierTree name1, InternalSyntaxToken asToken, IdentifierTree name2) {

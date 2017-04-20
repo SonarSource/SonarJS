@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -34,6 +35,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  */
 @Beta
 public interface DefaultExportDeclarationTree extends ExportDeclarationTree {
+
+  List<DecoratorTree> decorators();
 
   @Override
   SyntaxToken exportToken();

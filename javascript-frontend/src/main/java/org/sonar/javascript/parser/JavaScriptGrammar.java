@@ -1147,6 +1147,7 @@ public class JavaScriptGrammar {
   public DefaultExportDeclarationTree DEFAULT_EXPORT_DECLARATION() {
     return b.<DefaultExportDeclarationTree>nonterminal(Kind.DEFAULT_EXPORT_DECLARATION)
       .is(f.defaultExportDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.token(JavaScriptKeyword.EXPORT),
         b.token(JavaScriptKeyword.DEFAULT),
         b.firstOf(
@@ -1161,6 +1162,7 @@ public class JavaScriptGrammar {
     return b.<NamedExportDeclarationTree>nonterminal(Kind.NAMED_EXPORT_DECLARATION)
       .is(
         f.namedExportDeclaration(
+          b.zeroOrMore(DECORATOR()),
           b.token(JavaScriptKeyword.EXPORT),
           b.firstOf(
             EXPORT_CLAUSE(),
