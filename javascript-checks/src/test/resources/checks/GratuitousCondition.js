@@ -36,7 +36,7 @@ function function_arguments() {
 
 function not_condition() {
   var a;
-  if (!a) {} // Noncompliant {{Remove this expression which always evaluates to "true".}}
+  if (!a) {} // Noncompliant {{Refactor this code so that this expression does not always evaluate to true.}}
 }
 
 function and_condition() {
@@ -186,13 +186,13 @@ function tro(x, y) {
 
   if (y && true) {} // Noncompliant
   if (y && false) {} // OK, dead code
-  if (true && y) {} // Noncompliant {{Remove this expression which always evaluates to "true".}}
+  if (true && y) {} // Noncompliant {{Refactor this code so that this expression does not always evaluate to true.}}
   if (false && y) {} // OK, dead code
 
   if (y || true) {} else {}// OK, dead code
   if (y || false) {} // Noncompliant
   if (true || y) {} else {} // OK, dead code
-  if (false || y) {} // Noncompliant  {{Remove this expression which always evaluates to "false".}}
+  if (false || y) {} // Noncompliant  {{Refactor this code so that this expression does not always evaluate to false.}}
 }
 
 function logical_and(p1, p2, p3) {
