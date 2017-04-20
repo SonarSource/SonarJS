@@ -28,3 +28,8 @@ a()()();
 foo(1)
   (2)
   (3);
+
+// OK if there are more than one argument
+var fn = function () {
+}
+(1, 2, 3);

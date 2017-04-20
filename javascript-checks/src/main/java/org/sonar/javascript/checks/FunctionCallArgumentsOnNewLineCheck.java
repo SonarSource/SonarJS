@@ -31,7 +31,7 @@ public class FunctionCallArgumentsOnNewLineCheck extends DoubleDispatchVisitorCh
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (!tree.callee().is(Kind.CALL_EXPRESSION)) {
+    if (!tree.callee().is(Kind.CALL_EXPRESSION) && tree.argumentClause().arguments().size() == 1) {
       int calleeLastLine = tree.callee().lastToken().endLine();
       int argumentsFirstLine = tree.argumentClause().firstToken().line();
 
