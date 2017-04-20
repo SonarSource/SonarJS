@@ -48,7 +48,7 @@ public class JavaScriptProfileTest {
     assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
     assertThat(profile.getActiveRules()).extracting("repositoryKey").containsOnly(CheckList.REPOSITORY_KEY);
     assertThat(validation.hasErrors()).isFalse();
-    assertThat(profile.getActiveRules().size()).isGreaterThan(60);
+    assertThat(profile.getActiveRules().size()).isGreaterThan(50);
   }
 
   static RuleFinder ruleFinder() {

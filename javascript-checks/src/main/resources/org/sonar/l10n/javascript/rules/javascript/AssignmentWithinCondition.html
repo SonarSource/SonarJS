@@ -1,16 +1,17 @@
-<p>Assignments within sub-expressions are hard to spot and therefore make the code less readable.</p>
-<p>It is also a common mistake to write <code>=</code> when <code>==</code> was meant.</p>
-<p>Ideally, sub-expressions should not have side-effects.</p>
+<p>Assignments within sub-expressions are hard to spot and therefore make the code less readable. Ideally, sub-expressions should not have
+side-effects.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-doSomething(i = 42);
+if ((str = cont.substring(pos1, pos2)) != '') {  // Noncompliant
+  //...
+}
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-i = 42;
-doSomething(i);
-// or
-doSomething(i == 42);  // Perhaps in fact the comparison operator was expected
+str = cont.substring(pos1, pos2);
+if (str != '') {
+  //...
+}
 </pre>
 <h2>Exceptions</h2>
 <p>Assignments in <code>while</code> statement conditions, and assignments enclosed in relational expressions are allowed.</p>

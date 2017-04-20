@@ -1,13 +1,12 @@
 {
   "title": "Function parameters, caught exceptions and foreach variables should not be reassigned",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "bug",
     "misra",
     "pitfall"
   ],

@@ -2,10 +2,10 @@
 to the documented types, otherwise the result will most likely not be what was expected (e.g.: the call would always return <code>false</code>).</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-"hello".endsWith(34);
+const isTooSmall = Math.abs(x &lt; 0.0042);
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-"hello".endsWith("34");
+const isTooSmall = Math.abs(x) &lt; 0.0042;
 </pre>
 

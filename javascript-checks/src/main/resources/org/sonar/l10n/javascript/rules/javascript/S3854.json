@@ -1,5 +1,5 @@
 {
-  "title": "super() must be invoked appropriately",
+  "title": "super() should be invoked appropriately",
   "type": "BUG",
   "status": "ready",
   "remediation": {

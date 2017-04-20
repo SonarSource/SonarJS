@@ -1,6 +1,6 @@
 {
   "title": "Values not convertible to numbers should not be used in numeric comparisons",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

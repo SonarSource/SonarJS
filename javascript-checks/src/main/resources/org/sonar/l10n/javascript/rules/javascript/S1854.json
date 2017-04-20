@@ -10,8 +10,7 @@
     "cwe",
     "bug",
     "cert",
-    "unused",
-    "suspicious"
+    "unused"
   ],
   "standards": [
     "CWE"

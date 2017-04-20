@@ -9,5 +9,5 @@
   "tags": [
     "bad-practice"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Major"
 }

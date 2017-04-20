@@ -1,13 +1,12 @@
 <p>For better readability, do not put more than one statement on a single line.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-if(someCondition) doSomething();
+foo(); bar(); // Noncompliant
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-if(someCondition) {
-  doSomething();
-}
+foo();
+bar();
 </pre>
 <h2>Exceptions</h2>
 <p>Anonymous functions containing a single statement are ignored. Control flow statements with a single nested statement are ignored as well.</p>

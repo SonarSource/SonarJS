@@ -1,14 +1,13 @@
 {
   "title": "Strings and non-strings should not be added",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "15min"
   },
   "tags": [
-    "bug",
-    "suspicious"
+    "confusing"
   ],
   "defaultSeverity": "Minor"
 }

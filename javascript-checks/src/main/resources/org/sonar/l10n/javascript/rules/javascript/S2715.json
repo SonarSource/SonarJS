@@ -1,6 +1,6 @@
 {
   "title": "\"find\" should be used to select the children of an element known by id",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -8,7 +8,6 @@
   },
   "tags": [
     "performance",
-    "bug",
     "user-experience",
     "jquery"
   ],

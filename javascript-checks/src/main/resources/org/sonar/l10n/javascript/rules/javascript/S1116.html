@@ -1,21 +1,22 @@
-<p>Empty statements, i.e. <code>;</code>, are usually introduced by mistake, for example because:</p>
+<p>Extra semicolons (<code>;</code>) are usually introduced by mistake, for example because:</p>
 <ul>
   <li> It was meant to be replaced by an actual statement, but this was forgotten. </li>
   <li> There was a typo which lead the semicolon to be doubled, i.e. <code>;;</code>. </li>
+  <li> There was a misunderstanding about where semicolons are required or useful. </li>
 </ul>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var x = 1;; // Noncompliant
 
-var foo = function() {
-  ;
-};
+function foo() {
+};  // Noncompliant
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
 var x = 1;
 
-var foo = function() { };
+function foo() {
+}
 </pre>
 <h2>See</h2>
 <ul>

@@ -1,9 +1,13 @@
-<p>The <code>eval</code> function is a way to run arbitrary code at run-time. Generally it is considered to be very dangerous because it allows
-execution of arbitrary code. Its use is thus discouraged. If you have carefully verified that there is no other option than to use this construct, pay
-special attention not to pass any user-provided data into it without properly validating it beforehand.</p>
+<p>The <code>eval</code> function is a way to run arbitrary code at run-time. Dynamically evaluating code is slow and a potential security issue when
+the arguments haven't been properly validated.</p>
+<p>In general it is better to avoid it altogether, particularly when there are safer alternatives.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-eval(code_to_be_dynamically_executed)
+var value = eval('obj.' + propName); // Noncompliant
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+var value = obj[propName];
 </pre>
 <h2>See</h2>
 <ul>

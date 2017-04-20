@@ -1,5 +1,6 @@
 <p>The unary operators <code>+</code> and <code>-</code> can be used to convert some value types to numeric values. But not every value can be
-converted to a <code>Number</code> type; use it with an object, and result will be always <code>NaN</code> (Not A Number).</p>
+converted to a <code>Number</code> type; use it with an object, and result will be <code>NaN</code> (Not A Number). This can be confusing to
+maintainers.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var obj = {x : 1};

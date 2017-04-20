@@ -1,6 +1,6 @@
 {
   "title": "Selections should be stored",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",
@@ -10,7 +10,6 @@
   },
   "tags": [
     "performance",
-    "bug",
     "user-experience",
     "jquery"
   ],

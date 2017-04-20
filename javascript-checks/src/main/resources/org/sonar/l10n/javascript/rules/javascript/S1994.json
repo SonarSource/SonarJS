@@ -1,14 +1,13 @@
 {
-  "title": "\"for\" loop incrementers should modify the variable being tested in the loop's stop condition",
-  "type": "BUG",
+  "title": "\"for\" loop increment clauses should modify the loops' counters",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "20min"
   },
   "tags": [
-    "bug",
-    "suspicious"
+    "confusing"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Critical"
 }
