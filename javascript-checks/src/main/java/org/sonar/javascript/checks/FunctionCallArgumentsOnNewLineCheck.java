@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
@@ -31,7 +32,7 @@ public class FunctionCallArgumentsOnNewLineCheck extends DoubleDispatchVisitorCh
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (!tree.callee().is(Kind.CALL_EXPRESSION) && tree.argumentClause().arguments().size() == 1) {
+    if (!isChainedCall(tree) && callExpressionWasLikelyIntended(tree.argumentClause())) {
       int calleeLastLine = tree.callee().lastToken().endLine();
       int argumentsFirstLine = tree.argumentClause().firstToken().line();
 
@@ -40,5 +41,13 @@ public class FunctionCallArgumentsOnNewLineCheck extends DoubleDispatchVisitorCh
       }
     }
     super.visitCallExpression(tree);
+  }
+
+  public boolean isChainedCall(CallExpressionTree tree) {
+    return tree.callee().is(Kind.CALL_EXPRESSION);
+  }
+
+  public boolean callExpressionWasLikelyIntended(ArgumentListTree argumentListTree) {
+    return argumentListTree.arguments().size() == 1;
   }
 }
