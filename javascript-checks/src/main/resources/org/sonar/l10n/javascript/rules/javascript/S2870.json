@@ -1,13 +1,13 @@
 {
   "title": "\"delete\" should not be used on arrays",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "bug"
+    
   ],
   "defaultSeverity": "Major"
 }
