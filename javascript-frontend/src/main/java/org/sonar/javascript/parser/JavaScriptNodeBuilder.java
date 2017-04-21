@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.parser;
 
-import com.google.common.collect.Lists;
 import com.sonar.sslr.api.GenericTokenType;
 import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.Token;
@@ -28,6 +27,7 @@ import com.sonar.sslr.api.Trivia;
 import com.sonar.sslr.api.typed.Input;
 import com.sonar.sslr.api.typed.NodeBuilder;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -75,7 +75,7 @@ public class JavaScriptNodeBuilder implements NodeBuilder {
   }
 
   private static List<SyntaxTrivia> createTrivias(List<Trivia> trivias, boolean hasByteOrderMark) {
-    List<SyntaxTrivia> result = Lists.newArrayList();
+    List<SyntaxTrivia> result = new LinkedList<>();
     for (Trivia trivia : trivias) {
       Token trivialToken = trivia.getToken();
       int column = column(hasByteOrderMark, trivialToken.getLine(), trivialToken.getColumn());
