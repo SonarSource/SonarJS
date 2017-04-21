@@ -21,8 +21,8 @@ package org.sonar.javascript.metrics;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
@@ -78,7 +78,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   @Override
   public Set<Kind> nodesToVisit() {
-    Set<Kind> result = new HashSet<>(KindSet.FUNCTION_KINDS.getSubKinds());
+    Set<Kind> result = EnumSet.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
     result.addAll(Arrays.asList(CLASS_NODES));
     return result;
   }

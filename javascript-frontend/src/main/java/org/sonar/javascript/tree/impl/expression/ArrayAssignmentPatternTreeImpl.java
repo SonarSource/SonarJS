@@ -86,10 +86,7 @@ public class ArrayAssignmentPatternTreeImpl extends JavaScriptTree implements Ar
 
     @Override
     public Tree apply(Optional<Tree> e) {
-      if (e.isPresent()) {
-        return e.get();
-      }
-      return null;
+      return e.orElse(null);
     }
 
   }

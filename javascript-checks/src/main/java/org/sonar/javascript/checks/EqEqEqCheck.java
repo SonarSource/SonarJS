@@ -58,11 +58,7 @@ public class EqEqEqCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
     Type rightType = rightConstraint.type();
     Type leftType = leftConstraint.type();
 
-    if (leftType != null && leftType == rightType) {
-      return true;
-    }
-
-    return false;
+    return leftType != null && leftType == rightType;
   }
 
 

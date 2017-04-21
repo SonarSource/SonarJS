@@ -69,7 +69,7 @@ public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
     }
   }
 
-  private boolean isInfiniteFor(IterationStatementTree loopTree) {
+  private static boolean isInfiniteFor(IterationStatementTree loopTree) {
     if (loopTree.is(Kind.FOR_STATEMENT)) {
       ForStatementTree forLoop = (ForStatementTree) loopTree;
       return forLoop.update() == null && forLoop.init() == null && forLoop.condition() == null;

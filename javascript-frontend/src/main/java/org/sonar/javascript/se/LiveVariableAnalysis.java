@@ -27,7 +27,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -171,7 +170,7 @@ public class LiveVariableAnalysis {
 
     @CheckForNull
     private Usage add(IdentifierTree identifier) {
-      addSymbol(identifier.symbol());
+      identifier.symbol().ifPresent(s -> addSymbol(s));
       Usage usage = localVariableUsages.get(identifier);
       if (usage != null) {
         usagesInCFG.put(usage.symbol(), usage);
@@ -179,12 +178,10 @@ public class LiveVariableAnalysis {
       return usage;
     }
 
-    private void addSymbol(Optional<Symbol> symbolOptional) {
-      if (!symbolOptional.isPresent() || symbols.contains(symbolOptional.get())) {
+    private void addSymbol(Symbol symbol) {
+      if (symbols.contains(symbol)) {
         return;
       }
-
-      Symbol symbol = symbolOptional.get();
 
       symbols.add(symbol);
 

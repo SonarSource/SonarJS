@@ -24,7 +24,6 @@ import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
