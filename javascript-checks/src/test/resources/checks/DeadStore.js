@@ -210,6 +210,10 @@ function ok_initializer_to_standard_value() {
   let x8 = void 0;
   let x9 = (void 0);
   let x10 = (void 42);// Noncompliant
+  let x11 = [];
+  let x12 = {};
+  let x13 = [1, 2]; // Noncompliant
+  let x14 = {a: 1}; // Noncompliant
 
   x1 = 42;
   foo(x1);

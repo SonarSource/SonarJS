@@ -39,10 +39,12 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -168,6 +170,12 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     } else if (expression.is(Kind.UNARY_MINUS)) {
       ExpressionTree operand = ((UnaryExpressionTree) expression).expression();
       return BASIC_VALUES.contains("-" + ((LiteralTree) operand).value());
+
+    } else if (expression.is(Kind.ARRAY_LITERAL)) {
+      return ((ArrayLiteralTree) expression).elements().isEmpty();
+
+    } else if (expression.is(Kind.OBJECT_LITERAL)) {
+      return ((ObjectLiteralTree) expression).properties().isEmpty();
 
     }
 
