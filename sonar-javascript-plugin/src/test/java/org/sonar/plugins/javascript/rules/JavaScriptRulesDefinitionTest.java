@@ -66,7 +66,7 @@ public class JavaScriptRulesDefinitionTest {
     // TooManyLinesInFunctionCheck
     Param max = repository.rule("S138").param("max");
     assertThat(max).isNotNull();
-    assertThat(max.defaultValue()).isEqualTo("100");
+    assertThat(max.defaultValue()).isEqualTo("200");
     assertThat(max.description()).isEqualTo("Maximum authorized lines in a function");
     assertThat(max.type()).isEqualTo(RuleParamType.INTEGER);
   }
