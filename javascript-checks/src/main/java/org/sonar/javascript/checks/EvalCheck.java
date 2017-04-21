@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -34,11 +35,21 @@ public class EvalCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     ExpressionTree callee = tree.callee();
-    if (callee.is(Kind.IDENTIFIER_REFERENCE) && "eval".equals(((IdentifierTree) callee).name())) {
+    if (callee.is(Kind.IDENTIFIER_REFERENCE) && "eval".equals(((IdentifierTree) callee).name()) && atLeastOneArgumentNotLiteral(tree.argumentClause())) {
       addIssue(callee, MESSAGE);
     }
 
     super.visitCallExpression(tree);
+  }
+
+  private static boolean atLeastOneArgumentNotLiteral(ArgumentListTree arguments) {
+    for (ExpressionTree expressionTree : arguments.arguments()) {
+      if (!expressionTree.is(Kind.STRING_LITERAL)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
 }

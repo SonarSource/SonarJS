@@ -9,6 +9,8 @@ var value = eval('obj.' + propName); // Noncompliant
 <pre>
 var value = obj[propName];
 </pre>
+<h2>Exceptions</h2>
+<p>This rule will not raise an issue when the argument of the <code>eval</code> call is a literal string as it is reasonably safe.</p>
 <h2>See</h2>
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/95.html">MITRE CWE-95</a> - CWE-95: Improper Neutralization of Directives in Dynamically

@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -36,21 +37,9 @@ public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Declare this function instead of using the \"Function\" constructor.";
 
-  /**
-   * Tracks:
-   * <pre>
-   *   new Function('console.log("hello"');
-   *   new Function('a', 'b', 'console.log(a + b);
-   * </pre>
-   * Does not track:
-   * <pre>
-   *   new Function;
-   *   new Function();
-   * </pre>
-   */
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
-    if (isNonEmptyFunctionConstructor(tree.expression(), tree.argumentClause())) {
+    if (isFunctionConstructorWithPossibleInjection(tree.expression(), tree.argumentClause())) {
       addIssue(new PreciseIssue(this, new IssueLocation(tree.newKeyword(), tree.expression(), MESSAGE)));
     }
 
@@ -62,20 +51,30 @@ public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
    */
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (isNonEmptyFunctionConstructor(tree.callee(), tree.argumentClause())) {
+    if (isFunctionConstructorWithPossibleInjection(tree.callee(), tree.argumentClause())) {
       addIssue(tree.callee(), MESSAGE);
     }
     
     super.visitCallExpression(tree);
   }
   
-  private static boolean isNonEmptyFunctionConstructor(ExpressionTree tree, @Nullable ArgumentListTree arguments) {
+  private static boolean isFunctionConstructorWithPossibleInjection(ExpressionTree tree, @Nullable ArgumentListTree arguments) {
     boolean result = false;
     if (tree.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       String name = ((IdentifierTree)tree).name();
-      result = "Function".equals(name) && arguments != null && !arguments.arguments().isEmpty();
+      result = "Function".equals(name) && arguments != null && atLeastOneArgumentNotLiteral(arguments);
     }
     return result;
+  }
+
+  private static boolean atLeastOneArgumentNotLiteral(ArgumentListTree arguments) {
+    for (ExpressionTree expressionTree : arguments.arguments()) {
+      if (!expressionTree.is(Kind.STRING_LITERAL)) {
+        return true;
+      }
+    }
+
+    return false;
   }
   
 }
