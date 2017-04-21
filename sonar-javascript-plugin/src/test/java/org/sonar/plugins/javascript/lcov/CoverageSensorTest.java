@@ -35,6 +35,7 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,6 +57,9 @@ public class CoverageSensorTest {
 
   private static final boolean RUN_WITH_SQ_6_2 = true;
   private static final boolean RUN_WITH_SQ_6_1 = false;
+
+  @org.junit.Rule
+  public LogTester logTester = new LogTester();
 
   @Before
   public void init() {
@@ -151,7 +155,7 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void test_invalid_line() {
+  public void should_ignore_and_log_warning_for_invalid_line() {
     settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/wrong_line_report.lcov");
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
 
@@ -161,6 +165,9 @@ public class CoverageSensorTest {
     assertThat(context.conditions("moduleKey:file1.js", 102)).isNull();
     assertThat(context.conditions("moduleKey:file1.js", 2)).isEqualTo(3);
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(1);
+
+    assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.IllegalArgumentException: Line with number 0 doesn't belong to file file1.js).");
+    assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save BRDA data for line 8 of coverage report file (java.lang.IllegalArgumentException: Line with number 102 doesn't belong to file file1.js).");
   }
 
   @Test
@@ -232,6 +239,22 @@ public class CoverageSensorTest {
     assertThat(parsePaths(" a , ")).containsOnly("a");
     assertThat(parsePaths("a , b, d,e")).containsOnly("a", "b", "d", "e");
     assertThat(parsePaths("a/b/c.bar, d/e.foo")).containsOnly("a/b/c.bar", "d/e.foo");
+  }
+
+  @Test
+  public void should_log_warning_when_wrong_data() throws Exception {
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/wrong_data_report.lcov");
+    utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
+
+    assertThat(context.lineHits("moduleKey:file1.js", 1)).isNull();
+    assertThat(context.lineHits("moduleKey:file1.js", 2)).isEqualTo(1);
+
+    assertThat(context.conditions("moduleKey:file1.js", 2)).isEqualTo(2);
+    assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(2);
+
+    assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.NumberFormatException: For input string: \"1.\").");
+    assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException: String index out of range: -1).");
+    assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: 3).");
   }
 
   private List<String> parsePaths(String input) {
