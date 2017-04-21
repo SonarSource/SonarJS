@@ -188,13 +188,14 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void technical_error_should_add_error_to_context() {
-    thrown.expect(AnalysisException.class);
-
+  public void should_add_error_to_context_but_not_fail_analysis_with_technical_error() {
     JavaScriptCheck check = new ExceptionRaisingCheck(new NullPointerException("NPE forcibly raised by check class"));
 
-    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile("file.js")), executor, progressReport);
+    CompatibleInputFile file = inputFile("file.js");
+    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(file), executor, progressReport);
     assertThat(context.allAnalysisErrors()).hasSize(1);
+
+    assertThat(logTester.logs()).contains("Unable to analyse file: " + file.absolutePath());
   }
 
   @Test
@@ -286,13 +287,6 @@ public class JavaScriptSquidSensorTest {
   public void cancelled_analysis_causing_recognition_exception() throws Exception {
     JavaScriptCheck check = new ExceptionRaisingCheck(new RecognitionException(42, "message", new InterruptedIOException()));
     analyseFileWithException(check, inputFile("cpd/Person.js"), "Analysis cancelled");
-    assertThat(context.allAnalysisErrors()).hasSize(1);
-  }
-
-  @Test
-  public void exception_should_report_file_name() throws Exception {
-    JavaScriptCheck check = new ExceptionRaisingCheck(new IllegalStateException());
-    analyseFileWithException(check, inputFile("cpd/Person.js"), "Person.js");
     assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
