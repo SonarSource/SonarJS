@@ -76,7 +76,8 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptLanguage.class,
       JavaScriptSquidSensor.class,
       new JavaScriptRulesDefinition(context.getSonarQubeVersion()),
-      JavaScriptProfile.class);
+      SonarWayRecommendedProfile.class,
+      SonarWayProfile.class);
 
     boolean isAtLeastSq62 = context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2);
     String reportPropertyDeprecationMessage = isAtLeastSq62 ? "DEPRECATED: use sonar.javascript.lcov.reportPaths. " : "";
