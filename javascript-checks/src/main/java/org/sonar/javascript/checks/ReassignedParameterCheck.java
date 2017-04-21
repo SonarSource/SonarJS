@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
@@ -84,30 +83,26 @@ public class ReassignedParameterCheck extends SubscriptionVisitorCheck {
 
     } else if (variableOrExpression.is(Kind.IDENTIFIER_REFERENCE)) {
       IdentifierTree identifier = (IdentifierTree) variableOrExpression;
-      checkSymbol(identifier.symbol(), identifier, forLoop, FOREACH_VARIABLE);
-
+      identifier.symbol().ifPresent(s -> checkSymbol(s, identifier, forLoop, FOREACH_VARIABLE));
     }
   }
 
   private void checkBindingElement(BindingElementTree parameter, String title) {
     for (IdentifierTree identifierTree : parameter.bindingIdentifiers()) {
       // symbol for identifier from binding element should never be null
-      checkSymbol(identifierTree.symbol(), identifierTree, null, title);
+      identifierTree.symbol().ifPresent(s -> checkSymbol(s, identifierTree, null, title));
     }
   }
 
-  private void checkSymbol(Optional<Symbol> symbol, IdentifierTree declarationIdentifier, @Nullable ForObjectStatementTree loop, String title) {
-    if (!symbol.isPresent()) {
-      return;
-    }
+  private void checkSymbol(Symbol symbol, IdentifierTree declarationIdentifier, @Nullable ForObjectStatementTree loop, String title) {
 
-    for (Usage usage : symbol.get().usages()) {
+    for (Usage usage : symbol.usages()) {
 
       if (usage.isWrite() &&
         !usage.identifierTree().equals(declarationIdentifier)
         && (loop == null || CheckUtils.isDescendant(usage.identifierTree(), loop))) {
 
-        addIssue(usage.identifierTree(), String.format(MESSAGE, title, symbol.get().name()));
+        addIssue(usage.identifierTree(), String.format(MESSAGE, title, symbol.name()));
       }
     }
   }

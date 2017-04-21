@@ -98,9 +98,7 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
     List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
 
     for (Optional<BindingElementTree> element : elements) {
-      if (element.isPresent()) {
-        bindingIdentifiers.addAll(element.get().bindingIdentifiers());
-      }
+      element.ifPresent(bindingElementTree -> bindingIdentifiers.addAll(bindingElementTree.bindingIdentifiers()));
     }
 
     return bindingIdentifiers;
@@ -110,10 +108,7 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
 
     @Override
     public BindingElementTree apply(Optional<BindingElementTree> e) {
-      if (e.isPresent()) {
-        return e.get();
-      }
-      return null;
+      return e.orElse(null);
     }
 
   }

@@ -203,7 +203,6 @@ public class TypeVisitor extends DoubleDispatchVisitor {
       int minSize = arguments.size() < parameters.size() ? arguments.size() : parameters.size();
 
       for (int i = 0; i < minSize; i++) {
-        Preconditions.checkState(arguments.get(i) instanceof ExpressionTree);
         Tree currentParameter = parameters.get(i);
         inferParameterType(currentParameter, arguments, i);
       }

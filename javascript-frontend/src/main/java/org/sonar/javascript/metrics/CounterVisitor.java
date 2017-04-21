@@ -20,7 +20,7 @@
 package org.sonar.javascript.metrics;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Set;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -59,7 +59,7 @@ public class CounterVisitor extends SubscriptionVisitor {
 
   @Override
   public Set<Kind> nodesToVisit() {
-    HashSet<Kind> result = new HashSet<>(KindSet.FUNCTION_KINDS.getSubKinds());
+    Set<Kind> result = EnumSet.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
     result.addAll(Arrays.asList(STATEMENT_NODES));
     result.addAll(Arrays.asList(MetricsVisitor.getClassNodes()));
     return result;

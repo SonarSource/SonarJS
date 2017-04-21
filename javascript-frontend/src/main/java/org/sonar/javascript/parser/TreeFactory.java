@@ -1127,7 +1127,10 @@ public class TreeFactory {
   }
 
   public SpecifierListTree exportList(InternalSyntaxToken openCurlyBraceToken, Optional<SeparatedList<SpecifierTree>> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
-    return new SpecifierListTreeImpl(Kind.EXPORT_LIST, openCurlyBraceToken, specifierList.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
+    return new SpecifierListTreeImpl(
+      Kind.EXPORT_LIST,
+      openCurlyBraceToken,
+      specifierList.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
   }
 
   public NameSpaceExportDeclarationTree namespaceExportDeclaration(
@@ -1216,7 +1219,10 @@ public class TreeFactory {
   }
 
   public SpecifierListTree importList(InternalSyntaxToken openCurlyBraceToken, Optional<SeparatedList<SpecifierTree>> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
-    return new SpecifierListTreeImpl(Kind.IMPORT_LIST, openCurlyBraceToken, specifierList.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
+    return new SpecifierListTreeImpl(
+      Kind.IMPORT_LIST,
+      openCurlyBraceToken,
+      specifierList.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
   }
 
   public SpecifierTree nameSpaceImport(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTree localName) {
