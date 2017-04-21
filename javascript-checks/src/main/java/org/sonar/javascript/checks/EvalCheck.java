@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 @Rule(key = "Eval")
 public class EvalCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Remove this use of the \"eval\" function.";
+  private static final String MESSAGE = "Review the arguments of this \"eval\" call to make sure they are validated.";
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {

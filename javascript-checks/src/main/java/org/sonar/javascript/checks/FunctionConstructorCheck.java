@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 @Rule(key = "S3523")
 public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Declare this function instead of using the \"Function\" constructor.";
+  private static final String MESSAGE = "Review this \"Function\" call and make sure its arguments are properly validated.";
 
   @Override
   public void visitNewExpression(NewExpressionTree tree) {

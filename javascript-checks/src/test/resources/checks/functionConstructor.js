@@ -14,7 +14,7 @@ var foo5 = new Function;                                   // OK  (no argument l
 
 var foo6 = new Function();                                 // OK  (empty argument list)
 
-bar2 = new Function('b', funcBody);               // Noncompliant {{Declare this function instead of using the "Function" constructor.}}
+bar2 = new Function('b', funcBody);               // Noncompliant {{Review this "Function" call and make sure its arguments are properly validated.}}
 //     ^^^^^^^^^^^^
 
 function bar3(a) {
@@ -49,7 +49,7 @@ function baz2() {
 }
 
 function baz3() {
-  return Function(funcBody);                      // Noncompliant {{Declare this function instead of using the "Function" constructor.}}
+  return Function(funcBody);                      // Noncompliant {{Review this "Function" call and make sure its arguments are properly validated.}}
 //       ^^^^^^^^
 }
 
