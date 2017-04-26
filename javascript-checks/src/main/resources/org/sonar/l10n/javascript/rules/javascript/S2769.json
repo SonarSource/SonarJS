@@ -10,5 +10,5 @@
     "bug",
     "jquery"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Major"
 }
