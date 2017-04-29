@@ -8,6 +8,7 @@ function configureTravis {
   source ~/.local/bin/install
 }
 configureTravis
+. installJDK8
 
 export DEPLOY_PULL_REQUEST=true
 regular_mvn_build_deploy_analyze
