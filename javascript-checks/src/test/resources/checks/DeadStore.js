@@ -1,4 +1,3 @@
-
 var global1 = 42; // OK - global
 
 function foo(){
@@ -244,4 +243,15 @@ function ok_initializer_to_standard_value() {
   x8 = void 0; // Noncompliant
   x9 = (void 0); // Noncompliant
 
+}
+
+function do_while_with_continue(x) {
+  let p;
+  do {
+    p = 0;
+    if (x) {
+      p = 1;
+      continue;
+    }
+  } while (!p);
 }
