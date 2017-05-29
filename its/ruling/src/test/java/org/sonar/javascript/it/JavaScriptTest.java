@@ -21,13 +21,14 @@ package org.sonar.javascript.it;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
+import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -41,6 +42,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JavaScriptTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptTest.class);
+  private static final Gson GSON = new Gson();
+
+  private static final String PROJECT_KEY = "project";
 
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
@@ -64,7 +68,7 @@ public class JavaScriptTest {
     orchestrator.getServer().provisionProject("project", "project");
     orchestrator.getServer().associateProjectToQualityProfile("project", "js", "rules");
     SonarScanner build = SonarScanner.create(FileLocation.of("../sources/src").getFile())
-      .setProjectKey("project")
+      .setProjectKey(PROJECT_KEY)
       .setProjectName("project")
       .setProjectVersion("1")
       .setLanguage("js")
@@ -97,16 +101,25 @@ public class JavaScriptTest {
       .put("prevent_reactivation", "true")
       .put("params", "name=\"" + instantiationKey + "\";key=\"" + instantiationKey + "\";markdown_description=\"" + instantiationKey + "\";" + params)
       .build());
-    String post = sonarClient.get("api/rules/app");
-    Pattern pattern = Pattern.compile("js-rules-\\d+");
-    Matcher matcher = pattern.matcher(post);
-    if (matcher.find()) {
-      String profilekey = matcher.group();
-      sonarClient.post("api/qualityprofiles/activate_rule", ImmutableMap.<String, Object>of(
-        "profile_key", profilekey,
+    String post = sonarClient.get("api/qualityprofiles/search?projectKey=" + PROJECT_KEY);
+
+    String profileKey = null;
+    Map profilesForProject = GSON.fromJson(post, Map.class);
+    for (Map profileDescription : (List<Map>) profilesForProject.get("profiles")) {
+      if ("rules".equals(profileDescription.get("name"))) {
+        profileKey = (String) profileDescription.get("key");
+        break;
+      }
+    }
+
+    if (profileKey != null) {
+      String response = sonarClient.post("api/qualityprofiles/activate_rule", ImmutableMap.of(
+        "profile_key", profileKey,
         "rule_key", "javascript:" + instantiationKey,
         "severity", "INFO",
         "params", ""));
+      LOG.warn(response);
+
     } else {
       LOG.error("Could not retrieve profile key : Template rule " + ruleTemplateKey + " has not been activated");
     }
