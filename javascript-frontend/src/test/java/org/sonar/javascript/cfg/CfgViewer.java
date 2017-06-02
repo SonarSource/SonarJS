@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.cfg;
 
-import com.google.common.base.Charsets;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import javafx.application.Application;
@@ -54,7 +53,7 @@ public class CfgViewer extends Application {
 
   public static class Analyzer {
 
-    private final ActionParser<Tree> parser = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+    private final ActionParser<Tree> parser = JavaScriptParserBuilder.createParser();
 
     public String analyze(String jsSourceCode) {
       try {
