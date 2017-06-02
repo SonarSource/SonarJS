@@ -8702,6 +8702,12 @@
 'project:sizzle-1.8.2.js':[
 10,
 ],
+'project:vuejs/materialize-blog/resources/assets/js/blog/navigations/sidebar.vue':[
+2,
+],
+'project:vuejs/materialize-blog/resources/assets/js/blog/posts/posts.vue':[
+48,
+],
 'project:yui-3.7.3/charts-base/charts-base.js':[
 394,
 ],

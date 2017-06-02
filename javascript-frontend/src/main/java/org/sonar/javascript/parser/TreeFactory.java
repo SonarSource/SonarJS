@@ -1688,6 +1688,35 @@ public class TreeFactory {
     return new ExtendsClauseTreeImpl(extendsToken, superClass);
   }
 
+  public ScriptTree vueScript(Optional<List<VueElement>> vueElements, Tree noSpacing, InternalSyntaxToken eofToken) {
+    if (vueElements.isPresent()) {
+      for (VueElement vueElement : vueElements.get()) {
+        if (vueElement instanceof ScriptVueElement) {
+          ScriptVueElement scriptVueElement = (ScriptVueElement) vueElement;
+          return new ScriptTreeImpl(scriptVueElement.shebang, scriptVueElement.moduleTree, eofToken);
+        }
+      }
+    }
+    return new ScriptTreeImpl(null, null, eofToken);
+  }
+
+  public VueElement vueElement1(InternalSyntaxToken token) {
+    return new VueElement();
+  }
+
+  public VueElement vueElement2(InternalSyntaxToken token) {
+    return new VueElement();
+  }
+
+  public ScriptVueElement scriptVueElement(
+    InternalSyntaxToken scriptOpenTag,
+    Optional<InternalSyntaxToken> shebangToken, Optional<ModuleTree> items,
+    InternalSyntaxToken scriptCloseTag
+  ) {
+
+    return new ScriptVueElement(shebangToken.orNull(), items.orNull());
+  }
+
   private static class ConditionalExpressionTail {
     InternalSyntaxToken queryToken;
     ExpressionTree trueExpr;
@@ -1743,6 +1772,18 @@ public class TreeFactory {
     }
   }
 
+  static class VueElement {
+  }
+
+  static class ScriptVueElement extends VueElement {
+    InternalSyntaxToken shebang;
+    ModuleTree moduleTree;
+
+    public ScriptVueElement(InternalSyntaxToken shebang, ModuleTree moduleTree) {
+      this.shebang = shebang;
+      this.moduleTree = moduleTree;
+    }
+  }
 
   public static class Tuple<T, U> {
 

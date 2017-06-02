@@ -103,6 +103,7 @@ public class JavaScriptSquidSensor implements Sensor {
   private final NoSonarFilter noSonarFilter;
   private final FilePredicate mainFilePredicate;
   private final ActionParser<Tree> parser;
+  private final ActionParser<Tree> vueParser;
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
 
@@ -126,6 +127,7 @@ public class JavaScriptSquidSensor implements Sensor {
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
     this.parser = JavaScriptParserBuilder.createParser();
+    this.vueParser = JavaScriptParserBuilder.createVueParser();
   }
 
   @VisibleForTesting
@@ -163,10 +165,15 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   private void analyse(SensorContext sensorContext, CompatibleInputFile inputFile, ProductDependentExecutor executor, List<TreeVisitor> visitors) {
+    ActionParser<Tree> currentParser = this.parser;
+    if (inputFile.fileName().endsWith(".vue")) {
+      currentParser = this.vueParser;
+    }
+
     ScriptTree scriptTree;
 
     try {
-      scriptTree = (ScriptTree) parser.parse(inputFile.contents());
+      scriptTree = (ScriptTree) currentParser.parse(inputFile.contents());
       scanFile(sensorContext, inputFile, executor, visitors, scriptTree);
     } catch (RecognitionException e) {
       checkInterrupted(e);
