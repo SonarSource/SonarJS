@@ -28,7 +28,11 @@ public final class JavaScriptParserBuilder {
   }
 
   public static ActionParser<Tree> createParser() {
-    return new JavaScriptParser();
+    return new JavaScriptParser(JavaScriptLegacyGrammar.SCRIPT);
+  }
+
+  public static ActionParser<Tree> createVueParser() {
+    return new JavaScriptParser(JavaScriptLegacyGrammar.VUE_SCRIPT);
   }
 
 }

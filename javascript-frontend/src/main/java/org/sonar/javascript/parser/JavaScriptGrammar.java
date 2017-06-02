@@ -27,6 +27,7 @@ import org.sonar.javascript.lexer.JavaScriptTokenType;
 import org.sonar.javascript.parser.TreeFactory.BracketAccessTail;
 import org.sonar.javascript.parser.TreeFactory.DotAccessTail;
 import org.sonar.javascript.parser.TreeFactory.ExpressionTail;
+import org.sonar.javascript.parser.TreeFactory.VueElement;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -35,6 +36,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
@@ -62,7 +64,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTr
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -1670,6 +1671,27 @@ public class JavaScriptGrammar {
           b.token(JavaScriptLegacyGrammar.SPACING_NOT_SKIPPED),
           b.token(JavaScriptLegacyGrammar.EOF)));
   }
+
+  public ScriptTree VUE_SCRIPT() {
+    return b.<ScriptTree>nonterminal(JavaScriptLegacyGrammar.VUE_SCRIPT)
+      .is(f.vueScript(
+          b.zeroOrMore(VUE_ELEMENT()),
+          b.token(JavaScriptLegacyGrammar.SPACING_NOT_SKIPPED),
+          b.token(JavaScriptLegacyGrammar.EOF)));
+  }
+
+  public VueElement VUE_ELEMENT() {
+    return b.<VueElement>nonterminal()
+      .is(b.firstOf(
+        f.vueElement1(b.token(JavaScriptLegacyGrammar.VUE_TEMPLATE_SECTION)),
+        f.vueElement2(b.token(JavaScriptLegacyGrammar.VUE_STYLE_SECTION)),
+        f.scriptVueElement(
+          b.token(JavaScriptLegacyGrammar.SCRIPT_TAG),
+          b.optional(b.token(JavaScriptLegacyGrammar.SHEBANG)),
+          b.optional(MODULE_BODY()),
+          b.token(JavaScriptLegacyGrammar.SCRIPT_TAG_CLOSE))));
+  }
+
 
   private static <T> T ES6(T object) {
     return object;

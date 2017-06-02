@@ -25,10 +25,11 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class JavaScriptParser extends ActionParser<Tree> {
 
-  public JavaScriptParser() {
+  public JavaScriptParser(GrammarRuleKey root) {
     super(
       // we can pass any charset, it's not used. To parse file, we use sting content of it.
       Charset.defaultCharset(),
@@ -36,7 +37,7 @@ public class JavaScriptParser extends ActionParser<Tree> {
       JavaScriptGrammar.class,
       new TreeFactory(),
       new JavaScriptNodeBuilder(),
-      JavaScriptLegacyGrammar.SCRIPT);
+      root);
   }
 
   @Override

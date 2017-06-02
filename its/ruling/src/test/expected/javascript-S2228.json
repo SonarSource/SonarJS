@@ -538,4 +538,10 @@
 'project:ocanvas-2.2.2.js':[
 464,
 ],
+'project:vuejs/jcc-blog/resources/assets/js/components/Comment.vue':[
+241,
+],
+'project:vuejs/web-learn/src/components/Typeahead.vue':[
+72,
+],
 }

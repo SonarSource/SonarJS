@@ -81,7 +81,7 @@ public abstract class JavaScriptTreeModelTest {
     return new JavaScriptVisitorContext(root, file, null);
   }
 
-  private Tree getFirstDescendant(JavaScriptTree node, Kind descendantToReturn) {
+  protected Tree getFirstDescendant(JavaScriptTree node, Kind descendantToReturn) {
     if (node.is(descendantToReturn)) {
       return node;
     }
@@ -108,7 +108,7 @@ public abstract class JavaScriptTreeModelTest {
     return SourceBuilder.build(node).trim();
   }
 
-  private static void checkFullFidelity(Tree tree, String s) {
+  protected static void checkFullFidelity(Tree tree, String s) {
     assertThat(SourceBuilder.build(tree)).isEqualTo(s);
   }
 }

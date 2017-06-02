@@ -332,4 +332,7 @@
 'project:scriptaculous-1.9.0/unittest.js':[
 425,
 ],
+'project:vuejs/materialize-blog/resources/assets/js/components/404.vue':[
+20,
+],
 }

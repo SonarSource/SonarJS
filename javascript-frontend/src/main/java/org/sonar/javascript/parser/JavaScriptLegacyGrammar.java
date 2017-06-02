@@ -290,6 +290,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   // A.6 Programs
 
   SCRIPT,
+  VUE_SCRIPT,
   SCRIPT_BODY,
 
   SHEBANG,
@@ -306,7 +307,15 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   NEXT_NOT_LCURLY,
   NEXT_NOT_LET_AND_BRACKET,
   NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION,
-  NEXT_NOT_FUNCTION_AND_CLASS;
+  NEXT_NOT_FUNCTION_AND_CLASS,
+
+  // Vue.js
+  SCRIPT_TAG,
+  SCRIPT_TAG_CLOSE,
+  VUE_TEMPLATE_SECTION,
+  VUE_STYLE_SECTION,
+
+  ;
 
   private final String internalName;
 
@@ -370,13 +379,15 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
       b.sequence(SPACING, SEMI),
       b.sequence(SPACING_NO_LB, LINE_TERMINATOR_SEQUENCE),
       b.sequence(SPACING_NO_LB, b.next("}")),
-      b.sequence(SPACING, b.endOfInput())));
+      b.sequence(SPACING, b.endOfInput()),
+      b.sequence(SPACING, b.next(SCRIPT_TAG_CLOSE))));
 
     b.rule(EOS_NO_LB).is(b.firstOf(
       b.sequence(SPACING_NO_LB, NEXT_NOT_LB, SEMI),
       b.sequence(SPACING_NO_LB, LINE_TERMINATOR_SEQUENCE),
       b.sequence(SPACING_NO_LB, b.next("}")),
-      b.sequence(SPACING_NO_LB, b.endOfInput())));
+      b.sequence(SPACING_NO_LB, b.endOfInput()),
+      b.sequence(SPACING, b.next(SCRIPT_TAG_CLOSE))));
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(IDENTIFIER).is(
@@ -427,6 +438,12 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
     b.rule(GET).is(word(b, "get"));
     b.rule(SHEBANG).is(b.regexp("#![^\\n\\r]*+"));
     b.rule(TARGET).is(word(b, "target"));
+
+    // Vue.js
+    b.rule(SCRIPT_TAG).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "<script>"));
+    b.rule(SCRIPT_TAG_CLOSE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "</script>"));
+    b.rule(VUE_TEMPLATE_SECTION).is(SPACING, b.regexp("(?s)<template.*</template>"));
+    b.rule(VUE_STYLE_SECTION).is(SPACING, b.regexp("(?s)<style.*</style>"));
 
     // Temporary rules waiting for b.nextNot method migration
     b.rule(NEXT_NOT_LET_AND_BRACKET).is(b.nextNot(LET, LBRACKET));
