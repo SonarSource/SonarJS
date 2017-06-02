@@ -44,3 +44,11 @@ class
   myObject.callee;              // OK
 
 }
+
+class A {
+
+  'foo'() {
+    arguments.callee;             // Noncompliant
+    arguments.caller;             // Noncompliant
+  }
+}

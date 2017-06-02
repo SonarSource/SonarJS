@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import java.util.LinkedList;
 import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -54,8 +55,8 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
     if (tree.is(KindSet.FUNCTION_KINDS)) {
       Tree name = ((FunctionTree) tree).name();
 
-      if (name != null && name instanceof IdentifierTree) {
-        scope.add(((IdentifierTree) name).name());
+      if (name != null) {
+        scope.add(CheckUtils.asString(name));
       }
 
     } else {
