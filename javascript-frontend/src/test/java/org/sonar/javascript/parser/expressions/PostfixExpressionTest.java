@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class PostfixExpressionTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.POSTFIX_EXPRESSION)
+    assertThat(EcmaScriptLexer.POSTFIX_EXPRESSION)
       .matches("a")
 
       .matches("a ++")

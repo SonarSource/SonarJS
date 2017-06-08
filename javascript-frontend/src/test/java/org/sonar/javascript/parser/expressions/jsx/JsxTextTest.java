@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.expressions.jsx;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -28,7 +28,7 @@ public class JsxTextTest {
 
   @Test
   public void test() {
-    assertThat(JavaScriptLegacyGrammar.JSX_TEXT)
+    assertThat(EcmaScriptLexer.JSX_TEXT)
       .matches("Hello world")
 
       .notMatches("Hello world </foo>")

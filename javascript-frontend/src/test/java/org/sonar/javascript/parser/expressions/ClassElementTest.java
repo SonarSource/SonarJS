@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ClassElementTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.CLASS_ELEMENT)
+    assertThat(EcmaScriptLexer.CLASS_ELEMENT)
       .matches("static f() {}")
       .matches("f () {}")
       .matches(";");
@@ -37,7 +37,7 @@ public class ClassElementTest {
 
   @Test
   public void properties() throws Exception {
-    assertThat(JavaScriptLegacyGrammar.CLASS_ELEMENT)
+    assertThat(EcmaScriptLexer.CLASS_ELEMENT)
       // identifier
       .matches("property ;")
       // number literal

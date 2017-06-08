@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ArrayInitializerElementTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.ARRAY_LITERAL_ELEMENT)
+    assertThat(EcmaScriptLexer.ARRAY_LITERAL_ELEMENT)
       .matches("assignmentExpression")
       .matches("... assignmentExpression");
   }

@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.declarations.module;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ModuleItemTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.MODULE_BODY)
+    assertThat(EcmaScriptLexer.MODULE_BODY)
       .matches("import \"f\" ;")
       .matches("export { } ;")
       .matches("var a;");

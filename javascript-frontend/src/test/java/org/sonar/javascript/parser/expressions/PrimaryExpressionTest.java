@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class PrimaryExpressionTest {
 
   @Test
   public void realLife() {
-    assertThat(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
+    assertThat(EcmaScriptLexer.PRIMARY_EXPRESSION)
       .matches("this")
       .matches("identifier")
       .matches("''")
@@ -44,7 +44,7 @@ public class PrimaryExpressionTest {
 
   @Test
   public void test_special_words_as_identifiers() throws Exception {
-    assertThat(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
+    assertThat(EcmaScriptLexer.PRIMARY_EXPRESSION)
       .matches("yield")
       .matches("async")
       .matches("await")

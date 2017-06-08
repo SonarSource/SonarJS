@@ -1700,11 +1700,7 @@ public class TreeFactory {
     return new ScriptTreeImpl(null, null, eofToken);
   }
 
-  public VueElement vueElement1(InternalSyntaxToken token) {
-    return new VueElement();
-  }
-
-  public VueElement vueElement2(InternalSyntaxToken token) {
+  public VueElement vueElement(InternalSyntaxToken token) {
     return new VueElement();
   }
 

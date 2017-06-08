@@ -28,11 +28,11 @@ public final class JavaScriptParserBuilder {
   }
 
   public static ActionParser<Tree> createParser() {
-    return new JavaScriptParser(JavaScriptLegacyGrammar.SCRIPT);
+    return new JavaScriptParser(EcmaScriptLexer.SCRIPT);
   }
 
   public static ActionParser<Tree> createVueParser() {
-    return new JavaScriptParser(JavaScriptLegacyGrammar.VUE_SCRIPT);
+    return new JavaScriptParser(EcmaScriptLexer.VUE_SCRIPT);
   }
 
 }

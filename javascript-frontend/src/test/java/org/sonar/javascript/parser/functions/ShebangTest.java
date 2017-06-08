@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.functions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ShebangTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.SHEBANG)
+    assertThat(EcmaScriptLexer.SHEBANG)
       .matchesPrefix("#!/usr/bin/env node", "\n");
   }
 

@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,13 +29,13 @@ public class UnaryExpressionTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.UNARY_EXPRESSION)
+    assertThat(EcmaScriptLexer.UNARY_EXPRESSION)
       .matches("++a++");
   }
 
   @Test
   public void await() throws Exception {
-    assertThat(JavaScriptLegacyGrammar.UNARY_EXPRESSION)
+    assertThat(EcmaScriptLexer.UNARY_EXPRESSION)
       .matches("await foo()")
     ;
   }

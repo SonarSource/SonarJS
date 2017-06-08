@@ -93,7 +93,7 @@ import static org.sonar.javascript.lexer.JavaScriptTokenType.REGULAR_EXPRESSION_
  * Update for support of edition 6 (May 2014)
  * Based on draft <a href="http://people.mozilla.org/~jorendorff/es6-draft.html"></a>
  */
-public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
+public enum EcmaScriptLexer implements GrammarRuleKey {
 
   /**
    * End of file.
@@ -319,7 +319,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
 
   private final String internalName;
 
-  JavaScriptLegacyGrammar() {
+  EcmaScriptLexer() {
     String name = name();
     StringBuilder sb = new StringBuilder();
     int i = 0;

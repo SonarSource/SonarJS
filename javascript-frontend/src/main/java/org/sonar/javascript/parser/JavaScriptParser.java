@@ -33,7 +33,7 @@ public class JavaScriptParser extends ActionParser<Tree> {
     super(
       // we can pass any charset, it's not used. To parse file, we use sting content of it.
       Charset.defaultCharset(),
-      JavaScriptLegacyGrammar.createGrammarBuilder(),
+      EcmaScriptLexer.createGrammarBuilder(),
       JavaScriptGrammar.class,
       new TreeFactory(),
       new JavaScriptNodeBuilder(),

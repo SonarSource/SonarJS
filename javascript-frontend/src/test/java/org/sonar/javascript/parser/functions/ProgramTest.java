@@ -21,7 +21,7 @@ package org.sonar.javascript.parser.functions;
 
 import com.google.common.base.Joiner;
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -30,7 +30,7 @@ public class ProgramTest {
 
   @Test
   public void realLife() {
-    assertThat(JavaScriptLegacyGrammar.SCRIPT)
+    assertThat(EcmaScriptLexer.SCRIPT)
       .matches("{}")
       .matches("var a;")
       .matches("if (true) {}")
@@ -38,15 +38,15 @@ public class ProgramTest {
       .matches("var r = /^\\s+/;")
       .matches("function func() { doSomething() }");
 
-    assertThat(JavaScriptLegacyGrammar.SCRIPT).matches(code(
+    assertThat(EcmaScriptLexer.SCRIPT).matches(code(
       "#!/usr/bin/env node",
       "function func() { }"));
 
-    assertThat(JavaScriptLegacyGrammar.SCRIPT).matches("");
-    assertThat(JavaScriptLegacyGrammar.SCRIPT).matches("\uFEFF");
+    assertThat(EcmaScriptLexer.SCRIPT).matches("");
+    assertThat(EcmaScriptLexer.SCRIPT).matches("\uFEFF");
 
     // http://www.w3schools.com/js/tryit.asp?filename=tryjs_ifthenelse
-    assertThat(JavaScriptLegacyGrammar.SCRIPT).matches(code(
+    assertThat(EcmaScriptLexer.SCRIPT).matches(code(
       "var d = new Date();",
       "var time = d.getHours();",
       "if (time < 10) {",

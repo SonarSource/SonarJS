@@ -26,7 +26,7 @@ import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.typed.ActionParser;
 import org.fest.assertions.GenericAssert;
 import org.sonar.javascript.parser.JavaScriptGrammar;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 import org.sonar.javascript.parser.JavaScriptNodeBuilder;
 import org.sonar.javascript.parser.TreeFactory;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -45,7 +45,7 @@ public class Assertions {
   }
 
   public static ParserAssert assertThat(GrammarRuleKey rule) {
-    return assertThat(JavaScriptLegacyGrammar.createGrammarBuilder(), rule);
+    return assertThat(EcmaScriptLexer.createGrammarBuilder(), rule);
   }
 
   public static ParserAssert assertThat(LexerlessGrammarBuilder b, GrammarRuleKey rule) {

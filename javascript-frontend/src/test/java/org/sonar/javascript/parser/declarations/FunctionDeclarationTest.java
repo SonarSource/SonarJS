@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.declarations;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -28,7 +28,7 @@ public class FunctionDeclarationTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
+    assertThat(EcmaScriptLexer.FUNCTION_DECLARATION)
       .notMatches("function () {}")
       .matches("function f() {}")
       .matches("function f (p1, p2) {}")
@@ -38,7 +38,7 @@ public class FunctionDeclarationTest {
 
   @Test
   public void async_function() throws Exception {
-    assertThat(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
+    assertThat(EcmaScriptLexer.FUNCTION_DECLARATION)
       .matches("async function foo () {}")
     ;
   }

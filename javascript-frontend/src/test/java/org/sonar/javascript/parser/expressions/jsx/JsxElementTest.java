@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.expressions.jsx;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
@@ -29,7 +29,7 @@ public class JsxElementTest {
 
   @Test
   public void standard() {
-    assertThat(JavaScriptLegacyGrammar.JSX_ELEMENT)
+    assertThat(EcmaScriptLexer.JSX_ELEMENT)
       .matches("<c><a><b></b></a></c>")
       .matches("<foo></foo>")
       .matches("<foo><bar></bar></foo>")

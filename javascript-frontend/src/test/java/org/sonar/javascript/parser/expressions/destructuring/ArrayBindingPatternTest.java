@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.expressions.destructuring;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ArrayBindingPatternTest {
 
   @Test
   public void test() {
-    assertThat(JavaScriptLegacyGrammar.ARRAY_BINDING_PATTERN)
+    assertThat(EcmaScriptLexer.ARRAY_BINDING_PATTERN)
       .matches("[ ]")
       .matches("[ , ]")
       .matches("[ ...a ]")
