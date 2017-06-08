@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.lexical;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 import org.sonar.javascript.utils.LegacyParserTest;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
@@ -29,7 +29,7 @@ public class EndOfStatementNoLineBreakTest extends LegacyParserTest {
 
   @Test
   public void ok() {
-    assertThat(g.rule(JavaScriptLegacyGrammar.EOS_NO_LB))
+    assertThat(g.rule(EcmaScriptLexer.EOS_NO_LB))
       .as("semicolon")
       .matchesPrefix(";", "another-statement")
       .matchesPrefix("/* comment */ ;", "another-statement")

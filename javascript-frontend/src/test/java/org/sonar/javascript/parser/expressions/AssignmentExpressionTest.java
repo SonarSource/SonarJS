@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class AssignmentExpressionTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
+    assertThat(EcmaScriptLexer.ASSIGNMENT_EXPRESSION)
       .matches("conditionalExpression")
       .matches("yield")
       .matches("leftHandSideExpression **= conditionalExpression")
@@ -39,13 +39,13 @@ public class AssignmentExpressionTest {
 
   @Test
   public void realLife() {
-    assertThat(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
+    assertThat(EcmaScriptLexer.ASSIGNMENT_EXPRESSION)
       .matches("this.first = first");
   }
 
   @Test
   public void array_assignment_pattern() {
-    assertThat(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
+    assertThat(EcmaScriptLexer.ASSIGNMENT_EXPRESSION)
       .matches("[x, y] = arr")
       .matches("[x.foo, y] = arr")
       .matches("[x, y[42]] = arr")
@@ -56,7 +56,7 @@ public class AssignmentExpressionTest {
 
   @Test
   public void object_assignment_pattern() {
-    assertThat(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
+    assertThat(EcmaScriptLexer.ASSIGNMENT_EXPRESSION)
       .matches("{x, y} = obj")
       .matches("{x, y:y[42]} = obj")
       .matches("{x:foo.x, y} = obj")

@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
@@ -45,7 +45,7 @@ public class FunctionExpressionTest {
 
   @Test
   public void async_function_from_script() throws Exception {
-    assertThat(JavaScriptLegacyGrammar.SCRIPT)
+    assertThat(EcmaScriptLexer.SCRIPT)
       .matches("var bar = async function(){}")
     ;
   }

@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.declarations.module;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -28,7 +28,7 @@ public class ScriptTest {
 
   @Test
   public void simple_script() {
-    assertThat(JavaScriptLegacyGrammar.SCRIPT)
+    assertThat(EcmaScriptLexer.SCRIPT)
       .matches("var i;")
       .matches("import {x} from 'myModule';")
       .matches("foo();")
@@ -42,7 +42,7 @@ public class ScriptTest {
     final String componentTemplate = "<template> <div id=\"app\">\n </div> </template>";
     final String componentTemplateWithScript = "<template> <script></script> </template>";
 
-    assertThat(JavaScriptLegacyGrammar.VUE_SCRIPT)
+    assertThat(EcmaScriptLexer.VUE_SCRIPT)
       .matches("<script></script>")
       .matches("  <script>\n   </script>")
 

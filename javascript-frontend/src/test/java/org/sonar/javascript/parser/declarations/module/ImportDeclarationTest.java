@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.declarations.module;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ImportDeclarationTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.IMPORT_DECLARATION)
+    assertThat(EcmaScriptLexer.IMPORT_DECLARATION)
       .matches("import identifier from \"f\";")
       .matches("import \"f\";");
   }

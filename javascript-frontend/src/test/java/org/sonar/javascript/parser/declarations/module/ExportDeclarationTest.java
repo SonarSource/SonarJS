@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.declarations.module;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ExportDeclarationTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.EXPORT_DECLARATION)
+    assertThat(EcmaScriptLexer.EXPORT_DECLARATION)
       // Namespace export
       .matches("export * from \"f\" ;")
 

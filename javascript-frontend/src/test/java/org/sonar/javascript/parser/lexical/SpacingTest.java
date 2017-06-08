@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.lexical;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 import org.sonar.javascript.utils.LegacyParserTest;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
@@ -29,7 +29,7 @@ public class SpacingTest extends LegacyParserTest {
 
   @Test
   public void ok() {
-    assertThat(g.rule(JavaScriptLegacyGrammar.SPACING))
+    assertThat(g.rule(EcmaScriptLexer.SPACING))
       // must allow empty matches, otherwise "optional(SPACING)" will be used everywhere in grammar,
       // which leads to dramatic degradation of performance
       .matches("")

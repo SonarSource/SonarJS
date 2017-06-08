@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.declarations;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class PropertyNameTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.PROPERTY_NAME)
+    assertThat(EcmaScriptLexer.PROPERTY_NAME)
       .matches("a")
       .matches("\"a\"")
       .matches("1")

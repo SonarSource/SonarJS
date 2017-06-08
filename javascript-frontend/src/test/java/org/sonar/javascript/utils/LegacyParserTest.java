@@ -25,20 +25,20 @@ import com.sonar.sslr.api.typed.ActionParser;
 import com.sonar.sslr.api.typed.AstNodeBuilder;
 import org.junit.Before;
 import org.sonar.javascript.parser.JavaScriptGrammar;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 import org.sonar.javascript.parser.TreeFactory;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-public class LegacyParserTest {
+public abstract class LegacyParserTest {
 
   protected LexerlessGrammar g;
 
   @Before
   public void setUp() throws Exception {
-    LexerlessGrammarBuilder b = JavaScriptLegacyGrammar.createGrammarBuilder();
+    LexerlessGrammarBuilder b = EcmaScriptLexer.createGrammarBuilder();
     // Only called to conpleted the grammar
-    new ActionParser<AstNode>(Charsets.UTF_8, b, JavaScriptGrammar.class, new TreeFactory(), new AstNodeBuilder(), JavaScriptLegacyGrammar.SPACING_NO_LB);
+    new ActionParser<AstNode>(Charsets.UTF_8, b, JavaScriptGrammar.class, new TreeFactory(), new AstNodeBuilder(), EcmaScriptLexer.SPACING_NO_LB);
     g = b.build();
   }
 

@@ -141,12 +141,12 @@ public class JavaScriptGrammar {
 
   public DebuggerStatementTree DEBUGGER_STATEMENT() {
     return b.<DebuggerStatementTree>nonterminal(Kind.DEBUGGER_STATEMENT)
-      .is(f.debuggerStatement(b.token(JavaScriptKeyword.DEBUGGER), b.token(JavaScriptLegacyGrammar.EOS)));
+      .is(f.debuggerStatement(b.token(JavaScriptKeyword.DEBUGGER), b.token(EcmaScriptLexer.EOS)));
   }
 
   public VariableStatementTree VARIABLE_STATEMENT() {
     return b.<VariableStatementTree>nonterminal(Kind.VARIABLE_STATEMENT)
-      .is(f.variableStatement(VARIABLE_DECLARATION(), b.token(JavaScriptLegacyGrammar.EOS)));
+      .is(f.variableStatement(VARIABLE_DECLARATION(), b.token(EcmaScriptLexer.EOS)));
   }
 
   public VariableDeclarationTree VARIABLE_DECLARATION() {
@@ -155,7 +155,7 @@ public class JavaScriptGrammar {
         f.variableDeclaration1(
           b.firstOf(
             b.token(JavaScriptKeyword.VAR),
-            b.token(JavaScriptLegacyGrammar.LET),
+            b.token(EcmaScriptLexer.LET),
             b.token(JavaScriptKeyword.CONST)),
           BINDING_ELEMENT_LIST()));
   }
@@ -182,12 +182,12 @@ public class JavaScriptGrammar {
       .is(f.continueWithLabel(
         b.token(JavaScriptKeyword.CONTINUE),
         LABEL_IDENTIFIER_NO_LB(),
-        b.token(JavaScriptLegacyGrammar.EOS)));
+        b.token(EcmaScriptLexer.EOS)));
   }
 
   public ContinueStatementTree CONTINUE_WITHOUT_LABEL() {
     return b.<ContinueStatementTree>nonterminal()
-      .is(f.continueWithoutLabel(b.token(JavaScriptKeyword.CONTINUE), b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
+      .is(f.continueWithoutLabel(b.token(JavaScriptKeyword.CONTINUE), b.token(EcmaScriptLexer.EOS_NO_LB)));
   }
 
   public BreakStatementTree BREAK_STATEMENT() {
@@ -202,12 +202,12 @@ public class JavaScriptGrammar {
       .is(f.breakWithLabel(
         b.token(JavaScriptKeyword.BREAK),
         LABEL_IDENTIFIER_NO_LB(),
-        b.token(JavaScriptLegacyGrammar.EOS)));
+        b.token(EcmaScriptLexer.EOS)));
   }
 
   public BreakStatementTree BREAK_WITHOUT_LABEL() {
     return b.<BreakStatementTree>nonterminal()
-      .is(f.breakWithoutLabel(b.token(JavaScriptKeyword.BREAK), b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
+      .is(f.breakWithoutLabel(b.token(JavaScriptKeyword.BREAK), b.token(EcmaScriptLexer.EOS_NO_LB)));
   }
 
   public ReturnStatementTree RETURN_STATEMENT() {
@@ -222,12 +222,12 @@ public class JavaScriptGrammar {
       .is(f.returnWithExpression(
         b.token(JavaScriptKeyword.RETURN),
         EXPRESSION_NO_LINE_BREAK(),
-        b.token(JavaScriptLegacyGrammar.EOS)));
+        b.token(EcmaScriptLexer.EOS)));
   }
 
   public ReturnStatementTree RETURN_WITHOUT_EXPRESSION() {
     return b.<ReturnStatementTree>nonterminal()
-      .is(f.returnWithoutExpression(b.token(JavaScriptKeyword.RETURN), b.token(JavaScriptLegacyGrammar.EOS_NO_LB)));
+      .is(f.returnWithoutExpression(b.token(JavaScriptKeyword.RETURN), b.token(EcmaScriptLexer.EOS_NO_LB)));
   }
 
   public ThrowStatementTree THROW_STATEMENT() {
@@ -236,7 +236,7 @@ public class JavaScriptGrammar {
         f.newThrowStatement(
           b.token(JavaScriptKeyword.THROW),
           EXPRESSION_NO_LINE_BREAK(),
-          b.token(JavaScriptLegacyGrammar.EOS)));
+          b.token(EcmaScriptLexer.EOS)));
   }
 
   public WithStatementTree WITH_STATEMENT() {
@@ -375,12 +375,12 @@ public class JavaScriptGrammar {
           b.token(JavaScriptPunctuator.LPARENTHESIS),
           EXPRESSION(),
           b.token(JavaScriptPunctuator.RPARENTHESIS),
-          b.token(JavaScriptLegacyGrammar.EOS)));
+          b.token(EcmaScriptLexer.EOS)));
   }
 
   public ExpressionStatementTree EXPRESSION_STATEMENT() {
     return b.<ExpressionStatementTree>nonterminal(Kind.EXPRESSION_STATEMENT)
-      .is(f.expressionStatement(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LCURLY_AND_FUNCTION), EXPRESSION(), b.token(JavaScriptLegacyGrammar.EOS)));
+      .is(f.expressionStatement(b.token(EcmaScriptLexer.NEXT_NOT_LCURLY_AND_FUNCTION), EXPRESSION(), b.token(EcmaScriptLexer.EOS)));
   }
 
   /**
@@ -394,8 +394,8 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.LPARENTHESIS),
         b.firstOf(
           VARIABLE_DECLARATION(),
-          f.skipLookahead3(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LET), LEFT_HAND_SIDE_EXPRESSION())),
-        b.token(JavaScriptLegacyGrammar.OF),
+          f.skipLookahead3(b.token(EcmaScriptLexer.NEXT_NOT_LET), LEFT_HAND_SIDE_EXPRESSION())),
+        b.token(EcmaScriptLexer.OF),
         ASSIGNMENT_EXPRESSION(),
         b.token(JavaScriptPunctuator.RPARENTHESIS),
         STATEMENT()));
@@ -409,7 +409,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptPunctuator.LPARENTHESIS),
           b.firstOf(
             VARIABLE_DECLARATION(),
-            f.skipLookahead2(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LET_AND_BRACKET), LEFT_HAND_SIDE_EXPRESSION())),
+            f.skipLookahead2(b.token(EcmaScriptLexer.NEXT_NOT_LET_AND_BRACKET), LEFT_HAND_SIDE_EXPRESSION())),
           b.token(JavaScriptKeyword.IN),
           EXPRESSION(),
           b.token(JavaScriptPunctuator.RPARENTHESIS),
@@ -426,7 +426,7 @@ public class JavaScriptGrammar {
           b.optional(
             b.firstOf(
               VARIABLE_DECLARATION(),
-              f.skipLookahead1(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LET_AND_BRACKET), EXPRESSION()))),
+              f.skipLookahead1(b.token(EcmaScriptLexer.NEXT_NOT_LET_AND_BRACKET), EXPRESSION()))),
           b.token(JavaScriptPunctuator.SEMI),
 
           b.optional(EXPRESSION()),
@@ -438,7 +438,7 @@ public class JavaScriptGrammar {
   }
 
   public StatementTree ITERATION_STATEMENT() {
-    return b.<StatementTree>nonterminal(JavaScriptLegacyGrammar.ITERATION_STATEMENT)
+    return b.<StatementTree>nonterminal(EcmaScriptLexer.ITERATION_STATEMENT)
       .is(
         b.firstOf(
           DO_WHILE_STATEMENT(),
@@ -449,7 +449,7 @@ public class JavaScriptGrammar {
   }
 
   public StatementTree STATEMENT() {
-    return b.<StatementTree>nonterminal(JavaScriptLegacyGrammar.STATEMENT)
+    return b.<StatementTree>nonterminal(EcmaScriptLexer.STATEMENT)
       .is(
         b.firstOf(
           BLOCK(),
@@ -480,7 +480,7 @@ public class JavaScriptGrammar {
    */
 
   public LiteralTree LITERAL() {
-    return b.<LiteralTree>nonterminal(JavaScriptLegacyGrammar.LITERAL)
+    return b.<LiteralTree>nonterminal(EcmaScriptLexer.LITERAL)
       .is(b.firstOf(
         f.nullLiteral(b.token(JavaScriptKeyword.NULL)),
         f.booleanLiteral(b.firstOf(b.token(JavaScriptKeyword.TRUE), b.token(JavaScriptKeyword.FALSE))),
@@ -496,7 +496,7 @@ public class JavaScriptGrammar {
 
   public LiteralTree STRING_LITERAL() {
     return b.<LiteralTree>nonterminal(Kind.STRING_LITERAL)
-      .is(f.stringLiteral(b.token(JavaScriptLegacyGrammar.STRING_LITERAL)));
+      .is(f.stringLiteral(b.token(EcmaScriptLexer.STRING_LITERAL)));
   }
 
   public ParameterListTree FORMAL_PARAMETER_CLAUSE() {
@@ -531,7 +531,7 @@ public class JavaScriptGrammar {
    * ECMAScript 6
    */
   public RestElementTree BINDING_REST_ELEMENT() {
-    return b.<RestElementTree>nonterminal(JavaScriptLegacyGrammar.BINDING_REST_ELEMENT)
+    return b.<RestElementTree>nonterminal(EcmaScriptLexer.BINDING_REST_ELEMENT)
       .is(f.bindingRestElement(b.token(JavaScriptPunctuator.ELLIPSIS), BINDING_IDENTIFIER()));
   }
 
@@ -545,7 +545,7 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree ARRAY_LITERAL_ELEMENT() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ARRAY_LITERAL_ELEMENT)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.ARRAY_LITERAL_ELEMENT)
       .is(b.firstOf(SPREAD_ELEMENT(), ASSIGNMENT_EXPRESSION()));
   }
 
@@ -578,7 +578,7 @@ public class JavaScriptGrammar {
     return b.<FunctionExpressionTree>nonterminal(Kind.FUNCTION_EXPRESSION)
       .is(
         f.functionExpression(
-          b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
+          b.optional(b.token(EcmaScriptLexer.ASYNC)),
           b.token(JavaScriptKeyword.FUNCTION),
           b.optional(BINDING_IDENTIFIER()),
           FORMAL_PARAMETER_CLAUSE(),
@@ -599,7 +599,7 @@ public class JavaScriptGrammar {
 
   public ExpressionTree CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION() {
     return b.<ExpressionTree>nonterminal()
-      .is(f.skipLookahead4(CONDITIONAL_EXPRESSION(), b.token(JavaScriptLegacyGrammar.NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION)));
+      .is(f.skipLookahead4(CONDITIONAL_EXPRESSION(), b.token(EcmaScriptLexer.NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION)));
   }
 
   public ExpressionTree CONDITIONAL_OR_EXPRESSION() {
@@ -658,7 +658,7 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree EQUALITY_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.EQUALITY_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.EQUALITY_EXPRESSION)
       .is(f.newEquality(
         RELATIONAL_EXPRESSION(),
         b.zeroOrMore(f.newTuple11(
@@ -674,7 +674,7 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree RELATIONAL_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.RELATIONAL_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.RELATIONAL_EXPRESSION)
       .is(f.newRelational(
         SHIFT_EXPRESSION(),
         b.zeroOrMore(f.newTuple12(
@@ -692,7 +692,7 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree SHIFT_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.SHIFT_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.SHIFT_EXPRESSION)
       .is(f.newShift(
         ADDITIVE_EXPRESSION(),
         b.zeroOrMore(f.newTuple13(
@@ -707,7 +707,7 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree ADDITIVE_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ADDITIVE_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.ADDITIVE_EXPRESSION)
       .is(f.newAdditive(
         MULTIPLICATIVE_EXPRESSION(),
         b.zeroOrMore(f.newTuple14(
@@ -721,7 +721,7 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree MULTIPLICATIVE_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.MULTIPLICATIVE_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.MULTIPLICATIVE_EXPRESSION)
       .is(f.newMultiplicative(
         EXPONENTIATION_EXPRESSION(),
         b.zeroOrMore(f.newTuple15(
@@ -746,7 +746,7 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree UNARY_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.UNARY_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.UNARY_EXPRESSION)
       .is(b.firstOf(
         f.prefixExpression(
           b.firstOf(
@@ -766,11 +766,11 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree POSTFIX_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.POSTFIX_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.POSTFIX_EXPRESSION)
       .is(f.postfixExpression(
         LEFT_HAND_SIDE_EXPRESSION(),
         b.optional(f.newTuple16(
-          b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+          b.token(EcmaScriptLexer.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
           b.firstOf(
             b.token(JavaScriptPunctuator.INC),
             b.token(JavaScriptPunctuator.DEC))
@@ -779,7 +779,7 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree LEFT_HAND_SIDE_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.LEFT_HAND_SIDE_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.LEFT_HAND_SIDE_EXPRESSION)
       .is(
         b.firstOf(
           CALL_EXPRESSION(),
@@ -791,12 +791,12 @@ public class JavaScriptGrammar {
       .is(f.yieldExpression(
         b.token(JavaScriptKeyword.YIELD),
         b.optional(f.newTuple19(
-          b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+          b.token(EcmaScriptLexer.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
           f.newTuple20(b.optional(b.token(JavaScriptPunctuator.STAR)), ASSIGNMENT_EXPRESSION())))));
   }
 
   public IdentifierTree IDENTIFIER_REFERENCE() {
-    return b.<IdentifierTree>nonterminal(JavaScriptLegacyGrammar.IDENTIFIER_REFERENCE)
+    return b.<IdentifierTree>nonterminal(EcmaScriptLexer.IDENTIFIER_REFERENCE)
       .is(f.identifierReference(b.firstOf(
         b.token(JavaScriptKeyword.YIELD),
         b.token(JavaScriptKeyword.AWAIT),
@@ -805,7 +805,7 @@ public class JavaScriptGrammar {
   }
 
   public IdentifierTree BINDING_IDENTIFIER() {
-    return b.<IdentifierTree>nonterminal(JavaScriptLegacyGrammar.BINDING_IDENTIFIER)
+    return b.<IdentifierTree>nonterminal(EcmaScriptLexer.BINDING_IDENTIFIER)
       .is(f.bindingIdentifier(b.firstOf(
         b.token(JavaScriptKeyword.YIELD),
         b.token(JavaScriptKeyword.AWAIT),
@@ -816,32 +816,32 @@ public class JavaScriptGrammar {
   public InternalSyntaxToken LABEL_IDENTIFIER_NO_LB() {
     return b.<InternalSyntaxToken>nonterminal()
       .is(f.labelToken(
-        b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+        b.token(EcmaScriptLexer.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptTokenType.IDENTIFIER)));
   }
 
   public IdentifierTree IDENTIFIER_NAME() {
     return b.<IdentifierTree>nonterminal()
-      .is(f.identifierName(b.token(JavaScriptLegacyGrammar.IDENTIFIER_NAME)));
+      .is(f.identifierName(b.token(EcmaScriptLexer.IDENTIFIER_NAME)));
   }
 
   public ArrowFunctionTree ARROW_FUNCTION() {
     return b.<ArrowFunctionTree>nonterminal(Kind.ARROW_FUNCTION)
       .is(f.arrowFunction(
-        b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
+        b.optional(b.token(EcmaScriptLexer.ASYNC)),
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_CLAUSE()),
-        b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+        b.token(EcmaScriptLexer.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
           BLOCK(),
-          f.assignmentNoCurly(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION()))
+          f.assignmentNoCurly(b.token(EcmaScriptLexer.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION()))
       ));
   }
 
   public ExpressionTree MEMBER_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.MEMBER_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.MEMBER_EXPRESSION)
       .is(f.memberExpression(
         b.firstOf(
           ES6(SUPER()),
@@ -870,7 +870,7 @@ public class JavaScriptGrammar {
       .is(f.newTarget(
         b.token(JavaScriptKeyword.NEW),
         b.token(JavaScriptPunctuator.DOT),
-        b.token(JavaScriptLegacyGrammar.TARGET)));
+        b.token(EcmaScriptLexer.TARGET)));
   }
 
   public ArgumentListTree ARGUMENT_CLAUSE() {
@@ -975,7 +975,7 @@ public class JavaScriptGrammar {
   }
 
   public Tree PROPERTY_NAME() {
-    return b.<Tree>nonterminal(JavaScriptLegacyGrammar.PROPERTY_NAME)
+    return b.<Tree>nonterminal(EcmaScriptLexer.PROPERTY_NAME)
       .is(b.firstOf(
         LITERAL_PROPERTY_NAME(),
         ES6(COMPUTED_PROPERTY_NAME())
@@ -992,7 +992,7 @@ public class JavaScriptGrammar {
   }
 
   public Tree PROPERTY_DEFINITION() {
-    return b.<Tree>nonterminal(JavaScriptLegacyGrammar.PROPERTY_DEFINITION)
+    return b.<Tree>nonterminal(EcmaScriptLexer.PROPERTY_DEFINITION)
       .is(b.firstOf(
         SPREAD_ELEMENT(),
         PAIR_PROPERTY(),
@@ -1034,9 +1034,9 @@ public class JavaScriptGrammar {
   public TemplateLiteralTree TEMPLATE_LITERAL() {
     return b.<TemplateLiteralTree>nonterminal(Kind.TEMPLATE_LITERAL)
       .is(b.firstOf(
-        f.noSubstitutionTemplate(b.token(JavaScriptLegacyGrammar.BACKTICK), b.optional(TEMPLATE_CHARACTERS()), b.token(JavaScriptLegacyGrammar.BACKTICK)),
+        f.noSubstitutionTemplate(b.token(EcmaScriptLexer.BACKTICK), b.optional(TEMPLATE_CHARACTERS()), b.token(EcmaScriptLexer.BACKTICK)),
         f.substitutionTemplate(
-          b.token(JavaScriptLegacyGrammar.BACKTICK),
+          b.token(EcmaScriptLexer.BACKTICK),
           b.optional(TEMPLATE_CHARACTERS()),
 
           b.zeroOrMore(f.newTuple55(
@@ -1044,7 +1044,7 @@ public class JavaScriptGrammar {
             b.optional(TEMPLATE_CHARACTERS())
           )),
 
-          b.token(JavaScriptLegacyGrammar.BACKTICK)
+          b.token(EcmaScriptLexer.BACKTICK)
         )
       ));
   }
@@ -1053,7 +1053,7 @@ public class JavaScriptGrammar {
     return b.<TemplateExpressionTree>nonterminal(Kind.TEMPLATE_EXPRESSION)
       .is(
         f.templateExpression(
-          b.token(JavaScriptLegacyGrammar.DOLLAR_SIGN),
+          b.token(EcmaScriptLexer.DOLLAR_SIGN),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           EXPRESSION(),
           b.token(JavaScriptPunctuator.RCURLYBRACE)));
@@ -1061,7 +1061,7 @@ public class JavaScriptGrammar {
 
   public TemplateCharactersTree TEMPLATE_CHARACTERS() {
     return b.<TemplateCharactersTree>nonterminal()
-      .is(f.templateCharacters(b.oneOrMore(b.token(JavaScriptLegacyGrammar.TEMPLATE_CHARACTER))));
+      .is(f.templateCharacters(b.oneOrMore(b.token(EcmaScriptLexer.TEMPLATE_CHARACTER))));
   }
 
   public IdentifierTree THIS() {
@@ -1071,7 +1071,7 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree PRIMARY_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.PRIMARY_EXPRESSION)
       .is(
         b.firstOf(
           THIS(),
@@ -1089,7 +1089,7 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree ASSIGNMENT_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.ASSIGNMENT_EXPRESSION)
       .is(
         b.firstOf(
           f.assignmentWithArrayDestructuring(
@@ -1122,13 +1122,13 @@ public class JavaScriptGrammar {
   }
 
   public ExpressionTree EXPRESSION() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.EXPRESSION)
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.EXPRESSION)
       .is(f.expression(ASSIGNMENT_EXPRESSION(), b.zeroOrMore(f.newTuple26(b.token(JavaScriptPunctuator.COMMA), ASSIGNMENT_EXPRESSION()))));
   }
 
   public ExpressionTree EXPRESSION_NO_LINE_BREAK() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.EXPRESSION_NO_LB)
-      .is(f.expressionNoLineBreak(b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK), EXPRESSION()));
+    return b.<ExpressionTree>nonterminal(EcmaScriptLexer.EXPRESSION_NO_LB)
+      .is(f.expressionNoLineBreak(b.token(EcmaScriptLexer.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK), EXPRESSION()));
   }
 
   /**
@@ -1142,7 +1142,7 @@ public class JavaScriptGrammar {
   // [START] Module, import & export
   public FromClauseTree FROM_CLAUSE() {
     return b.<FromClauseTree>nonterminal(Kind.FROM_CLAUSE)
-      .is(f.fromClause(b.token(JavaScriptLegacyGrammar.FROM), STRING_LITERAL()));
+      .is(f.fromClause(b.token(EcmaScriptLexer.FROM), STRING_LITERAL()));
   }
 
   public DefaultExportDeclarationTree DEFAULT_EXPORT_DECLARATION() {
@@ -1155,7 +1155,7 @@ public class JavaScriptGrammar {
           FUNCTION_AND_GENERATOR_DECLARATION(),
           CLASS_DECLARATION(),
           f.newTuple56(
-            f.defaultExportExpression(b.token(JavaScriptLegacyGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION()), b.token(JavaScriptLegacyGrammar.EOS)))
+            f.defaultExportExpression(b.token(EcmaScriptLexer.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION()), b.token(EcmaScriptLexer.EOS)))
       ));
   }
 
@@ -1180,7 +1180,7 @@ public class JavaScriptGrammar {
       .is(f.exportClause(
         EXPORT_LIST(),
         b.optional(FROM_CLAUSE()),
-        b.token(JavaScriptLegacyGrammar.EOS)));
+        b.token(EcmaScriptLexer.EOS)));
   }
 
   public ExportDefaultBindingWithExportList EXPORT_DEFAULT_BINDING_WITH_EXPORT_LIST() {
@@ -1190,7 +1190,7 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.COMMA),
         EXPORT_LIST(),
         FROM_CLAUSE(),
-        b.token(JavaScriptLegacyGrammar.EOS)));
+        b.token(EcmaScriptLexer.EOS)));
   }
 
   public ExportDefaultBindingWithNameSpaceExport EXPORT_DEFAULT_BINDING_WITH_NAMESPACE_EXPORT() {
@@ -1199,10 +1199,10 @@ public class JavaScriptGrammar {
         IDENTIFIER_NAME(),
         b.token(JavaScriptPunctuator.COMMA),
         b.token(JavaScriptPunctuator.STAR),
-        b.token(JavaScriptLegacyGrammar.AS),
+        b.token(EcmaScriptLexer.AS),
         IDENTIFIER_NAME(),
         FROM_CLAUSE(),
-        b.token(JavaScriptLegacyGrammar.EOS)));
+        b.token(EcmaScriptLexer.EOS)));
   }
 
   public ExportDefaultBinding EXPORT_DEFAULT_BINDING() {
@@ -1210,7 +1210,7 @@ public class JavaScriptGrammar {
       .is(f.exportDefaultBinding(
         IDENTIFIER_NAME(),
         FROM_CLAUSE(),
-        b.token(JavaScriptLegacyGrammar.EOS)));
+        b.token(EcmaScriptLexer.EOS)));
   }
 
   public SpecifierListTree EXPORT_LIST() {
@@ -1233,7 +1233,7 @@ public class JavaScriptGrammar {
   public SpecifierTree EXPORT_SPECIFIER() {
     return b.<SpecifierTree>nonterminal(Kind.EXPORT_SPECIFIER)
       .is(b.firstOf(
-        f.exportSpecifier(IDENTIFIER_NAME(), b.token(JavaScriptLegacyGrammar.AS), IDENTIFIER_NAME()),
+        f.exportSpecifier(IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME()),
         f.exportSpecifier(IDENTIFIER_NAME())
       ));
   }
@@ -1243,14 +1243,14 @@ public class JavaScriptGrammar {
       .is(f.namespaceExportDeclaration(
         b.token(JavaScriptKeyword.EXPORT),
         b.token(JavaScriptPunctuator.STAR),
-        b.optional(f.newTuple5(b.token(JavaScriptLegacyGrammar.AS), IDENTIFIER_NAME())),
+        b.optional(f.newTuple5(b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME())),
         FROM_CLAUSE(),
-        b.token(JavaScriptLegacyGrammar.EOS)
+        b.token(EcmaScriptLexer.EOS)
       ));
   }
 
   public ExportDeclarationTree EXPORT_DECLARATION() {
-    return b.<ExportDeclarationTree>nonterminal(JavaScriptLegacyGrammar.EXPORT_DECLARATION)
+    return b.<ExportDeclarationTree>nonterminal(EcmaScriptLexer.EXPORT_DECLARATION)
       .is(b.firstOf(
         NAMESPACE_EXPORT_DECLARATION(),
         DEFAULT_EXPORT_DECLARATION(),
@@ -1262,7 +1262,7 @@ public class JavaScriptGrammar {
   public ImportModuleDeclarationTree IMPORT_MODULE_DECLARATION() {
     return b.<ImportModuleDeclarationTree>nonterminal()
       .is(f.importModuleDeclaration(
-        b.token(JavaScriptKeyword.IMPORT), STRING_LITERAL(), b.token(JavaScriptLegacyGrammar.EOS))
+        b.token(JavaScriptKeyword.IMPORT), STRING_LITERAL(), b.token(EcmaScriptLexer.EOS))
       );
   }
 
@@ -1281,7 +1281,7 @@ public class JavaScriptGrammar {
   public SpecifierTree IMPORT_SPECIFIER() {
     return b.<SpecifierTree>nonterminal(Kind.IMPORT_SPECIFIER)
       .is(b.firstOf(
-        f.newImportSpecifier(IDENTIFIER_NAME(), b.token(JavaScriptLegacyGrammar.AS), BINDING_IDENTIFIER()),
+        f.newImportSpecifier(IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), BINDING_IDENTIFIER()),
         f.importSpecifier(BINDING_IDENTIFIER())
       ));
   }
@@ -1290,7 +1290,7 @@ public class JavaScriptGrammar {
     return b.<SpecifierTree>nonterminal(Kind.NAMESPACE_IMPORT_SPECIFIER)
       .is(f.nameSpaceImport(
         b.token(JavaScriptPunctuator.STAR),
-        b.token(JavaScriptLegacyGrammar.AS),
+        b.token(EcmaScriptLexer.AS),
         BINDING_IDENTIFIER()
       ));
   }
@@ -1309,19 +1309,19 @@ public class JavaScriptGrammar {
   }
 
   public DeclarationTree IMPORT_DECLARATION() {
-    return b.<DeclarationTree>nonterminal(JavaScriptLegacyGrammar.IMPORT_DECLARATION)
+    return b.<DeclarationTree>nonterminal(EcmaScriptLexer.IMPORT_DECLARATION)
       .is(b.firstOf(
         f.importDeclaration(
           b.token(JavaScriptKeyword.IMPORT),
           IMPORT_CLAUSE(),
           FROM_CLAUSE(),
-          b.token(JavaScriptLegacyGrammar.EOS)),
+          b.token(EcmaScriptLexer.EOS)),
         IMPORT_MODULE_DECLARATION()
       ));
   }
 
   public ModuleTree MODULE_BODY() {
-    return b.<ModuleTree>nonterminal(JavaScriptLegacyGrammar.MODULE_BODY)
+    return b.<ModuleTree>nonterminal(EcmaScriptLexer.MODULE_BODY)
       .is(
         f.module(
           b.oneOrMore(
@@ -1339,14 +1339,14 @@ public class JavaScriptGrammar {
   // [START] Destructuring pattern
 
   public BindingElementTree BINDING_PATTERN() {
-    return b.<BindingElementTree>nonterminal(JavaScriptLegacyGrammar.BINDING_PATTERN)
+    return b.<BindingElementTree>nonterminal(EcmaScriptLexer.BINDING_PATTERN)
       .is(b.firstOf(
           OBJECT_BINDING_PATTERN(),
           ARRAY_BINDING_PATTERN()));
   }
 
   public InitializedBindingElementTree INITIALISED_BINDING_ELEMENT() {
-    return b.<InitializedBindingElementTree>nonterminal(JavaScriptLegacyGrammar.INITIALISED_BINDING_ELEMENT)
+    return b.<InitializedBindingElementTree>nonterminal(EcmaScriptLexer.INITIALISED_BINDING_ELEMENT)
       .is(f.initializedBindingElement(b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
   }
 
@@ -1384,7 +1384,7 @@ public class JavaScriptGrammar {
   }
 
   public BindingElementTree BINDING_ELEMENT() {
-    return b.<BindingElementTree>nonterminal(JavaScriptLegacyGrammar.BINDING_ELEMENT)
+    return b.<BindingElementTree>nonterminal(EcmaScriptLexer.BINDING_ELEMENT)
       .is(b.firstOf(
         INITIALISED_BINDING_ELEMENT(),
         BINDING_IDENTIFIER(),
@@ -1392,7 +1392,7 @@ public class JavaScriptGrammar {
   }
 
   public ArrayBindingPatternTree ARRAY_BINDING_PATTERN() {
-    return b.<ArrayBindingPatternTree>nonterminal(JavaScriptLegacyGrammar.ARRAY_BINDING_PATTERN)
+    return b.<ArrayBindingPatternTree>nonterminal(EcmaScriptLexer.ARRAY_BINDING_PATTERN)
       .is(f.arrayBindingPattern(
         b.token(JavaScriptPunctuator.LBRACKET),
         b.optional(BINDING_ELEMENT()),
@@ -1480,7 +1480,7 @@ public class JavaScriptGrammar {
   }
 
   public Tree CLASS_ELEMENT() {
-    return b.<Tree>nonterminal(JavaScriptLegacyGrammar.CLASS_ELEMENT)
+    return b.<Tree>nonterminal(EcmaScriptLexer.CLASS_ELEMENT)
       .is(
         b.firstOf(
           METHOD_DEFINITION(),
@@ -1501,44 +1501,44 @@ public class JavaScriptGrammar {
     return b.<FieldDeclarationTree>nonterminal()
       .is(f.fieldDeclaration(
         b.zeroOrMore(DECORATOR()),
-        b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
+        b.optional(b.token(EcmaScriptLexer.STATIC)),
         PROPERTY_NAME(),
         b.optional(f.newTuple58(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION())),
-        b.token(JavaScriptLegacyGrammar.EOS)));
+        b.token(EcmaScriptLexer.EOS)));
   }
 
   public FunctionTree METHOD_DEFINITION() {
-    return b.<FunctionTree>nonterminal(JavaScriptLegacyGrammar.METHOD_DEFINITION)
+    return b.<FunctionTree>nonterminal(EcmaScriptLexer.METHOD_DEFINITION)
       .is(
         b.firstOf(
           f.generatorMethod(
             b.zeroOrMore(DECORATOR()),
-            b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
+            b.optional(b.token(EcmaScriptLexer.STATIC)),
             b.token(JavaScriptPunctuator.STAR),
             PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
             BLOCK()),
           f.method(
             b.zeroOrMore(DECORATOR()),
-            b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
-            b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
+            b.optional(b.token(EcmaScriptLexer.STATIC)),
+            b.optional(b.token(EcmaScriptLexer.ASYNC)),
             PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
             BLOCK()),
           f.accessor(
             b.zeroOrMore(DECORATOR()),
-            b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
+            b.optional(b.token(EcmaScriptLexer.STATIC)),
             b.firstOf(
-              b.token(JavaScriptLegacyGrammar.GET),
-              b.token(JavaScriptLegacyGrammar.SET)),
+              b.token(EcmaScriptLexer.GET),
+              b.token(EcmaScriptLexer.SET)),
             PROPERTY_NAME(),
             FORMAL_PARAMETER_CLAUSE(),
             BLOCK())));
   }
 
   public FunctionDeclarationTree FUNCTION_AND_GENERATOR_DECLARATION() {
-    return b.<FunctionDeclarationTree>nonterminal(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
+    return b.<FunctionDeclarationTree>nonterminal(EcmaScriptLexer.FUNCTION_DECLARATION)
       .is(
         f.functionAndGeneratorDeclaration(
-          b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
+          b.optional(b.token(EcmaScriptLexer.ASYNC)),
           b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_CLAUSE(),
           BLOCK()));
   }
@@ -1552,7 +1552,7 @@ public class JavaScriptGrammar {
   // [START] JSX
 
   public JsxElementTree JSX_ELEMENT() {
-    return b.<JsxElementTree>nonterminal(JavaScriptLegacyGrammar.JSX_ELEMENT)
+    return b.<JsxElementTree>nonterminal(EcmaScriptLexer.JSX_ELEMENT)
       .is(b.firstOf(
         JSX_SELF_CLOSING_ELEMENT(),
         f.jsxStandardElement(JSX_OPENING_ELEMENT(), b.zeroOrMore(JSX_CHILD()), JSX_CLOSING_ELEMENT())
@@ -1591,7 +1591,7 @@ public class JavaScriptGrammar {
     return b.<JsxElementNameTree>nonterminal()
       .is(b.firstOf(
         JSX_MEMBER_EXPRESSION(),
-        f.jsxHtmlTag(b.token(JavaScriptLegacyGrammar.JSX_HTML_TAG)),
+        f.jsxHtmlTag(b.token(EcmaScriptLexer.JSX_HTML_TAG)),
         THIS(),
         IDENTIFIER_REFERENCE()
       ));
@@ -1606,7 +1606,7 @@ public class JavaScriptGrammar {
 
   public JsxIdentifierTree JSX_IDENTIFIER() {
     return b.<JsxIdentifierTree>nonterminal(Kind.JSX_IDENTIFIER)
-      .is(f.jsxIdentifier(b.token(JavaScriptLegacyGrammar.JSX_IDENTIFIER)));
+      .is(f.jsxIdentifier(b.token(EcmaScriptLexer.JSX_IDENTIFIER)));
   }
 
   public List<JsxAttributeTree> JSX_ATTRIBUTES() {
@@ -1651,7 +1651,7 @@ public class JavaScriptGrammar {
   public JsxChildTree JSX_CHILD() {
     return b.<JsxChildTree>nonterminal()
       .is(b.firstOf(
-        f.jsxTextTree(b.token(JavaScriptLegacyGrammar.JSX_TEXT)),
+        f.jsxTextTree(b.token(EcmaScriptLexer.JSX_TEXT)),
         JSX_ELEMENT(),
         f.jsxJavaScriptExpression(
           b.token(JavaScriptPunctuator.LCURLYBRACE),
@@ -1663,33 +1663,33 @@ public class JavaScriptGrammar {
 
 
   public ScriptTree SCRIPT() {
-    return b.<ScriptTree>nonterminal(JavaScriptLegacyGrammar.SCRIPT)
+    return b.<ScriptTree>nonterminal(EcmaScriptLexer.SCRIPT)
       .is(
         f.script(
-          b.optional(b.token(JavaScriptLegacyGrammar.SHEBANG)),
+          b.optional(b.token(EcmaScriptLexer.SHEBANG)),
           b.optional(MODULE_BODY()),
-          b.token(JavaScriptLegacyGrammar.SPACING_NOT_SKIPPED),
-          b.token(JavaScriptLegacyGrammar.EOF)));
+          b.token(EcmaScriptLexer.SPACING_NOT_SKIPPED),
+          b.token(EcmaScriptLexer.EOF)));
   }
 
   public ScriptTree VUE_SCRIPT() {
-    return b.<ScriptTree>nonterminal(JavaScriptLegacyGrammar.VUE_SCRIPT)
+    return b.<ScriptTree>nonterminal(EcmaScriptLexer.VUE_SCRIPT)
       .is(f.vueScript(
           b.zeroOrMore(VUE_ELEMENT()),
-          b.token(JavaScriptLegacyGrammar.SPACING_NOT_SKIPPED),
-          b.token(JavaScriptLegacyGrammar.EOF)));
+          b.token(EcmaScriptLexer.SPACING_NOT_SKIPPED),
+          b.token(EcmaScriptLexer.EOF)));
   }
 
   public VueElement VUE_ELEMENT() {
     return b.<VueElement>nonterminal()
       .is(b.firstOf(
-        f.vueElement1(b.token(JavaScriptLegacyGrammar.VUE_TEMPLATE_SECTION)),
-        f.vueElement2(b.token(JavaScriptLegacyGrammar.VUE_STYLE_SECTION)),
+        f.vueElement(b.token(EcmaScriptLexer.VUE_TEMPLATE_SECTION)),
+        f.vueElement(b.token(EcmaScriptLexer.VUE_STYLE_SECTION)),
         f.scriptVueElement(
-          b.token(JavaScriptLegacyGrammar.SCRIPT_TAG),
-          b.optional(b.token(JavaScriptLegacyGrammar.SHEBANG)),
+          b.token(EcmaScriptLexer.SCRIPT_TAG),
+          b.optional(b.token(EcmaScriptLexer.SHEBANG)),
           b.optional(MODULE_BODY()),
-          b.token(JavaScriptLegacyGrammar.SCRIPT_TAG_CLOSE))));
+          b.token(EcmaScriptLexer.SCRIPT_TAG_CLOSE))));
   }
 
 

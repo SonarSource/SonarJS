@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.lexical;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
@@ -32,7 +32,7 @@ public class AutomaticSemicolonInsertionTest {
    */
   @Test
   public void test() {
-    assertThat(JavaScriptLegacyGrammar.SCRIPT)
+    assertThat(EcmaScriptLexer.SCRIPT)
       .as("not valid").notMatches("{ 1 2 } 3")
       .as("transformed to valid").matches("{ 1 \n 2 } 3");
 

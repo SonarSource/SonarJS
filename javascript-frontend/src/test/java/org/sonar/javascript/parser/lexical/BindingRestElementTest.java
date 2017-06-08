@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.lexical;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class BindingRestElementTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.BINDING_REST_ELEMENT)
+    assertThat(EcmaScriptLexer.BINDING_REST_ELEMENT)
       .matches("... a");
   }
 

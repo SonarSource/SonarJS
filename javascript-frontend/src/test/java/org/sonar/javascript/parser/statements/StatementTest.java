@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class StatementTest {
 
   @Test
   public void realLife() {
-    assertThat(JavaScriptLegacyGrammar.STATEMENT)
+    assertThat(EcmaScriptLexer.STATEMENT)
       .matches(";")
       .matches("document.write(\"Hello world\");")
       .matches("test : doSomething();")

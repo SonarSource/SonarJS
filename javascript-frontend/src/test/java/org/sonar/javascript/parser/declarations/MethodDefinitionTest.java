@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.declarations;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class MethodDefinitionTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.METHOD_DEFINITION)
+    assertThat(EcmaScriptLexer.METHOD_DEFINITION)
       .matches("f() {}")
       .matches("@decorator f() {}")
       .matches("@decorator @decorator f() {}")
@@ -51,7 +51,7 @@ public class MethodDefinitionTest {
 
   @Test
   public void async_method() {
-    assertThat(JavaScriptLegacyGrammar.METHOD_DEFINITION)
+    assertThat(EcmaScriptLexer.METHOD_DEFINITION)
       .matches("async f() {}")
       .matches("static async f() {}")
     ;
