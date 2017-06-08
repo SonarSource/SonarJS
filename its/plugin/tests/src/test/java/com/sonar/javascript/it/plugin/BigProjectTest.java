@@ -46,6 +46,7 @@ public class BigProjectTest {
       .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
+      .setProperty("sonar.javascript.file.suffixes", ".js")
       // FIXME after full migration of the grammar: was 424m before migration (and with Java 6)
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx2500m");
 
