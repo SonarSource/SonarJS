@@ -76,7 +76,6 @@ public class JavaScriptTest {
       .setSourceEncoding("utf-8")
       .setProperty("sonar.analysis.mode", "preview")
       .setProperty("sonar.issuesReport.html.enable", "true")
-      .setProperty("sonar.javascript.file.suffixes", ".js, .vue")
       .setProperty("dump.old", FileLocation.of("src/test/expected").getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())

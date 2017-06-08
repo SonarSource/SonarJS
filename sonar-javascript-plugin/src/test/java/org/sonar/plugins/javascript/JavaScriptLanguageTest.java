@@ -40,7 +40,7 @@ public class JavaScriptLanguageTest {
   @Test
   public void defaultSuffixes() {
     settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "");
-    assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(".js");
+    assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(".js", ".jsx", ".vue");
   }
 
   @Test
