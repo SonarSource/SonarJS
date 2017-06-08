@@ -122,6 +122,7 @@ public final class CheckList {
       IndexOfCompareToPositiveNumberCheck.class,
       InOperatorTypeErrorCheck.class,
       InstanceofInMisuseCheck.class,
+      InvariantReturnCheck.class,
       JQueryVarNameConventionCheck.class,
       JumpStatementInFinallyCheck.class,
       LabelledStatementCheck.class,
