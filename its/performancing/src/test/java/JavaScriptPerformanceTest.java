@@ -47,7 +47,7 @@ public class JavaScriptPerformanceTest {
 
   @Test
   public void test_parsing_performance() throws IOException {
-    test_performance("parsing-project", "no-rules", false, 145.0);
+    test_performance("parsing-project", "no-rules", false, 151.0);
   }
 
   @Test

@@ -83,6 +83,7 @@ public class JavaScriptSquidSensorTest {
 
   private static final SonarRuntime SONAR_RUNTIME_6_1 = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
   private static final SonarRuntime SONAR_RUNTIME_6_2 = SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER);
+  private static final SonarRuntime SONAR_RUNTIME_6_3 = SonarRuntimeImpl.forSonarQube(Version.create(6, 3), SonarQubeSide.SERVER);
 
   private static final Version SONARLINT_DETECTABLE_VERSION = Version.create(6, 0);
   private static final SonarRuntime SONARLINT_RUNTIME = SonarRuntimeImpl.forSonarLint(SONARLINT_DETECTABLE_VERSION);
@@ -160,6 +161,28 @@ public class JavaScriptSquidSensorTest {
     assertThat(context.measure(key, CoreMetrics.COMPLEXITY_IN_CLASSES).value()).isEqualTo(1);
     assertThat(context.measure(key, CoreMetrics.COMPLEXITY_IN_FUNCTIONS).value()).isEqualTo(6);
     assertThat(context.measure(key, CoreMetrics.COMMENT_LINES).value()).isEqualTo(1);
+  }
+
+  @Test
+  public void should_not_yet_calculate_cognitive_complexity_in_6_2() throws Exception {
+    final String relativePath = "complexity/complexity.js";
+    inputFile(relativePath);
+    final String componentKey = "moduleKey:" + relativePath;
+
+    context.setRuntime(SONAR_RUNTIME_6_2);
+    createSensor().execute(context);
+    assertThat(context.measure(componentKey, CoreMetrics.COGNITIVE_COMPLEXITY)).isNull();
+  }
+
+  @Test
+  public void should_calculate_cognitive_complexity_after_6_3() throws Exception {
+    final String relativePath = "complexity/complexity.js";
+    inputFile(relativePath);
+    final String componentKey = "moduleKey:" + relativePath;
+
+    context.setRuntime(SONAR_RUNTIME_6_3);
+    createSensor().execute(context);
+    assertThat(context.measure(componentKey, CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(3);
   }
 
   @Test
