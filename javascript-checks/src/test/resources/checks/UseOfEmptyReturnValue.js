@@ -63,6 +63,8 @@ function main() {
   (function(){}());
   !function(){}();
 
+  await noReturn(); // OK with await
+
   return noReturn(); // OK with return
 
 }
