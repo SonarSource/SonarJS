@@ -38,3 +38,12 @@ class A {
   }
 }
 
+class C {
+  get p1() {return 42;}
+  get p1() {return 42;}
+  set p1() {}
+  set p1() {}
+
+  get p2() { return 42; } // Noncompliant
+  get p2() { return 42; }
+}
