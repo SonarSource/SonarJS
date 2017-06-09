@@ -20,9 +20,9 @@
 package org.sonar.javascript.tree.symbols.type;
 
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.javascript.utils.TestUtils;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
-import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -38,7 +38,7 @@ public abstract class TypeTest extends JavaScriptTreeModelTest {
   }
 
   protected void setUp(String filename) throws Exception {
-    InputFile file = new TestInputFile("src/test/resources/ast/resolve/type/", filename);
+    InputFile file = TestUtils.createTestInputFile("src/test/resources/ast/resolve/type/", filename);
     ROOT_NODE = (ScriptTree) p.parse(file.contents());
     SYMBOL_MODEL = new JavaScriptVisitorContext(ROOT_NODE, wrap(file), null).getSymbolModel();
   }

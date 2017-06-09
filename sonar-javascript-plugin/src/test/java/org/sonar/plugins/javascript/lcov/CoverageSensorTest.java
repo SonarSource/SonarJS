@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
@@ -79,12 +80,13 @@ public class CoverageSensorTest {
   }
 
   private InputFile inputFile(String relativePath, Type type) {
-    DefaultInputFile inputFile = new DefaultInputFile("moduleKey", relativePath)
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(moduleBaseDir.toPath())
       .setLanguage("js")
-      .setType(type);
+      .setType(type)
+      .build();
 
-    inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
+    inputFile.setMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
     context.fileSystem().add(inputFile);
 
     return inputFile;

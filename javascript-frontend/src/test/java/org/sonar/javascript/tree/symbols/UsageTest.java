@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
-import org.sonar.javascript.utils.TestInputFile;
+import org.sonar.javascript.utils.TestUtils;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -35,7 +35,7 @@ import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class UsageTest extends JavaScriptTreeModelTest {
 
-  private SymbolModelImpl SYMBOL_MODEL = symbolModel(wrap(new TestInputFile("src/test/resources/ast/resolve/usage.js")));
+  private SymbolModelImpl SYMBOL_MODEL = symbolModel(wrap(TestUtils.createTestInputFile("src/test/resources/ast/resolve/usage.js")));
 
   @Test
   public void global_symbols() throws Exception {

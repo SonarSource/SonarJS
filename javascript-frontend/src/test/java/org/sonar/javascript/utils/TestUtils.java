@@ -20,8 +20,16 @@
 package org.sonar.javascript.utils;
 
 import com.google.common.base.Throwables;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.MapSettings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -38,5 +46,29 @@ public class TestUtils {
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  public static DefaultInputFile createTestInputFile(File file, String contents, Charset encoding) {
+    final DefaultInputFile inputFile = new TestInputFileBuilder("module1", file.getAbsolutePath()).setCharset(encoding).build();
+    try {
+      Files.write(file.toPath(), contents.getBytes(encoding));
+      inputFile.setMetadata(new FileMetadata().readMetadata(file, encoding));
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
+    return inputFile;
+  }
+
+  public static DefaultInputFile createTestInputFile(String baseDir, String relativePath) {
+    final DefaultInputFile inputFile = new TestInputFileBuilder("module1", relativePath)
+      .setModuleBaseDir(Paths.get(baseDir))
+      .setLanguage("js")
+      .setCharset(StandardCharsets.UTF_8)
+      .setType(InputFile.Type.MAIN).build();
+    return inputFile;
+  }
+
+  public static DefaultInputFile createTestInputFile(String relativePath) {
+    return createTestInputFile("", relativePath);
   }
 }

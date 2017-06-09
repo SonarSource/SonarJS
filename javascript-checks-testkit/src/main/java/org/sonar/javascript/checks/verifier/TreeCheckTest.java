@@ -38,7 +38,7 @@ class TreeCheckTest {
   }
 
   public static Collection<CheckMessage> getIssues(String relativePath, JavaScriptCheck check) {
-    InputFile file = new TestInputFile(relativePath);
+    InputFile file = TestUtils.createTestInputFile(relativePath);
 
     JavaScriptVisitorContext context = TestUtils.createContext(file);
     List<Issue> issues = check.scanFile(context);

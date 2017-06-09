@@ -21,7 +21,7 @@ package org.sonar.javascript.se;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import org.sonar.javascript.utils.TestInputFile;
+import org.sonar.javascript.utils.TestUtils;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -168,7 +168,7 @@ public class SymbolicExecutionTest {
   }
 
   private void runSe(String filename) {
-    JavaScriptVisitorContext context = createContext(new TestInputFile("src/test/resources/se/", filename));
+    JavaScriptVisitorContext context = createContext(TestUtils.createTestInputFile("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);
     SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of((SeCheck) verifier));
     seChecksDispatcher.scanTree(context);

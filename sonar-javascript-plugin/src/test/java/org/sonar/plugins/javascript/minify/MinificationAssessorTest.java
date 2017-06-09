@@ -25,6 +25,7 @@ import org.assertj.core.api.AbstractBooleanAssert;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.javascript.compat.CompatibleInputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,9 +72,10 @@ public class MinificationAssessorTest {
   }
 
   private CompatibleInputFile getFile(String name) {
-    DefaultInputFile inputFile = new DefaultInputFile("module1", DIR + name);
-    inputFile.setModuleBaseDir(Paths.get(""));
-    inputFile.setCharset(StandardCharsets.UTF_8);
+    DefaultInputFile inputFile = new TestInputFileBuilder("module1", DIR + name)
+      .setModuleBaseDir(Paths.get(""))
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
     return wrap(inputFile);
   }
 

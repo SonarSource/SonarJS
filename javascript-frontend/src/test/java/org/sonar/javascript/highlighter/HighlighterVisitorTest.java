@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
@@ -60,21 +61,25 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
 
   @Before
   public void setUp() throws IOException {
-    File file = tempFolder.newFile();
-    inputFile = new DefaultInputFile("moduleKey", file.getName())
-      .setLanguage("js")
-      .setType(Type.MAIN)
-      .setCharset(CHARSET);
 
     sensorContext = SensorContextTester.create(tempFolder.getRoot());
     visitorContext = mock(TreeVisitorContext.class);
-
     highlighterVisitor = new HighlighterVisitor(sensorContext);
+  }
+
+  private void initFile(String text) throws IOException {
+    File file = tempFolder.newFile();
+    inputFile = new TestInputFileBuilder("moduleKey", file.getName())
+      .setLanguage("js")
+      .setType(Type.MAIN)
+      .setCharset(CHARSET)
+      .initMetadata(text).build();
+
     when(visitorContext.getJavaScriptFile()).thenReturn(wrap(inputFile));
   }
 
   private void highlight(String string) throws Exception {
-    inputFile.initMetadata(string);
+    initFile(string);
     Tree tree = p.parse(string);
     when(visitorContext.getTopTree()).thenReturn((ScriptTree) tree);
     highlighterVisitor.scanTree(visitorContext);

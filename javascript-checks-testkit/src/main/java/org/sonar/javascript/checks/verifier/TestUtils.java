@@ -21,10 +21,16 @@ package org.sonar.javascript.checks.verifier;
 
 import com.google.common.base.Throwables;
 import com.sonar.sslr.api.typed.ActionParser;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
@@ -36,7 +42,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
-class TestUtils {
+public class TestUtils {
 
   protected static final ActionParser<Tree> p = newParser();
 
@@ -77,4 +83,27 @@ class TestUtils {
     return settings;
   }
 
+  public static DefaultInputFile createTestInputFile(String baseDir, String relativePath) {
+    return new TestInputFileBuilder("module1", relativePath)
+      .setModuleBaseDir(Paths.get(baseDir))
+      .setLanguage("js")
+      .setCharset(StandardCharsets.UTF_8)
+      .setType(InputFile.Type.MAIN).build();
+  }
+
+  public static DefaultInputFile createTestInputFile(File baseDir, String relativePath) {
+    return createTestInputFile(baseDir.getAbsolutePath(), relativePath);
+  }
+
+  public static DefaultInputFile createTestInputFile(String relativePath) {
+    return createTestInputFile("", relativePath);
+  }
+
+  public static DefaultInputFile createTestInputFile(File baseDir, String relativePath, Charset charset) {
+    return new TestInputFileBuilder(baseDir.getAbsolutePath(), relativePath)
+      .setModuleBaseDir(Paths.get(baseDir.getAbsolutePath()))
+      .setLanguage("js")
+      .setCharset(charset)
+      .build();
+  }
 }

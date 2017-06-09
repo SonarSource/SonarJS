@@ -103,7 +103,7 @@ public class JavaScriptCheckVerifier {
    * </pre>
    */
   public static void verify(JavaScriptCheck check, File file) {
-    verify(check, new TestInputFile(file.getAbsolutePath()));
+    verify(check, TestUtils.createTestInputFile(file.getAbsolutePath()));
   }
 
   static void verify(JavaScriptCheck check, InputFile file) {
