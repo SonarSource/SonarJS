@@ -70,7 +70,7 @@ public class BulkVerifier {
     files.parallelStream().forEach(file -> {
       JavaScriptCheck check = instantiateCheck(checkClass);
       LOGGER.debug("Processing file " + file);
-      InputFile inputFile = new TestInputFile(directory, directory.toPath().relativize(file.toPath()).toString());
+      InputFile inputFile = TestUtils.createTestInputFile(directory, directory.toPath().relativize(file.toPath()).toString());
       Iterator<Issue> issues = getIssues(check, inputFile);
       try {
         issueCollector.writeIssues(issues, file);

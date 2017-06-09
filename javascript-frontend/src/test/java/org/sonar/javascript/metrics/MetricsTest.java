@@ -34,22 +34,19 @@ public class MetricsTest extends JavaScriptTreeModelTest {
 
   @Test
   public void complexity() {
-    String path = "src/test/resources/metrics/complexity.js";
-    Tree tree = parse(new File(path));
+    Tree tree = parse(new File("src/test/resources/metrics/complexity.js"));
     assertThat(new ComplexityVisitor(true).getComplexity(tree)).isEqualTo(25);
   }
 
   @Test
   public void lines_of_code() {
-    String path = "src/test/resources/metrics/lines_of_code.js";
-    Tree tree = parse(new File(path));
+    Tree tree = parse(new File("src/test/resources/metrics/lines_of_code.js"));
     assertThat(new LineVisitor(tree).getLinesOfCodeNumber()).isEqualTo(3);
   }
 
   @Test
   public void lines() {
-    String path = "src/test/resources/metrics/lines.js";
-    ScriptTree tree = parse(new File(path));
+    ScriptTree tree = parse(new File("src/test/resources/metrics/lines.js"));
     LineVisitor lineVisitor = new LineVisitor(tree);
     assertThat(lineVisitor.getLinesOfCode()).containsOnly(2, 3, 4);
 
@@ -59,33 +56,28 @@ public class MetricsTest extends JavaScriptTreeModelTest {
 
   @Test
   public void functions() {
-    String path = "src/test/resources/metrics/functions.js";
-    Tree tree = parse(new File(path));
+    Tree tree = parse(new File("src/test/resources/metrics/functions.js"));
     assertThat(new CounterVisitor(tree).getFunctionNumber()).isEqualTo(14);
   }
 
   @Test
   public void statements() {
-    String path = "src/test/resources/metrics/functions.js";
-    Tree tree = parse(new File(path));
+    Tree tree = parse(new File("src/test/resources/metrics/functions.js"));
     assertThat(new CounterVisitor(tree).getStatementsNumber()).isEqualTo(16);
 
-    path = "src/test/resources/metrics/statements.js";
-    tree = parse(new File(path));
+    tree = parse(new File("src/test/resources/metrics/statements.js"));
     assertThat(new CounterVisitor(tree).getStatementsNumber()).isEqualTo(16);
   }
 
   @Test
   public void classes() {
-    String path = "src/test/resources/metrics/classes.js";
-    Tree tree = parse(new File(path));
+    Tree tree = parse(new File("src/test/resources/metrics/classes.js"));
     assertThat(new CounterVisitor(tree).getClassNumber()).isEqualTo(3);
   }
 
   @Test
   public void comments() {
-    String path = "src/test/resources/metrics/comments.js";
-    Tree tree = parse(new File(path));
+    Tree tree = parse(new File("src/test/resources/metrics/comments.js"));
     CommentLineVisitor commentLineVisitor = new CommentLineVisitor(tree, true);
     assertThat(commentLineVisitor.getCommentLineNumber()).isEqualTo(2);
     assertThat(commentLineVisitor.noSonarLines()).containsOnly(10);

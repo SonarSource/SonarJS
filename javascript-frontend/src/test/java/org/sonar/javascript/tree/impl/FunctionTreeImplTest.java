@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.tree.impl.declaration.FunctionTreeImpl;
-import org.sonar.javascript.utils.TestInputFile;
+import org.sonar.javascript.utils.TestUtils;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
@@ -35,7 +35,7 @@ public class FunctionTreeImplTest {
 
   @Test
   public void should_return_outer_scope_symbol_usages() throws Exception {
-    InputFile inputFile = new TestInputFile("src/test/resources/tree/", "outer_scope_variables.js");
+    InputFile inputFile = TestUtils.createTestInputFile("src/test/resources/tree/", "outer_scope_variables.js");
     final JavaScriptVisitorContext context = createContext(inputFile);
     FunctionTreeImpl functionTree = (FunctionTreeImpl) context.getTopTree().items().items().stream().filter(tree -> tree.is(Tree.Kind.FUNCTION_DECLARATION)).findFirst().get();
     Set<String> usages = functionTree.outerScopeSymbolUsages().map(usage -> usage.identifierTree().name()).collect(Collectors.toSet());

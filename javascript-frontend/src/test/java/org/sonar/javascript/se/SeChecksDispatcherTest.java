@@ -24,7 +24,7 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.tree.symbols.Scope;
-import org.sonar.javascript.utils.TestInputFile;
+import org.sonar.javascript.utils.TestUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
@@ -37,7 +37,7 @@ public class SeChecksDispatcherTest {
   @Test
   public void test() throws Exception {
     SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of(new TestSeCheck()));
-    List<Issue> issues = seChecksDispatcher.scanFile(createContext(new TestInputFile("src/test/resources/se/se_dispatcher_test.js")));
+    List<Issue> issues = seChecksDispatcher.scanFile(createContext(TestUtils.createTestInputFile("src/test/resources/se/se_dispatcher_test.js")));
     assertThat(issues).hasSize(4);
     assertThat(((PreciseIssue) issues.get(0)).primaryLocation().message()).isEqualTo("Start of execution");
     assertThat(((PreciseIssue) issues.get(1)).primaryLocation().message()).isEqualTo("before element");

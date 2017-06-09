@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
@@ -44,10 +45,11 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
 
   private static final File MODULE_BASE_DIR = new File("src/test/resources/metrics/");
 
-  private static final DefaultInputFile INPUT_FILE = new DefaultInputFile("moduleKey", "lines.js")
+  private static final DefaultInputFile INPUT_FILE = new TestInputFileBuilder("moduleKey", "lines.js")
     .setModuleBaseDir(MODULE_BASE_DIR.toPath())
     .setLanguage("js")
-    .setType(InputFile.Type.MAIN);
+    .setType(InputFile.Type.MAIN)
+    .build();
 
   private static final String COMPONENT_KEY = "moduleKey:lines.js";
   private FileLinesContext linesContext;

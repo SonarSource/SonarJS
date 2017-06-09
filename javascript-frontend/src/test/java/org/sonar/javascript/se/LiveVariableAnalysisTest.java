@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
-import org.sonar.javascript.utils.TestInputFile;
+import org.sonar.javascript.utils.TestUtils;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -37,7 +37,7 @@ public class LiveVariableAnalysisTest {
 
   @Test
   public void testUsages() throws Exception {
-    InputFile inputFile = new TestInputFile("src/test/resources/se/", "lva.js");
+    InputFile inputFile = TestUtils.createTestInputFile("src/test/resources/se/", "lva.js");
     JavaScriptVisitorContext context = createContext(inputFile);
     FunctionTree function = (FunctionTree) context.getTopTree().items().items().get(0);
     ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) function.body());

@@ -117,17 +117,17 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   private void saveCounterMetrics(TreeVisitorContext context) {
     CounterVisitor counter = new CounterVisitor(context.getTopTree());
-    saveMetricOnFile(CoreMetrics.FUNCTIONS, counter.getFunctionNumber());
-    saveMetricOnFile(CoreMetrics.STATEMENTS, counter.getStatementsNumber());
-    saveMetricOnFile(CoreMetrics.CLASSES, counter.getClassNumber());
+    saveMetric(CoreMetrics.FUNCTIONS, counter.getFunctionNumber());
+    saveMetric(CoreMetrics.STATEMENTS, counter.getStatementsNumber());
+    saveMetric(CoreMetrics.CLASSES, counter.getClassNumber());
   }
 
   private void saveComplexityMetrics(TreeVisitorContext context) {
     int fileComplexity = new ComplexityVisitor(true).getComplexity(context.getTopTree());
 
-    saveMetricOnFile(CoreMetrics.COMPLEXITY, fileComplexity);
-    saveMetricOnFile(CoreMetrics.COMPLEXITY_IN_CLASSES, classComplexity);
-    saveMetricOnFile(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, functionComplexity);
+    saveMetric(CoreMetrics.COMPLEXITY, fileComplexity);
+    saveMetric(CoreMetrics.COMPLEXITY_IN_CLASSES, classComplexity);
+    saveMetric(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, functionComplexity);
 
     sensorContext.<String>newMeasure()
       .on(inputFile)
@@ -148,12 +148,12 @@ public class MetricsVisitor extends SubscriptionVisitor {
     LineVisitor lineVisitor = new LineVisitor(context.getTopTree());
     Set<Integer> linesOfCode = lineVisitor.getLinesOfCode();
 
-    saveMetricOnFile(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
+    saveMetric(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
 
     CommentLineVisitor commentVisitor = new CommentLineVisitor(context.getTopTree(), ignoreHeaderComments);
     Set<Integer> commentLines = commentVisitor.getCommentLines();
 
-    saveMetricOnFile(CoreMetrics.COMMENT_LINES, commentVisitor.getCommentLineNumber());
+    saveMetric(CoreMetrics.COMMENT_LINES, commentVisitor.getCommentLineNumber());
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(this.inputFile);
 
@@ -169,7 +169,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
     fileLinesContext.save();
   }
 
-  private <T extends Serializable> void saveMetricOnFile(Metric metric, T value) {
+  private <T extends Serializable> void saveMetric(Metric metric, T value) {
     sensorContext.<T>newMeasure()
       .withValue(value)
       .forMetric(metric)

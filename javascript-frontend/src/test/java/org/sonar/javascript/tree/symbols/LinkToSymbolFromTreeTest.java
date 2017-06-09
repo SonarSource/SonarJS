@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
-import org.sonar.javascript.utils.TestInputFile;
+import org.sonar.javascript.utils.TestUtils;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -48,7 +48,7 @@ public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
 
   @Before
   public void setUp() throws Exception {
-    InputFile file = new TestInputFile("src/test/resources/ast/resolve/symbols.js");
+    InputFile file = TestUtils.createTestInputFile("src/test/resources/ast/resolve/symbols.js");
     ScriptTree ROOT_NODE = (ScriptTree) p.parse(file.contents());
     new JavaScriptVisitorContext(ROOT_NODE, wrap(file), null);
     MODULE_ITEMS = (ROOT_NODE).items().items();

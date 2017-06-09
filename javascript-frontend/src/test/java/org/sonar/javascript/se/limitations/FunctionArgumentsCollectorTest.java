@@ -23,7 +23,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
-import org.sonar.javascript.utils.TestInputFile;
+import org.sonar.javascript.utils.TestUtils;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -38,7 +38,7 @@ public class FunctionArgumentsCollectorTest extends JavaScriptTreeModelTest {
 
   @Before
   public void setUp() throws Exception {
-    final JavaScriptVisitorContext context = context(wrap(new TestInputFile("src/test/resources/se/limitations/function_argument_collector.js")));
+    final JavaScriptVisitorContext context = context(wrap(TestUtils.createTestInputFile("src/test/resources/se/limitations/function_argument_collector.js")));
     topTree = context.getTopTree();
   }
 

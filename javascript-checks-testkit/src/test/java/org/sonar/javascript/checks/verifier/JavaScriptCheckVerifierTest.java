@@ -387,7 +387,7 @@ public class JavaScriptCheckVerifierTest {
 
   private void check(String sourceCode, TestIssue... actualIssues) throws Exception {
     JavaScriptCheck check = new CheckStub(Arrays.asList(actualIssues));
-    DefaultInputFile fakeFile = new TestInputFile(folder.getRoot(), "fakeFile.txt");
+    DefaultInputFile fakeFile = TestUtils.createTestInputFile(folder.getRoot(), "fakeFile.txt");
     fakeFile.setCharset(StandardCharsets.UTF_8);
     Files.write(fakeFile.path(), sourceCode.getBytes(fakeFile.charset()));
     JavaScriptCheckVerifier.verify(check, fakeFile);

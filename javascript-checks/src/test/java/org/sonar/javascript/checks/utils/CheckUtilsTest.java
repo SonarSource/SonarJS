@@ -29,7 +29,8 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.javascript.checks.verifier.TestInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.javascript.checks.verifier.TestUtils;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -71,8 +72,7 @@ public class CheckUtilsTest {
     File tmp = temporaryFolder.newFile();
     Files.write(tmp.toPath(), String.join("\n", lines).getBytes());
 
-    TestInputFile testInputFile = new TestInputFile(temporaryFolder.getRoot(), tmp.getName());
-    testInputFile.setCharset(StandardCharsets.UTF_8);
+    DefaultInputFile testInputFile = TestUtils.createTestInputFile(temporaryFolder.getRoot(), tmp.getName(), StandardCharsets.UTF_8);
     CompatibleInputFile inputFile = wrap(testInputFile);
     assertThat(readLines(inputFile)).isEqualTo(lines);
   }

@@ -31,7 +31,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.duplications.internal.pmd.TokensLine;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.utils.TestInputFile;
+import org.sonar.javascript.utils.TestUtils;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -73,7 +73,7 @@ public class CpdVisitorTest {
   }
 
   private void scan(String source) throws IOException {
-    inputFile = new TestInputFile(tempFolder.newFile(), source, CHARSET);
+    inputFile = TestUtils.createTestInputFile(tempFolder.newFile(), source, CHARSET);
 
     sensorContext = SensorContextTester.create(tempFolder.getRoot().toPath());
     CpdVisitor cpdVisitor = new CpdVisitor(sensorContext);
