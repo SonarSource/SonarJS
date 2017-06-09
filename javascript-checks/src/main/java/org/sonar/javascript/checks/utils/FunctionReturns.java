@@ -48,7 +48,7 @@ public class FunctionReturns {
     // Possible predecessors for end block:
     // * return statement -> check for expression
     // * last statement in function -> implicit return without value
-    // * throw statement -> ignore in the scope of this rule
+    // * throw statement -> we only target return here, so ignore
     for (CfgBlock cfgBlock : endBlock.predecessors()) {
       Tree lastElement = cfgBlock.elements().get(cfgBlock.elements().size() - 1);
       if (lastElement.is(Kind.RETURN_STATEMENT)) {
