@@ -32,6 +32,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.utils.Version;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -128,6 +129,11 @@ public class MetricsVisitor extends SubscriptionVisitor {
     saveMetric(CoreMetrics.COMPLEXITY, fileComplexity);
     saveMetric(CoreMetrics.COMPLEXITY_IN_CLASSES, classComplexity);
     saveMetric(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, functionComplexity);
+
+    if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6,3))) {
+      int cognitiveComplexity = new CognitiveComplexity().calculateScriptComplexity(context.getTopTree()).complexity();
+      saveMetric(CoreMetrics.COGNITIVE_COMPLEXITY, cognitiveComplexity);
+    }
 
     sensorContext.<String>newMeasure()
       .on(inputFile)

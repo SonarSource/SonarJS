@@ -192,10 +192,12 @@ function nesting_func_with_complexity() {  // Noncompliant [[effortToFix=3]]
     }
 }
 
-function nesting_func_with_not_structural_complexity() {  // Noncompliant [[effortToFix=1]]
+function nesting_func_with_not_structural_complexity() {  // Noncompliant [[effortToFix=1;id=module]]
     return a && b;
-    function nested_func() {   // Noncompliant [[effortToFix=1]]
-        if (condition) { }     // +1
+//S          ^^ module {{+1}}
+    function nested_func() {   // Noncompliant [[effortToFix=1;id=nested]]
+        if (condition) { }
+//S     ^^ nested {{+1}}
     }
 }
 
@@ -222,7 +224,7 @@ function with_complexity_after_nested_function() { // Noncompliant [[effortToFix
     }
 
    if (condition) {}           // +1
- }
+}
 
 function and_or() {  // Noncompliant [[effortToFix=12;id=LOGICAL_OPS]]
     foo(1 && 2 && 3 && 4); // +1

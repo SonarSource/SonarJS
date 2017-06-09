@@ -88,6 +88,10 @@ public class BigProjectTest {
     assertThat(getProjectMeasureAsDouble("duplicated_blocks")).isEqualTo(13873.0);
     assertThat(getProjectMeasureAsDouble("duplicated_lines_density")).isEqualTo(10.5);
     assertThat(getProjectMeasureAsDouble("duplicated_files")).isEqualTo(561.0);
+
+    if (!Tests.is_before_sonar_6_3()) {
+      assertThat(getProjectMeasureAsDouble("cognitive_complexity")).isEqualTo(162898.0d);
+    }
   }
 
   private WsMeasures.Measure getProjectMeasure(String metricKey) {
