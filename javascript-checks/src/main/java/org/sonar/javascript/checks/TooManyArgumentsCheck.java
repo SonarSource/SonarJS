@@ -50,8 +50,8 @@ import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 @Rule(key = "S930")
 public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
 
-  private static final String MESSAGE = "%s expects %s argument%s, but %s %s provided.";
-  
+  private static final String MESSAGE = "%s%s expects %s argument%s, but %s %s provided.";
+
   private static final Set<String> BUILT_IN_FUNCTIONS_TO_IGNORE = Sets.newHashSet("toString", "toLocaleString");
 
   @Override
@@ -79,7 +79,7 @@ public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
 
         if (builtInFunction.signature() != null && hasTooManyArguments(builtInFunction.signature(), nbActualArguments)) {
           int nbExpectedArguments = getNbParameters(builtInFunction.signature());
-          String message = getMessage(callExpression, nbExpectedArguments, nbActualArguments);
+          String message = getMessage(callExpression, nbExpectedArguments, nbActualArguments, null);
           addUniqueIssue(callExpression.argumentClause(), message);
         }
       }
@@ -106,7 +106,7 @@ public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
     return index;
   }
 
-  private static String getMessage(CallExpressionTree tree, int parametersNumber, int argumentsNumber) {
+  private static String getMessage(CallExpressionTree tree, int parametersNumber, int argumentsNumber, @Nullable Integer declarationLine) {
     ExpressionTree callee = getCallee(tree); 
     String calleeName;
     if (callee.is(Kind.FUNCTION_EXPRESSION)) {
@@ -116,7 +116,16 @@ public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
     } else {
       calleeName = "\"" + CheckUtils.asString(callee) + "\"";
     }
-    return String.format(MESSAGE, calleeName, parametersNumber, parametersNumber == 1 ? "" : "s", argumentsNumber, argumentsNumber > 1 ? "were" : "was");
+
+    return String.format(
+      MESSAGE,
+      calleeName,
+      declarationLine == null ? "" : (" declared at line " + declarationLine),
+      parametersNumber,
+      parametersNumber == 1 ? "" : "s",
+      argumentsNumber,
+      argumentsNumber > 1 ? "were" : "was"
+    );
   }
 
   private static ExpressionTree getCallee(CallExpressionTree callExpression) {
@@ -152,7 +161,7 @@ public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
         int argumentsNumber = tree.argumentClause().arguments().size();
 
         if (!hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber) {
-          String message = getMessage(tree, parametersNumber, argumentsNumber);
+          String message = getMessage(tree, parametersNumber, argumentsNumber, functionTree.parameterClause().firstToken().line());
           addUniqueIssue(tree.argumentClause(), message, new IssueLocation(functionTree.parameterClause(), "Formal parameters"));
         }
       }
