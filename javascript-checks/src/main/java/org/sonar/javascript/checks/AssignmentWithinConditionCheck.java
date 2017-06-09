@@ -19,10 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -42,6 +45,14 @@ public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Extract the assignment of \"%s\" from this expression.";
 
+  private Set<AssignmentExpressionTree> ignoredAssignments = new HashSet<>();
+
+  @Override
+  public void visitScript(ScriptTree tree) {
+    ignoredAssignments.clear();
+    super.visitScript(tree);
+  }
+
   @Override
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
     // Exception: skip assignment in while statement
@@ -58,7 +69,6 @@ public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
     scan(tree.left());
     visitInitialisationExpression(tree.right());
-
   }
 
   private void visitInitialisationExpression(ExpressionTree left) {
@@ -80,10 +90,17 @@ public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree lambdaExpressionTree) {
-    // skip arrow function if body is an assignement
-    if (!(lambdaExpressionTree.body() instanceof AssignmentExpressionTree)) {
-      super.visitArrowFunction(lambdaExpressionTree);
+    Tree body = lambdaExpressionTree.body();
+
+    if (body.is(Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) body).expression() instanceof AssignmentExpressionTree) {
+      ignoredAssignments.add((AssignmentExpressionTree) ((ParenthesisedExpressionTree) body).expression());
     }
+
+    if (body instanceof AssignmentExpressionTree) {
+      ignoredAssignments.add((AssignmentExpressionTree) body);
+    }
+
+    super.visitArrowFunction(lambdaExpressionTree);
   }
 
   @Override
@@ -105,7 +122,7 @@ public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  public void visitCommaOperatorExpression(@Nullable Tree expression) {
+  private void visitCommaOperatorExpression(@Nullable Tree expression) {
     if (expression == null) {
       return;
     }
@@ -168,7 +185,9 @@ public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     super.visitAssignmentExpression(tree);
-    String message = String.format(MESSAGE, CheckUtils.asString(tree.variable()));
-    addIssue(tree.operatorToken(), message);
+    if (!ignoredAssignments.contains(tree)) {
+      String message = String.format(MESSAGE, CheckUtils.asString(tree.variable()));
+      addIssue(tree.operatorToken(), message);
+    }
   }
 }
