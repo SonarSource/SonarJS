@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.check.Rule;
@@ -29,12 +30,14 @@ import org.sonar.javascript.checks.utils.FunctionReturns;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
@@ -80,8 +83,31 @@ public class InvariantReturnCheck extends SeCheck {
 
       if (uniqueSymbolicValues.size() == 1 && isImmutable(reducedConstraint)) {
         raiseIssue((FunctionTree) functionScope.tree());
+        return;
+      }
+
+      if (allSameLiteralSymbolicValue(uniqueSymbolicValues)) {
+        raiseIssue((FunctionTree) functionScope.tree());
       }
     }
+  }
+
+  private static boolean allSameLiteralSymbolicValue(Set<SymbolicValue> values) {
+    Set<String> literals = new HashSet<>();
+    for (SymbolicValue value : values) {
+      if (value instanceof LiteralSymbolicValue) {
+        LiteralTree literal = ((LiteralSymbolicValue) value).getLiteral();
+        if (literal.is(Kind.BOOLEAN_LITERAL)) {
+          return false;
+        }
+        literals.add(literal.value());
+
+      } else {
+        return false;
+      }
+    }
+
+    return literals.size() == 1;
   }
 
   private boolean isCallbackException() {

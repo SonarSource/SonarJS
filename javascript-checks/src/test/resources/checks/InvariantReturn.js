@@ -48,6 +48,43 @@ function returnsTrue(p) { // Noncompliant
   }
 }
 
+function returnsSameLiteral(p, k) {
+  function number() { // Noncompliant
+    if (p) {
+      return 42;
+    } else {
+      return 42;
+    }
+  }
+
+  function string() { // Noncompliant
+    var x = "str";
+    if (p) {
+      return "str";
+    } else {
+      return x;
+    }
+  }
+
+  function okDifferentValues() {
+    if (p) {
+      return "str1";
+    } else {
+      return "str2";
+    }
+  }
+
+  function okNotLiteral() {
+    if (p) {
+      return p;
+    } else if (k) {
+      return "str";
+    }
+
+    return "str";
+  }
+}
+
 // OK
 
 function returnsTrue(p) {
