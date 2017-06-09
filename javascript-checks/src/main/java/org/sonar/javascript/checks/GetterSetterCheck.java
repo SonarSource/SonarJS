@@ -81,7 +81,9 @@ public class GetterSetterCheck extends DoubleDispatchVisitorCheck {
       .filter(property -> property.is(kind))
       .collect(Collectors.toMap(
         property -> getName((AccessorMethodDeclarationTree) property),
-        tree -> (AccessorMethodDeclarationTree) tree));
+        tree -> (AccessorMethodDeclarationTree) tree,
+        // for duplication
+        (property1, property2) -> property1));
   }
 
   private static String getName(AccessorMethodDeclarationTree tree) {
