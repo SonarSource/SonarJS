@@ -38,6 +38,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
+import static org.sonar.plugins.javascript.api.tree.Tree.Kind.AWAIT;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_AND;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_EXPRESSION;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_OR;
@@ -55,7 +56,7 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
   CallExpressionTree getTree(Tree element) {
     Tree parent = element.parent();
 
-    if (element.is(Kind.CALL_EXPRESSION) && !parent.is(RETURN_STATEMENT) && !isModulePattern((CallExpressionTree) element)) {
+    if (element.is(Kind.CALL_EXPRESSION) && !parent.is(RETURN_STATEMENT, AWAIT) && !isModulePattern((CallExpressionTree) element)) {
       return (CallExpressionTree) element;
     }
 
