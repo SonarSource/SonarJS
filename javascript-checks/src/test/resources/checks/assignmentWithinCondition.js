@@ -58,3 +58,8 @@ for (i = (a = 0), j = 0, k = 0; i < x; i++);    // Noncompliant
 var a = b = c = 1;                        // OK
 
 var arr = [a = 1]                         // Noncompliant
+
+var arrowFunction = (a) => arr[a] = 42; // OK
+var arrowFunction = (a) => (arr[a] = 42); // OK
+var arrowFunction = (a) => (arr[a] = (x = 42)); // Noncompliant
+var arrowFunction = (a) => {(arr[a] = 42)}; // Noncompliant
