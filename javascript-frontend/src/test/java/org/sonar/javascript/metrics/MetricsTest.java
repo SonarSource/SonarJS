@@ -41,7 +41,7 @@ public class MetricsTest extends JavaScriptTreeModelTest {
   @Test
   public void cognitive_complexity() {
     ScriptTree tree = parse(new File("src/test/resources/metrics/cognitive_complexity.js"));
-    assertThat(new CognitiveComplexity().calculateScriptComplexity(tree).complexity()).isEqualTo(9);
+    assertThat(new CognitiveComplexity().calculateScriptComplexity(tree).complexity()).isEqualTo(23);
   }
 
   @Test
