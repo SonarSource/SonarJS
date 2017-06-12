@@ -162,7 +162,7 @@ public class JavaScriptGrammar {
 
   public SeparatedList<BindingElementTree> BINDING_ELEMENT_LIST() {
     return b.<SeparatedList<BindingElementTree>>nonterminal()
-      .is(f.bindingElementList1(BINDING_ELEMENT(), b.zeroOrMore(f.newTuple1(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
+      .is(f.bindingElementList1(BINDING_ELEMENT(), b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
   }
 
   public LabelledStatementTree LABELLED_STATEMENT() {
@@ -394,7 +394,7 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.LPARENTHESIS),
         b.firstOf(
           VARIABLE_DECLARATION(),
-          f.skipLookahead3(b.token(EcmaScriptLexer.NEXT_NOT_LET), LEFT_HAND_SIDE_EXPRESSION())),
+          f.skipLookahead(b.token(EcmaScriptLexer.NEXT_NOT_LET), LEFT_HAND_SIDE_EXPRESSION())),
         b.token(EcmaScriptLexer.OF),
         ASSIGNMENT_EXPRESSION(),
         b.token(JavaScriptPunctuator.RPARENTHESIS),
@@ -409,7 +409,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptPunctuator.LPARENTHESIS),
           b.firstOf(
             VARIABLE_DECLARATION(),
-            f.skipLookahead2(b.token(EcmaScriptLexer.NEXT_NOT_LET_AND_BRACKET), LEFT_HAND_SIDE_EXPRESSION())),
+            f.skipLookahead(b.token(EcmaScriptLexer.NEXT_NOT_LET_AND_BRACKET), LEFT_HAND_SIDE_EXPRESSION())),
           b.token(JavaScriptKeyword.IN),
           EXPRESSION(),
           b.token(JavaScriptPunctuator.RPARENTHESIS),
@@ -426,7 +426,7 @@ public class JavaScriptGrammar {
           b.optional(
             b.firstOf(
               VARIABLE_DECLARATION(),
-              f.skipLookahead1(b.token(EcmaScriptLexer.NEXT_NOT_LET_AND_BRACKET), EXPRESSION()))),
+              f.skipLookahead(b.token(EcmaScriptLexer.NEXT_NOT_LET_AND_BRACKET), EXPRESSION()))),
           b.token(JavaScriptPunctuator.SEMI),
 
           b.optional(EXPRESSION()),
@@ -524,7 +524,7 @@ public class JavaScriptGrammar {
     return b.<SeparatedList<BindingElementTree>>nonterminal()
       .is(f.formalParameters(
         BINDING_ELEMENT(),
-        b.zeroOrMore(f.newTuple4(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
   }
 
   /**
@@ -555,7 +555,7 @@ public class JavaScriptGrammar {
         f.arrayLiteralElements(
           b.zeroOrMore(b.token(JavaScriptPunctuator.COMMA)),
           ARRAY_LITERAL_ELEMENT(),
-          b.zeroOrMore(f.newTuple3(b.oneOrMore(b.token(JavaScriptPunctuator.COMMA)), ARRAY_LITERAL_ELEMENT())),
+          b.zeroOrMore(f.newTuple(b.oneOrMore(b.token(JavaScriptPunctuator.COMMA)), ARRAY_LITERAL_ELEMENT())),
           b.zeroOrMore(b.token(JavaScriptPunctuator.COMMA))),
         f.tokenList(b.oneOrMore(b.token(JavaScriptPunctuator.COMMA)))));
   }
@@ -599,14 +599,14 @@ public class JavaScriptGrammar {
 
   public ExpressionTree CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION() {
     return b.<ExpressionTree>nonterminal()
-      .is(f.skipLookahead4(CONDITIONAL_EXPRESSION(), b.token(EcmaScriptLexer.NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION)));
+      .is(f.skipLookaheadAfter(CONDITIONAL_EXPRESSION(), b.token(EcmaScriptLexer.NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION)));
   }
 
   public ExpressionTree CONDITIONAL_OR_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_OR)
       .is(f.newConditionalOr(
         CONDITIONAL_AND_EXPRESSION(),
-        b.zeroOrMore(f.newTuple6(
+        b.zeroOrMore(f.newTuple(
           b.token(JavaScriptPunctuator.OROR),
           CONDITIONAL_AND_EXPRESSION()
         ))
@@ -617,7 +617,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_AND)
       .is(f.newConditionalAnd(
         BITWISE_OR_EXPRESSION(),
-        b.zeroOrMore(f.newTuple7(
+        b.zeroOrMore(f.newTuple(
           b.token(JavaScriptPunctuator.ANDAND),
           BITWISE_OR_EXPRESSION()
         ))
@@ -628,7 +628,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(Kind.BITWISE_OR)
       .is(f.newBitwiseOr(
         BITWISE_XOR_EXPRESSION(),
-        b.zeroOrMore(f.newTuple8(
+        b.zeroOrMore(f.newTuple(
           b.token(JavaScriptPunctuator.OR),
           BITWISE_XOR_EXPRESSION()
         ))
@@ -639,7 +639,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(Kind.BITWISE_XOR)
       .is(f.newBitwiseXor(
         BITWISE_AND_EXPRESSION(),
-        b.zeroOrMore(f.newTuple9(
+        b.zeroOrMore(f.newTuple(
           b.token(JavaScriptPunctuator.XOR),
           BITWISE_AND_EXPRESSION()
         ))
@@ -650,7 +650,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(Kind.BITWISE_AND)
       .is(f.newBitwiseAnd(
         EQUALITY_EXPRESSION(),
-        b.zeroOrMore(f.newTuple10(
+        b.zeroOrMore(f.newTuple(
           b.token(JavaScriptPunctuator.AND),
           EQUALITY_EXPRESSION()
         ))
@@ -661,7 +661,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(EcmaScriptLexer.EQUALITY_EXPRESSION)
       .is(f.newEquality(
         RELATIONAL_EXPRESSION(),
-        b.zeroOrMore(f.newTuple11(
+        b.zeroOrMore(f.newTuple(
           b.firstOf(
             b.token(JavaScriptPunctuator.EQUAL),
             b.token(JavaScriptPunctuator.NOTEQUAL),
@@ -677,7 +677,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(EcmaScriptLexer.RELATIONAL_EXPRESSION)
       .is(f.newRelational(
         SHIFT_EXPRESSION(),
-        b.zeroOrMore(f.newTuple12(
+        b.zeroOrMore(f.newTuple(
           b.firstOf(
             b.token(JavaScriptPunctuator.LT),
             b.token(JavaScriptPunctuator.GT),
@@ -695,7 +695,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(EcmaScriptLexer.SHIFT_EXPRESSION)
       .is(f.newShift(
         ADDITIVE_EXPRESSION(),
-        b.zeroOrMore(f.newTuple13(
+        b.zeroOrMore(f.newTuple(
           b.firstOf(
             b.token(JavaScriptPunctuator.SL),
             b.token(JavaScriptPunctuator.SR),
@@ -710,7 +710,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(EcmaScriptLexer.ADDITIVE_EXPRESSION)
       .is(f.newAdditive(
         MULTIPLICATIVE_EXPRESSION(),
-        b.zeroOrMore(f.newTuple14(
+        b.zeroOrMore(f.newTuple(
           b.firstOf(
             b.token(JavaScriptPunctuator.PLUS),
             b.token(JavaScriptPunctuator.MINUS)),
@@ -724,7 +724,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(EcmaScriptLexer.MULTIPLICATIVE_EXPRESSION)
       .is(f.newMultiplicative(
         EXPONENTIATION_EXPRESSION(),
-        b.zeroOrMore(f.newTuple15(
+        b.zeroOrMore(f.newTuple(
           b.firstOf(
             b.token(JavaScriptPunctuator.STAR),
             b.token(JavaScriptPunctuator.DIV),
@@ -740,7 +740,7 @@ public class JavaScriptGrammar {
       .is(f.newExponentiation(
         UNARY_EXPRESSION(),
         b.zeroOrMore(
-          f.newTuple31(
+          f.newTuple(
             b.token(JavaScriptPunctuator.EXP),
             UNARY_EXPRESSION()))));
   }
@@ -769,7 +769,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(EcmaScriptLexer.POSTFIX_EXPRESSION)
       .is(f.postfixExpression(
         LEFT_HAND_SIDE_EXPRESSION(),
-        b.optional(f.newTuple16(
+        b.optional(f.newTuple(
           b.token(EcmaScriptLexer.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
           b.firstOf(
             b.token(JavaScriptPunctuator.INC),
@@ -790,9 +790,9 @@ public class JavaScriptGrammar {
     return b.<YieldExpressionTree>nonterminal(Kind.YIELD_EXPRESSION)
       .is(f.yieldExpression(
         b.token(JavaScriptKeyword.YIELD),
-        b.optional(f.newTuple19(
+        b.optional(f.newTuple(
           b.token(EcmaScriptLexer.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
-          f.newTuple20(b.optional(b.token(JavaScriptPunctuator.STAR)), ASSIGNMENT_EXPRESSION())))));
+          f.newTuple(b.optional(b.token(JavaScriptPunctuator.STAR)), ASSIGNMENT_EXPRESSION())))));
   }
 
   public IdentifierTree IDENTIFIER_REFERENCE() {
@@ -885,7 +885,7 @@ public class JavaScriptGrammar {
     return b.<SeparatedList<ExpressionTree>>nonterminal()
       .is(f.argumentList(
         ARGUMENT(),
-        b.zeroOrMore(f.newTuple17(
+        b.zeroOrMore(f.newTuple(
           b.token(JavaScriptPunctuator.COMMA),
           ARGUMENT())),
         b.optional(b.token(JavaScriptPunctuator.COMMA))));
@@ -1019,7 +1019,7 @@ public class JavaScriptGrammar {
     return b.<SeparatedList<Tree>>nonterminal()
       .is(f.properties(
           PROPERTY_DEFINITION(),
-          b.zeroOrMore(f.newTuple18(b.token(JavaScriptPunctuator.COMMA), PROPERTY_DEFINITION())),
+          b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), PROPERTY_DEFINITION())),
           b.optional(b.token(JavaScriptPunctuator.COMMA))));
   }
 
@@ -1039,7 +1039,7 @@ public class JavaScriptGrammar {
           b.token(EcmaScriptLexer.BACKTICK),
           b.optional(TEMPLATE_CHARACTERS()),
 
-          b.zeroOrMore(f.newTuple55(
+          b.zeroOrMore(f.newTuple(
             TEMPLATE_EXPRESSION(),
             b.optional(TEMPLATE_CHARACTERS())
           )),
@@ -1123,7 +1123,7 @@ public class JavaScriptGrammar {
 
   public ExpressionTree EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptLexer.EXPRESSION)
-      .is(f.expression(ASSIGNMENT_EXPRESSION(), b.zeroOrMore(f.newTuple26(b.token(JavaScriptPunctuator.COMMA), ASSIGNMENT_EXPRESSION()))));
+      .is(f.expression(ASSIGNMENT_EXPRESSION(), b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), ASSIGNMENT_EXPRESSION()))));
   }
 
   public ExpressionTree EXPRESSION_NO_LINE_BREAK() {
@@ -1154,7 +1154,7 @@ public class JavaScriptGrammar {
         b.firstOf(
           FUNCTION_AND_GENERATOR_DECLARATION(),
           CLASS_DECLARATION(),
-          f.newTuple56(
+          f.newTuple(
             f.defaultExportExpression(b.token(EcmaScriptLexer.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION()), b.token(EcmaScriptLexer.EOS)))
       ));
   }
@@ -1226,7 +1226,7 @@ public class JavaScriptGrammar {
     return b.<SeparatedList<SpecifierTree>>nonterminal()
       .is(f.exportListBody(
         EXPORT_SPECIFIER(),
-        b.zeroOrMore(f.newTuple50(b.token(JavaScriptPunctuator.COMMA), EXPORT_SPECIFIER())),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), EXPORT_SPECIFIER())),
         b.optional(b.token(JavaScriptPunctuator.COMMA))));
   }
 
@@ -1243,7 +1243,7 @@ public class JavaScriptGrammar {
       .is(f.namespaceExportDeclaration(
         b.token(JavaScriptKeyword.EXPORT),
         b.token(JavaScriptPunctuator.STAR),
-        b.optional(f.newTuple5(b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME())),
+        b.optional(f.newTuple(b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME())),
         FROM_CLAUSE(),
         b.token(EcmaScriptLexer.EOS)
       ));
@@ -1272,7 +1272,7 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.LCURLYBRACE),
         b.optional(f.newImportSpecifierList(
           IMPORT_SPECIFIER(),
-          b.zeroOrMore(f.newTuple51(b.token(JavaScriptPunctuator.COMMA), IMPORT_SPECIFIER())),
+          b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), IMPORT_SPECIFIER())),
           b.optional(b.token(JavaScriptPunctuator.COMMA)))),
         b.token(JavaScriptPunctuator.RCURLYBRACE)
       ));
@@ -1303,7 +1303,7 @@ public class JavaScriptGrammar {
           NAMESPACE_IMPORT(),
           f.defaultImport(
             BINDING_IDENTIFIER(),
-            b.optional(f.newTuple52(b.token(JavaScriptPunctuator.COMMA), b.firstOf(NAMESPACE_IMPORT(), IMPORT_LIST()))))
+            b.optional(f.newTuple(b.token(JavaScriptPunctuator.COMMA), b.firstOf(NAMESPACE_IMPORT(), IMPORT_LIST()))))
         )
       ));
   }
@@ -1356,7 +1356,7 @@ public class JavaScriptGrammar {
         f.objectBindingPattern(
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.optional(BINDING_PROPERTY_LIST()),
-          b.optional(f.newTuple32(b.token(JavaScriptPunctuator.COMMA), b.optional(REST_OBJECT_BINDING_ELEMENT()))),
+          b.optional(f.newTuple(b.token(JavaScriptPunctuator.COMMA), b.optional(REST_OBJECT_BINDING_ELEMENT()))),
           b.token(JavaScriptPunctuator.RCURLYBRACE)),
         f.objectBindingPattern2(
           b.token(JavaScriptPunctuator.LCURLYBRACE),
@@ -1373,7 +1373,7 @@ public class JavaScriptGrammar {
     return b.<SeparatedList<BindingElementTree>>nonterminal()
       .is(f.bindingPropertyList(
         BINDING_PROPERTY(),
-        b.zeroOrMore(f.newTuple53(b.token(JavaScriptPunctuator.COMMA), BINDING_PROPERTY()))));
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), BINDING_PROPERTY()))));
   }
 
   public BindingElementTree BINDING_PROPERTY() {
@@ -1396,7 +1396,7 @@ public class JavaScriptGrammar {
       .is(f.arrayBindingPattern(
         b.token(JavaScriptPunctuator.LBRACKET),
         b.optional(BINDING_ELEMENT()),
-        b.zeroOrMore(f.newTuple29(
+        b.zeroOrMore(f.newTuple(
             b.token(JavaScriptPunctuator.COMMA),
             b.optional(BINDING_ELEMENT()))),
         b.optional(BINDING_REST_ELEMENT()),
@@ -1409,7 +1409,7 @@ public class JavaScriptGrammar {
         f.objectAssignmentPattern(
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           ASSIGNMENT_PROPERTY(),
-          b.zeroOrMore(f.newTuple48(b.token(JavaScriptPunctuator.COMMA), ASSIGNMENT_PROPERTY())),
+          b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), ASSIGNMENT_PROPERTY())),
           b.optional(b.token(JavaScriptPunctuator.COMMA)),
           b.token(JavaScriptPunctuator.RCURLYBRACE)),
         f.emptyObjectAssignmentPattern(
@@ -1435,7 +1435,7 @@ public class JavaScriptGrammar {
       .is(f.arrayAssignmentPattern(
         b.token(JavaScriptPunctuator.LBRACKET),
         b.optional(ASSIGNMENT_PATTERN_ELEMENT()),
-        b.zeroOrMore(f.newTuple49(
+        b.zeroOrMore(f.newTuple(
             b.token(JavaScriptPunctuator.COMMA),
             b.optional(ASSIGNMENT_PATTERN_ELEMENT()))),
         b.optional(ASSIGNMENT_PATTERN_REST_ELEMENT()),
@@ -1449,12 +1449,12 @@ public class JavaScriptGrammar {
 
   public InitializedAssignmentPatternElementTree INITIALIZED_ASSIGNMENT_PATTERN_ELEMENT() {
     return b.<InitializedAssignmentPatternElementTree>nonterminal()
-      .is(f.initializedAssignmentPatternElement1(LEFT_HAND_SIDE_EXPRESSION(), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
+      .is(f.initializedAssignmentPatternElement(LEFT_HAND_SIDE_EXPRESSION(), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
   }
 
   public InitializedAssignmentPatternElementTree INITIALIZED_OBJECT_ASSIGNMENT_PATTERN_ELEMENT() {
     return b.<InitializedAssignmentPatternElementTree>nonterminal()
-      .is(f.initializedAssignmentPatternElement2(IDENTIFIER_REFERENCE(), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
+      .is(f.initializedAssignmentPatternElement(IDENTIFIER_REFERENCE(), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
   }
 
   public AssignmentPatternRestElementTree ASSIGNMENT_PATTERN_REST_ELEMENT() {
@@ -1493,7 +1493,7 @@ public class JavaScriptGrammar {
       .is(f.decorator(
         b.token(JavaScriptPunctuator.AT),
         IDENTIFIER_REFERENCE(),
-        b.zeroOrMore(f.newTuple59(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_NAME())),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_NAME())),
         b.optional(ARGUMENT_CLAUSE())));
   }
 
@@ -1503,7 +1503,7 @@ public class JavaScriptGrammar {
         b.zeroOrMore(DECORATOR()),
         b.optional(b.token(EcmaScriptLexer.STATIC)),
         PROPERTY_NAME(),
-        b.optional(f.newTuple58(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION())),
+        b.optional(f.newTuple(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION())),
         b.token(EcmaScriptLexer.EOS)));
   }
 
@@ -1601,7 +1601,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal()
       .is(f.jsxMemberExpression(
         b.firstOf(THIS(), IDENTIFIER_REFERENCE()),
-        b.oneOrMore(f.newTuple57(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_REFERENCE()))));
+        b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_REFERENCE()))));
   }
 
   public JsxIdentifierTree JSX_IDENTIFIER() {
