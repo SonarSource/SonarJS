@@ -1460,19 +1460,11 @@ public class TreeFactory {
     return expression;
   }
 
-  public ExpressionTree skipLookahead1(Tree lookahead, ExpressionTree expression) {
+  public ExpressionTree skipLookahead(Tree lookahead, ExpressionTree expression) {
     return expression;
   }
 
-  public ExpressionTree skipLookahead2(Tree lookahead, ExpressionTree expression) {
-    return expression;
-  }
-
-  public ExpressionTree skipLookahead3(Tree lookahead, ExpressionTree expression) {
-    return expression;
-  }
-
-  public ExpressionTree skipLookahead4(ExpressionTree expression, Tree lookahead) {
+  public ExpressionTree skipLookaheadAfter(ExpressionTree expression, Tree lookahead) {
     return expression;
   }
 
@@ -1609,11 +1601,7 @@ public class TreeFactory {
     return new AssignmentPatternRestElementTreeImpl(ellipsisToken, rest);
   }
 
-  public InitializedAssignmentPatternElementTree initializedAssignmentPatternElement1(ExpressionTree expression, InternalSyntaxToken equal, ExpressionTree initValue) {
-    return new InitializedAssignmentPatternElementTreeImpl(expression, equal, initValue);
-  }
-
-  public InitializedAssignmentPatternElementTree initializedAssignmentPatternElement2(ExpressionTree expression, InternalSyntaxToken equal, ExpressionTree initValue) {
+  public InitializedAssignmentPatternElementTree initializedAssignmentPatternElement(ExpressionTree expression, InternalSyntaxToken equal, ExpressionTree initValue) {
     return new InitializedAssignmentPatternElementTreeImpl(expression, equal, initValue);
   }
 
@@ -1810,184 +1798,8 @@ public class TreeFactory {
     }
   }
 
-  private static <T, U> Tuple<T, U> newTuple(T first, U second) {
+  public <T, U> Tuple<T, U> newTuple(T first, U second) {
     return new Tuple<>(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple1(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple2(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple3(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple4(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple5(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple6(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple7(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple8(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple9(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple10(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple11(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple12(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple13(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple14(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple15(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple16(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple17(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple18(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple19(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple20(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple21(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple22(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple23(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple24(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple25(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple26(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple27(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple28(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple29(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple30(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple31(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple32(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple48(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple49(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple50(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple51(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple52(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple53(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple54(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple55(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple56(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple57(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple58(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple59(T first, U second) {
-    return newTuple(first, second);
   }
 
 }
