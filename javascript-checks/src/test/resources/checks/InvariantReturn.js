@@ -103,6 +103,14 @@ function returnsFalse(p) {
   }
 }
 
+function returnsUndefined(p) {
+  if (p) {
+    return undefined;
+  } else {
+    return undefined;
+  }
+}
+
 function oneReturn(p) {
   if (p) {
     foo();
@@ -144,4 +152,16 @@ function differentConstraintOnSameSymbolicValueNotImmutable(x) {
     if (x > 0)
       return x;
     return x;
+}
+
+function returnParenthesised() {
+  if (cond1) {
+    return null;
+  }
+
+  if (cond2) {
+    return null;
+  }
+
+  return (42);
 }

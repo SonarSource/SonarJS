@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.FunctionReturns;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -56,10 +57,11 @@ public class InvariantReturnCheck extends SeCheck {
 
   @Override
   public void afterBlockElement(ProgramState currentState, Tree element) {
-    if (element.parent().is(Kind.RETURN_STATEMENT)) {
+    Tree parent = CheckUtils.parentIgnoreParentheses(element);
+    if (parent.is(Kind.RETURN_STATEMENT)) {
       SymbolicValue value = currentState.peekStack();
       Constraint constraint = currentState.getConstraint(value);
-      valuesPerReturn.put((ReturnStatementTree) element.parent(), new ValueConstraint(value, constraint));
+      valuesPerReturn.put((ReturnStatementTree) parent, new ValueConstraint(value, constraint));
     }
   }
 
@@ -72,7 +74,7 @@ public class InvariantReturnCheck extends SeCheck {
       if (uniqueConstraints.size() == 1) {
         Constraint onlyConstraint = uniqueConstraints.iterator().next();
 
-        if (onlyConstraint.isSingleValue() && !isCallbackException()) {
+        if (onlyConstraint.isSingleValue() && !isCallbackException() && !onlyConstraint.equals(Constraint.UNDEFINED)) {
           raiseIssue((FunctionTree) functionScope.tree());
           return;
         }
@@ -122,7 +124,7 @@ public class InvariantReturnCheck extends SeCheck {
   }
 
   private static boolean isImmutable(Constraint constraint) {
-    return constraint.isStricterOrEqualTo(Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE).or(Constraint.BOOLEAN_PRIMITIVE).or(Constraint.NULL_OR_UNDEFINED));
+    return constraint.isStricterOrEqualTo(Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE).or(Constraint.BOOLEAN_PRIMITIVE).or(Constraint.NULL));
   }
 
   private void raiseIssue(FunctionTree tree) {
