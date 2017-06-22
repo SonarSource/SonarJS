@@ -27,6 +27,7 @@ import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -64,6 +65,13 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
     SyntaxToken tokenToRaiseIssue = functionTree.firstToken();
     if (functionTree.is(Kind.ARROW_FUNCTION)) {
       tokenToRaiseIssue = ((ArrowFunctionTree) functionTree).doubleArrowToken();
+    }
+
+    if (functionTree.is(Kind.GENERATOR_METHOD)) {
+      final SyntaxToken nameToken = ((MethodDeclarationTree) functionTree).name().firstToken();
+      if (nameToken != null) {
+        tokenToRaiseIssue = nameToken;
+      }
     }
 
     PreciseIssue issue = addIssue(tokenToRaiseIssue, MESSAGE);
