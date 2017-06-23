@@ -63,6 +63,11 @@ class A {
       return 42;
     }
   }
+
+  *generator() { // Noncompliant
+// ^^^^^^^^^
+    if (condition) return 42;
+  }
 }
 
 function unreachable_code() {
