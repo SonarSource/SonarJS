@@ -72,7 +72,17 @@ public class SeCheck implements JavaScriptCheck {
     // do nothing by default
   }
 
-  public void startOfFile(ScriptTree scriptTree) {
+  public void cleanupAndStartFileAnalysis(ScriptTree scriptTree) {
+    this.issues.reset();
+    this.startOfFile(scriptTree);
+  }
+
+  /**
+   * Override this method to perform actions before any analysis is performed
+   *
+   * @param scriptTree the scriptTree that is going to be analyzed
+   */
+  protected void startOfFile(ScriptTree scriptTree) {
     // do nothing by default
   }
 
