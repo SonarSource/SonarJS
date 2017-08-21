@@ -8,7 +8,7 @@ SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program
 
 * 180+ rules (including 80+ bug detection)
 * Compatible with ECMAScript 2015-2017
-* React JSX support
+* React JSX and Vue single-file component .vue support
 * Metrics (complexity, number of lines etc.)
 * Import of [test coverage reports](http://docs.sonarqube.org/display/PLUG/JavaScript+Coverage+Results+Import)
 * [Custom rules](http://docs.sonarqube.org/display/PLUG/Custom+Rules+for+JavaScript)
