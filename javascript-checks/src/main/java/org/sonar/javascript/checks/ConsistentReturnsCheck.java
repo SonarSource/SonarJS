@@ -68,10 +68,7 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
     }
 
     if (functionTree.is(Kind.GENERATOR_METHOD)) {
-      final SyntaxToken nameToken = ((MethodDeclarationTree) functionTree).name().firstToken();
-      if (nameToken != null) {
-        tokenToRaiseIssue = nameToken;
-      }
+      tokenToRaiseIssue = ((MethodDeclarationTree) functionTree).name().firstToken();
     }
 
     PreciseIssue issue = addIssue(tokenToRaiseIssue, MESSAGE);
