@@ -36,13 +36,14 @@ public class ExpectedIssues {
     final ExpectedIssues expectedIssues = new ExpectedIssues();
     final Pattern pattern = Pattern.compile(".*" + IssueEntry.TAG_START + "(.*)" + IssueEntry.TAG_END + ".*");
     if (expectedIssuesFile.exists()) {
-      Stream<String> lines = Files.lines(expectedIssuesFile.toPath());
-      lines.forEach(line -> {
-        Matcher matcher = pattern.matcher(line);
-        if (matcher.matches()) {
-          expectedIssues.addExpectation(matcher.group(1));
-        }
-      });
+      try (Stream<String> lines = Files.lines(expectedIssuesFile.toPath())) {
+        lines.forEach(line -> {
+          Matcher matcher = pattern.matcher(line);
+          if (matcher.matches()) {
+            expectedIssues.addExpectation(matcher.group(1));
+          }
+        });
+      }
     } else {
       expectedIssuesFile.createNewFile();
     }
