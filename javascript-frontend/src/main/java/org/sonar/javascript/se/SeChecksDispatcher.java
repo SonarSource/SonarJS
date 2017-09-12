@@ -63,7 +63,7 @@ public class SeChecksDispatcher extends SubscriptionVisitorCheck {
   @Override
   public void visitNode(Tree tree) {
     if (tree.is(Kind.SCRIPT)) {
-      checks.forEach(seCheck -> seCheck.startOfFile((ScriptTree) tree));
+      checks.forEach(seCheck -> seCheck.cleanupAndStartFileAnalysis((ScriptTree) tree));
       return;
     }
 
