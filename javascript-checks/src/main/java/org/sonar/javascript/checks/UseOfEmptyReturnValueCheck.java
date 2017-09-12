@@ -34,6 +34,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
@@ -131,7 +132,17 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
         if (!arrowFunction.body().is(Kind.BLOCK)) {
           return true;
         }
+        if (arrowFunction.asyncToken() != null) {
+          return true;
+        }
       }
+      if (tree.is(Kind.FUNCTION_EXPRESSION)) {
+        FunctionExpressionTree functionExpression = (FunctionExpressionTree) tree;
+        if (functionExpression.asyncToken() != null) {
+          return true;
+        }
+      }
+
       ReturnVisitor returnVisitor = new ReturnVisitor();
       returnVisitor.scanTree(tree.body());
       return returnVisitor.hasReturnValue;

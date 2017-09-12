@@ -31,7 +31,23 @@ function main() {
   var arrowImplicitReturn = (a) => a*2;
   x = arrowImplicitReturn(1); // OK
 
+  var arrowReturnsNothing = () => {
+    var x = () => {return 1}
+  };
 
+  x = arrowReturnsNothing(); // Noncompliant
+
+  var arrowReturnsPromise = async () => {
+    var x = () => {return 1}
+  };
+
+  x = arrowReturnsPromise(); // OK
+
+  async function statementReturnsPromise() {
+    var x = () => {return 1}
+  }
+
+  x = statementReturnsPromise(); // OK
 
   var funcExpr = function() {
     if (condition) {
@@ -44,6 +60,15 @@ function main() {
   funcExpr(); // OK
   foo(funcExpr()); // Noncompliant {{Remove this use of the output from "funcExpr"; "funcExpr" doesn't return anything.}}
 
+  var funcExprReturnsPromise = async function() {
+    if (condition) {
+      return;
+    }
+
+    doSomething();
+  }
+
+  foo(funcExprReturnsPromise()); // OK
 
 
   function returnsValue() {
