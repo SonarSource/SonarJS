@@ -68,7 +68,7 @@ public class EqEqEqCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
   }
 
   @Override
-  public void startOfFile(ScriptTree scriptTree) {
+  protected void startOfFile(ScriptTree scriptTree) {
     ignoredList.clear();
   }
 

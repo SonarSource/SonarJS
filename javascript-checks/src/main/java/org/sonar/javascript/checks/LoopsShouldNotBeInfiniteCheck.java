@@ -63,7 +63,7 @@ public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
   private Set<Tree> alwaysTrueConditions = new HashSet<>();
 
   @Override
-  public void startOfFile(ScriptTree scriptTree) {
+  protected void startOfFile(ScriptTree scriptTree) {
     alwaysTrueConditions.clear();
     fileLoops = FileLoops.create(scriptTree);
   }
