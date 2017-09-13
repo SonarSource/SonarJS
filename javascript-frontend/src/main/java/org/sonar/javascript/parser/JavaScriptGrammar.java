@@ -93,6 +93,9 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTre
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
@@ -1691,6 +1694,32 @@ public class JavaScriptGrammar {
           b.optional(MODULE_BODY()),
           b.token(EcmaScriptLexer.SCRIPT_TAG_CLOSE))));
   }
+
+
+  // [START] FLOW
+
+  public FlowTypeTree FLOW_TYPE() {
+    return b.<FlowTypeTree>nonterminal()
+      .is(b.firstOf(
+        // TODO
+        FLOW_SIMPLE_TYPE()
+      ));
+  }
+
+  public FlowSimpleTypeTree FLOW_SIMPLE_TYPE() {
+    return b.<FlowSimpleTypeTree>nonterminal(Kind.FLOW_SIMPLE_TYPE)
+      .is(b.firstOf(
+        f.flowSimpleType(IDENTIFIER_REFERENCE()),
+        f.flowSimpleType(b.token(JavaScriptKeyword.VOID)),
+        f.flowSimpleType(b.token(JavaScriptKeyword.NULL))));
+  }
+
+  public FlowTypeAnnotationTree FLOW_TYPE_ANNOTATION() {
+    return b.<FlowTypeAnnotationTree>nonterminal(Kind.FLOW_TYPE_ANNOTATION)
+      .is(f.flowTypeAnnotation(b.token(JavaScriptPunctuator.COLON), FLOW_TYPE()));
+  }
+
+  // [END] FLOW
 
 
   private static <T> T ES6(T object) {

@@ -85,6 +85,8 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -997,6 +999,9 @@ public interface Tree {
      * {@link JsxSelfClosingElementTree}
      */
     JSX_SELF_CLOSING_ELEMENT(JsxSelfClosingElementTree.class),
+
+    FLOW_SIMPLE_TYPE(FlowSimpleTypeTree.class),
+    FLOW_TYPE_ANNOTATION(FlowTypeAnnotationTree.class),
 
 
     TOKEN(SyntaxToken.class),

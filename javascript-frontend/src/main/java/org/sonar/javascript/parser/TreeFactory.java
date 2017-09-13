@@ -103,6 +103,8 @@ import org.sonar.javascript.tree.impl.expression.jsx.JsxSpreadAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowSimpleTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowTypeAnnotationTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.javascript.tree.impl.statement.BreakStatementTreeImpl;
@@ -199,6 +201,9 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
@@ -1699,6 +1704,18 @@ public class TreeFactory {
   ) {
 
     return new ScriptVueElement(shebangToken.orNull(), items.orNull());
+  }
+
+  public FlowSimpleTypeTree flowSimpleType(IdentifierTree identifierTree) {
+    return new FlowSimpleTypeTreeImpl(identifierTree.identifierToken());
+  }
+
+  public FlowSimpleTypeTree flowSimpleType(SyntaxToken token) {
+    return new FlowSimpleTypeTreeImpl(token);
+  }
+
+  public FlowTypeAnnotationTree flowTypeAnnotation(InternalSyntaxToken colonToken, FlowTypeTree flowTypeTree) {
+    return new FlowTypeAnnotationTreeImpl(colonToken, flowTypeTree);
   }
 
   private static class ConditionalExpressionTail {
