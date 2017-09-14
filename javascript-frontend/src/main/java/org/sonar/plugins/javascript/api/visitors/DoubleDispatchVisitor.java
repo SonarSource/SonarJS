@@ -95,6 +95,7 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -600,6 +601,10 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
   public void visitFlowTypeAnnotation(FlowTypeAnnotationTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowTypedBindingElement(FlowTypedBindingElementTree tree) {
     scanChildren(tree);
   }
 }

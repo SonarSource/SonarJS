@@ -96,6 +96,7 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttribute
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
@@ -1350,7 +1351,13 @@ public class JavaScriptGrammar {
 
   public InitializedBindingElementTree INITIALISED_BINDING_ELEMENT() {
     return b.<InitializedBindingElementTree>nonterminal(EcmaScriptLexer.INITIALISED_BINDING_ELEMENT)
-      .is(f.initializedBindingElement(b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
+      .is(f.initializedBindingElement(
+        b.firstOf(
+          FLOW_TYPED_BINDING_ELEMENT(),
+          BINDING_IDENTIFIER(),
+          BINDING_PATTERN()),
+        b.token(JavaScriptPunctuator.EQU),
+        ASSIGNMENT_EXPRESSION()));
   }
 
   public ObjectBindingPatternTree OBJECT_BINDING_PATTERN() {
@@ -1390,6 +1397,7 @@ public class JavaScriptGrammar {
     return b.<BindingElementTree>nonterminal(EcmaScriptLexer.BINDING_ELEMENT)
       .is(b.firstOf(
         INITIALISED_BINDING_ELEMENT(),
+        FLOW_TYPED_BINDING_ELEMENT(),
         BINDING_IDENTIFIER(),
         BINDING_PATTERN()));
   }
@@ -1717,6 +1725,13 @@ public class JavaScriptGrammar {
   public FlowTypeAnnotationTree FLOW_TYPE_ANNOTATION() {
     return b.<FlowTypeAnnotationTree>nonterminal(Kind.FLOW_TYPE_ANNOTATION)
       .is(f.flowTypeAnnotation(b.token(JavaScriptPunctuator.COLON), FLOW_TYPE()));
+  }
+
+  public FlowTypedBindingElementTree FLOW_TYPED_BINDING_ELEMENT() {
+    return b.<FlowTypedBindingElementTree>nonterminal(Kind.FLOW_TYPED_BINDING_ELEMENT)
+      .is(f.flowTypedBindingElement(
+        b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()),
+        FLOW_TYPE_ANNOTATION()));
   }
 
   // [END] FLOW
