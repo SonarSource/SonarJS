@@ -20,7 +20,9 @@
 package org.sonar.javascript.tree.impl.statement;
 
 import org.junit.Test;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
@@ -36,6 +38,12 @@ public class BlockTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
     assertThat(tree.statements()).hasSize(0);
     assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
+  }
+
+  @Test
+  public void without_statements_within_statement() throws Exception {
+    Tree tree = parse("{ }", Kind.BLOCK, EcmaScriptLexer.STATEMENT);
+    assertThat(tree.is(Kind.BLOCK)).isTrue();
   }
 
   @Test

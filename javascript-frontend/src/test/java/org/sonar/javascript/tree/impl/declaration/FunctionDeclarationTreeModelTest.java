@@ -20,6 +20,7 @@
 package org.sonar.javascript.tree.impl.declaration;
 
 import org.junit.Test;
+import org.sonar.javascript.parser.EcmaScriptLexer;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -55,7 +56,7 @@ public class FunctionDeclarationTreeModelTest extends JavaScriptTreeModelTest {
   public void async() throws Exception {
     String function = "function f() {}";
 
-    FunctionDeclarationTree tree = parse("async " + function, Kind.FUNCTION_DECLARATION);
+    FunctionDeclarationTree tree = parse("async " + function, Kind.FUNCTION_DECLARATION, EcmaScriptLexer.STATEMENT);
     assertThat(tree.asyncToken().text()).isEqualTo("async");
 
     tree = parse(function, Kind.FUNCTION_DECLARATION);

@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.util.Iterator;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.compat.CompatibleInputFile;
+import org.sonar.javascript.parser.JavaScriptParser;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
@@ -33,6 +34,7 @@ import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,6 +52,13 @@ public abstract class JavaScriptTreeModelTest {
   @SuppressWarnings("unchecked")
   protected <T extends Tree> T parse(String s, Kind descendantToReturn) throws Exception {
     Tree node = p.parse(s);
+    checkFullFidelity(node, s);
+    return (T) getFirstDescendant((JavaScriptTree) node, descendantToReturn);
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T extends Tree> T parse(String s, Kind descendantToReturn, GrammarRuleKey root) throws Exception {
+    Tree node = new JavaScriptParser(root).parse(s);
     checkFullFidelity(node, s);
     return (T) getFirstDescendant((JavaScriptTree) node, descendantToReturn);
   }

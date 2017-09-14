@@ -380,7 +380,7 @@ public class JavaScriptGrammar {
 
   public ExpressionStatementTree EXPRESSION_STATEMENT() {
     return b.<ExpressionStatementTree>nonterminal(Kind.EXPRESSION_STATEMENT)
-      .is(f.expressionStatement(b.token(EcmaScriptLexer.NEXT_NOT_LCURLY_AND_FUNCTION), EXPRESSION(), b.token(EcmaScriptLexer.EOS)));
+      .is(f.expressionStatement(EXPRESSION(), b.token(EcmaScriptLexer.EOS)));
   }
 
   /**
@@ -452,6 +452,7 @@ public class JavaScriptGrammar {
     return b.<StatementTree>nonterminal(EcmaScriptLexer.STATEMENT)
       .is(
         b.firstOf(
+          FUNCTION_AND_GENERATOR_DECLARATION(),
           BLOCK(),
           VARIABLE_STATEMENT(),
           EMPTY_STATEMENT(),
@@ -467,8 +468,7 @@ public class JavaScriptGrammar {
           SWITCH_STATEMENT(),
           THROW_STATEMENT(),
           TRY_STATEMENT(),
-          DEBUGGER_STATEMENT(),
-          FUNCTION_AND_GENERATOR_DECLARATION()));
+          DEBUGGER_STATEMENT()));
   }
 
   /**
