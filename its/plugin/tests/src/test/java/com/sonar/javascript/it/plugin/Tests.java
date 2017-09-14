@@ -71,7 +71,7 @@ public final class Tests {
 
   public static SonarScanner createScanner() {
     SonarScanner scanner = SonarScanner.create();
-    scanner.setProperty("sonar.exclusions", "**/ecmascript6/**, **/file-for-rules/**, **/frameworks/**");
+    scanner.setProperty("sonar.exclusions", "**/ecmascript6/**, **/file-for-rules/**, **/frameworks/**, **/jest/**/*, **/babylon/**/*");
     scanner.setSourceEncoding("UTF-8");
 
     return scanner;

@@ -1152,6 +1152,11 @@
 'project:google-closure-library/dom/dom_test.js':[
 136,
 ],
+'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
+258,
+398,
+420,
+],
 'project:knockout-2.1.0.debug.js':[
 1799,
 1801,

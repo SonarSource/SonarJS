@@ -320,6 +320,12 @@
 'project:google-closure-library/ui/textarearenderer.js':[
 76,
 ],
+'project:jest/packages/jest-haste-map/src/crawlers/__tests__/node.test.js':[
+101,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
+286,
+],
 'project:open-layers-2.12/OpenLayers/Control/MousePosition.js':[
 201,
 ],

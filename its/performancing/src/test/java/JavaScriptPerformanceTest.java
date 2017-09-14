@@ -75,6 +75,7 @@ public class JavaScriptPerformanceTest {
       .setProperty("sonar.analysis.mode", "preview")
       .setProperty("sonar.issuesReport.console.enable", "true")
       .setProperty("sonar.preloadFileMetadata", "true")
+      .setProperty("sonar.exclusions", "**/jest/**/*, **/babylon/**/*")
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")

@@ -1207,6 +1207,9 @@
 'project:google-closure-library/ui/sliderbase.js':[
 1116,
 ],
+'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
+636,
+],
 'project:jquery-1.7.2.js':[
 544,
 1320,

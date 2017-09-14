@@ -6,6 +6,10 @@
 'project:angular-1.0.3.js':[
 6,
 ],
+'project:babylon/test/helpers/runFixtureTests.js':[
+67,
+129,
+],
 'project:backbone-0.9.2.js':[
 8,
 ],
@@ -2717,6 +2721,10 @@
 ],
 'project:google-closure-library/window/window.js':[
 78,
+],
+'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
+245,
+543,
 ],
 'project:jquery-1.7.2.js':[
 16,

@@ -1036,6 +1036,9 @@
 'project:google-closure-library/useragent/platform.js':[
 42,
 ],
+'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
+731,
+],
 'project:knockout-2.1.0.debug.js':[
 191,
 191,

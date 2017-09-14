@@ -299,6 +299,9 @@
 'project:google-closure-library/vec/vec4.js':[
 65,
 ],
+'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
+540,
+],
 'project:jquery-1.7.2.js':[
 1318,
 ],

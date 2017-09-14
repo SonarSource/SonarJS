@@ -24,6 +24,9 @@
 11865,
 12962,
 ],
+'project:babylon/bin/generate-identifier-regex.js':[
+21,
+],
 'project:backbone-0.9.2.js':[
 609,
 ],
@@ -1214,6 +1217,16 @@
 ],
 'project:google-closure-library/uri/uri.js':[
 863,
+],
+'project:jest/packages/jest-haste-map/src/crawlers/__tests__/node.test.js':[
+49,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
+83,
+88,
+],
+'project:jest/packages/pretty-format/src/__tests__/immutable.test.js':[
+961,
 ],
 'project:jquery-1.7.2.js':[
 420,
