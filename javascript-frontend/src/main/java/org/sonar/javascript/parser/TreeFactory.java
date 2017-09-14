@@ -513,7 +513,7 @@ public class TreeFactory {
       nullableSemicolonToken(semicolonToken));
   }
 
-  public ExpressionStatementTree expressionStatement(Tree lookahead, ExpressionTree expression, Tree semicolonToken) {
+  public ExpressionStatementTree expressionStatement(ExpressionTree expression, Tree semicolonToken) {
     return new ExpressionStatementTreeImpl(expression, nullableSemicolonToken(semicolonToken));
   }
 

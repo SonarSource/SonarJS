@@ -38,8 +38,6 @@ public class FunctionDeclarationTest {
 
   @Test
   public void async_function() throws Exception {
-    assertThat(EcmaScriptLexer.FUNCTION_DECLARATION)
-      .matches("async function foo () {}")
-    ;
+    assertThat(EcmaScriptLexer.FUNCTION_DECLARATION).matches("async function foo () {}");
   }
 }

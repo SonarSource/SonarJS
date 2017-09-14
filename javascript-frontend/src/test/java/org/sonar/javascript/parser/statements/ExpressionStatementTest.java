@@ -34,11 +34,4 @@ public class ExpressionStatementTest {
       .matches("a = b");
   }
 
-  @Test
-  public void ko() {
-    assertThat(Kind.EXPRESSION_STATEMENT)
-      .notMatches("function foo() {}")
-      .notMatches("{}");
-  }
-
 }
