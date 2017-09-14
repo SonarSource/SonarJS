@@ -237,6 +237,12 @@
 'project:google-closure-library/testing/ui/rendererasserts.js':[
 46,
 ],
+'project:jest/packages/expect/src/__tests__/asymmetric_matchers.test.js':[
+133,
+],
+'project:jest/packages/jest-mock/src/__tests__/jest_mock.test.js':[
+107,
+],
 'project:open-layers-2.12/OpenLayers/Request/XMLHttpRequest.js':[
 72,
 239,

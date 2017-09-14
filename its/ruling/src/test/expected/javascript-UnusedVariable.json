@@ -1168,6 +1168,14 @@
 'project:google-closure-library/useragent/platform.js':[
 31,
 ],
+'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
+290,
+549,
+636,
+],
+'project:jest/packages/jest-snapshot/src/__tests__/utils.test.js':[
+188,
+],
 'project:jquery-1.7.2.js':[
 544,
 1050,

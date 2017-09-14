@@ -196,6 +196,9 @@
 'project:google-closure-library/style/style.js':[
 1021,
 ],
+'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
+630,
+],
 'project:jquery-1.7.2.js':[
 4139,
 4460,

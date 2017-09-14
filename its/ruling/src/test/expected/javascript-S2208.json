@@ -60,4 +60,10 @@
 5,
 6,
 ],
+'project:jest/packages/jest-editor-support/src/index.js':[
+11,
+],
+'project:jest/packages/jest-repl/src/cli/index.js':[
+18,
+],
 }
