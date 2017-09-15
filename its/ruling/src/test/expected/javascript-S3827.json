@@ -1559,9 +1559,6 @@
 'project:jest/packages/jest-cli/src/__tests__/watch_test_name_pattern_mode.test.js':[
 122,
 ],
-'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
-883,
-],
 'project:mootools-core-1.4.5-full-nocompat.js':[
 549,
 551,
