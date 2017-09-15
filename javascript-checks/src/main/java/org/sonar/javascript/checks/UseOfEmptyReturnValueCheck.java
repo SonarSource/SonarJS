@@ -29,6 +29,7 @@ import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
@@ -139,6 +140,12 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
       if (tree.is(Kind.FUNCTION_EXPRESSION)) {
         FunctionExpressionTree functionExpression = (FunctionExpressionTree) tree;
         if (functionExpression.asyncToken() != null) {
+          return true;
+        }
+      }
+      if (tree.is(Kind.FUNCTION_DECLARATION)) {
+        FunctionDeclarationTree functionDeclaration = (FunctionDeclarationTree) tree;
+        if (functionDeclaration.asyncToken() != null) {
           return true;
         }
       }
