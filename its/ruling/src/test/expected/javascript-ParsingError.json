@@ -86,9 +86,6 @@
 'project:babylon/test/expressions/is-expression-babylon/fail/6/actual.js':[
 2,
 ],
-'project:babylon/test/expressions/is-expression-babylon/fail/7/actual.js':[
-1,
-],
 'project:babylon/test/fixtures/flow/anonymous-function-no-parens-types/bad_01/actual.js':[
 1,
 ],

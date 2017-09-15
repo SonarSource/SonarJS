@@ -343,6 +343,10 @@
 'project:babylon/test/expressions/esprima/expression-additive/migrated_0002/actual.js':[
 1,
 ],
+'project:babylon/test/expressions/is-expression-babylon/fail/7/actual.js':[
+1,
+1,
+],
 'project:babylon/test/expressions/is-expression-babylon/pass/2/actual.js':[
 1,
 1,

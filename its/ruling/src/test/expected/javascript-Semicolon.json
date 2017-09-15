@@ -366,6 +366,9 @@
 'project:babylon/test/expressions/esprima/expression-unary/migrated_0012/actual.js':[
 1,
 ],
+'project:babylon/test/expressions/is-expression-babylon/fail/7/actual.js':[
+1,
+],
 'project:babylon/test/expressions/is-expression-babylon/fail/8/actual.js':[
 2,
 ],
@@ -7226,9 +7229,6 @@
 503,
 551,
 689,
-],
-'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
-845,
 ],
 'project:jstorage-0.3.0.js':[
 348,
