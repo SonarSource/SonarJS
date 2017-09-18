@@ -2828,6 +2828,9 @@
 'project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
 430,
 ],
+'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
+72,
+],
 'project:jest/packages/jest-runtime/src/__mocks__/createRuntime.js':[
 20,
 ],

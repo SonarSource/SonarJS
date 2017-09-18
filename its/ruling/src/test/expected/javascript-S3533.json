@@ -6993,6 +6993,10 @@
 'project:jest/packages/jest-config/src/__tests__/resolve_config_path.test.js':[
 17,
 ],
+'project:jest/packages/jest-diff/src/__tests__/diff.test.js':[
+11,
+12,
+],
 'project:jest/packages/jest-docblock/src/__tests__/index.test.js':[
 14,
 15,

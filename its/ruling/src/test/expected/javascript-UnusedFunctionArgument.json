@@ -27,6 +27,13 @@
 'project:babylon/test/fixtures/flow/literal-types/string-single/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/optional-type/1/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/optional-type/3/actual.js':[
+1,
+1,
+],
 'project:babylon/test/fixtures/flow/regression/issue-92/actual.js':[
 1,
 ],
@@ -59,6 +66,10 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/5/actual.js':[
+1,
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/52/actual.js':[
 1,
 1,
 ],

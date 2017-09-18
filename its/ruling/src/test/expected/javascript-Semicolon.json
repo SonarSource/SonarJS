@@ -427,6 +427,12 @@
 'project:babylon/test/fixtures/flow/literal-types/number-octal/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/optional-type/1/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/optional-type/3/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/regression/issue-92/actual.js':[
 1,
 ],

@@ -452,6 +452,15 @@
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_in_func/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/optional-type/1/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/optional-type/3/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/optional-type/6/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/regression/issue-2083/actual.js':[
 0,
 ],
@@ -519,6 +528,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/5/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/52/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/6/actual.js':[
@@ -14678,6 +14690,9 @@
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 0,
 ],
+'project:jest/packages/jest-diff/src/__tests__/diff.test.js':[
+0,
+],
 'project:jest/packages/jest-diff/src/constants.js':[
 0,
 ],
@@ -14790,6 +14805,9 @@
 0,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/js_api_reporter.js':[
+0,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
 0,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[

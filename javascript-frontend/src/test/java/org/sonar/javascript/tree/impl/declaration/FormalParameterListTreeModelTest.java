@@ -77,11 +77,13 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void flow_typed() throws Exception {
-    ParameterListTree tree = parse("function f(p1: number, p2, ...p3: any) {};", Kind.PARAMETER_LIST);
+    ParameterListTree tree = parse("function f(p1: number, p2, p3?, p4?: number, ...p5: any) {};", Kind.PARAMETER_LIST);
 
-    assertThat(tree.parameters().size()).isEqualTo(3);
+    assertThat(tree.parameters().size()).isEqualTo(5);
     assertThat(expressionToString(tree.parameters().get(0))).isEqualTo("p1: number");
     assertThat(expressionToString(tree.parameters().get(1))).isEqualTo("p2");
-    assertThat(expressionToString(tree.parameters().get(2))).isEqualTo("...p3: any");
+    assertThat(expressionToString(tree.parameters().get(2))).isEqualTo("p3?");
+    assertThat(expressionToString(tree.parameters().get(3))).isEqualTo("p4?: number");
+    assertThat(expressionToString(tree.parameters().get(4))).isEqualTo("...p5: any");
   }
 }

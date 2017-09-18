@@ -6003,6 +6003,9 @@
 'project:jest/packages/jest-jasmine2/src/jasmine/Timer.js':[
 42,
 ],
+'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
+57,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
 36,
 ],

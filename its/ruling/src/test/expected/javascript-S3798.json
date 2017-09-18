@@ -45,6 +45,9 @@
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_in_exp/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/optional-type/6/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/1/actual.js':[
 1,
 ],
@@ -70,6 +73,9 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/5/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/52/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/6/actual.js':[
@@ -4662,6 +4668,10 @@
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/js_api_reporter.js':[
 42,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
+44,
+56,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
 35,

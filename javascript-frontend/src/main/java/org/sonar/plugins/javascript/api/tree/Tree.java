@@ -86,6 +86,7 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttribute
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
@@ -1008,6 +1009,7 @@ public interface Tree {
     FLOW_LITERAL_TYPE(FlowLiteralTypeTree.class),
     FLOW_TYPE_ANNOTATION(FlowTypeAnnotationTree.class),
     FLOW_TYPED_BINDING_ELEMENT(FlowTypedBindingElementTree.class),
+    FLOW_OPTIONAL_BINDING_ELEMENT(FlowOptionalBindingElementTree.class),
 
 
     TOKEN(SyntaxToken.class),

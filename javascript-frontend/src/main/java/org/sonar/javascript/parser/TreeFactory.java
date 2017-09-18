@@ -104,6 +104,7 @@ import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardAttributeTreeImp
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowOptionalBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimpleTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAnnotationTreeImpl;
@@ -205,6 +206,7 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttribute
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
@@ -1746,6 +1748,10 @@ public class TreeFactory {
 
   public FlowLiteralTypeTree flowLiteralType(InternalSyntaxToken token) {
     return new FlowLiteralTypeTreeImpl(null, token);
+  }
+
+  public FlowOptionalBindingElementTree flowOptionalBindingElement(BindingElementTree bindingElementTree, InternalSyntaxToken questionToken) {
+    return new FlowOptionalBindingElementTreeImpl(bindingElementTree, questionToken);
   }
 
   private static class ConditionalExpressionTail {

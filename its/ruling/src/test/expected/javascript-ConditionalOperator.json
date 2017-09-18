@@ -9976,6 +9976,10 @@
 533,
 571,
 ],
+'project:jest/packages/jest-diff/src/__tests__/diff.test.js':[
+683,
+685,
+],
 'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
 715,
 ],
@@ -9984,6 +9988,9 @@
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/call_tracker.js':[
 52,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
+40,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
 72,

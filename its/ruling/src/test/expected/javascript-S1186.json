@@ -21,6 +21,15 @@
 'project:babylon/test/fixtures/flow/literal-types/string-single/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/optional-type/1/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/optional-type/3/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/optional-type/6/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/regression/issue-92/actual.js':[
 1,
 ],
@@ -64,6 +73,9 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/5/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/52/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/6/actual.js':[
@@ -1214,6 +1226,11 @@
 ],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 6,
+],
+'project:jest/packages/jest-diff/src/__tests__/diff.test.js':[
+31,
+54,
+54,
 ],
 'project:jest/packages/jest-get-type/src/__tests__/index.test.js':[
 21,

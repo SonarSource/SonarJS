@@ -94,6 +94,7 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElemen
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
@@ -1403,6 +1404,7 @@ public class JavaScriptGrammar {
       .is(b.firstOf(
         INITIALISED_BINDING_ELEMENT(),
         FLOW_TYPED_BINDING_ELEMENT(),
+        FLOW_OPTIONAL_BINDING_ELEMENT(),
         BINDING_IDENTIFIER(),
         BINDING_PATTERN()));
   }
@@ -1756,8 +1758,15 @@ public class JavaScriptGrammar {
   public FlowTypedBindingElementTree FLOW_TYPED_BINDING_ELEMENT() {
     return b.<FlowTypedBindingElementTree>nonterminal(Kind.FLOW_TYPED_BINDING_ELEMENT)
       .is(f.flowTypedBindingElement(
-        b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()),
+        b.firstOf(FLOW_OPTIONAL_BINDING_ELEMENT(), BINDING_IDENTIFIER(), BINDING_PATTERN()),
         FLOW_TYPE_ANNOTATION()));
+  }
+
+  public FlowOptionalBindingElementTree FLOW_OPTIONAL_BINDING_ELEMENT() {
+    return b.<FlowOptionalBindingElementTree>nonterminal(Kind.FLOW_OPTIONAL_BINDING_ELEMENT)
+      .is(f.flowOptionalBindingElement(
+        b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()),
+        b.token(JavaScriptPunctuator.QUERY)));
   }
 
   // [END] FLOW

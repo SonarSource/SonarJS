@@ -1811,6 +1811,9 @@
 'project:jest/packages/jest-jasmine2/src/jasmine/js_api_reporter.js':[
 42,
 ],
+'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
+56,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
 35,
 ],
