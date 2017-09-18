@@ -115,6 +115,9 @@
 'project:babylon/test/fixtures/flow/type-annotations/69/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/79/actual.js':[
+1,
+],
 'project:backbone-0.9.2.js':[
 379,
 ],
@@ -2625,6 +2628,10 @@
 ],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 474,
+],
+'project:jest/packages/jest-editor-support/src/__tests__/test_reconciler.test.js':[
+18,
+78,
 ],
 'project:jest/packages/jest-haste-map/src/__tests__/worker.test.js':[
 53,

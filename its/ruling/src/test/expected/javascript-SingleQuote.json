@@ -328,6 +328,9 @@
 11,
 12,
 ],
+'project:babylon/src/util/whitespace.js':[
+7,
+],
 'project:babylon/test/estree-throws.js':[
 1,
 2,

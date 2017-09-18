@@ -21,6 +21,9 @@
 'project:babylon/test/fixtures/flow/regression/issue-92/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/trailing-function-commas-type/1/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/1/actual.js':[
 1,
 1,
@@ -49,6 +52,16 @@
 ],
 'project:babylon/test/fixtures/flow/type-annotations/69/actual.js':[
 1,
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/79/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/99/actual.js':[
+1,
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/arrow-func-return-newline/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/with-default-valid/actual.js':[
