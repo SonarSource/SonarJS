@@ -98,6 +98,12 @@
 'project:jest/packages/jest-cli/src/get_no_test_found_related_to_changed_files.js':[
 0,
 ],
+'project:jest/packages/jest-config/src/validate_pattern.js':[
+0,
+],
+'project:jest/packages/jest-haste-map/src/get_mock_name.js':[
+0,
+],
 'project:jest/packages/jest-jasmine2/src/expectation_failed.js':[
 0,
 ],
@@ -105,6 +111,12 @@
 0,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/create_spy.js':[
+0,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/js_api_reporter.js':[
+0,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
 0,
 ],
 'project:jest/packages/jest-util/src/null_console.js':[

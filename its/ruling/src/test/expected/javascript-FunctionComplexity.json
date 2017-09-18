@@ -2585,6 +2585,9 @@
 'project:google-closure-library/window/window.js':[
 78,
 ],
+'project:jest/packages/babel-plugin-jest-hoist/src/index.js':[
+80,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 75,
 245,

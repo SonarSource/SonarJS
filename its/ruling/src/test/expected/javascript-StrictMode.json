@@ -365,6 +365,9 @@
 'project:jest/packages/jest-editor-support/src/__tests__/project_workspace.test.js':[
 11,
 ],
+'project:jest/packages/jest-editor-support/src/__tests__/settings.test.js':[
+11,
+],
 'project:jest/packages/jest-environment-jsdom/src/__mocks__/index.js':[
 8,
 ],
@@ -673,6 +676,9 @@
 ],
 'project:jest/packages/jest-validate/src/__tests__/validate.test.js':[
 10,
+],
+'project:jest/packages/pretty-format/src/__tests__/dom_element.test.js':[
+13,
 ],
 'project:jest/packages/pretty-format/src/__tests__/immutable.test.js':[
 11,

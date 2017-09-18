@@ -9955,6 +9955,9 @@
 'project:jest/packages/jest-cli/src/get_no_test_found_related_to_changed_files.js':[
 8,
 ],
+'project:jest/packages/jest-cli/src/pluralize.js':[
+2,
+],
 'project:jest/packages/jest-config/src/__tests__/normalize.test.js':[
 290,
 ],
@@ -9972,6 +9975,9 @@
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/call_tracker.js':[
 52,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
+72,
 ],
 'project:jest/packages/jest-resolve/src/__tests__/resolve.test.js':[
 54,

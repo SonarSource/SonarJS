@@ -41,6 +41,9 @@
 'project:babylon/test/expressions/esprima/expression-conditional/migrated_0002/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/20/actual.js':[
+1,
+],
 'project:dojo-1.8.1/dojo/dojo.js.uncompressed.js':[
 15371,
 ],

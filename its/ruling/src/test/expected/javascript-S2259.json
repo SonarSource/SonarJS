@@ -103,6 +103,10 @@
 'project:google-closure-library/ui/tree/basenode.js':[
 338,
 ],
+'project:jest/packages/jest-editor-support/src/__tests__/settings.test.js':[
+45,
+69,
+],
 'project:jquery-1.7.2.js':[
 6208,
 ],

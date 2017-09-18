@@ -388,6 +388,9 @@
 'project:jest/packages/expect/src/__tests__/to_throw_matchers.test.js':[
 15,
 ],
+'project:jest/packages/jest-jasmine2/src/jasmine/Timer.js':[
+35,
+],
 'project:jstorage-0.3.0.js':[
 36,
 ],

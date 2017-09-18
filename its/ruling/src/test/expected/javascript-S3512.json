@@ -2782,6 +2782,9 @@
 144,
 189,
 ],
+'project:jest/packages/babel-plugin-jest-hoist/src/index.js':[
+113,
+],
 'project:jest/packages/eslint-config-fb-strict/index.js':[
 15,
 ],

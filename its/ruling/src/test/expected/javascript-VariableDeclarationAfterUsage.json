@@ -722,6 +722,9 @@
 947,
 975,
 ],
+'project:jest/packages/jest-editor-support/src/__tests__/settings.test.js':[
+47,
+],
 'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
 20,
 32,
@@ -739,8 +742,15 @@
 98,
 183,
 ],
+'project:jest/packages/jest-jasmine2/src/jasmine/Spec.js':[
+127,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/create_spy.js':[
 43,
+],
+'project:jest/packages/jest-regex-util/src/index.js':[
+19,
+19,
 ],
 'project:jest/packages/jest-runtime/src/__tests__/script_transformer.test.js':[
 90,

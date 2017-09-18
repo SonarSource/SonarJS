@@ -2599,6 +2599,9 @@
 'project:google-closure-library/useragent/useragent.js':[
 385,
 ],
+'project:jest/packages/babel-plugin-jest-hoist/src/index.js':[
+83,
+],
 'project:jest/packages/jest-haste-map/src/crawlers/__tests__/node.test.js':[
 25,
 61,

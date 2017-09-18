@@ -7016,6 +7016,9 @@
 'project:jest/packages/jest-haste-map/src/crawlers/__tests__/watchman.test.js':[
 12,
 ],
+'project:jest/packages/jest-haste-map/src/lib/normalize_path_sep.js':[
+11,
+],
 'project:jest/packages/jest-matcher-utils/src/__tests__/index.test.js':[
 12,
 ],
@@ -7121,6 +7124,11 @@
 'project:jest/packages/jest-util/src/__tests__/fake_timers.test.js':[
 12,
 ],
+'project:jest/packages/jest-validate/src/__tests__/fixtures/jest_config.js':[
+11,
+12,
+13,
+],
 'project:jest/packages/jest-validate/src/__tests__/validate.test.js':[
 20,
 ],
@@ -7135,6 +7143,13 @@
 15,
 16,
 17,
+],
+'project:jest/packages/pretty-format/src/__tests__/convert_ansi.test.js':[
+11,
+12,
+],
+'project:jest/packages/pretty-format/src/__tests__/dom_element.test.js':[
+15,
 ],
 'project:jest/packages/pretty-format/src/__tests__/immutable.test.js':[
 17,
