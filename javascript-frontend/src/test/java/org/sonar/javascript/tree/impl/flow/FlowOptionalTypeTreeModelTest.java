@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,6 +37,17 @@ public class FlowOptionalTypeTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.FLOW_OPTIONAL_TYPE)).isTrue();
     assertThat(tree.questionToken().text()).isEqualTo("?");
     assertThat(tree.type().is(Kind.FLOW_SIMPLE_TYPE)).isTrue();
+  }
+
+  @Test
+  public void not_confuse_with_conditional() throws Exception {
+    ExpressionStatementTree conditional = parse("x? 1 : 2", Kind.EXPRESSION_STATEMENT);
+    assertThat(conditional.expression().is(Kind.CONDITIONAL_EXPRESSION)).isTrue();
+
+
+    FlowTypedBindingElementTree bindingElementTree = parse("var x: ?Foo", Kind.FLOW_TYPED_BINDING_ELEMENT);
+    assertThat(bindingElementTree.typeAnnotation().type().is(Kind.FLOW_OPTIONAL_TYPE)).isTrue();
+    assertThat(bindingElementTree.bindingElement().is(Kind.BINDING_IDENTIFIER)).isTrue();
   }
 
 }
