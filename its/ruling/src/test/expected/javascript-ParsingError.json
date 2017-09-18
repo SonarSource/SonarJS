@@ -227,9 +227,6 @@
 'project:babylon/test/fixtures/flow/classes/constructor-override-with-class-prop-plugin/actual.js':[
 2,
 ],
-'project:babylon/test/fixtures/flow/comment/spread/actual.js':[
-3,
-],
 'project:babylon/test/fixtures/flow/declare-export/export-class/actual.js':[
 1,
 ],

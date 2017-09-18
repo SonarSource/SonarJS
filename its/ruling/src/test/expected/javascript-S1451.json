@@ -401,6 +401,9 @@
 'project:babylon/test/fixtures/flow/classes/constructor-with-class-prop-plugin/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/comment/spread/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/literal-types/null/actual.js':[
 0,
 ],

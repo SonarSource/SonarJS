@@ -720,8 +720,13 @@ public class TreeFactory {
     return new ParameterListTreeImpl(lParenthesis, parameters, rParenthesis);
   }
 
-  public RestElementTree bindingRestElement(InternalSyntaxToken ellipsis, IdentifierTree identifier) {
-    return new RestElementTreeImpl(ellipsis, identifier);
+  public RestElementTree bindingRestElement(InternalSyntaxToken ellipsis, IdentifierTree identifier, Optional<FlowTypeAnnotationTree> type) {
+    if (type.isPresent()) {
+      return new RestElementTreeImpl(ellipsis, new FlowTypedBindingElementTreeImpl(identifier, type.get()));
+
+    } else {
+      return new RestElementTreeImpl(ellipsis, identifier);
+    }
   }
 
   public ExpressionTree optionalConditionalExpression(ExpressionTree conditionExpression, Optional<ConditionalExpressionTail> conditionalExpressionTail) {

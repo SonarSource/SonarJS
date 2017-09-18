@@ -12,6 +12,9 @@
 7514,
 8137,
 ],
+'project:babylon/test/fixtures/flow/comment/spread/actual.js':[
+3,
+],
 'project:babylon/test/fixtures/flow/regression/issue-92/actual.js':[
 1,
 ],

@@ -536,7 +536,7 @@ public class JavaScriptGrammar {
    */
   public RestElementTree BINDING_REST_ELEMENT() {
     return b.<RestElementTree>nonterminal(EcmaScriptLexer.BINDING_REST_ELEMENT)
-      .is(f.bindingRestElement(b.token(JavaScriptPunctuator.ELLIPSIS), BINDING_IDENTIFIER()));
+      .is(f.bindingRestElement(b.token(JavaScriptPunctuator.ELLIPSIS), BINDING_IDENTIFIER(), b.optional(FLOW_TYPE_ANNOTATION())));
   }
 
   public ArrayLiteralTree ARRAY_LITERAL() {

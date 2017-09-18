@@ -33,6 +33,9 @@
 'project:babylon/test/fixtures/flow/anonymous-function-no-parens-types/good_03/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/comment/spread/actual.js':[
+2,
+],
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_in_exp/actual.js':[
 1,
 ],

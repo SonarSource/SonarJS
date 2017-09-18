@@ -557,6 +557,9 @@
 'project:babylon/test/fixtures/flow/array-types/9/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/comment/spread/actual.js':[
+3,
+],
 'project:babylon/test/fixtures/flow/literal-types/null/actual.js':[
 1,
 ],
