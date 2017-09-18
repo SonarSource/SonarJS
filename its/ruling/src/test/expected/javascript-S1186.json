@@ -15,6 +15,12 @@
 'project:babylon/test/fixtures/flow/comment/spread/actual.js':[
 3,
 ],
+'project:babylon/test/fixtures/flow/literal-types/string-double/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/literal-types/string-single/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/regression/issue-92/actual.js':[
 1,
 ],

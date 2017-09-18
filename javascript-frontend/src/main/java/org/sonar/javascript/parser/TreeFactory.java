@@ -103,6 +103,7 @@ import org.sonar.javascript.tree.impl.expression.jsx.JsxSpreadAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimpleTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAnnotationTreeImpl;
@@ -203,6 +204,7 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
@@ -1733,6 +1735,14 @@ public class TreeFactory {
 
   public FlowOptionalTypeTree flowOptionalType(InternalSyntaxToken questionType, FlowTypeTree type) {
     return new FlowOptionalTypeTreeImpl(questionType, type);
+  }
+
+  public FlowLiteralTypeTree flowLiteralType(Optional<InternalSyntaxToken> minusToken, InternalSyntaxToken token) {
+    return new FlowLiteralTypeTreeImpl(minusToken.orNull(), token);
+  }
+
+  public FlowLiteralTypeTree flowLiteralType(InternalSyntaxToken token) {
+    return new FlowLiteralTypeTreeImpl(null, token);
   }
 
   private static class ConditionalExpressionTail {
