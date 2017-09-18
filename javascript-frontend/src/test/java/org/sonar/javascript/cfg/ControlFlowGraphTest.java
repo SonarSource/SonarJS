@@ -684,6 +684,7 @@ public class ControlFlowGraphTest {
   @Test
   public void variable_declaration() throws Exception {
     assertExpressionElements("var a = 1", "1", "a", "a = 1");
+    assertExpressionElements("var a: number = 1", "1", "number", "a", "a: number", "a: number = 1");
   }
 
   @Test

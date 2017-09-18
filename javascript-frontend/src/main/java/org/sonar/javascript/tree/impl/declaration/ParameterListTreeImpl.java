@@ -31,7 +31,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
@@ -85,23 +84,8 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   public List<IdentifierTree> parameterIdentifiers() {
     List<IdentifierTree> identifiers = Lists.newArrayList();
 
-    for (Tree parameter : parameters) {
-
-      if (parameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
-        identifiers.add((IdentifierTree) parameter);
-
-      } else if (parameter.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
-        identifiers.addAll(((InitializedBindingElementTreeImpl) parameter).bindingIdentifiers());
-
-      } else if (parameter.is(Tree.Kind.OBJECT_BINDING_PATTERN)) {
-        identifiers.addAll(((ObjectBindingPatternTreeImpl) parameter).bindingIdentifiers());
-
-      } else if (parameter.is(Kind.REST_ELEMENT)) {
-        identifiers.add((IdentifierTree) ((RestElementTree) parameter).element());
-
-      } else {
-        identifiers.addAll(((ArrayBindingPatternTreeImpl) parameter).bindingIdentifiers());
-      }
+    for (BindingElementTree parameter : parameters) {
+      identifiers.addAll(parameter.bindingIdentifiers());
     }
     return identifiers;
   }

@@ -52,13 +52,14 @@ public class VariableDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void bindingIdentifiers() throws Exception {
-    VariableDeclarationTreeImpl tree = parse("let a , b = 1 , { x : c } = obj;", Kind.LET_DECLARATION);
+    VariableDeclarationTreeImpl tree = parse("let a , b = 1 , { x : c } = obj, d: number;", Kind.LET_DECLARATION);
 
     List<IdentifierTree> bindingName = tree.variableIdentifiers();
-    assertThat(bindingName).hasSize(3);
+    assertThat(bindingName).hasSize(4);
     assertThat(bindingName.get(0).name()).isEqualTo("a");
     assertThat(bindingName.get(1).name()).isEqualTo("b");
     assertThat(bindingName.get(2).name()).isEqualTo("c");
+    assertThat(bindingName.get(3).name()).isEqualTo("d");
   }
 
 }
