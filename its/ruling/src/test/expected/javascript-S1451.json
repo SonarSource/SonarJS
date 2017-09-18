@@ -434,6 +434,9 @@
 'project:babylon/test/fixtures/flow/type-annotations/1/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/101/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/type-annotations/105/actual.js':[
 0,
 ],
@@ -477,6 +480,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/5/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/6/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/67/actual.js':[

@@ -17,41 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.tree.impl.flow;
+package org.sonar.plugins.javascript.api.tree.flow;
 
-import com.google.common.collect.Iterators;
-import java.util.Iterator;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class FlowSimpleTypeTreeImpl extends JavaScriptTree implements FlowSimpleTypeTree {
+@Beta
+public interface FlowOptionalTypeTree extends FlowTypeTree {
 
-  private final SyntaxToken token;
+  SyntaxToken questionToken();
 
-  public FlowSimpleTypeTreeImpl(SyntaxToken token) {
-    this.token = token;
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.FLOW_SIMPLE_TYPE;
-  }
-
-  @Override
-  public Iterator<Tree> childrenIterator() {
-    return Iterators.singletonIterator(token);
-  }
-
-  @Override
-  public SyntaxToken token() {
-    return token;
-  }
-
-  @Override
-  public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitFlowSimpleType(this);
-  }
+  FlowTypeTree type();
 }

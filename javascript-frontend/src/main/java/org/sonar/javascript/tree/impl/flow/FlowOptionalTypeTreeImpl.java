@@ -23,35 +23,43 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class FlowSimpleTypeTreeImpl extends JavaScriptTree implements FlowSimpleTypeTree {
+public class FlowOptionalTypeTreeImpl extends JavaScriptTree implements FlowOptionalTypeTree {
 
-  private final SyntaxToken token;
+  private final SyntaxToken questionToken;
+  private final FlowTypeTree type;
 
-  public FlowSimpleTypeTreeImpl(SyntaxToken token) {
-    this.token = token;
+  public FlowOptionalTypeTreeImpl(SyntaxToken questionToken, FlowTypeTree type) {
+    this.questionToken = questionToken;
+    this.type = type;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.FLOW_SIMPLE_TYPE;
+    return Kind.FLOW_OPTIONAL_TYPE;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.singletonIterator(token);
-  }
-
-  @Override
-  public SyntaxToken token() {
-    return token;
+    return Iterators.forArray(questionToken, type);
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitFlowSimpleType(this);
+    visitor.visitFlowOptionalType(this);
+  }
+
+  @Override
+  public SyntaxToken questionToken() {
+    return questionToken;
+  }
+
+  @Override
+  public FlowTypeTree type() {
+    return type;
   }
 }
