@@ -397,7 +397,6 @@ class ControlFlowGraphBuilder {
       }
     } else if (tree.is(Kind.FLOW_TYPED_BINDING_ELEMENT)) {
       buildExpression(((FlowTypedBindingElementTree) tree).bindingElement());
-      buildExpression(((FlowTypedBindingElementTree) tree).typeAnnotation().type());
     }
 
   }

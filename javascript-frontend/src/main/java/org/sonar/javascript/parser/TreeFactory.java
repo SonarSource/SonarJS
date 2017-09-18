@@ -843,7 +843,10 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, identifier);
   }
 
-  public ArrowFunctionTree arrowFunction(Optional<InternalSyntaxToken> asyncToken, Tree parameters, Optional<FlowTypeAnnotationTree> returnType,  Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
+  public ArrowFunctionTree arrowFunction(
+    Optional<InternalSyntaxToken> asyncToken, Tree parameters,
+    Optional<FlowTypeAnnotationTree> returnType,  Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body
+  ) {
     return new ArrowFunctionTreeImpl(asyncToken.orNull(), parameters, returnType.orNull(), doubleArrow, body);
   }
 

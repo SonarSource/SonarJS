@@ -48,7 +48,6 @@ public class FlowTypeAnnotationTreeImpl extends JavaScriptTree implements FlowTy
     return Iterators.forArray(colonToken, type);
   }
 
-
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitFlowTypeAnnotation(this);
