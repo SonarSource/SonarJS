@@ -29,6 +29,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -43,6 +44,7 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
   private final SyntaxToken asyncToken;
   private final Tree name;
   private final ParameterListTree parameters;
+  private final  FlowTypeAnnotationTree returnType;
   private final BlockTree body;
 
   private MethodDeclarationTreeImpl(
@@ -51,6 +53,7 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
     @Nullable InternalSyntaxToken asyncToken,
     Tree name,
     ParameterListTree parameters,
+    @Nullable FlowTypeAnnotationTree returnType,
     BlockTree body
   ) {
     this.decorators = decorators;
@@ -60,6 +63,7 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
     this.kind = starToken == null ? Kind.METHOD : Kind.GENERATOR_METHOD;
     this.name = name;
     this.parameters = parameters;
+    this.returnType = returnType;
     this.body = body;
   }
 
@@ -68,9 +72,10 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
     InternalSyntaxToken starToken,
     Tree name,
     ParameterListTree parameters,
+    @Nullable FlowTypeAnnotationTree returnType,
     BlockTree body
   ) {
-    return new MethodDeclarationTreeImpl(decorators, staticToken, starToken, null, name, parameters, body);
+    return new MethodDeclarationTreeImpl(decorators, staticToken, starToken, null, name, parameters, returnType, body);
   }
 
   public static MethodDeclarationTreeImpl method(
@@ -78,9 +83,10 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
     @Nullable InternalSyntaxToken asyncToken,
     Tree name,
     ParameterListTree parameters,
+    @Nullable FlowTypeAnnotationTree returnType,
     BlockTree body
   ) {
-    return new MethodDeclarationTreeImpl(decorators, staticToken, null, asyncToken, name, parameters, body);
+    return new MethodDeclarationTreeImpl(decorators, staticToken, null, asyncToken, name, parameters, returnType, body);
   }
 
   @Override
@@ -116,6 +122,12 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
     return parameters;
   }
 
+  @Nullable
+  @Override
+  public FlowTypeAnnotationTree returnType() {
+    return returnType;
+  }
+
   @Override
   public BlockTree body() {
     return body;
@@ -130,7 +142,7 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
       decorators.iterator(),
-      Iterators.forArray(staticToken, asyncToken, starToken, name, parameters, body));
+      Iterators.forArray(staticToken, asyncToken, starToken, name, parameters, returnType, body));
   }
 
   @Override

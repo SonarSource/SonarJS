@@ -575,6 +575,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptPunctuator.STAR),
           b.optional(BINDING_IDENTIFIER()),
           FORMAL_PARAMETER_CLAUSE(),
+          b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
   }
 
@@ -586,6 +587,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptKeyword.FUNCTION),
           b.optional(BINDING_IDENTIFIER()),
           FORMAL_PARAMETER_CLAUSE(),
+          b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
   }
 
@@ -836,6 +838,7 @@ public class JavaScriptGrammar {
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_CLAUSE()),
+        b.optional(FLOW_TYPE_ANNOTATION()),
         b.token(EcmaScriptLexer.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
@@ -1527,12 +1530,14 @@ public class JavaScriptGrammar {
             b.optional(b.token(EcmaScriptLexer.STATIC)),
             b.token(JavaScriptPunctuator.STAR),
             PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
+            b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK()),
           f.method(
             b.zeroOrMore(DECORATOR()),
             b.optional(b.token(EcmaScriptLexer.STATIC)),
             b.optional(b.token(EcmaScriptLexer.ASYNC)),
             PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
+            b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK()),
           f.accessor(
             b.zeroOrMore(DECORATOR()),
@@ -1542,6 +1547,7 @@ public class JavaScriptGrammar {
               b.token(EcmaScriptLexer.SET)),
             PROPERTY_NAME(),
             FORMAL_PARAMETER_CLAUSE(),
+            b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK())));
   }
 
@@ -1551,6 +1557,7 @@ public class JavaScriptGrammar {
         f.functionAndGeneratorDeclaration(
           b.optional(b.token(EcmaScriptLexer.ASYNC)),
           b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_CLAUSE(),
+          b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
   }
 

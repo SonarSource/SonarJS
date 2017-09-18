@@ -36,6 +36,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
@@ -43,13 +44,15 @@ public class ArrowFunctionTreeImpl extends FunctionTreeImpl implements ArrowFunc
 
   private final SyntaxToken asyncToken;
   private final Tree parameters;
+  private final FlowTypeAnnotationTree returnType;
   private final SyntaxToken doubleArrow;
   private Tree body;
   private Type functionType;
 
-  public ArrowFunctionTreeImpl(@Nullable SyntaxToken asyncToken, Tree parameters, InternalSyntaxToken doubleArrow, Tree body) {
+  public ArrowFunctionTreeImpl(@Nullable SyntaxToken asyncToken, Tree parameters, @Nullable FlowTypeAnnotationTree returnType, InternalSyntaxToken doubleArrow, Tree body) {
     this.asyncToken = asyncToken;
     this.parameters = parameters;
+    this.returnType = returnType;
     this.doubleArrow = doubleArrow;
     this.body = body;
 
@@ -71,6 +74,12 @@ public class ArrowFunctionTreeImpl extends FunctionTreeImpl implements ArrowFunc
   @Override
   public Tree parameterClause() {
     return parameters;
+  }
+
+  @Nullable
+  @Override
+  public FlowTypeAnnotationTree returnType() {
+    return returnType;
   }
 
   @Override
@@ -100,7 +109,7 @@ public class ArrowFunctionTreeImpl extends FunctionTreeImpl implements ArrowFunc
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(asyncToken, parameters, doubleArrow, body);
+    return Iterators.forArray(asyncToken, parameters, returnType, doubleArrow, body);
   }
 
   @Override

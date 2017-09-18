@@ -29,6 +29,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -40,13 +41,14 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
   private final SyntaxToken starToken;
   private final IdentifierTree name;
   private final ParameterListTree parameters;
+  private final FlowTypeAnnotationTree returnType;
   private final BlockTree body;
   private final Kind kind;
 
   private FunctionDeclarationTreeImpl(
     @Nullable SyntaxToken asyncToken,
     InternalSyntaxToken functionKeyword, @Nullable InternalSyntaxToken starToken,
-    IdentifierTree name, ParameterListTree parameters, BlockTree body
+    IdentifierTree name, ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
   ) {
 
     this.asyncToken = asyncToken;
@@ -54,22 +56,23 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
     this.starToken = starToken;
     this.name = name;
     this.parameters = parameters;
+    this.returnType = returnType;
     this.body = body;
     this.kind = starToken == null ? Kind.FUNCTION_DECLARATION : Kind.GENERATOR_DECLARATION;
   }
 
   public static FunctionDeclarationTree create(
     @Nullable SyntaxToken asyncToken, InternalSyntaxToken functionKeyword,
-    IdentifierTree name, ParameterListTree parameters, BlockTree body
+    IdentifierTree name, ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
   ) {
-    return new FunctionDeclarationTreeImpl(asyncToken, functionKeyword, null, name, parameters, body);
+    return new FunctionDeclarationTreeImpl(asyncToken, functionKeyword,null, name, parameters, returnType, body);
   }
 
   public static FunctionDeclarationTree createGenerator(
     InternalSyntaxToken functionKeyword, InternalSyntaxToken starToken,
-    IdentifierTree name, ParameterListTree parameters, BlockTree body
+    IdentifierTree name, ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
   ) {
-    return new FunctionDeclarationTreeImpl(null, functionKeyword, starToken, name, parameters, body);
+    return new FunctionDeclarationTreeImpl(null, functionKeyword, starToken, name, parameters, returnType, body);
   }
 
   @Override
@@ -99,6 +102,12 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
     return parameters;
   }
 
+  @Nullable
+  @Override
+  public FlowTypeAnnotationTree returnType() {
+    return returnType;
+  }
+
   @Override
   public BlockTree body() {
     return body;
@@ -116,7 +125,7 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(asyncToken, functionKeyword, starToken, name, parameters, body);
+    return Iterators.forArray(asyncToken, functionKeyword, starToken, name, parameters, returnType, body);
   }
 
   @Override

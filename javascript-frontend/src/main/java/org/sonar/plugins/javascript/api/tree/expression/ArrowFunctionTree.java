@@ -20,9 +20,11 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
+import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
@@ -45,6 +47,9 @@ public interface ArrowFunctionTree extends ExpressionTree, FunctionTree {
    */
   @Override
   Tree parameterClause();
+
+  @Nullable
+  FlowTypeAnnotationTree returnType();
 
   SyntaxToken doubleArrowToken();
 

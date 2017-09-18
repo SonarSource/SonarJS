@@ -40,6 +40,7 @@ public class AccessorMethodDeclarationTreeModelTest extends JavaScriptTreeModelT
     assertThat(tree.accessorToken().text()).isEqualTo("get");
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
     assertThat(tree.parameterClause()).isNotNull();
+    assertThat(tree.returnType()).isNull();
     assertThat(tree.body()).isNotNull();
   }
 
@@ -68,5 +69,11 @@ public class AccessorMethodDeclarationTreeModelTest extends JavaScriptTreeModelT
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
     assertThat(tree.parameterClause()).isNotNull();
     assertThat(tree.body()).isNotNull();
+  }
+
+  @Test
+  public void flow_typed() throws Exception {
+    AccessorMethodDeclarationTree tree = parse("var a = { get method(): number {} }", Kind.GET_METHOD);
+    assertThat(tree.returnType()).isNotNull();
   }
 }

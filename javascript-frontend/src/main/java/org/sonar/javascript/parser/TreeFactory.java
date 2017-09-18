@@ -630,10 +630,10 @@ public class TreeFactory {
 
   public FunctionExpressionTree generatorExpression(
     InternalSyntaxToken functionKeyword, InternalSyntaxToken starOperator,
-    Optional<IdentifierTree> functionName, ParameterListTree parameters, BlockTree body
+    Optional<IdentifierTree> functionName, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
 
-    return FunctionExpressionTreeImpl.createGenerator(functionKeyword, starOperator, functionName.orNull(), parameters, body);
+    return FunctionExpressionTreeImpl.createGenerator(functionKeyword, starOperator, functionName.orNull(), parameters, returnType.orNull(), body);
   }
 
   public LiteralTree nullLiteral(InternalSyntaxToken nullToken) {
@@ -662,9 +662,9 @@ public class TreeFactory {
 
   public FunctionExpressionTree functionExpression(
     Optional<InternalSyntaxToken> asyncToken, InternalSyntaxToken functionKeyword, Optional<IdentifierTree> functionName,
-    ParameterListTree parameters, BlockTree body
+    ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
-    return FunctionExpressionTreeImpl.create(asyncToken.orNull(), functionKeyword, functionName.orNull(), parameters, body);
+    return FunctionExpressionTreeImpl.create(asyncToken.orNull(), functionKeyword, functionName.orNull(), parameters, returnType.orNull(), body);
   }
 
   public SeparatedList<BindingElementTree> formalParameters(
@@ -834,8 +834,8 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, identifier);
   }
 
-  public ArrowFunctionTree arrowFunction(Optional<InternalSyntaxToken> asyncToken, Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
-    return new ArrowFunctionTreeImpl(asyncToken.orNull(), parameters, doubleArrow, body);
+  public ArrowFunctionTree arrowFunction(Optional<InternalSyntaxToken> asyncToken, Tree parameters, Optional<FlowTypeAnnotationTree> returnType,  Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
+    return new ArrowFunctionTreeImpl(asyncToken.orNull(), parameters, returnType.orNull(), doubleArrow, body);
   }
 
   public IdentifierTree identifierName(InternalSyntaxToken identifier) {
@@ -1283,36 +1283,36 @@ public class TreeFactory {
 
   public MethodDeclarationTree generatorMethod(
     Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken starToken,
-    Tree name, ParameterListTree parameters,
+    Tree name, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType,
     BlockTree body
   ) {
-    return MethodDeclarationTreeImpl.generator(optionalList(decorators), staticToken.orNull(), starToken, name, parameters, body);
+    return MethodDeclarationTreeImpl.generator(optionalList(decorators), staticToken.orNull(), starToken, name, parameters, returnType.orNull(), body);
   }
 
   public MethodDeclarationTree method(
     Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, Optional<InternalSyntaxToken> asyncToken, Tree name, ParameterListTree parameters,
-    BlockTree body
+    Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
-    return MethodDeclarationTreeImpl.method(optionalList(decorators), staticToken.orNull(), asyncToken.orNull(), name, parameters, body);
+    return MethodDeclarationTreeImpl.method(optionalList(decorators), staticToken.orNull(), asyncToken.orNull(), name, parameters, returnType.orNull(), body);
   }
 
   public AccessorMethodDeclarationTree accessor(
     Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken accessorToken, Tree name,
-    ParameterListTree parameters,
+    ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType,
     BlockTree body
   ) {
 
-    return new AccessorMethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), accessorToken, name, parameters, body);
+    return new AccessorMethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), accessorToken, name, parameters, returnType.orNull(), body);
   }
 
   public FunctionDeclarationTree functionAndGeneratorDeclaration(
     Optional<InternalSyntaxToken> asyncToken, InternalSyntaxToken functionToken, Optional<InternalSyntaxToken> starToken,
-    IdentifierTree name, ParameterListTree parameters, BlockTree body
+    IdentifierTree name, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
 
     return starToken.isPresent() ?
-      FunctionDeclarationTreeImpl.createGenerator(functionToken, starToken.get(), name, parameters, body) :
-      FunctionDeclarationTreeImpl.create(asyncToken.orNull(), functionToken, name, parameters, body);
+      FunctionDeclarationTreeImpl.createGenerator(functionToken, starToken.get(), name, parameters, returnType.orNull(), body) :
+      FunctionDeclarationTreeImpl.create(asyncToken.orNull(), functionToken, name, parameters, returnType.orNull(), body);
   }
 
   // [START] Destructuring pattern

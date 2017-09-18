@@ -23,6 +23,7 @@ import com.google.common.annotations.Beta;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
@@ -51,6 +52,10 @@ public interface MethodDeclarationTree extends FunctionTree {
 
   @Override
   ParameterListTree parameterClause();
+
+  @Override
+  @Nullable
+  FlowTypeAnnotationTree returnType();
 
   @Override
   BlockTree body();

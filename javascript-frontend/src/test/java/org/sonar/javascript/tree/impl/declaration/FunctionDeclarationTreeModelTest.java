@@ -37,6 +37,7 @@ public class FunctionDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.functionKeyword().text()).isEqualTo("function");
     assertThat(tree.starToken()).isNull();
     assertThat(tree.parameterClause()).isNotNull();
+    assertThat(tree.returnType()).isNull();
     assertThat(tree.body()).isNotNull();
   }
 
@@ -63,4 +64,9 @@ public class FunctionDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.asyncToken()).isNull();
   }
 
+  @Test
+  public void flow_typed() throws Exception {
+    FunctionDeclarationTree tree = parse("function f(): void {}", Kind.FUNCTION_DECLARATION);
+    assertThat(tree.returnType()).isNotNull();
+  }
 }
