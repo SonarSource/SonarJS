@@ -452,9 +452,6 @@
 'project:babylon/test/fixtures/flow/opaque-type-alias/declare_opaque/actual.js':[
 1,
 ],
-'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_collision/actual.js':[
-1,
-],
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_declare_export_neither/actual.js':[
 1,
 ],
@@ -510,9 +507,6 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_subtype_invalid3/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_type/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_type_allow_export/actual.js':[
@@ -584,9 +578,6 @@
 'project:babylon/test/fixtures/flow/tuples/4/actual.js':[
 1,
 ],
-'project:babylon/test/fixtures/flow/type-alias/1/actual.js':[
-1,
-],
 'project:babylon/test/fixtures/flow/type-alias/2/actual.js':[
 1,
 ],
@@ -594,7 +585,7 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-alias/4/actual.js':[
-1,
+2,
 ],
 'project:babylon/test/fixtures/flow/type-alias/5/5.js':[
 1,
@@ -681,9 +672,6 @@
 2,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/130/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/type-annotations/131/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/132/actual.js':[
@@ -848,6 +836,9 @@
 'project:babylon/test/fixtures/flow/type-annotations/97/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/98/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/builtin/actual.js':[
 2,
 ],
@@ -864,7 +855,7 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/negative-number-literal/actual.js':[
-5,
+6,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/with-default-invalid/actual.js':[
 1,

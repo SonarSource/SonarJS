@@ -96,6 +96,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -1011,6 +1012,7 @@ public interface Tree {
      */
     JSX_SELF_CLOSING_ELEMENT(JsxSelfClosingElementTree.class),
 
+    FLOW_TYPE_ALIAS_STATEMENT(FlowTypeAliasStatementTree.class),
     FLOW_SIMPLE_TYPE(FlowSimpleTypeTree.class),
     FLOW_OPTIONAL_TYPE(FlowOptionalTypeTree.class),
     FLOW_LITERAL_TYPE(FlowLiteralTypeTree.class),

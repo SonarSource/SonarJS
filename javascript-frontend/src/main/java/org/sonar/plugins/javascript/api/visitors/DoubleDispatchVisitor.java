@@ -103,6 +103,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -591,6 +592,10 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
   public void visitFlowOptionalBindingElement(FlowOptionalBindingElementTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowTypeAliasStatement(FlowTypeAliasStatementTree tree) {
     scanChildren(tree);
   }
 

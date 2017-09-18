@@ -114,6 +114,7 @@ import org.sonar.javascript.tree.impl.flow.FlowOptionalTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowPropertyDefinitionTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimplePropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimpleTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowTypeAliasStatementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAnnotationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypedBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -223,6 +224,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
@@ -1852,6 +1854,21 @@ public class TreeFactory {
 
   public FlowOptionalBindingElementTree flowOptionalBindingElement(BindingElementTree bindingElementTree, InternalSyntaxToken questionToken) {
     return new FlowOptionalBindingElementTreeImpl(bindingElementTree, questionToken);
+  }
+
+  public FlowTypeAliasStatementTree flowTypeAliasStatement(
+    Optional<InternalSyntaxToken> opaqueToken, InternalSyntaxToken typeToken,
+    IdentifierTree identifierTree, Optional<FlowTypeAnnotationTree> superTypeAnnotation,
+    InternalSyntaxToken equalToken, FlowTypeTree flowTypeTree, Tree semicolonToken
+  ) {
+    return new FlowTypeAliasStatementTreeImpl(
+      opaqueToken.orNull(),
+      typeToken,
+      identifierTree,
+      superTypeAnnotation.orNull(),
+      equalToken,
+      flowTypeTree,
+      nullableSemicolonToken(semicolonToken));
   }
 
   private static class ConditionalExpressionTail {

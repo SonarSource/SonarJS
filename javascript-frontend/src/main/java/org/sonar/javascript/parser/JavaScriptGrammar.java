@@ -103,6 +103,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
@@ -481,7 +482,8 @@ public class JavaScriptGrammar {
           SWITCH_STATEMENT(),
           THROW_STATEMENT(),
           TRY_STATEMENT(),
-          DEBUGGER_STATEMENT()));
+          DEBUGGER_STATEMENT(),
+          FLOW_TYPE_ALIAS_STATEMENT()));
   }
 
   /**
@@ -1868,6 +1870,18 @@ public class JavaScriptGrammar {
       .is(f.flowOptionalBindingElement(
         b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()),
         b.token(JavaScriptPunctuator.QUERY)));
+  }
+
+  public FlowTypeAliasStatementTree FLOW_TYPE_ALIAS_STATEMENT() {
+    return b.<FlowTypeAliasStatementTree>nonterminal(Kind.FLOW_TYPE_ALIAS_STATEMENT)
+      .is(f.flowTypeAliasStatement(
+        b.optional(b.token(EcmaScriptLexer.OPAQUE)),
+        b.token(EcmaScriptLexer.TYPE),
+        BINDING_IDENTIFIER(),
+        b.optional(FLOW_TYPE_ANNOTATION()),
+        b.token(JavaScriptPunctuator.EQU),
+        FLOW_TYPE(),
+        b.token(EcmaScriptLexer.EOS)));
   }
 
   // [END] FLOW

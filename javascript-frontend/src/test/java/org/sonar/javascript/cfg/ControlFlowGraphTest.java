@@ -688,6 +688,11 @@ public class ControlFlowGraphTest {
   }
 
   @Test
+  public void flow_type_alias_statement() throws Exception {
+    assertExpressionElements("type A = B"/* just one element - itself */);
+  }
+
+  @Test
   public void expressions() throws Exception {
     assertExpressionElements("a, b", "a", "b");
     assertExpressionElements("a = b", "a", "b");

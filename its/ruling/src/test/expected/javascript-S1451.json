@@ -458,10 +458,16 @@
 'project:babylon/test/fixtures/flow/literal-types/string-single/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_collision/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_in_exp/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_in_func/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_type/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/optional-type/1/actual.js':[
@@ -492,6 +498,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/trailing-function-commas-type/1/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-alias/1/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/1/actual.js':[
@@ -525,6 +534,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/16/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/131/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/2/actual.js':[
@@ -663,6 +675,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/arrow-func-return-newline/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/builtin/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/with-default-valid/actual.js':[
