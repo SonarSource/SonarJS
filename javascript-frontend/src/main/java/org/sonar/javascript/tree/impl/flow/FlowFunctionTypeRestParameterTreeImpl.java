@@ -19,25 +19,68 @@
  */
 package org.sonar.javascript.tree.impl.flow;
 
+import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeRestParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowFunctionTypeRestParameterTreeImpl extends JavaScriptTree implements FlowFunctionTypeRestParameterTree {
+  private final InternalSyntaxToken ellipsis;
+  private final FlowFunctionTypeParameterTree typeParameter;
+
+  public FlowFunctionTypeRestParameterTreeImpl(InternalSyntaxToken ellipsis, FlowFunctionTypeParameterTree typeParameter) {
+    this.ellipsis = ellipsis;
+    this.typeParameter = typeParameter;
+  }
+
   @Override
   public Kind getKind() {
-    return Kind.FLOW_FUNCTION_TYPE_PARAMETER;
+    return Kind.FLOW_FUNCTION_TYPE_REST_PARAMETER;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return null;
+    return Iterators.forArray(ellipsis, typeParameter);
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitFlowFunctionTypeParameter(this);
+  }
+
+  @Override
+  public SyntaxToken ellipsis() {
+    return ellipsis;
+  }
+
+  @Override
+  public FlowFunctionTypeParameterTree typeParameter() {
+    return typeParameter;
+  }
+
+  @Nullable
+  @Override
+  public IdentifierTree identifier() {
+    return typeParameter.identifier();
+  }
+
+  @Nullable
+  @Override
+  public FlowTypeAnnotationTree typeAnnotation() {
+    return typeParameter.typeAnnotation();
+  }
+
+  @Override
+  public FlowTypeTree type() {
+    return typeParameter.type();
   }
 }

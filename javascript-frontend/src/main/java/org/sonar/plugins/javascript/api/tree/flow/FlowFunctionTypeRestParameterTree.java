@@ -20,7 +20,11 @@
 package org.sonar.plugins.javascript.api.tree.flow;
 
 import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 @Beta
 public interface FlowFunctionTypeRestParameterTree extends FlowFunctionTypeParameterTree {
+  SyntaxToken ellipsis();
+
+  FlowFunctionTypeParameterTree typeParameter();
 }

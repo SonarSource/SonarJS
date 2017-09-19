@@ -1754,9 +1754,9 @@ public class TreeFactory {
     return new FlowLiteralTypeTreeImpl(null, token);
   }
 
-  public FlowFunctionTypeTree flowFunctionType(FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClauseTree, InternalSyntaxToken doubleArrow,
-    FlowTypeTree flowTypeTree) {
-    return new FlowFunctionTypeTreeImpl();
+  public FlowFunctionTypeTree flowFunctionType(FlowFunctionTypeParameterClauseTree parameterClause, InternalSyntaxToken doubleArrow,
+    FlowTypeTree returnType) {
+    return new FlowFunctionTypeTreeImpl(parameterClause, doubleArrow, returnType);
   }
 
   public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
@@ -1764,7 +1764,7 @@ public class TreeFactory {
     SeparatedList<FlowFunctionTypeParameterTree> parameters,
     Optional<InternalSyntaxToken> comma,
     InternalSyntaxToken rParenthesis) {
-    return new FlowFunctionTypeParameterClauseTreeImpl();
+    return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, parameters, comma.orNull(), null, rParenthesis);
   }
 
   public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
@@ -1773,14 +1773,14 @@ public class TreeFactory {
     InternalSyntaxToken comma,
     FlowFunctionTypeRestParameterTree restParameter,
     InternalSyntaxToken rParenthesis) {
-    return new FlowFunctionTypeParameterClauseTreeImpl();
+    return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, parameters, comma, restParameter, rParenthesis);
   }
 
   public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
     InternalSyntaxToken lParenthesis,
     Optional<FlowFunctionTypeRestParameterTree> restParameter,
     InternalSyntaxToken rParenthesis) {
-    return new FlowFunctionTypeParameterClauseTreeImpl();
+    return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, null, null, restParameter.orNull(), rParenthesis);
   }
 
   public SeparatedList<FlowFunctionTypeParameterTree> flowFunctionTypeParameterList(
@@ -1802,16 +1802,16 @@ public class TreeFactory {
     return new SeparatedListImpl<>(parameters, commas);
   }
 
-  public FlowFunctionTypeParameterTree flowFunctionTypeParameter(IdentifierTree identifierTree, FlowTypeAnnotationTree typeAnnotationTree) {
-    return new FlowFunctionTypeParameterTreeImpl();
+  public FlowFunctionTypeParameterTree flowFunctionTypeParameter(IdentifierTree identifier, FlowTypeAnnotationTree typeAnnotation) {
+    return new FlowFunctionTypeParameterTreeImpl(identifier, typeAnnotation);
   }
 
   public FlowFunctionTypeParameterTree flowFunctionTypeParameter(FlowTypeTree type) {
-    return new FlowFunctionTypeParameterTreeImpl();
+    return new FlowFunctionTypeParameterTreeImpl(type);
   }
 
-  public FlowFunctionTypeRestParameterTree flowFunctionTypeRestParameter(InternalSyntaxToken token, FlowFunctionTypeParameterTree flowFunctionTypeParameterTree) {
-    return new FlowFunctionTypeRestParameterTreeImpl();
+  public FlowFunctionTypeRestParameterTree flowFunctionTypeRestParameter(InternalSyntaxToken ellipsis, FlowFunctionTypeParameterTree typeParameter) {
+    return new FlowFunctionTypeRestParameterTreeImpl(ellipsis, typeParameter);
   }
 
   public FlowOptionalBindingElementTree flowOptionalBindingElement(BindingElementTree bindingElementTree, InternalSyntaxToken questionToken) {

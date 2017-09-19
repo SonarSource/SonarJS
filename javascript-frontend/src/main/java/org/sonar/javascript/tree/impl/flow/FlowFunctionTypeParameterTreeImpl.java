@@ -19,13 +19,34 @@
  */
 package org.sonar.javascript.tree.impl.flow;
 
+import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowFunctionTypeParameterTreeImpl extends JavaScriptTree implements FlowFunctionTypeParameterTree {
+  private final IdentifierTree identifier;
+  private final FlowTypeAnnotationTree typeAnnotation;
+  private final FlowTypeTree type;
+
+  public FlowFunctionTypeParameterTreeImpl(IdentifierTree identifier, FlowTypeAnnotationTree typeAnnotation) {
+    this.identifier = identifier;
+    this.typeAnnotation = typeAnnotation;
+    this.type = null;
+  }
+
+  public FlowFunctionTypeParameterTreeImpl(FlowTypeTree type) {
+    this.identifier = null;
+    this.typeAnnotation = null;
+    this.type = type;
+  }
+
   @Override
   public Kind getKind() {
     return Kind.FLOW_FUNCTION_TYPE_PARAMETER;
@@ -33,11 +54,32 @@ public class FlowFunctionTypeParameterTreeImpl extends JavaScriptTree implements
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return null;
+    return Iterators.forArray(identifier, typeAnnotation, type);
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitFlowFunctionTypeParameter(this);
+  }
+
+  @Override
+  @Nullable
+  public IdentifierTree identifier() {
+    return identifier;
+  }
+
+  @Override
+  @Nullable
+  public FlowTypeAnnotationTree typeAnnotation() {
+    return typeAnnotation;
+  }
+
+  @Override
+  public FlowTypeTree type() {
+    if (typeAnnotation != null) {
+      return typeAnnotation.type();
+    } else {
+      return type;
+    }
   }
 }

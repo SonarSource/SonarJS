@@ -17,20 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.flow;
+package org.sonar.javascript.tree.impl.flow;
 
-import com.google.common.annotations.Beta;
-import javax.annotation.Nullable;
+import org.junit.Test;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 
-@Beta
-public interface FlowFunctionTypeParameterTree extends Tree {
-  @Nullable
-  IdentifierTree identifier();
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Nullable
-  FlowTypeAnnotationTree typeAnnotation();
+public class FlowFunctionTypeTreeModelTest extends JavaScriptTreeModelTest {
 
-  FlowTypeTree type();
+  @Test
+  public void test() throws Exception {
+    FlowFunctionTypeTree tree = parse("function foo(callback : (par1: string) => void) {}", Tree.Kind.FLOW_FUNCTION_TYPE);
+
+    assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE)).isTrue();
+    assertThat(tree.doubleArrowToken().text()).isEqualTo("=>");
+    assertThat(tree.parameterClause().is(Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE)).isTrue();
+    assertThat(tree.returnType().is(Tree.Kind.FLOW_SIMPLE_TYPE)).isTrue();
+    assertThat(tree.childrenStream().count()).isEqualTo(3);
+  }
 }

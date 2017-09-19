@@ -19,21 +19,50 @@
  */
 package org.sonar.javascript.tree.impl.flow;
 
+import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowFunctionTypeTreeImpl extends JavaScriptTree implements FlowFunctionTypeTree {
+  private final SyntaxToken doubleArrowToken;
+  private final FlowFunctionTypeParameterClauseTree parameterClause;
+  private final FlowTypeTree returnType;
+
+  public FlowFunctionTypeTreeImpl(FlowFunctionTypeParameterClauseTree parameterClause, SyntaxToken doubleArrowToken, FlowTypeTree returnType) {
+    this.doubleArrowToken = doubleArrowToken;
+    this.parameterClause = parameterClause;
+    this.returnType = returnType;
+  }
+
   @Override
   public Kind getKind() {
     return Kind.FLOW_FUNCTION_TYPE;
   }
 
   @Override
+  public FlowFunctionTypeParameterClauseTree parameterClause() {
+    return parameterClause;
+  }
+
+  @Override
+  public SyntaxToken doubleArrowToken() {
+    return doubleArrowToken;
+  }
+
+  @Override
+  public FlowTypeTree returnType() {
+    return returnType;
+  }
+
+  @Override
   public Iterator<Tree> childrenIterator() {
-    return null;
+    return Iterators.forArray(parameterClause, doubleArrowToken, returnType);
   }
 
   @Override

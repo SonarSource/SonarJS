@@ -19,13 +19,40 @@
  */
 package org.sonar.javascript.tree.impl.flow;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeRestParameterTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowFunctionTypeParameterClauseTreeImpl extends JavaScriptTree implements FlowFunctionTypeParameterClauseTree {
+  private final InternalSyntaxToken lParenthesis;
+  private final SeparatedList<FlowFunctionTypeParameterTree> parameters;
+  private final InternalSyntaxToken comma;
+  private final FlowFunctionTypeRestParameterTree restParameter;
+  private final InternalSyntaxToken rParenthesis;
+
+  public FlowFunctionTypeParameterClauseTreeImpl(
+    InternalSyntaxToken lParenthesis,
+    @Nullable SeparatedList<FlowFunctionTypeParameterTree> parameters,
+    @Nullable InternalSyntaxToken comma,
+    @Nullable FlowFunctionTypeRestParameterTree restParameter, InternalSyntaxToken rParenthesis) {
+
+    this.lParenthesis = lParenthesis;
+    this.parameters = parameters;
+    this.comma = comma;
+    this.restParameter = restParameter;
+    this.rParenthesis = rParenthesis;
+  }
+
   @Override
   public Kind getKind() {
     return Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE;
@@ -33,11 +60,45 @@ public class FlowFunctionTypeParameterClauseTreeImpl extends JavaScriptTree impl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return null;
+    if (parameters != null) {
+      return Iterators.concat(Iterators.singletonIterator(lParenthesis),
+        parameters.elementsAndSeparators(Functions.identity()),
+        Iterators.forArray(restParameter, comma, rParenthesis));
+    } else {
+      return Iterators.forArray(lParenthesis, restParameter, comma, rParenthesis);
+    }
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitFlowFunctionTypeParameterClause(this);
+  }
+
+  @Override
+  public SyntaxToken leftParenthesis() {
+    return lParenthesis;
+  }
+
+  @Override
+  @Nullable
+  public SeparatedList<FlowFunctionTypeParameterTree> parameters() {
+    return parameters;
+  }
+
+  @Override
+  @Nullable
+  public SyntaxToken trailingComma() {
+    return comma;
+  }
+
+  @Override
+  public SyntaxToken rightParenthesis() {
+    return rParenthesis;
+  }
+
+  @Override
+  @Nullable
+  public FlowFunctionTypeRestParameterTree restParameter() {
+    return restParameter;
   }
 }

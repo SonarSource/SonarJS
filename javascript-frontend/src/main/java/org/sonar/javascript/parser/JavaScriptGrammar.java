@@ -1797,7 +1797,7 @@ public class JavaScriptGrammar {
   }
 
   public FlowFunctionTypeRestParameterTree FLOW_FUNCTION_TYPE_REST_PARAMETER() {
-    return b.<FlowFunctionTypeRestParameterTree>nonterminal()
+    return b.<FlowFunctionTypeRestParameterTree>nonterminal(Kind.FLOW_FUNCTION_TYPE_REST_PARAMETER)
       .is(f.flowFunctionTypeRestParameter(b.token(JavaScriptPunctuator.ELLIPSIS), FLOW_FUNCTION_TYPE_PARAMETER()));
   }
 

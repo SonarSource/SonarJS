@@ -20,9 +20,24 @@
 package org.sonar.plugins.javascript.api.tree.flow;
 
 import com.google.common.annotations.Beta;
+import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 @Beta
 public interface FlowFunctionTypeParameterClauseTree extends Tree {
 
+  SyntaxToken leftParenthesis();
+
+  @Nullable
+  SeparatedList<FlowFunctionTypeParameterTree> parameters();
+
+  @Nullable
+  SyntaxToken trailingComma();
+
+  @Nullable
+  FlowFunctionTypeRestParameterTree restParameter();
+
+  SyntaxToken rightParenthesis();
 }
