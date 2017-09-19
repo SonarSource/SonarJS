@@ -38,6 +38,7 @@ public class MethodDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.staticToken()).isNull();
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
     assertThat(tree.parameterClause()).isNotNull();
+    assertThat(tree.returnType()).isNull();
     assertThat(tree.body()).isNotNull();
   }
 
@@ -90,5 +91,9 @@ public class MethodDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.body()).isNotNull();
   }
 
-
+  @Test
+  public void flow_typed() throws Exception {
+    MethodDeclarationTree tree = parse("var a = {  method(): void {} }", Kind.METHOD);
+    assertThat(tree.returnType()).isNotNull();
+  }
 }

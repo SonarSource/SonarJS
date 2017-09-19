@@ -25,9 +25,6 @@ import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -82,21 +79,10 @@ public class VariableDeclarationTreeImpl extends JavaScriptTree implements Varia
   public List<IdentifierTree> variableIdentifiers() {
     List<IdentifierTree> identifiers = Lists.newArrayList();
 
-    for (Tree parameter : variables) {
-
-      if (parameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
-        identifiers.add((IdentifierTree) parameter);
-
-      } else if (parameter.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
-        identifiers.addAll(((InitializedBindingElementTreeImpl) parameter).bindingIdentifiers());
-
-      } else if (parameter.is(Tree.Kind.OBJECT_BINDING_PATTERN)) {
-        identifiers.addAll(((ObjectBindingPatternTreeImpl) parameter).bindingIdentifiers());
-
-      } else {
-        identifiers.addAll(((ArrayBindingPatternTreeImpl) parameter).bindingIdentifiers());
-      }
+    for (BindingElementTree variable : variables) {
+      identifiers.addAll(variable.bindingIdentifiers());
     }
+
     return identifiers;
   }
 }

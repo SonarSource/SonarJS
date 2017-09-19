@@ -63,15 +63,27 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void parametersIdentifiers() throws Exception {
-    ParameterListTree tree = parse("function f(p1, p2 = 0, { name:p3 }, [,,p4], ...p5) {};", Kind.PARAMETER_LIST);
+    ParameterListTree tree = parse("function f(p1, p2 = 0, { name:p3 }, [,,p4], p5: number, ...p6) {};", Kind.PARAMETER_LIST);
 
     List<IdentifierTree> parameters = ((ParameterListTreeImpl) tree).parameterIdentifiers();
-    assertThat(parameters.size()).isEqualTo(5);
+    assertThat(parameters.size()).isEqualTo(6);
     assertThat(parameters.get(0).name()).isEqualTo("p1");
     assertThat(parameters.get(1).name()).isEqualTo("p2");
     assertThat(parameters.get(2).name()).isEqualTo("p3");
     assertThat(parameters.get(3).name()).isEqualTo("p4");
     assertThat(parameters.get(4).name()).isEqualTo("p5");
+    assertThat(parameters.get(5).name()).isEqualTo("p6");
   }
 
+  @Test
+  public void flow_typed() throws Exception {
+    ParameterListTree tree = parse("function f(p1: number, p2, p3?, p4?: number, ...p5: any) {};", Kind.PARAMETER_LIST);
+
+    assertThat(tree.parameters().size()).isEqualTo(5);
+    assertThat(expressionToString(tree.parameters().get(0))).isEqualTo("p1: number");
+    assertThat(expressionToString(tree.parameters().get(1))).isEqualTo("p2");
+    assertThat(expressionToString(tree.parameters().get(2))).isEqualTo("p3?");
+    assertThat(expressionToString(tree.parameters().get(3))).isEqualTo("p4?: number");
+    assertThat(expressionToString(tree.parameters().get(4))).isEqualTo("...p5: any");
+  }
 }

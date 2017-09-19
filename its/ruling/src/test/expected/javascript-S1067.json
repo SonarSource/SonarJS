@@ -811,6 +811,9 @@
 'project:google-closure-library/vec/vec4.js':[
 403,
 ],
+'project:jest/packages/babel-plugin-jest-hoist/src/index.js':[
+152,
+],
 'project:jquery-1.7.2.js':[
 694,
 768,

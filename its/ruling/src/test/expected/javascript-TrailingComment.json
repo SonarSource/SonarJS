@@ -6168,8 +6168,16 @@
 426,
 456,
 ],
+'project:jest/packages/jest-diff/src/__tests__/diff.test.js':[
+699,
+703,
+],
 'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
 484,
+],
+'project:jest/packages/pretty-format/src/__tests__/dom_element.test.js':[
+312,
+318,
 ],
 'project:jquery-1.7.2.js':[
 1028,

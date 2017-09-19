@@ -29,6 +29,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarati
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -42,6 +43,7 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
   private final InternalSyntaxToken accessorToken;
   private final Tree name;
   private final ParameterListTree parameters;
+  private final FlowTypeAnnotationTree returnType;
   private final BlockTree body;
 
   public AccessorMethodDeclarationTreeImpl(
@@ -49,6 +51,7 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
     InternalSyntaxToken accessorToken,
     Tree name,
     ParameterListTree parameters,
+    @Nullable FlowTypeAnnotationTree returnType,
     BlockTree body
   ) {
     this.decorators = decorators;
@@ -57,6 +60,7 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
     this.accessorToken = accessorToken;
     this.name = name;
     this.parameters = parameters;
+    this.returnType = returnType;
     this.body = body;
   }
 
@@ -92,6 +96,12 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
     return parameters;
   }
 
+  @Nullable
+  @Override
+  public FlowTypeAnnotationTree returnType() {
+    return returnType;
+  }
+
   @Override
   public BlockTree body() {
     return body;
@@ -111,7 +121,7 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
       decorators.iterator(),
-      Iterators.forArray(staticToken, accessorToken, name, parameters, body));
+      Iterators.forArray(staticToken, accessorToken, name, parameters, returnType, body));
   }
 
   @Override

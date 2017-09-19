@@ -25,6 +25,7 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
@@ -53,7 +54,6 @@ import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -85,6 +85,12 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -997,6 +1003,13 @@ public interface Tree {
      * {@link JsxSelfClosingElementTree}
      */
     JSX_SELF_CLOSING_ELEMENT(JsxSelfClosingElementTree.class),
+
+    FLOW_SIMPLE_TYPE(FlowSimpleTypeTree.class),
+    FLOW_OPTIONAL_TYPE(FlowOptionalTypeTree.class),
+    FLOW_LITERAL_TYPE(FlowLiteralTypeTree.class),
+    FLOW_TYPE_ANNOTATION(FlowTypeAnnotationTree.class),
+    FLOW_TYPED_BINDING_ELEMENT(FlowTypedBindingElementTree.class),
+    FLOW_OPTIONAL_BINDING_ELEMENT(FlowOptionalBindingElementTree.class),
 
 
     TOKEN(SyntaxToken.class),

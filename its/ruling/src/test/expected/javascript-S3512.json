@@ -2782,6 +2782,9 @@
 144,
 189,
 ],
+'project:jest/packages/babel-plugin-jest-hoist/src/index.js':[
+113,
+],
 'project:jest/packages/eslint-config-fb-strict/index.js':[
 15,
 ],
@@ -2791,6 +2794,10 @@
 'project:jest/packages/expect/src/extract_expected_assertions_errors.js':[
 38,
 56,
+],
+'project:jest/packages/jest-cli/src/get_no_test_found_verbose.js':[
+27,
+30,
 ],
 'project:jest/packages/jest-cli/src/reporters/__tests__/utils.test.js':[
 18,
@@ -2820,6 +2827,9 @@
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
 430,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
+72,
 ],
 'project:jest/packages/jest-runtime/src/__mocks__/createRuntime.js':[
 20,

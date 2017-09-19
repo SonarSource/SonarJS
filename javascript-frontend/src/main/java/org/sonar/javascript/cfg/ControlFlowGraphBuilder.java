@@ -60,6 +60,7 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
@@ -394,6 +395,8 @@ class ControlFlowGraphBuilder {
           buildExpression(element.get());
         }
       }
+    } else if (tree.is(Kind.FLOW_TYPED_BINDING_ELEMENT)) {
+      buildExpression(((FlowTypedBindingElementTree) tree).bindingElement());
     }
 
   }

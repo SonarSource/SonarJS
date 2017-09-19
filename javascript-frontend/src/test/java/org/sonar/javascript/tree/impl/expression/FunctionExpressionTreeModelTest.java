@@ -37,6 +37,7 @@ public class FunctionExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.functionKeyword().text()).isEqualTo(JavaScriptKeyword.FUNCTION.getValue());
     assertThat(tree.name().name()).isEqualTo("f");
     assertThat(tree.parameterClause().is(Kind.PARAMETER_LIST)).isTrue();
+    assertThat(tree.returnType()).isNull();
     assertThat(tree.body()).isNotNull();
   }
 
@@ -60,4 +61,10 @@ public class FunctionExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.asyncToken()).isNull();
   }
 
+  @Test
+  public void flow_typed() throws Exception {
+    FunctionExpressionTree tree = parse("a = function f(): void {}", Kind.FUNCTION_EXPRESSION);
+    assertThat(tree.is(Kind.FUNCTION_EXPRESSION)).isTrue();
+    assertThat(tree.returnType()).isNotNull();
+  }
 }

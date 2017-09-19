@@ -93,6 +93,13 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTre
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
@@ -532,7 +539,7 @@ public class JavaScriptGrammar {
    */
   public RestElementTree BINDING_REST_ELEMENT() {
     return b.<RestElementTree>nonterminal(EcmaScriptLexer.BINDING_REST_ELEMENT)
-      .is(f.bindingRestElement(b.token(JavaScriptPunctuator.ELLIPSIS), BINDING_IDENTIFIER()));
+      .is(f.bindingRestElement(b.token(JavaScriptPunctuator.ELLIPSIS), BINDING_IDENTIFIER(), b.optional(FLOW_TYPE_ANNOTATION())));
   }
 
   public ArrayLiteralTree ARRAY_LITERAL() {
@@ -571,6 +578,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptPunctuator.STAR),
           b.optional(BINDING_IDENTIFIER()),
           FORMAL_PARAMETER_CLAUSE(),
+          b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
   }
 
@@ -582,6 +590,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptKeyword.FUNCTION),
           b.optional(BINDING_IDENTIFIER()),
           FORMAL_PARAMETER_CLAUSE(),
+          b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
   }
 
@@ -832,6 +841,7 @@ public class JavaScriptGrammar {
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_CLAUSE()),
+        b.optional(FLOW_TYPE_ANNOTATION()),
         b.token(EcmaScriptLexer.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
@@ -1347,7 +1357,13 @@ public class JavaScriptGrammar {
 
   public InitializedBindingElementTree INITIALISED_BINDING_ELEMENT() {
     return b.<InitializedBindingElementTree>nonterminal(EcmaScriptLexer.INITIALISED_BINDING_ELEMENT)
-      .is(f.initializedBindingElement(b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
+      .is(f.initializedBindingElement(
+        b.firstOf(
+          FLOW_TYPED_BINDING_ELEMENT(),
+          BINDING_IDENTIFIER(),
+          BINDING_PATTERN()),
+        b.token(JavaScriptPunctuator.EQU),
+        ASSIGNMENT_EXPRESSION()));
   }
 
   public ObjectBindingPatternTree OBJECT_BINDING_PATTERN() {
@@ -1387,6 +1403,8 @@ public class JavaScriptGrammar {
     return b.<BindingElementTree>nonterminal(EcmaScriptLexer.BINDING_ELEMENT)
       .is(b.firstOf(
         INITIALISED_BINDING_ELEMENT(),
+        FLOW_TYPED_BINDING_ELEMENT(),
+        FLOW_OPTIONAL_BINDING_ELEMENT(),
         BINDING_IDENTIFIER(),
         BINDING_PATTERN()));
   }
@@ -1516,12 +1534,14 @@ public class JavaScriptGrammar {
             b.optional(b.token(EcmaScriptLexer.STATIC)),
             b.token(JavaScriptPunctuator.STAR),
             PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
+            b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK()),
           f.method(
             b.zeroOrMore(DECORATOR()),
             b.optional(b.token(EcmaScriptLexer.STATIC)),
             b.optional(b.token(EcmaScriptLexer.ASYNC)),
             PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
+            b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK()),
           f.accessor(
             b.zeroOrMore(DECORATOR()),
@@ -1531,6 +1551,7 @@ public class JavaScriptGrammar {
               b.token(EcmaScriptLexer.SET)),
             PROPERTY_NAME(),
             FORMAL_PARAMETER_CLAUSE(),
+            b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK())));
   }
 
@@ -1540,6 +1561,7 @@ public class JavaScriptGrammar {
         f.functionAndGeneratorDeclaration(
           b.optional(b.token(EcmaScriptLexer.ASYNC)),
           b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_CLAUSE(),
+          b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
   }
 
@@ -1691,6 +1713,63 @@ public class JavaScriptGrammar {
           b.optional(MODULE_BODY()),
           b.token(EcmaScriptLexer.SCRIPT_TAG_CLOSE))));
   }
+
+
+  // [START] FLOW
+
+  public FlowTypeTree FLOW_TYPE() {
+    return b.<FlowTypeTree>nonterminal()
+      .is(b.firstOf(
+        // TODO
+        FLOW_OPTIONAL_TYPE(),
+        FLOW_SIMPLE_TYPE(),
+        FLOW_LITERAL_TYPE()
+      ));
+  }
+
+  public FlowSimpleTypeTree FLOW_SIMPLE_TYPE() {
+    return b.<FlowSimpleTypeTree>nonterminal(Kind.FLOW_SIMPLE_TYPE)
+      .is(b.firstOf(
+        f.flowSimpleType(IDENTIFIER_REFERENCE()),
+        f.flowSimpleType(b.token(JavaScriptKeyword.VOID)),
+        f.flowSimpleType(b.token(JavaScriptKeyword.NULL))));
+  }
+
+  public FlowOptionalTypeTree FLOW_OPTIONAL_TYPE() {
+    return b.<FlowOptionalTypeTree>nonterminal(Kind.FLOW_OPTIONAL_TYPE)
+      .is(f.flowOptionalType(b.token(JavaScriptPunctuator.QUERY), FLOW_TYPE()));
+  }
+
+  public FlowLiteralTypeTree FLOW_LITERAL_TYPE() {
+    return b.<FlowLiteralTypeTree>nonterminal(Kind.FLOW_LITERAL_TYPE)
+      .is(b.firstOf(
+        f.flowLiteralType(b.optional(b.token(JavaScriptPunctuator.MINUS)), b.token(JavaScriptTokenType.NUMERIC_LITERAL)),
+        f.flowLiteralType(b.firstOf(
+          b.token(JavaScriptKeyword.TRUE),
+          b.token(JavaScriptKeyword.FALSE),
+          b.token(EcmaScriptLexer.STRING_LITERAL)))));
+  }
+
+  public FlowTypeAnnotationTree FLOW_TYPE_ANNOTATION() {
+    return b.<FlowTypeAnnotationTree>nonterminal(Kind.FLOW_TYPE_ANNOTATION)
+      .is(f.flowTypeAnnotation(b.token(JavaScriptPunctuator.COLON), FLOW_TYPE()));
+  }
+
+  public FlowTypedBindingElementTree FLOW_TYPED_BINDING_ELEMENT() {
+    return b.<FlowTypedBindingElementTree>nonterminal(Kind.FLOW_TYPED_BINDING_ELEMENT)
+      .is(f.flowTypedBindingElement(
+        b.firstOf(FLOW_OPTIONAL_BINDING_ELEMENT(), BINDING_IDENTIFIER(), BINDING_PATTERN()),
+        FLOW_TYPE_ANNOTATION()));
+  }
+
+  public FlowOptionalBindingElementTree FLOW_OPTIONAL_BINDING_ELEMENT() {
+    return b.<FlowOptionalBindingElementTree>nonterminal(Kind.FLOW_OPTIONAL_BINDING_ELEMENT)
+      .is(f.flowOptionalBindingElement(
+        b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()),
+        b.token(JavaScriptPunctuator.QUERY)));
+  }
+
+  // [END] FLOW
 
 
   private static <T> T ES6(T object) {

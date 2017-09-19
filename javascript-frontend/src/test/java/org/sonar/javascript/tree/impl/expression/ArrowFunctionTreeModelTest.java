@@ -38,6 +38,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
     assertThat(tree.parameterClause() instanceof IdentifierTree).isTrue();
     assertThat(((IdentifierTree) tree.parameterClause()).name()).isEqualTo("p");
+    assertThat(tree.returnType()).isNull();
     assertThat(tree.doubleArrowToken().text()).isEqualTo("=>");
     assertThat(expressionToString(tree.body())).isEqualTo("p");
   }
@@ -100,4 +101,9 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.asyncToken()).isNull();
   }
 
+  @Test
+  public void flow_typed() throws Exception {
+    ArrowFunctionTree tree = parse("(p1, p2): number => p;", Kind.ARROW_FUNCTION);
+    assertThat(tree.returnType()).isNotNull();
+  }
 }

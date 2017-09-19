@@ -46,6 +46,9 @@
 'project:babylon/scripts/yarn-install.js':[
 11,
 ],
+'project:babylon/test/fixtures/flow/regression/issue-2493/actual.js':[
+2,
+],
 'project:dojo-1.8.1/dijit/_editor/RichText.js.uncompressed.js':[
 2003,
 ],

@@ -110,6 +110,9 @@
 'project:google-closure-library/useragent/adobereader.js':[
 35,
 ],
+'project:jest/packages/jest-config/src/validate_pattern.js':[
+15,
+],
 'project:mootools-core-1.4.5-full-nocompat.js':[
 245,
 301,
