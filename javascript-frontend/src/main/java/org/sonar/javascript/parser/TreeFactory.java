@@ -107,6 +107,7 @@ import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterClauseTreeIm
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowIndexerPropertyDefinitionKeyTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowInterfaceDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowObjectTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalBindingElementTreeImpl;
@@ -219,6 +220,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClaus
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
@@ -1891,6 +1893,12 @@ public class TreeFactory {
       equalToken,
       flowTypeTree,
       nullableSemicolonToken(semicolonToken));
+  }
+
+  public FlowInterfaceDeclarationTree flowInterfaceDeclaration(
+    InternalSyntaxToken interfaceToken, IdentifierTree identifierTree, InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken
+  ) {
+    return new FlowInterfaceDeclarationTreeImpl(interfaceToken, identifierTree, openCurlyBraceToken, closeCurlyBraceToken);
   }
 
   private static class ConditionalExpressionTail {

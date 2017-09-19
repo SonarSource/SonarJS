@@ -96,6 +96,7 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttribute
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
@@ -1190,7 +1191,9 @@ public class JavaScriptGrammar {
             EXPORT_DEFAULT_BINDING_WITH_EXPORT_LIST(),
             VARIABLE_STATEMENT(),
             CLASS_DECLARATION(),
-            FUNCTION_AND_GENERATOR_DECLARATION())));
+            FUNCTION_AND_GENERATOR_DECLARATION(),
+            FLOW_TYPE_ALIAS_STATEMENT(),
+            FLOW_INTERFACE_DECLARATION())));
   }
 
   public ExportClauseTree EXPORT_CLAUSE() {
@@ -1886,6 +1889,16 @@ public class JavaScriptGrammar {
   public InternalSyntaxToken FLOW_TYPE_KEYWORD() {
     return b.<InternalSyntaxToken>nonterminal()
       .is(b.firstOf(b.token(JavaScriptKeyword.TYPEOF), b.token(EcmaScriptLexer.TYPE)));
+  }
+
+  // TODO: temp impl for export declaration
+  public FlowInterfaceDeclarationTree FLOW_INTERFACE_DECLARATION() {
+    return b.<FlowInterfaceDeclarationTree>nonterminal()
+      .is(f.flowInterfaceDeclaration(
+        b.token(EcmaScriptLexer.INTERFACE),
+        BINDING_IDENTIFIER(),
+        b.token(JavaScriptPunctuator.LCURLYBRACE),
+        b.token(JavaScriptPunctuator.RCURLYBRACE)));
   }
 
   // [END] FLOW

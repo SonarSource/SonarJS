@@ -318,6 +318,7 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
   // Flow
   OPAQUE,
   TYPE,
+  INTERFACE,
 
   ;
 
@@ -452,6 +453,7 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
     // Flow
     b.rule(OPAQUE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "opaque"));
     b.rule(TYPE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "type"));
+    b.rule(INTERFACE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "interface"));
 
     // Temporary rules waiting for b.nextNot method migration
     b.rule(NEXT_NOT_LET_AND_BRACKET).is(b.nextNot(LET, LBRACKET));

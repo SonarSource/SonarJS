@@ -26,7 +26,6 @@ import static org.sonar.javascript.utils.Assertions.assertThat;
 
 public class ExportDeclarationTest {
 
-
   @Test
   public void ok() {
     assertThat(EcmaScriptLexer.EXPORT_DECLARATION)
@@ -58,5 +57,19 @@ public class ExportDeclarationTest {
 
     ;
   }
+
+  @Test
+  public void flow() {
+    assertThat(EcmaScriptLexer.EXPORT_DECLARATION)
+      // type alias
+//      .matches("export type A = B")
+//      .matches("export opaque type A = B")
+
+      // interface
+      .matches("export interface I {}")
+
+    ;
+  }
+
 
 }

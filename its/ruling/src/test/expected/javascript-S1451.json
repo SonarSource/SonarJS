@@ -470,6 +470,9 @@
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_type/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_type_export/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/optional-type/1/actual.js':[
 0,
 ],
@@ -501,6 +504,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-alias/1/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-alias/3/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/1/actual.js':[
@@ -699,6 +705,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/with-default-valid/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-exports/alias/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-imports/import-type-shorthand/actual.js':[
@@ -15399,6 +15408,15 @@
 0,
 ],
 'project:jest/test_utils.js':[
+0,
+],
+'project:jest/types/Global.js':[
+0,
+],
+'project:jest/types/Jasmine.js':[
+0,
+],
+'project:jest/types/Mock.js':[
 0,
 ],
 'project:jquery-1.7.2.js':[

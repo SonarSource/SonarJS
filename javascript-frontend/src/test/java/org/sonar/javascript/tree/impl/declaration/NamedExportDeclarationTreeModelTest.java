@@ -100,4 +100,14 @@ public class NamedExportDeclarationTreeModelTest extends JavaScriptTreeModelTest
     assertThat(expressionToString(exportDefaultBinding.fromClause())).isEqualTo("from 'mod'");
     assertThat(exportDefaultBinding.semicolonToken().text()).isEqualTo(";");
   }
+
+  @Test
+  public void flow() throws Exception {
+    NamedExportDeclarationTree tree = parse("export type A = B;", Kind.NAMED_EXPORT_DECLARATION);
+    assertThat(tree.object().is(Kind.FLOW_TYPE_ALIAS_STATEMENT)).isTrue();
+
+    tree = parse("export interface Foo{}", Kind.NAMED_EXPORT_DECLARATION);
+    assertThat(tree.object().is(Kind.FLOW_INTERFACE_DECLARATION)).isTrue();
+  }
+
 }
