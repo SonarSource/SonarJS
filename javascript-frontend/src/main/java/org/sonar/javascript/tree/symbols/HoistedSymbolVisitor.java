@@ -22,9 +22,9 @@ package org.sonar.javascript.tree.symbols;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.config.Settings;
+import org.sonar.javascript.tree.impl.declaration.ClassTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.ClassTreeImpl;
 import org.sonar.javascript.tree.impl.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.tree.symbols.type.ObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -34,12 +34,13 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceImportTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -123,24 +124,22 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitSpecifier(SpecifierTree tree) {
-    if (tree.is(Kind.IMPORT_SPECIFIER, Kind.NAMESPACE_IMPORT_SPECIFIER)) {
-      IdentifierTree localName;
-      if (tree.localName() != null) {
-        localName = tree.localName();
-
-      } else {
-        localName = (IdentifierTree) tree.name();
-      }
-
-      declareImportedSymbol(localName);
+    if (tree.is(Kind.IMPORT_SPECIFIER)) {
+      declareImportedSymbol(tree.rightName() == null ? tree.leftName() : tree.rightName());
     }
     super.visitSpecifier(tree);
   }
 
   @Override
+  public void visitNameSpaceImport(NameSpaceImportTree tree) {
+    declareImportedSymbol(tree.localName());
+    super.visitNameSpaceImport(tree);
+  }
+
+  @Override
   public void visitImportClause(ImportClauseTree tree) {
-    if (tree.defaultImport() != null) {
-      declareImportedSymbol(tree.defaultImport());
+    if (tree.firstSubClause().is(Kind.BINDING_IDENTIFIER)) {
+      declareImportedSymbol((IdentifierTree) tree.firstSubClause());
     }
     super.visitImportClause(tree);
   }

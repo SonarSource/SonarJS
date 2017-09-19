@@ -54,12 +54,12 @@ import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeI
 import org.sonar.javascript.tree.impl.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ModuleTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.NameSpaceExportDeclarationTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.NameSpaceSpecifierTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.NameSpaceImportTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.NamedExportDeclarationTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.NamedImportExportClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ScriptTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.SpecifierTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArgumentListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrayAssignmentPatternTreeImpl;
@@ -166,13 +166,15 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportSubClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceImportTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
@@ -1138,11 +1140,15 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SeparatedListImpl<>(specifiers, commas);
+    return new SeparatedListImpl(specifiers, commas);
   }
 
-  public SpecifierListTree exportList(InternalSyntaxToken openCurlyBraceToken, Optional<SeparatedList<SpecifierTree>> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
-    return new SpecifierListTreeImpl(
+  public NamedImportExportClauseTree exportList(
+    InternalSyntaxToken openCurlyBraceToken,
+    Optional<SeparatedList<SpecifierTree>> specifierList,
+    InternalSyntaxToken closeCurlyBraceToken
+  ) {
+    return new NamedImportExportClauseTreeImpl(
       Kind.EXPORT_LIST,
       openCurlyBraceToken,
       specifierList.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
@@ -1161,7 +1167,7 @@ public class TreeFactory {
     return new NameSpaceExportDeclarationTreeImpl(exportToken, starToken, asToken, synonymIdentifier, fromClause, nullableSemicolonToken(semicolonToken));
   }
 
-  public ExportClauseTree exportClause(SpecifierListTree exportList, Optional<FromClauseTree> fromClause, Tree semicolonToken) {
+  public ExportClauseTree exportClause(NamedImportExportClauseTree exportList, Optional<FromClauseTree> fromClause, Tree semicolonToken) {
     if (fromClause.isPresent()) {
       return new ExportClauseTreeImpl(exportList, fromClause.get(), nullableSemicolonToken(semicolonToken));
     }
@@ -1187,13 +1193,13 @@ public class TreeFactory {
   }
 
   public ExportDefaultBindingWithExportList exportDefaultBindingWithExportList(
-    IdentifierTree identifierTree, InternalSyntaxToken commaToken, SpecifierListTree specifierListTree,
+    IdentifierTree identifierTree, InternalSyntaxToken commaToken, NamedImportExportClauseTree namedImportsTree,
     FromClauseTree fromClauseTree, Tree semicolon
   ) {
     return new ExportDefaultBindingWithExportListImpl(
       identifierTree,
       commaToken,
-      specifierListTree,
+      namedImportsTree,
       fromClauseTree,
       nullableSemicolonToken(semicolon));
   }
@@ -1202,7 +1208,7 @@ public class TreeFactory {
     return new ImportModuleDeclarationTreeImpl(importToken, moduleName, nullableSemicolonToken(semicolonToken));
   }
 
-  public SpecifierTree newImportSpecifier(IdentifierTree name, InternalSyntaxToken asToken, IdentifierTree identifier) {
+  public SpecifierTree importSpecifier(IdentifierTree name, InternalSyntaxToken asToken, IdentifierTree identifier) {
     return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, name, asToken, identifier);
   }
 
@@ -1230,32 +1236,30 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SeparatedListImpl<>(specifiers, commas);
+    return new SeparatedListImpl(specifiers, commas);
   }
 
-  public SpecifierListTree importList(InternalSyntaxToken openCurlyBraceToken, Optional<SeparatedList<SpecifierTree>> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
-    return new SpecifierListTreeImpl(
-      Kind.IMPORT_LIST,
+  public NamedImportExportClauseTree namedImports(
+    InternalSyntaxToken openCurlyBraceToken,
+    Optional<SeparatedList<SpecifierTree>> specifierList,
+    InternalSyntaxToken closeCurlyBraceToken
+  ) {
+    return new NamedImportExportClauseTreeImpl(
+      Kind.NAMED_IMPORTS,
       openCurlyBraceToken,
-      specifierList.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
+      specifierList.or(new SeparatedListImpl(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
   }
 
-  public SpecifierTree nameSpaceImport(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTree localName) {
-    return new NameSpaceSpecifierTreeImpl(starToken, asToken, localName);
+  public NameSpaceImportTree nameSpaceImport(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTree localName) {
+    return new NameSpaceImportTreeImpl(starToken, asToken, localName);
   }
 
-  public ImportClauseTree defaultImport(IdentifierTree identifierTree, Optional<Tuple<InternalSyntaxToken, DeclarationTree>> namedImport) {
-    if (namedImport.isPresent()) {
-      return new ImportClauseTreeImpl(identifierTree, namedImport.get().first(), namedImport.get().second());
-    }
-    return new ImportClauseTreeImpl(identifierTree);
+  public ImportClauseTree importClauseWithTwoParts(IdentifierTree identifierTree, InternalSyntaxToken commaToken, ImportSubClauseTree secondSubClause) {
+    return new ImportClauseTreeImpl(identifierTree, commaToken, secondSubClause);
   }
 
-  public ImportClauseTree importClause(DeclarationTree importTree) {
-    if (importTree instanceof ImportClauseTree) {
-      return (ImportClauseTreeImpl) importTree;
-    }
-    return new ImportClauseTreeImpl(importTree);
+  public ImportClauseTree importClause(ImportSubClauseTree firstSubClause) {
+    return new ImportClauseTreeImpl(firstSubClause);
   }
 
   public ImportDeclarationTree importDeclaration(InternalSyntaxToken importToken, ImportClauseTree importClause, FromClauseTree fromClause, Tree semicolonToken) {

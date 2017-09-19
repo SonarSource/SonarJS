@@ -25,6 +25,7 @@ import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportSubClauseTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
@@ -37,7 +38,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </ul>
  */
 @Beta
-public interface IdentifierTree extends ExpressionTree, BindingElementTree {
+public interface IdentifierTree extends ExpressionTree, BindingElementTree, ImportSubClauseTree {
 
   SyntaxToken identifierToken();
 

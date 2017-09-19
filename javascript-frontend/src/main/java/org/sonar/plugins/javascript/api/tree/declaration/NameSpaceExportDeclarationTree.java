@@ -24,13 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-/**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Namespace Export Declarations</a>
- * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
- * <pre>
- *    * {@link #fromClause()} ;
- * </pre>
- */
 @Beta
 public interface NameSpaceExportDeclarationTree extends ExportDeclarationTree {
 

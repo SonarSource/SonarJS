@@ -19,19 +19,19 @@
  */
 package org.sonar.javascript.tree.impl.declaration;
 
+import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTest {
+public class ImportDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void import_declaration() throws Exception {
@@ -49,8 +49,7 @@ public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTes
   @Test
   public void import_list() throws Exception {
     ImportDeclarationTree tree = parse("import { foo, bar as bar2 } from 'mod' ;", Kind.IMPORT_DECLARATION);
-    ImportClauseTree importClause = (ImportClauseTree) tree.importClause();
-    SpecifierListTree namedImport = (SpecifierListTree) importClause.namedImport();
+    NamedImportExportClauseTree namedImport = (NamedImportExportClauseTree) tree.importClause().firstSubClause();
     assertSpecifierTree(namedImport.specifiers().get(0), "foo", null, null);
     assertSpecifierTree(namedImport.specifiers().get(1), "bar", "as", "bar2");
     assertThat(expressionToString(tree.fromClause())).isEqualTo("from 'mod'");
@@ -59,8 +58,7 @@ public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTes
   @Test
   public void namespace() throws Exception {
     ImportDeclarationTree tree = parse("import * as foo from 'mod' ;", Kind.IMPORT_DECLARATION);
-    ImportClauseTree importClause = (ImportClauseTree) tree.importClause();
-    assertSpecifierTree((SpecifierTree) importClause.namedImport(), "*", "as", "foo");
+    assertThat(tree.importClause().firstSubClause().is(Kind.NAME_SPACE_IMPORT)).isTrue();
   }
 
   @Test
@@ -73,10 +71,10 @@ public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTes
     assertThat(tree.semicolonToken()).isNotNull();
   }
 
-  private void assertSpecifierTree(SpecifierTree tree, String expectedName, String expectedAsToken, String expectedLocalName) {
-    assertTreeValue(tree.name(), expectedName);
+  private void assertSpecifierTree(SpecifierTree tree, String expectedName, @Nullable String expectedAsToken, @Nullable String expectedLocalName) {
+    assertTreeValue(tree.leftName(), expectedName);
     assertTreeValue(tree.asToken(), expectedAsToken);
-    assertTreeValue(tree.localName(), expectedLocalName);
+    assertTreeValue(tree.rightName(), expectedLocalName);
   }
 
   private void assertTreeValue(Tree tree, String expectedValue) {

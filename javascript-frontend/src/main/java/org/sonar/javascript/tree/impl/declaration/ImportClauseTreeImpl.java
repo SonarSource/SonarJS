@@ -23,41 +23,33 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportSubClauseTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ImportClauseTreeImpl extends JavaScriptTree implements ImportClauseTree {
 
-  private IdentifierTree defaultImport;
-  private SyntaxToken commaToken;
-  private DeclarationTree namedImport;
+  private final ImportSubClauseTree firstSubClause;
+  private final SyntaxToken commaToken;
+  private final ImportSubClauseTree secondSubClause;
 
-  public ImportClauseTreeImpl(IdentifierTree defaultImport) {
-    this.defaultImport = defaultImport;
-
-  }
-
-  public ImportClauseTreeImpl(DeclarationTree namedImport) {
-    this.namedImport = namedImport;
-
-  }
-
-  public ImportClauseTreeImpl(IdentifierTree defaultImport, InternalSyntaxToken commaToken, DeclarationTree namedImport) {
-    this.defaultImport = defaultImport;
+  public ImportClauseTreeImpl(ImportSubClauseTree firstSubClause, SyntaxToken commaToken, ImportSubClauseTree secondSubClause) {
+    this.firstSubClause = firstSubClause;
     this.commaToken = commaToken;
-    this.namedImport = namedImport;
-
+    this.secondSubClause = secondSubClause;
   }
 
-  @Nullable
+  public ImportClauseTreeImpl(ImportSubClauseTree firstSubClause) {
+    this.firstSubClause = firstSubClause;
+    this.commaToken = null;
+    this.secondSubClause = null;
+  }
+
   @Override
-  public IdentifierTree defaultImport() {
-    return defaultImport;
+  public ImportSubClauseTree firstSubClause() {
+    return firstSubClause;
   }
 
   @Nullable
@@ -68,9 +60,10 @@ public class ImportClauseTreeImpl extends JavaScriptTree implements ImportClause
 
   @Nullable
   @Override
-  public DeclarationTree namedImport() {
-    return namedImport;
+  public ImportSubClauseTree secondSubClause() {
+    return secondSubClause;
   }
+
 
   @Override
   public Kind getKind() {
@@ -79,7 +72,7 @@ public class ImportClauseTreeImpl extends JavaScriptTree implements ImportClause
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(defaultImport, commaToken, namedImport);
+    return Iterators.forArray(firstSubClause, commaToken, secondSubClause);
   }
 
   @Override

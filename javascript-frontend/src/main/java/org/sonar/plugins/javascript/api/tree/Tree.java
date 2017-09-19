@@ -42,10 +42,11 @@ import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclaration
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceImportTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
@@ -903,9 +904,9 @@ public interface Tree {
     EXPORT_CLAUSE(ExportClauseTree.class),
 
     /**
-     * {@link SpecifierListTree}
+     * {@link NamedImportExportClauseTree}
      */
-    EXPORT_LIST(SpecifierListTree.class),
+    EXPORT_LIST(NamedImportExportClauseTree.class),
 
     /**
      * {@link ExportDefaultBinding}
@@ -923,14 +924,14 @@ public interface Tree {
     EXPORT_DEFAULT_BINDING_WITH_EXPORT_LIST(ExportDefaultBindingWithExportList.class),
 
     /**
-     * {@link SpecifierListTree
+     * {@link NamedImportExportClauseTree
      */
-    IMPORT_LIST(SpecifierListTree.class),
+    IMPORT_LIST(NamedImportExportClauseTree.class),
 
     /**
-     * {@link SpecifierListTree}
+     * {@link NamedImportExportClauseTree}
      */
-    NAMED_IMPORTS(SpecifierListTree.class),
+    NAMED_IMPORTS(NamedImportExportClauseTree.class),
 
     /**
      * {@link SpecifierTree}
@@ -943,9 +944,9 @@ public interface Tree {
     IMPORT_SPECIFIER(SpecifierTree.class),
 
     /**
-     * {@link SpecifierTree}
+     * {@link NameSpaceImportTree}
      */
-    NAMESPACE_IMPORT_SPECIFIER(SpecifierTree.class),
+    NAME_SPACE_IMPORT(NameSpaceImportTree.class),
 
     /**
      * {@link ImportDeclarationTree}

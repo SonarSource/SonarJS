@@ -26,7 +26,7 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -35,12 +35,12 @@ public class ExportDefaultBindingWithExportListImpl extends JavaScriptTree imple
 
   private final IdentifierTree exportedDefaultIdentifier;
   private final SyntaxToken commaToken;
-  private final SpecifierListTree exportList;
+  private final NamedImportExportClauseTree exportList;
   private final FromClauseTree fromClause;
   private final SyntaxToken semicolonToken;
 
   public ExportDefaultBindingWithExportListImpl(
-    IdentifierTree exportedDefaultIdentifier, SyntaxToken commaToken, SpecifierListTree exportList,
+    IdentifierTree exportedDefaultIdentifier, SyntaxToken commaToken, NamedImportExportClauseTree exportList,
     FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken
   ) {
     this.exportedDefaultIdentifier = exportedDefaultIdentifier;
@@ -71,7 +71,7 @@ public class ExportDefaultBindingWithExportListImpl extends JavaScriptTree imple
   }
 
   @Override
-  public SpecifierListTree exportList() {
+  public NamedImportExportClauseTree exportList() {
     return exportList;
   }
 

@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
@@ -44,7 +43,6 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
     this.importClause = importClause;
     this.fromClause = fromClause;
     this.semicolonToken = semicolonToken;
-
   }
 
   @Override
@@ -53,7 +51,7 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
   }
 
   @Override
-  public DeclarationTree importClause() {
+  public ImportClauseTree importClause() {
     return importClause;
   }
 

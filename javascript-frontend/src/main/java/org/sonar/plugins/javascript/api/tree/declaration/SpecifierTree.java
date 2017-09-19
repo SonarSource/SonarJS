@@ -19,29 +19,22 @@
  */
 package org.sonar.plugins.javascript.api.tree.declaration;
 
-import com.google.common.annotations.Beta;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Specifier</a>
- * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
- * <pre>
- *    {@link #name()}
- *    {@link #name()} as {@link #localName()}
- * </pre>
+ * Used both for import and export
  */
-@Beta
-public interface SpecifierTree extends DeclarationTree {
+public interface SpecifierTree extends Tree {
 
-  Tree name();
+  IdentifierTree leftName();
 
   @Nullable
   SyntaxToken asToken();
 
   @Nullable
-  IdentifierTree localName();
+  IdentifierTree rightName();
 
 }

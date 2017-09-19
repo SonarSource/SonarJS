@@ -20,23 +20,22 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
-import java.util.List;
-import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * <pre>
- *    {@link Tree.Kind#NAMED_EXPORT_DECLARATION export} {@link #object()}
+ *    { {@link #specifiers()} }
+ *    { {@link #specifiers()} , }
  * </pre>
  */
 @Beta
-public interface NamedExportDeclarationTree extends ExportDeclarationTree {
+public interface NamedImportExportClauseTree extends ImportSubClauseTree {
 
-  List<DecoratorTree> decorators();
+  SyntaxToken openCurlyBraceToken();
 
-  @Override
-  SyntaxToken exportToken();
+  SeparatedList<SpecifierTree> specifiers();
 
-  Tree object();
+  SyntaxToken closeCurlyBraceToken();
 
 }

@@ -19,24 +19,7 @@
  */
 package org.sonar.plugins.javascript.api.tree.declaration;
 
-import com.google.common.annotations.Beta;
-import java.util.List;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-/**
- * <pre>
- *    {@link Tree.Kind#NAMED_EXPORT_DECLARATION export} {@link #object()}
- * </pre>
- */
-@Beta
-public interface NamedExportDeclarationTree extends ExportDeclarationTree {
-
-  List<DecoratorTree> decorators();
-
-  @Override
-  SyntaxToken exportToken();
-
-  Tree object();
-
+public interface ImportSubClauseTree extends Tree {
 }

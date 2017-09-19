@@ -35,7 +35,7 @@ public interface ExportDefaultBindingWithExportList extends Tree {
 
   SyntaxToken commaToken();
 
-  SpecifierListTree exportList();
+  NamedImportExportClauseTree exportList();
 
   FromClauseTree fromClause();
 

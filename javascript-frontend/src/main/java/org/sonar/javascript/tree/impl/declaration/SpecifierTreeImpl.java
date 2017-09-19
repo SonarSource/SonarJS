@@ -23,7 +23,6 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -33,28 +32,42 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
   private final Kind kind;
-  private IdentifierTree name;
+  private final IdentifierTree leftName;
   private final SyntaxToken asToken;
-  private final IdentifierTree localName;
+  private final IdentifierTree rightName;
 
-  public SpecifierTreeImpl(Kind kind, IdentifierTree name) {
+  public SpecifierTreeImpl(Kind kind, IdentifierTree leftName, SyntaxToken asToken, IdentifierTree rightName) {
     this.kind = kind;
-    this.name = name;
-    this.asToken = null;
-    this.localName = null;
-
-  }
-
-  public SpecifierTreeImpl(Kind kind, IdentifierTree name, InternalSyntaxToken asToken, IdentifierTree localName) {
-    this.kind = kind;
-    this.name = name;
+    this.leftName = leftName;
     this.asToken = asToken;
-    this.localName = localName;
-
+    this.rightName = rightName;
   }
+
+  public SpecifierTreeImpl(Kind kind, IdentifierTree leftName) {
+    this.kind = kind;
+    this.leftName = leftName;
+    this.asToken = null;
+    this.rightName = null;
+  }
+
   @Override
-  public IdentifierTree name() {
-    return name;
+  public Kind getKind() {
+    return kind;
+  }
+
+  @Override
+  public Iterator<Tree> childrenIterator() {
+    return Iterators.forArray(leftName, asToken, rightName);
+  }
+
+  @Override
+  public void accept(DoubleDispatchVisitor visitor) {
+    visitor.visitSpecifier(this);
+  }
+
+  @Override
+  public IdentifierTree leftName() {
+    return leftName;
   }
 
   @Nullable
@@ -65,22 +78,7 @@ public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
   @Nullable
   @Override
-  public IdentifierTree localName() {
-    return localName;
-  }
-
-  @Override
-  public Kind getKind() {
-    return kind;
-  }
-
-  @Override
-  public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(name, asToken, localName);
-  }
-
-  @Override
-  public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitSpecifier(this);
+  public IdentifierTree rightName() {
+    return rightName;
   }
 }

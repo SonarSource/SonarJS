@@ -51,13 +51,13 @@ import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceImportTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
@@ -1231,8 +1231,8 @@ public class JavaScriptGrammar {
         b.token(EcmaScriptLexer.EOS)));
   }
 
-  public SpecifierListTree EXPORT_LIST() {
-    return b.<SpecifierListTree>nonterminal(Kind.EXPORT_LIST)
+  public NamedImportExportClauseTree EXPORT_LIST() {
+    return b.<NamedImportExportClauseTree>nonterminal(Kind.EXPORT_LIST)
       .is(f.exportList(
         b.token(JavaScriptPunctuator.LCURLYBRACE),
         b.optional(EXPORT_LIST_BODY()),
@@ -1251,6 +1251,7 @@ public class JavaScriptGrammar {
   public SpecifierTree EXPORT_SPECIFIER() {
     return b.<SpecifierTree>nonterminal(Kind.EXPORT_SPECIFIER)
       .is(b.firstOf(
+        // why not reference to identifier?
         f.exportSpecifier(IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME()),
         f.exportSpecifier(IDENTIFIER_NAME())
       ));
@@ -1277,53 +1278,40 @@ public class JavaScriptGrammar {
 
   }
 
-  public ImportModuleDeclarationTree IMPORT_MODULE_DECLARATION() {
-    return b.<ImportModuleDeclarationTree>nonterminal()
-      .is(f.importModuleDeclaration(
-        b.token(JavaScriptKeyword.IMPORT), STRING_LITERAL(), b.token(EcmaScriptLexer.EOS))
-      );
-  }
-
-  public SpecifierListTree IMPORT_LIST() {
-    return b.<SpecifierListTree>nonterminal(Kind.IMPORT_LIST)
-      .is(f.importList(
+  public NamedImportExportClauseTree NAMED_IMPORTS() {
+    return b.<NamedImportExportClauseTree>nonterminal(Kind.NAMED_IMPORTS)
+      .is(f.namedImports(
         b.token(JavaScriptPunctuator.LCURLYBRACE),
         b.optional(f.newImportSpecifierList(
           IMPORT_SPECIFIER(),
           b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), IMPORT_SPECIFIER())),
           b.optional(b.token(JavaScriptPunctuator.COMMA)))),
-        b.token(JavaScriptPunctuator.RCURLYBRACE)
-      ));
+        b.token(JavaScriptPunctuator.RCURLYBRACE)));
   }
 
   public SpecifierTree IMPORT_SPECIFIER() {
     return b.<SpecifierTree>nonterminal(Kind.IMPORT_SPECIFIER)
       .is(b.firstOf(
-        f.newImportSpecifier(IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), BINDING_IDENTIFIER()),
+        f.importSpecifier(IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), BINDING_IDENTIFIER()),
         f.importSpecifier(BINDING_IDENTIFIER())
       ));
   }
 
-  public SpecifierTree NAMESPACE_IMPORT() {
-    return b.<SpecifierTree>nonterminal(Kind.NAMESPACE_IMPORT_SPECIFIER)
+  public NameSpaceImportTree NAMESPACE_IMPORT() {
+    return b.<NameSpaceImportTree>nonterminal(Kind.NAME_SPACE_IMPORT)
       .is(f.nameSpaceImport(
         b.token(JavaScriptPunctuator.STAR),
         b.token(EcmaScriptLexer.AS),
-        BINDING_IDENTIFIER()
-      ));
+        BINDING_IDENTIFIER()));
   }
 
   public ImportClauseTree IMPORT_CLAUSE() {
     return b.<ImportClauseTree>nonterminal(Kind.IMPORT_CLAUSE)
-      .is(f.importClause(
-        b.firstOf(
-          IMPORT_LIST(),
-          NAMESPACE_IMPORT(),
-          f.defaultImport(
-            BINDING_IDENTIFIER(),
-            b.optional(f.newTuple(b.token(JavaScriptPunctuator.COMMA), b.firstOf(NAMESPACE_IMPORT(), IMPORT_LIST()))))
-        )
-      ));
+      .is(b.firstOf(
+        f.importClauseWithTwoParts(BINDING_IDENTIFIER(), b.token(JavaScriptPunctuator.COMMA), b.firstOf(NAMESPACE_IMPORT(), NAMED_IMPORTS())),
+        f.importClause(BINDING_IDENTIFIER()),
+        f.importClause(NAMESPACE_IMPORT()),
+        f.importClause(NAMED_IMPORTS())));
   }
 
   public DeclarationTree IMPORT_DECLARATION() {
@@ -1334,8 +1322,10 @@ public class JavaScriptGrammar {
           IMPORT_CLAUSE(),
           FROM_CLAUSE(),
           b.token(EcmaScriptLexer.EOS)),
-        IMPORT_MODULE_DECLARATION()
-      ));
+        f.importModuleDeclaration(
+          b.token(JavaScriptKeyword.IMPORT),
+          STRING_LITERAL(),
+          b.token(EcmaScriptLexer.EOS))));
   }
 
   public ModuleTree MODULE_BODY() {
