@@ -1292,7 +1292,9 @@ public class JavaScriptGrammar {
   public SpecifierTree IMPORT_SPECIFIER() {
     return b.<SpecifierTree>nonterminal(Kind.IMPORT_SPECIFIER)
       .is(b.firstOf(
+        f.importSpecifier(FLOW_TYPE_KEYWORD(), IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), BINDING_IDENTIFIER()),
         f.importSpecifier(IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), BINDING_IDENTIFIER()),
+        f.importSpecifier(FLOW_TYPE_KEYWORD(), BINDING_IDENTIFIER()),
         f.importSpecifier(BINDING_IDENTIFIER())
       ));
   }
@@ -1319,6 +1321,13 @@ public class JavaScriptGrammar {
       .is(b.firstOf(
         f.importDeclaration(
           b.token(JavaScriptKeyword.IMPORT),
+          IMPORT_CLAUSE(),
+          FROM_CLAUSE(),
+          b.token(EcmaScriptLexer.EOS)),
+        // Flow import
+        f.importDeclaration(
+          b.token(JavaScriptKeyword.IMPORT),
+          FLOW_TYPE_KEYWORD(),
           IMPORT_CLAUSE(),
           FROM_CLAUSE(),
           b.token(EcmaScriptLexer.EOS)),
@@ -1872,6 +1881,11 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.EQU),
         FLOW_TYPE(),
         b.token(EcmaScriptLexer.EOS)));
+  }
+
+  public InternalSyntaxToken FLOW_TYPE_KEYWORD() {
+    return b.<InternalSyntaxToken>nonterminal()
+      .is(b.firstOf(b.token(JavaScriptKeyword.TYPEOF), b.token(EcmaScriptLexer.TYPE)));
   }
 
   // [END] FLOW

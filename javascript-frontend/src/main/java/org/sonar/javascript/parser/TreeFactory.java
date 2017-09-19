@@ -1113,11 +1113,11 @@ public class TreeFactory {
   }
 
   public SpecifierTree exportSpecifier(IdentifierTree name1, InternalSyntaxToken asToken, IdentifierTree name2) {
-    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name1, asToken, name2);
+    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, null, name1, asToken, name2);
   }
 
   public SpecifierTree exportSpecifier(IdentifierTree name) {
-    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name);
+    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, null, name);
   }
 
   public SeparatedList<SpecifierTree> exportListBody(
@@ -1209,11 +1209,19 @@ public class TreeFactory {
   }
 
   public SpecifierTree importSpecifier(IdentifierTree name, InternalSyntaxToken asToken, IdentifierTree identifier) {
-    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, name, asToken, identifier);
+    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, null, name, asToken, identifier);
   }
 
   public SpecifierTree importSpecifier(IdentifierTree name) {
-    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, name);
+    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, null, name);
+  }
+
+  public SpecifierTree importSpecifier(InternalSyntaxToken typeToken, IdentifierTree name, InternalSyntaxToken asToken, IdentifierTree identifier) {
+    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, typeToken, name, asToken, identifier);
+  }
+
+  public SpecifierTree importSpecifier(InternalSyntaxToken typeToken, IdentifierTree name) {
+    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, typeToken, name);
   }
 
   public SeparatedList<SpecifierTree> newImportSpecifierList(
@@ -1263,7 +1271,17 @@ public class TreeFactory {
   }
 
   public ImportDeclarationTree importDeclaration(InternalSyntaxToken importToken, ImportClauseTree importClause, FromClauseTree fromClause, Tree semicolonToken) {
-    return new ImportDeclarationTreeImpl(importToken, importClause, fromClause, nullableSemicolonToken(semicolonToken));
+    return new ImportDeclarationTreeImpl(importToken, null, importClause, fromClause, nullableSemicolonToken(semicolonToken));
+  }
+
+  public ImportDeclarationTree importDeclaration(
+    InternalSyntaxToken importToken,
+    InternalSyntaxToken typeToken,
+    ImportClauseTree importClause,
+    FromClauseTree fromClause,
+    Tree semicolonToken
+  ) {
+    return new ImportDeclarationTreeImpl(importToken, typeToken, importClause, fromClause, nullableSemicolonToken(semicolonToken));
   }
 
   public ModuleTree module(List<Tree> items) {

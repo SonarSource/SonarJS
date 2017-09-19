@@ -33,13 +33,21 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportDeclarationTree {
 
-  private SyntaxToken importToken;
-  private ImportClauseTree importClause;
-  private FromClauseTree fromClause;
+  private final SyntaxToken importToken;
+  private final SyntaxToken flowImportTypeOfTypeOfToken;
+  private final ImportClauseTree importClause;
+  private final FromClauseTree fromClause;
   private final SyntaxToken semicolonToken;
 
-  public ImportDeclarationTreeImpl(InternalSyntaxToken importToken, ImportClauseTree importClause, FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken) {
+  public ImportDeclarationTreeImpl(
+    InternalSyntaxToken importToken,
+    @Nullable SyntaxToken flowImportTypeOfTypeOfToken,
+    ImportClauseTree importClause,
+    FromClauseTree fromClause,
+    @Nullable SyntaxToken semicolonToken
+  ) {
     this.importToken = importToken;
+    this.flowImportTypeOfTypeOfToken = flowImportTypeOfTypeOfToken;
     this.importClause = importClause;
     this.fromClause = fromClause;
     this.semicolonToken = semicolonToken;
@@ -48,6 +56,12 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
   @Override
   public SyntaxToken importToken() {
     return importToken;
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken flowImportTypeOfTypeOfToken() {
+    return flowImportTypeOfTypeOfToken;
   }
 
   @Override
@@ -73,7 +87,7 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(importToken, importClause, fromClause, semicolonToken);
+    return Iterators.forArray(importToken, flowImportTypeOfTypeOfToken, importClause, fromClause, semicolonToken);
   }
 
   @Override

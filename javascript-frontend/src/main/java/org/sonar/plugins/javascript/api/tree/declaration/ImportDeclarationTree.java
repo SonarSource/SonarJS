@@ -33,6 +33,9 @@ public interface ImportDeclarationTree extends DeclarationTree {
 
   SyntaxToken importToken();
 
+  @Nullable
+  SyntaxToken flowImportTypeOfTypeOfToken();
+
   ImportClauseTree importClause();
 
   FromClauseTree fromClause();

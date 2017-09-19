@@ -29,6 +29,9 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  */
 public interface SpecifierTree extends Tree {
 
+  @Nullable
+  SyntaxToken flowImportTypeOfTypeOfToken();
+
   IdentifierTree leftName();
 
   @Nullable

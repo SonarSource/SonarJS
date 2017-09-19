@@ -32,19 +32,22 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
   private final Kind kind;
+  private final SyntaxToken flowImportTypeOfTypeOfToken;
   private final IdentifierTree leftName;
   private final SyntaxToken asToken;
   private final IdentifierTree rightName;
 
-  public SpecifierTreeImpl(Kind kind, IdentifierTree leftName, SyntaxToken asToken, IdentifierTree rightName) {
+  public SpecifierTreeImpl(Kind kind, @Nullable SyntaxToken flowImportTypeOfTypeOfToken, IdentifierTree leftName, SyntaxToken asToken, IdentifierTree rightName) {
     this.kind = kind;
+    this.flowImportTypeOfTypeOfToken = flowImportTypeOfTypeOfToken;
     this.leftName = leftName;
     this.asToken = asToken;
     this.rightName = rightName;
   }
 
-  public SpecifierTreeImpl(Kind kind, IdentifierTree leftName) {
+  public SpecifierTreeImpl(Kind kind, @Nullable SyntaxToken flowImportTypeOfTypeOfToken, IdentifierTree leftName) {
     this.kind = kind;
+    this.flowImportTypeOfTypeOfToken = flowImportTypeOfTypeOfToken;
     this.leftName = leftName;
     this.asToken = null;
     this.rightName = null;
@@ -57,12 +60,18 @@ public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(leftName, asToken, rightName);
+    return Iterators.forArray(flowImportTypeOfTypeOfToken, leftName, asToken, rightName);
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitSpecifier(this);
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken flowImportTypeOfTypeOfToken() {
+    return flowImportTypeOfTypeOfToken;
   }
 
   @Override
