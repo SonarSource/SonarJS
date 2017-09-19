@@ -5,6 +5,15 @@
 'project:angular-1.0.3.js':[
 5766,
 ],
+'project:babylon/test/fixtures/flow/type-imports/import-type-shorthand/actual.js':[
+6,
+7,
+8,
+],
+'project:babylon/test/fixtures/flow/type-imports/import-type/actual.js':[
+3,
+3,
+],
 'project:babylon/test/fixtures/flow/regression/issue-321/actual.js':[
 2,
 ],

@@ -176,6 +176,9 @@
 'project:google-closure-library/testing/mockmatchers.js':[
 386,
 ],
+'project:jest/packages/jest-snapshot/src/index.js':[
+89,
+],
 'project:ocanvas-2.2.2.js':[
 227,
 ],

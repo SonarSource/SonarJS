@@ -814,6 +814,10 @@
 'project:jest/packages/babel-plugin-jest-hoist/src/index.js':[
 152,
 ],
+'project:jest/packages/pretty-format/src/index.js':[
+50,
+228,
+],
 'project:jquery-1.7.2.js':[
 694,
 768,

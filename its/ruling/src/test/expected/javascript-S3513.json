@@ -4309,6 +4309,17 @@
 'project:jest/packages/jest-jasmine2/src/jasmine/create_spy.js':[
 50,
 ],
+'project:jest/packages/jest-jasmine2/src/jasmine/jasmine_light.js':[
+85,
+89,
+93,
+97,
+101,
+105,
+109,
+113,
+117,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
 48,
 64,

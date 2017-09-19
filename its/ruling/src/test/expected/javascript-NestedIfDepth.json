@@ -2282,6 +2282,9 @@
 'project:jest/packages/babel-plugin-jest-hoist/src/index.js':[
 99,
 ],
+'project:jest/packages/eslint-plugin-jest/src/rules/valid_expect.js':[
+75,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 319,
 324,

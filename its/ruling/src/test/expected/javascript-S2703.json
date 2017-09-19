@@ -266,6 +266,9 @@
 'project:jest/packages/jest-editor-support/src/__tests__/test_reconciler.test.js':[
 33,
 ],
+'project:jest/packages/pretty-format/src/__tests__/asymmetric_matcher.test.js':[
+27,
+],
 'project:jstorage-0.3.0.js':[
 754,
 ],

@@ -585,6 +585,9 @@
 'project:google-closure-library/debug/console.js':[
 196,
 ],
+'project:jest/packages/jest-cli/src/cli/get_jest.js':[
+37,
+],
 'project:jest/packages/jest-runtime/src/__tests__/test_root/logging.js':[
 12,
 14,

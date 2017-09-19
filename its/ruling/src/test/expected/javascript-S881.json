@@ -1228,6 +1228,9 @@
 'project:jest/packages/pretty-format/src/__tests__/immutable.test.js':[
 961,
 ],
+'project:jest/packages/pretty-format/src/index.js':[
+169,
+],
 'project:jquery-1.7.2.js':[
 420,
 430,

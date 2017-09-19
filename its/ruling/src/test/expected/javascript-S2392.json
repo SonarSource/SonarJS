@@ -2824,6 +2824,9 @@
 'project:jest/eslint_import_resolver.js':[
 23,
 ],
+'project:jest/packages/jest-config/src/read_config_file_and_set_root_dir.js':[
+28,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 286,
 287,
@@ -2838,6 +2841,9 @@
 549,
 549,
 549,
+],
+'project:jest/packages/jest-util/src/install_common_globals.js':[
+16,
 ],
 'project:jquery-1.7.2.js':[
 100,

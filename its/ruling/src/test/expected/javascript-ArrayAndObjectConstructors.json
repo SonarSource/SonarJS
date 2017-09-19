@@ -302,6 +302,9 @@
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 540,
 ],
+'project:jest/packages/pretty-format/src/index.js':[
+423,
+],
 'project:jquery-1.7.2.js':[
 1318,
 ],

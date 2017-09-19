@@ -6025,6 +6025,16 @@
 'project:jest/packages/jest-runtime/src/__mocks__/createRuntime.js':[
 17,
 ],
+'project:jest/packages/jest-util/src/get_console_output.js':[
+21,
+22,
+29,
+32,
+],
+'project:jest/packages/pretty-format/src/index.js':[
+166,
+169,
+],
 'project:jest/scripts/_runCommand.js':[
 14,
 ],
