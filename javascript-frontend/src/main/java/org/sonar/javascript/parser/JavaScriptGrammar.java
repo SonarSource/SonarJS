@@ -93,6 +93,10 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTre
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeRestParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
@@ -597,9 +601,9 @@ public class JavaScriptGrammar {
   public ExpressionTree CONDITIONAL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_EXPRESSION)
       .is(f.optionalConditionalExpression(
-          CONDITIONAL_OR_EXPRESSION(),
-          b.optional(
-            f.conditionalExpressionTail(
+        CONDITIONAL_OR_EXPRESSION(),
+        b.optional(
+          f.conditionalExpressionTail(
             b.token(JavaScriptPunctuator.QUERY),
             ASSIGNMENT_EXPRESSION(),
             b.token(JavaScriptPunctuator.COLON),
@@ -1028,9 +1032,9 @@ public class JavaScriptGrammar {
   public SeparatedList<Tree> PROPERTIES() {
     return b.<SeparatedList<Tree>>nonterminal()
       .is(f.properties(
-          PROPERTY_DEFINITION(),
-          b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), PROPERTY_DEFINITION())),
-          b.optional(b.token(JavaScriptPunctuator.COMMA))));
+        PROPERTY_DEFINITION(),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), PROPERTY_DEFINITION())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA))));
   }
 
   public ExpressionTree NEW_EXPRESSION() {
@@ -1351,8 +1355,8 @@ public class JavaScriptGrammar {
   public BindingElementTree BINDING_PATTERN() {
     return b.<BindingElementTree>nonterminal(EcmaScriptLexer.BINDING_PATTERN)
       .is(b.firstOf(
-          OBJECT_BINDING_PATTERN(),
-          ARRAY_BINDING_PATTERN()));
+        OBJECT_BINDING_PATTERN(),
+        ARRAY_BINDING_PATTERN()));
   }
 
   public InitializedBindingElementTree INITIALISED_BINDING_ELEMENT() {
@@ -1395,8 +1399,8 @@ public class JavaScriptGrammar {
   public BindingElementTree BINDING_PROPERTY() {
     return b.<BindingElementTree>nonterminal()
       .is(b.firstOf(
-          f.bindingProperty(PROPERTY_NAME(), b.token(JavaScriptPunctuator.COLON), BINDING_ELEMENT()),
-          BINDING_ELEMENT()));
+        f.bindingProperty(PROPERTY_NAME(), b.token(JavaScriptPunctuator.COLON), BINDING_ELEMENT()),
+        BINDING_ELEMENT()));
   }
 
   public BindingElementTree BINDING_ELEMENT() {
@@ -1415,8 +1419,8 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.LBRACKET),
         b.optional(BINDING_ELEMENT()),
         b.zeroOrMore(f.newTuple(
-            b.token(JavaScriptPunctuator.COMMA),
-            b.optional(BINDING_ELEMENT()))),
+          b.token(JavaScriptPunctuator.COMMA),
+          b.optional(BINDING_ELEMENT()))),
         b.optional(BINDING_REST_ELEMENT()),
         b.token(JavaScriptPunctuator.RBRACKET)));
   }
@@ -1454,8 +1458,8 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.LBRACKET),
         b.optional(ASSIGNMENT_PATTERN_ELEMENT()),
         b.zeroOrMore(f.newTuple(
-            b.token(JavaScriptPunctuator.COMMA),
-            b.optional(ASSIGNMENT_PATTERN_ELEMENT()))),
+          b.token(JavaScriptPunctuator.COMMA),
+          b.optional(ASSIGNMENT_PATTERN_ELEMENT()))),
         b.optional(ASSIGNMENT_PATTERN_REST_ELEMENT()),
         b.token(JavaScriptPunctuator.RBRACKET)));
   }
@@ -1683,7 +1687,6 @@ public class JavaScriptGrammar {
 
   // [END] JSX
 
-
   public ScriptTree SCRIPT() {
     return b.<ScriptTree>nonterminal(EcmaScriptLexer.SCRIPT)
       .is(
@@ -1697,9 +1700,9 @@ public class JavaScriptGrammar {
   public ScriptTree VUE_SCRIPT() {
     return b.<ScriptTree>nonterminal(EcmaScriptLexer.VUE_SCRIPT)
       .is(f.vueScript(
-          b.zeroOrMore(VUE_ELEMENT()),
-          b.token(EcmaScriptLexer.SPACING_NOT_SKIPPED),
-          b.token(EcmaScriptLexer.EOF)));
+        b.zeroOrMore(VUE_ELEMENT()),
+        b.token(EcmaScriptLexer.SPACING_NOT_SKIPPED),
+        b.token(EcmaScriptLexer.EOF)));
   }
 
   public VueElement VUE_ELEMENT() {
@@ -1714,7 +1717,6 @@ public class JavaScriptGrammar {
           b.token(EcmaScriptLexer.SCRIPT_TAG_CLOSE))));
   }
 
-
   // [START] FLOW
 
   public FlowTypeTree FLOW_TYPE() {
@@ -1723,7 +1725,8 @@ public class JavaScriptGrammar {
         // TODO
         FLOW_OPTIONAL_TYPE(),
         FLOW_SIMPLE_TYPE(),
-        FLOW_LITERAL_TYPE()
+        FLOW_LITERAL_TYPE(),
+        FLOW_FUNCTION_TYPE()
       ));
   }
 
@@ -1750,6 +1753,54 @@ public class JavaScriptGrammar {
           b.token(EcmaScriptLexer.STRING_LITERAL)))));
   }
 
+  public FlowFunctionTypeTree FLOW_FUNCTION_TYPE() {
+    return b.<FlowFunctionTypeTree>nonterminal(Kind.FLOW_FUNCTION_TYPE)
+      .is(f.flowFunctionType(FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(), b.token(JavaScriptPunctuator.DOUBLEARROW), FLOW_TYPE()));
+  }
+
+  public FlowFunctionTypeParameterClauseTree FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE() {
+    return b.<FlowFunctionTypeParameterClauseTree>nonterminal(Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE)
+      .is(b.firstOf(
+        f.flowFunctionTypeParameterClause(
+          b.token(JavaScriptPunctuator.LPARENTHESIS),
+          FLOW_FUNCTION_TYPE_PARAMETER_LIST(),
+          b.optional(b.token(JavaScriptPunctuator.COMMA)),
+          b.token(JavaScriptPunctuator.RPARENTHESIS)),
+        f.flowFunctionTypeParameterClause(
+          b.token(JavaScriptPunctuator.LPARENTHESIS),
+          FLOW_FUNCTION_TYPE_PARAMETER_LIST(),
+          b.token(JavaScriptPunctuator.COMMA),
+          FLOW_FUNCTION_TYPE_REST_PARAMETER(),
+          b.token(JavaScriptPunctuator.RPARENTHESIS)),
+        f.flowFunctionTypeParameterClause(
+          b.token(JavaScriptPunctuator.LPARENTHESIS),
+          b.optional(FLOW_FUNCTION_TYPE_REST_PARAMETER()),
+          b.token(JavaScriptPunctuator.RPARENTHESIS))));
+
+  }
+
+  public SeparatedList<FlowFunctionTypeParameterTree> FLOW_FUNCTION_TYPE_PARAMETER_LIST() {
+    return b.<SeparatedList<FlowFunctionTypeParameterTree>>nonterminal()
+      .is(f.flowFunctionTypeParameterList(
+        FLOW_FUNCTION_TYPE_PARAMETER(),
+        b.zeroOrMore(f.newTuple(
+          b.token(JavaScriptPunctuator.COMMA),
+          FLOW_FUNCTION_TYPE_PARAMETER()))
+        ));
+  }
+
+  public FlowFunctionTypeParameterTree FLOW_FUNCTION_TYPE_PARAMETER() {
+    return b.<FlowFunctionTypeParameterTree>nonterminal(Kind.FLOW_FUNCTION_TYPE_PARAMETER)
+      .is(b.firstOf(
+        f.flowFunctionTypeParameter(IDENTIFIER_NAME(), FLOW_TYPE_ANNOTATION()),
+        f.flowFunctionTypeParameter(FLOW_TYPE())));
+  }
+
+  public FlowFunctionTypeRestParameterTree FLOW_FUNCTION_TYPE_REST_PARAMETER() {
+    return b.<FlowFunctionTypeRestParameterTree>nonterminal()
+      .is(f.flowFunctionTypeRestParameter(b.token(JavaScriptPunctuator.ELLIPSIS), FLOW_FUNCTION_TYPE_PARAMETER()));
+  }
+
   public FlowTypeAnnotationTree FLOW_TYPE_ANNOTATION() {
     return b.<FlowTypeAnnotationTree>nonterminal(Kind.FLOW_TYPE_ANNOTATION)
       .is(f.flowTypeAnnotation(b.token(JavaScriptPunctuator.COLON), FLOW_TYPE()));
@@ -1770,7 +1821,6 @@ public class JavaScriptGrammar {
   }
 
   // [END] FLOW
-
 
   private static <T> T ES6(T object) {
     return object;

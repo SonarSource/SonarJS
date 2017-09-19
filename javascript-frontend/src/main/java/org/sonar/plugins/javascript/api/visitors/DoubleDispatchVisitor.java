@@ -93,6 +93,9 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
@@ -170,46 +173,37 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-
   public void visitModule(ModuleTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitImportDeclaration(ImportDeclarationTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitImportModuleDeclaration(ImportModuleDeclarationTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitImportClause(ImportClauseTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitSpecifierList(SpecifierListTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitSpecifier(SpecifierTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitFromClause(FromClauseTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitDefaultExportDeclaration(DefaultExportDeclarationTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitNameSpaceExportDeclaration(NameSpaceExportDeclarationTree tree) {
     scanChildren(tree);
@@ -227,7 +221,6 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-
   public void visitExportDefaultBindingWithExportList(ExportDefaultBindingWithExportList tree) {
     scanChildren(tree);
   }
@@ -236,11 +229,9 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitClass(ClassTree tree) {
     scanChildren(tree);
@@ -278,101 +269,81 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-
   public void visitBlock(BlockTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitEmptyStatement(EmptyStatementTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitLabelledStatement(LabelledStatementTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitExpressionStatement(ExpressionStatementTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitIfStatement(IfStatementTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitElseClause(ElseClauseTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitForStatement(ForStatementTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitWhileStatement(WhileStatementTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitContinueStatement(ContinueStatementTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitIdentifier(IdentifierTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitBreakStatement(BreakStatementTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitReturnStatement(ReturnStatementTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitWithStatement(WithStatementTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitSwitchStatement(SwitchStatementTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitDefaultClause(DefaultClauseTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitCaseClause(CaseClauseTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitThrowStatement(ThrowStatementTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitTryStatement(TryStatementTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitCatchBlock(CatchBlockTree tree) {
     scanChildren(tree);
@@ -386,126 +357,101 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-
   public void visitArrayBindingPattern(ArrayBindingPatternTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitObjectBindingPattern(ObjectBindingPatternTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitObjectLiteral(ObjectLiteralTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitBindingProperty(BindingPropertyTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitLiteral(LiteralTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitArrayLiteral(ArrayLiteralTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitArrowFunction(ArrowFunctionTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitYieldExpression(YieldExpressionTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitBinaryExpression(BinaryExpressionTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitUnaryExpression(UnaryExpressionTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitMemberExpression(MemberExpressionTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitTaggedTemplate(TaggedTemplateTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitCallExpression(CallExpressionTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitTemplateLiteral(TemplateLiteralTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitTemplateExpression(TemplateExpressionTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitTemplateCharacters(TemplateCharactersTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitParenthesisedExpression(ParenthesisedExpressionTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitComputedPropertyName(ComputedPropertyNameTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitPairProperty(PairPropertyTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitNewExpression(NewExpressionTree tree) {
     scanChildren(tree);
   }
 
-
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitRestElement(RestElementTree tree) {
     scanChildren(tree);
@@ -514,7 +460,6 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   public void visitSpreadElement(SpreadElementTree tree) {
     scanChildren(tree);
   }
-
 
   public void visitSuper(SuperTree tree) {
     scanChildren(tree);
@@ -528,7 +473,6 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-
   public void visitForObjectStatement(ForObjectStatementTree tree) {
     scanChildren(tree);
   }
@@ -537,7 +481,7 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-  public void visitJsxText(JsxTextTree tree){
+  public void visitJsxText(JsxTextTree tree) {
     scanChildren(tree);
   }
 
@@ -620,6 +564,18 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
   public void visitFlowOptionalBindingElement(FlowOptionalBindingElementTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowFunctionType(FlowFunctionTypeTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowFunctionTypeParameterClause(FlowFunctionTypeParameterClauseTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowFunctionTypeParameter(FlowFunctionTypeParameterTree tree) {
     scanChildren(tree);
   }
 }

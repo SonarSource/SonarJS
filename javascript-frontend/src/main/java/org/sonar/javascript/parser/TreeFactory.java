@@ -36,6 +36,7 @@ import org.sonar.javascript.tree.impl.SeparatedListImpl;
 import org.sonar.javascript.tree.impl.declaration.AccessorMethodDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.BindingPropertyTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.ClassTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.DecoratorTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ExportClauseTreeImpl;
@@ -69,7 +70,6 @@ import org.sonar.javascript.tree.impl.expression.AssignmentPatternRestElementTre
 import org.sonar.javascript.tree.impl.expression.BinaryExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.CallExpressionTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.ClassTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ComputedPropertyNameTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ConditionalExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
@@ -103,6 +103,10 @@ import org.sonar.javascript.tree.impl.expression.jsx.JsxSpreadAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterClauseTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeRestParameterTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalTypeTreeImpl;
@@ -143,6 +147,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarati
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
@@ -171,7 +176,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -205,6 +209,10 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeRestParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
@@ -691,7 +699,6 @@ public class TreeFactory {
     return new SeparatedListImpl<>(parameters, commas);
   }
 
-
   public ParameterListTree formalParameterClause1(
     InternalSyntaxToken lParenthesis,
     SeparatedList<BindingElementTree> parameters,
@@ -703,7 +710,6 @@ public class TreeFactory {
     }
     return new ParameterListTreeImpl(lParenthesis, parameters, rParenthesis);
   }
-
 
   public ParameterListTree formalParameterClause2(
     InternalSyntaxToken lParenthesis,
@@ -789,7 +795,6 @@ public class TreeFactory {
       return expression;
     }
 
-
     List<Tuple<InternalSyntaxToken, ExpressionTree>> list = operatorAndOperands.get();
     ExpressionTree result = list.get(list.size() - 1).second;
 
@@ -863,7 +868,6 @@ public class TreeFactory {
   public NewTargetTree newTarget(SyntaxToken newKeyword, SyntaxToken dot, SyntaxToken target) {
     return new NewTargetTreeImpl(newKeyword, dot, target);
   }
-
 
   public ExpressionTree memberExpression(ExpressionTree object, Optional<List<ExpressionTail>> tails) {
     return tailedExpression(object, tails);
@@ -952,12 +956,12 @@ public class TreeFactory {
     }
 
     return ClassTreeImpl.newClassExpression(
-        optionalList(decorators),
-        classToken, name.orNull(),
-        extendsClause.orNull(),
-        openCurlyBraceToken,
-        elements,
-        closeCurlyBraceToken);
+      optionalList(decorators),
+      classToken, name.orNull(),
+      extendsClause.orNull(),
+      openCurlyBraceToken,
+      elements,
+      closeCurlyBraceToken);
   }
 
   public ComputedPropertyNameTree computedPropertyName(InternalSyntaxToken openBracketToken, ExpressionTree expression, InternalSyntaxToken closeBracketToken) {
@@ -1748,6 +1752,66 @@ public class TreeFactory {
 
   public FlowLiteralTypeTree flowLiteralType(InternalSyntaxToken token) {
     return new FlowLiteralTypeTreeImpl(null, token);
+  }
+
+  public FlowFunctionTypeTree flowFunctionType(FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClauseTree, InternalSyntaxToken doubleArrow,
+    FlowTypeTree flowTypeTree) {
+    return new FlowFunctionTypeTreeImpl();
+  }
+
+  public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
+    InternalSyntaxToken lParenthesis,
+    SeparatedList<FlowFunctionTypeParameterTree> parameters,
+    Optional<InternalSyntaxToken> comma,
+    InternalSyntaxToken rParenthesis) {
+    return new FlowFunctionTypeParameterClauseTreeImpl();
+  }
+
+  public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
+    InternalSyntaxToken lParenthesis,
+    SeparatedList<FlowFunctionTypeParameterTree> parameters,
+    InternalSyntaxToken comma,
+    FlowFunctionTypeRestParameterTree restParameter,
+    InternalSyntaxToken rParenthesis) {
+    return new FlowFunctionTypeParameterClauseTreeImpl();
+  }
+
+  public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
+    InternalSyntaxToken lParenthesis,
+    Optional<FlowFunctionTypeRestParameterTree> restParameter,
+    InternalSyntaxToken rParenthesis) {
+    return new FlowFunctionTypeParameterClauseTreeImpl();
+  }
+
+  public SeparatedList<FlowFunctionTypeParameterTree> flowFunctionTypeParameterList(
+    FlowFunctionTypeParameterTree parameter,
+    Optional<List<Tuple<InternalSyntaxToken, FlowFunctionTypeParameterTree>>> trailingParameters
+  ) {
+    List<FlowFunctionTypeParameterTree> parameters = Lists.newArrayList();
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+
+    parameters.add(parameter);
+
+    if (trailingParameters.isPresent()) {
+      for (Tuple<InternalSyntaxToken, FlowFunctionTypeParameterTree> t : trailingParameters.get()) {
+        commas.add(t.first());
+        parameters.add(t.second());
+      }
+    }
+
+    return new SeparatedListImpl<>(parameters, commas);
+  }
+
+  public FlowFunctionTypeParameterTree flowFunctionTypeParameter(IdentifierTree identifierTree, FlowTypeAnnotationTree typeAnnotationTree) {
+    return new FlowFunctionTypeParameterTreeImpl();
+  }
+
+  public FlowFunctionTypeParameterTree flowFunctionTypeParameter(FlowTypeTree type) {
+    return new FlowFunctionTypeParameterTreeImpl();
+  }
+
+  public FlowFunctionTypeRestParameterTree flowFunctionTypeRestParameter(InternalSyntaxToken token, FlowFunctionTypeParameterTree flowFunctionTypeParameterTree) {
+    return new FlowFunctionTypeRestParameterTreeImpl();
   }
 
   public FlowOptionalBindingElementTree flowOptionalBindingElement(BindingElementTree bindingElementTree, InternalSyntaxToken questionToken) {
