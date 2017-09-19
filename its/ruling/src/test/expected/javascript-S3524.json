@@ -1,4 +1,13 @@
 {
+'project:babylon/test/fixtures/flow/anonymous-function-types/bad_01/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/anonymous-function-types/bad_03/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/anonymous-function-types/good_10/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/68/actual.js':[
 1,
 ],
