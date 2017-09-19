@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 
@@ -37,6 +38,7 @@ public class FlowOptionalTypeTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.FLOW_OPTIONAL_TYPE)).isTrue();
     assertThat(tree.questionToken().text()).isEqualTo("?");
     assertThat(tree.type().is(Kind.FLOW_SIMPLE_TYPE)).isTrue();
+    assertThat(((FlowSimpleTypeTree) tree.type()).token().text()).isEqualTo("Foo");
   }
 
   @Test

@@ -54,6 +54,13 @@ public class DoubleDispatchVisitorTest {
   }
 
   @Test
+  public void flow() throws Exception {
+    assertNumberOfVisitedTokens("var x: ?number", 6);
+    assertNumberOfVisitedTokens("let x: 1 = 1", 7);
+    assertNumberOfVisitedTokens("x = function(p?) { }", 10);
+  }
+
+  @Test
   public void assignment_pattern() throws Exception {
     assertNumberOfVisitedTokens("[a, ...b] = arr", 9);
     assertNumberOfVisitedTokens("({a: a1, b = 1} = obj)", 14);
@@ -67,6 +74,7 @@ public class DoubleDispatchVisitorTest {
     assertNumberOfVisitedTokens("export default class A {};", 8);
     assertNumberOfVisitedTokens("export * from 'mod';", 6);
   }
+
 
 
   private class TestVisitor extends DoubleDispatchVisitor {
@@ -93,12 +101,12 @@ public class DoubleDispatchVisitorTest {
     }
   }
 
-  private void assertNumberOfVisitedTokens(String code, int expectedLiteralsNumber) {
-    assertThat(getTestVisitor(code).tokenCounter).isEqualTo(expectedLiteralsNumber);
+  private void assertNumberOfVisitedTokens(String code, int expectedTokenNumber) {
+    assertThat(getTestVisitor(code).tokenCounter).isEqualTo(expectedTokenNumber);
   }
 
-  private void assertNumberOfVisitedComments(String code, int expectedLiteralsNumber) {
-    assertThat(getTestVisitor(code).commentCounter).isEqualTo(expectedLiteralsNumber);
+  private void assertNumberOfVisitedComments(String code, int expectedCommentNumber) {
+    assertThat(getTestVisitor(code).commentCounter).isEqualTo(expectedCommentNumber);
   }
 
   private TestVisitor getTestVisitor(String code) {
