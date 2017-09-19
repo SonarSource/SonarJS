@@ -47,12 +47,12 @@ public class JavaScriptPerformanceTest {
 
   @Test
   public void test_parsing_performance() throws IOException {
-    test_performance("parsing-project", "no-rules", false, 151.0);
+    test_performance("parsing-project", "no-rules", false, 153.0);
   }
 
   @Test
   public void test_symbolic_engine_performance() throws IOException {
-    test_performance("se-project", "se-profile", true, 185.0);
+    test_performance("se-project", "se-profile", true, 194.0);
   }
 
   private static void test_performance(String projectKey, String profile, boolean shouldRaiseAnyIssue, double expectedTime) throws IOException {
