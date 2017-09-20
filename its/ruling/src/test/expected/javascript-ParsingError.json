@@ -347,9 +347,6 @@
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_declare_export_st_no_t/actual.js':[
 2,
 ],
-'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_declare_neither/actual.js':[
-2,
-],
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_declare_st_no_t/actual.js':[
 2,
 ],
