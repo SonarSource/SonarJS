@@ -1019,7 +1019,6 @@ public interface Tree {
      */
     JSX_SELF_CLOSING_ELEMENT(JsxSelfClosingElementTree.class),
 
-    FLOW_TYPE_ALIAS_STATEMENT(FlowTypeAliasStatementTree.class),
     FLOW_SIMPLE_TYPE(FlowSimpleTypeTree.class),
     FLOW_OPTIONAL_TYPE(FlowOptionalTypeTree.class),
     FLOW_LITERAL_TYPE(FlowLiteralTypeTree.class),
@@ -1033,6 +1032,7 @@ public interface Tree {
     FLOW_TYPE_ANNOTATION(FlowTypeAnnotationTree.class),
     FLOW_TYPED_BINDING_ELEMENT(FlowTypedBindingElementTree.class),
     FLOW_OPTIONAL_BINDING_ELEMENT(FlowOptionalBindingElementTree.class),
+    FLOW_TYPE_ALIAS_STATEMENT(FlowTypeAliasStatementTree.class),
     FLOW_INTERFACE_DECLARATION(FlowInterfaceDeclarationTree.class),
     FLOW_DECLARE(FlowDeclareTree.class),
     FLOW_MODULE(FlowModuleTree.class),
