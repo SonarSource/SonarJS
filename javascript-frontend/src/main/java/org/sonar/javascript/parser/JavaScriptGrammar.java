@@ -95,7 +95,6 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeRestParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
@@ -1796,8 +1795,8 @@ public class JavaScriptGrammar {
         f.flowFunctionTypeParameter(FLOW_TYPE())));
   }
 
-  public FlowFunctionTypeRestParameterTree FLOW_FUNCTION_TYPE_REST_PARAMETER() {
-    return b.<FlowFunctionTypeRestParameterTree>nonterminal(Kind.FLOW_FUNCTION_TYPE_REST_PARAMETER)
+  public FlowFunctionTypeParameterTree FLOW_FUNCTION_TYPE_REST_PARAMETER() {
+    return b.<FlowFunctionTypeParameterTree>nonterminal()
       .is(f.flowFunctionTypeRestParameter(b.token(JavaScriptPunctuator.ELLIPSIS), FLOW_FUNCTION_TYPE_PARAMETER()));
   }
 

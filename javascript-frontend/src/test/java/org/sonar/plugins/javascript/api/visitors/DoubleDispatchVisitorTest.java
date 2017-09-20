@@ -57,6 +57,7 @@ public class DoubleDispatchVisitorTest {
   public void flow() throws Exception {
     assertNumberOfVisitedTokens("var x: ?number", 6);
     assertNumberOfVisitedTokens("let x: 1 = 1", 7);
+    assertNumberOfVisitedTokens("var x: (p?: number, ...MyArrayType) => void", 15);
     assertNumberOfVisitedTokens("x = function(p?) { }", 10);
   }
 

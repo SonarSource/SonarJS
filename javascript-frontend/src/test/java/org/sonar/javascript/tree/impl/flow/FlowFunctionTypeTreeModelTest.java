@@ -36,6 +36,5 @@ public class FlowFunctionTypeTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.doubleArrowToken().text()).isEqualTo("=>");
     assertThat(tree.parameterClause().is(Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE)).isTrue();
     assertThat(tree.returnType().is(Tree.Kind.FLOW_SIMPLE_TYPE)).isTrue();
-    assertThat(tree.childrenStream().count()).isEqualTo(3);
   }
 }

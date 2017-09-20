@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.tree.impl.flow;
 
-import java.util.Objects;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -35,7 +34,8 @@ public class FlowFunctionTypeParameterClauseTreeModelTest extends JavaScriptTree
 
     assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE)).isTrue();
     assertThat(tree.parameters().size()).isEqualTo(1);
-    assertThat(tree.childrenStream().filter(Objects::nonNull).count()).isEqualTo(3);
+    assertThat(tree.leftParenthesis().text()).isEqualTo("(");
+    assertThat(tree.rightParenthesis().text()).isEqualTo(")");
   }
 
   @Test
@@ -44,7 +44,6 @@ public class FlowFunctionTypeParameterClauseTreeModelTest extends JavaScriptTree
 
     assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE)).isTrue();
     assertThat(tree.parameters().size()).isEqualTo(3);
-    assertThat(tree.childrenStream().filter(Objects::nonNull).count()).isEqualTo(7);
   }
 
   @Test
@@ -52,8 +51,7 @@ public class FlowFunctionTypeParameterClauseTreeModelTest extends JavaScriptTree
     FlowFunctionTypeParameterClauseTree tree = parse("()", Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE, Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE);
 
     assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE)).isTrue();
-    assertThat(tree.parameters()).isNull();
-    assertThat(tree.childrenStream().filter(Objects::nonNull).count()).isEqualTo(2);
+    assertThat(tree.parameters()).isEmpty();
   }
 
   @Test
@@ -61,8 +59,6 @@ public class FlowFunctionTypeParameterClauseTreeModelTest extends JavaScriptTree
     FlowFunctionTypeParameterClauseTree tree = parse("(...numbers: SomeArrayType)", Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE, Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE);
 
     assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE)).isTrue();
-    assertThat(tree.parameters()).isNull();
-    assertThat(tree.restParameter().is(Tree.Kind.FLOW_FUNCTION_TYPE_REST_PARAMETER)).isTrue();
-    assertThat(tree.childrenStream().filter(Objects::nonNull).count()).isEqualTo(3);
+    assertThat(tree.parameters()).hasSize(1);
   }
 }

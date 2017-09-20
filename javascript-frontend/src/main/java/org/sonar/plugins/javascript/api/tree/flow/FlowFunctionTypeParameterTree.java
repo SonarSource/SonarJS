@@ -27,11 +27,15 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 @Beta
 public interface FlowFunctionTypeParameterTree extends Tree {
+
+  @Nullable
+  SyntaxToken ellipsisToken();
+
   @Nullable
   IdentifierTree identifier();
 
   @Nullable
-  SyntaxToken query();
+  SyntaxToken queryToken();
 
   @Nullable
   FlowTypeAnnotationTree typeAnnotation();

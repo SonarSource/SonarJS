@@ -105,7 +105,6 @@ import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterClauseTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterTreeImpl;
-import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeRestParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalBindingElementTreeImpl;
@@ -211,7 +210,6 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeRestParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
@@ -1745,24 +1743,43 @@ public class TreeFactory {
     InternalSyntaxToken lParenthesis,
     SeparatedList<FlowFunctionTypeParameterTree> parameters,
     Optional<InternalSyntaxToken> comma,
-    InternalSyntaxToken rParenthesis) {
-    return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, parameters, comma.orNull(), null, rParenthesis);
+    InternalSyntaxToken rParenthesis
+  ) {
+    SeparatedList<FlowFunctionTypeParameterTree> newParameters = parameters;
+    if (comma.isPresent()) {
+      List<InternalSyntaxToken> newSeparators = parameters.getSeparators();
+      newSeparators.add(comma.get());
+      newParameters = new SeparatedListImpl<>(parameters, newSeparators);
+    }
+
+    return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, newParameters, rParenthesis);
   }
 
   public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
     InternalSyntaxToken lParenthesis,
     SeparatedList<FlowFunctionTypeParameterTree> parameters,
     InternalSyntaxToken comma,
-    FlowFunctionTypeRestParameterTree restParameter,
-    InternalSyntaxToken rParenthesis) {
-    return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, parameters, comma, restParameter, rParenthesis);
+    FlowFunctionTypeParameterTree restParameter,
+    InternalSyntaxToken rParenthesis
+  ) {
+    List<FlowFunctionTypeParameterTree> newParameters = parameters;
+    List<InternalSyntaxToken> newSeparators = parameters.getSeparators();
+    newSeparators.add(comma);
+    newParameters.add(restParameter);
+
+    return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, new SeparatedListImpl<>(newParameters, newSeparators), rParenthesis);
   }
 
   public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
     InternalSyntaxToken lParenthesis,
-    Optional<FlowFunctionTypeRestParameterTree> restParameter,
-    InternalSyntaxToken rParenthesis) {
-    return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, null, null, restParameter.orNull(), rParenthesis);
+    Optional<FlowFunctionTypeParameterTree> restParameter,
+    InternalSyntaxToken rParenthesis
+  ) {
+    List<FlowFunctionTypeParameterTree> parameters = ImmutableList.of();
+    if (restParameter.isPresent()) {
+      parameters = ImmutableList.of(restParameter.get());
+    }
+    return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, new SeparatedListImpl(parameters, ImmutableList.of()), rParenthesis);
   }
 
   public <T> SeparatedList<T> parameterList(
@@ -1792,8 +1809,8 @@ public class TreeFactory {
     return new FlowFunctionTypeParameterTreeImpl(type);
   }
 
-  public FlowFunctionTypeRestParameterTree flowFunctionTypeRestParameter(InternalSyntaxToken ellipsis, FlowFunctionTypeParameterTree typeParameter) {
-    return new FlowFunctionTypeRestParameterTreeImpl(ellipsis, typeParameter);
+  public FlowFunctionTypeParameterTree flowFunctionTypeRestParameter(InternalSyntaxToken ellipsis, FlowFunctionTypeParameterTree typeParameter) {
+    return new FlowFunctionTypeParameterTreeImpl(ellipsis, typeParameter);
   }
 
   public FlowOptionalBindingElementTree flowOptionalBindingElement(BindingElementTree bindingElementTree, InternalSyntaxToken questionToken) {

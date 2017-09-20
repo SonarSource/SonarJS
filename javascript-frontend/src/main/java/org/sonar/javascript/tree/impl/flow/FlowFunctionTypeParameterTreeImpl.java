@@ -23,6 +23,7 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
@@ -32,12 +33,14 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowFunctionTypeParameterTreeImpl extends JavaScriptTree implements FlowFunctionTypeParameterTree {
+  private final SyntaxToken ellipsis;
   private final IdentifierTree identifier;
   private final SyntaxToken queryToken;
   private final FlowTypeAnnotationTree typeAnnotation;
   private final FlowTypeTree type;
 
   public FlowFunctionTypeParameterTreeImpl(IdentifierTree identifier, @Nullable SyntaxToken queryToken, FlowTypeAnnotationTree typeAnnotation) {
+    this.ellipsis = null;
     this.identifier = identifier;
     this.queryToken = queryToken;
     this.typeAnnotation = typeAnnotation;
@@ -45,10 +48,19 @@ public class FlowFunctionTypeParameterTreeImpl extends JavaScriptTree implements
   }
 
   public FlowFunctionTypeParameterTreeImpl(FlowTypeTree type) {
+    this.ellipsis = null;
     this.identifier = null;
     this.queryToken = null;
     this.typeAnnotation = null;
     this.type = type;
+  }
+
+  public FlowFunctionTypeParameterTreeImpl(InternalSyntaxToken ellipsis, FlowFunctionTypeParameterTree typeParameter) {
+    this.ellipsis = ellipsis;
+    this.identifier = typeParameter.identifier();
+    this.queryToken = typeParameter.queryToken();
+    this.typeAnnotation = typeParameter.typeAnnotation();
+    this.type = this.typeAnnotation == null ? typeParameter.type() : null;
   }
 
   @Override
@@ -58,12 +70,18 @@ public class FlowFunctionTypeParameterTreeImpl extends JavaScriptTree implements
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(identifier, queryToken, typeAnnotation, type);
+    return Iterators.forArray(ellipsis, identifier, queryToken, typeAnnotation, type);
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitFlowFunctionTypeParameter(this);
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken ellipsisToken() {
+    return ellipsis;
   }
 
   @Override
@@ -74,7 +92,7 @@ public class FlowFunctionTypeParameterTreeImpl extends JavaScriptTree implements
 
   @Nullable
   @Override
-  public SyntaxToken query() {
+  public SyntaxToken queryToken() {
     return queryToken;
   }
 

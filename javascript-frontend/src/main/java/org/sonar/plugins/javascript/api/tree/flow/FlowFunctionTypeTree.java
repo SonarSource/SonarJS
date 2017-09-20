@@ -24,9 +24,9 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 @Beta
 public interface FlowFunctionTypeTree extends FlowTypeTree {
-  SyntaxToken doubleArrowToken();
-
   FlowFunctionTypeParameterClauseTree parameterClause();
+
+  SyntaxToken doubleArrowToken();
 
   FlowTypeTree returnType();
 }
