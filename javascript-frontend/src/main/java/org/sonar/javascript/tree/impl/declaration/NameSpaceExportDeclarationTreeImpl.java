@@ -34,6 +34,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implements NameSpaceExportDeclarationTree {
 
   private final SyntaxToken exportToken;
+  private final SyntaxToken flowTypeKeywordToken;
   private final SyntaxToken starToken;
   private final SyntaxToken asToken;
   private final IdentifierTree synonymIdentifier;
@@ -41,11 +42,12 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
   private final SyntaxToken semicolonToken;
 
   public NameSpaceExportDeclarationTreeImpl(
-    InternalSyntaxToken exportToken, InternalSyntaxToken starToken,
+    InternalSyntaxToken exportToken, SyntaxToken flowTypeKeywordToken, InternalSyntaxToken starToken,
     @Nullable InternalSyntaxToken asToken, @Nullable IdentifierTree synonymIdentifier,
     FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken
   ) {
     this.exportToken = exportToken;
+    this.flowTypeKeywordToken = flowTypeKeywordToken;
     this.starToken = starToken;
     this.asToken = asToken;
     this.synonymIdentifier = synonymIdentifier;
@@ -57,6 +59,12 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
   @Override
   public SyntaxToken exportToken() {
     return exportToken;
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken flowTypeKeywordToken() {
+    return flowTypeKeywordToken;
   }
 
   @Override
@@ -94,7 +102,7 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(exportToken, starToken, asToken, synonymIdentifier, fromClause, semicolonToken);
+    return Iterators.forArray(exportToken, flowTypeKeywordToken, starToken, asToken, synonymIdentifier, fromClause, semicolonToken);
   }
 
   @Override

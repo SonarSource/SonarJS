@@ -17,30 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.declaration;
+package org.sonar.plugins.javascript.api.tree.flow;
 
-import com.google.common.annotations.Beta;
-import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-@Beta
-public interface NameSpaceExportDeclarationTree extends ExportDeclarationTree {
+public interface FlowOpaqueTypeTree extends Tree {
 
-  @Nullable
-  SyntaxToken flowTypeKeywordToken();
+  SyntaxToken opaqueToken();
 
-  SyntaxToken starToken();
+  SyntaxToken typeToken();
 
-  @Nullable
-  SyntaxToken asToken();
-
-  @Nullable
-  IdentifierTree synonymIdentifier();
-
-  FromClauseTree fromClause();
-
-  @Nullable
-  SyntaxToken semicolonToken();
+  IdentifierTree typeAlias();
 
 }

@@ -10045,6 +10045,9 @@
 166,
 168,
 ],
+'project:jest/packages/jest-repl/src/cli/repl.js':[
+37,
+],
 'project:jest/packages/jest-resolve/src/__tests__/resolve.test.js':[
 54,
 ],

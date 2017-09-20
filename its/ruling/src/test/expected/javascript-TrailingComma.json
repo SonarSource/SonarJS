@@ -1426,6 +1426,10 @@
 21,
 22,
 ],
+'project:jest/packages/jest-repl/src/cli/repl.js':[
+49,
+77,
+],
 'project:jest/packages/jest-resolve-dependencies/src/__tests__/dependency_resolver.test.js':[
 21,
 32,

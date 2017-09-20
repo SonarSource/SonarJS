@@ -6022,6 +6022,10 @@
 'project:jest/packages/jest-regex-util/src/index.js':[
 17,
 ],
+'project:jest/packages/jest-repl/src/cli/repl.js':[
+28,
+83,
+],
 'project:jest/packages/jest-runtime/src/__mocks__/createRuntime.js':[
 17,
 ],

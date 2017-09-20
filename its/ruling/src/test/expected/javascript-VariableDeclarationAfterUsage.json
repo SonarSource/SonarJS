@@ -773,6 +773,9 @@
 19,
 19,
 ],
+'project:jest/packages/jest-repl/src/cli/repl.js':[
+37,
+],
 'project:jest/packages/jest-runtime/src/__tests__/script_transformer.test.js':[
 90,
 ],

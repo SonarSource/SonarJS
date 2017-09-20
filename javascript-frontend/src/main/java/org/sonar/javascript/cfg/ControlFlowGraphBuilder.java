@@ -233,7 +233,8 @@ class ControlFlowGraphBuilder {
       Kind.DEFAULT_EXPORT_DECLARATION,
       Kind.NAMED_EXPORT_DECLARATION,
       Kind.NAMESPACE_EXPORT_DECLARATION,
-      Kind.FLOW_TYPE_ALIAS_STATEMENT)) {
+      Kind.FLOW_TYPE_ALIAS_STATEMENT,
+      Kind.FLOW_DECLARE)) {
       currentBlock.addElement(tree);
     } else if (tree.is(Kind.EMPTY_STATEMENT)) {
       // Nothing to do

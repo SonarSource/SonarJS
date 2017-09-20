@@ -17,30 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.declaration;
+package org.sonar.javascript.parser.flow;
 
-import com.google.common.annotations.Beta;
-import javax.annotation.Nullable;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.junit.Test;
+import org.sonar.javascript.utils.LegacyParserTest;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
-@Beta
-public interface NameSpaceExportDeclarationTree extends ExportDeclarationTree {
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
-  @Nullable
-  SyntaxToken flowTypeKeywordToken();
+public class FlowModuleTest extends LegacyParserTest {
 
-  SyntaxToken starToken();
-
-  @Nullable
-  SyntaxToken asToken();
-
-  @Nullable
-  IdentifierTree synonymIdentifier();
-
-  FromClauseTree fromClause();
-
-  @Nullable
-  SyntaxToken semicolonToken();
+  @Test
+  public void test() {
+    assertThat(g.rule(Kind.FLOW_MODULE))
+      .matches("module 'A' {}")
+      .matches("module A {}")
+      .matches("module 'A' { declare var x = 1; declare class A {} }")
+      .matches("module 'A' { declare export type X = number }")
+    ;
+  }
 
 }

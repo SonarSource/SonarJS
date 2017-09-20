@@ -62,11 +62,14 @@ public class ExportDeclarationTest {
   public void flow() {
     assertThat(EcmaScriptLexer.EXPORT_DECLARATION)
       // type alias
-//      .matches("export type A = B")
-//      .matches("export opaque type A = B")
+      .matches("export type A = B")
+      .matches("export opaque type A = B")
 
       // interface
       .matches("export interface I {}")
+
+      // star
+      .matches("export type * from \"bar\"")
 
     ;
   }

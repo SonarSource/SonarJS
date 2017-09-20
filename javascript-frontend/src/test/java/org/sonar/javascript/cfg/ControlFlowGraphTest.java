@@ -688,8 +688,9 @@ public class ControlFlowGraphTest {
   }
 
   @Test
-  public void flow_type_alias_statement() throws Exception {
+  public void flow_syntax() throws Exception {
     assertExpressionElements("type A = B"/* just one element - itself */);
+    assertExpressionElements("declare function foo(): void"/* just one element - itself */);
   }
 
   @Test

@@ -98,8 +98,13 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
@@ -601,6 +606,26 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
   public void visitFlowTypeAliasStatement(FlowTypeAliasStatementTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowDeclare(FlowDeclareTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowModule(FlowModuleTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowModuleExports(FlowModuleExportsTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowFunctionSignature(FlowFunctionSignatureTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowOpaqueType(FlowOpaqueTypeTree tree) {
     scanChildren(tree);
   }
 

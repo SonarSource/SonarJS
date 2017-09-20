@@ -30,6 +30,9 @@
 'project:babylon/test/fixtures/flow/comment/spread/actual.js':[
 3,
 ],
+'project:babylon/test/fixtures/flow/declare-export/export-default-arrow/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/literal-types/string-double/actual.js':[
 1,
 ],
@@ -3598,6 +3601,9 @@
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
 89,
+],
+'project:jest/packages/jest-repl/src/cli/repl.js':[
+24,
 ],
 'project:jest/packages/jest-resolve/src/__mocks__/userResolver.js':[
 11,
