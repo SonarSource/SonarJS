@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.flow.FlowPropertyTypeTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -97,8 +98,10 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClaus
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
@@ -543,6 +546,14 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
+  public void visitFlowSimpleType(FlowSimpleTypeTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowLiteralType(FlowLiteralTypeTree tree) {
+    scanChildren(tree);
+  }
+
   public void visitFlowFunctionType(FlowFunctionTypeTree tree) {
     scanChildren(tree);
   }
@@ -555,11 +566,15 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-  public void visitFlowSimpleType(FlowSimpleTypeTree tree) {
+  public void visitFlowObjectTypeTree(FlowObjectTypeTree tree) {
     scanChildren(tree);
   }
 
-  public void visitFlowLiteralType(FlowLiteralTypeTree tree) {
+  public void visitFlowPropertyType(FlowPropertyTypeTreeImpl tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowPropertyTypeKey(FlowPropertyTypeKeyTree tree) {
     scanChildren(tree);
   }
 
@@ -578,4 +593,5 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   public void visitFlowOptionalBindingElement(FlowOptionalBindingElementTree tree) {
     scanChildren(tree);
   }
+
 }

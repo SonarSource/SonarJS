@@ -19,9 +19,8 @@ package org.sonar.plugins.javascript.api.tree.flow;/*
  */
 
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
-public interface FlowPropertyTypeTree extends Tree {
-  FlowPropertyTypeKeyTree key();
-
-  FlowTypeAnnotationTree typeAnnotation();
+public interface FlowPropertyTypeKeyTree extends Tree {
+  IdentifierTree identifier();
 }

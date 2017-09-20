@@ -55,6 +55,7 @@ public class DoubleDispatchVisitorTest {
 
   @Test
   public void flow() throws Exception {
+    assertNumberOfVisitedTokens("var x: {p1?:number, [p2]:number}", 16);
     assertNumberOfVisitedTokens("var x: ?number", 6);
     assertNumberOfVisitedTokens("let x: 1 = 1", 7);
     assertNumberOfVisitedTokens("var x: (p?: number, ...MyArrayType) => void", 15);

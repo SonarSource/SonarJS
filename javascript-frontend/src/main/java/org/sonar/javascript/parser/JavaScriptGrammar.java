@@ -96,11 +96,11 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttribute
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyTypeKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
@@ -1832,13 +1832,18 @@ public class JavaScriptGrammar {
   public FlowPropertyTypeTree FLOW_PROPERTY_TYPE() {
     return b.<FlowPropertyTypeTree>nonterminal(Kind.FLOW_PROPERTY_TYPE)
       .is(b.firstOf(
-        f.flowPropertyType(IDENTIFIER_NAME(), b.optional(b.token(JavaScriptPunctuator.QUERY)), FLOW_TYPE_ANNOTATION()),
+        f.flowPropertyType(FLOW_SIMPLE_PROPERTY_TYPE_KEY(), FLOW_TYPE_ANNOTATION()),
         f.flowPropertyType(FLOW_INDEXER_PROPERTY_TYPE_KEY(), FLOW_TYPE_ANNOTATION()))
       );
   }
 
-  public FlowIndexerPropertyTypeKeyTree FLOW_INDEXER_PROPERTY_TYPE_KEY() {
-    return b.<FlowIndexerPropertyTypeKeyTree>nonterminal()
+  public FlowPropertyTypeKeyTree FLOW_SIMPLE_PROPERTY_TYPE_KEY() {
+    return b.<FlowPropertyTypeKeyTree>nonterminal(Kind.FLOW_SIMPLE_PROPERTY_TYPE_KEY)
+      .is(f.flowSimplePropertyTypeKeyTree(IDENTIFIER_NAME(), b.optional(b.token(JavaScriptPunctuator.QUERY))));
+  }
+
+  public FlowPropertyTypeKeyTree FLOW_INDEXER_PROPERTY_TYPE_KEY() {
+    return b.<FlowPropertyTypeKeyTree>nonterminal(Kind.FLOW_INDEXER_PROPERTY_TYPE_KEY)
       .is(f.flowIndexerPropertyTypeKey(b.token(JavaScriptPunctuator.LBRACKET), IDENTIFIER_NAME(), b.token(JavaScriptPunctuator.RBRACKET)));
   }
 

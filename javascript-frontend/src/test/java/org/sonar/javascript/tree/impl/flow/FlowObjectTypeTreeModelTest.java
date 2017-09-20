@@ -19,5 +19,25 @@
  */
 package org.sonar.javascript.tree.impl.flow;
 
-public class FlowObjectTypeTreeModelTest {
+import org.junit.Test;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class FlowObjectTypeTreeModelTest extends JavaScriptTreeModelTest {
+
+  @Test
+  public void one_property() throws Exception {
+    FlowObjectTypeTree tree = parse("let x:{prop1: string}", Tree.Kind.FLOW_OBJECT_TYPE);
+
+    assertThat(tree.is(Tree.Kind.FLOW_OBJECT_TYPE)).isTrue();
+    assertThat(tree.lcurlyToken()).isNotNull();
+    assertThat(tree.lpipeToken()).isNull();
+    assertThat(tree.properties().size()).isEqualTo(1);
+    assertThat(tree.rpipeToken()).isNull();
+    assertThat(tree.rcurlyToken()).isNotNull();
+  }
+
 }

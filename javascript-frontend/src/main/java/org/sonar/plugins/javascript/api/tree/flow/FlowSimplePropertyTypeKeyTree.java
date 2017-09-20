@@ -18,10 +18,16 @@ package org.sonar.plugins.javascript.api.tree.flow;/*
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import org.sonar.plugins.javascript.api.tree.Tree;
+import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-public interface FlowPropertyTypeTree extends Tree {
-  FlowPropertyTypeKeyTree key();
+public interface FlowSimplePropertyTypeKeyTree extends FlowPropertyTypeKeyTree {
 
-  FlowTypeAnnotationTree typeAnnotation();
+  @Override
+  IdentifierTree identifier();
+
+  @Nullable
+  SyntaxToken queryToken();
+
 }

@@ -106,9 +106,13 @@ import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterClauseTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowIndexerPropertyTypeKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowObjectTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowPropertyTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowSimplePropertyTypeKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimpleTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAnnotationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypedBindingElementTreeImpl;
@@ -211,11 +215,11 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyTypeKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
@@ -1817,23 +1821,23 @@ public class TreeFactory {
   }
 
   public FlowObjectTypeTree flowObjectType(SyntaxToken lcurly, Optional<SeparatedList<Tree>> properties, SyntaxToken rcurly) {
-    return null;
+    return new FlowObjectTypeTreeImpl(lcurly, null, properties.or(new SeparatedListImpl(Lists.newArrayList(), Collections.emptyList())), null, rcurly);
   }
 
   public FlowObjectTypeTree flowStrictObjectType(SyntaxToken lcurly, SyntaxToken lpipe, Optional<SeparatedList<Tree>> properties, SyntaxToken rpipe, SyntaxToken rcurly) {
-    return null;
+    return new FlowObjectTypeTreeImpl(lcurly, lpipe, properties.or(new SeparatedListImpl(Lists.newArrayList(), Collections.emptyList())), rpipe, rcurly);
   }
 
-  public FlowPropertyTypeTree flowPropertyType(IdentifierTree identifier, Optional<SyntaxToken> query, FlowTypeAnnotationTree typeAnnotation) {
-    return null;
+  public FlowPropertyTypeTree flowPropertyType(FlowPropertyTypeKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
+    return new FlowPropertyTypeTreeImpl(key, typeAnnotation);
   }
 
-  public FlowPropertyTypeTree flowPropertyType(FlowIndexerPropertyTypeKeyTree indexer, FlowTypeAnnotationTree typeAnnotation) {
-    return null;
+  public FlowPropertyTypeKeyTree flowSimplePropertyTypeKeyTree(IdentifierTree identifier, Optional<SyntaxToken> queryToken) {
+    return new FlowSimplePropertyTypeKeyTreeImpl(identifier, queryToken.orNull());
   }
 
-  public FlowIndexerPropertyTypeKeyTree flowIndexerPropertyTypeKey(InternalSyntaxToken lbracker, IdentifierTree identifierTree, InternalSyntaxToken rbracket) {
-    return null;
+  public FlowPropertyTypeKeyTree flowIndexerPropertyTypeKey(SyntaxToken lbracketToken, IdentifierTree identifier, SyntaxToken rbracketToken) {
+    return new FlowIndexerPropertyTypeKeyTreeImpl(lbracketToken, identifier, rbracketToken);
   }
 
   public FlowOptionalBindingElementTree flowOptionalBindingElement(BindingElementTree bindingElementTree, InternalSyntaxToken questionToken) {
