@@ -533,7 +533,7 @@ public class JavaScriptGrammar {
 
   public SeparatedList<BindingElementTree> FORMAL_PARAMETER_LIST() {
     return b.<SeparatedList<BindingElementTree>>nonterminal()
-      .is(f.formalParameters(
+      .is(f.parameterList(
         BINDING_ELEMENT(),
         b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
   }
@@ -1781,7 +1781,7 @@ public class JavaScriptGrammar {
 
   public SeparatedList<FlowFunctionTypeParameterTree> FLOW_FUNCTION_TYPE_PARAMETER_LIST() {
     return b.<SeparatedList<FlowFunctionTypeParameterTree>>nonterminal()
-      .is(f.flowFunctionTypeParameterList(
+      .is(f.parameterList(
         FLOW_FUNCTION_TYPE_PARAMETER(),
         b.zeroOrMore(f.newTuple(
           b.token(JavaScriptPunctuator.COMMA),

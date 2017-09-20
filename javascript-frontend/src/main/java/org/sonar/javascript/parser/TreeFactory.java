@@ -681,24 +681,6 @@ public class TreeFactory {
     return FunctionExpressionTreeImpl.create(asyncToken.orNull(), functionKeyword, functionName.orNull(), parameters, returnType.orNull(), body);
   }
 
-  public SeparatedList<BindingElementTree> formalParameters(
-    BindingElementTree formalParameter, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> formalParameters
-  ) {
-    List<BindingElementTree> parameters = Lists.newArrayList();
-    List<InternalSyntaxToken> commas = Lists.newArrayList();
-
-    parameters.add(formalParameter);
-
-    if (formalParameters.isPresent()) {
-      for (Tuple<InternalSyntaxToken, BindingElementTree> t : formalParameters.get()) {
-        commas.add(t.first());
-        parameters.add(t.second());
-      }
-    }
-
-    return new SeparatedListImpl<>(parameters, commas);
-  }
-
   public ParameterListTree formalParameterClause1(
     InternalSyntaxToken lParenthesis,
     SeparatedList<BindingElementTree> parameters,
@@ -1783,17 +1765,17 @@ public class TreeFactory {
     return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, null, null, restParameter.orNull(), rParenthesis);
   }
 
-  public SeparatedList<FlowFunctionTypeParameterTree> flowFunctionTypeParameterList(
-    FlowFunctionTypeParameterTree parameter,
-    Optional<List<Tuple<InternalSyntaxToken, FlowFunctionTypeParameterTree>>> trailingParameters
+  public <T> SeparatedList<T> parameterList(
+    T parameter,
+    Optional<List<Tuple<InternalSyntaxToken, T>>> otherParameters
   ) {
-    List<FlowFunctionTypeParameterTree> parameters = Lists.newArrayList();
+    List<T> parameters = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
     parameters.add(parameter);
 
-    if (trailingParameters.isPresent()) {
-      for (Tuple<InternalSyntaxToken, FlowFunctionTypeParameterTree> t : trailingParameters.get()) {
+    if (otherParameters.isPresent()) {
+      for (Tuple<InternalSyntaxToken, T> t : otherParameters.get()) {
         commas.add(t.first());
         parameters.add(t.second());
       }
