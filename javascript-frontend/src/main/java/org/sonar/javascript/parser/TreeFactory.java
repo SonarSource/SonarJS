@@ -110,6 +110,8 @@ import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowIndexerPropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowInterfaceDeclarationTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowArrayTypeShorthandTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowArrayTypeWithKeywordTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowModuleExportsTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowModuleTreeImpl;
@@ -227,6 +229,8 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionK
 import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
@@ -1947,6 +1951,22 @@ public class TreeFactory {
 
   public FlowOpaqueTypeTree flowOpaqueType(InternalSyntaxToken opaque, InternalSyntaxToken type, IdentifierTree name) {
     return new FlowOpaqueTypeTreeImpl(opaque, type, name);
+  }
+
+  public FlowArrayTypeShorthandTree flowArrayTypeShorthand(FlowTypeTree flowTypeTree, InternalSyntaxToken lbracket, InternalSyntaxToken rbracket) {
+    return new FlowArrayTypeShorthandTreeImpl(flowTypeTree, lbracket, rbracket);
+  }
+
+  public FlowArrayTypeWithKeywordTree flowArrayTypeWithKeyword(InternalSyntaxToken arrayToken, InternalSyntaxToken lbracket, FlowTypeTree type, InternalSyntaxToken rbracket) {
+    return new FlowArrayTypeWithKeywordTreeImpl(arrayToken, lbracket, type, rbracket);
+  }
+
+  public FlowArrayTypeShorthandTree flowArrayTypeShorthand(FlowTypeTree flowTypeTree, List<Tuple<InternalSyntaxToken, InternalSyntaxToken>> tails) {
+    FlowTypeTree currentType = flowTypeTree;
+    for (Tuple<InternalSyntaxToken, InternalSyntaxToken> tail : tails) {
+      currentType = new FlowArrayTypeShorthandTreeImpl(currentType, tail.first, tail.second);
+    }
+    return (FlowArrayTypeShorthandTree) currentType;
   }
 
   private static class ConditionalExpressionTail {

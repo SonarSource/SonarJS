@@ -10047,6 +10047,9 @@
 'project:jest/packages/jest-jasmine2/src/expectation_result_factory.js':[
 22,
 ],
+'project:jest/packages/jest-haste-map/src/lib/get_platform_extension.js':[
+34,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
 517,
 ],
