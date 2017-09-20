@@ -96,6 +96,8 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttribute
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
@@ -1724,13 +1726,33 @@ public class JavaScriptGrammar {
   public FlowTypeTree FLOW_TYPE() {
     return b.<FlowTypeTree>nonterminal()
       .is(b.firstOf(
+        FLOW_ARRAY_TYPE_SHORTHAND(),
+        FLOW_TYPE_NON_ARRAY()
+      ));
+  }
+
+  // this separation of types is here in order to avoid left recursion for arrow shorthand syntax
+  public FlowTypeTree FLOW_TYPE_NON_ARRAY() {
+    return b.<FlowTypeTree>nonterminal()
+      .is(b.firstOf(
         // TODO
+        FLOW_ARRAY_TYPE(),
         FLOW_OPTIONAL_TYPE(),
         FLOW_SIMPLE_TYPE(),
         FLOW_LITERAL_TYPE(),
         FLOW_FUNCTION_TYPE(),
         FLOW_OBJECT_TYPE()
       ));
+  }
+
+  public FlowArrayTypeWithKeywordTree FLOW_ARRAY_TYPE() {
+    return b.<FlowArrayTypeWithKeywordTree>nonterminal(Kind.FLOW_ARRAY_TYPE_WITH_KEYWORD)
+      .is(f.flowArrayTypeWithKeyword(b.token(EcmaScriptLexer.ARRAY), b.token(JavaScriptPunctuator.LT), FLOW_TYPE(), b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public FlowArrayTypeShorthandTree FLOW_ARRAY_TYPE_SHORTHAND() {
+    return b.<FlowArrayTypeShorthandTree>nonterminal(Kind.FLOW_ARRAY_TYPE_SHORTHAND)
+      .is(f.flowArrayTypeShorthand(FLOW_TYPE_NON_ARRAY(), b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.LBRACKET), b.token(JavaScriptPunctuator.RBRACKET)))));
   }
 
   public FlowSimpleTypeTree FLOW_SIMPLE_TYPE() {

@@ -116,6 +116,12 @@
 'project:jest/packages/jest-haste-map/src/get_mock_name.js':[
 0,
 ],
+'project:jest/packages/jest-haste-map/src/lib/extract_requires.js':[
+0,
+],
+'project:jest/packages/jest-haste-map/src/lib/get_platform_extension.js':[
+0,
+],
 'project:jest/packages/jest-jasmine2/src/expectation_failed.js':[
 0,
 ],
@@ -126,6 +132,9 @@
 0,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/js_api_reporter.js':[
+0,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/report_dispatcher.js':[
 0,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[

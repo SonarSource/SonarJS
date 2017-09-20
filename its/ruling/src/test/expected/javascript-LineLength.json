@@ -1109,6 +1109,9 @@
 2777,
 3109,
 ],
+'project:jest/packages/jest-haste-map/src/lib/extract_requires.js':[
+17,
+],
 'project:jquery-1.7.2.js':[
 768,
 3355,
