@@ -60,4 +60,7 @@
 'project:ecmascript6/snoode/src/endpoints/v1.es6.js':[
 180,
 ],
+'project:jest/packages/jest-matcher-utils/src/index.js':[
+154,
+],
 }

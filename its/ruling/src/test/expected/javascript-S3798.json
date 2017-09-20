@@ -69,6 +69,13 @@
 'project:babylon/test/fixtures/flow/type-annotations/107/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/108/actual.js':[
+1,
+2,
+3,
+4,
+5,
+],
 'project:babylon/test/fixtures/flow/type-annotations/12/actual.js':[
 1,
 ],
@@ -79,6 +86,9 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/15/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/16/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/2/actual.js':[
@@ -100,6 +110,9 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/6/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/61/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/67/actual.js':[
