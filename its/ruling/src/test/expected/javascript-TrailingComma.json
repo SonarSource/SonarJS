@@ -1042,6 +1042,9 @@
 36,
 106,
 ],
+'project:jest/packages/jest-config/src/deprecated.js':[
+63,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 34,
 49,
@@ -1321,6 +1324,12 @@
 68,
 89,
 99,
+],
+'project:jest/packages/jest-haste-map/src/lib/extract_requires.js':[
+18,
+],
+'project:jest/packages/jest-haste-map/src/lib/get_platform_extension.js':[
+15,
 ],
 'project:jest/packages/jest-jasmine2/src/__tests__/expectation_result_factory.test.js':[
 18,
