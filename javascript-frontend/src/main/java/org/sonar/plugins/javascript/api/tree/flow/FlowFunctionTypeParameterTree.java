@@ -23,11 +23,15 @@ import com.google.common.annotations.Beta;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 @Beta
 public interface FlowFunctionTypeParameterTree extends Tree {
   @Nullable
   IdentifierTree identifier();
+
+  @Nullable
+  SyntaxToken query();
 
   @Nullable
   FlowTypeAnnotationTree typeAnnotation();

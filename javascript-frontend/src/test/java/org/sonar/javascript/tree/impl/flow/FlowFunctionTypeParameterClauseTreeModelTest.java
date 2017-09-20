@@ -27,7 +27,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClaus
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FlowFunctionTypeParameterClauseModelTest extends JavaScriptTreeModelTest {
+public class FlowFunctionTypeParameterClauseTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void one_parameter() throws Exception {

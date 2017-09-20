@@ -28,21 +28,25 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowFunctionTypeParameterTreeImpl extends JavaScriptTree implements FlowFunctionTypeParameterTree {
   private final IdentifierTree identifier;
+  private final SyntaxToken queryToken;
   private final FlowTypeAnnotationTree typeAnnotation;
   private final FlowTypeTree type;
 
-  public FlowFunctionTypeParameterTreeImpl(IdentifierTree identifier, FlowTypeAnnotationTree typeAnnotation) {
+  public FlowFunctionTypeParameterTreeImpl(IdentifierTree identifier, @Nullable SyntaxToken queryToken, FlowTypeAnnotationTree typeAnnotation) {
     this.identifier = identifier;
+    this.queryToken = queryToken;
     this.typeAnnotation = typeAnnotation;
     this.type = null;
   }
 
   public FlowFunctionTypeParameterTreeImpl(FlowTypeTree type) {
     this.identifier = null;
+    this.queryToken = null;
     this.typeAnnotation = null;
     this.type = type;
   }
@@ -54,7 +58,7 @@ public class FlowFunctionTypeParameterTreeImpl extends JavaScriptTree implements
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(identifier, typeAnnotation, type);
+    return Iterators.forArray(identifier, queryToken, typeAnnotation, type);
   }
 
   @Override
@@ -66,6 +70,12 @@ public class FlowFunctionTypeParameterTreeImpl extends JavaScriptTree implements
   @Nullable
   public IdentifierTree identifier() {
     return identifier;
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken query() {
+    return queryToken;
   }
 
   @Override

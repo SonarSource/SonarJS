@@ -1792,7 +1792,7 @@ public class JavaScriptGrammar {
   public FlowFunctionTypeParameterTree FLOW_FUNCTION_TYPE_PARAMETER() {
     return b.<FlowFunctionTypeParameterTree>nonterminal(Kind.FLOW_FUNCTION_TYPE_PARAMETER)
       .is(b.firstOf(
-        f.flowFunctionTypeParameter(IDENTIFIER_NAME(), FLOW_TYPE_ANNOTATION()),
+        f.flowFunctionTypeParameter(IDENTIFIER_NAME(), b.optional(b.token(JavaScriptPunctuator.QUERY)), FLOW_TYPE_ANNOTATION()),
         f.flowFunctionTypeParameter(FLOW_TYPE())));
   }
 

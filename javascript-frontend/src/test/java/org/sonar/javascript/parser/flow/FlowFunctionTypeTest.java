@@ -35,6 +35,7 @@ public class FlowFunctionTypeTest extends LegacyParserTest {
       .matches("() => void")
       .matches("(string, string,) => void")
       .matches("(name: string, ...numbers:SomeArrayType) => void")
+      .matches("(name: string, middle?: string) => void")
       .matches("(string, SomeArrayType) => SomeType");
   }
 }

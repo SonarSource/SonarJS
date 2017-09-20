@@ -1802,8 +1802,8 @@ public class TreeFactory {
     return new SeparatedListImpl<>(parameters, commas);
   }
 
-  public FlowFunctionTypeParameterTree flowFunctionTypeParameter(IdentifierTree identifier, FlowTypeAnnotationTree typeAnnotation) {
-    return new FlowFunctionTypeParameterTreeImpl(identifier, typeAnnotation);
+  public FlowFunctionTypeParameterTree flowFunctionTypeParameter(IdentifierTree identifier, Optional<SyntaxToken> query, FlowTypeAnnotationTree typeAnnotation) {
+    return new FlowFunctionTypeParameterTreeImpl(identifier, query.orNull(), typeAnnotation);
   }
 
   public FlowFunctionTypeParameterTree flowFunctionTypeParameter(FlowTypeTree type) {

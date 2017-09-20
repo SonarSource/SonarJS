@@ -75,6 +75,12 @@ public class FlowFunctionTypeRestParameterTreeImpl extends JavaScriptTree implem
 
   @Nullable
   @Override
+  public SyntaxToken query() {
+    return typeParameter.query();
+  }
+
+  @Nullable
+  @Override
   public FlowTypeAnnotationTree typeAnnotation() {
     return typeParameter.typeAnnotation();
   }

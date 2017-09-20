@@ -53,12 +53,26 @@ public class FlowFunctionTypeParameterTreeModelTest extends JavaScriptTreeModelT
 
   @Test
   public void rest_parameter() throws Exception {
-    FlowFunctionTypeRestParameterTree tree = parse("...numbers: ManyNumbers", Tree.Kind.FLOW_FUNCTION_TYPE_REST_PARAMETER, Tree.Kind.FLOW_FUNCTION_TYPE_REST_PARAMETER);
+    FlowFunctionTypeRestParameterTree tree = parse("...numbers?: ManyNumbers", Tree.Kind.FLOW_FUNCTION_TYPE_REST_PARAMETER, Tree.Kind.FLOW_FUNCTION_TYPE_REST_PARAMETER);
 
     assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE_REST_PARAMETER)).isTrue();
     assertThat(tree.type().is(Tree.Kind.FLOW_SIMPLE_TYPE)).isTrue();
     assertThat(tree.identifier().name()).isEqualTo("numbers");
     assertThat(tree.typeAnnotation()).isNotNull();
+    assertThat(tree.query()).isNotNull();
     assertThat(tree.childrenStream().filter(Objects::nonNull).count()).isEqualTo(2);
   }
+
+  @Test
+  public void optional_parameter() throws Exception {
+    FlowFunctionTypeParameterTree tree = parse("middleName?: string", Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER, Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER);
+
+    assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER)).isTrue();
+    assertThat(tree.type().is(Tree.Kind.FLOW_SIMPLE_TYPE)).isTrue();
+    assertThat(tree.identifier().name()).isEqualTo("middleName");
+    assertThat(tree.query()).isNotNull();
+    assertThat(tree.typeAnnotation()).isNotNull();
+    assertThat(tree.childrenStream().filter(Objects::nonNull).count()).isEqualTo(3);
+  }
+
 }
