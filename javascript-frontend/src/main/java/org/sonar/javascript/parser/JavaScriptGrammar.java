@@ -96,9 +96,12 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttribute
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyTypeKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
@@ -1725,7 +1728,8 @@ public class JavaScriptGrammar {
         FLOW_OPTIONAL_TYPE(),
         FLOW_SIMPLE_TYPE(),
         FLOW_LITERAL_TYPE(),
-        FLOW_FUNCTION_TYPE()
+        FLOW_FUNCTION_TYPE(),
+        FLOW_OBJECT_TYPE()
       ));
   }
 
@@ -1798,6 +1802,44 @@ public class JavaScriptGrammar {
   public FlowFunctionTypeParameterTree FLOW_FUNCTION_TYPE_REST_PARAMETER() {
     return b.<FlowFunctionTypeParameterTree>nonterminal()
       .is(f.flowFunctionTypeRestParameter(b.token(JavaScriptPunctuator.ELLIPSIS), FLOW_FUNCTION_TYPE_PARAMETER()));
+  }
+
+  public FlowObjectTypeTree FLOW_OBJECT_TYPE() {
+    return b.<FlowObjectTypeTree>nonterminal(Kind.FLOW_OBJECT_TYPE)
+      .is(b.firstOf(
+        f.flowObjectType(
+          b.token(JavaScriptPunctuator.LCURLYBRACE),
+          b.optional(FLOW_OBJECT_TYPE_PROPERTIES()),
+          b.token(JavaScriptPunctuator.RCURLYBRACE)),
+        f.flowStrictObjectType(
+          b.token(JavaScriptPunctuator.LCURLYBRACE),
+          b.token(JavaScriptPunctuator.OR),
+          b.optional(FLOW_OBJECT_TYPE_PROPERTIES()),
+          b.token(JavaScriptPunctuator.OR),
+          b.token(JavaScriptPunctuator.RCURLYBRACE)
+        )
+      ));
+  }
+
+  public SeparatedList<Tree> FLOW_OBJECT_TYPE_PROPERTIES() {
+    return b.<SeparatedList<Tree>>nonterminal()
+      .is(f.properties(
+        FLOW_PROPERTY_TYPE(),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_PROPERTY_TYPE())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA))));
+  }
+
+  public FlowPropertyTypeTree FLOW_PROPERTY_TYPE() {
+    return b.<FlowPropertyTypeTree>nonterminal(Kind.FLOW_PROPERTY_TYPE)
+      .is(b.firstOf(
+        f.flowPropertyType(IDENTIFIER_NAME(), b.optional(b.token(JavaScriptPunctuator.QUERY)), FLOW_TYPE_ANNOTATION()),
+        f.flowPropertyType(FLOW_INDEXER_PROPERTY_TYPE_KEY(), FLOW_TYPE_ANNOTATION()))
+      );
+  }
+
+  public FlowIndexerPropertyTypeKeyTree FLOW_INDEXER_PROPERTY_TYPE_KEY() {
+    return b.<FlowIndexerPropertyTypeKeyTree>nonterminal()
+      .is(f.flowIndexerPropertyTypeKey(b.token(JavaScriptPunctuator.LBRACKET), IDENTIFIER_NAME(), b.token(JavaScriptPunctuator.RBRACKET)));
   }
 
   public FlowTypeAnnotationTree FLOW_TYPE_ANNOTATION() {

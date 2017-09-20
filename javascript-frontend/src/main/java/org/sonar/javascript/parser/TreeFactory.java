@@ -211,9 +211,12 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyTypeKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
@@ -1811,6 +1814,26 @@ public class TreeFactory {
 
   public FlowFunctionTypeParameterTree flowFunctionTypeRestParameter(InternalSyntaxToken ellipsis, FlowFunctionTypeParameterTree typeParameter) {
     return new FlowFunctionTypeParameterTreeImpl(ellipsis, typeParameter);
+  }
+
+  public FlowObjectTypeTree flowObjectType(SyntaxToken lcurly, Optional<SeparatedList<Tree>> properties, SyntaxToken rcurly) {
+    return null;
+  }
+
+  public FlowObjectTypeTree flowStrictObjectType(SyntaxToken lcurly, SyntaxToken lpipe, Optional<SeparatedList<Tree>> properties, SyntaxToken rpipe, SyntaxToken rcurly) {
+    return null;
+  }
+
+  public FlowPropertyTypeTree flowPropertyType(IdentifierTree identifier, Optional<SyntaxToken> query, FlowTypeAnnotationTree typeAnnotation) {
+    return null;
+  }
+
+  public FlowPropertyTypeTree flowPropertyType(FlowIndexerPropertyTypeKeyTree indexer, FlowTypeAnnotationTree typeAnnotation) {
+    return null;
+  }
+
+  public FlowIndexerPropertyTypeKeyTree flowIndexerPropertyTypeKey(InternalSyntaxToken lbracker, IdentifierTree identifierTree, InternalSyntaxToken rbracket) {
+    return null;
   }
 
   public FlowOptionalBindingElementTree flowOptionalBindingElement(BindingElementTree bindingElementTree, InternalSyntaxToken questionToken) {
