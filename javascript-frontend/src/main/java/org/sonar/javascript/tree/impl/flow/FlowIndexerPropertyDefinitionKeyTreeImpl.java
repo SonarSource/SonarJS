@@ -25,24 +25,35 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyTypeKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class FlowSimplePropertyTypeKeyTreeImpl extends JavaScriptTree implements FlowSimplePropertyTypeKeyTree {
-  private final IdentifierTree identifier;
-  private final SyntaxToken queryToken;
+public class FlowIndexerPropertyDefinitionKeyTreeImpl extends JavaScriptTree implements FlowIndexerPropertyDefinitionKeyTree {
 
-  public FlowSimplePropertyTypeKeyTreeImpl(IdentifierTree identifier, SyntaxToken queryToken) {
+  private final SyntaxToken lbracketToken;
+  private final IdentifierTree identifier;
+  private final SyntaxToken colonToken;
+  private final FlowTypeTree type;
+  private final SyntaxToken rbracketToken;
+
+  public FlowIndexerPropertyDefinitionKeyTreeImpl(
+    SyntaxToken lbracketToken, @Nullable IdentifierTree identifier, @Nullable SyntaxToken colonToken, FlowTypeTree type, SyntaxToken rbracketToken
+  ) {
+    this.lbracketToken = lbracketToken;
     this.identifier = identifier;
-    this.queryToken = queryToken;
+    this.colonToken = colonToken;
+    this.type = type;
+    this.rbracketToken = rbracketToken;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.FLOW_SIMPLE_PROPERTY_TYPE_KEY;
+    return Kind.FLOW_INDEXER_PROPERTY_DEFINITION_KEY;
   }
 
+  @Nullable
   @Override
   public IdentifierTree identifier() {
     return identifier;
@@ -50,13 +61,28 @@ public class FlowSimplePropertyTypeKeyTreeImpl extends JavaScriptTree implements
 
   @Nullable
   @Override
-  public SyntaxToken queryToken() {
-    return queryToken;
+  public SyntaxToken colonToken() {
+    return colonToken;
+  }
+
+  @Override
+  public FlowTypeTree type() {
+    return type;
+  }
+
+  @Override
+  public SyntaxToken lbracketToken() {
+    return lbracketToken;
+  }
+
+  @Override
+  public SyntaxToken rbracketToken() {
+    return rbracketToken;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(identifier, queryToken);
+    return Iterators.forArray(lbracketToken, identifier, colonToken, type, rbracketToken);
   }
 
   @Override

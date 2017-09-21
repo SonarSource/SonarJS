@@ -1,4 +1,4 @@
-package org.sonar.plugins.javascript.api.tree.flow;/*
+/*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2017 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -18,10 +18,9 @@ package org.sonar.plugins.javascript.api.tree.flow;/*
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+package org.sonar.plugins.javascript.api.tree.flow;
+
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-public interface FlowPropertyTypeTree extends Tree {
-  FlowPropertyTypeKeyTree key();
-
-  FlowTypeAnnotationTree typeAnnotation();
+public interface FlowPropertyDefinitionKeyTree extends Tree {
 }

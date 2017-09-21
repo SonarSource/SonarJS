@@ -1,4 +1,4 @@
-package org.sonar.plugins.javascript.api.tree.flow;/*
+/*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2017 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -18,9 +18,24 @@ package org.sonar.plugins.javascript.api.tree.flow;/*
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+package org.sonar.plugins.javascript.api.tree.flow;
 
-public interface FlowPropertyTypeKeyTree extends Tree {
+import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+
+public interface FlowIndexerPropertyDefinitionKeyTree extends FlowPropertyDefinitionKeyTree {
+
+  SyntaxToken lbracketToken();
+
+  @Nullable
   IdentifierTree identifier();
+
+  @Nullable
+  SyntaxToken colonToken();
+
+  FlowTypeTree type();
+
+  SyntaxToken rbracketToken();
+
 }

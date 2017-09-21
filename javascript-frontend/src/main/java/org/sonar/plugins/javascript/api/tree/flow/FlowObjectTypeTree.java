@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.api.tree.flow;
 
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public interface FlowObjectTypeTree extends FlowTypeTree {
@@ -31,7 +30,7 @@ public interface FlowObjectTypeTree extends FlowTypeTree {
   @Nullable
   SyntaxToken lpipeToken();
 
-  SeparatedList<Tree> properties();
+  SeparatedList<FlowPropertyDefinitionTree> properties();
 
   @Nullable
   SyntaxToken rpipeToken();

@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.flow.FlowPropertyTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowPropertyDefinitionTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -101,7 +101,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
@@ -570,11 +570,11 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-  public void visitFlowPropertyType(FlowPropertyTypeTreeImpl tree) {
+  public void visitFlowPropertyType(FlowPropertyDefinitionTreeImpl tree) {
     scanChildren(tree);
   }
 
-  public void visitFlowPropertyTypeKey(FlowPropertyTypeKeyTree tree) {
+  public void visitFlowPropertyTypeKey(FlowPropertyDefinitionKeyTree tree) {
     scanChildren(tree);
   }
 

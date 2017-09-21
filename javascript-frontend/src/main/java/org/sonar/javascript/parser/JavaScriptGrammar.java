@@ -100,8 +100,8 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeKeyTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
@@ -1824,27 +1824,31 @@ public class JavaScriptGrammar {
   public SeparatedList<Tree> FLOW_OBJECT_TYPE_PROPERTIES() {
     return b.<SeparatedList<Tree>>nonterminal()
       .is(f.properties(
-        FLOW_PROPERTY_TYPE(),
-        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_PROPERTY_TYPE())),
-        b.optional(b.token(JavaScriptPunctuator.COMMA))));
+        FLOW_PROPERTY_DEFINITION(),
+        b.zeroOrMore(f.newTuple(b.firstOf(b.token(JavaScriptPunctuator.COMMA), b.token(JavaScriptPunctuator.SEMI)), FLOW_PROPERTY_DEFINITION())),
+        b.optional(b.firstOf(b.token(JavaScriptPunctuator.COMMA), b.token(JavaScriptPunctuator.SEMI)))));
   }
 
-  public FlowPropertyTypeTree FLOW_PROPERTY_TYPE() {
-    return b.<FlowPropertyTypeTree>nonterminal(Kind.FLOW_PROPERTY_TYPE)
+  public FlowPropertyDefinitionTree FLOW_PROPERTY_DEFINITION() {
+    return b.<FlowPropertyDefinitionTree>nonterminal(Kind.FLOW_PROPERTY_DEFINITION)
       .is(b.firstOf(
-        f.flowPropertyType(FLOW_SIMPLE_PROPERTY_TYPE_KEY(), FLOW_TYPE_ANNOTATION()),
-        f.flowPropertyType(FLOW_INDEXER_PROPERTY_TYPE_KEY(), FLOW_TYPE_ANNOTATION()))
+        f.flowPropertyDefinition(FLOW_SIMPLE_PROPERTY_DEFINITION_KEY(), FLOW_TYPE_ANNOTATION()),
+        f.flowPropertyDefinition(FLOW_INDEXER_PROPERTY_DEFINITION_KEY(), FLOW_TYPE_ANNOTATION()))
       );
   }
 
-  public FlowPropertyTypeKeyTree FLOW_SIMPLE_PROPERTY_TYPE_KEY() {
-    return b.<FlowPropertyTypeKeyTree>nonterminal(Kind.FLOW_SIMPLE_PROPERTY_TYPE_KEY)
-      .is(f.flowSimplePropertyTypeKeyTree(IDENTIFIER_NAME(), b.optional(b.token(JavaScriptPunctuator.QUERY))));
+  public FlowPropertyDefinitionKeyTree FLOW_SIMPLE_PROPERTY_DEFINITION_KEY() {
+    return b.<FlowPropertyDefinitionKeyTree>nonterminal(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)
+      .is(f.flowSimplePropertyDefinitionKeyTree(IDENTIFIER_NAME(), b.optional(b.token(JavaScriptPunctuator.QUERY))));
   }
 
-  public FlowPropertyTypeKeyTree FLOW_INDEXER_PROPERTY_TYPE_KEY() {
-    return b.<FlowPropertyTypeKeyTree>nonterminal(Kind.FLOW_INDEXER_PROPERTY_TYPE_KEY)
-      .is(f.flowIndexerPropertyTypeKey(b.token(JavaScriptPunctuator.LBRACKET), IDENTIFIER_NAME(), b.token(JavaScriptPunctuator.RBRACKET)));
+  public FlowPropertyDefinitionKeyTree FLOW_INDEXER_PROPERTY_DEFINITION_KEY() {
+    return b.<FlowPropertyDefinitionKeyTree>nonterminal(Kind.FLOW_INDEXER_PROPERTY_DEFINITION_KEY)
+      .is(f.flowIndexerPropertyDefinitionKey(
+        b.token(JavaScriptPunctuator.LBRACKET),
+        b.optional(f.newTuple(IDENTIFIER_NAME(), b.token(JavaScriptPunctuator.COLON))),
+        FLOW_TYPE(),
+        b.token(JavaScriptPunctuator.RBRACKET)));
   }
 
   public FlowTypeAnnotationTree FLOW_TYPE_ANNOTATION() {

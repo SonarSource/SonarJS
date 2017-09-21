@@ -23,50 +23,43 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyTypeKeyTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class FlowIndexerPropertyTypeKeyTreeImpl extends JavaScriptTree implements FlowIndexerPropertyTypeKeyTree {
+public class FlowPropertyDefinitionTreeImpl extends JavaScriptTree implements FlowPropertyDefinitionTree {
 
-  private final SyntaxToken lbracketToken;
-  private final IdentifierTree identifier;
-  private final SyntaxToken rbracketToken;
+  private final FlowPropertyDefinitionKeyTree key;
+  private final FlowTypeAnnotationTree typeAnnotation;
 
-  public FlowIndexerPropertyTypeKeyTreeImpl(SyntaxToken lbracketToken, IdentifierTree identifier, SyntaxToken rbracketToken) {
-    this.lbracketToken = lbracketToken;
-    this.identifier = identifier;
-    this.rbracketToken = rbracketToken;
+  public FlowPropertyDefinitionTreeImpl(FlowPropertyDefinitionKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
+    this.key = key;
+    this.typeAnnotation = typeAnnotation;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.FLOW_INDEXER_PROPERTY_TYPE_KEY;
-  }
-
-  @Override
-  public IdentifierTree identifier() {
-    return identifier;
-  }
-
-  @Override
-  public SyntaxToken lbracketToken() {
-    return lbracketToken;
-  }
-
-  @Override
-  public SyntaxToken rbracketToken() {
-    return rbracketToken;
+    return Kind.FLOW_PROPERTY_DEFINITION;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(lbracketToken, identifier, rbracketToken);
+    return Iterators.forArray(key, typeAnnotation);
+  }
+
+  @Override
+  public FlowPropertyDefinitionKeyTree key() {
+    return key;
+  }
+
+  @Override
+  public FlowTypeAnnotationTree typeAnnotation() {
+    return typeAnnotation;
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitFlowPropertyTypeKey(this);
+    visitor.visitFlowPropertyType(this);
   }
 }

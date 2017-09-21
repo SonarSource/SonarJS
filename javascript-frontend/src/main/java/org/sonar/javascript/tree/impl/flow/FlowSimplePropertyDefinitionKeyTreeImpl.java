@@ -21,45 +21,46 @@ package org.sonar.javascript.tree.impl.flow;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeKeyTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class FlowPropertyTypeTreeImpl extends JavaScriptTree implements FlowPropertyTypeTree {
+public class FlowSimplePropertyDefinitionKeyTreeImpl extends JavaScriptTree implements FlowSimplePropertyDefinitionKeyTree {
+  private final IdentifierTree identifier;
+  private final SyntaxToken queryToken;
 
-  private final FlowPropertyTypeKeyTree key;
-  private final FlowTypeAnnotationTree typeAnnotation;
-
-  public FlowPropertyTypeTreeImpl(FlowPropertyTypeKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
-    this.key = key;
-    this.typeAnnotation = typeAnnotation;
+  public FlowSimplePropertyDefinitionKeyTreeImpl(IdentifierTree identifier, SyntaxToken queryToken) {
+    this.identifier = identifier;
+    this.queryToken = queryToken;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.FLOW_PROPERTY_TYPE;
+    return Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY;
+  }
+
+  @Override
+  public IdentifierTree identifier() {
+    return identifier;
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken queryToken() {
+    return queryToken;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(key, typeAnnotation);
-  }
-
-  @Override
-  public FlowPropertyTypeKeyTree key() {
-    return key;
-  }
-
-  @Override
-  public FlowTypeAnnotationTree typeAnnotation() {
-    return typeAnnotation;
+    return Iterators.forArray(identifier, queryToken);
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitFlowPropertyType(this);
+    visitor.visitFlowPropertyTypeKey(this);
   }
 }

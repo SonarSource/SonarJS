@@ -27,17 +27,20 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowObjectTypeTreeImpl extends JavaScriptTree implements FlowObjectTypeTree {
   private final SyntaxToken lcurlyToken;
   private final SyntaxToken lpipeToken;
-  private final SeparatedList<Tree> properties;
+  private final SeparatedList<FlowPropertyDefinitionTree> properties;
   private final SyntaxToken rpipeToken;
   private final SyntaxToken rcurlyToken;
 
-  public FlowObjectTypeTreeImpl(SyntaxToken lcurlyToken, @Nullable SyntaxToken lpipeToken, SeparatedList<Tree> properties, @Nullable SyntaxToken rpipeToken, SyntaxToken rcurlyToken) {
+  public FlowObjectTypeTreeImpl(
+    SyntaxToken lcurlyToken, @Nullable SyntaxToken lpipeToken, SeparatedList<FlowPropertyDefinitionTree> properties, @Nullable SyntaxToken rpipeToken, SyntaxToken rcurlyToken
+  ) {
 
     this.lcurlyToken = lcurlyToken;
     this.lpipeToken = lpipeToken;
@@ -63,7 +66,7 @@ public class FlowObjectTypeTreeImpl extends JavaScriptTree implements FlowObject
   }
 
   @Override
-  public SeparatedList<Tree> properties() {
+  public SeparatedList<FlowPropertyDefinitionTree> properties() {
     return properties;
   }
 

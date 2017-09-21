@@ -88,13 +88,13 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyTypeKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeKeyTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
@@ -1018,9 +1018,9 @@ public interface Tree {
     FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(FlowFunctionTypeParameterClauseTree.class),
     FLOW_FUNCTION_TYPE_PARAMETER(FlowFunctionTypeParameterTree.class),
     FLOW_OBJECT_TYPE(FlowObjectTypeTree.class),
-    FLOW_PROPERTY_TYPE(FlowPropertyTypeTree.class),
-    FLOW_SIMPLE_PROPERTY_TYPE_KEY(FlowPropertyTypeKeyTree.class),
-    FLOW_INDEXER_PROPERTY_TYPE_KEY(FlowIndexerPropertyTypeKeyTree.class),
+    FLOW_PROPERTY_DEFINITION(FlowPropertyDefinitionTree.class),
+    FLOW_SIMPLE_PROPERTY_DEFINITION_KEY(FlowPropertyDefinitionKeyTree.class),
+    FLOW_INDEXER_PROPERTY_DEFINITION_KEY(FlowIndexerPropertyDefinitionKeyTree.class),
     FLOW_TYPE_ANNOTATION(FlowTypeAnnotationTree.class),
     FLOW_TYPED_BINDING_ELEMENT(FlowTypedBindingElementTree.class),
     FLOW_OPTIONAL_BINDING_ELEMENT(FlowOptionalBindingElementTree.class),
