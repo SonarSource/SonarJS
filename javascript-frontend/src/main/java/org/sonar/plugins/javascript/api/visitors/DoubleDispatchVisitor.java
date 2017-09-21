@@ -99,6 +99,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
@@ -110,6 +111,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTupleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowUnionTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -604,6 +606,14 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
   public void visitFlowArrayTypeWithKeywordTree(FlowArrayTypeWithKeywordTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowUnionType(FlowUnionTypeTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowIntersectionType(FlowIntersectionTypeTree tree) {
     scanChildren(tree);
   }
 

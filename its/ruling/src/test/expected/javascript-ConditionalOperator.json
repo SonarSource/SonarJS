@@ -9964,6 +9964,10 @@
 'project:jest/packages/jest-cli/src/get_no_test_found_verbose.js':[
 27,
 ],
+'project:jest/packages/jest-cli/src/lib/pattern_mode_helpers.js':[
+20,
+30,
+],
 'project:jest/packages/jest-cli/src/pluralize.js':[
 2,
 ],
