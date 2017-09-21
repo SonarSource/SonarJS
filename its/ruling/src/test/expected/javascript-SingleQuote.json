@@ -622,6 +622,12 @@
 'project:babylon/test/fixtures/flow/regression/issue-92/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/60/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/61/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/89/actual.js':[
 1,
 ],
@@ -632,12 +638,6 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/92/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/type-annotations/60/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/type-annotations/61/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/93/actual.js':[

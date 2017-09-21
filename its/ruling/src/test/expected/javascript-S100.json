@@ -1829,6 +1829,9 @@
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
 35,
 ],
+'project:jest/packages/jest-jasmine2/src/setup_jest_globals.js':[
+63,
+],
 'project:jest/packages/jest-matcher-utils/src/__tests__/index.test.js':[
 52,
 ],

@@ -732,6 +732,9 @@
 'project:jest/packages/jest-circus/src/index.js':[
 23,
 ],
+'project:jest/packages/jest-config/src/index.js':[
+63,
+],
 'project:jest/packages/jest-config/src/resolve_config_path.js':[
 50,
 71,
@@ -778,6 +781,9 @@
 ],
 'project:jest/packages/jest-runtime/src/__tests__/script_transformer.test.js':[
 90,
+],
+'project:jest/packages/jest-snapshot/src/utils.js':[
+137,
 ],
 'project:jquery-1.7.2.js':[
 27,

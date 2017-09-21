@@ -14173,6 +14173,9 @@
 'project:jest/packages/jest-config/src/__tests__/normalize.test.js':[
 721,
 ],
+'project:jest/packages/jest-config/src/index.js':[
+53,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 263,
 340,

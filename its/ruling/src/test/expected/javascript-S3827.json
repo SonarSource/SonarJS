@@ -361,9 +361,6 @@
 'project:babylon/test/expressions/is-expression-babylon/pass/5/actual.js':[
 1,
 ],
-'project:babylon/test/fixtures/flow/declare-export/export-default-arrow/actual.js':[
-1,
-],
 'project:babylon/test/fixtures/flow/declare-export/export-default-union/actual.js':[
 1,
 1,
