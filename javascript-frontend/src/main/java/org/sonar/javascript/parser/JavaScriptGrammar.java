@@ -111,6 +111,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowTupleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowUnionTypeTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
@@ -1730,15 +1731,22 @@ public class JavaScriptGrammar {
     return b.<FlowTypeTree>nonterminal()
       .is(b.firstOf(
         FLOW_ARRAY_TYPE_SHORTHAND(),
-        FLOW_TYPE_NON_ARRAY()
+        FLOW_UNION_TYPE(),
+        FLOW_TYPE_NON_UNION_NON_ARRAY()
       ));
   }
 
-  // this separation of types is here in order to avoid left recursion for arrow shorthand syntax
-  public FlowTypeTree FLOW_TYPE_NON_ARRAY() {
+  // this separation of types is here in order to avoid left recursion for arrow shorthand syntax and union type
+  public FlowTypeTree FLOW_TYPE_NON_UNION() {
     return b.<FlowTypeTree>nonterminal()
       .is(b.firstOf(
-        // TODO
+        FLOW_ARRAY_TYPE_SHORTHAND(),
+        FLOW_TYPE_NON_UNION_NON_ARRAY()));
+  }
+
+  public FlowTypeTree FLOW_TYPE_NON_UNION_NON_ARRAY() {
+    return b.<FlowTypeTree>nonterminal()
+      .is(b.firstOf(
         FLOW_ARRAY_TYPE(),
         FLOW_OPTIONAL_TYPE(),
         FLOW_NAMESPACED_TYPE(),
@@ -1779,7 +1787,12 @@ public class JavaScriptGrammar {
 
   public FlowArrayTypeShorthandTree FLOW_ARRAY_TYPE_SHORTHAND() {
     return b.<FlowArrayTypeShorthandTree>nonterminal(Kind.FLOW_ARRAY_TYPE_SHORTHAND)
-      .is(f.flowArrayTypeShorthand(FLOW_TYPE_NON_ARRAY(), b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.LBRACKET), b.token(JavaScriptPunctuator.RBRACKET)))));
+      .is(f.flowArrayTypeShorthand(FLOW_TYPE_NON_UNION_NON_ARRAY(), b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.LBRACKET), b.token(JavaScriptPunctuator.RBRACKET)))));
+  }
+
+  public FlowUnionTypeTree FLOW_UNION_TYPE() {
+    return b.<FlowUnionTypeTree>nonterminal(Kind.FLOW_UNION_TYPE)
+      .is(f.flowUnionType(FLOW_TYPE_NON_UNION(), b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.OR), FLOW_TYPE_NON_UNION()))));
   }
 
   public FlowSimpleTypeTree FLOW_SIMPLE_TYPE() {

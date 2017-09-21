@@ -33,7 +33,13 @@
 'project:babylon/test/fixtures/flow/anonymous-function-no-parens-types/good_03/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/anonymous-function-no-parens-types/good_04/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/anonymous-function-types/bad_01/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/anonymous-function-types/bad_02/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/anonymous-function-types/bad_03/actual.js':[
@@ -119,6 +125,12 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/52/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/55/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/57/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/6/actual.js':[

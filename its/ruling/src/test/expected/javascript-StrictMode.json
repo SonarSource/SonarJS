@@ -332,6 +332,9 @@
 'project:jest/packages/jest-cli/src/lib/__tests__/set_state.js':[
 10,
 ],
+'project:jest/packages/jest-cli/src/lib/pattern_mode_helpers.js':[
+11,
+],
 'project:jest/packages/jest-cli/src/reporters/__tests__/coverage_reporter.test.js':[
 8,
 ],

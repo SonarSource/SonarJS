@@ -2,6 +2,9 @@
 'project:babylon/test/fixtures/flow/anonymous-function-types/bad_01/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/anonymous-function-types/bad_02/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/anonymous-function-types/bad_03/actual.js':[
 1,
 ],
