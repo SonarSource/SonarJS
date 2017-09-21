@@ -17,61 +17,63 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.tree.impl.declaration;
+package org.sonar.javascript.tree.impl.flow;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
-import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class NameSpaceSpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
+public class FlowInterfaceDeclarationTreeImpl extends JavaScriptTree implements FlowInterfaceDeclarationTree {
 
-  private final SyntaxToken starToken;
-  private final SyntaxToken asToken;
-  private final IdentifierTree localName;
+  private final SyntaxToken interfaceToken;
+  private final IdentifierTree name;
+  private final SyntaxToken leftCurlyBraceToken;
+  private final SyntaxToken rightCurlyBraceToken;
 
-  public NameSpaceSpecifierTreeImpl(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTree localName) {
-    this.starToken = starToken;
-    this.asToken = asToken;
-    this.localName = localName;
-
-  }
-
-  @Override
-  public SyntaxToken name() {
-    return starToken;
-  }
-
-  @Nullable
-  @Override
-  public SyntaxToken asToken() {
-    return asToken;
-  }
-
-  @Nullable
-  @Override
-  public IdentifierTree localName() {
-    return localName;
+  public FlowInterfaceDeclarationTreeImpl(SyntaxToken interfaceToken, IdentifierTree name, SyntaxToken leftCurlyBraceToken, SyntaxToken rightCurlyBraceToken) {
+    this.interfaceToken = interfaceToken;
+    this.name = name;
+    this.leftCurlyBraceToken = leftCurlyBraceToken;
+    this.rightCurlyBraceToken = rightCurlyBraceToken;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.NAMESPACE_IMPORT_SPECIFIER;
+    return Kind.FLOW_INTERFACE_DECLARATION;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(starToken, asToken, localName);
+    return Iterators.forArray(interfaceToken, name, leftCurlyBraceToken , rightCurlyBraceToken);
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitSpecifier(this);
+    // TODO when interface is filled
+  }
+
+  @Override
+  public SyntaxToken interfaceToken() {
+    return interfaceToken;
+  }
+
+  @Override
+  public IdentifierTree name() {
+    return name;
+  }
+
+  @Override
+  public SyntaxToken leftCurlyBraceToken() {
+    return leftCurlyBraceToken;
+  }
+
+  @Override
+  public SyntaxToken rightCurlyBraceToken() {
+    return rightCurlyBraceToken;
   }
 }

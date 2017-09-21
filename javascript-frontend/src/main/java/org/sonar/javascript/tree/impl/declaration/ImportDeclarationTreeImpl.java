@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
@@ -34,17 +33,24 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportDeclarationTree {
 
-  private SyntaxToken importToken;
-  private ImportClauseTree importClause;
-  private FromClauseTree fromClause;
+  private final SyntaxToken importToken;
+  private final SyntaxToken flowImportTypeOfTypeOfToken;
+  private final ImportClauseTree importClause;
+  private final FromClauseTree fromClause;
   private final SyntaxToken semicolonToken;
 
-  public ImportDeclarationTreeImpl(InternalSyntaxToken importToken, ImportClauseTree importClause, FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken) {
+  public ImportDeclarationTreeImpl(
+    InternalSyntaxToken importToken,
+    @Nullable SyntaxToken flowImportTypeOfTypeOfToken,
+    ImportClauseTree importClause,
+    FromClauseTree fromClause,
+    @Nullable SyntaxToken semicolonToken
+  ) {
     this.importToken = importToken;
+    this.flowImportTypeOfTypeOfToken = flowImportTypeOfTypeOfToken;
     this.importClause = importClause;
     this.fromClause = fromClause;
     this.semicolonToken = semicolonToken;
-
   }
 
   @Override
@@ -52,8 +58,14 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
     return importToken;
   }
 
+  @Nullable
   @Override
-  public DeclarationTree importClause() {
+  public SyntaxToken flowImportTypeOrTypeOfToken() {
+    return flowImportTypeOfTypeOfToken;
+  }
+
+  @Override
+  public ImportClauseTree importClause() {
     return importClause;
   }
 
@@ -75,7 +87,7 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(importToken, importClause, fromClause, semicolonToken);
+    return Iterators.forArray(importToken, flowImportTypeOfTypeOfToken, importClause, fromClause, semicolonToken);
   }
 
   @Override

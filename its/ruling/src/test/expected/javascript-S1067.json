@@ -814,6 +814,16 @@
 'project:jest/packages/babel-plugin-jest-hoist/src/index.js':[
 152,
 ],
+'project:jest/packages/jest-circus/src/format_node_assert_errors.js':[
+84,
+],
+'project:jest/packages/jest-jasmine2/src/assert_support.js':[
+55,
+],
+'project:jest/packages/pretty-format/src/index.js':[
+50,
+228,
+],
 'project:jquery-1.7.2.js':[
 694,
 768,

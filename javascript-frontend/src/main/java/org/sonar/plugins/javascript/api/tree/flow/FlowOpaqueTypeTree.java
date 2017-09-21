@@ -17,27 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.declaration;
+package org.sonar.plugins.javascript.api.tree.flow;
 
-import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-/**
- * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Clause</a>
- * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
- * <pre>
- *    { {@link #specifiers()} }
- *    { {@link #specifiers()} , }
- * </pre>
- */
-@Beta
-public interface SpecifierListTree extends DeclarationTree {
+public interface FlowOpaqueTypeTree extends Tree {
 
-  SyntaxToken openCurlyBraceToken();
+  SyntaxToken opaqueToken();
 
-  SeparatedList<SpecifierTree> specifiers();
+  SyntaxToken typeToken();
 
-  SyntaxToken closeCurlyBraceToken();
+  IdentifierTree typeAlias();
 
 }

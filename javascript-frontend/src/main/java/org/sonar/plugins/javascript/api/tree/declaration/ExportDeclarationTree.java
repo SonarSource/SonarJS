@@ -22,10 +22,6 @@ package org.sonar.plugins.javascript.api.tree.declaration;
 import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-/**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Declarations</a>
- * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
- */
 @Beta
 public interface ExportDeclarationTree extends DeclarationTree {
 

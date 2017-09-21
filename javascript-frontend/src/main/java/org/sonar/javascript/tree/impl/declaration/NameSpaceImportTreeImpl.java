@@ -19,67 +19,59 @@
  */
 package org.sonar.javascript.tree.impl.declaration;
 
-import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceImportTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierListTree {
+public class NameSpaceImportTreeImpl extends JavaScriptTree implements NameSpaceImportTree {
 
-  private SyntaxToken openCurlyBraceToken;
-  private final SeparatedList<SpecifierTree> specifiers;
-  private SyntaxToken closeCurlyBraceToken;
-  private final Kind kind;
+  private final SyntaxToken starToken;
+  private final SyntaxToken asToken;
+  private final IdentifierTree localName;
 
-  public SpecifierListTreeImpl(Kind kind, InternalSyntaxToken openCurlyBraceToken, SeparatedList<SpecifierTree> specifiers, InternalSyntaxToken closeCurlyBraceToken) {
-    this.kind = kind;
-    this.openCurlyBraceToken = openCurlyBraceToken;
-    this.specifiers = specifiers;
-    this.closeCurlyBraceToken = closeCurlyBraceToken;
+  public NameSpaceImportTreeImpl(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTree localName) {
+    this.starToken = starToken;
+    this.asToken = asToken;
+    this.localName = localName;
 
   }
 
   @Override
-  public SyntaxToken openCurlyBraceToken() {
-    return openCurlyBraceToken;
+  public SyntaxToken starToken() {
+    return starToken;
   }
 
+  @Nullable
   @Override
-  public SeparatedList<SpecifierTree> specifiers() {
-    return specifiers;
+  public SyntaxToken asToken() {
+    return asToken;
   }
 
+  @Nullable
   @Override
-  public SyntaxToken closeCurlyBraceToken() {
-    return closeCurlyBraceToken;
+  public IdentifierTree localName() {
+    return localName;
   }
 
   @Override
   public Kind getKind() {
-    return kind;
+    return Kind.NAME_SPACE_IMPORT;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    if (specifiers == null) {
-      return Iterators.<Tree>forArray(openCurlyBraceToken, closeCurlyBraceToken);
-    }
-    return Iterators.<Tree>concat(
-      Iterators.singletonIterator(openCurlyBraceToken),
-      specifiers.elementsAndSeparators(Functions.<SpecifierTree>identity()),
-      Iterators.singletonIterator(closeCurlyBraceToken)
-    );
+    return Iterators.forArray(starToken, asToken, localName);
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitSpecifierList(this);
+    visitor.visitNameSpaceImport(this);
   }
 }

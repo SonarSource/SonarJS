@@ -756,6 +756,9 @@
 337,
 386,
 ],
+'project:jest/packages/jest-cli/src/cli/get_jest.js':[
+30,
+],
 'project:jest/packages/jest-diff/src/__tests__/diff.test.js':[
 33,
 ],

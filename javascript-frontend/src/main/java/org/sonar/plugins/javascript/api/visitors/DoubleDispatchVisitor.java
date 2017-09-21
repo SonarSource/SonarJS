@@ -49,10 +49,11 @@ import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclaration
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceImportTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
@@ -97,12 +98,18 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -192,7 +199,11 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-  public void visitSpecifierList(SpecifierListTree tree) {
+  public void visitNamedImportExportClause(NamedImportExportClauseTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitNameSpaceImport(NameSpaceImportTree tree) {
     scanChildren(tree);
   }
 
@@ -591,6 +602,30 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
   public void visitFlowOptionalBindingElement(FlowOptionalBindingElementTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowTypeAliasStatement(FlowTypeAliasStatementTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowDeclare(FlowDeclareTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowModule(FlowModuleTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowModuleExports(FlowModuleExportsTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowFunctionSignature(FlowFunctionSignatureTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowOpaqueType(FlowOpaqueTypeTree tree) {
     scanChildren(tree);
   }
 

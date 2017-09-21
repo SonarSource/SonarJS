@@ -2008,8 +2008,15 @@
 471,
 497,
 ],
+'project:jest/packages/jest-circus/src/event_handler.js':[
+53,
+78,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 110,
+],
+'project:jest/packages/jest-jasmine2/src/jasmine/jasmine_light.js':[
+52,
 ],
 'project:jest/packages/jest-matcher-utils/src/index.js':[
 105,

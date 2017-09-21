@@ -26,36 +26,34 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClauseTree {
 
-  private final SpecifierListTree exports;
+  private final NamedImportExportClauseTree exports;
   private final FromClauseTree fromClause;
   private final SyntaxToken semicolonToken;
 
-  public ExportClauseTreeImpl(SpecifierListTree exports, @Nullable SyntaxToken semicolonToken) {
-
+  public ExportClauseTreeImpl(NamedImportExportClauseTree exports, @Nullable SyntaxToken semicolonToken) {
     this.exports = exports;
     this.fromClause = null;
     this.semicolonToken = semicolonToken;
   }
 
-  public ExportClauseTreeImpl(SpecifierListTree exports, FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken) {
-
+  public ExportClauseTreeImpl(NamedImportExportClauseTree exports, FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken) {
     this.exports = exports;
     this.fromClause = fromClause;
     this.semicolonToken = semicolonToken;
-
   }
 
   @Override
-  public SpecifierListTree exports() {
+  public NamedImportExportClauseTree exports() {
     return exports;
   }
 
+  @Nullable
   @Override
   public FromClauseTree fromClause() {
     return fromClause;

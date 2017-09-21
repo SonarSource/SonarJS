@@ -26,12 +26,31 @@ import static org.sonar.javascript.utils.Assertions.assertThat;
 
 public class ImportDeclarationTest {
 
-
   @Test
   public void ok() {
     assertThat(EcmaScriptLexer.IMPORT_DECLARATION)
       .matches("import identifier from \"f\";")
       .matches("import \"f\";");
+  }
+
+  @Test
+  public void flow() {
+    assertThat(EcmaScriptLexer.IMPORT_DECLARATION)
+      .matches("import type MyClass from \"f\";")
+      .matches("import type {a, b} from \"f\";")
+      .matches("import typeof {a, b} from \"f\";")
+      .matches("import {type a, typeof b, type A as aa, typeof B as bb} from \"f\";")
+      .matches("import typeof MyClass from \"f\";")
+    ;
+  }
+
+  @Test
+  public void not_flow() {
+    assertThat(EcmaScriptLexer.IMPORT_DECLARATION)
+      .matches("import type from \"f\";")
+      .matches("import { type } from \"f\";")
+      .matches("import { type as T } from \"f\";")
+    ;
   }
 
 }

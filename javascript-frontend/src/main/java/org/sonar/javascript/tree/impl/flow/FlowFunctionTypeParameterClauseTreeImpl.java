@@ -22,6 +22,7 @@ package org.sonar.javascript.tree.impl.flow;
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
@@ -37,9 +38,9 @@ public class FlowFunctionTypeParameterClauseTreeImpl extends JavaScriptTree impl
   private final InternalSyntaxToken rParenthesis;
 
   public FlowFunctionTypeParameterClauseTreeImpl(
-    InternalSyntaxToken lParenthesis,
+    @Nullable InternalSyntaxToken lParenthesis,
     SeparatedList<FlowFunctionTypeParameterTree> parameters,
-    InternalSyntaxToken rParenthesis
+    @Nullable InternalSyntaxToken rParenthesis
   ) {
     this.lParenthesis = lParenthesis;
     this.parameters = parameters;
@@ -64,6 +65,7 @@ public class FlowFunctionTypeParameterClauseTreeImpl extends JavaScriptTree impl
   }
 
   @Override
+  @Nullable
   public SyntaxToken leftParenthesis() {
     return lParenthesis;
   }
@@ -74,6 +76,7 @@ public class FlowFunctionTypeParameterClauseTreeImpl extends JavaScriptTree impl
   }
 
   @Override
+  @Nullable
   public SyntaxToken rightParenthesis() {
     return rParenthesis;
   }

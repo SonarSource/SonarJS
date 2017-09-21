@@ -42,10 +42,11 @@ import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclaration
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceImportTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
@@ -89,13 +90,20 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClaus
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -902,9 +910,9 @@ public interface Tree {
     EXPORT_CLAUSE(ExportClauseTree.class),
 
     /**
-     * {@link SpecifierListTree}
+     * {@link NamedImportExportClauseTree}
      */
-    EXPORT_LIST(SpecifierListTree.class),
+    EXPORT_LIST(NamedImportExportClauseTree.class),
 
     /**
      * {@link ExportDefaultBinding}
@@ -922,14 +930,14 @@ public interface Tree {
     EXPORT_DEFAULT_BINDING_WITH_EXPORT_LIST(ExportDefaultBindingWithExportList.class),
 
     /**
-     * {@link SpecifierListTree
+     * {@link NamedImportExportClauseTree
      */
-    IMPORT_LIST(SpecifierListTree.class),
+    IMPORT_LIST(NamedImportExportClauseTree.class),
 
     /**
-     * {@link SpecifierListTree}
+     * {@link NamedImportExportClauseTree}
      */
-    NAMED_IMPORTS(SpecifierListTree.class),
+    NAMED_IMPORTS(NamedImportExportClauseTree.class),
 
     /**
      * {@link SpecifierTree}
@@ -942,9 +950,9 @@ public interface Tree {
     IMPORT_SPECIFIER(SpecifierTree.class),
 
     /**
-     * {@link SpecifierTree}
+     * {@link NameSpaceImportTree}
      */
-    NAMESPACE_IMPORT_SPECIFIER(SpecifierTree.class),
+    NAME_SPACE_IMPORT(NameSpaceImportTree.class),
 
     /**
      * {@link ImportDeclarationTree}
@@ -1024,6 +1032,13 @@ public interface Tree {
     FLOW_TYPE_ANNOTATION(FlowTypeAnnotationTree.class),
     FLOW_TYPED_BINDING_ELEMENT(FlowTypedBindingElementTree.class),
     FLOW_OPTIONAL_BINDING_ELEMENT(FlowOptionalBindingElementTree.class),
+    FLOW_TYPE_ALIAS_STATEMENT(FlowTypeAliasStatementTree.class),
+    FLOW_INTERFACE_DECLARATION(FlowInterfaceDeclarationTree.class),
+    FLOW_DECLARE(FlowDeclareTree.class),
+    FLOW_MODULE(FlowModuleTree.class),
+    FLOW_MODULE_EXPORTS(FlowModuleExportsTree.class),
+    FLOW_FUNCTION_SIGNATURE(FlowFunctionSignatureTree.class),
+    FLOW_OPAQUE_TYPE(FlowOpaqueTypeTree.class),
 
     TOKEN(SyntaxToken.class),
 

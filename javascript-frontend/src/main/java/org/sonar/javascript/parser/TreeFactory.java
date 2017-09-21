@@ -54,12 +54,12 @@ import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeI
 import org.sonar.javascript.tree.impl.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ModuleTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.NameSpaceExportDeclarationTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.NameSpaceSpecifierTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.NameSpaceImportTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.NamedExportDeclarationTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.NamedImportExportClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ScriptTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.SpecifierTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArgumentListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrayAssignmentPatternTreeImpl;
@@ -103,17 +103,24 @@ import org.sonar.javascript.tree.impl.expression.jsx.JsxSpreadAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowDeclareTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowFunctionSignatureTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterClauseTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowIndexerPropertyDefinitionKeyTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowInterfaceDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowModuleExportsTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowModuleTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowOpaqueTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowObjectTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowPropertyDefinitionTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimplePropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimpleTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowTypeAliasStatementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAnnotationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypedBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -151,7 +158,6 @@ import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
-import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
@@ -165,13 +171,15 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportSubClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceImportTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
@@ -216,13 +224,20 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClaus
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
@@ -1109,11 +1124,11 @@ public class TreeFactory {
   }
 
   public SpecifierTree exportSpecifier(IdentifierTree name1, InternalSyntaxToken asToken, IdentifierTree name2) {
-    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name1, asToken, name2);
+    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, null, name1, asToken, name2);
   }
 
   public SpecifierTree exportSpecifier(IdentifierTree name) {
-    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name);
+    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, null, name);
   }
 
   public SeparatedList<SpecifierTree> exportListBody(
@@ -1136,18 +1151,22 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SeparatedListImpl<>(specifiers, commas);
+    return new SeparatedListImpl(specifiers, commas);
   }
 
-  public SpecifierListTree exportList(InternalSyntaxToken openCurlyBraceToken, Optional<SeparatedList<SpecifierTree>> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
-    return new SpecifierListTreeImpl(
+  public NamedImportExportClauseTree exportList(
+    InternalSyntaxToken openCurlyBraceToken,
+    Optional<SeparatedList<SpecifierTree>> specifierList,
+    InternalSyntaxToken closeCurlyBraceToken
+  ) {
+    return new NamedImportExportClauseTreeImpl(
       Kind.EXPORT_LIST,
       openCurlyBraceToken,
       specifierList.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
   }
 
   public NameSpaceExportDeclarationTree namespaceExportDeclaration(
-    InternalSyntaxToken exportToken, InternalSyntaxToken starToken,
+    InternalSyntaxToken exportToken, Optional<InternalSyntaxToken> flowTypeKeywordToken, InternalSyntaxToken starToken,
     Optional<Tuple<InternalSyntaxToken, IdentifierTree>> nameSpaceExport, FromClauseTree fromClause, Tree semicolonToken
   ) {
     InternalSyntaxToken asToken = null;
@@ -1156,10 +1175,10 @@ public class TreeFactory {
       asToken = nameSpaceExport.get().first;
       synonymIdentifier = nameSpaceExport.get().second;
     }
-    return new NameSpaceExportDeclarationTreeImpl(exportToken, starToken, asToken, synonymIdentifier, fromClause, nullableSemicolonToken(semicolonToken));
+    return new NameSpaceExportDeclarationTreeImpl(exportToken, flowTypeKeywordToken.orNull(), starToken, asToken, synonymIdentifier, fromClause, nullableSemicolonToken(semicolonToken));
   }
 
-  public ExportClauseTree exportClause(SpecifierListTree exportList, Optional<FromClauseTree> fromClause, Tree semicolonToken) {
+  public ExportClauseTree exportClause(NamedImportExportClauseTree exportList, Optional<FromClauseTree> fromClause, Tree semicolonToken) {
     if (fromClause.isPresent()) {
       return new ExportClauseTreeImpl(exportList, fromClause.get(), nullableSemicolonToken(semicolonToken));
     }
@@ -1185,13 +1204,13 @@ public class TreeFactory {
   }
 
   public ExportDefaultBindingWithExportList exportDefaultBindingWithExportList(
-    IdentifierTree identifierTree, InternalSyntaxToken commaToken, SpecifierListTree specifierListTree,
+    IdentifierTree identifierTree, InternalSyntaxToken commaToken, NamedImportExportClauseTree namedImportsTree,
     FromClauseTree fromClauseTree, Tree semicolon
   ) {
     return new ExportDefaultBindingWithExportListImpl(
       identifierTree,
       commaToken,
-      specifierListTree,
+      namedImportsTree,
       fromClauseTree,
       nullableSemicolonToken(semicolon));
   }
@@ -1200,12 +1219,20 @@ public class TreeFactory {
     return new ImportModuleDeclarationTreeImpl(importToken, moduleName, nullableSemicolonToken(semicolonToken));
   }
 
-  public SpecifierTree newImportSpecifier(IdentifierTree name, InternalSyntaxToken asToken, IdentifierTree identifier) {
-    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, name, asToken, identifier);
+  public SpecifierTree importSpecifier(IdentifierTree name, InternalSyntaxToken asToken, IdentifierTree identifier) {
+    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, null, name, asToken, identifier);
   }
 
   public SpecifierTree importSpecifier(IdentifierTree name) {
-    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, name);
+    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, null, name);
+  }
+
+  public SpecifierTree importSpecifier(InternalSyntaxToken typeToken, IdentifierTree name, InternalSyntaxToken asToken, IdentifierTree identifier) {
+    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, typeToken, name, asToken, identifier);
+  }
+
+  public SpecifierTree importSpecifier(InternalSyntaxToken typeToken, IdentifierTree name) {
+    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, typeToken, name);
   }
 
   public SeparatedList<SpecifierTree> newImportSpecifierList(
@@ -1228,36 +1255,44 @@ public class TreeFactory {
       commas.add(trailingComma.get());
     }
 
-    return new SeparatedListImpl<>(specifiers, commas);
+    return new SeparatedListImpl(specifiers, commas);
   }
 
-  public SpecifierListTree importList(InternalSyntaxToken openCurlyBraceToken, Optional<SeparatedList<SpecifierTree>> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
-    return new SpecifierListTreeImpl(
-      Kind.IMPORT_LIST,
+  public NamedImportExportClauseTree namedImports(
+    InternalSyntaxToken openCurlyBraceToken,
+    Optional<SeparatedList<SpecifierTree>> specifierList,
+    InternalSyntaxToken closeCurlyBraceToken
+  ) {
+    return new NamedImportExportClauseTreeImpl(
+      Kind.NAMED_IMPORTS,
       openCurlyBraceToken,
-      specifierList.or(new SeparatedListImpl<>(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
+      specifierList.or(new SeparatedListImpl(ImmutableList.of(), ImmutableList.of())), closeCurlyBraceToken);
   }
 
-  public SpecifierTree nameSpaceImport(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTree localName) {
-    return new NameSpaceSpecifierTreeImpl(starToken, asToken, localName);
+  public NameSpaceImportTree nameSpaceImport(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTree localName) {
+    return new NameSpaceImportTreeImpl(starToken, asToken, localName);
   }
 
-  public ImportClauseTree defaultImport(IdentifierTree identifierTree, Optional<Tuple<InternalSyntaxToken, DeclarationTree>> namedImport) {
-    if (namedImport.isPresent()) {
-      return new ImportClauseTreeImpl(identifierTree, namedImport.get().first(), namedImport.get().second());
-    }
-    return new ImportClauseTreeImpl(identifierTree);
+  public ImportClauseTree importClauseWithTwoParts(IdentifierTree identifierTree, InternalSyntaxToken commaToken, ImportSubClauseTree secondSubClause) {
+    return new ImportClauseTreeImpl(identifierTree, commaToken, secondSubClause);
   }
 
-  public ImportClauseTree importClause(DeclarationTree importTree) {
-    if (importTree instanceof ImportClauseTree) {
-      return (ImportClauseTreeImpl) importTree;
-    }
-    return new ImportClauseTreeImpl(importTree);
+  public ImportClauseTree importClause(ImportSubClauseTree firstSubClause) {
+    return new ImportClauseTreeImpl(firstSubClause);
   }
 
   public ImportDeclarationTree importDeclaration(InternalSyntaxToken importToken, ImportClauseTree importClause, FromClauseTree fromClause, Tree semicolonToken) {
-    return new ImportDeclarationTreeImpl(importToken, importClause, fromClause, nullableSemicolonToken(semicolonToken));
+    return new ImportDeclarationTreeImpl(importToken, null, importClause, fromClause, nullableSemicolonToken(semicolonToken));
+  }
+
+  public ImportDeclarationTree importDeclaration(
+    InternalSyntaxToken importToken,
+    InternalSyntaxToken typeToken,
+    ImportClauseTree importClause,
+    FromClauseTree fromClause,
+    Tree semicolonToken
+  ) {
+    return new ImportDeclarationTreeImpl(importToken, typeToken, importClause, fromClause, nullableSemicolonToken(semicolonToken));
   }
 
   public ModuleTree module(List<Tree> items) {
@@ -1790,6 +1825,11 @@ public class TreeFactory {
     return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, new SeparatedListImpl(parameters, ImmutableList.of()), rParenthesis);
   }
 
+  // TODO use this when implementing single-parameter function type without parenthesis
+  public FlowFunctionTypeParameterClauseTree flowFunctionTypeSingleParameterClause(FlowFunctionTypeParameterTree parameter) {
+    return new FlowFunctionTypeParameterClauseTreeImpl(null, parameterList(parameter, Optional.absent()), null);
+  }
+
   public <T> SeparatedList<T> parameterList(
     T parameter,
     Optional<List<Tuple<InternalSyntaxToken, T>>> otherParameters
@@ -1852,6 +1892,61 @@ public class TreeFactory {
 
   public FlowOptionalBindingElementTree flowOptionalBindingElement(BindingElementTree bindingElementTree, InternalSyntaxToken questionToken) {
     return new FlowOptionalBindingElementTreeImpl(bindingElementTree, questionToken);
+  }
+
+  public FlowTypeAliasStatementTree flowTypeAliasStatement(
+    Optional<InternalSyntaxToken> opaqueToken, InternalSyntaxToken typeToken,
+    IdentifierTree identifierTree, Optional<FlowTypeAnnotationTree> superTypeAnnotation,
+    InternalSyntaxToken equalToken, FlowTypeTree flowTypeTree, Tree semicolonToken
+  ) {
+    return new FlowTypeAliasStatementTreeImpl(
+      opaqueToken.orNull(),
+      typeToken,
+      identifierTree,
+      superTypeAnnotation.orNull(),
+      equalToken,
+      flowTypeTree,
+      nullableSemicolonToken(semicolonToken));
+  }
+
+  public FlowInterfaceDeclarationTree flowInterfaceDeclaration(
+    InternalSyntaxToken interfaceToken, IdentifierTree identifierTree, InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken
+  ) {
+    return new FlowInterfaceDeclarationTreeImpl(interfaceToken, identifierTree, openCurlyBraceToken, closeCurlyBraceToken);
+  }
+
+  public FlowModuleTree flowModule(
+    InternalSyntaxToken moduleToken, InternalSyntaxToken name, InternalSyntaxToken lCurly, Optional<List<FlowDeclareTree>> elements, InternalSyntaxToken rCurly
+  ) {
+    return new FlowModuleTreeImpl(moduleToken, name, lCurly, elements.or(Collections.emptyList()), rCurly);
+  }
+
+  public FlowDeclareTree flowDeclare(InternalSyntaxToken declareToken, Tree declaredObject, Optional<Tree> eosToken) {
+    SyntaxToken semicolonToken = null;
+    if (eosToken.isPresent()) {
+      semicolonToken = nullableSemicolonToken(eosToken.get());
+    }
+    return new FlowDeclareTreeImpl(declareToken, declaredObject, semicolonToken);
+  }
+
+  public FlowModuleExportsTree flowModuleExports(
+    InternalSyntaxToken moduleToken, InternalSyntaxToken dotToken, InternalSyntaxToken exportsToken, FlowTypeAnnotationTree flowTypeAnnotation
+  ) {
+    return new FlowModuleExportsTreeImpl(moduleToken, dotToken, exportsToken, flowTypeAnnotation);
+  }
+
+  public FlowFunctionSignatureTree flowFunctionSignature(
+    InternalSyntaxToken functionToken, IdentifierTree name, FlowFunctionTypeParameterClauseTree parameterClause, FlowTypeAnnotationTree returnType
+  ) {
+    return new FlowFunctionSignatureTreeImpl(functionToken, name, parameterClause, returnType);
+  }
+
+  public DefaultExportDeclarationTree flowExportDefaultType(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, FlowTypeTree type, Tree eos) {
+    return new DefaultExportDeclarationTreeImpl(Collections.emptyList(), exportToken, defaultToken, type, nullableSemicolonToken(eos));
+  }
+
+  public FlowOpaqueTypeTree flowOpaqueType(InternalSyntaxToken opaque, InternalSyntaxToken type, IdentifierTree name) {
+    return new FlowOpaqueTypeTreeImpl(opaque, type, name);
   }
 
   private static class ConditionalExpressionTail {

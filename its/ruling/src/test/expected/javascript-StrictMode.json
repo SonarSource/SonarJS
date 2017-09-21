@@ -332,6 +332,9 @@
 'project:jest/packages/jest-cli/src/lib/__tests__/set_state.js':[
 10,
 ],
+'project:jest/packages/jest-cli/src/lib/scroll_list.js':[
+11,
+],
 'project:jest/packages/jest-cli/src/reporters/__tests__/coverage_reporter.test.js':[
 8,
 ],
@@ -688,6 +691,9 @@
 ],
 'project:jest/scripts/build.js':[
 22,
+],
+'project:jest/test_utils.js':[
+11,
 ],
 'project:jshint-2012.06.15.js':[
 235,

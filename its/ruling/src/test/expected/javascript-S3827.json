@@ -361,6 +361,13 @@
 'project:babylon/test/expressions/is-expression-babylon/pass/5/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/declare-export/export-default-union/actual.js':[
+1,
+1,
+],
+'project:babylon/test/fixtures/flow/declare-statements/16/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_in_func/actual.js':[
 1,
 ],
@@ -1577,6 +1584,10 @@
 ],
 'project:jest/packages/jest-cli/src/__tests__/watch_test_name_pattern_mode.test.js':[
 122,
+],
+'project:jest/packages/jest-repl/src/cli/repl.js':[
+30,
+31,
 ],
 'project:mootools-core-1.4.5-full-nocompat.js':[
 549,

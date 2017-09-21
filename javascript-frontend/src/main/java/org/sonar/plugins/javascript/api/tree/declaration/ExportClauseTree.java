@@ -34,8 +34,9 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface ExportClauseTree extends Tree {
 
-  SpecifierListTree exports();
+  NamedImportExportClauseTree exports();
 
+  @Nullable
   FromClauseTree fromClause();
 
   @Nullable

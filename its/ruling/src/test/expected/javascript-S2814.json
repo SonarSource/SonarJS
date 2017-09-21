@@ -8,6 +8,15 @@
 'project:babylon/test/fixtures/flow/regression/issue-321/actual.js':[
 2,
 ],
+'project:babylon/test/fixtures/flow/type-imports/import-type-shorthand/actual.js':[
+6,
+7,
+8,
+],
+'project:babylon/test/fixtures/flow/type-imports/import-type/actual.js':[
+3,
+3,
+],
 'project:backbone-0.9.2.js':[
 472,
 482,

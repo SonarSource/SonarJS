@@ -29,7 +29,7 @@ public class ImportListTest {
 
   @Test
   public void ok() {
-    assertThat(Kind.IMPORT_LIST)
+    assertThat(Kind.NAMED_IMPORTS)
       .matches("{ identifier }")
       .matches("{ identifier , }")
       .matches("{ identifier, identifier }")

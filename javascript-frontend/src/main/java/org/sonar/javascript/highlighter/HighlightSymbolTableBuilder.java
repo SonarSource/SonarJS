@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
@@ -130,9 +130,9 @@ public class HighlightSymbolTableBuilder {
     }
 
     @Override
-    public void visitSpecifierList(SpecifierListTree tree) {
+    public void visitNamedImportExportClause(NamedImportExportClauseTree tree) {
       highlightBraces(tree.openCurlyBraceToken(), tree.closeCurlyBraceToken());
-      super.visitSpecifierList(tree);
+      super.visitNamedImportExportClause(tree);
     }
 
     @Override

@@ -51,13 +51,13 @@ import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceImportTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
@@ -93,16 +93,23 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTre
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
@@ -481,7 +488,9 @@ public class JavaScriptGrammar {
           SWITCH_STATEMENT(),
           THROW_STATEMENT(),
           TRY_STATEMENT(),
-          DEBUGGER_STATEMENT()));
+          DEBUGGER_STATEMENT(),
+          FLOW_TYPE_ALIAS_STATEMENT(),
+          FLOW_DECLARE()));
   }
 
   /**
@@ -1188,7 +1197,9 @@ public class JavaScriptGrammar {
             EXPORT_DEFAULT_BINDING_WITH_EXPORT_LIST(),
             VARIABLE_STATEMENT(),
             CLASS_DECLARATION(),
-            FUNCTION_AND_GENERATOR_DECLARATION())));
+            FUNCTION_AND_GENERATOR_DECLARATION(),
+            FLOW_TYPE_ALIAS_STATEMENT(),
+            FLOW_INTERFACE_DECLARATION())));
   }
 
   public ExportClauseTree EXPORT_CLAUSE() {
@@ -1229,8 +1240,8 @@ public class JavaScriptGrammar {
         b.token(EcmaScriptLexer.EOS)));
   }
 
-  public SpecifierListTree EXPORT_LIST() {
-    return b.<SpecifierListTree>nonterminal(Kind.EXPORT_LIST)
+  public NamedImportExportClauseTree EXPORT_LIST() {
+    return b.<NamedImportExportClauseTree>nonterminal(Kind.EXPORT_LIST)
       .is(f.exportList(
         b.token(JavaScriptPunctuator.LCURLYBRACE),
         b.optional(EXPORT_LIST_BODY()),
@@ -1249,6 +1260,7 @@ public class JavaScriptGrammar {
   public SpecifierTree EXPORT_SPECIFIER() {
     return b.<SpecifierTree>nonterminal(Kind.EXPORT_SPECIFIER)
       .is(b.firstOf(
+        // why not reference to identifier?
         f.exportSpecifier(IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME()),
         f.exportSpecifier(IDENTIFIER_NAME())
       ));
@@ -1258,11 +1270,11 @@ public class JavaScriptGrammar {
     return b.<NameSpaceExportDeclarationTree>nonterminal(Kind.NAMESPACE_EXPORT_DECLARATION)
       .is(f.namespaceExportDeclaration(
         b.token(JavaScriptKeyword.EXPORT),
+        b.optional(FLOW_TYPE_KEYWORD()),
         b.token(JavaScriptPunctuator.STAR),
         b.optional(f.newTuple(b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME())),
         FROM_CLAUSE(),
-        b.token(EcmaScriptLexer.EOS)
-      ));
+        b.token(EcmaScriptLexer.EOS)));
   }
 
   public ExportDeclarationTree EXPORT_DECLARATION() {
@@ -1275,55 +1287,6 @@ public class JavaScriptGrammar {
 
   }
 
-  public ImportModuleDeclarationTree IMPORT_MODULE_DECLARATION() {
-    return b.<ImportModuleDeclarationTree>nonterminal()
-      .is(f.importModuleDeclaration(
-        b.token(JavaScriptKeyword.IMPORT), STRING_LITERAL(), b.token(EcmaScriptLexer.EOS))
-      );
-  }
-
-  public SpecifierListTree IMPORT_LIST() {
-    return b.<SpecifierListTree>nonterminal(Kind.IMPORT_LIST)
-      .is(f.importList(
-        b.token(JavaScriptPunctuator.LCURLYBRACE),
-        b.optional(f.newImportSpecifierList(
-          IMPORT_SPECIFIER(),
-          b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), IMPORT_SPECIFIER())),
-          b.optional(b.token(JavaScriptPunctuator.COMMA)))),
-        b.token(JavaScriptPunctuator.RCURLYBRACE)
-      ));
-  }
-
-  public SpecifierTree IMPORT_SPECIFIER() {
-    return b.<SpecifierTree>nonterminal(Kind.IMPORT_SPECIFIER)
-      .is(b.firstOf(
-        f.newImportSpecifier(IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), BINDING_IDENTIFIER()),
-        f.importSpecifier(BINDING_IDENTIFIER())
-      ));
-  }
-
-  public SpecifierTree NAMESPACE_IMPORT() {
-    return b.<SpecifierTree>nonterminal(Kind.NAMESPACE_IMPORT_SPECIFIER)
-      .is(f.nameSpaceImport(
-        b.token(JavaScriptPunctuator.STAR),
-        b.token(EcmaScriptLexer.AS),
-        BINDING_IDENTIFIER()
-      ));
-  }
-
-  public ImportClauseTree IMPORT_CLAUSE() {
-    return b.<ImportClauseTree>nonterminal(Kind.IMPORT_CLAUSE)
-      .is(f.importClause(
-        b.firstOf(
-          IMPORT_LIST(),
-          NAMESPACE_IMPORT(),
-          f.defaultImport(
-            BINDING_IDENTIFIER(),
-            b.optional(f.newTuple(b.token(JavaScriptPunctuator.COMMA), b.firstOf(NAMESPACE_IMPORT(), IMPORT_LIST()))))
-        )
-      ));
-  }
-
   public DeclarationTree IMPORT_DECLARATION() {
     return b.<DeclarationTree>nonterminal(EcmaScriptLexer.IMPORT_DECLARATION)
       .is(b.firstOf(
@@ -1332,8 +1295,55 @@ public class JavaScriptGrammar {
           IMPORT_CLAUSE(),
           FROM_CLAUSE(),
           b.token(EcmaScriptLexer.EOS)),
-        IMPORT_MODULE_DECLARATION()
+        // Flow import
+        f.importDeclaration(
+          b.token(JavaScriptKeyword.IMPORT),
+          FLOW_TYPE_KEYWORD(),
+          IMPORT_CLAUSE(),
+          FROM_CLAUSE(),
+          b.token(EcmaScriptLexer.EOS)),
+        f.importModuleDeclaration(
+          b.token(JavaScriptKeyword.IMPORT),
+          STRING_LITERAL(),
+          b.token(EcmaScriptLexer.EOS))));
+  }
+
+  public ImportClauseTree IMPORT_CLAUSE() {
+    return b.<ImportClauseTree>nonterminal(Kind.IMPORT_CLAUSE)
+      .is(b.firstOf(
+        f.importClauseWithTwoParts(BINDING_IDENTIFIER(), b.token(JavaScriptPunctuator.COMMA), b.firstOf(NAMESPACE_IMPORT(), NAMED_IMPORTS())),
+        f.importClause(BINDING_IDENTIFIER()),
+        f.importClause(NAMESPACE_IMPORT()),
+        f.importClause(NAMED_IMPORTS())));
+  }
+
+  public NamedImportExportClauseTree NAMED_IMPORTS() {
+    return b.<NamedImportExportClauseTree>nonterminal(Kind.NAMED_IMPORTS)
+      .is(f.namedImports(
+        b.token(JavaScriptPunctuator.LCURLYBRACE),
+        b.optional(f.newImportSpecifierList(
+          IMPORT_SPECIFIER(),
+          b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), IMPORT_SPECIFIER())),
+          b.optional(b.token(JavaScriptPunctuator.COMMA)))),
+        b.token(JavaScriptPunctuator.RCURLYBRACE)));
+  }
+
+  public SpecifierTree IMPORT_SPECIFIER() {
+    return b.<SpecifierTree>nonterminal(Kind.IMPORT_SPECIFIER)
+      .is(b.firstOf(
+        f.importSpecifier(FLOW_TYPE_KEYWORD(), IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), BINDING_IDENTIFIER()),
+        f.importSpecifier(IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), BINDING_IDENTIFIER()),
+        f.importSpecifier(FLOW_TYPE_KEYWORD(), BINDING_IDENTIFIER()),
+        f.importSpecifier(BINDING_IDENTIFIER())
       ));
+  }
+
+  public NameSpaceImportTree NAMESPACE_IMPORT() {
+    return b.<NameSpaceImportTree>nonterminal(Kind.NAME_SPACE_IMPORT)
+      .is(f.nameSpaceImport(
+        b.token(JavaScriptPunctuator.STAR),
+        b.token(EcmaScriptLexer.AS),
+        BINDING_IDENTIFIER()));
   }
 
   public ModuleTree MODULE_BODY() {
@@ -1778,7 +1788,8 @@ public class JavaScriptGrammar {
         f.flowFunctionTypeParameterClause(
           b.token(JavaScriptPunctuator.LPARENTHESIS),
           b.optional(FLOW_FUNCTION_TYPE_REST_PARAMETER()),
-          b.token(JavaScriptPunctuator.RPARENTHESIS))));
+          b.token(JavaScriptPunctuator.RPARENTHESIS))
+      ));
 
   }
 
@@ -1868,6 +1879,96 @@ public class JavaScriptGrammar {
       .is(f.flowOptionalBindingElement(
         b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN()),
         b.token(JavaScriptPunctuator.QUERY)));
+  }
+
+  public FlowTypeAliasStatementTree FLOW_TYPE_ALIAS_STATEMENT() {
+    return b.<FlowTypeAliasStatementTree>nonterminal(Kind.FLOW_TYPE_ALIAS_STATEMENT)
+      .is(f.flowTypeAliasStatement(
+        b.optional(b.token(EcmaScriptLexer.OPAQUE)),
+        b.token(EcmaScriptLexer.TYPE),
+        BINDING_IDENTIFIER(),
+        b.optional(FLOW_TYPE_ANNOTATION()),
+        b.token(JavaScriptPunctuator.EQU),
+        FLOW_TYPE(),
+        b.token(EcmaScriptLexer.EOS)));
+  }
+
+  public FlowOpaqueTypeTree FLOW_OPAQUE_TYPE() {
+    return b.<FlowOpaqueTypeTree>nonterminal(Kind.FLOW_OPAQUE_TYPE)
+      .is(f.flowOpaqueType(
+        b.token(EcmaScriptLexer.OPAQUE),
+        b.token(EcmaScriptLexer.TYPE),
+        IDENTIFIER_NAME()));
+  }
+
+  public InternalSyntaxToken FLOW_TYPE_KEYWORD() {
+    return b.<InternalSyntaxToken>nonterminal()
+      .is(b.firstOf(b.token(JavaScriptKeyword.TYPEOF), b.token(EcmaScriptLexer.TYPE)));
+  }
+
+  // TODO: temp impl for export declaration
+  public FlowInterfaceDeclarationTree FLOW_INTERFACE_DECLARATION() {
+    return b.<FlowInterfaceDeclarationTree>nonterminal()
+      .is(f.flowInterfaceDeclaration(
+        b.token(EcmaScriptLexer.INTERFACE),
+        BINDING_IDENTIFIER(),
+        b.token(JavaScriptPunctuator.LCURLYBRACE),
+        b.token(JavaScriptPunctuator.RCURLYBRACE)));
+  }
+
+  public FlowDeclareTree FLOW_DECLARE() {
+    return b.<FlowDeclareTree>nonterminal(Kind.FLOW_DECLARE)
+      .is(f.flowDeclare(
+        b.token(EcmaScriptLexer.DECLARE),
+        b.firstOf(
+          VARIABLE_STATEMENT(),
+          CLASS_DECLARATION(),
+          FLOW_TYPE_ALIAS_STATEMENT(),
+          FLOW_OPAQUE_TYPE(),
+          FLOW_FUNCTION_SIGNATURE(),
+          FLOW_EXPORT_DEFAULT_TYPE(),
+          EXPORT_DECLARATION(),
+          FLOW_INTERFACE_DECLARATION(),
+          FLOW_MODULE_EXPORTS(),
+          FLOW_MODULE()),
+        b.optional(b.token(EcmaScriptLexer.EOS))));
+  }
+
+  public DefaultExportDeclarationTree FLOW_EXPORT_DEFAULT_TYPE() {
+    return b.<DefaultExportDeclarationTree>nonterminal()
+      .is(f.flowExportDefaultType(
+        b.token(JavaScriptKeyword.EXPORT),
+        b.token(JavaScriptKeyword.DEFAULT),
+        b.firstOf(FLOW_FUNCTION_SIGNATURE(), FLOW_TYPE()),
+        b.token(EcmaScriptLexer.EOS)));
+  }
+
+  public FlowModuleTree FLOW_MODULE() {
+    return b.<FlowModuleTree>nonterminal(Kind.FLOW_MODULE)
+      .is(f.flowModule(
+        b.token(EcmaScriptLexer.MODULE),
+        b.firstOf(b.token(EcmaScriptLexer.STRING_LITERAL), b.token(JavaScriptTokenType.IDENTIFIER)),
+        b.token(JavaScriptPunctuator.LCURLYBRACE),
+        b.zeroOrMore(FLOW_DECLARE()),
+        b.token(JavaScriptPunctuator.RCURLYBRACE)));
+  }
+
+  public FlowFunctionSignatureTree FLOW_FUNCTION_SIGNATURE() {
+    return b.<FlowFunctionSignatureTree>nonterminal(Kind.FLOW_FUNCTION_SIGNATURE)
+      .is(f.flowFunctionSignature(
+        b.token(JavaScriptKeyword.FUNCTION),
+        BINDING_IDENTIFIER(),
+        FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(),
+        FLOW_TYPE_ANNOTATION()));
+  }
+
+  public FlowModuleExportsTree FLOW_MODULE_EXPORTS() {
+    return b.<FlowModuleExportsTree>nonterminal(Kind.FLOW_MODULE_EXPORTS)
+      .is(f.flowModuleExports(
+        b.token(EcmaScriptLexer.MODULE),
+        b.token(JavaScriptPunctuator.DOT),
+        b.token(EcmaScriptLexer.EXPORTS),
+        FLOW_TYPE_ANNOTATION()));
   }
 
   // [END] FLOW
