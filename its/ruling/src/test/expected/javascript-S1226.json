@@ -119,6 +119,9 @@
 'project:babylon/bin/generate-identifier-regex.js':[
 27,
 ],
+'project:babylon/src/parser/location.js':[
+19,
+],
 'project:babylon/test/helpers/runFixtureTests.js':[
 117,
 ],

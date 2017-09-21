@@ -95,6 +95,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionK
 import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
@@ -1028,6 +1029,7 @@ public interface Tree {
     FLOW_SIMPLE_TYPE(FlowSimpleTypeTree.class),
     FLOW_OPTIONAL_TYPE(FlowOptionalTypeTree.class),
     FLOW_UNION_TYPE(FlowUnionTypeTree.class),
+    FLOW_INTERSECTION_TYPE(FlowIntersectionTypeTree.class),
     FLOW_LITERAL_TYPE(FlowLiteralTypeTree.class),
     FLOW_FUNCTION_TYPE(FlowFunctionTypeTree.class),
     FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(FlowFunctionTypeParameterClauseTree.class),

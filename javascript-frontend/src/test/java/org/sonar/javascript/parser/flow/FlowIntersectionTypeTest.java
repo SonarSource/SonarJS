@@ -25,15 +25,14 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class FlowUnionTypeTest extends LegacyParserTest {
+public class FlowIntersectionTypeTest extends LegacyParserTest {
 
   @Test
   public void test() throws Exception {
-    assertThat(g.rule(Kind.FLOW_UNION_TYPE))
-      .matches("A | B")
-      .matches("A | B | C | D")
-      .matches("A | ?B | 42 | D")
-      .matches("A & B & C | D")
+    assertThat(g.rule(Kind.FLOW_INTERSECTION_TYPE))
+      .matches("A & B")
+      .matches("A & B & C & D")
+      .matches("A & ?B & 42 & D")
     ;
   }
 }

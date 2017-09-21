@@ -17,23 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.flow;
+package org.sonar.plugins.javascript.api.tree.flow;
 
-import org.junit.Test;
-import org.sonar.javascript.utils.LegacyParserTest;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+public interface FlowIntersectionTypeTree extends FlowTypeTree {
 
-public class FlowUnionTypeTest extends LegacyParserTest {
-
-  @Test
-  public void test() throws Exception {
-    assertThat(g.rule(Kind.FLOW_UNION_TYPE))
-      .matches("A | B")
-      .matches("A | B | C | D")
-      .matches("A | ?B | 42 | D")
-      .matches("A & B & C | D")
-    ;
-  }
+  SeparatedList<FlowTypeTree> subTypes();
 }
