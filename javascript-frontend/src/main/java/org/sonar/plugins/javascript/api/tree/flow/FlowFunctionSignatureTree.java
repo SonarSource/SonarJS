@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.api.tree.flow;
 
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
@@ -29,7 +28,7 @@ public interface FlowFunctionSignatureTree extends FlowTypeTree {
 
   IdentifierTree  name();
 
-  ParameterListTree parameterClause();
+  FlowFunctionTypeParameterClauseTree parameterClause();
 
   FlowTypeAnnotationTree returnType();
 }

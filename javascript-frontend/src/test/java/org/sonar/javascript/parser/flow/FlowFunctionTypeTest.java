@@ -36,6 +36,9 @@ public class FlowFunctionTypeTest extends LegacyParserTest {
       .matches("(string, string,) => void")
       .matches("(name: string, ...numbers:SomeArrayType) => void")
       .matches("(name: string, middle?: string) => void")
-      .matches("(string, SomeArrayType) => SomeType");
+      .matches("(string, SomeArrayType) => SomeType")
+      .matches("(await: number) => void")
+      //.matches("string => number") Single-parameter function type without parenthesis not yet supported
+    ;
   }
 }

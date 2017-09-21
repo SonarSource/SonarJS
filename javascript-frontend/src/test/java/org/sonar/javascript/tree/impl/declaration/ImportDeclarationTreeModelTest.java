@@ -40,6 +40,7 @@ public class ImportDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.IMPORT_DECLARATION)).isTrue();
     assertThat(tree.importToken().text()).isEqualTo("import");
     assertThat(tree.importClause()).isNotNull();
+    assertThat(tree.flowImportTypeOrTypeOfToken()).isNull();
     assertThat(expressionToString(tree.importClause())).isEqualTo("a");
     assertThat(tree.fromClause()).isNotNull();
     assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
@@ -47,11 +48,21 @@ public class ImportDeclarationTreeModelTest extends JavaScriptTreeModelTest {
   }
 
   @Test
+  public void import_module_declaration() throws Exception {
+    ImportDeclarationTree tree = parse("import type a from \"mod\" ;", Kind.IMPORT_DECLARATION);
+
+    assertThat(tree.is(Kind.IMPORT_DECLARATION)).isTrue();
+    assertThat(tree.importClause()).isNotNull();
+    assertThat(tree.flowImportTypeOrTypeOfToken()).isNotNull();
+  }
+
+  @Test
   public void import_list() throws Exception {
-    ImportDeclarationTree tree = parse("import { foo, bar as bar2 } from 'mod' ;", Kind.IMPORT_DECLARATION);
+    ImportDeclarationTree tree = parse("import { foo, bar as bar2, typeof zoo } from 'mod' ;", Kind.IMPORT_DECLARATION);
     NamedImportExportClauseTree namedImport = (NamedImportExportClauseTree) tree.importClause().firstSubClause();
     assertSpecifierTree(namedImport.specifiers().get(0), "foo", null, null);
     assertSpecifierTree(namedImport.specifiers().get(1), "bar", "as", "bar2");
+    assertThat(namedImport.specifiers().get(2).flowImportTypeOrTypeOfToken()).isNotNull();
     assertThat(expressionToString(tree.fromClause())).isEqualTo("from 'mod'");
   }
 
@@ -62,7 +73,7 @@ public class ImportDeclarationTreeModelTest extends JavaScriptTreeModelTest {
   }
 
   @Test
-  public void import_module_declaration() throws Exception {
+  public void import_type_declaration() throws Exception {
     ImportModuleDeclarationTree tree = parse("import \"mod\" ;", Kind.IMPORT_MODULE_DECLARATION);
 
     assertThat(tree.is(Kind.IMPORT_MODULE_DECLARATION)).isTrue();

@@ -23,9 +23,9 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -36,10 +36,10 @@ public class FlowFunctionSignatureTreeImpl extends JavaScriptTree implements Flo
 
   private final SyntaxToken functionToken;
   private final IdentifierTree  name;
-  private final ParameterListTree parameterClause;
+  private final FlowFunctionTypeParameterClauseTree parameterClause;
   private final FlowTypeAnnotationTree returnType;
 
-  public FlowFunctionSignatureTreeImpl(SyntaxToken functionToken, IdentifierTree name, ParameterListTree parameterClause, FlowTypeAnnotationTree returnType) {
+  public FlowFunctionSignatureTreeImpl(SyntaxToken functionToken, IdentifierTree name, FlowFunctionTypeParameterClauseTree parameterClause, FlowTypeAnnotationTree returnType) {
     this.functionToken = functionToken;
     this.name = name;
     this.parameterClause = parameterClause;
@@ -67,7 +67,7 @@ public class FlowFunctionSignatureTreeImpl extends JavaScriptTree implements Flo
   }
 
   @Override
-  public ParameterListTree parameterClause() {
+  public FlowFunctionTypeParameterClauseTree parameterClause() {
     return parameterClause;
   }
 

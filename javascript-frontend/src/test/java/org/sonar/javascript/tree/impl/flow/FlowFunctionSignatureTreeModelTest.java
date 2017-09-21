@@ -39,5 +39,15 @@ public class FlowFunctionSignatureTreeModelTest extends JavaScriptTreeModelTest 
     assertThat(tree.returnType().type().is(Kind.FLOW_SIMPLE_TYPE)).isTrue();
   }
 
+  @Test
+  public void explicit_and_implicit_parameter_names() throws Exception {
+    FlowFunctionSignatureTree tree = parse("declare function foo(name:string, string): void;", Kind.FLOW_FUNCTION_SIGNATURE);
+
+    assertThat(tree.is(Kind.FLOW_FUNCTION_SIGNATURE)).isTrue();
+    assertThat(tree.parameterClause().parameters()).hasSize(2);
+    assertThat(tree.parameterClause().parameters().get(0).is(Kind.FLOW_FUNCTION_TYPE_PARAMETER)).isTrue();
+    assertThat(tree.parameterClause().parameters().get(1).is(Kind.FLOW_FUNCTION_TYPE_PARAMETER)).isTrue();
+    assertThat(tree.returnType().type().is(Kind.FLOW_SIMPLE_TYPE)).isTrue();
+  }
 
 }

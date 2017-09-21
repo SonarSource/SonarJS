@@ -70,7 +70,7 @@ public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
   @Nullable
   @Override
-  public SyntaxToken flowImportTypeOfTypeOfToken() {
+  public SyntaxToken flowImportTypeOrTypeOfToken() {
     return flowImportTypeOfTypeOfToken;
   }
 

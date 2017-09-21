@@ -1287,6 +1287,36 @@ public class JavaScriptGrammar {
 
   }
 
+  public DeclarationTree IMPORT_DECLARATION() {
+    return b.<DeclarationTree>nonterminal(EcmaScriptLexer.IMPORT_DECLARATION)
+      .is(b.firstOf(
+        f.importDeclaration(
+          b.token(JavaScriptKeyword.IMPORT),
+          IMPORT_CLAUSE(),
+          FROM_CLAUSE(),
+          b.token(EcmaScriptLexer.EOS)),
+        // Flow import
+        f.importDeclaration(
+          b.token(JavaScriptKeyword.IMPORT),
+          FLOW_TYPE_KEYWORD(),
+          IMPORT_CLAUSE(),
+          FROM_CLAUSE(),
+          b.token(EcmaScriptLexer.EOS)),
+        f.importModuleDeclaration(
+          b.token(JavaScriptKeyword.IMPORT),
+          STRING_LITERAL(),
+          b.token(EcmaScriptLexer.EOS))));
+  }
+
+  public ImportClauseTree IMPORT_CLAUSE() {
+    return b.<ImportClauseTree>nonterminal(Kind.IMPORT_CLAUSE)
+      .is(b.firstOf(
+        f.importClauseWithTwoParts(BINDING_IDENTIFIER(), b.token(JavaScriptPunctuator.COMMA), b.firstOf(NAMESPACE_IMPORT(), NAMED_IMPORTS())),
+        f.importClause(BINDING_IDENTIFIER()),
+        f.importClause(NAMESPACE_IMPORT()),
+        f.importClause(NAMED_IMPORTS())));
+  }
+
   public NamedImportExportClauseTree NAMED_IMPORTS() {
     return b.<NamedImportExportClauseTree>nonterminal(Kind.NAMED_IMPORTS)
       .is(f.namedImports(
@@ -1314,36 +1344,6 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.STAR),
         b.token(EcmaScriptLexer.AS),
         BINDING_IDENTIFIER()));
-  }
-
-  public ImportClauseTree IMPORT_CLAUSE() {
-    return b.<ImportClauseTree>nonterminal(Kind.IMPORT_CLAUSE)
-      .is(b.firstOf(
-        f.importClauseWithTwoParts(BINDING_IDENTIFIER(), b.token(JavaScriptPunctuator.COMMA), b.firstOf(NAMESPACE_IMPORT(), NAMED_IMPORTS())),
-        f.importClause(BINDING_IDENTIFIER()),
-        f.importClause(NAMESPACE_IMPORT()),
-        f.importClause(NAMED_IMPORTS())));
-  }
-
-  public DeclarationTree IMPORT_DECLARATION() {
-    return b.<DeclarationTree>nonterminal(EcmaScriptLexer.IMPORT_DECLARATION)
-      .is(b.firstOf(
-        f.importDeclaration(
-          b.token(JavaScriptKeyword.IMPORT),
-          IMPORT_CLAUSE(),
-          FROM_CLAUSE(),
-          b.token(EcmaScriptLexer.EOS)),
-        // Flow import
-        f.importDeclaration(
-          b.token(JavaScriptKeyword.IMPORT),
-          FLOW_TYPE_KEYWORD(),
-          IMPORT_CLAUSE(),
-          FROM_CLAUSE(),
-          b.token(EcmaScriptLexer.EOS)),
-        f.importModuleDeclaration(
-          b.token(JavaScriptKeyword.IMPORT),
-          STRING_LITERAL(),
-          b.token(EcmaScriptLexer.EOS))));
   }
 
   public ModuleTree MODULE_BODY() {
@@ -1788,7 +1788,8 @@ public class JavaScriptGrammar {
         f.flowFunctionTypeParameterClause(
           b.token(JavaScriptPunctuator.LPARENTHESIS),
           b.optional(FLOW_FUNCTION_TYPE_REST_PARAMETER()),
-          b.token(JavaScriptPunctuator.RPARENTHESIS))));
+          b.token(JavaScriptPunctuator.RPARENTHESIS))
+      ));
 
   }
 
@@ -1957,7 +1958,7 @@ public class JavaScriptGrammar {
       .is(f.flowFunctionSignature(
         b.token(JavaScriptKeyword.FUNCTION),
         BINDING_IDENTIFIER(),
-        FORMAL_PARAMETER_CLAUSE(),
+        FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(),
         FLOW_TYPE_ANNOTATION()));
   }
 

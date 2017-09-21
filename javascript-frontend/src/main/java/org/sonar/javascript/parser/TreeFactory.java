@@ -1825,6 +1825,11 @@ public class TreeFactory {
     return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, new SeparatedListImpl(parameters, ImmutableList.of()), rParenthesis);
   }
 
+  // TODO use this when implementing single-parameter function type without parenthesis
+  public FlowFunctionTypeParameterClauseTree flowFunctionTypeSingleParameterClause(FlowFunctionTypeParameterTree parameter) {
+    return new FlowFunctionTypeParameterClauseTreeImpl(null, parameterList(parameter, Optional.absent()), null);
+  }
+
   public <T> SeparatedList<T> parameterList(
     T parameter,
     Optional<List<Tuple<InternalSyntaxToken, T>>> otherParameters
@@ -1931,9 +1936,9 @@ public class TreeFactory {
   }
 
   public FlowFunctionSignatureTree flowFunctionSignature(
-    InternalSyntaxToken functionToken, IdentifierTree name, ParameterListTree parameterListTree, FlowTypeAnnotationTree returnType
+    InternalSyntaxToken functionToken, IdentifierTree name, FlowFunctionTypeParameterClauseTree parameterClause, FlowTypeAnnotationTree returnType
   ) {
-    return new FlowFunctionSignatureTreeImpl(functionToken, name, parameterListTree, returnType);
+    return new FlowFunctionSignatureTreeImpl(functionToken, name, parameterClause, returnType);
   }
 
   public DefaultExportDeclarationTree flowExportDefaultType(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, FlowTypeTree type, Tree eos) {

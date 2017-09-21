@@ -54,7 +54,7 @@ public class FlowInterfaceDeclarationTreeImpl extends JavaScriptTree implements 
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    // TODO
+    // TODO when interface is filled
   }
 
   @Override

@@ -60,7 +60,7 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
 
   @Nullable
   @Override
-  public SyntaxToken flowImportTypeOfTypeOfToken() {
+  public SyntaxToken flowImportTypeOrTypeOfToken() {
     return flowImportTypeOfTypeOfToken;
   }
 
