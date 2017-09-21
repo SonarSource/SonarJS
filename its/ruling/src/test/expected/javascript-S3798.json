@@ -63,6 +63,12 @@
 'project:babylon/test/fixtures/flow/optional-type/6/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/tuples/3/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/tuples/4/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/1/actual.js':[
 1,
 ],

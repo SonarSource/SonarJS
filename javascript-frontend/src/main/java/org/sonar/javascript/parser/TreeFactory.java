@@ -123,6 +123,7 @@ import org.sonar.javascript.tree.impl.flow.FlowParenthesisedTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowPropertyDefinitionTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimplePropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimpleTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowTupleTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAliasStatementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAnnotationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypedBindingElementTreeImpl;
@@ -244,6 +245,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTupleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
@@ -1973,6 +1975,31 @@ public class TreeFactory {
 
   public FlowParenthesisedTypeTree flowParenthesisedType(InternalSyntaxToken leftParenthesis, FlowTypeTree flowTypeTree, InternalSyntaxToken rightParenthesis) {
     return new FlowParenthesisedTypeTreeImpl(leftParenthesis, flowTypeTree, rightParenthesis);
+  }
+
+  public FlowTupleTypeTree flowTupleType(
+    InternalSyntaxToken leftBracket,
+    FlowTypeTree type,
+    Optional<List<Tuple<InternalSyntaxToken, FlowTypeTree>>> restTypes,
+    Optional<InternalSyntaxToken> trailingComma,
+    InternalSyntaxToken rightBracket
+  ) {
+    List<FlowTypeTree> types = new ArrayList<>();
+    List<InternalSyntaxToken> commas = new ArrayList<>();
+    types.add(type);
+
+    if (restTypes.isPresent()) {
+      for (Tuple<InternalSyntaxToken, FlowTypeTree> tuple : restTypes.get()) {
+        types.add(tuple.second);
+        commas.add(tuple.first);
+      }
+    }
+
+    if (trailingComma.isPresent()) {
+      commas.add(trailingComma.get());
+    }
+
+    return new FlowTupleTypeTreeImpl(leftBracket, new SeparatedListImpl<>(types, commas), rightBracket);
   }
 
   private static class ConditionalExpressionTail {

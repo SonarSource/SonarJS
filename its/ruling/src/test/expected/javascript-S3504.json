@@ -656,6 +656,12 @@
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_in_exp/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/tuples/3/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/tuples/4/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/107/actual.js':[
 1,
 ],
