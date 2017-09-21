@@ -109,6 +109,7 @@ import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowIndexerPropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowArrayTypeShorthandTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowArrayTypeWithKeywordTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowIntersectionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowNamespacedTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowObjectTypeTreeImpl;
@@ -224,6 +225,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
@@ -1924,7 +1926,15 @@ public class TreeFactory {
     return new FlowNamespacedTypeTreeImpl(new SeparatedListImpl<>(identifiers, dots));
   }
 
-  public FlowUnionTypeTree flowUnionType(FlowTypeTree type, List<Tuple<InternalSyntaxToken, FlowTypeTree>> rest) {
+  public FlowUnionTypeTree flowUnionType(SeparatedList<FlowTypeTree> elements) {
+    return new FlowUnionTypeTreeImpl(elements);
+  }
+
+  public FlowIntersectionTypeTree flowIntersectionType(SeparatedList<FlowTypeTree> elements) {
+    return new FlowIntersectionTypeTreeImpl(elements);
+  }
+
+  public SeparatedList<FlowTypeTree> flowTypeElements(FlowTypeTree type, List<Tuple<InternalSyntaxToken, FlowTypeTree>> rest) {
     List<FlowTypeTree> types = new ArrayList<>();
     List<InternalSyntaxToken> pipes = new ArrayList<>();
 
@@ -1934,7 +1944,7 @@ public class TreeFactory {
       types.add(tuple.second);
     }
 
-    return new FlowUnionTypeTreeImpl(new SeparatedListImpl<>(types, pipes));
+    return new SeparatedListImpl<>(types, pipes);
   }
 
   private static class ConditionalExpressionTail {

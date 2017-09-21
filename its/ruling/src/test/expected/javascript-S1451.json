@@ -29,6 +29,9 @@
 'project:babylon/scripts/yarn-install.js':[
 0,
 ],
+'project:babylon/src/parser/location.js':[
+0,
+],
 'project:babylon/src/plugins/jsx/xhtml.js':[
 0,
 ],
@@ -759,6 +762,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-grouping/2/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-grouping/3/actual.js':[
 0,
 ],
 'project:babylon/test/helpers/runFixtureTests.js':[

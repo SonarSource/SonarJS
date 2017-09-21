@@ -17,23 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.flow;
+package org.sonar.javascript.tree.impl.flow;
 
 import org.junit.Test;
-import org.sonar.javascript.utils.LegacyParserTest;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class FlowUnionTypeTest extends LegacyParserTest {
+public class FlowIntersectionTypeTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-    assertThat(g.rule(Kind.FLOW_UNION_TYPE))
-      .matches("A | B")
-      .matches("A | B | C | D")
-      .matches("A | ?B | 42 | D")
-      .matches("A & B & C | D")
-    ;
+    // var x: (A & B & C) | (D);
+    FlowIntersectionTypeTree tree = parse("var x: A & B & C | D", Kind.FLOW_INTERSECTION_TYPE);
+
+    assertThat(tree.is(Kind.FLOW_INTERSECTION_TYPE)).isTrue();
+    assertThat(tree.subTypes()).hasSize(3);
+    assertThat(tree.subTypes().getSeparators()).hasSize(2);
+    assertThat(tree.subTypes().getSeparator(0).text()).isEqualTo("&");
+    assertThat(tree.parent().is(Kind.FLOW_UNION_TYPE)).isTrue();
   }
+
 }
