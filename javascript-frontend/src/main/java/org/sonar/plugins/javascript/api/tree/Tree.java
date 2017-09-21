@@ -85,19 +85,21 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowParenthesisedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTupleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -1024,7 +1026,8 @@ public interface Tree {
     FLOW_SIMPLE_PROPERTY_DEFINITION_KEY(FlowPropertyDefinitionKeyTree.class),
     FLOW_INDEXER_PROPERTY_DEFINITION_KEY(FlowIndexerPropertyDefinitionKeyTree.class),
     FLOW_TYPE_ANNOTATION(FlowTypeAnnotationTree.class),
-    FLOW_PARENTHESISED_TYPE(FlowArrayTypeTree.class),
+    FLOW_PARENTHESISED_TYPE(FlowParenthesisedTypeTree.class),
+    FLOW_TUPLE_TYPE(FlowTupleTypeTree.class),
     FLOW_ARRAY_TYPE_WITH_KEYWORD(FlowArrayTypeTree.class),
     FLOW_ARRAY_TYPE_SHORTHAND(FlowArrayTypeShorthandTree.class),
     FLOW_TYPED_BINDING_ELEMENT(FlowTypedBindingElementTree.class),

@@ -29,6 +29,9 @@
 'project:babylon/src/plugins/jsx/xhtml.js':[
 256,
 ],
+'project:babylon/test/fixtures/flow/tuples/3/actual.js':[
+1,
+],
 'project:ecmascript6/Ghost/core/client/app/mirage/factories/tag.js':[
 22,
 ],
