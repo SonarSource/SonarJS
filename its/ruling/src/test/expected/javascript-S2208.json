@@ -87,4 +87,7 @@
 'project:jest/packages/jest-repl/src/cli/index.js':[
 18,
 ],
+'project:jest/packages/jest-test-typescript-parser/src/index.js':[
+12,
+],
 }

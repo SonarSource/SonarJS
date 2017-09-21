@@ -765,6 +765,10 @@
 85,
 86,
 ],
+'project:jest/packages/jest-cli/src/reporters/get_snapshot_summary.js':[
+65,
+78,
+],
 'project:jest/packages/jest-jasmine2/src/assert_support.js':[
 56,
 57,
@@ -776,6 +780,9 @@
 230,
 230,
 404,
+],
+'project:jest/packages/pretty-format/src/plugins/lib/markup.js':[
+127,
 ],
 'project:jquery-1.7.2.js':[
 236,

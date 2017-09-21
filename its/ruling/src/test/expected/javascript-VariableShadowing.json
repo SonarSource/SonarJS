@@ -2636,6 +2636,11 @@
 18,
 78,
 ],
+'project:jest/packages/jest-editor-support/src/parsers/babylon_parser.js':[
+33,
+48,
+122,
+],
 'project:jest/packages/jest-haste-map/src/__tests__/worker.test.js':[
 53,
 ],
@@ -2648,6 +2653,9 @@
 20,
 21,
 23,
+],
+'project:jest/packages/jest-resolve/src/node_modules_paths.js':[
+48,
 ],
 'project:jest/packages/jest-runtime/src/__tests__/runtime_require_module.test.js':[
 64,

@@ -170,6 +170,15 @@
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
 0,
 ],
+'project:jest/packages/jest-jasmine2/src/queue_runner.js':[
+0,
+],
+'project:jest/packages/jest-jasmine2/src/tree_processor.js':[
+0,
+],
+'project:jest/packages/jest-resolve/src/node_modules_paths.js':[
+0,
+],
 'project:jest/packages/jest-runtime/src/should_instrument.js':[
 0,
 ],
