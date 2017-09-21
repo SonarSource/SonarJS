@@ -112,6 +112,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowParenthesisedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTupleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
@@ -1753,8 +1754,19 @@ public class JavaScriptGrammar {
         FLOW_LITERAL_TYPE(),
         FLOW_FUNCTION_TYPE(),
         FLOW_OBJECT_TYPE(),
-        FLOW_PARENTHESISED_TYPE()
+        FLOW_PARENTHESISED_TYPE(),
+        FLOW_TUPLE_TYPE()
       ));
+  }
+
+  public FlowTupleTypeTree FLOW_TUPLE_TYPE() {
+    return b.<FlowTupleTypeTree>nonterminal(Kind.FLOW_TUPLE_TYPE)
+      .is(f.flowTupleType(
+        b.token(JavaScriptPunctuator.LBRACKET),
+        FLOW_TYPE(),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_TYPE())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA)),
+        b.token(JavaScriptPunctuator.RBRACKET)));
   }
 
   public FlowParenthesisedTypeTree FLOW_PARENTHESISED_TYPE() {

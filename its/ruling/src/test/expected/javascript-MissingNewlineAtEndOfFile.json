@@ -77,6 +77,12 @@
 'project:babylon/test/fixtures/flow/regression/issue-593/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/tuples/3/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/tuples/4/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/type-alias/1/actual.js':[
 0,
 ],
