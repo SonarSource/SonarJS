@@ -527,12 +527,6 @@
 'project:babylon/test/fixtures/flow/predicates/6/actual.js':[
 1,
 ],
-'project:babylon/test/fixtures/flow/qualified-generic-type/1/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/qualified-generic-type/2/actual.js':[
-1,
-],
 'project:babylon/test/fixtures/flow/qualified-generic-type/3/actual.js':[
 1,
 ],
@@ -1290,7 +1284,7 @@
 14,
 ],
 'project:jest/packages/jest-test-typescript-parser/src/type_script_parser.js':[
-25,
+67,
 ],
 'project:jest/packages/jest-util/src/Console.js':[
 12,

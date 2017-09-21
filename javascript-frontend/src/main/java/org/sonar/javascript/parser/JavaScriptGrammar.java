@@ -99,6 +99,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClaus
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
@@ -1740,13 +1741,20 @@ public class JavaScriptGrammar {
         // TODO
         FLOW_ARRAY_TYPE(),
         FLOW_OPTIONAL_TYPE(),
+        FLOW_NAMESPACED_TYPE(),
         FLOW_SIMPLE_TYPE(),
         FLOW_LITERAL_TYPE(),
         FLOW_FUNCTION_TYPE(),
         FLOW_OBJECT_TYPE(),
         FLOW_PARENTHESISED_TYPE(),
-        FLOW_TUPLE_TYPE()
-      ));
+        FLOW_TUPLE_TYPE()));
+  }
+
+  public FlowNamespacedTypeTree FLOW_NAMESPACED_TYPE() {
+    return b.<FlowNamespacedTypeTree>nonterminal(Kind.FLOW_NAMESPACED_TYPE)
+      .is(f.flowNamespecedType(
+        IDENTIFIER_NAME(),
+        b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_NAME()))));
   }
 
   public FlowTupleTypeTree FLOW_TUPLE_TYPE() {

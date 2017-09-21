@@ -629,6 +629,12 @@
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_in_exp/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/qualified-generic-type/1/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/qualified-generic-type/2/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/tuples/3/actual.js':[
 1,
 ],

@@ -494,6 +494,12 @@
 'project:babylon/test/fixtures/flow/optional-type/6/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/qualified-generic-type/1/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/qualified-generic-type/2/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/regression/issue-2083/actual.js':[
 0,
 ],

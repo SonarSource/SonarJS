@@ -38,6 +38,12 @@
 'project:babylon/test/fixtures/flow/literal-types/string-single/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/qualified-generic-type/1/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/qualified-generic-type/2/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/regression/issue-593/actual.js':[
 0,
 ],
