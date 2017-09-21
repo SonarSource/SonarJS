@@ -119,6 +119,7 @@ import org.sonar.javascript.tree.impl.flow.FlowOpaqueTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowObjectTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowParenthesisedTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowPropertyDefinitionTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimplePropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimpleTypeTreeImpl;
@@ -238,6 +239,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowParenthesisedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
@@ -1967,6 +1969,10 @@ public class TreeFactory {
       currentType = new FlowArrayTypeShorthandTreeImpl(currentType, tail.first, tail.second);
     }
     return (FlowArrayTypeShorthandTree) currentType;
+  }
+
+  public FlowParenthesisedTypeTree flowParenthesisedType(InternalSyntaxToken leftParenthesis, FlowTypeTree flowTypeTree, InternalSyntaxToken rightParenthesis) {
+    return new FlowParenthesisedTypeTreeImpl(leftParenthesis, flowTypeTree, rightParenthesis);
   }
 
   private static class ConditionalExpressionTail {
