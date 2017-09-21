@@ -26,6 +26,9 @@
 197,
 199,
 ],
+'project:babylon/src/plugins/jsx/xhtml.js':[
+256,
+],
 'project:ecmascript6/Ghost/core/client/app/mirage/factories/tag.js':[
 22,
 ],
@@ -1229,6 +1232,12 @@
 45,
 63,
 67,
+],
+'project:jest/packages/jest-matcher-utils/src/index.js':[
+27,
+49,
+64,
+71,
 ],
 'project:jest/packages/jest-message-util/src/__tests__/messages.test.js':[
 33,

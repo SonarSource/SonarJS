@@ -9980,6 +9980,9 @@
 683,
 685,
 ],
+'project:jest/packages/jest-docblock/src/index.js':[
+23,
+],
 'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
 715,
 ],
@@ -9994,6 +9997,14 @@
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_strategy.js':[
 72,
+],
+'project:jest/packages/jest-matcher-utils/src/index.js':[
+76,
+99,
+150,
+164,
+166,
+168,
 ],
 'project:jest/packages/jest-resolve/src/__tests__/resolve.test.js':[
 54,

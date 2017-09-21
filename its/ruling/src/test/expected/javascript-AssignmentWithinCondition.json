@@ -2011,6 +2011,11 @@
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 110,
 ],
+'project:jest/packages/jest-matcher-utils/src/index.js':[
+105,
+117,
+129,
+],
 'project:jquery-1.7.2.js':[
 364,
 2199,
