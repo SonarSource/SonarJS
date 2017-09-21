@@ -774,6 +774,9 @@
 'project:jest/packages/jest-cli/src/lib/scroll_list.js':[
 36,
 ],
+'project:jest/packages/jest-cli/src/lib/handle_deprecation_warnings.js':[
+24,
+],
 'project:jest/packages/jest-cli/src/reporters/__tests__/coverage_reporter.test.js':[
 27,
 39,

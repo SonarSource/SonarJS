@@ -335,6 +335,9 @@
 'project:jest/packages/jest-cli/src/lib/scroll_list.js':[
 11,
 ],
+'project:jest/packages/jest-cli/src/lib/pattern_mode_helpers.js':[
+11,
+],
 'project:jest/packages/jest-cli/src/reporters/__tests__/coverage_reporter.test.js':[
 8,
 ],

@@ -2608,6 +2608,9 @@
 'project:jest/packages/jest-editor-support/src/parsers/babylon_parser.js':[
 152,
 ],
+'project:jest/packages/jest-cli/src/lib/handle_deprecation_warnings.js':[
+36,
+],
 'project:jest/packages/jest-haste-map/src/crawlers/__tests__/node.test.js':[
 25,
 61,
