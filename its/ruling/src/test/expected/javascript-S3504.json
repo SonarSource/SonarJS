@@ -569,7 +569,13 @@
 'project:babylon/test/fixtures/flow/array-types/2/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/array-types/3/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/array-types/4/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/array-types/5/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/array-types/7/actual.js':[
@@ -724,6 +730,9 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/98/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-grouping/1/actual.js':[
 1,
 ],
 'project:backbone-0.9.2.js':[

@@ -58,6 +58,7 @@ public class DoubleDispatchVisitorTest {
     assertNumberOfVisitedTokens("var x: {p1?:number, [p2]:number}", 16);
     assertNumberOfVisitedTokens("var x: ?number", 6);
     assertNumberOfVisitedTokens("var x: Array<number[]>", 10);
+    assertNumberOfVisitedTokens("var x: (Type)", 7);
     assertNumberOfVisitedTokens("let x: 1 = 1", 7);
     assertNumberOfVisitedTokens("var x: (p?: number, ...MyArrayType) => void", 15);
     assertNumberOfVisitedTokens("x = function(p?) { }", 10);

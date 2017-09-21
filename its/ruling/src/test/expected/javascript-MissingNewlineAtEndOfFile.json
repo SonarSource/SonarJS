@@ -8,7 +8,13 @@
 'project:babylon/test/fixtures/flow/array-types/2/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/array-types/3/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/array-types/4/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/array-types/5/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/literal-types/number-binary/actual.js':[
@@ -213,6 +219,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/function-expression-inside-jsx-attr/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-grouping/1/actual.js':[
 0,
 ],
 'project:dojo-1.8.1/dijit/InlineEditBox.js.uncompressed.js':[

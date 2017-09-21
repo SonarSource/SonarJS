@@ -93,15 +93,16 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTre
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowParenthesisedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
@@ -1741,8 +1742,14 @@ public class JavaScriptGrammar {
         FLOW_SIMPLE_TYPE(),
         FLOW_LITERAL_TYPE(),
         FLOW_FUNCTION_TYPE(),
-        FLOW_OBJECT_TYPE()
+        FLOW_OBJECT_TYPE(),
+        FLOW_PARENTHESISED_TYPE()
       ));
+  }
+
+  public FlowParenthesisedTypeTree FLOW_PARENTHESISED_TYPE() {
+    return b.<FlowParenthesisedTypeTree>nonterminal(Kind.FLOW_PARENTHESISED_TYPE)
+      .is(f.flowParenthesisedType(b.token(JavaScriptPunctuator.LPARENTHESIS), FLOW_TYPE(), b.token(JavaScriptPunctuator.RPARENTHESIS)));
   }
 
   public FlowArrayTypeWithKeywordTree FLOW_ARRAY_TYPE() {

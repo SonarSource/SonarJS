@@ -158,12 +158,6 @@
 'project:babylon/test/fixtures/flow/anonymous-function-types/good_14/actual.js':[
 1,
 ],
-'project:babylon/test/fixtures/flow/array-types/3/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/array-types/5/actual.js':[
-1,
-],
 'project:babylon/test/fixtures/flow/array-types/6/actual.js':[
 1,
 ],
@@ -840,9 +834,6 @@
 3,
 ],
 'project:babylon/test/fixtures/flow/type-generics/with-jsx/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/type-grouping/1/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-grouping/2/actual.js':[

@@ -1024,6 +1024,7 @@ public interface Tree {
     FLOW_SIMPLE_PROPERTY_DEFINITION_KEY(FlowPropertyDefinitionKeyTree.class),
     FLOW_INDEXER_PROPERTY_DEFINITION_KEY(FlowIndexerPropertyDefinitionKeyTree.class),
     FLOW_TYPE_ANNOTATION(FlowTypeAnnotationTree.class),
+    FLOW_PARENTHESISED_TYPE(FlowArrayTypeTree.class),
     FLOW_ARRAY_TYPE_WITH_KEYWORD(FlowArrayTypeTree.class),
     FLOW_ARRAY_TYPE_SHORTHAND(FlowArrayTypeShorthandTree.class),
     FLOW_TYPED_BINDING_ELEMENT(FlowTypedBindingElementTree.class),
