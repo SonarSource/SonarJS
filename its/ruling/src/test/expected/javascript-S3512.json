@@ -2846,6 +2846,12 @@
 'project:jest/packages/jest-cli/src/reporters/__tests__/utils.test.js':[
 18,
 ],
+'project:jest/packages/jest-cli/src/reporters/get_snapshot_summary.js':[
+39,
+43,
+62,
+75,
+],
 'project:jest/packages/jest-config/src/__tests__/normalize.test.js':[
 637,
 640,
@@ -2933,6 +2939,9 @@
 77,
 201,
 216,
+],
+'project:jest/packages/pretty-format/src/plugins/lib/markup.js':[
+88,
 ],
 'project:jest/scripts/_runCommand.js':[
 19,

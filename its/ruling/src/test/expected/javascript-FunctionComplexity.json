@@ -2606,8 +2606,14 @@
 'project:jest/packages/jest-diff/src/index.js':[
 53,
 ],
+'project:jest/packages/jest-editor-support/src/parsers/babylon_parser.js':[
+122,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
 68,
+],
+'project:jest/packages/jest-message-util/src/index.js':[
+53,
 ],
 'project:jest/packages/jest-runtime/src/should_instrument.js':[
 22,

@@ -113,6 +113,7 @@ import org.sonar.javascript.tree.impl.flow.FlowInterfaceDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowArrayTypeShorthandTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowArrayTypeWithKeywordTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowNamespacedTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowModuleExportsTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowModuleTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOpaqueTypeTreeImpl;
@@ -234,6 +235,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
@@ -884,28 +886,27 @@ public class TreeFactory {
     return tailedExpression(object, tails);
   }
 
-  public SeparatedList<ExpressionTree> argumentList(
-    ExpressionTree argument,
-    Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> restArguments,
+  public <T> SeparatedList<T> parameterListWithTrailingComma(
+    T parameter,
+    Optional<List<Tuple<InternalSyntaxToken, T>>> restParameters,
     Optional<InternalSyntaxToken> trailingComma
   ) {
-    List<ExpressionTree> arguments = Lists.newArrayList();
+    List<T> parameters = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
-    arguments.add(argument);
+    parameters.add(parameter);
 
-    if (restArguments.isPresent()) {
-      for (Tuple<InternalSyntaxToken, ExpressionTree> t : restArguments.get()) {
+    if (restParameters.isPresent()) {
+      for (Tuple<InternalSyntaxToken, T> t : restParameters.get()) {
         commas.add(t.first());
-        arguments.add(t.second());
+        parameters.add(t.second());
       }
     }
 
     if (trailingComma.isPresent()) {
       commas.add(trailingComma.get());
     }
-
-    return new SeparatedListImpl(arguments, commas);
+    return new SeparatedListImpl<>(parameters, commas);
   }
 
   public ArgumentListTree argumentClause(InternalSyntaxToken openParenToken, Optional<SeparatedList<ExpressionTree>> arguments, InternalSyntaxToken closeParenToken) {
@@ -1842,19 +1843,7 @@ public class TreeFactory {
     T parameter,
     Optional<List<Tuple<InternalSyntaxToken, T>>> otherParameters
   ) {
-    List<T> parameters = Lists.newArrayList();
-    List<InternalSyntaxToken> commas = Lists.newArrayList();
-
-    parameters.add(parameter);
-
-    if (otherParameters.isPresent()) {
-      for (Tuple<InternalSyntaxToken, T> t : otherParameters.get()) {
-        commas.add(t.first());
-        parameters.add(t.second());
-      }
-    }
-
-    return new SeparatedListImpl<>(parameters, commas);
+    return parameterListWithTrailingComma(parameter, otherParameters, Optional.absent());
   }
 
   public FlowFunctionTypeParameterTree flowFunctionTypeParameter(IdentifierTree identifier, Optional<SyntaxToken> query, FlowTypeAnnotationTree typeAnnotation) {
@@ -1984,22 +1973,20 @@ public class TreeFactory {
     Optional<InternalSyntaxToken> trailingComma,
     InternalSyntaxToken rightBracket
   ) {
-    List<FlowTypeTree> types = new ArrayList<>();
-    List<InternalSyntaxToken> commas = new ArrayList<>();
-    types.add(type);
+    return new FlowTupleTypeTreeImpl(leftBracket, this.parameterListWithTrailingComma(type, restTypes, trailingComma), rightBracket);
+  }
 
-    if (restTypes.isPresent()) {
-      for (Tuple<InternalSyntaxToken, FlowTypeTree> tuple : restTypes.get()) {
-        types.add(tuple.second);
-        commas.add(tuple.first);
-      }
+  public FlowNamespacedTypeTree flowNamespacedType(IdentifierTree identifierTree, List<Tuple<InternalSyntaxToken, IdentifierTree>> rest) {
+    List<IdentifierTree> identifiers = new ArrayList<>();
+    List<InternalSyntaxToken> dots = new ArrayList<>();
+    identifiers.add(identifierTree);
+
+    for (Tuple<InternalSyntaxToken, IdentifierTree> tuple : rest) {
+      identifiers.add(tuple.second);
+      dots.add(tuple.first);
     }
 
-    if (trailingComma.isPresent()) {
-      commas.add(trailingComma.get());
-    }
-
-    return new FlowTupleTypeTreeImpl(leftBracket, new SeparatedListImpl<>(types, commas), rightBracket);
+    return new FlowNamespacedTypeTreeImpl(new SeparatedListImpl<>(identifiers, dots));
   }
 
   private static class ConditionalExpressionTail {

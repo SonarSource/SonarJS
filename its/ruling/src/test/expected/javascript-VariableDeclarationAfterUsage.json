@@ -772,6 +772,10 @@
 'project:jest/packages/jest-matcher-utils/src/index.js':[
 108,
 ],
+'project:jest/packages/jest-message-util/src/index.js':[
+73,
+87,
+],
 'project:jest/packages/jest-regex-util/src/index.js':[
 19,
 19,
@@ -784,6 +788,9 @@
 ],
 'project:jest/packages/jest-snapshot/src/utils.js':[
 137,
+],
+'project:jest/packages/pretty-format/src/plugins/lib/markup.js':[
+74,
 ],
 'project:jquery-1.7.2.js':[
 27,

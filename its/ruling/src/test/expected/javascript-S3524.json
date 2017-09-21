@@ -670,6 +670,9 @@
 'project:jest/packages/jest-resolve-dependencies/src/__tests__/dependency_resolver.test.js':[
 23,
 ],
+'project:jest/packages/jest-resolve/src/node_modules_paths.js':[
+50,
+],
 'project:jest/packages/jest-runtime/src/__tests__/module_dir/to_be_instrumented.js':[
 11,
 ],

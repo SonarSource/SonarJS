@@ -92,12 +92,11 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClaus
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
@@ -1038,6 +1037,7 @@ public interface Tree {
     FLOW_TYPE_ANNOTATION(FlowTypeAnnotationTree.class),
     FLOW_PARENTHESISED_TYPE(FlowParenthesisedTypeTree.class),
     FLOW_TUPLE_TYPE(FlowTupleTypeTree.class),
+    FLOW_NAMESPACED_TYPE(FlowNamespacedTypeTree.class),
     FLOW_ARRAY_TYPE_WITH_KEYWORD(FlowArrayTypeTree.class),
     FLOW_ARRAY_TYPE_SHORTHAND(FlowArrayTypeShorthandTree.class),
     FLOW_TYPED_BINDING_ELEMENT(FlowTypedBindingElementTree.class),
