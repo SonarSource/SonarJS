@@ -425,7 +425,13 @@
 'project:babylon/test/fixtures/flow/array-types/2/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/array-types/3/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/array-types/4/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/array-types/5/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/array-types/7/actual.js':[
@@ -936,6 +942,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-imports/invalid-import-type-shorthand/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-grouping/1/actual.js':[
 0,
 ],
 'project:babylon/test/helpers/runFixtureTests.js':[
