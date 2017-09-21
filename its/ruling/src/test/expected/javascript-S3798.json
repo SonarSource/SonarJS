@@ -112,7 +112,13 @@
 'project:babylon/test/fixtures/flow/type-annotations/6/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/60/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/61/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/63/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/67/actual.js':[
@@ -4691,6 +4697,10 @@
 ],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 4,
+],
+'project:jest/packages/jest-docblock/src/index.js':[
+21,
+26,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/Spec.js':[
 39,
