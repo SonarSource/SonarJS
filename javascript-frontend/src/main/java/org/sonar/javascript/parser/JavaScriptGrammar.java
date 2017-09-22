@@ -100,9 +100,11 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowMethodPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
@@ -110,8 +112,8 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowParenthesisedTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTupleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
@@ -1894,17 +1896,26 @@ public class JavaScriptGrammar {
     return b.<FlowPropertyDefinitionTree>nonterminal(Kind.FLOW_PROPERTY_DEFINITION)
       .is(b.firstOf(
         f.flowPropertyDefinition(FLOW_SIMPLE_PROPERTY_DEFINITION_KEY(), FLOW_TYPE_ANNOTATION()),
+        f.flowPropertyDefinition(FLOW_METHOD_PROPERTY_DEFINITION_KEY(), FLOW_TYPE_ANNOTATION()),
         f.flowPropertyDefinition(FLOW_INDEXER_PROPERTY_DEFINITION_KEY(), FLOW_TYPE_ANNOTATION()))
       );
   }
 
-  public FlowPropertyDefinitionKeyTree FLOW_SIMPLE_PROPERTY_DEFINITION_KEY() {
-    return b.<FlowPropertyDefinitionKeyTree>nonterminal(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)
+  public FlowMethodPropertyDefinitionKeyTree FLOW_METHOD_PROPERTY_DEFINITION_KEY() {
+    return b.<FlowMethodPropertyDefinitionKeyTree>nonterminal(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)
+      .is(f.flowMethodPropertyDefinitionKeyTree(
+        b.optional(b.token(EcmaScriptLexer.STATIC)),
+        b.optional(IDENTIFIER_NAME()),
+        FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE()));
+  }
+
+  public FlowSimplePropertyDefinitionKeyTree FLOW_SIMPLE_PROPERTY_DEFINITION_KEY() {
+    return b.<FlowSimplePropertyDefinitionKeyTree>nonterminal(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)
       .is(f.flowSimplePropertyDefinitionKeyTree(IDENTIFIER_NAME(), b.optional(b.token(JavaScriptPunctuator.QUERY))));
   }
 
-  public FlowPropertyDefinitionKeyTree FLOW_INDEXER_PROPERTY_DEFINITION_KEY() {
-    return b.<FlowPropertyDefinitionKeyTree>nonterminal(Kind.FLOW_INDEXER_PROPERTY_DEFINITION_KEY)
+  public FlowIndexerPropertyDefinitionKeyTree FLOW_INDEXER_PROPERTY_DEFINITION_KEY() {
+    return b.<FlowIndexerPropertyDefinitionKeyTree>nonterminal(Kind.FLOW_INDEXER_PROPERTY_DEFINITION_KEY)
       .is(f.flowIndexerPropertyDefinitionKey(
         b.token(JavaScriptPunctuator.LBRACKET),
         b.optional(f.newTuple(IDENTIFIER_NAME(), b.token(JavaScriptPunctuator.COLON))),
