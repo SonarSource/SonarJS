@@ -105,14 +105,15 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowMethodPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowParameterizedGenericsTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowParenthesisedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKeyTree;
@@ -1769,6 +1770,7 @@ public class JavaScriptGrammar {
         // TODO
         FLOW_ARRAY_TYPE(),
         FLOW_OPTIONAL_TYPE(),
+        FLOW_PARAMETERIZED_GENERICS_TYPE(),
         FLOW_NAMESPACED_TYPE(),
         FLOW_SIMPLE_TYPE(),
         FLOW_LITERAL_TYPE(),
@@ -1880,6 +1882,17 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.LT),
         FLOW_GENERIC_PARAMETER(),
         b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_GENERIC_PARAMETER())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA)),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public FlowParameterizedGenericsTypeTree FLOW_PARAMETERIZED_GENERICS_TYPE() {
+    return b.<FlowParameterizedGenericsTypeTree>nonterminal(Kind.FLOW_PARAMETERIZED_GENERICS_TYPE)
+      .is(f.flowParameterizedGenericsClause(
+        b.firstOf(FLOW_NAMESPACED_TYPE(), FLOW_SIMPLE_TYPE()),
+        b.token(JavaScriptPunctuator.LT),
+        FLOW_TYPE(),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_TYPE())),
         b.optional(b.token(JavaScriptPunctuator.COMMA)),
         b.token(JavaScriptPunctuator.GT)));
   }
