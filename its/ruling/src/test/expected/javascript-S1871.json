@@ -23,6 +23,9 @@
 'project:ecmascript6/watchtower.js/src/dirty_checking.js':[
 155,
 ],
+'project:jest/packages/jest-cli/src/watch.js':[
+195,
+],
 'project:jshint-2012.06.15.js':[
 1661,
 ],

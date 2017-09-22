@@ -75,6 +75,9 @@
 14431,
 14437,
 ],
+'project:babylon/src/parser/util.js':[
+16,
+],
 'project:backbone-0.9.2.js':[
 95,
 119,
@@ -2011,6 +2014,9 @@
 'project:jest/packages/jest-circus/src/event_handler.js':[
 53,
 78,
+],
+'project:jest/packages/jest-cli/src/watch.js':[
+72,
 ],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 110,

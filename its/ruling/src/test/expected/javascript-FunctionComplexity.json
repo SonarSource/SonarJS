@@ -2591,8 +2591,17 @@
 'project:jest/packages/jest-circus/src/event_handler.js':[
 18,
 ],
+'project:jest/packages/jest-cli/src/lib/update_global_config.js':[
+21,
+],
 'project:jest/packages/jest-cli/src/reporters/get_result_header.js':[
 31,
+],
+'project:jest/packages/jest-cli/src/reporters/utils.js':[
+99,
+],
+'project:jest/packages/jest-cli/src/watch.js':[
+141,
 ],
 'project:jest/packages/jest-config/src/set_from_argv.js':[
 23,
@@ -2608,6 +2617,9 @@
 ],
 'project:jest/packages/jest-editor-support/src/parsers/babylon_parser.js':[
 122,
+],
+'project:jest/packages/jest-get-type/src/index.js':[
+29,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
 68,

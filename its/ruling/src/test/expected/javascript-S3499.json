@@ -43,6 +43,10 @@
 'project:jest/packages/jest-cli/src/reporters/coverage_worker.js':[
 32,
 ],
+'project:jest/packages/jest-cli/src/watch.js':[
+112,
+221,
+],
 'project:jest/packages/jest-jasmine2/src/__tests__/expectation_result_factory.test.js':[
 37,
 ],

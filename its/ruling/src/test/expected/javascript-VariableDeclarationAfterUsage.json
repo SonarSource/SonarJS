@@ -732,6 +732,17 @@
 'project:jest/packages/jest-circus/src/index.js':[
 23,
 ],
+'project:jest/packages/jest-cli/src/reporters/utils.js':[
+45,
+159,
+],
+'project:jest/packages/jest-cli/src/watch.js':[
+86,
+124,
+128,
+214,
+215,
+],
 'project:jest/packages/jest-config/src/index.js':[
 63,
 ],

@@ -817,6 +817,9 @@
 'project:jest/packages/jest-circus/src/format_node_assert_errors.js':[
 84,
 ],
+'project:jest/packages/jest-cli/src/watch.js':[
+300,
+],
 'project:jest/packages/jest-editor-support/src/parsers/babylon_parser.js':[
 86,
 144,

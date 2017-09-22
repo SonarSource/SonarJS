@@ -28,7 +28,6 @@ import org.sonar.javascript.parser.TreeFactory.BracketAccessTail;
 import org.sonar.javascript.parser.TreeFactory.DotAccessTail;
 import org.sonar.javascript.parser.TreeFactory.ExpressionTail;
 import org.sonar.javascript.parser.TreeFactory.VueElement;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;

@@ -563,6 +563,9 @@
 'project:jest/packages/jest-cli/src/reporters/__tests__/verbose_reporter.test.js':[
 19,
 ],
+'project:jest/packages/jest-cli/src/watch.js':[
+35,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 245,
 ],

@@ -21,6 +21,12 @@
 13519,
 14319,
 ],
+'project:babylon/src/parser/util.js':[
+11,
+20,
+26,
+80,
+],
 'project:babylon/test/fixtures/flow/anonymous-function-types/good_02/actual.js':[
 1,
 ],

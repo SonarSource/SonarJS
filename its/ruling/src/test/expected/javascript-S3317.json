@@ -2,6 +2,9 @@
 'project:babylon/src/parser/location.js':[
 0,
 ],
+'project:babylon/src/parser/util.js':[
+0,
+],
 'project:babylon/src/plugins/jsx/xhtml.js':[
 0,
 ],
@@ -128,6 +131,9 @@
 'project:jest/packages/jest-cli/src/lib/is_valid_path.js':[
 0,
 ],
+'project:jest/packages/jest-cli/src/lib/log_debug_messages.js':[
+0,
+],
 'project:jest/packages/jest-config/src/get_max_workers.js':[
 0,
 ],
@@ -177,6 +183,9 @@
 0,
 ],
 'project:jest/packages/jest-jasmine2/src/tree_processor.js':[
+0,
+],
+'project:jest/packages/jest-resolve/src/default_resolver.js':[
 0,
 ],
 'project:jest/packages/jest-resolve/src/node_modules_paths.js':[

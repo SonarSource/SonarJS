@@ -569,6 +569,9 @@
 'project:babylon/test/fixtures/flow/anonymous-function-types/good_10/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/anonymous-function-types/good_14/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/array-types/1/actual.js':[
 1,
 ],
@@ -684,6 +687,9 @@
 4,
 5,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/129/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/30/actual.js':[
 1,
 ],
@@ -782,6 +788,9 @@
 ],
 'project:babylon/test/fixtures/flow/type-annotations/98/actual.js':[
 1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/negative-number-literal/actual.js':[
+11,
 ],
 'project:babylon/test/fixtures/flow/type-grouping/1/actual.js':[
 1,

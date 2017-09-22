@@ -106,6 +106,9 @@
 'project:google-closure-library/ui/tree/basenode.js':[
 338,
 ],
+'project:jest/packages/jest-cli/src/lib/update_global_config.js':[
+30,
+],
 'project:jest/packages/jest-editor-support/src/__tests__/settings.test.js':[
 45,
 69,
