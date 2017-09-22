@@ -1993,8 +1993,8 @@ public class TreeFactory {
     return new FlowNamespacedTypeTreeImpl(new SeparatedListImpl<>(identifiers, dots));
   }
 
-  public FlowUnionTypeTree flowUnionType(SeparatedList<FlowTypeTree> elements) {
-    return new FlowUnionTypeTreeImpl(elements);
+  public FlowUnionTypeTree flowUnionType(Optional<SyntaxToken> startPipe, SeparatedList<FlowTypeTree> elements) {
+    return new FlowUnionTypeTreeImpl(startPipe.orNull(), elements);
   }
 
   public FlowIntersectionTypeTree flowIntersectionType(SeparatedList<FlowTypeTree> elements) {
@@ -2002,16 +2002,7 @@ public class TreeFactory {
   }
 
   public SeparatedList<FlowTypeTree> flowTypeElements(FlowTypeTree type, List<Tuple<InternalSyntaxToken, FlowTypeTree>> rest) {
-    List<FlowTypeTree> types = new ArrayList<>();
-    List<InternalSyntaxToken> pipes = new ArrayList<>();
-
-    types.add(type);
-    for (Tuple<InternalSyntaxToken, FlowTypeTree> tuple : rest) {
-      pipes.add(tuple.first);
-      types.add(tuple.second);
-    }
-
-    return new SeparatedListImpl<>(types, pipes);
+    return parameterList(type, Optional.of(rest));
   }
 
   private static class ConditionalExpressionTail {

@@ -20,8 +20,11 @@
 package org.sonar.plugins.javascript.api.tree.flow;
 
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public interface FlowUnionTypeTree extends FlowTypeTree {
+
+  SyntaxToken startPipeToken();
 
   SeparatedList<FlowTypeTree> subTypes();
 }

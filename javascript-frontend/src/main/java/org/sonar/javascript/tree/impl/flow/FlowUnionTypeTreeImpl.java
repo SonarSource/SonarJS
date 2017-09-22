@@ -20,19 +20,25 @@
 package org.sonar.javascript.tree.impl.flow;
 
 import com.google.common.base.Functions;
+import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowUnionTypeTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowUnionTypeTreeImpl extends JavaScriptTree implements FlowUnionTypeTree {
 
+  @Nullable
+  private final SyntaxToken startPipe;
   private final SeparatedList<FlowTypeTree> subTypes;
 
-  public FlowUnionTypeTreeImpl(SeparatedList<FlowTypeTree> subTypes) {
+  public FlowUnionTypeTreeImpl(@Nullable SyntaxToken startPipe, SeparatedList<FlowTypeTree> subTypes) {
+    this.startPipe = startPipe;
     this.subTypes = subTypes;
   }
 
@@ -43,7 +49,12 @@ public class FlowUnionTypeTreeImpl extends JavaScriptTree implements FlowUnionTy
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return subTypes.elementsAndSeparators(Functions.identity());
+    return Iterators.concat(Iterators.singletonIterator(startPipe), subTypes.elementsAndSeparators(Functions.identity()));
+  }
+
+  @Override
+  public SyntaxToken startPipeToken() {
+    return startPipe;
   }
 
   @Override

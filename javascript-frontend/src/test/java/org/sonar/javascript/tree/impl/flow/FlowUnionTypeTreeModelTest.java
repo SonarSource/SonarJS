@@ -30,9 +30,10 @@ public class FlowUnionTypeTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-    FlowUnionTypeTree tree = parse("var x: A | 42 | ?B", Kind.FLOW_UNION_TYPE);
+    FlowUnionTypeTree tree = parse("var x: | A | 42 | ?B", Kind.FLOW_UNION_TYPE);
 
     assertThat(tree.is(Kind.FLOW_UNION_TYPE)).isTrue();
+    assertThat(tree.startPipeToken()).isNotNull();
     assertThat(tree.subTypes()).hasSize(3);
     assertThat(tree.subTypes().getSeparators()).hasSize(2);
     assertThat(tree.subTypes().getSeparator(0).text()).isEqualTo("|");

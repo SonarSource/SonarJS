@@ -1813,7 +1813,7 @@ public class JavaScriptGrammar {
 
   public FlowUnionTypeTree FLOW_UNION_TYPE() {
     return b.<FlowUnionTypeTree>nonterminal(Kind.FLOW_UNION_TYPE)
-      .is(f.flowUnionType(f.flowTypeElements(FLOW_TYPE_NON_UNION(), b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.OR), FLOW_TYPE_NON_UNION())))));
+      .is(f.flowUnionType(b.optional(b.token(JavaScriptPunctuator.OR)), f.flowTypeElements(FLOW_TYPE_NON_UNION(), b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.OR), FLOW_TYPE_NON_UNION())))));
   }
 
   public FlowIntersectionTypeTree FLOW_INTERSECTION_TYPE() {
