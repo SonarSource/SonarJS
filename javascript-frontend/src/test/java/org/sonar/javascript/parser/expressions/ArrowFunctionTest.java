@@ -52,4 +52,11 @@ public class ArrowFunctionTest {
       .matches("var bar = async x => foo()")
     ;
   }
+
+  @Test
+  public void flow() throws Exception {
+    assertThat(Kind.ARROW_FUNCTION)
+      .matches("<T>(x): void => {}")
+    ;
+  }
 }

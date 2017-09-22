@@ -73,7 +73,8 @@ public class AccessorMethodDeclarationTreeModelTest extends JavaScriptTreeModelT
 
   @Test
   public void flow_typed() throws Exception {
-    AccessorMethodDeclarationTree tree = parse("var a = { get method(): number {} }", Kind.GET_METHOD);
+    AccessorMethodDeclarationTree tree = parse("var a = { get foo<T>(): number {} }", Kind.GET_METHOD);
+    assertThat(tree.genericParameterClause()).isNotNull();
     assertThat(tree.returnType()).isNotNull();
   }
 }

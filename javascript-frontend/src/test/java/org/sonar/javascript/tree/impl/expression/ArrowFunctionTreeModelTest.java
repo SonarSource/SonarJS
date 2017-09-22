@@ -103,7 +103,8 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void flow_typed() throws Exception {
-    ArrowFunctionTree tree = parse("(p1, p2): number => p;", Kind.ARROW_FUNCTION);
+    ArrowFunctionTree tree = parse("<T>(p1, p2): number => p;", Kind.ARROW_FUNCTION);
+    assertThat(tree.genericParameterClause()).isNotNull();
     assertThat(tree.returnType()).isNotNull();
   }
 }

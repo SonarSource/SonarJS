@@ -29,6 +29,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -40,6 +41,7 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
   private final SyntaxToken functionKeyword;
   private final SyntaxToken starToken;
   private final IdentifierTree name;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final ParameterListTree parameters;
   private final FlowTypeAnnotationTree returnType;
   private final BlockTree body;
@@ -48,13 +50,15 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
   private FunctionDeclarationTreeImpl(
     @Nullable SyntaxToken asyncToken,
     InternalSyntaxToken functionKeyword, @Nullable InternalSyntaxToken starToken,
-    IdentifierTree name, ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
+    IdentifierTree name, @Nullable FlowGenericParameterClauseTree genericParameterClause,
+    ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
   ) {
 
     this.asyncToken = asyncToken;
     this.functionKeyword = functionKeyword;
     this.starToken = starToken;
     this.name = name;
+    this.genericParameterClause = genericParameterClause;
     this.parameters = parameters;
     this.returnType = returnType;
     this.body = body;
@@ -63,16 +67,18 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
 
   public static FunctionDeclarationTree create(
     @Nullable SyntaxToken asyncToken, InternalSyntaxToken functionKeyword,
-    IdentifierTree name, ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
+    IdentifierTree name, @Nullable FlowGenericParameterClauseTree genericParameterClause,
+    ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
   ) {
-    return new FunctionDeclarationTreeImpl(asyncToken, functionKeyword,null, name, parameters, returnType, body);
+    return new FunctionDeclarationTreeImpl(asyncToken, functionKeyword,null, name, genericParameterClause, parameters, returnType, body);
   }
 
   public static FunctionDeclarationTree createGenerator(
     InternalSyntaxToken functionKeyword, InternalSyntaxToken starToken,
-    IdentifierTree name, ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
+    IdentifierTree name, @Nullable FlowGenericParameterClauseTree genericParameterClause,
+    ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
   ) {
-    return new FunctionDeclarationTreeImpl(null, functionKeyword, starToken, name, parameters, returnType, body);
+    return new FunctionDeclarationTreeImpl(null, functionKeyword, starToken, name, genericParameterClause, parameters, returnType, body);
   }
 
   @Override
@@ -89,6 +95,12 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
   @Override
   public IdentifierTree name() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Nullable
@@ -125,7 +137,7 @@ public class FunctionDeclarationTreeImpl extends FunctionTreeImpl implements Fun
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(asyncToken, functionKeyword, starToken, name, parameters, returnType, body);
+    return Iterators.forArray(asyncToken, functionKeyword, starToken, name, genericParameterClause, parameters, returnType, body);
   }
 
   @Override

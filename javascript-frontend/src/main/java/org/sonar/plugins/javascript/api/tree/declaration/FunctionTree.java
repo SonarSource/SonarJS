@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
@@ -36,6 +37,9 @@ public interface FunctionTree extends Tree {
 
   @Nullable
   Tree name();
+
+  @Nullable
+  FlowGenericParameterClauseTree genericParameterClause();
 
   Tree parameterClause();
 
