@@ -19,31 +19,24 @@
  */
 package org.sonar.plugins.javascript.api.tree.flow;
 
+import com.google.common.annotations.Beta;
 import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
-public interface FlowTypeAliasStatementTree extends StatementTree {
+@Beta
+public interface FlowGenericParameterTree extends Tree {
 
-  @Nullable
-  SyntaxToken opaqueToken();
-
-  SyntaxToken typeToken();
-
-  IdentifierTree typeAlias();
-
-  @Nullable
-  FlowGenericParameterClauseTree genericParameterClause();
+  IdentifierTree identifier();
 
   @Nullable
   FlowTypeAnnotationTree superTypeAnnotation();
 
+  @Nullable
   SyntaxToken equalToken();
 
-  FlowTypeTree type();
-
   @Nullable
-  SyntaxToken semicolonToken();
+  FlowTypeTree defaultType();
 
 }

@@ -100,6 +100,8 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
@@ -1856,6 +1858,24 @@ public class JavaScriptGrammar {
         ));
   }
 
+  public FlowGenericParameterClauseTree FLOW_GENERIC_PARAMETER_CLAUSE() {
+    return b.<FlowGenericParameterClauseTree>nonterminal(Kind.FLOW_GENERIC_PARAMETER_CLAUSE)
+      .is(f.flowGenericParameterClause(
+        b.token(JavaScriptPunctuator.LT),
+        FLOW_GENERIC_PARAMETER(),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_GENERIC_PARAMETER())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA)),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public FlowGenericParameterTree FLOW_GENERIC_PARAMETER() {
+    return b.<FlowGenericParameterTree>nonterminal(Kind.FLOW_GENERIC_PARAMETER)
+      .is(f.flowGenericParameter(
+        IDENTIFIER_NAME(),
+        b.optional(FLOW_TYPE_ANNOTATION()),
+        b.optional(f.newTuple(b.token(JavaScriptPunctuator.EQU), FLOW_TYPE()))));
+  }
+
   public FlowFunctionTypeParameterTree FLOW_FUNCTION_TYPE_PARAMETER() {
     return b.<FlowFunctionTypeParameterTree>nonterminal(Kind.FLOW_FUNCTION_TYPE_PARAMETER)
       .is(b.firstOf(
@@ -1951,6 +1971,7 @@ public class JavaScriptGrammar {
         b.optional(b.token(EcmaScriptLexer.OPAQUE)),
         b.token(EcmaScriptLexer.TYPE),
         BINDING_IDENTIFIER(),
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         b.optional(FLOW_TYPE_ANNOTATION()),
         b.token(JavaScriptPunctuator.EQU),
         FLOW_TYPE(),

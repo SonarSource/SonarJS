@@ -25,70 +25,43 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class FlowTypeAliasStatementTreeImpl extends JavaScriptTree implements FlowTypeAliasStatementTree {
+public class FlowGenericParameterTreeImpl extends JavaScriptTree implements FlowGenericParameterTree {
 
-  private final SyntaxToken opaqueToken;
-  private final SyntaxToken typeToken;
-  private final IdentifierTree typeAlias;
-  private final FlowGenericParameterClauseTree genericParameterClause;
+  private final IdentifierTree identifier;
   private final FlowTypeAnnotationTree superTypeAnnotation;
   private final SyntaxToken equalToken;
-  private final FlowTypeTree type;
-  private final SyntaxToken semicolonToken;
+  private final FlowTypeTree defaultType;
 
-  public FlowTypeAliasStatementTreeImpl(
-    @Nullable SyntaxToken opaqueToken, SyntaxToken typeToken,
-    IdentifierTree typeAlias, @Nullable FlowGenericParameterClauseTree genericParameterClause,
+  public FlowGenericParameterTreeImpl(
+    IdentifierTree identifier,
     @Nullable FlowTypeAnnotationTree superTypeAnnotation,
-    SyntaxToken equalToken, FlowTypeTree type, @Nullable SyntaxToken semicolonToken
+    @Nullable SyntaxToken equalToken, @Nullable FlowTypeTree defaultType
   ) {
-    this.opaqueToken = opaqueToken;
-    this.typeToken = typeToken;
-    this.typeAlias = typeAlias;
-    this.genericParameterClause = genericParameterClause;
+    this.identifier = identifier;
     this.superTypeAnnotation = superTypeAnnotation;
     this.equalToken = equalToken;
-    this.type = type;
-    this.semicolonToken = semicolonToken;
+    this.defaultType = defaultType;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.FLOW_TYPE_ALIAS_STATEMENT;
+    return Kind.FLOW_GENERIC_PARAMETER;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(opaqueToken, typeToken, typeAlias, genericParameterClause, superTypeAnnotation, equalToken, type, semicolonToken);
-  }
-
-  @Nullable
-  @Override
-  public SyntaxToken opaqueToken() {
-    return opaqueToken;
+    return Iterators.forArray(identifier, superTypeAnnotation, equalToken, defaultType);
   }
 
   @Override
-  public SyntaxToken typeToken() {
-    return typeToken;
-  }
-
-  @Override
-  public IdentifierTree typeAlias() {
-    return typeAlias;
-  }
-
-  @Nullable
-  @Override
-  public FlowGenericParameterClauseTree genericParameterClause() {
-    return genericParameterClause;
+  public IdentifierTree identifier() {
+    return identifier;
   }
 
   @Nullable
@@ -97,24 +70,20 @@ public class FlowTypeAliasStatementTreeImpl extends JavaScriptTree implements Fl
     return superTypeAnnotation;
   }
 
+  @Nullable
   @Override
   public SyntaxToken equalToken() {
     return equalToken;
   }
 
-  @Override
-  public FlowTypeTree type() {
-    return type;
-  }
-
   @Nullable
   @Override
-  public SyntaxToken semicolonToken() {
-    return semicolonToken;
+  public FlowTypeTree defaultType() {
+    return defaultType;
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitFlowTypeAliasStatement(this);
+    visitor.visitFlowGenericParameter(this);
   }
 }
