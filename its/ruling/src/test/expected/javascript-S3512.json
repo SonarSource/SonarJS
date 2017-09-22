@@ -2929,6 +2929,13 @@
 170,
 180,
 ],
+'project:jest/packages/jest-util/src/fake_timers.js':[
+160,
+182,
+230,
+275,
+345,
+],
 'project:jest/packages/jest-validate/src/warnings.js':[
 32,
 ],

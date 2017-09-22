@@ -1,4 +1,7 @@
 {
+'project:babylon/src/parser/base.js':[
+0,
+],
 'project:babylon/src/plugins/jsx/xhtml.js':[
 0,
 ],
@@ -125,6 +128,12 @@
 'project:jest/packages/jest-cli/src/lib/is_valid_path.js':[
 0,
 ],
+'project:jest/packages/jest-cli/src/reporters/verbose_reporter.js':[
+0,
+],
+'project:jest/packages/jest-cli/src/test_watcher.js':[
+0,
+],
 'project:jest/packages/jest-config/src/get_max_workers.js':[
 0,
 ],
@@ -132,6 +141,9 @@
 0,
 ],
 'project:jest/packages/jest-config/src/validate_pattern.js':[
+0,
+],
+'project:jest/packages/jest-editor-support/src/project_workspace.js':[
 0,
 ],
 'project:jest/packages/jest-haste-map/src/get_mock_name.js':[
@@ -180,6 +192,15 @@
 0,
 ],
 'project:jest/packages/jest-runtime/src/should_instrument.js':[
+0,
+],
+'project:jest/packages/jest-util/src/Console.js':[
+0,
+],
+'project:jest/packages/jest-util/src/buffered_console.js':[
+0,
+],
+'project:jest/packages/jest-util/src/fake_timers.js':[
 0,
 ],
 'project:jest/packages/jest-util/src/null_console.js':[

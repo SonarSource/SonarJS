@@ -2015,6 +2015,12 @@
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 110,
 ],
+'project:jest/packages/jest-environment-jsdom/src/index.js':[
+30,
+],
+'project:jest/packages/jest-environment-node/src/index.js':[
+28,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/jasmine_light.js':[
 52,
 ],

@@ -56,4 +56,11 @@ public class ClassDeclarationTest {
       .matches("class C { @decorator1 @decorator2 method(){} }")
     ;
   }
+
+  @Test
+  public void flow() throws Exception {
+    assertThat(Kind.CLASS_DECLARATION)
+      .matches("class C {property: number; method():number{} }")
+    ;
+  }
 }

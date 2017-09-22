@@ -2626,11 +2626,17 @@
 145,
 175,
 ],
+'project:jest/packages/jest-cli/src/reporters/verbose_reporter.js':[
+80,
+],
 'project:jest/packages/jest-config/src/set_from_argv.js':[
 23,
 ],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 474,
+],
+'project:jest/packages/jest-editor-support/src/Runner.js':[
+64,
 ],
 'project:jest/packages/jest-editor-support/src/__tests__/test_reconciler.test.js':[
 18,

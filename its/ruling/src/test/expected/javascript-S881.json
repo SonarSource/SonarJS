@@ -1228,6 +1228,12 @@
 'project:jest/packages/jest-message-util/src/index.js':[
 118,
 ],
+'project:jest/packages/jest-util/src/fake_timers.js':[
+394,
+424,
+457,
+483,
+],
 'project:jest/packages/pretty-format/src/__tests__/immutable.test.js':[
 961,
 ],

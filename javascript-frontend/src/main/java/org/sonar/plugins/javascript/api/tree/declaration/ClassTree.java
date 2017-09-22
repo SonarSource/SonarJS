@@ -52,7 +52,7 @@ public interface ClassTree extends ExpressionTree, StatementTree {
 
   SyntaxToken openCurlyBraceToken();
 
-  // elements can be either method declarations, accessor declarations, class field declarations or semi-colons
+  // elements can be either method declarations, accessor declarations, class field declarations, semi-colons or flow property definition
   List<Tree> elements();
 
   SyntaxToken closeCurlyBraceToken();

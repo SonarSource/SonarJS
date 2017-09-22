@@ -2842,6 +2842,10 @@
 549,
 549,
 ],
+'project:jest/packages/jest-util/src/fake_timers.js':[
+497,
+499,
+],
 'project:jest/packages/jest-util/src/install_common_globals.js':[
 16,
 ],

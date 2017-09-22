@@ -932,6 +932,10 @@
 'project:google-closure-library/window/window.js':[
 93,
 ],
+'project:jest/packages/jest-util/src/fake_timers.js':[
+120,
+500,
+],
 'project:jest/packages/jest-util/src/install_common_globals.js':[
 17,
 ],
