@@ -119,6 +119,9 @@
 'project:babylon/bin/generate-identifier-regex.js':[
 27,
 ],
+'project:babylon/src/parser/index.js':[
+14,
+],
 'project:babylon/test/helpers/runFixtureTests.js':[
 117,
 ],
@@ -5987,6 +5990,9 @@
 34,
 35,
 ],
+'project:jest/packages/jest-cli/src/reporters/coverage_reporter.js':[
+264,
+],
 'project:jest/packages/jest-cli/src/reporters/verbose_reporter.js':[
 105,
 ],
@@ -5997,6 +6003,9 @@
 ],
 'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
 714,
+],
+'project:jest/packages/jest-haste-map/src/crawlers/node.js':[
+36,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
 40,
@@ -6029,8 +6038,14 @@
 28,
 83,
 ],
+'project:jest/packages/jest-resolve-dependencies/src/index.js':[
+74,
+],
 'project:jest/packages/jest-runtime/src/__mocks__/createRuntime.js':[
 17,
+],
+'project:jest/packages/jest-snapshot/src/State.js':[
+113,
 ],
 'project:jest/packages/jest-util/src/fake_timers.js':[
 267,

@@ -23,6 +23,9 @@
 13353,
 14322,
 ],
+'project:babylon/src/parser/comments.js':[
+43,
+],
 'project:babylon/test/helpers/runFixtureTests.js':[
 67,
 129,
@@ -2594,6 +2597,9 @@
 'project:jest/packages/jest-cli/src/reporters/get_result_header.js':[
 31,
 ],
+'project:jest/packages/jest-cli/src/reporters/summary_reporter.js':[
+119,
+],
 'project:jest/packages/jest-config/src/set_from_argv.js':[
 23,
 ],
@@ -2617,6 +2623,9 @@
 ],
 'project:jest/packages/jest-runtime/src/should_instrument.js':[
 22,
+],
+'project:jest/packages/jest-snapshot/src/State.js':[
+108,
 ],
 'project:jest/packages/jest-validate/src/validate.js':[
 15,

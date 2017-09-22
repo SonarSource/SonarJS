@@ -6162,6 +6162,10 @@
 'project:jest/packages/expect/src/jest_matchers_object.js':[
 25,
 ],
+'project:jest/packages/jest-cli/src/reporters/summary_reporter.js':[
+149,
+177,
+],
 'project:jest/packages/jest-cli/src/test_result_helpers.js':[
 30,
 ],
@@ -6184,8 +6188,14 @@
 'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
 484,
 ],
+'project:jest/packages/jest-jasmine2/src/reporter.js':[
+159,
+],
 'project:jest/packages/jest-message-util/src/index.js':[
 119,
+],
+'project:jest/packages/jest-runner/src/index.js':[
+98,
 ],
 'project:jest/packages/jest-validate/src/validate.js':[
 50,

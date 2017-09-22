@@ -47,6 +47,13 @@
 'project:babylon/scripts/rmExpected.js':[
 19,
 ],
+'project:babylon/src/parser/comments.js':[
+98,
+127,
+149,
+160,
+187,
+],
 'project:dojo-1.8.1/dijit/Dialog.js.uncompressed.js':[
 314,
 328,
@@ -2285,6 +2292,9 @@
 'project:jest/packages/eslint-plugin-jest/src/rules/valid_expect.js':[
 75,
 ],
+'project:jest/packages/jest-cli/src/reporters/coverage_reporter.js':[
+226,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 319,
 324,
@@ -2292,6 +2302,12 @@
 370,
 373,
 412,
+],
+'project:jest/packages/jest-snapshot/src/State.js':[
+147,
+],
+'project:jest/packages/jest-test-typescript-parser/src/type_script_parser.js':[
+45,
 ],
 'project:jquery-1.7.2.js':[
 146,

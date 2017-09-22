@@ -6,6 +6,10 @@
 'project:babylon/bin/generate-identifier-regex.js':[
 44,
 ],
+'project:babylon/src/parser/comments.js':[
+105,
+166,
+],
 'project:dojo-1.8.1/dijit/_editor/RichText.js.uncompressed.js':[
 576,
 ],

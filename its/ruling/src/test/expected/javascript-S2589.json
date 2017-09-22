@@ -306,6 +306,9 @@
 'project:google-closure-library/ui/select.js':[
 322,
 ],
+'project:jest/packages/jest-cli/src/reporters/summary_reporter.js':[
+102,
+],
 'project:jest/packages/jest-message-util/src/index.js':[
 67,
 ],
