@@ -19,8 +19,8 @@
  */
 package org.sonar.plugins.javascript.api.tree.flow;
 
+import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
-import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
@@ -30,6 +30,9 @@ public interface FlowInterfaceDeclarationTree extends StatementTree {
   SyntaxToken interfaceToken();
 
   IdentifierTree name();
+
+  @Nullable
+  FlowGenericParameterClauseTree genericParameterClause();
 
   SyntaxToken leftCurlyBraceToken();
 

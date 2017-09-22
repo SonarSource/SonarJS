@@ -143,7 +143,7 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(asyncToken, functionKeyword, star, genericParameterClause, name, parameters, returnType, body);
+    return Iterators.forArray(asyncToken, functionKeyword, star, name, genericParameterClause, parameters, returnType, body);
   }
 
   @Override

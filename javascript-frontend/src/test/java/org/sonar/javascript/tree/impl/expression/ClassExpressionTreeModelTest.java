@@ -63,4 +63,11 @@ public class ClassExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.extendsClause().superClass()).isNotNull();
   }
 
+  @Test
+  public void flow() throws Exception {
+    ClassTree tree = parse("var c = class <T> { }", Kind.CLASS_EXPRESSION);
+
+    assertThat(tree.genericParameterClause()).isNotNull();
+  }
+
 }

@@ -22,8 +22,6 @@ package org.sonar.javascript.tree.impl.flow;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,11 +30,12 @@ public class FlowInterfaceDeclarationTreeModelTest extends JavaScriptTreeModelTe
 
   @Test
   public void test() throws Exception {
-    FlowInterfaceDeclarationTree tree = parse("interface A {a: number, b:string;}", Kind.FLOW_INTERFACE_DECLARATION);
+    FlowInterfaceDeclarationTree tree = parse("interface A<T> {a: number, b:string;}", Kind.FLOW_INTERFACE_DECLARATION);
 
     assertThat(tree.is(Kind.FLOW_INTERFACE_DECLARATION)).isTrue();
     assertThat(tree.interfaceToken().text()).isEqualTo("interface");
     assertThat(tree.name().identifierToken().text()).isEqualTo("A");
+    assertThat(tree.genericParameterClause().genericParameters()).hasSize(1);
     assertThat(tree.properties()).hasSize(2);
     assertThat(tree.properties().getSeparators()).hasSize(2);
     assertThat(tree.properties().get(0).key().is(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)).isTrue();
