@@ -33,6 +33,7 @@ public class FlowIntersectionTypeTest extends LegacyParserTest {
       .matches("A & B")
       .matches("A & B & C & D")
       .matches("A & ?B & 42 & D")
+      .matches("& A & B")
     ;
   }
 }

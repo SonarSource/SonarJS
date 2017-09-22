@@ -1997,8 +1997,8 @@ public class TreeFactory {
     return new FlowUnionTypeTreeImpl(startPipe.orNull(), elements);
   }
 
-  public FlowIntersectionTypeTree flowIntersectionType(SeparatedList<FlowTypeTree> elements) {
-    return new FlowIntersectionTypeTreeImpl(elements);
+  public FlowIntersectionTypeTree flowIntersectionType(Optional<SyntaxToken> startAnd, SeparatedList<FlowTypeTree> elements) {
+    return new FlowIntersectionTypeTreeImpl(startAnd.orNull(), elements);
   }
 
   public SeparatedList<FlowTypeTree> flowTypeElements(FlowTypeTree type, List<Tuple<InternalSyntaxToken, FlowTypeTree>> rest) {

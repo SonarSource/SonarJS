@@ -28,6 +28,7 @@ import org.sonar.javascript.parser.TreeFactory.BracketAccessTail;
 import org.sonar.javascript.parser.TreeFactory.DotAccessTail;
 import org.sonar.javascript.parser.TreeFactory.ExpressionTail;
 import org.sonar.javascript.parser.TreeFactory.VueElement;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -1818,7 +1819,7 @@ public class JavaScriptGrammar {
 
   public FlowIntersectionTypeTree FLOW_INTERSECTION_TYPE() {
     return b.<FlowIntersectionTypeTree>nonterminal(Kind.FLOW_INTERSECTION_TYPE)
-      .is(f.flowIntersectionType(f.flowTypeElements(
+      .is(f.flowIntersectionType(b.optional(b.token(JavaScriptPunctuator.AND)), f.flowTypeElements(
         FLOW_TYPE_NON_UNION_NOR_INTERSECTION(),
         b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.AND), FLOW_TYPE_NON_UNION_NOR_INTERSECTION())))));
   }

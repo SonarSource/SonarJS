@@ -31,9 +31,10 @@ public class FlowIntersectionTypeTreeModelTest extends JavaScriptTreeModelTest {
   @Test
   public void test() throws Exception {
     // var x: (A & B & C) | (D);
-    FlowIntersectionTypeTree tree = parse("var x: A & B & C | D", Kind.FLOW_INTERSECTION_TYPE);
+    FlowIntersectionTypeTree tree = parse("var x: & A & B & C | D", Kind.FLOW_INTERSECTION_TYPE);
 
     assertThat(tree.is(Kind.FLOW_INTERSECTION_TYPE)).isTrue();
+    assertThat(tree.startAndToken()).isNotNull();
     assertThat(tree.subTypes()).hasSize(3);
     assertThat(tree.subTypes().getSeparators()).hasSize(2);
     assertThat(tree.subTypes().getSeparator(0).text()).isEqualTo("&");

@@ -20,19 +20,23 @@
 package org.sonar.javascript.tree.impl.flow;
 
 import com.google.common.base.Functions;
+import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowIntersectionTypeTreeImpl extends JavaScriptTree implements FlowIntersectionTypeTree {
 
+  private final SyntaxToken startAnd;
   private final SeparatedList<FlowTypeTree> subTypes;
 
-  public FlowIntersectionTypeTreeImpl(SeparatedList<FlowTypeTree> subTypes) {
+  public FlowIntersectionTypeTreeImpl(SyntaxToken startAnd, SeparatedList<FlowTypeTree> subTypes) {
+    this.startAnd = startAnd;
     this.subTypes = subTypes;
   }
 
@@ -43,7 +47,12 @@ public class FlowIntersectionTypeTreeImpl extends JavaScriptTree implements Flow
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return subTypes.elementsAndSeparators(Functions.identity());
+    return Iterators.concat(Iterators.singletonIterator(startAnd), subTypes.elementsAndSeparators(Functions.identity()));
+  }
+
+  @Override
+  public SyntaxToken startAndToken() {
+    return startAnd;
   }
 
   @Override
