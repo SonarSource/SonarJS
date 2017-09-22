@@ -21,20 +21,27 @@ package org.sonar.javascript.tree.impl.flow;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowFunctionTypeTreeImpl extends JavaScriptTree implements FlowFunctionTypeTree {
-  private final SyntaxToken doubleArrowToken;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final FlowFunctionTypeParameterClauseTree parameterClause;
+  private final SyntaxToken doubleArrowToken;
   private final FlowTypeTree returnType;
 
-  public FlowFunctionTypeTreeImpl(FlowFunctionTypeParameterClauseTree parameterClause, SyntaxToken doubleArrowToken, FlowTypeTree returnType) {
+  public FlowFunctionTypeTreeImpl(
+    @Nullable FlowGenericParameterClauseTree genericParameterClause,
+    FlowFunctionTypeParameterClauseTree parameterClause, SyntaxToken doubleArrowToken, FlowTypeTree returnType
+  ) {
+    this.genericParameterClause = genericParameterClause;
     this.doubleArrowToken = doubleArrowToken;
     this.parameterClause = parameterClause;
     this.returnType = returnType;
@@ -43,6 +50,12 @@ public class FlowFunctionTypeTreeImpl extends JavaScriptTree implements FlowFunc
   @Override
   public Kind getKind() {
     return Kind.FLOW_FUNCTION_TYPE;
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Override
@@ -62,7 +75,7 @@ public class FlowFunctionTypeTreeImpl extends JavaScriptTree implements FlowFunc
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(parameterClause, doubleArrowToken, returnType);
+    return Iterators.forArray(genericParameterClause, parameterClause, doubleArrowToken, returnType);
   }
 
   @Override

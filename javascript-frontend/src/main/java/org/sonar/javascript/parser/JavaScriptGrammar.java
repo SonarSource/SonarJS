@@ -1835,7 +1835,11 @@ public class JavaScriptGrammar {
 
   public FlowFunctionTypeTree FLOW_FUNCTION_TYPE() {
     return b.<FlowFunctionTypeTree>nonterminal(Kind.FLOW_FUNCTION_TYPE)
-      .is(f.flowFunctionType(FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(), b.token(JavaScriptPunctuator.DOUBLEARROW), FLOW_TYPE()));
+      .is(f.flowFunctionType(
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
+        FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(),
+        b.token(JavaScriptPunctuator.DOUBLEARROW),
+        FLOW_TYPE()));
   }
 
   public FlowFunctionTypeParameterClauseTree FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE() {
@@ -2056,6 +2060,7 @@ public class JavaScriptGrammar {
       .is(f.flowFunctionSignature(
         b.token(JavaScriptKeyword.FUNCTION),
         BINDING_IDENTIFIER(),
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(),
         FLOW_TYPE_ANNOTATION()));
   }

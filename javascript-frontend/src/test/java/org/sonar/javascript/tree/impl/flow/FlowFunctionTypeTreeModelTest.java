@@ -30,9 +30,10 @@ public class FlowFunctionTypeTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-    FlowFunctionTypeTree tree = parse("function foo(callback : (par1: string) => void) {}", Tree.Kind.FLOW_FUNCTION_TYPE);
+    FlowFunctionTypeTree tree = parse("function foo(callback : <T>(par1: string) => void) {}", Tree.Kind.FLOW_FUNCTION_TYPE);
 
     assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE)).isTrue();
+    assertThat(tree.genericParameterClause()).isNotNull();
     assertThat(tree.doubleArrowToken().text()).isEqualTo("=>");
     assertThat(tree.parameterClause().is(Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE)).isTrue();
     assertThat(tree.returnType().is(Tree.Kind.FLOW_SIMPLE_TYPE)).isTrue();
