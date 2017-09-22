@@ -31,9 +31,12 @@ public class FlowPropertyDefinitionTest extends LegacyParserTest {
   public void test() {
     assertThat(g.rule(Kind.FLOW_PROPERTY_DEFINITION))
       .matches("a: number")
+      .matches("+a: number")
+      .matches("-a: number")
       .matches("a?: number")
 
       .matches("[string]: number")
+      .matches("-[string]: number")
       .matches("[a: string]: number")
 
       .matches("foo(number, a?: string): number")

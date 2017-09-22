@@ -21,19 +21,23 @@ package org.sonar.javascript.tree.impl.flow;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowPropertyDefinitionTreeImpl extends JavaScriptTree implements FlowPropertyDefinitionTree {
 
+  private final SyntaxToken plusOrMinusToken;
   private final FlowPropertyDefinitionKeyTree key;
   private final FlowTypeAnnotationTree typeAnnotation;
 
-  public FlowPropertyDefinitionTreeImpl(FlowPropertyDefinitionKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
+  public FlowPropertyDefinitionTreeImpl(@Nullable SyntaxToken plusOrMinusToken, FlowPropertyDefinitionKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
+    this.plusOrMinusToken = plusOrMinusToken;
     this.key = key;
     this.typeAnnotation = typeAnnotation;
   }
@@ -45,7 +49,13 @@ public class FlowPropertyDefinitionTreeImpl extends JavaScriptTree implements Fl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(key, typeAnnotation);
+    return Iterators.forArray(plusOrMinusToken, key, typeAnnotation);
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken plusOrMinusToken() {
+    return plusOrMinusToken;
   }
 
   @Override

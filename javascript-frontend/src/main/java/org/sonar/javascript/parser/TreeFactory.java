@@ -1871,8 +1871,8 @@ public class TreeFactory {
     return new FlowObjectTypeTreeImpl(lcurly, lpipe, properties.or(new SeparatedListImpl(Lists.newArrayList(), Collections.emptyList())), rpipe, rcurly);
   }
 
-  public FlowPropertyDefinitionTree flowPropertyDefinition(FlowPropertyDefinitionKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
-    return new FlowPropertyDefinitionTreeImpl(key, typeAnnotation);
+  public FlowPropertyDefinitionTree flowPropertyDefinition(Optional<InternalSyntaxToken> plusOrMinusToken, FlowPropertyDefinitionKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
+    return new FlowPropertyDefinitionTreeImpl(plusOrMinusToken.orNull(), key, typeAnnotation);
   }
 
   public FlowSimplePropertyDefinitionKeyTree flowSimplePropertyDefinitionKeyTree(IdentifierTree identifier, Optional<SyntaxToken> queryToken) {

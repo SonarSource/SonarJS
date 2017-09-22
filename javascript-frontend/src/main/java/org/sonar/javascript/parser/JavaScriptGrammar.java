@@ -1894,11 +1894,13 @@ public class JavaScriptGrammar {
 
   public FlowPropertyDefinitionTree FLOW_PROPERTY_DEFINITION() {
     return b.<FlowPropertyDefinitionTree>nonterminal(Kind.FLOW_PROPERTY_DEFINITION)
-      .is(b.firstOf(
-        f.flowPropertyDefinition(FLOW_SIMPLE_PROPERTY_DEFINITION_KEY(), FLOW_TYPE_ANNOTATION()),
-        f.flowPropertyDefinition(FLOW_METHOD_PROPERTY_DEFINITION_KEY(), FLOW_TYPE_ANNOTATION()),
-        f.flowPropertyDefinition(FLOW_INDEXER_PROPERTY_DEFINITION_KEY(), FLOW_TYPE_ANNOTATION()))
-      );
+      .is(f.flowPropertyDefinition(
+        b.optional(b.firstOf(b.token(JavaScriptPunctuator.PLUS), b.token(JavaScriptPunctuator.MINUS))),
+        b.firstOf(
+          FLOW_METHOD_PROPERTY_DEFINITION_KEY(),
+          FLOW_SIMPLE_PROPERTY_DEFINITION_KEY(),
+          FLOW_INDEXER_PROPERTY_DEFINITION_KEY()),
+        FLOW_TYPE_ANNOTATION()));
   }
 
   public FlowMethodPropertyDefinitionKeyTree FLOW_METHOD_PROPERTY_DEFINITION_KEY() {
