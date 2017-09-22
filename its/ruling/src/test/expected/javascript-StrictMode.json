@@ -332,6 +332,9 @@
 'project:jest/packages/jest-cli/src/lib/__tests__/set_state.js':[
 10,
 ],
+'project:jest/packages/jest-cli/src/lib/pattern_mode_helpers.js':[
+11,
+],
 'project:jest/packages/jest-cli/src/lib/scroll_list.js':[
 11,
 ],
@@ -379,6 +382,9 @@
 ],
 'project:jest/packages/jest-get-type/src/__tests__/index.test.js':[
 10,
+],
+'project:jest/packages/jest-get-type/src/index.js':[
+11,
 ],
 'project:jest/packages/jest-haste-map/src/__tests__/get_mock_name.test.js':[
 9,
@@ -694,6 +700,9 @@
 ],
 'project:jest/test_utils.js':[
 11,
+],
+'project:jest/types/Argv.js':[
+10,
 ],
 'project:jshint-2012.06.15.js':[
 235,

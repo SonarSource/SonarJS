@@ -2858,6 +2858,10 @@
 664,
 702,
 ],
+'project:jest/packages/jest-config/src/reporter_validation_errors.js':[
+33,
+50,
+],
 'project:jest/packages/jest-config/src/resolve_config_path.js':[
 44,
 84,
@@ -2868,6 +2872,9 @@
 390,
 595,
 723,
+],
+'project:jest/packages/jest-diff/src/diff_strings.js':[
+87,
 ],
 'project:jest/packages/jest-diff/src/index.js':[
 78,
@@ -2893,6 +2900,9 @@
 108,
 120,
 132,
+],
+'project:jest/packages/jest-resolve/src/default_resolver.js':[
+84,
 ],
 'project:jest/packages/jest-runtime/src/__mocks__/createRuntime.js':[
 20,

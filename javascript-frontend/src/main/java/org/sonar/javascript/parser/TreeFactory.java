@@ -112,6 +112,7 @@ import org.sonar.javascript.tree.impl.flow.FlowIndexerPropertyDefinitionKeyTreeI
 import org.sonar.javascript.tree.impl.flow.FlowInterfaceDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowArrayTypeShorthandTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowArrayTypeWithKeywordTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowIntersectionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowNamespacedTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowModuleExportsTreeImpl;
@@ -128,6 +129,7 @@ import org.sonar.javascript.tree.impl.flow.FlowTupleTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAliasStatementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAnnotationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypedBindingElementTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowUnionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.javascript.tree.impl.statement.BreakStatementTreeImpl;
@@ -234,6 +236,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
@@ -251,6 +254,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowTupleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowUnionTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
@@ -1987,6 +1991,18 @@ public class TreeFactory {
     }
 
     return new FlowNamespacedTypeTreeImpl(new SeparatedListImpl<>(identifiers, dots));
+  }
+
+  public FlowUnionTypeTree flowUnionType(Optional<SyntaxToken> startPipe, SeparatedList<FlowTypeTree> elements) {
+    return new FlowUnionTypeTreeImpl(startPipe.orNull(), elements);
+  }
+
+  public FlowIntersectionTypeTree flowIntersectionType(Optional<SyntaxToken> startAnd, SeparatedList<FlowTypeTree> elements) {
+    return new FlowIntersectionTypeTreeImpl(startAnd.orNull(), elements);
+  }
+
+  public SeparatedList<FlowTypeTree> flowTypeElements(FlowTypeTree type, List<Tuple<InternalSyntaxToken, FlowTypeTree>> rest) {
+    return parameterList(type, Optional.of(rest));
   }
 
   private static class ConditionalExpressionTail {

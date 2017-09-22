@@ -543,6 +543,12 @@
 'project:babylon/test/fixtures/flow/type-grouping/1/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/type-grouping/2/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-grouping/3/actual.js':[
+1,
+],
 'project:dojo-1.8.1/dijit/BackgroundIframe.js.uncompressed.js':[
 48,
 ],

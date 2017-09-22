@@ -101,6 +101,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClaus
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
@@ -118,6 +119,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowUnionTypeTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
@@ -1740,16 +1742,31 @@ public class JavaScriptGrammar {
     return b.<FlowTypeTree>nonterminal()
       .is(b.firstOf(
         FLOW_ARRAY_TYPE_SHORTHAND(),
-        FLOW_TYPE_NON_ARRAY()
+        FLOW_UNION_TYPE(),
+        FLOW_INTERSECTION_TYPE(),
+        FLOW_TYPE_NON_UNION_NON_ARRAY_NON_INTERSECTION()
       ));
   }
 
-  // this separation of types is here in order to avoid left recursion for arrow shorthand syntax
-  public FlowTypeTree FLOW_TYPE_NON_ARRAY() {
+  // this separation of types is here in order to avoid left recursion for arrow shorthand syntax and union type
+  public FlowTypeTree FLOW_TYPE_NON_UNION() {
     return b.<FlowTypeTree>nonterminal()
       .is(b.firstOf(
-        // TODO
-        FLOW_ARRAY_TYPE(),
+        FLOW_INTERSECTION_TYPE(),
+        FLOW_TYPE_NON_UNION_NOR_INTERSECTION()));
+  }
+
+  public FlowTypeTree FLOW_TYPE_NON_UNION_NOR_INTERSECTION() {
+    return b.<FlowTypeTree>nonterminal()
+      .is(b.firstOf(
+        FLOW_ARRAY_TYPE_SHORTHAND(),
+        FLOW_TYPE_NON_UNION_NON_ARRAY_NON_INTERSECTION()));
+  }
+
+  public FlowTypeTree FLOW_TYPE_NON_UNION_NON_ARRAY_NON_INTERSECTION() {
+    return b.<FlowTypeTree>nonterminal()
+      .is(b.firstOf(
+        FLOW_ARRAY_TYPE_WITH_KEYWORD(),
         FLOW_OPTIONAL_TYPE(),
         FLOW_NAMESPACED_TYPE(),
         FLOW_SIMPLE_TYPE(),
@@ -1782,14 +1799,28 @@ public class JavaScriptGrammar {
       .is(f.flowParenthesisedType(b.token(JavaScriptPunctuator.LPARENTHESIS), FLOW_TYPE(), b.token(JavaScriptPunctuator.RPARENTHESIS)));
   }
 
-  public FlowArrayTypeWithKeywordTree FLOW_ARRAY_TYPE() {
+  public FlowArrayTypeWithKeywordTree FLOW_ARRAY_TYPE_WITH_KEYWORD() {
     return b.<FlowArrayTypeWithKeywordTree>nonterminal(Kind.FLOW_ARRAY_TYPE_WITH_KEYWORD)
       .is(f.flowArrayTypeWithKeyword(b.token(EcmaScriptLexer.ARRAY), b.token(JavaScriptPunctuator.LT), FLOW_TYPE(), b.token(JavaScriptPunctuator.GT)));
   }
 
   public FlowArrayTypeShorthandTree FLOW_ARRAY_TYPE_SHORTHAND() {
     return b.<FlowArrayTypeShorthandTree>nonterminal(Kind.FLOW_ARRAY_TYPE_SHORTHAND)
-      .is(f.flowArrayTypeShorthand(FLOW_TYPE_NON_ARRAY(), b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.LBRACKET), b.token(JavaScriptPunctuator.RBRACKET)))));
+      .is(f.flowArrayTypeShorthand(
+        FLOW_TYPE_NON_UNION_NON_ARRAY_NON_INTERSECTION(),
+        b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.LBRACKET), b.token(JavaScriptPunctuator.RBRACKET)))));
+  }
+
+  public FlowUnionTypeTree FLOW_UNION_TYPE() {
+    return b.<FlowUnionTypeTree>nonterminal(Kind.FLOW_UNION_TYPE)
+      .is(f.flowUnionType(b.optional(b.token(JavaScriptPunctuator.OR)), f.flowTypeElements(FLOW_TYPE_NON_UNION(), b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.OR), FLOW_TYPE_NON_UNION())))));
+  }
+
+  public FlowIntersectionTypeTree FLOW_INTERSECTION_TYPE() {
+    return b.<FlowIntersectionTypeTree>nonterminal(Kind.FLOW_INTERSECTION_TYPE)
+      .is(f.flowIntersectionType(b.optional(b.token(JavaScriptPunctuator.AND)), f.flowTypeElements(
+        FLOW_TYPE_NON_UNION_NOR_INTERSECTION(),
+        b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.AND), FLOW_TYPE_NON_UNION_NOR_INTERSECTION())))));
   }
 
   public FlowSimpleTypeTree FLOW_SIMPLE_TYPE() {

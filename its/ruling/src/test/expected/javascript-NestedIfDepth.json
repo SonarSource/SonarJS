@@ -2285,6 +2285,9 @@
 'project:jest/packages/eslint-plugin-jest/src/rules/valid_expect.js':[
 75,
 ],
+'project:jest/packages/jest-cli/src/reporters/utils.js':[
+235,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 319,
 324,
