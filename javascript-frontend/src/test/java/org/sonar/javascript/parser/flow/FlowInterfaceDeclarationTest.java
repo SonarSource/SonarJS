@@ -17,23 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.flow;
+package org.sonar.javascript.parser.flow;
 
-import org.sonar.plugins.javascript.api.tree.SeparatedList;
-import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.junit.Test;
+import org.sonar.javascript.utils.LegacyParserTest;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
-public interface FlowInterfaceDeclarationTree extends StatementTree {
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
-  SyntaxToken interfaceToken();
+public class FlowInterfaceDeclarationTest extends LegacyParserTest {
 
-  IdentifierTree name();
+  @Test
+  public void test() {
+    assertThat(g.rule(Kind.FLOW_INTERFACE_DECLARATION))
+      .matches("interface A {}")
+      .matches("interface A {a: number, b: string}")
+      .matches("interface A {a: number; b: string;}")
+      .matches("interface A {a: number}")
+    ;
+  }
 
-  SyntaxToken leftCurlyBraceToken();
-
-  SeparatedList<FlowPropertyDefinitionTree> properties();
-
-  SyntaxToken rightCurlyBraceToken();
 }

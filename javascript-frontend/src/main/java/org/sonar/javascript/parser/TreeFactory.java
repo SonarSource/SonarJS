@@ -1907,9 +1907,18 @@ public class TreeFactory {
   }
 
   public FlowInterfaceDeclarationTree flowInterfaceDeclaration(
-    InternalSyntaxToken interfaceToken, IdentifierTree identifierTree, InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken
+    InternalSyntaxToken interfaceToken,
+    IdentifierTree identifierTree,
+    InternalSyntaxToken openCurlyBraceToken,
+    Optional<SeparatedList<Tree>> properties,
+    InternalSyntaxToken closeCurlyBraceToken
   ) {
-    return new FlowInterfaceDeclarationTreeImpl(interfaceToken, identifierTree, openCurlyBraceToken, closeCurlyBraceToken);
+    return new FlowInterfaceDeclarationTreeImpl(
+      interfaceToken,
+      identifierTree,
+      openCurlyBraceToken,
+      properties.or(new SeparatedListImpl(Lists.newArrayList(), Collections.emptyList())),
+      closeCurlyBraceToken);
   }
 
   public FlowModuleTree flowModule(
