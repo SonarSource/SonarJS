@@ -27,6 +27,17 @@
 26,
 80,
 ],
+'project:babylon/src/tokenizer/index.js':[
+108,
+119,
+125,
+131,
+],
+'project:babylon/src/tokenizer/state.js':[
+62,
+65,
+146,
+],
 'project:babylon/test/fixtures/flow/anonymous-function-types/good_02/actual.js':[
 1,
 ],

@@ -3602,8 +3602,15 @@
 'project:jest/packages/jest-cli/src/__tests__/watch_test_name_pattern_mode.test.js':[
 33,
 ],
+'project:jest/packages/jest-cli/src/pattern_prompt.js':[
+57,
+57,
+],
 'project:jest/packages/jest-cli/src/reporters/__tests__/coverage_reporter.test.js':[
 87,
+],
+'project:jest/packages/jest-cli/src/test_path_pattern_prompt.js':[
+103,
 ],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 82,

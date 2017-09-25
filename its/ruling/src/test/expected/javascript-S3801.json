@@ -41,6 +41,9 @@
 'project:babylon/scripts/run_test262.js':[
 29,
 ],
+'project:babylon/src/tokenizer/index.js':[
+520,
+],
 'project:babylon/test/helpers/runFixtureTests.js':[
 129,
 ],

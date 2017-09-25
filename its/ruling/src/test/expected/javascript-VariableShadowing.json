@@ -2621,10 +2621,16 @@
 'project:jest/packages/jest-cli/src/__tests__/test_sequencer.test.js':[
 38,
 ],
+'project:jest/packages/jest-cli/src/reporters/Status.js':[
+51,
+],
 'project:jest/packages/jest-cli/src/reporters/__tests__/coverage_reporter.test.js':[
 81,
 145,
 175,
+],
+'project:jest/packages/jest-cli/src/reporters/verbose_reporter.js':[
+80,
 ],
 'project:jest/packages/jest-cli/src/watch.js':[
 101,
@@ -2634,6 +2640,9 @@
 ],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 474,
+],
+'project:jest/packages/jest-editor-support/src/Runner.js':[
+64,
 ],
 'project:jest/packages/jest-editor-support/src/__tests__/test_reconciler.test.js':[
 18,

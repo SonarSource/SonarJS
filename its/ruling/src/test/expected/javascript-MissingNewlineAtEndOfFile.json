@@ -44,7 +44,13 @@
 'project:babylon/test/fixtures/flow/declare-module/4/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/declare-module/5/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/declare-statements/1/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/declare-statements/12/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/declare-statements/2/actual.js':[
@@ -57,6 +63,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/declare-statements/6/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/declare-statements/7/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/declare-statements/8/actual.js':[
@@ -201,6 +210,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/52/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/53/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/55/actual.js':[

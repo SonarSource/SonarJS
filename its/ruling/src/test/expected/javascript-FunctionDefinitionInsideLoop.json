@@ -100,6 +100,9 @@
 98,
 105,
 ],
+'project:jest/packages/jest-cli/src/reporters/verbose_reporter.js':[
+44,
+],
 'project:knockout-2.1.0.debug.js':[
 3264,
 ],

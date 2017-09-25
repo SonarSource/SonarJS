@@ -10,6 +10,9 @@
 'project:babylon/scripts/run_flow_tests.js':[
 56,
 ],
+'project:babylon/src/tokenizer/index.js':[
+741,
+],
 'project:babylon/test/helpers/runFixtureTests.js':[
 153,
 ],
