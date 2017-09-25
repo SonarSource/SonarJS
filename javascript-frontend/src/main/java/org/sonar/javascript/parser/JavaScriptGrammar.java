@@ -1869,6 +1869,7 @@ public class JavaScriptGrammar {
     return b.<FlowSimpleTypeTree>nonterminal(Kind.FLOW_SIMPLE_TYPE)
       .is(b.firstOf(
         f.flowSimpleType(IDENTIFIER_REFERENCE()),
+        f.flowSimpleType(b.token(JavaScriptPunctuator.STAR)),
         f.flowSimpleType(b.token(JavaScriptKeyword.VOID)),
         f.flowSimpleType(b.token(JavaScriptKeyword.NULL))));
   }
