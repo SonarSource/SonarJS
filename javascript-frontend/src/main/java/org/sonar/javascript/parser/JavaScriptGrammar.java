@@ -497,6 +497,7 @@ public class JavaScriptGrammar {
           TRY_STATEMENT(),
           DEBUGGER_STATEMENT(),
           FLOW_TYPE_ALIAS_STATEMENT(),
+          FLOW_INTERFACE_DECLARATION(),
           FLOW_DECLARE()));
   }
 
@@ -1986,13 +1987,13 @@ public class JavaScriptGrammar {
       .is(b.firstOf(b.token(JavaScriptKeyword.TYPEOF), b.token(EcmaScriptLexer.TYPE)));
   }
 
-  // TODO: temp impl for export declaration
   public FlowInterfaceDeclarationTree FLOW_INTERFACE_DECLARATION() {
-    return b.<FlowInterfaceDeclarationTree>nonterminal()
+    return b.<FlowInterfaceDeclarationTree>nonterminal(Kind.FLOW_INTERFACE_DECLARATION)
       .is(f.flowInterfaceDeclaration(
         b.token(EcmaScriptLexer.INTERFACE),
         BINDING_IDENTIFIER(),
         b.token(JavaScriptPunctuator.LCURLYBRACE),
+        b.optional(FLOW_OBJECT_TYPE_PROPERTIES()),
         b.token(JavaScriptPunctuator.RCURLYBRACE)));
   }
 
