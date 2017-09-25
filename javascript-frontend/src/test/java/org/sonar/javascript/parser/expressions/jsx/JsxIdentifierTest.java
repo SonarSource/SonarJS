@@ -38,6 +38,9 @@ public class JsxIdentifierTest {
       .matches("this-foo")
       .matches("this-for")
       .matches("attr1")
+      .matches("$foo")
+      .matches("foo$")
+      .matches("$")
 
       .notMatches("foo bar")
       .notMatches("foo+bar");
