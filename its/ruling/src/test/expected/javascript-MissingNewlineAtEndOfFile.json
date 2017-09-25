@@ -17,6 +17,15 @@
 'project:babylon/test/fixtures/flow/array-types/5/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/call-properties/1/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/call-properties/2/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/call-properties/3/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/declare-export/export-default-union/actual.js':[
 0,
 ],
@@ -180,6 +189,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/41/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/42/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/44/actual.js':[

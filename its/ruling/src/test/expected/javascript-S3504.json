@@ -596,6 +596,15 @@
 'project:babylon/test/fixtures/flow/array-types/9/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/call-properties/1/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/call-properties/2/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/call-properties/3/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/comment/spread/actual.js':[
 3,
 ],
@@ -724,6 +733,9 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/41/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-annotations/42/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/44/actual.js':[

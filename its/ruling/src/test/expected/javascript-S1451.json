@@ -470,6 +470,15 @@
 'project:babylon/test/fixtures/flow/array-types/9/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/call-properties/1/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/call-properties/2/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/call-properties/3/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/classes/constructor-with-class-prop-plugin/actual.js':[
 0,
 ],
@@ -539,6 +548,9 @@
 'project:babylon/test/fixtures/flow/declare-module/1/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/declare-module/10/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/declare-module/2/actual.js':[
 0,
 ],
@@ -546,6 +558,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/declare-module/4/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/declare-module/6/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/declare-module/9/actual.js':[
@@ -843,6 +858,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/41/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/42/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/44/actual.js':[
@@ -15846,6 +15864,9 @@
 0,
 ],
 'project:jest/types/Jasmine.js':[
+0,
+],
+'project:jest/types/Jest.js':[
 0,
 ],
 'project:jest/types/Mock.js':[

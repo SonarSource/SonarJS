@@ -71,6 +71,8 @@ public class DoubleDispatchVisitorTest {
     assertNumberOfVisitedTokens("declare module.exports: MyType", 7);
     assertNumberOfVisitedTokens("declare function foo(): void", 8);
     assertNumberOfVisitedTokens("declare opaque type A", 5);
+
+    assertNumberOfVisitedTokens("interface A { foo():void }", 10);
   }
 
   @Test
