@@ -65,14 +65,15 @@ public class DoubleDispatchVisitorTest {
     assertNumberOfVisitedTokens("let x: & A & B", 8);
     assertNumberOfVisitedTokens("var x: (p?: number, ...MyArrayType) => void", 15);
     assertNumberOfVisitedTokens("x = function(p?) { }", 10);
-
     assertNumberOfVisitedTokens("type A<T> = number", 8);
     assertNumberOfVisitedTokens("var x: MyType<number>", 8);
+    assertNumberOfVisitedTokens("type A = number", 5);
+    assertNumberOfVisitedTokens("var x: typeof MyType", 6);
+    assertNumberOfVisitedTokens("(x: MyType)", 6);
     assertNumberOfVisitedTokens("declare module A {}", 6);
     assertNumberOfVisitedTokens("declare module.exports: MyType", 7);
     assertNumberOfVisitedTokens("declare function foo(): void", 8);
     assertNumberOfVisitedTokens("declare opaque type A", 5);
-
     assertNumberOfVisitedTokens("interface A { foo():void }", 10);
   }
 

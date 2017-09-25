@@ -639,6 +639,14 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
+  public void visitFlowTypeofType(FlowTypeofTypeTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitFlowCastingExpression(FlowCastingExpressionTree tree) {
+    scanChildren(tree);
+  }
+
   public void visitFlowOptionalBindingElement(FlowOptionalBindingElementTree tree) {
     scanChildren(tree);
   }
@@ -688,14 +696,6 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
   public void visitFlowParameterizedGenerics(FlowParameterizedGenericsTypeTree tree) {
-    scanChildren(tree);
-  }
-
-  public void visitFlowTypeofType(FlowTypeofTypeTree tree) {
-    scanChildren(tree);
-  }
-
-  public void visitFlowCastingExpression(FlowCastingExpressionTree tree) {
     scanChildren(tree);
   }
 }
