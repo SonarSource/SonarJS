@@ -39,9 +39,18 @@ public class FlowPropertyDefinitionTreeModelTest extends JavaScriptTreeModelTest
 
     assertThat(tree.is(Tree.Kind.FLOW_PROPERTY_DEFINITION)).isTrue();
     assertThat(tree.key().is(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)).isTrue();
+    assertThat(tree.plusOrMinusToken()).isNull();
     assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).queryToken()).isNull();
     assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).identifier().name()).isEqualTo("id");
     assertThat(tree.typeAnnotation().type().is(Kind.FLOW_SIMPLE_TYPE)).isTrue();
+  }
+
+  @Test
+  public void with_minus() throws Exception {
+    FlowPropertyDefinitionTree tree = parse("-id: number", Tree.Kind.FLOW_PROPERTY_DEFINITION, Tree.Kind.FLOW_PROPERTY_DEFINITION);
+
+    assertThat(tree.is(Tree.Kind.FLOW_PROPERTY_DEFINITION)).isTrue();
+    assertThat(tree.plusOrMinusToken().text()).isEqualTo("-");
   }
 
   @Test
