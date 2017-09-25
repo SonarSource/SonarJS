@@ -67,6 +67,7 @@ public class DoubleDispatchVisitorTest {
     assertNumberOfVisitedTokens("x = function(p?) { }", 10);
 
     assertNumberOfVisitedTokens("type A<T> = number", 8);
+    assertNumberOfVisitedTokens("var x: MyType<number>", 8);
     assertNumberOfVisitedTokens("declare module A {}", 6);
     assertNumberOfVisitedTokens("declare module.exports: MyType", 7);
     assertNumberOfVisitedTokens("declare function foo(): void", 8);

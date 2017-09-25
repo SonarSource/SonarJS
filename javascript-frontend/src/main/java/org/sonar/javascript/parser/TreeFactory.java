@@ -124,6 +124,7 @@ import org.sonar.javascript.tree.impl.flow.FlowObjectTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOpaqueTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowParameterizedGenericsTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowParenthesisedTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowPropertyDefinitionTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimplePropertyDefinitionKeyTreeImpl;
@@ -251,6 +252,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowParameterizedGenericsTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowParenthesisedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
@@ -2060,6 +2062,15 @@ public class TreeFactory {
     InternalSyntaxToken right
   ) {
     return new FlowGenericParameterClauseTreeImpl(left, parameterListWithTrailingComma(first, rest, trailingComma), right);
+  }
+
+  public FlowParameterizedGenericsTypeTree flowParameterizedGenericsClause(
+    FlowTypeTree type,
+    InternalSyntaxToken left, FlowTypeTree first,
+    Optional<List<Tuple<InternalSyntaxToken, FlowTypeTree>>> rest,
+    Optional<InternalSyntaxToken> trailingComma, InternalSyntaxToken right
+  ) {
+    return new FlowParameterizedGenericsTypeTreeImpl(type, left, parameterListWithTrailingComma(first, rest, trailingComma), right);
   }
 
   private static class ConditionalExpressionTail {
