@@ -133,6 +133,7 @@ import org.sonar.javascript.tree.impl.flow.FlowTupleTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAliasStatementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypeAnnotationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowTypedBindingElementTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowTypeofTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowUnionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
@@ -263,6 +264,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowTupleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeofTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowUnionTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -2071,6 +2073,10 @@ public class TreeFactory {
     Optional<InternalSyntaxToken> trailingComma, InternalSyntaxToken right
   ) {
     return new FlowParameterizedGenericsTypeTreeImpl(type, left, parameterListWithTrailingComma(first, rest, trailingComma), right);
+  }
+
+  public FlowTypeofTypeTree flowTypeofType(InternalSyntaxToken typeofToken, ExpressionTree expressionTree) {
+    return new FlowTypeofTypeTreeImpl(typeofToken, expressionTree);
   }
 
   private static class ConditionalExpressionTail {

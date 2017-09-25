@@ -116,6 +116,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowTupleTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeofTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowUnionTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
@@ -1050,6 +1051,7 @@ public interface Tree {
     FLOW_PARENTHESISED_TYPE(FlowParenthesisedTypeTree.class),
     FLOW_TUPLE_TYPE(FlowTupleTypeTree.class),
     FLOW_NAMESPACED_TYPE(FlowNamespacedTypeTree.class),
+    FLOW_TYPEOF_TYPE(FlowTypeofTypeTree.class),
     FLOW_ARRAY_TYPE_WITH_KEYWORD(FlowArrayTypeTree.class),
     FLOW_ARRAY_TYPE_SHORTHAND(FlowArrayTypeShorthandTree.class),
     FLOW_TYPED_BINDING_ELEMENT(FlowTypedBindingElementTree.class),

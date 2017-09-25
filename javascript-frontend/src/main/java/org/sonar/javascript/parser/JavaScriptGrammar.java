@@ -124,6 +124,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeofTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowUnionTypeTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
@@ -1794,7 +1795,16 @@ public class JavaScriptGrammar {
         FLOW_FUNCTION_TYPE(),
         FLOW_OBJECT_TYPE(),
         FLOW_PARENTHESISED_TYPE(),
-        FLOW_TUPLE_TYPE()));
+        FLOW_TUPLE_TYPE(),
+        FLOW_TYPEOF_TYPE()));
+  }
+
+  public FlowTypeofTypeTree FLOW_TYPEOF_TYPE() {
+    return b.<FlowTypeofTypeTree>nonterminal(Kind.FLOW_TYPEOF_TYPE)
+      .is(f.flowTypeofType(
+        b.token(JavaScriptKeyword.TYPEOF),
+        // arrow function is not accepted by flow-remove-types, but it is by babel
+        b.firstOf(ARROW_FUNCTION(), PRIMARY_EXPRESSION())));
   }
 
   public FlowNamespacedTypeTree FLOW_NAMESPACED_TYPE() {
