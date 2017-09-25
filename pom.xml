@@ -34,16 +34,6 @@
       <organization>SonarSource</organization>
     </developer>
     <developer>
-      <id>ivandalbosco</id>
-      <name>Yves Dubois-Pèlerin</name>
-      <organization>SonarSource</organization>
-    </developer>
-    <developer>
-      <id>pynicolas</id>
-      <name>Pierre-Yves Nicolas</name>
-      <organization>SonarSource</organization>
-    </developer>
-    <developer>
       <id>vilchik-elena</id>
       <name>Elena Vilchik</name>
       <organization>SonarSource</organization>
@@ -65,7 +55,7 @@
   </scm>
   <issueManagement>
     <system>JIRA</system>
-    <url>https://jira.sonarsource.com/browse/SONARJS</url>
+    <url>https://github.com/SonarSource/sonar-javascript/issues</url>
   </issueManagement>
   <ciManagement>
     <system>Travis</system>

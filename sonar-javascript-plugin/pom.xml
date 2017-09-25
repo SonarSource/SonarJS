@@ -17,9 +17,9 @@
   <url>http://redirect.sonarsource.com/plugins/javascript.html</url>
 
   <scm>
-    <connection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</connection>
-    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</developerConnection>
-    <url>https://github.com/SonarCommunity/sonar-javascript</url>
+    <connection>scm:git:git@github.com:SonarSource/sonar-javascript.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarSource/sonar-javascript.git</developerConnection>
+    <url>https://github.com/SonarSource/sonar-javascript</url>
     <tag>HEAD</tag>
   </scm>
 
