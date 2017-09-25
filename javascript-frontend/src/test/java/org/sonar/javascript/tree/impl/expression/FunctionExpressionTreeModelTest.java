@@ -63,8 +63,9 @@ public class FunctionExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void flow_typed() throws Exception {
-    FunctionExpressionTree tree = parse("a = function f(): void {}", Kind.FUNCTION_EXPRESSION);
+    FunctionExpressionTree tree = parse("a = function f<T>(): void {}", Kind.FUNCTION_EXPRESSION);
     assertThat(tree.is(Kind.FUNCTION_EXPRESSION)).isTrue();
+    assertThat(tree.genericParameterClause()).isNotNull();
     assertThat(tree.returnType()).isNotNull();
   }
 }

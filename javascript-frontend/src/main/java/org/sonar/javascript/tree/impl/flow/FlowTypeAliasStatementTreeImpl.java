@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
@@ -36,6 +37,7 @@ public class FlowTypeAliasStatementTreeImpl extends JavaScriptTree implements Fl
   private final SyntaxToken opaqueToken;
   private final SyntaxToken typeToken;
   private final IdentifierTree typeAlias;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final FlowTypeAnnotationTree superTypeAnnotation;
   private final SyntaxToken equalToken;
   private final FlowTypeTree type;
@@ -43,12 +45,14 @@ public class FlowTypeAliasStatementTreeImpl extends JavaScriptTree implements Fl
 
   public FlowTypeAliasStatementTreeImpl(
     @Nullable SyntaxToken opaqueToken, SyntaxToken typeToken,
-    IdentifierTree typeAlias, @Nullable FlowTypeAnnotationTree superTypeAnnotation,
+    IdentifierTree typeAlias, @Nullable FlowGenericParameterClauseTree genericParameterClause,
+    @Nullable FlowTypeAnnotationTree superTypeAnnotation,
     SyntaxToken equalToken, FlowTypeTree type, @Nullable SyntaxToken semicolonToken
   ) {
     this.opaqueToken = opaqueToken;
     this.typeToken = typeToken;
     this.typeAlias = typeAlias;
+    this.genericParameterClause = genericParameterClause;
     this.superTypeAnnotation = superTypeAnnotation;
     this.equalToken = equalToken;
     this.type = type;
@@ -62,7 +66,7 @@ public class FlowTypeAliasStatementTreeImpl extends JavaScriptTree implements Fl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(opaqueToken, typeToken, typeAlias, superTypeAnnotation, equalToken, type, semicolonToken);
+    return Iterators.forArray(opaqueToken, typeToken, typeAlias, genericParameterClause, superTypeAnnotation, equalToken, type, semicolonToken);
   }
 
   @Nullable
@@ -79,6 +83,12 @@ public class FlowTypeAliasStatementTreeImpl extends JavaScriptTree implements Fl
   @Override
   public IdentifierTree typeAlias() {
     return typeAlias;
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Nullable

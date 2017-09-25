@@ -29,6 +29,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -43,6 +44,7 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
   private final InternalSyntaxToken starToken;
   private final SyntaxToken asyncToken;
   private final Tree name;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final ParameterListTree parameters;
   private final  FlowTypeAnnotationTree returnType;
   private final BlockTree body;
@@ -52,6 +54,7 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
     @Nullable InternalSyntaxToken starToken,
     @Nullable InternalSyntaxToken asyncToken,
     Tree name,
+    @Nullable FlowGenericParameterClauseTree genericParameterClause,
     ParameterListTree parameters,
     @Nullable FlowTypeAnnotationTree returnType,
     BlockTree body
@@ -62,6 +65,7 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
     this.starToken = starToken;
     this.kind = starToken == null ? Kind.METHOD : Kind.GENERATOR_METHOD;
     this.name = name;
+    this.genericParameterClause = genericParameterClause;
     this.parameters = parameters;
     this.returnType = returnType;
     this.body = body;
@@ -71,22 +75,24 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
     List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
     InternalSyntaxToken starToken,
     Tree name,
+    @Nullable FlowGenericParameterClauseTree genericParameterClause,
     ParameterListTree parameters,
     @Nullable FlowTypeAnnotationTree returnType,
     BlockTree body
   ) {
-    return new MethodDeclarationTreeImpl(decorators, staticToken, starToken, null, name, parameters, returnType, body);
+    return new MethodDeclarationTreeImpl(decorators, staticToken, starToken, null, name, genericParameterClause, parameters, returnType, body);
   }
 
   public static MethodDeclarationTreeImpl method(
     List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
     @Nullable InternalSyntaxToken asyncToken,
     Tree name,
+    @Nullable FlowGenericParameterClauseTree genericParameterClause,
     ParameterListTree parameters,
     @Nullable FlowTypeAnnotationTree returnType,
     BlockTree body
   ) {
-    return new MethodDeclarationTreeImpl(decorators, staticToken, null, asyncToken, name, parameters, returnType, body);
+    return new MethodDeclarationTreeImpl(decorators, staticToken, null, asyncToken, name, genericParameterClause, parameters, returnType, body);
   }
 
   @Override
@@ -109,6 +115,12 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
   @Override
   public Tree name() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Nullable
@@ -142,7 +154,7 @@ public class MethodDeclarationTreeImpl extends FunctionTreeImpl implements Metho
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
       decorators.iterator(),
-      Iterators.forArray(staticToken, asyncToken, starToken, name, parameters, returnType, body));
+      Iterators.forArray(staticToken, asyncToken, starToken, name, genericParameterClause, parameters, returnType, body));
   }
 
   @Override

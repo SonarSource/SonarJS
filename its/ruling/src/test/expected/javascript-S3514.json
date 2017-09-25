@@ -762,6 +762,9 @@
 'project:jest/packages/jest-diff/src/__tests__/diff.test.js':[
 33,
 ],
+'project:jest/packages/jest-haste-map/src/crawlers/node.js':[
+134,
+],
 'project:jest/packages/jest-snapshot/src/__tests__/utils.test.js':[
 27,
 ],

@@ -93,7 +93,8 @@ public class MethodDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void flow_typed() throws Exception {
-    MethodDeclarationTree tree = parse("var a = {  method(): void {} }", Kind.METHOD);
+    MethodDeclarationTree tree = parse("var a = {  method<T>(): void {} }", Kind.METHOD);
+    assertThat(tree.genericParameterClause()).isNotNull();
     assertThat(tree.returnType()).isNotNull();
   }
 }

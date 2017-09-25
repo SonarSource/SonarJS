@@ -2012,6 +2012,11 @@
 53,
 78,
 ],
+'project:jest/packages/jest-cli/src/reporters/coverage_reporter.js':[
+68,
+91,
+264,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 110,
 ],

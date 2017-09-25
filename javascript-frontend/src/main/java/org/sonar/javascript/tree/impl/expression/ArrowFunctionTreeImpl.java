@@ -36,6 +36,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -43,14 +44,16 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class ArrowFunctionTreeImpl extends FunctionTreeImpl implements ArrowFunctionTree, TypableTree {
 
   private final SyntaxToken asyncToken;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final Tree parameters;
   private final FlowTypeAnnotationTree returnType;
   private final SyntaxToken doubleArrow;
   private Tree body;
   private Type functionType;
 
-  public ArrowFunctionTreeImpl(@Nullable SyntaxToken asyncToken, Tree parameters, @Nullable FlowTypeAnnotationTree returnType, InternalSyntaxToken doubleArrow, Tree body) {
+  public ArrowFunctionTreeImpl(@Nullable SyntaxToken asyncToken, FlowGenericParameterClauseTree genericParameterClause, Tree parameters, @Nullable FlowTypeAnnotationTree returnType, InternalSyntaxToken doubleArrow, Tree body) {
     this.asyncToken = asyncToken;
+    this.genericParameterClause = genericParameterClause;
     this.parameters = parameters;
     this.returnType = returnType;
     this.doubleArrow = doubleArrow;
@@ -69,6 +72,12 @@ public class ArrowFunctionTreeImpl extends FunctionTreeImpl implements ArrowFunc
   @Override
   public Tree name() {
     return null;
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Override
@@ -109,7 +118,7 @@ public class ArrowFunctionTreeImpl extends FunctionTreeImpl implements ArrowFunc
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(asyncToken, parameters, returnType, doubleArrow, body);
+    return Iterators.forArray(asyncToken, genericParameterClause, parameters, returnType, doubleArrow, body);
   }
 
   @Override

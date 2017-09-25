@@ -108,6 +108,8 @@ import org.sonar.javascript.tree.impl.flow.FlowFunctionSignatureTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterClauseTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowGenericParameterClauseTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowGenericParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowIndexerPropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowInterfaceDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowArrayTypeShorthandTreeImpl;
@@ -121,6 +123,7 @@ import org.sonar.javascript.tree.impl.flow.FlowObjectTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOpaqueTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowParameterizedGenericsTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowParenthesisedTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowPropertyDefinitionTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowSimplePropertyDefinitionKeyTreeImpl;
@@ -231,6 +234,8 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
@@ -244,6 +249,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowParameterizedGenericsTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowParenthesisedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
@@ -678,10 +684,12 @@ public class TreeFactory {
 
   public FunctionExpressionTree generatorExpression(
     InternalSyntaxToken functionKeyword, InternalSyntaxToken starOperator,
-    Optional<IdentifierTree> functionName, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
+    Optional<IdentifierTree> functionName,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
+    ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
 
-    return FunctionExpressionTreeImpl.createGenerator(functionKeyword, starOperator, functionName.orNull(), parameters, returnType.orNull(), body);
+    return FunctionExpressionTreeImpl.createGenerator(functionKeyword, starOperator, functionName.orNull(), genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   public LiteralTree nullLiteral(InternalSyntaxToken nullToken) {
@@ -710,9 +718,10 @@ public class TreeFactory {
 
   public FunctionExpressionTree functionExpression(
     Optional<InternalSyntaxToken> asyncToken, InternalSyntaxToken functionKeyword, Optional<IdentifierTree> functionName,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
     ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
-    return FunctionExpressionTreeImpl.create(asyncToken.orNull(), functionKeyword, functionName.orNull(), parameters, returnType.orNull(), body);
+    return FunctionExpressionTreeImpl.create(asyncToken.orNull(), functionKeyword, functionName.orNull(), genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   public ParameterListTree formalParameterClause1(
@@ -867,10 +876,10 @@ public class TreeFactory {
   }
 
   public ArrowFunctionTree arrowFunction(
-    Optional<InternalSyntaxToken> asyncToken, Tree parameters,
+    Optional<InternalSyntaxToken> asyncToken, Optional<FlowGenericParameterClauseTree> genericParameterClause, Tree parameters,
     Optional<FlowTypeAnnotationTree> returnType,  Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body
   ) {
-    return new ArrowFunctionTreeImpl(asyncToken.orNull(), parameters, returnType.orNull(), doubleArrow, body);
+    return new ArrowFunctionTreeImpl(asyncToken.orNull(), genericParameterClause.orNull(), parameters, returnType.orNull(), doubleArrow, body);
   }
 
   public IdentifierTree identifierName(InternalSyntaxToken identifier) {
@@ -958,7 +967,8 @@ public class TreeFactory {
   }
 
   public ClassTree classExpression(
-    Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, Optional<IdentifierTree> name, Optional<ExtendsClauseTree> extendsClause,
+    Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, Optional<IdentifierTree> name,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause, Optional<ExtendsClauseTree> extendsClause,
     InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
@@ -973,6 +983,7 @@ public class TreeFactory {
     return ClassTreeImpl.newClassExpression(
       optionalList(decorators),
       classToken, name.orNull(),
+      genericParameterClause.orNull(),
       extendsClause.orNull(),
       openCurlyBraceToken,
       elements,
@@ -1315,6 +1326,7 @@ public class TreeFactory {
 
   public ClassTree classDeclaration(
     Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, IdentifierTree name,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
     Optional<ExtendsClauseTree> extendsClause,
     InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken
   ) {
@@ -1328,6 +1340,7 @@ public class TreeFactory {
     }
     return ClassTreeImpl.newClassDeclaration(
       optionalList(decorators), classToken, name,
+      genericParameterClause.orNull(),
       extendsClause.orNull(),
       openCurlyBraceToken,
       elements,
@@ -1336,36 +1349,37 @@ public class TreeFactory {
 
   public MethodDeclarationTree generatorMethod(
     Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken starToken,
-    Tree name, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType,
+    Tree name, Optional<FlowGenericParameterClauseTree> genericParameterClause, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType,
     BlockTree body
   ) {
-    return MethodDeclarationTreeImpl.generator(optionalList(decorators), staticToken.orNull(), starToken, name, parameters, returnType.orNull(), body);
+    return MethodDeclarationTreeImpl.generator(optionalList(decorators), staticToken.orNull(), starToken, name, genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   public MethodDeclarationTree method(
-    Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, Optional<InternalSyntaxToken> asyncToken, Tree name, ParameterListTree parameters,
+    Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, Optional<InternalSyntaxToken> asyncToken, Tree name,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause, ParameterListTree parameters,
     Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
-    return MethodDeclarationTreeImpl.method(optionalList(decorators), staticToken.orNull(), asyncToken.orNull(), name, parameters, returnType.orNull(), body);
+    return MethodDeclarationTreeImpl.method(optionalList(decorators), staticToken.orNull(), asyncToken.orNull(), name, genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   public AccessorMethodDeclarationTree accessor(
     Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken accessorToken, Tree name,
-    ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType,
     BlockTree body
   ) {
 
-    return new AccessorMethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), accessorToken, name, parameters, returnType.orNull(), body);
+    return new AccessorMethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), accessorToken, name, genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   public FunctionDeclarationTree functionAndGeneratorDeclaration(
     Optional<InternalSyntaxToken> asyncToken, InternalSyntaxToken functionToken, Optional<InternalSyntaxToken> starToken,
-    IdentifierTree name, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
+    IdentifierTree name, Optional<FlowGenericParameterClauseTree> genericParameterClause, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
 
     return starToken.isPresent() ?
-      FunctionDeclarationTreeImpl.createGenerator(functionToken, starToken.get(), name, parameters, returnType.orNull(), body) :
-      FunctionDeclarationTreeImpl.create(asyncToken.orNull(), functionToken, name, parameters, returnType.orNull(), body);
+      FunctionDeclarationTreeImpl.createGenerator(functionToken, starToken.get(), name, genericParameterClause.orNull(), parameters, returnType.orNull(), body) :
+      FunctionDeclarationTreeImpl.create(asyncToken.orNull(), functionToken, name, genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   // [START] Destructuring pattern
@@ -1789,9 +1803,13 @@ public class TreeFactory {
     return new FlowLiteralTypeTreeImpl(null, token);
   }
 
-  public FlowFunctionTypeTree flowFunctionType(FlowFunctionTypeParameterClauseTree parameterClause, InternalSyntaxToken doubleArrow,
-    FlowTypeTree returnType) {
-    return new FlowFunctionTypeTreeImpl(parameterClause, doubleArrow, returnType);
+  public FlowFunctionTypeTree flowFunctionType(
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
+    FlowFunctionTypeParameterClauseTree parameterClause,
+    InternalSyntaxToken doubleArrow,
+    FlowTypeTree returnType
+  ) {
+    return new FlowFunctionTypeTreeImpl(genericParameterClause.orNull(), parameterClause, doubleArrow, returnType);
   }
 
   public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
@@ -1896,14 +1914,14 @@ public class TreeFactory {
 
   public FlowTypeAliasStatementTree flowTypeAliasStatement(
     Optional<InternalSyntaxToken> opaqueToken, InternalSyntaxToken typeToken,
-    IdentifierTree identifierTree, Optional<FlowTypeAnnotationTree> superTypeAnnotation,
+    IdentifierTree identifierTree, Optional<FlowGenericParameterClauseTree> generic, Optional<FlowTypeAnnotationTree> superTypeAnnotation,
     InternalSyntaxToken equalToken, FlowTypeTree flowTypeTree, Tree semicolonToken
   ) {
     return new FlowTypeAliasStatementTreeImpl(
       opaqueToken.orNull(),
       typeToken,
       identifierTree,
-      superTypeAnnotation.orNull(),
+      generic.orNull(), superTypeAnnotation.orNull(),
       equalToken,
       flowTypeTree,
       nullableSemicolonToken(semicolonToken));
@@ -1912,6 +1930,7 @@ public class TreeFactory {
   public FlowInterfaceDeclarationTree flowInterfaceDeclaration(
     InternalSyntaxToken interfaceToken,
     IdentifierTree identifierTree,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
     InternalSyntaxToken openCurlyBraceToken,
     Optional<SeparatedList<Tree>> properties,
     InternalSyntaxToken closeCurlyBraceToken
@@ -1919,6 +1938,7 @@ public class TreeFactory {
     return new FlowInterfaceDeclarationTreeImpl(
       interfaceToken,
       identifierTree,
+      genericParameterClause.orNull(),
       openCurlyBraceToken,
       properties.or(new SeparatedListImpl(Lists.newArrayList(), Collections.emptyList())),
       closeCurlyBraceToken);
@@ -1945,9 +1965,11 @@ public class TreeFactory {
   }
 
   public FlowFunctionSignatureTree flowFunctionSignature(
-    InternalSyntaxToken functionToken, IdentifierTree name, FlowFunctionTypeParameterClauseTree parameterClause, FlowTypeAnnotationTree returnType
+    InternalSyntaxToken functionToken, IdentifierTree name,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
+    FlowFunctionTypeParameterClauseTree parameterClause, FlowTypeAnnotationTree returnType
   ) {
-    return new FlowFunctionSignatureTreeImpl(functionToken, name, parameterClause, returnType);
+    return new FlowFunctionSignatureTreeImpl(functionToken, name, genericParameterClause.orNull(), parameterClause, returnType);
   }
 
   public DefaultExportDeclarationTree flowExportDefaultType(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, FlowTypeTree type, Tree eos) {
@@ -2003,6 +2025,36 @@ public class TreeFactory {
 
   public FlowMethodPropertyDefinitionKeyTree flowMethodPropertyDefinitionKeyTree(Optional<InternalSyntaxToken> staticToken, Optional<IdentifierTree> identifierTree, FlowFunctionTypeParameterClauseTree parameterClauseTree) {
     return new FlowMethodPropertyDefinitionKeyTreeImpl(staticToken.orNull(), identifierTree.orNull(), parameterClauseTree);
+  }
+
+  public FlowGenericParameterTree flowGenericParameter(
+    IdentifierTree identifierTree, Optional<FlowTypeAnnotationTree> superType,
+    Optional<Tuple<InternalSyntaxToken, FlowTypeTree>> defaultValue
+  ) {
+    if (defaultValue.isPresent()) {
+      return new FlowGenericParameterTreeImpl(identifierTree, superType.orNull(), defaultValue.get().first, defaultValue.get().second);
+    } else {
+      return new FlowGenericParameterTreeImpl(identifierTree, superType.orNull(), null, null);
+    }
+  }
+
+  public FlowGenericParameterClauseTree flowGenericParameterClause(
+    InternalSyntaxToken left,
+    FlowGenericParameterTree first,
+    Optional<List<Tuple<InternalSyntaxToken, FlowGenericParameterTree>>> rest,
+    Optional<InternalSyntaxToken> trailingComma,
+    InternalSyntaxToken right
+  ) {
+    return new FlowGenericParameterClauseTreeImpl(left, parameterListWithTrailingComma(first, rest, trailingComma), right);
+  }
+
+  public FlowParameterizedGenericsTypeTree flowParameterizedGenericsClause(
+    FlowTypeTree type,
+    InternalSyntaxToken left, FlowTypeTree first,
+    Optional<List<Tuple<InternalSyntaxToken, FlowTypeTree>>> rest,
+    Optional<InternalSyntaxToken> trailingComma, InternalSyntaxToken right
+  ) {
+    return new FlowParameterizedGenericsTypeTreeImpl(type, left, parameterListWithTrailingComma(first, rest, trailingComma), right);
   }
 
   private static class ConditionalExpressionTail {

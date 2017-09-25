@@ -23,6 +23,12 @@
 'project:babylon/test/fixtures/flow/type-annotations/79/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/type-parameter-declaration/arrow_with_jsx/actual.js':[
+2,
+],
+'project:babylon/test/fixtures/flow/type-parameter-declaration/arrow_without_jsx/actual.js':[
+2,
+],
 'project:ecmascript6/Ghost/core/client/app/adapters/base.js':[
 53,
 ],

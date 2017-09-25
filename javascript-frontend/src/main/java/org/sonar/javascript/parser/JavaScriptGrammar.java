@@ -100,17 +100,20 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowMethodPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowParameterizedGenericsTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowParenthesisedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKeyTree;
@@ -600,6 +603,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptKeyword.FUNCTION),
           b.token(JavaScriptPunctuator.STAR),
           b.optional(BINDING_IDENTIFIER()),
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           FORMAL_PARAMETER_CLAUSE(),
           b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
@@ -612,6 +616,7 @@ public class JavaScriptGrammar {
           b.optional(b.token(EcmaScriptLexer.ASYNC)),
           b.token(JavaScriptKeyword.FUNCTION),
           b.optional(BINDING_IDENTIFIER()),
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           FORMAL_PARAMETER_CLAUSE(),
           b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
@@ -861,6 +866,7 @@ public class JavaScriptGrammar {
     return b.<ArrowFunctionTree>nonterminal(Kind.ARROW_FUNCTION)
       .is(f.arrowFunction(
         b.optional(b.token(EcmaScriptLexer.ASYNC)),
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_CLAUSE()),
@@ -977,6 +983,7 @@ public class JavaScriptGrammar {
           b.zeroOrMore(DECORATOR()),
           b.token(JavaScriptKeyword.CLASS),
           b.optional(BINDING_IDENTIFIER()),
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           // TODO Factor the duplication with CLASS_DECLARATION() into CLASS_TRAIT() ?
           b.optional(EXTENDS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
@@ -1514,6 +1521,7 @@ public class JavaScriptGrammar {
         f.classDeclaration(
           b.zeroOrMore(DECORATOR()),
           b.token(JavaScriptKeyword.CLASS), BINDING_IDENTIFIER(),
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           // TODO Factor the duplication with CLASS_EXPRESSION() into CLASS_TRAIT() ?
           b.optional(EXTENDS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
@@ -1558,14 +1566,18 @@ public class JavaScriptGrammar {
             b.zeroOrMore(DECORATOR()),
             b.optional(b.token(EcmaScriptLexer.STATIC)),
             b.token(JavaScriptPunctuator.STAR),
-            PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
+            PROPERTY_NAME(),
+            b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
+            FORMAL_PARAMETER_CLAUSE(),
             b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK()),
           f.method(
             b.zeroOrMore(DECORATOR()),
             b.optional(b.token(EcmaScriptLexer.STATIC)),
             b.optional(b.token(EcmaScriptLexer.ASYNC)),
-            PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
+            PROPERTY_NAME(),
+            b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
+            FORMAL_PARAMETER_CLAUSE(),
             b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK()),
           f.accessor(
@@ -1575,6 +1587,7 @@ public class JavaScriptGrammar {
               b.token(EcmaScriptLexer.GET),
               b.token(EcmaScriptLexer.SET)),
             PROPERTY_NAME(),
+            b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
             FORMAL_PARAMETER_CLAUSE(),
             b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK())));
@@ -1585,7 +1598,9 @@ public class JavaScriptGrammar {
       .is(
         f.functionAndGeneratorDeclaration(
           b.optional(b.token(EcmaScriptLexer.ASYNC)),
-          b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_CLAUSE(),
+          b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(),
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
+          FORMAL_PARAMETER_CLAUSE(),
           b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
   }
@@ -1741,7 +1756,7 @@ public class JavaScriptGrammar {
   // [START] FLOW
 
   public FlowTypeTree FLOW_TYPE() {
-    return b.<FlowTypeTree>nonterminal()
+    return b.<FlowTypeTree>nonterminal(EcmaScriptLexer.FLOW_TYPE)
       .is(b.firstOf(
         FLOW_ARRAY_TYPE_SHORTHAND(),
         FLOW_TYPE_NON_ARRAY()
@@ -1755,6 +1770,7 @@ public class JavaScriptGrammar {
         // TODO
         FLOW_ARRAY_TYPE(),
         FLOW_OPTIONAL_TYPE(),
+        FLOW_PARAMETERIZED_GENERICS_TYPE(),
         FLOW_NAMESPACED_TYPE(),
         FLOW_SIMPLE_TYPE(),
         FLOW_LITERAL_TYPE(),
@@ -1821,7 +1837,11 @@ public class JavaScriptGrammar {
 
   public FlowFunctionTypeTree FLOW_FUNCTION_TYPE() {
     return b.<FlowFunctionTypeTree>nonterminal(Kind.FLOW_FUNCTION_TYPE)
-      .is(f.flowFunctionType(FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(), b.token(JavaScriptPunctuator.DOUBLEARROW), FLOW_TYPE()));
+      .is(f.flowFunctionType(
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
+        FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(),
+        b.token(JavaScriptPunctuator.DOUBLEARROW),
+        FLOW_TYPE()));
   }
 
   public FlowFunctionTypeParameterClauseTree FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE() {
@@ -1854,6 +1874,35 @@ public class JavaScriptGrammar {
           b.token(JavaScriptPunctuator.COMMA),
           FLOW_FUNCTION_TYPE_PARAMETER()))
         ));
+  }
+
+  public FlowGenericParameterClauseTree FLOW_GENERIC_PARAMETER_CLAUSE() {
+    return b.<FlowGenericParameterClauseTree>nonterminal(Kind.FLOW_GENERIC_PARAMETER_CLAUSE)
+      .is(f.flowGenericParameterClause(
+        b.token(JavaScriptPunctuator.LT),
+        FLOW_GENERIC_PARAMETER(),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_GENERIC_PARAMETER())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA)),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public FlowParameterizedGenericsTypeTree FLOW_PARAMETERIZED_GENERICS_TYPE() {
+    return b.<FlowParameterizedGenericsTypeTree>nonterminal(Kind.FLOW_PARAMETERIZED_GENERICS_TYPE)
+      .is(f.flowParameterizedGenericsClause(
+        b.firstOf(FLOW_NAMESPACED_TYPE(), FLOW_SIMPLE_TYPE()),
+        b.token(JavaScriptPunctuator.LT),
+        FLOW_TYPE(),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_TYPE())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA)),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public FlowGenericParameterTree FLOW_GENERIC_PARAMETER() {
+    return b.<FlowGenericParameterTree>nonterminal(Kind.FLOW_GENERIC_PARAMETER)
+      .is(f.flowGenericParameter(
+        IDENTIFIER_NAME(),
+        b.optional(FLOW_TYPE_ANNOTATION()),
+        b.optional(f.newTuple(b.token(JavaScriptPunctuator.EQU), FLOW_TYPE()))));
   }
 
   public FlowFunctionTypeParameterTree FLOW_FUNCTION_TYPE_PARAMETER() {
@@ -1951,6 +2000,7 @@ public class JavaScriptGrammar {
         b.optional(b.token(EcmaScriptLexer.OPAQUE)),
         b.token(EcmaScriptLexer.TYPE),
         BINDING_IDENTIFIER(),
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         b.optional(FLOW_TYPE_ANNOTATION()),
         b.token(JavaScriptPunctuator.EQU),
         FLOW_TYPE(),
@@ -1975,6 +2025,7 @@ public class JavaScriptGrammar {
       .is(f.flowInterfaceDeclaration(
         b.token(EcmaScriptLexer.INTERFACE),
         BINDING_IDENTIFIER(),
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         b.token(JavaScriptPunctuator.LCURLYBRACE),
         b.optional(FLOW_OBJECT_TYPE_PROPERTIES()),
         b.token(JavaScriptPunctuator.RCURLYBRACE)));
@@ -2022,6 +2073,7 @@ public class JavaScriptGrammar {
       .is(f.flowFunctionSignature(
         b.token(JavaScriptKeyword.FUNCTION),
         BINDING_IDENTIFIER(),
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(),
         FLOW_TYPE_ANNOTATION()));
   }
