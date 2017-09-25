@@ -1758,7 +1758,7 @@ public class JavaScriptGrammar {
   // [START] FLOW
 
   public FlowTypeTree FLOW_TYPE() {
-    return b.<FlowTypeTree>nonterminal()
+    return b.<FlowTypeTree>nonterminal(EcmaScriptLexer.FLOW_TYPE)
       .is(b.firstOf(
         FLOW_ARRAY_TYPE_SHORTHAND(),
         FLOW_UNION_TYPE(),
