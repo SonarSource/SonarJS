@@ -43,4 +43,10 @@ public class CallExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.argumentClause()).isNotNull();
   }
 
+  @Test
+  public void import_es_next() throws Exception {
+    CallExpressionTree tree = parse("var x = import(`module name`)", Kind.CALL_EXPRESSION);
+
+    assertThat(tree.callee().is(Kind.IMPORT)).isTrue();
+  }
 }

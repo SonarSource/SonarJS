@@ -134,6 +134,7 @@ public class ExpressionStack {
         break;
       case THIS:
       case SUPER:
+      case IMPORT:
       case NEW_TARGET:
       case JSX_SELF_CLOSING_ELEMENT:
       case JSX_STANDARD_ELEMENT:

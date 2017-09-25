@@ -118,6 +118,15 @@ public class ExpressionStackTest {
   }
 
   @Test
+  public void unknown() throws Exception {
+    execute("super()");
+    assertSingleValueInStack(UNKNOWN);
+
+    execute("import()");
+    assertSingleValueInStack(UNKNOWN);
+  }
+
+  @Test
   public void delete() throws Exception {
     execute("delete a.prop");
     assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.BOOLEAN_PRIMITIVE));

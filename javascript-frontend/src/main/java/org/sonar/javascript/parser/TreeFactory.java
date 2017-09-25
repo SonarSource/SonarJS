@@ -75,6 +75,7 @@ import org.sonar.javascript.tree.impl.expression.ConditionalExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ImportTreeImpl;
 import org.sonar.javascript.tree.impl.expression.InitializedAssignmentPatternElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.NewExpressionTreeImpl;
@@ -199,6 +200,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ImportTree;
 import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
@@ -883,6 +885,10 @@ public class TreeFactory {
 
   public SuperTree superExpression(InternalSyntaxToken superToken) {
     return new SuperTreeImpl(superToken);
+  }
+
+  public ImportTree importExpression(InternalSyntaxToken importToken) {
+    return new ImportTreeImpl(importToken);
   }
 
   public NewTargetTree newTarget(SyntaxToken newKeyword, SyntaxToken dot, SyntaxToken target) {

@@ -68,6 +68,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ImportTree;
 import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewTargetTree;
@@ -900,6 +901,11 @@ public class JavaScriptGrammar {
       .is(f.superExpression(b.token(JavaScriptKeyword.SUPER)));
   }
 
+  public ImportTree IMPORT() {
+    return b.<ImportTree>nonterminal(Kind.IMPORT)
+      .is(f.importExpression(b.token(JavaScriptKeyword.IMPORT)));
+  }
+
   public NewTargetTree NEW_TARGET() {
     return b.<NewTargetTree>nonterminal(Kind.NEW_TARGET)
       .is(f.newTarget(
@@ -934,7 +940,7 @@ public class JavaScriptGrammar {
   public ExpressionTree CALL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.CALL_EXPRESSION)
       .is(f.callExpression(
-        f.simpleCallExpression(b.firstOf(MEMBER_EXPRESSION(), SUPER()), ARGUMENT_CLAUSE()),
+        f.simpleCallExpression(b.firstOf(MEMBER_EXPRESSION(), SUPER(), IMPORT()), ARGUMENT_CLAUSE()),
         // we use "zeroOrMore" here as in specification we have left recursion, which can't be coded with our means
         b.zeroOrMore(CALL_EXPRESSION_TAIL())));
   }

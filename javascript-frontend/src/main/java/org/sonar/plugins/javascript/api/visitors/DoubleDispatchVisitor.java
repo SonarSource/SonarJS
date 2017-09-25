@@ -67,6 +67,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ImportTree;
 import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
@@ -485,6 +486,10 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
   public void visitSuper(SuperTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitImport(ImportTree tree) {
     scanChildren(tree);
   }
 
