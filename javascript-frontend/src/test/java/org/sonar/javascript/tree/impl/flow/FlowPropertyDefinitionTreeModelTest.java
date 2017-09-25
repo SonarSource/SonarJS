@@ -24,6 +24,7 @@ import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowMethodPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
@@ -74,6 +75,35 @@ public class FlowPropertyDefinitionTreeModelTest extends JavaScriptTreeModelTest
     assertThat(tree.identifier()).isNotNull();
     assertThat(tree.identifier().name()).isEqualTo("idx");
     assertThat(((FlowSimpleTypeTree) tree.type()).token().text()).isEqualTo("MyType");
+  }
+
+  @Test
+  public void method() throws Exception {
+    FlowMethodPropertyDefinitionKeyTree tree = parse("static foo(number): number", Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY, Tree.Kind.FLOW_PROPERTY_DEFINITION);
+
+    assertThat(tree.is(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)).isTrue();
+    assertThat(tree.methodName().name()).isEqualTo("foo");
+    assertThat(tree.staticToken().text()).isEqualTo("static");
+    assertThat(tree.parameterClause().parameters()).hasSize(1);
+  }
+
+  @Test
+  public void callable() throws Exception {
+    FlowMethodPropertyDefinitionKeyTree tree = parse("(number): number", Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY, Tree.Kind.FLOW_PROPERTY_DEFINITION);
+
+    assertThat(tree.is(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)).isTrue();
+    assertThat(tree.methodName()).isNull();
+    assertThat(tree.parameterClause().parameters()).hasSize(1);
+  }
+
+  @Test
+  public void static_callable() throws Exception {
+    FlowMethodPropertyDefinitionKeyTree tree = parse("static(number): number", Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY, Tree.Kind.FLOW_PROPERTY_DEFINITION);
+
+    assertThat(tree.is(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)).isTrue();
+    assertThat(tree.staticToken().text()).isEqualTo("static");
+    assertThat(tree.methodName()).isNull();
+    assertThat(tree.parameterClause().parameters()).hasSize(1);
   }
 
 }
