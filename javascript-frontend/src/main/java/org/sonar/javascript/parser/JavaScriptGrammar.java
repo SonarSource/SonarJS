@@ -95,6 +95,7 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowCastingExpressionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
@@ -1127,7 +1128,8 @@ public class JavaScriptGrammar {
           CLASS_EXPRESSION(),
           GENERATOR_EXPRESSION(),
           TEMPLATE_LITERAL(),
-          JSX_ELEMENT()
+          JSX_ELEMENT(),
+          FLOW_CASTING_EXPRESSION()
         ));
   }
 
@@ -1805,6 +1807,16 @@ public class JavaScriptGrammar {
         b.token(JavaScriptKeyword.TYPEOF),
         // arrow function is not accepted by flow-remove-types, but it is by babel
         b.firstOf(ARROW_FUNCTION(), PRIMARY_EXPRESSION())));
+  }
+
+  public FlowCastingExpressionTree FLOW_CASTING_EXPRESSION() {
+    return b.<FlowCastingExpressionTree>nonterminal(Kind.FLOW_CASTING_EXPRESSION)
+      .is(f.flowCastingExpression(
+        b.token(JavaScriptPunctuator.LPARENTHESIS),
+        EXPRESSION(),
+        b.token(JavaScriptPunctuator.COLON),
+        FLOW_TYPE(),
+        b.token(JavaScriptPunctuator.RPARENTHESIS)));
   }
 
   public FlowNamespacedTypeTree FLOW_NAMESPACED_TYPE() {

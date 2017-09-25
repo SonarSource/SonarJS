@@ -103,6 +103,7 @@ import org.sonar.javascript.tree.impl.expression.jsx.JsxSpreadAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowCastingExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowDeclareTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionSignatureTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterClauseTreeImpl;
@@ -234,6 +235,7 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowCastingExpressionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
@@ -2077,6 +2079,13 @@ public class TreeFactory {
 
   public FlowTypeofTypeTree flowTypeofType(InternalSyntaxToken typeofToken, ExpressionTree expressionTree) {
     return new FlowTypeofTypeTreeImpl(typeofToken, expressionTree);
+  }
+
+  public FlowCastingExpressionTree flowCastingExpression(
+    InternalSyntaxToken lParenthesis, ExpressionTree expression, InternalSyntaxToken colon,
+    FlowTypeTree flowTypeTree, InternalSyntaxToken rParenthesis
+  ) {
+    return new FlowCastingExpressionTreeImpl(lParenthesis, expression, colon, flowTypeTree, rParenthesis);
   }
 
   private static class ConditionalExpressionTail {
