@@ -4,6 +4,11 @@
 2924,
 14139,
 ],
+'project:babylon/src/parser/expression.js':[
+193,
+238,
+385,
+],
 'project:backbone-0.9.2.js':[
 22,
 1232,
@@ -761,6 +766,9 @@
 ],
 'project:jest/packages/jest-diff/src/__tests__/diff.test.js':[
 33,
+],
+'project:jest/packages/jest-haste-map/src/crawlers/node.js':[
+134,
 ],
 'project:jest/packages/jest-snapshot/src/__tests__/utils.test.js':[
 27,

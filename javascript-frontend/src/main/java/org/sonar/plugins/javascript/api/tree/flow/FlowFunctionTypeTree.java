@@ -20,10 +20,15 @@
 package org.sonar.plugins.javascript.api.tree.flow;
 
 import com.google.common.annotations.Beta;
+import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 @Beta
 public interface FlowFunctionTypeTree extends FlowTypeTree {
+
+  @Nullable
+  FlowGenericParameterClauseTree genericParameterClause();
+
   FlowFunctionTypeParameterClauseTree parameterClause();
 
   SyntaxToken doubleArrowToken();

@@ -27,6 +27,14 @@
 'project:babylon/bin/generate-identifier-regex.js':[
 21,
 ],
+'project:babylon/src/plugins/jsx/index.js':[
+128,
+149,
+159,
+160,
+161,
+198,
+],
 'project:babylon/src/tokenizer/index.js':[
 263,
 818,
@@ -1227,6 +1235,9 @@
 'project:google-closure-library/uri/uri.js':[
 863,
 ],
+'project:jest/packages/jest-cli/src/search_source.js':[
+118,
+],
 'project:jest/packages/jest-diff/src/diff_strings.js':[
 150,
 153,
@@ -1239,6 +1250,9 @@
 ],
 'project:jest/packages/jest-haste-map/src/crawlers/__tests__/node.test.js':[
 49,
+],
+'project:jest/packages/jest-haste-map/src/crawlers/node.js':[
+116,
 ],
 'project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
 83,

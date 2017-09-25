@@ -21,11 +21,13 @@ package org.sonar.javascript.tree.impl.flow;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -36,12 +38,14 @@ public class FlowFunctionSignatureTreeImpl extends JavaScriptTree implements Flo
 
   private final SyntaxToken functionToken;
   private final IdentifierTree  name;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final FlowFunctionTypeParameterClauseTree parameterClause;
   private final FlowTypeAnnotationTree returnType;
 
-  public FlowFunctionSignatureTreeImpl(SyntaxToken functionToken, IdentifierTree name, FlowFunctionTypeParameterClauseTree parameterClause, FlowTypeAnnotationTree returnType) {
+  public FlowFunctionSignatureTreeImpl(SyntaxToken functionToken, IdentifierTree name, FlowGenericParameterClauseTree genericParameterClause, FlowFunctionTypeParameterClauseTree parameterClause, FlowTypeAnnotationTree returnType) {
     this.functionToken = functionToken;
     this.name = name;
+    this.genericParameterClause = genericParameterClause;
     this.parameterClause = parameterClause;
     this.returnType = returnType;
   }
@@ -53,7 +57,7 @@ public class FlowFunctionSignatureTreeImpl extends JavaScriptTree implements Flo
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(functionToken, name, parameterClause, returnType);
+    return Iterators.forArray(functionToken, name, genericParameterClause, parameterClause, returnType);
   }
 
   @Override
@@ -64,6 +68,12 @@ public class FlowFunctionSignatureTreeImpl extends JavaScriptTree implements Flo
   @Override
   public IdentifierTree name() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Override

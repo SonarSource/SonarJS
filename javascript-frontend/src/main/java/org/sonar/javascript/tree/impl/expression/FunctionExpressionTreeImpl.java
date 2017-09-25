@@ -33,6 +33,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -44,6 +45,7 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
   private final SyntaxToken functionKeyword;
   private final SyntaxToken star;
   private final IdentifierTree name;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final ParameterListTree parameters;
   private final FlowTypeAnnotationTree returnType;
   private final BlockTree body;
@@ -54,11 +56,13 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
     @Nullable SyntaxToken asyncToken,
     SyntaxToken functionKeyword,
     @Nullable SyntaxToken star, IdentifierTree name,
+    @Nullable FlowGenericParameterClauseTree genericParameterClause,
     ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body) {
     this.asyncToken = asyncToken;
     this.functionKeyword = functionKeyword;
     this.star = star;
     this.name = name;
+    this.genericParameterClause = genericParameterClause;
     this.parameters = parameters;
     this.returnType = returnType;
     this.body = body;
@@ -68,17 +72,18 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
   }
 
   public static FunctionExpressionTree createGenerator(
-    SyntaxToken functionKeyword, SyntaxToken star, @Nullable IdentifierTree name,
+    SyntaxToken functionKeyword, SyntaxToken star, @Nullable IdentifierTree name, @Nullable FlowGenericParameterClauseTree genericParameterClause,
     ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
   ) {
-    return new FunctionExpressionTreeImpl(null, functionKeyword, star, name, parameters, returnType, body);
+    return new FunctionExpressionTreeImpl(null, functionKeyword, star, name, genericParameterClause, parameters, returnType, body);
   }
 
   public static FunctionExpressionTree create(
     @Nullable SyntaxToken asyncToken, SyntaxToken functionToken, @Nullable IdentifierTree name,
+    @Nullable FlowGenericParameterClauseTree genericParameterClause,
     ParameterListTree parameters, @Nullable FlowTypeAnnotationTree returnType, BlockTree body
   ) {
-    return new FunctionExpressionTreeImpl(asyncToken, functionToken, null, name, parameters, returnType, body);
+    return new FunctionExpressionTreeImpl(asyncToken, functionToken, null, name, genericParameterClause, parameters, returnType, body);
   }
 
   @Override
@@ -96,6 +101,12 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
   @Override
   public IdentifierTree name() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Nullable
@@ -132,7 +143,7 @@ public class FunctionExpressionTreeImpl extends FunctionTreeImpl implements Func
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(asyncToken, functionKeyword, star, name, parameters, returnType, body);
+    return Iterators.forArray(asyncToken, functionKeyword, star, name, genericParameterClause, parameters, returnType, body);
   }
 
   @Override

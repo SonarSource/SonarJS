@@ -34,6 +34,9 @@ public interface FlowTypeAliasStatementTree extends StatementTree {
   IdentifierTree typeAlias();
 
   @Nullable
+  FlowGenericParameterClauseTree genericParameterClause();
+
+  @Nullable
   FlowTypeAnnotationTree superTypeAnnotation();
 
   SyntaxToken equalToken();

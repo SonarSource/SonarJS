@@ -32,8 +32,10 @@ public class FlowTypeAliasStatementTest extends LegacyParserTest {
     assertThat(g.rule(Kind.FLOW_TYPE_ALIAS_STATEMENT))
       .matches("type A = B")
       .matches("type A = B;")
+      .matches("type A<T> = B;")
       .matches("opaque type A = B")
       .matches("opaque type A: C = B")
+      .matches("opaque type A<T>: C = B")
       .matches("opaque type A = B ;")
     ;
   }

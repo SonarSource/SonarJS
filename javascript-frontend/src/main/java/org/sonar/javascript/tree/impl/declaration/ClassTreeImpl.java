@@ -34,6 +34,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExtendsClauseTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
@@ -42,6 +43,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   private List<DecoratorTree> decorators;
   private InternalSyntaxToken classToken;
   private IdentifierTree name;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private ExtendsClauseTree extendsClause;
   private InternalSyntaxToken openCurlyBraceToken;
   private final List<Tree> elements;
@@ -51,7 +53,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
 
   private ClassTreeImpl(
     Kind kind, List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTree name,
-    @Nullable ExtendsClauseTree extendsClause,
+    @Nullable FlowGenericParameterClauseTree genericParameterClause, @Nullable ExtendsClauseTree extendsClause,
     InternalSyntaxToken openCurlyBraceToken, List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
@@ -60,6 +62,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
     this.decorators = decorators;
     this.classToken = classToken;
     this.name = name;
+    this.genericParameterClause = genericParameterClause;
     this.extendsClause = extendsClause;
     this.openCurlyBraceToken = openCurlyBraceToken;
     this.elements = elements;
@@ -70,20 +73,22 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
 
   public static ClassTreeImpl newClassExpression(
     List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTree name,
+    @Nullable FlowGenericParameterClauseTree genericParameterClause,
     @Nullable ExtendsClauseTree extendsClause, InternalSyntaxToken openCurlyBraceToken,
     List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
-    return new ClassTreeImpl(Kind.CLASS_EXPRESSION, decorators, classToken, name, extendsClause, openCurlyBraceToken, elements, closeCurlyBraceToken);
+    return new ClassTreeImpl(Kind.CLASS_EXPRESSION, decorators, classToken, name, genericParameterClause, extendsClause, openCurlyBraceToken, elements, closeCurlyBraceToken);
   }
 
   public static ClassTreeImpl newClassDeclaration(
     List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTree name,
+    @Nullable FlowGenericParameterClauseTree genericParameterClause,
     @Nullable ExtendsClauseTree extendsClause, InternalSyntaxToken openCurlyBraceToken,
     List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
-    return new ClassTreeImpl(Kind.CLASS_DECLARATION, decorators, classToken, name, extendsClause, openCurlyBraceToken, elements, closeCurlyBraceToken);
+    return new ClassTreeImpl(Kind.CLASS_DECLARATION, decorators, classToken, name, genericParameterClause, extendsClause, openCurlyBraceToken, elements, closeCurlyBraceToken);
   }
 
   @Override
@@ -99,6 +104,12 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   @Override
   public IdentifierTree name() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Nullable
@@ -131,7 +142,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
       decorators.iterator(),
-      Iterators.forArray(classToken, name, extendsClause, openCurlyBraceToken),
+      Iterators.forArray(classToken, name, genericParameterClause, extendsClause, openCurlyBraceToken),
       elements.iterator(),
       Iterators.singletonIterator(closeCurlyBraceToken));
   }

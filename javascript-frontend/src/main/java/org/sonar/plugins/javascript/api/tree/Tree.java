@@ -93,18 +93,21 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowMethodPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowParameterizedGenericsTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowParenthesisedTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKeyTree;
@@ -1035,6 +1038,9 @@ public interface Tree {
     FLOW_FUNCTION_TYPE(FlowFunctionTypeTree.class),
     FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(FlowFunctionTypeParameterClauseTree.class),
     FLOW_FUNCTION_TYPE_PARAMETER(FlowFunctionTypeParameterTree.class),
+    FLOW_GENERIC_PARAMETER(FlowGenericParameterTree.class),
+    FLOW_GENERIC_PARAMETER_CLAUSE(FlowGenericParameterClauseTree.class),
+    FLOW_PARAMETERIZED_GENERICS_TYPE(FlowParameterizedGenericsTypeTree.class),
     FLOW_OBJECT_TYPE(FlowObjectTypeTree.class),
     FLOW_PROPERTY_DEFINITION(FlowPropertyDefinitionTree.class),
     FLOW_SIMPLE_PROPERTY_DEFINITION_KEY(FlowSimplePropertyDefinitionKeyTree.class),

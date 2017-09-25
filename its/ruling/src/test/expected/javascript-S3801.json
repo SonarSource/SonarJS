@@ -41,6 +41,17 @@
 'project:babylon/scripts/run_test262.js':[
 29,
 ],
+'project:babylon/src/parser/expression.js':[
+1014,
+1296,
+1331,
+],
+'project:babylon/src/plugins/flow.js':[
+1490,
+],
+'project:babylon/src/plugins/jsx/index.js':[
+493,
+],
 'project:babylon/src/tokenizer/index.js':[
 520,
 ],

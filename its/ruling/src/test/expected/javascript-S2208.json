@@ -1,4 +1,16 @@
 {
+'project:babylon/src/parser/expression.js':[
+24,
+],
+'project:babylon/src/parser/statement.js':[
+5,
+],
+'project:babylon/src/plugins/flow.js':[
+7,
+],
+'project:babylon/src/plugins/jsx/index.js':[
+7,
+],
 'project:babylon/src/tokenizer/state.js':[
 4,
 ],
@@ -83,6 +95,9 @@
 4,
 5,
 6,
+],
+'project:jest/packages/jest-cli/src/cli/index.js':[
+23,
 ],
 'project:jest/packages/jest-editor-support/src/index.js':[
 11,

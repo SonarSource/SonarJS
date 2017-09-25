@@ -2,6 +2,16 @@
 'project:angular-1.0.3.js':[
 9483,
 ],
+'project:babylon/src/parser/expression.js':[
+676,
+770,
+],
+'project:babylon/src/parser/lval.js':[
+98,
+],
+'project:babylon/src/plugins/flow.js':[
+1026,
+],
 'project:babylon/src/tokenizer/index.js':[
 291,
 956,
