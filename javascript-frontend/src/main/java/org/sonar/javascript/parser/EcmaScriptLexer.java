@@ -316,6 +316,7 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
   VUE_STYLE_SECTION,
 
   // Flow
+  FLOW_TYPE,
   OPAQUE,
   TYPE,
   INTERFACE,
