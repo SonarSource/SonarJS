@@ -1,4 +1,11 @@
 {
+'project:babylon/src/plugins/estree.js':[
+97,
+],
+'project:babylon/src/plugins/typescript.js':[
+1468,
+1892,
+],
 'project:babylon/test/fixtures/flow/regression/issue-2083/actual.js':[
 3,
 9,

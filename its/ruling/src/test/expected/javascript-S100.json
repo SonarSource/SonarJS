@@ -1816,6 +1816,9 @@
 'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
 713,
 ],
+'project:jest/packages/jest-haste-map/src/crawlers/watchman.js':[
+26,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
 39,
 ],
@@ -1855,6 +1858,15 @@
 'project:jest/packages/pretty-format/src/__tests__/dom_element.test.js':[
 310,
 316,
+],
+'project:jest/packages/pretty-format/src/__tests__/pretty_format.test.js':[
+23,
+499,
+],
+'project:jest/packages/pretty-format/src/__tests__/react.test.js':[
+255,
+267,
+294,
 ],
 'project:jquery-1.7.2.js':[
 1220,

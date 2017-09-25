@@ -52,6 +52,13 @@
 'project:babylon/src/plugins/jsx/index.js':[
 493,
 ],
+'project:babylon/src/plugins/typescript.js':[
+273,
+759,
+1021,
+1068,
+1096,
+],
 'project:babylon/src/tokenizer/index.js':[
 520,
 ],
@@ -1216,6 +1223,9 @@
 ],
 'project:google-closure-library/ui/richtextspellchecker.js':[
 367,
+],
+'project:jest/packages/expect/src/jasmine_utils.js':[
+40,
 ],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 75,

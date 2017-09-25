@@ -1122,6 +1122,11 @@
 'project:jest/packages/pretty-format/src/__tests__/asymmetric_matcher.test.js':[
 286,
 ],
+'project:jest/packages/pretty-format/src/__tests__/react.test.js':[
+203,
+231,
+592,
+],
 'project:jquery-1.7.2.js':[
 768,
 3355,

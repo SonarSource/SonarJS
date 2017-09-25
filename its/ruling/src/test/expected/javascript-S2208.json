@@ -5,11 +5,17 @@
 'project:babylon/src/parser/statement.js':[
 5,
 ],
+'project:babylon/src/plugins/estree.js':[
+5,
+],
 'project:babylon/src/plugins/flow.js':[
 7,
 ],
 'project:babylon/src/plugins/jsx/index.js':[
 7,
+],
+'project:babylon/src/plugins/typescript.js':[
+6,
 ],
 'project:babylon/src/tokenizer/state.js':[
 4,
@@ -96,6 +102,9 @@
 5,
 6,
 ],
+'project:jest/packages/expect/src/index.js':[
+22,
+],
 'project:jest/packages/jest-cli/src/cli/index.js':[
 23,
 ],
@@ -104,6 +113,9 @@
 ],
 'project:jest/packages/jest-repl/src/cli/index.js':[
 18,
+],
+'project:jest/packages/jest-runtime/src/cli/index.js':[
+22,
 ],
 'project:jest/packages/jest-test-typescript-parser/src/index.js':[
 12,

@@ -97,6 +97,9 @@
 200,
 1578,
 ],
+'project:babylon/src/plugins/typescript.js':[
+894,
+],
 'project:babylon/src/tokenizer/index.js':[
 229,
 256,
@@ -2053,6 +2056,9 @@
 'project:jest/packages/jest-cli/src/watch.js':[
 72,
 ],
+'project:jest/packages/jest-config/src/normalize.js':[
+153,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 110,
 ],
@@ -2072,6 +2078,12 @@
 ],
 'project:jest/packages/jest-message-util/src/index.js':[
 68,
+],
+'project:jest/packages/jest-resolve/src/index.js':[
+139,
+167,
+183,
+275,
 ],
 'project:jquery-1.7.2.js':[
 364,

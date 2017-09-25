@@ -10,6 +10,10 @@
 'project:babylon/src/parser/statement.js':[
 556,
 ],
+'project:babylon/src/plugins/typescript.js':[
+546,
+1261,
+],
 'project:babylon/test/helpers/runFixtureTests.js':[
 12,
 42,
@@ -764,6 +768,9 @@
 420,
 421,
 ],
+'project:jest/packages/expect/src/jasmine_utils.js':[
+100,
+],
 'project:jest/packages/expect/src/matchers.js':[
 555,
 556,
@@ -776,6 +783,9 @@
 65,
 78,
 ],
+'project:jest/packages/jest-config/src/normalize.js':[
+508,
+],
 'project:jest/packages/jest-diff/src/diff_strings.js':[
 48,
 52,
@@ -783,6 +793,9 @@
 'project:jest/packages/jest-jasmine2/src/assert_support.js':[
 56,
 57,
+],
+'project:jest/packages/jest-resolve/src/index.js':[
+309,
 ],
 'project:jest/packages/pretty-format/src/index.js':[
 185,
@@ -794,6 +807,10 @@
 ],
 'project:jest/packages/pretty-format/src/plugins/lib/markup.js':[
 127,
+],
+'project:jest/packages/pretty-format/src/plugins/react_test_component.js':[
+40,
+54,
 ],
 'project:jquery-1.7.2.js':[
 236,

@@ -6,6 +6,14 @@
 'project:babylon/src/parser/statement.js':[
 85,
 ],
+'project:babylon/src/plugins/typescript.js':[
+105,
+540,
+1022,
+1101,
+1468,
+1528,
+],
 'project:babylon/src/tokenizer/index.js':[
 521,
 ],
@@ -649,6 +657,9 @@
 'project:google-closure-library/ui/tristatemenuitem.js':[
 139,
 ],
+'project:jest/packages/expect/src/jasmine_utils.js':[
+91,
+],
 'project:jest/packages/jest-circus/src/event_handler.js':[
 19,
 ],
@@ -661,6 +672,9 @@
 ],
 'project:jest/packages/jest-cli/src/watch.js':[
 162,
+],
+'project:jest/packages/jest-config/src/normalize.js':[
+353,
 ],
 'project:jest/packages/jest-config/src/utils.js':[
 80,

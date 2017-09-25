@@ -374,6 +374,9 @@
 'project:jest/packages/jest-editor-support/src/__tests__/project_workspace.test.js':[
 11,
 ],
+'project:jest/packages/jest-editor-support/src/__tests__/runner.test.js':[
+11,
+],
 'project:jest/packages/jest-editor-support/src/__tests__/settings.test.js':[
 11,
 ],
@@ -692,7 +695,13 @@
 'project:jest/packages/pretty-format/src/__tests__/dom_element.test.js':[
 13,
 ],
+'project:jest/packages/pretty-format/src/__tests__/expect_util.js':[
+11,
+],
 'project:jest/packages/pretty-format/src/__tests__/immutable.test.js':[
+11,
+],
+'project:jest/packages/pretty-format/src/__tests__/pretty_format.test.js':[
 11,
 ],
 'project:jest/scripts/browserBuild.js':[

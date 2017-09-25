@@ -11,6 +11,9 @@
 'project:babylon/src/plugins/flow.js':[
 0,
 ],
+'project:babylon/src/plugins/typescript.js':[
+0,
+],
 'project:babylon/src/tokenizer/index.js':[
 0,
 ],

@@ -24,6 +24,9 @@
 8841,
 8853,
 ],
+'project:babylon/src/plugins/typescript.js':[
+1631,
+],
 'project:backbone-0.9.2.js':[
 155,
 209,
@@ -4330,6 +4333,9 @@
 48,
 64,
 ],
+'project:jest/packages/jest-jasmine2/src/jest_expect.js':[
+50,
+],
 'project:jest/packages/jest-jasmine2/src/queue_runner.js':[
 37,
 43,
@@ -4374,6 +4380,9 @@
 ],
 'project:jest/packages/pretty-format/src/__tests__/immutable.test.js':[
 869,
+],
+'project:jest/packages/pretty-format/src/__tests__/pretty_format.test.js':[
+16,
 ],
 'project:jquery-1.7.2.js':[
 300,

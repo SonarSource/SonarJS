@@ -1,4 +1,10 @@
 {
+'project:babylon/src/plugins/typescript.js':[
+1218,
+1609,
+1743,
+1758,
+],
 'project:babylon/test/expressions/esprima/expression-assignment/migrated_0000/actual.js':[
 1,
 ],
@@ -280,6 +286,9 @@
 ],
 'project:google-closure-library/testing/asynctestcase.js':[
 557,
+],
+'project:jest/packages/expect/src/index.js':[
+199,
 ],
 'project:jest/packages/jest-cli/src/reporters/coverage_reporter.js':[
 67,

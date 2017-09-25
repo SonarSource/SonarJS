@@ -65,6 +65,9 @@
 740,
 1440,
 ],
+'project:babylon/src/plugins/estree.js':[
+140,
+],
 'project:babylon/src/plugins/flow.js':[
 658,
 ],
@@ -2336,6 +2339,9 @@
 220,
 603,
 617,
+],
+'project:jest/packages/jest-resolve/src/index.js':[
+350,
 ],
 'project:jest/packages/jest-snapshot/src/State.js':[
 147,
