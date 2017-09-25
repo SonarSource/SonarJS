@@ -350,9 +350,6 @@
 'project:babylon/test/expressions/esprima/expression-unary/migrated_0011/actual.js':[
 1,
 ],
-'project:babylon/test/expressions/is-expression-babylon/fail/8/actual.js':[
-2,
-],
 'project:babylon/test/expressions/is-expression-babylon/pass/1/actual.js':[
 1,
 ],
