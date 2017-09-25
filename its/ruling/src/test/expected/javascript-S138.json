@@ -20,6 +20,12 @@
 14135,
 14241,
 ],
+'project:babylon/src/plugins/flow.js':[
+39,
+],
+'project:babylon/src/plugins/jsx/index.js':[
+65,
+],
 'project:backbone-0.9.2.js':[
 8,
 ],

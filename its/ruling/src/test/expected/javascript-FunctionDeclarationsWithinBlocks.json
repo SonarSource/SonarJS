@@ -63,6 +63,9 @@
 'project:jest/packages/expect/src/__tests__/asymmetric_matchers.test.js':[
 131,
 ],
+'project:jest/packages/jest-cli/src/reporters/coverage_reporter.js':[
+213,
+],
 'project:open-layers-2.12/OpenLayers/BaseTypes/Date.js':[
 44,
 ],

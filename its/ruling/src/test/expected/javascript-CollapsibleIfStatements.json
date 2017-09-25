@@ -3,6 +3,17 @@
 615,
 7202,
 ],
+'project:babylon/src/parser/comments.js':[
+97,
+122,
+127,
+],
+'project:babylon/src/parser/expression.js':[
+269,
+],
+'project:babylon/src/parser/statement.js':[
+362,
+],
 'project:babylon/src/tokenizer/context.js':[
 71,
 ],

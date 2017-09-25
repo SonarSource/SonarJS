@@ -1499,6 +1499,9 @@
 'project:jest/packages/jest-diff/src/__tests__/diff.test.js':[
 21,
 ],
+'project:jest/packages/jest-haste-map/src/crawlers/node.js':[
+125,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/Spec.js':[
 119,
 125,

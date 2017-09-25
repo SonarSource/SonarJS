@@ -6985,6 +6985,10 @@
 'project:jest/packages/jest-cli/src/lib/__tests__/set_state.js':[
 12,
 ],
+'project:jest/packages/jest-cli/src/reporters/get_snapshot_status.js':[
+13,
+15,
+],
 'project:jest/packages/jest-config/src/__tests__/normalize.test.js':[
 17,
 18,

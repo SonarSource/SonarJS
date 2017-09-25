@@ -10,6 +10,15 @@
 'project:babylon/scripts/run_flow_tests.js':[
 56,
 ],
+'project:babylon/src/parser/expression.js':[
+1186,
+1189,
+],
+'project:babylon/src/parser/statement.js':[
+663,
+874,
+879,
+],
 'project:babylon/src/tokenizer/index.js':[
 741,
 ],

@@ -2267,6 +2267,9 @@
 2,
 2,
 ],
+'project:jest/packages/jest-cli/src/reporters/coverage_reporter.js':[
+88,
+],
 'project:vuejs/jcc-blog/resources/assets/js/components/AvatarUpload.vue':[
 39,
 40,
