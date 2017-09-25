@@ -108,6 +108,8 @@ import org.sonar.javascript.tree.impl.flow.FlowFunctionSignatureTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterClauseTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowGenericParameterClauseTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowGenericParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowIndexerPropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowInterfaceDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowArrayTypeShorthandTreeImpl;
@@ -233,6 +235,8 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
@@ -1900,14 +1904,14 @@ public class TreeFactory {
 
   public FlowTypeAliasStatementTree flowTypeAliasStatement(
     Optional<InternalSyntaxToken> opaqueToken, InternalSyntaxToken typeToken,
-    IdentifierTree identifierTree, Optional<FlowTypeAnnotationTree> superTypeAnnotation,
+    IdentifierTree identifierTree, Optional<FlowGenericParameterClauseTree> generic, Optional<FlowTypeAnnotationTree> superTypeAnnotation,
     InternalSyntaxToken equalToken, FlowTypeTree flowTypeTree, Tree semicolonToken
   ) {
     return new FlowTypeAliasStatementTreeImpl(
       opaqueToken.orNull(),
       typeToken,
       identifierTree,
-      superTypeAnnotation.orNull(),
+      generic.orNull(), superTypeAnnotation.orNull(),
       equalToken,
       flowTypeTree,
       nullableSemicolonToken(semicolonToken));
@@ -2019,6 +2023,27 @@ public class TreeFactory {
 
   public FlowMethodPropertyDefinitionKeyTree flowMethodPropertyDefinitionKeyTree(Optional<InternalSyntaxToken> staticToken, Optional<IdentifierTree> identifierTree, FlowFunctionTypeParameterClauseTree parameterClauseTree) {
     return new FlowMethodPropertyDefinitionKeyTreeImpl(staticToken.orNull(), identifierTree.orNull(), parameterClauseTree);
+  }
+
+  public FlowGenericParameterTree flowGenericParameter(
+    IdentifierTree identifierTree, Optional<FlowTypeAnnotationTree> superType,
+    Optional<Tuple<InternalSyntaxToken, FlowTypeTree>> defaultValue
+  ) {
+    if (defaultValue.isPresent()) {
+      return new FlowGenericParameterTreeImpl(identifierTree, superType.orNull(), defaultValue.get().first, defaultValue.get().second);
+    } else {
+      return new FlowGenericParameterTreeImpl(identifierTree, superType.orNull(), null, null);
+    }
+  }
+
+  public FlowGenericParameterClauseTree flowGenericParameterClause(
+    InternalSyntaxToken left,
+    FlowGenericParameterTree first,
+    Optional<List<Tuple<InternalSyntaxToken, FlowGenericParameterTree>>> rest,
+    Optional<InternalSyntaxToken> trailingComma,
+    InternalSyntaxToken right
+  ) {
+    return new FlowGenericParameterClauseTreeImpl(left, parameterListWithTrailingComma(first, rest, trailingComma), right);
   }
 
   private static class ConditionalExpressionTail {

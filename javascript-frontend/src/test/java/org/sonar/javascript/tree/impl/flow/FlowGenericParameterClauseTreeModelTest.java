@@ -17,27 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.flow;
+package org.sonar.javascript.tree.impl.flow;
 
 import org.junit.Test;
-import org.sonar.javascript.utils.LegacyParserTest;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class FlowTypeAliasStatementTest extends LegacyParserTest {
+public class FlowGenericParameterClauseTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void test() {
-    assertThat(g.rule(Kind.FLOW_TYPE_ALIAS_STATEMENT))
-      .matches("type A = B")
-      .matches("type A = B;")
-      .matches("type A<T> = B;")
-      .matches("opaque type A = B")
-      .matches("opaque type A: C = B")
-      .matches("opaque type A<T>: C = B")
-      .matches("opaque type A = B ;")
-    ;
+  public void test() throws Exception {
+    FlowGenericParameterClauseTree tree = parse("<T1, T2 : SuperType, T3 = DefaultType, >", Kind.FLOW_GENERIC_PARAMETER_CLAUSE, Kind.FLOW_GENERIC_PARAMETER_CLAUSE);
+
+    assertThat(tree.is(Kind.FLOW_GENERIC_PARAMETER_CLAUSE)).isTrue();
+    assertThat(tree.leftBracketToken().text()).isEqualTo("<");
+    assertThat(tree.rightBracketToken().text()).isEqualTo(">");
+    assertThat(tree.genericParameters()).hasSize(3);
   }
 
 }

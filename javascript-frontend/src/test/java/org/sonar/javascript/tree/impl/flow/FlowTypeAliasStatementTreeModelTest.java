@@ -36,6 +36,7 @@ public class FlowTypeAliasStatementTreeModelTest extends JavaScriptTreeModelTest
     assertThat(tree.opaqueToken()).isNull();
     assertThat(tree.typeToken().text()).isEqualTo("type");
     assertThat(tree.typeAlias().name()).isEqualTo("myAlias");
+    assertThat(tree.genericParameterClause()).isNull();
     assertThat(tree.type().is(Kind.FLOW_OPTIONAL_TYPE)).isTrue();
     assertThat(tree.semicolonToken().text()).isEqualTo(";");
   }
@@ -48,9 +49,10 @@ public class FlowTypeAliasStatementTreeModelTest extends JavaScriptTreeModelTest
 
   @Test
   public void opaque() throws Exception {
-    FlowTypeAliasStatementTree tree = parse("opaque type myAlias : SuperType = ?string;", Kind.FLOW_TYPE_ALIAS_STATEMENT);
+    FlowTypeAliasStatementTree tree = parse("opaque type myAlias<T> : SuperType = ?string;", Kind.FLOW_TYPE_ALIAS_STATEMENT);
 
     assertThat(tree.opaqueToken().text()).isEqualTo("opaque");
+    assertThat(tree.genericParameterClause().genericParameters()).hasSize(1);
     assertThat(tree.superTypeAnnotation().type().is(Kind.FLOW_SIMPLE_TYPE)).isTrue();
   }
 
