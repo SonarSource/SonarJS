@@ -29,6 +29,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarati
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -42,6 +43,7 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
   private InternalSyntaxToken staticToken;
   private final InternalSyntaxToken accessorToken;
   private final Tree name;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final ParameterListTree parameters;
   private final FlowTypeAnnotationTree returnType;
   private final BlockTree body;
@@ -50,7 +52,7 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
     List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
     InternalSyntaxToken accessorToken,
     Tree name,
-    ParameterListTree parameters,
+    @Nullable FlowGenericParameterClauseTree genericParameterClause, ParameterListTree parameters,
     @Nullable FlowTypeAnnotationTree returnType,
     BlockTree body
   ) {
@@ -59,6 +61,7 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
     this.kind = "get".equals(accessorToken.text()) ? Kind.GET_METHOD : Kind.SET_METHOD;
     this.accessorToken = accessorToken;
     this.name = name;
+    this.genericParameterClause = genericParameterClause;
     this.parameters = parameters;
     this.returnType = returnType;
     this.body = body;
@@ -83,6 +86,12 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
   @Override
   public Tree name() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Nullable
@@ -121,7 +130,7 @@ public class AccessorMethodDeclarationTreeImpl extends FunctionTreeImpl implemen
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
       decorators.iterator(),
-      Iterators.forArray(staticToken, accessorToken, name, parameters, returnType, body));
+      Iterators.forArray(staticToken, accessorToken, name, genericParameterClause, parameters, returnType, body));
   }
 
   @Override

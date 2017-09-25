@@ -66,7 +66,8 @@ public class FunctionDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void flow_typed() throws Exception {
-    FunctionDeclarationTree tree = parse("function f(): void {}", Kind.FUNCTION_DECLARATION);
+    FunctionDeclarationTree tree = parse("function f<T>(): void {}", Kind.FUNCTION_DECLARATION);
+    assertThat(tree.genericParameterClause()).isNotNull();
     assertThat(tree.returnType()).isNotNull();
   }
 }

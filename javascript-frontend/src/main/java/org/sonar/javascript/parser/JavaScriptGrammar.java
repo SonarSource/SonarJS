@@ -604,6 +604,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptKeyword.FUNCTION),
           b.token(JavaScriptPunctuator.STAR),
           b.optional(BINDING_IDENTIFIER()),
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           FORMAL_PARAMETER_CLAUSE(),
           b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
@@ -616,6 +617,7 @@ public class JavaScriptGrammar {
           b.optional(b.token(EcmaScriptLexer.ASYNC)),
           b.token(JavaScriptKeyword.FUNCTION),
           b.optional(BINDING_IDENTIFIER()),
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           FORMAL_PARAMETER_CLAUSE(),
           b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
@@ -865,6 +867,7 @@ public class JavaScriptGrammar {
     return b.<ArrowFunctionTree>nonterminal(Kind.ARROW_FUNCTION)
       .is(f.arrowFunction(
         b.optional(b.token(EcmaScriptLexer.ASYNC)),
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_CLAUSE()),
@@ -1562,14 +1565,18 @@ public class JavaScriptGrammar {
             b.zeroOrMore(DECORATOR()),
             b.optional(b.token(EcmaScriptLexer.STATIC)),
             b.token(JavaScriptPunctuator.STAR),
-            PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
+            PROPERTY_NAME(),
+            b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
+            FORMAL_PARAMETER_CLAUSE(),
             b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK()),
           f.method(
             b.zeroOrMore(DECORATOR()),
             b.optional(b.token(EcmaScriptLexer.STATIC)),
             b.optional(b.token(EcmaScriptLexer.ASYNC)),
-            PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
+            PROPERTY_NAME(),
+            b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
+            FORMAL_PARAMETER_CLAUSE(),
             b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK()),
           f.accessor(
@@ -1579,6 +1586,7 @@ public class JavaScriptGrammar {
               b.token(EcmaScriptLexer.GET),
               b.token(EcmaScriptLexer.SET)),
             PROPERTY_NAME(),
+            b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
             FORMAL_PARAMETER_CLAUSE(),
             b.optional(FLOW_TYPE_ANNOTATION()),
             BLOCK())));
@@ -1589,7 +1597,9 @@ public class JavaScriptGrammar {
       .is(
         f.functionAndGeneratorDeclaration(
           b.optional(b.token(EcmaScriptLexer.ASYNC)),
-          b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_CLAUSE(),
+          b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(),
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
+          FORMAL_PARAMETER_CLAUSE(),
           b.optional(FLOW_TYPE_ANNOTATION()),
           BLOCK()));
   }

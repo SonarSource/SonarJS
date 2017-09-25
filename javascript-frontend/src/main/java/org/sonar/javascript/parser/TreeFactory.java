@@ -686,10 +686,12 @@ public class TreeFactory {
 
   public FunctionExpressionTree generatorExpression(
     InternalSyntaxToken functionKeyword, InternalSyntaxToken starOperator,
-    Optional<IdentifierTree> functionName, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
+    Optional<IdentifierTree> functionName,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
+    ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
 
-    return FunctionExpressionTreeImpl.createGenerator(functionKeyword, starOperator, functionName.orNull(), parameters, returnType.orNull(), body);
+    return FunctionExpressionTreeImpl.createGenerator(functionKeyword, starOperator, functionName.orNull(), genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   public LiteralTree nullLiteral(InternalSyntaxToken nullToken) {
@@ -718,9 +720,10 @@ public class TreeFactory {
 
   public FunctionExpressionTree functionExpression(
     Optional<InternalSyntaxToken> asyncToken, InternalSyntaxToken functionKeyword, Optional<IdentifierTree> functionName,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
     ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
-    return FunctionExpressionTreeImpl.create(asyncToken.orNull(), functionKeyword, functionName.orNull(), parameters, returnType.orNull(), body);
+    return FunctionExpressionTreeImpl.create(asyncToken.orNull(), functionKeyword, functionName.orNull(), genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   public ParameterListTree formalParameterClause1(
@@ -875,10 +878,10 @@ public class TreeFactory {
   }
 
   public ArrowFunctionTree arrowFunction(
-    Optional<InternalSyntaxToken> asyncToken, Tree parameters,
+    Optional<InternalSyntaxToken> asyncToken, Optional<FlowGenericParameterClauseTree> genericParameterClause, Tree parameters,
     Optional<FlowTypeAnnotationTree> returnType,  Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body
   ) {
-    return new ArrowFunctionTreeImpl(asyncToken.orNull(), parameters, returnType.orNull(), doubleArrow, body);
+    return new ArrowFunctionTreeImpl(asyncToken.orNull(), genericParameterClause.orNull(), parameters, returnType.orNull(), doubleArrow, body);
   }
 
   public IdentifierTree identifierName(InternalSyntaxToken identifier) {
@@ -1344,36 +1347,37 @@ public class TreeFactory {
 
   public MethodDeclarationTree generatorMethod(
     Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken starToken,
-    Tree name, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType,
+    Tree name, Optional<FlowGenericParameterClauseTree> genericParameterClause, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType,
     BlockTree body
   ) {
-    return MethodDeclarationTreeImpl.generator(optionalList(decorators), staticToken.orNull(), starToken, name, parameters, returnType.orNull(), body);
+    return MethodDeclarationTreeImpl.generator(optionalList(decorators), staticToken.orNull(), starToken, name, genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   public MethodDeclarationTree method(
-    Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, Optional<InternalSyntaxToken> asyncToken, Tree name, ParameterListTree parameters,
+    Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, Optional<InternalSyntaxToken> asyncToken, Tree name,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause, ParameterListTree parameters,
     Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
-    return MethodDeclarationTreeImpl.method(optionalList(decorators), staticToken.orNull(), asyncToken.orNull(), name, parameters, returnType.orNull(), body);
+    return MethodDeclarationTreeImpl.method(optionalList(decorators), staticToken.orNull(), asyncToken.orNull(), name, genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   public AccessorMethodDeclarationTree accessor(
     Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken accessorToken, Tree name,
-    ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType,
     BlockTree body
   ) {
 
-    return new AccessorMethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), accessorToken, name, parameters, returnType.orNull(), body);
+    return new AccessorMethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), accessorToken, name, genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   public FunctionDeclarationTree functionAndGeneratorDeclaration(
     Optional<InternalSyntaxToken> asyncToken, InternalSyntaxToken functionToken, Optional<InternalSyntaxToken> starToken,
-    IdentifierTree name, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
+    IdentifierTree name, Optional<FlowGenericParameterClauseTree> genericParameterClause, ParameterListTree parameters, Optional<FlowTypeAnnotationTree> returnType, BlockTree body
   ) {
 
     return starToken.isPresent() ?
-      FunctionDeclarationTreeImpl.createGenerator(functionToken, starToken.get(), name, parameters, returnType.orNull(), body) :
-      FunctionDeclarationTreeImpl.create(asyncToken.orNull(), functionToken, name, parameters, returnType.orNull(), body);
+      FunctionDeclarationTreeImpl.createGenerator(functionToken, starToken.get(), name, genericParameterClause.orNull(), parameters, returnType.orNull(), body) :
+      FunctionDeclarationTreeImpl.create(asyncToken.orNull(), functionToken, name, genericParameterClause.orNull(), parameters, returnType.orNull(), body);
   }
 
   // [START] Destructuring pattern
