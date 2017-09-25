@@ -22,10 +22,12 @@ package org.sonar.javascript.tree.impl.flow;
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -35,19 +37,19 @@ public class FlowInterfaceDeclarationTreeImpl extends JavaScriptTree implements 
 
   private final SyntaxToken interfaceToken;
   private final IdentifierTree name;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final SyntaxToken leftCurlyBraceToken;
   private final SeparatedList<FlowPropertyDefinitionTree> properties;
   private final SyntaxToken rightCurlyBraceToken;
 
   public FlowInterfaceDeclarationTreeImpl(
-    SyntaxToken interfaceToken,
-    IdentifierTree name,
-    SyntaxToken leftCurlyBraceToken,
-    SeparatedList<FlowPropertyDefinitionTree> properties,
-    SyntaxToken rightCurlyBraceToken
+    SyntaxToken interfaceToken, IdentifierTree name,
+    @Nullable FlowGenericParameterClauseTree genericParameterClause, SyntaxToken leftCurlyBraceToken,
+    SeparatedList<FlowPropertyDefinitionTree> properties, SyntaxToken rightCurlyBraceToken
   ) {
     this.interfaceToken = interfaceToken;
     this.name = name;
+    this.genericParameterClause = genericParameterClause;
     this.leftCurlyBraceToken = leftCurlyBraceToken;
     this.properties = properties;
     this.rightCurlyBraceToken = rightCurlyBraceToken;
@@ -61,7 +63,7 @@ public class FlowInterfaceDeclarationTreeImpl extends JavaScriptTree implements 
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
-      Iterators.forArray(interfaceToken, name, leftCurlyBraceToken),
+      Iterators.forArray(interfaceToken, name, genericParameterClause, leftCurlyBraceToken),
       properties.elementsAndSeparators(Functions.identity()),
       Iterators.singletonIterator(rightCurlyBraceToken));
   }
@@ -79,6 +81,12 @@ public class FlowInterfaceDeclarationTreeImpl extends JavaScriptTree implements 
   @Override
   public IdentifierTree name() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Override

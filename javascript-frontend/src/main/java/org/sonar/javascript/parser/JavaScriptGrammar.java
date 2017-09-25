@@ -984,6 +984,7 @@ public class JavaScriptGrammar {
           b.zeroOrMore(DECORATOR()),
           b.token(JavaScriptKeyword.CLASS),
           b.optional(BINDING_IDENTIFIER()),
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           // TODO Factor the duplication with CLASS_DECLARATION() into CLASS_TRAIT() ?
           b.optional(EXTENDS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
@@ -1521,6 +1522,7 @@ public class JavaScriptGrammar {
         f.classDeclaration(
           b.zeroOrMore(DECORATOR()),
           b.token(JavaScriptKeyword.CLASS), BINDING_IDENTIFIER(),
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           // TODO Factor the duplication with CLASS_EXPRESSION() into CLASS_TRAIT() ?
           b.optional(EXTENDS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
@@ -2037,6 +2039,7 @@ public class JavaScriptGrammar {
       .is(f.flowInterfaceDeclaration(
         b.token(EcmaScriptLexer.INTERFACE),
         BINDING_IDENTIFIER(),
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         b.token(JavaScriptPunctuator.LCURLYBRACE),
         b.optional(FLOW_OBJECT_TYPE_PROPERTIES()),
         b.token(JavaScriptPunctuator.RCURLYBRACE)));

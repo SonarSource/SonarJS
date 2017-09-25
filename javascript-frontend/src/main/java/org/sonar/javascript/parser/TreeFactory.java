@@ -969,7 +969,8 @@ public class TreeFactory {
   }
 
   public ClassTree classExpression(
-    Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, Optional<IdentifierTree> name, Optional<ExtendsClauseTree> extendsClause,
+    Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, Optional<IdentifierTree> name,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause, Optional<ExtendsClauseTree> extendsClause,
     InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
@@ -984,6 +985,7 @@ public class TreeFactory {
     return ClassTreeImpl.newClassExpression(
       optionalList(decorators),
       classToken, name.orNull(),
+      genericParameterClause.orNull(),
       extendsClause.orNull(),
       openCurlyBraceToken,
       elements,
@@ -1326,6 +1328,7 @@ public class TreeFactory {
 
   public ClassTree classDeclaration(
     Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, IdentifierTree name,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
     Optional<ExtendsClauseTree> extendsClause,
     InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken
   ) {
@@ -1339,6 +1342,7 @@ public class TreeFactory {
     }
     return ClassTreeImpl.newClassDeclaration(
       optionalList(decorators), classToken, name,
+      genericParameterClause.orNull(),
       extendsClause.orNull(),
       openCurlyBraceToken,
       elements,
@@ -1924,6 +1928,7 @@ public class TreeFactory {
   public FlowInterfaceDeclarationTree flowInterfaceDeclaration(
     InternalSyntaxToken interfaceToken,
     IdentifierTree identifierTree,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
     InternalSyntaxToken openCurlyBraceToken,
     Optional<SeparatedList<Tree>> properties,
     InternalSyntaxToken closeCurlyBraceToken
@@ -1931,6 +1936,7 @@ public class TreeFactory {
     return new FlowInterfaceDeclarationTreeImpl(
       interfaceToken,
       identifierTree,
+      genericParameterClause.orNull(),
       openCurlyBraceToken,
       properties.or(new SeparatedListImpl(Lists.newArrayList(), Collections.emptyList())),
       closeCurlyBraceToken);
