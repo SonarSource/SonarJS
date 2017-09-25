@@ -3,6 +3,9 @@
 504,
 3877,
 ],
+'project:babylon/src/tokenizer/index.js':[
+521,
+],
 'project:babylon/test/fixtures/flow/regression/issue-2083/actual.js':[
 3,
 9,

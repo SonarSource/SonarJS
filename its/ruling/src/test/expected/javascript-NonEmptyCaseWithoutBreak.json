@@ -2,6 +2,10 @@
 'project:angular-1.0.3.js':[
 9483,
 ],
+'project:babylon/src/tokenizer/index.js':[
+291,
+956,
+],
 'project:dojo-1.8.1/dijit/_editor/RichText.js.uncompressed.js':[
 575,
 ],

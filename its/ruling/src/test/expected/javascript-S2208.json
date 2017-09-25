@@ -1,4 +1,7 @@
 {
+'project:babylon/src/tokenizer/state.js':[
+4,
+],
 'project:babylon/test/fixtures/flow/declare-export/export-star-as/actual.js':[
 1,
 ],

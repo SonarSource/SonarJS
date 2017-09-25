@@ -26,6 +26,11 @@
 'project:babylon/scripts/run_flow_tests.js':[
 72,
 ],
+'project:babylon/src/tokenizer/index.js':[
+688,
+877,
+1027,
+],
 'project:backbone-0.9.2.js':[
 817,
 1020,
@@ -2617,6 +2622,9 @@
 ],
 'project:jest/packages/jest-editor-support/src/parsers/babylon_parser.js':[
 152,
+],
+'project:jest/packages/jest-editor-support/src/test_reconciler.js':[
+63,
 ],
 'project:jest/packages/jest-get-type/src/index.js':[
 49,

@@ -47,6 +47,12 @@
 'project:babylon/scripts/rmExpected.js':[
 19,
 ],
+'project:babylon/src/tokenizer/index.js':[
+731,
+931,
+957,
+1022,
+],
 'project:dojo-1.8.1/dijit/Dialog.js.uncompressed.js':[
 314,
 328,

@@ -5,6 +5,9 @@
 'project:angular-1.0.3.js':[
 1870,
 ],
+'project:babylon/src/tokenizer/state.js':[
+162,
+],
 'project:babylon/test/helpers/runFixtureTests.js':[
 146,
 ],
@@ -931,6 +934,10 @@
 ],
 'project:google-closure-library/window/window.js':[
 93,
+],
+'project:jest/packages/jest-util/src/fake_timers.js':[
+120,
+500,
 ],
 'project:jest/packages/jest-util/src/install_common_globals.js':[
 17,

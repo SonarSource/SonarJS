@@ -27,6 +27,12 @@
 59,
 69,
 ],
+'project:babylon/src/tokenizer/index.js':[
+68,
+],
+'project:babylon/src/util/location.js':[
+41,
+],
 'project:babylon/src/util/whitespace.js':[
 9,
 ],

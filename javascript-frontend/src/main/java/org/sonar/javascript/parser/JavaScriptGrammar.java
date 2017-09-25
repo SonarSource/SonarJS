@@ -1529,6 +1529,7 @@ public class JavaScriptGrammar {
         b.firstOf(
           METHOD_DEFINITION(),
           CLASS_FIELD_INITIALIZER(),
+          FLOW_PROPERTY_DEFINITION(),
           b.token(JavaScriptPunctuator.SEMI)));
   }
 

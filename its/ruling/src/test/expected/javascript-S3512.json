@@ -2791,6 +2791,11 @@
 'project:jest/packages/expect/src/__tests__/to_throw_matchers.test.js':[
 20,
 ],
+'project:jest/packages/expect/src/asymmetric_matchers.js':[
+94,
+125,
+158,
+],
 'project:jest/packages/expect/src/extract_expected_assertions_errors.js':[
 38,
 56,
@@ -2842,6 +2847,9 @@
 'project:jest/packages/jest-cli/src/get_no_test_found_verbose.js':[
 27,
 30,
+],
+'project:jest/packages/jest-cli/src/pattern_prompt.js':[
+20,
 ],
 'project:jest/packages/jest-cli/src/reporters/__tests__/utils.test.js':[
 18,
@@ -2938,6 +2946,13 @@
 67,
 170,
 180,
+],
+'project:jest/packages/jest-util/src/fake_timers.js':[
+160,
+182,
+230,
+275,
+345,
 ],
 'project:jest/packages/jest-validate/src/warnings.js':[
 32,

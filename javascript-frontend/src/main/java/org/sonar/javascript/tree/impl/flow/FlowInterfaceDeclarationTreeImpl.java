@@ -39,7 +39,13 @@ public class FlowInterfaceDeclarationTreeImpl extends JavaScriptTree implements 
   private final SeparatedList<FlowPropertyDefinitionTree> properties;
   private final SyntaxToken rightCurlyBraceToken;
 
-  public FlowInterfaceDeclarationTreeImpl(SyntaxToken interfaceToken, IdentifierTree name, SyntaxToken leftCurlyBraceToken, SeparatedList<FlowPropertyDefinitionTree> properties, SyntaxToken rightCurlyBraceToken) {
+  public FlowInterfaceDeclarationTreeImpl(
+    SyntaxToken interfaceToken,
+    IdentifierTree name,
+    SyntaxToken leftCurlyBraceToken,
+    SeparatedList<FlowPropertyDefinitionTree> properties,
+    SyntaxToken rightCurlyBraceToken
+  ) {
     this.interfaceToken = interfaceToken;
     this.name = name;
     this.leftCurlyBraceToken = leftCurlyBraceToken;
