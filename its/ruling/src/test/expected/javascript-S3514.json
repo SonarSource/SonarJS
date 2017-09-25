@@ -770,6 +770,9 @@
 'project:jest/packages/jest-haste-map/src/crawlers/node.js':[
 134,
 ],
+'project:jest/packages/jest-resolve/src/index.js':[
+321,
+],
 'project:jest/packages/jest-snapshot/src/__tests__/utils.test.js':[
 27,
 ],

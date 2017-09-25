@@ -25,21 +25,17 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class FlowSimpleTypeTest extends LegacyParserTest {
+public class FlowTypeofTypeTest extends LegacyParserTest {
 
   @Test
-  public void ok() {
-    assertThat(g.rule(Kind.FLOW_SIMPLE_TYPE))
-      .matches("number")
-      .matches("string")
-      .matches("boolean")
-      .matches("MyClass")
-      .matches("mixed")
-      .matches("any")
-      .matches("void")
-      .matches("null")
-      .matches("*")
+  public void test() {
+    assertThat(g.rule(Kind.FLOW_TYPEOF_TYPE))
+      .matches("typeof 1")
+      .matches("typeof a")
+      .matches("typeof {}")
+      .matches("typeof []")
+      .matches("typeof ([])")
+      .matches("typeof ()=>42")
     ;
   }
-
 }

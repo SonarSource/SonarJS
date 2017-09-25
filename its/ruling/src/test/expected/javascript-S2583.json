@@ -2,6 +2,13 @@
 'project:babylon/src/parser/lval.js':[
 238,
 ],
+'project:babylon/src/plugins/estree.js':[
+280,
+304,
+],
+'project:babylon/src/plugins/typescript.js':[
+1490,
+],
 'project:dojo-1.8.1/dojo/_base/config.js.uncompressed.js':[
 165,
 ],

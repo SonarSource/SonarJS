@@ -128,6 +128,9 @@
 'project:jest/packages/expect/src/spy_matchers.js':[
 0,
 ],
+'project:jest/packages/expect/src/to_throw_matchers.js':[
+0,
+],
 'project:jest/packages/jest-changed-files/src/git.js':[
 0,
 ],
@@ -173,10 +176,16 @@
 'project:jest/packages/jest-cli/src/reporters/default_reporter.js':[
 0,
 ],
+'project:jest/packages/jest-cli/src/reporters/notify_reporter.js':[
+0,
+],
 'project:jest/packages/jest-cli/src/reporters/summary_reporter.js':[
 0,
 ],
 'project:jest/packages/jest-cli/src/reporters/verbose_reporter.js':[
+0,
+],
+'project:jest/packages/jest-cli/src/run_jest.js':[
 0,
 ],
 'project:jest/packages/jest-cli/src/test_name_pattern_prompt.js':[
@@ -263,6 +272,9 @@
 'project:jest/packages/jest-resolve/src/node_modules_paths.js':[
 0,
 ],
+'project:jest/packages/jest-runner/src/run_test.js':[
+0,
+],
 'project:jest/packages/jest-runtime/src/should_instrument.js':[
 0,
 ],
@@ -273,6 +285,9 @@
 0,
 ],
 'project:jest/packages/jest-util/src/fake_timers.js':[
+0,
+],
+'project:jest/packages/jest-util/src/format_test_results.js':[
 0,
 ],
 'project:jest/packages/jest-util/src/null_console.js':[

@@ -17,29 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.flow;
+package org.sonar.plugins.javascript.api.tree.flow;
 
-import org.junit.Test;
-import org.sonar.javascript.utils.LegacyParserTest;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+public interface FlowTypeofTypeTree extends FlowTypeTree {
 
-public class FlowSimpleTypeTest extends LegacyParserTest {
+  SyntaxToken typeofToken();
 
-  @Test
-  public void ok() {
-    assertThat(g.rule(Kind.FLOW_SIMPLE_TYPE))
-      .matches("number")
-      .matches("string")
-      .matches("boolean")
-      .matches("MyClass")
-      .matches("mixed")
-      .matches("any")
-      .matches("void")
-      .matches("null")
-      .matches("*")
-    ;
-  }
-
+  ExpressionTree value();
 }

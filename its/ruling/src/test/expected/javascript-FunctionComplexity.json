@@ -67,6 +67,10 @@
 369,
 461,
 ],
+'project:babylon/src/plugins/typescript.js':[
+539,
+1096,
+],
 'project:babylon/src/tokenizer/index.js':[
 282,
 456,
@@ -2643,6 +2647,9 @@
 'project:jest/packages/babel-plugin-jest-hoist/src/index.js':[
 80,
 ],
+'project:jest/packages/expect/src/jasmine_utils.js':[
+59,
+],
 'project:jest/packages/jest-circus/src/event_handler.js':[
 18,
 ],
@@ -2658,8 +2665,15 @@
 'project:jest/packages/jest-cli/src/reporters/utils.js':[
 99,
 ],
+'project:jest/packages/jest-cli/src/test_scheduler.js':[
+62,
+],
 'project:jest/packages/jest-cli/src/watch.js':[
 141,
+],
+'project:jest/packages/jest-config/src/normalize.js':[
+310,
+351,
 ],
 'project:jest/packages/jest-config/src/set_from_argv.js':[
 23,
@@ -2692,6 +2706,9 @@
 553,
 588,
 ],
+'project:jest/packages/jest-resolve/src/index.js':[
+112,
+],
 'project:jest/packages/jest-runtime/src/should_instrument.js':[
 22,
 ],
@@ -2706,6 +2723,9 @@
 88,
 156,
 390,
+],
+'project:jest/packages/pretty-format/src/plugins/convert_ansi.js':[
+17,
 ],
 'project:jquery-1.7.2.js':[
 99,

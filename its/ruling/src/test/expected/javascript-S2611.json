@@ -609,6 +609,9 @@
 191,
 199,
 ],
+'project:jest/packages/jest-haste-map/src/crawlers/watchman.js':[
+20,
+],
 'project:jest/packages/jest-snapshot/src/utils.js':[
 24,
 ],

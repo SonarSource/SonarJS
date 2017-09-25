@@ -2842,8 +2842,14 @@
 'project:jest/eslint_import_resolver.js':[
 23,
 ],
+'project:jest/packages/expect/src/jasmine_utils.js':[
+174,
+],
 'project:jest/packages/jest-cli/src/cli/index.js':[
 52,
+],
+'project:jest/packages/jest-cli/src/test_scheduler.js':[
+169,
 ],
 'project:jest/packages/jest-config/src/read_config_file_and_set_root_dir.js':[
 28,

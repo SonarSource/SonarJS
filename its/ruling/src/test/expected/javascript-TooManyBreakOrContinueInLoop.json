@@ -13,6 +13,9 @@
 296,
 866,
 ],
+'project:babylon/src/plugins/typescript.js':[
+164,
+],
 'project:babylon/src/tokenizer/index.js':[
 283,
 723,
@@ -248,6 +251,9 @@
 ],
 'project:google-closure-library/ui/richtextspellchecker.js':[
 532,
+],
+'project:jest/packages/babel-jest/src/index.js':[
+33,
 ],
 'project:jest/packages/jest-util/src/fake_timers.js':[
 252,

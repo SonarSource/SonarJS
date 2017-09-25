@@ -17,29 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.flow;
+package org.sonar.javascript.tree.impl.flow;
 
 import org.junit.Test;
-import org.sonar.javascript.utils.LegacyParserTest;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.flow.FlowCastingExpressionTree;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class FlowSimpleTypeTest extends LegacyParserTest {
+public class FlowCastingExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void ok() {
-    assertThat(g.rule(Kind.FLOW_SIMPLE_TYPE))
-      .matches("number")
-      .matches("string")
-      .matches("boolean")
-      .matches("MyClass")
-      .matches("mixed")
-      .matches("any")
-      .matches("void")
-      .matches("null")
-      .matches("*")
-    ;
+  public void test() throws Exception {
+    FlowCastingExpressionTree tree = parse("(foo: ?MyType)", Kind.FLOW_CASTING_EXPRESSION);
+
+    assertThat(tree.is(Kind.FLOW_CASTING_EXPRESSION)).isTrue();
+    assertThat(tree.leftParenthesisToken().text()).isEqualTo("(");
+    assertThat(tree.rightParenthesisToken().text()).isEqualTo(")");
+    assertThat(tree.colonToken().text()).isEqualTo(":");
+    assertThat(tree.type().is(Kind.FLOW_OPTIONAL_TYPE)).isTrue();
+    assertThat(tree.value().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
   }
 
 }

@@ -2,6 +2,9 @@
 'project:babylon/src/parser/statement.js':[
 1108,
 ],
+'project:babylon/src/plugins/typescript.js':[
+312,
+],
 'project:dojo-1.8.1/dojox/charting/action2d/Tooltip.js.uncompressed.js':[
 92,
 ],

@@ -207,6 +207,12 @@ public class ExpressionStackTest {
   }
 
   @Test
+  public void flow_type_casting() throws Exception {
+    execute("(a: MyType)");
+    assertSingleValueInStack(UNKNOWN);
+  }
+
+  @Test
   public void isEmpty() throws Exception {
     assertThat(emptyStack().isEmpty()).isTrue();
     assertThat(emptyStack().push(simple1).isEmpty()).isFalse();

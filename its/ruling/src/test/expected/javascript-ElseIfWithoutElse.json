@@ -58,6 +58,10 @@
 1688,
 1715,
 ],
+'project:babylon/src/plugins/typescript.js':[
+312,
+1133,
+],
 'project:babylon/src/tokenizer/index.js':[
 688,
 877,
@@ -2661,6 +2665,12 @@
 199,
 207,
 ],
+'project:jest/packages/jest-cli/src/run_jest.js':[
+131,
+],
+'project:jest/packages/jest-cli/src/test_scheduler.js':[
+290,
+],
 'project:jest/packages/jest-config/src/reporter_validation_errors.js':[
 72,
 94,
@@ -2682,6 +2692,12 @@
 'project:jest/packages/jest-haste-map/src/crawlers/__tests__/watchman.test.js':[
 19,
 ],
+'project:jest/packages/jest-haste-map/src/crawlers/watchman.js':[
+111,
+],
+'project:jest/packages/jest-haste-map/src/worker.js':[
+71,
+],
 'project:jest/packages/jest-mock/src/index.js':[
 574,
 ],
@@ -2699,6 +2715,9 @@
 106,
 142,
 186,
+],
+'project:jest/packages/pretty-format/src/plugins/react_element.js':[
+29,
 ],
 'project:jquery-1.7.2.js':[
 197,

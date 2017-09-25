@@ -271,6 +271,9 @@
 'project:jest/packages/jest-mock/src/index.js':[
 427,
 ],
+'project:jest/packages/pretty-format/src/__tests__/pretty_format.test.js':[
+366,
+],
 'project:jquery-1.7.2.js':[
 595,
 1166,
