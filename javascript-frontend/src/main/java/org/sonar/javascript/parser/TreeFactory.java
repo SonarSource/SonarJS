@@ -1805,9 +1805,13 @@ public class TreeFactory {
     return new FlowLiteralTypeTreeImpl(null, token);
   }
 
-  public FlowFunctionTypeTree flowFunctionType(FlowFunctionTypeParameterClauseTree parameterClause, InternalSyntaxToken doubleArrow,
-    FlowTypeTree returnType) {
-    return new FlowFunctionTypeTreeImpl(parameterClause, doubleArrow, returnType);
+  public FlowFunctionTypeTree flowFunctionType(
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
+    FlowFunctionTypeParameterClauseTree parameterClause,
+    InternalSyntaxToken doubleArrow,
+    FlowTypeTree returnType
+  ) {
+    return new FlowFunctionTypeTreeImpl(genericParameterClause.orNull(), parameterClause, doubleArrow, returnType);
   }
 
   public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
@@ -1963,9 +1967,11 @@ public class TreeFactory {
   }
 
   public FlowFunctionSignatureTree flowFunctionSignature(
-    InternalSyntaxToken functionToken, IdentifierTree name, FlowFunctionTypeParameterClauseTree parameterClause, FlowTypeAnnotationTree returnType
+    InternalSyntaxToken functionToken, IdentifierTree name,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause,
+    FlowFunctionTypeParameterClauseTree parameterClause, FlowTypeAnnotationTree returnType
   ) {
-    return new FlowFunctionSignatureTreeImpl(functionToken, name, parameterClause, returnType);
+    return new FlowFunctionSignatureTreeImpl(functionToken, name, genericParameterClause.orNull(), parameterClause, returnType);
   }
 
   public DefaultExportDeclarationTree flowExportDefaultType(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, FlowTypeTree type, Tree eos) {
