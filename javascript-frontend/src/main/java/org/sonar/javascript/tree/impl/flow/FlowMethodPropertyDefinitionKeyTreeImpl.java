@@ -27,17 +27,14 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowMethodPropertyDefinitionKeyTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowMethodPropertyDefinitionKeyTreeImpl extends JavaScriptTree implements FlowMethodPropertyDefinitionKeyTree {
 
-  private final SyntaxToken staticToken;
   private final IdentifierTree methodName;
   private final FlowFunctionTypeParameterClauseTree parameterClause;
 
-  public FlowMethodPropertyDefinitionKeyTreeImpl(@Nullable SyntaxToken staticToken, @Nullable IdentifierTree methodName, FlowFunctionTypeParameterClauseTree parameterClause) {
-    this.staticToken = staticToken;
+  public FlowMethodPropertyDefinitionKeyTreeImpl(@Nullable IdentifierTree methodName, FlowFunctionTypeParameterClauseTree parameterClause) {
     this.methodName = methodName;
     this.parameterClause = parameterClause;
   }
@@ -49,13 +46,7 @@ public class FlowMethodPropertyDefinitionKeyTreeImpl extends JavaScriptTree impl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(staticToken, methodName, parameterClause);
-  }
-
-  @Nullable
-  @Override
-  public SyntaxToken staticToken() {
-    return staticToken;
+    return Iterators.forArray(methodName, parameterClause);
   }
 
   @Nullable

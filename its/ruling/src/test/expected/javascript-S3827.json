@@ -1618,6 +1618,9 @@
 68,
 91,
 ],
+'project:jest/packages/jest-haste-map/src/module_map.js':[
+129,
+],
 'project:jest/packages/jest-repl/src/cli/repl.js':[
 30,
 31,

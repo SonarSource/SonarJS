@@ -33,11 +33,14 @@ public class FlowPropertyDefinitionTest extends LegacyParserTest {
       .matches("a: number")
       .matches("+a: number")
       .matches("-a: number")
+      .matches("static -a: number")
       .matches("a?: number")
+      .matches("static: number")
 
       .matches("[string]: number")
       .matches("-[string]: number")
       .matches("[a: string]: number")
+      .matches("static [a: string]: number")
 
       .matches("foo(number, a?: string): number")
       .matches("static foo(number, a?: string): number")

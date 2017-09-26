@@ -40,6 +40,7 @@ public class FlowPropertyDefinitionTreeModelTest extends JavaScriptTreeModelTest
     assertThat(tree.is(Tree.Kind.FLOW_PROPERTY_DEFINITION)).isTrue();
     assertThat(tree.key().is(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)).isTrue();
     assertThat(tree.plusOrMinusToken()).isNull();
+    assertThat(tree.staticToken()).isNull();
     assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).queryToken()).isNull();
     assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).identifier().name()).isEqualTo("id");
     assertThat(tree.typeAnnotation().type().is(Kind.FLOW_SIMPLE_TYPE)).isTrue();
@@ -92,7 +93,6 @@ public class FlowPropertyDefinitionTreeModelTest extends JavaScriptTreeModelTest
 
     assertThat(tree.is(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)).isTrue();
     assertThat(tree.methodName().name()).isEqualTo("foo");
-    assertThat(tree.staticToken().text()).isEqualTo("static");
     assertThat(tree.parameterClause().parameters()).hasSize(1);
   }
 
@@ -107,12 +107,17 @@ public class FlowPropertyDefinitionTreeModelTest extends JavaScriptTreeModelTest
 
   @Test
   public void static_callable() throws Exception {
-    FlowMethodPropertyDefinitionKeyTree tree = parse("static(number): number", Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY, Tree.Kind.FLOW_PROPERTY_DEFINITION);
-
-    assertThat(tree.is(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)).isTrue();
+    FlowPropertyDefinitionTree tree = parse("static(number): number", Kind.FLOW_PROPERTY_DEFINITION, Tree.Kind.FLOW_PROPERTY_DEFINITION);
+    assertThat(tree.key().is(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)).isTrue();
     assertThat(tree.staticToken().text()).isEqualTo("static");
-    assertThat(tree.methodName()).isNull();
-    assertThat(tree.parameterClause().parameters()).hasSize(1);
+  }
+
+  @Test
+  public void static_named_property() throws Exception {
+    FlowPropertyDefinitionTree tree = parse("static: number", Kind.FLOW_PROPERTY_DEFINITION, Tree.Kind.FLOW_PROPERTY_DEFINITION);
+    assertThat(tree.key().is(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)).isTrue();
+    assertThat(tree.staticToken()).isNull();
+    assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).identifier().identifierToken().text()).isEqualTo("static");
   }
 
 }

@@ -59,6 +59,12 @@
 'project:babylon/test/fixtures/flow/declare-statements/1/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/declare-statements/10/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/declare-statements/11/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/declare-statements/12/actual.js':[
 0,
 ],
@@ -270,6 +276,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/53/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/54/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/55/actual.js':[

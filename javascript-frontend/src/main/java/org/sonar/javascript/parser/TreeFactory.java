@@ -1897,8 +1897,12 @@ public class TreeFactory {
     return new FlowObjectTypeTreeImpl(lcurly, lpipe, properties.or(new SeparatedListImpl(Lists.newArrayList(), Collections.emptyList())), rpipe, rcurly);
   }
 
+  public FlowPropertyDefinitionTree flowPropertyDefinition(InternalSyntaxToken staticToken, Optional<InternalSyntaxToken> plusOrMinusToken, FlowPropertyDefinitionKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
+    return new FlowPropertyDefinitionTreeImpl(staticToken, plusOrMinusToken.orNull(), key, typeAnnotation);
+  }
+
   public FlowPropertyDefinitionTree flowPropertyDefinition(Optional<InternalSyntaxToken> plusOrMinusToken, FlowPropertyDefinitionKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
-    return new FlowPropertyDefinitionTreeImpl(plusOrMinusToken.orNull(), key, typeAnnotation);
+    return new FlowPropertyDefinitionTreeImpl(null, plusOrMinusToken.orNull(), key, typeAnnotation);
   }
 
   public FlowSimplePropertyDefinitionKeyTree flowSimplePropertyDefinitionKeyTree(IdentifierTree identifier, Optional<SyntaxToken> queryToken) {
@@ -2043,8 +2047,8 @@ public class TreeFactory {
     return parameterList(type, Optional.of(rest));
   }
 
-  public FlowMethodPropertyDefinitionKeyTree flowMethodPropertyDefinitionKeyTree(Optional<InternalSyntaxToken> staticToken, Optional<IdentifierTree> identifierTree, FlowFunctionTypeParameterClauseTree parameterClauseTree) {
-    return new FlowMethodPropertyDefinitionKeyTreeImpl(staticToken.orNull(), identifierTree.orNull(), parameterClauseTree);
+  public FlowMethodPropertyDefinitionKeyTree flowMethodPropertyDefinitionKeyTree(Optional<IdentifierTree> identifierTree, FlowFunctionTypeParameterClauseTree parameterClauseTree) {
+    return new FlowMethodPropertyDefinitionKeyTreeImpl(identifierTree.orNull(), parameterClauseTree);
   }
 
   public FlowGenericParameterTree flowGenericParameter(

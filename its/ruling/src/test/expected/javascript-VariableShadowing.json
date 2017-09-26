@@ -2725,6 +2725,10 @@
 43,
 43,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+356,
+689,
+],
 'project:jest/packages/jest-jasmine2/src/index.js':[
 110,
 ],
@@ -2760,6 +2764,13 @@
 ],
 'project:jest/packages/jest-runtime/src/__tests__/script_transformer.test.js':[
 89,
+],
+'project:jest/packages/jest-runtime/src/index.js':[
+779,
+],
+'project:jest/packages/jest-runtime/src/script_transformer.js':[
+191,
+345,
 ],
 'project:jest/packages/jest-validate/src/__tests__/validate.test.js':[
 61,

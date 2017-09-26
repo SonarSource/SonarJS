@@ -6087,6 +6087,13 @@
 'project:jest/packages/jest-haste-map/src/haste_fs.js':[
 43,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+643,
+670,
+],
+'project:jest/packages/jest-haste-map/src/module_map.js':[
+38,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
 40,
 111,
