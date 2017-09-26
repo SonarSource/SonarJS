@@ -61,6 +61,7 @@ public class ClassDeclarationTest {
   public void flow() throws Exception {
     assertThat(Kind.CLASS_DECLARATION)
       .matches("class C {property: number; method():number{} }")
+      .matches("class C extends A.B<D> { }")
     ;
   }
 }

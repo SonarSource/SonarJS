@@ -999,7 +999,7 @@ public class JavaScriptGrammar {
 
   public ExtendsClauseTree EXTENDS_CLAUSE() {
     return b.<ExtendsClauseTree>nonterminal(Kind.EXTENDS_CLAUSE)
-      .is(f.extendsClause(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION()));
+      .is(f.extendsClause(b.token(JavaScriptKeyword.EXTENDS), b.firstOf(FLOW_PARAMETERIZED_GENERICS_TYPE(), LEFT_HAND_SIDE_EXPRESSION())));
   }
 
   public ComputedPropertyNameTree COMPUTED_PROPERTY_NAME() {

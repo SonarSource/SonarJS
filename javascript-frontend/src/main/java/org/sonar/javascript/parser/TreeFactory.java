@@ -1758,7 +1758,7 @@ public class TreeFactory {
     return new TemplateLiteralTail(templateLiteralTree);
   }
 
-  public ExtendsClauseTree extendsClause(InternalSyntaxToken extendsToken, ExpressionTree superClass) {
+  public ExtendsClauseTree extendsClause(InternalSyntaxToken extendsToken, Tree superClass) {
     return new ExtendsClauseTreeImpl(extendsToken, superClass);
   }
 

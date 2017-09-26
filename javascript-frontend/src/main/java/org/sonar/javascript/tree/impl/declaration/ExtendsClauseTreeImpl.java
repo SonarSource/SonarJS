@@ -24,16 +24,15 @@ import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExtendsClauseTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ExtendsClauseTreeImpl extends JavaScriptTree implements ExtendsClauseTree {
 
   private final SyntaxToken extendsToken;
-  private final ExpressionTree superClass;
+  private final Tree superClass;
 
-  public ExtendsClauseTreeImpl(SyntaxToken extendsToken, ExpressionTree superClass) {
+  public ExtendsClauseTreeImpl(SyntaxToken extendsToken, Tree superClass) {
     this.extendsToken = extendsToken;
     this.superClass = superClass;
   }
@@ -54,7 +53,7 @@ public class ExtendsClauseTreeImpl extends JavaScriptTree implements ExtendsClau
   }
 
   @Override
-  public ExpressionTree superClass() {
+  public Tree superClass() {
     return superClass;
   }
 
