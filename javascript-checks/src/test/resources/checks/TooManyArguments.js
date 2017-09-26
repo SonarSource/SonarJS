@@ -1,4 +1,4 @@
-function foo1(p1, p2){}
+/*function foo1(p1, p2){}
 
 foo1(1, 2, 3);  // Noncompliant [[sc=5;ec=14;el=+0;secondary=-2]] {{"foo1" declared at line 1 expects 2 arguments, but 3 were provided.}}
 
@@ -120,3 +120,15 @@ function builtIn_from_ember() {
 }
 
 isNaN(obj, true);                           // FN, too many arguments but symbolic execution doesn't check global scope 
+
+*/
+class A {
+
+  get a() {
+    return someFunc;
+  }
+
+  foo(param) {
+    this.a(param); // OK, it's a property with getter
+  }
+}
