@@ -36,6 +36,10 @@
 'project:jest/packages/jest-circus/src/legacy_code_todo_rewrite/jest_adapter.js':[
 36,
 ],
+'project:jest/packages/jest-circus/src/legacy_code_todo_rewrite/jest_adapter_init.js':[
+111,
+129,
+],
 'project:jest/packages/jest-circus/src/run.js':[
 101,
 ],

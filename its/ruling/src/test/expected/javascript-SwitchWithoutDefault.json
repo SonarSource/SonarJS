@@ -666,6 +666,11 @@
 'project:jest/packages/jest-circus/src/format_node_assert_errors.js':[
 43,
 ],
+'project:jest/packages/jest-circus/src/legacy_code_todo_rewrite/jest_adapter_init.js':[
+78,
+93,
+157,
+],
 'project:jest/packages/jest-circus/src/utils.js':[
 77,
 98,

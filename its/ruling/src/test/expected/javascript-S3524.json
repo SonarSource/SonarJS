@@ -1,14 +1,8 @@
 {
-'project:babylon/test/fixtures/flow/anonymous-function-types/bad_01/actual.js':[
+'project:babylon/test/fixtures/flow/anonymous-function-no-parens-types/good_05/actual.js':[
 1,
 ],
-'project:babylon/test/fixtures/flow/anonymous-function-types/bad_02/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/anonymous-function-types/bad_03/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/anonymous-function-types/good_10/actual.js':[
+'project:babylon/test/fixtures/flow/anonymous-function-types/good_13/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/anonymous-function-types/good_14/actual.js':[
