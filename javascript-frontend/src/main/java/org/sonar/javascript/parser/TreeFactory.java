@@ -1947,6 +1947,7 @@ public class TreeFactory {
     InternalSyntaxToken interfaceToken,
     IdentifierTree identifierTree,
     Optional<FlowGenericParameterClauseTree> genericParameterClause,
+    Optional<FlowImplementsClauseTree> extendsClause,
     InternalSyntaxToken openCurlyBraceToken,
     Optional<SeparatedList<Tree>> properties,
     InternalSyntaxToken closeCurlyBraceToken
@@ -1955,6 +1956,7 @@ public class TreeFactory {
       interfaceToken,
       identifierTree,
       genericParameterClause.orNull(),
+      extendsClause.orNull(),
       openCurlyBraceToken,
       properties.or(new SeparatedListImpl(Lists.newArrayList(), Collections.emptyList())),
       closeCurlyBraceToken);

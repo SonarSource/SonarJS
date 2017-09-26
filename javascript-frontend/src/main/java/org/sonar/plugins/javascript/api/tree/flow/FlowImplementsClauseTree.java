@@ -24,7 +24,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public interface FlowImplementsClauseTree extends Tree {
-  SyntaxToken implementsToken();
+
+  SyntaxToken implementsOrExtendsToken();
 
   SeparatedList<FlowTypeTree> types();
 }

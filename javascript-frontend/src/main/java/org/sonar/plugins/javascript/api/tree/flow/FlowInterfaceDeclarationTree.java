@@ -34,6 +34,9 @@ public interface FlowInterfaceDeclarationTree extends StatementTree {
   @Nullable
   FlowGenericParameterClauseTree genericParameterClause();
 
+  @Nullable
+  FlowImplementsClauseTree extendsClause();
+
   SyntaxToken leftCurlyBraceToken();
 
   SeparatedList<FlowPropertyDefinitionTree> properties();

@@ -71,7 +71,7 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.extendsClause()).isNotNull();
     assertThat(tree.implementsClause()).isNotNull();
-    assertThat(tree.implementsClause().implementsToken().text()).isEqualTo("implements");
+    assertThat(tree.implementsClause().implementsOrExtendsToken().text()).isEqualTo("implements");
     assertThat(tree.implementsClause().types()).hasSize(2);
   }
 

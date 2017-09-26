@@ -51,7 +51,7 @@ public class FlowImplementsClauseTreeImpl extends JavaScriptTree implements Flow
   }
 
   @Override
-  public SyntaxToken implementsToken() {
+  public SyntaxToken implementsOrExtendsToken() {
     return implementsToken;
   }
 
