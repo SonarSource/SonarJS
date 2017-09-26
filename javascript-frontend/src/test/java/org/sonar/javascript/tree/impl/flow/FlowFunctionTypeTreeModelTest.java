@@ -38,4 +38,26 @@ public class FlowFunctionTypeTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.parameterClause().is(Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE)).isTrue();
     assertThat(tree.returnType().is(Tree.Kind.FLOW_SIMPLE_TYPE)).isTrue();
   }
+
+  @Test
+  public void unparethensized_parameter() throws Exception {
+    FlowFunctionTypeTree tree = parse("string => string", Tree.Kind.FLOW_FUNCTION_TYPE, Tree.Kind.FLOW_FUNCTION_TYPE);
+
+    assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE)).isTrue();
+    assertThat(tree.parameterClause().parameters().size()).isEqualTo(1);
+    assertThat(tree.parameterClause().leftParenthesis()).isNull();
+    assertThat(tree.parameterClause().rightParenthesis()).isNull();
+  }
+
+  @Test
+  public void unparethensized_union_parameter() throws Exception {
+    FlowFunctionTypeTree tree = parse("string | number => string", Tree.Kind.FLOW_FUNCTION_TYPE, Tree.Kind.FLOW_FUNCTION_TYPE);
+
+    assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE)).isTrue();
+    assertThat(tree.parameterClause().parameters().size()).isEqualTo(1);
+    // See #778 to understand why this is wrong
+    assertThat(tree.parameterClause().parameters().get(0).type().is(Tree.Kind.FLOW_UNION_TYPE)).isTrue();
+  }
+
+
 }

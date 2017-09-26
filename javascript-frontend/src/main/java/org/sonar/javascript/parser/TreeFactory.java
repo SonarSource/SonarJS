@@ -1824,11 +1824,6 @@ public class TreeFactory {
     return new FlowFunctionTypeTreeImpl(genericParameterClause.orNull(), parameterClause, doubleArrow, returnType);
   }
 
-  public FlowFunctionTypeTree flowFunctionType(FlowTypeTree singleParameter, InternalSyntaxToken doubleArrow, FlowTypeTree returnType) {
-    return new FlowFunctionTypeTreeImpl(
-      null, flowFunctionTypeSingleParameterClause(flowFunctionTypeParameter(singleParameter)), doubleArrow, returnType);
-  }
-
   public FlowFunctionTypeParameterClauseTree flowFunctionTypeParameterClause(
     InternalSyntaxToken lParenthesis,
     SeparatedList<FlowFunctionTypeParameterTree> parameters,
@@ -1872,8 +1867,8 @@ public class TreeFactory {
     return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, new SeparatedListImpl(parameters, ImmutableList.of()), rParenthesis);
   }
 
-  public FlowFunctionTypeParameterClauseTree flowFunctionTypeSingleParameterClause(FlowFunctionTypeParameterTree parameter) {
-    return new FlowFunctionTypeParameterClauseTreeImpl(null, parameterList(parameter, Optional.absent()), null);
+  public FlowFunctionTypeParameterClauseTree flowFunctionTypeSingleParameterClause(FlowTypeTree parameter) {
+    return new FlowFunctionTypeParameterClauseTreeImpl(null, parameterList(flowFunctionTypeParameter(parameter), Optional.absent()), null);
   }
 
   public <T> SeparatedList<T> parameterList(

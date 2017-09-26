@@ -34,7 +34,7 @@ public class FlowUnionTypeTest extends LegacyParserTest {
       .matches("A | B | C | D")
       .matches("A | ?B | 42 | D")
       .matches("A & B & C | D")
-      .matches("| A | B");
+      .matches("| A | B")
     ;
   }
 }

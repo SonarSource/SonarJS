@@ -39,7 +39,6 @@ public class FlowFunctionTypeTest extends LegacyParserTest {
       .matches("(string, SomeArrayType) => SomeType")
       .matches("(await: number) => void")
       .matches("string => number")
-      .matches("number | string => number")
     ;
   }
 }

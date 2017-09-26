@@ -871,7 +871,7 @@ public class JavaScriptGrammar {
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_CLAUSE()),
-        b.optional(ARROW_FUNCTION_FLOW_TYPE_ANNOTATION()),
+        b.optional(FLOW_ARROW_FUNCTION_RETURN_TYPE_ANNOTATION()),
         b.token(EcmaScriptLexer.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
@@ -1761,9 +1761,7 @@ public class JavaScriptGrammar {
 
   public FlowTypeTree FLOW_TYPE() {
     return b.<FlowTypeTree>nonterminal(EcmaScriptLexer.FLOW_TYPE)
-      .is(b.firstOf(
-        FLOW_FUNCTION_TYPE_OR_HIGHER()
-      ));
+      .is(FLOW_FUNCTION_TYPE_OR_HIGHER());
   }
 
   public FlowTypeTree FLOW_ARRAY_TYPE_SHORTHAND_OR_HIGHER() {
@@ -1842,8 +1840,7 @@ public class JavaScriptGrammar {
         f.flowUnionType(
           b.optional(b.token(JavaScriptPunctuator.OR)),
           f.flowTypeElements(FLOW_INTERSECTION_TYPE_OR_HIGHER(),
-            b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.OR), FLOW_INTERSECTION_TYPE_OR_HIGHER())))
-        ),
+            b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.OR), FLOW_INTERSECTION_TYPE_OR_HIGHER())))),
         FLOW_INTERSECTION_TYPE_OR_HIGHER()));
   }
 
@@ -1853,8 +1850,7 @@ public class JavaScriptGrammar {
         f.flowIntersectionType(
           b.optional(b.token(JavaScriptPunctuator.AND)),
           f.flowTypeElements(FLOW_ARRAY_TYPE_SHORTHAND_OR_HIGHER(),
-            b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.AND), FLOW_ARRAY_TYPE_SHORTHAND_OR_HIGHER())))
-        ),
+            b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.AND), FLOW_ARRAY_TYPE_SHORTHAND_OR_HIGHER())))),
         FLOW_ARRAY_TYPE_SHORTHAND_OR_HIGHER()));
   }
 
@@ -1882,18 +1878,17 @@ public class JavaScriptGrammar {
           b.token(EcmaScriptLexer.STRING_LITERAL)))));
   }
 
+  // Right now this is the lowest priority flow type, so this 'string | number => string' is parsed like this '(string | number) => string'
+  // This is wrong but, due to arrow-function return type, the correct alternative is much more complex. See issue #778
   public FlowTypeTree FLOW_FUNCTION_TYPE_OR_HIGHER() {
     return b.<FlowTypeTree>nonterminal(Kind.FLOW_FUNCTION_TYPE)
       .is(b.firstOf(
         f.flowFunctionType(
-        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
-        FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(),
-        b.token(JavaScriptPunctuator.DOUBLEARROW),
-        FLOW_TYPE()),
-
-        f.flowFunctionType(FLOW_UNION_TYPE_OR_HIGHER(), b.token(JavaScriptPunctuator.DOUBLEARROW), FLOW_FUNCTION_TYPE_OR_HIGHER()),
-        FLOW_UNION_TYPE_OR_HIGHER()
-      ));
+          b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
+          b.firstOf(FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(), f.flowFunctionTypeSingleParameterClause(FLOW_UNION_TYPE_OR_HIGHER())),
+          b.token(JavaScriptPunctuator.DOUBLEARROW),
+          FLOW_TYPE()),
+        FLOW_UNION_TYPE_OR_HIGHER()));
   }
 
   public FlowFunctionTypeParameterClauseTree FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE() {
@@ -1913,8 +1908,7 @@ public class JavaScriptGrammar {
         f.flowFunctionTypeParameterClause(
           b.token(JavaScriptPunctuator.LPARENTHESIS),
           b.optional(FLOW_FUNCTION_TYPE_REST_PARAMETER()),
-          b.token(JavaScriptPunctuator.RPARENTHESIS))
-      ));
+          b.token(JavaScriptPunctuator.RPARENTHESIS))));
 
   }
 
@@ -1924,8 +1918,7 @@ public class JavaScriptGrammar {
         FLOW_FUNCTION_TYPE_PARAMETER(),
         b.zeroOrMore(f.newTuple(
           b.token(JavaScriptPunctuator.COMMA),
-          FLOW_FUNCTION_TYPE_PARAMETER()))
-        ));
+          FLOW_FUNCTION_TYPE_PARAMETER()))));
   }
 
   public FlowGenericParameterClauseTree FLOW_GENERIC_PARAMETER_CLAUSE() {
@@ -2002,9 +1995,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptPunctuator.OR),
           b.optional(FLOW_OBJECT_TYPE_PROPERTIES()),
           b.token(JavaScriptPunctuator.OR),
-          b.token(JavaScriptPunctuator.RCURLYBRACE)
-        )
-      ));
+          b.token(JavaScriptPunctuator.RCURLYBRACE))));
   }
 
   public SeparatedList<Tree> FLOW_OBJECT_TYPE_PROPERTIES() {
@@ -2062,7 +2053,7 @@ public class JavaScriptGrammar {
       .is(f.flowTypeAnnotation(b.token(JavaScriptPunctuator.COLON), FLOW_TYPE()));
   }
 
-  public FlowTypeAnnotationTree ARROW_FUNCTION_FLOW_TYPE_ANNOTATION() {
+  public FlowTypeAnnotationTree FLOW_ARROW_FUNCTION_RETURN_TYPE_ANNOTATION() {
     return b.<FlowTypeAnnotationTree>nonterminal()
       .is(f.flowTypeAnnotation(b.token(JavaScriptPunctuator.COLON), FLOW_UNION_TYPE_OR_HIGHER()));
   }
