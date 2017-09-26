@@ -32,11 +32,15 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowPropertyDefinitionTreeImpl extends JavaScriptTree implements FlowPropertyDefinitionTree {
 
+  private final SyntaxToken staticToken;
   private final SyntaxToken plusOrMinusToken;
   private final FlowPropertyDefinitionKeyTree key;
   private final FlowTypeAnnotationTree typeAnnotation;
 
-  public FlowPropertyDefinitionTreeImpl(@Nullable SyntaxToken plusOrMinusToken, FlowPropertyDefinitionKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
+  public FlowPropertyDefinitionTreeImpl(
+    @Nullable SyntaxToken staticToken, @Nullable SyntaxToken plusOrMinusToken, FlowPropertyDefinitionKeyTree key, FlowTypeAnnotationTree typeAnnotation
+  ) {
+    this.staticToken = staticToken;
     this.plusOrMinusToken = plusOrMinusToken;
     this.key = key;
     this.typeAnnotation = typeAnnotation;
@@ -49,7 +53,13 @@ public class FlowPropertyDefinitionTreeImpl extends JavaScriptTree implements Fl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(plusOrMinusToken, key, typeAnnotation);
+    return Iterators.forArray(staticToken, plusOrMinusToken, key, typeAnnotation);
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken staticToken() {
+    return staticToken;
   }
 
   @Nullable

@@ -27,6 +27,9 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 public interface FlowPropertyDefinitionTree extends Tree {
 
   @Nullable
+  SyntaxToken staticToken();
+
+  @Nullable
   SyntaxToken plusOrMinusToken();
 
   FlowPropertyDefinitionKeyTree key();
