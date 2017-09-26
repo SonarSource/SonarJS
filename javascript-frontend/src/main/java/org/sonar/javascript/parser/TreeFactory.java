@@ -1867,9 +1867,8 @@ public class TreeFactory {
     return new FlowFunctionTypeParameterClauseTreeImpl(lParenthesis, new SeparatedListImpl(parameters, ImmutableList.of()), rParenthesis);
   }
 
-  // TODO use this when implementing single-parameter function type without parenthesis
-  public FlowFunctionTypeParameterClauseTree flowFunctionTypeSingleParameterClause(FlowFunctionTypeParameterTree parameter) {
-    return new FlowFunctionTypeParameterClauseTreeImpl(null, parameterList(parameter, Optional.absent()), null);
+  public FlowFunctionTypeParameterClauseTree flowFunctionTypeSingleParameterClause(FlowTypeTree parameter) {
+    return new FlowFunctionTypeParameterClauseTreeImpl(null, parameterList(flowFunctionTypeParameter(parameter), Optional.absent()), null);
   }
 
   public <T> SeparatedList<T> parameterList(

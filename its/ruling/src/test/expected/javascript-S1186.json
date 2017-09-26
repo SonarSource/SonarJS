@@ -184,6 +184,9 @@
 'project:babylon/test/fixtures/flow/type-annotations/arrow-func-return-newline/actual.js':[
 2,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/existential-type-param-2/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/function-expression-inside-jsx-attr/actual.js':[
 1,
 ],

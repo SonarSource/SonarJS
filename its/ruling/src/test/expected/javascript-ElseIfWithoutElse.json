@@ -2646,6 +2646,10 @@
 'project:jest/packages/eslint-plugin-jest/src/rules/valid_expect.js':[
 43,
 ],
+'project:jest/packages/expect/src/utils.js':[
+76,
+128,
+],
 'project:jest/packages/jest-changed-files/src/hg.js':[
 30,
 ],

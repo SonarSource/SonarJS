@@ -2321,6 +2321,11 @@
 'project:jest/packages/eslint-plugin-jest/src/rules/valid_expect.js':[
 75,
 ],
+'project:jest/packages/expect/src/utils.js':[
+51,
+120,
+131,
+],
 'project:jest/packages/jest-cli/src/reporters/coverage_reporter.js':[
 226,
 ],

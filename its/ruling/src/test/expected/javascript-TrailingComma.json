@@ -584,6 +584,10 @@
 182,
 185,
 ],
+'project:jest/packages/expect/src/utils.js':[
+43,
+62,
+],
 'project:jest/packages/jest-changed-files/src/git.js':[
 70,
 ],
@@ -605,6 +609,12 @@
 33,
 40,
 69,
+],
+'project:jest/packages/jest-circus/src/legacy_code_todo_rewrite/jest_adapter_init.js':[
+118,
+139,
+148,
+152,
 ],
 'project:jest/packages/jest-circus/src/legacy_code_todo_rewrite/jest_expect.js':[
 30,

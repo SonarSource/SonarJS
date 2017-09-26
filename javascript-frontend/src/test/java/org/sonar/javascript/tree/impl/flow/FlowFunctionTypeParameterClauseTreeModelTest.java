@@ -61,4 +61,5 @@ public class FlowFunctionTypeParameterClauseTreeModelTest extends JavaScriptTree
     assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE)).isTrue();
     assertThat(tree.parameters()).hasSize(1);
   }
+
 }
