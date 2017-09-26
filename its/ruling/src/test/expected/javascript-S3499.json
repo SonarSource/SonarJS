@@ -73,6 +73,10 @@
 'project:jest/packages/jest-config/src/defaults.js':[
 31,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+541,
+560,
+],
 'project:jest/packages/jest-jasmine2/src/__tests__/expectation_result_factory.test.js':[
 37,
 ],
@@ -122,6 +126,14 @@
 'project:jest/packages/jest-runtime/src/__tests__/runtime_require_module_or_mock_transitive_deps.test.js':[
 56,
 106,
+],
+'project:jest/packages/jest-runtime/src/index.js':[
+232,
+504,
+747,
+],
+'project:jest/packages/jest-runtime/src/script_transformer.js':[
+166,
 ],
 'project:jest/packages/jest-snapshot/src/State.js':[
 161,

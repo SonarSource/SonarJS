@@ -2693,6 +2693,10 @@
 'project:jest/packages/jest-get-type/src/index.js':[
 29,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+328,
+652,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
 68,
 ],
@@ -2708,6 +2712,13 @@
 ],
 'project:jest/packages/jest-resolve/src/index.js':[
 112,
+],
+'project:jest/packages/jest-runtime/src/index.js':[
+274,
+579,
+],
+'project:jest/packages/jest-runtime/src/script_transformer.js':[
+185,
 ],
 'project:jest/packages/jest-runtime/src/should_instrument.js':[
 22,

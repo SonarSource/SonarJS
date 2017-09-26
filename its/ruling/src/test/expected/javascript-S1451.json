@@ -644,6 +644,12 @@
 'project:babylon/test/fixtures/flow/declare-statements/1/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/declare-statements/10/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/declare-statements/11/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/declare-statements/12/actual.js':[
 0,
 ],
@@ -654,6 +660,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/declare-statements/16/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/declare-statements/17/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/declare-statements/18/actual.js':[
@@ -1065,6 +1074,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/53/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/54/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/55/actual.js':[
@@ -15737,6 +15749,9 @@
 'project:jest/packages/jest-haste-map/src/haste_fs.js':[
 0,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+0,
+],
 'project:jest/packages/jest-haste-map/src/lib/__tests__/extract_requires.test.js':[
 0,
 ],
@@ -15753,6 +15768,9 @@
 0,
 ],
 'project:jest/packages/jest-haste-map/src/lib/normalize_path_sep.js':[
+0,
+],
+'project:jest/packages/jest-haste-map/src/module_map.js':[
 0,
 ],
 'project:jest/packages/jest-haste-map/src/types.js':[
@@ -16140,6 +16158,12 @@
 0,
 ],
 'project:jest/packages/jest-runtime/src/cli/index.js':[
+0,
+],
+'project:jest/packages/jest-runtime/src/index.js':[
+0,
+],
+'project:jest/packages/jest-runtime/src/script_transformer.js':[
 0,
 ],
 'project:jest/packages/jest-runtime/src/should_instrument.js':[

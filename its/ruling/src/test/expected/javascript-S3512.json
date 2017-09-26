@@ -2987,6 +2987,15 @@
 'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
 693,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+340,
+391,
+533,
+549,
+],
+'project:jest/packages/jest-haste-map/src/module_map.js':[
+152,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
 430,
 ],
@@ -3018,6 +3027,11 @@
 ],
 'project:jest/packages/jest-runtime/src/__tests__/script_transformer.test.js':[
 322,
+],
+'project:jest/packages/jest-runtime/src/script_transformer.js':[
+409,
+428,
+470,
 ],
 'project:jest/packages/jest-snapshot/src/__tests__/utils.test.js':[
 95,

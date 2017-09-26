@@ -296,6 +296,10 @@
 'project:jest/packages/jest-editor-support/src/__tests__/test_reconciler.test.js':[
 33,
 ],
+'project:jest/packages/jest-runtime/src/script_transformer.js':[
+151,
+299,
+],
 'project:jest/packages/pretty-format/src/__tests__/asymmetric_matcher.test.js':[
 27,
 ],

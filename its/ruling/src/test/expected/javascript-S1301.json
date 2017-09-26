@@ -241,6 +241,9 @@
 'project:jest/packages/jest-config/src/utils.js':[
 80,
 ],
+'project:jest/packages/jest-haste-map/src/module_map.js':[
+180,
+],
 'project:knockout-2.1.0.debug.js':[
 1383,
 2042,

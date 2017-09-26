@@ -227,6 +227,9 @@
 'project:jest/packages/jest-haste-map/src/lib/get_platform_extension.js':[
 0,
 ],
+'project:jest/packages/jest-haste-map/src/module_map.js':[
+0,
+],
 'project:jest/packages/jest-jasmine2/src/assert_support.js':[
 0,
 ],

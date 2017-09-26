@@ -2825,6 +2825,10 @@
 'project:jest/packages/jest-haste-map/src/crawlers/watchman.js':[
 92,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+321,
+575,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
 68,
 ],
@@ -2843,6 +2847,9 @@
 ],
 'project:jest/packages/jest-runner/src/run_test.js':[
 34,
+],
+'project:jest/packages/jest-runtime/src/script_transformer.js':[
+185,
 ],
 'project:jest/packages/jest-snapshot/src/State.js':[
 108,
