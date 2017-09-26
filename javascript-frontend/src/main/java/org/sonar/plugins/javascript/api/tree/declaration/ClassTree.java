@@ -26,6 +26,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowImplementsClauseTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
@@ -53,6 +54,9 @@ public interface ClassTree extends ExpressionTree, StatementTree {
 
   @Nullable
   ExtendsClauseTree extendsClause();
+
+  @Nullable
+  FlowImplementsClauseTree implementsClause();
 
   SyntaxToken openCurlyBraceToken();
 

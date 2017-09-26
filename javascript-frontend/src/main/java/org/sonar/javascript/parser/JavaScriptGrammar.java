@@ -103,6 +103,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowImplementsClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
@@ -990,6 +991,7 @@ public class JavaScriptGrammar {
           b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           // TODO Factor the duplication with CLASS_DECLARATION() into CLASS_TRAIT() ?
           b.optional(EXTENDS_CLAUSE()),
+          b.optional(FLOW_IMPLEMENTS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.zeroOrMore(CLASS_ELEMENT()),
           b.token(JavaScriptPunctuator.RCURLYBRACE)));
@@ -1529,6 +1531,7 @@ public class JavaScriptGrammar {
           b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           // TODO Factor the duplication with CLASS_EXPRESSION() into CLASS_TRAIT() ?
           b.optional(EXTENDS_CLAUSE()),
+          b.optional(FLOW_IMPLEMENTS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.zeroOrMore(CLASS_ELEMENT()),
           b.token(JavaScriptPunctuator.RCURLYBRACE)));
@@ -1949,6 +1952,14 @@ public class JavaScriptGrammar {
         b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_TYPE())),
         b.optional(b.token(JavaScriptPunctuator.COMMA)),
         b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public FlowImplementsClauseTree FLOW_IMPLEMENTS_CLAUSE() {
+    return b.<FlowImplementsClauseTree>nonterminal(Kind.FLOW_IMPLEMENTS_CLAUSE)
+      .is(f.flowImplementsClause(
+        b.token(EcmaScriptLexer.IMPLEMENTS),
+        b.firstOf(FLOW_PARAMETERIZED_GENERICS_TYPE(), FLOW_SIMPLE_TYPE()),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), b.firstOf(FLOW_PARAMETERIZED_GENERICS_TYPE(), FLOW_SIMPLE_TYPE())))));
   }
 
   public FlowGenericParameterTree FLOW_GENERIC_PARAMETER() {

@@ -66,6 +66,16 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
   }
 
   @Test
+  public void flow_implements_clause() throws Exception {
+    ClassTree tree = parse("class C extends S implements A, B { }", Kind.CLASS_DECLARATION);
+
+    assertThat(tree.extendsClause()).isNotNull();
+    assertThat(tree.implementsClause()).isNotNull();
+    assertThat(tree.implementsClause().implementsToken().text()).isEqualTo("implements");
+    assertThat(tree.implementsClause().types()).hasSize(2);
+  }
+
+  @Test
   public void not_global_class_should_be_declaration() throws Exception {
     ClassTree tree = parse("if (true) { class A{} }", Kind.CLASS_DECLARATION);
 
