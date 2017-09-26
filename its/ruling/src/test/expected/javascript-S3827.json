@@ -368,6 +368,9 @@
 'project:babylon/test/fixtures/flow/declare-statements/16/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/interfaces-module-and-script/7/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/opaque-type-alias/opaque_in_func/actual.js':[
 1,
 ],
