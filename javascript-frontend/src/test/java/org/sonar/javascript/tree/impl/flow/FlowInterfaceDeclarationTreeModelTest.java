@@ -30,11 +30,12 @@ public class FlowInterfaceDeclarationTreeModelTest extends JavaScriptTreeModelTe
 
   @Test
   public void test() throws Exception {
-    FlowInterfaceDeclarationTree tree = parse("interface A<T> {a: number, b:string;}", Kind.FLOW_INTERFACE_DECLARATION);
+    FlowInterfaceDeclarationTree tree = parse("interface A<T> extends B {a: number, b:string;}", Kind.FLOW_INTERFACE_DECLARATION);
 
     assertThat(tree.is(Kind.FLOW_INTERFACE_DECLARATION)).isTrue();
     assertThat(tree.interfaceToken().text()).isEqualTo("interface");
     assertThat(tree.name().identifierToken().text()).isEqualTo("A");
+    assertThat(tree.extendsClause().types()).hasSize(1);
     assertThat(tree.genericParameterClause().genericParameters()).hasSize(1);
     assertThat(tree.properties()).hasSize(2);
     assertThat(tree.properties().getSeparators()).hasSize(2);

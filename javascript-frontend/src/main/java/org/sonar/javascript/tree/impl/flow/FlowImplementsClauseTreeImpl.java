@@ -17,48 +17,51 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.tree.impl.declaration;
+package org.sonar.javascript.tree.impl.flow;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ExtendsClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowImplementsClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class ExtendsClauseTreeImpl extends JavaScriptTree implements ExtendsClauseTree {
+public class FlowImplementsClauseTreeImpl extends JavaScriptTree implements FlowImplementsClauseTree {
 
-  private final SyntaxToken extendsToken;
-  private final Tree superClass;
+  private final SyntaxToken implementsToken;
+  private final SeparatedList<FlowTypeTree> types;
 
-  public ExtendsClauseTreeImpl(SyntaxToken extendsToken, Tree superClass) {
-    this.extendsToken = extendsToken;
-    this.superClass = superClass;
+  public FlowImplementsClauseTreeImpl(SyntaxToken implementsToken, SeparatedList<FlowTypeTree> types) {
+    this.implementsToken = implementsToken;
+    this.types = types;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.EXTENDS_CLAUSE;
+    return Kind.FLOW_IMPLEMENTS_CLAUSE;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(extendsToken, superClass);
+    return Iterators.concat(Iterators.singletonIterator(implementsToken), types.elementsAndSeparators(Functions.identity()));
   }
 
   @Override
-  public SyntaxToken extendsToken() {
-    return extendsToken;
+  public SyntaxToken implementsOrExtendsToken() {
+    return implementsToken;
   }
 
   @Override
-  public Tree superClass() {
-    return superClass;
+  public SeparatedList<FlowTypeTree> types() {
+    return types;
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitExtendsClause(this);
+    visitor.visitFlowImplementsClause(this);
   }
 }

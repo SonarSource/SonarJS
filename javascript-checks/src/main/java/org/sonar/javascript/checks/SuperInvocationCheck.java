@@ -34,12 +34,11 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.SuperTree;
@@ -163,7 +162,7 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
 
   private void checkSuperHasCorrectNumberOfArguments(SuperTree superTree) {
     getEnclosingType(superTree).ifPresent(classTree -> {
-      ExpressionTree superClassTree = classTree.extendsClause().superClass();
+      Tree superClassTree = classTree.extendsClause().superClass();
       // we consider only the simple case "class A extends B", not cases such as "class A extends class {} ..."
       if (superClassTree.is(Kind.IDENTIFIER_REFERENCE)) {
         Optional<Symbol> superClassSymbol = ((IdentifierTree) superClassTree).symbol();

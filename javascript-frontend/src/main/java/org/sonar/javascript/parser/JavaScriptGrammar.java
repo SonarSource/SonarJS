@@ -103,6 +103,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowImplementsClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
@@ -990,6 +991,7 @@ public class JavaScriptGrammar {
           b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           // TODO Factor the duplication with CLASS_DECLARATION() into CLASS_TRAIT() ?
           b.optional(EXTENDS_CLAUSE()),
+          b.optional(FLOW_IMPLEMENTS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.zeroOrMore(CLASS_ELEMENT()),
           b.token(JavaScriptPunctuator.RCURLYBRACE)));
@@ -997,7 +999,7 @@ public class JavaScriptGrammar {
 
   public ExtendsClauseTree EXTENDS_CLAUSE() {
     return b.<ExtendsClauseTree>nonterminal(Kind.EXTENDS_CLAUSE)
-      .is(f.extendsClause(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION()));
+      .is(f.extendsClause(b.token(JavaScriptKeyword.EXTENDS), b.firstOf(FLOW_PARAMETERIZED_GENERICS_TYPE(), LEFT_HAND_SIDE_EXPRESSION())));
   }
 
   public ComputedPropertyNameTree COMPUTED_PROPERTY_NAME() {
@@ -1529,6 +1531,7 @@ public class JavaScriptGrammar {
           b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
           // TODO Factor the duplication with CLASS_EXPRESSION() into CLASS_TRAIT() ?
           b.optional(EXTENDS_CLAUSE()),
+          b.optional(FLOW_IMPLEMENTS_CLAUSE()),
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.zeroOrMore(CLASS_ELEMENT()),
           b.token(JavaScriptPunctuator.RCURLYBRACE)));
@@ -1951,6 +1954,27 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.GT)));
   }
 
+  public FlowImplementsClauseTree FLOW_IMPLEMENTS_CLAUSE() {
+    return b.<FlowImplementsClauseTree>nonterminal(Kind.FLOW_IMPLEMENTS_CLAUSE)
+      .is(f.flowImplementsClause(
+        b.token(EcmaScriptLexer.IMPLEMENTS),
+        FLOW_TYPE_TO_BE_EXTENDED(),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_TYPE_TO_BE_EXTENDED()))));
+  }
+
+  public FlowImplementsClauseTree FLOW_EXTENDS_CLAUSE() {
+    return b.<FlowImplementsClauseTree>nonterminal()
+      .is(f.flowImplementsClause(
+        b.token(JavaScriptKeyword.EXTENDS),
+        FLOW_TYPE_TO_BE_EXTENDED(),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_TYPE_TO_BE_EXTENDED()))));
+  }
+
+  public FlowTypeTree FLOW_TYPE_TO_BE_EXTENDED() {
+    return b.<FlowTypeTree>nonterminal()
+      .is(b.firstOf(FLOW_PARAMETERIZED_GENERICS_TYPE(), FLOW_NAMESPACED_TYPE(), FLOW_SIMPLE_TYPE()));
+  }
+
   public FlowGenericParameterTree FLOW_GENERIC_PARAMETER() {
     return b.<FlowGenericParameterTree>nonterminal(Kind.FLOW_GENERIC_PARAMETER)
       .is(f.flowGenericParameter(
@@ -2089,6 +2113,7 @@ public class JavaScriptGrammar {
         b.token(EcmaScriptLexer.INTERFACE),
         BINDING_IDENTIFIER(),
         b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
+        b.optional(FLOW_EXTENDS_CLAUSE()),
         b.token(JavaScriptPunctuator.LCURLYBRACE),
         b.optional(FLOW_OBJECT_TYPE_PROPERTIES()),
         b.token(JavaScriptPunctuator.RCURLYBRACE)));

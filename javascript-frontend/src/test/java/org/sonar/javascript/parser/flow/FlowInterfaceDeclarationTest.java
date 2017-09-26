@@ -34,6 +34,7 @@ public class FlowInterfaceDeclarationTest extends LegacyParserTest {
       .matches("interface A {a: number, b: string}")
       .matches("interface A {a: number; b: string;}")
       .matches("interface A {a: number}")
+      .matches("interface A <T> extends B<Type>, C.D, E.F<Type> {a: number}")
     ;
   }
 

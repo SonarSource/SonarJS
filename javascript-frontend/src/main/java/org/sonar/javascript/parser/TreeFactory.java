@@ -111,6 +111,7 @@ import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowGenericParameterClauseTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowGenericParameterTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowImplementsClauseTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowIndexerPropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowInterfaceDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowArrayTypeShorthandTreeImpl;
@@ -241,6 +242,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowImplementsClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
@@ -976,7 +978,7 @@ public class TreeFactory {
 
   public ClassTree classExpression(
     Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, Optional<IdentifierTree> name,
-    Optional<FlowGenericParameterClauseTree> genericParameterClause, Optional<ExtendsClauseTree> extendsClause,
+    Optional<FlowGenericParameterClauseTree> genericParameterClause, Optional<ExtendsClauseTree> extendsClause, Optional<FlowImplementsClauseTree> implementsClause,
     InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
@@ -993,6 +995,7 @@ public class TreeFactory {
       classToken, name.orNull(),
       genericParameterClause.orNull(),
       extendsClause.orNull(),
+      implementsClause.orNull(),
       openCurlyBraceToken,
       elements,
       closeCurlyBraceToken);
@@ -1335,7 +1338,7 @@ public class TreeFactory {
   public ClassTree classDeclaration(
     Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, IdentifierTree name,
     Optional<FlowGenericParameterClauseTree> genericParameterClause,
-    Optional<ExtendsClauseTree> extendsClause,
+    Optional<ExtendsClauseTree> extendsClause, Optional<FlowImplementsClauseTree> implementsClause,
     InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
@@ -1350,6 +1353,7 @@ public class TreeFactory {
       optionalList(decorators), classToken, name,
       genericParameterClause.orNull(),
       extendsClause.orNull(),
+      implementsClause.orNull(),
       openCurlyBraceToken,
       elements,
       closeCurlyBraceToken);
@@ -1754,7 +1758,7 @@ public class TreeFactory {
     return new TemplateLiteralTail(templateLiteralTree);
   }
 
-  public ExtendsClauseTree extendsClause(InternalSyntaxToken extendsToken, ExpressionTree superClass) {
+  public ExtendsClauseTree extendsClause(InternalSyntaxToken extendsToken, Tree superClass) {
     return new ExtendsClauseTreeImpl(extendsToken, superClass);
   }
 
@@ -1943,6 +1947,7 @@ public class TreeFactory {
     InternalSyntaxToken interfaceToken,
     IdentifierTree identifierTree,
     Optional<FlowGenericParameterClauseTree> genericParameterClause,
+    Optional<FlowImplementsClauseTree> extendsClause,
     InternalSyntaxToken openCurlyBraceToken,
     Optional<SeparatedList<Tree>> properties,
     InternalSyntaxToken closeCurlyBraceToken
@@ -1951,6 +1956,7 @@ public class TreeFactory {
       interfaceToken,
       identifierTree,
       genericParameterClause.orNull(),
+      extendsClause.orNull(),
       openCurlyBraceToken,
       properties.or(new SeparatedListImpl(Lists.newArrayList(), Collections.emptyList())),
       closeCurlyBraceToken);
@@ -2090,6 +2096,10 @@ public class TreeFactory {
     FlowTypeTree flowTypeTree, InternalSyntaxToken rParenthesis
   ) {
     return new FlowCastingExpressionTreeImpl(lParenthesis, expression, colon, flowTypeTree, rParenthesis);
+  }
+
+  public FlowImplementsClauseTree flowImplementsClause(InternalSyntaxToken implementsToken, FlowTypeTree first, Optional<List<Tuple<InternalSyntaxToken, FlowTypeTree>>> rest) {
+    return new FlowImplementsClauseTreeImpl(implementsToken, parameterList(first, rest));
   }
 
   private static class ConditionalExpressionTail {
