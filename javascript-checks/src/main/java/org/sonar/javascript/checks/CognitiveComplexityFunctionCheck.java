@@ -25,7 +25,9 @@ import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.metrics.CognitiveComplexity;
+import org.sonar.javascript.metrics.FunctionDefiningModuleVisitor;
 import org.sonar.javascript.tree.KindSet;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -35,6 +37,7 @@ import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.ARROW_FUNCTION;
+import static org.sonar.plugins.javascript.api.tree.Tree.Kind.SCRIPT;
 
 @Rule(key = "S3776")
 public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
@@ -51,9 +54,14 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
   /* When complexity of nesting function is considered for this check, we ignore all nested in it functions */
   private Set<Tree> ignoredNestedFunctions = new HashSet<>();
 
+  private Set<FunctionTree> functionsDefiningModule = new HashSet<>();
+
   @Override
   public Set<Kind> nodesToVisit() {
-    return ImmutableSet.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
+    return ImmutableSet.<Kind>builder()
+      .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
+      .add(Kind.SCRIPT)
+      .build();
   }
 
   @Override
@@ -64,8 +72,13 @@ public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
+    if (tree.is(SCRIPT)) {
+      functionsDefiningModule = FunctionDefiningModuleVisitor.getFunctionsDefiningModule((ScriptTree) tree);
+      return;
+    }
+
     if (!ignoredNestedFunctions.contains(tree)) {
-      CognitiveComplexity.ComplexityData complexityData = new CognitiveComplexity().calculateFunctionComplexity((FunctionTree) tree);
+      CognitiveComplexity.ComplexityData complexityData = new CognitiveComplexity().calculateFunctionComplexity((FunctionTree) tree, functionsDefiningModule.contains(tree));
       ignoredNestedFunctions.addAll(complexityData.aggregatedNestedFunctions());
 
       if (complexityData.complexity() > threshold) {

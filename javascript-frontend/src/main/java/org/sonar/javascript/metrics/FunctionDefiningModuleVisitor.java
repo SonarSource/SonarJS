@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.metrics;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -37,15 +38,20 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
-public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck {
+public class FunctionDefiningModuleVisitor extends SubscriptionVisitor {
 
   private boolean immediatelyInvokedFunctionExpression = false;
   private boolean amdPattern = false;
-  private List<Tree> angularExclusions;
 
-  abstract void checkFunction(FunctionTree functionTree);
+  private Set<FunctionTree> functionsDefiningModule = new HashSet<>();
+
+  public static Set<FunctionTree> getFunctionsDefiningModule(ScriptTree scriptTree) {
+    FunctionDefiningModuleVisitor functionDefiningModuleVisitor = new FunctionDefiningModuleVisitor();
+    functionDefiningModuleVisitor.scanTree(scriptTree);
+    return functionDefiningModuleVisitor.functionsDefiningModule;
+  }
 
   @Override
   public Set<Kind> nodesToVisit() {
@@ -54,11 +60,6 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
       .add(Kind.CALL_EXPRESSION,
         Kind.NEW_EXPRESSION)
       .build();
-  }
-
-  @Override
-  public void visitFile(Tree scriptTree) {
-    angularExclusions = new ArrayList<>();
   }
 
   @Override
@@ -78,11 +79,12 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
       return;
     }
 
-    if (!immediatelyInvokedFunctionExpression && !amdPattern && !angularExclusions.contains(tree)) {
-      checkFunction((FunctionTree) tree);
+    if (immediatelyInvokedFunctionExpression || amdPattern) {
+      functionsDefiningModule.add((FunctionTree) tree);
+      immediatelyInvokedFunctionExpression = false;
+      amdPattern = false;
     }
 
-    clearCheckState();
   }
 
   private void checkForAMDPattern(CallExpressionTree tree) {
@@ -134,14 +136,9 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
     if (argument instanceof ExpressionTree) {
       Type functionType = ((ExpressionTree) argument).types().getUniqueType(Type.Kind.FUNCTION);
       if (functionType != null) {
-        angularExclusions.add(((FunctionType) functionType).functionTree());
+        functionsDefiningModule.add(((FunctionType) functionType).functionTree());
       }
     }
-  }
-
-  private void clearCheckState() {
-    immediatelyInvokedFunctionExpression = false;
-    amdPattern = false;
   }
 
 }

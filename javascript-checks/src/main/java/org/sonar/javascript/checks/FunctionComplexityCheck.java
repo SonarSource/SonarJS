@@ -19,17 +19,25 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.metrics.ComplexityVisitor;
+import org.sonar.javascript.metrics.FunctionDefiningModuleVisitor;
+import org.sonar.javascript.tree.KindSet;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 @Rule(key = "FunctionComplexity")
-public class FunctionComplexityCheck extends AbstractFunctionSizeCheck {
+public class FunctionComplexityCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Function has a complexity of %s which is greater than %s authorized.";
 
@@ -41,8 +49,27 @@ public class FunctionComplexityCheck extends AbstractFunctionSizeCheck {
     defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD)
   private int maximumFunctionComplexityThreshold = DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD;
 
+  private Set<FunctionTree> functionsDefiningModuleCurrentScript = new HashSet<>();
+
   @Override
-  void checkFunction(FunctionTree functionTree) {
+  public Set<Kind> nodesToVisit() {
+    return ImmutableSet.<Kind>builder()
+      .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
+      .add(Kind.SCRIPT)
+      .build();
+  }
+
+  @Override
+  public void visitNode(Tree tree) {
+    if (tree.is(Kind.SCRIPT)) {
+      functionsDefiningModuleCurrentScript = FunctionDefiningModuleVisitor.getFunctionsDefiningModule((ScriptTree) tree);
+
+    } else if (!functionsDefiningModuleCurrentScript.contains(tree)){
+      checkFunction((FunctionTree) tree);
+    }
+  }
+
+  private void checkFunction(FunctionTree functionTree) {
     List<Tree> complexityTrees = new ComplexityVisitor(false).complexityTrees(functionTree);
     if (complexityTrees.size() > maximumFunctionComplexityThreshold) {
       raiseIssue(functionTree, complexityTrees);
