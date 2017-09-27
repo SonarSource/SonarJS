@@ -60,6 +60,8 @@ public class ClassElementTest {
 
       .notMatches("property =;")
       .notMatches("static;")
+
+      .matches("'foo': boolean = true;")
     ;
   }
 }

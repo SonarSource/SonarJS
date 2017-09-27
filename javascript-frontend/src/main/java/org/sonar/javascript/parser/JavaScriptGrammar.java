@@ -2039,7 +2039,9 @@ public class JavaScriptGrammar {
 
   public FlowSimplePropertyDefinitionKeyTree FLOW_SIMPLE_PROPERTY_DEFINITION_KEY() {
     return b.<FlowSimplePropertyDefinitionKeyTree>nonterminal(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)
-      .is(f.flowSimplePropertyDefinitionKeyTree(IDENTIFIER_NAME(), b.optional(b.token(JavaScriptPunctuator.QUERY))));
+      .is(f.flowSimplePropertyDefinitionKeyTree(
+        b.firstOf(b.token(EcmaScriptLexer.IDENTIFIER_NAME), b.token(EcmaScriptLexer.STRING_LITERAL)),
+        b.optional(b.token(JavaScriptPunctuator.QUERY))));
   }
 
   public FlowIndexerPropertyDefinitionKeyTree FLOW_INDEXER_PROPERTY_DEFINITION_KEY() {

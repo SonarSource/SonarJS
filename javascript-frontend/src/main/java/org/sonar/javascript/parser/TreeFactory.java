@@ -1909,8 +1909,8 @@ public class TreeFactory {
     return new FlowPropertyDefinitionTreeImpl(null, plusOrMinusToken.orNull(), key, typeAnnotation);
   }
 
-  public FlowSimplePropertyDefinitionKeyTree flowSimplePropertyDefinitionKeyTree(IdentifierTree identifier, Optional<SyntaxToken> queryToken) {
-    return new FlowSimplePropertyDefinitionKeyTreeImpl(identifier, queryToken.orNull());
+  public FlowSimplePropertyDefinitionKeyTree flowSimplePropertyDefinitionKeyTree(SyntaxToken name, Optional<SyntaxToken> queryToken) {
+    return new FlowSimplePropertyDefinitionKeyTreeImpl(name, queryToken.orNull());
   }
 
   public FlowIndexerPropertyDefinitionKeyTree flowIndexerPropertyDefinitionKey(
