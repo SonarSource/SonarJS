@@ -2091,8 +2091,8 @@ public class TreeFactory {
     return new FlowParameterizedGenericsTypeTreeImpl(type, left, parameterListWithTrailingComma(first.get(), rest, trailingComma), right);
   }
 
-  public FlowTypeofTypeTree flowTypeofType(InternalSyntaxToken typeofToken, ExpressionTree expressionTree) {
-    return new FlowTypeofTypeTreeImpl(typeofToken, expressionTree);
+  public FlowTypeofTypeTree flowTypeofType(InternalSyntaxToken typeofToken, Tree value) {
+    return new FlowTypeofTypeTreeImpl(typeofToken, value);
   }
 
   public FlowCastingExpressionTree flowCastingExpression(

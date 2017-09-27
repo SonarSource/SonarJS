@@ -32,6 +32,8 @@ public class FlowTypeofTypeTest extends LegacyParserTest {
     assertThat(g.rule(Kind.FLOW_TYPEOF_TYPE))
       .matches("typeof 1")
       .matches("typeof a")
+      .matches("typeof a.b")
+      .matches("typeof a.b<T>")
       .matches("typeof {}")
       .matches("typeof []")
       .matches("typeof ([])")

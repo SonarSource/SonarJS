@@ -23,7 +23,6 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeofTypeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -31,9 +30,9 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class FlowTypeofTypeTreeImpl extends JavaScriptTree implements FlowTypeofTypeTree {
 
   private final SyntaxToken typeofToken;
-  private final ExpressionTree value;
+  private final Tree value;
 
-  public FlowTypeofTypeTreeImpl(SyntaxToken typeofToken, ExpressionTree value) {
+  public FlowTypeofTypeTreeImpl(SyntaxToken typeofToken, Tree value) {
     this.typeofToken = typeofToken;
     this.value = value;
   }
@@ -54,7 +53,7 @@ public class FlowTypeofTypeTreeImpl extends JavaScriptTree implements FlowTypeof
   }
 
   @Override
-  public ExpressionTree value() {
+  public Tree value() {
     return value;
   }
 

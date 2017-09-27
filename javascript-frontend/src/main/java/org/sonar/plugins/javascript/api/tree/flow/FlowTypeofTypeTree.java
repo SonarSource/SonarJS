@@ -19,12 +19,15 @@
  */
 package org.sonar.plugins.javascript.api.tree.flow;
 
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public interface FlowTypeofTypeTree extends FlowTypeTree {
 
   SyntaxToken typeofToken();
 
-  ExpressionTree value();
+  /**
+   * value could be expression or {@link FlowParameterizedGenericsTypeTree}
+   */
+  Tree value();
 }

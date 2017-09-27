@@ -1796,8 +1796,12 @@ public class JavaScriptGrammar {
     return b.<FlowTypeofTypeTree>nonterminal(Kind.FLOW_TYPEOF_TYPE)
       .is(f.flowTypeofType(
         b.token(JavaScriptKeyword.TYPEOF),
-        // arrow function is not accepted by flow-remove-types, but it is by babel
-        b.firstOf(ARROW_FUNCTION(), PRIMARY_EXPRESSION())));
+        b.firstOf(
+          // arrow function is not accepted by flow-remove-types, but it is by babel
+          ARROW_FUNCTION(),
+          FLOW_PARAMETERIZED_GENERICS_TYPE(),
+          MEMBER_EXPRESSION(),
+          PRIMARY_EXPRESSION())));
   }
 
   public FlowCastingExpressionTree FLOW_CASTING_EXPRESSION() {
