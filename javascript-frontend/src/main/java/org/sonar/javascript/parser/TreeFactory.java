@@ -2053,8 +2053,10 @@ public class TreeFactory {
     return parameterList(type, Optional.of(rest));
   }
 
-  public FlowMethodPropertyDefinitionKeyTree flowMethodPropertyDefinitionKeyTree(Optional<IdentifierTree> identifierTree, FlowFunctionTypeParameterClauseTree parameterClauseTree) {
-    return new FlowMethodPropertyDefinitionKeyTreeImpl(identifierTree.orNull(), parameterClauseTree);
+  public FlowMethodPropertyDefinitionKeyTree flowMethodPropertyDefinitionKeyTree(
+    Optional<FlowGenericParameterClauseTree> genericClause, Optional<IdentifierTree> identifierTree, FlowFunctionTypeParameterClauseTree parameterClauseTree
+  ) {
+    return new FlowMethodPropertyDefinitionKeyTreeImpl(genericClause.orNull(), identifierTree.orNull(), parameterClauseTree);
   }
 
   public FlowGenericParameterTree flowGenericParameter(

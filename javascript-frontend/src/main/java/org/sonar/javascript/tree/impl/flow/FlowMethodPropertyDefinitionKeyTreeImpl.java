@@ -26,15 +26,18 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowMethodPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowMethodPropertyDefinitionKeyTreeImpl extends JavaScriptTree implements FlowMethodPropertyDefinitionKeyTree {
 
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final IdentifierTree methodName;
   private final FlowFunctionTypeParameterClauseTree parameterClause;
 
-  public FlowMethodPropertyDefinitionKeyTreeImpl(@Nullable IdentifierTree methodName, FlowFunctionTypeParameterClauseTree parameterClause) {
+  public FlowMethodPropertyDefinitionKeyTreeImpl(FlowGenericParameterClauseTree genericParameterClause, @Nullable IdentifierTree methodName, FlowFunctionTypeParameterClauseTree parameterClause) {
+    this.genericParameterClause = genericParameterClause;
     this.methodName = methodName;
     this.parameterClause = parameterClause;
   }
@@ -46,7 +49,13 @@ public class FlowMethodPropertyDefinitionKeyTreeImpl extends JavaScriptTree impl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(methodName, parameterClause);
+    return Iterators.forArray(genericParameterClause, methodName, parameterClause);
+  }
+
+  @Nullable
+  @Override
+  public FlowGenericParameterClauseTree genericParameterClause() {
+    return genericParameterClause;
   }
 
   @Nullable
