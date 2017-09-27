@@ -3692,6 +3692,10 @@
 15,
 15,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+577,
+578,
+],
 'project:jest/packages/jest-haste-map/src/lib/extract_requires.js':[
 23,
 ],

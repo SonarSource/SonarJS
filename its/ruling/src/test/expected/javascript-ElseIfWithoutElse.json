@@ -2699,6 +2699,9 @@
 'project:jest/packages/jest-haste-map/src/crawlers/watchman.js':[
 111,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+409,
+],
 'project:jest/packages/jest-haste-map/src/worker.js':[
 71,
 ],

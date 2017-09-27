@@ -2987,6 +2987,12 @@
 'project:jest/packages/jest-haste-map/src/__tests__/index.test.js':[
 693,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+340,
+391,
+533,
+549,
+],
 'project:jest/packages/jest-haste-map/src/module_map.js':[
 152,
 ],

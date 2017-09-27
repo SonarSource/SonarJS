@@ -1,6 +1,6 @@
 {
-'project:babylon/src/tokenizer/types.js':[
-52,
+'project:babylon/src/types.js':[
+618,
 ],
 'project:babylon/test/fixtures/flow/anonymous-function-types/bad_01/actual.js':[
 1,
@@ -79,8 +79,5 @@
 ],
 'project:babylon/test/fixtures/flow/type-grouping/2/actual.js':[
 1,
-],
-'project:jest/packages/jest-haste-map/src/index.js':[
-206,
 ],
 }

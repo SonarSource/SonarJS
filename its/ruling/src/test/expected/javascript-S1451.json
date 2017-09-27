@@ -86,7 +86,7 @@
 'project:babylon/src/tokenizer/state.js':[
 0,
 ],
-'project:babylon/src/types.js':[
+'project:babylon/src/tokenizer/types.js':[
 0,
 ],
 'project:babylon/src/util/identifier.js':[
@@ -15852,6 +15852,9 @@
 0,
 ],
 'project:jest/packages/jest-haste-map/src/haste_fs.js':[
+0,
+],
+'project:jest/packages/jest-haste-map/src/index.js':[
 0,
 ],
 'project:jest/packages/jest-haste-map/src/lib/__tests__/extract_requires.test.js':[
