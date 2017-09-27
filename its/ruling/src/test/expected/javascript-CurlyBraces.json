@@ -208,6 +208,12 @@
 345,
 357,
 ],
+'project:babylon/src/parser/node.js':[
+18,
+19,
+85,
+96,
+],
 'project:babylon/src/parser/statement.js':[
 34,
 97,

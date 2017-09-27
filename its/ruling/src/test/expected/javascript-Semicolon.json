@@ -417,6 +417,9 @@
 'project:babylon/test/fixtures/flow/call-properties/3/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/call-properties/4/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/declare-export/export-default-arrow/actual.js':[
 1,
 ],
@@ -474,6 +477,9 @@
 'project:babylon/test/fixtures/flow/optional-type/3/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/optional-type/4/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/qualified-generic-type/1/actual.js':[
 1,
 ],
@@ -481,6 +487,9 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/qualified-generic-type/3/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/qualified-generic-type/4/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/regression/issue-92/actual.js':[

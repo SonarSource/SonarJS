@@ -10351,17 +10351,6 @@
 'project:jest/packages/jest-haste-map/src/haste_fs.js':[
 57,
 ],
-'project:jest/packages/jest-haste-map/src/index.js':[
-107,
-219,
-227,
-310,
-344,
-528,
-591,
-592,
-819,
-],
 'project:jest/packages/jest-haste-map/src/lib/get_platform_extension.js':[
 34,
 ],
