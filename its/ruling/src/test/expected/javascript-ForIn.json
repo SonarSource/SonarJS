@@ -938,10 +938,6 @@
 'project:jest/packages/jest-haste-map/src/haste_fs.js':[
 56,
 ],
-'project:jest/packages/jest-haste-map/src/index.js':[
-446,
-518,
-],
 'project:jest/packages/jest-util/src/fake_timers.js':[
 120,
 500,

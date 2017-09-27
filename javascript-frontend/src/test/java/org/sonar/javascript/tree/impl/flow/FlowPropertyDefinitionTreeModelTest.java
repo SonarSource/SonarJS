@@ -42,7 +42,7 @@ public class FlowPropertyDefinitionTreeModelTest extends JavaScriptTreeModelTest
     assertThat(tree.plusOrMinusToken()).isNull();
     assertThat(tree.staticToken()).isNull();
     assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).queryToken()).isNull();
-    assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).identifier().name()).isEqualTo("id");
+    assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).nameToken().text()).isEqualTo("id");
     assertThat(tree.typeAnnotation().type().is(Kind.FLOW_SIMPLE_TYPE)).isTrue();
   }
 
@@ -61,7 +61,7 @@ public class FlowPropertyDefinitionTreeModelTest extends JavaScriptTreeModelTest
     assertThat(tree.is(Tree.Kind.FLOW_PROPERTY_DEFINITION)).isTrue();
     assertThat(tree.key()).isNotNull();
     assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).queryToken()).isNotNull();
-    assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).identifier().name()).isEqualTo("id");
+    assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).nameToken().text()).isEqualTo("id");
   }
 
   @Test
@@ -101,8 +101,18 @@ public class FlowPropertyDefinitionTreeModelTest extends JavaScriptTreeModelTest
     FlowMethodPropertyDefinitionKeyTree tree = parse("(number): number", Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY, Tree.Kind.FLOW_PROPERTY_DEFINITION);
 
     assertThat(tree.is(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)).isTrue();
+    assertThat(tree.genericParameterClause()).isNull();
     assertThat(tree.methodName()).isNull();
     assertThat(tree.parameterClause().parameters()).hasSize(1);
+  }
+
+  @Test
+  public void method_with_generic() throws Exception {
+    FlowMethodPropertyDefinitionKeyTree tree = parse("<T>(number): number", Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY, Tree.Kind.FLOW_PROPERTY_DEFINITION);
+    assertThat(tree.genericParameterClause().genericParameters()).hasSize(1);
+
+    tree = parse("<T>foo(number): number", Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY, Tree.Kind.FLOW_PROPERTY_DEFINITION);
+    assertThat(tree.genericParameterClause().genericParameters()).hasSize(1);
   }
 
   @Test
@@ -117,7 +127,7 @@ public class FlowPropertyDefinitionTreeModelTest extends JavaScriptTreeModelTest
     FlowPropertyDefinitionTree tree = parse("static: number", Kind.FLOW_PROPERTY_DEFINITION, Tree.Kind.FLOW_PROPERTY_DEFINITION);
     assertThat(tree.key().is(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)).isTrue();
     assertThat(tree.staticToken()).isNull();
-    assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).identifier().identifierToken().text()).isEqualTo("static");
+    assertThat(((FlowSimplePropertyDefinitionKeyTree) tree.key()).nameToken().text()).isEqualTo("static");
   }
 
 }

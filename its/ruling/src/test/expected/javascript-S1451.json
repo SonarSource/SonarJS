@@ -53,6 +53,9 @@
 'project:babylon/src/parser/lval.js':[
 0,
 ],
+'project:babylon/src/parser/node.js':[
+0,
+],
 'project:babylon/src/parser/statement.js':[
 0,
 ],
@@ -83,7 +86,7 @@
 'project:babylon/src/tokenizer/state.js':[
 0,
 ],
-'project:babylon/src/tokenizer/types.js':[
+'project:babylon/src/types.js':[
 0,
 ],
 'project:babylon/src/util/identifier.js':[
@@ -560,6 +563,9 @@
 'project:babylon/test/fixtures/flow/call-properties/3/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/call-properties/4/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/call-properties/5/actual.js':[
 0,
 ],
@@ -854,6 +860,9 @@
 'project:babylon/test/fixtures/flow/optional-type/3/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/optional-type/4/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/optional-type/6/actual.js':[
 0,
 ],
@@ -867,6 +876,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/qualified-generic-type/3/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/qualified-generic-type/4/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/regression/issue-166/actual.js':[
@@ -924,6 +936,12 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/10/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/100/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-annotations/101/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/102/actual.js':[
@@ -15821,9 +15839,6 @@
 'project:jest/packages/jest-haste-map/src/haste_fs.js':[
 0,
 ],
-'project:jest/packages/jest-haste-map/src/index.js':[
-0,
-],
 'project:jest/packages/jest-haste-map/src/lib/__tests__/extract_requires.test.js':[
 0,
 ],
@@ -16458,6 +16473,9 @@
 0,
 ],
 'project:jest/types/Context.js':[
+0,
+],
+'project:jest/types/Environment.js':[
 0,
 ],
 'project:jest/types/Global.js':[

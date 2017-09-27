@@ -8,6 +8,9 @@
 'project:babylon/src/parser/lval.js':[
 245,
 ],
+'project:babylon/src/parser/node.js':[
+39,
+],
 'project:babylon/src/parser/statement.js':[
 862,
 934,

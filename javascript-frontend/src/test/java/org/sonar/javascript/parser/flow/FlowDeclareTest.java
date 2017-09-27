@@ -45,6 +45,7 @@ public class FlowDeclareTest extends LegacyParserTest {
       .matches("declare export type MyAlias = number")
       .matches("declare interface I {}")
       .matches("declare module.exports: MyType;")
+      .matches("declare class A { a: foo , b: bar}")
     ;
   }
 

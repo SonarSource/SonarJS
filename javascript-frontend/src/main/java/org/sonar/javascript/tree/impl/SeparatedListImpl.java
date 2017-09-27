@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -42,6 +43,10 @@ public class SeparatedListImpl<T> implements SeparatedList<T> {
       list.size(), separators.size());
     this.list = list;
     this.separators = separators;
+  }
+
+  public static SeparatedListImpl emptyImmutableList() {
+    return new SeparatedListImpl(Collections.emptyList(), Collections.emptyList());
   }
 
   @Override

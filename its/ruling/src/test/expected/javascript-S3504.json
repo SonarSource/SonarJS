@@ -608,6 +608,9 @@
 'project:babylon/test/fixtures/flow/call-properties/3/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/call-properties/4/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/comment/spread/actual.js':[
 3,
 ],
@@ -684,6 +687,9 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/qualified-generic-type/3/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/qualified-generic-type/4/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/tuples/2/actual.js':[

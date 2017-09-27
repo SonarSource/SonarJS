@@ -2696,10 +2696,6 @@
 'project:jest/packages/jest-get-type/src/index.js':[
 29,
 ],
-'project:jest/packages/jest-haste-map/src/index.js':[
-328,
-652,
-],
 'project:jest/packages/jest-jasmine2/src/jasmine/spy_registry.js':[
 68,
 ],

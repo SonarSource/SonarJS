@@ -24,17 +24,16 @@ import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowSimplePropertyDefinitionKeyTreeImpl extends JavaScriptTree implements FlowSimplePropertyDefinitionKeyTree {
-  private final IdentifierTree identifier;
+  private final SyntaxToken nameToken;
   private final SyntaxToken queryToken;
 
-  public FlowSimplePropertyDefinitionKeyTreeImpl(IdentifierTree identifier, SyntaxToken queryToken) {
-    this.identifier = identifier;
+  public FlowSimplePropertyDefinitionKeyTreeImpl(SyntaxToken nameToken, SyntaxToken queryToken) {
+    this.nameToken = nameToken;
     this.queryToken = queryToken;
   }
 
@@ -44,8 +43,8 @@ public class FlowSimplePropertyDefinitionKeyTreeImpl extends JavaScriptTree impl
   }
 
   @Override
-  public IdentifierTree identifier() {
-    return identifier;
+  public SyntaxToken nameToken() {
+    return nameToken;
   }
 
   @Nullable
@@ -56,7 +55,7 @@ public class FlowSimplePropertyDefinitionKeyTreeImpl extends JavaScriptTree impl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(identifier, queryToken);
+    return Iterators.forArray(nameToken, queryToken);
   }
 
   @Override

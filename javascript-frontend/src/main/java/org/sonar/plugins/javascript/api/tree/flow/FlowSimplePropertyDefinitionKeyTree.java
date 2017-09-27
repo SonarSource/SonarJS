@@ -21,12 +21,12 @@
 package org.sonar.plugins.javascript.api.tree.flow;
 
 import javax.annotation.Nullable;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public interface FlowSimplePropertyDefinitionKeyTree extends FlowPropertyDefinitionKeyTree {
 
-  IdentifierTree identifier();
+  // nameToken can be identifier or string literal
+  SyntaxToken nameToken();
 
   @Nullable
   SyntaxToken queryToken();

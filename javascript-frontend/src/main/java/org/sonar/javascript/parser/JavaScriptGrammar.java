@@ -566,7 +566,7 @@ public class JavaScriptGrammar {
    */
   public RestElementTree BINDING_REST_ELEMENT() {
     return b.<RestElementTree>nonterminal(EcmaScriptLexer.BINDING_REST_ELEMENT)
-      .is(f.bindingRestElement(b.token(JavaScriptPunctuator.ELLIPSIS), BINDING_IDENTIFIER(), b.optional(FLOW_TYPE_ANNOTATION())));
+      .is(f.bindingRestElement(b.token(JavaScriptPunctuator.ELLIPSIS), b.firstOf(FLOW_OPTIONAL_BINDING_ELEMENT(), BINDING_IDENTIFIER()), b.optional(FLOW_TYPE_ANNOTATION())));
   }
 
   public ArrayLiteralTree ARRAY_LITERAL() {
@@ -1540,7 +1540,9 @@ public class JavaScriptGrammar {
           METHOD_DEFINITION(),
           CLASS_FIELD_INITIALIZER(),
           FLOW_PROPERTY_DEFINITION(),
-          b.token(JavaScriptPunctuator.SEMI)));
+          b.token(JavaScriptPunctuator.SEMI),
+          // comma can appear as separator for flow property definitions (e.g. in the context of declare statement)
+          b.token(JavaScriptPunctuator.COMMA)));
   }
 
   public DecoratorTree DECORATOR() {
@@ -1558,6 +1560,7 @@ public class JavaScriptGrammar {
         b.zeroOrMore(DECORATOR()),
         b.optional(b.token(EcmaScriptLexer.STATIC)),
         PROPERTY_NAME(),
+        b.optional(FLOW_TYPE_ANNOTATION()),
         b.optional(f.newTuple(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION())),
         b.token(EcmaScriptLexer.EOS)));
   }
@@ -1793,8 +1796,12 @@ public class JavaScriptGrammar {
     return b.<FlowTypeofTypeTree>nonterminal(Kind.FLOW_TYPEOF_TYPE)
       .is(f.flowTypeofType(
         b.token(JavaScriptKeyword.TYPEOF),
-        // arrow function is not accepted by flow-remove-types, but it is by babel
-        b.firstOf(ARROW_FUNCTION(), PRIMARY_EXPRESSION())));
+        b.firstOf(
+          // arrow function is not accepted by flow-remove-types, but it is by babel
+          ARROW_FUNCTION(),
+          FLOW_PARAMETERIZED_GENERICS_TYPE(),
+          MEMBER_EXPRESSION(),
+          PRIMARY_EXPRESSION())));
   }
 
   public FlowCastingExpressionTree FLOW_CASTING_EXPRESSION() {
@@ -1860,12 +1867,13 @@ public class JavaScriptGrammar {
         f.flowSimpleType(IDENTIFIER_REFERENCE()),
         f.flowSimpleType(b.token(JavaScriptPunctuator.STAR)),
         f.flowSimpleType(b.token(JavaScriptKeyword.VOID)),
+        f.flowSimpleType(b.token(JavaScriptKeyword.THIS)),
         f.flowSimpleType(b.token(JavaScriptKeyword.NULL))));
   }
 
   public FlowOptionalTypeTree FLOW_OPTIONAL_TYPE() {
     return b.<FlowOptionalTypeTree>nonterminal(Kind.FLOW_OPTIONAL_TYPE)
-      .is(f.flowOptionalType(b.token(JavaScriptPunctuator.QUERY), FLOW_TYPE()));
+      .is(f.flowOptionalType(b.token(JavaScriptPunctuator.QUERY), FLOW_ARRAY_TYPE_SHORTHAND_OR_HIGHER()));
   }
 
   public FlowLiteralTypeTree FLOW_LITERAL_TYPE() {
@@ -1936,7 +1944,7 @@ public class JavaScriptGrammar {
       .is(f.flowParameterizedGenericsClause(
         b.firstOf(FLOW_NAMESPACED_TYPE(), FLOW_SIMPLE_TYPE()),
         b.token(JavaScriptPunctuator.LT),
-        FLOW_TYPE(),
+        b.optional(FLOW_TYPE()),
         b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_TYPE())),
         b.optional(b.token(JavaScriptPunctuator.COMMA)),
         b.token(JavaScriptPunctuator.GT)));
@@ -2030,13 +2038,16 @@ public class JavaScriptGrammar {
   public FlowMethodPropertyDefinitionKeyTree FLOW_METHOD_PROPERTY_DEFINITION_KEY() {
     return b.<FlowMethodPropertyDefinitionKeyTree>nonterminal(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)
       .is(f.flowMethodPropertyDefinitionKeyTree(
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         b.optional(IDENTIFIER_NAME()),
         FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE()));
   }
 
   public FlowSimplePropertyDefinitionKeyTree FLOW_SIMPLE_PROPERTY_DEFINITION_KEY() {
     return b.<FlowSimplePropertyDefinitionKeyTree>nonterminal(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)
-      .is(f.flowSimplePropertyDefinitionKeyTree(IDENTIFIER_NAME(), b.optional(b.token(JavaScriptPunctuator.QUERY))));
+      .is(f.flowSimplePropertyDefinitionKeyTree(
+        b.firstOf(b.token(EcmaScriptLexer.IDENTIFIER_NAME), b.token(EcmaScriptLexer.STRING_LITERAL)),
+        b.optional(b.token(JavaScriptPunctuator.QUERY))));
   }
 
   public FlowIndexerPropertyDefinitionKeyTree FLOW_INDEXER_PROPERTY_DEFINITION_KEY() {

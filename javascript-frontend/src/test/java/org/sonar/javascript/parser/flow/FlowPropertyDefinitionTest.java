@@ -46,6 +46,12 @@ public class FlowPropertyDefinitionTest extends LegacyParserTest {
       .matches("static foo(number, a?: string): number")
       .matches("static (number, a?: string): number")
       .matches("(number, a?: string): number")
+
+      .matches("'foo': number")
+      .matches("'foo'?: number")
+
+      .matches("<T>foo(): number")
+      .matches("<T>(): number")
     ;
   }
 
