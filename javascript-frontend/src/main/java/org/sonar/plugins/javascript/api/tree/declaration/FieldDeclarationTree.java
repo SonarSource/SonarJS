@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
@@ -39,6 +40,9 @@ public interface FieldDeclarationTree extends Tree {
   SyntaxToken staticToken();
 
   Tree propertyName();
+
+  @Nullable
+  FlowTypeAnnotationTree typeAnnotation();
 
   @Nullable
   SyntaxToken equalToken();

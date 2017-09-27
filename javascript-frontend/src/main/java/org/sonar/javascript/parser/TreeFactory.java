@@ -1648,7 +1648,7 @@ public class TreeFactory {
   }
 
   public FieldDeclarationTree fieldDeclaration(
-    Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, Tree propertyName,
+    Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, Tree propertyName, Optional<FlowTypeAnnotationTree> typeAnnotation,
     Optional<Tuple<InternalSyntaxToken, ExpressionTree>> initializer,
     Tree semicolonToken
   ) {
@@ -1657,12 +1657,13 @@ public class TreeFactory {
         optionalList(decorators),
         staticToken.orNull(),
         propertyName,
+        typeAnnotation.orNull(),
         initializer.get().first,
         initializer.get().second,
         nullableSemicolonToken(semicolonToken));
     }
 
-    return new FieldDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), propertyName, null, null, nullableSemicolonToken(semicolonToken));
+    return new FieldDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), propertyName, typeAnnotation.orNull(), null, null, nullableSemicolonToken(semicolonToken));
   }
 
   public DecoratorTree decorator(

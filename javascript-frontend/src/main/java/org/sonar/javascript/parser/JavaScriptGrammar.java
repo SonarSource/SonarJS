@@ -1558,6 +1558,7 @@ public class JavaScriptGrammar {
         b.zeroOrMore(DECORATOR()),
         b.optional(b.token(EcmaScriptLexer.STATIC)),
         PROPERTY_NAME(),
+        b.optional(FLOW_TYPE_ANNOTATION()),
         b.optional(f.newTuple(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION())),
         b.token(EcmaScriptLexer.EOS)));
   }

@@ -89,6 +89,7 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
     FieldDeclarationTree staticProperty = (FieldDeclarationTree) tree.elements().get(0);
     assertThat(staticProperty.decorators()).hasSize(1);
+    assertThat(staticProperty.typeAnnotation()).isNull();
     assertThat(staticProperty.staticToken().text()).isEqualTo("static");
     assertThat(((IdentifierTree) staticProperty.propertyName()).name()).isEqualTo("staticProperty");
     assertThat(staticProperty.equalToken().text()).isEqualTo("=");
@@ -102,6 +103,18 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(withoutInitField.initializer()).isNull();
     assertThat(withoutInitField.semicolonToken().text()).isEqualTo(";");
 
+  }
 
+  @Test
+  public void flow_property_with_type() throws Exception {
+    ClassTree tree = parse("class A { a: MyType1 = 1; b: MyType2; static c: MyType3}", Kind.CLASS_DECLARATION);
+
+    FieldDeclarationTree prop1 = (FieldDeclarationTree) tree.elements().get(0);
+    FieldDeclarationTree prop2 = (FieldDeclarationTree) tree.elements().get(1);
+    FieldDeclarationTree prop3 = (FieldDeclarationTree) tree.elements().get(2);
+
+    assertThat(prop1.typeAnnotation()).isNotNull();
+    assertThat(prop2.typeAnnotation()).isNotNull();
+    assertThat(prop3.typeAnnotation()).isNotNull();
   }
 }
