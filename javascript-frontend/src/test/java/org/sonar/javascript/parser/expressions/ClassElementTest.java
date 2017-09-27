@@ -32,7 +32,9 @@ public class ClassElementTest {
     assertThat(EcmaScriptLexer.CLASS_ELEMENT)
       .matches("static f() {}")
       .matches("f () {}")
-      .matches(";");
+      .matches(";")
+      .matches(",")
+    ;
   }
 
   @Test

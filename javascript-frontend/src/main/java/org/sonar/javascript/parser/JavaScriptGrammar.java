@@ -1540,7 +1540,9 @@ public class JavaScriptGrammar {
           METHOD_DEFINITION(),
           CLASS_FIELD_INITIALIZER(),
           FLOW_PROPERTY_DEFINITION(),
-          b.token(JavaScriptPunctuator.SEMI)));
+          b.token(JavaScriptPunctuator.SEMI),
+          // comma can appear as separator for flow property definitions (e.g. in the context of declare statement)
+          b.token(JavaScriptPunctuator.COMMA)));
   }
 
   public DecoratorTree DECORATOR() {
