@@ -1764,7 +1764,7 @@ public class JavaScriptGrammar {
 
   public FlowTypeTree FLOW_TYPE() {
     return b.<FlowTypeTree>nonterminal(EcmaScriptLexer.FLOW_TYPE)
-      .is(FLOW_FUNCTION_TYPE_WITHOUT_PARENTHESES_OR_HIGHER());
+      .is(FLOW_UNION_TYPE_OR_HIGHER());
   }
 
   public FlowTypeTree FLOW_ARRAY_TYPE_SHORTHAND_OR_HIGHER() {
@@ -1842,17 +1842,39 @@ public class JavaScriptGrammar {
   }
 
   public FlowTypeTree FLOW_UNION_TYPE_OR_HIGHER() {
-    return b.<FlowTypeTree>nonterminal(Kind.FLOW_UNION_TYPE)
+    return b.<FlowTypeTree>nonterminal()
       .is(b.firstOf(
-        f.flowUnionType(
-          b.optional(b.token(JavaScriptPunctuator.OR)),
-          f.flowTypeElements(FLOW_INTERSECTION_TYPE_OR_HIGHER(),
-            b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.OR), FLOW_INTERSECTION_TYPE_OR_HIGHER())))),
+        FLOW_UNION_TYPE(),
         FLOW_INTERSECTION_TYPE_OR_HIGHER()));
+  }
+
+  public FlowTypeTree FLOW_UNION_TYPE() {
+    return b.<FlowTypeTree>nonterminal(Kind.FLOW_UNION_TYPE)
+      .is(f.flowUnionType(
+        b.optional(b.token(JavaScriptPunctuator.OR)),
+        f.flowTypeElements(FLOW_INTERSECTION_TYPE_OR_HIGHER(),
+          b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.OR), FLOW_INTERSECTION_TYPE_OR_HIGHER())))));
+  }
+
+  public FlowTypeTree FLOW_UNION_TYPE_OR_HIGHER_NON_FUNCTION() {
+    return b.<FlowTypeTree>nonterminal()
+      .is(b.firstOf(
+        FLOW_UNION_TYPE(),
+        FLOW_INTERSECTION_TYPE_OR_HIGHER_NON_FUNCTION()));
   }
 
   public FlowTypeTree FLOW_INTERSECTION_TYPE_OR_HIGHER() {
     return b.<FlowTypeTree>nonterminal(Kind.FLOW_INTERSECTION_TYPE)
+      .is(b.firstOf(
+        f.flowIntersectionType(
+          b.optional(b.token(JavaScriptPunctuator.AND)),
+          f.flowTypeElements(FLOW_FUNCTION_TYPE_WITHOUT_PARENTHESES_OR_HIGHER(),
+            b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.AND), FLOW_FUNCTION_TYPE_WITHOUT_PARENTHESES_OR_HIGHER())))),
+        FLOW_FUNCTION_TYPE_WITHOUT_PARENTHESES_OR_HIGHER()));
+  }
+
+  public FlowTypeTree FLOW_INTERSECTION_TYPE_OR_HIGHER_NON_FUNCTION() {
+    return b.<FlowTypeTree>nonterminal()
       .is(b.firstOf(
         f.flowIntersectionType(
           b.optional(b.token(JavaScriptPunctuator.AND)),
@@ -1896,7 +1918,7 @@ public class JavaScriptGrammar {
           FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE(),
           b.token(JavaScriptPunctuator.DOUBLEARROW),
           FLOW_TYPE()),
-        FLOW_UNION_TYPE_OR_HIGHER()));
+        FLOW_ARRAY_TYPE_SHORTHAND_OR_HIGHER()));
   }
 
   public FlowTypeTree FLOW_FUNCTION_TYPE_WITHOUT_PARENTHESES_OR_HIGHER() {
@@ -1904,7 +1926,7 @@ public class JavaScriptGrammar {
       .is(b.firstOf(
         f.flowFunctionType(
           b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
-          f.flowFunctionTypeSingleParameterClause(FLOW_UNION_TYPE_OR_HIGHER()),
+          f.flowFunctionTypeSingleParameterClause(FLOW_FUNCTION_TYPE_WITH_PARENTHESES_OR_HIGHER()),
           b.token(JavaScriptPunctuator.DOUBLEARROW),
           FLOW_TYPE()),
         FLOW_FUNCTION_TYPE_WITH_PARENTHESES_OR_HIGHER()));
@@ -2077,7 +2099,7 @@ public class JavaScriptGrammar {
 
   public FlowTypeAnnotationTree FLOW_ARROW_FUNCTION_RETURN_TYPE_ANNOTATION() {
     return b.<FlowTypeAnnotationTree>nonterminal()
-      .is(f.flowTypeAnnotation(b.token(JavaScriptPunctuator.COLON), FLOW_UNION_TYPE_OR_HIGHER()));
+      .is(f.flowTypeAnnotation(b.token(JavaScriptPunctuator.COLON), FLOW_UNION_TYPE_OR_HIGHER_NON_FUNCTION()));
   }
 
   public FlowTypedBindingElementTree FLOW_TYPED_BINDING_ELEMENT() {

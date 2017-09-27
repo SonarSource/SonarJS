@@ -89,6 +89,9 @@
 'project:babylon/src/tokenizer/types.js':[
 0,
 ],
+'project:babylon/src/types.js':[
+0,
+],
 'project:babylon/src/util/identifier.js':[
 0,
 ],
@@ -455,9 +458,6 @@
 'project:babylon/test/fixtures/flow/anonymous-function-no-parens-types/good_03/actual.js':[
 0,
 ],
-'project:babylon/test/fixtures/flow/anonymous-function-no-parens-types/good_04/actual.js':[
-0,
-],
 'project:babylon/test/fixtures/flow/anonymous-function-no-parens-types/good_05/actual.js':[
 0,
 ],
@@ -512,13 +512,7 @@
 'project:babylon/test/fixtures/flow/anonymous-function-types/good_11/actual.js':[
 0,
 ],
-'project:babylon/test/fixtures/flow/anonymous-function-types/good_12/actual.js':[
-0,
-],
 'project:babylon/test/fixtures/flow/anonymous-function-types/good_13/actual.js':[
-0,
-],
-'project:babylon/test/fixtures/flow/anonymous-function-types/good_14/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/array-types/1/actual.js':[
@@ -1172,6 +1166,9 @@
 'project:babylon/test/fixtures/flow/type-annotations/56/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/57/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/type-annotations/58/actual.js':[
 0,
 ],
@@ -1353,6 +1350,9 @@
 0,
 ],
 'project:babylon/test/fixtures/flow/type-grouping/1/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-grouping/2/actual.js':[
 0,
 ],
 'project:babylon/test/fixtures/flow/type-grouping/3/actual.js':[
