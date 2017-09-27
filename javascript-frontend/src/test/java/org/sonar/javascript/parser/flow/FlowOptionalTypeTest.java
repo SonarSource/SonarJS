@@ -33,6 +33,9 @@ public class FlowOptionalTypeTest extends LegacyParserTest {
       .matches("? number")
       .matches("?number")
       .matches("?void")
+
+      // (?number) => string
+      .notMatches("?number => string")
     ;
   }
 

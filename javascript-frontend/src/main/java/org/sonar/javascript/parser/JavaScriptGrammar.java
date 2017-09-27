@@ -1873,7 +1873,7 @@ public class JavaScriptGrammar {
 
   public FlowOptionalTypeTree FLOW_OPTIONAL_TYPE() {
     return b.<FlowOptionalTypeTree>nonterminal(Kind.FLOW_OPTIONAL_TYPE)
-      .is(f.flowOptionalType(b.token(JavaScriptPunctuator.QUERY), FLOW_TYPE()));
+      .is(f.flowOptionalType(b.token(JavaScriptPunctuator.QUERY), FLOW_ARRAY_TYPE_SHORTHAND_OR_HIGHER()));
   }
 
   public FlowLiteralTypeTree FLOW_LITERAL_TYPE() {
