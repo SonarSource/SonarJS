@@ -2053,9 +2053,9 @@ public class TreeFactory {
   }
 
   public FlowMethodPropertyDefinitionKeyTree flowMethodPropertyDefinitionKeyTree(
-    Optional<FlowGenericParameterClauseTree> genericClause, Optional<IdentifierTree> identifierTree, FlowFunctionTypeParameterClauseTree parameterClauseTree
+    Optional<IdentifierTree> identifierTree, Optional<FlowGenericParameterClauseTree> genericClause, FlowFunctionTypeParameterClauseTree parameterClauseTree
   ) {
-    return new FlowMethodPropertyDefinitionKeyTreeImpl(genericClause.orNull(), identifierTree.orNull(), parameterClauseTree);
+    return new FlowMethodPropertyDefinitionKeyTreeImpl(identifierTree.orNull(), genericClause.orNull(), parameterClauseTree);
   }
 
   public FlowGenericParameterTree flowGenericParameter(

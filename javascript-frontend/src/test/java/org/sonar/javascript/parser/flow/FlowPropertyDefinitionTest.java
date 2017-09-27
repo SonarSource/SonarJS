@@ -50,7 +50,7 @@ public class FlowPropertyDefinitionTest extends LegacyParserTest {
       .matches("'foo': number")
       .matches("'foo'?: number")
 
-      .matches("<T>foo(): number")
+      .matches("foo<T>(): number")
       .matches("<T>(): number")
     ;
   }

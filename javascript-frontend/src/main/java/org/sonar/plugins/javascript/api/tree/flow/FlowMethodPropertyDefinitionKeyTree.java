@@ -26,10 +26,10 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 public interface FlowMethodPropertyDefinitionKeyTree extends FlowPropertyDefinitionKeyTree {
 
   @Nullable
-  FlowGenericParameterClauseTree genericParameterClause();
+  IdentifierTree methodName();
 
   @Nullable
-  IdentifierTree methodName();
+  FlowGenericParameterClauseTree genericParameterClause();
 
   FlowFunctionTypeParameterClauseTree parameterClause();
 }

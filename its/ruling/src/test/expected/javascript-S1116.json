@@ -12,6 +12,9 @@
 'project:babylon/test/fixtures/flow/type-parameter-declaration/default/actual.js':[
 10,
 ],
+'project:babylon/test/fixtures/flow/type-parameter-declaration/interface-reserved-word/actual.js':[
+6,
+],
 'project:dojo-1.8.1/dojo/dojo.js.uncompressed.js':[
 1531,
 ],

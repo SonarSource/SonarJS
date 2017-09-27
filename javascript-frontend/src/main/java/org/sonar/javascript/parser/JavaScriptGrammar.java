@@ -2038,8 +2038,8 @@ public class JavaScriptGrammar {
   public FlowMethodPropertyDefinitionKeyTree FLOW_METHOD_PROPERTY_DEFINITION_KEY() {
     return b.<FlowMethodPropertyDefinitionKeyTree>nonterminal(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)
       .is(f.flowMethodPropertyDefinitionKeyTree(
-        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         b.optional(IDENTIFIER_NAME()),
+        b.optional(FLOW_GENERIC_PARAMETER_CLAUSE()),
         FLOW_FUNCTION_TYPE_PARAMETER_CLAUSE()));
   }
 
