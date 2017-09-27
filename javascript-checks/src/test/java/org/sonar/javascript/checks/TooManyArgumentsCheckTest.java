@@ -32,7 +32,7 @@ public class TooManyArgumentsCheckTest {
 
     // use 2 successive files, because the check class is sensitive to proper reinitialization
     JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/TooManyArguments.js"));
-//    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/TooManyArguments2.js"));
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/TooManyArguments2.js"));
   }
 
 }
