@@ -45,4 +45,10 @@ public class CallExpressionTest {
     assertThat(Kind.CALL_EXPRESSION)
       .matches("super.release()");
   }
+
+  @Test
+  public void import_ES_next() {
+    assertThat(Kind.CALL_EXPRESSION)
+      .matches("import(`module to import`).then(i => callback(null, { component: i.default }))");
+  }
 }
