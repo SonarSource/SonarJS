@@ -167,6 +167,11 @@ public class SymbolicExecutionTest {
     verifySE("drop_arguments_constraints_in_conditions.js");
   }
 
+  @Test
+  public void should_execute_flow_syntax() throws Exception {
+    verifySE("flow_syntax.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(TestUtils.createTestInputFile("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);
