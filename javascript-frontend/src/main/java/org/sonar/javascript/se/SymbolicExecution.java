@@ -59,6 +59,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternP
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
@@ -334,18 +335,26 @@ public class SymbolicExecution {
   }
 
   private ProgramState executeInitializedBinding(InitializedBindingElementTree initializedBindingElementTree, ProgramState programState) {
-    ProgramState newProgramState = programState;
+    ProgramState newProgramState;
     if (initializedBindingElementTree.parent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN, Kind.BINDING_PROPERTY)) {
       newProgramState = programState.removeLastValue();
     } else {
       BindingElementTree variable = initializedBindingElementTree.left();
-      if (variable.is(Kind.BINDING_IDENTIFIER)) {
-        newProgramState = assignment(programState, variable);
-      }
+      newProgramState = executeInitializer(programState, variable);
       newProgramState = newProgramState.clearStack(initializedBindingElementTree);
     }
 
     return newProgramState;
+  }
+
+  private ProgramState executeInitializer(ProgramState programState, BindingElementTree variable) {
+    if (variable.is(Kind.BINDING_IDENTIFIER)) {
+      return assignment(programState, variable);
+    } else if (variable.is(Kind.FLOW_TYPED_BINDING_ELEMENT)) {
+      return executeInitializer(programState, ((FlowTypedBindingElementTree) variable).bindingElement());
+    }
+
+    return programState;
   }
 
   private static boolean isProducingUnconsumedValue(Tree element) {
