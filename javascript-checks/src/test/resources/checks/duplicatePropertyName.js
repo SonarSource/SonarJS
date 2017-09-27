@@ -31,7 +31,7 @@ class A {
   prop1;
   ;
   prop = 1;        // Noncompliant
-  static prop = 1; // Noncompliant
+  static prop = 1;
   prop() {}        // Noncompliant
   * prop() {}      // Noncompliant
   set prop(p) {}   // Noncompliant
@@ -52,4 +52,8 @@ class A {
   constructor() {}
   constructor() {}   // Noncompliant
   constructor(x) {}  // Noncompliant
+
+  static staticProp = 1;
+  static staticProp() {}      // Noncompliant
+  static set staticProp() {}  // Noncompliant
 }

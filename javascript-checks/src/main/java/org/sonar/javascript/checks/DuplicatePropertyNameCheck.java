@@ -55,18 +55,38 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   private void checkProperties(List<Tree> properties) {
     ListMultimap<String, Tree> keys = LinkedListMultimap.create();
+    ListMultimap<String, Tree> staticKeys = LinkedListMultimap.create();
 
     for (Tree property : properties) {
       Tree propertyNameTree = getPropertyNameTree(property);
       if (propertyNameTree != null) {
         String propertyName = getPropertyName(propertyNameTree);
         if (propertyName != null) {
-          keys.put(EscapeUtils.unescape(propertyName), property);
+          if (isStatic(property)) {
+            staticKeys.put(EscapeUtils.unescape(propertyName), property);
+          } else {
+            keys.put(EscapeUtils.unescape(propertyName), property);
+          }
         }
       }
     }
 
     checkKeys(keys);
+    checkKeys(staticKeys);
+  }
+
+  private static boolean isStatic(Tree property) {
+    if (property.is(Kind.METHOD, Kind.GENERATOR_METHOD)) {
+      return ((MethodDeclarationTree) property).staticToken() != null;
+
+    } else if (property.is(Kind.GET_METHOD, Kind.SET_METHOD)) {
+      return ((AccessorMethodDeclarationTree) property).staticToken() != null;
+
+    } else if (property.is(Kind.FIELD)) {
+      return ((FieldDeclarationTree) property).staticToken() != null;
+
+    }
+    return false;
   }
 
   private void checkKeys(ListMultimap<String, Tree> keys) {
