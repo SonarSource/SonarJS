@@ -1863,6 +1863,7 @@ public class JavaScriptGrammar {
         f.flowSimpleType(IDENTIFIER_REFERENCE()),
         f.flowSimpleType(b.token(JavaScriptPunctuator.STAR)),
         f.flowSimpleType(b.token(JavaScriptKeyword.VOID)),
+        f.flowSimpleType(b.token(JavaScriptKeyword.THIS)),
         f.flowSimpleType(b.token(JavaScriptKeyword.NULL))));
   }
 

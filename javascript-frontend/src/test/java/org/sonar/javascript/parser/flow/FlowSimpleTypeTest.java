@@ -39,6 +39,7 @@ public class FlowSimpleTypeTest extends LegacyParserTest {
       .matches("void")
       .matches("null")
       .matches("*")
+      .matches("this")
     ;
   }
 
