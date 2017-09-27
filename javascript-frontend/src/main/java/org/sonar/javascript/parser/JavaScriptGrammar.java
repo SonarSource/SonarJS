@@ -1939,7 +1939,7 @@ public class JavaScriptGrammar {
       .is(f.flowParameterizedGenericsClause(
         b.firstOf(FLOW_NAMESPACED_TYPE(), FLOW_SIMPLE_TYPE()),
         b.token(JavaScriptPunctuator.LT),
-        FLOW_TYPE(),
+        b.optional(FLOW_TYPE()),
         b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_TYPE())),
         b.optional(b.token(JavaScriptPunctuator.COMMA)),
         b.token(JavaScriptPunctuator.GT)));

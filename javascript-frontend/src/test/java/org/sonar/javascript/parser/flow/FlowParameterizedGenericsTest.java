@@ -33,6 +33,7 @@ public class FlowParameterizedGenericsTest extends LegacyParserTest {
       .matches("Foo<?MyType, YourType>")
       .matches("Foo.Bar<?MyType, YourType,>")
       .matches("Foo<?MyType>")
+      .matches("Foo<>")
     ;
   }
 
