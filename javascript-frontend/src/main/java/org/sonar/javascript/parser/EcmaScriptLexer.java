@@ -432,7 +432,7 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
     // real life examples show that ">" and "}" are valid
     b.rule(JSX_TEXT).is(b.regexp("[^<{]+"));
 
-    b.rule(JSX_IDENTIFIER).is(SPACING, b.regexp("[-\\w]+"));
+    b.rule(JSX_IDENTIFIER).is(SPACING, b.regexp(JavaScriptLexer.JSX_IDENTIFIER));
 
     // JSX looks at first letter: capital - JS identifier, small - html tag
     // "this" is the exception of this rule
