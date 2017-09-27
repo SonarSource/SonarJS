@@ -36,9 +36,6 @@
 'project:babylon/test/fixtures/flow/anonymous-function-types/good_13/actual.js':[
 1,
 ],
-'project:babylon/test/fixtures/flow/anonymous-function-types/good_14/actual.js':[
-1,
-],
 'project:babylon/test/fixtures/flow/comment/spread/actual.js':[
 3,
 ],
@@ -3691,6 +3688,10 @@
 'project:jest/packages/jest-haste-map/src/crawlers/__tests__/node.test.js':[
 15,
 15,
+],
+'project:jest/packages/jest-haste-map/src/index.js':[
+577,
+578,
 ],
 'project:jest/packages/jest-haste-map/src/lib/extract_requires.js':[
 23,

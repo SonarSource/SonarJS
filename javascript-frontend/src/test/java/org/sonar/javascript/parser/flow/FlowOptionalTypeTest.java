@@ -36,6 +36,9 @@ public class FlowOptionalTypeTest extends LegacyParserTest {
 
       // (?number) => string
       .notMatches("?number => string")
+      // but matches, as there are parentheses
+      // ?((number)=>string)
+      .matches("?(number)=>string")
     ;
   }
 

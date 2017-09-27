@@ -22,7 +22,9 @@ package org.sonar.javascript.tree.impl.flow;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowUnionTypeTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,12 +53,13 @@ public class FlowFunctionTypeTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void unparethensized_union_parameter() throws Exception {
-    FlowFunctionTypeTree tree = parse("string | number => string", Tree.Kind.FLOW_FUNCTION_TYPE, Tree.Kind.FLOW_FUNCTION_TYPE);
+    FlowUnionTypeTree tree = parse("string | number => string", Kind.FLOW_UNION_TYPE, Kind.FLOW_UNION_TYPE);
 
-    assertThat(tree.is(Tree.Kind.FLOW_FUNCTION_TYPE)).isTrue();
-    assertThat(tree.parameterClause().parameters().size()).isEqualTo(1);
+    assertThat(tree.is(Tree.Kind.FLOW_UNION_TYPE)).isTrue();
+    FlowFunctionTypeTree functionType = (FlowFunctionTypeTree) tree.subTypes().get(1);
+    assertThat(functionType.parameterClause().parameters().size()).isEqualTo(1);
     // See #778 to understand why this is wrong
-    assertThat(tree.parameterClause().parameters().get(0).type().is(Tree.Kind.FLOW_UNION_TYPE)).isTrue();
+    assertThat(functionType.parameterClause().parameters().get(0).type().is(Tree.Kind.FLOW_UNION_TYPE)).isFalse();
   }
 
 

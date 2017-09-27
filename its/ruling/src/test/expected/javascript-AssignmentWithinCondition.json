@@ -2071,6 +2071,9 @@
 'project:jest/packages/jest-environment-node/src/index.js':[
 28,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+360,
+],
 'project:jest/packages/jest-jasmine2/src/jasmine/jasmine_light.js':[
 52,
 ],

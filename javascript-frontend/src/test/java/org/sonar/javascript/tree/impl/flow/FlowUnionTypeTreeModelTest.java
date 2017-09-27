@@ -21,7 +21,10 @@ package org.sonar.javascript.tree.impl.flow;
 
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowUnionTypeTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,4 +42,28 @@ public class FlowUnionTypeTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.subTypes().getSeparator(0).text()).isEqualTo("|");
   }
 
+  @Test
+  public void priorities1() throws Exception {
+    // A | (B => C)
+    assertThat(getType("A | B => C").is(Kind.FLOW_UNION_TYPE)).isTrue();
+  }
+
+  @Test
+  public void priorities2() throws Exception {
+    // B => (C | A)
+    assertThat(getType("B => C | A").is(Kind.FLOW_FUNCTION_TYPE)).isTrue();
+  }
+
+  @Test
+  public void priorities3() throws Exception {
+    // A | (B => (C | D))
+    Tree tree = getType("A | B => C | D");
+    assertThat(tree.is(Kind.FLOW_UNION_TYPE)).isTrue();
+    assertThat(((FlowUnionTypeTree) tree).subTypes()).hasSize(2);
+  }
+
+  private FlowTypeTree getType(String type) throws Exception {
+    return ((FlowTypeAnnotationTree) parse("var x:" + type, Kind.FLOW_TYPE_ANNOTATION)).type();
+
+  }
 }

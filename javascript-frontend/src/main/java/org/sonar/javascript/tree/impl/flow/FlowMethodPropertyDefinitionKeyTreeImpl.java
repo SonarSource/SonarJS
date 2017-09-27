@@ -32,13 +32,15 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FlowMethodPropertyDefinitionKeyTreeImpl extends JavaScriptTree implements FlowMethodPropertyDefinitionKeyTree {
 
-  private final FlowGenericParameterClauseTree genericParameterClause;
   private final IdentifierTree methodName;
+  private final FlowGenericParameterClauseTree genericParameterClause;
   private final FlowFunctionTypeParameterClauseTree parameterClause;
 
-  public FlowMethodPropertyDefinitionKeyTreeImpl(FlowGenericParameterClauseTree genericParameterClause, @Nullable IdentifierTree methodName, FlowFunctionTypeParameterClauseTree parameterClause) {
-    this.genericParameterClause = genericParameterClause;
+  public FlowMethodPropertyDefinitionKeyTreeImpl(
+    @Nullable IdentifierTree methodName, @Nullable FlowGenericParameterClauseTree genericParameterClause, FlowFunctionTypeParameterClauseTree parameterClause
+  ) {
     this.methodName = methodName;
+    this.genericParameterClause = genericParameterClause;
     this.parameterClause = parameterClause;
   }
 
@@ -49,7 +51,7 @@ public class FlowMethodPropertyDefinitionKeyTreeImpl extends JavaScriptTree impl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(genericParameterClause, methodName, parameterClause);
+    return Iterators.forArray(methodName, genericParameterClause, parameterClause);
   }
 
   @Nullable

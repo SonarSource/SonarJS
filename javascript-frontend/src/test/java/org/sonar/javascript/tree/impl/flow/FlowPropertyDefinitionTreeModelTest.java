@@ -111,7 +111,7 @@ public class FlowPropertyDefinitionTreeModelTest extends JavaScriptTreeModelTest
     FlowMethodPropertyDefinitionKeyTree tree = parse("<T>(number): number", Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY, Tree.Kind.FLOW_PROPERTY_DEFINITION);
     assertThat(tree.genericParameterClause().genericParameters()).hasSize(1);
 
-    tree = parse("<T>foo(number): number", Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY, Tree.Kind.FLOW_PROPERTY_DEFINITION);
+    tree = parse("foo<T>(number): number", Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY, Tree.Kind.FLOW_PROPERTY_DEFINITION);
     assertThat(tree.genericParameterClause().genericParameters()).hasSize(1);
   }
 

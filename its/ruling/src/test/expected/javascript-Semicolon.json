@@ -543,6 +543,9 @@
 'project:babylon/test/fixtures/flow/type-annotations/42/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/type-annotations/43/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-annotations/44/actual.js':[
 1,
 ],
@@ -604,6 +607,9 @@
 1,
 ],
 'project:babylon/test/fixtures/flow/type-grouping/1/actual.js':[
+1,
+],
+'project:babylon/test/fixtures/flow/type-grouping/2/actual.js':[
 1,
 ],
 'project:babylon/test/fixtures/flow/type-grouping/3/actual.js':[

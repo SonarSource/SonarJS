@@ -1,4 +1,7 @@
 {
+'project:babylon/src/tokenizer/types.js':[
+142,
+],
 'project:ecmascript6/react-router/modules/IndexRoute.js':[
 31,
 ],
@@ -73,6 +76,10 @@
 ],
 'project:jest/packages/jest-config/src/defaults.js':[
 31,
+],
+'project:jest/packages/jest-haste-map/src/index.js':[
+541,
+560,
 ],
 'project:jest/packages/jest-jasmine2/src/__tests__/expectation_result_factory.test.js':[
 37,

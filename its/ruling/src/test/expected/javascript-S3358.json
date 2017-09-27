@@ -790,6 +790,9 @@
 48,
 52,
 ],
+'project:jest/packages/jest-haste-map/src/index.js':[
+592,
+],
 'project:jest/packages/jest-jasmine2/src/assert_support.js':[
 56,
 57,
