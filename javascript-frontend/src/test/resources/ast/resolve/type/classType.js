@@ -2,6 +2,8 @@ class A {
 }
 
 var B = class B1 {
+  get propWithGetter() {}
+
   foo() {
     this.bar(1);
   }

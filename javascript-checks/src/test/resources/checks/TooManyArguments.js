@@ -120,3 +120,14 @@ function builtIn_from_ember() {
 }
 
 isNaN(obj, true);                           // FN, too many arguments but symbolic execution doesn't check global scope 
+
+class A {
+
+  get a() {
+    return someFunc;
+  }
+
+  foo(param) {
+    this.a(param); // OK, it's a property with getter
+  }
+}

@@ -90,7 +90,8 @@ public class ClassTypeTest extends TypeTest {
     assertThat(barProperty.kind()).isEqualTo(Kind.METHOD);
     assertThat(barProperty.scope().tree().is(Tree.Kind.CLASS_EXPRESSION)).isTrue();
 
-
+    Symbol propertyWithGetter = type.property("propWithGetter");
+    assertThat(propertyWithGetter).isNull();
   }
 
   @Test

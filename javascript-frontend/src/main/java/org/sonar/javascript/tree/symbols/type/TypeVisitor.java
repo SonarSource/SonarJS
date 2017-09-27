@@ -35,8 +35,8 @@ import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -45,7 +45,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -139,10 +138,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
 
     for (Tree element : tree.elements()) {
       Tree name;
-      if (element.is(Tree.Kind.GET_METHOD, Tree.Kind.SET_METHOD)) {
-        name = ((AccessorMethodDeclarationTree) element).name();
-
-      } else if (element.is(Tree.Kind.METHOD, Tree.Kind.GENERATOR_METHOD)) {
+      if (element.is(Tree.Kind.METHOD, Tree.Kind.GENERATOR_METHOD)) {
         name = ((MethodDeclarationTree) element).name();
 
       } else {
