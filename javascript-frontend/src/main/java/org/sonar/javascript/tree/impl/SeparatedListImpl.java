@@ -45,7 +45,7 @@ public class SeparatedListImpl<T> implements SeparatedList<T> {
     this.separators = separators;
   }
 
-  public static SeparatedListImpl emptySeparatedList() {
+  public static SeparatedListImpl emptyImmutableList() {
     return new SeparatedListImpl(Collections.emptyList(), Collections.emptyList());
   }
 

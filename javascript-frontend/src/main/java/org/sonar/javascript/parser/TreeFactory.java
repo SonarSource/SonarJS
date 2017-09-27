@@ -760,19 +760,18 @@ public class TreeFactory {
   }
 
   public ParameterListTree formalParameterClause3(InternalSyntaxToken lParenthesis, Optional<RestElementTree> restElementTree, InternalSyntaxToken rParenthesis) {
-    SeparatedListImpl<BindingElementTree> parameters = SeparatedListImpl.emptySeparatedList();
     if (restElementTree.isPresent()) {
-      parameters.add(restElementTree.get());
+      return new ParameterListTreeImpl(lParenthesis, parameterList(restElementTree.get(), Optional.absent()), rParenthesis);
     }
-    return new ParameterListTreeImpl(lParenthesis, parameters, rParenthesis);
+    return new ParameterListTreeImpl(lParenthesis, SeparatedListImpl.emptyImmutableList(), rParenthesis);
   }
 
-  public RestElementTree bindingRestElement(InternalSyntaxToken ellipsis, IdentifierTree identifier, Optional<FlowTypeAnnotationTree> type) {
+  public RestElementTree bindingRestElement(InternalSyntaxToken ellipsis, BindingElementTree bindingElement, Optional<FlowTypeAnnotationTree> type) {
     if (type.isPresent()) {
-      return new RestElementTreeImpl(ellipsis, new FlowTypedBindingElementTreeImpl(identifier, type.get()));
+      return new RestElementTreeImpl(ellipsis, new FlowTypedBindingElementTreeImpl(bindingElement, type.get()));
 
     } else {
-      return new RestElementTreeImpl(ellipsis, identifier);
+      return new RestElementTreeImpl(ellipsis, bindingElement);
     }
   }
 
@@ -1892,13 +1891,13 @@ public class TreeFactory {
   }
 
   public FlowObjectTypeTree flowObjectType(SyntaxToken lcurly, Optional<SeparatedList<Tree>> properties, SyntaxToken rcurly) {
-    return new FlowObjectTypeTreeImpl(lcurly, null, properties.or(SeparatedListImpl.emptySeparatedList()), null, rcurly);
+    return new FlowObjectTypeTreeImpl(lcurly, null, properties.or(SeparatedListImpl.emptyImmutableList()), null, rcurly);
   }
 
   public FlowObjectTypeTree flowStrictObjectType(
     SyntaxToken lcurly, SyntaxToken lpipe, Optional<SeparatedList<Tree>> properties, SyntaxToken rpipe, SyntaxToken rcurly
   ) {
-    return new FlowObjectTypeTreeImpl(lcurly, lpipe, properties.or(SeparatedListImpl.emptySeparatedList()), rpipe, rcurly);
+    return new FlowObjectTypeTreeImpl(lcurly, lpipe, properties.or(SeparatedListImpl.emptyImmutableList()), rpipe, rcurly);
   }
 
   public FlowPropertyDefinitionTree flowPropertyDefinition(InternalSyntaxToken staticToken, Optional<InternalSyntaxToken> plusOrMinusToken, FlowPropertyDefinitionKeyTree key, FlowTypeAnnotationTree typeAnnotation) {
@@ -1958,7 +1957,7 @@ public class TreeFactory {
       genericParameterClause.orNull(),
       extendsClause.orNull(),
       openCurlyBraceToken,
-      properties.or(SeparatedListImpl.emptySeparatedList()),
+      properties.or(SeparatedListImpl.emptyImmutableList()),
       closeCurlyBraceToken);
   }
 
@@ -2087,7 +2086,7 @@ public class TreeFactory {
     Optional<InternalSyntaxToken> trailingComma, InternalSyntaxToken right
   ) {
     if (!first.isPresent()) {
-      return new FlowParameterizedGenericsTypeTreeImpl(type, left, SeparatedListImpl.emptySeparatedList(), right);
+      return new FlowParameterizedGenericsTypeTreeImpl(type, left, SeparatedListImpl.emptyImmutableList(), right);
     }
     return new FlowParameterizedGenericsTypeTreeImpl(type, left, parameterListWithTrailingComma(first.get(), rest, trailingComma), right);
   }
