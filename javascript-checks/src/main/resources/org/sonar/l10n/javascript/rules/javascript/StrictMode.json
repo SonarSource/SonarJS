@@ -10,5 +10,6 @@
     "cross-browser",
     "user-experience"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-1539"
 }

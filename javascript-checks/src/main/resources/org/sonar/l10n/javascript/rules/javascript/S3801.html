@@ -1,6 +1,6 @@
 <p>Unlike strongly typed languages, JavaScript does not enforce a return type on a function. This means that different paths through a function can
 return different types of values, which can be very confusing to the user and significantly harder to maintain.</p>
-<p>In particular a function, in JavaScript, will return <code>undefined</code> in any of these cases:</p>
+<p>In particular a function, in JavaScript, will return <code>undefined</code> in any of the following cases:</p>
 <ul>
   <li> It exits without a <code>return</code> statement. </li>
   <li> It executes a <code>return</code> with no value. </li>
@@ -8,7 +8,7 @@ return different types of values, which can be very confusing to the user and si
 <p>This rule verifies that return values are either always or never specified for each path through a function.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-function foo(a) { // Noncompliant, function exists without "return"
+function foo(a) { // Noncompliant, function exits without "return"
   if (a == 1) {
     return true;
   }

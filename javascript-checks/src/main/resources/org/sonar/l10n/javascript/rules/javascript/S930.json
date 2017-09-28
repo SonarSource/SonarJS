@@ -8,12 +8,12 @@
   },
   "tags": [
     "cwe",
-    "bug",
     "misra",
     "cert"
   ],
   "standards": [
     "CWE"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-930"
 }

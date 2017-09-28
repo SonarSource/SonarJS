@@ -10,5 +10,6 @@
     "es2015",
     "clumsy"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-3514"
 }

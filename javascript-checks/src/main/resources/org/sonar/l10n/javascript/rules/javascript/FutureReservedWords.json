@@ -10,5 +10,6 @@
     "lock-in",
     "pitfall"
   ],
-  "defaultSeverity": "Blocker"
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-1527"
 }

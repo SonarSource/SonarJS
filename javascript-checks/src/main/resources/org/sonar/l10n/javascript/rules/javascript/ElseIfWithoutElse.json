@@ -10,5 +10,6 @@
     "misra",
     "cert"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-126"
 }

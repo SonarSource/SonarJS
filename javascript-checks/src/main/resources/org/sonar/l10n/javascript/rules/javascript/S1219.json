@@ -10,5 +10,6 @@
     "misra",
     "suspicious"
   ],
-  "defaultSeverity": "Blocker"
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-1219"
 }

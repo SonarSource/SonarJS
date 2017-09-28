@@ -9,5 +9,6 @@
   "tags": [
     "unused"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1481"
 }

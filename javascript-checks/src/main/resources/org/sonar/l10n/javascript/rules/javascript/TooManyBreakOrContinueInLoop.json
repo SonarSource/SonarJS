@@ -10,5 +10,6 @@
   "tags": [
     "brain-overload"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-135"
 }

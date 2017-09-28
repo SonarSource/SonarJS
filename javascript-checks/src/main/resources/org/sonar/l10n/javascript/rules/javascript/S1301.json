@@ -10,5 +10,6 @@
     "misra",
     "bad-practice"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1301"
 }

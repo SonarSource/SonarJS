@@ -10,5 +10,6 @@
     "obsolete",
     "jquery"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2770"
 }

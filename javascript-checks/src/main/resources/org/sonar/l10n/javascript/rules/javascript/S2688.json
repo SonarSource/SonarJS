@@ -7,8 +7,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "bug",
     "cert"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2688"
 }

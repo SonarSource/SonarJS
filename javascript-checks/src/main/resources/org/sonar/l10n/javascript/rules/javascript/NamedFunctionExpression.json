@@ -7,9 +7,9 @@
     "constantCost": "15min"
   },
   "tags": [
-    "bug",
     "cross-browser",
     "user-experience"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1517"
 }

@@ -11,5 +11,6 @@
     "cert",
     "unused"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1116"
 }

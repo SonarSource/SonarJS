@@ -9,5 +9,6 @@
   "tags": [
     "brain-overload"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-104"
 }

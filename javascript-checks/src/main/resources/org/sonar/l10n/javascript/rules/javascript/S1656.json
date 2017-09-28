@@ -9,5 +9,6 @@
   "tags": [
     "cert"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-1656"
 }

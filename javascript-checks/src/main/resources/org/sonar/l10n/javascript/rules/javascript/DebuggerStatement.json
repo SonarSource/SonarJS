@@ -8,11 +8,11 @@
   },
   "tags": [
     "cwe",
-    "security",
     "user-experience"
   ],
   "standards": [
     "CWE"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1525"
 }

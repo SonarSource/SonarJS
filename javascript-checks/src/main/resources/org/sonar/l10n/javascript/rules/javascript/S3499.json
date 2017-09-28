@@ -10,5 +10,6 @@
     "convention",
     "es2015"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-3499"
 }

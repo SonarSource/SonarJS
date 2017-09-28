@@ -7,8 +7,8 @@
     "constantCost": "10min"
   },
   "tags": [
-    "bug",
     "pitfall"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-1514"
 }

@@ -4,16 +4,16 @@ will compile and run, but not produce the expected results.</p>
 one whitespace after.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-var target =-5;
-var num = 3;
+let target =-5;
+let num = 3;
 
 target =- num;  // Noncompliant; target = -3. Is that really what's meant?
 target =+ num; // Noncompliant; target = 3
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-var target = -5;
-var num = 3;
+let target = -5;
+let num = 3;
 
 target = -num;  // Compliant; intent to assign inverse value of num is clear
 target += num;

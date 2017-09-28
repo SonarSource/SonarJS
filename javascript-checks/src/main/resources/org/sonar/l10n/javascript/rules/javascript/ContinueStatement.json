@@ -4,11 +4,12 @@
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "30min"
+    "constantCost": "1h"
   },
   "tags": [
     "misra",
     "bad-practice"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-909"
 }

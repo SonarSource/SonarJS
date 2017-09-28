@@ -7,8 +7,8 @@
     "constantCost": "30min"
   },
   "tags": [
-    "bug",
     "backbone"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-2549"
 }

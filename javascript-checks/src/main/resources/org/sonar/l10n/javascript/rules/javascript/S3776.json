@@ -11,5 +11,6 @@
   "tags": [
     "brain-overload"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-3776"
 }

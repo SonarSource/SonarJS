@@ -15,5 +15,6 @@
   "standards": [
     "CWE"
   ],
-  "defaultSeverity": "Blocker"
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-128"
 }

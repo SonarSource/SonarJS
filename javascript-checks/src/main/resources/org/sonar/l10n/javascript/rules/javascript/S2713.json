@@ -10,5 +10,6 @@
     "convention",
     "jquery"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-2713"
 }
