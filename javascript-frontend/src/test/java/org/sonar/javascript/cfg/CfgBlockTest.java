@@ -69,6 +69,16 @@ public class CfgBlockTest {
     assertThat(new JsCfgBlock(new JsCfgBlock(end)).skipEmptyBlocks()).isEqualTo(end);
   }
 
+  @Test(timeout = 1000)
+  public void stop_skipping_if_in_a_loop_of_empty_blocks() throws Exception {
+    JsCfgForwardingBlock forwarding = new JsCfgForwardingBlock();
+    JsCfgBlock empty = new JsCfgBlock(forwarding);
+    forwarding.setSuccessor(empty);
+    assertThat(empty.skipEmptyBlocks()).isEqualTo(forwarding);
+    JsCfgBlock start = new JsCfgBlock(empty);
+    assertThat(start.skipEmptyBlocks()).isEqualTo(forwarding);
+  }
+
   @Test
   public void end_has_no_successor() throws Exception {
     assertThat(end.successors()).isEmpty();

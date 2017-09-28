@@ -529,7 +529,8 @@ class ControlFlowGraphBuilder {
     currentBlock = createSimpleBlock(linkToCondition);
     if (tree.init() != null) {
       buildExpression(tree.init());
-    } else if (tree.condition() == null && loopBodyBlock.elements().isEmpty()) {
+    }
+    if (tree.condition() == null && loopBodyBlock.elements().isEmpty()) {
       loopBodyBlock.addElement(tree.forKeyword());
     }
   }

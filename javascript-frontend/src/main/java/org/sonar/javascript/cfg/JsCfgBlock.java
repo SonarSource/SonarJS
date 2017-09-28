@@ -97,9 +97,16 @@ class JsCfgBlock implements CfgBlock {
   }
 
   JsCfgBlock skipEmptyBlocks() {
+    Set<CfgBlock> skippedBlocks = new HashSet<>();
     JsCfgBlock block = this;
     while (block.successors().size() == 1 && block.elements().isEmpty()) {
-      block = (JsCfgBlock) block.successors().iterator().next();
+      JsCfgBlock next = (JsCfgBlock) block.successors().iterator().next();
+      skippedBlocks.add(block);
+      if (!skippedBlocks.contains(next)) {
+        block = next;
+      } else {
+        return block;
+      }
     }
     return block;
   }
