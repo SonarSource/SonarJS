@@ -27,13 +27,18 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowMethodPropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKeyTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "DuplicatePropertyName")
@@ -53,7 +58,13 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
     super.visitClass(tree);
   }
 
-  private void checkProperties(List<Tree> properties) {
+  @Override
+  public void visitFlowObjectTypeTree(FlowObjectTypeTree tree) {
+    checkProperties(tree.properties());
+    super.visitFlowObjectTypeTree(tree);
+  }
+
+  private <T extends Tree> void checkProperties(List<T> properties) {
     ListMultimap<String, Tree> keys = LinkedListMultimap.create();
     ListMultimap<String, Tree> staticKeys = LinkedListMultimap.create();
 
@@ -85,6 +96,8 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
     } else if (property.is(Kind.FIELD)) {
       return ((FieldDeclarationTree) property).staticToken() != null;
 
+    } else if (property.is(Kind.FLOW_PROPERTY_DEFINITION)) {
+      return ((FlowPropertyDefinitionTree) property).staticToken() != null;
     }
     return false;
   }
@@ -129,6 +142,8 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
 
     } else if (property.is(Kind.IDENTIFIER_REFERENCE)) {
       return property;
+    } else if (property.is(Kind.FLOW_PROPERTY_DEFINITION)) {
+      return ((FlowPropertyDefinitionTree) property).key();
     }
 
     return null;
@@ -137,8 +152,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
   @Nullable
   private static String getPropertyName(Tree propertyKey) {
     if (propertyKey.is(Tree.Kind.STRING_LITERAL)) {
-      String value = ((LiteralTree) propertyKey).value();
-      return value.substring(1, value.length() - 1);
+      return trimLiteralQuotes(((LiteralTree) propertyKey).value());
     }
 
     if (propertyKey.is(Kind.PROPERTY_IDENTIFIER, Kind.IDENTIFIER_REFERENCE)) {
@@ -149,7 +163,27 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
       return ((LiteralTree) propertyKey).value();
     }
 
+    if(propertyKey.is(Kind.FLOW_SIMPLE_PROPERTY_DEFINITION_KEY)) {
+      SyntaxToken nameToken = ((FlowSimplePropertyDefinitionKeyTree) propertyKey).nameToken();
+      if (nameToken.is(Kind.STRING_LITERAL)) {
+        return trimLiteralQuotes(((LiteralTree) nameToken).value());
+      } else {
+        return nameToken.text();
+      }
+    }
+
+    if(propertyKey.is(Kind.FLOW_METHOD_PROPERTY_DEFINITION_KEY)) {
+      FlowMethodPropertyDefinitionKeyTree methodKey = (FlowMethodPropertyDefinitionKeyTree) propertyKey;
+      if (methodKey.methodName() != null) {
+        return methodKey.methodName().name();
+      }
+    }
+
     return null;
+  }
+
+  private static String trimLiteralQuotes(String value) {
+    return value.substring(1, value.length() - 1);
   }
 
 }
