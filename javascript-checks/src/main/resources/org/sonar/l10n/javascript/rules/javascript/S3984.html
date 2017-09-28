@@ -1,0 +1,14 @@
+<p>Creating a new <code>Error</code> without actually throwing it is useless and is probably due to a mistake.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+if (x &lt; 0) {
+  new Error("x must be nonnegative");
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+if (x &lt; 0) {
+  throw new Error("x must be nonnegative");
+}
+</pre>
+
