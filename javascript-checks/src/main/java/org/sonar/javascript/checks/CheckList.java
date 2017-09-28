@@ -92,6 +92,7 @@ public final class CheckList {
       EmptyStatementCheck.class,
       EqEqEqCheck.class,
       EqualInForLoopTerminationCheck.class,
+      ErrorWithoutThrowCheck.class,
       EvalCheck.class,
       ExcessiveParameterListCheck.class,
       ExpressionComplexityCheck.class,
