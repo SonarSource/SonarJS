@@ -22,3 +22,5 @@ var x = "aaaa" + b + "cccc" == y; // Noncompliant
 
 var x = a + b + c + d + e + "aaaa" + "bbbb";
 var x = a + "aaaaa" + b;
+
+console.log("aaaaaaaaa" + "bbbbbbbbbbb" + "cccccccccc"); // OK, only literals
