@@ -42,6 +42,7 @@ public final class CheckList {
       ArithmeticOperationReturningNanCheck.class,
       ArrayConstructorsCheck.class,
       ArrayCallbackWithoutReturnCheck.class,
+      ArrayReverseCheck.class,
       ArrowFunctionConventionCheck.class,
       AssignmentWithinConditionCheck.class,
       AssociativeArraysCheck.class,
