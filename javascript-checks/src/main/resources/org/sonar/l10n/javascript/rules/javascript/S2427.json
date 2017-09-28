@@ -7,8 +7,8 @@
     "constantCost": "2min"
   },
   "tags": [
-    "bug",
     "user-experience"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-2427"
 }

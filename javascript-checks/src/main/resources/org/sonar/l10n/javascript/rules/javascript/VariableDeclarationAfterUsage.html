@@ -1,8 +1,6 @@
-<p>One of the biggest sources of confusion for JavaScript beginners is scoping. The reason scoping is so confusing in JavaScript is because JavaScript
-looks like a C-family language but doesn't act like one. C-family languages have block-level scope, meaning that when control enters a block, such as
-an <code>if</code> statement, new variables can be declared within that scope without affecting the outer scope. However, this is not the case in
-JavaScript.</p>
-<p>To minimize confusion as much as possible, variables should always be declared before they are used.</p>
+<p>Variables declared with <code>var</code> have the special property that regardless of where they're declared in a function they "float" to the top
+of the function and are available for use even before they're declared. That makes scoping confusing, especially for new coders. To keep confusion to
+a minimum, <code>var</code> declarations should happen before the variables they declare are used for the first time.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var x = 1;

@@ -10,5 +10,6 @@
     "es2015",
     "pitfall"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-2208"
 }

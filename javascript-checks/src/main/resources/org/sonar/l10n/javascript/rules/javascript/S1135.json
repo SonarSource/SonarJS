@@ -8,5 +8,6 @@
   "standards": [
     "CWE"
   ],
-  "defaultSeverity": "Info"
+  "defaultSeverity": "Info",
+  "ruleSpecification": "RSPEC-1135"
 }

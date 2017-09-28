@@ -1,5 +1,5 @@
 {
-  "title": "Files should contain an empty new line at the end",
+  "title": "Files should contain an empty newline at the end",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -9,5 +9,6 @@
   "tags": [
     "convention"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-113"
 }

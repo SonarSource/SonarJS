@@ -7,12 +7,12 @@
     "constantCost": "5min"
   },
   "tags": [
-    "security",
     "owasp-a6",
     "user-experience"
   ],
   "standards": [
     "OWASP Top Ten"
   ],
-  "defaultSeverity": "Minor"
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-2228"
 }

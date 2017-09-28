@@ -7,8 +7,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "security",
     "clumsy"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-3523"
 }

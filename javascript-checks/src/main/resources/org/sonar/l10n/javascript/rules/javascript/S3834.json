@@ -9,5 +9,6 @@
   "tags": [
     "es2015"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-3834"
 }

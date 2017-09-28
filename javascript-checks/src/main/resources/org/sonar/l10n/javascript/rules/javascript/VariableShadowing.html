@@ -2,23 +2,27 @@
 Further, it could lead maintainers to introduce bugs because they think they're using one variable but are really using another.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-show: function(point, element) {
-  if (!this.drops.length) return;
-  var drop, affected = [];
-  this.drops.each( function(drop) {  // Non-Compliant; defines a new 'drop' parameter
-    if(Droppables.isAffected(point, element, drop))
-      affected.push(drop);
-  });
+function foo() {
+  let x = bar(1);
+  if (x &gt; 0) {
+      let x = bar(2); // Noncompliant
+      console.log(x);
+  } else {
+     console.log("Wrong Value");
+  }
+}
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-show: function(point, element) {
-  if (!this.drops.length) return;
-  var drop, affected = [];
-  this.drops.each( function(aDrop) {
-    if(Droppables.isAffected(point, element, aDrop))
-      affected.push(aDrop);
-  });
+function foo() {
+  let x = bar(1);
+  if (x &gt; 0) {
+      let y = bar(2);
+      console.log(y);
+  } else {
+     console.log("Wrong Value");
+  }
+}
 </pre>
 <h2>See</h2>
 <ul>

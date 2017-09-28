@@ -9,5 +9,6 @@
   "tags": [
     "confusing"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-1994"
 }

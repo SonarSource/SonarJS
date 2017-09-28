@@ -8,8 +8,8 @@
   },
   "tags": [
     "api-design",
-    "bug",
     "es2015"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-3531"
 }

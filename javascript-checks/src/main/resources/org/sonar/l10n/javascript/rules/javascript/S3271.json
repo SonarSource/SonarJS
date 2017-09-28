@@ -9,11 +9,11 @@
     "linearFactor": "5min"
   },
   "tags": [
-    "security",
     "owasp-a6"
   ],
   "standards": [
     "OWASP Top Ten"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-3271"
 }

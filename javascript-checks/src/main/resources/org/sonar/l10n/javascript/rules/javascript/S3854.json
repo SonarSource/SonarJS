@@ -1,5 +1,5 @@
 {
-  "title": "super() should be invoked appropriately",
+  "title": "\"super()\" should be invoked appropriately",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -9,5 +9,6 @@
   "tags": [
     
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-3854"
 }

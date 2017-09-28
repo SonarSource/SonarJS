@@ -8,7 +8,6 @@
   },
   "tags": [
     "cwe",
-    "bug",
     "misra",
     "cert",
     "unused",
@@ -17,5 +16,6 @@
   "standards": [
     "CWE"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2583"
 }

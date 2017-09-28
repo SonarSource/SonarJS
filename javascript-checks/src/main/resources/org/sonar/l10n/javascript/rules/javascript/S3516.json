@@ -10,5 +10,6 @@
   "tags": [
     
   ],
-  "defaultSeverity": "Blocker"
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-3516"
 }

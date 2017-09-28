@@ -8,11 +8,11 @@
   },
   "tags": [
     "cwe",
-    "bug",
     "cert"
   ],
   "standards": [
     "CWE"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2681"
 }

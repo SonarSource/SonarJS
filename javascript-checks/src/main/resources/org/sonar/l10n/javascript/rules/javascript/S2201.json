@@ -1,5 +1,5 @@
 {
-  "title": "Return values should not be ignored when function calls don't have any side effects",
+  "title": "Return values from functions without side effects should not be ignored",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -7,9 +7,9 @@
     "constantCost": "5min"
   },
   "tags": [
-    "bug",
     "misra",
     "cert"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2201"
 }

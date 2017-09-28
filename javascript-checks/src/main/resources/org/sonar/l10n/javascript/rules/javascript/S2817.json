@@ -7,7 +7,6 @@
     "constantCost": "2h"
   },
   "tags": [
-    "security",
     "html5",
     "owasp-a9",
     "owasp-a6"
@@ -15,5 +14,6 @@
   "standards": [
     "OWASP Top Ten"
   ],
-  "defaultSeverity": "Blocker"
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2817"
 }

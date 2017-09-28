@@ -9,5 +9,6 @@
   "tags": [
     "pitfall"
   ],
-  "defaultSeverity": "Blocker"
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2703"
 }

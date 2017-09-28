@@ -8,12 +8,12 @@
   },
   "tags": [
     "cwe",
-    "security",
     "sans-top25-risky"
   ],
   "standards": [
     "CWE",
     "SANS Top 25"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-2611"
 }

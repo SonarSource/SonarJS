@@ -10,5 +10,6 @@
     "misra",
     "unused"
   ],
-  "defaultSeverity": "Major"
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-125"
 }

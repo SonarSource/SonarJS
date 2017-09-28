@@ -7,8 +7,8 @@
     "constantCost": "15min"
   },
   "tags": [
-    "bug",
     "cert"
   ],
-  "defaultSeverity": "Blocker"
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2189"
 }

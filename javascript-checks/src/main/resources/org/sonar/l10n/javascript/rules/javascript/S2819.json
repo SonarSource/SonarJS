@@ -7,12 +7,12 @@
     "constantCost": "10min"
   },
   "tags": [
-    "security",
     "html5",
     "owasp-a3"
   ],
   "standards": [
     "OWASP Top Ten"
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-2819"
 }

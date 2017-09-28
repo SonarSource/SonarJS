@@ -11,5 +11,6 @@
     "cert",
     "pitfall"
   ],
-  "defaultSeverity": "Blocker"
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-1314"
 }
