@@ -75,6 +75,8 @@ public class CfgBlockTest {
     JsCfgBlock empty = new JsCfgBlock(forwarding);
     forwarding.setSuccessor(empty);
     assertThat(empty.skipEmptyBlocks()).isEqualTo(forwarding);
+    JsCfgBlock start = new JsCfgBlock(empty);
+    assertThat(start.skipEmptyBlocks()).isEqualTo(forwarding);
   }
 
   @Test
