@@ -99,7 +99,12 @@ class JsCfgBlock implements CfgBlock {
   JsCfgBlock skipEmptyBlocks() {
     JsCfgBlock block = this;
     while (block.successors().size() == 1 && block.elements().isEmpty()) {
-      block = (JsCfgBlock) block.successors().iterator().next();
+      JsCfgBlock next = (JsCfgBlock) block.successors().iterator().next();
+      if (next != this) {
+        block = next;
+      } else {
+        return block;
+      }
     }
     return block;
   }
