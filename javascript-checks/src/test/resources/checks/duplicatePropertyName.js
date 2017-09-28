@@ -57,3 +57,23 @@ class A {
   static staticProp() {}      // Noncompliant
   static set staticProp() {}  // Noncompliant
 }
+
+// Flow
+type B = {
+  prop1: number,
+  prop2: number,
+  prop1: string,   // Noncompliant
+  method1(): void,
+  method1(): void, // Noncompliant
+  static method1(): void,
+  static method1(): void,   // Noncompliant
+  (): number,
+  (): string  // FN, we ignore runnable object methods
+}
+
+class C {
+  prop1: number;
+  prop2: string;
+  static prop2: string;
+  static prop2: number;  // Noncompliant
+}
