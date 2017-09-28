@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import java.util.List;
 import java.util.Optional;
+import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.points.ProgramPoint;
@@ -33,10 +34,11 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 
+@Rule(key = "S4043")
 public class ArrayReverseCheck extends AbstractAnyPathSeCheck {
 
   private static final String REVERSE = "reverse";
-  private static final String MESSAGE = "Move this array \"reverse\" operation to a separate statement.";
+  private static final String MESSAGE = "Move this array \"" + REVERSE + "\" operation to a separate statement.";
 
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
@@ -95,7 +97,7 @@ public class ArrayReverseCheck extends AbstractAnyPathSeCheck {
     return currentState.getConstraint(symbol).isStricterOrEqualTo(Constraint.ARRAY);
   }
 
-  public boolean isReverseMethod(ExpressionTree property) {
+  private boolean isReverseMethod(ExpressionTree property) {
     if (property.is(Tree.Kind.PROPERTY_IDENTIFIER)) {
       IdentifierTree propertyIdentifier = (IdentifierTree) property;
       if (REVERSE.equals(propertyIdentifier.name())) {
