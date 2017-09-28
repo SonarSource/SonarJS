@@ -90,7 +90,7 @@ public class BigProjectTest {
     assertThat(getProjectMeasureAsDouble("duplicated_files")).isEqualTo(561.0);
 
     if (!Tests.is_before_sonar_6_3()) {
-      assertThat(getProjectMeasureAsDouble("cognitive_complexity")).isEqualTo(162898.0d);
+      assertThat(getProjectMeasureAsDouble("cognitive_complexity")).isEqualTo(147929.0d);
     }
   }
 

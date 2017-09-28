@@ -87,14 +87,15 @@ public class CognitiveComplexity extends DoubleDispatchVisitor {
   public CognitiveComplexity() {
   }
 
-  public ComplexityData calculateFunctionComplexity(FunctionTree functionTree) {
+  public ComplexityData calculateFunctionComplexity(FunctionTree functionTree, boolean definesModule) {
     topCognitiveScopeFunction = functionTree;
     functionTree.accept(this);
-    return buildComplexityData();
+    return buildComplexityData(definesModule);
   }
 
   public ComplexityData calculateScriptComplexity(ScriptTree tree) {
     functionVisitStrategy = new NoFunctionVisit();
+    Set<FunctionTree> functionsDefiningModule = FunctionDefiningModuleVisitor.getFunctionsDefiningModule(tree);
     tree.accept(this);
 
     List<FunctionTree> functions = FunctionVisitor.collectAllFunctions(tree);
@@ -103,7 +104,7 @@ public class CognitiveComplexity extends DoubleDispatchVisitor {
     for (FunctionTree function : functions) {
       if(!alreadyProcessedFunctions.contains(function)) {
         int declarationNestingLevel = functionVisitStrategy.functionDeclarationNesting(function);
-        ComplexityData complexityData = new CognitiveComplexity(declarationNestingLevel).calculateFunctionComplexity(function);
+        ComplexityData complexityData = new CognitiveComplexity(declarationNestingLevel).calculateFunctionComplexity(function, functionsDefiningModule.contains(function));
         complexities.add(complexityData);
         alreadyProcessedFunctions.addAll(complexityData.aggregatedNestedFunctions());
 
@@ -120,17 +121,19 @@ public class CognitiveComplexity extends DoubleDispatchVisitor {
     topCognitiveScopeFunction = null;
   }
 
-  private ComplexityData buildComplexityData() {
+  private ComplexityData buildComplexityData(boolean definesModule) {
     int complexity;
     Set<FunctionTree> aggregatedNestedFunctions = new HashSet<>();
     List<IssueLocation> allIssueLocations = new ArrayList<>(ownIssueLocations);
     Set<FunctionTree> ignoredNestedFunctions = new HashSet<>();
 
-    if (functionContainsStructuralComplexity) {
+    if (functionContainsStructuralComplexity && !definesModule) {
+      // include complexity of nested functions
       complexity = ownComplexity + nestedFunctionComplexity;
       aggregatedNestedFunctions.addAll(nestedFunctions);
       allIssueLocations.addAll(nestedFunctionsIssueLocations);
     } else {
+      // not include complexity of nested functions
       complexity = ownComplexity;
       ignoredNestedFunctions = nestedFunctions;
     }

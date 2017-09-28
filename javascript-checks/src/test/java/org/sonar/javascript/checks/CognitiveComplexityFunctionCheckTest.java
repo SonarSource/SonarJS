@@ -34,6 +34,12 @@ public class CognitiveComplexityFunctionCheckTest {
   }
 
   @Test
+  public void ignore_module_like_functions() {
+    check.setThreshold(1);
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/CognitiveComplexityFunctionCheck/amd.js"));
+  }
+
+  @Test
   public void test_default() {
     JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/CognitiveComplexityFunctionCheck/defaultThreshold.js"));
   }
