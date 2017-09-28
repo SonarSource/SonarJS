@@ -63,18 +63,4 @@ function main() {
 
   const notArrayReversed = notArray.reverse(); // OK
 
-  return a.map(b => b.reverse()); // FN, we don't know that b is an array
-
-  class WithGetter {
-    _groups = [];
-
-    get groups() {
-      return this._groups.slice(0);
-    }
-
-    foo() {
-      const groups = this.groups.reverse(); // OK, using getter
-      return groups;
-    }
-  }
 }
