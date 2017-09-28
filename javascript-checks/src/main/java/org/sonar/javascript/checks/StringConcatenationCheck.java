@@ -59,7 +59,7 @@ public class StringConcatenationCheck extends DoubleDispatchVisitorCheck {
     int operandsNum = operandList.size();
     int literalsNum = stringLiteralsNumber(operandList);
 
-    if (operandsNum > 2 && literalsNum > 0) {
+    if (operandsNum > 2 && literalsNum > 0 && operandsNum != literalsNum) {
       int shortLiteralsNum = smallLiteralsNumber(operandList);
 
       boolean isOneLiteralThreeOperandsCase = operandsNum == 3 && literalsNum == 1;
