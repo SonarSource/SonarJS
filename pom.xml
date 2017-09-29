@@ -63,7 +63,7 @@
   </ciManagement>
 
   <properties>
-    <gitRepositoryName>sonar-javascript</gitRepositoryName>
+    <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- depends on API 6.0 but backward compatible with LTS -->
     <sonarQubeMinVersion>5.6</sonarQubeMinVersion>
