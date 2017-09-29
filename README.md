@@ -6,9 +6,9 @@ SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program
 
 # Features
 
-* 180+ rules (including 80+ bug detection)
+* ~190 rules (including ~60 bug detection)
 * Compatible with ECMAScript 2015-2017
-* React JSX and Vue single-file component .vue support
+* React JSX, Flow and Vue single-file component .vue support
 * Metrics (complexity, number of lines etc.)
 * Import of [test coverage reports](http://docs.sonarqube.org/display/PLUG/JavaScript+Coverage+Results+Import)
 * [Custom rules](http://docs.sonarqube.org/display/PLUG/Custom+Rules+for+JavaScript)
@@ -56,7 +56,7 @@ mvn clean install
 To run integration tests, you will need to create a properties file like the one shown below, and set its location in an environment variable named `ORCHESTRATOR_CONFIG_URL`.
 ```
 # version of SonarQube server
-sonar.runtimeVersion=6.2
+sonar.runtimeVersion=6.5
 
 orchestrator.updateCenterUrl=http://update.sonarsource.org/update-center-dev.properties
 ```
