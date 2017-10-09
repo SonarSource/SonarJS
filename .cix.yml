@@ -5,102 +5,27 @@
 TEST:
   - plugin
   - ruling
-  - performancing
 
 SQ_VERSION: 
   - DEV
-  - LATEST_RELEASE
-  - LTS
-
 
 exclude:
-  - TEST: plugin
-    SLAVE: linux
-    SQ_VERSION: LATEST_RELEASE
-
-  - SLAVE: linux 
-    SQ_VERSION: DEV 
-    TEST: ruling
-
-  - SLAVE: linux
-    SQ_VERSION: LTS 
-    TEST: ruling
 
 #remove all jobs on performance slave
-  - TEST: plugin
-    SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE
 
   - SLAVE: performance 
     SQ_VERSION: DEV 
     TEST: ruling
 
   - SLAVE: performance
-    SQ_VERSION: LTS 
-    TEST: ruling
-
-  - SLAVE: performance
     SQ_VERSION: DEV 
     TEST: plugin
 
-  - SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE 
-    TEST: ruling
-
-  - SLAVE: performance
-    SQ_VERSION: LTS 
-    TEST: plugin
-
-#remove all jobs on windows slave plugin on LATEST_RELEASE
+#remove all jobs on windows slave
   - SLAVE: windows 
     SQ_VERSION: DEV 
     TEST: ruling
 
   - SLAVE: windows
-    SQ_VERSION: LTS 
-    TEST: ruling
-
-  - SLAVE: windows
     SQ_VERSION: DEV 
     TEST: plugin
-
-  - SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE 
-    TEST: ruling
-
-  - SLAVE: windows
-    SQ_VERSION: LTS 
-    TEST: plugin
-
-# only run performancing on DEV LATEST_RELEASE on performance Slave
-  - SLAVE: performance
-    SQ_VERSION: LTS 
-    TEST: performancing
-
-  - SLAVE: performance
-    SQ_VERSION: DEV
-    TEST: performancing
-
-  - SLAVE: linux
-    SQ_VERSION: LTS 
-    TEST: performancing
-
-  - SLAVE: linux
-    SQ_VERSION: DEV
-    TEST: performancing
-
-  - SLAVE: linux
-    SQ_VERSION: LATEST_RELEASE
-    TEST: performancing
-
-  - SLAVE: windows
-    SQ_VERSION: LTS 
-    TEST: performancing 
-
-  - SLAVE: windows
-    SQ_VERSION: DEV
-    TEST: performancing          
-
-  - SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE
-    TEST: performancing 
