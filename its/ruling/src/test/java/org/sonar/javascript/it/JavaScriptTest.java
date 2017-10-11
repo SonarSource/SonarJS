@@ -80,7 +80,9 @@ public class JavaScriptTest {
       .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
       .setProperty("sonar.cpd.skip", "true")
-      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m");
+      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
+      .setShowErrors(true)
+      .setDebugLogs(true);
 
     instantiateTemplateRule("CommentRegularExpression", "CommentRegexTest", "regularExpression=\"(?i).*TODO.*\";message=\"bad user\"");
 
