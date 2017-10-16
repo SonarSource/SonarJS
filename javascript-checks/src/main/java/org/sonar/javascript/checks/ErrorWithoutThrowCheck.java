@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 @Rule(key = "S3984")
 public class ErrorWithoutThrowCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Throw this exception or remove this useless statement.";
+  private static final String MESSAGE = "Throw this error or remove this useless statement.";
 
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
