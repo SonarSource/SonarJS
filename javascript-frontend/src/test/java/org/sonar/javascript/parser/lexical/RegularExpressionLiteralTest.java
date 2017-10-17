@@ -37,4 +37,12 @@ public class RegularExpressionLiteralTest {
       .matches("/[\\B]/");
   }
 
+  @Test
+  public void cannot_contain_line_terminator() {
+    assertThat(JavaScriptTokenType.REGULAR_EXPRESSION_LITERAL)
+      .notMatches("/\n/")
+      .notMatches("/\\\n/")
+      .notMatches("/[\n]/");
+  }
+
 }
