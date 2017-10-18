@@ -37,13 +37,14 @@ import static org.sonar.javascript.lexer.JavaScriptTokenType.REGULAR_EXPRESSION_
  */
 public class JavaScriptRegexpChannel extends Channel<Lexer> {
 
-  private static final String NON_TERMINATOR = "[^\\r\\n\\u2028\\u2029]";
+  private static final String LINE_TERMINATOR_CHARACTERS = "\\r\\n\\u2028\\u2029";
 
-  private static final String BACKSLASH_SEQUENCE = "\\\\" + NON_TERMINATOR;
+  private static final String BACKSLASH_SEQUENCE = "\\\\[^" + LINE_TERMINATOR_CHARACTERS + "]";
 
   private static final String CLASS = "\\["
     + "(?:"
-    + "[^\\]\\\\&&" + NON_TERMINATOR + "]"
+    // any character except closing square bracket, backslash, line terminator
+    + "[^\\]\\\\" + LINE_TERMINATOR_CHARACTERS + "]"
     + "|" + BACKSLASH_SEQUENCE
     + ")*+"
     + "\\]";
@@ -51,9 +52,13 @@ public class JavaScriptRegexpChannel extends Channel<Lexer> {
   public static final String REGULAR_EXPRESSION = ""
     // A slash starts a regexp but only if not a comment start
     + "\\/(?![*/])"
+    // which can contain any number of
     + "(?:"
-    + "[^\\\\\\[/&&" + NON_TERMINATOR + "]"
+    // any character except backslash, opening square bracket, slash, line terminator
+    + "[^\\\\\\[/" + LINE_TERMINATOR_CHARACTERS + "]"
+    // or class
     + "|" + CLASS
+    // or escape sequence
     + "|" + BACKSLASH_SEQUENCE
     + ")*+"
     // finished by a '/'
