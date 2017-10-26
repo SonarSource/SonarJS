@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import com.google.common.base.Preconditions;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
@@ -47,21 +47,20 @@ public class JavaScriptPerformanceTest {
 
   @Test
   public void test_parsing_performance() throws IOException {
-    test_performance("parsing-project", "no-rules", false, 153.0);
+    test_performance("parsing-project", "no-rules", 157.0);
   }
 
   @Test
   public void test_symbolic_engine_performance() throws IOException {
-    test_performance("se-project", "se-profile", true, 194.0);
+    test_performance("se-project", "se-profile", 201.0);
   }
 
-  private static void test_performance(String projectKey, String profile, boolean shouldRaiseAnyIssue, double expectedTime) throws IOException {
+  private static void test_performance(String projectKey, String profile, double expectedTime) throws IOException {
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", profile);
 
     SonarScanner build = getSonarScanner(projectKey);
-    BuildResult result = ORCHESTRATOR.executeBuild(build);
-    Assertions.assertThat(result.getLogs().contains("No new issue")).isEqualTo(!shouldRaiseAnyIssue);
+    ORCHESTRATOR.executeBuild(build);
 
     double time = sensorTime(build.getProjectDir(), SENSOR, projectKey);
     Assertions.assertThat(time).isEqualTo(expectedTime, offset(expectedTime * 0.04));
