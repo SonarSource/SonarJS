@@ -134,7 +134,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void sensor_descriptor() {
+  public void should_contain_sensor_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     createSensor().describe(descriptor);
@@ -186,7 +186,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void parsing_error() {
+  public void should_raise_a_parsing_error() {
     String relativePath = "cpd/parsingError.js";
     inputFile(relativePath);
 
@@ -223,7 +223,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void analysis_with_no_issue_should_not_add_error_to_context() {
+  public void should_not_add_error_to_context_when_analysis_raises_no_issue() {
     inputFile("file.js");
 
     createSensor().execute(context);
@@ -235,7 +235,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void analysis_with_issues_should_not_add_error_to_context() {
+  public void should_not_add_error_to_context_when_analysis_raises_issues() {
     inputFile("file.js");
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
@@ -253,7 +253,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void save_issue() throws Exception {
+  public void should_save_issue() throws Exception {
     inputFile("file.js");
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
@@ -270,7 +270,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void custom_rule() throws Exception {
+  public void should_run_custom_rule() throws Exception {
     inputFile("file.js");
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .create(RuleKey.of("customKey", "key"))
@@ -288,34 +288,34 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void progress_report_should_be_stopped() throws Exception {
+  public void should_stop_progress_report() throws Exception {
     CompatibleInputFile inputFile = inputFile("cpd/Person.js");
     createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(inputFile), executor, progressReport);
     verify(progressReport).stop();
   }
 
   @Test
-  public void progress_report_should_be_stopped_without_files() throws Exception {
+  public void should_stop_progress_report_without_files() throws Exception {
     createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(), executor, progressReport);
     verify(progressReport).stop();
   }
 
   @Test
-  public void cancelled_analysis() throws Exception {
+  public void should_cancel_analysis_on_exception() throws Exception {
     JavaScriptCheck check = new ExceptionRaisingCheck(new IllegalStateException(new InterruptedException()));
     analyseFileWithException(check, inputFile("cpd/Person.js"), "Analysis cancelled");
     assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
   @Test
-  public void cancelled_analysis_causing_recognition_exception() throws Exception {
+  public void should_cancel_analysis_on_recognition_exception() throws Exception {
     JavaScriptCheck check = new ExceptionRaisingCheck(new RecognitionException(42, "message", new InterruptedIOException()));
     analyseFileWithException(check, inputFile("cpd/Person.js"), "Analysis cancelled");
     assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
   @Test
-  public void cancelled_context_should_cancel_progress_report_and_return_with_no_exception() {
+  public void should_cancel_progress_report_and_return_with_no_exception_when_context_cancelled() {
     JavaScriptCheck check = new DoubleDispatchVisitorCheck() {};
     JavaScriptSquidSensor sensor = createSensor();
     SensorContextTester cancelledContext = SensorContextTester.create(baseDir);
@@ -324,19 +324,8 @@ public class JavaScriptSquidSensorTest {
     verify(progressReport).cancel();
   }
 
-  private void analyseFileWithException(JavaScriptCheck check, CompatibleInputFile inputFile, String expectedMessageSubstring) {
-    JavaScriptSquidSensor sensor = createSensor();
-    thrown.expect(AnalysisException.class);
-    thrown.expectMessage(expectedMessageSubstring);
-    try {
-      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile), executor, progressReport);
-    } finally {
-      verify(progressReport).cancel();
-    }
-  }
-
   @Test
-  public void test_exclude_minified_files() {
+  public void should_exclude_minified_files() {
     inputFile("test_minified/file.js");
     inputFile("test_minified/file.min.js");
     inputFile("test_minified/file-min.js");
@@ -349,7 +338,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void test_logger_for_force_zero_property() throws Exception {
+  public void should_raise_force_zero_property_deprecation_in_logs() throws Exception {
     String message = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
     context.setSettings(new MapSettings().setProperty(FORCE_ZERO_COVERAGE_KEY, "false"));
 
@@ -373,7 +362,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void sq_before_6_2_uses_executable_lines_for_zero_coverage() throws Exception {
+  public void sq_before_6_2_should_use_executable_lines_for_zero_coverage() throws Exception {
     inputFile("file.js");
     context.setSettings(new MapSettings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true"));
 
@@ -384,7 +373,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void test_deprecation_log_for_report_properties() throws Exception {
+  public void should_raise_report_properties_deprecation_message_in_logs() throws Exception {
     String deprecationMessage = "Since SonarQube 6.2 property '%s' is deprecated. Use 'sonar.javascript.lcov.reportPaths' instead.";
     String utReportMessage = String.format(deprecationMessage, JavaScriptPlugin.LCOV_UT_REPORT_PATH);
     String itDeprecationMessage = String.format(deprecationMessage, JavaScriptPlugin.LCOV_IT_REPORT_PATH);
@@ -429,7 +418,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void sq_greater_6_1_still_honor_coverage_reports() throws Exception {
+  public void sq_greater_6_1_should_still_honor_coverage_reports() throws Exception {
     baseDir = new File("src/test/resources/coverage");
     context = SensorContextTester.create(baseDir);
     context.setRuntime(SONAR_RUNTIME_6_2);
@@ -445,7 +434,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void sq_greater_6_1_prefer_single_coverage_property() throws Exception {
+  public void sq_greater_6_1_should_prefer_single_coverage_property() throws Exception {
     baseDir = new File("src/test/resources/coverage");
     context = SensorContextTester.create(baseDir);
     context.setRuntime(SONAR_RUNTIME_6_2);
@@ -503,6 +492,17 @@ public class JavaScriptSquidSensorTest {
 
     // symbol highlighting is there
     assertThat(context.referencesForSymbolAt(key, 1, 13)).isNotNull();
+  }
+
+  private void analyseFileWithException(JavaScriptCheck check, CompatibleInputFile inputFile, String expectedMessageSubstring) {
+    JavaScriptSquidSensor sensor = createSensor();
+    thrown.expect(AnalysisException.class);
+    thrown.expectMessage(expectedMessageSubstring);
+    try {
+      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile), executor, progressReport);
+    } finally {
+      verify(progressReport).cancel();
+    }
   }
 
   private CompatibleInputFile inputFile(String relativePath) {
