@@ -3,6 +3,9 @@ sudo: false
 
 jdk:
   - oraclejdk8
+  
+git:
+  submodules: false
 
 install: true
 script: ./travis.sh
