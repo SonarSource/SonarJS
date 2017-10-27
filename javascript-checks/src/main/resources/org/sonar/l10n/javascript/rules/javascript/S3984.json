@@ -1,5 +1,5 @@
 {
-  "title": "Exception should not be created without being thrown ",
+  "title": "Errors should not be created without being thrown",
   "type": "BUG",
   "status": "ready",
   "remediation": {
