@@ -37,12 +37,18 @@ public class JavaScriptPluginTest {
   public void count_extensions_for_sonarqube_server_5_6() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(5, 6), SonarQubeSide.SERVER));
 
-    assertThat(context.getExtensions()).hasSize(13);
+    assertThat(context.getExtensions()).hasSize(15);
   }
 
   @Test
   public void should_contain_right_properties_number() throws Exception {
-    assertThat(properties()).hasSize(8);
+    assertThat(properties()).hasSize(9);
+  }
+
+  @Test
+  public void should_initialize_exclusions() throws Exception {
+    assertThat(properties().stream().filter(prop -> JavaScriptPlugin.JAVA_SCRIPT_EXCLUSIONS_KEY.equals(prop.key())).findFirst()
+      .get().defaultValue()).isEqualToIgnoringCase(".*/node_modules/.*");
   }
 
   @Test
@@ -61,21 +67,21 @@ public class JavaScriptPluginTest {
   public void count_extensions_for_sonarqube_server_6_0() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 0), SonarQubeSide.SERVER));
 
-    assertThat(context.getExtensions()).hasSize(13);
+    assertThat(context.getExtensions()).hasSize(15);
   }
 
   @Test
   public void count_extensions_for_sonarqube_server_6_2() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER));
 
-    assertThat(context.getExtensions()).hasSize(13);
+    assertThat(context.getExtensions()).hasSize(15);
   }
 
   @Test
   public void count_extensions_for_sonarlint() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(Version.create(6, 0)));
 
-    assertThat(context.getExtensions()).hasSize(13);
+    assertThat(context.getExtensions()).hasSize(15);
   }
 
   private List<PropertyDefinition> properties() {
