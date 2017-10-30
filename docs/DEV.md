@@ -1,0 +1,50 @@
+# Development
+
+## <a name="testing"></a>Testing
+To run tests locally follow these instructions
+
+### Build the Project and Run Unit Tests
+To build the plugin and run its unit tests, execute this command from the project's root directory:
+```
+mvn clean install
+```
+
+### Integration Tests
+To run integration tests, you will need to create a properties file like the one shown below, and set its location in an environment variable named `ORCHESTRATOR_CONFIG_URL`.
+```
+# version of SonarQube server
+sonar.runtimeVersion=6.5
+
+orchestrator.updateCenterUrl=http://update.sonarsource.org/update-center-dev.properties
+```
+Before running any of integration tests make sure the submodules are checked out:
+```
+ git submodule init
+ git submodule update
+```
+#### Plugin Test
+The "Plugin Test" is an additional integration test which verifies plugin features such as metric calculation, coverage etc. To launch it, execute this command from directory `its/plugin`:
+```
+mvn clean install
+```  
+
+#### Ruling Test
+The "Ruling Test" is a special integration test which launches the analysis of a large code base, saves the issues created by the plugin in report files, and then compares those results to the set of expected issues (stored as JSON files). To launch ruling test:
+```
+cd its/ruling
+mvn clean install
+```
+
+This test gives you the opportunity to examine the issues created by each rule and make sure they're what you expect. You can inspect new/lost issues checking web-pages mentioned in the logs at the end of analysis:
+```
+INFO  - HTML Issues Report generated: /path/to/project/sonar-javascript/its/sources/src/.sonar/issues-report/issues-report.html
+INFO  - Light HTML Issues Report generated: /path/to/project/sonar-javascript/its/sources/src/.sonar/issues-report/issues-report-light.html
+```
+If everything looks good to you, you can copy the file with the actual issues located at
+```
+sonar-javascript/its/ruling/target/actual/
+``` 
+into the directory with the expected issues
+```
+sonar-javascript/its/ruling/src/test/resources/expected/
+```
