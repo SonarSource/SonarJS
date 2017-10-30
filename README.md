@@ -1,6 +1,6 @@
 # SonarJS [![Build Status](https://travis-ci.org/SonarSource/SonarJS.svg?branch=master)](https://travis-ci.org/SonarSource/SonarJS) [![Quality Gate](https://next.sonarqube.com/sonarqube/api/badges/gate?key=org.sonarsource.javascript%3Ajavascript)](https://next.sonarqube.com/sonarqube/dashboard?id=org.sonarsource.javascript%3Ajavascript) [![Coverage](https://next.sonarqube.com/sonarqube/api/badges/measure?key=org.sonarsource.javascript%3Ajavascript&metric=coverage)](https://next.sonarqube.com/sonarqube/component_measures/domain/Coverage?id=org.sonarsource.javascript%3Ajavascript)
 
-SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program_analysis) for JavaScript language. It will allow you to produce stable and easily supported code by helping you to find and to correct bugs, vulnerabilities and smells in your code.
+SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program_analysis) for the JavaScript language. It will allow you to produce stable and easily supported code by helping you to find and to correct bugs, vulnerabilities and smells in your code.
 
 **[Have some feedback?](#support)**
 
@@ -11,7 +11,7 @@ SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program
 * Advanced rules based on control flow and data flow analysis
 * [~190 rules](https://sonarcloud.io/coding_rules#languages=js) (including ~60 bug detection)
 * Compatible with ECMAScript 2015-2017
-* React JSX, Flow and Vue single-file component .vue support
+* React JSX, Flow and Vue support
 * Metrics (complexity, number of lines etc.)
 * Import of [test coverage reports](/docs/DOC.md#coverage)
 * [Custom rules](/docs/CUSTOM_RULES.md)
