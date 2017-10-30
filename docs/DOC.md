@@ -17,10 +17,10 @@ SonarJS is integrated inside of [sonarcloud.io](https://about.sonarcloud.io/), a
 
 ### Use in SonarQube
 
-[SonarQube](https://www.sonarqube.org/) is an open-source platform for  continuous inspection of code quality. 
+[SonarQube](https://www.sonarqube.org/) is an open-source platform for continuous inspection of code quality. 
 Assuming you have SonarQube [installed and running](https://docs.sonarqube.org/display/SONAR/Setup+and+Upgrade), choose the scanner and configure your project accordingly.
 
-* [*SonarQube Scanner*](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner) is a basic scanner using configuration file `sonar-project.properties` in the project root directory to perform analysis.
+* [*SonarQube Scanner*](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner) is a basic scanner using the configuration file `sonar-project.properties` in the project root directory to perform analysis.
 
 Example of `sonar-project.properties`
 ```properties
@@ -29,14 +29,14 @@ sonar.projectName=My project
 sonar.projectVersion=1.0
 sonar.sources=src
 ```
-There are many more properties can be provided, see [general properties](https://docs.sonarqube.org/display/SONAR/Analysis+Parameters) and [javascript-specific properties](#advanced-configuration). Once this file is created and scanner is installed, run the following command from the project base directory to launch the analysis
+There are many more properties that can be provided, see [general properties](https://docs.sonarqube.org/display/SONAR/Analysis+Parameters) and [javascript-specific properties](#advanced-configuration). Once this file is created and scanner is installed, run the following command from the project base directory to launch the analysis
 ```
 sonar-scanner
 ```
 
-* [*SonarQube Scanner for JavaScript*](https://github.com/bellingard/sonar-scanner-npm) relies on `package.json` file to set up all the analysis properties as project name, version etc. You can find an example of project using this scanner [here](https://github.com/SonarSource/SonarTS-example/tree/master/example1) (it's a TypeScript project, but there is no difference in use). 
+* [*SonarQube Scanner for JavaScript*](https://github.com/bellingard/sonar-scanner-npm) relies on `package.json` file to set up all the analysis properties, such as project name, version etc. You can find an example of project using this scanner [here](https://github.com/SonarSource/SonarTS-example/tree/master/example1) (it's a TypeScript project, but there is no difference in use).
 
->We recommend to set version of project manually through script file to not depend on the one from `package.json` ([like this](https://github.com/SonarSource/SonarTS-example/blob/master/example1/analyse.js#L8)). That way you will be able to profit from correct [leak period](https://docs.sonarqube.org/display/SONAR/Fixing+the+Water+Leak) and focus on quality issues introduced since last release.
+>We recommend to set the version of the project manually through script file to not depend on the one from `package.json` ([like this](https://github.com/SonarSource/SonarTS-example/blob/master/example1/analyse.js#L8)). That way you will be able to profit from a correct [leak period](https://docs.sonarqube.org/display/SONAR/Fixing+the+Water+Leak) and focus on quality issues introduced since last release.
 
 ## <a name="advanced-configuration"></a>Advanced Configuration
 
@@ -89,4 +89,4 @@ A: Import of unit tests is not provided by SonarJS, and it's provided by SonarQu
 A: You may disable coverage metrics for some source files by setting [`sonar.coverage.exclusions`](https://docs.sonarqube.org/display/SONAR/Narrowing+the+Focus#NarrowingtheFocus-IgnoreCodeCoverage).
 
 #### Q: How to write custom rules?
-A: Here is a [documentation](/docs/CUSTOM_RULES.md) on how to write custom rules.
+A: Here is some [documentation](/docs/CUSTOM_RULES.md) on how to write custom rules.
