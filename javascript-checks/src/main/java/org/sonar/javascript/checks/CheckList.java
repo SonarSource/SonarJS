@@ -200,6 +200,7 @@ public final class CheckList {
       UniversalSelectorCheck.class,
       UnreachableCodeCheck.class,
       UntrustedContentCheck.class,
+      UnusedCollectionCheck.class,
       UnusedFunctionArgumentCheck.class,
       UnusedVariableCheck.class,
       UpdatedConstVariableCheck.class,
