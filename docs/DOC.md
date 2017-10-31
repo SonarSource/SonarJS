@@ -57,7 +57,13 @@ Property | Description
 ---------|------------
 `sonar.javascript.lcov.reportPaths` | comma-separated list of paths to LCOV coverage report files
 
+### Exclusion of dependencies
 
+Starting from version 3.3, by default SonarJS ignores any files located inside folders called `node_modules` and `bower_components`. This can be changed by setting the following property.
+
+Property | Description
+---------|------------
+`sonar.javascript.exclusions` | comma-separated list of path patterns to exclude from analysis
 
 ## <a name="rule-profile"></a>Configuring Rules Profile
 
