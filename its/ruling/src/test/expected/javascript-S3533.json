@@ -7114,12 +7114,6 @@
 'project:jest/packages/jest-runtime/src/__tests__/test_root/internal-root.js':[
 11,
 ],
-'project:jest/packages/jest-runtime/src/__tests__/test_root/node_modules/npm3-main-dep/index.js':[
-11,
-],
-'project:jest/packages/jest-runtime/src/__tests__/test_root/node_modules/npm3-transitive-dep/index.js':[
-11,
-],
 'project:jest/packages/jest-runtime/src/__tests__/test_root/root.js':[
 13,
 14,

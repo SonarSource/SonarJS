@@ -53,7 +53,7 @@ public class JavaScriptPlugin implements Plugin {
   public static final String LCOV_IT_REPORT_PATH = PROPERTY_PREFIX + ".lcov.itReportPath";
   public static final String LCOV_IT_REPORT_PATH_DEFAULT_VALUE = "";
 
-  public static final String FORCE_ZERO_COVERAGE_KEY = "sonar.javascript.forceZeroCoverage";
+  public static final String FORCE_ZERO_COVERAGE_KEY = PROPERTY_PREFIX + ".forceZeroCoverage";
   public static final String FORCE_ZERO_COVERAGE_DEFAULT_VALUE = "false";
 
   public static final String JQUERY_OBJECT_ALIASES = JQuery.JQUERY_OBJECT_ALIASES;
@@ -68,6 +68,9 @@ public class JavaScriptPlugin implements Plugin {
   public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
+  public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
+  public static final String JS_EXCLUSIONS_DEFAULT_VALUE = "**/node_modules/**,**/bower_components/**";
+
   public static final Version V6_2 = Version.create(6, 2);
 
   @Override
@@ -75,6 +78,7 @@ public class JavaScriptPlugin implements Plugin {
     context.addExtensions(
       JavaScriptLanguage.class,
       JavaScriptSquidSensor.class,
+      JavaScriptExclusionsFileFilter.class,
       new JavaScriptRulesDefinition(context.getSonarQubeVersion()),
       SonarWayRecommendedProfile.class,
       SonarWayProfile.class);
@@ -143,6 +147,16 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(JavaScriptPlugin.GLOBALS_DEFAULT_VALUE)
         .name("Global variables")
         .description("Comma-separated list of global variables.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .subCategory(GENERAL)
+        .category(JAVASCRIPT_CATEGORY)
+        .build(),
+
+      PropertyDefinition.builder(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
+        .multiValues(true)
+        .defaultValue(JS_EXCLUSIONS_DEFAULT_VALUE)
+        .name("JavaScript Exclusions")
+        .description("List of file path patterns to be excluded from analysis of JavaScript files.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .category(JAVASCRIPT_CATEGORY)

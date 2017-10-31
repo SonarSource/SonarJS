@@ -1907,9 +1907,6 @@
 'project:jest/packages/jest-runtime/src/__tests__/test_root/haste-modules/FooRenderUtil.js':[
 20,
 ],
-'project:jest/packages/jest-runtime/src/__tests__/test_root/node_modules/npm3-main-dep/index.js':[
-16,
-],
 'project:jest/packages/jest-runtime/src/cli/args.js':[
 19,
 24,
