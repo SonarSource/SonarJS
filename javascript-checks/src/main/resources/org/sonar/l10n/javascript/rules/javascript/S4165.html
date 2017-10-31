@@ -1,0 +1,15 @@
+<p>The transitive property says that if <code>a == b</code> and <code>b == c</code>, then <code>a == c</code>. In such cases, there's no point in
+assigning <code>a</code> to <code>c</code> or vice versa because they're already equivalent. </p>
+<p>This rule raises an issue when an assignment is useless because the assigned-to variable already holds the value on all execution paths.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+a = b;
+c = a;
+b = c; // Noncompliant: c and b are already the same
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+a = b;
+c = a;
+</pre>
+
