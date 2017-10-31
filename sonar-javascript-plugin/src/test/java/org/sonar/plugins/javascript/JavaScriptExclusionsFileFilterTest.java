@@ -30,38 +30,51 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JavaScriptExclusionsFileFilterTest {
 
   @Test
-  public void should_exclude_node_modules() throws Exception {
+  public void should_exclude_node_modules_and_bower_components() throws Exception {
     MapSettings settings = new MapSettings();
-    settings.setProperty(JavaScriptPlugin.JAVA_SCRIPT_EXCLUSIONS_KEY, JavaScriptPlugin.JAVA_SCRIPT_EXCLUSIONS_DEFAULT_VALUE);
+    settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.JS_EXCLUSIONS_DEFAULT_VALUE);
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings);
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("node_modules/my_lib_folder/my_lib.js"))).isFalse();
-    assertThat(filter.accept(inputFile("node_modules/sub_module/node_modules/submodult_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("sub_module/node_modules/submodule_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("sub_module2/bower_components/bower_lib/lib.js"))).isFalse();
   }
 
   @Test
   public void should_include_node_modules_when_property_is_overridden() throws Exception {
     Settings settings = new MapSettings();
-    settings.setProperty(JavaScriptPlugin.JAVA_SCRIPT_EXCLUSIONS_KEY, "");
+    settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "");
 
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings);
 
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isTrue();
+    assertThat(filter.accept(inputFile("sub_module2/bower_components/some_lib.js"))).isTrue();
   }
 
   @Test
-  public void should_exclude_using_multiple_regexes() throws Exception {
+  public void should_exclude_using_custom_path_regex() throws Exception {
     Settings settings = new MapSettings();
     settings.setProperty(
-      JavaScriptPlugin.JAVA_SCRIPT_EXCLUSIONS_KEY, JavaScriptPlugin.JAVA_SCRIPT_EXCLUSIONS_DEFAULT_VALUE + "," + ".*/bower_components/.*");
+      JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.JS_EXCLUSIONS_DEFAULT_VALUE + "," + "**/libs/**");
 
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings);
 
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
-    assertThat(filter.accept(inputFile("libs/bower_components/some_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("libs/some_lib.js"))).isFalse();
+  }
+
+  @Test
+  public void should_ignore_empty_path_regex() throws Exception {
+    Settings settings = new MapSettings();
+    settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "," + JavaScriptPlugin.JS_EXCLUSIONS_DEFAULT_VALUE + ",");
+
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings);
+
+    assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
+    assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
   }
 
   private DefaultInputFile inputFile(String file) {

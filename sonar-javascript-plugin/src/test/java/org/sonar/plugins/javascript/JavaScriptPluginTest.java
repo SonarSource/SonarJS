@@ -46,9 +46,9 @@ public class JavaScriptPluginTest {
   }
 
   @Test
-  public void should_initialize_exclusions() throws Exception {
-    assertThat(properties().stream().filter(prop -> JavaScriptPlugin.JAVA_SCRIPT_EXCLUSIONS_KEY.equals(prop.key())).findFirst()
-      .get().defaultValue()).isEqualToIgnoringCase(".*/node_modules/.*");
+  public void should_have_default_for_exclusions() throws Exception {
+    assertThat(properties().stream().filter(prop -> JavaScriptPlugin.JS_EXCLUSIONS_KEY.equals(prop.key())).findFirst()
+      .get().defaultValue()).isEqualToIgnoringCase("**/node_modules/**,**/bower_components/**");
   }
 
   @Test

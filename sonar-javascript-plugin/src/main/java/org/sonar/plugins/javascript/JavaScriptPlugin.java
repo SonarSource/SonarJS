@@ -68,8 +68,8 @@ public class JavaScriptPlugin implements Plugin {
   public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
-  public static final String JAVA_SCRIPT_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
-  public static final String JAVA_SCRIPT_EXCLUSIONS_DEFAULT_VALUE = ".*/node_modules/.*";
+  public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
+  public static final String JS_EXCLUSIONS_DEFAULT_VALUE = "**/node_modules/**,**/bower_components/**";
 
   public static final Version V6_2 = Version.create(6, 2);
 
@@ -152,11 +152,11 @@ public class JavaScriptPlugin implements Plugin {
         .category(JAVASCRIPT_CATEGORY)
         .build(),
 
-      PropertyDefinition.builder(JavaScriptPlugin.JAVA_SCRIPT_EXCLUSIONS_KEY)
+      PropertyDefinition.builder(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
         .multiValues(true)
-        .defaultValue(JAVA_SCRIPT_EXCLUSIONS_DEFAULT_VALUE)
+        .defaultValue(JS_EXCLUSIONS_DEFAULT_VALUE)
         .name("JavaScript Exclusions")
-        .description("List of regular expressions used for excluding JS files")
+        .description("List of file path patterns to be excluded from analysis of JavaScript files.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .category(JAVASCRIPT_CATEGORY)

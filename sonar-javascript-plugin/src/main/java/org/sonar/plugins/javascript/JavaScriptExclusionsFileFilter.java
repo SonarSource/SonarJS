@@ -19,10 +19,10 @@
  */
 package org.sonar.plugins.javascript;
 
-import java.util.Arrays;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.WildcardPattern;
 
 public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
@@ -34,9 +34,9 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   @Override
   public boolean accept(InputFile inputFile) {
-    String regexes = this.settings.getString(JavaScriptPlugin.JAVA_SCRIPT_EXCLUSIONS_KEY);
+    String regexes = this.settings.getString(JavaScriptPlugin.JS_EXCLUSIONS_KEY);
     if (regexes != null) {
-      return Arrays.stream(regexes.split(",")).noneMatch(regex -> inputFile.absolutePath().matches(regex));
+      return !WildcardPattern.match(WildcardPattern.create(regexes.split(",")), inputFile.absolutePath());
     }
     return true;
   }
