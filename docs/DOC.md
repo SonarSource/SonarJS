@@ -63,7 +63,7 @@ Starting from version 3.3, by default SonarJS ignores any files located inside f
 
 Property | Description
 ---------|------------
-`sonar.javascript.exclusions` | comma-separated list of path patterns to exclude from analysis
+`sonar.javascript.exclusions` | comma-separated list of path patterns to exclude from analysis. Default value is `**/node_modules/**,**/bower_components/**`.
 
 ## <a name="rule-profile"></a>Configuring Rules Profile
 

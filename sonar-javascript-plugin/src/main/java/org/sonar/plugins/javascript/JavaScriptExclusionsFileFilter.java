@@ -36,7 +36,7 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
   public boolean accept(InputFile inputFile) {
     String regexes = this.settings.getString(JavaScriptPlugin.JS_EXCLUSIONS_KEY);
     if (regexes != null) {
-      return !WildcardPattern.match(WildcardPattern.create(regexes.split(",")), inputFile.absolutePath());
+      return !WildcardPattern.match(WildcardPattern.create(regexes.split(",")), inputFile.relativePath());
     }
     return true;
   }
