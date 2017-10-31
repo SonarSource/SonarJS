@@ -107,6 +107,16 @@ public class ProgramStateTest {
   }
 
   @Test
+  public void test_equals_with_reused_symbolic_values() throws Exception {
+    ProgramState stateWithReusedSV = state.newSymbolicValue(symbol1, Constraint.ANY_VALUE);
+    stateWithReusedSV = stateWithReusedSV.assignment(symbol2, stateWithReusedSV.getSymbolicValue(symbol1));
+
+    ProgramState stateWithSingleUseSV = state.newSymbolicValue(symbol1, Constraint.ANY_VALUE).newSymbolicValue(symbol2, Constraint.ANY_VALUE);
+
+    assertThat(stateWithReusedSV).isNotEqualTo(stateWithSingleUseSV);
+  }
+
+  @Test
   public void test_hashCode() throws Exception {
     assertThat(state.newSymbolicValue(symbol1, Constraint.NULL).hashCode())
       .isEqualTo(state.newSymbolicValue(symbol1, Constraint.NULL).hashCode());

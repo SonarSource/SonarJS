@@ -163,6 +163,7 @@ public final class CheckList {
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,
       GratuitousConditionCheck.class,
+      RedundantAssignmentCheck.class,
       ReferenceErrorCheck.class,
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,

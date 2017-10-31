@@ -327,11 +327,22 @@ public class ProgramState implements ProgramStateConstraints {
 
     ProgramState that = (ProgramState) o;
 
-    return Objects.equals(constraintsBySymbol(), that.constraintsBySymbol())
+    return Objects.equals(symbolOverlaps(), that.symbolOverlaps())
+      && Objects.equals(constraintsBySymbol(), that.constraintsBySymbol())
       && Objects.equals(stack, that.stack)
       && Objects.equals(constraintOnPeek(), that.constraintOnPeek())
       && Objects.equals(functionsBySymbol(), that.functionsBySymbol())
       && Objects.equals(relationsOnSymbols(), that.relationsOnSymbols());
+  }
+
+  private Set<Set<Symbol>> symbolOverlaps() {
+    Map<SymbolicValue, Set<Symbol>> reverseLookup = new HashMap<>();
+    values.forEach((key, value) -> {
+      reverseLookup.putIfAbsent(value, new HashSet<>());
+      reverseLookup.get(value).add(key);
+    });
+    reverseLookup.entrySet().removeIf(entry -> entry.getValue().size() <= 1);
+    return new HashSet<>(reverseLookup.values());
   }
 
   @Override
