@@ -1,6 +1,7 @@
 // NOK
 if (cond1) {
 } if (cond2) { // Noncompliant {{Move this "if" to a new line or add the missing "else".}}
+//^^
 }
 
 if (cond1) {
