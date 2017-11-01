@@ -24,12 +24,10 @@ import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
-import static org.sonar.javascript.checks.utils.CheckUtils.CHECK_DIR;
-
 public class SymbolUsedAsConstructorCheckTest {
 
   private final JavaScriptCheck check = new SymbolUsedAsConstructorCheck();
-  private static final File CHECK_DIRECTORY = new File(CHECK_DIR, "SymbolUsedAsConstructorCheck");
+  private static final File CHECK_DIRECTORY = new File("src/test/resources/checks/SymbolUsedAsConstructorCheck");
 
   @Test
   public void test() {

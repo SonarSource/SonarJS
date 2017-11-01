@@ -24,15 +24,13 @@ import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
-import static org.sonar.javascript.checks.utils.CheckUtils.CHECK_DIR;
-
 public class SuperInvocationCheckTest {
 
   private final JavaScriptCheck check = new SuperInvocationCheck();
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(check, new File(CHECK_DIR, "superInvocation.js"));
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/superInvocation.js"));
   }
 
 }
