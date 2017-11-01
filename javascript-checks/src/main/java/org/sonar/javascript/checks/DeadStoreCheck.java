@@ -43,6 +43,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
@@ -56,7 +57,7 @@ import static org.sonar.javascript.se.LiveVariableAnalysis.isWrite;
 public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this useless assignment to local variable \"%s\"";
-  private static final Set<String> BASIC_VALUES = ImmutableSet.of("true", "false", "1", "0", "-1", "null", "''", "\"\"");
+  private static final Set<String> BASIC_LITERAL_VALUES = ImmutableSet.of("true", "false", "1", "0", "-1", "null", "''", "\"\"");
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
@@ -165,11 +166,11 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   private static boolean isBasicValue(ExpressionTree expression) {
     if (expression.is(Kind.BOOLEAN_LITERAL, Kind.NUMERIC_LITERAL, Kind.STRING_LITERAL, Kind.NULL_LITERAL)) {
-      return BASIC_VALUES.contains(((LiteralTree) expression).value());
+      return BASIC_LITERAL_VALUES.contains(((LiteralTree) expression).value());
 
     } else if (expression.is(Kind.UNARY_MINUS)) {
       ExpressionTree operand = ((UnaryExpressionTree) expression).expression();
-      return BASIC_VALUES.contains("-" + ((LiteralTree) operand).value());
+      return BASIC_LITERAL_VALUES.contains("-" + ((LiteralTree) operand).value());
 
     } else if (expression.is(Kind.ARRAY_LITERAL)) {
       return ((ArrayLiteralTree) expression).elements().isEmpty();
@@ -177,6 +178,8 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     } else if (expression.is(Kind.OBJECT_LITERAL)) {
       return ((ObjectLiteralTree) expression).properties().isEmpty();
 
+    } else if (expression.is(Kind.IDENTIFIER_REFERENCE)) {
+      return ((IdentifierTree) expression).name().equals("undefined");
     }
 
     ExpressionTree withoutParenthesis = CheckUtils.removeParenthesis(expression);

@@ -213,6 +213,7 @@ function ok_initializer_to_standard_value() {
   let x12 = {};
   let x13 = [1, 2]; // Noncompliant
   let x14 = {a: 1}; // Noncompliant
+  let x15 = undefined;
 
   x1 = 42;
   foo(x1);
@@ -232,6 +233,8 @@ function ok_initializer_to_standard_value() {
   foo(x8);
   x9 = 42;
   foo(x9);
+  x15 = 42;
+  foo(x15);
 
   x1 = -1;   // Noncompliant
   x2 = 0;   // Noncompliant
@@ -242,6 +245,7 @@ function ok_initializer_to_standard_value() {
   x7 = "";   // Noncompliant
   x8 = void 0; // Noncompliant
   x9 = (void 0); // Noncompliant
+  x15 = undefined; // Noncompliant
 
 }
 
