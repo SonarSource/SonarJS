@@ -10,5 +10,6 @@
     "pitfall"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1533"
+  "ruleSpecification": "RSPEC-1533",
+  "sqKey": "PrimitiveWrappers"
 }

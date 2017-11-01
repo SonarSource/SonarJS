@@ -1,8 +1,8 @@
 <p>Mixing up the order of operations will almost always yield unexpected results. For instance, consider the outcome of absentmindedly kissing the dog
 and patting your spouse on the head. </p>
-<p>Similarly, mis-applied negation will also yield bad results. For instance consider the difference between <code>\!key in dict</code> and
-<code>\!(key in dict)</code>. The first looks for a boolean value (<code>!key</code>) in <code>dict</code>, and the other looks for a string and
-inverts the result. <code>\!obj instanceof SomeClass</code> has the same problem.</p>
+<p>Similarly, mis-applied negation will also yield bad results. For instance consider the difference between <code>!key in dict</code> and <code>!(key
+in dict)</code>. The first looks for a boolean value (<code>!key</code>) in <code>dict</code>, and the other looks for a string and inverts the
+result. <code>!obj instanceof SomeClass</code> has the same problem.</p>
 <p>This rule raises an issue when the left operand of an <code>in</code> or <code>instanceof</code> operator is negated.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>

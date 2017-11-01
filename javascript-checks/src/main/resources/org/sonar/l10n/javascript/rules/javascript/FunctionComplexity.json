@@ -12,5 +12,6 @@
     "brain-overload"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-1541"
+  "ruleSpecification": "RSPEC-1541",
+  "sqKey": "FunctionComplexity"
 }

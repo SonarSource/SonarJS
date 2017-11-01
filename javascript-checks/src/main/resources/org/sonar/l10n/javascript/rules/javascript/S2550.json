@@ -10,5 +10,6 @@
     "backbone"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-2550"
+  "ruleSpecification": "RSPEC-2550",
+  "sqKey": "S2550"
 }

@@ -12,5 +12,6 @@
     "pitfall"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-121"
+  "ruleSpecification": "RSPEC-121",
+  "sqKey": "CurlyBraces"
 }

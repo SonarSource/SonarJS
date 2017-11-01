@@ -10,5 +10,6 @@
     "style"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-122"
+  "ruleSpecification": "RSPEC-122",
+  "sqKey": "OneStatementPerLine"
 }

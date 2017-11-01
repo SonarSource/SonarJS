@@ -11,5 +11,6 @@
     "bad-practice"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-909"
+  "ruleSpecification": "RSPEC-909",
+  "sqKey": "ContinueStatement"
 }

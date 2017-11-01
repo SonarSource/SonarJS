@@ -14,5 +14,6 @@
     "CWE"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1525"
+  "ruleSpecification": "RSPEC-1525",
+  "sqKey": "DebuggerStatement"
 }

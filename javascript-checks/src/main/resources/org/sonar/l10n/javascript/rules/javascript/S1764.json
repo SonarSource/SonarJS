@@ -10,5 +10,6 @@
     "cert"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1764"
+  "ruleSpecification": "RSPEC-1764",
+  "sqKey": "S1764"
 }

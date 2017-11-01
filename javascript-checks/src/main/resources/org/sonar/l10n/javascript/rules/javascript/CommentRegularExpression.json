@@ -6,5 +6,6 @@
     
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-124"
+  "ruleSpecification": "RSPEC-124",
+  "sqKey": "CommentRegularExpression"
 }

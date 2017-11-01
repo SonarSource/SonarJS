@@ -16,5 +16,6 @@
     "CWE"
   ],
   "defaultSeverity": "Blocker",
-  "ruleSpecification": "RSPEC-128"
+  "ruleSpecification": "RSPEC-128",
+  "sqKey": "NonEmptyCaseWithoutBreak"
 }

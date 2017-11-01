@@ -9,7 +9,7 @@ function pow(a, b) {
   }
   var x = a;
   for(var i = 1; i &lt; b; i++) {
-    x = x * a;  //Dead store because the last return statement should return x instead of returning a
+    x = a * i;  //Dead store because the last return statement should return x instead of returning a
   }
   return a;
 }
@@ -22,14 +22,14 @@ function pow(a, b) {
   }
   var x = a;
   for(var i = 1; i &lt; b; i++) {
-    x = x * a;
+    x = a * i;
   }
   return x;
 }
 </pre>
 <h2>Exceptions</h2>
-<p>This rule ignores initializations to -1, 0, 1, <code>null</code>, <code>true</code>, <code>false</code>, <code>""</code>, <code>[]</code> and
-<code>{}</code>.</p>
+<p>This rule ignores initializations to -1, 0, 1, <code>null</code>, <code>undefined</code>, <code>true</code>, <code>false</code>, <code>""</code>,
+<code>[]</code> and <code>{}</code>.</p>
 <h2>See</h2>
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/563.html">MITRE, CWE-563</a> - Assignment to Variable without Use ('Unused Variable') </li>

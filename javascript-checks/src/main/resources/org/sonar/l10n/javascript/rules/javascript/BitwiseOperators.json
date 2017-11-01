@@ -10,5 +10,6 @@
     
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1529"
+  "ruleSpecification": "RSPEC-1529",
+  "sqKey": "BitwiseOperators"
 }

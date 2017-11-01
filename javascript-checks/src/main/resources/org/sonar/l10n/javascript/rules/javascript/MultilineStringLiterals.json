@@ -10,5 +10,6 @@
     "bad-practice"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1516"
+  "ruleSpecification": "RSPEC-1516",
+  "sqKey": "MultilineStringLiterals"
 }

@@ -15,5 +15,6 @@
     "CWE"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1143"
+  "ruleSpecification": "RSPEC-1143",
+  "sqKey": "S1143"
 }

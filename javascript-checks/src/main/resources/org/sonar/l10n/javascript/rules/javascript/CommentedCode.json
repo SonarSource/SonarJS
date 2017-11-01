@@ -11,5 +11,6 @@
     "unused"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-125"
+  "ruleSpecification": "RSPEC-125",
+  "sqKey": "CommentedCode"
 }

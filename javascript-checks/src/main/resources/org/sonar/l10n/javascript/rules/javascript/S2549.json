@@ -10,5 +10,6 @@
     "backbone"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-2549"
+  "ruleSpecification": "RSPEC-2549",
+  "sqKey": "S2549"
 }

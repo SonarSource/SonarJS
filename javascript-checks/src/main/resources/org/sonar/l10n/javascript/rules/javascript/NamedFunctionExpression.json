@@ -11,5 +11,6 @@
     "user-experience"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1517"
+  "ruleSpecification": "RSPEC-1517",
+  "sqKey": "NamedFunctionExpression"
 }

@@ -11,5 +11,6 @@
     "brain-overload"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-135"
+  "ruleSpecification": "RSPEC-135",
+  "sqKey": "S135"
 }

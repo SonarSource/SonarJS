@@ -11,5 +11,6 @@
     "user-experience"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1530"
+  "ruleSpecification": "RSPEC-1530",
+  "sqKey": "FunctionDeclarationsWithinBlocks"
 }

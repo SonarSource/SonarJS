@@ -10,5 +10,6 @@
     "pitfall"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1439"
+  "ruleSpecification": "RSPEC-1439",
+  "sqKey": "LabelPlacement"
 }

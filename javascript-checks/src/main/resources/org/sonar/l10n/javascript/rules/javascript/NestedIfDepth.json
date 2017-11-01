@@ -10,5 +10,6 @@
     "brain-overload"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-134"
+  "ruleSpecification": "RSPEC-134",
+  "sqKey": "NestedIfDepth"
 }

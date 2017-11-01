@@ -10,5 +10,6 @@
     "unused"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-2123"
+  "ruleSpecification": "RSPEC-2123",
+  "sqKey": "S2123"
 }

@@ -10,5 +10,6 @@
     "es2015"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1788"
+  "ruleSpecification": "RSPEC-1788",
+  "sqKey": "S1788"
 }

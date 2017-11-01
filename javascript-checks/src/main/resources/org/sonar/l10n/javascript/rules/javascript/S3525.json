@@ -10,5 +10,6 @@
     "es2015"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-3525"
+  "ruleSpecification": "RSPEC-3525",
+  "sqKey": "S3525"
 }

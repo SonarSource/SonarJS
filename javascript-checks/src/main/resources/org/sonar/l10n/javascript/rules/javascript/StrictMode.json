@@ -11,5 +11,6 @@
     "user-experience"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-1539"
+  "ruleSpecification": "RSPEC-1539",
+  "sqKey": "StrictMode"
 }

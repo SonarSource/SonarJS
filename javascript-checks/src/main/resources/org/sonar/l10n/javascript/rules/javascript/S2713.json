@@ -11,5 +11,6 @@
     "jquery"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-2713"
+  "ruleSpecification": "RSPEC-2713",
+  "sqKey": "S2713"
 }

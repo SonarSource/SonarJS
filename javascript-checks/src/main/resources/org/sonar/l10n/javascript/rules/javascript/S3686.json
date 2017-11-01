@@ -10,5 +10,6 @@
     
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-3686"
+  "ruleSpecification": "RSPEC-3686",
+  "sqKey": "S3686"
 }
