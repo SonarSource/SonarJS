@@ -58,6 +58,18 @@ function main(a, b, c) {
     foo();
   }
 
+  for(let k = 0; ; (bar())) {
+    foo();
+  }
+
+  for((k = 0); ; bar()) {
+    foo();
+  }
+
+  for(k = 0; (k < 10); bar()) {
+    foo();
+  }
+
   switch(a || b) {
   case c:
     foo();

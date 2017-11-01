@@ -359,8 +359,8 @@ public class SymbolicExecution {
 
   private static boolean isProducingUnconsumedValue(Tree element) {
     if (element instanceof ExpressionTree) {
-      Tree tree = syntaxTree(element);
-      Tree parent = getParent(tree);
+      Tree tree = getParentIfParenthesised(element);
+      Tree parent = tree.parent();
       if (parent.is(
         Kind.EXPRESSION_STATEMENT,
         Kind.FOR_IN_STATEMENT,
@@ -377,13 +377,11 @@ public class SymbolicExecution {
     return false;
   }
 
-  private static Tree getParent(Tree tree) {
-    return syntaxTree(tree.parent());
-  }
-
-  private static Tree syntaxTree(Tree tree) {
+  // "(a)"
+  // when "a" passed as 'tree' parameter, the tree for "(a)" will be returned
+  private static Tree getParentIfParenthesised(Tree tree) {
     Tree syntaxTree = tree;
-    while (syntaxTree.is(Kind.PARENTHESISED_EXPRESSION)) {
+    while (syntaxTree.parent().is(Kind.PARENTHESISED_EXPRESSION)) {
       syntaxTree = syntaxTree.parent();
     }
     return syntaxTree;
