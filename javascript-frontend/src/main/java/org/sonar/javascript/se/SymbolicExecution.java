@@ -96,7 +96,7 @@ public class SymbolicExecution {
     LocalVariables localVariables = new LocalVariables(functionScope, cfg);
     this.trackedVariables = localVariables.trackableVariables();
     this.functionParameters = localVariables.functionParameters();
-    this.liveVariableAnalysis = LiveVariableAnalysis.create(cfg, functionScope);
+    this.liveVariableAnalysis = LiveVariableAnalysis.createForSymbolicExecution(cfg, functionScope);
     this.functionScope = functionScope;
     this.checks = checks;
   }

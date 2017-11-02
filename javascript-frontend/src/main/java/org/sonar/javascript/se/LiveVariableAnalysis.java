@@ -48,6 +48,7 @@ public class LiveVariableAnalysis {
 
   private final Usages usages;
   private Map<CfgBlock, BlockLiveness> livenessPerBlock;
+  private boolean lvaForSymbolicExecution;
 
   public Set<Symbol> getLiveOutSymbols(CfgBlock block) {
     BlockLiveness blockLiveness = livenessPerBlock.get(block);
@@ -59,14 +60,19 @@ public class LiveVariableAnalysis {
     return blockLiveness.liveIn;
   }
 
-  private LiveVariableAnalysis(ControlFlowGraph cfg, Scope scope){
+  private LiveVariableAnalysis(ControlFlowGraph cfg, Scope scope, boolean lvaForSymbolicExecution){
     this.usages = new Usages(scope);
+    this.lvaForSymbolicExecution = lvaForSymbolicExecution;
     Set<BlockLiveness> livenesses = new HashSet<>();
     buildUsagesAndLivenesses(cfg, usages, livenesses);
   }
 
   public static LiveVariableAnalysis create(ControlFlowGraph cfg, Scope scope) {
-    return new LiveVariableAnalysis(cfg, scope);
+    return new LiveVariableAnalysis(cfg, scope, false);
+  }
+
+  public static LiveVariableAnalysis createForSymbolicExecution(ControlFlowGraph cfg, Scope scope) {
+    return new LiveVariableAnalysis(cfg, scope, true);
   }
 
 
@@ -98,7 +104,7 @@ public class LiveVariableAnalysis {
     return usages;
   }
 
-  private static class BlockLiveness {
+  private class BlockLiveness {
 
     private final CfgBlock block;
     private final Usages usages;
@@ -130,7 +136,7 @@ public class LiveVariableAnalysis {
 
       for (Tree element : Lists.reverse(block.elements())) {
         Usage usage = usages.getUsage(element);
-        if (isWrite(usage)) {
+        if (LiveVariableAnalysis.this.isWrite(usage)) {
           liveIn.remove(usage.symbol());
         } else if (isRead(usage)) {
           liveIn.add(usage.symbol());
@@ -141,7 +147,7 @@ public class LiveVariableAnalysis {
     }
   }
 
-  public static class Usages {
+  public class Usages {
 
     private final Scope functionScope;
     private final Set<Symbol> symbols = new HashSet<>();
@@ -189,7 +195,7 @@ public class LiveVariableAnalysis {
         boolean readAtLeastOnce = false;
         for (Usage usage : symbol.usages()) {
           localVariableUsages.put(usage.identifierTree(), usage);
-          if (isRead(usage)) {
+          if (LiveVariableAnalysis.this.isRead(usage)) {
             readAtLeastOnce = true;
           }
         }
@@ -219,18 +225,18 @@ public class LiveVariableAnalysis {
     }
   }
 
-  public static boolean isRead(@Nullable Usage usage) {
+  public boolean isRead(@Nullable Usage usage) {
     if (usage == null) {
       return false;
     }
-    return usage.kind() == Usage.Kind.READ || usage.kind() == Usage.Kind.READ_WRITE;
+    return usage.kind() == Usage.Kind.READ || usage.kind() == Usage.Kind.READ_WRITE  || (this.lvaForSymbolicExecution && usage.kind() == Usage.Kind.WRITE);
   }
 
-  public static boolean isWrite(@Nullable Usage usage) {
+  public boolean isWrite(@Nullable Usage usage) {
     if (usage == null) {
       return false;
     }
-    return usage.kind() == Usage.Kind.WRITE || usage.kind() == Usage.Kind.DECLARATION_WRITE;
+    return usage.kind() == Usage.Kind.DECLARATION_WRITE || (!this.lvaForSymbolicExecution && usage.kind() == Usage.Kind.WRITE);
   }
 
 }
