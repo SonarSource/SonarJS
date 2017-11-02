@@ -49,9 +49,6 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
-import static org.sonar.javascript.se.LiveVariableAnalysis.isRead;
-import static org.sonar.javascript.se.LiveVariableAnalysis.isWrite;
-
 @Rule(key = "S1854")
 public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
@@ -118,12 +115,12 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       for (Tree element : Lists.reverse(cfgBlock.elements())) {
         Usage usage = usages.getUsage(element);
         if (usage != null) {
-          checkUsage(usage, live, usages);
+          checkUsage(usage, live, usages, lva);
         }
       }
     }
 
-    raiseIssuesForNeverReadSymbols(usages);
+    raiseIssuesForNeverReadSymbols(usages, lva);
   }
   
   private static boolean isTryBlock(CfgBlock block) {
@@ -134,10 +131,10 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     return false;
   }
 
-  private void checkUsage(Usage usage, Set<Symbol> liveSymbols, Usages usages) {
+  private void checkUsage(Usage usage, Set<Symbol> liveSymbols, Usages usages, LiveVariableAnalysis lva) {
     Symbol symbol = usage.symbol();
 
-    if (isWrite(usage)) {
+    if (lva.isWrite(usage)) {
       if (!liveSymbols.contains(symbol)
         && !usages.hasUsagesInNestedFunctions(symbol)
         && !usages.neverReadSymbols().contains(symbol)
@@ -147,7 +144,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       }
       liveSymbols.remove(symbol);
 
-    } else if (isRead(usage)) {
+    } else if (lva.isRead(usage)) {
       liveSymbols.add(symbol);
     }
   }
@@ -187,10 +184,10 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     return false;
   }
 
-  private void raiseIssuesForNeverReadSymbols(Usages usages) {
+  private void raiseIssuesForNeverReadSymbols(Usages usages, LiveVariableAnalysis lva) {
     for (Symbol symbol : usages.neverReadSymbols()) {
       for (Usage usage : symbol.usages()) {
-        if (isWrite(usage) && !initializedToBasicValue(usage)) {
+        if (lva.isWrite(usage) && !initializedToBasicValue(usage)) {
           addIssue(usage.identifierTree(), symbol);
         }
       }

@@ -70,9 +70,6 @@
 'project:dojo-1.8.1/dojox/collections/BinaryTree.js.uncompressed.js':[
 122,
 ],
-'project:dojo-1.8.1/dojox/data/AndOrReadStore.js.uncompressed.js':[
-154,
-],
 'project:dojo-1.8.1/dojox/data/FlickrStore.js.uncompressed.js':[
 279,
 ],
@@ -338,7 +335,6 @@
 8729,
 ],
 'project:jshint-2012.06.15.js':[
-1597,
 1856,
 1865,
 1873,
@@ -357,10 +353,6 @@
 'project:ocanvas-2.2.2.js':[
 853,
 1077,
-],
-'project:open-layers-2.12/OpenLayers/Control/Split.js':[
-402,
-414,
 ],
 'project:open-layers-2.12/OpenLayers/Events.js':[
 329,
@@ -452,10 +444,6 @@
 ],
 'project:yui-3.7.3/node-menunav/node-menunav.js':[
 1450,
-],
-'project:yui-3.7.3/selector-css2/selector-css2.js':[
-141,
-181,
 ],
 'project:yui-3.7.3/widget-modality/widget-modality.js':[
 518,
