@@ -47,3 +47,42 @@ for (k = 1; k < 10; k++) {
   kk = 1;
   foo(kk);
 }
+
+function foo() {
+  let i; // Noncompliant {{Move the declaration of "i" to line 55.}}
+
+  {
+     if (cond) {
+        i = 42;
+        foo(i);
+     } else {
+        i = 41;
+        foo(i);
+     }
+  }
+}
+
+function bar() {
+  let i; // OK
+
+  {
+     if (cond) {
+        foo(i);
+     } else {
+        i = 41;
+        foo(i);
+     }
+  }
+}
+
+function not_found_cfg_block() {
+  let i; // OK
+
+  arr.foreach(function() {
+     if (cond) {
+       i = 42;
+       foo(i);
+     }
+  });
+}
+

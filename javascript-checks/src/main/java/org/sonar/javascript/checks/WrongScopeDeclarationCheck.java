@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,10 +28,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
+import org.sonar.javascript.cfg.CfgBlock;
+import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.se.LiveVariableAnalysis;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S2392")
@@ -55,7 +64,10 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
       Scope deepestCommonScope = getDeepestCommonScope(symbol, declaration);
       Scope declarationScope = declaration.identifierTree().scope();
 
-      if (!deepestCommonScope.equals(declarationScope) && !isFunctionException(deepestCommonScope, declarationScope)) {
+      if (!deepestCommonScope.equals(declarationScope)
+        && !isFunctionException(deepestCommonScope, declarationScope)
+        && deadVariableInScope(symbol, deepestCommonScope, declarationScope, declaration.identifierTree())) {
+
         String message = String.format(MESSAGE, symbol.name(), deepestCommonScope.tree().firstToken().line() + 1);
         addIssue(declaration.identifierTree(), message);
       }
@@ -63,8 +75,54 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
 
   }
 
+  private boolean deadVariableInScope(Symbol symbol, Scope scopeToCheck, Scope upperScope, Tree declaration) {
+    ControlFlowGraph cfg = CheckUtils.buildControlFlowGraph(declaration);
+    IdentifierTree firstIdentifierOfScope = getFirstIdentifier(scopeToCheck.tree());
+    CfgBlock firstCfgBlockOfScope = null;
+
+    for (CfgBlock cfgBlock : cfg.blocks()) {
+      if (cfgBlock.elements().contains(firstIdentifierOfScope)) {
+        firstCfgBlockOfScope = cfgBlock;
+      }
+    }
+
+    // might be null for scopeToCheck being nested inside the function
+    if (firstCfgBlockOfScope == null) {
+      return false;
+    }
+
+    LiveVariableAnalysis lva = LiveVariableAnalysis.create(cfg, upperScope);
+    return !lva.getLiveInSymbols(firstCfgBlockOfScope).contains(symbol);
+  }
+
+  private IdentifierTree getFirstIdentifier(Tree tree) {
+    IdentifierVisitor identifierVisitor = new IdentifierVisitor();
+    tree.accept(identifierVisitor);
+    Preconditions.checkNotNull(identifierVisitor.identifier, "Deepest common scope should contain at least one identifier");
+    return identifierVisitor.identifier;
+  }
+
+  private static class IdentifierVisitor extends DoubleDispatchVisitor {
+
+    IdentifierTree identifier;
+
+    @Override
+    public void visitIdentifier(IdentifierTree tree) {
+      if (tree.is(Kind.IDENTIFIER_REFERENCE)) {
+        identifier = tree;
+      }
+    }
+
+    @Override
+    protected void scanChildren(Tree tree) {
+      if (identifier == null) {
+        super.scanChildren(tree);
+      }
+    }
+  }
+
   /**
-   * True for variable which deepest common scope (right declaration scope) is function which is nested into declaration scope
+   * True for variable which deepest common scope (correct declaration scope) is function which is nested into declaration scope
    * E.g.
    * <pre>
    *  var y;   // should be OK
