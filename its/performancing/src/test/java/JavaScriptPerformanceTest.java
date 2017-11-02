@@ -52,7 +52,7 @@ public class JavaScriptPerformanceTest {
 
   @Test
   public void test_symbolic_engine_performance() throws IOException {
-    test_performance("se-project", "se-profile", 201.0);
+    test_performance("se-project", "se-profile", 235.0);
   }
 
   private static void test_performance(String projectKey, String profile, double expectedTime) throws IOException {
