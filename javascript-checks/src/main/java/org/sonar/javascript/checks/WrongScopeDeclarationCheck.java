@@ -95,7 +95,7 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
     return !lva.getLiveInSymbols(firstCfgBlockOfScope).contains(symbol);
   }
 
-  private IdentifierTree getFirstIdentifier(Tree tree) {
+  private static IdentifierTree getFirstIdentifier(Tree tree) {
     IdentifierVisitor identifierVisitor = new IdentifierVisitor();
     tree.accept(identifierVisitor);
     Preconditions.checkNotNull(identifierVisitor.identifier, "Deepest common scope should contain at least one identifier");
