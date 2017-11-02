@@ -10,9 +10,13 @@
 ],
 'project:dojo-1.8.1/dojo/dojo.js.uncompressed.js':[
 3277,
+8484,
 ],
 'project:dojo-1.8.1/dojo/i18n.js.uncompressed.js':[
 515,
+],
+'project:dojo-1.8.1/dojo/selector/acme.js.uncompressed.js':[
+345,
 ],
 'project:dojo-1.8.1/dojox/calc/Grapher.js.uncompressed.js':[
 442,
@@ -30,8 +34,14 @@
 498,
 498,
 ],
+'project:dojo-1.8.1/dojox/charting/plot2d/Spider.js.uncompressed.js':[
+227,
+],
 'project:dojo-1.8.1/dojox/charting/plot2d/common.js.uncompressed.js':[
 202,
+],
+'project:dojo-1.8.1/dojox/data/AndOrReadStore.js.uncompressed.js':[
+177,
 ],
 'project:dojo-1.8.1/dojox/date/timezone.js.uncompressed.js':[
 446,
@@ -104,6 +114,7 @@
 338,
 ],
 'project:jquery-1.7.2.js':[
+4097,
 6208,
 ],
 'project:jshint-2012.06.15.js':[
@@ -126,6 +137,9 @@
 'project:open-layers-2.12/OpenLayers/Geometry/LineString.js':[
 330,
 ],
+'project:open-layers-2.12/OpenLayers/Renderer/SVG.js':[
+338,
+],
 'project:open-layers-2.12/OpenLayers/Renderer/VML.js':[
 297,
 ],
@@ -145,6 +159,7 @@
 3291,
 ],
 'project:prototype-1.7.js':[
+4087,
 5603,
 ],
 'project:yui-3.7.3/base-core/base-core.js':[

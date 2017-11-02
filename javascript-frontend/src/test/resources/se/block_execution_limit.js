@@ -8,6 +8,10 @@ function main() {
   var g = foo();
   var h = foo();
   var i = foo();
+  var j = foo();
+  var k = foo();
+  var l = foo();
+  var m = foo();
 
   if (a) {}
   if (b) {}
@@ -18,6 +22,10 @@ function main() {
   if (g) {}
   if (h) {}
   if (i) {}
+  if (j) {}
+  if (k) {}
+  if (l) {}
+  if (m) {}
 
-  makeLive(a, b, c, d, e, f, g, h, i);
+  makeLive(a, b, c, d, e, f, g, h, i, j, k, l, m);
 }
