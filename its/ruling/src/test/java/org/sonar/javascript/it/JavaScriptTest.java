@@ -74,7 +74,7 @@ public class JavaScriptTest {
       .setLanguage("js")
       .setSourceDirs("./")
       .setSourceEncoding("utf-8")
-//      .setProperty("sonar.analysis.mode", "preview")
+      .setProperty("sonar.analysis.mode", "preview")
       .setProperty("sonar.issuesReport.html.enable", "true")
       .setProperty("dump.old", FileLocation.of("src/test/expected").getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
