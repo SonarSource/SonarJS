@@ -12,5 +12,6 @@
     "brain-overload"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-3776"
+  "ruleSpecification": "RSPEC-3776",
+  "sqKey": "S3776"
 }

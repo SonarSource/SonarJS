@@ -11,5 +11,6 @@
     "es2015"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-3513"
+  "ruleSpecification": "RSPEC-3513",
+  "sqKey": "S3513"
 }

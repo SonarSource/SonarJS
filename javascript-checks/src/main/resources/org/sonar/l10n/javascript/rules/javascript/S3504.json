@@ -11,5 +11,6 @@
     "bad-practice"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-3504"
+  "ruleSpecification": "RSPEC-3504",
+  "sqKey": "S3504"
 }

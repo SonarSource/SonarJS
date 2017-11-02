@@ -11,5 +11,6 @@
     "es2015"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-3498"
+  "ruleSpecification": "RSPEC-3498",
+  "sqKey": "S3498"
 }

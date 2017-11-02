@@ -10,5 +10,6 @@
     "brain-overload"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1774"
+  "ruleSpecification": "RSPEC-1774",
+  "sqKey": "ConditionalOperator"
 }

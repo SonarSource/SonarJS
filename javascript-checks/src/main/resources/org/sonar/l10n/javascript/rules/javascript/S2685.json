@@ -10,5 +10,6 @@
     "obsolete"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-2685"
+  "ruleSpecification": "RSPEC-2685",
+  "sqKey": "S2685"
 }

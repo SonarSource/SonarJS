@@ -10,5 +10,6 @@
     "user-experience"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-2427"
+  "ruleSpecification": "RSPEC-2427",
+  "sqKey": "S2427"
 }

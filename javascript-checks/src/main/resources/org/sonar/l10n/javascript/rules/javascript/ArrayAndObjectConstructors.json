@@ -10,5 +10,6 @@
     "suspicious"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1528"
+  "ruleSpecification": "RSPEC-1528",
+  "sqKey": "ArrayAndObjectConstructors"
 }

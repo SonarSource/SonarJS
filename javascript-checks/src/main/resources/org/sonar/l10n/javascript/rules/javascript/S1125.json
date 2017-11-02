@@ -4,11 +4,12 @@
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "2min"
+    "constantCost": "5min"
   },
   "tags": [
     "clumsy"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1125"
+  "ruleSpecification": "RSPEC-1125",
+  "sqKey": "S1125"
 }

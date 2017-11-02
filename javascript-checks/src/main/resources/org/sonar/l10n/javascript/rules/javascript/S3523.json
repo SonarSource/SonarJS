@@ -10,5 +10,6 @@
     "clumsy"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-3523"
+  "ruleSpecification": "RSPEC-3523",
+  "sqKey": "S3523"
 }

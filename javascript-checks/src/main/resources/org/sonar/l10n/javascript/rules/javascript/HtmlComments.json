@@ -10,5 +10,6 @@
     "bad-practice"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1531"
+  "ruleSpecification": "RSPEC-1531",
+  "sqKey": "HtmlComments"
 }

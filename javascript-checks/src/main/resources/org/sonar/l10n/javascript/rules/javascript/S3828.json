@@ -10,5 +10,6 @@
     "es2015"
   ],
   "defaultSeverity": "Blocker",
-  "ruleSpecification": "RSPEC-3828"
+  "ruleSpecification": "RSPEC-3828",
+  "sqKey": "S3828"
 }

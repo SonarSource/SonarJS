@@ -10,5 +10,6 @@
     
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1848"
+  "ruleSpecification": "RSPEC-1848",
+  "sqKey": "ConstructorFunctionsForSideEffects"
 }

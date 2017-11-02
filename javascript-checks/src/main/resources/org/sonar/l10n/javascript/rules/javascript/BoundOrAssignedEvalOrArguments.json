@@ -10,5 +10,6 @@
     "pitfall"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1514"
+  "ruleSpecification": "RSPEC-1514",
+  "sqKey": "BoundOrAssignedEvalOrArguments"
 }

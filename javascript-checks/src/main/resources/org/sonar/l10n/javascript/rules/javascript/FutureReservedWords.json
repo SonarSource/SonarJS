@@ -11,5 +11,6 @@
     "pitfall"
   ],
   "defaultSeverity": "Blocker",
-  "ruleSpecification": "RSPEC-1527"
+  "ruleSpecification": "RSPEC-1527",
+  "sqKey": "FutureReservedWords"
 }

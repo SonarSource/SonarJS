@@ -10,5 +10,6 @@
     "convention"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-103"
+  "ruleSpecification": "RSPEC-103",
+  "sqKey": "LineLength"
 }

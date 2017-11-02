@@ -12,5 +12,6 @@
     "jquery"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-2716"
+  "ruleSpecification": "RSPEC-2716",
+  "sqKey": "S2716"
 }

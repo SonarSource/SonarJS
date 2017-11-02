@@ -10,5 +10,6 @@
     "backbone"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-2508"
+  "ruleSpecification": "RSPEC-2508",
+  "sqKey": "S2508"
 }

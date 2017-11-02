@@ -10,5 +10,6 @@
     "confusing"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-1994"
+  "ruleSpecification": "RSPEC-1994",
+  "sqKey": "S1994"
 }

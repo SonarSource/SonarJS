@@ -10,5 +10,6 @@
     "confusing"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1110"
+  "ruleSpecification": "RSPEC-1110",
+  "sqKey": "Parentheses"
 }

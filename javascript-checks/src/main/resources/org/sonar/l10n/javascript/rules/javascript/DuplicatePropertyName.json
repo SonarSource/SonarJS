@@ -10,5 +10,6 @@
     "pitfall"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1534"
+  "ruleSpecification": "RSPEC-1534",
+  "sqKey": "DuplicatePropertyName"
 }

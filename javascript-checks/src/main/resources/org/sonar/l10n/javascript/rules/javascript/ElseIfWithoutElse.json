@@ -11,5 +11,6 @@
     "cert"
   ],
   "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-126"
+  "ruleSpecification": "RSPEC-126",
+  "sqKey": "ElseIfWithoutElse"
 }
