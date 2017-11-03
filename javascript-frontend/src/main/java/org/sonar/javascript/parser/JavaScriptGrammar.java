@@ -1831,10 +1831,15 @@ public class JavaScriptGrammar {
     return b.<FlowTupleTypeTree>nonterminal(Kind.FLOW_TUPLE_TYPE)
       .is(f.flowTupleType(
         b.token(JavaScriptPunctuator.LBRACKET),
-        FLOW_TYPE(),
-        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_TYPE())),
-        b.optional(b.token(JavaScriptPunctuator.COMMA)),
+        b.optional(FLOW_TUPLE_TYPE_ELEMENTS()),
         b.token(JavaScriptPunctuator.RBRACKET)));
+  }
+
+  public SeparatedList<FlowTypeTree> FLOW_TUPLE_TYPE_ELEMENTS() {
+    return b.<SeparatedList<FlowTypeTree>>nonterminal()
+      .is(f.flowTupleTypeElements(FLOW_TYPE(),
+        b.zeroOrMore(f.newTuple(b.token(JavaScriptPunctuator.COMMA), FLOW_TYPE())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA))));
   }
 
   public FlowParenthesisedTypeTree FLOW_PARENTHESISED_TYPE() {
