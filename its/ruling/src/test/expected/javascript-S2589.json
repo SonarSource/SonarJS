@@ -58,6 +58,12 @@
 'project:dojo-1.8.1/dojox/calendar/SimpleColumnView.js.uncompressed.js':[
 1402,
 ],
+'project:dojo-1.8.1/dojox/charting/axis2d/Default.js.uncompressed.js':[
+634,
+640,
+702,
+706,
+],
 'project:dojo-1.8.1/dojox/charting/widget/Chart.js.uncompressed.js':[
 17,
 ],
@@ -395,6 +401,8 @@
 8987,
 9137,
 13751,
+13932,
+14009,
 ],
 'project:yui-3.7.3/datatable-sort/datatable-sort.js':[
 707,

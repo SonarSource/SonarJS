@@ -74,7 +74,7 @@ import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.IMPORT;
 
 public class SymbolicExecution {
 
-  private static final int MAX_BLOCK_EXECUTIONS = 1000;
+  private static final int MAX_BLOCK_EXECUTIONS = 10000;
 
   private final CfgBlock cfgStartBlock;
   private final ControlFlowGraph cfg;
@@ -96,7 +96,7 @@ public class SymbolicExecution {
     LocalVariables localVariables = new LocalVariables(functionScope, cfg);
     this.trackedVariables = localVariables.trackableVariables();
     this.functionParameters = localVariables.functionParameters();
-    this.liveVariableAnalysis = LiveVariableAnalysis.create(cfg, functionScope);
+    this.liveVariableAnalysis = LiveVariableAnalysis.createForSymbolicExecution(cfg, functionScope);
     this.functionScope = functionScope;
     this.checks = checks;
   }
