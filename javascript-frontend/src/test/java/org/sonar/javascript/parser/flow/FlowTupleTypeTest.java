@@ -30,10 +30,13 @@ public class FlowTupleTypeTest extends LegacyParserTest {
   @Test
   public void test() {
     assertThat(g.rule(Kind.FLOW_TUPLE_TYPE))
+      .matches("[]")
       .matches("[A]")
       .matches("[A,]")
       .matches("[A, B]")
       .matches("[A, 1, C[], ?D,]")
+
+      .notMatches("[,]")
     ;
   }
 

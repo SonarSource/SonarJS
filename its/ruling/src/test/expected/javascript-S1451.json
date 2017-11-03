@@ -902,6 +902,9 @@
 'project:babylon/test/fixtures/flow/trailing-function-commas-type/1/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/tuples/1/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/tuples/2/actual.js':[
 0,
 ],

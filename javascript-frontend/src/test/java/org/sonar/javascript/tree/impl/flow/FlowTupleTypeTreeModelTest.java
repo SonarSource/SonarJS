@@ -39,4 +39,14 @@ public class FlowTupleTypeTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.elements().getSeparators()).hasSize(3);
   }
 
+  @Test
+  public void empty() throws Exception {
+    FlowTupleTypeTree tree = parse("var x: []", Kind.FLOW_TUPLE_TYPE);
+
+    assertThat(tree.is(Kind.FLOW_TUPLE_TYPE)).isTrue();
+    assertThat(tree.leftBracketToken().text()).isEqualTo("[");
+    assertThat(tree.rightBracketToken().text()).isEqualTo("]");
+    assertThat(tree.elements()).hasSize(0);
+  }
+
 }

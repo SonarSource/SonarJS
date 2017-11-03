@@ -104,6 +104,8 @@ import org.sonar.javascript.tree.impl.expression.jsx.JsxSpreadAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowArrayTypeShorthandTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowArrayTypeWithKeywordTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowCastingExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowDeclareTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowFunctionSignatureTreeImpl;
@@ -115,14 +117,12 @@ import org.sonar.javascript.tree.impl.flow.FlowGenericParameterTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowImplementsClauseTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowIndexerPropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowInterfaceDeclarationTreeImpl;
-import org.sonar.javascript.tree.impl.flow.FlowArrayTypeShorthandTreeImpl;
-import org.sonar.javascript.tree.impl.flow.FlowArrayTypeWithKeywordTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowIntersectionTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowLiteralTypeTreeImpl;
-import org.sonar.javascript.tree.impl.flow.FlowNamespacedTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowMethodPropertyDefinitionKeyTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowModuleExportsTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowModuleTreeImpl;
+import org.sonar.javascript.tree.impl.flow.FlowNamespacedTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowObjectTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOpaqueTypeTreeImpl;
 import org.sonar.javascript.tree.impl.flow.FlowOptionalBindingElementTreeImpl;
@@ -236,9 +236,11 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowCastingExpressionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowDeclareTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionSignatureTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowCastingExpressionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowFunctionTypeTree;
@@ -247,15 +249,13 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowImplementsClauseTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIndexerPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeShorthandTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowArrayTypeWithKeywordTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowIntersectionTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowLiteralTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowMethodPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleExportsTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowModuleTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowNamespacedTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowObjectTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOpaqueTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowOptionalTypeTree;
@@ -265,8 +265,8 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimpleTypeTree;
-import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTupleTypeTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAnnotationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypedBindingElementTree;
@@ -2025,12 +2025,18 @@ public class TreeFactory {
 
   public FlowTupleTypeTree flowTupleType(
     InternalSyntaxToken leftBracket,
-    FlowTypeTree type,
-    Optional<List<Tuple<InternalSyntaxToken, FlowTypeTree>>> restTypes,
-    Optional<InternalSyntaxToken> trailingComma,
+    Optional<SeparatedList<FlowTypeTree>> elements,
     InternalSyntaxToken rightBracket
   ) {
-    return new FlowTupleTypeTreeImpl(leftBracket, this.parameterListWithTrailingComma(type, restTypes, trailingComma), rightBracket);
+    return new FlowTupleTypeTreeImpl(leftBracket, elements.or(new SeparatedListImpl(ImmutableList.of(), ImmutableList.of())), rightBracket);
+  }
+
+  public SeparatedList<FlowTypeTree> flowTupleTypeElements(
+    FlowTypeTree type,
+    Optional<List<Tuple<InternalSyntaxToken, FlowTypeTree>>> restTypes,
+    Optional<InternalSyntaxToken> trailingComma
+  ) {
+    return parameterListWithTrailingComma(type, restTypes, trailingComma);
   }
 
   public FlowNamespacedTypeTree flowNamespacedType(IdentifierTree identifierTree, List<Tuple<InternalSyntaxToken, IdentifierTree>> rest) {
