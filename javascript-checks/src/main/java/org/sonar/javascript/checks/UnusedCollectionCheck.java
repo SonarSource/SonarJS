@@ -100,11 +100,11 @@ public class UnusedCollectionCheck extends DoubleDispatchVisitorCheck {
 
       for (Usage usage : symbol.usages()) {
         if (usage.isDeclaration()) {
-          if (!isInitializedToArrayLiteralOrNotInitialized(usage)) {
+          if (isInitializedToNotCollection(usage)) {
             return;
           }
 
-        } else if (isReadUsage(usage)) {
+        } else if (!isCollectionWrite(usage)) {
           return;
         }
       }
@@ -113,7 +113,7 @@ public class UnusedCollectionCheck extends DoubleDispatchVisitorCheck {
     });
   }
 
-  private static boolean isInitializedToArrayLiteralOrNotInitialized(Usage usage) {
+  private static boolean isInitializedToNotCollection(Usage usage) {
     IdentifierTree identifier = usage.identifierTree();
     Tree ancestor = CheckUtils.getFirstAncestor(identifier,
       Kind.INITIALIZED_BINDING_ELEMENT,
@@ -126,21 +126,21 @@ public class UnusedCollectionCheck extends DoubleDispatchVisitorCheck {
 
     // "ancestor" should never be "null" here
     if (ancestor.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
-      return isNewCollectionCreation(((InitializedBindingElementTree) ancestor).right());
+      return !isNewCollectionCreation(((InitializedBindingElementTree) ancestor).right());
     } else if (ancestor.is(Kind.SCRIPT)) {
-      return false;
+      return true;
     }
 
-    return !ancestor.parent().is(Kind.FOR_OF_STATEMENT, Kind.FOR_IN_STATEMENT);
+    return ancestor.parent().is(Kind.FOR_OF_STATEMENT, Kind.FOR_IN_STATEMENT);
   }
 
-  private static boolean isReadUsage(Usage usage) {
+  private static boolean isCollectionWrite(Usage usage) {
     ExpressionStatementTree expressionStatement = (ExpressionStatementTree) CheckUtils.getFirstAncestor(usage.identifierTree(), Kind.EXPRESSION_STATEMENT);
     if (expressionStatement != null) {
-      return !isElementWrite(expressionStatement, usage) && !isWritingMethodCall(expressionStatement, usage) && !isVariableWrite(expressionStatement, usage);
+      return isElementWrite(expressionStatement, usage) || isWritingMethodCall(expressionStatement, usage) || isVariableWrite(expressionStatement, usage);
     }
 
-    return true;
+    return false;
   }
 
   // myArray[1] = 42;
