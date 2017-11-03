@@ -2,5 +2,6 @@
   "rules-metadata-path": "javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript",
   "languages": [
     "JS"
-  ]
+  ],
+  "latest-update": "2017-11-03T13:39:55.003Z"
 }
