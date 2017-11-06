@@ -49,15 +49,6 @@ public class UnusedCollectionCheck extends DoubleDispatchVisitorCheck {
 
   private static final Set<String> COLLECTION_CONSTRUCTORS = ImmutableSet.of(
     "Array",
-    "Int8Array",
-    "Uint8Array",
-    "Uint8ClampedArray",
-    "Int16Array",
-    "Uint16Array",
-    "Int32Array",
-    "Uint32Array",
-    "Float32Array",
-    "Float64Array",
     "Set",
     "Map",
     "WeakSet",

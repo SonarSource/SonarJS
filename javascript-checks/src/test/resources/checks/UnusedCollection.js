@@ -46,7 +46,7 @@ function nok7() {
 }
 
 function nok8() {
-    let array = new Uint16Array(2); // Noncompliant
+    let array = new Uint16Array(2); // FN
     array[1] = 43;
 }
 
@@ -139,6 +139,11 @@ function ok12() {
         bar.push(42);
     }
     return foo;
+}
+
+function ok13(buffer) {
+    let bufferView = new Uint16Array(buffer);
+    bufferView[1] = 43;
 }
 
 
