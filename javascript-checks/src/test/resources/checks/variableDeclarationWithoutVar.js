@@ -18,6 +18,11 @@ function fun(){
   fun(arguments) // OK
 }
 
+let unflowed;
+unflowed = false;
+
+let flowed: boolean;
+flowed = true;
 
 // Node.js-related exclusions
 var foo = exports = module.exports = {} // OK

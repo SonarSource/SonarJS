@@ -72,11 +72,11 @@ for (var x in obj) {
 }
 
 for (var [a, b] in obj) {
-  a = foo(); // FN (SYMBOL TABLE should be improved)
+  a = foo(); // Noncompliant
 }
 
 for (let {prop1, prop2} in obj) {
-  prop1 = foo(); // FN (SYMBOL TABLE should be improved)
+  prop1 = foo(); // Noncompliant
 }
 
 for (let x of obj) {
@@ -95,16 +95,16 @@ for (z in obj) {
 }
 
 for ([a, [b]] in obj) {
-  a = foo(); // FN
-  b = foo(); // FN
+  a = foo(); // Noncompliant
+  b = foo(); // Noncompliant
 }
 
 for ({a, b} in obj) {
-  a = foo(); // FN
-  b = foo(); // FN
+  a = foo(); // Noncompliant
+  b = foo(); // Noncompliant
 }
 
 // illegal code
 for (a[1] in obj) {
-  a = foo();
+  a = foo(); // Noncompliant, FP but only because of illegal code
 }
