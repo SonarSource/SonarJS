@@ -35,7 +35,7 @@ If you want to report a bug, request a feature or provide other kind of feedback
 To provide feedback or to report a bug for a SonarQube platform send an email to `sonarqube@googlegroups.com`, the [SonarQube Google Group](https://groups.google.com/forum/#!forum/sonarqube). Please do not forget to specify the details of your request, as well as analysers' and SonarQube versions.
 
 ### Twitter
-We have a [twitter account](https://twitter.com/sonarjs) where you can follow the development on this plugin.
+We have a [twitter account](https://twitter.com/sonarjs) where you can follow the development of this plugin.
 
 # Contributing
 
