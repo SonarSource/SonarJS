@@ -30,3 +30,6 @@ function func() {
 }
 
 Object.create(null);
+
+let flowed: number;
+for (let [arra, arrb] in a){}

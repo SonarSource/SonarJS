@@ -82,6 +82,17 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
     assertThat(symbolModel(INPUT_FILE, settings("", "global1")).getSymbols("global1")).hasSize(1);
   }
 
+  @Test
+  public void flowed_let() throws Exception {
+     assertThat(SYMBOL_MODEL.getSymbols("flowed")).hasSize(1);
+  }
+
+  @Test
+  public void destructuring_let() throws Exception {
+     assertThat(SYMBOL_MODEL.getSymbols("arra")).hasSize(1);
+     assertThat(SYMBOL_MODEL.getSymbols("arrb")).hasSize(1);
+  }
+
   private Settings settings(String environmentNames, String globalNames) {
     Settings settings = new MapSettings();
     settings.setProperty(GlobalVariableNames.ENVIRONMENTS_PROPERTY_KEY, environmentNames);
