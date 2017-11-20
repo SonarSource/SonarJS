@@ -127,14 +127,6 @@
 1580,
 ],
 'project:babylon/src/plugins/typescript.js':[
-1071,
-1323,
-1424,
-1448,
-1632,
-1649,
-1666,
-1690,
 1728,
 ],
 'project:babylon/test/fixtures/flow/type-annotations/69/actual.js':[
@@ -2637,10 +2629,7 @@
 218,
 ],
 'project:jest/packages/expect/src/index.js':[
-128,
-159,
 236,
-245,
 ],
 'project:jest/packages/expect/src/jasmine_utils.js':[
 201,
@@ -2659,6 +2648,7 @@
 38,
 ],
 'project:jest/packages/jest-cli/src/cli/index.js':[
+170,
 233,
 ],
 'project:jest/packages/jest-cli/src/reporters/Status.js':[
@@ -2704,10 +2694,6 @@
 ],
 'project:jest/packages/jest-editor-support/src/__tests__/runner.test.js':[
 22,
-],
-'project:jest/packages/jest-editor-support/src/__tests__/test_reconciler.test.js':[
-18,
-78,
 ],
 'project:jest/packages/jest-editor-support/src/parsers/babylon_parser.js':[
 33,
@@ -2769,7 +2755,6 @@
 779,
 ],
 'project:jest/packages/jest-runtime/src/script_transformer.js':[
-191,
 345,
 ],
 'project:jest/packages/jest-validate/src/__tests__/validate.test.js':[

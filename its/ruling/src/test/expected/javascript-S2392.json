@@ -2649,6 +2649,9 @@
 'project:jest/packages/expect/src/jasmine_utils.js':[
 174,
 ],
+'project:jest/packages/jest-cli/src/reporters/coverage_reporter.js':[
+65,
+],
 'project:jest/packages/jest-config/src/vendor/jsonlint.js':[
 288,
 289,
@@ -2664,6 +2667,9 @@
 ],
 'project:jest/packages/jest-mock/src/index.js':[
 350,
+],
+'project:jest/packages/jest-runtime/src/script_transformer.js':[
+284,
 ],
 'project:jest/packages/jest-util/src/fake_timers.js':[
 497,
