@@ -284,7 +284,6 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
       scope = getFunctionScope();
     }
 
-    // todo Consider other BindingElementTree types
     for (BindingElementTree bindingElement : tree.variables()) {
       Symbol.Kind variableKind = getVariableKind(tree);
 
@@ -293,11 +292,11 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
           symbolModel.declareSymbol(identifier.name(), variableKind, scope)
             .addUsage(identifier, Usage.Kind.DECLARATION_WRITE);
         }
-      }
-      if (bindingElement.is(Kind.BINDING_IDENTIFIER)) {
-        IdentifierTree identifierTree = (IdentifierTree) bindingElement;
-        symbolModel.declareSymbol(identifierTree.name(), variableKind, scope)
-          .addUsage(identifierTree, insideForLoopVariable ? Usage.Kind.DECLARATION_WRITE : Usage.Kind.DECLARATION);
+      } else {
+        for (IdentifierTree identifier : bindingElement.bindingIdentifiers()) {
+          symbolModel.declareSymbol(identifier.name(), variableKind, scope)
+            .addUsage(identifier, insideForLoopVariable ? Usage.Kind.DECLARATION_WRITE : Usage.Kind.DECLARATION);
+        }
       }
     }
   }
