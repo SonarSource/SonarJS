@@ -228,7 +228,7 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   private void scanFile(SensorContext sensorContext, CompatibleInputFile inputFile, ProductDependentExecutor executor, List<TreeVisitor> visitors, ScriptTree scriptTree) {
-    JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.settings());
+    JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.config());
 
     List<Issue> fileIssues = new ArrayList<>();
 

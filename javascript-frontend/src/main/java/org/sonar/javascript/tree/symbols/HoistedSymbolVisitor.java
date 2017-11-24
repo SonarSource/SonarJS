@@ -21,7 +21,7 @@ package org.sonar.javascript.tree.symbols;
 
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.javascript.tree.impl.declaration.ClassTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
@@ -66,9 +66,9 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   private boolean insideForLoopVariable = false;
   private GlobalVariableNames globalVariableNames;
 
-  public HoistedSymbolVisitor(Map<Tree, Scope> treeScopeMap, Settings settings) {
+  public HoistedSymbolVisitor(Map<Tree, Scope> treeScopeMap, Configuration configuration) {
     this.treeScopeMap = treeScopeMap;
-    this.globalVariableNames = new GlobalVariableNames(settings);
+    this.globalVariableNames = new GlobalVariableNames(configuration);
   }
 
   @Override

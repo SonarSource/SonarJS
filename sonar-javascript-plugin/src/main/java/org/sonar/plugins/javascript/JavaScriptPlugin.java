@@ -93,6 +93,7 @@ public class JavaScriptPlugin implements Plugin {
         .description("Comma-separated list of suffixes for files to analyze.")
         .subCategory(GENERAL)
         .category(JAVASCRIPT_CATEGORY)
+        .multiValues(true)
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
 
@@ -127,28 +128,31 @@ public class JavaScriptPlugin implements Plugin {
       PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
         .defaultValue(JavaScriptPlugin.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE)
         .name("jQuery object aliases")
-        .description("Comma-separated list of names used to address jQuery object.")
+        .description("List of names used to address jQuery object.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(LIBRARIES)
+        .multiValues(true)
         .category(JAVASCRIPT_CATEGORY)
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.ENVIRONMENTS)
         .defaultValue(JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE)
         .name("JavaScript execution environments")
-        .description("Comma-separated list of environments names. The analyzer automatically adds global variables based on that list. "
+        .description("List of environments names. The analyzer automatically adds global variables based on that list. "
           + "Available environment names: " + JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE + ".")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(GENERAL)
+        .multiValues(true)
         .category(JAVASCRIPT_CATEGORY)
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.GLOBALS)
         .defaultValue(JavaScriptPlugin.GLOBALS_DEFAULT_VALUE)
         .name("Global variables")
-        .description("Comma-separated list of global variables.")
+        .description("List of global variables.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(GENERAL)
+        .multiValues(true)
         .category(JAVASCRIPT_CATEGORY)
         .build(),
 

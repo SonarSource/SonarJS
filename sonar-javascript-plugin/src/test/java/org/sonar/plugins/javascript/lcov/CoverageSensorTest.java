@@ -22,6 +22,8 @@ package org.sonar.plugins.javascript.lcov;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +36,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
@@ -63,7 +65,7 @@ public class CoverageSensorTest {
   public LogTester logTester = new LogTester();
 
   @Before
-  public void init() {
+  public void init() throws FileNotFoundException {
     settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV);
     settings.setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, IT_LCOV);
@@ -79,14 +81,14 @@ public class CoverageSensorTest {
     linesOfCode.put(inputFile2, ImmutableSet.of(1, 2, 3));
   }
 
-  private InputFile inputFile(String relativePath, Type type) {
+  private InputFile inputFile(String relativePath, Type type) throws FileNotFoundException {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(moduleBaseDir.toPath())
       .setLanguage("js")
       .setType(type)
       .build();
 
-    inputFile.setMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
+    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), Charsets.UTF_8, inputFile.absolutePath()));
     context.fileSystem().add(inputFile);
 
     return inputFile;

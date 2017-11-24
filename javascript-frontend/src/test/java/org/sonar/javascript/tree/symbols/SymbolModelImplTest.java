@@ -20,8 +20,8 @@
 package org.sonar.javascript.tree.symbols;
 
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.javascript.utils.TestUtils;
@@ -71,15 +71,15 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
   @Test
   public void environment() throws Exception {
-    assertThat(symbolModel(INPUT_FILE, settings("", "")).getSymbols("document")).hasSize(0);
-    assertThat(symbolModel(INPUT_FILE, settings("xxx", "")).getSymbols("document")).hasSize(0);
-    assertThat(symbolModel(INPUT_FILE, settings("browser", "")).getSymbols("document")).hasSize(1);
+    assertThat(symbolModel(INPUT_FILE, config("", "")).getSymbols("document")).hasSize(0);
+    assertThat(symbolModel(INPUT_FILE, config("xxx", "")).getSymbols("document")).hasSize(0);
+    assertThat(symbolModel(INPUT_FILE, config("browser", "")).getSymbols("document")).hasSize(1);
   }
 
   @Test
   public void global_variable() throws Exception {
-    assertThat(symbolModel(INPUT_FILE, settings("", "")).getSymbols("global1")).hasSize(0);
-    assertThat(symbolModel(INPUT_FILE, settings("", "global1")).getSymbols("global1")).hasSize(1);
+    assertThat(symbolModel(INPUT_FILE, config("", "")).getSymbols("global1")).hasSize(0);
+    assertThat(symbolModel(INPUT_FILE, config("", "global1")).getSymbols("global1")).hasSize(1);
   }
 
   @Test
@@ -93,10 +93,10 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
      assertThat(SYMBOL_MODEL.getSymbols("arrb")).hasSize(1);
   }
 
-  private Settings settings(String environmentNames, String globalNames) {
-    Settings settings = new MapSettings();
+  private Configuration config(String environmentNames, String globalNames) {
+    MapSettings settings = new MapSettings();
     settings.setProperty(GlobalVariableNames.ENVIRONMENTS_PROPERTY_KEY, environmentNames);
     settings.setProperty(GlobalVariableNames.GLOBALS_PROPERTY_KEY, globalNames);
-    return settings;
+    return settings.asConfig();
   }
 }

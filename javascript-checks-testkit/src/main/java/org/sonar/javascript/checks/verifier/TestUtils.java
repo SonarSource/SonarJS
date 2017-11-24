@@ -31,8 +31,8 @@ import java.util.Map;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
@@ -65,14 +65,14 @@ public class TestUtils {
   private static JavaScriptVisitorContext createContext(InputFile file, ActionParser<Tree> parser) {
     try {
       ScriptTree scriptTree = (ScriptTree) parser.parse(file.contents());
-      return new JavaScriptVisitorContext(scriptTree, wrap(file), settings());
+      return new JavaScriptVisitorContext(scriptTree, wrap(file), config());
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
   }
 
-  private static Settings settings() {
-    Settings settings = new MapSettings();
+  private static Configuration config() {
+    MapSettings settings = new MapSettings();
 
     Map<String, String> properties = new HashMap<>();
     properties.put(JQuery.JQUERY_OBJECT_ALIASES, JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE);
@@ -80,7 +80,7 @@ public class TestUtils {
     properties.put(GlobalVariableNames.GLOBALS_PROPERTY_KEY, GlobalVariableNames.GLOBALS_PROPERTY_KEY);
     settings.addProperties(properties);
 
-    return settings;
+    return settings.asConfig();
   }
 
   public static DefaultInputFile createTestInputFile(String baseDir, String relativePath) {

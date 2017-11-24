@@ -20,23 +20,23 @@
 package org.sonar.plugins.javascript;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
 public class JavaScriptLanguage extends AbstractLanguage {
 
   public static final String KEY = "js";
 
-  private Settings settings;
+  private Configuration configuration;
 
-  public JavaScriptLanguage(Settings configuration) {
+  public JavaScriptLanguage(Configuration configuration) {
     super(KEY, "JavaScript");
-    this.settings = configuration;
+    this.configuration = configuration;
   }
 
   @Override
   public String[] getFileSuffixes() {
-    String[] suffixes = settings.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY);
+    String[] suffixes = configuration.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY);
     if (suffixes == null || suffixes.length == 0) {
       suffixes = StringUtils.split(JavaScriptPlugin.FILE_SUFFIXES_DEFVALUE, ",");
     }

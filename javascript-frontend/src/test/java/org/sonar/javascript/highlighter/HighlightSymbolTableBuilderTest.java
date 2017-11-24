@@ -21,6 +21,8 @@ package org.sonar.javascript.highlighter;
 
 import com.google.common.io.Files;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import org.junit.Test;
@@ -43,14 +45,14 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   private SensorContextTester sensorContext;
   private CompatibleInputFile inputFile;
 
-  private NewSymbolTable newSymbolTable(String filename) {
+  private NewSymbolTable newSymbolTable(String filename) throws FileNotFoundException {
     File moduleBaseDir = new File("src/test/resources/highlighter/");
     sensorContext = SensorContextTester.create(moduleBaseDir);
     DefaultInputFile defaultInputFile = new TestInputFileBuilder("moduleKey", filename)
       .setModuleBaseDir(moduleBaseDir.toPath())
       .setCharset(StandardCharsets.UTF_8).build();
     inputFile = wrap(defaultInputFile);
-    defaultInputFile.setMetadata(new FileMetadata().readMetadata(inputFile.file(), defaultInputFile.charset()));
+    defaultInputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), defaultInputFile.charset(), inputFile.absolutePath()));
 
     return sensorContext.newSymbolTable().onFile(defaultInputFile);
   }
