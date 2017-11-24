@@ -32,8 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -51,7 +49,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
@@ -80,10 +77,6 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
-import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
-import org.sonar.plugins.javascript.lcov.LCOVCoverageSensor;
-import org.sonar.plugins.javascript.lcov.OverallCoverageSensor;
-import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
 import org.sonar.plugins.javascript.minify.MinificationAssessor;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
@@ -341,8 +334,6 @@ public class JavaScriptSquidSensor implements Sensor {
     progressReport.start(files);
 
     analyseFiles(context, treeVisitors, inputFiles, executor, progressReport);
-
-    executor.executeCoverageSensors();
   }
 
   private ProductDependentExecutor createProductDependentExecutor(SensorContext context) {
@@ -357,8 +348,6 @@ public class JavaScriptSquidSensor implements Sensor {
     List<TreeVisitor> getProductDependentTreeVisitors();
 
     void highlightSymbols(InputFile inputFile, TreeVisitorContext treeVisitorContext);
-
-    void executeCoverageSensors();
   }
 
   private static class SonarQubeProductExecutor implements ProductDependentExecutor {
@@ -366,7 +355,6 @@ public class JavaScriptSquidSensor implements Sensor {
     private final NoSonarFilter noSonarFilter;
     private final FileLinesContextFactory fileLinesContextFactory;
     private final boolean isAtLeastSq62;
-    private MetricsVisitor metricsVisitor;
 
     SonarQubeProductExecutor(SensorContext context, NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory) {
       this.context = context;
@@ -379,7 +367,7 @@ public class JavaScriptSquidSensor implements Sensor {
     public List<TreeVisitor> getProductDependentTreeVisitors() {
       boolean ignoreHeaderComments = ignoreHeaderComments(context);
 
-      metricsVisitor = new MetricsVisitor(
+      MetricsVisitor metricsVisitor = new MetricsVisitor(
         context,
         ignoreHeaderComments,
         fileLinesContextFactory,
@@ -396,55 +384,6 @@ public class JavaScriptSquidSensor implements Sensor {
     public void highlightSymbols(InputFile inputFile, TreeVisitorContext treeVisitorContext) {
       NewSymbolTable newSymbolTable = context.newSymbolTable().onFile(inputFile);
       HighlightSymbolTableBuilder.build(newSymbolTable, treeVisitorContext);
-    }
-
-    @Override
-    public void executeCoverageSensors() {
-      if (metricsVisitor == null) {
-        throw new IllegalStateException("Before starting coverage computation, metrics should have been calculated.");
-      }
-      executeCoverageSensors(context, metricsVisitor.executableLines(), isAtLeastSq62);
-    }
-
-    private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> executableLines, boolean isAtLeastSq62) {
-      Settings settings = context.settings();
-      if (isAtLeastSq62 && settings.getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY)) {
-        LOG.warn("Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis");
-      }
-
-      if (isAtLeastSq62) {
-        logDeprecationForReportProperty(settings, JavaScriptPlugin.LCOV_UT_REPORT_PATH);
-        logDeprecationForReportProperty(settings, JavaScriptPlugin.LCOV_IT_REPORT_PATH);
-
-        String lcovReports = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATHS);
-
-        if (lcovReports == null || lcovReports.isEmpty()) {
-          executeDeprecatedCoverageSensors(context, executableLines, true);
-
-        } else {
-          LOG.info("Test Coverage Sensor is started");
-          (new LCOVCoverageSensor()).execute(context, executableLines, true);
-        }
-
-      } else {
-        executeDeprecatedCoverageSensors(context, executableLines, false);
-      }
-    }
-
-    private static void logDeprecationForReportProperty(Settings settings, String propertyKey) {
-      String value = settings.getString(propertyKey);
-      if (value != null && !value.isEmpty()) {
-        LOG.warn("Since SonarQube 6.2 property '" + propertyKey + "' is deprecated. Use 'sonar.javascript.lcov.reportPaths' instead.");
-      }
-    }
-
-    private static void executeDeprecatedCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> executableLines, boolean isAtLeastSq62) {
-      LOG.info("Unit Test Coverage Sensor is started");
-      (new UTCoverageSensor()).execute(context, executableLines, isAtLeastSq62);
-      LOG.info("Integration Test Coverage Sensor is started");
-      (new ITCoverageSensor()).execute(context, executableLines, isAtLeastSq62);
-      LOG.info("Overall Coverage Sensor is started");
-      (new OverallCoverageSensor()).execute(context, executableLines, isAtLeastSq62);
     }
   }
 
@@ -467,15 +406,10 @@ public class JavaScriptSquidSensor implements Sensor {
     public void highlightSymbols(InputFile inputFile, TreeVisitorContext treeVisitorContext) {
       // unnecessary in SonarLint context
     }
-
-    @Override
-    public void executeCoverageSensors() {
-      // unnecessary in SonarLint context
-    }
   }
 
   private static boolean ignoreHeaderComments(SensorContext context) {
-    return context.settings().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS);
+    return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
   }
 
   private static boolean isSonarLint(SensorContext context) {

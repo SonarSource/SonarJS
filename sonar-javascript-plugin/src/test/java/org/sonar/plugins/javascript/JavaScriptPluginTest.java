@@ -34,15 +34,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JavaScriptPluginTest {
 
   @Test
-  public void count_extensions_for_sonarqube_server_5_6() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(5, 6), SonarQubeSide.SERVER));
-
-    assertThat(context.getExtensions()).hasSize(15);
+  public void count_extensions() throws Exception {
+    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 7), SonarQubeSide.SERVER));
+    assertThat(context.getExtensions()).hasSize(14);
   }
 
   @Test
   public void should_contain_right_properties_number() throws Exception {
-    assertThat(properties()).hasSize(9);
+    assertThat(properties()).hasSize(7);
   }
 
   @Test
@@ -53,35 +52,17 @@ public class JavaScriptPluginTest {
 
   @Test
   public void should_have_javascript_as_category_for_properties() throws Exception {
-
     List<PropertyDefinition> properties = properties();
-
     assertThat(properties).isNotEmpty();
-
     for (PropertyDefinition propertyDefinition : properties) {
       assertThat(propertyDefinition.category()).isEqualTo("JavaScript");
     }
   }
 
   @Test
-  public void count_extensions_for_sonarqube_server_6_0() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 0), SonarQubeSide.SERVER));
-
-    assertThat(context.getExtensions()).hasSize(15);
-  }
-
-  @Test
-  public void count_extensions_for_sonarqube_server_6_2() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER));
-
-    assertThat(context.getExtensions()).hasSize(15);
-  }
-
-  @Test
   public void count_extensions_for_sonarlint() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(Version.create(6, 0)));
-
-    assertThat(context.getExtensions()).hasSize(15);
+    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(Version.create(6, 7)));
+    assertThat(context.getExtensions()).hasSize(13);
   }
 
   private List<PropertyDefinition> properties() {

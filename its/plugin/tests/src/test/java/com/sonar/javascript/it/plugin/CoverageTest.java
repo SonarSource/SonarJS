@@ -30,7 +30,6 @@ import org.sonarqube.ws.WsMeasures.Measure;
 
 import static com.sonar.javascript.it.plugin.Tests.getMeasure;
 import static com.sonar.javascript.it.plugin.Tests.getMeasureAsInt;
-import static com.sonar.javascript.it.plugin.Tests.is_before_sonar_6_2;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CoverageTest {
@@ -51,7 +50,7 @@ public class CoverageTest {
       .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
-      .setProperty("sonar.javascript.lcov.reportPath", "coverage.lcov");
+      .setProperty("sonar.javascript.lcov.reportPaths", "coverage.lcov");
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
@@ -69,7 +68,7 @@ public class CoverageTest {
       .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
-      .setProperty("sonar.javascript.lcov.reportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+      .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
@@ -77,59 +76,6 @@ public class CoverageTest {
     assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
     assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
     assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
-  }
-
-  @Test
-  public void LCOV_it_coverage() {
-    SonarScanner build = Tests.createScanner()
-      .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
-      .setProjectVersion("1.0")
-      .setSourceDirs(".")
-      .setProperty("sonar.javascript.lcov.itReportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
-    orchestrator.executeBuild(build);
-
-    if (is_before_sonar_6_2()) {
-      assertThat(getProjectMeasureAsInt("it_lines_to_cover")).isEqualTo(7);
-      assertThat(getProjectMeasureAsInt("it_uncovered_lines")).isEqualTo(1);
-      assertThat(getProjectMeasureAsInt("it_conditions_to_cover")).isEqualTo(4);
-      assertThat(getProjectMeasureAsInt("it_uncovered_conditions")).isEqualTo(1);
-
-    } else {
-      assertThat(getProjectMeasureAsInt("it_lines_to_cover")).isNull();
-      assertThat(getProjectMeasureAsInt("it_uncovered_lines")).isNull();
-      assertThat(getProjectMeasureAsInt("it_conditions_to_cover")).isNull();
-      assertThat(getProjectMeasureAsInt("it_uncovered_conditions")).isNull();
-    }
-  }
-
-  @Test
-  public void LCOV_overall_coverage() {
-    SonarScanner build = Tests.createScanner()
-      .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
-      .setProjectVersion("1.0")
-      .setSourceDirs(".")
-      .setProperty("sonar.javascript.lcov.reportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath())
-      .setProperty("sonar.javascript.lcov.itReportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
-    orchestrator.executeBuild(build);
-
-    if (is_before_sonar_6_2()) {
-      assertThat(getProjectMeasureAsInt("overall_lines_to_cover")).isEqualTo(7);
-      assertThat(getProjectMeasureAsInt("overall_uncovered_lines")).isEqualTo(1);
-      assertThat(getProjectMeasureAsInt("overall_conditions_to_cover")).isEqualTo(4);
-      assertThat(getProjectMeasureAsInt("overall_uncovered_conditions")).isEqualTo(1);
-
-    } else {
-      assertThat(getProjectMeasureAsInt("overall_lines_to_cover")).isNull();
-      assertThat(getProjectMeasureAsInt("overall_uncovered_lines")).isNull();
-      assertThat(getProjectMeasureAsInt("overall_conditions_to_cover")).isNull();
-      assertThat(getProjectMeasureAsInt("overall_uncovered_conditions")).isNull();
-    }
   }
 
   @Test
@@ -144,30 +90,20 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
-    if (is_before_sonar_6_2()) {
-      // property is ignored
-      assertThat(getProjectMeasureAsInt("lines_to_cover")).isNull();
-      assertThat(getProjectMeasureAsInt("uncovered_lines")).isNull();
-      assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();
-      assertThat(getProjectMeasureAsInt("uncovered_conditions")).isNull();
-
-    } else {
-      assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
-      assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
-      assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
-      assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
-    }
+    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
+    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
+    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
   }
 
   @Test
-  public void force_zero_coverage() {
+  public void zero_coverage() {
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
-      .setSourceDirs(".")
-      .setProperty("sonar.javascript.forceZeroCoverage", "true");
+      .setSourceDirs(".");
 
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     BuildResult result = orchestrator.executeBuild(build);
@@ -178,24 +114,6 @@ public class CoverageTest {
 
     assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();
     assertThat(getProjectMeasureAsInt("uncovered_conditions")).isNull();
-
-    assertThat(getProjectMeasureAsInt("it_conditions_to_cover")).isNull();
-    assertThat(getProjectMeasureAsInt("it_uncovered_conditions")).isNull();
-
-    String propertyRemoveMessage = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
-
-    if (is_before_sonar_6_2()) {
-      assertThat(getProjectMeasureAsInt("it_lines_to_cover")).isEqualTo(5);
-      assertThat(getProjectMeasureAsInt("it_uncovered_lines")).isEqualTo(5);
-      assertThat(getFileMeasure("it_coverage_line_hits_data").getValue()).startsWith("2=0;6=0;7=0;9=0");
-      assertThat(result.getLogs()).doesNotContain(propertyRemoveMessage);
-
-    } else {
-      assertThat(result.getLogs()).contains(propertyRemoveMessage);
-      assertThat(getProjectMeasureAsInt("it_lines_to_cover")).isNull();
-      assertThat(getProjectMeasureAsInt("it_uncovered_lines")).isNull();
-      assertThat(getFileMeasureAsInt("it_coverage_line_hits_data")).isNull();
-    }
   }
 
   @Test
@@ -209,14 +127,9 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
-    if (is_before_sonar_6_2()) {
-      assertThat(getProjectMeasureAsInt("lines_to_cover")).isNull();
-      assertThat(getProjectMeasureAsInt("uncovered_lines")).isNull();
-    } else {
-      assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(5);
-      assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(5);
-    }
 
+    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(5);
+    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(5);
     assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();
     assertThat(getProjectMeasureAsInt("uncovered_conditions")).isNull();
   }
@@ -240,14 +153,6 @@ public class CoverageTest {
     assertThat(Pattern.compile("Analysing .*coverage-wrong-file-name\\.lcov").matcher(logs).find()).isTrue();
     assertThat(Pattern.compile("WARN.*Could not resolve 1 file paths in \\[.*coverage-wrong-file-name\\.lcov\\], "
       + "first unresolved path: \\./wrong/fileName\\.js").matcher(logs).find()).isTrue();
-
-    boolean saveZeroMessage = Pattern.compile("Default value of zero will be saved for file: .*file\\.js").matcher(logs).find();
-
-    if (is_before_sonar_6_2()) {
-      assertThat(saveZeroMessage).isTrue();
-    } else {
-      assertThat(saveZeroMessage).isFalse();
-    }
   }
 
   @Test

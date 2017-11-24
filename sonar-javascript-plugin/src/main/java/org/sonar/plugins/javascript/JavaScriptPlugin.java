@@ -21,11 +21,12 @@ package org.sonar.plugins.javascript;
 
 import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.Version;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
+import org.sonar.plugins.javascript.lcov.LCOVCoverageSensor;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
 public class JavaScriptPlugin implements Plugin {
@@ -47,15 +48,6 @@ public class JavaScriptPlugin implements Plugin {
   public static final String LCOV_REPORT_PATHS = PROPERTY_PREFIX + ".lcov.reportPaths";
   public static final String LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
 
-  public static final String LCOV_UT_REPORT_PATH = PROPERTY_PREFIX + ".lcov.reportPath";
-  public static final String LCOV_UT_REPORT_PATH_DEFAULT_VALUE = "";
-
-  public static final String LCOV_IT_REPORT_PATH = PROPERTY_PREFIX + ".lcov.itReportPath";
-  public static final String LCOV_IT_REPORT_PATH_DEFAULT_VALUE = "";
-
-  public static final String FORCE_ZERO_COVERAGE_KEY = PROPERTY_PREFIX + ".forceZeroCoverage";
-  public static final String FORCE_ZERO_COVERAGE_DEFAULT_VALUE = "false";
-
   public static final String JQUERY_OBJECT_ALIASES = JQuery.JQUERY_OBJECT_ALIASES;
   public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
 
@@ -71,8 +63,6 @@ public class JavaScriptPlugin implements Plugin {
   public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
   public static final String JS_EXCLUSIONS_DEFAULT_VALUE = "**/node_modules/**,**/bower_components/**";
 
-  public static final Version V6_2 = Version.create(6, 2);
-
   @Override
   public void define(Context context) {
     context.addExtensions(
@@ -83,10 +73,16 @@ public class JavaScriptPlugin implements Plugin {
       SonarWayRecommendedProfile.class,
       SonarWayProfile.class);
 
-    boolean isAtLeastSq62 = context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2);
-    String reportPropertyDeprecationMessage = isAtLeastSq62 ? "DEPRECATED: use sonar.javascript.lcov.reportPaths. " : "";
-
     context.addExtensions(
+      PropertyDefinition.builder(LCOV_REPORT_PATHS)
+        .defaultValue(LCOV_REPORT_PATHS_DEFAULT_VALUE)
+        .name("LCOV Files")
+        .description("Paths (absolute or relative) to the files with LCOV data.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .subCategory(TEST_AND_COVERAGE)
+        .category(JAVASCRIPT_CATEGORY)
+        .build(),
+
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
         .defaultValue(FILE_SUFFIXES_DEFVALUE)
         .name("File Suffixes")
@@ -105,24 +101,6 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(GENERAL)
         .category(JAVASCRIPT_CATEGORY)
         .type(PropertyType.BOOLEAN)
-        .build(),
-
-      PropertyDefinition.builder(LCOV_UT_REPORT_PATH)
-        .defaultValue(LCOV_UT_REPORT_PATH_DEFAULT_VALUE)
-        .name("Unit Tests LCOV File")
-        .description(reportPropertyDeprecationMessage + "Path (absolute or relative) to the file with LCOV data for unit tests.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-        .subCategory(TEST_AND_COVERAGE)
-        .category(JAVASCRIPT_CATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(LCOV_IT_REPORT_PATH)
-        .defaultValue(LCOV_IT_REPORT_PATH_DEFAULT_VALUE)
-        .name("Integration Tests LCOV File")
-        .description(reportPropertyDeprecationMessage + "Path (absolute or relative) to the file with LCOV data for integration tests.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-        .subCategory(TEST_AND_COVERAGE)
-        .category(JAVASCRIPT_CATEGORY)
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
@@ -167,32 +145,9 @@ public class JavaScriptPlugin implements Plugin {
         .build()
     );
 
-
-
-    if (isAtLeastSq62) {
-      context.addExtension(PropertyDefinition.builder(LCOV_REPORT_PATHS)
-        .defaultValue(LCOV_REPORT_PATHS_DEFAULT_VALUE)
-        .name("LCOV Files")
-        .description("Paths (absolute or relative) to the files with LCOV data.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-        .subCategory(TEST_AND_COVERAGE)
-        .category(JAVASCRIPT_CATEGORY)
-        .build());
-
-    } else {
-      context.addExtension(
-        PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
-        .defaultValue(FORCE_ZERO_COVERAGE_DEFAULT_VALUE)
-        .name("Force 0 coverage value")
-        .description("Force coverage to be set to 0 when no report is provided.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-        .type(PropertyType.BOOLEAN)
-        .subCategory(TEST_AND_COVERAGE)
-        .category(JAVASCRIPT_CATEGORY)
-        .build());
+    if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
+      context.addExtension(LCOVCoverageSensor.class);
     }
-
-
 
   }
 }
