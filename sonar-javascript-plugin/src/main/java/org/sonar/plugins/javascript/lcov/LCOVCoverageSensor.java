@@ -86,7 +86,7 @@ public class LCOVCoverageSensor implements Sensor {
     }
   }
 
-  private void saveMeasureFromLCOVFile(SensorContext context, List<String> reportPaths) {
+  private static void saveMeasureFromLCOVFile(SensorContext context, List<String> reportPaths) {
     LinkedList<File> lcovFiles=new LinkedList<>();
     for(String providedPath: reportPaths) {
 
