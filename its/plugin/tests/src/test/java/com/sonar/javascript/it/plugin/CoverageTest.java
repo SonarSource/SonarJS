@@ -143,7 +143,7 @@ public class CoverageTest {
       .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
-      .setProperty("sonar.javascript.lcov.reportPath", TestUtils.file("projects/lcov/coverage-wrong-file-name.lcov").getAbsolutePath())
+      .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage-wrong-file-name.lcov").getAbsolutePath())
       .setDebugLogs(true);
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     BuildResult result = orchestrator.executeBuild(build);
@@ -164,7 +164,7 @@ public class CoverageTest {
       .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
-      .setProperty("sonar.javascript.lcov.reportPath", TestUtils.file("projects/lcov/coverage-wrong-line.lcov").getAbsolutePath());
+      .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage-wrong-line.lcov").getAbsolutePath());
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     BuildResult result = orchestrator.executeBuild(build);
 
