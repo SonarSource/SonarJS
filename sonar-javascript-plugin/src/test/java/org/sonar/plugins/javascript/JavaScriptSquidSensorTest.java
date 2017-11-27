@@ -58,7 +58,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.JavaScriptSquidSensor.ProductDependentExecutor;
 import org.sonar.plugins.javascript.JavaScriptSquidSensor.SonarLintProductExecutor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
@@ -77,20 +76,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class JavaScriptSquidSensorTest {
 
-  private static final SonarRuntime SONAR_RUNTIME_6_1 = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
-  private static final SonarRuntime SONAR_RUNTIME_6_2 = SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER);
-  private static final SonarRuntime SONAR_RUNTIME_6_3 = SonarRuntimeImpl.forSonarQube(Version.create(6, 3), SonarQubeSide.SERVER);
-
-  private static final Version SONARLINT_DETECTABLE_VERSION = Version.create(6, 0);
-  private static final SonarRuntime SONARLINT_RUNTIME = SonarRuntimeImpl.forSonarLint(SONARLINT_DETECTABLE_VERSION);
-  private static final SonarRuntime NOSONARLINT_RUNTIME = SonarRuntimeImpl.forSonarQube(SONARLINT_DETECTABLE_VERSION, SonarQubeSide.SERVER);
-
-  private static final String UT_LCOV = "reports/report_ut.lcov";
-  private static final String IT_LCOV = "reports/report_it.lcov";
+  private static final Version VERSION = Version.create(6, 7);
+  private static final SonarRuntime SONARLINT_RUNTIME = SonarRuntimeImpl.forSonarLint(VERSION);
+  private static final SonarRuntime NOSONARLINT_RUNTIME = SonarRuntimeImpl.forSonarQube(VERSION, SonarQubeSide.SERVER);
 
   @org.junit.Rule
   public final ExpectedException thrown = ExpectedException.none();
@@ -164,23 +155,11 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void should_not_yet_calculate_cognitive_complexity_in_6_2() throws Exception {
+  public void should_calculate_cognitive_complexity() throws Exception {
     final String relativePath = "complexity/complexity.js";
     inputFile(relativePath);
     final String componentKey = "moduleKey:" + relativePath;
 
-    context.setRuntime(SONAR_RUNTIME_6_2);
-    createSensor().execute(context);
-    assertThat(context.measure(componentKey, CoreMetrics.COGNITIVE_COMPLEXITY)).isNull();
-  }
-
-  @Test
-  public void should_calculate_cognitive_complexity_after_6_3() throws Exception {
-    final String relativePath = "complexity/complexity.js";
-    inputFile(relativePath);
-    final String componentKey = "moduleKey:" + relativePath;
-
-    context.setRuntime(SONAR_RUNTIME_6_3);
     createSensor().execute(context);
     assertThat(context.measure(componentKey, CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(3);
   }
@@ -215,11 +194,11 @@ public class JavaScriptSquidSensorTest {
   public void should_add_error_to_context_but_not_fail_analysis_with_technical_error() {
     JavaScriptCheck check = new ExceptionRaisingCheck(new NullPointerException("NPE forcibly raised by check class"));
 
-    CompatibleInputFile file = inputFile("file.js");
+    InputFile file = inputFile("file.js");
     createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(file), executor, progressReport);
     assertThat(context.allAnalysisErrors()).hasSize(1);
 
-    assertThat(logTester.logs()).contains("Unable to analyse file: " + file.absolutePath());
+    assertThat(logTester.logs()).contains("Unable to analyse file: " + file.toString());
   }
 
   @Test
@@ -289,7 +268,7 @@ public class JavaScriptSquidSensorTest {
 
   @Test
   public void should_stop_progress_report() throws Exception {
-    CompatibleInputFile inputFile = inputFile("cpd/Person.js");
+    InputFile inputFile = inputFile("cpd/Person.js");
     createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(inputFile), executor, progressReport);
     verify(progressReport).stop();
   }
@@ -341,7 +320,7 @@ public class JavaScriptSquidSensorTest {
   public void should_disable_unnecessary_features_for_sonarlint() throws Exception {
     baseDir = new File("src/test/resources/coverage");
     context = SensorContextTester.create(baseDir);
-    String key = inputFile("file1.js").wrapped().key();
+    String key = inputFile("file1.js").key();
 
     context.setRuntime(SONARLINT_RUNTIME);
     createSensor().execute(context);
@@ -374,7 +353,7 @@ public class JavaScriptSquidSensorTest {
     assertThat(context.referencesForSymbolAt(key, 1, 13)).isNotNull();
   }
 
-  private void analyseFileWithException(JavaScriptCheck check, CompatibleInputFile inputFile, String expectedMessageSubstring) {
+  private void analyseFileWithException(JavaScriptCheck check, InputFile inputFile, String expectedMessageSubstring) {
     JavaScriptSquidSensor sensor = createSensor();
     thrown.expect(AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
@@ -385,7 +364,7 @@ public class JavaScriptSquidSensorTest {
     }
   }
 
-  private CompatibleInputFile inputFile(String relativePath) {
+  private InputFile inputFile(String relativePath) {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(baseDir.toPath())
       .setType(Type.MAIN)
@@ -400,7 +379,7 @@ public class JavaScriptSquidSensorTest {
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
-    return wrap(inputFile);
+    return inputFile;
   }
 
   private final class ExceptionRaisingCheck extends DoubleDispatchVisitorCheck {

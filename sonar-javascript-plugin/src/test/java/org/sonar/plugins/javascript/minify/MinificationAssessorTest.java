@@ -24,12 +24,11 @@ import java.nio.file.Paths;
 import org.assertj.core.api.AbstractBooleanAssert;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.javascript.compat.CompatibleInputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class MinificationAssessorTest {
 
@@ -71,12 +70,12 @@ public class MinificationAssessorTest {
     getAssert(assessor, "file2.js").isFalse();
   }
 
-  private CompatibleInputFile getFile(String name) {
+  private InputFile getFile(String name) {
     DefaultInputFile inputFile = new TestInputFileBuilder("module1", DIR + name)
       .setModuleBaseDir(Paths.get(""))
       .setCharset(StandardCharsets.UTF_8)
       .build();
-    return wrap(inputFile);
+    return inputFile;
   }
 
   private AbstractBooleanAssert getAssert(String fileName) {

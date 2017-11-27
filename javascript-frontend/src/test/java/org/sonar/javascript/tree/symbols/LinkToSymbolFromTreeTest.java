@@ -40,7 +40,6 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
 
@@ -50,7 +49,7 @@ public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
   public void setUp() throws Exception {
     InputFile file = TestUtils.createTestInputFile("src/test/resources/ast/resolve/symbols.js");
     ScriptTree ROOT_NODE = (ScriptTree) p.parse(file.contents());
-    new JavaScriptVisitorContext(ROOT_NODE, wrap(file), null);
+    new JavaScriptVisitorContext(ROOT_NODE, file, null);
     MODULE_ITEMS = (ROOT_NODE).items().items();
   }
 

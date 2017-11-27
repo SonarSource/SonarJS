@@ -40,7 +40,6 @@ import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class TestUtils {
 
@@ -65,7 +64,7 @@ public class TestUtils {
   private static JavaScriptVisitorContext createContext(InputFile file, ActionParser<Tree> parser) {
     try {
       ScriptTree scriptTree = (ScriptTree) parser.parse(file.contents());
-      return new JavaScriptVisitorContext(scriptTree, wrap(file), config());
+      return new JavaScriptVisitorContext(scriptTree, file, config());
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

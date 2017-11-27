@@ -34,27 +34,24 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
 
   private SensorContextTester sensorContext;
-  private CompatibleInputFile inputFile;
+  private DefaultInputFile inputFile;
 
   private NewSymbolTable newSymbolTable(String filename) throws FileNotFoundException {
     File moduleBaseDir = new File("src/test/resources/highlighter/");
     sensorContext = SensorContextTester.create(moduleBaseDir);
-    DefaultInputFile defaultInputFile = new TestInputFileBuilder("moduleKey", filename)
+    inputFile = new TestInputFileBuilder("moduleKey", filename)
       .setModuleBaseDir(moduleBaseDir.toPath())
       .setCharset(StandardCharsets.UTF_8).build();
-    inputFile = wrap(defaultInputFile);
-    defaultInputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), defaultInputFile.charset(), inputFile.absolutePath()));
+    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), inputFile.charset(), inputFile.absolutePath()));
 
-    return sensorContext.newSymbolTable().onFile(defaultInputFile);
+    return sensorContext.newSymbolTable().onFile(inputFile);
   }
 
   private static DefaultTextRange textRange(int line, int startColumn, int endColumn) {

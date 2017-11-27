@@ -23,11 +23,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.lexer.JavaScriptLexer;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
@@ -43,7 +43,7 @@ public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    JavaScriptFile javaScriptFile = getContext().getJavaScriptFile();
+    InputFile javaScriptFile = getContext().getJavaScriptFile();
     List<String> lines = CheckUtils.readLines(javaScriptFile);
 
     for (int i = 0; i < lines.size(); i++) {

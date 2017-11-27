@@ -36,14 +36,13 @@ import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class TestUtils {
 
   public static JavaScriptVisitorContext createContext(InputFile file) {
     try {
       ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser().parse(file.contents());
-      return new JavaScriptVisitorContext(scriptTree, wrap(file), new MapSettings().asConfig());
+      return new JavaScriptVisitorContext(scriptTree, file, new MapSettings().asConfig());
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

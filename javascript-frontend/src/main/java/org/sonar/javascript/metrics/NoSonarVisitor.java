@@ -22,7 +22,6 @@ package org.sonar.javascript.metrics;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
@@ -40,7 +39,7 @@ public class NoSonarVisitor extends DoubleDispatchVisitor {
   public void visitScript(ScriptTree tree) {
     CommentLineVisitor commentVisitor = new CommentLineVisitor(tree, ignoreHeaderComments);
 
-    InputFile inputFile = ((CompatibleInputFile) getContext().getJavaScriptFile()).wrapped();
+    InputFile inputFile = getContext().getJavaScriptFile();
     noSonarFilter.noSonarInFile(inputFile, commentVisitor.noSonarLines());
   }
 }

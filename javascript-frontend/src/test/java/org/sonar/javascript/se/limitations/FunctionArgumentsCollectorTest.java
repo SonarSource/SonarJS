@@ -29,7 +29,6 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 import static org.sonar.javascript.se.limitations.CrossProceduralLimitation.FunctionArgumentsCollector;
 
 public class FunctionArgumentsCollectorTest extends JavaScriptTreeModelTest {
@@ -38,7 +37,7 @@ public class FunctionArgumentsCollectorTest extends JavaScriptTreeModelTest {
 
   @Before
   public void setUp() throws Exception {
-    final JavaScriptVisitorContext context = context(wrap(TestUtils.createTestInputFile("src/test/resources/se/limitations/function_argument_collector.js")));
+    final JavaScriptVisitorContext context = context(TestUtils.createTestInputFile("src/test/resources/se/limitations/function_argument_collector.js"));
     topTree = context.getTopTree();
   }
 

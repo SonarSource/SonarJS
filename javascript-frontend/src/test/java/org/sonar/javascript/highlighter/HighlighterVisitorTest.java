@@ -44,7 +44,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
 
@@ -75,7 +74,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
       .setCharset(CHARSET)
       .initMetadata(text).build();
 
-    when(visitorContext.getJavaScriptFile()).thenReturn(wrap(inputFile));
+    when(visitorContext.getJavaScriptFile()).thenReturn(inputFile);
   }
 
   private void highlight(String string) throws Exception {

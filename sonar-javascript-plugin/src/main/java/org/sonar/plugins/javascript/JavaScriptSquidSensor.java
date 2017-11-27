@@ -52,12 +52,10 @@ import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.cpd.CpdVisitor;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
@@ -81,14 +79,9 @@ import org.sonar.plugins.javascript.minify.MinificationAssessor;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
-
 public class JavaScriptSquidSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptSquidSensor.class);
-
-  private static final Version V6_0 = Version.create(6, 0);
-  private static final Version V6_2 = Version.create(6, 2);
 
   private final JavaScriptChecks checks;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -125,14 +118,13 @@ public class JavaScriptSquidSensor implements Sensor {
 
   @VisibleForTesting
   protected void analyseFiles(
-    SensorContext context, List<TreeVisitor> treeVisitors, Iterable<CompatibleInputFile> inputFiles,
+    SensorContext context, List<TreeVisitor> treeVisitors, Iterable<InputFile> inputFiles,
     ProductDependentExecutor executor, ProgressReport progressReport
   ) {
     boolean success = false;
     try {
-      for (CompatibleInputFile inputFile : inputFiles) {
-        // check for cancellation of the analysis (by SonarQube or SonarLint). See SONARJS-761.
-        if (context.getSonarQubeVersion().isGreaterThanOrEqual(V6_0) && context.isCancelled()) {
+      for (InputFile inputFile : inputFiles) {
+        if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
         if (!isExcluded(inputFile)) {
@@ -157,9 +149,9 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void analyse(SensorContext sensorContext, CompatibleInputFile inputFile, ProductDependentExecutor executor, List<TreeVisitor> visitors) {
+  private void analyse(SensorContext sensorContext, InputFile inputFile, ProductDependentExecutor executor, List<TreeVisitor> visitors) {
     ActionParser<Tree> currentParser = this.parser;
-    if (inputFile.fileName().endsWith(".vue")) {
+    if (inputFile.filename().endsWith(".vue")) {
       currentParser = this.vueParser;
     }
 
@@ -170,13 +162,13 @@ public class JavaScriptSquidSensor implements Sensor {
       scanFile(sensorContext, inputFile, executor, visitors, scriptTree);
     } catch (RecognitionException e) {
       checkInterrupted(e);
-      LOG.error("Unable to parse file: " + inputFile.absolutePath());
+      LOG.error("Unable to parse file: " + inputFile.toString());
       LOG.error(e.getMessage());
       processRecognitionException(e, sensorContext, inputFile);
     } catch (Exception e) {
       checkInterrupted(e);
       processException(e, sensorContext, inputFile);
-      LOG.error("Unable to analyse file: " + inputFile.absolutePath(), e);
+      LOG.error("Unable to analyse file: " + inputFile.toString(), e);
     }
   }
 
@@ -187,13 +179,13 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void processRecognitionException(RecognitionException e, SensorContext sensorContext, CompatibleInputFile inputFile) {
+  private void processRecognitionException(RecognitionException e, SensorContext sensorContext, InputFile inputFile) {
     if (parsingErrorRuleKey != null) {
       NewIssue newIssue = sensorContext.newIssue();
 
       NewIssueLocation primaryLocation = newIssue.newLocation()
         .message(ParsingErrorCheck.MESSAGE)
-        .on(inputFile.wrapped())
+        .on(inputFile)
         .at(inputFile.selectLine(e.getLine()));
 
       newIssue
@@ -202,25 +194,22 @@ public class JavaScriptSquidSensor implements Sensor {
         .save();
     }
 
-    if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
-      sensorContext.newAnalysisError()
-        .onFile(inputFile.wrapped())
-        .at(inputFile.newPointer(e.getLine(), 0))
-        .message(e.getMessage())
-        .save();
-    }
+    sensorContext.newAnalysisError()
+      .onFile(inputFile)
+      .at(inputFile.newPointer(e.getLine(), 0))
+      .message(e.getMessage())
+      .save();
+
   }
 
-  private static void processException(Exception e, SensorContext sensorContext, CompatibleInputFile inputFile) {
-    if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
-      sensorContext.newAnalysisError()
-        .onFile(inputFile.wrapped())
-        .message(e.getMessage())
-        .save();
-    }
+  private static void processException(Exception e, SensorContext sensorContext, InputFile inputFile) {
+    sensorContext.newAnalysisError()
+      .onFile(inputFile)
+      .message(e.getMessage())
+      .save();
   }
 
-  private void scanFile(SensorContext sensorContext, CompatibleInputFile inputFile, ProductDependentExecutor executor, List<TreeVisitor> visitors, ScriptTree scriptTree) {
+  private void scanFile(SensorContext sensorContext, InputFile inputFile, ProductDependentExecutor executor, List<TreeVisitor> visitors, ScriptTree scriptTree) {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.config());
 
     List<Issue> fileIssues = new ArrayList<>();
@@ -233,8 +222,8 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    saveFileIssues(sensorContext, fileIssues, inputFile.wrapped());
-    executor.highlightSymbols(inputFile.wrapped(), context);
+    saveFileIssues(sensorContext, fileIssues, inputFile);
+    executor.highlightSymbols(inputFile, context);
   }
 
   private void saveFileIssues(SensorContext sensorContext, List<Issue> fileIssues, InputFile inputFile) {
@@ -290,10 +279,10 @@ public class JavaScriptSquidSensor implements Sensor {
     return ruleKey;
   }
 
-  public boolean isExcluded(CompatibleInputFile file) {
+  public boolean isExcluded(InputFile file) {
     boolean isMinified = new MinificationAssessor().isMinified(file);
     if (isMinified) {
-      LOG.debug("File [" + file.absolutePath() + "] looks like a minified file and will not be analyzed");
+      LOG.debug("File [" + file.toString() + "] looks like a minified file and will not be analyzed");
     }
     return isMinified;
   }
@@ -325,9 +314,9 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    Iterable<CompatibleInputFile> inputFiles = wrap(fileSystem.inputFiles(mainFilePredicate), context);
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate);
     Collection<File> files = StreamSupport.stream(inputFiles.spliterator(), false)
-      .map(CompatibleInputFile::file)
+      .map(InputFile::file)
       .collect(Collectors.toList());
 
     ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
@@ -354,13 +343,11 @@ public class JavaScriptSquidSensor implements Sensor {
     private final SensorContext context;
     private final NoSonarFilter noSonarFilter;
     private final FileLinesContextFactory fileLinesContextFactory;
-    private final boolean isAtLeastSq62;
 
     SonarQubeProductExecutor(SensorContext context, NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory) {
       this.context = context;
       this.noSonarFilter = noSonarFilter;
       this.fileLinesContextFactory = fileLinesContextFactory;
-      this.isAtLeastSq62 = context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2);
     }
 
     @Override
@@ -370,8 +357,7 @@ public class JavaScriptSquidSensor implements Sensor {
       MetricsVisitor metricsVisitor = new MetricsVisitor(
         context,
         ignoreHeaderComments,
-        fileLinesContextFactory,
-        isAtLeastSq62);
+        fileLinesContextFactory);
 
       return Arrays.asList(
         metricsVisitor,
@@ -413,7 +399,7 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   private static boolean isSonarLint(SensorContext context) {
-    return context.getSonarQubeVersion().isGreaterThanOrEqual(V6_0) && context.runtime().getProduct() == SonarProduct.SONARLINT;
+    return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
   private static void saveLineIssue(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, LineIssue issue) {

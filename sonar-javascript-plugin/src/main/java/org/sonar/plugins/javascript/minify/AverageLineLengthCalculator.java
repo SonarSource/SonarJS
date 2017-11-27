@@ -20,8 +20,8 @@
 package org.sonar.plugins.javascript.minify;
 
 import java.util.List;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.compat.CompatibleInputFile;
 
 /**
  * An instance of this class computes the average line length of file.
@@ -33,7 +33,7 @@ import org.sonar.javascript.compat.CompatibleInputFile;
  */
 class AverageLineLengthCalculator {
 
-  private CompatibleInputFile file;
+  private InputFile file;
 
   private boolean isAtFirstLine = true;
 
@@ -41,7 +41,7 @@ class AverageLineLengthCalculator {
 
   private boolean isClike = false;
 
-  public AverageLineLengthCalculator(CompatibleInputFile file) {
+  public AverageLineLengthCalculator(InputFile file) {
     this.file = file;
   }
 

@@ -27,7 +27,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class AverageLineLengthCalculatorTest {
 
@@ -76,7 +75,7 @@ public class AverageLineLengthCalculatorTest {
       .setModuleBaseDir(Paths.get(""))
       .setCharset(StandardCharsets.UTF_8)
       .build();
-    AverageLineLengthCalculator calc = new AverageLineLengthCalculator(wrap(file));
+    AverageLineLengthCalculator calc = new AverageLineLengthCalculator(file);
     assertThat(calc.getAverageLineLength()).isEqualTo(expectedAverage);
   }
 

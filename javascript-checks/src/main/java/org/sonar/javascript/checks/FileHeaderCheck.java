@@ -19,17 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
-import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 
 @Rule(key = "S1451")
 public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
@@ -67,7 +68,7 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     if (expectedLines == null) {
       expectedLines = headerFormat.split("(?:\r)?\n|\r");
     }
-    JavaScriptFile file = getContext().getJavaScriptFile();
+    InputFile file = getContext().getJavaScriptFile();
     List<String> lines = CheckUtils.readLines(file);
     if (!matches(expectedLines, lines)) {
       addIssue(new FileIssue(this, MESSAGE));
@@ -82,7 +83,12 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
         throw new IllegalArgumentException("[" + getClass().getSimpleName() + "] Unable to compile the regular expression: " + headerFormat, e);
       }
     }
-    String fileContent = getContext().getJavaScriptFile().contents();
+    String fileContent;
+    try {
+      fileContent = getContext().getJavaScriptFile().contents();
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to read file " + getContext().getJavaScriptFile().toString(), e);
+    }
 
     Matcher matcher = searchPattern.matcher(fileContent);
     if (!matcher.find() || matcher.start() != 0) {

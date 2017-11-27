@@ -20,9 +20,9 @@
 package org.sonar.javascript.tree.symbols;
 
 import org.junit.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.javascript.utils.TestUtils;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -30,11 +30,10 @@ import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
-  private static final CompatibleInputFile INPUT_FILE = wrap(TestUtils.createTestInputFile("src/test/resources/ast/resolve/symbolModel.js"));
+  private static final InputFile INPUT_FILE = TestUtils.createTestInputFile("src/test/resources/ast/resolve/symbolModel.js");
   private SymbolModelImpl SYMBOL_MODEL = symbolModel(INPUT_FILE);
 
   @Test
