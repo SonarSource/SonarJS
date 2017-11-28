@@ -81,12 +81,13 @@ public class JavaScriptPlugin implements Plugin {
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(TEST_AND_COVERAGE)
         .category(JAVASCRIPT_CATEGORY)
+        .multiValues(true)
         .build(),
 
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
         .defaultValue(FILE_SUFFIXES_DEFVALUE)
         .name("File Suffixes")
-        .description("Comma-separated list of suffixes for files to analyze.")
+        .description("List of suffixes for files to analyze.")
         .subCategory(GENERAL)
         .category(JAVASCRIPT_CATEGORY)
         .multiValues(true)

@@ -20,11 +20,11 @@
 package org.sonar.javascript.checks;
 
 import java.util.List;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 
 @Rule(key = "TabCharacter")
@@ -34,7 +34,7 @@ public class TabCharacterCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    InputFile javaScriptFile = getContext().getJavaScriptFile();
+    JavaScriptFile javaScriptFile = getContext().getJavaScriptFile();
     List<String> lines = CheckUtils.readLines(javaScriptFile);
 
     for (int i = 0; i < lines.size(); i++) {

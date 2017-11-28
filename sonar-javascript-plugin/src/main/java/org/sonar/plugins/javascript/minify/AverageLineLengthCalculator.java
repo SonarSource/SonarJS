@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.minify;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.visitors.JavaScriptFileImpl;
 
 /**
  * An instance of this class computes the average line length of file.
@@ -49,7 +50,7 @@ class AverageLineLengthCalculator {
     long nbLines = 0;
     long nbCharacters = 0;
 
-    List<String> lines = CheckUtils.readLines(file);
+    List<String> lines = CheckUtils.readLines(new JavaScriptFileImpl(file));
 
     for (String line : lines) {
       if (!isLineInHeaderComment(line)) {

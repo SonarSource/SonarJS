@@ -17,29 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.visitors;
+package org.sonar.javascript.visitors;
 
 import java.io.IOException;
 import java.net.URI;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 
-public interface JavaScriptFile {
+public class JavaScriptFileImpl implements JavaScriptFile {
 
-  /**
-   * @deprecated since 4.0, use {@link JavaScriptFile#fileName()} or {@link JavaScriptFile#uri()}
-   */
-  @Deprecated
-  String relativePath();
+  private InputFile inputFile;
 
-  /**
-   * File name with extension
-   */
-  String fileName();
+  public JavaScriptFileImpl(InputFile inputFile) {
+    this.inputFile = inputFile;
+  }
 
-  String contents() throws IOException;
+  @Override
+  public String relativePath() {
+    return inputFile.relativePath();
+  }
 
-  /**
-   * Identifier of the file. The only guarantee is that it is unique in the project.
-   * You should not assume it is a file:// URI.
-   */
-  URI uri();
+  @Override
+  public String fileName() {
+    return inputFile.filename();
+  }
+
+  @Override
+  public String contents() throws IOException {
+    return inputFile.contents();
+  }
+
+  @Override
+  public URI uri() {
+    return inputFile.uri();
+  }
+
+  public InputFile inputFile() {
+    return inputFile;
+  }
 }

@@ -162,13 +162,13 @@ public class JavaScriptSquidSensor implements Sensor {
       scanFile(sensorContext, inputFile, executor, visitors, scriptTree);
     } catch (RecognitionException e) {
       checkInterrupted(e);
-      LOG.error("Unable to parse file: " + inputFile.toString());
+      LOG.error("Unable to parse file: " + inputFile.uri());
       LOG.error(e.getMessage());
       processRecognitionException(e, sensorContext, inputFile);
     } catch (Exception e) {
       checkInterrupted(e);
       processException(e, sensorContext, inputFile);
-      LOG.error("Unable to analyse file: " + inputFile.toString(), e);
+      LOG.error("Unable to analyse file: " + inputFile.uri(), e);
     }
   }
 
@@ -282,7 +282,7 @@ public class JavaScriptSquidSensor implements Sensor {
   public boolean isExcluded(InputFile file) {
     boolean isMinified = new MinificationAssessor().isMinified(file);
     if (isMinified) {
-      LOG.debug("File [" + file.toString() + "] looks like a minified file and will not be analyzed");
+      LOG.debug("File [" + file.uri() + "] looks like a minified file and will not be analyzed");
     }
     return isMinified;
   }

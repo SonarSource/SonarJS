@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -38,6 +37,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 
 public class CheckUtils {
 
@@ -130,7 +130,7 @@ public class CheckUtils {
     return null;
   }
 
-  public static List<String> readLines(InputFile file) {
+  public static List<String> readLines(JavaScriptFile file) {
     try (BufferedReader reader = newBufferedReader(file)) {
       return reader.lines().collect(Collectors.toList());
 
@@ -139,7 +139,7 @@ public class CheckUtils {
     }
   }
 
-  private static BufferedReader newBufferedReader(InputFile file) throws IOException {
+  private static BufferedReader newBufferedReader(JavaScriptFile file) throws IOException {
     return new BufferedReader(new StringReader(file.contents()));
   }
 

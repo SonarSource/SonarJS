@@ -34,6 +34,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.Version;
 import org.sonar.javascript.tree.KindSet;
+import org.sonar.javascript.visitors.JavaScriptFileImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
@@ -102,7 +103,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    this.inputFile = getContext().getJavaScriptFile();
+    this.inputFile = ((JavaScriptFileImpl) getContext().getJavaScriptFile()).inputFile();
     init();
   }
 

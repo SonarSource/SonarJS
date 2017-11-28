@@ -21,12 +21,14 @@ package org.sonar.javascript.highlighter;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.visitors.JavaScriptFileImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
@@ -69,7 +71,8 @@ public class HighlighterVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    highlighting = sensorContext.newHighlighting().onFile(getContext().getJavaScriptFile());
+    InputFile inputFile = ((JavaScriptFileImpl) getContext().getJavaScriptFile()).inputFile();
+    highlighting = sensorContext.newHighlighting().onFile(inputFile);
   }
 
   @Override

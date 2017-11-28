@@ -198,7 +198,7 @@ public class JavaScriptSquidSensorTest {
     createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(file), executor, progressReport);
     assertThat(context.allAnalysisErrors()).hasSize(1);
 
-    assertThat(logTester.logs()).contains("Unable to analyse file: " + file.toString());
+    assertThat(logTester.logs()).contains("Unable to analyse file: " + file.uri());
   }
 
   @Test
