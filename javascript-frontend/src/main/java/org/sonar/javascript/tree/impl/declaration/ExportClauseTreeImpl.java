@@ -32,20 +32,22 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClauseTree {
 
+  private final SyntaxToken flowTypeToken;
   private final NamedImportExportClauseTree exports;
   private final FromClauseTree fromClause;
   private final SyntaxToken semicolonToken;
 
-  public ExportClauseTreeImpl(NamedImportExportClauseTree exports, @Nullable SyntaxToken semicolonToken) {
-    this.exports = exports;
-    this.fromClause = null;
-    this.semicolonToken = semicolonToken;
-  }
-
-  public ExportClauseTreeImpl(NamedImportExportClauseTree exports, FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken) {
+  public ExportClauseTreeImpl(@Nullable SyntaxToken flowTypeToken, NamedImportExportClauseTree exports, @Nullable FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken) {
+    this.flowTypeToken = flowTypeToken;
     this.exports = exports;
     this.fromClause = fromClause;
     this.semicolonToken = semicolonToken;
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken flowTypeToken() {
+    return flowTypeToken;
   }
 
   @Override
@@ -72,7 +74,7 @@ public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClause
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(exports, fromClause, semicolonToken);
+    return Iterators.forArray(flowTypeToken, exports, fromClause, semicolonToken);
   }
 
   @Override

@@ -42,7 +42,7 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
   private final SyntaxToken semicolonToken;
 
   public NameSpaceExportDeclarationTreeImpl(
-    InternalSyntaxToken exportToken, SyntaxToken flowTypeKeywordToken, InternalSyntaxToken starToken,
+    InternalSyntaxToken exportToken, @Nullable SyntaxToken flowTypeKeywordToken, InternalSyntaxToken starToken,
     @Nullable InternalSyntaxToken asToken, @Nullable IdentifierTree synonymIdentifier,
     FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken
   ) {

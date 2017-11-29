@@ -71,6 +71,8 @@ public class ExportDeclarationTest {
       // star
       .matches("export type * from \"bar\"")
 
+      .matches("export type { Foo, Bar }")
+      .matches("export type { Foo, Bar as Bar2 } from 'myModule'")
     ;
   }
 
