@@ -1229,6 +1229,7 @@ public class JavaScriptGrammar {
   public ExportClauseTree EXPORT_CLAUSE() {
     return b.<ExportClauseTree>nonterminal(Kind.EXPORT_CLAUSE)
       .is(f.exportClause(
+        b.optional(b.token(EcmaScriptLexer.TYPE)),
         EXPORT_LIST(),
         b.optional(FROM_CLAUSE()),
         b.token(EcmaScriptLexer.EOS)));

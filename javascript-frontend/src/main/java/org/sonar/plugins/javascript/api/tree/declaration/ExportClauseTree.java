@@ -34,6 +34,9 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface ExportClauseTree extends Tree {
 
+  @Nullable
+  SyntaxToken flowTypeToken();
+
   NamedImportExportClauseTree exports();
 
   @Nullable

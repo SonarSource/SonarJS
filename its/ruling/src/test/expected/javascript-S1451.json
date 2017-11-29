@@ -1337,6 +1337,12 @@
 'project:babylon/test/fixtures/flow/type-exports/interface/actual.js':[
 0,
 ],
+'project:babylon/test/fixtures/flow/type-exports/specifier-from/actual.js':[
+0,
+],
+'project:babylon/test/fixtures/flow/type-exports/specifier/actual.js':[
+0,
+],
 'project:babylon/test/fixtures/flow/type-exports/star-as-from/actual.js':[
 0,
 ],

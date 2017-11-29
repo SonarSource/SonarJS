@@ -1214,14 +1214,18 @@ public class TreeFactory {
       asToken = nameSpaceExport.get().first;
       synonymIdentifier = nameSpaceExport.get().second;
     }
-    return new NameSpaceExportDeclarationTreeImpl(exportToken, flowTypeKeywordToken.orNull(), starToken, asToken, synonymIdentifier, fromClause, nullableSemicolonToken(semicolonToken));
+    return new NameSpaceExportDeclarationTreeImpl(
+      exportToken,
+      flowTypeKeywordToken.orNull(),
+      starToken, asToken, synonymIdentifier,
+      fromClause, nullableSemicolonToken(semicolonToken));
   }
 
-  public ExportClauseTree exportClause(NamedImportExportClauseTree exportList, Optional<FromClauseTree> fromClause, Tree semicolonToken) {
-    if (fromClause.isPresent()) {
-      return new ExportClauseTreeImpl(exportList, fromClause.get(), nullableSemicolonToken(semicolonToken));
-    }
-    return new ExportClauseTreeImpl(exportList, nullableSemicolonToken(semicolonToken));
+  public ExportClauseTree exportClause(
+    Optional<InternalSyntaxToken> flowTypeKeywordToken,
+    NamedImportExportClauseTree exportList, Optional<FromClauseTree> fromClause, Tree semicolonToken
+  ) {
+    return new ExportClauseTreeImpl(flowTypeKeywordToken.orNull(), exportList, fromClause.orNull(), nullableSemicolonToken(semicolonToken));
   }
 
   public ExportDefaultBinding exportDefaultBinding(IdentifierTree identifierTree, FromClauseTree fromClauseTree, Tree semicolonToken) {

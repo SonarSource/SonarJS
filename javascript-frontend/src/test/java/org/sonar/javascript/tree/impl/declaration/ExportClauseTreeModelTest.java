@@ -46,10 +46,19 @@ public class ExportClauseTreeModelTest extends JavaScriptTreeModelTest {
     ExportClauseTree tree = parse("export { } ;", Kind.EXPORT_CLAUSE);
 
     assertThat(tree.is(Kind.EXPORT_CLAUSE)).isTrue();
+    assertThat(tree.flowTypeToken()).isNull();
     assertThat(tree.exports()).isNotNull();
     assertThat(expressionToString(tree.exports())).isEqualTo("{ }");
     assertThat(tree.fromClause()).isNull();
     assertThat(tree.semicolonToken()).isNotNull();
+  }
+
+  @Test
+  public void flow_syntax() throws Exception {
+    ExportClauseTree tree = parse("export type { Foo } from 'bar' ;", Kind.EXPORT_CLAUSE);
+
+    assertThat(tree.is(Kind.EXPORT_CLAUSE)).isTrue();
+    assertThat(tree.flowTypeToken()).isNotNull();
   }
 
 }

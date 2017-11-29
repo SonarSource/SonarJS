@@ -1839,6 +1839,9 @@
 'project:babylon/test/fixtures/flow/type-annotations/with-default-valid/actual.js':[
 1,
 ],
+'project:babylon/test/fixtures/flow/type-exports/specifier-from/actual.js':[
+1,
+],
 'project:babylon/test/fixtures/flow/type-exports/star-as-from/actual.js':[
 1,
 ],
