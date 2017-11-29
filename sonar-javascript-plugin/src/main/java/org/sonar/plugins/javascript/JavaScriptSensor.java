@@ -79,9 +79,9 @@ import org.sonar.plugins.javascript.minify.MinificationAssessor;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
-public class JavaScriptSquidSensor implements Sensor {
+public class JavaScriptSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(JavaScriptSquidSensor.class);
+  private static final Logger LOG = Loggers.get(JavaScriptSensor.class);
 
   private final JavaScriptChecks checks;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -93,12 +93,12 @@ public class JavaScriptSquidSensor implements Sensor {
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
 
-  public JavaScriptSquidSensor(
+  public JavaScriptSensor(
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter) {
     this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, null);
   }
 
-  public JavaScriptSquidSensor(
+  public JavaScriptSensor(
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
     @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition
   ) {
@@ -291,7 +291,7 @@ public class JavaScriptSquidSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguage(JavaScriptLanguage.KEY)
-      .name("JavaScript Squid Sensor")
+      .name("SonarJS")
       .onlyOnFileType(Type.MAIN);
   }
 

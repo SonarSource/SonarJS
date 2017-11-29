@@ -67,7 +67,7 @@ public class JavaScriptPlugin implements Plugin {
   public void define(Context context) {
     context.addExtensions(
       JavaScriptLanguage.class,
-      JavaScriptSquidSensor.class,
+      JavaScriptSensor.class,
       JavaScriptExclusionsFileFilter.class,
       new JavaScriptRulesDefinition(context.getSonarQubeVersion()),
       SonarWayRecommendedProfile.class,

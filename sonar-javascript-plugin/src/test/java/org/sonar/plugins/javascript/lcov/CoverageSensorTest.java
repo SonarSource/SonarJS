@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
@@ -144,5 +145,16 @@ public class CoverageSensorTest {
     assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException: String index out of range: -1).");
     assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: 3).");
   }
+
+  @Test
+  public void should_contain_sensor_descriptor() {
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
+
+    coverageSensor.describe(descriptor);
+    assertThat(descriptor.name()).isEqualTo("SonarJS Coverage");
+    assertThat(descriptor.languages()).containsOnly("js");
+    assertThat(descriptor.type()).isEqualTo(Type.MAIN);
+  }
+
 
 }

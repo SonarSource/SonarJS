@@ -39,9 +39,9 @@ import org.sonar.wsclient.SonarClient;
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JavaScriptTest {
+public class JavaScriptRulingTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
   private static final Gson GSON = new Gson();
 
   private static final String PROJECT_KEY = "project";

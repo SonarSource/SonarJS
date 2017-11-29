@@ -58,8 +58,8 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.JavaScriptSquidSensor.ProductDependentExecutor;
-import org.sonar.plugins.javascript.JavaScriptSquidSensor.SonarLintProductExecutor;
+import org.sonar.plugins.javascript.JavaScriptSensor.ProductDependentExecutor;
+import org.sonar.plugins.javascript.JavaScriptSensor.SonarLintProductExecutor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -77,7 +77,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class JavaScriptSquidSensorTest {
+public class JavaScriptSensorTest {
 
   private static final Version VERSION = Version.create(6, 7);
   private static final SonarRuntime SONARLINT_RUNTIME = SonarRuntimeImpl.forSonarLint(VERSION);
@@ -113,8 +113,8 @@ public class JavaScriptSquidSensorTest {
   private SensorContextTester context = SensorContextTester.create(baseDir);
   private ProductDependentExecutor executor = new SonarLintProductExecutor(new NoSonarFilter(), context);
 
-  private JavaScriptSquidSensor createSensor() {
-    return new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(), CUSTOM_RULES);
+  private JavaScriptSensor createSensor() {
+    return new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(), CUSTOM_RULES);
   }
 
   @Before
@@ -129,7 +129,7 @@ public class JavaScriptSquidSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     createSensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("JavaScript Squid Sensor");
+    assertThat(descriptor.name()).isEqualTo("SonarJS");
     assertThat(descriptor.languages()).containsOnly("js");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
   }
@@ -296,7 +296,7 @@ public class JavaScriptSquidSensorTest {
   @Test
   public void should_cancel_progress_report_and_return_with_no_exception_when_context_cancelled() {
     JavaScriptCheck check = new DoubleDispatchVisitorCheck() {};
-    JavaScriptSquidSensor sensor = createSensor();
+    JavaScriptSensor sensor = createSensor();
     SensorContextTester cancelledContext = SensorContextTester.create(baseDir);
     cancelledContext.setCancelled(true);
     sensor.analyseFiles(cancelledContext, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile("cpd/Person.js")), executor, progressReport);
@@ -354,7 +354,7 @@ public class JavaScriptSquidSensorTest {
   }
 
   private void analyseFileWithException(JavaScriptCheck check, InputFile inputFile, String expectedMessageSubstring) {
-    JavaScriptSquidSensor sensor = createSensor();
+    JavaScriptSensor sensor = createSensor();
     thrown.expect(AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
     try {

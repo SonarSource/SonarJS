@@ -44,7 +44,7 @@ public class CoverageSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguage(JavaScriptLanguage.KEY)
-      .name("JavaScript Coverage Sensor")
+      .name("SonarJS Coverage")
       .onlyOnFileType(Type.MAIN);
   }
 
