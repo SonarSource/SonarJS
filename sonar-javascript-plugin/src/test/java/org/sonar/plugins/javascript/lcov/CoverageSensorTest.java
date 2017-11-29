@@ -23,7 +23,6 @@ import com.google.common.base.Charsets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
@@ -31,6 +30,7 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
@@ -45,7 +45,7 @@ public class CoverageSensorTest {
   private SensorContextTester context;
   private MapSettings settings;
 
-  private LCOVCoverageSensor coverageSensor = new LCOVCoverageSensor();
+  private CoverageSensor coverageSensor = new CoverageSensor();
   private File moduleBaseDir = new File("src/test/resources/coverage/").getAbsoluteFile();
 
   @org.junit.Rule
@@ -58,8 +58,8 @@ public class CoverageSensorTest {
     context = SensorContextTester.create(moduleBaseDir);
     context.setSettings(settings);
 
-    InputFile inputFile1 = inputFile("file1.js", Type.MAIN);
-    InputFile inputFile2 = inputFile("file2.js", Type.MAIN);
+    inputFile("file1.js", Type.MAIN);
+    inputFile("file2.js", Type.MAIN);
     inputFile("tests/file1.js", Type.TEST);
   }
 
@@ -131,14 +131,6 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void test_report_paths_parsing() throws Exception {
-    assertThat(parsePaths("")).isEmpty();
-    assertThat(parsePaths(" a , ")).containsOnly("a");
-    assertThat(parsePaths("a , b, d,e")).containsOnly("a", "b", "d", "e");
-    assertThat(parsePaths("a/b/c.bar, d/e.foo")).containsOnly("a/b/c.bar", "d/e.foo");
-  }
-
-  @Test
   public void should_log_warning_when_wrong_data() throws Exception {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "reports/wrong_data_report.lcov");
     coverageSensor.execute(context);
@@ -154,9 +146,15 @@ public class CoverageSensorTest {
     assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: 3).");
   }
 
-  private List<String> parsePaths(String input) {
-    settings = new MapSettings().setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, input);
-    context.setSettings(settings);
-    return coverageSensor.parseReportsProperty(context);
+  @Test
+  public void should_contain_sensor_descriptor() {
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
+
+    coverageSensor.describe(descriptor);
+    assertThat(descriptor.name()).isEqualTo("SonarJS Coverage");
+    assertThat(descriptor.languages()).containsOnly("js");
+    assertThat(descriptor.type()).isEqualTo(Type.MAIN);
   }
+
+
 }

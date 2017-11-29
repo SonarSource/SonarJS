@@ -19,13 +19,11 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -39,47 +37,21 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-/**
- * When upgraded to API SQ LTS 6.x we should be able to remove all classes inheriting from this one
- */
-public class LCOVCoverageSensor implements Sensor {
-  private static final Logger LOG = Loggers.get(LCOVCoverageSensor.class);
-
-  @VisibleForTesting
-  protected List<String> parseReportsProperty(SensorContext context) {
-    List<String> reportPaths = new ArrayList<>();
-
-    Optional<String> value = context.config().get(JavaScriptPlugin.LCOV_REPORT_PATHS);
-    value.ifPresent(s -> reportPaths.addAll(parseReportsProperty(s)));
-
-    return reportPaths;
-  }
-
-  /**
-   * Returns list of paths provided by "propertyValue" (divided by comma)
-   */
-  private static List<String> parseReportsProperty(String propertyValue) {
-    List<String> reportPaths = new ArrayList<>();
-    for (String path : propertyValue.split(",")) {
-      if (!path.trim().isEmpty()) {
-        reportPaths.add(path.trim());
-      }
-    }
-
-    return reportPaths;
-  }
+public class CoverageSensor implements Sensor {
+  private static final Logger LOG = Loggers.get(CoverageSensor.class);
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguage(JavaScriptLanguage.KEY)
-      .name("JavaScript Coverage Sensor")
+      .name("SonarJS Coverage")
       .onlyOnFileType(Type.MAIN);
   }
 
   @Override
   public void execute(SensorContext context) {
-    List<String> reportPaths = parseReportsProperty(context);
+    String[] reports = context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS);
+    List<String> reportPaths = Lists.newArrayList(reports);
 
     if (!reportPaths.isEmpty()) {
       saveMeasureFromLCOVFile(context, reportPaths);

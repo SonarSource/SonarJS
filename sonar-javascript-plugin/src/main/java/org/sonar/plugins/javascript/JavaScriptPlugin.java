@@ -26,7 +26,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
-import org.sonar.plugins.javascript.lcov.LCOVCoverageSensor;
+import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
 public class JavaScriptPlugin implements Plugin {
@@ -67,7 +67,7 @@ public class JavaScriptPlugin implements Plugin {
   public void define(Context context) {
     context.addExtensions(
       JavaScriptLanguage.class,
-      JavaScriptSquidSensor.class,
+      JavaScriptSensor.class,
       JavaScriptExclusionsFileFilter.class,
       new JavaScriptRulesDefinition(context.getSonarQubeVersion()),
       SonarWayRecommendedProfile.class,
@@ -147,7 +147,7 @@ public class JavaScriptPlugin implements Plugin {
     );
 
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
-      context.addExtension(LCOVCoverageSensor.class);
+      context.addExtension(CoverageSensor.class);
     }
 
   }

@@ -39,9 +39,9 @@ import org.sonar.wsclient.SonarClient;
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JavaScriptTest {
+public class JavaScriptRulingTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
   private static final Gson GSON = new Gson();
 
   private static final String PROJECT_KEY = "project";
@@ -75,7 +75,6 @@ public class JavaScriptTest {
       .setSourceDirs("./")
       .setSourceEncoding("utf-8")
       .setProperty("sonar.analysis.mode", "preview")
-      .setProperty("sonar.issuesReport.html.enable", "true")
       .setProperty("dump.old", FileLocation.of("src/test/expected").getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
