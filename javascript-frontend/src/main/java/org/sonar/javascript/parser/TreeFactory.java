@@ -1785,7 +1785,7 @@ public class TreeFactory {
   }
 
   public ScriptVueElement scriptVueElement(
-    InternalSyntaxToken scriptOpenTag,
+    VueScriptTag scriptOpenTag,
     Optional<InternalSyntaxToken> shebangToken, Optional<ModuleTree> items,
     InternalSyntaxToken scriptCloseTag
   ) {
@@ -2118,6 +2118,10 @@ public class TreeFactory {
     return new FlowImplementsClauseTreeImpl(implementsToken, parameterList(first, rest));
   }
 
+  public VueScriptTag vueScriptTag(InternalSyntaxToken token, Optional<List<JsxAttributeTree>> optional, InternalSyntaxToken token1) {
+    return new VueScriptTag();
+  }
+
   private static class ConditionalExpressionTail {
     InternalSyntaxToken queryToken;
     ExpressionTree trueExpr;
@@ -2172,6 +2176,10 @@ public class TreeFactory {
       this.identifierTree = identifierTree;
     }
   }
+
+  static class VueScriptTag {
+  }
+
 
   static class VueElement {
   }

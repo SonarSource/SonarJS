@@ -28,6 +28,7 @@ import org.sonar.javascript.parser.TreeFactory.BracketAccessTail;
 import org.sonar.javascript.parser.TreeFactory.DotAccessTail;
 import org.sonar.javascript.parser.TreeFactory.ExpressionTail;
 import org.sonar.javascript.parser.TreeFactory.VueElement;
+import org.sonar.javascript.parser.TreeFactory.VueScriptTag;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -1760,10 +1761,21 @@ public class JavaScriptGrammar {
         f.vueElement(b.token(EcmaScriptLexer.VUE_TEMPLATE_SECTION)),
         f.vueElement(b.token(EcmaScriptLexer.VUE_STYLE_SECTION)),
         f.scriptVueElement(
-          b.token(EcmaScriptLexer.SCRIPT_TAG),
+          VUE_SCRIPT_TAG(),
           b.optional(b.token(EcmaScriptLexer.SHEBANG)),
           b.optional(MODULE_BODY()),
           b.token(EcmaScriptLexer.SCRIPT_TAG_CLOSE))));
+  }
+
+  public VueScriptTag VUE_SCRIPT_TAG() {
+    return b.<VueScriptTag>nonterminal()
+      .is(f.vueScriptTag(
+        b.token(EcmaScriptLexer.SCRIPT_TAG),
+        // reuse of JSX attributes just to not reimplement xml attributes
+        // it will not appear in final syntax tree
+        b.optional(JSX_ATTRIBUTES()),
+        b.token(JavaScriptPunctuator.GT)
+      ));
   }
 
   // [START] FLOW
