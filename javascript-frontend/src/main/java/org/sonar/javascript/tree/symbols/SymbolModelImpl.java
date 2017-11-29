@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.javascript.tree.symbols.type.TypeVisitor;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
@@ -38,12 +38,12 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   private Set<Scope> scopes = new HashSet<>();
   private Scope globalScope;
 
-  public static void build(TreeVisitorContext context, @Nullable Settings settings) {
+  public static void build(TreeVisitorContext context, @Nullable Configuration configuration) {
     Map<Tree, Scope> treeScopeMap = getScopes(context);
 
-    new HoistedSymbolVisitor(treeScopeMap, settings).scanTree(context);
+    new HoistedSymbolVisitor(treeScopeMap, configuration).scanTree(context);
     new SymbolVisitor(treeScopeMap).scanTree(context);
-    new TypeVisitor(settings).scanTree(context);
+    new TypeVisitor(configuration).scanTree(context);
   }
 
   private static Map<Tree, Scope> getScopes(TreeVisitorContext context) {

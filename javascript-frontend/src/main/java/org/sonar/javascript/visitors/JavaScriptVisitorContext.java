@@ -19,9 +19,8 @@
  */
 package org.sonar.javascript.visitors;
 
-import java.io.File;
-import org.sonar.api.config.Settings;
-import org.sonar.javascript.compat.CompatibleInputFile;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.config.Configuration;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -31,15 +30,15 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 public class JavaScriptVisitorContext implements TreeVisitorContext {
 
   private final ScriptTree tree;
-  private final CompatibleInputFile compatibleInputFile;
+  private final JavaScriptFile javaScriptFile;
   private final SymbolModel symbolModel;
 
-  public JavaScriptVisitorContext(ScriptTree tree, CompatibleInputFile compatibleInputFile, Settings settings) {
+  public JavaScriptVisitorContext(ScriptTree tree, InputFile inputFile, Configuration configuration) {
     this.tree = tree;
-    this.compatibleInputFile = compatibleInputFile;
+    this.javaScriptFile = new JavaScriptFileImpl(inputFile);
 
     this.symbolModel = new SymbolModelImpl();
-    SymbolModelImpl.build(this, settings);
+    SymbolModelImpl.build(this, configuration);
   }
 
   @Override
@@ -49,16 +48,11 @@ public class JavaScriptVisitorContext implements TreeVisitorContext {
 
   @Override
   public JavaScriptFile getJavaScriptFile() {
-    return compatibleInputFile;
+    return javaScriptFile;
   }
 
   @Override
   public SymbolModel getSymbolModel() {
     return symbolModel;
-  }
-
-  @Override
-  public File getFile() {
-    return compatibleInputFile.file();
   }
 }

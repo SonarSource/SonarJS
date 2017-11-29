@@ -33,8 +33,8 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.Version;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.tree.KindSet;
+import org.sonar.javascript.visitors.JavaScriptFileImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
@@ -51,7 +51,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
   };
 
   private final SensorContext sensorContext;
-  private final boolean saveExecutableLines;
   private InputFile inputFile;
   private final Boolean ignoreHeaderComments;
   private FileLinesContextFactory fileLinesContextFactory;
@@ -62,12 +61,11 @@ public class MetricsVisitor extends SubscriptionVisitor {
   private RangeDistributionBuilder functionComplexityDistribution;
   private RangeDistributionBuilder fileComplexityDistribution;
 
-  public MetricsVisitor(SensorContext context, Boolean ignoreHeaderComments, FileLinesContextFactory fileLinesContextFactory, boolean saveExecutableLines) {
+  public MetricsVisitor(SensorContext context, Boolean ignoreHeaderComments, FileLinesContextFactory fileLinesContextFactory) {
     this.sensorContext = context;
     this.ignoreHeaderComments = ignoreHeaderComments;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.projectExecutableLines = new HashMap<>();
-    this.saveExecutableLines = saveExecutableLines;
   }
 
   /**
@@ -105,7 +103,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    this.inputFile = ((CompatibleInputFile) getContext().getJavaScriptFile()).wrapped();
+    this.inputFile = ((JavaScriptFileImpl) getContext().getJavaScriptFile()).inputFile();
     init();
   }
 
@@ -169,9 +167,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
     Set<Integer> executableLines = new ExecutableLineVisitor(context.getTopTree()).getExecutableLines();
     projectExecutableLines.put(inputFile, executableLines);
 
-    if (saveExecutableLines) {
-      executableLines.stream().forEach(line -> fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1));
-    }
+    executableLines.stream().forEach(line -> fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1));
     fileLinesContext.save();
   }
 

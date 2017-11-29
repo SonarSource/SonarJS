@@ -31,6 +31,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.javascript.visitors.JavaScriptFileImpl;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +40,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class MetricsVisitorTest extends JavaScriptTreeModelTest {
 
@@ -62,32 +62,27 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
     context.fileSystem().add(INPUT_FILE);
     linesContext = mock(FileLinesContext.class);
     treeVisitorContext = mock(TreeVisitorContext.class);
-    when(treeVisitorContext.getJavaScriptFile()).thenReturn(wrap(INPUT_FILE));
+    when(treeVisitorContext.getJavaScriptFile()).thenReturn(new JavaScriptFileImpl(INPUT_FILE));
     when(treeVisitorContext.getTopTree()).thenReturn(parse(INPUT_FILE.file()));
   }
 
   @Test
   public void test() {
-    MetricsVisitor metricsVisitor = createMetricsVisitor(false);
+    MetricsVisitor metricsVisitor = createMetricsVisitor();
     metricsVisitor.scanTree(treeVisitorContext);
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.STATEMENTS).value()).isEqualTo(1);
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.CLASSES).value()).isEqualTo(0);
 
     assertThat(metricsVisitor.executableLines().get(INPUT_FILE)).containsOnly(3);
-  }
 
-  @Test
-  public void save_executable_lines() {
-    final MetricsVisitor metricsVisitorWithSave = createMetricsVisitor(true);
-    metricsVisitorWithSave.scanTree(treeVisitorContext);
     Mockito.verify(linesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.EXECUTABLE_LINES_DATA_KEY), any(Integer.class), any(Integer.class));
   }
 
-  private MetricsVisitor createMetricsVisitor(boolean saveExecutableLines) {
+  private MetricsVisitor createMetricsVisitor() {
     FileLinesContextFactory linesContextFactory = mock(FileLinesContextFactory.class);
     when(linesContextFactory.createFor(INPUT_FILE)).thenReturn(linesContext);
-    return new MetricsVisitor(context, false, linesContextFactory, saveExecutableLines);
+    return new MetricsVisitor(context, false, linesContextFactory);
   }
 
 }

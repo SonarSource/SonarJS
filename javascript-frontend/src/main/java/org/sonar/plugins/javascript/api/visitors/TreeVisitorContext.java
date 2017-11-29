@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.api.visitors;
 
 import com.google.common.annotations.Beta;
-import java.io.File;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
@@ -41,11 +40,4 @@ public interface TreeVisitorContext {
    * @return the symbol model that allows to access the symbols declared in the current file
    */
   SymbolModel getSymbolModel();
-
-  /**
-   * @return the current file
-   * @deprecated since 2.21. Use {@link TreeVisitorContext#getJavaScriptFile()}
-   */
-  @Deprecated
-  File getFile();
 }

@@ -19,33 +19,26 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaScriptLanguageTest {
 
-  private Settings settings;
-  private JavaScriptLanguage javaScriptLanguage;
-
-  @Before
-  public void setUp() {
-    settings = new MapSettings();
-    javaScriptLanguage = new JavaScriptLanguage(settings);
-  }
-
   @Test
   public void defaultSuffixes() {
-    settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "");
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "");
+    JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
     assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(".js", ".jsx", ".vue");
   }
 
   @Test
   public void customSuffixes() {
-    settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "javascript");
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "javascript");
+    JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
     assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly("javascript");
   }
 

@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -55,16 +55,15 @@ public class GlobalVariableNames {
 
   private final Set<String> names;
 
-  public GlobalVariableNames(@Nullable Settings settings) {
+  public GlobalVariableNames(@Nullable Configuration configuration) {
     ImmutableSet.Builder<String> namesBuilder = ImmutableSet.builder();
 
-    if (globalsFromEnvironment("builtin").isPresent()) {
-      namesBuilder.addAll(globalsFromEnvironment("builtin").get());
-    }
+    Optional<Set<String>> builtin = globalsFromEnvironment("builtin");
+    builtin.ifPresent(namesBuilder::addAll);
 
-    if (settings != null) {
-      namesBuilder.add(settings.getStringArray(GLOBALS_PROPERTY_KEY));
-      for (String environmentName : settings.getStringArray(ENVIRONMENTS_PROPERTY_KEY)) {
+    if (configuration != null) {
+      namesBuilder.add(configuration.getStringArray(GLOBALS_PROPERTY_KEY));
+      for (String environmentName : configuration.getStringArray(ENVIRONMENTS_PROPERTY_KEY)) {
         Optional<Set<String>> namesFromCurrentEnvironment = globalsFromEnvironment(environmentName);
 
         if (namesFromCurrentEnvironment.isPresent()) {

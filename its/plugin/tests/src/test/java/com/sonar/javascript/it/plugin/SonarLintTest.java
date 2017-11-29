@@ -84,8 +84,8 @@ public class SonarLintTest {
 
     List<Issue> issues = new ArrayList<>();
     sonarlintEngine.analyze(
-      new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), new HashMap<String, String>()),
-      issues::add);
+      new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), new HashMap<>()),
+      issues::add, null, null);
 
     assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
       tuple("javascript:UnusedVariable", 2, inputFile.getPath(), "MINOR"),

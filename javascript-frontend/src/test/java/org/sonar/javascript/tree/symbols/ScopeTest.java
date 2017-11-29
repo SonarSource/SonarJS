@@ -32,11 +32,10 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class ScopeTest extends JavaScriptTreeModelTest {
 
-  private SymbolModelImpl SYMBOL_MODEL = symbolModel(wrap(TestUtils.createTestInputFile("src/test/resources/ast/resolve/scope.js")));
+  private SymbolModelImpl SYMBOL_MODEL = symbolModel(TestUtils.createTestInputFile("src/test/resources/ast/resolve/scope.js"));
 
   private Scope scopeAtLine(int line) {
     for (Scope scope : SYMBOL_MODEL.getScopes()) {

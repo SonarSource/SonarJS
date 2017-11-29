@@ -24,8 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Iterator;
-import org.sonar.api.config.Settings;
-import org.sonar.javascript.compat.CompatibleInputFile;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.config.Configuration;
 import org.sonar.javascript.parser.JavaScriptParser;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -63,7 +63,7 @@ public abstract class JavaScriptTreeModelTest {
     return (T) getFirstDescendant((JavaScriptTree) node, descendantToReturn);
   }
 
-  protected SymbolModelImpl symbolModel(CompatibleInputFile file) {
+  protected SymbolModelImpl symbolModel(InputFile file) {
     try {
       return symbolModel(file, null);
     } catch (IOException e) {
@@ -80,12 +80,12 @@ public abstract class JavaScriptTreeModelTest {
     }
   }
 
-  protected SymbolModelImpl symbolModel(CompatibleInputFile file, Settings settings) throws IOException {
+  protected SymbolModelImpl symbolModel(InputFile file, Configuration configuration) throws IOException {
     ScriptTree root = (ScriptTree) p.parse(file.contents());
-    return (SymbolModelImpl) new JavaScriptVisitorContext(root, file, settings).getSymbolModel();
+    return (SymbolModelImpl) new JavaScriptVisitorContext(root, file, configuration).getSymbolModel();
   }
 
-  protected JavaScriptVisitorContext context(CompatibleInputFile file) throws IOException {
+  protected JavaScriptVisitorContext context(InputFile file) throws IOException {
     ScriptTree root = (ScriptTree) p.parse(file.contents());
     return new JavaScriptVisitorContext(root, file, null);
   }

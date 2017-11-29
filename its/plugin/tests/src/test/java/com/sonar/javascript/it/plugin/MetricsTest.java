@@ -28,7 +28,6 @@ import org.sonarqube.ws.WsMeasures.Measure;
 
 import static com.sonar.javascript.it.plugin.Tests.getMeasure;
 import static com.sonar.javascript.it.plugin.Tests.getMeasureAsDouble;
-import static com.sonar.javascript.it.plugin.Tests.is_before_sonar_6_2;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricsTest {
@@ -83,11 +82,7 @@ public class MetricsTest {
     // Tests
     assertThat(getProjectMeasureAsDouble("tests")).isNull();
 
-    if (is_before_sonar_6_2()) {
-      assertThat(getProjectMeasureAsDouble("coverage")).isNull();
-    } else {
-      assertThat(getProjectMeasureAsDouble("coverage")).isEqualTo(0.0);
-    }
+    assertThat(getProjectMeasureAsDouble("coverage")).isEqualTo(0.0);
   }
 
   @Test

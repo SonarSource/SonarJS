@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.declaration.ClassTreeImpl;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -62,11 +62,11 @@ public class TypeVisitor extends DoubleDispatchVisitor {
   private JQuery jQueryHelper;
   private boolean forLoopVariable = false;
 
-  public TypeVisitor(@Nullable Settings settings) {
-    if (settings == null) {
+  public TypeVisitor(@Nullable Configuration configuration) {
+    if (configuration == null) {
       jQueryHelper = new JQuery(JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE.split(", "));
     } else {
-      jQueryHelper = new JQuery(settings.getStringArray(JQuery.JQUERY_OBJECT_ALIASES));
+      jQueryHelper = new JQuery(configuration.getStringArray(JQuery.JQUERY_OBJECT_ALIASES));
     }
   }
 

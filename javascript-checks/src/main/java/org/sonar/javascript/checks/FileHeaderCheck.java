@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -82,7 +83,12 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
         throw new IllegalArgumentException("[" + getClass().getSimpleName() + "] Unable to compile the regular expression: " + headerFormat, e);
       }
     }
-    String fileContent = getContext().getJavaScriptFile().contents();
+    String fileContent;
+    try {
+      fileContent = getContext().getJavaScriptFile().contents();
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to read file " + getContext().getJavaScriptFile().toString(), e);
+    }
 
     Matcher matcher = searchPattern.matcher(fileContent);
     if (!matcher.find() || matcher.start() != 0) {

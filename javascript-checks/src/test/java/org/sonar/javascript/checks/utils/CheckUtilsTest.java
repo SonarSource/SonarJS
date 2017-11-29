@@ -31,15 +31,14 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.javascript.checks.verifier.TestUtils;
-import org.sonar.javascript.compat.CompatibleInputFile;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.visitors.JavaScriptFileImpl;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.checks.utils.CheckUtils.readLines;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class CheckUtilsTest {
 
@@ -73,7 +72,6 @@ public class CheckUtilsTest {
     Files.write(tmp.toPath(), String.join("\n", lines).getBytes());
 
     DefaultInputFile testInputFile = TestUtils.createTestInputFile(temporaryFolder.getRoot(), tmp.getName(), StandardCharsets.UTF_8);
-    CompatibleInputFile inputFile = wrap(testInputFile);
-    assertThat(readLines(inputFile)).isEqualTo(lines);
+    assertThat(readLines(new JavaScriptFileImpl(testInputFile))).isEqualTo(lines);
   }
 }

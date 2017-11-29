@@ -135,11 +135,11 @@ public class CheckUtils {
       return reader.lines().collect(Collectors.toList());
 
     } catch (IOException e) {
-      throw new IllegalStateException("Unable to read file " + file.relativePath(), e);
+      throw new IllegalStateException("Unable to read file " + file.toString(), e);
     }
   }
 
-  private static BufferedReader newBufferedReader(JavaScriptFile file) {
+  private static BufferedReader newBufferedReader(JavaScriptFile file) throws IOException {
     return new BufferedReader(new StringReader(file.contents()));
   }
 

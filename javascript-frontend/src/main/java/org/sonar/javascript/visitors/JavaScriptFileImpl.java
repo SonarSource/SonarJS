@@ -17,20 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.lcov;
+package org.sonar.javascript.visitors;
 
-import org.sonar.api.batch.sensor.coverage.CoverageType;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
+import java.io.IOException;
+import java.net.URI;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 
-public class OverallCoverageSensor extends LCOVCoverageSensor {
+public class JavaScriptFileImpl implements JavaScriptFile {
 
-  @Override
-  protected String[] reportPathProperties(){
-    return new String[]{ JavaScriptPlugin.LCOV_UT_REPORT_PATH, JavaScriptPlugin.LCOV_IT_REPORT_PATH };
+  private InputFile inputFile;
+
+  public JavaScriptFileImpl(InputFile inputFile) {
+    this.inputFile = inputFile;
   }
 
   @Override
-  protected CoverageType getCoverageType() {
-    return CoverageType.OVERALL;
+  public String relativePath() {
+    return inputFile.relativePath();
+  }
+
+  @Override
+  public String fileName() {
+    return inputFile.filename();
+  }
+
+  @Override
+  public String contents() throws IOException {
+    return inputFile.contents();
+  }
+
+  @Override
+  public URI uri() {
+    return inputFile.uri();
+  }
+
+  public InputFile inputFile() {
+    return inputFile;
   }
 }

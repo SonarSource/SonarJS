@@ -34,6 +34,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.javascript.visitors.JavaScriptFileImpl;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
@@ -44,7 +45,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
 
@@ -75,7 +75,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
       .setCharset(CHARSET)
       .initMetadata(text).build();
 
-    when(visitorContext.getJavaScriptFile()).thenReturn(wrap(inputFile));
+    when(visitorContext.getJavaScriptFile()).thenReturn(new JavaScriptFileImpl(inputFile));
   }
 
   private void highlight(String string) throws Exception {

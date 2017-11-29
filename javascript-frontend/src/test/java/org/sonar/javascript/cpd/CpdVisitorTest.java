@@ -38,7 +38,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.compat.CompatibilityHelper.wrap;
 
 public class CpdVisitorTest {
 
@@ -78,7 +77,7 @@ public class CpdVisitorTest {
     sensorContext = SensorContextTester.create(tempFolder.getRoot().toPath());
     CpdVisitor cpdVisitor = new CpdVisitor(sensorContext);
     ScriptTree tree = (ScriptTree) p.parse(source);
-    TreeVisitorContext visitorContext = new JavaScriptVisitorContext(tree, wrap(inputFile), null);
+    TreeVisitorContext visitorContext = new JavaScriptVisitorContext(tree, inputFile, null);
     cpdVisitor.scanTree(visitorContext);
   }
 

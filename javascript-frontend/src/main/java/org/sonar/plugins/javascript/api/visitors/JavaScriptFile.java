@@ -19,8 +19,15 @@
  */
 package org.sonar.plugins.javascript.api.visitors;
 
+import java.io.IOException;
+import java.net.URI;
+
 public interface JavaScriptFile {
 
+  /**
+   * @deprecated since 4.0, use {@link JavaScriptFile#fileName()} or {@link JavaScriptFile#uri()}
+   */
+  @Deprecated
   String relativePath();
 
   /**
@@ -28,5 +35,11 @@ public interface JavaScriptFile {
    */
   String fileName();
 
-  String contents();
+  String contents() throws IOException;
+
+  /**
+   * Identifier of the file. The only guarantee is that it is unique in the project.
+   * You should not assume it is a file:// URI.
+   */
+  URI uri();
 }

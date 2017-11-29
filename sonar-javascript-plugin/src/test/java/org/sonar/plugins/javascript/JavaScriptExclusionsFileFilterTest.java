@@ -22,8 +22,8 @@ package org.sonar.plugins.javascript;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ public class JavaScriptExclusionsFileFilterTest {
 
   @Test
   public void should_include_node_modules_when_property_is_overridden() throws Exception {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "");
 
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings);
