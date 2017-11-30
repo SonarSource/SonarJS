@@ -77,6 +77,14 @@ public class VueScriptTreeModelTest extends JavaScriptTreeModelTest {
   }
 
   @Test
+  public void with_attribute() throws Exception {
+    ScriptTree tree = parse("<script attr=\"Value\"></script>", Kind.SCRIPT);
+
+    assertThat(tree.is(Kind.SCRIPT)).isTrue();
+    assertThat(tree.items()).isNull();
+  }
+
+  @Test
   public void without_explicit_end_of_statement_token() throws Exception {
     final ScriptTree treeWithEos = parse("<script>var x</script>", Kind.SCRIPT);
 

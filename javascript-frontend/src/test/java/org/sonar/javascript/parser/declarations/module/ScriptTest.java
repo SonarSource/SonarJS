@@ -44,6 +44,7 @@ public class ScriptTest {
 
     assertThat(EcmaScriptLexer.VUE_SCRIPT)
       .matches("<script></script>")
+      .matches("<script attr=\"Value\"></script>")
       .matches("  <script>\n   </script>")
 
       .matches("<script>#!/bin/js\n var i;</script>")
