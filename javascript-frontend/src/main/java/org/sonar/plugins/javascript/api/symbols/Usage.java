@@ -69,4 +69,8 @@ public class Usage {
   public boolean isWrite() {
     return kind == Kind.DECLARATION_WRITE || kind == Kind.WRITE || kind == Kind.READ_WRITE;
   }
+
+  public boolean isRead() {
+    return kind == Kind.READ || kind == Kind.READ_WRITE;
+  }
 }

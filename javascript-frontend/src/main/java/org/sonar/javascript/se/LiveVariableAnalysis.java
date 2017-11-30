@@ -136,7 +136,7 @@ public class LiveVariableAnalysis {
 
       for (Tree element : Lists.reverse(block.elements())) {
         Usage usage = usages.getUsage(element);
-        if (LiveVariableAnalysis.this.isWrite(usage)) {
+        if (isWrite(usage)) {
           liveIn.remove(usage.symbol());
         } else if (isRead(usage)) {
           liveIn.add(usage.symbol());

@@ -48,7 +48,7 @@ function functionParameter(p) { // OK
 
 function read_write() {
   var i = 42;
-  var j = i++; // false negative: we don't handle ++ and -- for the moment
+  var j = i++; // Noncompliant
   doSomething(j);
 }
 
@@ -258,4 +258,10 @@ function do_while_with_continue(x) {
       continue;
     }
   } while (!p);
+}
+
+function increment() {
+  var x = 42;
+  foo(x);
+  x++; // Noncompliant
 }

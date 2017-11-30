@@ -135,7 +135,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
   private void checkUsage(Usage usage, Set<Symbol> liveSymbols, Usages usages, LiveVariableAnalysis lva) {
     Symbol symbol = usage.symbol();
 
-    if (lva.isWrite(usage)) {
+    if (usage.isWrite()) {
       if (!liveSymbols.contains(symbol)
         && !usages.hasUsagesInNestedFunctions(symbol)
         && !usages.neverReadSymbols().contains(symbol)
@@ -145,7 +145,8 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       }
       liveSymbols.remove(symbol);
 
-    } else if (lva.isRead(usage)) {
+    }
+    if (usage.isRead()) {
       liveSymbols.add(symbol);
     }
   }
