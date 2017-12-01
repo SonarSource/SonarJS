@@ -225,14 +225,14 @@ public class LiveVariableAnalysis {
     }
   }
 
-  public boolean isRead(@Nullable Usage usage) {
+  private boolean isRead(@Nullable Usage usage) {
     if (usage == null) {
       return false;
     }
     return usage.kind() == Usage.Kind.READ || usage.kind() == Usage.Kind.READ_WRITE  || (this.lvaForSymbolicExecution && usage.kind() == Usage.Kind.WRITE);
   }
 
-  public boolean isWrite(@Nullable Usage usage) {
+  private boolean isWrite(@Nullable Usage usage) {
     if (usage == null) {
       return false;
     }

@@ -191,7 +191,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
   private void raiseIssuesForNeverReadSymbols(Usages usages, LiveVariableAnalysis lva) {
     for (Symbol symbol : usages.neverReadSymbols()) {
       for (Usage usage : symbol.usages()) {
-        if (lva.isWrite(usage) && !initializedToBasicValue(usage)) {
+        if (usage.isWrite() && !initializedToBasicValue(usage)) {
           addIssue(usage.identifierTree(), symbol);
         }
       }
