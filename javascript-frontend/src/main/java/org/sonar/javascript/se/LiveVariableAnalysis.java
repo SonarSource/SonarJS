@@ -176,7 +176,7 @@ public class LiveVariableAnalysis {
 
     @CheckForNull
     private Usage add(IdentifierTree identifier) {
-      identifier.symbol().ifPresent(s -> addSymbol(s));
+      identifier.symbol().ifPresent(this::addSymbol);
       Usage usage = localVariableUsages.get(identifier);
       if (usage != null) {
         usagesInCFG.put(usage.symbol(), usage);
