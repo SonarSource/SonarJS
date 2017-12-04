@@ -136,7 +136,7 @@ public class LiveVariableAnalysis {
 
       for (Tree element : Lists.reverse(block.elements())) {
         Usage usage = usages.getUsage(element);
-        if (LiveVariableAnalysis.this.isWrite(usage)) {
+        if (isWrite(usage)) {
           liveIn.remove(usage.symbol());
         } else if (isRead(usage)) {
           liveIn.add(usage.symbol());
@@ -176,7 +176,7 @@ public class LiveVariableAnalysis {
 
     @CheckForNull
     private Usage add(IdentifierTree identifier) {
-      identifier.symbol().ifPresent(s -> addSymbol(s));
+      identifier.symbol().ifPresent(this::addSymbol);
       Usage usage = localVariableUsages.get(identifier);
       if (usage != null) {
         usagesInCFG.put(usage.symbol(), usage);
@@ -225,14 +225,14 @@ public class LiveVariableAnalysis {
     }
   }
 
-  public boolean isRead(@Nullable Usage usage) {
+  private boolean isRead(@Nullable Usage usage) {
     if (usage == null) {
       return false;
     }
     return usage.kind() == Usage.Kind.READ || usage.kind() == Usage.Kind.READ_WRITE  || (this.lvaForSymbolicExecution && usage.kind() == Usage.Kind.WRITE);
   }
 
-  public boolean isWrite(@Nullable Usage usage) {
+  private boolean isWrite(@Nullable Usage usage) {
     if (usage == null) {
       return false;
     }

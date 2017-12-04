@@ -116,12 +116,12 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       for (Tree element : Lists.reverse(cfgBlock.elements())) {
         Usage usage = usages.getUsage(element);
         if (usage != null) {
-          checkUsage(usage, live, usages, lva);
+          checkUsage(usage, live, usages);
         }
       }
     }
 
-    raiseIssuesForNeverReadSymbols(usages, lva);
+    raiseIssuesForNeverReadSymbols(usages);
   }
   
   private static boolean isTryBlock(CfgBlock block) {
@@ -132,10 +132,10 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     return false;
   }
 
-  private void checkUsage(Usage usage, Set<Symbol> liveSymbols, Usages usages, LiveVariableAnalysis lva) {
+  private void checkUsage(Usage usage, Set<Symbol> liveSymbols, Usages usages) {
     Symbol symbol = usage.symbol();
 
-    if (lva.isWrite(usage)) {
+    if (usage.isWrite()) {
       if (!liveSymbols.contains(symbol)
         && !usages.hasUsagesInNestedFunctions(symbol)
         && !usages.neverReadSymbols().contains(symbol)
@@ -145,7 +145,8 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       }
       liveSymbols.remove(symbol);
 
-    } else if (lva.isRead(usage)) {
+    }
+    if (usage.isRead()) {
       liveSymbols.add(symbol);
     }
   }
@@ -187,10 +188,10 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     return false;
   }
 
-  private void raiseIssuesForNeverReadSymbols(Usages usages, LiveVariableAnalysis lva) {
+  private void raiseIssuesForNeverReadSymbols(Usages usages) {
     for (Symbol symbol : usages.neverReadSymbols()) {
       for (Usage usage : symbol.usages()) {
-        if (lva.isWrite(usage) && !initializedToBasicValue(usage)) {
+        if (usage.isWrite() && !initializedToBasicValue(usage)) {
           addIssue(usage.identifierTree(), symbol);
         }
       }
