@@ -56,3 +56,14 @@ function foo(){
   let arguments = eval;    // Noncompliant
   const arguments = eval;  // Noncompliant
 }
+
+
+NaN = 42;// Noncompliant
+Infinity = 42;// Noncompliant
+undefined = 42;// Noncompliant
+
+function foo() { var NaN; } // Noncompliant
+function foo() { var Infinity; } // Noncompliant
+function foo() { var undefined; } // Noncompliant
+
+function foo(undefined) { var x = undefined; } // Noncompliant

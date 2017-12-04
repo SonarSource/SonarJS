@@ -1,24 +1,50 @@
-<p>It is possible to name a variable <code>undefined</code> in a local scope, but it is a very bad idea because <code>undefined</code> is what's
-returned for values and properties that have not yet been created. Make <code>undefined</code> a variable and you lose your ability to test whether
-other variables and properties exist.</p>
+<p>JavaScript has special identifiers that, while not reserved, still should not be used as identifiers. They include:</p>
+<ul>
+  <li> <code>eval</code> - evaluates a string as JavaScript code </li>
+  <li> <code>arguments</code> - used to access function arguments through indexed properties. </li>
+  <li> <code>undefined</code> - returned for values and properties that have not yet been assigned </li>
+  <li> <code>NaN</code> - Not a Number; returned when math functions fail. </li>
+  <li> <code>Infinity</code> - when a number exceeds the upper limit of the floating point numbers </li>
+</ul>
+<p> </p>
+<p>These words should not be bound or assigned, because doing so would overwrite the original definitions of these identifiers. What's more, assigning
+or binding some of these names will generate an error in JavaScript strict mode code.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-function foo () {
-  var undefined = 1; // Noncompliant
-  if (nonExistantVar == undefined) { // this logic doesn't work now
-    // ...
+eval = 17; // Noncompliant
+arguments++; // Noncompliant
+++eval; // Noncompliant
+var obj = { set p(arguments) { } }; // Noncompliant
+var eval; // Noncompliant
+try { } catch (arguments) { } // Noncompliant
+function x(eval) { } // Noncompliant
+function arguments() { } // Noncompliant
+var y = function eval() { }; // Noncompliant
+var f = new Function("arguments", "return 17;"); // Noncompliant
+
+function fun() {
+  if (arguments.length == 0) { // Compliant
+    // do something
   }
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-function foo () {
-  var bob = 1; // anything is better than naming it 'undefined'
-  if (nonExistantVar == undefined) {
-    // ...
+result = 17;
+args++;
+++result;
+var obj = { set p(arg) { } };
+var result;
+try { } catch (args) { }
+function x(arg) { }
+function args() { }
+var y = function fun() { };
+var f = new Function("args", "return 17;");
+
+function fun() {
+  if (arguments.length == 0) {
+    // do something
   }
 }
 </pre>
-<h2>Deprecated</h2>
-<p>This rule is deprecated; use {rule:javascript:S1514} instead.</p>
 

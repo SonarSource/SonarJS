@@ -197,7 +197,7 @@ public final class CheckList {
       UnchangedLetVariableCheck.class,
       UnconditionalJumpStatementCheck.class,
       UndefinedAssignmentCheck.class,
-      UndefinedShadowingCheck.class,
+      GlobalsShadowingCheck.class,
       UniversalSelectorCheck.class,
       UnreachableCodeCheck.class,
       UntrustedContentCheck.class,

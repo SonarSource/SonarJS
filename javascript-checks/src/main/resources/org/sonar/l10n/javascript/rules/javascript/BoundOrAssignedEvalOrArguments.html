@@ -1,14 +1,7 @@
-<p>JavaScript has special identifiers that, while not reserved, still should not be used as identifiers. They include:</p>
-<ul>
-  <li> <code>eval</code> - evaluates a string as JavaScript code </li>
-  <li> <code>arguments</code> - used to access function arguments through indexed properties. </li>
-  <li> <code>undefined</code> - returned for values and properties that have not yet been assigned </li>
-  <li> <code>NaN</code> - Not a Number; returned when math functions fail. </li>
-  <li> <code>Infinity</code> - when a number exceeds the upper limit of the floating point numbers </li>
-</ul>
-<p> </p>
-<p>These words should not be bound or assigned, because doing so would overwrite the original definitions of these identifiers. What's more, assigning
-or binding some of these names will generate an error in JavaScript strict mode code.</p>
+<p><code>eval</code> is used to evaluate a string as JavaScript code, and <code>arguments</code> is used to access function arguments through indexed
+properties. As a consequence, <code>eval</code> and <code>arguments</code> should not be bound or assigned, because doing so would overwrite the
+original definitions of those two reserved words.</p>
+<p>What's more, using either of those two names to assign or bind will generate an error in JavaScript strict mode code.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 eval = 17; // Noncompliant
@@ -47,4 +40,6 @@ function fun() {
   }
 }
 </pre>
+<h2>Deprecated</h2>
+<p>This rule is deprecated; use {rule:javascript:S2137} instead.</p>
 

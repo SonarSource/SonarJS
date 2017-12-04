@@ -1,7 +1,7 @@
 {
-  "title": "Local variables should not shadow \"undefined\"",
-  "type": "CODE_SMELL",
-  "status": "deprecated",
+  "title": "Special identifiers should not be bound or assigned",
+  "type": "BUG",
+  "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "10min"
@@ -9,7 +9,7 @@
   "tags": [
     
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2137",
   "sqKey": "S2137"
 }

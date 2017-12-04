@@ -1,7 +1,7 @@
 {
-  "title": "Special identifiers should not be bound or assigned",
+  "title": "\"eval\" and \"arguments\" should not be bound or assigned",
   "type": "BUG",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "10min"

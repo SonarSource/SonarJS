@@ -23,11 +23,11 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class UndefinedShadowingCheckTest {
+public class GlobalsShadowingCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new UndefinedShadowingCheck(), new File("src/test/resources/checks/undefinedShadowing.js"));
+    JavaScriptCheckVerifier.verify(new GlobalsShadowingCheck(), new File("src/test/resources/checks/GlobalsShadowing.js"));
   }
 
 }
