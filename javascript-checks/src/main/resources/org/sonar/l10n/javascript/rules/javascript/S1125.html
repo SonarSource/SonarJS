@@ -1,20 +1,18 @@
-<p>Redundant Boolean literals should be removed from expressions to improve readability.</p>
+<p>Boolean literals should be avoided in comparison expressions <code>==</code> and <code>!=</code> to improve code readability.</p>
+<p>This rule also reports on redundant boolean operations.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-if (booleanVariable == true) { /* ... */ }
-if (booleanVariable != true) { /* ... */ }
-if (booleanVariable || false) { /* ... */ }
+let someValue = "0";
+// ...
+
+if (someValue == true) { /* ... */ }
+if (someBooleanValue != true) { /* ... */ }
 doSomething(!false);
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-if (booleanVariable) { /* ... */ }
-if (!booleanVariable) { /* ... */ }
-if (booleanVariable) { /* ... */ }
+if (someValue &amp;&amp; someValue != "0") { /* ... */ }
+if (!someBooleanValue) { /* ... */ }
 doSomething(true);
 </pre>
-<h2>Exceptions</h2>
-<p>The use of literal booleans in comparisons which use identity operators (<code>===</code> and <code>!==</code>) are ignored.</p>
 
-<h2>Deprecated</h2>
-<p>This rule is deprecated, and will eventually be removed.</p>

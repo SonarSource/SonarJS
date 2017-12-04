@@ -1,11 +1,12 @@
-!true;            // Noncompliant {{Remove the literal "true" boolean value.}}
+  !true;            // Noncompliant {{Simplify this unnecessary boolean operation.}}
+// ^^^^
 !false;           // Noncompliant
-a == false;       // Noncompliant {{Remove the literal "false" boolean value.}}
+a == false;       // Noncompliant {{Refactor the code to avoid using this boolean literal.}}
 //   ^^^^^
 a == true;        // Noncompliant
 a === false;      // OK
 a === true;       // OK
-a != false;       // Noncompliant {{Remove the literal "false" boolean value.}}
+a != false;       // Noncompliant {{Refactor the code to avoid using this boolean literal.}}
 a != true;        // Noncompliant
 a !== false;      // OK
 a !== true;       // OK

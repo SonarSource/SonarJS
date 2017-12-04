@@ -1,7 +1,7 @@
 {
-  "title": "Boolean literals should not be redundant",
+  "title": "Boolean literals should not be used in comparisons",
   "type": "CODE_SMELL",
-  "status": "deprecated",
+  "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
