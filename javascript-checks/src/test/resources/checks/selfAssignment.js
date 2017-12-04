@@ -8,3 +8,6 @@ a.b.x = a.b.x; // OK
 x[i] = x[i]; // OK
 x += x;
 x = x + x;
+
+x = x.reverse();// Noncompliant
+x = x.sort();// Noncompliant
