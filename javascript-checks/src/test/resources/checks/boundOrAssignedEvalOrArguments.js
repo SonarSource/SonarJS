@@ -66,4 +66,4 @@ function foo() { var NaN; } // Noncompliant
 function foo() { var Infinity; } // Noncompliant
 function foo() { var undefined; } // Noncompliant
 
-function foo(undefined) { var x = undefined; } // OK
+function foo(undefined) { var x = undefined; } // Noncompliant

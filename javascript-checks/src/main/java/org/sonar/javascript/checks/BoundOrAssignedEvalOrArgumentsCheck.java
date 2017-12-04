@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
@@ -46,10 +45,6 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends AbstractSymbolNameCheck
   @Override
   public void visitScript(ScriptTree tree) {
     for (Symbol symbol : getIllegalSymbols()) {
-      if ("undefined".equals(symbol.name()) && symbol.is(Kind.PARAMETER)) {
-        continue;
-      }
-
       if (!symbol.external()) {
         raiseIssuesOnDeclarations(symbol, String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
       } else {
