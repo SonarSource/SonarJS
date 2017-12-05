@@ -25,20 +25,10 @@ import java.util.List;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 public abstract class AbstractSymbolNameCheck extends DoubleDispatchVisitorCheck {
   abstract List<String> illegalNames();
-
-  abstract String getMessage(Symbol symbol);
-
-  @Override
-  public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getIllegalSymbols()) {
-      raiseIssuesOnDeclarations(symbol, getMessage(symbol));
-    }
-  }
 
   protected List<Symbol> getIllegalSymbols() {
     SymbolModel symbolModel = getContext().getSymbolModel();

@@ -2,7 +2,6 @@
   "name": "Sonar way",
   "ruleKeys": [
     "BitwiseOperators",
-    "BoundOrAssignedEvalOrArguments",
     "DebuggerStatement",
     "DuplicateFunctionArgument",
     "DuplicatePropertyName",
@@ -28,6 +27,7 @@
     "S1862",
     "S1871",
     "S2123",
+    "S2137",
     "S2189",
     "S2201",
     "S2251",

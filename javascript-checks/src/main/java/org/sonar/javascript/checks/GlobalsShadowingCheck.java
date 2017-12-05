@@ -23,28 +23,35 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 @Rule(key = "S2137")
-public class UndefinedShadowingCheck extends AbstractSymbolNameCheck {
+public class GlobalsShadowingCheck extends AbstractSymbolNameCheck {
 
-  private static final String MESSAGE = "Rename this variable.";
+  private static final String DECLARATION_MESSAGE = "Do not use \"%s\" to declare a %s - use another name.";
+  private static final String MODIFICATION_MESSAGE = "Remove the modification of \"%s\".";
 
   @Override
   List<String> illegalNames() {
-    return ImmutableList.of("undefined");
-  }
-
-  @Override
-  String getMessage(Symbol symbol) {
-    return MESSAGE;
+    return ImmutableList.of("eval", "arguments", "undefined", "NaN", "Infinity");
   }
 
   @Override
   public void visitScript(ScriptTree tree) {
     for (Symbol symbol : getIllegalSymbols()) {
-      if (!symbol.scope().isGlobal() && symbol.isVariable()) {
-        raiseIssuesOnDeclarations(symbol, MESSAGE);
+      if (!symbol.external()) {
+        raiseIssuesOnDeclarations(symbol, String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
+      } else {
+        raiseIssuesOnWriteUsages(symbol);
+      }
+    }
+  }
+
+  private void raiseIssuesOnWriteUsages(Symbol symbol) {
+    for (Usage usage : symbol.usages()) {
+      if (!usage.kind().equals(Usage.Kind.READ)) {
+        addIssue(usage.identifierTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
       }
     }
   }

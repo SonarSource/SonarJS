@@ -1,6 +1,6 @@
 {
-  "title": "Local variables should not shadow \"undefined\"",
-  "type": "CODE_SMELL",
+  "title": "Special identifiers should not be bound or assigned",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -9,7 +9,7 @@
   "tags": [
     
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2137",
   "sqKey": "S2137"
 }
