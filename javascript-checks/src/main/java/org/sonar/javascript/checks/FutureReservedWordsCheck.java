@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 @Rule(key = "FutureReservedWords")
 public class FutureReservedWordsCheck extends AbstractSymbolNameCheck {
@@ -55,7 +56,9 @@ public class FutureReservedWordsCheck extends AbstractSymbolNameCheck {
   }
 
   @Override
-  String getMessage(Symbol symbol) {
-    return String.format(MESSAGE, symbol.name());
+  public void visitScript(ScriptTree tree) {
+    for (Symbol symbol : getIllegalSymbols()) {
+      raiseIssuesOnDeclarations(symbol, String.format(MESSAGE, symbol.name()));
+    }
   }
 }

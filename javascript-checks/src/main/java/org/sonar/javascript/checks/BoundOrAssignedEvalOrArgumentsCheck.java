@@ -39,11 +39,6 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends AbstractSymbolNameCheck
   }
 
   @Override
-  String getMessage(Symbol symbol) {
-    return null;
-  }
-
-  @Override
   public void visitScript(ScriptTree tree) {
     for (Symbol symbol : getIllegalSymbols()) {
       if (symbol.is(Symbol.Kind.PARAMETER) || !symbol.external()) {
