@@ -1,5 +1,5 @@
 {
-  "title": "\"=+\" should not be used instead of \"+=\"",
+  "title": "Non-existent operators '=+', '=-' and '=!' should not be used",
   "type": "BUG",
   "status": "ready",
   "remediation": {

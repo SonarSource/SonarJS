@@ -35,8 +35,7 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 @Rule(key = "S2757")
 public class NonExistentAssignmentOperatorCheck extends SubscriptionVisitorCheck {
 
-  private static final String PLUS_MESSAGE = "Was \"+=\" meant instead?";
-  private static final String MINUS_MESSAGE = "Was \"-=\" meant instead?";
+  private static final String MESSAGE = "Was \"%s=\" meant instead?";
 
   @Override
   public Set<Kind> nodesToVisit() {
@@ -47,12 +46,12 @@ public class NonExistentAssignmentOperatorCheck extends SubscriptionVisitorCheck
   public void visitNode(Tree tree) {
     AssignmentExpressionTree assignment = (AssignmentExpressionTree) tree;
     ExpressionTree expression = assignment.expression();
-    if (expression.is(Kind.UNARY_PLUS, Kind.UNARY_MINUS)) {
+    if (expression.is(Kind.UNARY_PLUS, Kind.UNARY_MINUS, Kind.LOGICAL_COMPLEMENT)) {
       UnaryExpressionTree unaryExpression = (UnaryExpressionTree) expression;
       SyntaxToken assignmentOperator = assignment.operatorToken();
       SyntaxToken expressionOperator = unaryExpression.operatorToken();
       if (areAdjacent(assignmentOperator, expressionOperator) && !areAdjacent(expressionOperator, unaryExpression.expression())) {
-        String message = expression.is(Kind.UNARY_PLUS) ? PLUS_MESSAGE : MINUS_MESSAGE;
+        String message = String.format(MESSAGE, unaryExpression.operatorToken());
         addIssue(new PreciseIssue(this, new IssueLocation(assignmentOperator, expressionOperator, message)));
       }
     }
