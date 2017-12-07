@@ -20,6 +20,8 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
@@ -30,7 +32,15 @@ public class SwitchWithNotEnoughCaseCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
-    if (tree.cases().size() < 3) {
+    boolean hasDefault = false;
+
+    for (SwitchClauseTree switchClauseTree : tree.cases()) {
+      if (switchClauseTree.is(Kind.DEFAULT_CLAUSE)) {
+        hasDefault = true;
+      }
+    }
+
+    if (tree.cases().size() < 2 || (tree.cases().size() == 2 && hasDefault)) {
       addIssue(tree.switchKeyword(), MESSAGE);
     }
 
