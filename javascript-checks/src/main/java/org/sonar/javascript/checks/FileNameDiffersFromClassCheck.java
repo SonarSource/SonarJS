@@ -81,12 +81,17 @@ public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
     if (isOnlyExport && nameOfExported != null) {
 
       String fileName = getContext().getJavaScriptFile().fileName().split("\\.")[0];
-      if (!"index".equals(fileName) && !nameOfExported.equals(fileName)) {
+      if (!"index".equals(fileName) && !sameName(nameOfExported, fileName)) {
         addIssue(new FileIssue(this, String.format(MESSAGE, nameOfExported)));
       }
     }
 
     isOnlyExport = true;
     nameOfExported = null;
+  }
+
+  private static boolean sameName(String nameOfExported, String fileName) {
+    String normalizedFileName = fileName.replace("-", "");
+    return nameOfExported.equalsIgnoreCase(normalizedFileName);
   }
 }
