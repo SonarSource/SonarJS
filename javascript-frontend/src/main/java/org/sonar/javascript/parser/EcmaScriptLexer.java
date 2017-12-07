@@ -306,7 +306,6 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
   NEXT_NOT_LCURLY_AND_FUNCTION,
   NEXT_NOT_LCURLY,
   NEXT_NOT_LET_AND_BRACKET,
-  NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION,
   NEXT_NOT_FUNCTION_AND_CLASS,
 
   // Vue.js
@@ -472,11 +471,6 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
     b.rule(NEXT_NOT_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)));
     b.rule(NEXT_NOT_FUNCTION_AND_CLASS).is(b.nextNot(JavaScriptKeyword.FUNCTION, JavaScriptKeyword.CLASS));
     b.rule(NEXT_NOT_LCURLY).is(b.nextNot(LCURLYBRACE));
-    // Negative lookahead to prevent conflicts with ES6_ASSIGNMENT_EXPRESSION
-    b.rule(NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION).is(
-      b.nextNot(
-        b.regexp("(?:[" + JavaScriptLexer.WHITESPACE + "]|" + JavaScriptLexer.SINGLE_LINE_COMMENT + "|" + JavaScriptLexer.MULTI_LINE_COMMENT_NO_LB + ")*+"),
-        "=>"));
 
     punctuators(b);
     keywords(b);

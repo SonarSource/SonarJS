@@ -2126,7 +2126,7 @@ public class TreeFactory {
     return new VueScriptTag();
   }
 
-  private static class ConditionalExpressionTail {
+  public static class ConditionalExpressionTail {
     InternalSyntaxToken queryToken;
     ExpressionTree trueExpr;
     InternalSyntaxToken colonToken;

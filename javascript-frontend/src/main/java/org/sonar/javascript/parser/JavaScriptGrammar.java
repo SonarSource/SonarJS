@@ -25,6 +25,7 @@ import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.lexer.JavaScriptTokenType;
 import org.sonar.javascript.parser.TreeFactory.BracketAccessTail;
+import org.sonar.javascript.parser.TreeFactory.ConditionalExpressionTail;
 import org.sonar.javascript.parser.TreeFactory.DotAccessTail;
 import org.sonar.javascript.parser.TreeFactory.ExpressionTail;
 import org.sonar.javascript.parser.TreeFactory.VueElement;
@@ -629,17 +630,27 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_EXPRESSION)
       .is(f.optionalConditionalExpression(
         CONDITIONAL_OR_EXPRESSION(),
-        b.optional(
-          f.conditionalExpressionTail(
-            b.token(JavaScriptPunctuator.QUERY),
-            ASSIGNMENT_EXPRESSION(),
-            b.token(JavaScriptPunctuator.COLON),
-            ASSIGNMENT_EXPRESSION()))));
+        b.optional(CONDITIONAL_EXPRESSION_TAIL())));
   }
 
-  public ExpressionTree CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal()
-      .is(f.skipLookaheadAfter(CONDITIONAL_EXPRESSION(), b.token(EcmaScriptLexer.NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION)));
+  public ConditionalExpressionTail CONDITIONAL_EXPRESSION_TAIL() {
+    return b.<ConditionalExpressionTail>nonterminal()
+      .is(b.firstOf(
+        f.conditionalExpressionTail(
+          b.token(JavaScriptPunctuator.QUERY),
+          ASSIGNMENT_EXPRESSION(),
+          b.token(JavaScriptPunctuator.COLON),
+          ASSIGNMENT_EXPRESSION()),
+
+        // this is required to parse
+        // "a ? b : c => c"
+        // as true expression could be mistakenly parsed as arrow function with return type
+        f.conditionalExpressionTail(
+          b.token(JavaScriptPunctuator.QUERY),
+          ASSIGNMENT_EXPRESSION_NOT_ARROW_FUNCTION(),
+          b.token(JavaScriptPunctuator.COLON),
+          ASSIGNMENT_EXPRESSION())
+        ));
   }
 
   public ExpressionTree CONDITIONAL_OR_EXPRESSION() {
@@ -1150,25 +1161,50 @@ public class JavaScriptGrammar {
             b.firstOf(
               OBJECT_ASSIGNMENT_PATTERN(),
               LEFT_HAND_SIDE_EXPRESSION()),
-            b.firstOf(
-              b.token(JavaScriptPunctuator.EQU),
-              b.token(JavaScriptPunctuator.STAR_EQU),
-              b.token(JavaScriptPunctuator.EXP_EQU),
-              b.token(JavaScriptPunctuator.DIV_EQU),
-              b.token(JavaScriptPunctuator.MOD_EQU),
-              b.token(JavaScriptPunctuator.PLUS_EQU),
-              b.token(JavaScriptPunctuator.MINUS_EQU),
-              b.token(JavaScriptPunctuator.SL_EQU),
-              b.token(JavaScriptPunctuator.SR_EQU),
-              b.token(JavaScriptPunctuator.SR_EQU2),
-              b.token(JavaScriptPunctuator.AND_EQU),
-              b.token(JavaScriptPunctuator.XOR_EQU),
-              b.token(JavaScriptPunctuator.OR_EQU)),
+            ASSIGNMENT_TOKEN(),
             ASSIGNMENT_EXPRESSION()),
           YIELD_EXPRESSION(),
           ARROW_FUNCTION(),
-          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION()
+          CONDITIONAL_EXPRESSION()
         ));
+  }
+
+  public ExpressionTree ASSIGNMENT_EXPRESSION_NOT_ARROW_FUNCTION() {
+    return b.<ExpressionTree>nonterminal()
+      .is(
+        b.firstOf(
+          f.assignmentWithArrayDestructuring(
+            ARRAY_ASSIGNMENT_PATTERN(),
+            b.token(JavaScriptPunctuator.EQU),
+            ASSIGNMENT_EXPRESSION()),
+          f.assignmentExpression(
+            b.firstOf(
+              OBJECT_ASSIGNMENT_PATTERN(),
+              LEFT_HAND_SIDE_EXPRESSION()),
+            ASSIGNMENT_TOKEN(),
+            ASSIGNMENT_EXPRESSION()),
+          YIELD_EXPRESSION(),
+          // no arrow function here
+          CONDITIONAL_EXPRESSION()
+        ));
+  }
+
+  public InternalSyntaxToken ASSIGNMENT_TOKEN() {
+    return b.<InternalSyntaxToken>nonterminal()
+      .is(b.firstOf(
+        b.token(JavaScriptPunctuator.EQU),
+        b.token(JavaScriptPunctuator.STAR_EQU),
+        b.token(JavaScriptPunctuator.EXP_EQU),
+        b.token(JavaScriptPunctuator.DIV_EQU),
+        b.token(JavaScriptPunctuator.MOD_EQU),
+        b.token(JavaScriptPunctuator.PLUS_EQU),
+        b.token(JavaScriptPunctuator.MINUS_EQU),
+        b.token(JavaScriptPunctuator.SL_EQU),
+        b.token(JavaScriptPunctuator.SR_EQU),
+        b.token(JavaScriptPunctuator.SR_EQU2),
+        b.token(JavaScriptPunctuator.AND_EQU),
+        b.token(JavaScriptPunctuator.XOR_EQU),
+        b.token(JavaScriptPunctuator.OR_EQU)));
   }
 
   public ExpressionTree EXPRESSION() {

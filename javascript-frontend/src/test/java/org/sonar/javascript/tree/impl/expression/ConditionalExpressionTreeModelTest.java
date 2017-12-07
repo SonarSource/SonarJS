@@ -38,4 +38,13 @@ public class ConditionalExpressionTreeModelTest extends JavaScriptTreeModelTest 
     assertThat(expressionToString(tree.falseExpression())).isEqualTo("b");
   }
 
+  @Test
+  public void arrow_function_operand() throws Exception {
+    ConditionalExpressionTree tree = parse("condition ? a : b => b;", Kind.CONDITIONAL_EXPRESSION);
+
+    assertThat(tree.is(Kind.CONDITIONAL_EXPRESSION)).isTrue();
+    assertThat(expressionToString(tree.trueExpression())).isEqualTo("a");
+    assertThat(expressionToString(tree.falseExpression())).isEqualTo("b => b");
+  }
+
 }
