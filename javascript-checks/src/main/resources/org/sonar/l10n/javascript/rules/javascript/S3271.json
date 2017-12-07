@@ -9,7 +9,7 @@
     "linearFactor": "5min"
   },
   "tags": [
-    "owasp-a6"
+    "owasp-a3"
   ],
   "standards": [
     "OWASP Top Ten"

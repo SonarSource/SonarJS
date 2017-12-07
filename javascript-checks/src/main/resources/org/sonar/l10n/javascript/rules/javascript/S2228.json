@@ -7,8 +7,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "owasp-a6",
-    "user-experience"
+    "user-experience",
+    "owasp-a3"
   ],
   "standards": [
     "OWASP Top Ten"

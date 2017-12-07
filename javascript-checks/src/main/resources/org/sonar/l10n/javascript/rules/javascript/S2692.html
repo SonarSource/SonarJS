@@ -1,5 +1,6 @@
 <p>Most checks against an <code>indexOf</code> call against a string or array compare it with -1 because 0 is a valid index. Any checks which look for
-values &gt;0 ignore the first element, which is likely a bug.</p>
+values &gt;0 ignore the first element, which is likely a bug. If you're merely checking the presence of the string, consider using
+<code>includes</code> instead.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var color = "blue";
@@ -26,7 +27,7 @@ var arr = [color, name];
 if (arr.indexOf("blue") &gt;= 0) {
   // ...
 }
-if (arr[0].indexOf("ish") &gt; -1) {
+if (arr[0].includes("ish")) {
   // ...
 }
 </pre>
