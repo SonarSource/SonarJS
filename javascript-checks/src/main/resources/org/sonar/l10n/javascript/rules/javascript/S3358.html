@@ -4,15 +4,17 @@ scratching their heads and cursing.</p>
 <p>Instead, err on the side of clarity, and use another line to express the nested operation as a separate statement.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-public String getTitle(Person p) {
-
-  return p.gender==Person.MALE?"Mr. ":p.isMarried()?"Mrs. ":"Miss " + p.getLastName();  // Noncompliant
+function getTitle(Person p) {
+  return p.gender == "male" ? "Mr. " : p.isMarried() ? "Mrs. " : "Miss ";  // Noncompliant
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-
-  String honorific = p.isMarried()?"Mrs. ":"Miss ";
-  return p.gender==Person.MALE?"Mr. ": honorific + p.getLastName();
+function getTitle(Person p) {
+  if (p.gender == "male") {
+    return "Mr. ";
+  }
+  return p.isMarried() ? "Mrs. " : "Miss ";
+}
 </pre>
 
