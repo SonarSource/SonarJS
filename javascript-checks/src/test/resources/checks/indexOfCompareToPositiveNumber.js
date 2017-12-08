@@ -1,4 +1,4 @@
-  a.indexOf("str") > 0;     // Noncompliant {{0 is a valid index, but is ignored by this check.}}
+  a.indexOf("str") > 0;     // Noncompliant {{This check ignores index 0; consider using 'includes' method to make this check safe and explicit.}}
 //^^^^^^^^^^^^^^^^^^^^
 a.indexOf(a) > 0;         // Noncompliant
 
