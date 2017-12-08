@@ -1,9 +1,8 @@
-<p><code>alert(...)</code> can be useful for debugging during development, but in production mode this kind of pop-up could expose sensitive
-information to attackers, and should never be displayed. </p>
+<p><code>alert(...)</code> as well as <code>confirm(...)</code> and <code>prompt(...)</code> can be useful for debugging during development, but in
+production mode this kind of pop-up could expose sensitive information to attackers, and should never be displayed. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-if(unexpectedCondition)
-{
+if(unexpectedCondition) {
   alert("Unexpected Condition");
 }
 </pre>
