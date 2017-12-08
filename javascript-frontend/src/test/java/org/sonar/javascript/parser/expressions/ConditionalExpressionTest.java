@@ -26,11 +26,17 @@ import static org.sonar.javascript.utils.Assertions.assertThat;
 
 public class ConditionalExpressionTest {
 
-
   @Test
-  public void realLife() {
+  public void test() {
     assertThat(Kind.CONDITIONAL_EXPRESSION)
-      .matches("a ? b : c");
+      .matches("a ? b : c")
+      .matches("a ? b : (c:number) => c")
+      .matches("a ? b : (c = 2) => c")
+      .matches("a ? b : c => c")
+      .matches("a ? b : (c) => c")
+      .matches("a ? b : c => c : d")
+      .matches("a ? c => c : d")
+    ;
   }
 
 }
