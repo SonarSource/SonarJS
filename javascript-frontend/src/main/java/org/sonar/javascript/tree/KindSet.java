@@ -55,6 +55,12 @@ public enum KindSet implements Kinds {
     Kind.NOT_EQUAL_TO,
     Kind.STRICT_NOT_EQUAL_TO),
 
+  COMPARISON_KINDS(
+    Kind.GREATER_THAN,
+    Kind.GREATER_THAN_OR_EQUAL_TO,
+    Kind.LESS_THAN,
+    Kind.LESS_THAN_OR_EQUAL_TO),
+
   FUNCTION_KINDS(
     Kind.FUNCTION_DECLARATION,
     Kind.FUNCTION_EXPRESSION,
