@@ -19,25 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashSet;
-import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Kinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "AssignmentWithinCondition")
@@ -45,149 +33,65 @@ public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Extract the assignment of \"%s\" from this expression.";
 
-  private Set<AssignmentExpressionTree> ignoredAssignments = new HashSet<>();
+  private static final Kinds[] ALLOWED_PARENT_KINDS = {
+    KindSet.LOOP_KINDS,
+    KindSet.EQUALITY_KINDS,
+    KindSet.COMPARISON_KINDS,
+    Kind.EXPRESSION_STATEMENT,
+    Kind.ARROW_FUNCTION
+  };
 
-  @Override
-  public void visitScript(ScriptTree tree) {
-    ignoredAssignments.clear();
-    super.visitScript(tree);
-  }
-
-  @Override
-  public void visitDoWhileStatement(DoWhileStatementTree tree) {
-    // Exception: skip assignment in while statement
-    scan(tree.statement());
-  }
-
-  @Override
-  public void visitWhileStatement(WhileStatementTree tree) {
-    // Exception: skip assignment in do while statement
-    scan(tree.statement());
-  }
-
-  @Override
-  public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
-    scan(tree.left());
-    visitInitialisationExpression(tree.right());
-  }
-
-  private void visitInitialisationExpression(ExpressionTree left) {
-    if (left instanceof AssignmentExpressionTree) {
-      scan(((AssignmentExpressionTree) left).variable());
-      visitInitialisationExpression(((AssignmentExpressionTree) left).expression());
-
-    } else {
-      scan(left);
-    }
-  }
-
-  @Override
-  public void visitForStatement(ForStatementTree tree) {
-    visitCommaOperatorExpression(tree.init());
-    scan(tree.condition());
-    scan(tree.statement());
-  }
-
-  @Override
-  public void visitArrowFunction(ArrowFunctionTree lambdaExpressionTree) {
-    Tree body = lambdaExpressionTree.body();
-
-    if (body.is(Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) body).expression() instanceof AssignmentExpressionTree) {
-      ignoredAssignments.add((AssignmentExpressionTree) ((ParenthesisedExpressionTree) body).expression());
-    }
-
-    if (body instanceof AssignmentExpressionTree) {
-      ignoredAssignments.add((AssignmentExpressionTree) body);
-    }
-
-    super.visitArrowFunction(lambdaExpressionTree);
-  }
-
-  @Override
-  public void visitExpressionStatement(ExpressionStatementTree tree) {
-    Tree expressionTree = tree.expression();
-
-    if (expressionTree.is(Kind.COMMA_OPERATOR)) {
-      visitCommaOperatorExpression(((BinaryExpressionTree) expressionTree).leftOperand());
-      visitCommaOperatorExpression(((BinaryExpressionTree) expressionTree).rightOperand());
-
-    } else {
-      while (expressionTree instanceof AssignmentExpressionTree) {
-        AssignmentExpressionTree assignmentExpressionTree = (AssignmentExpressionTree) expressionTree;
-        scan(assignmentExpressionTree.variable());
-        expressionTree = assignmentExpressionTree.expression();
-      }
-
-      scan(expressionTree);
-    }
-  }
-
-  private void visitCommaOperatorExpression(@Nullable Tree expression) {
-    if (expression == null) {
-      return;
-    }
-
-    if (expression.is(Kind.COMMA_OPERATOR)) {
-      visitCommaOperatorExpression(((BinaryExpressionTree) expression).leftOperand());
-      visitCommaOperatorExpression(((BinaryExpressionTree) expression).rightOperand());
-
-    } else if (expression instanceof AssignmentExpressionTree) {
-      super.visitAssignmentExpression((AssignmentExpressionTree) expression);
-
-    } else {
-      scan(expression);
-    }
-  }
-
-  @Override
-  public void visitBinaryExpression(BinaryExpressionTree tree) {
-    if (isRelationalExpression(tree)) {
-      visitInnerExpression(tree.leftOperand());
-      visitInnerExpression(tree.rightOperand());
-    } else {
-      super.visitBinaryExpression(tree);
-    }
-  }
-
-  private void visitInnerExpression(ExpressionTree tree) {
-    AssignmentExpressionTree assignmentExpressionTree = getInnerAssignmentExpression(tree);
-    if (assignmentExpressionTree != null) {
-      super.visitAssignmentExpression(assignmentExpressionTree);
-    } else {
-      scan(tree);
-    }
-  }
-
-  @Nullable
-  private static AssignmentExpressionTree getInnerAssignmentExpression(ExpressionTree tree) {
-    if (tree.is(Kind.PARENTHESISED_EXPRESSION)) {
-      ParenthesisedExpressionTree parenthesizedTree = (ParenthesisedExpressionTree) tree;
-
-      if (parenthesizedTree.expression() instanceof AssignmentExpressionTree) {
-        return (AssignmentExpressionTree) parenthesizedTree.expression();
-      }
-    }
-    return null;
-  }
-
-  private static boolean isRelationalExpression(Tree tree) {
-    return tree.is(
-      KindSet.EQUALITY_KINDS,
-      Kind.LESS_THAN,
-      Kind.LESS_THAN_OR_EQUAL_TO,
-      Kind.GREATER_THAN,
-      Kind.GREATER_THAN_OR_EQUAL_TO,
-      Kind.RELATIONAL_IN
-      // TODO (Lena): Is Kind.INSTANCE_OF required here?
-    );
-  }
+  private static final Kinds[] ALLOWED_PARENT_KINDS_WITH_INITIALIZER = {
+    KindSet.LOOP_KINDS,
+    KindSet.EQUALITY_KINDS,
+    KindSet.COMPARISON_KINDS,
+    Kind.EXPRESSION_STATEMENT,
+    Kind.ARROW_FUNCTION,
+    Kind.INITIALIZED_BINDING_ELEMENT
+  };
 
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
-    super.visitAssignmentExpression(tree);
-    if (!ignoredAssignments.contains(tree)) {
-      String message = String.format(MESSAGE, CheckUtils.asString(tree.variable()));
-      addIssue(tree.operatorToken(), message);
+    Tree parent = tree.parent();
+
+    if (parent.is(Kind.PARENTHESISED_EXPRESSION) && parent.parent().is(Kind.EXPRESSION_STATEMENT) && !tree.variable().is(Kind.OBJECT_ASSIGNMENT_PATTERN)) {
+      addIssue(tree);
+
+    } else {
+
+      Tree parentIgnoreParenthesesAndComma = parentIgnoreParenthesesAndComma(tree);
+      Tree parentIgnoreAssignment = parentIgnoreAssignment(tree);
+
+      if (!parentIgnoreParenthesesAndComma.is(ALLOWED_PARENT_KINDS) && !parentIgnoreAssignment.is(ALLOWED_PARENT_KINDS_WITH_INITIALIZER)) {
+        addIssue(tree);
+      }
+
     }
+
+    super.visitAssignmentExpression(tree);
+  }
+
+  private void addIssue(AssignmentExpressionTree tree) {
+    addIssue(tree.operatorToken(), String.format(MESSAGE, CheckUtils.asString(tree.variable())));
+  }
+
+  private static Tree parentIgnoreParenthesesAndComma(Tree tree) {
+    Tree parent = tree.parent();
+
+    if (parent.is(Kind.PARENTHESISED_EXPRESSION, Kind.COMMA_OPERATOR)) {
+      return parentIgnoreParenthesesAndComma(parent);
+    }
+
+    return parent;
+  }
+
+  private static Tree parentIgnoreAssignment(Tree tree) {
+    Tree parent = tree.parent();
+
+    if (parent.is(Kind.ASSIGNMENT)) {
+      return parentIgnoreAssignment(parent);
+    }
+
+    return parent;
   }
 }
