@@ -53,3 +53,23 @@ function foo() {
 "ngInject";
 foo();
 }
+
+1 < 2; // Noncompliant
+(1 < 2); // Noncompliant
+-1; // Noncompliant
+
+// OK
+foo() || bar();
+foo() && bar();
+delete a.b;
+void 42;
+await foo();
+a ? foo() : bar();
+x = 3;
+x += 3;
+foo();
+new A();
+yield 42;
+a = 1, b = 2;
+a.b;
+a[b];

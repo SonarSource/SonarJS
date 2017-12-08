@@ -22,6 +22,9 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.KindSet;
+import org.sonar.plugins.javascript.api.tree.Kinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
@@ -35,15 +38,33 @@ public class UselessExpressionStatementCheck extends DoubleDispatchVisitorCheck 
 
   private static final Set<String> KNOWN_DIRECTIVES = ImmutableSet.of("use strict", "$:nomunge", "ngInject");
 
+  private static final Kinds[] KINDS_WITH_SIDE_EFFECTS = {
+    KindSet.ASSIGNMENT_KINDS,
+    Kind.CONDITIONAL_AND,
+    Kind.CONDITIONAL_OR,
+    Kind.CONDITIONAL_EXPRESSION,
+    Kind.CALL_EXPRESSION,
+    Kind.NEW_EXPRESSION,
+    KindSet.INC_DEC_KINDS,
+    Kind.YIELD_EXPRESSION,
+    Kind.DELETE,
+    Kind.COMMA_OPERATOR,
+    Kind.BRACKET_MEMBER_EXPRESSION,
+    Kind.DOT_MEMBER_EXPRESSION,
+    Kind.VOID,
+    Kind.AWAIT
+  };
+
   @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
-    Tree expression = tree.expression();
+    Tree expression = CheckUtils.removeParenthesis(tree.expression());
 
-    if (expression.is(Kind.EQUAL_TO)) {
-      addIssue(tree, MESSAGE);
-    }
+    if (expression.is(Kind.STRING_LITERAL)) {
+      if (!isDirective((LiteralTree) expression)) {
+        addIssue(tree, MESSAGE);
+      }
 
-    if (expression.is(Kind.STRING_LITERAL) && !isDirective((LiteralTree) expression)) {
+    } else if (!expression.is(KINDS_WITH_SIDE_EFFECTS)) {
       addIssue(tree, MESSAGE);
     }
 
