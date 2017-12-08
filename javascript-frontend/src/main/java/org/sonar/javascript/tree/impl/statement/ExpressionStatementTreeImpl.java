@@ -41,7 +41,7 @@ public class ExpressionStatementTreeImpl extends JavaScriptTree implements Expre
   }
 
   @Override
-  public Tree expression() {
+  public ExpressionTree expression() {
     return expression;
   }
 
