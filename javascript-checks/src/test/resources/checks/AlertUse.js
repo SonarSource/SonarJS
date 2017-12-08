@@ -1,4 +1,6 @@
 alert("bla");                           // Noncompliant {{Remove this usage of alert(...).}}
+prompt("bla");                           // Noncompliant {{Remove this usage of prompt(...).}}
+confirm("bla");                           // Noncompliant {{Remove this usage of confirm(...).}}
 
 obj.alert("bla");                       // OK
 new alert();                            // OK
