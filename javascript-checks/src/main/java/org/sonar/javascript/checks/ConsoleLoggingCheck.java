@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
@@ -30,6 +32,8 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 public class ConsoleLoggingCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this logging statement.";
+
+  private static final Set<String> LOG_METHODS = ImmutableSet.of("log", "warn", "error");
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
@@ -46,7 +50,7 @@ public class ConsoleLoggingCheck extends DoubleDispatchVisitorCheck {
 
   private static boolean isCalleeConsoleLogging(DotMemberExpressionTree callee) {
     return callee.object().is(Kind.IDENTIFIER_REFERENCE) && "console".equals(((IdentifierTree) callee.object()).name())
-      && "log".equals(callee.property().name());
+      && LOG_METHODS.contains(callee.property().name());
   }
 
 }
