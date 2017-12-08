@@ -28,3 +28,14 @@ switch (a) {         // OK
     break;
   case 2:
 }
+
+switch (a) {         // OK
+  case 1:
+    break;
+  case 2:
+}
+
+switch (a) {         // Noncompliant
+  case 1:
+    break;
+}
