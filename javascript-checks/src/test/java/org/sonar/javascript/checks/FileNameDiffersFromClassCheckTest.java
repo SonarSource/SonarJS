@@ -32,6 +32,7 @@ public class FileNameDiffersFromClassCheckTest {
   public void ok() {
     JavaScriptCheckVerifier.issues(check, new File(directory + "MyClass.js")).noMore();
     JavaScriptCheckVerifier.issues(check, new File(directory + "my-class.js")).noMore();
+    JavaScriptCheckVerifier.issues(check, new File(directory + "my_class.js")).noMore();
     JavaScriptCheckVerifier.issues(check, new File(directory + "myclass1.js")).noMore();
     JavaScriptCheckVerifier.issues(check, new File(directory + "MyFunction.js")).noMore();
     JavaScriptCheckVerifier.issues(check, new File(directory + "myConst.js")).noMore();

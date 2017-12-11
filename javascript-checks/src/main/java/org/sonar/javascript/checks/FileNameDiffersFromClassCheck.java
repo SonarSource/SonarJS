@@ -91,7 +91,9 @@ public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
   }
 
   private static boolean sameName(String nameOfExported, String fileName) {
-    String normalizedFileName = fileName.replace("-", "");
+    String normalizedFileName = fileName
+      .replace("_", "")
+      .replace("-", "");
     return nameOfExported.equalsIgnoreCase(normalizedFileName);
   }
 }
