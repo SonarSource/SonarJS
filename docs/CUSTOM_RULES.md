@@ -62,6 +62,9 @@ To test the rule you can use `JavaScriptCheckVerifier#verify()` or `JavaScriptCh
 
 ## API Changes
 
+#### SonarJS 4.0
+Deprecated method TreeVisitorContext#getFile() is removed.
+
 #### SonarJS 3.2
 As this version adds support for Flow syntax, many new interfaces and tree kinds appeared. All new interfaces are prefixed with "Flow". Here is list of changes (tree kind and corresponding interface) :
 New interfaces:
