@@ -1,2 +1,3 @@
 /javascript-frontend/src/test/resources/highlighter/*.js text eol=lf
+/javascript-checks/src/test/resources/checks/FileHeaderCheck/*.js text eol=lf
 
