@@ -12,6 +12,9 @@
 
 SonarJS is integrated inside of [SonarLint](https://www.sonarlint.org/) IDE extension. It is available for [WebStorm/IntelliJ](https://www.sonarlint.org/intellij/index.html), [Visual Studio](https://www.sonarlint.org/visualstudio/index.html), [VS Code](https://www.sonarlint.org/vscode/index.html), [Atom](https://www.sonarlint.org/atom/index.html) and [Eclipse](https://www.sonarlint.org/eclipse/index.html).
 
+### Use as a Command Line Tool or as a Library
+The [SonarJS](https://www.npmjs.com/package/sonarjs) npm package can be used as a command line tool and as a JavaScript/TypeScript library.
+
 ### Use online on sonarcloud.io :cloud:
 SonarJS is integrated inside of [sonarcloud.io](https://about.sonarcloud.io/), an online service for continuous code quality. To set up analysis of your project, follow instructions on [this page](https://about.sonarcloud.io/get-started/). 
 
