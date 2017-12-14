@@ -17,6 +17,8 @@ matrix:
 cache:
   directories:
     - '$HOME/.m2/repository'
+    - '$HOME/maven'
+
 before_cache:
   - rm -rf $HOME/.m2/repository/org/sonarsource/javascript
   - find $HOME/.m2 -name resolver-status.properties -exec rm {} \;
