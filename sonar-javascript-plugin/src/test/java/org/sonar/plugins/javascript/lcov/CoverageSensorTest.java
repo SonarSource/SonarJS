@@ -127,7 +127,7 @@ public class CoverageSensorTest {
     coverageSensor.execute(context);
 
     // expected logged text: "Could not resolve 1 file paths in [...], first unresolved path: unresolved/file1.js"
-    String fileName = File.separator+"reports"+File.separator+"report_with_unresolved_path.lcov";
+    String fileName = File.separator + "reports" + File.separator + "report_with_unresolved_path.lcov";
     assertThat(logTester.logs()).contains("Could not resolve 1 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "], first unresolved path: unresolved/file1.js");
   }
 
