@@ -1,2 +1,2 @@
-/javascript-frontend/src/test/resources/highlighter/*.js text eol=lf
+*.js text eol=lf
 
