@@ -21,23 +21,21 @@ package org.sonar.plugins.javascript;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 
 public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
-  private final Settings settings;
+  private final Configuration configuration;
 
-  public JavaScriptExclusionsFileFilter(Settings settings) {
-    this.settings = settings;
+  public JavaScriptExclusionsFileFilter(Configuration configuration) {
+    this.configuration = configuration;
   }
 
   @Override
   public boolean accept(InputFile inputFile) {
-    String regexes = this.settings.getString(JavaScriptPlugin.JS_EXCLUSIONS_KEY);
-    if (regexes != null) {
-      return !WildcardPattern.match(WildcardPattern.create(regexes.split(",")), inputFile.relativePath());
-    }
-    return true;
+    String[] excludedPatterns = this.configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY);
+    String relativePath = inputFile.uri().toString();
+    return !WildcardPattern.match(WildcardPattern.create(excludedPatterns), relativePath);
   }
 }
