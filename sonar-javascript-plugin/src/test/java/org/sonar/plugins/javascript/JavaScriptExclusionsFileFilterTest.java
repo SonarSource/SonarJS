@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +32,7 @@ public class JavaScriptExclusionsFileFilterTest {
   public void should_exclude_node_modules_and_bower_components() throws Exception {
     MapSettings settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.JS_EXCLUSIONS_DEFAULT_VALUE);
-    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings);
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("node_modules/my_lib_folder/my_lib.js"))).isFalse();
@@ -46,7 +45,7 @@ public class JavaScriptExclusionsFileFilterTest {
     MapSettings settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "");
 
-    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings);
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
 
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isTrue();
@@ -55,11 +54,11 @@ public class JavaScriptExclusionsFileFilterTest {
 
   @Test
   public void should_exclude_using_custom_path_regex() throws Exception {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty(
       JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.JS_EXCLUSIONS_DEFAULT_VALUE + "," + "**/libs/**");
 
-    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings);
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
 
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
@@ -68,10 +67,10 @@ public class JavaScriptExclusionsFileFilterTest {
 
   @Test
   public void should_ignore_empty_path_regex() throws Exception {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "," + JavaScriptPlugin.JS_EXCLUSIONS_DEFAULT_VALUE + ",");
 
-    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings);
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
 
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();

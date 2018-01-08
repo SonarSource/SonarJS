@@ -136,12 +136,12 @@ public class JavaScriptPlugin implements Plugin {
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
-        .multiValues(true)
         .defaultValue(JS_EXCLUSIONS_DEFAULT_VALUE)
         .name("JavaScript Exclusions")
         .description("List of file path patterns to be excluded from analysis of JavaScript files.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(GENERAL)
+        .multiValues(true)
         .category(JAVASCRIPT_CATEGORY)
         .build()
     );
