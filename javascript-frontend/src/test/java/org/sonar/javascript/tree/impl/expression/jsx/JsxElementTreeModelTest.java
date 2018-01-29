@@ -22,6 +22,7 @@ package org.sonar.javascript.tree.impl.expression.jsx;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
@@ -109,6 +110,9 @@ public class JsxElementTreeModelTest extends JavaScriptTreeModelTest {
 
     tree = parse("<foo.bar />", Kind.JSX_SELF_CLOSING_ELEMENT);
     assertThat(tree.elementName().is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
+    DotMemberExpressionTree dotMember = (DotMemberExpressionTree) tree.elementName();
+    assertThat(dotMember.object().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
+    assertThat(dotMember.property().is(Kind.PROPERTY_IDENTIFIER)).isTrue();
 
     tree = parse("<Foo.bar />", Kind.JSX_SELF_CLOSING_ELEMENT);
     assertThat(tree.elementName().is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
