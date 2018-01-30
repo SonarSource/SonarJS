@@ -1714,7 +1714,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal()
       .is(f.jsxMemberExpression(
         b.firstOf(THIS(), IDENTIFIER_REFERENCE()),
-        b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_REFERENCE()))));
+        b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_NAME()))));
   }
 
   public JsxIdentifierTree JSX_IDENTIFIER() {
