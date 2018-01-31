@@ -52,6 +52,7 @@ public final class CheckList {
       BoundOrAssignedEvalOrArgumentsCheck.class,
       BuiltInObjectOverriddenCheck.class,
       CallabilityCheck.class,
+      ClassNameCheck.class,
       ClassPrototypeCheck.class,
       CognitiveComplexityFunctionCheck.class,
       CollapsibleIfStatementsCheck.class,
