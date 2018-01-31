@@ -88,10 +88,13 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxEmptyClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxEmptyOpeningElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxJavaScriptExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxShortFragmentElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
@@ -706,6 +709,18 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
   public void visitFlowImplementsClause(FlowImplementsClauseTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitJsxEmptyClosingElement(JsxEmptyClosingElementTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitJsxEmptyOpeningElement(JsxEmptyOpeningElementTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitJsxShortFragmentElement(JsxShortFragmentElementTree tree) {
     scanChildren(tree);
   }
 }

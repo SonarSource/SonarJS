@@ -138,6 +138,7 @@ public class ExpressionStack {
       case NEW_TARGET:
       case JSX_SELF_CLOSING_ELEMENT:
       case JSX_STANDARD_ELEMENT:
+      case JSX_SHORT_FRAGMENT_ELEMENT:
       case FLOW_CASTING_EXPRESSION:
         pushUnknown(newStack);
         break;

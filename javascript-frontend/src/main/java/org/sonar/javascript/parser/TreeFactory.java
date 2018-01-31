@@ -96,10 +96,13 @@ import org.sonar.javascript.tree.impl.expression.TemplateExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxClosingElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxEmptyClosingElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxEmptyOpeningElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxIdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxJavaScriptExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxOpeningElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxSelfClosingElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxShortFragmentElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxSpreadAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardAttributeTreeImpl;
 import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
@@ -228,10 +231,13 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeValueTre
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxChildTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementNameTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxEmptyClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxEmptyOpeningElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxJavaScriptExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxShortFragmentElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
@@ -1597,6 +1603,14 @@ public class TreeFactory {
     return new JsxStandardElementTreeImpl(jsxOpeningElementTree, optionalList(children), jsxClosingElementTree);
   }
 
+  public JsxShortFragmentElementTree jsxShortFragmentElement(
+    JsxEmptyOpeningElementTree jsxOpeningElementTree,
+    Optional<List<JsxChildTree>> children,
+    JsxEmptyClosingElementTree jsxClosingElementTree
+  ) {
+    return new JsxShortFragmentElementTreeImpl(jsxOpeningElementTree, optionalList(children), jsxClosingElementTree);
+  }
+
   public JsxOpeningElementTree jsxOpeningElement(
     InternalSyntaxToken ltToken,
     JsxElementNameTree jsxElementNameTree,
@@ -1612,6 +1626,14 @@ public class TreeFactory {
 
   public JsxClosingElementTree jsxClosingElement(InternalSyntaxToken ltToken, InternalSyntaxToken divToken, JsxElementNameTree jsxElementNameTree, InternalSyntaxToken gtToken) {
     return new JsxClosingElementTreeImpl(ltToken, divToken, jsxElementNameTree, gtToken);
+  }
+
+  public JsxEmptyOpeningElementTree jsxEmptyOpeningElement(InternalSyntaxToken ltToken, InternalSyntaxToken gtToken) {
+    return new JsxEmptyOpeningElementTreeImpl(ltToken, gtToken);
+  }
+
+  public JsxEmptyClosingElementTree jsxEmptyClosingElement(InternalSyntaxToken ltToken, InternalSyntaxToken divToken, InternalSyntaxToken gtToken) {
+    return new JsxEmptyClosingElementTreeImpl(ltToken, divToken, gtToken);
   }
 
   public JsxJavaScriptExpressionTree jsxJavaScriptExpression(InternalSyntaxToken lCurlyBraceToken, Optional<ExpressionTree> expression, InternalSyntaxToken rCurlyBraceToken) {

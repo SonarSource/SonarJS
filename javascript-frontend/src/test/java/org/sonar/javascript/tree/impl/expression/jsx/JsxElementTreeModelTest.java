@@ -24,6 +24,7 @@ import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxShortFragmentElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
@@ -95,6 +96,28 @@ public class JsxElementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.children().get(2).is(Kind.JSX_TEXT)).isTrue();
     assertThat(expressionToString(tree.children().get(2))).isEqualTo("!");
+  }
+
+  @Test
+  public void short_fragment_syntax() throws Exception {
+    JsxShortFragmentElementTree tree = parse("<> Hello <div/><div/></>", Kind.JSX_SHORT_FRAGMENT_ELEMENT);
+
+    assertThat(tree.is(Kind.JSX_SHORT_FRAGMENT_ELEMENT)).isTrue();
+    assertThat(tree.openingElement().is(Kind.JSX_EMPTY_OPENING_ELEMENT)).isTrue();
+    assertThat(expressionToString(tree.openingElement())).isEqualTo("<>");
+    assertThat(tree.openingElement().openAngleBracketToken().text()).isEqualTo("<");
+    assertThat(tree.openingElement().closeAngleBracketToken().text()).isEqualTo(">");
+
+    assertThat(expressionToString(tree.closingElement())).isEqualTo("</>");
+    assertThat(tree.closingElement().openAngleBracketToken().text()).isEqualTo("<");
+    assertThat(tree.closingElement().slashToken().text()).isEqualTo("/");
+    assertThat(tree.closingElement().closeAngleBracketToken().text()).isEqualTo(">");
+
+    assertThat(tree.closingElement().is(Kind.JSX_EMPTY_CLOSING_ELEMENT)).isTrue();
+    assertThat(tree.children()).hasSize(3);
+    assertThat(tree.children().get(0).is(Kind.JSX_TEXT)).isTrue();
+    assertThat(tree.children().get(1).is(Kind.JSX_SELF_CLOSING_ELEMENT)).isTrue();
+    assertThat(tree.children().get(2).is(Kind.JSX_SELF_CLOSING_ELEMENT)).isTrue();
   }
 
   @Test

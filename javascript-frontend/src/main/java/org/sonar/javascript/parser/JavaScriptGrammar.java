@@ -91,6 +91,8 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxChildTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxEmptyClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxEmptyOpeningElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
@@ -1668,7 +1670,8 @@ public class JavaScriptGrammar {
     return b.<JsxElementTree>nonterminal(EcmaScriptLexer.JSX_ELEMENT)
       .is(b.firstOf(
         JSX_SELF_CLOSING_ELEMENT(),
-        f.jsxStandardElement(JSX_OPENING_ELEMENT(), b.zeroOrMore(JSX_CHILD()), JSX_CLOSING_ELEMENT())
+        f.jsxStandardElement(JSX_OPENING_ELEMENT(), b.zeroOrMore(JSX_CHILD()), JSX_CLOSING_ELEMENT()),
+        f.jsxShortFragmentElement(JSX_EMPTY_OPENING_ELEMENT(), b.zeroOrMore(JSX_CHILD()), JSX_EMPTY_CLOSING_ELEMENT())
       ));
   }
 
@@ -1688,6 +1691,21 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.LT),
         JSX_ELEMENT_NAME(),
         b.optional(JSX_ATTRIBUTES()),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public JsxEmptyOpeningElementTree JSX_EMPTY_OPENING_ELEMENT() {
+    return b.<JsxEmptyOpeningElementTree>nonterminal(Kind.JSX_EMPTY_OPENING_ELEMENT)
+      .is(f.jsxEmptyOpeningElement(
+        b.token(JavaScriptPunctuator.LT),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public JsxEmptyClosingElementTree JSX_EMPTY_CLOSING_ELEMENT() {
+    return b.<JsxEmptyClosingElementTree>nonterminal(Kind.JSX_EMPTY_CLOSING_ELEMENT)
+      .is(f.jsxEmptyClosingElement(
+        b.token(JavaScriptPunctuator.LT),
+        b.token(JavaScriptPunctuator.DIV),
         b.token(JavaScriptPunctuator.GT)));
   }
 
