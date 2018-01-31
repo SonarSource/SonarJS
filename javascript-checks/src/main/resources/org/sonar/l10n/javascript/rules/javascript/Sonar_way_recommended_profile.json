@@ -23,6 +23,7 @@
     "OneStatementPerLine",
     "Parentheses",
     "PrimitiveWrappers",
+    "S101",
     "S104",
     "S138",
     "S878",

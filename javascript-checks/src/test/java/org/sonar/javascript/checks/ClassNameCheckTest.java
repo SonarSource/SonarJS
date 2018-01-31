@@ -31,4 +31,11 @@ public class ClassNameCheckTest {
     JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/className.js"));
   }
 
+  @Test
+  public void test_custom_format() {
+    ClassNameCheck check = new ClassNameCheck();
+    check.format = "^[_A-Z][a-zA-Z0-9]*$";
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/classNameCustomFormat.js"));
+  }
+
 }

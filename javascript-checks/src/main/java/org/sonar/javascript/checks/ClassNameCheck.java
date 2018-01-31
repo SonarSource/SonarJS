@@ -19,41 +19,35 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S101")
-public class ClassNameCheck extends SubscriptionVisitorCheck {
+public class ClassNameCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String DEFAULT_REGULAR_EXPRESSION = "^[A-Z][a-zA-Z0-9]*$";
+  private static final String DEFAULT_FORMAT = "^[A-Z][a-zA-Z0-9]*$";
 
   @RuleProperty(
-      key = "regularExpression",
-      description = "The regular expression",
-      defaultValue = "" + DEFAULT_REGULAR_EXPRESSION)
-  private String regularExpression = DEFAULT_REGULAR_EXPRESSION;
+      key = "format",
+      description = "Regular expression used to check the class names against.",
+      defaultValue = "" + DEFAULT_FORMAT)
+  public String format = DEFAULT_FORMAT;
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.of(Kind.CLASS_DECLARATION);
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    ClassTree classTree = (ClassTree) tree;
-    IdentifierTree className = classTree.name();
-    if (className != null) {
-      String name = className.name();
-      if (!name.matches(regularExpression)) {
-        addIssue(className, String.format("Rename class \"%s\" to match the regular expression %s.", name, regularExpression));
+  public void visitClass(ClassTree tree) {
+    if (tree.is(Kind.CLASS_DECLARATION)) {
+      IdentifierTree className = tree.name();
+      if (className != null) {
+        String name = className.name();
+        if (!name.matches(format)) {
+          addIssue(className, String.format("Rename class \"%s\" to match the regular expression %s.", name, format));
+        }
       }
     }
+    super.visitClass(tree);
   }
 }
