@@ -222,6 +222,12 @@ public class ExpressionStackTest {
   }
 
   @Test
+  public void jsx() throws Exception {
+    execute("<></>");
+    assertSingleValueInStack(UNKNOWN);
+  }
+
+  @Test
   public void isEmpty() throws Exception {
     assertThat(emptyStack().isEmpty()).isTrue();
     assertThat(emptyStack().push(simple1).isEmpty()).isFalse();

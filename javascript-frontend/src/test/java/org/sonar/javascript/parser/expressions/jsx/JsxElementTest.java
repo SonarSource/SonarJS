@@ -60,4 +60,16 @@ public class JsxElementTest {
       .matches("<foo.Bar />")
     ;
   }
+
+  @Test
+  public void short_fragment_syntax() throws Exception {
+    assertThat(EcmaScriptLexer.JSX_ELEMENT)
+      .matches("<> </>")
+      .matches("<> Hello </>")
+      .matches("<> <div/><div/> </>")
+      .matches("<> <div>Hello</div> world </>")
+
+      .notMatches("<attr='value'> </>")
+    ;
+  }
 }

@@ -49,6 +49,7 @@ public class DoubleDispatchVisitorTest {
   @Test
   public void jsx() throws Exception {
     assertNumberOfVisitedTokens("<a>Hello {1}</a>", 12);
+    assertNumberOfVisitedTokens("<>Hello</>", 7);
     assertNumberOfVisitedTokens("<a attr={1}><b {...foo(2)}/></a>", 24);
     assertNumberOfVisitedTokens("<Foo.Bar/>", 7);
   }

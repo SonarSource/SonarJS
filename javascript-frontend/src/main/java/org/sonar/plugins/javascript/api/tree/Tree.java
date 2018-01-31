@@ -80,10 +80,13 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxEmptyClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxEmptyOpeningElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxJavaScriptExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxShortFragmentElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
@@ -1031,6 +1034,21 @@ public interface Tree {
      * {@link JsxStandardElementTree}
      */
     JSX_STANDARD_ELEMENT(JsxStandardElementTree.class),
+
+    /**
+     * {@link JsxEmptyOpeningElementTree}
+     */
+    JSX_EMPTY_OPENING_ELEMENT(JsxEmptyOpeningElementTree.class),
+
+    /**
+     * {@link JsxEmptyClosingElementTree}
+     */
+    JSX_EMPTY_CLOSING_ELEMENT(JsxEmptyClosingElementTree.class),
+
+    /**
+     * {@link JsxShortFragmentElementTree}
+     */
+    JSX_SHORT_FRAGMENT_ELEMENT(JsxShortFragmentElementTree.class),
 
     /**
      * {@link JsxSelfClosingElementTree}
