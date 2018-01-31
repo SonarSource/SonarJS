@@ -87,7 +87,7 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
       if (callExpressionTree.argumentClause().arguments().size() > argumentIndex) {
         Tree argument = callExpressionTree.argumentClause().arguments().get(argumentIndex);
 
-        if (argument.is(Kind.FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION) && !hasReturnWithValue((FunctionTree)argument)) {
+        if (argument.is(Kind.FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION) && !hasReturnWithValue((FunctionTree)argument) && !isAsyncFunction((FunctionTree) argument)) {
           addUniqueIssue(functionToken((FunctionTree) argument), MESSAGE);
 
         } else if (argument.is(Kind.IDENTIFIER_REFERENCE)) {
@@ -105,12 +105,16 @@ public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
       if (symbolicValue instanceof FunctionWithTreeSymbolicValue) {
         FunctionTree functionTree = ((FunctionWithTreeSymbolicValue) symbolicValue).getFunctionTree();
 
-        if (!hasReturnWithValue(functionTree)) {
+        if (!hasReturnWithValue(functionTree) && !isAsyncFunction(functionTree)) {
           IssueLocation secondaryLocation = new IssueLocation(functionToken(functionTree), "Callback declaration");
           addUniqueIssue(argument, MESSAGE, secondaryLocation);
         }
       }
     }
+  }
+
+  private static boolean isAsyncFunction(FunctionTree functionTree) {
+    return functionTree.asyncToken() != null;
   }
 
   private static SyntaxToken functionToken(FunctionTree functionTree) {

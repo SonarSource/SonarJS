@@ -102,3 +102,16 @@ function property_function() {
   myArray.map(obj.badCallback);     // FN, not yet supported
 
 }
+
+function ok_async_functions() {
+  var myArray = [1, 2];
+
+  var result = myArray.map(async (element) => { await doSomething(element); });
+  var result = myArray.map(async function(element) { await doSomething(element); });
+
+  var asyncFunc = async (element) => { await doSomething(element); }
+  async function anotherAsyncFunc (element) { await doSomething(element); }
+
+  var result = myArray.map(asyncFunc);
+  var result = myArray.map(anotherAsyncFunc);
+}
