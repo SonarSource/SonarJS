@@ -1,0 +1,15 @@
+{
+  "title": "Collection sizes and array length comparisons should make sense",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-3981",
+  "sqKey": "S3981"
+}

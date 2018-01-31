@@ -56,6 +56,7 @@ public final class CheckList {
       ClassPrototypeCheck.class,
       CognitiveComplexityFunctionCheck.class,
       CollapsibleIfStatementsCheck.class,
+      CollectionSizeAndArrayLengthCheck.class,
       CommaOperatorInSwitchCaseCheck.class,
       CommaOperatorUseCheck.class,
       CommentedCodeCheck.class,
