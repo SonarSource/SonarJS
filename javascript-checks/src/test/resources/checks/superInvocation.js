@@ -345,3 +345,22 @@ var top_level_object = {
     super();              // Noncompliant
   }
 }
+
+
+class Foo {
+    constructor(name, options = {}) {
+        this.name = name;
+        this.options = Object.assign({}, defaultOptions, options);
+    }
+}
+
+class Bar extends Foo {
+    constructor(...args) {
+        super(...args);
+    }
+}
+class Baz extends Foo {
+    constructor() {
+        super("blah");
+    }
+}
