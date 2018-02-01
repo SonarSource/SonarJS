@@ -364,3 +364,43 @@ class Baz extends Foo {
         super("blah");
     }
 }
+
+class Super {
+  constructor(arg1, arg2, arg3 = 1, arg4 = 0) {}
+}
+
+class Derived1 extends Super {
+  constructor() {
+    super(1); // Noncompliant
+  }
+}
+
+class Derived2 extends Super {
+  constructor() {
+    super(1, 2);
+  }
+}
+
+class Derived3 extends Super {
+  constructor() {
+    super(1, 2, 3);
+  }
+}
+
+class Derived4 extends Super {
+    constructor() {
+        super(1, 2, 3, 4);
+    }
+}
+
+class Derived5 extends Super {
+    constructor() {
+        super(1, 2, 3, 4, 5); // Noncompliant
+    }
+}
+
+class Derived6 extends Super {
+    constructor(args) {
+        super(...args);
+    }
+}

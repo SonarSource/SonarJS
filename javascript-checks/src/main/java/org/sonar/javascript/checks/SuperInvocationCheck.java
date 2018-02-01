@@ -195,17 +195,17 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
       return;
     }
     getDeclarationTree(superClassSymbol)
-        .flatMap(SuperInvocationCheck::getConstructor)
-        .ifPresent(baseClassConstructor -> {
-          int paramCount = baseClassConstructor.parameterList().size();
-          long nonDefaultParamCount = baseClassConstructor.parameterList().stream()
-              .filter(b -> !b.is(Kind.INITIALIZED_BINDING_ELEMENT)).count();
-          int nbArguments = superCallTree.argumentClause().arguments().size();
-          if (nbArguments < nonDefaultParamCount || nbArguments > paramCount) {
-            String message = String.format(MESSAGE_SUPER_WITH_CORRECT_NUMBER_OF_ARGUMENTS, nonDefaultParamCount, nonDefaultParamCount == 1 ? "" : "s");
-            addIssue(superCallTree, message).secondary(baseClassConstructor.parameterClause());
-          }
-        });
+      .flatMap(SuperInvocationCheck::getConstructor)
+      .ifPresent(baseClassConstructor -> {
+        int paramCount = baseClassConstructor.parameterList().size();
+        long nonDefaultParamCount = baseClassConstructor.parameterList().stream()
+          .filter(b -> !b.is(Kind.INITIALIZED_BINDING_ELEMENT)).count();
+        int nbArguments = superCallTree.argumentClause().arguments().size();
+        if (nbArguments < nonDefaultParamCount || nbArguments > paramCount) {
+          String message = String.format(MESSAGE_SUPER_WITH_CORRECT_NUMBER_OF_ARGUMENTS, nonDefaultParamCount, nonDefaultParamCount == 1 ? "" : "s");
+          addIssue(superCallTree, message).secondary(baseClassConstructor.parameterClause());
+        }
+      });
   }
 
   private static Optional<MethodDeclarationTree> getConstructor(ClassTree classTree) {
