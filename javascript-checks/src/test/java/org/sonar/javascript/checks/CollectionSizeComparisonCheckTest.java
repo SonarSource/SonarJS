@@ -27,7 +27,7 @@ public class CollectionSizeComparisonCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new CollectionSizeComparisonCheck(), new File("src/test/resources/checks/collectionSize.js"));
+    JavaScriptCheckVerifier.verify(new CollectionSizeComparisonCheck(), new File("src/test/resources/checks/collectionSizeComparison.js"));
   }
 
 }

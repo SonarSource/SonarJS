@@ -1,13 +1,13 @@
 
 if (mySet.size < 0) { } // Noncompliant {{Fix this expression; size of "mySet" is always greater or equal to zero.}}
 //  ^^^^^^^^^^^^^^
-if (myMap.size < 0) { } // Noncompliant {{Fix this expression; size of "myMap" is always greater or equal to zero.}}
+if (myMap.size < 0) { } // Noncompliant
 //  ^^^^^^^^^^^^^^
 
 if (arr.length < 0) { } // Noncompliant {{Fix this expression; length of "arr" is always greater or equal to zero.}}
 //  ^^^^^^^^^^^^^^
 
-if (arr.length >= 0) { } // Noncompliant {{Fix this expression; length of "arr" is always greater or equal to zero.}}
+if (arr.length >= 0) { } // Noncompliant
 //  ^^^^^^^^^^^^^^^
 
 // OK
@@ -20,7 +20,7 @@ if (arr.length < 50) { }
 if (arr.length < 5 + 0) { }
 if (obj.size() >= 0) { }
 
-let expr = foo.bar().length >= 0; // Noncompliant {{Fix this expression; length of "foo.bar()" is always greater or equal to zero.}}
+let expr = foo.bar().length >= 0; // Noncompliant
 
 let obj = { };
 obj.length = -42;
