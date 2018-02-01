@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
@@ -28,16 +29,17 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S3981")
-public class CollectionSizeAndArrayLengthCheck extends DoubleDispatchVisitorCheck {
+public class CollectionSizeComparisonCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
-    if (tree.is(Tree.Kind.LESS_THAN, Tree.Kind.GREATER_THAN_OR_EQUAL_TO) && isZeroLiteral(tree.rightOperand())) {
-      ExpressionTree leftOperand = tree.leftOperand();
-      if (leftOperand.is(Tree.Kind.DOT_MEMBER_EXPRESSION)
-          && isLengthOrSizeProperty((DotMemberExpressionTree) leftOperand)) {
-        String propertyName = ((DotMemberExpressionTree) leftOperand).property().name();
-        addIssue(tree, String.format("The %s is always \">=0\", so fix this test to get the real expected behavior.", propertyName));
+    if (tree.is(Tree.Kind.LESS_THAN, Tree.Kind.GREATER_THAN_OR_EQUAL_TO)
+        && isZeroLiteral(tree.rightOperand())
+        && tree.leftOperand().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
+      DotMemberExpressionTree leftOperand = ((DotMemberExpressionTree) tree.leftOperand());
+      if (isLengthOrSizeProperty(leftOperand)) {
+        String propertyName = leftOperand.property().name();
+        addIssue(tree, String.format("Fix this expression; %s of \"%s\" is always greater or equal to zero.", propertyName, CheckUtils.asString(leftOperand.object())));
       }
     }
     super.visitBinaryExpression(tree);
