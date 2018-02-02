@@ -93,7 +93,7 @@ public class NoElementOverwriteCheck extends DoubleDispatchVisitorCheck {
 
         KeyWriteCollectionUsage sameKeyWriteUsage = usedKeys.get(keyWriteUsage.indexOrKey);
         if (sameKeyWriteUsage != null) {
-          this.addIssue(keyWriteUsage.tree, message(keyWriteUsage.indexOrKey, sameKeyWriteUsage.tree));
+          addIssue(keyWriteUsage.tree, message(keyWriteUsage.indexOrKey, sameKeyWriteUsage.tree)).secondary(sameKeyWriteUsage.tree);
         }
         usedKeys.put(keyWriteUsage.indexOrKey, keyWriteUsage);
         collection = keyWriteUsage.collectionSymbol;

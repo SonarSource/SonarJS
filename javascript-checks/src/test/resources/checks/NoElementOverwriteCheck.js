@@ -2,7 +2,7 @@
 function test(cond) {
   let fruits = [];
   fruits[1] = "banana";
-  fruits[1] = "apple"; // Noncompliant {{Verify this is the index that was intended; '1' was already set on line 4.}}
+  fruits[1] = "apple"; // Noncompliant [[secondary=-1]] {{Verify this is the index that was intended; '1' was already set on line 4.}}
 //^^^^^^
   fruits = [];
   fruits[1] = "banana";
