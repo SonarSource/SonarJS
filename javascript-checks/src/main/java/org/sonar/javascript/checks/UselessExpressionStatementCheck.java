@@ -25,9 +25,11 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Kinds;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
@@ -52,23 +54,42 @@ public class UselessExpressionStatementCheck extends DoubleDispatchVisitorCheck 
     Kind.BRACKET_MEMBER_EXPRESSION,
     Kind.DOT_MEMBER_EXPRESSION,
     Kind.VOID,
-    Kind.AWAIT
+    Kind.AWAIT,
+    Kind.TAGGED_TEMPLATE
   };
 
   @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
-    Tree expression = CheckUtils.removeParenthesis(tree.expression());
+    ExpressionTree expression = CheckUtils.removeParenthesis(tree.expression());
 
     if (expression.is(Kind.STRING_LITERAL)) {
       if (!isDirective((LiteralTree) expression)) {
         addIssue(tree, MESSAGE);
       }
 
-    } else if (!expression.is(KINDS_WITH_SIDE_EFFECTS)) {
+    } else if (!expression.is(KINDS_WITH_SIDE_EFFECTS) && !isIIFE(expression) && !insideTry(tree)) {
       addIssue(tree, MESSAGE);
     }
 
     super.visitExpressionStatement(tree);
+  }
+
+  private static boolean insideTry(ExpressionStatementTree tree) {
+    return tree.parent().parent().is(Kind.TRY_STATEMENT);
+  }
+
+  private static boolean isIIFE(ExpressionTree expression) {
+    if (expression.is(Kind.CALL_EXPRESSION)) {
+      CallExpressionTree callExpressionTree = (CallExpressionTree) expression;
+      ExpressionTree callee = CheckUtils.removeParenthesis(callExpressionTree.callee());
+      return callee.is(Kind.FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION);
+
+    } else if (expression.is(Kind.LOGICAL_COMPLEMENT)) {
+      ExpressionTree operand = ((UnaryExpressionTree) expression).expression();
+      return isIIFE(CheckUtils.removeParenthesis(operand));
+    }
+
+    return false;
   }
 
   private static boolean isDirective(LiteralTree tree) {
