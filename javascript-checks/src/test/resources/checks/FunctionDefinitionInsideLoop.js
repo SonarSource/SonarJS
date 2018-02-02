@@ -111,6 +111,34 @@ function some_callbacks_ok() {
       return i;
     });
 
+    arr.find(function() {              // OK
+      return i;
+    });
+
+    arr.findIndex(function() {              // OK
+      return i;
+    });
+
+    arr.every(function() {              // OK
+      return i;
+    });
+
+    arr.some(function() {              // OK
+      return i;
+    });
+
+    arr.reduce(function() {              // OK
+      return i;
+    });
+
+    arr.reduceRight(function() {              // OK
+      return i;
+    });
+
+    arr.sort(function() {              // OK
+      return i;
+    });
+
     arr.unknown(function() {              // Noncompliant
       return i;
     });
