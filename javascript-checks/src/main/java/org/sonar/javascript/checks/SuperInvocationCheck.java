@@ -189,18 +189,23 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void compareNumberOfArguments(SuperTree superTree, Symbol superClassSymbol) {
-    Optional<ClassTree> baseClassTree = getDeclarationTree(superClassSymbol);
-    if (baseClassTree.isPresent()) {
-      Optional<MethodDeclarationTree> baseClassConstructor = getConstructor(baseClassTree.get());
-      if (baseClassConstructor.isPresent()) {
-        Integer nbParams = baseClassConstructor.get().parameterList().size();
-        int nbArguments = ((CallExpressionTree) superTree.parent()).argumentClause().arguments().size();
-        if (nbArguments != nbParams) {
-          String message = String.format(MESSAGE_SUPER_WITH_CORRECT_NUMBER_OF_ARGUMENTS, nbParams, nbParams == 1 ? "" : "s");
-          addIssue(superTree.parent(), message).secondary(baseClassConstructor.get().parameterClause());
-        }
-      }
+    CallExpressionTree superCallTree = (CallExpressionTree) superTree.parent();
+    boolean hasSpreadArgument = superCallTree.argumentClause().arguments().stream().anyMatch(t -> t.is(Kind.SPREAD_ELEMENT));
+    if (hasSpreadArgument) {
+      return;
     }
+    getDeclarationTree(superClassSymbol)
+      .flatMap(SuperInvocationCheck::getConstructor)
+      .ifPresent(baseClassConstructor -> {
+        int paramCount = baseClassConstructor.parameterList().size();
+        long nonDefaultParamCount = baseClassConstructor.parameterList().stream()
+          .filter(b -> !b.is(Kind.INITIALIZED_BINDING_ELEMENT)).count();
+        int nbArguments = superCallTree.argumentClause().arguments().size();
+        if (nbArguments < nonDefaultParamCount || nbArguments > paramCount) {
+          String message = String.format(MESSAGE_SUPER_WITH_CORRECT_NUMBER_OF_ARGUMENTS, nonDefaultParamCount, nonDefaultParamCount == 1 ? "" : "s");
+          addIssue(superCallTree, message).secondary(baseClassConstructor.parameterClause());
+        }
+      });
   }
 
   private static Optional<MethodDeclarationTree> getConstructor(ClassTree classTree) {
@@ -230,8 +235,8 @@ public class SuperInvocationCheck extends DoubleDispatchVisitorCheck {
   }
 
   /**
-   * Returns true if the specified token (a "this" or a "super") comes before 
-   * the specified location, else returns false. 
+   * Returns true if the specified token (a "this" or a "super") comes before
+   * the specified location, else returns false.
    */
   private static boolean isBefore(SyntaxToken token, int line, int column) {
     if (token.line() < line) {
