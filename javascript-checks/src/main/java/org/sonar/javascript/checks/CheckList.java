@@ -144,6 +144,7 @@ public final class CheckList {
       NestedConditionalOperatorsCheck.class,
       NestedControlFlowDepthCheck.class,
       NewOperatorMisuseCheck.class,
+      NoElementOverwriteCheck.class,
       NonCaseLabelInSwitchCheck.class,
       NonEmptyCaseWithoutBreakCheck.class,
       NonExistentAssignmentOperatorCheck.class,

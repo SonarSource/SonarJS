@@ -1,0 +1,15 @@
+{
+  "title": "Collection elements should not be replaced unconditionally",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "suspicious"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4143",
+  "sqKey": "S4143"
+}
