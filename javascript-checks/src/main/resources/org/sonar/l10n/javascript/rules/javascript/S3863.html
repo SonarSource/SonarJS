@@ -1,0 +1,11 @@
+<p>Multiple imports from the same module should be merged together to improve readability.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+import { B1 } from 'b';
+import { B2 } from 'b'; // Noncompliant
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+import { B1, B2 } from 'b';
+</pre>
+
