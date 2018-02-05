@@ -73,3 +73,18 @@ yield 42;
 a = 1, b = 2;
 a.b;
 a[b];
+
+
+// Tagged literals
+
+tag`str`; // same as function call: tag("str")
+
+// IIFE
+!((function(){})());
+!(function(){})();
+!(() => {})();
+((function(){})());
+
+
+// try statement
+try { foo; } catch (e) {}
