@@ -160,7 +160,7 @@ public class TooManyArgumentsCheck extends AbstractAnyPathSeCheck {
         int parametersNumber = functionTree.parameterList().size();
         int argumentsNumber = tree.argumentClause().arguments().size();
 
-        if (!hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber) {
+        if (argumentsNumber > parametersNumber && !hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree)) {
           String message = getMessage(tree, parametersNumber, argumentsNumber, functionTree.parameterClause().firstToken().line());
           addUniqueIssue(tree.argumentClause(), message, new IssueLocation(functionTree.parameterClause(), "Formal parameters"));
         }

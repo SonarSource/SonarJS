@@ -131,4 +131,9 @@ public class ExpressionTypeTest extends TypeTest {
     assertThat(getSymbol("typeofExpr").types()).containsOnly(PrimitiveType.STRING);
     assertThat(getSymbol("deleteExpr").types()).containsOnly(PrimitiveType.BOOLEAN);
   }
+
+  @Test
+  public void test_parameter_with_default() throws Exception {
+    assertThat(getSymbol("par").types()).containsOnly(PrimitiveType.STRING);
+  }
 }

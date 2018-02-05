@@ -119,7 +119,7 @@ function builtIn_from_ember() {
   "foo".camelize(1, 2);                    // OK, we don't consider not standard built-in methods
 }
 
-isNaN(obj, true);                           // FN, too many arguments but symbolic execution doesn't check global scope 
+isNaN(obj, true);                           // FN, too many arguments but symbolic execution doesn't check global scope
 
 class A {
 
@@ -130,4 +130,10 @@ class A {
   foo(param) {
     this.a(param); // OK, it's a property with getter
   }
+}
+
+const noop = () => {};
+
+function parameter_with_default_0_arguments(callback = noop) {
+    callback(42);
 }
