@@ -20,6 +20,7 @@
 package org.sonar.javascript.it;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -90,14 +91,24 @@ public class ProfileGenerator {
 
   private static Set<String> getRuleKeys(Orchestrator orchestrator) {
     Set<String> ruleKeys = new HashSet<>();
-    String json = new HttpRequestFactory(orchestrator.getServer().getUrl())
-      .get("/api/rules/search", ImmutableMap.<String, Object>of("languages", "js", "repositories", "javascript", "ps", "1000"));
-    @SuppressWarnings("unchecked")
-    List<Map> jsonRules = (List<Map>) ((Map) JSONValue.parse(json)).get("rules");
-    for (Map jsonRule : jsonRules) {
-      String key = ((String) jsonRule.get("key")).substring(11);
-      ruleKeys.add(key);
-    }
+    long total;
+    long processed = 0;
+    int page = 1;
+    do {
+      String json = new HttpRequestFactory(orchestrator.getServer().getUrl())
+        .get("/api/rules/search", ImmutableMap.of("languages", "js", "repositories", "javascript", "ps", 500, "p", page));
+      Map response = (Map) JSONValue.parse(json);
+      total = (Long) response.get("total");
+      @SuppressWarnings("unchecked")
+      List<Map> jsonRules = (List<Map>) response.get("rules");
+      for (Map jsonRule : jsonRules) {
+        String key = ((String) jsonRule.get("key")).substring(11);
+        ruleKeys.add(key);
+        processed++;
+      }
+      page++;
+    } while (processed < total);
+    Preconditions.checkState(ruleKeys.size() == total, "Mismatch in retrieved keys (%s) vs. total keys (%s)", ruleKeys.size(), total);
     return ruleKeys;
   }
 
