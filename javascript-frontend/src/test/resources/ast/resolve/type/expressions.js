@@ -66,3 +66,7 @@ var bitwiseCompliment = ~unknown;  // NUMBER
 var logicalCompliment = !unknown;  // BOOLEAN
 var typeofExpr = typeof unknown; // STRING
 var deleteExpr = delete unknown; // BOOLEAN
+
+function foo(par = 42) {
+  par = "str";  // "par" is only string, as default value is ignored
+}

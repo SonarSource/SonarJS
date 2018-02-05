@@ -78,6 +78,11 @@ public class TypeVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
+    // we don't infer type from default parameter value
+    if (tree.parent().is(Tree.Kind.PARAMETER_LIST)) {
+      return;
+    }
+
     inferType(tree.left(), tree.right());
     scan(tree.left());
   }
