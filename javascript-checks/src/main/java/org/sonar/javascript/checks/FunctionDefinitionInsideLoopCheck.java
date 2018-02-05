@@ -40,7 +40,18 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Define this function outside of a loop.";
-  private static final Set<String> ALLOWED_CALLBACKS = ImmutableSet.of("replace", "forEach", "filter", "map", "find", "findIndex", "every", "some", "reduce", "reduceRight", "sort");
+  private static final Set<String> ALLOWED_CALLBACKS = ImmutableSet.of(
+    "replace",
+    "forEach",
+    "filter",
+    "map",
+    "find",
+    "findIndex",
+    "every",
+    "some",
+    "reduce",
+    "reduceRight",
+    "sort");
 
   private Deque<Tree> functionAndLoopScopes = new ArrayDeque<>();
 
