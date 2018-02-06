@@ -12,5 +12,5 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1128",
-  "sqKey": "UselessImportCheck"
+  "sqKey": "S1128"
 }

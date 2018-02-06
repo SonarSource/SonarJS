@@ -3,7 +3,7 @@
 import type {UserID, //Noncompliant {{Remove this unused import of 'UserID'.}}
     User} from "MyTypes"; // Noncompliant {{Remove this unused import of 'User'.}}
 
-import A from 'a';      // Noncompliant {{Remove this unused import of 'A'.}} ,A isn't used
+import A from 'a';      // Noncompliant {{Remove this unused import of 'A'.}}
 import { B1 } from 'b';
 
 console.log("My first JavaScript...");
@@ -22,3 +22,7 @@ export {
 
 import typeof myNumber from './exports'; // Noncompliant
 
+import {a as b} from 'mymodule'; // Noncompliant
+import {a as c} from 'mymodule';
+
+console.log(c);
