@@ -44,7 +44,7 @@ public class GlobalVariableNames {
   private static final String GLOBALS_FILE = "globals.json";
 
   public static final String ENVIRONMENTS_PROPERTY_KEY = "sonar.javascript.environments";
-  public static final String ENVIRONMENTS_DEFAULT_VALUE = "amd, applescript, atomtest, browser, commonjs, couch, embertest, greasemonkey, jasmine, jest, jquery, " +
+  public static final String ENVIRONMENTS_DEFAULT_VALUE = "amd, applescript, atomtest, browser, commonjs, couch, embertest, flow, greasemonkey, jasmine, jest, jquery, " +
     "meteor, mocha, mongo, nashorn, node, phantomjs, prototypejs, protractor, qunit, rhino, serviceworker, shared-node-browser, shelljs, webextensions, worker, wsh, yui";
 
   public static final String GLOBALS_PROPERTY_KEY = "sonar.javascript.globals";

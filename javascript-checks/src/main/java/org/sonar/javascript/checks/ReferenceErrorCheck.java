@@ -27,6 +27,7 @@ import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
@@ -85,4 +86,12 @@ public class ReferenceErrorCheck extends DoubleDispatchVisitorCheck {
     super.visitUnaryExpression(unaryExpression);
   }
 
+  @Override
+  public void visitExportClause(ExportClauseTree tree) {
+    if (tree.fromClause() != null) {
+      // don't visit identifiers exported from another module
+      return;
+    }
+    super.visitExportClause(tree);
+  }
 }

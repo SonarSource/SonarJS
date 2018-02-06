@@ -90,3 +90,6 @@ class MyClass {                        // OK
   }
   meth() {}                            // OK
 }
+
+type A = number;
+class A {}

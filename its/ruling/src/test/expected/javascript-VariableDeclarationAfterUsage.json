@@ -722,6 +722,9 @@
 947,
 975,
 ],
+'project:jest/packages/expect/src/asymmetric_matchers.js':[
+28,
+],
 'project:jest/packages/expect/src/index.js':[
 68,
 75,
@@ -871,8 +874,15 @@
 'project:jest/packages/jest-snapshot/src/utils.js':[
 137,
 ],
+'project:jest/packages/pretty-format/src/plugins/dom_element.js':[
+29,
+29,
+],
 'project:jest/packages/pretty-format/src/plugins/lib/markup.js':[
 74,
+],
+'project:jest/types/Circus.js':[
+27,
 ],
 'project:jquery-1.7.2.js':[
 27,

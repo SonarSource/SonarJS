@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.flow;
+package org.sonar.javascript.checks;
 
-import com.google.common.annotations.Beta;
-import java.util.Optional;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import java.io.File;
+import org.junit.Test;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-@Beta
-public interface FlowSimpleTypeTree extends FlowTypeTree {
+public class UnusedImportCheckTest {
 
-  SyntaxToken token();
-
-  Optional<IdentifierTree> getIdentifierTree();
+  @Test
+  public void test() {
+    JavaScriptCheckVerifier.verify(new UnusedImportCheck(), new File("src/test/resources/checks/unusedImport.js"));
+  }
 
 }

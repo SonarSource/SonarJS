@@ -21,6 +21,8 @@ package org.sonar.javascript.tree.symbols;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.javascript.tree.impl.declaration.ClassTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
@@ -43,6 +45,9 @@ import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterClauseTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
@@ -65,6 +70,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   private Map<Tree, Scope> treeScopeMap;
   private boolean insideForLoopVariable = false;
   private GlobalVariableNames globalVariableNames;
+  private Scope scriptScope;
 
   public HoistedSymbolVisitor(Map<Tree, Scope> treeScopeMap, Configuration configuration) {
     this.treeScopeMap = treeScopeMap;
@@ -76,7 +82,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
     this.symbolModel = (SymbolModelBuilder) getContext().getSymbolModel();
 
     enterScope(tree);
-
+    scriptScope = currentScope;
     addExternalSymbols();
     super.visitScript(tree);
 
@@ -163,7 +169,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     enterScope(tree);
-
+    declareGenericFlowParameters(tree.genericParameterClause());
     declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
@@ -221,7 +227,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
       .addUsage(tree.name(), Usage.Kind.DECLARATION);
 
     enterScope(tree);
-
+    declareGenericFlowParameters(tree.genericParameterClause());
     declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
     addThisSymbol();
@@ -231,10 +237,18 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
     leaveScope();
   }
 
+  private void declareGenericFlowParameters(@Nullable FlowGenericParameterClauseTree flowGenericParameterClauseTree) {
+    if (flowGenericParameterClauseTree != null) {
+      List<IdentifierTree> genericParams = flowGenericParameterClauseTree.genericParameters().stream().map(FlowGenericParameterTree::identifier).collect(Collectors.toList());
+      declareParameters(genericParams);
+    }
+  }
+
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
     enterScope(tree);
 
+    declareGenericFlowParameters(tree.genericParameterClause());
     declareParameters(((ArrowFunctionTreeImpl) tree).parameterIdentifiers());
 
     super.visitArrowFunction(tree);
@@ -252,6 +266,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
       symbolModel.declareSymbol(name.name(), Symbol.Kind.FUNCTION, currentScope).addUsage(name, Usage.Kind.DECLARATION);
 
     }
+    declareGenericFlowParameters(tree.genericParameterClause());
     declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
     addThisSymbol();
@@ -275,6 +290,13 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
     addUsages(tree);
     super.visitVariableDeclaration(tree);
+  }
+
+  @Override
+  public void visitFlowTypeAliasStatement(FlowTypeAliasStatementTree tree) {
+    symbolModel.declareSymbol(tree.typeAlias().name(), Symbol.Kind.FLOW_TYPE, scriptScope)
+      .addUsage(tree.typeAlias(), Usage.Kind.DECLARATION);
+    super.visitFlowTypeAliasStatement(tree);
   }
 
   private void addUsages(VariableDeclarationTree tree) {

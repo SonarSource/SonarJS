@@ -31,9 +31,7 @@ public class ExportSpecifierTest {
     // TODO: IMPORT_SPECIFIER
     assertThat(Kind.EXPORT_SPECIFIER)
       .matches("identifier")
-      .matches("identifier as class")
-      .matches("class")
-      .matches("class as class");
+      .matches("identifier as class");
   }
 
 }
