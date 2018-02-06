@@ -41,6 +41,15 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
+  public void should_exclude_only_js() throws Exception {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.JS_EXCLUSIONS_DEFAULT_VALUE);
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
+    assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("node_modules/some_lib.ts"))).isTrue();
+  }
+
+  @Test
   public void should_include_node_modules_when_property_is_overridden() throws Exception {
     MapSettings settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "");
@@ -77,7 +86,7 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   private DefaultInputFile inputFile(String file) {
-    return new TestInputFileBuilder("test","test_node_modules/" + file).build();
+    return new TestInputFileBuilder("test","test_node_modules/" + file).setLanguage(file.split("\\.")[1]).build();
   }
 
 }
