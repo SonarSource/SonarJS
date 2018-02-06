@@ -106,3 +106,8 @@ function objectDestructuringException(obj) {
 
   var {} = obj;
 }
+
+function used_in_template_string() {
+  const foo = '.';
+  return new RegExp(`\\${foo}`);
+}

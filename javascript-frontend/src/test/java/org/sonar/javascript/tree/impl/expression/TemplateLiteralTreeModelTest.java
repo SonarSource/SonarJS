@@ -56,4 +56,27 @@ public class TemplateLiteralTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.closeBacktickToken().text()).isEqualTo("`");
   }
 
+  @Test
+  public void with_escape_and_expression() throws Exception {
+    TemplateLiteralTree tree = parse("`\\\\${ expression1 }`", Kind.TEMPLATE_LITERAL);
+
+    assertThat(tree.strings().get(0).value()).isEqualTo("\\\\");
+    assertThat(tree.expressions()).hasSize(1);
+  }
+
+  @Test
+  public void with_escaped_dollar() throws Exception {
+    TemplateLiteralTree tree = parse("`\\$`", Kind.TEMPLATE_LITERAL);
+
+    assertThat(tree.strings().get(0).value()).isEqualTo("\\$");
+    assertThat(tree.expressions()).hasSize(0);
+  }
+
+  @Test
+  public void with_escaped_backtick() throws Exception {
+    TemplateLiteralTree tree = parse("`\\``", Kind.TEMPLATE_LITERAL);
+
+    assertThat(tree.strings().get(0).value()).isEqualTo("\\`");
+    assertThat(tree.expressions()).hasSize(0);
+  }
 }
