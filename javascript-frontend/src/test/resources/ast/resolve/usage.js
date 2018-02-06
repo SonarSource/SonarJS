@@ -87,3 +87,6 @@ import DefaultMember1, {member4} from "module-name";
 
 member1();
 new DefaultMember();
+
+var usedInTemplate = 42;
+console.log(`\\${usedInTemplate}`);

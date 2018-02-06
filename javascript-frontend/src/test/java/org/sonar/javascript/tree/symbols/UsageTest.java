@@ -233,6 +233,12 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(SYMBOL_MODEL.getSymbols("member3")).isEmpty();
   }
 
+  @Test
+  public void usage_in_string_template() throws Exception {
+    Symbol usedInTemplate = symbol("usedInTemplate");
+    assertThat(usedInTemplate.usages()).hasSize(2);
+  }
+
   private void assertImported(String name, boolean isUsed) {
     Symbol symbol = symbol(name);
     assertThat(symbol.scope().isGlobal()).isTrue();

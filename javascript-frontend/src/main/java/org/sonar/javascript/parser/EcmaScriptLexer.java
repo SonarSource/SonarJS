@@ -140,6 +140,8 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
    **/
   BACKSLASH,
 
+  BACKSLASH_DOLLAR,
+
   KEYWORD,
   LETTER_OR_DIGIT,
 
@@ -415,10 +417,11 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
       b.regexp(JavaScriptRegexpChannel.REGULAR_EXPRESSION));
 
     b.rule(TEMPLATE_CHARACTER).is(b.firstOf(
-      b.sequence(DOLLAR_SIGN, b.nextNot(LCURLYBRACE)),
+      b.sequence("$", b.nextNot(LCURLYBRACE)),
       b.sequence(BACKSLASH, JavaScriptLexer.WHITESPACE),
-      b.sequence(BACKSLASH, BACKTICK),
-      b.sequence(BACKSLASH, DOLLAR_SIGN),
+      "\\`",
+      "\\$",
+      "\\\\",
       LINE_CONTINUATION,
       b.regexp(JavaScriptLexer.LINE_TERMINATOR_SEQUENCE),
       b.regexp("[^`\\$" + JavaScriptLexer.LINE_TERMINATOR + "]")));
