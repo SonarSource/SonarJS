@@ -27,14 +27,17 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.wsclient.SonarClient;
+import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +59,13 @@ public class JavaScriptRulingTest {
 
   @Before
   public void setUp() throws Exception {
-    ProfileGenerator.generateProfile(orchestrator);
+    ProfileGenerator.RulesConfiguration rulesConfiguration = new ProfileGenerator.RulesConfiguration()
+      .add("S1451", "headerFormat", "// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.")
+      .add("S1451", "isRegularExpression", "true")
+      .add("S2762", "threshold", "1");
+    Set<String> excludedRules = Collections.singleton("CommentRegularExpression");
+    File profile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "js", "javascript", rulesConfiguration, excludedRules);
+    orchestrator.getServer().restoreProfile(FileLocation.of(profile));
   }
 
   @Test

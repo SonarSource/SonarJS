@@ -81,6 +81,7 @@
     <sslr.version>1.22</sslr.version>
     <sslr-squid-bridge.version>2.6.1</sslr-squid-bridge.version>
     <gson.version>2.6.2</gson.version>
+    <analyzer-commons.version>1.5.0.178</analyzer-commons.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
   </properties>
@@ -103,6 +104,11 @@
         <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-core</artifactId>
         <version>${sslr.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.analyzer-commons</groupId>
+        <artifactId>sonar-analyzer-commons</artifactId>
+        <version>${analyzer-commons.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sslr-squid-bridge</groupId>
