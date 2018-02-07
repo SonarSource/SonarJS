@@ -113,10 +113,15 @@ public class ArrowFunctionConventionCheck extends DoubleDispatchVisitorCheck {
     }
 
     if (!parameterParens && hasParameterParens) {
-      SeparatedList<BindingElementTree> parameters = ((ParameterListTree) tree.parameterClause()).parameters();
-      if (parameters.size() == 1 && parameters.get(0).is(Kind.BINDING_IDENTIFIER)) {
+      ParameterListTree parameterListTree = (ParameterListTree) tree.parameterClause();
+      SeparatedList<BindingElementTree> parameters = parameterListTree.parameters();
+      if (parameters.size() == 1 && parameters.get(0).is(Kind.BINDING_IDENTIFIER) && !hasCommentInside(parameterListTree)) {
         addIssue(tree.parameterClause(), MESSAGE_REMOVE_PARAMETER);
       }
     }
+  }
+
+  private boolean hasCommentInside(ParameterListTree parameterListTree) {
+    return !parameterListTree.closeParenthesisToken().trivias().isEmpty();
   }
 }
