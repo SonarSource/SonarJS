@@ -116,6 +116,7 @@
     "S4030",
     "S4043",
     "S4143",
+    "S4144",
     "S4165",
     "TrailingWhitespace",
     "UnreachableCode",
