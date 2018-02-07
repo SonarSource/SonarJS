@@ -29,7 +29,9 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
@@ -64,4 +66,20 @@ public class UnusedImportCheck extends DoubleDispatchVisitorCheck {
     super.visitImportClause(tree);
   }
 
+  @Override
+  public void visitImportDeclaration(ImportDeclarationTree tree) {
+    if (isReactImport(tree)) {
+      return;
+    }
+    super.visitImportDeclaration(tree);
+  }
+
+  private static boolean isReactImport(ImportDeclarationTree tree) {
+    FromClauseTree fromClause = tree.fromClause();
+    if (fromClause != null) {
+      String module = fromClause.module().value();
+      return "react".equals(module.substring(1, module.length() - 1));
+    }
+    return false;
+  }
 }

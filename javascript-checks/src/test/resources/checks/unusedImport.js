@@ -29,3 +29,6 @@ console.log(c);
 
 import * as usedStarImport from 'usedstarimport';
 var x: usedStarImport.foo = 42;
+
+import * as React from 'react'; // Compliant, react imports are excluded
+import * as React2 from "react";
