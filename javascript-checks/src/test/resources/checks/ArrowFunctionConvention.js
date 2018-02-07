@@ -1,5 +1,5 @@
 // PARAMETERS
-
+var foo = (a /*some comment*/) => { foo(); }
 var foo = (a, b) => { foo(); }
 var foo = () => { foo(); }
 var foo = (a) => { foo(); }     // Noncompliant {{Remove parentheses around the parameter of this arrow function.}}
