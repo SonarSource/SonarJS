@@ -38,12 +38,13 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
   @Test
   public void symbols_filtering() {
-    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.FUNCTION)).extracting("name").containsOnly("f", "func");
-    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER)).extracting("name").containsOnly("p1", "p2");
+    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.FUNCTION)).extracting("name").containsOnly("f", "func", "flowGenerics");
+    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER)).extracting("name").containsOnly("p1", "p2", "p3");
+    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.FLOW_GENERIC_TYPE)).extracting("name").containsOnly("T");
 
     assertThat(SYMBOL_MODEL.getSymbols("a")).hasSize(3);
-    assertThat(SYMBOL_MODEL.getSymbols("arguments")).hasSize(2);
-    assertThat(SYMBOL_MODEL.getSymbols("this")).hasSize(3);
+    assertThat(SYMBOL_MODEL.getSymbols("arguments")).hasSize(3);
+    assertThat(SYMBOL_MODEL.getSymbols("this")).hasSize(4);
     assertThat(SYMBOL_MODEL.getSymbols("Object")).hasSize(1);
     assertThat(SYMBOL_MODEL.getSymbols("window")).hasSize(1);
   }

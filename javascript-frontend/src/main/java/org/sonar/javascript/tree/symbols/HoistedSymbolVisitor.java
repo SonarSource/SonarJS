@@ -21,7 +21,6 @@ package org.sonar.javascript.tree.symbols;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.javascript.tree.impl.declaration.ClassTreeImpl;
@@ -239,8 +238,10 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
   private void declareGenericFlowParameters(@Nullable FlowGenericParameterClauseTree flowGenericParameterClauseTree) {
     if (flowGenericParameterClauseTree != null) {
-      List<IdentifierTree> genericParams = flowGenericParameterClauseTree.genericParameters().stream().map(FlowGenericParameterTree::identifier).collect(Collectors.toList());
-      declareParameters(genericParams);
+      flowGenericParameterClauseTree.genericParameters().stream()
+        .map(FlowGenericParameterTree::identifier)
+        .forEach(identifier -> symbolModel.declareSymbol(identifier.name(), Symbol.Kind.FLOW_GENERIC_TYPE, currentScope)
+          .addUsage(identifier, Usage.Kind.LEXICAL_DECLARATION));
     }
   }
 

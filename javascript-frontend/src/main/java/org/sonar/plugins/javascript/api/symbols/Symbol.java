@@ -42,6 +42,7 @@ public class Symbol {
     IMPORT("imported symbol"),
     CLASS("class"),
     FLOW_TYPE("flow type"),
+    FLOW_GENERIC_TYPE("flow generic type")
     ;
 
     private final String value;
