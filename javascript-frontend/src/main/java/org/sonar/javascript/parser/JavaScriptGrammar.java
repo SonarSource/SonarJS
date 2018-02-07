@@ -1324,9 +1324,8 @@ public class JavaScriptGrammar {
   public SpecifierTree EXPORT_SPECIFIER() {
     return b.<SpecifierTree>nonterminal(Kind.EXPORT_SPECIFIER)
       .is(b.firstOf(
-        // why not reference to identifier?
-        f.exportSpecifier(IDENTIFIER_NAME(), b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME()),
-        f.exportSpecifier(IDENTIFIER_NAME())
+        f.exportSpecifier(IDENTIFIER_REFERENCE(), b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME()),
+        f.exportSpecifier(IDENTIFIER_REFERENCE())
       ));
   }
 
@@ -1890,7 +1889,7 @@ public class JavaScriptGrammar {
   public FlowNamespacedTypeTree FLOW_NAMESPACED_TYPE() {
     return b.<FlowNamespacedTypeTree>nonterminal(Kind.FLOW_NAMESPACED_TYPE)
       .is(f.flowNamespacedType(
-        IDENTIFIER_NAME(),
+        IDENTIFIER_REFERENCE(),
         b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_NAME()))));
   }
 
@@ -2085,7 +2084,7 @@ public class JavaScriptGrammar {
   public FlowGenericParameterTree FLOW_GENERIC_PARAMETER() {
     return b.<FlowGenericParameterTree>nonterminal(Kind.FLOW_GENERIC_PARAMETER)
       .is(f.flowGenericParameter(
-        IDENTIFIER_NAME(),
+        BINDING_IDENTIFIER(),
         b.optional(FLOW_TYPE_ANNOTATION()),
         b.optional(f.newTuple(b.token(JavaScriptPunctuator.EQU), FLOW_TYPE()))));
   }

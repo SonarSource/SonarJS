@@ -51,3 +51,34 @@ function f1() {
 foo(String);
 foo(window);
 foo(document);
+
+var x: MyType;
+
+type MyType = OtherType;
+
+type OtherType = number;
+
+function blah<T>(x: T): T  {
+
+}
+
+// these flow constructs are not yet supported and they don't create correct symbols
+
+class FlowFunctionType {
+  f: <T>(x: T) => T;  // Noncompliant, FP
+//          ^
+}
+
+interface FlowInterface {}
+type TA = FlowInterface; // Noncompliant, FP
+//        ^^^^^^^^^^^^^
+
+var a : { <Z>(x: Z): number; } // Noncompliant, FP
+//               ^
+
+
+declare type T3<U> = { [k:string]: U } // Noncompliant, FP
+//                                 ^
+declare interface I<V> { foo: V } // Noncompliant, FP
+//                            ^
+

@@ -1820,7 +1820,7 @@ public class TreeFactory {
   }
 
   public FlowSimpleTypeTree flowSimpleType(IdentifierTree identifierTree) {
-    return new FlowSimpleTypeTreeImpl(identifierTree.identifierToken());
+    return new FlowSimpleTypeTreeImpl(identifierTree);
   }
 
   public FlowSimpleTypeTree flowSimpleType(SyntaxToken token) {

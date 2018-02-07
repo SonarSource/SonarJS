@@ -40,7 +40,10 @@ public class Symbol {
     METHOD("method"),
     PARAMETER("parameter"),
     IMPORT("imported symbol"),
-    CLASS("class");
+    CLASS("class"),
+    FLOW_TYPE("flow type"),
+    FLOW_GENERIC_TYPE("flow generic type")
+    ;
 
     private final String value;
 
