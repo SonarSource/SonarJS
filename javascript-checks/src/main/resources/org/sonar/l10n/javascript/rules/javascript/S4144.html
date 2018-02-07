@@ -1,0 +1,31 @@
+<p>When two functions have the same implementation, either it was a mistake - something else was intended - or the duplication was intentional, but
+may be confusing to maintainers. In the latter case, the code should be refactored.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function calculateCode() {
+  doTheThing();
+  doOtherThing();
+  return code;
+}
+
+function getName() {  // Noncompliant
+  doTheThing();
+  doOtherThing();
+  return code;
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function calculateCode() {
+  doTheThing();
+  doOtherThing();
+  return code;
+}
+
+function getName() {
+  return calculateCode();
+}
+</pre>
+<h2>Exceptions</h2>
+<p>Functions with fewer than 3 lines are ignored.</p>
+

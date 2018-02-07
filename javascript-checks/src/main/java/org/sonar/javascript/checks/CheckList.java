@@ -119,6 +119,7 @@ public final class CheckList {
       HtmlCommentsCheck.class,
       IdChildrenSelectorCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
+      IdenticalFunctionsCheck.class,
       IfConditionalAlwaysTrueOrFalseCheck.class,
       ImmediatelyReturnedVariableCheck.class,
       InconsistentFunctionCallCheck.class,
