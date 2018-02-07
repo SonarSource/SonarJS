@@ -1889,7 +1889,7 @@ public class JavaScriptGrammar {
   public FlowNamespacedTypeTree FLOW_NAMESPACED_TYPE() {
     return b.<FlowNamespacedTypeTree>nonterminal(Kind.FLOW_NAMESPACED_TYPE)
       .is(f.flowNamespacedType(
-        IDENTIFIER_NAME(),
+        IDENTIFIER_REFERENCE(),
         b.oneOrMore(f.newTuple(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_NAME()))));
   }
 

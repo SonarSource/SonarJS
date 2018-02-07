@@ -90,3 +90,7 @@ new DefaultMember();
 
 var usedInTemplate = 42;
 console.log(`\\${usedInTemplate}`);
+
+
+import * as namespaceImport from "module";
+var flownamespaceVar: namespaceImport.FlowType;

@@ -36,6 +36,8 @@ public class FlowNamespacedTypeTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.identifiers()).hasSize(3);
     assertThat(tree.identifiers().getSeparators()).hasSize(2);
     assertThat(tree.identifiers().getSeparator(0).text()).isEqualTo(".");
+    assertThat(tree.identifiers().get(0).is(Kind.IDENTIFIER_REFERENCE)).isTrue();
+    assertThat(tree.identifiers().stream().skip(1).allMatch(t -> t.is(Kind.PROPERTY_IDENTIFIER))).isTrue();
   }
 
 }

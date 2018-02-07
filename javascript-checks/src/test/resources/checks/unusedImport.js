@@ -26,3 +26,6 @@ import {a as b} from 'mymodule'; // Noncompliant
 import {a as c} from 'mymodule';
 
 console.log(c);
+
+import * as usedStarImport from 'usedstarimport';
+var x: usedStarImport.foo = 42;

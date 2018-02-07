@@ -239,6 +239,13 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(usedInTemplate.usages()).hasSize(2);
   }
 
+  @Test
+  public void usage_flow_namespace_type() {
+    Symbol namespaceImport = symbol("namespaceImport");
+    assertThat(namespaceImport.usages()).hasSize(2);
+    assertThat(namespaceImport.kind()).isEqualTo(Kind.IMPORT);
+  }
+
   private void assertImported(String name, boolean isUsed) {
     Symbol symbol = symbol(name);
     assertThat(symbol.scope().isGlobal()).isTrue();
