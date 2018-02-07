@@ -65,6 +65,7 @@ public final class CheckList {
       ValuesNotConvertibleToNumbersCheck.class,
       ComparisonWithNaNCheck.class,
       ConditionalCommentCheck.class,
+      ConditionalIndentationCheck.class,
       ConditionalOperatorCheck.class,
       ConsoleLoggingCheck.class,
       ConstructorFunctionsForSideEffectsCheck.class,

@@ -1,0 +1,16 @@
+{
+  "title": "Conditionally executed code should be denoted by either indentation or curly braces",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "confusing",
+    "suspicious"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-3973",
+  "sqKey": "S3973"
+}
