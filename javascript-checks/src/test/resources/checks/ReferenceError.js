@@ -66,13 +66,19 @@ function blah<T>(x: T): T  {
 
 class FlowFunctionType {
   f: <T>(x: T) => T;  // Noncompliant, FP
+//          ^
 }
 
 interface FlowInterface {}
 type TA = FlowInterface; // Noncompliant, FP
+//        ^^^^^^^^^^^^^
 
 var a : { <Z>(x: Z): number; } // Noncompliant, FP
+//               ^
 
 
 declare type T3<U> = { [k:string]: U } // Noncompliant, FP
+//                                 ^
 declare interface I<V> { foo: V } // Noncompliant, FP
+//                            ^
+
