@@ -121,7 +121,7 @@ public class ArrowFunctionConventionCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private boolean hasCommentInside(ParameterListTree parameterListTree) {
+  private static boolean hasCommentInside(ParameterListTree parameterListTree) {
     return !parameterListTree.closeParenthesisToken().trivias().isEmpty();
   }
 }
