@@ -33,10 +33,11 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 
 @Rule(key = "S4043")
-public class ArrayReverseCheck extends AbstractAnyPathSeCheck {
+public class ArrayMutatingOperationCheck extends AbstractAnyPathSeCheck {
 
   private static final String REVERSE = "reverse";
-  private static final String MESSAGE = "Move this array \"" + REVERSE + "\" operation to a separate statement.";
+  private static final String SORT = "sort";
+  private static final String MESSAGE = "Move this array \"%s\" operation to a separate statement.";
 
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
@@ -53,13 +54,14 @@ public class ArrayReverseCheck extends AbstractAnyPathSeCheck {
   private void checkMemberExpression(ProgramState currentState, CallExpressionTree callExpression, MemberExpressionTree memberExpression) {
     ExpressionTree object = memberExpression.object();
 
-    if (!isReverseMethod(memberExpression.property()) || !object.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
+    Optional<String> mutatingMethod = mutatingMethod(memberExpression.property());
+    if (!mutatingMethod.isPresent() || !object.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       return;
     }
 
     ((IdentifierTree) object).symbol().ifPresent(objectSymbol -> {
       if (isArray(objectSymbol, currentState) && isBeingPassedElsewhere(objectSymbol, callExpression)) {
-        this.addUniqueIssue(callExpression, MESSAGE);
+        this.addUniqueIssue(callExpression, String.format(MESSAGE, mutatingMethod.get()));
       }
     });
   }
@@ -86,13 +88,13 @@ public class ArrayReverseCheck extends AbstractAnyPathSeCheck {
     return currentState.getConstraint(symbol).isStricterOrEqualTo(Constraint.ARRAY);
   }
 
-  private static boolean isReverseMethod(ExpressionTree property) {
+  private static Optional<String> mutatingMethod(ExpressionTree property) {
     if (property.is(Tree.Kind.PROPERTY_IDENTIFIER)) {
-      IdentifierTree propertyIdentifier = (IdentifierTree) property;
-      if (REVERSE.equals(propertyIdentifier.name())) {
-        return true;
+      String identifierName = ((IdentifierTree) property).name();
+      if (REVERSE.equals(identifierName) || SORT.equals(identifierName)) {
+        return Optional.of(identifierName);
       }
     }
-    return false;
+    return Optional.empty();
   }
 }

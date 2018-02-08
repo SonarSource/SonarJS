@@ -6,6 +6,8 @@ function main() {
   const prop = a.reverse // OK, not actually invoking the method
   const b = a.reverse(); // Noncompliant {{Move this array "reverse" operation to a separate statement.}}
 //          ^^^^^^^^^^^
+  const b2 = a.sort(); // Noncompliant {{Move this array "sort" operation to a separate statement.}}
+//           ^^^^^^^^
 
   a.slice().reverse().forEach(() => {}); // OK, there is `slice`
 

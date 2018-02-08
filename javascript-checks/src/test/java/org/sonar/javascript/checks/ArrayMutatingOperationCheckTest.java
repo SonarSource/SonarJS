@@ -23,11 +23,11 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ArrayReverseCheckTest {
+public class ArrayMutatingOperationCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new ArrayReverseCheck(), new File("src/test/resources/checks/ArrayReverse.js"));
+    JavaScriptCheckVerifier.verify(new ArrayMutatingOperationCheck(), new File("src/test/resources/checks/ArrayMutatingOperation.js"));
   }
 
 }
