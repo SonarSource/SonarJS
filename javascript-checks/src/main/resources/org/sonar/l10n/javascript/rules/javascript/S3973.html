@@ -1,0 +1,32 @@
+<p>In the absence of enclosing curly braces, the line immediately after a conditional is the one that is conditionally executed. By both convention
+and good practice, such lines are indented. In the absence of both curly braces and indentation the intent of the original programmer is entirely
+unclear and perhaps not actually what is executed. Additionally, such code is highly likely to be confusing to maintainers.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+if (condition)  // Noncompliant
+doTheThing();
+doTheOtherThing();
+somethingElseEntirely();
+
+foo();
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+if (condition) {
+  doTheThing();
+  doTheOtherThing();
+  somethingElseEntirely();
+}
+
+foo();
+</pre>
+<p>Or</p>
+<pre>
+if (condition)
+  doTheThing();
+doTheOtherThing();
+somethingElseEntirely();
+
+foo();
+</pre>
+
