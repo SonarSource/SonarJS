@@ -19,67 +19,43 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S1128")
 public class UnusedImportCheck extends DoubleDispatchVisitorCheck {
 
-  private Set<Symbol> importedSymbols = new HashSet<>();
+  private static final Set<String> EXCLUDED_IMPORTS = ImmutableSet.of("React");
 
   @Override
   public void visitModule(ModuleTree tree) {
-    importedSymbols.clear();
+    SymbolModel symbolModel = getContext().getSymbolModel();
+    symbolModel.getSymbols(Symbol.Kind.IMPORT).forEach(this::checkImport);
     super.visitModule(tree);
-    importedSymbols.forEach(s -> {
-      List<Usage> declarations = s.usages().stream().filter(Usage::isDeclaration).collect(Collectors.toList());
-      if (s.usages().size() == 1 && declarations.size() == 1) {
-        IdentifierTree identifierTree = Iterables.getOnlyElement(declarations).identifierTree();
-        addIssue(identifierTree, String.format("Remove this unused import of '%s'.", identifierTree.name()));
-      }
-      if (declarations.size() > 1) {
-        declarations.stream().skip(1).forEach(u -> addIssue(u.identifierTree(),
-          String.format("'%s' is already imported; remove this redundant import.", u.identifierTree().name())));
-      }
-    });
   }
 
-  @Override
-  public void visitImportClause(ImportClauseTree tree) {
-    tree.descendants()
-      .filter(t -> t.is(Tree.Kind.BINDING_IDENTIFIER))
-      .map(t -> (IdentifierTree) t)
-      .forEach(identifierTree -> identifierTree.symbol().ifPresent(importedSymbols::add));
-    super.visitImportClause(tree);
-  }
-
-  @Override
-  public void visitImportDeclaration(ImportDeclarationTree tree) {
-    if (isReactImport(tree)) {
+  private void checkImport(Symbol s) {
+    if (EXCLUDED_IMPORTS.contains(s.name())) {
       return;
     }
-    super.visitImportDeclaration(tree);
-  }
-
-  private static boolean isReactImport(ImportDeclarationTree tree) {
-    FromClauseTree fromClause = tree.fromClause();
-    if (fromClause != null) {
-      String module = fromClause.module().value();
-      return "react".equals(module.substring(1, module.length() - 1));
+    List<Usage> declarations = s.usages().stream().filter(Usage::isDeclaration).collect(Collectors.toList());
+    if (s.usages().size() == 1 && declarations.size() == 1) {
+      IdentifierTree identifierTree = Iterables.getOnlyElement(declarations).identifierTree();
+      addIssue(identifierTree, String.format("Remove this unused import of '%s'.", identifierTree.name()));
     }
-    return false;
+    if (declarations.size() > 1) {
+      declarations.stream().skip(1).forEach(u -> addIssue(u.identifierTree(),
+        String.format("'%s' is already imported; remove this redundant import.", u.identifierTree().name())));
+    }
   }
 }

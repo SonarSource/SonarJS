@@ -12,7 +12,7 @@ import { B1 } from 'b'; // Noncompliant {{'B1' is already imported; remove this 
 
 console.log(B1);
 
-import * as test from 'starimport'; // Noncompliant
+import * as star from 'starimport'; // Noncompliant
 
 import { Exported } from 'b';  // used in export
 
@@ -30,5 +30,7 @@ console.log(c);
 import * as usedStarImport from 'usedstarimport';
 var x: usedStarImport.foo = 42;
 
-import * as React from 'react'; // Compliant, react imports are excluded
-import * as React2 from "react";
+import React from 'react';  // Compliant, react imports are excluded
+import React, { Component } from 'react'; // Noncompliant
+//              ^^^^^^^^^
+
