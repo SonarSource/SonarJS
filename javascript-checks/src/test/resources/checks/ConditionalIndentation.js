@@ -81,3 +81,8 @@
       doTheThing();
       doTheOtherThing();
     }
+
+    if (cond)// Noncompliant, negative indentation
+  foo();
+
+

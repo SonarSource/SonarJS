@@ -38,7 +38,9 @@ public class ConditionalIndentationCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitIfStatement(IfStatementTree tree) {
-    checkIndentation(tree.ifKeyword(), tree.statement());
+    if (!tree.parent().is(Kind.ELSE_CLAUSE)) {
+      checkIndentation(tree.ifKeyword(), tree.statement());
+    }
     super.visitIfStatement(tree);
   }
 
@@ -76,7 +78,7 @@ public class ConditionalIndentationCheck extends DoubleDispatchVisitorCheck {
     }
 
     SyntaxToken firstStatementToken = statement.firstToken();
-    if (conditionalFirstToken.column() == firstStatementToken.column()) {
+    if (conditionalFirstToken.column() >= firstStatementToken.column()) {
       String message = String.format(MESSAGE, conditionalFirstToken.text());
       addIssue(conditionalFirstToken, message)
         .secondary(firstStatementToken);
