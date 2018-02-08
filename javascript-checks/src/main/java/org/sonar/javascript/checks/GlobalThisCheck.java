@@ -39,6 +39,8 @@ public class GlobalThisCheck extends SubscriptionVisitorCheck {
   public Set<Kind> nodesToVisit() {
     return ImmutableSet.<Kind>builder()
       .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
+      .add(Kind.CLASS_DECLARATION)
+      .add(Kind.CLASS_EXPRESSION)
       .add(Tree.Kind.DOT_MEMBER_EXPRESSION)
       .build();
   }

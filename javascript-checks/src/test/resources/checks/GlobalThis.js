@@ -40,3 +40,12 @@ class C {
     this.id = 1;  // ok
   }
 }
+
+class D {
+  prop1 = 42;
+  prop2 = this.prop1 * 2;
+  prop3 = {
+    subprop: this.prop2
+  };
+  prop4 = this.foo(this.bar);
+}
