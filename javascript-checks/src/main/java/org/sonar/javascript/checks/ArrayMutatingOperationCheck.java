@@ -54,7 +54,7 @@ public class ArrayMutatingOperationCheck extends AbstractAnyPathSeCheck {
   private void checkMemberExpression(ProgramState currentState, CallExpressionTree callExpression, MemberExpressionTree memberExpression) {
     ExpressionTree object = memberExpression.object();
 
-    Optional<String> mutatingMethod = isMutatingMethod(memberExpression.property());
+    Optional<String> mutatingMethod = mutatingMethod(memberExpression.property());
     if (!mutatingMethod.isPresent() || !object.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       return;
     }
@@ -88,7 +88,7 @@ public class ArrayMutatingOperationCheck extends AbstractAnyPathSeCheck {
     return currentState.getConstraint(symbol).isStricterOrEqualTo(Constraint.ARRAY);
   }
 
-  private static Optional<String> isMutatingMethod(ExpressionTree property) {
+  private static Optional<String> mutatingMethod(ExpressionTree property) {
     if (property.is(Tree.Kind.PROPERTY_IDENTIFIER)) {
       String identifierName = ((IdentifierTree) property).name();
       if (REVERSE.equals(identifierName) || SORT.equals(identifierName)) {
