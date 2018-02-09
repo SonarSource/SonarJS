@@ -44,6 +44,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowGenericParameterTree;
+import org.sonar.plugins.javascript.api.tree.flow.FlowInterfaceDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowTypeAliasStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
@@ -273,6 +274,13 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
     super.visitClass(tree);
 
     leaveScope();
+  }
+
+  @Override
+  public void visitFlowInterfaceDeclaration(FlowInterfaceDeclarationTree tree) {
+    symbolModel.declareSymbol(tree.name().name(), Symbol.Kind.FLOW_TYPE, scriptScope)
+      .addUsage(tree.name(), Usage.Kind.DECLARATION);
+    super.visitFlowInterfaceDeclaration(tree);
   }
 
   @Override
