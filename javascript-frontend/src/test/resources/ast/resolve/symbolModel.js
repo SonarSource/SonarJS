@@ -35,3 +35,7 @@ let flowed: number;
 for (let [arra, arrb] in a){}
 
 function flowGenerics<T>(p3: T) {}
+
+interface FlowInterface {
+
+}

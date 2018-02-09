@@ -62,15 +62,14 @@ function blah<T>(x: T): T  {
 
 }
 
-// these flow constructs are not yet supported and they don't create correct symbols
+// Flow symbols
 
 class FlowFunctionType {
   f: <T>(x: T) => T;  // OK
 }
 
 interface FlowInterface {}
-type TA = FlowInterface; // Noncompliant, FP
-//        ^^^^^^^^^^^^^
+type TA = FlowInterface; // OK
 
 var a : { <Z>(x: Z): number; } // OK
 

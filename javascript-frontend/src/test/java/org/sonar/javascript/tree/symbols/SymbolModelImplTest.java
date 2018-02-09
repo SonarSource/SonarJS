@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import com.google.common.collect.Iterables;
+import java.util.Set;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
@@ -91,6 +93,12 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
   public void destructuring_let() throws Exception {
      assertThat(SYMBOL_MODEL.getSymbols("arra")).hasSize(1);
      assertThat(SYMBOL_MODEL.getSymbols("arrb")).hasSize(1);
+  }
+
+  @Test
+  public void flow_interface() {
+    Symbol flowInterface = Iterables.getOnlyElement(SYMBOL_MODEL.getSymbols("FlowInterface"));
+    assertThat(flowInterface.kind()).isEqualTo(Kind.FLOW_TYPE);
   }
 
   private Configuration config(String environmentNames, String globalNames) {
