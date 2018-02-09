@@ -93,3 +93,5 @@ class MyClass {                        // OK
 
 type A = number;
 class A {}
+
+let a : { <T>(x: T): number; }   // Flow generic parameters are ignored as they are created in global scope (for simplicity)

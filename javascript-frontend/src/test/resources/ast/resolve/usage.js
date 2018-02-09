@@ -94,3 +94,12 @@ console.log(`\\${usedInTemplate}`);
 
 import * as namespaceImport from "module";
 var flownamespaceVar: namespaceImport.FlowType;
+
+
+function foo<T>(p: T) {
+  let yy: T = 42;
+}
+
+class FlowFunctionType {
+  f: <P>(p: P) => P;
+}
