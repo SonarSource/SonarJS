@@ -7,7 +7,7 @@
     "constantCost": "10min"
   },
   "tags": [
-    
+    "pitfall"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2137",

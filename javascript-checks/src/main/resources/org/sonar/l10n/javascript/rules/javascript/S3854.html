@@ -6,6 +6,10 @@
 <p>- <code>super()</code> must be invoked with the same number of arguments as the base class' constructor.</p>
 <p>- <code>super()</code> can only be invoked in a constructor - not in any other method.</p>
 <p>- <code>super()</code> cannot be invoked multiple times in the same constructor.</p>
+<h3>Known Limitations</h3>
+<ul>
+  <li> False negatives: some issues are not raised if the base class is not defined in the same file as the current class. </li>
+</ul>
 <h2>Noncompliant Code Example</h2>
 <pre>
 class Animal {
@@ -86,7 +90,4 @@ class FilaBrasileiro extends Dog {
   }
 }
 </pre>
-<h2>Known Limitations</h2>
-<ul>
-  <li>False negatives: some issues are not raised if the base class is not defined in the same file as the current class.</li>
-</ul>
+

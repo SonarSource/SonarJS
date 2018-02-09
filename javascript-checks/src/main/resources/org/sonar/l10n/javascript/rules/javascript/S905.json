@@ -9,7 +9,6 @@
   "tags": [
     "cwe",
     "misra",
-    "cert",
     "unused"
   ],
   "standards": [
