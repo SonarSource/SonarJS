@@ -38,7 +38,8 @@ public class DeclarationInGlobalScopeCheck extends DoubleDispatchVisitorCheck {
     Kind.LET_VARIABLE,
     Kind.CLASS,
     Kind.IMPORT,
-    Kind.FLOW_TYPE
+    Kind.FLOW_TYPE,
+    Kind.FLOW_GENERIC_TYPE
   );
 
   @Override

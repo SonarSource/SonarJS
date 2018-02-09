@@ -246,6 +246,20 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(namespaceImport.kind()).isEqualTo(Kind.IMPORT);
   }
 
+  @Test
+  public void flow_generic_type_in_func_declaration() {
+    Symbol genericParameterT = symbol("T");
+    assertThat(genericParameterT.usages()).hasSize(3);
+    assertThat(genericParameterT.kind()).isEqualTo(Kind.FLOW_GENERIC_TYPE);
+  }
+
+  @Test
+  public void flow_generic_type_in_type_declaration() {
+    Symbol genericParameterT = symbol("P");
+    assertThat(genericParameterT.usages()).hasSize(3);
+    assertThat(genericParameterT.kind()).isEqualTo(Kind.FLOW_GENERIC_TYPE);
+  }
+
   private void assertImported(String name, boolean isUsed) {
     Symbol symbol = symbol(name);
     assertThat(symbol.scope().isGlobal()).isTrue();

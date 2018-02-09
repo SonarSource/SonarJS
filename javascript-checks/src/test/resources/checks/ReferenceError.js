@@ -65,20 +65,16 @@ function blah<T>(x: T): T  {
 // these flow constructs are not yet supported and they don't create correct symbols
 
 class FlowFunctionType {
-  f: <T>(x: T) => T;  // Noncompliant, FP
-//          ^
+  f: <T>(x: T) => T;  // OK
 }
 
 interface FlowInterface {}
 type TA = FlowInterface; // Noncompliant, FP
 //        ^^^^^^^^^^^^^
 
-var a : { <Z>(x: Z): number; } // Noncompliant, FP
-//               ^
+var a : { <Z>(x: Z): number; } // OK
 
 
-declare type T3<U> = { [k:string]: U } // Noncompliant, FP
-//                                 ^
-declare interface I<V> { foo: V } // Noncompliant, FP
-//                            ^
+declare type T3<U> = { [k:string]: U } // OK
 
+declare interface I<V> { foo: V } // OK
