@@ -1,5 +1,5 @@
 {
-  "title": "\"Array.reverse\" should not be used misleadingly",
+  "title": "Array-mutating methods should not be used misleadingly",
   "type": "BUG",
   "status": "ready",
   "remediation": {
