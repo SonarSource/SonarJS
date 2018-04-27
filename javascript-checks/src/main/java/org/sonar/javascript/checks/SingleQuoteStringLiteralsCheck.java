@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 @Rule(key = "SingleQuote")
 public class SingleQuoteStringLiteralsCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Replace double quotes by simple quote";
+  private static final String MESSAGE = "Replace double quotes by single quotes";
 
   @Override
   public void visitJsxStandardAttribute(JsxStandardAttributeTree tree) {
