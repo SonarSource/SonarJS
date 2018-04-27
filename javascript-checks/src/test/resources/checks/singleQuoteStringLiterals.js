@@ -1,5 +1,5 @@
 function sayHello() {
-  alert("Hello World!"); // Noncompliant {{Replace double quotes by simple quote}}
+  alert("Hello World!"); // Noncompliant {{Replace double quotes by single quotes}}
 //      ^^^^^^^^^^^^^^
   alert('Hello World!'); // OK
 }
