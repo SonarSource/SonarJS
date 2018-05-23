@@ -43,6 +43,11 @@ sonar-scanner
 
 ## <a name="advanced-configuration"></a>Advanced Configuration
 
+### File Extensions
+Property | Example | Description
+---------|---------|------------
+`sonar.javascript.file.suffixes` |	.jsx	| Comma-separated list of suffixes for files to analyze. Default value is ".js,.jsx,.vue".
+
 ### Globals
 Property | Example | Description
 ---------|---------|------------
