@@ -43,7 +43,7 @@ public class CoverageTest {
   }
 
   @Test
-  public void LCOV_path_can_be_relative() throws Exception {
+  public void LCOV_path_can_be_relative() {
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
@@ -136,7 +136,7 @@ public class CoverageTest {
 
   @Test
   // SONARJS-301
-  public void print_log_for_not_found_resource() throws InterruptedException {
+  public void print_log_for_not_found_resource() {
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
@@ -149,15 +149,15 @@ public class CoverageTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     // Check that a log is printed
-    String logs = result.getLogs();
-    assertThat(Pattern.compile("Analysing .*coverage-wrong-file-name\\.lcov").matcher(logs).find()).isTrue();
-    assertThat(Pattern.compile("WARN.*Could not resolve 1 file paths in \\[.*coverage-wrong-file-name\\.lcov\\], "
-      + "first unresolved path: \\./wrong/fileName\\.js").matcher(logs).find()).isTrue();
+    assertThat(result.getLogs())
+      .containsPattern(Pattern.compile("Analysing .*coverage-wrong-file-name\\.lcov"))
+      .containsPattern(Pattern.compile("WARN.*Could not resolve 1 file paths in \\[.*coverage-wrong-file-name\\.lcov\\], "
+        + "first unresolved path: \\./wrong/fileName\\.js"));
   }
 
   @Test
   // SONARJS-547
-  public void wrong_line_in_report() throws InterruptedException {
+  public void wrong_line_in_report() {
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
@@ -169,9 +169,9 @@ public class CoverageTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     // Check that a log is printed
-    String logs = result.getLogs();
-    assertThat(Pattern.compile("WARN  - Problem during processing LCOV report: can't save DA data for line 12 of coverage report file ").matcher(logs).find()).isTrue();
-    assertThat(Pattern.compile("WARN  - Problem during processing LCOV report: can't save BRDA data for line 18 of coverage report file ").matcher(logs).find()).isTrue();
+    assertThat(result.getLogs())
+      .contains("WARN: Problem during processing LCOV report: can't save DA data for line 12 of coverage report file")
+      .contains("WARN: Problem during processing LCOV report: can't save BRDA data for line 18 of coverage report file");
 
     assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(6);
     assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
