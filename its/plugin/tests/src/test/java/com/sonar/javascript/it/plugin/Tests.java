@@ -58,6 +58,7 @@ public final class Tests {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "7.2-RC1"))
     .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
     .addPlugin(FileLocation.byWildcardMavenFilename(

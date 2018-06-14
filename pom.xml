@@ -76,7 +76,7 @@
     <mockito.version>1.9.0</mockito.version>
     <slf4j.version>1.7.21</slf4j.version>
     <sonar.version>6.7</sonar.version>
-    <sonar-orchestrator.version>3.14.0.887</sonar-orchestrator.version>
+    <sonar-orchestrator.version>3.19.0.1641</sonar-orchestrator.version>
     <sonarlint.version>3.0.0.1140</sonarlint.version>
     <sslr.version>1.22</sslr.version>
     <sslr-squid-bridge.version>2.6.1</sslr-squid-bridge.version>
@@ -166,6 +166,12 @@
         <artifactId>gson</artifactId>
         <version>${gson.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>1.3.9</version>
+      </dependency>
+
 
       <!-- Test dependencies -->
       <dependency>

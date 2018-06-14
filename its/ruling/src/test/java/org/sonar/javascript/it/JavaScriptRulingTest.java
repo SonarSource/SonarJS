@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -39,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.wsclient.SonarClient;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaScriptRulingTest {
@@ -51,10 +51,10 @@ public class JavaScriptRulingTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "7.2-RC1"))
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
-    .setOrchestratorProperty("litsVersion", "0.6")
-    .addPlugin("lits")
+    .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.6"))
     .build();
 
   @Before
@@ -70,9 +70,6 @@ public class JavaScriptRulingTest {
 
   @Test
   public void test() throws Exception {
-    assertTrue(
-      "SonarQube 5.1 is the minimum version to generate the issues report, change your orchestrator.properties",
-      orchestrator.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.1"));
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
     orchestrator.getServer().provisionProject("project", "project");
     orchestrator.getServer().associateProjectToQualityProfile("project", "js", "rules");
