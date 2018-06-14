@@ -30,7 +30,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.offset;
 
 public class JavaScriptPerformanceTest {
@@ -38,7 +37,7 @@ public class JavaScriptPerformanceTest {
   private static final String SENSOR = "SonarJS";
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .setSonarVersion(requireNonNull(System.getProperty("sonar.runtimeVersion"), "Please set system property sonar.runtimeVersion"))
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "7.2-RC1"))
     .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/test/resources/se_profile.xml"))
     .addPlugin(FileLocation.byWildcardMavenFilename(
