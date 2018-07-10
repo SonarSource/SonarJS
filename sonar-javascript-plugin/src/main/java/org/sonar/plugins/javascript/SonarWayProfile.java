@@ -35,7 +35,7 @@ public class SonarWayProfile extends ProfileDefinition {
   // RuleFinder is only deprecated on scanner side, we can continue to use it on server side.
   private final RuleFinder ruleFinder;
   public static final String PROFILE_NAME = "Sonar way";
-  public static final String PATH_TO_JSON = "/org/sonar/l10n/javascript/rules/javascript/Sonar_way_profile.json";
+  public static final String PATH_TO_JSON = "org/sonar/l10n/javascript/rules/javascript/Sonar_way_profile.json";
 
   public SonarWayProfile(RuleFinder ruleFinder) {
     this.ruleFinder = ruleFinder;

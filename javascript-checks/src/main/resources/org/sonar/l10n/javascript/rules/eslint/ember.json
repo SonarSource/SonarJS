@@ -1,0 +1,168 @@
+[
+  {
+    "key": "ember/alias-model-in-controller",
+    "name": "Enforces aliasing model in controller",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/alias-model-in-controller.md"
+  },
+  {
+    "key": "ember/closure-actions",
+    "name": "Enforces usage of closure actions",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/closure-actions.md"
+  },
+  {
+    "key": "ember/named-functions-in-promises",
+    "name": "Enforces usage of named functions in promises",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/named-functions-in-promises.md"
+  },
+  {
+    "key": "ember/new-module-imports",
+    "name": "Use \"new module imports\" from ember rfc #176",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/new-module-imports.md"
+  },
+  {
+    "key": "ember/no-empty-attrs",
+    "name": "Prevents usage of empty attributes in ember data models",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-empty-attrs.md"
+  },
+  {
+    "key": "ember/no-function-prototype-extensions",
+    "name": "Prevents usage of ember's function prototype extensions",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-function-prototype-extensions.md"
+  },
+  {
+    "key": "ember/no-global-jquery",
+    "name": "Prevents usage of global jquery object",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-global-jquery.md"
+  },
+  {
+    "key": "ember/no-jquery",
+    "name": "Disallow any usage of jquery",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-jquery.md"
+  },
+  {
+    "key": "ember/no-observers",
+    "name": "Prevents usage of observers",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-observers.md"
+  },
+  {
+    "key": "ember/no-old-shims",
+    "name": "Prevents usage of old shims for modules",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-old-shims.md"
+  },
+  {
+    "key": "ember/no-on-calls-in-components",
+    "name": "Prevents usage of on calls in components",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-on-calls-in-components.md"
+  },
+  {
+    "key": "ember/use-ember-get-and-set",
+    "name": "Enforces usage of ember.get and ember.set",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/use-ember-get-and-set.md"
+  },
+  {
+    "key": "ember/jquery-ember-run",
+    "type": "BUG",
+    "name": "Prevents usage of jquery without ember run loop",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/jquery-ember-run.md"
+  },
+  {
+    "key": "ember/no-attrs-in-components",
+    "type": "BUG",
+    "name": "Disallow usage of this.attrs in components",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-attrs-in-components.md"
+  },
+  {
+    "key": "ember/no-attrs-snapshot",
+    "type": "BUG",
+    "name":
+    "Disallow use of attrs snapshot in didreceiveattrs and didupdateattrs",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-attrs-snapshot.md"
+  },
+  {
+    "key": "ember/no-capital-letters-in-routes",
+    "type": "BUG",
+    "name":
+    "Raise an error when there is a route with uppercased letters in router.js",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-capital-letters-in-routes.md"
+  },
+  {
+    "key": "ember/no-duplicate-dependent-keys",
+    "type": "BUG",
+    "name": "Disallow repeating dependent keys",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-duplicate-dependent-keys.md"
+  },
+  {
+    "key": "ember/no-side-effects",
+    "type": "BUG",
+    "name": "Warns about unexpected side effects in computed properties",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/no-side-effects.md"
+  },
+  {
+    "key": "ember/require-super-in-init",
+    "type": "BUG",
+    "name": "Enforces super calls in init hooks",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/require-super-in-init.md"
+  },
+  {
+    "key": "ember/routes-segments-snake-case",
+    "type": "BUG",
+    "name": "Enforces usage of snake_cased dynamic segments in routes",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/routes-segments-snake-case.md"
+  },
+  {
+    "key": "ember/avoid-leaking-state-in-ember-objects",
+    "name": "Avoids state leakage",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/avoid-leaking-state-in-ember-objects.md"
+  },
+  {
+    "key": "ember/order-in-components",
+    "name": "Enforces proper order of properties in components",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/order-in-components.md"
+  },
+  {
+    "key": "ember/order-in-controllers",
+    "name": "Enforces proper order of properties in controllers",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/order-in-controllers.md"
+  },
+  {
+    "key": "ember/order-in-models",
+    "name": "Enforces proper order of properties in models",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/order-in-models.md"
+  },
+  {
+    "key": "ember/order-in-routes",
+    "name": "Enforces proper order of properties in routes",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/order-in-routes.md"
+  },
+  {
+    "key": "ember/use-brace-expansion",
+    "name": "Enforces usage of brace expansion",
+    "url":
+    "https://github.com/ember-cli/eslint-plugin-ember/blob/HEAD/docs/rules/use-brace-expansion.md"
+  }
+]

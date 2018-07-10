@@ -1,0 +1,474 @@
+[
+  {
+    "key": "react/boolean-prop-naming",
+    "name": "Enforces consistent naming for boolean props",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/boolean-prop-naming.md"
+  },
+  {
+    "key": "react/button-has-type",
+    "name": "Forbid \"button\" element without an explicit \"type\" attribute",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/button-has-type.md"
+  },
+  {
+    "key": "react/default-props-match-prop-types",
+    "name": "Prevent extraneous defaultProps on components",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/default-props-match-prop-types.md"
+  },
+  {
+    "key": "react/destructuring-assignment",
+    "name":
+    "Rule enforces consistent usage of destructuring assignment in component",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/destructuring-assignment.md"
+  },
+  {
+    "key": "react/display-name",
+    "name": "Prevent missing displayName in a React component definition",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/display-name.md"
+  },
+  {
+    "key": "react/forbid-component-props",
+    "name": "Forbid certain props on Components",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/forbid-component-props.md"
+  },
+  {
+    "key": "react/forbid-dom-props",
+    "name": "Forbid certain props on DOM Nodes",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/forbid-dom-props.md"
+  },
+  {
+    "key": "react/forbid-elements",
+    "name": "Forbid certain elements",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/forbid-elements.md"
+  },
+  {
+    "key": "react/forbid-prop-types",
+    "name": "Forbid certain propTypes",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/forbid-prop-types.md"
+  },
+  {
+    "key": "react/forbid-foreign-prop-types",
+    "name": "Forbid foreign propTypes",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/forbid-foreign-prop-types.md"
+  },
+  {
+    "key": "react/no-access-state-in-setstate",
+    "name": "Prevent using this.state inside this.setState",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-access-state-in-setstate.md"
+  },
+  {
+    "key": "react/no-array-index-key",
+    "name": "Prevent using Array index in key props",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-array-index-key.md"
+  },
+  {
+    "key": "react/no-children-prop",
+    "name": "Prevent passing children as props",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-children-prop.md"
+  },
+  {
+    "key": "react/no-danger",
+    "name": "Prevent usage of dangerous JSX properties",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-danger.md"
+  },
+  {
+    "key": "react/no-danger-with-children",
+    "name": "Prevent problem with children and props.dangerouslySetInnerHTML",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-danger-with-children.md"
+  },
+  {
+    "key": "react/no-deprecated",
+    "name":
+    "Prevent usage of deprecated methods, including component lifecyle methods",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-deprecated.md"
+  },
+  {
+    "key": "react/no-did-mount-set-state",
+    "name": "Prevent usage of setState in componentDidMount",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-did-mount-set-state.md"
+  },
+  {
+    "key": "react/no-did-update-set-state",
+    "name": "Prevent usage of setState in componentDidUpdate",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-did-update-set-state.md"
+  },
+  {
+    "key": "react/no-direct-mutation-state",
+    "name": "Prevent direct mutation of this.state",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-direct-mutation-state.md"
+  },
+  {
+    "key": "react/no-find-dom-node",
+    "name": "Prevent usage of findDOMNode",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-find-dom-node.md"
+  },
+  {
+    "key": "react/no-is-mounted",
+    "name": "Prevent usage of isMounted",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-is-mounted.md"
+  },
+  {
+    "key": "react/no-multi-comp",
+    "name": "Prevent multiple component definition per file",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-multi-comp.md"
+  },
+  {
+    "key": "react/no-redundant-should-component-update",
+    "name":
+    "Prevent usage of shouldComponentUpdate when extending React.PureComponent",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-redundant-should-component-update.md"
+  },
+  {
+    "key": "react/no-render-return-value",
+    "name": "Prevent usage of the return value of React.render",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-render-return-value.md"
+  },
+  {
+    "key": "react/no-set-state",
+    "name": "Prevent usage of setState",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-set-state.md"
+  },
+  {
+    "key": "react/no-typos",
+    "name": "Prevent common casing typos",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-typos.md"
+  },
+  {
+    "key": "react/no-string-refs",
+    "name": "Prevent using string references in ref attribute.",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-string-refs.md"
+  },
+  {
+    "key": "react/no-this-in-sfc",
+    "name": "Prevent using this in stateless functional components",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-this-in-sfc.md"
+  },
+  {
+    "key": "react/no-unescaped-entities",
+    "name": "Prevent invalid characters from appearing in markup",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-unescaped-entities.md"
+  },
+  {
+    "key": "react/no-unknown-property",
+    "name": "Prevent usage of unknown DOM property",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-unknown-property.md"
+  },
+  {
+    "key": "react/no-unsafe",
+    "name": "Prevent usage of UNSAFE_ methods",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-unsafe.md"
+  },
+  {
+    "key": "react/no-unused-prop-types",
+    "name": "Prevent definitions of unused prop types",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-unused-prop-types.md"
+  },
+  {
+    "key": "react/no-unused-state",
+    "name": "Prevent definitions of unused state properties",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-unused-state.md"
+  },
+  {
+    "key": "react/no-will-update-set-state",
+    "name": "Prevent usage of setState in componentWillUpdate",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/no-will-update-set-state.md"
+  },
+  {
+    "key": "react/prefer-es6-class",
+    "name": "Enforce ES5 or ES6 class for React Components",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/prefer-es6-class.md"
+  },
+  {
+    "key": "react/prefer-stateless-function",
+    "name": "Enforce stateless React Components to be written as a pure function",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/prefer-stateless-function.md"
+  },
+  {
+    "key": "react/prop-types",
+    "name": "Prevent missing props validation in a React component definition",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/prop-types.md"
+  },
+  {
+    "key": "react/react-in-jsx-scope",
+    "name": "Prevent missing React when using JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/react-in-jsx-scope.md"
+  },
+  {
+    "key": "react/require-default-props",
+    "name":
+    "Enforce a defaultProps definition for every prop that is not a required prop",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/require-default-props.md"
+  },
+  {
+    "key": "react/require-optimization",
+    "name": "Enforce React components to have a shouldComponentUpdate method",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/require-optimization.md"
+  },
+  {
+    "key": "react/require-render-return",
+    "name": "Enforce ES5 or ES6 class for returning value in render function",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/require-render-return.md"
+  },
+  {
+    "key": "react/self-closing-comp",
+    "name":
+    "Prevent extra closing tags for components without children",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/self-closing-comp.md"
+  },
+  {
+    "key": "react/sort-comp",
+    "name": "Enforce component methods order",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/sort-comp.md"
+  },
+  {
+    "key": "react/sort-prop-types",
+    "name": "Enforce propTypes declarations alphabetical sorting",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/sort-prop-types.md"
+  },
+  {
+    "key": "react/style-prop-object",
+    "name": "Enforce style prop value being an object",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/style-prop-object.md"
+  },
+  {
+    "key": "react/void-dom-elements-no-children",
+    "name":
+    "Prevent void DOM elements (e.g. <img />, <br />) from receiving children JSX-specific rules",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/void-dom-elements-no-children.md"
+  },
+  {
+    "key": "react/jsx-boolean-value",
+    "name": "Enforce boolean attributes notation in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-boolean-value.md"
+  },
+  {
+    "key": "react/jsx-child-element-spacing",
+    "name":
+    "Enforce or disallow spaces inside of curly braces in JSX attributes and expressions.",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-child-element-spacing.md"
+  },
+  {
+    "key": "react/jsx-closing-bracket-location",
+    "name": "Validate closing bracket location in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-closing-bracket-location.md"
+  },
+  {
+    "key": "react/jsx-closing-tag-location",
+    "name": "Validate closing tag location in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-closing-tag-location.md"
+  },
+  {
+    "key": "react/jsx-curly-spacing",
+    "name":
+    "Enforce or disallow spaces inside of curly braces in JSX attributes and expressions",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-curly-spacing.md"
+  },
+  {
+    "key": "react/jsx-equals-spacing",
+    "name":
+    "Enforce or disallow spaces around equal signs in JSX attributes",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-equals-spacing.md"
+  },
+  {
+    "key": "react/jsx-filename-extension",
+    "name": "Restrict file extensions that may contain JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-filename-extension.md"
+  },
+  {
+    "key": "react/jsx-first-prop-new-line",
+    "name": "Enforce position of the first prop in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-first-prop-new-line.md"
+  },
+  {
+    "key": "react/jsx-handler-names",
+    "name": "Enforce event handler naming conventions in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-handler-names.md"
+  },
+  {
+    "key": "react/jsx-indent",
+    "name": "Validate JSX indentation",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-indent.md"
+  },
+  {
+    "key": "react/jsx-indent-props",
+    "name": "Validate props indentation in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-indent-props.md"
+  },
+  {
+    "key": "react/jsx-key",
+    "name": "Validate JSX has key prop when in array or iterator",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-key.md"
+  },
+  {
+    "key": "react/jsx-max-depth",
+    "name": "Validate JSX maximum depth",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-max-depth.md"
+  },
+  {
+    "key": "react/jsx-max-props-per-line",
+    "name": "Limit maximum of props on a single line in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-max-props-per-line.md"
+  },
+  {
+    "key": "react/jsx-no-bind",
+    "name": "Prevent usage of .bind() and arrow functions in JSX props",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-bind.md"
+  },
+  {
+    "key": "react/jsx-no-comment-textnodes",
+    "name": "Prevent comments from being inserted as text nodes",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-comment-textnodes.md"
+  },
+  {
+    "key": "react/jsx-no-duplicate-props",
+    "name": "Prevent duplicate props in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-duplicate-props.md"
+  },
+  {
+    "key": "react/jsx-no-literals",
+    "name": "Prevent usage of unwrapped JSX strings",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-literals.md"
+  },
+  {
+    "key": "react/jsx-no-target-blank",
+    "name": "Prevent usage of unsafe target='_blank'",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-target-blank.md"
+  },
+  {
+    "key": "react/jsx-no-undef",
+    "name": "Disallow undeclared variables in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-no-undef.md"
+  },
+  {
+    "key": "react/jsx-one-expression-per-line",
+    "name": "Limit to one expression per line in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-one-expression-per-line.md"
+  },
+  {
+    "key": "react/jsx-curly-brace-presence",
+    "name": "Enforce curly braces or disallow unnecessary curly braces in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-curly-brace-presence.md"
+  },
+  {
+    "key": "react/jsx-pascal-case",
+    "name": "Enforce PascalCase for user-defined JSX components",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-pascal-case.md"
+  },
+  {
+    "key": "react/jsx-props-no-multi-spaces",
+    "name": "Disallow multiple spaces between inline JSX props",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-props-no-multi-spaces.md"
+  },
+  {
+    "key": "react/jsx-sort-default-props",
+    "name": "Enforce default props alphabetical sorting",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-sort-default-props.md"
+  },
+  {
+    "key": "react/jsx-sort-props",
+    "name": "Enforce props alphabetical sorting",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-sort-props.md"
+  },
+  {
+    "key": "react/jsx-space-before-closing",
+    "name": "Validate spacing before closing bracket in JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-space-before-closing.md"
+  },
+  {
+    "key": "react/jsx-tag-spacing",
+    "name":
+    "Validate whitespace in and around the JSX opening and closing brackets",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-tag-spacing.md"
+  },
+  {
+    "key": "react/jsx-uses-react",
+    "name": "Prevent React to be incorrectly marked as unused",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-uses-react.md"
+  },
+  {
+    "key": "react/jsx-uses-vars",
+    "name": "Prevent variables used in JSX to be incorrectly marked as unused",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-uses-vars.md"
+  },
+  {
+    "key": "react/jsx-wrap-multilines",
+    "name": "Prevent missing parentheses around multilines JSX",
+    "url":
+    "https://github.com/yannickcr/eslint-plugin-react/blob/HEAD/docs/rules/jsx-wrap-multilines.md"
+  }
+]

@@ -17,33 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript;
+@ParametersAreNonnullByDefault
+package org.sonar.plugins.javascript.external;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.google.gson.Gson;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Set;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class JsonProfileReader {
-
-  private JsonProfileReader() {
-  }
-
-  public static Set<String> ruleKeys(String pathToFile) {
-    URL profileUrl = JsonProfileReader.class.getClassLoader().getResource(pathToFile);
-    try {
-      Gson gson = new Gson();
-      return gson.fromJson(Resources.toString(profileUrl, Charsets.UTF_8), Profile.class).ruleKeys;
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to read: " + profileUrl, e);
-    }
-  }
-
-  private static class Profile {
-    Set<String> ruleKeys;
-  }
-
-
-}

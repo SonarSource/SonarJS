@@ -1,0 +1,13 @@
+[
+  {
+    "filePath":"file.js",
+    "messages":[
+      {
+        "ruleId":"use-isnan",
+        "message":"Use the isNaN function to compare with NaN.",
+        "line":2,
+
+
+    ]
+  }
+]

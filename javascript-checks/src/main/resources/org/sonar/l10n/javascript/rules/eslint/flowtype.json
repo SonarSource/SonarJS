@@ -1,0 +1,157 @@
+[
+  {
+    "key": "flowtype/array-style-complex-type",
+    "name": "Enforces a particular annotation style of complex types",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-array-style-complex-type"
+  },
+  {
+    "key": "flowtype/array-style-simple-type",
+    "name": "Enforces a particular array type annotation style of simple types",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-array-style-simple-type"
+  },
+  {
+    "key": "flowtype/boolean-style",
+    "name": "Enforces a particular style for boolean typeannotations",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-boolean-style"
+  },
+  {
+    "key": "flowtype/define-flow-type",
+    "name": "Marks Flow type identifiers as defined",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-define-flow-type"
+  },
+  {
+    "key": "flowtype/delimiter-dangle",
+    "name": "Enforces consistent use oftrailing commas in Object and Tuple annotations",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-delimiter-dangle"
+  },
+  {
+    "key": "flowtype/generic-spacing",
+    "name": "Enforces consistent spacing within generic type annotation parameters",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-generic-spacing"
+  },
+  {
+    "key": "flowtype/newline-after-flow-annotation",
+    "name": "Requires an empty line after the Flow annotation",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-newline-after-flow-annotation"
+  },
+  {
+    "key": "flowtype/no-dupe-keys",
+    "name": "Checks for duplicate properties in Object annotations",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-no-dupe-keys"
+  },
+  {
+    "key": "flowtype/no-existential-type",
+    "name": "Disallows use of the existential type (*)",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-no-existential-type"
+  },
+  {
+    "key": "flowtype/no-flow-fix-me-comments",
+    "name": "Disallows $FlowFixMe comment suppressions",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-no-flow-fix-me-comments"
+  },
+  {
+    "key": "flowtype/no-mutable-array",
+    "name": "Requires use of $ReadOnlyArray instead of just Array or array shorthand notation",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-no-mutable-array"
+  },
+  {
+    "key": "flowtype/no-primitive-constructor-types",
+    "name": "Disallows use of primitive constructors as types, such as Boolean, Number and String",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-no-primitive-constructor-types"
+  },
+  {
+    "key": "flowtype/no-types-missing-file-annotation",
+    "name": "Disallows Flow type imports, aliases, and annotations in files missing a valid Flow file declaration (or a @noflow annotation)",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-no-types-missing-file-annotation"
+  },
+  {
+    "key": "flowtype/no-unused-expressions",
+    "name": "An extension of ESLint's no-unused-expressions",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-no-unused-expressions"
+  },
+  {
+    "key": "flowtype/no-weak-types",
+    "name": "Warns against weak type annotations any, Object and Function",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-no-weak-types"
+  },
+  {
+    "key": "flowtype/object-type-delimiter",
+    "name": "Enforces consistent separators between properties in Flow object types",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-object-type-delimiter"
+  },
+  {
+    "key": "flowtype/require-exact-type",
+    "name": "This rule enforces exact object types",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-require-exact-type"
+  },
+  {
+    "key": "flowtype/require-parameter-type",
+    "name": "Requires that all function parameters have type annotations",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-require-parameter-type"
+  },
+  {
+    "key": "flowtype/require-return-type",
+    "name": "Requires that functions have return type annotation",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-require-return-type"
+  },
+  {
+    "key": "flowtype/require-types-at-top",
+    "name": "Requires all type declarations to be at the top of the file, after any import declarations",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-require-types-at-top"
+  },
+  {
+    "key": "flowtype/require-valid-file-annotation",
+    "name": "Validates Flow file annotations",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-require-valid-file-annotation"
+  },
+  {
+    "key": "flowtype/require-variable-type",
+    "name": "Requires that all variable declarators have type annotations",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-require-variable-type"
+  },
+  {
+    "key": "flowtype/semi",
+    "name": "Enforces consistent use of semicolons after type aliases",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-semi"
+  },
+  {
+    "key": "flowtype/sort-keys",
+    "name": "Enforces sorting of Object annotations",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-sort-keys"
+  },
+  {
+    "key": "flowtype/space-after-type-colon",
+    "name": "Enforces consistent spacing after the type annotation colon",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-space-after-type-colon"
+  },
+  {
+    "key": "flowtype/space-before-generic-bracket",
+    "name": "Enforces consistent spacing before the opening < of generic type annotation parameters",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-space-before-generic-bracket"
+  },
+  {
+    "key": "flowtype/space-before-type-colon",
+    "name": "Enforces consistent spacing before the type annotation colon",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-space-before-type-colon"
+  },
+  {
+    "key": "flowtype/type-id-match",
+    "name": "Enforces a consistent naming pattern for type aliases",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-type-id-match"
+  },
+  {
+    "key": "flowtype/type-import-style",
+    "name": "Enforces a particular style for type imports",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-type-import-style"
+  },
+  {
+    "key": "flowtype/union-intersection-spacing",
+    "name": "Enforces consistent spacing around union and intersection type separators (| and &)",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-union-intersection-spacing"
+  },
+  {
+    "key": "flowtype/use-flow-type",
+    "name": "Marks Flow type alias declarations as used",
+    "url": "https://github.com/gajus/eslint-plugin-flowtype#eslint-plugin-flowtype-rules-use-flow-type"
+  }
+]

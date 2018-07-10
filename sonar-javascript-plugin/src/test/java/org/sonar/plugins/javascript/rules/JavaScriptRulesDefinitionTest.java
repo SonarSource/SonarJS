@@ -27,7 +27,6 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
-import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +35,7 @@ public class JavaScriptRulesDefinitionTest {
 
   @Test
   public void test() {
-    RulesDefinition.Repository repository = buildRepository(Version.parse("5.6"));
+    RulesDefinition.Repository repository = buildRepository();
 
     assertThat(repository.name()).isEqualTo("SonarAnalyzer");
     assertThat(repository.language()).isEqualTo("js");
@@ -49,13 +48,13 @@ public class JavaScriptRulesDefinitionTest {
 
   @Test
   public void sonarlint() {
-    RulesDefinition.Repository repository = buildRepository(Version.parse("6.0"));
+    RulesDefinition.Repository repository = buildRepository();
     assertThat(repository.rule("ContinueStatement").activatedByDefault()).isFalse();
     assertThat(repository.rule("S930").activatedByDefault()).isTrue();
   }
 
-  private RulesDefinition.Repository buildRepository(Version sonarRuntimeVersion) {
-    JavaScriptRulesDefinition rulesDefinition = new JavaScriptRulesDefinition(sonarRuntimeVersion);
+  private RulesDefinition.Repository buildRepository() {
+    JavaScriptRulesDefinition rulesDefinition = new JavaScriptRulesDefinition();
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("javascript");

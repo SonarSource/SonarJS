@@ -24,9 +24,12 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.Version;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
+import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
+import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
 public class JavaScriptPlugin implements Plugin {
@@ -63,13 +66,19 @@ public class JavaScriptPlugin implements Plugin {
   public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
   public static final String JS_EXCLUSIONS_DEFAULT_VALUE = "**/node_modules/**,**/bower_components/**";
 
+  public static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
+  public static final String EXTERNAL_ANALYZERS_SUB_CATEGORY = "JavaScript/TypeScript";
+  public static final String ESLINT_REPORT_PATHS = "sonar.eslint.reportPaths";
+
   @Override
   public void define(Context context) {
+    boolean externalIssuesSupported = context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2));
+
     context.addExtensions(
       JavaScriptLanguage.class,
       JavaScriptSensor.class,
       JavaScriptExclusionsFileFilter.class,
-      new JavaScriptRulesDefinition(context.getSonarQubeVersion()),
+      JavaScriptRulesDefinition.class,
       SonarWayRecommendedProfile.class,
       SonarWayProfile.class);
 
@@ -148,6 +157,21 @@ public class JavaScriptPlugin implements Plugin {
 
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
       context.addExtension(CoverageSensor.class);
+      context.addExtension(EslintReportSensor.class);
+
+      if (externalIssuesSupported) {
+        context.addExtension(EslintRulesDefinition.class);
+
+        context.addExtension(
+          PropertyDefinition.builder(ESLINT_REPORT_PATHS)
+            .name("ESLint Report Files")
+            .description("Paths (absolute or relative) to the JSON files with ESLint issues.")
+            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+            .category(EXTERNAL_ANALYZERS_CATEGORY)
+            .subCategory(EXTERNAL_ANALYZERS_SUB_CATEGORY)
+            .multiValues(true)
+            .build());
+      }
     }
 
   }
