@@ -1,0 +1,4 @@
+The report was generated with
+npx eslint --ext ts,js -f json . > report.json
+
+Then path was manually changed to relative

@@ -1,0 +1,55 @@
+[
+  {
+    "filePath":"file.js",
+    "messages":[
+      {
+        "ruleId":"use-isnan",
+        "message":"Use the isNaN function to compare with NaN.",
+        "line":2,
+        "column":9,
+        "endLine":2,
+        "endColumn":17
+      },
+      {
+        "ruleId": "semi",
+        "message": "Use the isNaN function to compare with NaN.",
+        "line": 3,
+        "column": 20
+      }
+    ]
+  },
+  {
+    "filePath":"parseError.js",
+    "messages": [
+      {
+        "ruleId": null,
+        "severity": 2,
+        "message": "Parsing error: 'as' expected.",
+        "line": 1,
+        "column": 9
+      }
+    ]
+  },
+  {
+    "filePath":"notExist.js",
+    "messages": [
+      {
+        "ruleId": "semi",
+        "message": "Use the isNaN function to compare with NaN.",
+        "line": 3,
+        "column": 20
+      }
+    ]
+  },
+  {
+    "filePath":"file-ts.ts",
+    "messages": [
+      {
+        "ruleId": "semi",
+        "message": "Use the isNaN function to compare with NaN.",
+        "line": 3,
+        "column": 20
+      }
+    ]
+  }
+]

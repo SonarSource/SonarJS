@@ -1,0 +1,168 @@
+[
+  {
+    "filePath": "src/file.js",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 2,
+        "message": "'addOne' is defined but never used.",
+        "line": 1,
+        "column": 10,
+        "nodeType": "Identifier",
+        "source": "function addOne(i) {",
+        "endLine": 1,
+        "endColumn": 16
+      },
+      {
+        "ruleId": "use-isnan",
+        "severity": 2,
+        "message": "Use the isNaN function to compare with NaN.",
+        "line": 2,
+        "column": 7,
+        "nodeType": "BinaryExpression",
+        "source": "  if (i != NaN) {",
+        "endLine": 2,
+        "endColumn": 15
+      },
+      {
+        "ruleId": "semi",
+        "severity": 2,
+        "message": "Missing semicolon.",
+        "line": 3,
+        "column": 18,
+        "nodeType": "ReturnStatement",
+        "source": "      return i ++",
+        "fix": {
+          "range": [
+            56,
+            56
+          ],
+          "text": ";"
+        }
+      },
+      {
+        "ruleId": "semi",
+        "severity": 2,
+        "message": "Missing semicolon.",
+        "line": 5,
+        "column": 11,
+        "nodeType": "ReturnStatement",
+        "source": "    return",
+        "fix": {
+          "range": [
+            78,
+            78
+          ],
+          "text": ";"
+        }
+      },
+      {
+        "ruleId": "no-extra-semi",
+        "severity": 2,
+        "message": "Unnecessary semicolon.",
+        "line": 7,
+        "column": 2,
+        "nodeType": "EmptyStatement",
+        "source": "};",
+        "messageId": "unexpected",
+        "endLine": 7,
+        "endColumn": 3,
+        "fix": {
+          "range": [
+            83,
+            85
+          ],
+          "text": "}"
+        }
+      }
+    ],
+    "errorCount": 5,
+    "warningCount": 0,
+    "fixableErrorCount": 3,
+    "fixableWarningCount": 0,
+    "source": "function addOne(i) {\n  if (i != NaN) {\n      return i ++\n  } else {\n    return\n  }\n};\n"
+  },
+  {
+    "filePath": "src/file.ts",
+    "messages": [
+      {
+        "ruleId": "no-unused-vars",
+        "severity": 2,
+        "message": "'addOne' is defined but never used.",
+        "line": 1,
+        "column": 10,
+        "nodeType": "Identifier",
+        "source": "function addOne(i: number) {",
+        "endLine": 1,
+        "endColumn": 16
+      },
+      {
+        "ruleId": "use-isnan",
+        "severity": 2,
+        "message": "Use the isNaN function to compare with NaN.",
+        "line": 2,
+        "column": 7,
+        "nodeType": "BinaryExpression",
+        "source": "  if (i != NaN) {",
+        "endLine": 2,
+        "endColumn": 15
+      },
+      {
+        "ruleId": "semi",
+        "severity": 2,
+        "message": "Missing semicolon.",
+        "line": 3,
+        "column": 18,
+        "nodeType": "ReturnStatement",
+        "source": "      return i ++",
+        "fix": {
+          "range": [
+            64,
+            64
+          ],
+          "text": ";"
+        }
+      },
+      {
+        "ruleId": "semi",
+        "severity": 2,
+        "message": "Missing semicolon.",
+        "line": 5,
+        "column": 11,
+        "nodeType": "ReturnStatement",
+        "source": "    return",
+        "fix": {
+          "range": [
+            86,
+            86
+          ],
+          "text": ";"
+        }
+      },
+      {
+        "ruleId": "no-extra-semi",
+        "severity": 2,
+        "message": "Unnecessary semicolon.",
+        "line": 7,
+        "column": 2,
+        "nodeType": "EmptyStatement",
+        "source": "};",
+        "messageId": "unexpected",
+        "endLine": 7,
+        "endColumn": 3,
+        "fix": {
+          "range": [
+            91,
+            93
+          ],
+          "text": "}"
+        }
+      }
+    ],
+    "errorCount": 5,
+    "warningCount": 0,
+    "fixableErrorCount": 3,
+    "fixableWarningCount": 0,
+    "source": "function addOne(i: number) {\n  if (i != NaN) {\n      return i ++\n  } else {\n    return\n  }\n};"
+  }
+]
