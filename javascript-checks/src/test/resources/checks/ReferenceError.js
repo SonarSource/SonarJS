@@ -77,3 +77,8 @@ var a : { <Z>(x: Z): number; } // OK
 declare type T3<U> = { [k:string]: U } // OK
 
 declare interface I<V> { foo: V } // OK
+
+
+import { types } from 'file.js';
+
+types.toString(); // OK
