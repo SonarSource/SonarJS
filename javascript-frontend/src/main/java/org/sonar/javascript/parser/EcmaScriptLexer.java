@@ -460,7 +460,7 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
 
     // Flow
     b.rule(OPAQUE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "opaque"));
-    b.rule(TYPE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "type"));
+    b.rule(TYPE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "type"), b.nextNot(LETTER_OR_DIGIT));
     b.rule(INTERFACE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "interface"));
     b.rule(DECLARE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "declare"));
     b.rule(MODULE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "module"));

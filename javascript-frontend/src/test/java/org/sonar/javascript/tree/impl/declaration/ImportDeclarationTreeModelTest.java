@@ -26,6 +26,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportSubClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedImportExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 
@@ -81,6 +82,27 @@ public class ImportDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.moduleName().value()).isEqualTo("\"mod\"");
     assertThat(tree.semicolonToken()).isNotNull();
   }
+
+  @Test
+  public void type_import_specifiers() throws Exception {
+    ImportDeclarationTree tree = parse("import { typexyz , typeofxyz } from 'f';", Kind.IMPORT_DECLARATION);
+
+    assertThat(tree.is(Kind.IMPORT_DECLARATION)).isTrue();
+    assertThat(tree.importToken().text()).isEqualTo("import");
+    ImportSubClauseTree firstSubClause = tree.importClause().firstSubClause();
+    assertThat(firstSubClause.is(Kind.NAMED_IMPORTS)).isTrue();
+    NamedImportExportClauseTree clauseTree = (NamedImportExportClauseTree) firstSubClause;
+
+    SpecifierTree specifierTree = clauseTree.specifiers().get(0);
+    assertThat(specifierTree.flowImportTypeOrTypeOfToken()).isNull();
+    assertThat(specifierTree.leftName().name()).isEqualTo("typexyz");
+
+    specifierTree = clauseTree.specifiers().get(1);
+    assertThat(specifierTree.flowImportTypeOrTypeOfToken()).isNull();
+    assertThat(specifierTree.leftName().name()).isEqualTo("typeofxyz");
+  }
+
+
 
   private void assertSpecifierTree(SpecifierTree tree, String expectedName, @Nullable String expectedAsToken, @Nullable String expectedLocalName) {
     assertTreeValue(tree.leftName(), expectedName);
