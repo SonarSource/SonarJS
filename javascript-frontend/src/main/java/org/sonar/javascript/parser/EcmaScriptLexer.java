@@ -459,14 +459,14 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
     b.rule(VUE_STYLE_SECTION).is(SPACING, b.regexp("(?s)<style.*</style>"));
 
     // Flow
-    b.rule(OPAQUE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "opaque"));
-    b.rule(TYPE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "type"));
-    b.rule(INTERFACE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "interface"));
-    b.rule(DECLARE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "declare"));
-    b.rule(MODULE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "module"));
-    b.rule(EXPORTS).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "exports"));
-    b.rule(ARRAY).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "Array"));
-    b.rule(IMPLEMENTS).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "implements"));
+    b.rule(OPAQUE).is(word(b,"opaque"));
+    b.rule(TYPE).is(word(b,"type"));
+    b.rule(INTERFACE).is(word(b,"interface"));
+    b.rule(DECLARE).is(word(b,"declare"));
+    b.rule(MODULE).is(word(b,"module"));
+    b.rule(EXPORTS).is(word(b,"exports"));
+    b.rule(ARRAY).is(word(b,"Array"));
+    b.rule(IMPLEMENTS).is(word(b,"implements"));
 
     // Temporary rules waiting for b.nextNot method migration
     b.rule(NEXT_NOT_LET_AND_BRACKET).is(b.nextNot(LET, LBRACKET));
