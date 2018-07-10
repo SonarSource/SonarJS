@@ -72,4 +72,18 @@ public class ScriptTest {
     ;
   }
 
+  @Test
+  public void vue_file_with_ts() throws Exception {
+    final String ts = "class Foo {\nprivate message: string\n}";
+
+    assertThat(EcmaScriptLexer.VUE_SCRIPT)
+      .matches("<script lang=\"ts\">" + ts + "</script>")
+      .notMatches("<script lang=\"js\">" + ts + "</script>")
+      .matches("<script lang=\"ts\" foo=\"bar\">" + ts + "</script>")
+      .matches("<script foo=\"bar\" lang=\"ts\">" + ts + "</script>")
+      .matches("<script lang=\"livescript\">map (.age), table2 |> fold1 (+)</script>")
+      .notMatches("<script lang=\"js\">map (.age), table2 |> fold1 (+)</script>")
+    ;
+  }
+
 }

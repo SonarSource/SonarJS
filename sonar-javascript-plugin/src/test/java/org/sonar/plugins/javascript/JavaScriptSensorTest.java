@@ -317,6 +317,16 @@ public class JavaScriptSensorTest {
   }
 
   @Test
+  public void should_ignore_vue_with_typescript() {
+    inputFile("SFC.vue");
+
+    createSensor().execute(context);
+
+    assertThat(context.allAnalysisErrors()).isEmpty();
+    assertThat(logTester.logs()).isEmpty();
+  }
+
+  @Test
   public void should_disable_unnecessary_features_for_sonarlint() throws Exception {
     baseDir = new File("src/test/resources/coverage");
     context = SensorContextTester.create(baseDir);
