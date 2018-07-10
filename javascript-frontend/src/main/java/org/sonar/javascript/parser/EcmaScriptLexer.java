@@ -455,7 +455,7 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
 
     // Vue.js
     b.rule(SCRIPT_TAG).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "<script"));
-    b.rule(SCRIPT_TAG_NO_JS).is(SPACING, b.regexp("(?s)<script.*lang=\"(?!js).*\".*</script>"));
+    b.rule(SCRIPT_TAG_NO_JS).is(SPACING, b.regexp("(?s)<script.*lang=\"(?!js).*\">.*</script>"));
     b.rule(SCRIPT_TAG_CLOSE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "</script>"));
     b.rule(VUE_TEMPLATE_SECTION).is(SPACING, b.regexp("(?s)<template.*</template>"));
     b.rule(VUE_STYLE_SECTION).is(SPACING, b.regexp("(?s)<style.*</style>"));

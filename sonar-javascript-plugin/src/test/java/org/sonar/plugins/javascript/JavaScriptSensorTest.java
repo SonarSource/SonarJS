@@ -317,13 +317,35 @@ public class JavaScriptSensorTest {
   }
 
   @Test
-  public void should_ignore_vue_with_typescript() {
-    inputFile("SFC.vue");
+  public void should_skip_vue_script_containing_ts() {
+    ActiveRules activeRules = (new ActiveRulesBuilder())
+      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))
+      .activate()
+      .build();
+    checkFactory = new CheckFactory(activeRules);
+
+    context.setActiveRules(activeRules);
+    inputFile("vue/tsScript.vue");
 
     createSensor().execute(context);
 
     assertThat(context.allAnalysisErrors()).isEmpty();
-    assertThat(logTester.logs()).isEmpty();
+  }
+
+  @Test
+  public void should_analyse_vue_script_containing_js() {
+    ActiveRules activeRules = (new ActiveRulesBuilder())
+      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))
+      .activate()
+      .build();
+    checkFactory = new CheckFactory(activeRules);
+
+    context.setActiveRules(activeRules);
+    inputFile("vue/jsScript.vue");
+
+    createSensor().execute(context);
+
+    assertThat(context.allIssues()).hasSize(1);
   }
 
   @Test
