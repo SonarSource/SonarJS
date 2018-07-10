@@ -87,4 +87,23 @@ public class ScriptTest {
     ;
   }
 
+  @Test
+  public void vue_file_with_custom_sections() throws Exception {
+    final String customSectionDoc = "<docs>This is a doc</docs>";
+    final String customSectionI18n = "<i18n>{ \"en-US\": { \"foo\": \"bar\"}  }</i18n>";
+    final String styleWithCss = "<style>h1, h2 { \nfont-weight: normal; \n}</style>";
+    final String componentTemplate = "<template> <div id=\"app\">\n </div> </template>";
+
+    String script = "<script>var i;</script>";
+    assertThat(EcmaScriptLexer.VUE_SCRIPT)
+      .matches(customSectionDoc)
+      .matches("<docs foo=\"bar\">this is a doc</docs>")
+      .matches("<scripts>This is a custom tag</scripts>" + script)
+      .matches(script + customSectionDoc)
+      .matches(styleWithCss + componentTemplate + customSectionDoc + script)
+      .matches(styleWithCss + componentTemplate + customSectionI18n + script)
+      .notMatches(script + "invalid syntax")
+    ;
+  }
+
 }

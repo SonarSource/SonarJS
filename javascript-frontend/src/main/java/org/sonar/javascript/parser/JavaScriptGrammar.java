@@ -1819,7 +1819,9 @@ public class JavaScriptGrammar {
           VUE_SCRIPT_TAG(),
           b.optional(b.token(EcmaScriptLexer.SHEBANG)),
           b.optional(MODULE_BODY()),
-          b.token(EcmaScriptLexer.SCRIPT_TAG_CLOSE))));
+          b.token(EcmaScriptLexer.SCRIPT_TAG_CLOSE)),
+        f.vueElement(b.token(EcmaScriptLexer.VUE_CUSTOM_SECTION))
+        ));
   }
 
   public VueScriptTag VUE_SCRIPT_TAG() {
