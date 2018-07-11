@@ -19,11 +19,8 @@
  */
 package org.sonar.javascript.tree;
 
-import org.sonar.squidbridge.CommentAnalyser;
+public class JavaScriptCommentAnalyser {
 
-public class JavaScriptCommentAnalyser extends CommentAnalyser {
-
-  @Override
   public boolean isBlank(String line) {
     for (int i = 0; i < line.length(); i++) {
       if (Character.isLetterOrDigit(line.charAt(i))) {
@@ -33,7 +30,6 @@ public class JavaScriptCommentAnalyser extends CommentAnalyser {
     return true;
   }
 
-  @Override
   public String getContents(String comment) {
     if (comment.startsWith("//")) {
       return comment.substring(2);

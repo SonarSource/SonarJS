@@ -31,10 +31,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.RuleTemplate;
 
 @Rule(key = "CommentRegularExpression")
-@RuleTemplate
 public class CommentRegularExpressionCheck extends SubscriptionVisitorCheck {
 
   private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";

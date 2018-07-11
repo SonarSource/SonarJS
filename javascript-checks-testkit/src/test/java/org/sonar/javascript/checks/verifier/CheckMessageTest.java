@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.checks.verifier;
 
-import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class UselessIncrementCheckTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+
+public class CheckMessageTest {
 
   @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new UselessIncrementCheck(), new File("src/test/resources/checks/uselessIncrement.js"));
+  public void testFormatDefaultMessage() {
+    CheckMessage message = new CheckMessage(null, "Value is {0,number,integer}, expected value is {1,number,integer}.", 3, 7);
+    assertThat(message.formatDefaultMessage()).isEqualTo("Value is 3, expected value is 7.");
   }
 
+  @Test
+  public void testNotFormatMessageWithoutParameters() {
+    CheckMessage message = new CheckMessage(null, "public void main(){."); // This message can't be used as a pattern by the MessageFormat
+    // class
+    assertThat(message.formatDefaultMessage()).isEqualTo("public void main(){.");
+  }
 }

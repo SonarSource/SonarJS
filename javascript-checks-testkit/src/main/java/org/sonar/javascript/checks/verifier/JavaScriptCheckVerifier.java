@@ -26,7 +26,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.checks.verifier.TestIssue.Location;
 import org.sonar.javascript.se.SeCheck;
@@ -37,7 +36,6 @@ import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
