@@ -1451,11 +1451,13 @@ public class JavaScriptGrammar {
         f.objectBindingPattern(
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.optional(BINDING_PROPERTY_LIST()),
-          b.optional(f.newTuple(b.token(JavaScriptPunctuator.COMMA), b.optional(REST_OBJECT_BINDING_ELEMENT()))),
+          b.optional(f.newTuple(b.token(JavaScriptPunctuator.COMMA), REST_OBJECT_BINDING_ELEMENT())),
+          b.optional(b.token(JavaScriptPunctuator.COMMA)),
           b.token(JavaScriptPunctuator.RCURLYBRACE)),
         f.objectBindingPattern2(
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           REST_OBJECT_BINDING_ELEMENT(),
+          b.optional(b.token(JavaScriptPunctuator.COMMA)),
           b.token(JavaScriptPunctuator.RCURLYBRACE))));
   }
 
