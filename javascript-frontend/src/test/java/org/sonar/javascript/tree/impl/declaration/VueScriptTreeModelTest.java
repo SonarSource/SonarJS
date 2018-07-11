@@ -26,6 +26,7 @@ import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.parser.JavaScriptParserBuilder.createVueParser;
@@ -95,6 +96,22 @@ public class VueScriptTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(treeWithEosNoLB.is(Kind.SCRIPT)).isTrue();
     assertThat(treeWithEosNoLB.items().items()).hasSize(1);
+  }
+
+  @Test
+  public void with_lang_property() throws Exception {
+    ScriptTree scriptLangJs = parse("<script lang=\"js\">var i</script>", Kind.SCRIPT);
+
+    assertThat(scriptLangJs.is(Kind.SCRIPT)).isTrue();
+    assertThat(scriptLangJs.items().items()).hasSize(1);
+    VariableDeclarationTree variableDeclarationTree = (VariableDeclarationTree) getFirstDescendant((JavaScriptTree) scriptLangJs, Kind.VAR_DECLARATION);
+    assertThat(variableDeclarationTree.is(Kind.VAR_DECLARATION)).isTrue();
+
+    // when lang = ts, script content is ignored
+    ScriptTree scriptLangTs = parse("<script lang=\"ts\">var i</script>", Kind.SCRIPT);
+
+    assertThat(scriptLangTs.is(Kind.SCRIPT)).isTrue();
+    assertThat(scriptLangTs.items()).isNull();
   }
 
   @Override

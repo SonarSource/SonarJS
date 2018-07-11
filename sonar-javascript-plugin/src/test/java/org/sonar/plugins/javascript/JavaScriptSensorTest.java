@@ -316,6 +316,31 @@ public class JavaScriptSensorTest {
     assertThat(context.measure("moduleKey:test_minified/file-min.js", CoreMetrics.NCLOC)).isNull();
   }
 
+  private void analyseFile(String relativePath) {
+    ActiveRules activeRules = (new ActiveRulesBuilder())
+      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))
+      .activate()
+      .build();
+    checkFactory = new CheckFactory(activeRules);
+    context.setActiveRules(activeRules);
+
+    inputFile(relativePath);
+
+    createSensor().execute(context);
+  }
+
+  @Test
+  public void should_skip_vue_script_with_lang_ts() {
+    analyseFile("vue/tsScript.vue");
+    assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
+  public void should_skip_vue_script_with_lang_js() {
+    analyseFile("vue/jsScript.vue");
+    assertThat(context.allIssues()).hasSize(1);
+  }
+
   @Test
   public void should_disable_unnecessary_features_for_sonarlint() throws Exception {
     baseDir = new File("src/test/resources/coverage");
