@@ -21,11 +21,14 @@ package org.sonar.javascript.tree.impl.declaration;
 
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -109,5 +112,24 @@ public class NamedExportDeclarationTreeModelTest extends JavaScriptTreeModelTest
     tree = parse("export interface Foo{}", Kind.NAMED_EXPORT_DECLARATION);
     assertThat(tree.object().is(Kind.FLOW_INTERFACE_DECLARATION)).isTrue();
   }
+
+  @Test
+  public void export_default_as() throws Exception {
+    NamedExportDeclarationTree tree = parse("export {default as xyz} from './other-module';", Kind.NAMED_EXPORT_DECLARATION);
+    ExportClauseTree exportClauseTree = (ExportClauseTree) tree.object();
+    SeparatedList<SpecifierTree> specifiers = exportClauseTree.exports().specifiers();
+    assertThat(specifiers.get(0).leftName().name()).isEqualTo("default");
+    assertThat(specifiers.get(0).rightName().name()).isEqualTo("xyz");
+  }
+
+  @Test
+  public void export_default() throws Exception {
+    NamedExportDeclarationTree tree = parse("export { default } from './other-module';", Kind.NAMED_EXPORT_DECLARATION);
+    ExportClauseTree exportClauseTree = (ExportClauseTree) tree.object();
+    SeparatedList<SpecifierTree> specifiers = exportClauseTree.exports().specifiers();
+    assertThat(specifiers.get(0).leftName().name()).isEqualTo("default");
+    assertThat(specifiers.get(0).rightName()).isNull();
+  }
+
 
 }
