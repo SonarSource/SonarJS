@@ -73,15 +73,15 @@ public class ScriptTest {
   }
 
   @Test
-  public void vue_file_with_script_section_no_js() throws Exception {
+  public void vue_file_with_script_section_language() throws Exception {
     final String ts = "class Foo {\nprivate message: string\n}";
 
     assertThat(EcmaScriptLexer.SCRIPT_SECTION_TS)
       .matches("<script lang=\"ts\">" + ts + "</script>")
       .notMatches("<script lang=\"js\">" + ts + "</script>")
       .matches("<script lang=\"ts\"  >" + ts + "</script>")
-      .notMatches("<script lang=\"js\">lang=ts</script>")
-      .matches("<script lang=\"ts\">lang=js</script>")
+      .notMatches("<script lang=\"js\">lang=\"ts\"</script>")
+      .matches("<script lang=\"ts\">lang=\"js\"</script>")
       .matches("<script lang=\"ts\"><script lang=\"js\"></script></script>")
       .notMatches("<script lang=\"js\">var a = `<script lang=\"ts\"></script>`</script>")
     ;
