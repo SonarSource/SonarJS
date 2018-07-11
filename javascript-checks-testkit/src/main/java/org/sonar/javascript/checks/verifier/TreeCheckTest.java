@@ -22,7 +22,6 @@ package org.sonar.javascript.checks.verifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -30,7 +29,6 @@ import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.api.CheckMessage;
 
 class TreeCheckTest {
 

@@ -69,8 +69,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
-import org.sonar.squidbridge.ProgressReport;
-import org.sonar.squidbridge.api.AnalysisException;
+import org.sonarsource.analyzer.commons.ProgressReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -106,7 +105,7 @@ public class JavaScriptSensorTest {
 
     @Override
     public Class[] checkClasses() {
-      return new Class[] {MyCustomRule.class};
+      return new Class[]{MyCustomRule.class};
     }
   }};
 
@@ -395,7 +394,7 @@ public class JavaScriptSensorTest {
 
   private void analyseFileWithException(JavaScriptCheck check, InputFile inputFile, String expectedMessageSubstring) {
     JavaScriptSensor sensor = createSensor();
-    thrown.expect(AnalysisException.class);
+    thrown.expect(JavaScriptSensor.AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
     try {
       sensor.analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile), executor, progressReport);
