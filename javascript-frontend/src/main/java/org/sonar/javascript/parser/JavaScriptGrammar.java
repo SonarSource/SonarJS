@@ -1324,6 +1324,8 @@ public class JavaScriptGrammar {
   public SpecifierTree EXPORT_SPECIFIER() {
     return b.<SpecifierTree>nonterminal(Kind.EXPORT_SPECIFIER)
       .is(b.firstOf(
+        f.exportSpecifier(f.identifierReference(b.token(JavaScriptKeyword.DEFAULT)), b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME()),
+        f.exportSpecifier(f.identifierReference(b.token(JavaScriptKeyword.DEFAULT))),
         f.exportSpecifier(IDENTIFIER_REFERENCE(), b.token(EcmaScriptLexer.AS), IDENTIFIER_NAME()),
         f.exportSpecifier(IDENTIFIER_REFERENCE())
       ));
