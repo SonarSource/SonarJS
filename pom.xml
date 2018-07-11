@@ -75,7 +75,7 @@
     <logback.version>1.0.13</logback.version>
     <mockito.version>1.9.0</mockito.version>
     <slf4j.version>1.7.21</slf4j.version>
-    <sonar.version>6.7</sonar.version>
+    <sonar.version>7.2</sonar.version>
     <sonar-orchestrator.version>3.19.0.1641</sonar-orchestrator.version>
     <sonarlint.version>3.0.0.1140</sonarlint.version>
     <sslr.version>1.22</sslr.version>

@@ -25,7 +25,7 @@ import com.sonar.orchestrator.locator.FileLocation;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.Measures.Measure;
 
 import static com.sonar.javascript.it.plugin.Tests.getMeasure;
 import static com.sonar.javascript.it.plugin.Tests.getMeasureAsDouble;
@@ -92,7 +92,7 @@ public class BigProjectTest {
     assertThat(getProjectMeasureAsDouble("cognitive_complexity")).isEqualTo(147929.0d);
   }
 
-  private WsMeasures.Measure getProjectMeasure(String metricKey) {
+  private Measure getProjectMeasure(String metricKey) {
     return getMeasure("project", metricKey);
   }
 

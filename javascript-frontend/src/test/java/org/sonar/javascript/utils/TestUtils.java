@@ -49,7 +49,7 @@ public class TestUtils {
   }
 
   public static DefaultInputFile createTestInputFile(File file, String contents, Charset encoding) {
-    final DefaultInputFile inputFile = new TestInputFileBuilder("module1", file.getAbsolutePath()).setCharset(encoding).build();
+    final DefaultInputFile inputFile = new TestInputFileBuilder("module1", file.getName()).setCharset(encoding).build();
     try {
       Files.write(file.toPath(), contents.getBytes(encoding));
       inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(file), encoding, file.getAbsolutePath()));
