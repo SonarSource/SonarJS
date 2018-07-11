@@ -317,7 +317,7 @@ public class JavaScriptSensorTest {
   }
 
   @Test
-  public void should_skip_vue_script_containing_ts() {
+  public void should_skip_vue_script_with_lang_ts() {
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))
       .activate()
@@ -333,7 +333,7 @@ public class JavaScriptSensorTest {
   }
 
   @Test
-  public void should_analyse_vue_script_containing_js() {
+  public void should_skip_vue_script_with_lang_js() {
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))
       .activate()

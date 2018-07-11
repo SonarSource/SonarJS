@@ -100,16 +100,24 @@ public class VueScriptTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void with_lang_property() throws Exception {
-    ScriptTree tree = parse("<script lang=\"ts\">var i</script>", Kind.SCRIPT);
+    ScriptTree scriptLangJs = parse("<script lang=\"js\">var i</script>", Kind.SCRIPT);
 
-    assertThat(tree.is(Kind.SCRIPT)).isTrue();
-    assertThat(tree.items()).isNull();
-    tree = parse("<script lang=\"js\">var i</script>", Kind.SCRIPT);
-
-    assertThat(tree.is(Kind.SCRIPT)).isTrue();
-    assertThat(tree.items().items()).hasSize(1);
-    VariableDeclarationTree variableDeclarationTree = (VariableDeclarationTree) getFirstDescendant((JavaScriptTree) tree, Kind.VAR_DECLARATION);
+    assertThat(scriptLangJs.is(Kind.SCRIPT)).isTrue();
+    assertThat(scriptLangJs.items().items()).hasSize(1);
+    VariableDeclarationTree variableDeclarationTree = (VariableDeclarationTree) getFirstDescendant((JavaScriptTree) scriptLangJs, Kind.VAR_DECLARATION);
     assertThat(variableDeclarationTree.is(Kind.VAR_DECLARATION)).isTrue();
+
+    // when lang != js, script content is ignored
+    ScriptTree scriptLangOther = parse("<script lang=\"foo\">var i</script>", Kind.SCRIPT);
+
+    assertThat(scriptLangOther.is(Kind.SCRIPT)).isTrue();
+    assertThat(scriptLangOther.items()).isNull();
+
+    ScriptTree scriptLangTs = parse("<script lang=\"ts\">var i</script>", Kind.SCRIPT);
+
+    assertThat(scriptLangTs.is(Kind.SCRIPT)).isTrue();
+    assertThat(scriptLangTs.items()).isNull();
+
   }
 
   @Override
