@@ -39,8 +39,9 @@ public class ObjectBindingPatternTest {
       .matches("{ identifier , ... restId }")
       .matches("{ identifier1 , identifier2, ... restId }")
       .matches("{ ... restId }")
+      .matches("{ ... restId, }")
+      .matches("{ identifier , ... restId , }")
 
-      .notMatches("{ identifier , ... restId , }")
       .notMatches("{ identifier , , identifier }")
       .notMatches("{ identifier , identifier , , }")
       .notMatches("{ identifier1 , ... restId , identifier2 }")

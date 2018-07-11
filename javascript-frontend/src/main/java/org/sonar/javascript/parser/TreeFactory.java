@@ -1448,7 +1448,8 @@ public class TreeFactory {
   public ObjectBindingPatternTree objectBindingPattern(
     InternalSyntaxToken lCurlyBrace,
     Optional<SeparatedList<BindingElementTree>> list,
-    Optional<Tuple<InternalSyntaxToken, Optional<RestElementTree>>> commaAndRest,
+    Optional<Tuple<InternalSyntaxToken, RestElementTree>> commaAndRest,
+    Optional<InternalSyntaxToken> trailingComma,
     InternalSyntaxToken rCurlyBrace
   ) {
 
@@ -1462,10 +1463,10 @@ public class TreeFactory {
 
     if (commaAndRest.isPresent()) {
       elements.getSeparators().add(commaAndRest.get().first);
-
-      if (commaAndRest.get().second.isPresent()) {
-        elements.add(commaAndRest.get().second.get());
-      }
+      elements.add(commaAndRest.get().second);
+    }
+    if (trailingComma.isPresent()) {
+      elements.getSeparators().add(trailingComma.get());
     }
 
     return new ObjectBindingPatternTreeImpl(
@@ -1474,11 +1475,13 @@ public class TreeFactory {
       rCurlyBrace);
   }
 
-  public ObjectBindingPatternTree objectBindingPattern2(InternalSyntaxToken lCurlyBrace, RestElementTree rest, InternalSyntaxToken rCurlyBrace) {
-    return new ObjectBindingPatternTreeImpl(
-      lCurlyBrace,
-      new SeparatedListImpl<>(ImmutableList.<BindingElementTree>of(rest), ImmutableList.<InternalSyntaxToken>of()),
-      rCurlyBrace);
+  public ObjectBindingPatternTree objectBindingPattern2(InternalSyntaxToken lCurlyBrace, RestElementTree rest,
+                                                        Optional<InternalSyntaxToken> trailingComma,
+                                                        InternalSyntaxToken rCurlyBrace) {
+    List<InternalSyntaxToken> separators = trailingComma.isPresent() ?
+        ImmutableList.of(trailingComma.get()) : ImmutableList.of();
+    SeparatedListImpl<BindingElementTree> elements = new SeparatedListImpl<>(ImmutableList.of(rest), separators);
+    return new ObjectBindingPatternTreeImpl(lCurlyBrace, elements, rCurlyBrace);
   }
 
   public ArrayBindingPatternTree arrayBindingPattern(

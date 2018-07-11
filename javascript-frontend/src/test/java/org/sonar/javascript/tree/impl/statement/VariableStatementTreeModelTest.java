@@ -22,6 +22,8 @@ package org.sonar.javascript.tree.impl.statement;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +44,16 @@ public class VariableStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.VARIABLE_STATEMENT)).isTrue();
     assertThat(tree.declaration().variables()).hasSize(3);
+  }
+
+  @Test
+  public void trailing_comma() throws Exception {
+    VariableStatementTree tree = parse("const {...rest,} = obj;", Kind.VARIABLE_STATEMENT);
+    assertThat(tree.is(Kind.VARIABLE_STATEMENT)).isTrue();
+    InitializedBindingElementTree bindingElementTree = (InitializedBindingElementTree) tree.declaration().variables().get(0);
+    ObjectBindingPatternTree objectBinding = (ObjectBindingPatternTree) bindingElementTree.left();
+    assertThat(objectBinding.elements()).hasSize(1);
+    assertThat(objectBinding.elements().getSeparators()).hasSize(1);
   }
 
 }
