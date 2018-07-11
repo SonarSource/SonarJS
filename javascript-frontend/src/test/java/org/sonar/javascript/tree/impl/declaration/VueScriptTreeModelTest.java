@@ -107,17 +107,11 @@ public class VueScriptTreeModelTest extends JavaScriptTreeModelTest {
     VariableDeclarationTree variableDeclarationTree = (VariableDeclarationTree) getFirstDescendant((JavaScriptTree) scriptLangJs, Kind.VAR_DECLARATION);
     assertThat(variableDeclarationTree.is(Kind.VAR_DECLARATION)).isTrue();
 
-    // when lang != js, script content is ignored
-    ScriptTree scriptLangOther = parse("<script lang=\"foo\">var i</script>", Kind.SCRIPT);
-
-    assertThat(scriptLangOther.is(Kind.SCRIPT)).isTrue();
-    assertThat(scriptLangOther.items()).isNull();
-
+    // when lang = ts, script content is ignored
     ScriptTree scriptLangTs = parse("<script lang=\"ts\">var i</script>", Kind.SCRIPT);
 
     assertThat(scriptLangTs.is(Kind.SCRIPT)).isTrue();
     assertThat(scriptLangTs.items()).isNull();
-
   }
 
   @Override

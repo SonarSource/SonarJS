@@ -1814,7 +1814,7 @@ public class JavaScriptGrammar {
       .is(b.firstOf(
         f.vueElement(b.token(EcmaScriptLexer.VUE_TEMPLATE_SECTION)),
         f.vueElement(b.token(EcmaScriptLexer.VUE_STYLE_SECTION)),
-        f.vueElement(b.token(EcmaScriptLexer.SCRIPT_TAG_NO_JS)),
+        f.vueElement(b.token(EcmaScriptLexer.SCRIPT_SECTION_TS)),
         f.scriptVueElement(
           VUE_SCRIPT_TAG(),
           b.optional(b.token(EcmaScriptLexer.SHEBANG)),

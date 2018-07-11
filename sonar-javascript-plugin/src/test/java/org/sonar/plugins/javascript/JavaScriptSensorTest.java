@@ -316,35 +316,28 @@ public class JavaScriptSensorTest {
     assertThat(context.measure("moduleKey:test_minified/file-min.js", CoreMetrics.NCLOC)).isNull();
   }
 
-  @Test
-  public void should_skip_vue_script_with_lang_ts() {
+  private void analyseFile(String relativePath) {
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))
       .activate()
       .build();
     checkFactory = new CheckFactory(activeRules);
-
     context.setActiveRules(activeRules);
-    inputFile("vue/tsScript.vue");
+
+    inputFile(relativePath);
 
     createSensor().execute(context);
+  }
 
-    assertThat(context.allAnalysisErrors()).isEmpty();
+  @Test
+  public void should_skip_vue_script_with_lang_ts() {
+    analyseFile("vue/tsScript.vue");
+    assertThat(context.allIssues()).isEmpty();
   }
 
   @Test
   public void should_skip_vue_script_with_lang_js() {
-    ActiveRules activeRules = (new ActiveRulesBuilder())
-      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))
-      .activate()
-      .build();
-    checkFactory = new CheckFactory(activeRules);
-
-    context.setActiveRules(activeRules);
-    inputFile("vue/jsScript.vue");
-
-    createSensor().execute(context);
-
+    analyseFile("vue/jsScript.vue");
     assertThat(context.allIssues()).hasSize(1);
   }
 
