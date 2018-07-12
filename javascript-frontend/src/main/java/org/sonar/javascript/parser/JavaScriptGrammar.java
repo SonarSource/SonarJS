@@ -156,6 +156,9 @@ import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
 
+import static org.sonar.javascript.parser.EcmaScriptLexer.SPACING;
+import static org.sonar.javascript.parser.EcmaScriptLexer.VUE_SPACING;
+
 public class JavaScriptGrammar {
 
   private final GrammarBuilder<InternalSyntaxToken> b;
@@ -1809,7 +1812,7 @@ public class JavaScriptGrammar {
     return b.<ScriptTree>nonterminal(EcmaScriptLexer.VUE_SCRIPT)
       .is(f.vueScript(
         b.zeroOrMore(VUE_ELEMENT()),
-        b.token(EcmaScriptLexer.SPACING_NOT_SKIPPED),
+        b.token(EcmaScriptLexer.VUE_SPACING),
         b.token(EcmaScriptLexer.EOF)));
   }
 

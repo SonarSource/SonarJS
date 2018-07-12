@@ -348,6 +348,12 @@ public class JavaScriptSensorTest {
   }
 
   @Test
+  public void should_analyse_vue_with_multiline_comment() {
+    analyseFile("vue/comment.vue");
+    assertThat(context.allIssues()).hasSize(1);
+  }
+
+  @Test
   public void should_disable_unnecessary_features_for_sonarlint() throws Exception {
     baseDir = new File("src/test/resources/coverage");
     context = SensorContextTester.create(baseDir);

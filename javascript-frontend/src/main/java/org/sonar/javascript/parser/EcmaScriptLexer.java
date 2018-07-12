@@ -151,6 +151,7 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
   SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK,
   SPACING,
   SPACING_NOT_SKIPPED,
+  EMPTY_LINE,
 
   /**
    * Spacing without line break.
@@ -317,6 +318,8 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
   VUE_TEMPLATE_SECTION,
   VUE_STYLE_SECTION,
   VUE_CUSTOM_SECTION,
+  VUE_SPACING,
+  VUE_COMMENT,
 
   // Flow
   FLOW_TYPE,
@@ -373,11 +376,12 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
   private static void lexical(LexerlessGrammarBuilder b) {
     b.rule(SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK).is(SPACING_NO_LB, NEXT_NOT_LB);
 
+    b.rule(EMPTY_LINE).is(b.skippedTrivia(b.regexp("[" + JavaScriptLexer.LINE_TERMINATOR + JavaScriptLexer.WHITESPACE + "]*+")));
     b.rule(SPACING).is(
-      b.skippedTrivia(b.regexp("[" + JavaScriptLexer.LINE_TERMINATOR + JavaScriptLexer.WHITESPACE + "]*+")),
+      EMPTY_LINE,
       b.zeroOrMore(
         b.commentTrivia(b.regexp(JavaScriptLexer.COMMENT)),
-        b.skippedTrivia(b.regexp("[" + JavaScriptLexer.LINE_TERMINATOR + JavaScriptLexer.WHITESPACE + "]*+")))).skip();
+        EMPTY_LINE)).skip();
     b.rule(SPACING_NOT_SKIPPED).is(SPACING);
 
     b.rule(SPACING_NO_LB).is(
@@ -455,12 +459,20 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
     b.rule(TARGET).is(word(b, "target"));
 
     // Vue.js
-    b.rule(SCRIPT_TAG).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "<script"));
-    b.rule(SCRIPT_SECTION_TS).is(SPACING, b.regexp("(?s)<script\\s+lang=\"ts\"\\s*>.*</script>"));
-    b.rule(SCRIPT_TAG_CLOSE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "</script>"));
-    b.rule(VUE_TEMPLATE_SECTION).is(SPACING, b.regexp("(?s)<template.*</template>"));
-    b.rule(VUE_STYLE_SECTION).is(SPACING, b.regexp("(?s)<style.*</style>"));
-    b.rule(VUE_CUSTOM_SECTION).is(SPACING, b.regexp("(?s)<(\\w+).*?</\\1>"));
+    b.rule(VUE_COMMENT).is(b.commentTrivia(b.regexp("<!--[\\s\\S]*?-->")));
+    b.rule(VUE_SPACING).is(
+      EMPTY_LINE,
+      b.zeroOrMore(
+        VUE_COMMENT,
+        EMPTY_LINE))
+      .skip();
+
+    b.rule(SCRIPT_TAG).is(VUE_SPACING, b.token(GenericTokenType.IDENTIFIER, "<script"));
+    b.rule(SCRIPT_SECTION_TS).is(VUE_SPACING, b.regexp("(?s)<script\\s+lang=\"ts\"\\s*>.*</script>"));
+    b.rule(SCRIPT_TAG_CLOSE).is(VUE_SPACING, b.token(GenericTokenType.IDENTIFIER, "</script>"));
+    b.rule(VUE_TEMPLATE_SECTION).is(VUE_SPACING, b.regexp("(?s)<template.*</template>"));
+    b.rule(VUE_STYLE_SECTION).is(VUE_SPACING, b.regexp("(?s)<style.*</style>"));
+    b.rule(VUE_CUSTOM_SECTION).is(VUE_SPACING, b.regexp("(?s)<(\\w+).*?</\\1>"));
 
     // Flow
     b.rule(OPAQUE).is(word(b,"opaque"));
