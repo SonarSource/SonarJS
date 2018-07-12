@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1481",
-  "sqKey": "S1481"
+  "sqKey": "UnusedVariable",
+  "scope": "All"
 }

@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1131",
-  "sqKey": "S1131"
+  "sqKey": "TrailingWhitespace",
+  "scope": "Main"
 }

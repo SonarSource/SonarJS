@@ -8,12 +8,13 @@
   },
   "tags": [
     "html5",
-    "owasp-a3"
+    "owasp-a7"
   ],
   "standards": [
     "OWASP Top Ten"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2819",
-  "sqKey": "S2819"
+  "sqKey": "S2819",
+  "scope": "Main"
 }

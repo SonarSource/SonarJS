@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1110",
-  "sqKey": "Parentheses"
+  "sqKey": "Parentheses",
+  "scope": "All"
 }

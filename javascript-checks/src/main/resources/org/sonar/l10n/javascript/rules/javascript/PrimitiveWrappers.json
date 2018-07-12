@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1533",
-  "sqKey": "PrimitiveWrappers"
+  "sqKey": "PrimitiveWrappers",
+  "scope": "Main"
 }

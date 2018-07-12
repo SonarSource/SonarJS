@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1537",
-  "sqKey": "TrailingComma"
+  "sqKey": "TrailingComma",
+  "scope": "Main"
 }

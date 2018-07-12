@@ -12,5 +12,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1530",
-  "sqKey": "FunctionDeclarationsWithinBlocks"
+  "sqKey": "FunctionDeclarationsWithinBlocks",
+  "scope": "Main"
 }

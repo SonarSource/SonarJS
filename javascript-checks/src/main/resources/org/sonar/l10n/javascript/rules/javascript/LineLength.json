@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-103",
-  "sqKey": "LineLength"
+  "sqKey": "LineLength",
+  "scope": "All"
 }

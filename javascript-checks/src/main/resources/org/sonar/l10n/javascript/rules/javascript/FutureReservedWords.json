@@ -12,5 +12,6 @@
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1527",
-  "sqKey": "FutureReservedWords"
+  "sqKey": "FutureReservedWords",
+  "scope": "Main"
 }

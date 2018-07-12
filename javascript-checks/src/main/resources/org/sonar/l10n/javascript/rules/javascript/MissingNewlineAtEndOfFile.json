@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-113",
-  "sqKey": "MissingNewlineAtEndOfFile"
+  "sqKey": "MissingNewlineAtEndOfFile",
+  "scope": "All"
 }

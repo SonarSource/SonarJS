@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1994",
-  "sqKey": "S1994"
+  "sqKey": "S1994",
+  "scope": "All"
 }

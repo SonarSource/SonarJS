@@ -12,5 +12,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-909",
-  "sqKey": "ContinueStatement"
+  "sqKey": "ContinueStatement",
+  "scope": "Main"
 }

@@ -13,5 +13,6 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1541",
-  "sqKey": "FunctionComplexity"
+  "sqKey": "FunctionComplexity",
+  "scope": "Main"
 }

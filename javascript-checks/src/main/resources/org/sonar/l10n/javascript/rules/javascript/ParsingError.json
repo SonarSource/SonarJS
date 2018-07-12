@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2260",
-  "sqKey": "ParsingError"
+  "sqKey": "ParsingError",
+  "scope": "All"
 }

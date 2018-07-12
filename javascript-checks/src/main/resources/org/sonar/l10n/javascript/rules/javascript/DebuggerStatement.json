@@ -8,12 +8,15 @@
   },
   "tags": [
     "cwe",
-    "user-experience"
+    "user-experience",
+    "owasp-a3"
   ],
   "standards": [
-    "CWE"
+    "CWE",
+    "OWASP Top Ten"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1525",
-  "sqKey": "DebuggerStatement"
+  "sqKey": "DebuggerStatement",
+  "scope": "Main"
 }

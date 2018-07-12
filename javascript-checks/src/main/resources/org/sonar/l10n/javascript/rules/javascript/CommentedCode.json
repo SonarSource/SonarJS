@@ -1,5 +1,5 @@
 {
-  "title": "Sections of code should not be \"commented out\"",
+  "title": "Sections of code should not be commented out",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -12,5 +12,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-125",
-  "sqKey": "CommentedCode"
+  "sqKey": "CommentedCode",
+  "scope": "All"
 }

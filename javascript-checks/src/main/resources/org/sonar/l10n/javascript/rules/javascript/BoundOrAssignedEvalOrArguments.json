@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1514",
-  "sqKey": "BoundOrAssignedEvalOrArguments"
+  "sqKey": "BoundOrAssignedEvalOrArguments",
+  "scope": "Main"
 }

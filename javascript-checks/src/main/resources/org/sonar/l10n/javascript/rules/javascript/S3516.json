@@ -12,5 +12,6 @@
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-3516",
-  "sqKey": "S3516"
+  "sqKey": "S3516",
+  "scope": "Main"
 }

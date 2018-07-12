@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1441",
-  "sqKey": "S1441"
+  "sqKey": "SingleQuote",
+  "scope": "Main"
 }

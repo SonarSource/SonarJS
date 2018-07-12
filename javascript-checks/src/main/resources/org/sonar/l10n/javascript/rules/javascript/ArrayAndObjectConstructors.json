@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1528",
-  "sqKey": "ArrayAndObjectConstructors"
+  "sqKey": "ArrayAndObjectConstructors",
+  "scope": "Main"
 }

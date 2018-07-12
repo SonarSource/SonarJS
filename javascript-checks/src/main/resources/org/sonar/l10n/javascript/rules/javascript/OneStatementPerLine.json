@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-122",
-  "sqKey": "OneStatementPerLine"
+  "sqKey": "OneStatementPerLine",
+  "scope": "All"
 }

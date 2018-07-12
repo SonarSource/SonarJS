@@ -9,12 +9,13 @@
     "linearFactor": "5min"
   },
   "tags": [
-    "owasp-a6"
+    "owasp-a3"
   ],
   "standards": [
     "OWASP Top Ten"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3271",
-  "sqKey": "S3271"
+  "sqKey": "S3271",
+  "scope": "Main"
 }
