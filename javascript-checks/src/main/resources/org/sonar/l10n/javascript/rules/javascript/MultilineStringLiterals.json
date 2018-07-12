@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1516",
-  "sqKey": "MultilineStringLiterals"
+  "sqKey": "MultilineStringLiterals",
+  "scope": "Main"
 }

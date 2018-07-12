@@ -13,5 +13,6 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3776",
-  "sqKey": "S3776"
+  "sqKey": "S3776",
+  "scope": "All"
 }

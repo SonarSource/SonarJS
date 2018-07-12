@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1515",
-  "sqKey": "FunctionDefinitionInsideLoop"
+  "sqKey": "FunctionDefinitionInsideLoop",
+  "scope": "Main"
 }

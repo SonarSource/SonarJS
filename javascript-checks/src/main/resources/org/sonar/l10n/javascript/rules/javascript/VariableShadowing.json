@@ -13,5 +13,6 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1524",
-  "sqKey": "S1524"
+  "sqKey": "VariableShadowing",
+  "scope": "Main"
 }

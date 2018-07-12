@@ -13,5 +13,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1172",
-  "sqKey": "S1172"
+  "sqKey": "UnusedFunctionArgument",
+  "scope": "All"
 }

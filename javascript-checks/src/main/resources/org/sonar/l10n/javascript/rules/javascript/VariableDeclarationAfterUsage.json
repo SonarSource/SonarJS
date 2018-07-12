@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1526",
-  "sqKey": "S1526"
+  "sqKey": "VariableDeclarationAfterUsage",
+  "scope": "Main"
 }

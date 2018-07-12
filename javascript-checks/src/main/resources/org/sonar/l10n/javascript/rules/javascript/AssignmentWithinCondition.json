@@ -17,5 +17,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1121",
-  "sqKey": "AssignmentWithinCondition"
+  "sqKey": "AssignmentWithinCondition",
+  "scope": "All"
 }

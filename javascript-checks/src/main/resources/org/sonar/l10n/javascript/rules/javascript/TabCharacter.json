@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-105",
-  "sqKey": "S105"
+  "sqKey": "TabCharacter",
+  "scope": "All"
 }

@@ -7,9 +7,14 @@
     "constantCost": "5min"
   },
   "tags": [
+    "owasp-a1",
     "clumsy"
+  ],
+  "standards": [
+    "OWASP Top Ten"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3523",
-  "sqKey": "S3523"
+  "sqKey": "S3523",
+  "scope": "Main"
 }

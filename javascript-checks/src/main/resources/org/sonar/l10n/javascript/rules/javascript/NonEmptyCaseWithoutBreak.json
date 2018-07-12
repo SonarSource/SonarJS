@@ -17,5 +17,6 @@
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-128",
-  "sqKey": "NonEmptyCaseWithoutBreak"
+  "sqKey": "NonEmptyCaseWithoutBreak",
+  "scope": "All"
 }

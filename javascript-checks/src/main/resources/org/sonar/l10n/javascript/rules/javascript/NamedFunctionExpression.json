@@ -12,5 +12,6 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1517",
-  "sqKey": "NamedFunctionExpression"
+  "sqKey": "NamedFunctionExpression",
+  "scope": "Main"
 }

@@ -13,5 +13,6 @@
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1314",
-  "sqKey": "OctalNumber"
+  "sqKey": "OctalNumber",
+  "scope": "All"
 }

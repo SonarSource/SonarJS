@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-107",
-  "sqKey": "ExcessiveParameterList"
+  "sqKey": "ExcessiveParameterList",
+  "scope": "All"
 }

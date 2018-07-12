@@ -1,5 +1,5 @@
 {
-  "title": "Jump statements should not be followed by other statements",
+  "title": "Jump statements should not be followed by dead code",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -17,5 +17,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1763",
-  "sqKey": "S1763"
+  "sqKey": "UnreachableCode",
+  "scope": "All"
 }

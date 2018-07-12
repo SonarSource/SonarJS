@@ -11,5 +11,6 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1532",
-  "sqKey": "ConditionalComment"
+  "sqKey": "ConditionalComment",
+  "scope": "Main"
 }

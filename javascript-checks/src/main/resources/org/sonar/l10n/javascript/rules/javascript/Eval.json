@@ -8,7 +8,7 @@
   },
   "tags": [
     "cwe",
-    "owasp-a3"
+    "owasp-a7"
   ],
   "standards": [
     "CWE",
@@ -16,5 +16,6 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1523",
-  "sqKey": "Eval"
+  "sqKey": "Eval",
+  "scope": "Main"
 }
