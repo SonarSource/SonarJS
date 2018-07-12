@@ -114,6 +114,18 @@ public class VueScriptTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(scriptLangTs.items()).isNull();
   }
 
+  @Test
+  public void with_custom_sections() throws Exception {
+    String customSectionDoc = "<docs>This is a doc</docs>";
+    ScriptTree vueTree = (ScriptTree) p.parse(customSectionDoc);
+    assertThat(vueTree.items()).isNull();
+
+    vueTree = (ScriptTree) p.parse(customSectionDoc + "<script>var x</script>");
+    assertThat(vueTree.items().items()).hasSize(1);
+    VariableDeclarationTree variableDeclarationTree = (VariableDeclarationTree) getFirstDescendant((JavaScriptTree) vueTree, Kind.VAR_DECLARATION);
+    assertThat(variableDeclarationTree.is(Kind.VAR_DECLARATION)).isTrue();
+  }
+
   @Override
   protected  <T extends Tree> T parse(String s, Kind descendantToReturn) throws Exception {
     Tree node = p.parse(s);

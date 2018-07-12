@@ -316,6 +316,7 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
   SCRIPT_SECTION_TS,
   VUE_TEMPLATE_SECTION,
   VUE_STYLE_SECTION,
+  VUE_CUSTOM_SECTION,
 
   // Flow
   FLOW_TYPE,
@@ -459,6 +460,7 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
     b.rule(SCRIPT_TAG_CLOSE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "</script>"));
     b.rule(VUE_TEMPLATE_SECTION).is(SPACING, b.regexp("(?s)<template.*</template>"));
     b.rule(VUE_STYLE_SECTION).is(SPACING, b.regexp("(?s)<style.*</style>"));
+    b.rule(VUE_CUSTOM_SECTION).is(SPACING, b.regexp("(?s)<(\\w+).*?</\\1>"));
 
     // Flow
     b.rule(OPAQUE).is(word(b,"opaque"));

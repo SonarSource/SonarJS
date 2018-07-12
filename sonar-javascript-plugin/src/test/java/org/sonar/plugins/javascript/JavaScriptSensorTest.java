@@ -336,8 +336,14 @@ public class JavaScriptSensorTest {
   }
 
   @Test
-  public void should_skip_vue_script_with_lang_js() {
+  public void should_analyse_vue_script_with_lang_js() {
     analyseFile("vue/jsScript.vue");
+    assertThat(context.allIssues()).hasSize(1);
+  }
+
+  @Test
+  public void should_analyse_vue_with_custom_sections() {
+    analyseFile("vue/customSections.vue");
     assertThat(context.allIssues()).hasSize(1);
   }
 
