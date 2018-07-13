@@ -50,8 +50,6 @@ public class EslintReportSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(EslintReportSensor.class);
 
-  public static final String DEPRECATED_SONARTS_PROPERTY = "sonar.typescript.eslint.reportPaths";
-
   @Override
   public void describe(SensorDescriptor sensorDescriptor) {
     sensorDescriptor
@@ -61,16 +59,8 @@ public class EslintReportSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    checkDeprecatedTsProperty(context);
-
     List<File> reportFiles = ExternalReportProvider.getReportFiles(context, ESLINT_REPORT_PATHS);
     reportFiles.forEach(report -> importReport(report, context));
-  }
-
-  private static void checkDeprecatedTsProperty(SensorContext context) {
-    if (context.config().get(DEPRECATED_SONARTS_PROPERTY).isPresent()) {
-      LOG.warn("Property '{}' is deprecated, use '{}'.", DEPRECATED_SONARTS_PROPERTY, ESLINT_REPORT_PATHS );
-    }
   }
 
   private static void importReport(File report, SensorContext context) {

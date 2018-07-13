@@ -55,6 +55,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
@@ -76,6 +77,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.DEPRECATED_ESLINT_PROPERTY;
 
 public class JavaScriptSensorTest {
 
@@ -382,6 +384,13 @@ public class JavaScriptSensorTest {
 
     // symbol highlighting is there
     assertThat(context.referencesForSymbolAt(key, 1, 13)).isNotNull();
+  }
+
+  @Test
+  public void should_log_deprecated_property_used() throws Exception {
+    context.settings().setProperty(DEPRECATED_ESLINT_PROPERTY, "eslint-report.json");
+    createSensor().execute(context);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Property 'sonar.typescript.eslint.reportPaths' is deprecated, use 'sonar.eslint.reportPaths'.");
   }
 
   private void analyseFileWithException(JavaScriptCheck check, InputFile inputFile, String expectedMessageSubstring) {

@@ -70,6 +70,8 @@ public class JavaScriptPlugin implements Plugin {
   public static final String EXTERNAL_ANALYZERS_SUB_CATEGORY = "JavaScript/TypeScript";
   public static final String ESLINT_REPORT_PATHS = "sonar.eslint.reportPaths";
 
+  public static final String DEPRECATED_ESLINT_PROPERTY = "sonar.typescript.eslint.reportPaths";
+
   @Override
   public void define(Context context) {
     boolean externalIssuesSupported = context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2));

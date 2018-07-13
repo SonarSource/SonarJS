@@ -102,17 +102,6 @@ public class EslintReportSensorTest {
   }
 
   @Test
-  public void should_log_deprecated_property_used() throws Exception {
-    context.settings().setProperty(EslintReportSensor.DEPRECATED_SONARTS_PROPERTY, "eslint-report.json");
-    eslintReportSensor.execute(context);
-
-    Collection<ExternalIssue> externalIssues = context.allExternalIssues();
-    assertThat(externalIssues).hasSize(0);
-
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Property 'sonar.typescript.eslint.reportPaths' is deprecated, use 'sonar.eslint.reportPaths'.");
-  }
-
-  @Test
   public void should_log_not_existing_report() throws Exception {
     setEslintReport("not-existing-eslint-report.json");
     eslintReportSensor.execute(context);
