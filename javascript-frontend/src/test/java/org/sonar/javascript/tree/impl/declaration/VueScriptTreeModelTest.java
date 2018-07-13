@@ -26,6 +26,7 @@ import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -133,6 +134,12 @@ public class VueScriptTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(vueWithComment.items().items()).hasSize(1);
     VariableDeclarationTree variableDeclarationTree = (VariableDeclarationTree) getFirstDescendant((JavaScriptTree) vueWithComment, Kind.VAR_DECLARATION);
     assertThat(variableDeclarationTree.is(Kind.VAR_DECLARATION)).isTrue();
+
+    vueWithComment = parse("<script>foo(42);\n/* js comment */</script>", Kind.SCRIPT);
+    assertThat(vueWithComment.is(Kind.SCRIPT)).isTrue();
+    assertThat(vueWithComment.items().items()).hasSize(1);
+    CallExpressionTree callExpressionTree = (CallExpressionTree) getFirstDescendant((JavaScriptTree) vueWithComment, Kind.CALL_EXPRESSION);
+    assertThat(callExpressionTree.is(Kind.CALL_EXPRESSION)).isTrue();
   }
 
   @Override
