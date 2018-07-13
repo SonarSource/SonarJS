@@ -28,6 +28,9 @@ import java.io.FileNotFoundException;
 import java.io.InterruptedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +65,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptSensor.ProductDependentExecutor;
 import org.sonar.plugins.javascript.JavaScriptSensor.SonarLintProductExecutor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
+import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -109,13 +113,28 @@ public class JavaScriptSensorTest {
     }
   }};
 
+  private final CustomRuleRepository[] CUSTOM_RULE_REPOSITORIES = {
+    new CustomRuleRepository() {
+      @Override
+      public String repositoryKey() {
+        return "custom-repo";
+      }
+
+      @Override
+      public List<Class> checkClasses() {
+        return ImmutableList.of(CustomRuleWithRuleRepository.class);
+      }
+    }
+  };
+
   private File baseDir = new File("src/test/resources");
   private final ProgressReport progressReport = mock(ProgressReport.class);
   private SensorContextTester context = SensorContextTester.create(baseDir);
   private ProductDependentExecutor executor = new SonarLintProductExecutor(new NoSonarFilter(), context);
 
   private JavaScriptSensor createSensor() {
-    return new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(), CUSTOM_RULES);
+    return new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(),
+      CUSTOM_RULES, CUSTOM_RULE_REPOSITORIES);
   }
 
   @Before
@@ -255,16 +274,40 @@ public class JavaScriptSensorTest {
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .create(RuleKey.of("customKey", "key"))
       .activate()
+      .create(RuleKey.of("custom-repo", "key2"))
+      .activate()
       .build();
     checkFactory = new CheckFactory(activeRules);
     createSensor().execute(context);
 
     Collection<Issue> issues = context.allIssues();
-    assertThat(issues).hasSize(1);
-    Issue issue = issues.iterator().next();
+    assertThat(issues).hasSize(2);
+    Map<Integer, Issue> issueByLine = issues.stream().collect(Collectors.toMap(issue -> issue.primaryLocation().textRange().start().line(), i -> i));
+    assertThat(issueByLine.keySet()).containsExactlyInAnyOrder(1, 2);
+
+    Issue issue = issueByLine.get(1);
     assertThat(issue.gap()).isEqualTo(42);
     assertThat(issue.primaryLocation().message()).isEqualTo("Message of custom rule");
     assertThat(issue.primaryLocation().textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 7)));
+
+    issue = issueByLine.get(2);
+    assertThat(issue.gap()).isEqualTo(42);
+    assertThat(issue.primaryLocation().message()).isEqualTo("Message of custom rule");
+    assertThat(issue.primaryLocation().textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(2, 0), new DefaultTextPointer(2, 5)));
+  }
+
+  @Test
+  public void should_log_deprecation_warning() throws Exception {
+    JavaScriptSensor sensor = new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(),
+      CUSTOM_RULES, CUSTOM_RULE_REPOSITORIES);
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("CustomJavaScriptRulesDefinition usage is deprecated. Use CustomRuleRepository API to define custom rules");
+
+    logTester.clear();
+    sensor = new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(),
+      null, CUSTOM_RULE_REPOSITORIES);
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.WARN)).doesNotContain("CustomJavaScriptRulesDefinition usage is deprecated. Use CustomRuleRepository API to define custom rules");
   }
 
   @Test
@@ -460,6 +503,14 @@ public class JavaScriptSensorTest {
     @Override
     public void visitScript(ScriptTree tree) {
       addIssue(new LineIssue(this, 1, "Message of custom rule")).cost(42);
+    }
+  }
+
+  @Rule(key = "key2")
+  public static class CustomRuleWithRuleRepository extends DoubleDispatchVisitorCheck {
+
+    public void visitScript(ScriptTree tree) {
+      addIssue(new LineIssue(this, 2, "Message of custom rule")).cost(42);
     }
   }
 

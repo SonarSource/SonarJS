@@ -17,34 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.samples.javascript;
-
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-
-@Rule(
-  key = "subscription",
-  name = "Subscription base visitor check",
-  description = "desc",
-  priority = Priority.MINOR)
-@SqaleConstantRemediation("10min")
-public class SubscriptionBaseVisitorCheck extends SubscriptionVisitorCheck {
-
-  @Override
-  public Set<Tree.Kind> nodesToVisit() {
-    return ImmutableSet.of(
-      Tree.Kind.FOR_IN_STATEMENT
-    );
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    addIssue(tree, "For in statement.");
-  }
-
-}
+/**
+ * Provides helper classes for coding rules implementation
+ */
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.samples.javascript.checks;

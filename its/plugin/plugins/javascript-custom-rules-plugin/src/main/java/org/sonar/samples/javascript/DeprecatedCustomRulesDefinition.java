@@ -21,8 +21,11 @@ package org.sonar.samples.javascript;
 
 
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
+import org.sonar.samples.javascript.checks.BaseTreeVisitorCheck;
+import org.sonar.samples.javascript.checks.SubscriptionBaseVisitorCheck;
 
-public class JavaCustomRulesDefinition extends CustomJavaScriptRulesDefinition {
+// we want to keep this test until we are able to remove CustomJavaScriptRulesDefinition completely
+public class DeprecatedCustomRulesDefinition extends CustomJavaScriptRulesDefinition {
 
   @Override
   public String repositoryName() {
@@ -31,7 +34,7 @@ public class JavaCustomRulesDefinition extends CustomJavaScriptRulesDefinition {
 
   @Override
   public String repositoryKey() {
-    return "javascript-custom-rules";
+    return "deprecated-custom-rules";
   }
 
   @Override

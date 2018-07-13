@@ -17,17 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.samples.javascript;
+package org.sonar.samples.javascript.checks;
 
-import org.sonar.api.Plugin;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-public class JavaScriptCustomRulesPlugin implements Plugin {
+@Rule(
+  key = "subscription",
+  name = "Subscription base visitor check",
+  description = "desc",
+  priority = Priority.MINOR)
+@SqaleConstantRemediation("10min")
+public class SubscriptionBaseVisitorCheck extends SubscriptionVisitorCheck {
 
   @Override
-  public void define(Context context) {
-    context.addExtensions(
-      DeprecatedCustomRulesDefinition.class,
-      TestCustomRuleRepository.class
+  public Set<Tree.Kind> nodesToVisit() {
+    return ImmutableSet.of(
+      Tree.Kind.FOR_IN_STATEMENT
     );
   }
+
+  @Override
+  public void visitNode(Tree tree) {
+    addIssue(tree, "For in statement.");
+  }
+
 }

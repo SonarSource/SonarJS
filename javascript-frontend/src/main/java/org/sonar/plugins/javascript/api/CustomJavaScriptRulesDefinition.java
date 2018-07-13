@@ -28,10 +28,13 @@ import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
 
 /**
  * Extension point to create custom rule repository for JavaScript.
+ *
+ * @deprecated since 4.2. Implement {@link RulesDefinition} and {@link CustomRuleRepository} instead
  */
 @Beta
 @ExtensionPoint
 @ScannerSide
+@Deprecated
 public abstract class CustomJavaScriptRulesDefinition implements RulesDefinition {
 
   /**

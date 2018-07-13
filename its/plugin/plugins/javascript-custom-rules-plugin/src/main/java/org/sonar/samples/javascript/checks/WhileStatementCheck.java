@@ -17,17 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.samples.javascript;
+package org.sonar.samples.javascript.checks;
 
-import org.sonar.api.Plugin;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
-public class JavaScriptCustomRulesPlugin implements Plugin {
+/**
+ * description of this rule is loaded from html file, remediation function is hardcoded in
+ * {@link org.sonar.samples.javascript.TestCustomRuleRepository}
+ */
+@Rule(key = "whileCheck", name = "While Statement Check")
+public class WhileStatementCheck extends SubscriptionVisitorCheck {
 
   @Override
-  public void define(Context context) {
-    context.addExtensions(
-      DeprecatedCustomRulesDefinition.class,
-      TestCustomRuleRepository.class
-    );
+  public Set<Tree.Kind> nodesToVisit() {
+    return ImmutableSet.of(Tree.Kind.WHILE_STATEMENT);
   }
+
+  @Override
+  public void visitNode(Tree tree) {
+    addIssue(tree, "While statement.");
+  }
+
 }

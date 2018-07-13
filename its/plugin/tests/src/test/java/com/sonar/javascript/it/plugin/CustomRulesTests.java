@@ -21,25 +21,28 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import java.util.Collections;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueClient;
-import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Rules;
+import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.rules.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CustomRulesTests {
 
+  public static final String CUSTOM_RULES_WHILE_CHECK = "javascript-custom-rules:whileCheck";
   @ClassRule
   public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
-  private static IssueClient issueClient;
-
   @BeforeClass
-  public static void prepare() throws InterruptedException {
+  public static void prepare() {
     orchestrator.resetData();
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("custom_rules"))
@@ -50,32 +53,70 @@ public class CustomRulesTests {
     orchestrator.getServer().provisionProject("custom-rules", "Custom Rules");
     orchestrator.getServer().associateProjectToQualityProfile("custom-rules", "js", "javascript-custom-rules-profile");
     orchestrator.executeBuild(build);
-
-    issueClient = orchestrator.getServer().wsClient().issueClient();
   }
 
   @Test
   public void base_tree_visitor_check() {
-    List<Issue> issues = issueClient.find(IssueQuery.create().rules("javascript-custom-rules:base")).list();
+    List<Issues.Issue> issues = findIssues("deprecated-custom-rules:base");
 
     assertThat(issues).hasSize(1);
 
-    Issue issue = issues.get(0);
-    assertThat(issue.line()).isEqualTo(2);
-    assertThat(issue.message()).isEqualTo("Function expression.");
-    assertThat(issue.debt()).isEqualTo("5min");
+    Issues.Issue issue = issues.get(0);
+    assertThat(issue.getLine()).isEqualTo(2);
+    assertThat(issue.getMessage()).isEqualTo("Function expression.");
+    assertThat(issue.getDebt()).isEqualTo("5min");
   }
 
   @Test
   public void subscription_base_visitor_check() {
-    List<Issue> issues = issueClient.find(IssueQuery.create().rules("javascript-custom-rules:subscription")).list();
+    List<Issues.Issue> issues = findIssues("deprecated-custom-rules:subscription");
 
     assertThat(issues).hasSize(1);
 
-    Issue issue = issues.get(0);
-    assertThat(issue.line()).isEqualTo(11);
-    assertThat(issue.message()).isEqualTo("For in statement.");
-    assertThat(issue.debt()).isEqualTo("10min");
+    Issues.Issue issue = issues.get(0);
+    assertThat(issue.getLine()).isEqualTo(11);
+    assertThat(issue.getMessage()).isEqualTo("For in statement.");
+    assertThat(issue.getDebt()).isEqualTo("10min");
   }
+
+  @Test
+  public void rule_from_check_registrar_should_raise_issue() {
+    List<Issues.Issue> issues = findIssues(CUSTOM_RULES_WHILE_CHECK);
+    assertThat(issues).hasSize(1);
+
+    Issues.Issue issue = issues.get(0);
+    assertThat(issue.getLine()).isEqualTo(18);
+    assertThat(issue.getMessage()).isEqualTo("While statement.");
+    assertThat(issue.getDebt()).isEqualTo("5min");
+  }
+
+  @Test
+  public void should_have_html_description_loaded() {
+    List<Rules.Rule> rulesList = findRule(CUSTOM_RULES_WHILE_CHECK);
+    assertThat(rulesList).hasSize(1);
+    Rules.Rule rule = rulesList.get(0);
+    assertThat(rule.getHtmlDesc()).contains("This is very important rule");
+  }
+
+  private List<Rules.Rule> findRule(String ruleKey) {
+    SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setRuleKey(ruleKey);
+    Rules.SearchResponse searchResponse = newWsClient().rules().search(searchRequest);
+    return searchResponse.getRulesList();
+  }
+
+  private List<Issues.Issue> findIssues(String ruleKey) {
+    org.sonarqube.ws.client.issues.SearchRequest searchRequest = new org.sonarqube.ws.client.issues.SearchRequest();
+    searchRequest.setRules(Collections.singletonList(ruleKey));
+    Issues.SearchWsResponse response = newWsClient().issues().search(searchRequest);
+    return response.getIssuesList();
+  }
+
+  private static WsClient newWsClient() {
+    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+      .url(orchestrator.getServer().getUrl())
+      .build());
+  }
+
 
 }
