@@ -44,6 +44,7 @@ public class CoverageSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguage(JavaScriptLanguage.KEY)
+      .onlyWhenConfiguration(conf -> conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS))
       .name("SonarJS Coverage")
       .onlyOnFileType(Type.MAIN);
   }
