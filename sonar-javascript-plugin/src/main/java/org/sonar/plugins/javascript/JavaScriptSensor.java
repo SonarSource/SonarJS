@@ -79,6 +79,9 @@ import org.sonar.plugins.javascript.minify.MinificationAssessor;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
+import static org.sonar.plugins.javascript.JavaScriptPlugin.DEPRECATED_ESLINT_PROPERTY;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.ESLINT_REPORT_PATHS;
+
 public class JavaScriptSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptSensor.class);
@@ -102,7 +105,6 @@ public class JavaScriptSensor implements Sensor {
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
     @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition
   ) {
-
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
       .addCustomChecks(customRulesDefinition);
@@ -297,6 +299,8 @@ public class JavaScriptSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
+    checkDeprecatedEslintProperty(context);
+
     ProductDependentExecutor executor = createProductDependentExecutor(context);
 
     List<TreeVisitor> treeVisitors = Lists.newArrayList();
@@ -323,6 +327,15 @@ public class JavaScriptSensor implements Sensor {
     progressReport.start(files);
 
     analyseFiles(context, treeVisitors, inputFiles, executor, progressReport);
+  }
+
+  /**
+   * Check if property consumed by SonarTS to import ESLint issues is set
+   */
+  private static void checkDeprecatedEslintProperty(SensorContext context) {
+    if (context.config().get(DEPRECATED_ESLINT_PROPERTY).isPresent()) {
+      LOG.warn("Property '{}' is deprecated, use '{}'.", DEPRECATED_ESLINT_PROPERTY, ESLINT_REPORT_PATHS);
+    }
   }
 
   private ProductDependentExecutor createProductDependentExecutor(SensorContext context) {
