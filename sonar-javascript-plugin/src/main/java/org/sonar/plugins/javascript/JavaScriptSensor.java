@@ -64,6 +64,7 @@ import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.SeChecksDispatcher;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
+import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -96,16 +97,16 @@ public class JavaScriptSensor implements Sensor {
 
   public JavaScriptSensor(
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter) {
-    this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, null);
+    this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, null, null);
   }
 
   public JavaScriptSensor(
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
-    @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition
-  ) {
+    @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition,
+    @Nullable CustomRuleRepository[] customRuleRepositories) {
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
-      .addCustomChecks(customRulesDefinition);
+      .addCustomChecks(customRulesDefinition, customRuleRepositories);
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.fileSystem = fileSystem;
     this.noSonarFilter = noSonarFilter;

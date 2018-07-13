@@ -4,13 +4,18 @@
   <language>js</language>
   <rules>
     <rule>
-      <repositoryKey>javascript-custom-rules</repositoryKey>
+      <repositoryKey>deprecated-custom-rules</repositoryKey>
       <key>base</key>
       <priority>MAJOR</priority>
     </rule>
     <rule>
-      <repositoryKey>javascript-custom-rules</repositoryKey>
+      <repositoryKey>deprecated-custom-rules</repositoryKey>
       <key>subscription</key>
+      <priority>MAJOR</priority>
+    </rule>
+    <rule>
+      <repositoryKey>javascript-custom-rules</repositoryKey>
+      <key>whileCheck</key>
       <priority>MAJOR</priority>
     </rule>
   </rules>

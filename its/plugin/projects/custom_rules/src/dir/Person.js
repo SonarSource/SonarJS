@@ -11,3 +11,10 @@ var myArray = [1, 2, 3];
 for (props in myArray) {
   // do something;
 }
+
+/**
+ * SubscriptionBaseVisitorCheck2
+ */
+while (i > 10) {
+
+}
