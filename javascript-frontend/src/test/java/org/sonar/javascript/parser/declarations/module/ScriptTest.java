@@ -42,6 +42,7 @@ public class ScriptTest {
     final String componentTemplate = "<template> <div id=\"app\">\n </div> </template>";
     final String componentTemplateWithScript = "<template> <script></script> </template>";
     final String multiLineComment = "<!--\nfoo bar\n-->";
+    final String singleLineComment = "<!--foo bar-->";
 
     assertThat(EcmaScriptLexer.VUE_SCRIPT)
       .matches("<script></script>")
@@ -73,7 +74,15 @@ public class ScriptTest {
 
       .matches(multiLineComment + "<script>var i;</script>")
       .matches("<script>var i;</script>" + multiLineComment)
+      .matches(singleLineComment + "<script>var i;</script>")
+      .matches("<script>var i;</script>" + singleLineComment)
       .matches(styleWithCss + multiLineComment + componentTemplate + "<script>var i;</script>")
+      .matches(multiLineComment + componentTemplate + multiLineComment + "<script>var i;</script>")
+      .matches(multiLineComment + styleWithCss + multiLineComment + componentTemplate + multiLineComment + "<script>var i;</script>")
+      .matches(multiLineComment + componentTemplate + singleLineComment + "<script>var i;</script>")
+      .matches(multiLineComment + "<docs>This is a documentation block</docs>" + "<script>var i;</script>")
+      .matches(multiLineComment + "\n\n<script>var i;</script>")
+      .matches("<!--\nfoo bar\n\n\n-->" + multiLineComment + "\n\n<script>var i;</script>")
     ;
   }
 
