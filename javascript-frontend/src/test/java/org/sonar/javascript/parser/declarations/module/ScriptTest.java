@@ -83,6 +83,7 @@ public class ScriptTest {
       .matches(multiLineComment + "<docs>This is a documentation block</docs>" + "<script>var i;</script>")
       .matches(multiLineComment + "\n\n<script>var i;</script>")
       .matches("<!--\nfoo bar\n\n\n-->" + multiLineComment + "\n\n<script>var i;</script>")
+      .matches("<script>foo(42);\n/* js comment */</script>")
     ;
   }
 
