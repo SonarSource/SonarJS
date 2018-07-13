@@ -43,7 +43,7 @@ import org.sonarsource.analyzer.commons.ExternalReportProvider;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 import static org.sonar.plugins.javascript.JavaScriptPlugin.ESLINT_REPORT_PATHS;
-import static org.sonar.plugins.javascript.rules.EslintRulesDefinition.LINTER_KEY;
+import static org.sonar.plugins.javascript.rules.EslintRulesDefinition.REPO_KEY;
 import static org.sonar.plugins.javascript.rules.EslintRulesDefinition.LINTER_NAME;
 
 public class EslintReportSensor implements Sensor {
@@ -111,7 +111,7 @@ public class EslintReportSensor implements Sensor {
 
     newExternalIssue
       .at(primaryLocation)
-      .forRule(RuleKey.of(LINTER_KEY, eslintKey))
+      .forRule(RuleKey.of(REPO_KEY, eslintKey))
       .type(ruleLoader.ruleType(eslintKey))
       .severity(ruleLoader.ruleSeverity(eslintKey))
       .remediationEffortMinutes(ruleLoader.ruleConstantDebtMinutes(eslintKey))
