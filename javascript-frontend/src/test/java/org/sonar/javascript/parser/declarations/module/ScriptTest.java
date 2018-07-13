@@ -53,6 +53,7 @@ public class ScriptTest {
       .matches("<script>i = 42;</script>")
       .matches("<script>\nvar i;</script>")
       .matches("<script> var i;</script>")
+      .notMatches("<script>foo var invalid;</script>")
 
       .matches("<template></template>\n<script></script>")
       .matches("<template>foo bar</template>\n<script></script>")
@@ -117,6 +118,9 @@ public class ScriptTest {
       .matches(script + customSectionDoc)
       .matches(styleWithCss + componentTemplate + customSectionDoc + script)
       .matches(styleWithCss + componentTemplate + customSectionI18n + script)
+      .matches("<example src=\"foo\" />" + styleWithCss + componentTemplate + customSectionI18n + script)
+      .matches("<example src=\"foo\" />")
+      .matches(styleWithCss + "<example src=\"foo\" />" + script)
       .notMatches(script + "invalid syntax")
     ;
   }

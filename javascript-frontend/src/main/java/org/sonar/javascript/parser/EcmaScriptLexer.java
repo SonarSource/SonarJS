@@ -472,7 +472,7 @@ public enum EcmaScriptLexer implements GrammarRuleKey {
     b.rule(SCRIPT_TAG_CLOSE).is(SPACING, b.token(GenericTokenType.IDENTIFIER, "</script>"));
     b.rule(VUE_TEMPLATE_SECTION).is(VUE_SPACING, b.regexp("(?s)<template.*</template>"));
     b.rule(VUE_STYLE_SECTION).is(VUE_SPACING, b.regexp("(?s)<style.*</style>"));
-    b.rule(VUE_CUSTOM_SECTION).is(VUE_SPACING, b.regexp("(?s)<(\\w+).*?</\\1>"));
+    b.rule(VUE_CUSTOM_SECTION).is(VUE_SPACING, b.regexp("(?s)<((?!script\\b)\\w+).*?(</\\1>|/>)"));
 
     // Flow
     b.rule(OPAQUE).is(word(b,"opaque"));
