@@ -51,7 +51,7 @@ public class JavaScriptRulingTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
-    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "7.2-RC1"))
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.6"))
