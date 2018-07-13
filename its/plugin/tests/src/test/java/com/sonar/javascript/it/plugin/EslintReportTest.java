@@ -67,18 +67,18 @@ public class EslintReportTest {
       assertThat(jsIssuesList).extracting("rule").containsExactlyInAnyOrder(
         "javascript:S2688",
         "javascript:S1116",
-        "external_eslint:no-unused-vars",
-        "external_eslint:no-extra-semi",
-        "external_eslint:use-isnan",
-        "external_eslint:semi",
-        "external_eslint:semi");
+        "external_eslint_repo:no-unused-vars",
+        "external_eslint_repo:no-extra-semi",
+        "external_eslint_repo:use-isnan",
+        "external_eslint_repo:semi",
+        "external_eslint_repo:semi");
 
       assertThat(tsIssuesList).extracting("rule").containsExactlyInAnyOrder(
-        "external_eslint:no-unused-vars",
-        "external_eslint:no-extra-semi",
-        "external_eslint:use-isnan",
-        "external_eslint:semi",
-        "external_eslint:semi");
+        "external_eslint_repo:no-unused-vars",
+        "external_eslint_repo:no-extra-semi",
+        "external_eslint_repo:use-isnan",
+        "external_eslint_repo:semi",
+        "external_eslint_repo:semi");
     } else {
       assertThat(jsIssuesList).isEmpty();
       assertThat(tsIssuesList).isEmpty();
