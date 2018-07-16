@@ -120,6 +120,8 @@ public class ScriptTest {
       .matches(styleWithCss + componentTemplate + customSectionI18n + script)
       .matches("<example src=\"foo\" />" + styleWithCss + componentTemplate + customSectionI18n + script)
       .matches("<example src=\"foo\" />")
+      .notMatches("<example src=\"foo\">foo bar </example42>")
+      .matches("<example/>")
       .matches(styleWithCss + "<example src=\"foo\" />" + script)
       .notMatches(script + "invalid syntax")
     ;
