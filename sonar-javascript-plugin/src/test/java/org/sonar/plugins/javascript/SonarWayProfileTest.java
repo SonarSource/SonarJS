@@ -20,18 +20,11 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SonarWayProfileTest {
 
@@ -39,25 +32,16 @@ public class SonarWayProfileTest {
   public void should_create_sonar_way_profile() {
     ValidationMessages validation = ValidationMessages.create();
 
-    RuleFinder ruleFinder = ruleFinder();
-    SonarWayProfile definition = new SonarWayProfile(ruleFinder);
-    RulesProfile profile = definition.createProfile(validation);
+    SonarWayProfile definition = new SonarWayProfile();
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    definition.define(context);
+    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile(JavaScriptLanguage.KEY, SonarWayProfile.PROFILE_NAME);
 
-    assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
-    assertThat(profile.getName()).isEqualTo(SonarWayProfile.PROFILE_NAME);
-    assertThat(profile.getActiveRules()).extracting("repositoryKey").containsOnly(CheckList.REPOSITORY_KEY);
+    assertThat(profile.language()).isEqualTo(JavaScriptLanguage.KEY);
+    assertThat(profile.name()).isEqualTo(SonarWayProfile.PROFILE_NAME);
+    assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.REPOSITORY_KEY);
     assertThat(validation.hasErrors()).isFalse();
-    assertThat(profile.getActiveRules().size()).isGreaterThan(50);
-  }
-
-  static RuleFinder ruleFinder() {
-    return when(mock(RuleFinder.class).findByKey(anyString(), anyString())).thenAnswer(new Answer<Rule>() {
-      @Override
-      public Rule answer(InvocationOnMock invocation) {
-        Object[] arguments = invocation.getArguments();
-        return Rule.create((String) arguments[0], (String) arguments[1], (String) arguments[1]);
-      }
-    }).getMock();
+    assertThat(profile.rules().size()).isGreaterThan(50);
   }
 
 }
