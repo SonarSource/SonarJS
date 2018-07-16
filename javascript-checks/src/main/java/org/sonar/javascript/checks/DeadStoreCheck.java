@@ -21,6 +21,8 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
@@ -32,13 +34,16 @@ import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
+import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -46,6 +51,7 @@ import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -189,13 +195,46 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void raiseIssuesForNeverReadSymbols(Usages usages) {
+    Set<Usage> excludedProperties = new HashSet<>();
+    Set<Usage> deadStores = new HashSet<>();
+
     for (Symbol symbol : usages.neverReadSymbols()) {
       for (Usage usage : symbol.usages()) {
         if (usage.isWrite() && !initializedToBasicValue(usage)) {
-          addIssue(usage.identifierTree(), symbol);
+          deadStores.add(usage);
         }
+        excludedProperties.addAll(getExcludedProperties(usage));
       }
     }
+
+    deadStores.removeAll(excludedProperties);
+    deadStores.forEach(usage -> addIssue(usage.identifierTree(), usage.symbol()));
+  }
+
+  private static Set<Usage> getExcludedProperties(Usage usage) {
+    Set<Usage> excludedProperties = new HashSet<>();
+    Tree parent = usage.identifierTree().parent();
+
+    if (parent.is(Kind.OBJECT_BINDING_PATTERN) && hasUsedRestElement((ObjectBindingPatternTree) parent)) {
+      ((ObjectBindingPatternTree) parent).elements().stream()
+        .filter(element -> element.is(Kind.BINDING_IDENTIFIER))
+        .forEach(element ->  ((IdentifierTree) element).symbolUsage().ifPresent(excludedProperties::add));
+    }
+
+    return excludedProperties;
+  }
+
+  private static boolean hasUsedRestElement(ObjectBindingPatternTree objectBindingPattern) {
+    SeparatedList<BindingElementTree> elements = objectBindingPattern.elements();
+    BindingElementTree lastElement = elements.get(elements.size() - 1);
+
+    if (lastElement.is(Kind.REST_ELEMENT) && ((RestElementTree) lastElement).element().is(Kind.BINDING_IDENTIFIER)) {
+      IdentifierTree restVariable = (IdentifierTree) ((RestElementTree) lastElement).element();
+      Optional<Symbol> symbol = restVariable.symbol();
+      return symbol.isPresent() && symbol.get().usages().size() > 1;
+    }
+
+    return false;
   }
 
   private void addIssue(Tree element, Symbol symbol) {

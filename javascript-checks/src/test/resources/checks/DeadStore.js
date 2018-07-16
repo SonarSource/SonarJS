@@ -265,3 +265,33 @@ function increment() {
   foo(x);
   x++; // Noncompliant
 }
+
+function object_destructuring(obj) {
+  function test1(){
+    let {prop1, prop2, ...rest} = obj; // OK, "prop1" and "prop2" are created in order to exclude these properties from "obj"
+    foo(rest);
+
+
+    let {prop3, // Noncompliant {{Remove this useless assignment to local variable "prop3"}}
+        ...rest2} = obj; // Noncompliant {{Remove this useless assignment to local variable "rest2"}}
+  }
+
+  function test2(){
+    let {prop1, // Noncompliant {{Remove this useless assignment to local variable "prop1"}}
+      prop2} = obj;// Noncompliant {{Remove this useless assignment to local variable "prop2"}}
+  }
+
+  function test3(){
+    let {prop1, prop2, ...rest} = obj;// Noncompliant {{Remove this useless assignment to local variable "prop2"}}
+    prop2 = 42;
+    foo(prop1, prop2, rest);
+    prop1 = 42;// Noncompliant {{Remove this useless assignment to local variable "prop1"}}
+    prop1 = 0;
+    foo(prop1);
+  }
+
+  function test6(){
+    let {prop1 = 42, prop2, ...rest} = obj;// Noncompliant {{Remove this useless assignment to local variable "prop1"}}
+    foo(rest);
+  }
+}
