@@ -164,14 +164,15 @@ public class CoverageTest {
       .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
+      .setDebugLogs(true)
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage-wrong-line.lcov").getAbsolutePath());
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     BuildResult result = orchestrator.executeBuild(build);
 
     // Check that a log is printed
     assertThat(result.getLogs())
-      .contains("WARN: Problem during processing LCOV report: can't save DA data for line 12 of coverage report file")
-      .contains("WARN: Problem during processing LCOV report: can't save BRDA data for line 18 of coverage report file");
+      .contains("DEBUG: Problem during processing LCOV report: can't save DA data for line 12 of coverage report file")
+      .contains("DEBUG: Problem during processing LCOV report: can't save BRDA data for line 18 of coverage report file");
 
     assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(6);
     assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);

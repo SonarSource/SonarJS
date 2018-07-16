@@ -49,6 +49,7 @@ public final class LCOVParser {
   private final Map<InputFile, NewCoverage> coverageByFile;
   private final SensorContext context;
   private final List<String> unresolvedPaths = Lists.newArrayList();
+  private int inconsistenciesCounter = 0;
 
   private static final Logger LOG = Loggers.get(LCOVParser.class);
 
@@ -75,6 +76,10 @@ public final class LCOVParser {
 
   List<String> unresolvedPaths() {
     return unresolvedPaths;
+  }
+
+  int inconsistenciesNumber() {
+    return inconsistenciesCounter;
   }
 
   private Map<InputFile, NewCoverage> parse(List<String> lines) {
@@ -107,7 +112,7 @@ public final class LCOVParser {
     return coveredFiles;
   }
 
-  private static void parseBranchCoverage(FileData fileData, int reportLineNum, String line) {
+  private void parseBranchCoverage(FileData fileData, int reportLineNum, String line) {
     try {
       // BRDA:<line number>,<block number>,<branch number>,<taken>
       String[] tokens = line.substring(BRDA.length()).trim().split(",");
@@ -121,7 +126,7 @@ public final class LCOVParser {
     }
   }
 
-  private static void parseLineCoverage(FileData fileData, int reportLineNum, String line) {
+  private void parseLineCoverage(FileData fileData, int reportLineNum, String line) {
     try {
       // DA:<line number>,<execution count>[,<checksum>]
       String execution = line.substring(DA.length());
@@ -134,8 +139,9 @@ public final class LCOVParser {
     }
   }
 
-  private static void logWrongDataWarning(String dataType, int reportLineNum, Exception e) {
-    LOG.warn(String.format("Problem during processing LCOV report: can't save %s data for line %s of coverage report file (%s).", dataType, reportLineNum, e.toString()));
+  private void logWrongDataWarning(String dataType, int reportLineNum, Exception e) {
+    LOG.debug(String.format("Problem during processing LCOV report: can't save %s data for line %s of coverage report file (%s).", dataType, reportLineNum, e.toString()));
+    inconsistenciesCounter++;
   }
 
   @CheckForNull

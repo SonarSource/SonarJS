@@ -34,6 +34,7 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -142,9 +143,10 @@ public class CoverageSensorTest {
     assertThat(context.conditions("moduleKey:file1.js", 2)).isEqualTo(2);
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(2);
 
-    assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.NumberFormatException: For input string: \"1.\").");
-    assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException: String index out of range: -1).");
-    assertThat(logTester.logs()).contains("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: 3).");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.NumberFormatException: For input string: \"1.\").");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException: String index out of range: -1).");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: 3).");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Found 3 inconsistencies in coverage report. Re-run analyse in debug mode to see details.");
   }
 
   @Test
