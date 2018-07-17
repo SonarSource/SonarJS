@@ -70,13 +70,13 @@ SonarJS enables the import of ESLint reports into SonarQube. In order to do this
 ```
 $ eslint -f json -o report.json .
 ```
-Once the report is created, add the following property to the sonnarQube scanner configuration:
+Once the report is created, add the following property to the SonarQube Scanner configuration:
 
 Property | Description
 ---------|------------
 `sonar.eslint.reportPaths` | comma-separated list of paths (absolute or relative) to the JSON files with ESLint issues.
 
-You can now run the sonarqube-scanner and all the issues will be imported. Note that the next time you run the scanner, all issues which disappeared from the ESLint report will also be removed from the SonarQube reports.
+You can now run the SonarQube Scanner and all the issues will be imported. Note that the next time you run the scanner, all issues which disappeared from the ESLint report will also be removed from the SonarQube reports.
 
 Note that this feature requires SQ 7.2 or later.
 
