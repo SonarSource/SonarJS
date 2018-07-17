@@ -14,6 +14,7 @@ SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program
 * React JSX, Flow and Vue support
 * Metrics (complexity, number of lines etc.)
 * Import of [test coverage reports](/docs/DOC.md#coverage)
+* Import of [ESLint issues](/docs/DOC.md#eslint)
 * [Custom rules](/docs/CUSTOM_RULES.md)
 
 # Documentation
