@@ -1,5 +1,5 @@
 {
-  "title": "Conditionally executed code should be denoted by either indentation or curly braces",
+  "title": "A conditionally executed single line should be denoted by indentation",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

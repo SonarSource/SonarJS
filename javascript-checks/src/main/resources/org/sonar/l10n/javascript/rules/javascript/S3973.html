@@ -5,6 +5,7 @@ unclear and perhaps not actually what is executed. Additionally, such code is hi
 <pre>
 if (condition)  // Noncompliant
 doTheThing();
+
 doTheOtherThing();
 somethingElseEntirely();
 
@@ -12,18 +13,9 @@ foo();
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-if (condition) {
-  doTheThing();
-  doTheOtherThing();
-  somethingElseEntirely();
-}
-
-foo();
-</pre>
-<p>Or</p>
-<pre>
 if (condition)
   doTheThing();
+
 doTheOtherThing();
 somethingElseEntirely();
 
