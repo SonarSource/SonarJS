@@ -1,6 +1,6 @@
 {
   "title": "Function parameters, caught exceptions and foreach variables should not be reassigned",
-  "type": "CODE_SMELL",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

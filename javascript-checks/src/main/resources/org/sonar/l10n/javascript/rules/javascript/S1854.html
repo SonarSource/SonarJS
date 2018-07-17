@@ -1,35 +1,27 @@
-<p>A dead store happens when a local variable is assigned a value that is not read by any subsequent instruction or when an object property is
-assigned a value that is not subsequently used. Calculating or retrieving a value only to then overwrite it or throw it away, could indicate a serious
-error in the code. Even if it's not an error, it is at best a waste of resources. Therefore all calculated values should be used.</p>
+<p>A dead store happens when a local variable is assigned a value that is not read by any subsequent instruction. Calculating or retrieving a value
+only to then overwrite it or throw it away, could indicate a serious error in the code. Even if it's not an error, it is at best a waste of resources.
+Therefore all calculated values should be used.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-function pow(a, b) {
-  if(b == 0) {
-    return 0;
-  }
-  var x = a;
-  for(var i = 1; i &lt; b; i++) {
-    x = a * i;  //Dead store because the last return statement should return x instead of returning a
-  }
-  return a;
-}
+i = a + b; // Noncompliant; calculation result not used before value is overwritten
+i = compute();
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-function pow(a, b) {
-  if(b == 0) {
-    return 0;
-  }
-  var x = a;
-  for(var i = 1; i &lt; b; i++) {
-    x = a * i;
-  }
-  return x;
-}
+i = a + b;
+i += compute();
 </pre>
 <h2>Exceptions</h2>
 <p>This rule ignores initializations to -1, 0, 1, <code>null</code>, <code>undefined</code>, <code>true</code>, <code>false</code>, <code>""</code>,
-<code>[]</code> and <code>{}</code>.</p>
+<code>[]</code> and <code>{}</code>. Also this rule ignores variables declared with object destructuring using rest syntax (used to exclude some
+properties from object):</p>
+<pre>
+let {a, b, ...rest} = obj; // 'a' and 'b' are ok
+doSomething(rest);
+
+let [x1, x2, x3] = arr;    // but 'x1' is noncompliant, as omitting syntax can be used: "let [, x2, x3] = arr;"
+doSomething(x2, x3);
+</pre>
 <h2>See</h2>
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/563.html">MITRE, CWE-563</a> - Assignment to Variable without Use ('Unused Variable') </li>

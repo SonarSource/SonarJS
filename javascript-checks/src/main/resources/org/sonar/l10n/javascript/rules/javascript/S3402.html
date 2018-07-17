@@ -4,14 +4,18 @@ make it easier to understand to future maintainers.</p>
 <p>This rule raises an issue when <code>+</code> is used with a string and a non-string.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-var x = 5 + 8;  // okay
-var z = "8"
-var y = 5 + z;  // Noncompliant; yields string "58"
+function foo() {
+  let x = 5 + 8;  // okay
+  let z = "8"
+  return x + z;  // Noncompliant; yields string "138"
+}
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-var x = 5 + 8;
-var z = "8";
-var y = 5 + Number(z);
+function foo() {
+  let x = 5 + 8;
+  let z = "8"
+  return x + Number(z);
+}
 </pre>
 
