@@ -20,76 +20,25 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.ValidationMessages;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.javascript.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SonarWayRecommendedProfileTest {
 
   @Test
   public void should_create_sonar_way_recommended_profile() {
-    ValidationMessages validation = ValidationMessages.create();
+    SonarWayRecommendedProfile definition = new SonarWayRecommendedProfile();
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    definition.define(context);
+    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile(JavaScriptLanguage.KEY, SonarWayRecommendedProfile.PROFILE_NAME);
 
-    RuleFinder ruleFinder = ruleFinder();
-    SonarWayRecommendedProfile definition = new SonarWayRecommendedProfile(ruleFinder);
-    RulesProfile profile = definition.createProfile(validation);
 
-    assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
-    assertThat(profile.getName()).isEqualTo(SonarWayRecommendedProfile.PROFILE_NAME);
-    assertThat(profile.getActiveRules()).extracting("repositoryKey").containsOnly("common-js", CheckList.REPOSITORY_KEY);
-    assertThat(validation.hasErrors()).isFalse();
-    assertThat(profile.getActiveRules().size()).isGreaterThan(110);
+    assertThat(profile.language()).isEqualTo(JavaScriptLanguage.KEY);
+    assertThat(profile.name()).isEqualTo(SonarWayRecommendedProfile.PROFILE_NAME);
+    assertThat(profile.rules()).extracting("repoKey").containsOnly("common-js", CheckList.REPOSITORY_KEY);
+    assertThat(profile.rules().size()).isGreaterThan(110);
   }
-
-  @Test
-  public void should_not_include_common_rules_for_sonarlint() {
-    ValidationMessages validation = ValidationMessages.create();
-    RuleFinder ruleFinder = sonarLintRuleFinder();
-    SonarWayRecommendedProfile definition = new SonarWayRecommendedProfile(ruleFinder);
-    RulesProfile profile = definition.createProfile(validation);
-
-    // no "common-js" here
-    assertThat(profile.getActiveRules()).extracting("repositoryKey").containsOnly(CheckList.REPOSITORY_KEY);
-
-    assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
-    assertThat(profile.getName()).isEqualTo(SonarWayRecommendedProfile.PROFILE_NAME);
-    assertThat(validation.hasErrors()).isFalse();
-    assertThat(profile.getActiveRules().size()).isGreaterThan(86);
-  }
-
-  static RuleFinder ruleFinder() {
-    return when(mock(RuleFinder.class).findByKey(anyString(), anyString())).thenAnswer(new Answer<Rule>() {
-      @Override
-      public Rule answer(InvocationOnMock invocation) {
-        Object[] arguments = invocation.getArguments();
-        return Rule.create((String) arguments[0], (String) arguments[1], (String) arguments[1]);
-      }
-    }).getMock();
-  }
-
-  /**
-   * SonarLint will inject a rule finder containing only the rules coming from the javascript repository
-   */
-  private RuleFinder sonarLintRuleFinder() {
-    return when(mock(RuleFinder.class).findByKey(anyString(), anyString())).thenAnswer(invocation -> {
-      Object[] arguments = invocation.getArguments();
-      if (CheckList.REPOSITORY_KEY.equals(arguments[0])) {
-        Rule rule = Rule.create((String) arguments[0], (String) arguments[1], (String) arguments[1]);
-        return rule.setSeverity(RulePriority.MINOR);
-      }
-      return null;
-    }).getMock();
-  }
-
 
 }
