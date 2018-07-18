@@ -20,8 +20,12 @@ As soon as the coding rule visits a node, it can navigate the tree around the no
   ```
 
 * Implement the following extension points
-  * `Plugin`
-  * `RulesDefinition`, SonarJS API provides a partial implementation `CustomJavaScriptRulesDefinition` that can be extended. Declare the `RuleDefinition` as an extension in the `Plugin` extension point.
+  * `Plugin` [example](https://github.com/SonarSource/sonar-custom-rules-examples/blob/master/javascript-custom-rules/src/main/java/org/sonar/samples/javascript/JavaScriptCustomRulesPlugin.java)
+  * `RulesDefinition` This interface creates rules repository in SonarQube and sets metadata (name, description, ...) for the rules. Declare the `RulesDefinition` as an extension in the `Plugin` extension point.
+  * `CustomRuleRepository` This interface registers rule classes with SonarJS plugin, so they are invoked during analysis of JavaScript files. 
+  
+  You can implement both `RulesDefinition` and `CustomRulesRepository` in a single class as it is done in this  [example](https://github.com/SonarSource/sonar-custom-rules-examples/blob/master/javascript-custom-rules/src/main/java/org/sonar/samples/javascript/JavaScriptCustomRulesDefinition.java).
+     
 * Implement rules
 * To add your custom rules to SonarQube, copy `jar` file of your plugin build to `extensions/plugins` directory of SonarQube. Do not forget to activate new rules in the profile you use.
 
@@ -30,7 +34,7 @@ As soon as the coding rule visits a node, it can navigate the tree around the no
   * extend DoubleDispatchVisitorCheck or SubscriptionVisitorCheck
   * define the rule name, key, tags, etc. with Java annotations
 
-* Declare this class in the `RuleDefinition`
+* Declare this class in the `RulesDefinition` and `CustomRuleRepository`
 
 #### Using DoubleDispatchVisitorCheck
 `DoubleDispatchVisitorCheck` extends `DoubleDispatchVisitor` which provide a set of methods to visit specific tree nodes (these methods' names start with `visit...`). To explore a part of the AST, override required method(s). For example, if you want to explore `if` statement nodes, override `DoubleDispatchVisitor#visitIfStatement` method that will be called each time an `ifStatementTree` node is encountered in the AST.
@@ -62,8 +66,12 @@ To test the rule you can use `JavaScriptCheckVerifier#verify()` or `JavaScriptCh
 
 ## API Changes
 
+#### SonarJS 4.2
+
+Deprecated `org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition`. Implement extension `RulesDefinition` and `CustomRuleRepository` instead.
+
 #### SonarJS 4.0
-Deprecated method TreeVisitorContext#getFile() is removed.
+Deprecated method `TreeVisitorContext#getFile()` is removed.
 
 #### SonarJS 3.2
 As this version adds support for Flow syntax, many new interfaces and tree kinds appeared. All new interfaces are prefixed with "Flow". Here is list of changes (tree kind and corresponding interface) :
