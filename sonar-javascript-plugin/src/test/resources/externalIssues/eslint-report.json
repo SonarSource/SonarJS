@@ -15,6 +15,14 @@
         "message": "Use the isNaN function to compare with NaN.",
         "line": 3,
         "column": 20
+      },
+      {
+        "ruleId":"indent",
+        "message":"Expected indentation of 4 spaces but found 0.",
+        "line":2,
+        "column":9,
+        "endLine":2,
+        "endColumn":9
       }
     ]
   },

@@ -29,6 +29,8 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -69,11 +71,12 @@ public class EslintReportSensorTest {
     eslintReportSensor.execute(context);
 
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
-    assertThat(externalIssues).hasSize(3);
+    assertThat(externalIssues).hasSize(4);
     Iterator<ExternalIssue> iterator = externalIssues.iterator();
     ExternalIssue first = iterator.next();
     ExternalIssue second = iterator.next();
     ExternalIssue third = iterator.next();
+    ExternalIssue fourth = iterator.next();
 
     assertThat(first.type()).isEqualTo(RuleType.BUG);
     assertThat(second.type()).isEqualTo(RuleType.CODE_SMELL);
@@ -83,8 +86,11 @@ public class EslintReportSensorTest {
     assertThat(first.primaryLocation().inputComponent()).isEqualTo(jsInputFile);
     assertThat(jsInputFile.language()).isEqualTo("js");
 
-    assertThat(third.primaryLocation().inputComponent()).isEqualTo(tsInputFile);
+    assertThat(third.primaryLocation().textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(2, 0), new DefaultTextPointer(2, 19)));
+
+    assertThat(fourth.primaryLocation().inputComponent()).isEqualTo(tsInputFile);
     assertThat(tsInputFile.language()).isEqualTo("ts");
+
 
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("No input file found for notExist.js. No ESLint issues will be imported on this file.");
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Parse error issue from ESLint will not be imported, file " + parseErrorInputFile.uri());

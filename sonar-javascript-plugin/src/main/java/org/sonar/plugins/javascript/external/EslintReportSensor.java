@@ -109,8 +109,8 @@ public class EslintReportSensor implements Sensor {
   }
 
   private static TextRange getLocation(EslintError eslintError, InputFile inputFile) {
-    if (eslintError.endLine == 0) {
-      // eslint can have issues only with start
+    if (eslintError.endLine == 0 || eslintError.isZeroLengthRange()) {
+      // eslint can have issues only with start or with zero length range
       return inputFile.selectLine(eslintError.line);
     } else {
       return inputFile.newRange(
@@ -143,6 +143,10 @@ public class EslintReportSensor implements Sensor {
     int column;
     int endLine;
     int endColumn;
+
+    boolean isZeroLengthRange() {
+      return line == endLine && column == endColumn;
+    }
   }
 
 
