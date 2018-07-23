@@ -74,7 +74,7 @@ exclude:
 
 # only run performancing on DEV LATEST_RELEASE on performance Slave
   - SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE[6.7] 
+    SQ_VERSION: LATEST_RELEASE
     TEST: performancing
 
   - SLAVE: performance

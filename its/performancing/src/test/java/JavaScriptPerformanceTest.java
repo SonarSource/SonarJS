@@ -37,7 +37,7 @@ public class JavaScriptPerformanceTest {
   private static final String SENSOR = "SonarJS";
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE[6.7]"))
     .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules.xml"))
     .restoreProfileAtStartup(FileLocation.of("src/test/resources/se_profile.xml"))
     .addPlugin(FileLocation.byWildcardMavenFilename(
