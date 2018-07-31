@@ -146,13 +146,6 @@ public class MetricsTest {
       .contains("5=1;")
       .doesNotContain(";14=1;")
       .doesNotContain(";15=1;");
-
-    assertThat(getFileMeasure("comment_lines_data").getValue())
-      .doesNotContain("2=1")
-      .doesNotContain(";4=1")
-      .doesNotContain(";5=1")
-      .contains("14=1")
-      .doesNotContain("15=1");
   }
 
   /* Helper methods */
