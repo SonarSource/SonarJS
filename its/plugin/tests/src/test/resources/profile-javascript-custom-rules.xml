@@ -15,7 +15,12 @@
     </rule>
     <rule>
       <repositoryKey>javascript-custom-rules</repositoryKey>
-      <key>whileCheck</key>
+      <key>base</key>
+      <priority>MAJOR</priority>
+    </rule>
+    <rule>
+      <repositoryKey>javascript-custom-rules</repositoryKey>
+      <key>subscription</key>
       <priority>MAJOR</priority>
     </rule>
   </rules>

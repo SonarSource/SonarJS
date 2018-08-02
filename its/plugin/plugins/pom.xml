@@ -13,7 +13,8 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>javascript-custom-rules-plugin</module>
+    <module>custom-rules-plugin</module>
+    <module>deprecated-custom-rules-plugin</module>
   </modules>
 
 </project>

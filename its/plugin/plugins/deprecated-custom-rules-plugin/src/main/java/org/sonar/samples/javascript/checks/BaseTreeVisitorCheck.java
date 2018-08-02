@@ -19,27 +19,24 @@
  */
 package org.sonar.samples.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
+import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-/**
- * description of this rule is loaded from html file, remediation function is hardcoded in
- * {@link org.sonar.samples.javascript.TestCustomRuleRepository}
- */
-@Rule(key = "whileCheck", name = "While Statement Check")
-public class WhileStatementCheck extends SubscriptionVisitorCheck {
-
-  @Override
-  public Set<Tree.Kind> nodesToVisit() {
-    return ImmutableSet.of(Tree.Kind.WHILE_STATEMENT);
-  }
+@Rule(
+  key = "base",
+  name = "Base tree visitor check",
+  description = "This is very important rule",
+  priority = Priority.MINOR)
+@SqaleConstantRemediation("5min")
+public class BaseTreeVisitorCheck extends DoubleDispatchVisitorCheck {
 
   @Override
-  public void visitNode(Tree tree) {
-    addIssue(tree, "While statement.");
+  public void visitFunctionExpression(FunctionExpressionTree tree) {
+    addIssue(tree, "Function expression.");
+    super.visitFunctionExpression(tree);
   }
 
 }
