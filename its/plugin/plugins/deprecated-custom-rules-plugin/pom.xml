@@ -8,10 +8,10 @@
     <version>4.3-SNAPSHOT</version>
   </parent>
 
-  <artifactId>javascript-custom-rules-plugin</artifactId>
+  <artifactId>deprecated-custom-rules-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
 
-  <name>JavaScript :: IT :: Plugin :: Plugins :: Custom Rules</name>
+  <name>JavaScript :: IT :: Plugin :: Plugins :: Deprecated Custom Rules</name>
   <description>JavaScript Custom Rules</description>
 
   <dependencies>
@@ -22,6 +22,8 @@
     <dependency>
       <groupId>org.sonarsource.javascript</groupId>
       <artifactId>sonar-javascript-plugin</artifactId>
+      <!-- intentionally old version so we can observe behavior with newer version available at runtime -->
+      <version>4.1.0.6085</version>
       <type>sonar-plugin</type>
     </dependency>
   </dependencies>
@@ -33,7 +35,7 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <pluginClass>org.sonar.samples.javascript.JavaScriptCustomRulesPlugin</pluginClass>
+          <pluginClass>org.sonar.samples.javascript.DeprecatedCustomRulesPlugin</pluginClass>
           <basePlugin>javascript</basePlugin>
           <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
         </configuration>

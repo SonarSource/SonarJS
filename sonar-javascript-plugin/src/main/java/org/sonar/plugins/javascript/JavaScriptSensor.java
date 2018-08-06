@@ -100,6 +100,26 @@ public class JavaScriptSensor implements Sensor {
     this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, null, null);
   }
 
+  /**
+   *  This constructor is necessary for Pico container to correctly instantiate sensor with custom rules loaded via {@link CustomJavaScriptRulesDefinition}
+   *  See plugin integration tests
+   */
+  public JavaScriptSensor(
+    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
+    @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
+    this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, customRulesDefinition, null);
+  }
+
+  /**
+   *  This constructor is necessary for Pico container to correctly instantiate sensor with custom rules loaded via {@link CustomRuleRepository}
+   *  See plugin integration tests
+   */
+  public JavaScriptSensor(
+    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
+    @Nullable CustomRuleRepository[] customRuleRepositories) {
+    this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, null, customRuleRepositories);
+  }
+
   public JavaScriptSensor(
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
     @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition,

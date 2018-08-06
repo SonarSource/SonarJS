@@ -30,7 +30,7 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 @Rule(
   key = "subscription",
   name = "Subscription base visitor check",
-  description = "desc",
+  description = "This is very important rule",
   priority = Priority.MINOR)
 @SqaleConstantRemediation("10min")
 public class SubscriptionBaseVisitorCheck extends SubscriptionVisitorCheck {

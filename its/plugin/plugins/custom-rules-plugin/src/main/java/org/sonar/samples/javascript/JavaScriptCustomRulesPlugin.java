@@ -25,9 +25,6 @@ public class JavaScriptCustomRulesPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
-    context.addExtensions(
-      DeprecatedCustomRulesDefinition.class,
-      TestCustomRuleRepository.class
-    );
+    context.addExtension(TestCustomRuleRepository.class);
   }
 }

@@ -41,7 +41,6 @@ import static java.util.Collections.singletonList;
 @Suite.SuiteClasses({
   BigProjectTest.class,
   CoverageTest.class,
-  CustomRulesTests.class,
   MetricsTest.class,
   MinifiedFilesTest.class,
   SonarLintTest.class,
@@ -49,7 +48,6 @@ import static java.util.Collections.singletonList;
 })
 public final class Tests {
 
-  private static final String CUSTOM_RULES_ARTIFACT_ID = "javascript-custom-rules-plugin";
 
   public static final String PROJECT_KEY = "project";
 
@@ -61,8 +59,6 @@ public final class Tests {
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
-    .addPlugin(FileLocation.byWildcardMavenFilename(
-      new File("../plugins/" + CUSTOM_RULES_ARTIFACT_ID + "/target"), CUSTOM_RULES_ARTIFACT_ID + "-*.jar"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
     .build();

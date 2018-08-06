@@ -133,8 +133,17 @@ public class JavaScriptSensorTest {
   private ProductDependentExecutor executor = new SonarLintProductExecutor(new NoSonarFilter(), context);
 
   private JavaScriptSensor createSensor() {
+    return new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter());
+  }
+
+  private JavaScriptSensor createSensorWithCustomRules() {
     return new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(),
-      CUSTOM_RULES, CUSTOM_RULE_REPOSITORIES);
+      CUSTOM_RULES);
+  }
+
+  private JavaScriptSensor createSensorWithCustomRuleRepository() {
+    return new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(),
+      CUSTOM_RULE_REPOSITORIES);
   }
 
   @Before
@@ -274,27 +283,42 @@ public class JavaScriptSensorTest {
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .create(RuleKey.of("customKey", "key"))
       .activate()
-      .create(RuleKey.of("custom-repo", "key2"))
-      .activate()
       .build();
     checkFactory = new CheckFactory(activeRules);
-    createSensor().execute(context);
+    createSensorWithCustomRules().execute(context);
 
     Collection<Issue> issues = context.allIssues();
-    assertThat(issues).hasSize(2);
+    assertThat(issues).hasSize(1);
     Map<Integer, Issue> issueByLine = issues.stream().collect(Collectors.toMap(issue -> issue.primaryLocation().textRange().start().line(), i -> i));
-    assertThat(issueByLine.keySet()).containsExactlyInAnyOrder(1, 2);
+    assertThat(issueByLine.keySet()).containsExactlyInAnyOrder(1);
 
     Issue issue = issueByLine.get(1);
     assertThat(issue.gap()).isEqualTo(42);
     assertThat(issue.primaryLocation().message()).isEqualTo("Message of custom rule");
     assertThat(issue.primaryLocation().textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 7)));
+  }
 
-    issue = issueByLine.get(2);
+  @Test
+  public void should_run_custom_rule_repository() throws Exception {
+    inputFile("file.js");
+    ActiveRules activeRules = (new ActiveRulesBuilder())
+      .create(RuleKey.of("custom-repo", "key2"))
+      .activate()
+      .build();
+    checkFactory = new CheckFactory(activeRules);
+    createSensorWithCustomRuleRepository().execute(context);
+
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+    Map<Integer, Issue> issueByLine = issues.stream().collect(Collectors.toMap(issue -> issue.primaryLocation().textRange().start().line(), i -> i));
+    assertThat(issueByLine.keySet()).containsExactlyInAnyOrder(2);
+
+    Issue issue = issueByLine.get(2);
     assertThat(issue.gap()).isEqualTo(42);
     assertThat(issue.primaryLocation().message()).isEqualTo("Message of custom rule");
     assertThat(issue.primaryLocation().textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(2, 0), new DefaultTextPointer(2, 5)));
   }
+
 
   @Test
   public void should_log_deprecation_warning() throws Exception {
