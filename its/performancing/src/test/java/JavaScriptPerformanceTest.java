@@ -19,13 +19,13 @@
  */
 import com.google.common.base.Preconditions;
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.assertj.core.api.Assertions;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.offset;
 
 public class JavaScriptPerformanceTest {
 
-  private static final String SENSOR = "SonarJS";
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE[6.7]"))
@@ -45,23 +44,23 @@ public class JavaScriptPerformanceTest {
     .build();
 
   @Test
-  public void test_parsing_performance() throws IOException {
+  public void test_parsing_performance() {
     test_performance("parsing-project", "no-rules", 157.0);
   }
 
   @Test
-  public void test_symbolic_engine_performance() throws IOException {
+  public void test_symbolic_engine_performance() {
     test_performance("se-project", "se-profile", 235.0);
   }
 
-  private static void test_performance(String projectKey, String profile, double expectedTime) throws IOException {
+  private static void test_performance(String projectKey, String profile, double expectedTime) {
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", profile);
 
     SonarScanner build = getSonarScanner(projectKey);
-    ORCHESTRATOR.executeBuild(build);
+    BuildResult buildResult = ORCHESTRATOR.executeBuild(build);
 
-    double time = sensorTime(build.getProjectDir(), SENSOR, projectKey);
+    double time = sensorTime(buildResult.getLogs());
     Assertions.assertThat(time).isEqualTo(expectedTime, offset(expectedTime * 0.04));
   }
 
@@ -69,7 +68,6 @@ public class JavaScriptPerformanceTest {
     return SonarScanner.create(FileLocation.of("../sources/src").getFile())
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
       .setProperty("sonar.importSources", "false")
-      .setProperty("sonar.showProfiling", "true")
       .setProperty("sonar.analysis.mode", "preview")
       .setProperty("sonar.issuesReport.console.enable", "true")
       .setProperty("sonar.preloadFileMetadata", "true")
@@ -82,18 +80,13 @@ public class JavaScriptPerformanceTest {
       .setSourceDirs(".");
   }
 
-  private static double sensorTime(File projectDir, String sensor, String projectKey) throws IOException {
-    File profilingFile = new File(projectDir, ".sonar/profiling/" + projectKey + "-profiler.properties");
-    Preconditions.checkArgument(profilingFile.isFile(), "Cannot find profiling file to extract time for sensor " + sensor + ": " + profilingFile.getAbsolutePath());
-    Properties properties = new Properties();
-    properties.load(new FileInputStream(profilingFile));
-    String time = properties.getProperty(sensor);
-    Preconditions.checkNotNull(time, "Could not find a value for property : " + sensor);
-    return toMilliseconds(time);
-  }
+  private static double sensorTime(String logs) {
+    Pattern pattern = Pattern.compile("Sensor SonarJS \\[javascript\\] \\(done\\) \\| time=(\\d++)ms");
+    Matcher matcher = pattern.matcher(logs);
 
-  private static double toMilliseconds(String time) {
-    return TimeUnit.MILLISECONDS.toSeconds(Integer.parseInt(time));
+    Preconditions.checkArgument(matcher.find(), "Unable to extract the timing of sensor \"SonarJS\" from the logs");
+    double result = (double) TimeUnit.MILLISECONDS.toSeconds(Integer.parseInt(matcher.group(1)));
+    Preconditions.checkArgument(!matcher.find(), "Found several potential timings of sensor \"SonarJS\" in the logs");
+    return result;
   }
-
 }
