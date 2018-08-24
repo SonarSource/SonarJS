@@ -76,7 +76,7 @@
     <mockito.version>1.9.0</mockito.version>
     <slf4j.version>1.7.21</slf4j.version>
     <sonar.version>7.2</sonar.version>
-    <sonar-orchestrator.version>3.19.0.1641</sonar-orchestrator.version>
+    <sonar-orchestrator.version>3.21.0.1721</sonar-orchestrator.version>
     <sonarlint.version>3.0.0.1140</sonarlint.version>
     <sslr.version>1.22</sslr.version>
     <sslr-squid-bridge.version>2.7.0.377</sslr-squid-bridge.version>
