@@ -26,14 +26,11 @@ SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program
 * [Demo project analysis](https://sonarcloud.io/dashboard?id=yui)
 
 # <a name="support"></a>Have question or feedback?
-### Stack Overflow
-If you have a question on how to use analyser (and the [docs](/docs/DOC.md) don't help you) [ask it](http://stackoverflow.com/questions/ask?tags=sonarjs) on Stack Overflow with `sonarjs` tag.
-
 ### GitHub issues
 If you want to report a bug, request a feature or provide other kind of feedback, [create a GitHub issue](https://github.com/SonarSource/sonar-javascript/issues/new). 
 
-### SonarQube Google Group
-To provide feedback or to report a bug for a SonarQube platform send an email to `sonarqube@googlegroups.com`, the [SonarQube Google Group](https://groups.google.com/forum/#!forum/sonarqube). Please do not forget to specify the details of your request, as well as analysers' and SonarQube versions.
+### SonarQube Community Forum
+You can also use [SonarQube Community Forum](https://community.sonarsource.com/). Please do not forget to specify the details of your request, as well as analysers' and SonarQube versions.
 
 ### Twitter
 We have a [twitter account](https://twitter.com/sonarjs) where you can follow the development of this plugin.
