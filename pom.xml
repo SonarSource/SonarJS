@@ -73,7 +73,7 @@
     <guava.version>19.0</guava.version>
     <junit.version>4.10</junit.version>
     <logback.version>1.0.13</logback.version>
-    <mockito.version>1.9.0</mockito.version>
+    <mockito.version>2.21.0</mockito.version>
     <slf4j.version>1.7.21</slf4j.version>
     <sonar.version>7.2</sonar.version>
     <sonar-orchestrator.version>3.21.0.1721</sonar-orchestrator.version>
@@ -187,7 +187,7 @@
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
+        <artifactId>mockito-core</artifactId>
         <version>${mockito.version}</version>
         <scope>test</scope>
       </dependency>
