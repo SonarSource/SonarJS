@@ -53,7 +53,12 @@
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-web</artifactId>
+      <version>11-ea+25</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>
