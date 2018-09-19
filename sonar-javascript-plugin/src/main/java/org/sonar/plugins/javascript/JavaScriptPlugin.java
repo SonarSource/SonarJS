@@ -31,6 +31,7 @@ import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
+import org.sonarsource.nodejs.NodeCommand;
 
 public class JavaScriptPlugin implements Plugin {
 
@@ -82,7 +83,8 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptExclusionsFileFilter.class,
       JavaScriptRulesDefinition.class,
       SonarWayRecommendedProfile.class,
-      SonarWayProfile.class);
+      SonarWayProfile.class,
+      NodeCommand.builder());
 
     context.addExtensions(
       PropertyDefinition.builder(LCOV_REPORT_PATHS)
