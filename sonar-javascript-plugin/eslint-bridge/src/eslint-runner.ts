@@ -1,4 +1,3 @@
-import { Linter } from "eslint";
 import { parseSourceFile, isParseError, ParseError } from "./parser";
 import { getIssues } from "./rules";
 import * as fs from "fs";

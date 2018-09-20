@@ -18,7 +18,7 @@ export function getIssues(
 function normalizeRuleFormat(rules: Rule[]) {
   let ruleConfig: Linter.Config = { rules: {} };
   rules.forEach(rule => {
-    ruleConfig.rules[rule] = "error";
+    ruleConfig.rules![rule] = "error";
   });
   return ruleConfig;
 }

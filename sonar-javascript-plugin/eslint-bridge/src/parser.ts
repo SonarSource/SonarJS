@@ -14,7 +14,10 @@ export function parseSourceFile(fileContent: string): SourceCode | ParseError {
       comment: true,
       loc: true,
       range: true,
-      tolerant: true
+      ecmaVersion: 2019,
+      ecmaFeatures: {
+        jsx: true
+      }
     });
     return new SourceCode(fileContent, ast);
   } catch (ex) {

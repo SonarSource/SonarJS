@@ -39,4 +39,30 @@ describe("#processRequest", () => {
       }
     ]);
   });
+
+  it("should parse jsx", async () => {
+    const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
+    const output = await processRequest({
+      file: {
+        filepath,
+        fileContent: "const foo = <div>bar</div>;"
+      },
+      rules: ["no-all-duplicated-branches"]
+    });
+    expect(output[filepath]).toHaveLength(0);
+  });
+
+  it("should parse es2019", async () => {
+    const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
+    const output = await processRequest({
+      file: {
+        filepath,
+        fileContent: `try {
+          doSomething();
+        } catch {}`
+      },
+      rules: ["no-all-duplicated-branches"]
+    });
+    expect(output[filepath]).toHaveLength(0);
+  });
 });
