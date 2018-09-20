@@ -45,6 +45,7 @@
     <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
     <module>javascript-checks-testkit</module>
+    <module>sonar-javascript-plugin/eslint-bridge</module>
   </modules>
 
   <scm>
