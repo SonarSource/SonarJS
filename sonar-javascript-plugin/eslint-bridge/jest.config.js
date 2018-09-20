@@ -5,7 +5,7 @@ module.exports = {
       skipBabel: false
     }
   },
-  moduleFileExtensions: ["js", "ts"],
+  moduleFileExtensions: ["js", "ts", "json"],
   testResultsProcessor: "jest-sonar-reporter",
   transform: {
     "^.+\\.ts$": "ts-jest"
