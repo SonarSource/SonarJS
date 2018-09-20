@@ -60,10 +60,9 @@ function getFileContent(input: InputRequest) {
     return input.fileContent;
   }
   try {
-    const fileContent = fs.readFileSync(input.filepath, {
+    return fs.readFileSync(input.filepath, {
       encoding: "UTF-8"
     });
-    return fileContent;
   } catch (e) {
     console.error(
       `Failed to find a source file matching path ${input.filepath}`
