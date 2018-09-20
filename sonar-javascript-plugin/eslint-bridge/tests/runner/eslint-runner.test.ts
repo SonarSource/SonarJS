@@ -2,14 +2,14 @@ import { processRequest } from "../../src/eslint-runner";
 import { join } from "path";
 
 describe("#processRequest", () => {
-  it("should use sonarjs plugin", async () => {
+  it("should use sonarjs plugin", () => {
     const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
-    const output = await processRequest({
-      file: { filepath },
+    const reportedIssues = processRequest({
+      filepath,
       rules: ["no-all-duplicated-branches"]
     });
-    expect(output[filepath]).toHaveLength(1);
-    expect(output[filepath]).toEqual([
+    expect(reportedIssues).toHaveLength(1);
+    expect(reportedIssues).toEqual([
       {
         column: 1,
         endColumn: 2,
@@ -22,14 +22,15 @@ describe("#processRequest", () => {
     ]);
   });
 
-  it("should report parse errors", async () => {
+  it("should report parse errors", () => {
     const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
-    const output = await processRequest({
-      file: { filepath, fileContent: "if()" },
+    const output = processRequest({
+      filepath,
+      fileContent: "if()",
       rules: ["no-all-duplicated-branches"]
     });
-    expect(output[filepath]).toHaveLength(1);
-    expect(output[filepath]).toEqual([
+    expect(output).toHaveLength(1);
+    expect(output).toEqual([
       {
         column: 4,
         line: 1,
@@ -40,29 +41,25 @@ describe("#processRequest", () => {
     ]);
   });
 
-  it("should parse jsx", async () => {
+  it("should parse jsx", () => {
     const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
-    const output = await processRequest({
-      file: {
-        filepath,
-        fileContent: "const foo = <div>bar</div>;"
-      },
+    const output = processRequest({
+      filepath,
+      fileContent: "const foo = <div>bar</div>;",
       rules: ["no-all-duplicated-branches"]
     });
-    expect(output[filepath]).toHaveLength(0);
+    expect(output).toHaveLength(0);
   });
 
-  it("should parse es2019", async () => {
+  it("should parse es2019", () => {
     const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
-    const output = await processRequest({
-      file: {
-        filepath,
-        fileContent: `try {
+    const output = processRequest({
+      filepath,
+      fileContent: `try {
           doSomething();
-        } catch {}`
-      },
+        } catch {}`,
       rules: ["no-all-duplicated-branches"]
     });
-    expect(output[filepath]).toHaveLength(0);
+    expect(output).toHaveLength(0);
   });
 });

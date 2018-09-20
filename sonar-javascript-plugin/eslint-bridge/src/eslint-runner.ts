@@ -1,17 +1,11 @@
 import { parseSourceFile, isParseError, ParseError } from "./parser";
 import { getIssues } from "./rules";
 import * as fs from "fs";
-import { promisify } from "util";
 
-const readFile = promisify(fs.readFile);
 interface InputRequest {
-  file: File;
-  rules: Rule[];
-}
-
-interface File {
   filepath: string;
   fileContent?: string;
+  rules: Rule[];
 }
 
 // TODO: Consider rules with parameters
@@ -27,31 +21,33 @@ interface IssueReport {
   source: string | null;
 }
 
-export async function processRequest(input: InputRequest) {
-  let output: { [filepath: string]: IssueReport[] } = {};
-  const file = input.file;
-  const fileContent = await getFileContent(file);
+export function processRequest(input: InputRequest) {
+  let reportedIssues: IssueReport[] = [];
+  const filepath = input.filepath;
+  const fileContent = getFileContent(input);
   if (fileContent) {
     const sourceCode = parseSourceFile(fileContent);
     if (isParseError(sourceCode)) {
-      output[file.filepath] = [toIssueReport(sourceCode)];
+      reportedIssues = [toIssueReport(sourceCode)];
     } else {
-      output[file.filepath] = getIssues(sourceCode, input.rules, file.filepath);
+      reportedIssues = getIssues(sourceCode, input.rules, filepath);
     }
   }
-  return output;
+  return reportedIssues;
 }
 
-async function getFileContent(file: File) {
-  if (file.fileContent) {
-    return file.fileContent;
+function getFileContent(input: InputRequest) {
+  if (input.fileContent) {
+    return input.fileContent;
   }
   try {
-    const fileContent = await readFile(file.filepath, { encoding: "UTF-8" });
+    const fileContent = fs.readFileSync(input.filepath, {
+      encoding: "UTF-8"
+    });
     return fileContent;
   } catch (e) {
     console.error(
-      `Failed to find a source file matching path ${file.filepath}`
+      `Failed to find a source file matching path ${input.filepath}`
     );
   }
 }
