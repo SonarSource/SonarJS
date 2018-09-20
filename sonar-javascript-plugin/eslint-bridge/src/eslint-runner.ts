@@ -6,7 +6,7 @@ import { promisify } from "util";
 
 const readFile = promisify(fs.readFile);
 interface InputRequest {
-  files: File[];
+  file: File;
   rules: Rule;
 }
 
@@ -31,19 +31,14 @@ interface IssueReport {
 
 export async function processRequest(input: InputRequest) {
   let output: { [filepath: string]: IssueReport[] } = {};
-  for (const file of input.files) {
-    const fileContent = await getFileContent(file);
-    if (fileContent) {
-      const sourceCode = parseSourceFile(fileContent);
-      if (isParseError(sourceCode)) {
-        output[file.filepath] = [toIssueReport(sourceCode)];
-      } else {
-        output[file.filepath] = getIssues(
-          sourceCode,
-          input.rules,
-          file.filepath
-        );
-      }
+  const file = input.file;
+  const fileContent = await getFileContent(file);
+  if (fileContent) {
+    const sourceCode = parseSourceFile(fileContent);
+    if (isParseError(sourceCode)) {
+      output[file.filepath] = [toIssueReport(sourceCode)];
+    } else {
+      output[file.filepath] = getIssues(sourceCode, input.rules, file.filepath);
     }
   }
   return output;

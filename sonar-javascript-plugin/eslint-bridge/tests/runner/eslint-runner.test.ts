@@ -5,7 +5,7 @@ describe("#processRequest", () => {
   it("should use sonarjs plugin", async () => {
     const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
     const output = await processRequest({
-      files: [{ filepath }],
+      file: { filepath },
       rules: {
         "no-all-duplicated-branches": "error"
       }
@@ -27,7 +27,7 @@ describe("#processRequest", () => {
   it("should report parse errors", async () => {
     const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
     const output = await processRequest({
-      files: [{ filepath, fileContent: "if()" }],
+      file: { filepath, fileContent: "if()" },
       rules: {
         "no-all-duplicated-branches": "error"
       }
