@@ -7,7 +7,7 @@ import { promisify } from "util";
 const readFile = promisify(fs.readFile);
 interface InputRequest {
   file: File;
-  rules: Rule;
+  rules: Rule[];
 }
 
 interface File {
@@ -15,9 +15,8 @@ interface File {
   fileContent?: string;
 }
 
-export interface Rule {
-  [name: string]: Linter.RuleLevel | Linter.RuleLevelAndOptions;
-}
+// TODO: Consider rules with parameters
+export type Rule = string;
 
 interface IssueReport {
   column: number;

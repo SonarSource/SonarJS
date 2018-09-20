@@ -6,9 +6,7 @@ describe("#processRequest", () => {
     const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
     const output = await processRequest({
       file: { filepath },
-      rules: {
-        "no-all-duplicated-branches": "error"
-      }
+      rules: ["no-all-duplicated-branches"]
     });
     expect(output[filepath]).toHaveLength(1);
     expect(output[filepath]).toEqual([
@@ -28,9 +26,7 @@ describe("#processRequest", () => {
     const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
     const output = await processRequest({
       file: { filepath, fileContent: "if()" },
-      rules: {
-        "no-all-duplicated-branches": "error"
-      }
+      rules: ["no-all-duplicated-branches"]
     });
     expect(output[filepath]).toHaveLength(1);
     expect(output[filepath]).toEqual([
