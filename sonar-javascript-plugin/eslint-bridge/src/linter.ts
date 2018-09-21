@@ -19,25 +19,32 @@
  */
 import { rules } from "eslint-plugin-sonarjs";
 import { Linter, SourceCode } from "eslint";
-import { Rule } from "./eslint-runner";
+import { Rule, Issue } from "./analyzer";
 
-const eslint = new Linter();
-eslint.defineRules(rules);
+const linter = new Linter();
+linter.defineRules(rules);
 
-export function getIssues(
-  sourceCode: SourceCode,
-  rules: Rule[],
-  filepath: string
-) {
-  return eslint
-    .verify(sourceCode, normalizeRuleFormat(rules), filepath)
-    .map(({ nodeType, severity, fatal, fix, ...issueMessage }) => issueMessage);
+export function analyze(sourceCode: SourceCode, rules: Rule[], filepath: string): Issue[] {
+  return linter
+    .verify(sourceCode, createLinterConfig(rules), filepath)
+    .map(removeIrrelevantProperties)
+    .filter(issue => issue !== null) as Issue[];
 }
 
-function normalizeRuleFormat(rules: Rule[]) {
+function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | null {
+  // ruleId equals 'null' for parsing error,
+  // but it should not happen because we lint ready AST and not file content
+  if (!eslintIssue.ruleId) {
+    console.error("Illegal 'null' ruleId for eslint issue");
+    return null;
+  }
+
+  const { nodeType, severity, fatal, fix, source, ...relevantProperties } = eslintIssue;
+  return relevantProperties as Issue;
+}
+
+function createLinterConfig(rules: Rule[]) {
   const ruleConfig: Linter.Config = { rules: {} };
-  rules.forEach(rule => {
-    ruleConfig.rules![rule] = "error";
-  });
+  rules.forEach(rule => (ruleConfig.rules![rule] = "error"));
   return ruleConfig;
 }

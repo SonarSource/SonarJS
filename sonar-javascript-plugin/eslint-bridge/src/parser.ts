@@ -20,37 +20,26 @@
 import * as espree from "espree";
 import { SourceCode } from "eslint";
 
-export interface ParseError {
-  message: string;
-  line: number;
-  column: number;
-}
+const PARSER_CONFIG = {
+  tokens: true,
+  comment: true,
+  loc: true,
+  range: true,
+  ecmaVersion: 2019,
+  ecmaFeatures: {
+    jsx: true,
+    globalReturn: true,
+  },
+};
 
-export function parseSourceFile(fileContent: string): SourceCode | ParseError {
+export function parseSourceFile(fileContent: string, filepath: string): SourceCode | undefined {
   try {
-    const ast = espree.parse(fileContent, {
-      tokens: true,
-      comment: true,
-      loc: true,
-      range: true,
-      ecmaVersion: 2019,
-      ecmaFeatures: {
-        jsx: true
-      }
-    });
+    const ast = espree.parse(fileContent, PARSER_CONFIG);
     return new SourceCode(fileContent, ast);
   } catch (ex) {
-    console.error(ex.message);
-    return {
-      message: ex.message,
-      line: ex.lineNumber as number,
-      column: ex.column as number
-    };
+    console.error(
+      `Failed to parse file [${filepath}] at line ${ex.lineNumber} (espree parser): ${ex.message}`,
+    );
+    return undefined;
   }
-}
-
-export function isParseError(
-  sourceCode: SourceCode | ParseError
-): sourceCode is ParseError {
-  return !sourceCode.hasOwnProperty("ast");
 }
