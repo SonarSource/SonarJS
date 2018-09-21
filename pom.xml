@@ -45,7 +45,7 @@
     <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
     <module>javascript-checks-testkit</module>
-    <module>sonar-javascript-plugin/eslint-bridge</module>
+    <module>eslint-bridge</module>
   </modules>
 
   <scm>
@@ -99,6 +99,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>javascript-checks</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>eslint-bridge</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

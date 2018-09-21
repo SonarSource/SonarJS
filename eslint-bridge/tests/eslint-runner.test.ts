@@ -1,8 +1,8 @@
-import { analyze } from "../../src/analyzer";
+import { analyze } from "../src/analyzer";
 import { join } from "path";
 
-describe("#processRequest", () => {
-  it("should use sonarjs plugin", () => {
+describe("#analyzer.analyze", () => {
+  it("should report issue running eslint", () => {
     const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
     const reportedIssues = analyze({
       filepath,
@@ -22,23 +22,25 @@ describe("#processRequest", () => {
     ]);
   });
 
-  it("should report parse errors", () => {
+  it("should not report issue without receiving rule-key", () => {
+    const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
+    const reportedIssues = analyze({
+      filepath,
+      rules: [],
+    });
+    expect(reportedIssues).toHaveLength(0);
+  });
+
+  it("should log when parse errors", () => {
+    console.error = jest.fn();
     const filepath = join(__dirname, "./fixtures/js-project/sample.lint.js");
     const output = analyze({
       filepath,
       fileContent: "if()",
-      rules: ["no-all-duplicated-branches"],
+      rules: [],
     });
-    expect(output).toHaveLength(1);
-    expect(output).toEqual([
-      {
-        column: 4,
-        line: 1,
-        message: "Parse error: Unexpected token )",
-        ruleId: null,
-        source: null,
-      },
-    ]);
+    expect(output).toHaveLength(0);
+    expect(console.error).toHaveBeenCalledTimes(1);
   });
 
   it("should parse jsx", () => {
@@ -61,5 +63,17 @@ describe("#processRequest", () => {
       rules: ["no-all-duplicated-branches"],
     });
     expect(output).toHaveLength(0);
+  });
+
+  it("should log error when filepath not found", () => {
+    console.error = jest.fn();
+    const filepath = join(__dirname, "./fixtures/js-project/other.lint.js");
+    const output = analyze({
+      filepath,
+      rules: ["no-all-duplicated-branches"],
+    });
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(output).toHaveLength(0);
+    jest.resetAllMocks();
   });
 });
