@@ -102,11 +102,6 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>eslint-bridge</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-core</artifactId>
         <version>${sslr.version}</version>
