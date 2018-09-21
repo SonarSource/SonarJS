@@ -60,6 +60,6 @@ function getFileContent(input: AnalysisInput) {
       encoding: "UTF-8",
     });
   } catch (e) {
-    console.error(`Failed to find a source file matching path ${input.filepath}`, e);
+    console.error(`Failed to find a source file matching path ${input.filepath}`);
   }
 }

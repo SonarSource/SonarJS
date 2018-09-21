@@ -2,7 +2,5 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "strictNullChecks": false
-  },
-  "include": ["**/*.ts", "../typings/**/*.d.ts"],
-  "exclude": ["**/*.lint.ts", "runner/fixtures/**/*"]
+  }
 }
