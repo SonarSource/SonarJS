@@ -26,7 +26,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 
 @Rule(key = "S3923")
-public class DuplicateAllBranchImplementationCheck extends AbstractDuplicateBranchImplementationCheck {
+public class DuplicateAllBranchImplementationCheck extends AbstractDuplicateBranchImplementationCheck implements EslintBasedCheck {
 
   private static final String MESSAGE = "Remove this conditional structure or edit its code blocks so that they're not all the same.";
   private static final String MESSAGE_CONDITIONAL_EXPRESSION = "This conditional operation returns the same value whether the condition is \"true\" or \"false\".";
@@ -48,5 +48,10 @@ public class DuplicateAllBranchImplementationCheck extends AbstractDuplicateBran
     }
 
     super.visitConditionalExpression(tree);
+  }
+
+  @Override
+  public String eslintKey() {
+    return "no-all-duplicated-branches";
   }
 }
