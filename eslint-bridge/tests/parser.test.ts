@@ -11,7 +11,7 @@ describe("parseSourceFile", () => {
 
   it("should parse jsx", () => {
     const sourceCode = parseSourceFile("const foo = <div>bar</div>;", "foo.js");
-    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     expect(console.error).toBeCalledTimes(0);
   });
 
@@ -23,14 +23,14 @@ describe("parseSourceFile", () => {
         } catch {}`,
       "foo.js",
     );
-    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     // ES2018
     sourceCode = parseSourceFile(
       `const obj = {foo: 1, bar: 2, baz: 3};
        const {foo, ...rest} = obj;`,
       "foo.js",
     );
-    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     // ES2017
     sourceCode = parseSourceFile(
       `async function f() {
@@ -38,13 +38,13 @@ describe("parseSourceFile", () => {
       }`,
       "foo.js",
     );
-    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     // ES2016
     sourceCode = parseSourceFile(`4**2`, "foo.js");
-    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     // ES2015
     sourceCode = parseSourceFile(`const f = (x, y) => x + y`, "foo.js");
-    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     expect(console.error).toBeCalledTimes(0);
   });
 
