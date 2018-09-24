@@ -36,7 +36,7 @@ public class CheckListTest {
    */
   @Test
   public void count() {
-    int count = 0;
+    int count = -1; // to not count EslintBasedCheck
     List<File> files = (List<File>) FileUtils.listFiles(new File("src/main/java/org/sonar/javascript/checks/"), new String[]{"java"}, false);
     for (File file : files) {
       String name = file.getName();

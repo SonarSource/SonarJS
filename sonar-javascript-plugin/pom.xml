@@ -25,6 +25,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>3.11.0</version>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>javascript-frontend</artifactId>
     </dependency>
@@ -128,8 +133,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>3400000</minsize>
-                  <maxsize>3500000</maxsize>
+                  <minsize>3800000</minsize>
+                  <maxsize>4200000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
