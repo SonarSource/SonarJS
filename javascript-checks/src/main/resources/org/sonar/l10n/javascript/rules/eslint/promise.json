@@ -2,90 +2,85 @@
   {
     "key": "promise/catch-or-return",
     "name": "Enforces the use of catch() on un-returned promises",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/catch-or-return.md"
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/catch-or-return.md",
+    "description": "See description of ESLint rule <code>promise/catch-or-return</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/catch-or-return.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/no-return-wrap",
-    "name":
-    "Avoid wrapping values in Promise.resolve or Promise.reject when not needed",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-return-wrap.md"
+    "name": "Avoid wrapping values in Promise.resolve or Promise.reject when not needed",
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-return-wrap.md",
+    "description": "See description of ESLint rule <code>promise/no-return-wrap</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-return-wrap.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/param-names",
     "name": "Enforce consistent param names when creating new promises",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/param-names.md"
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/param-names.md",
+    "description": "See description of ESLint rule <code>promise/param-names</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/param-names.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/always-return",
-    "name":
-    "Return inside each then() to create readable and reusable Promise chains",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/always-return.md"
+    "name": "Return inside each then() to create readable and reusable Promise chains",
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/always-return.md",
+    "description": "See description of ESLint rule <code>promise/always-return</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/always-return.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/no-native",
-    "name":
-    "In an ES5 environment, make sure to create a Promise constructor before using",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-native.md"
+    "name": "In an ES5 environment, make sure to create a Promise constructor before using",
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-native.md",
+    "description": "See description of ESLint rule <code>promise/no-native</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-native.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/no-nesting",
     "name": "Avoid nested then() or catch() statements",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-nesting.md"
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-nesting.md",
+    "description": "See description of ESLint rule <code>promise/no-nesting</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-nesting.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/no-promise-in-callback",
     "name": "Avoid using promises inside of callbacks",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-promise-in-callback.md"
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-promise-in-callback.md",
+    "description": "See description of ESLint rule <code>promise/no-promise-in-callback</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-promise-in-callback.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/no-callback-in-promise",
     "name": "Avoid calling cb() inside of a then() (use nodeify instead)",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-callback-in-promise.md"
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-callback-in-promise.md",
+    "description": "See description of ESLint rule <code>promise/no-callback-in-promise</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-callback-in-promise.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/avoid-new",
-    "name":
-    "Avoid creating new promises outside of utility libs (use pify instead)",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/avoid-new.md"
+    "name": "Avoid creating new promises outside of utility libs (use pify instead)",
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/avoid-new.md",
+    "description": "See description of ESLint rule <code>promise/avoid-new</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/avoid-new.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/no-new-statics",
     "name": "Avoid calling new on a Promise static method",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-new-statics.md"
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-new-statics.md",
+    "description": "See description of ESLint rule <code>promise/no-new-statics</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-new-statics.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/no-return-in-finally",
     "name": "Disallow return statements in finally()",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-return-in-finally.md"
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-return-in-finally.md",
+    "description": "See description of ESLint rule <code>promise/no-return-in-finally</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/no-return-in-finally.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/valid-params",
-    "name":
-    "Ensures the proper number of arguments are passed to Promise functions",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/valid-params.md"
+    "name": "Ensures the proper number of arguments are passed to Promise functions",
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/valid-params.md",
+    "description": "See description of ESLint rule <code>promise/valid-params</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/valid-params.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/prefer-await-to-then",
     "name": "Prefer await to then() for reading Promise values",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/prefer-await-to-then.md"
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/prefer-await-to-then.md",
+    "description": "See description of ESLint rule <code>promise/prefer-await-to-then</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/prefer-await-to-then.md\">eslint-plugin-promise website</a>."
   },
   {
     "key": "promise/prefer-await-to-callbacks",
     "name": "Prefer async/await to the callback pattern",
-    "url":
-    "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/prefer-await-to-callbacks.md"
+    "url": "https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/prefer-await-to-callbacks.md",
+    "description": "See description of ESLint rule <code>promise/prefer-await-to-callbacks</code> at the <a href=\"https://github.com/xjamundx/eslint-plugin-promise/blob/master/docs/rules/prefer-await-to-callbacks.md\">eslint-plugin-promise website</a>."
   }
 ]

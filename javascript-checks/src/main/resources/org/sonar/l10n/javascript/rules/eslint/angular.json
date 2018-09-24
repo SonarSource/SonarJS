@@ -3,368 +3,358 @@
     "key": "angular/avoid-scope-typos",
     "type": "BUG",
     "name": "Avoid mistakes when naming methods defined on the scope object",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/avoid-scope-typos.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/avoid-scope-typos.md",
+    "description": "See description of ESLint rule <code>angular/avoid-scope-typos</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/avoid-scope-typos.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/module-getter",
     "type": "BUG",
-    "name":
-      "Disallow to reference modules with variables and require to use the getter syntax instead angular.module('myModule')",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-getter.md"
+    "name": "Disallow to reference modules with variables and require to use the getter syntax instead angular.module('myModule')",
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-getter.md",
+    "description": "See description of ESLint rule <code>angular/module-getter</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-getter.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/module-setter",
     "type": "BUG",
     "name": "Disallow to assign modules to variables (linked to module-getter)",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-setter.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-setter.md",
+    "description": "See description of ESLint rule <code>angular/module-setter</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-setter.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-private-call",
     "type": "BUG",
     "name": "Disallow use of internal angular properties prefixed with $$",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-private-call.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-private-call.md",
+    "description": "See description of ESLint rule <code>angular/no-private-call</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-private-call.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/component-limit",
     "name": "Limit the number of angular components per file",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/component-limit.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/component-limit.md",
+    "description": "See description of ESLint rule <code>angular/component-limit</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/component-limit.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/controller-as-route",
     "name": "Require the use of controllerAs in routes or states",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-as-route.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-as-route.md",
+    "description": "See description of ESLint rule <code>angular/controller-as-route</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-as-route.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/controller-as-vm",
     "name": "Require and specify a capture variable for this in controllers",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-as-vm.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-as-vm.md",
+    "description": "See description of ESLint rule <code>angular/controller-as-vm</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-as-vm.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/controller-as",
     "name": "Disallow assignments to $scope in controllers",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-as.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-as.md",
+    "description": "See description of ESLint rule <code>angular/controller-as</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-as.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/deferred",
     "name": "Use $q(function(resolve, reject){}) instead of $q.deferred",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/deferred.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/deferred.md",
+    "description": "See description of ESLint rule <code>angular/deferred</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/deferred.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/di-unused",
     "name": "Disallow unused DI parameters",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/di-unused.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/di-unused.md",
+    "description": "See description of ESLint rule <code>angular/di-unused</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/di-unused.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/directive-restrict",
     "name": "Disallow any other directive restrict than 'A' or 'E'",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/directive-restrict.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/directive-restrict.md",
+    "description": "See description of ESLint rule <code>angular/directive-restrict</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/directive-restrict.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/empty-controller",
     "name": "Disallow empty controllers",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/empty-controller.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/empty-controller.md",
+    "description": "See description of ESLint rule <code>angular/empty-controller</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/empty-controller.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-controller",
-    "name":
-      "Disallow use of controllers (according to the component first pattern)",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-controller.md"
+    "name": "Disallow use of controllers (according to the component first pattern)",
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-controller.md",
+    "description": "See description of ESLint rule <code>angular/no-controller</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-controller.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-inline-template",
     "name": "Disallow the use of inline templates",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-inline-template.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-inline-template.md",
+    "description": "See description of ESLint rule <code>angular/no-inline-template</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-inline-template.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-run-logic",
     "name": "Keep run functions clean and simple",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-run-logic.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-run-logic.md",
+    "description": "See description of ESLint rule <code>angular/no-run-logic</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-run-logic.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-services",
-    "name":
-      "Disallow DI of specified services for other angular components ($http for controllers, filters and directives)",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-services.md"
+    "name": "Disallow DI of specified services for other angular components ($http for controllers, filters and directives)",
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-services.md",
+    "description": "See description of ESLint rule <code>angular/no-services</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-services.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/on-watch",
-    "name":
-      "Require $on and $watch deregistration callbacks to be saved in a variable",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/on-watch.md"
+    "name": "Require $on and $watch deregistration callbacks to be saved in a variable",
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/on-watch.md",
+    "description": "See description of ESLint rule <code>angular/on-watch</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/on-watch.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/prefer-component",
     "name": "Directive should be implemented with the component method",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/prefer-component.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/prefer-component.md",
+    "description": "See description of ESLint rule <code>angular/prefer-component</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/prefer-component.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-cookiestore",
     "name": "Use $cookies instead of $cookieStore",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-cookiestore.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-cookiestore.md",
+    "description": "See description of ESLint rule <code>angular/no-cookiestore</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-cookiestore.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-directive-replace",
     "name": "Disallow the deprecated directive replace property",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-directive-replace.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-directive-replace.md",
+    "description": "See description of ESLint rule <code>angular/no-directive-replace</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-directive-replace.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-http-callback",
     "name": "Disallow the $http methods success() and error()",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-http-callback.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-http-callback.md",
+    "description": "See description of ESLint rule <code>angular/no-http-callback</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-http-callback.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/component-name",
     "name": "Require and specify a prefix for all component names",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/component-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/component-name.md",
+    "description": "See description of ESLint rule <code>angular/component-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/component-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/constant-name",
     "name": "Require and specify a prefix for all constant names",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/constant-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/constant-name.md",
+    "description": "See description of ESLint rule <code>angular/constant-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/constant-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/controller-name",
     "name": "Require and specify a prefix for all controller names ",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-name.md",
+    "description": "See description of ESLint rule <code>angular/controller-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/controller-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/directive-name",
     "name": "Require and specify a prefix for all directive names ",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/directive-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/directive-name.md",
+    "description": "See description of ESLint rule <code>angular/directive-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/directive-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/factory-name",
     "name": "Require and specify a prefix for all factory names",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/factory-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/factory-name.md",
+    "description": "See description of ESLint rule <code>angular/factory-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/factory-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/file-name",
     "name": "Require and specify a consistent component name pattern ",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/file-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/file-name.md",
+    "description": "See description of ESLint rule <code>angular/file-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/file-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/filter-name",
     "name": "Require and specify a prefix for all filter names",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/filter-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/filter-name.md",
+    "description": "See description of ESLint rule <code>angular/filter-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/filter-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/module-name",
     "name": "Require and specify a prefix for all module names",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-name.md",
+    "description": "See description of ESLint rule <code>angular/module-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/provider-name",
     "name": "Require and specify a prefix for all provider names",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/provider-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/provider-name.md",
+    "description": "See description of ESLint rule <code>angular/provider-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/provider-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/service-name",
     "name": "Require and specify a prefix for all service names",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/service-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/service-name.md",
+    "description": "See description of ESLint rule <code>angular/service-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/service-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/value-name",
     "name": "Require and specify a prefix for all value names",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/value-name.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/value-name.md",
+    "description": "See description of ESLint rule <code>angular/value-name</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/value-name.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/di-order",
     "name": "Require DI parameters to be sorted alphabetically",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/di-order.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/di-order.md",
+    "description": "See description of ESLint rule <code>angular/di-order</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/di-order.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/di",
     "name": "Require a consistent DI syntax",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/di.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/di.md",
+    "description": "See description of ESLint rule <code>angular/di</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/di.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/dumb-inject",
-    "name":
-      "Unittest inject functions should only consist of assignments from injected values to describe block variables",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/dumb-inject.md"
+    "name": "Unittest inject functions should only consist of assignments from injected values to describe block variables",
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/dumb-inject.md",
+    "description": "See description of ESLint rule <code>angular/dumb-inject</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/dumb-inject.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/function-type",
-    "name":
-      "Require and specify a consistent function style for components ('named' or 'anonymous')",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/function-type.md"
+    "name": "Require and specify a consistent function style for components ('named' or 'anonymous')",
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/function-type.md",
+    "description": "See description of ESLint rule <code>angular/function-type</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/function-type.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/module-dependency-order",
     "name": "Require a consistent order of module dependencies",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-dependency-order.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-dependency-order.md",
+    "description": "See description of ESLint rule <code>angular/module-dependency-order</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/module-dependency-order.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-service-method",
     "name": "Use factory() instead of service()",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-service-method.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-service-method.md",
+    "description": "See description of ESLint rule <code>angular/no-service-method</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-service-method.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/one-dependency-per-line",
     "name": "Require all DI parameters to be located in their own line",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/one-dependency-per-line.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/one-dependency-per-line.md",
+    "description": "See description of ESLint rule <code>angular/one-dependency-per-line</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/one-dependency-per-line.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/rest-service",
-    "name":
-      "Disallow different rest service and specify one of '$http', '$resource', 'Restangular'",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/rest-service.md"
+    "name": "Disallow different rest service and specify one of '$http', '$resource', 'Restangular'",
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/rest-service.md",
+    "description": "See description of ESLint rule <code>angular/rest-service</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/rest-service.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/watchers-execution",
-    "name":
-      "Require and specify consistent use $scope.digest() or $scope.apply()",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/watchers-execution.md"
+    "name": "Require and specify consistent use $scope.digest() or $scope.apply()",
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/watchers-execution.md",
+    "description": "See description of ESLint rule <code>angular/watchers-execution</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/watchers-execution.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/angularelement",
     "name": "Use angular.element instead of $ or jQuery",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/angularelement.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/angularelement.md",
+    "description": "See description of ESLint rule <code>angular/angularelement</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/angularelement.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/definedundefined",
-    "name":
-      "Use angular.isDefined and angular.isUndefined instead of other undefined checks",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/definedundefined.md"
+    "name": "Use angular.isDefined and angular.isUndefined instead of other undefined checks",
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/definedundefined.md",
+    "description": "See description of ESLint rule <code>angular/definedundefined</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/definedundefined.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/document-service",
     "name": "Use $document instead of document",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/document-service.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/document-service.md",
+    "description": "See description of ESLint rule <code>angular/document-service</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/document-service.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/foreach",
     "name": "Use angular.forEach instead of native Array.prototype.forEach",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/foreach.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/foreach.md",
+    "description": "See description of ESLint rule <code>angular/foreach</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/foreach.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/interval-service",
     "name": "Use $interval instead of setInterval",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/interval-service.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/interval-service.md",
+    "description": "See description of ESLint rule <code>angular/interval-service</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/interval-service.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/json-functions",
-    "name":
-      "Use angular.fromJson and 'angular.toJson' instead of JSON.parse and JSON.stringify",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/json-functions.md"
+    "name": "Use angular.fromJson and 'angular.toJson' instead of JSON.parse and JSON.stringify",
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/json-functions.md",
+    "description": "See description of ESLint rule <code>angular/json-functions</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/json-functions.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/log",
     "name": "Use the $log service instead of the console methods",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/log.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/log.md",
+    "description": "See description of ESLint rule <code>angular/log</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/log.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-angular-mock",
     "name": "Require to use angular.mock methods directly",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-angular-mock.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-angular-mock.md",
+    "description": "See description of ESLint rule <code>angular/no-angular-mock</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-angular-mock.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/no-jquery-angularelement",
     "name": "Disallow to wrap angular.element objects with jQuery or $",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-jquery-angularelement.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-jquery-angularelement.md",
+    "description": "See description of ESLint rule <code>angular/no-jquery-angularelement</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/no-jquery-angularelement.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/timeout-service",
     "name": "Use $timeout instead of setTimeout",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/timeout-service.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/timeout-service.md",
+    "description": "See description of ESLint rule <code>angular/timeout-service</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/timeout-service.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/typecheck-array",
     "name": "Use angular.isArray instead of typeof comparisons",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-array.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-array.md",
+    "description": "See description of ESLint rule <code>angular/typecheck-array</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-array.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/typecheck-date",
     "name": "Use angular.isDate instead of typeof comparisons",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-date.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-date.md",
+    "description": "See description of ESLint rule <code>angular/typecheck-date</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-date.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/typecheck-function",
     "name": "Use angular.isFunction instead of typeof comparisons",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-function.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-function.md",
+    "description": "See description of ESLint rule <code>angular/typecheck-function</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-function.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/typecheck-number",
     "name": "Use angular.isNumber instead of typeof comparisons",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-number.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-number.md",
+    "description": "See description of ESLint rule <code>angular/typecheck-number</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-number.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/typecheck-object",
     "name": "Use angular.isObject instead of typeof comparisons",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-object.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-object.md",
+    "description": "See description of ESLint rule <code>angular/typecheck-object</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-object.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/typecheck-string",
     "name": "Use angular.isString instead of typeof comparisons",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-string.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-string.md",
+    "description": "See description of ESLint rule <code>angular/typecheck-string</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/typecheck-string.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/window-service",
     "name": "Use $window instead of window",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/window-service.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/window-service.md",
+    "description": "See description of ESLint rule <code>angular/window-service</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/window-service.md\">eslint-plugin-angular website</a>."
   },
   {
     "key": "angular/on-destroy",
     "name": "Check for common misspelling $on('destroy', ...).",
-    "url":
-      "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/on-destroy.md"
+    "url": "https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/on-destroy.md",
+    "description": "See description of ESLint rule <code>angular/on-destroy</code> at the <a href=\"https://github.com/Gillespie59/eslint-plugin-angular/blob/HEAD/docs/rules/on-destroy.md\">eslint-plugin-angular website</a>."
   }
 ]
