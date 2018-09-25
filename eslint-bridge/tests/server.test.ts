@@ -1,16 +1,13 @@
 import { start } from "../src/server";
 import * as http from "http";
 import { promisify } from "util";
-import * as getPort from "get-port";
 
 describe("server", () => {
-  let port;
   let server;
   let close;
 
   beforeEach(async () => {
-    port = await getPort();
-    server = await start(port);
+    server = await start();
     close = promisify(server.close.bind(server));
   });
 
@@ -46,7 +43,7 @@ describe("server", () => {
   function post(data): Promise<string> {
     const options = {
       host: "localhost",
-      port,
+      port: server.address().port,
       path: "/analyze",
       method: "POST",
       headers: {

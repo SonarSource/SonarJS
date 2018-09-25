@@ -87,7 +87,7 @@ public class EslintBasedRulesSensorTest {
     SensorContextTester context = SensorContextTester.create(BASE_DIR);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Skipping execution of eslint-based rules because none of them are activated");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Skipping execution of eslint-based rules because none of them are activated");
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -95,6 +95,7 @@ public class EslintBasedRulesSensorTest {
   public void should_not_explode_if_bridge_server_not_started() throws Exception {
     EslintBasedRulesSensor sensor = createSensor(NODE, "not-existing-script");
     SensorContextTester context = SensorContextTester.create(BASE_DIR);
+    createInputFile(context);
     sensor.execute(context);
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Timeout error: failed to start server");

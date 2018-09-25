@@ -21,8 +21,9 @@ import { Server } from "http";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import { AnalysisInput, analyze } from "./analyzer";
+import { AddressInfo } from "net";
 
-export function start(port: number): Promise<Server> {
+export function start(port = 0): Promise<Server> {
   return new Promise(resolve => {
     console.log("DEBUG starting eslint-bridge server at port", port);
     const app = express();
@@ -37,7 +38,10 @@ export function start(port: number): Promise<Server> {
     });
 
     const server = app.listen(port, () => {
-      console.log("DEBUG eslint-bridge server is running at port", port);
+      console.log(
+        "DEBUG eslint-bridge server is running at port",
+        (server.address() as AddressInfo).port,
+      );
       resolve(server);
     });
   });

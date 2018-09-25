@@ -86,7 +86,7 @@ public class EslintBasedRulesSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     if (rules.length == 0) {
-      LOG.info("Skipping execution of eslint-based rules because none of them are activated");
+      LOG.debug("Skipping execution of eslint-based rules because none of them are activated");
       return;
     }
 
@@ -112,8 +112,7 @@ public class EslintBasedRulesSensor implements Sensor {
       .post(RequestBody.create(MediaType.get("application/json"), GSON.toJson(analysisRequest)))
       .build();
 
-    try {
-      Response response = client.newCall(request).execute();
+    try (Response response = client.newCall(request).execute()){
       // in this case response.body() is never null (according to docs)
       String result = response.body().string();
       AnalysisResponseIssue[] issues = toIssues(result);
@@ -126,7 +125,13 @@ public class EslintBasedRulesSensor implements Sensor {
   }
 
   private void startEslintBridgeServerProcess() {
-    port = findOpenPort();
+    try {
+      port = findOpenPort();
+    } catch (IOException e) {
+      LOG.error("Failed to find open port", e);
+      return;
+    }
+
     ProcessBuilder processBuilder = new ProcessBuilder(nodeExecutable, startServerScript, String.valueOf(port));
     try {
       LOG.debug("Starting node process to start eslint-bridge server at port " + port);

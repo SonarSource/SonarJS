@@ -28,11 +28,9 @@ public class NetUtils {
   private NetUtils(){
   }
 
-  public static int findOpenPort() {
+  public static int findOpenPort() throws IOException {
     try (ServerSocket socket = new ServerSocket(0)) {
       return socket.getLocalPort();
-    } catch (IOException e) {
-      return 3000;
     }
   }
 
