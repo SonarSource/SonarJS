@@ -25,12 +25,14 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.javascript.checks.EslintBasedCheck;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
@@ -113,6 +115,13 @@ public class JavaScriptChecks {
     return checks;
   }
 
+  public List<EslintBasedCheck> eslintBasedChecks() {
+    return all().stream()
+      .filter(EslintBasedCheck.class::isInstance)
+      .map(check -> (EslintBasedCheck) check)
+      .collect(Collectors.toList());
+  }
+
   @Nullable
   public RuleKey ruleKeyFor(JavaScriptCheck check) {
     RuleKey ruleKey;
@@ -123,6 +132,24 @@ public class JavaScriptChecks {
       if (ruleKey != null) {
         return ruleKey;
       }
+    }
+    return null;
+  }
+
+  @Nullable
+  public RuleKey ruleKeyByEslintKey(String eslintKey) {
+    RuleKey ruleKey;
+
+    for (Checks<JavaScriptCheck> checks : checksByRepository) {
+      for (JavaScriptCheck check : checks.all()) {
+        if (check instanceof EslintBasedCheck && ((EslintBasedCheck) check).eslintKey().equals(eslintKey)) {
+          ruleKey = checks.ruleKey(check);
+          if (ruleKey != null) {
+            return ruleKey;
+          }
+        }
+      }
+
     }
     return null;
   }
