@@ -37,6 +37,10 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonarsource.nodejs.MockCommandBuilder;
+import org.sonarsource.nodejs.NodeCommand;
+import org.sonarsource.nodejs.NodeCommandBuilder;
+import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,14 +48,13 @@ public class EslintBasedRulesSensorTest {
 
   private static final File BASE_DIR = new File("src/test/resources");
   private static final String ESLINT_BASED_RULE = "S3923";
-  private static final String NODE = "node";
 
   @org.junit.Rule
   public LogTester logTester = new LogTester();
 
   @Test
   public void should_create_issues_from_eslint_based_rules() throws Exception {
-    EslintBasedRulesSensor sensor = createSensor(NODE, "startServer.js");
+    EslintBasedRulesSensor sensor = createSensor("startServer.js");
     SensorContextTester context = SensorContextTester.create(BASE_DIR);
     DefaultInputFile inputFile = createInputFile(context);
 
@@ -81,9 +84,8 @@ public class EslintBasedRulesSensorTest {
   public void should_do_nothing_if_no_eslint_based_rules_activated() throws Exception {
     EslintBasedRulesSensor sensor = new EslintBasedRulesSensor(
       checkFactory("S2589"),
-      NODE,
       "someScript",
-      1);
+      1, NodeCommand.builder());
     SensorContextTester context = SensorContextTester.create(BASE_DIR);
     sensor.execute(context);
 
@@ -93,7 +95,7 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_not_explode_if_bridge_server_not_started() throws Exception {
-    EslintBasedRulesSensor sensor = createSensor(NODE, "not-existing-script");
+    EslintBasedRulesSensor sensor = createSensor("not-existing-script");
     SensorContextTester context = SensorContextTester.create(BASE_DIR);
     createInputFile(context);
     sensor.execute(context);
@@ -104,7 +106,7 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_log_process_streams() throws Exception {
-    EslintBasedRulesSensor sensor = createSensor(NODE, "logging.js");
+    EslintBasedRulesSensor sensor = createSensor("logging.js");
     SensorContextTester context = SensorContextTester.create(BASE_DIR);
     sensor.execute(context);
 
@@ -116,17 +118,20 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_not_explode_if_failed_to_start_process() throws Exception {
-    EslintBasedRulesSensor sensor = createSensor("invalid-node", "not-existing-script");
+    MockCommandBuilder nodeCommandBuilder = new MockCommandBuilder("", "", 1)
+      .throwOnStart(new NodeCommandException("Error starting"));
+    EslintBasedRulesSensor sensor = createSensor("not-existing-script", nodeCommandBuilder);
     SensorContextTester context = SensorContextTester.create(BASE_DIR);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to start eslint-bridge server process: invalid-node src/test/resources/eslint-bridge/not-existing-script");
+    assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to start eslint-bridge server process: mock-node mock-command");
     assertThat(context.allIssues()).isEmpty();
   }
 
+
   @Test
   public void should_not_explode_if_bad_json_response() throws Exception {
-    EslintBasedRulesSensor sensor = createSensor(NODE, "bad-response.js");
+    EslintBasedRulesSensor sensor = createSensor("bad-response.js");
 
     SensorContextTester context = SensorContextTester.create(BASE_DIR);
     createInputFile(context);
@@ -141,7 +146,7 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_not_explode_if_no_response() throws Exception {
-    EslintBasedRulesSensor sensor = createSensor(NODE, "no-response.js");
+    EslintBasedRulesSensor sensor = createSensor("no-response.js");
     SensorContextTester context = SensorContextTester.create(BASE_DIR);
     DefaultInputFile inputFile = createInputFile(context);
     sensor.execute(context);
@@ -154,7 +159,7 @@ public class EslintBasedRulesSensorTest {
   public void should_have_descriptor() throws Exception {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
-    createSensor(NODE, "someScript").describe(descriptor);
+    createSensor("someScript").describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("SonarJS ESLint-based rules execution");
     assertThat(descriptor.languages()).containsOnly("js");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
@@ -178,11 +183,15 @@ public class EslintBasedRulesSensorTest {
   }
 
 
-  private static EslintBasedRulesSensor createSensor(String node, String startServerScript) {
+  private static EslintBasedRulesSensor createSensor(String startServerScript) {
+    return createSensor(startServerScript, NodeCommand.builder());
+  }
+
+  private static EslintBasedRulesSensor createSensor(String startServerScript, NodeCommandBuilder nodeCommandBuilder) {
     return new EslintBasedRulesSensor(
       checkFactory(ESLINT_BASED_RULE),
-      node,
       "src/test/resources/eslint-bridge/" + startServerScript,
-      1);
+      1, nodeCommandBuilder);
   }
+
 }

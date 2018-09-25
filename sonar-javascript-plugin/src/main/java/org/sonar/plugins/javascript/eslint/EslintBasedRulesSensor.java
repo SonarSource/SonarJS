@@ -45,6 +45,8 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.EslintBasedCheck;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonarsource.nodejs.NodeCommand;
+import org.sonarsource.nodejs.NodeCommandBuilder;
 
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
@@ -54,19 +56,19 @@ public class EslintBasedRulesSensor implements Sensor {
   private static final Logger LOG = Loggers.get(EslintBasedRulesSensor.class);
   private static final Gson GSON = new Gson();
 
-  private final ExternalProcessStreamConsumer externalProcessStreamConsumer = new ExternalProcessStreamConsumer();
-  private final String nodeExecutable;
   private final String startServerScript;
   private final OkHttpClient client;
   private final int timeoutSec;
 
   private final String[] rules;
   private final JavaScriptChecks checks;
+  private final NodeCommandBuilder nodeCommandBuilder;
 
   private int port;
-  private Process process = null;
+  private NodeCommand nodeCommand;
 
-  EslintBasedRulesSensor(CheckFactory checkFactory, String nodeExecutable, String startServerScript, int timeoutSec) {
+  EslintBasedRulesSensor(CheckFactory checkFactory, String startServerScript, int timeoutSec,
+                         NodeCommandBuilder nodeCommandBuilder) {
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks());
 
@@ -75,8 +77,8 @@ public class EslintBasedRulesSensor implements Sensor {
       .toArray(String[]::new);
 
     this.startServerScript = startServerScript;
-    this.nodeExecutable = nodeExecutable;
     this.timeoutSec = timeoutSec;
+    this.nodeCommandBuilder = nodeCommandBuilder;
 
     this.client = new OkHttpClient.Builder()
       .readTimeout(this.timeoutSec, TimeUnit.SECONDS)
@@ -91,7 +93,7 @@ public class EslintBasedRulesSensor implements Sensor {
     }
 
     startEslintBridgeServerProcess();
-    if (process == null) {
+    if (nodeCommand == null) {
       return;
     }
 
@@ -132,11 +134,20 @@ public class EslintBasedRulesSensor implements Sensor {
       return;
     }
 
-    ProcessBuilder processBuilder = new ProcessBuilder(nodeExecutable, startServerScript, String.valueOf(port));
+    nodeCommand = nodeCommandBuilder
+      .outputConsumer(message -> {
+        if (message.startsWith("DEBUG")) {
+          LOG.debug(message.substring(5).trim());
+        } else {
+          LOG.info(message);
+        }
+      })
+      .script(startServerScript)
+      .scriptArgs(String.valueOf(port))
+      .build();
     try {
-      LOG.debug("Starting node process to start eslint-bridge server at port " + port);
-      process = processBuilder.start();
-      setProcessStreamConsumers();
+      LOG.debug("Starting Node.js process to start eslint-bridge server at port " + port);
+      nodeCommand.start();
 
       if (!waitServerToStart("localhost", port, timeoutSec * 1000)) {
         LOG.error("Timeout error: failed to start server");
@@ -146,29 +157,15 @@ public class EslintBasedRulesSensor implements Sensor {
 
       LOG.debug("Server is started");
 
-    } catch (IOException e) {
-      String command = String.join(" ", processBuilder.command());
-      LOG.error("Failed to start eslint-bridge server process: " + command, e);
+    } catch (Exception e) {
+      LOG.error("Failed to start eslint-bridge server process: " + nodeCommand, e);
     }
   }
 
-  private void setProcessStreamConsumers() {
-    externalProcessStreamConsumer.consumeStream(process.getErrorStream(), LOG::error);
-
-    externalProcessStreamConsumer.consumeStream(process.getInputStream(), message -> {
-      if (message.startsWith("DEBUG")) {
-        LOG.debug(message.substring(5).trim());
-      } else {
-        LOG.info(message);
-      }
-    });
-  }
-
   private void clean() {
-    if (process != null) {
-      process.destroy();
-      externalProcessStreamConsumer.shutdownNow();
-      process = null;
+    if (nodeCommand != null) {
+      nodeCommand.destroy();
+      nodeCommand = null;
     }
   }
 

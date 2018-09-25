@@ -46,6 +46,7 @@
     <module>sonar-javascript-plugin</module>
     <module>javascript-checks-testkit</module>
     <module>eslint-bridge</module>
+    <module>nodejs-utils</module>
   </modules>
 
   <scm>
@@ -99,6 +100,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>javascript-checks</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>nodejs-utils</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -225,6 +231,12 @@
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator</artifactId>
         <version>${sonar-orchestrator.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.awaitility</groupId>
+        <artifactId>awaitility</artifactId>
+        <version>3.1.2</version>
         <scope>test</scope>
       </dependency>
 

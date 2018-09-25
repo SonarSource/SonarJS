@@ -36,13 +36,13 @@ public class JavaScriptPluginTest {
   @Test
   public void count_extensions_lts() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 7), SonarQubeSide.SERVER));
-    assertThat(context.getExtensions()).hasSize(15);
+    assertThat(context.getExtensions()).hasSize(16);
   }
 
   @Test
   public void count_extensions_external_issues_supported() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(7, 2), SonarQubeSide.SERVER));
-    assertThat(context.getExtensions()).hasSize(17);
+    assertThat(context.getExtensions()).hasSize(18);
   }
 
   @Test
@@ -68,7 +68,7 @@ public class JavaScriptPluginTest {
   @Test
   public void count_extensions_for_sonarlint() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(Version.create(6, 7)));
-    assertThat(context.getExtensions()).hasSize(13);
+    assertThat(context.getExtensions()).hasSize(14);
   }
 
   private List<PropertyDefinition> properties() {

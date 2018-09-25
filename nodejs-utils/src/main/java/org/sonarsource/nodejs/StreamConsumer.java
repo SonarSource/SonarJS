@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+package org.sonarsource.nodejs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,12 +31,12 @@ import java.util.function.Consumer;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-class ExternalProcessStreamConsumer {
+class StreamConsumer {
 
-  private static final Logger LOG = Loggers.get(ExternalProcessStreamConsumer.class);
+  private static final Logger LOG = Loggers.get(StreamConsumer.class);
   private ExecutorService executorService;
 
-  ExternalProcessStreamConsumer() {
+  StreamConsumer() {
     executorService = Executors.newCachedThreadPool(r -> {
       Thread thread = new Thread(r);
       thread.setName("nodejs-stream-consumer");
