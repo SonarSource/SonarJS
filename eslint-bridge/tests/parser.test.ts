@@ -1,12 +1,25 @@
-import { parseSourceFile } from "../src/parser";
+import { parseSourceFile, parseSourceFileAsModule, parseSourceFileAsScript } from "../src/parser";
 
 describe("parseSourceFile", () => {
   beforeEach(() => {
     console.error = jest.fn();
+    console.log = jest.fn();
   });
 
   afterEach(() => {
     jest.resetAllMocks();
+  });
+
+  it("should not parse when invalid code and log reason", () => {
+    expect(parseSourceFile("export { a, a }", "foo.js")).toBeUndefined();
+    expect(console.error).toBeCalledWith(
+      "Failed to parse file [foo.js] at line 1: Duplicate export 'a' (with espree parser in module mode)",
+    );
+    expect(console.log).toBeCalledWith(
+      "DEBUG Failed to parse file [foo.js] at line 1: 'import' and 'export' may appear only with 'sourceType: module' (with espree parser in script mode)",
+    );
+
+    expect(parseSourceFile("export Foo from 'Foo'", "foo.js")).toBeUndefined();
   });
 
   it("should parse jsx", () => {
@@ -15,15 +28,36 @@ describe("parseSourceFile", () => {
     expect(console.error).toBeCalledTimes(0);
   });
 
-  it("should parse recent javascript syntax", () => {
-    // ES2019
-    let sourceCode = parseSourceFile(
-      `try {
-          doSomething();
-        } catch {}`,
-      "foo.js",
+  it("should parse scripts (with retry after module)", () => {
+    expect(parseSourceFile("var eval = 42", "foo.js").ast).toBeDefined();
+    expect(console.error).toBeCalledTimes(0);
+  });
+
+  it("should parse as script (non-strict mode)", () => {
+    expectToParseInNonStrictMode(`var eval = 42`, `"Binding eval in strict mode"`);
+    expectToParseInNonStrictMode(`eval = 42`, `"Assigning to eval in strict mode"`);
+    expectToParseInNonStrictMode(
+      `function foo() {}\n var foo = 42;`,
+      `"Identifier 'foo' has already been declared"`,
     );
-    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+
+    expectToParseInNonStrictMode(`x = 043;`, `"Invalid number"`);
+    expectToParseInNonStrictMode(`'\\033'`, `"Octal literal in strict mode"`);
+    expectToParseInNonStrictMode(`with (a) {}`, `"'with' in strict mode"`);
+    expectToParseInNonStrictMode(`public = 42`, `"The keyword 'public' is reserved"`);
+    expectToParseInNonStrictMode(`function foo(a, a) {}`, `"Argument name clash"`);
+    expectToParseInNonStrictMode(`delete x`, `"Deleting local variable in strict mode"`);
+
+    function expectToParseInNonStrictMode(sourceCode, msgInStrictMode) {
+      expect(() => parseSourceFileAsModule(sourceCode)).toThrowErrorMatchingInlineSnapshot(
+        msgInStrictMode,
+      );
+      expect(parseSourceFileAsScript(sourceCode)).toBeDefined();
+    }
+  });
+
+  it("should parse recent javascript syntax", () => {
+    let sourceCode;
     // ES2018
     sourceCode = parseSourceFile(
       `const obj = {foo: 1, bar: 2, baz: 3};
@@ -45,6 +79,15 @@ describe("parseSourceFile", () => {
     // ES2015
     sourceCode = parseSourceFile(`const f = (x, y) => x + y`, "foo.js");
     expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+
+    // Modules
+    sourceCode = parseSourceFile(
+      `import * as Foo from "foo";
+       export class A{}`,
+      "foo.js",
+    );
+    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+
     expect(console.error).toBeCalledTimes(0);
   });
 
@@ -53,7 +96,7 @@ describe("parseSourceFile", () => {
     expect(sourceCode).toBeUndefined();
     expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
-      `Failed to parse file [foo.js] at line 1 (espree parser): Unexpected token )`,
+      `Failed to parse file [foo.js] at line 1: Unexpected token ) (with espree parser in module mode)`,
     );
   });
 });
