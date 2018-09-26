@@ -25,7 +25,7 @@ import java.net.Socket;
 
 public class NetUtils {
 
-  private NetUtils(){
+  private NetUtils() {
   }
 
   public static int findOpenPort() throws IOException {
@@ -35,16 +35,14 @@ public class NetUtils {
   }
 
   public static boolean waitServerToStart(String host, int port, int timeoutMs) {
-    int leftTimeout = timeoutMs;
     int sleepStep = 500;
+    long start = System.currentTimeMillis();
     try {
       while (!serverListening(host, port)) {
-        if (leftTimeout > 0) {
-          leftTimeout -= sleepStep;
-          Thread.sleep(sleepStep);
-        } else {
+        if (System.currentTimeMillis() - start > timeoutMs) {
           return false;
         }
+        Thread.sleep(sleepStep);
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
