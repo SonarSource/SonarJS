@@ -29,7 +29,7 @@ export function start(port = 0): Promise<Server> {
     const app = express();
 
     // for parsing application/json requests
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({ limit: "50mb" }));
 
     app.post("/analyze", (request: express.Request, response: express.Response) => {
       const parsedRequest = request.body as AnalysisInput;
