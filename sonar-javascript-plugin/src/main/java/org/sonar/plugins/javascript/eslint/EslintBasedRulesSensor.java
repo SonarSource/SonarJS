@@ -22,12 +22,6 @@ package org.sonar.plugins.javascript.eslint;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -45,30 +39,17 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.EslintBasedCheck;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonarsource.nodejs.NodeCommand;
-import org.sonarsource.nodejs.NodeCommandBuilder;
-
-import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
-import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
 
 public class EslintBasedRulesSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(EslintBasedRulesSensor.class);
   private static final Gson GSON = new Gson();
 
-  private final String startServerScript;
-  private final OkHttpClient client;
-  private final int timeoutSec;
-
   private final String[] rules;
   private final JavaScriptChecks checks;
-  private final NodeCommandBuilder nodeCommandBuilder;
+  private final EslintBridgeServer eslintBridgeServer;
 
-  private int port;
-  private NodeCommand nodeCommand;
-
-  EslintBasedRulesSensor(CheckFactory checkFactory, String startServerScript, int timeoutSec,
-                         NodeCommandBuilder nodeCommandBuilder) {
+  EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer) {
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks());
 
@@ -76,13 +57,7 @@ public class EslintBasedRulesSensor implements Sensor {
       .map(EslintBasedCheck::eslintKey)
       .toArray(String[]::new);
 
-    this.startServerScript = startServerScript;
-    this.timeoutSec = timeoutSec;
-    this.nodeCommandBuilder = nodeCommandBuilder;
-
-    this.client = new OkHttpClient.Builder()
-      .readTimeout(this.timeoutSec, TimeUnit.SECONDS)
-      .build();
+    this.eslintBridgeServer = eslintBridgeServer;
   }
 
   @Override
@@ -92,80 +67,29 @@ public class EslintBasedRulesSensor implements Sensor {
       return;
     }
 
-    startEslintBridgeServerProcess();
-    if (nodeCommand == null) {
-      return;
-    }
-
     try {
+      eslintBridgeServer.start();
       for (InputFile inputFile : getInputFiles(context)) {
         analyze(inputFile, context);
       }
+    } catch (Exception e) {
+      LOG.error(e.getMessage());
+      LOG.error("Failure during analysis: " + eslintBridgeServer, e);
     } finally {
-      clean();
+      eslintBridgeServer.clean();
     }
   }
 
   private void analyze(InputFile file, SensorContext context) {
     AnalysisRequest analysisRequest = new AnalysisRequest(file, rules);
-
-    Request request = new Request.Builder()
-      .url("http://localhost:" + port + "/analyze")
-      .post(RequestBody.create(MediaType.get("application/json"), GSON.toJson(analysisRequest)))
-      .build();
-
-    try (Response response = client.newCall(request).execute()){
-      // in this case response.body() is never null (according to docs)
-      String result = response.body().string();
+    try {
+      String result = eslintBridgeServer.call(GSON.toJson(analysisRequest));
       AnalysisResponseIssue[] issues = toIssues(result);
       for (AnalysisResponseIssue issue : issues) {
         saveIssue(file, context, issue);
       }
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
-    }
-  }
-
-  private void startEslintBridgeServerProcess() {
-    try {
-      port = findOpenPort();
-    } catch (IOException e) {
-      LOG.error("Failed to find open port", e);
-      return;
-    }
-
-    nodeCommand = nodeCommandBuilder
-      .outputConsumer(message -> {
-        if (message.startsWith("DEBUG")) {
-          LOG.debug(message.substring(5).trim());
-        } else {
-          LOG.info(message);
-        }
-      })
-      .script(startServerScript)
-      .scriptArgs(String.valueOf(port))
-      .build();
-    try {
-      LOG.debug("Starting Node.js process to start eslint-bridge server at port " + port);
-      nodeCommand.start();
-
-      if (!waitServerToStart("localhost", port, timeoutSec * 1000)) {
-        LOG.error("Timeout error: failed to start server");
-        clean();
-        return;
-      }
-
-      LOG.debug("Server is started");
-
-    } catch (Exception e) {
-      LOG.error("Failed to start eslint-bridge server process: " + nodeCommand, e);
-    }
-  }
-
-  private void clean() {
-    if (nodeCommand != null) {
-      nodeCommand.destroy();
-      nodeCommand = null;
     }
   }
 

@@ -20,44 +20,16 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import org.sonar.api.batch.ScannerSide;
 
-public class NetUtils {
+@ScannerSide
+interface EslintBridgeServer {
 
-  private NetUtils() {
-  }
+  void start() throws IOException;
 
-  public static int findOpenPort() throws IOException {
-    try (ServerSocket socket = new ServerSocket(0)) {
-      return socket.getLocalPort();
-    }
-  }
+  String call(String request) throws IOException;
 
-  public static boolean waitServerToStart(String host, int port, int timeoutMs) {
-    int sleepStep = 500;
-    long start = System.currentTimeMillis();
-    try {
-      while (!serverListening(host, port)) {
-        if (System.currentTimeMillis() - start > timeoutMs) {
-          return false;
-        }
-        Thread.sleep(sleepStep);
-      }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
-
-    return true;
-  }
-
-  private static boolean serverListening(String host, int port) {
-    try (Socket s = new Socket(host, port)) {
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
+  void clean();
 
 }
+
