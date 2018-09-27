@@ -27,6 +27,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.Version;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
+import org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
@@ -84,7 +86,10 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptRulesDefinition.class,
       SonarWayRecommendedProfile.class,
       SonarWayProfile.class,
-      NodeCommand.builder());
+      // fixme replace path to script
+      new EslintBridgeServerImpl(NodeCommand.builder(), 5, "fixme"),
+      EslintBasedRulesSensor.class
+      );
 
     context.addExtensions(
       PropertyDefinition.builder(LCOV_REPORT_PATHS)

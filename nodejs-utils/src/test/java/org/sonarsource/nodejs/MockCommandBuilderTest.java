@@ -25,7 +25,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MockCommandBuilderTest {
 
@@ -61,15 +60,5 @@ public class MockCommandBuilderTest {
     assertThat(exitValue).isEqualTo(1);
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("v10.1.1");
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("error");
-  }
-
-  @Test
-  public void test_throwOnStart() throws Exception {
-    IllegalStateException exception = new IllegalStateException("message");
-    NodeCommand nodeCommand = new MockCommandBuilder("v10.1.1", "error", 1)
-      .throwOnStart(exception)
-      .build();
-    assertThatThrownBy(nodeCommand::start)
-      .isEqualTo(exception);
   }
 }
