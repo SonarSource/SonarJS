@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.internal.matchers.StringContains.containsString;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -99,7 +99,7 @@ public class CheckMessagesVerifierTest {
   @Test
   public void withMessageThat() {
     thrown.expect(AssertionError.class);
-    thrown.expectMessage("\nExpected: a string containing \"bar\"\n     got: \"foo\"");
+    thrown.expectMessage("\nExpected: a string containing \"bar\"\n     but: was \"foo\"");
 
     Collection<CheckMessage> messages = Arrays.asList(mockCheckMessage(1, "foo"));
     CheckMessagesVerifier.verify(messages)
