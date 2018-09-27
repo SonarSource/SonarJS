@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -17,6 +18,9 @@
     <sonar.language>ts</sonar.language>
     <sonar.typescript.lcov.reportPaths>coverage/lcov.info</sonar.typescript.lcov.reportPaths>
     <sonar.testExecutionReportPaths>test-report.xml</sonar.testExecutionReportPaths>
+    <nodeVersion>v10.11.0</nodeVersion>
+    <yarnVersion>v1.9.4</yarnVersion>
+    <npmVersion>6.4.1</npmVersion>
   </properties>
 
   <build>
@@ -35,8 +39,19 @@
               <goal>install-node-and-yarn</goal>
             </goals>
             <configuration>
-              <nodeVersion>v10.0.0</nodeVersion>
-              <yarnVersion>v1.9.4</yarnVersion>
+              <nodeVersion>${nodeVersion}</nodeVersion>
+              <yarnVersion>${yarnVersion}</yarnVersion>
+            </configuration>
+          </execution>
+          <execution>
+            <!-- node installation is cached, only npm will be installed -->
+            <id>install npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>${nodeVersion}</nodeVersion>
+              <npmVersion>${npmVersion}</npmVersion>
             </configuration>
           </execution>
           <execution>
@@ -63,6 +78,15 @@
             </goals>
             <configuration>
               <arguments>run test --coverage</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <arguments>jar</arguments>
             </configuration>
           </execution>
         </executions>

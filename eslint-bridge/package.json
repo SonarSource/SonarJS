@@ -1,5 +1,6 @@
 {
   "name": "eslint-bridge",
+  "version": "1.0.0",
   "description": "bridge between SonarJS and ESLint",
   "scripts": {
     "build": "yarn install && yarn check-format && yarn clear && yarn compile-sources && yarn type-check-tests",
@@ -8,7 +9,8 @@
     "test": "jest",
     "format": "prettier --write \"{src,tests}/**/!(*.lint).ts\"",
     "compile-sources": "tsc -p .",
-    "type-check-tests": "tsc -p tests --noEmit"
+    "type-check-tests": "tsc -p tests --noEmit",
+    "jar": "node scripts/package.js"
   },
   "repository": {
     "type": "git",
@@ -44,5 +46,9 @@
   "prettier": {
     "printWidth": 100,
     "trailingComma": "all"
-  }
+  },
+  "files": [
+    "lib/",
+    "bin/"
+  ]
 }

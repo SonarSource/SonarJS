@@ -86,10 +86,10 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptRulesDefinition.class,
       SonarWayRecommendedProfile.class,
       SonarWayProfile.class,
-      // fixme replace path to script
-      new EslintBridgeServerImpl(NodeCommand.builder(), 5, "fixme"),
+      EslintBridgeServerImpl.class,
+      NodeCommand.builder(),
       EslintBasedRulesSensor.class
-      );
+    );
 
     context.addExtensions(
       PropertyDefinition.builder(LCOV_REPORT_PATHS)

@@ -190,6 +190,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
         File file = new File(nodeExecutable);
         if (file.exists()) {
           // TODO add deprecation warning when not using sonar.nodejs.executable
+          // when SonarCSS and SonarTS will migrate to this module
           LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), property);
           return nodeExecutable;
         }
@@ -197,6 +198,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
       }
     }
 
+    LOG.info("Using Node.js executable 'node' default.");
     return NODE_EXECUTABLE_DEFAULT;
   }
 }

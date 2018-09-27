@@ -33,16 +33,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaScriptPluginTest {
 
+  private static final int BASE_EXTENSIONS = 16;
+
   @Test
   public void count_extensions_lts() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 7), SonarQubeSide.SERVER));
-    assertThat(context.getExtensions()).hasSize(17);
+    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + 2);
   }
 
   @Test
   public void count_extensions_external_issues_supported() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(7, 2), SonarQubeSide.SERVER));
-    assertThat(context.getExtensions()).hasSize(19);
+    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + 4);
   }
 
   @Test
@@ -68,7 +70,7 @@ public class JavaScriptPluginTest {
   @Test
   public void count_extensions_for_sonarlint() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(Version.create(6, 7)));
-    assertThat(context.getExtensions()).hasSize(15);
+    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS);
   }
 
   private List<PropertyDefinition> properties() {

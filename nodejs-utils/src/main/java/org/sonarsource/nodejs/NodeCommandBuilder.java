@@ -20,8 +20,12 @@
 package org.sonarsource.nodejs;
 
 import java.util.function.Consumer;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Configuration;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
+@ScannerSide
+@SonarLintSide
 public interface NodeCommandBuilder {
   NodeCommandBuilder minNodeVersion(int minNodeVersion);
 

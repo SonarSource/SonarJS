@@ -76,6 +76,7 @@ public class EslintBasedRulesSensor implements Sensor {
     }
 
     try {
+      eslintBridgeServer.deploy();
       eslintBridgeServer.startServer(context);
 
       Iterable<InputFile> inputFiles = getInputFiles(context);
