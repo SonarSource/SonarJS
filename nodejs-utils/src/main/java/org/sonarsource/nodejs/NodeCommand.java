@@ -67,6 +67,7 @@ public class NodeCommand {
    */
   public void start() {
     try {
+      LOG.debug("Launching command {}", command);
       process = processWrapper.start(command);
       streamConsumer.consumeStream(process.getInputStream(), outputConsumer);
       streamConsumer.consumeStream(process.getErrorStream(), errorConsumer);

@@ -20,11 +20,16 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
-interface EslintBridgeServer {
+@SonarLintSide
+public interface EslintBridgeServer {
+
+  void deploy() throws IOException, URISyntaxException;
 
   void startServer(SensorContext context) throws IOException;
 
