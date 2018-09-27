@@ -84,7 +84,7 @@ public class JavaScriptRulingTest {
       .setProperty("dump.old", FileLocation.of("src/test/expected").getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
-      .setProperty("sonar.cpd.skip", "true")
+      .setProperty("sonar.cpd.exclusions", "**/*")
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m");
 
     instantiateTemplateRule("CommentRegularExpression", "CommentRegexTest", "regularExpression=\"(?i).*TODO.*\";message=\"bad user\"");
