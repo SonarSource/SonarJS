@@ -26,6 +26,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.nodejs.NodeCommand;
@@ -34,7 +36,8 @@ import org.sonarsource.nodejs.NodeCommandBuilder;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
 
-class EslintBridgeServerImpl implements EslintBridgeServer {
+@ScannerSide
+public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
 
@@ -45,7 +48,7 @@ class EslintBridgeServerImpl implements EslintBridgeServer {
   private NodeCommand nodeCommand;
   private String startServerScript;
 
-  EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, int timeoutSeconds, String startServerScript) {
+  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, int timeoutSeconds, String startServerScript) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.client = new OkHttpClient.Builder()
@@ -55,7 +58,7 @@ class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void start() throws IOException {
+  public void startServer(SensorContext context) throws IOException {
     port = findOpenPort();
 
     nodeCommand = nodeCommandBuilder
@@ -66,6 +69,8 @@ class EslintBridgeServerImpl implements EslintBridgeServer {
           LOG.info(message);
         }
       })
+      .minNodeVersion(6)
+      .configuration(context.config())
       .script(startServerScript)
       .scriptArgs(String.valueOf(port))
       .build();

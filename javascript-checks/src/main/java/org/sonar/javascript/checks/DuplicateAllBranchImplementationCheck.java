@@ -19,36 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.SyntacticEquivalence;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 
 @Rule(key = "S3923")
-public class DuplicateAllBranchImplementationCheck extends AbstractDuplicateBranchImplementationCheck implements EslintBasedCheck {
-
-  private static final String MESSAGE = "Remove this conditional structure or edit its code blocks so that they're not all the same.";
-  private static final String MESSAGE_CONDITIONAL_EXPRESSION = "This conditional operation returns the same value whether the condition is \"true\" or \"false\".";
-
-  @Override
-  protected void checkDuplicatedBranches(List<Tree> branches) {
-    // do nothing, covered by S1871
-  }
-
-  @Override
-  protected void allBranchesDuplicated(Tree tree) {
-    addIssue(tree, MESSAGE);
-  }
-
-  @Override
-  public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    if (SyntacticEquivalence.areEquivalent(tree.trueExpression(), tree.falseExpression())) {
-      addIssue(tree, MESSAGE_CONDITIONAL_EXPRESSION);
-    }
-
-    super.visitConditionalExpression(tree);
-  }
+public class DuplicateAllBranchImplementationCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {

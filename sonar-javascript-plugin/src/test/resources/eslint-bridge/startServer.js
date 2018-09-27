@@ -5,9 +5,9 @@ const port = process.argv[2]
 
 const issues = [{
   line: 1,
-  column: 2,
+  column: 3,
   endLine: 3,
-  endColumn: 4,
+  endColumn: 5,
   ruleId: "no-all-duplicated-branches",
   message: "Issue message"
 },

@@ -19,8 +19,41 @@
  */
 package org.sonar.javascript.checks;
 
-public interface EslintBasedCheck {
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.Issue;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-  String eslintKey();
+public abstract class EslintBasedCheck implements JavaScriptCheck {
+
+  private static final IllegalStateException EXCEPTION = new IllegalStateException("No issue should be created for EslintBasedCheck");
+
+  public abstract String eslintKey();
+
+  @Override
+  public List<Issue> scanFile(TreeVisitorContext context) {
+    return new ArrayList<>();
+  }
+
+  @Override
+  public LineIssue addLineIssue(Tree tree, String message) {
+    throw EXCEPTION;
+  }
+
+  @Override
+  public PreciseIssue addIssue(Tree tree, String message) {
+    throw EXCEPTION;
+  }
+
+  @Override
+  public <T extends Issue> T addIssue(T issue) {
+    throw EXCEPTION;
+  }
 
 }
+
+

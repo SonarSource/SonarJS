@@ -55,7 +55,7 @@ public class CheckListTest {
     List<Class> checks = CheckList.getChecks();
 
     for (Class cls : checks) {
-      if (!cls.getSimpleName().equals("ParsingErrorCheck")) {
+      if (!cls.getSimpleName().equals("ParsingErrorCheck") && !isEslintBasedCheck(cls)) {
         String testName = '/' + cls.getName().replace('.', '/') + "Test.class";
         assertThat(getClass().getResource(testName))
           .overridingErrorMessage("No test for " + cls.getSimpleName())
@@ -77,6 +77,15 @@ public class CheckListTest {
     }
 
     assertThat(keys).doesNotHaveDuplicates();
+  }
+
+  private boolean isEslintBasedCheck(Class cls) {
+    try {
+      cls.getMethod("eslintKey");
+      return true;
+    } catch (NoSuchMethodException e) {
+      return false;
+    }
   }
 
 }
