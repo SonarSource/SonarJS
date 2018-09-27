@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -352,7 +353,7 @@ public class JavaScriptSensor implements Sensor {
    * Check if property consumed by SonarTS to import ESLint issues is set
    */
   private static void checkDeprecatedEslintProperty(SensorContext context) {
-    if (context.config().get(DEPRECATED_ESLINT_PROPERTY).isPresent()) {
+    if (ArrayUtils.isNotEmpty(context.config().getStringArray(DEPRECATED_ESLINT_PROPERTY))) {
       LOG.warn("Property '{}' is deprecated, use '{}'.", DEPRECATED_ESLINT_PROPERTY, ESLINT_REPORT_PATHS);
     }
   }
