@@ -21,11 +21,12 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.sensor.SensorContext;
 
 @ScannerSide
 interface EslintBridgeServer {
 
-  void start() throws IOException;
+  void startServer(SensorContext context) throws IOException;
 
   String call(String request) throws IOException;
 

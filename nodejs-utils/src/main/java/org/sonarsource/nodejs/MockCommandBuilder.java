@@ -39,7 +39,6 @@ import org.sonar.api.utils.log.Loggers;
  *
  * After invocation of {@code NodeCommand.start()} {@code outputConsumer } and {@code errorConsumer} will be invoked with values passed in the constructor line-by-line
  *
- * To simulate failure in {@code NodeCommand.start()} you can configure builder with {@code throwOnStart()} method.
  *
  */
 public class MockCommandBuilder implements NodeCommandBuilder {
@@ -51,7 +50,6 @@ public class MockCommandBuilder implements NodeCommandBuilder {
   private final int exitValue;
   private Consumer<String> outputConsumer = LOG::info;
   private Consumer<String> errorConsumer = LOG::error;
-  private RuntimeException throwOnStart;
 
   public MockCommandBuilder(String output, String error, int exitValue) {
     this.output = output;
@@ -89,11 +87,6 @@ public class MockCommandBuilder implements NodeCommandBuilder {
     return this;
   }
 
-  public MockCommandBuilder throwOnStart(RuntimeException exception) {
-    throwOnStart = exception;
-    return this;
-  }
-
   @Override
   public NodeCommandBuilder outputConsumer(Consumer<String> consumer) {
     outputConsumer = consumer;
@@ -119,9 +112,6 @@ public class MockCommandBuilder implements NodeCommandBuilder {
 
     @Override
     public void start() {
-      if (throwOnStart != null) {
-        throw throwOnStart;
-      }
       new BufferedReader(new StringReader(output)).lines().forEach(outputConsumer);
       new BufferedReader(new StringReader(error)).lines().forEach(errorConsumer);
     }
