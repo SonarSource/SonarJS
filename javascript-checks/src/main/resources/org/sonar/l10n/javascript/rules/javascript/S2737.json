@@ -1,0 +1,18 @@
+{
+  "title": "\"catch\" clauses should do more than rethrow",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "unused",
+    "finding",
+    "clumsy"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-2737",
+  "sqKey": "S2737",
+  "scope": "Main"
+}
