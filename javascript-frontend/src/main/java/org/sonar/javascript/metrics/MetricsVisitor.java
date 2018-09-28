@@ -155,14 +155,12 @@ public class MetricsVisitor extends SubscriptionVisitor {
     saveMetric(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
 
     CommentLineVisitor commentVisitor = new CommentLineVisitor(context.getTopTree(), ignoreHeaderComments);
-    Set<Integer> commentLines = commentVisitor.getCommentLines();
 
     saveMetric(CoreMetrics.COMMENT_LINES, commentVisitor.getCommentLineNumber());
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(this.inputFile);
 
     linesOfCode.forEach(line -> fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1));
-    commentLines.forEach(line -> fileLinesContext.setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, line, 1));
 
     Set<Integer> executableLines = new ExecutableLineVisitor(context.getTopTree()).getExecutableLines();
     projectExecutableLines.put(inputFile, executableLines);
