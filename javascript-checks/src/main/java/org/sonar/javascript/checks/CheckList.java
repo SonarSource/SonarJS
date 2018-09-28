@@ -136,6 +136,7 @@ public final class CheckList {
       LineLengthCheck.class,
       LocalStorageCheck.class,
       LoopsShouldNotBeInfiniteCheck.class,
+      MaxSwitchCasesCheck.class,
       MisorderedParameterListCheck.class,
       MissingNewlineAtEndOfFileCheck.class,
       MissingTrailingCommaCheck.class,
