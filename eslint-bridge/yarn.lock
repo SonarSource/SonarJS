@@ -1132,10 +1132,10 @@ escodegen@^1.9.1:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-plugin-sonarjs@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.1.1.tgz#482489ef664e0cd19bedeb95c9756922cf5dcf1e"
-  integrity sha1-SCSJ72ZODNGb7euVyXVpIs9dzx4=
+eslint-plugin-sonarjs@0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.2.0.tgz#e78d6f8c533e941d97fdcbf2862811b5a4565892"
+  integrity sha512-sTG7XYJ82OL9mcCNctjYkpivBPMT/4KNwReIRVdbPjc5A8YyVOqcWCgFpJ1TAMoKBpoA8iC7m4taIl83hdsgyA==
 
 eslint-scope@^4.0.0:
   version "4.0.0"
