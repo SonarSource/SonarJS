@@ -1,0 +1,23 @@
+<p>Object literal syntax, which initializes an object's properties inside the object declaration is cleaner and clearer than the alternative: creating
+an empty object, and then giving it properties one by one.</p>
+<p>An issue is raised when the following pattern is met:</p>
+<ul>
+  <li> An empty object is created. </li>
+  <li> A consecutive single-line statement adds a property to the created object. </li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<pre>
+let person = {};  // Noncompliant
+person.firstName = "John";
+person.middleInitial = "Q";
+person.lastName = "Public";
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+let person = {
+  firstName: "John",
+  middleInitial: "Q",
+  lastName: "Public",
+}
+</pre>
+
