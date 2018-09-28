@@ -19,7 +19,7 @@
     <sonar.typescript.lcov.reportPaths>coverage/lcov.info</sonar.typescript.lcov.reportPaths>
     <sonar.testExecutionReportPaths>test-report.xml</sonar.testExecutionReportPaths>
     <nodeVersion>v10.11.0</nodeVersion>
-    <yarnVersion>v1.9.4</yarnVersion>
+    <yarnVersion>v1.10.1</yarnVersion>
     <npmVersion>6.4.1</npmVersion>
   </properties>
 
