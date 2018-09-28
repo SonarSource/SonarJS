@@ -1,0 +1,18 @@
+{
+  "title": "String literals should not be duplicated",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Linear with offset",
+    "linearDesc": "per duplicate instance",
+    "linearOffset": "2min",
+    "linearFactor": "2min"
+  },
+  "tags": [
+    "design"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-1192",
+  "sqKey": "S1192",
+  "scope": "Main"
+}
