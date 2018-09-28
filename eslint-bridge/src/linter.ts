@@ -24,9 +24,9 @@ import { Rule, Issue } from "./analyzer";
 const linter = new Linter();
 linter.defineRules(rules);
 
-export function analyze(sourceCode: SourceCode, rules: Rule[], filepath: string): Issue[] {
+export function analyze(sourceCode: SourceCode, rules: Rule[], fileUri: string): Issue[] {
   return linter
-    .verify(sourceCode, createLinterConfig(rules), filepath)
+    .verify(sourceCode, createLinterConfig(rules), fileUri)
     .map(removeIrrelevantProperties)
     .filter(issue => issue !== null) as Issue[];
 }
@@ -44,7 +44,7 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
 }
 
 function createLinterConfig(rules: Rule[]) {
-  const ruleConfig: Linter.Config = { rules: {} };
+  const ruleConfig: Linter.Config = { rules: {}, parserOptions: { sourceType: "module" } };
   rules.forEach(rule => (ruleConfig.rules![rule] = "error"));
   return ruleConfig;
 }

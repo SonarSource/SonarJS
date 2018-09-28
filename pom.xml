@@ -86,6 +86,7 @@
     <analyzer-commons.version>1.8.0.295</analyzer-commons.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
+    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
   </properties>
 
   <dependencyManagement>

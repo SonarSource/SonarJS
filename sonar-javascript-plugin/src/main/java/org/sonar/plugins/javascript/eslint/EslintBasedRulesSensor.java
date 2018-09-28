@@ -22,6 +22,10 @@ package org.sonar.plugins.javascript.eslint;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -39,6 +43,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.EslintBasedCheck;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonarsource.analyzer.commons.ProgressReport;
 
 public class EslintBasedRulesSensor implements Sensor {
 
@@ -49,7 +54,10 @@ public class EslintBasedRulesSensor implements Sensor {
   private final JavaScriptChecks checks;
   private final EslintBridgeServer eslintBridgeServer;
 
-  EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer) {
+  private ProgressReport progressReport =
+    new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
+
+  public EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer) {
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks());
 
@@ -68,14 +76,27 @@ public class EslintBasedRulesSensor implements Sensor {
     }
 
     try {
-      eslintBridgeServer.start();
-      for (InputFile inputFile : getInputFiles(context)) {
-        analyze(inputFile, context);
+      eslintBridgeServer.startServer(context);
+
+      Iterable<InputFile> inputFiles = getInputFiles(context);
+      startProgressReport(inputFiles);
+
+      for (InputFile inputFile : inputFiles) {
+        if (inputFile.filename().endsWith(".vue")) {
+          LOG.debug("Skipping analysis of Vue.js file {}", inputFile.uri());
+        } else if (fileContent(inputFile).contains("@flow")) {
+          LOG.debug("Skipping analysis of Flow file {}", inputFile.uri());
+        } else {
+          analyze(inputFile, context);
+        }
+        progressReport.nextFile();
       }
+      progressReport.stop();
     } catch (Exception e) {
       LOG.error(e.getMessage());
       LOG.error("Failure during analysis: " + eslintBridgeServer, e);
     } finally {
+      progressReport.cancel();
       eslintBridgeServer.clean();
     }
   }
@@ -109,7 +130,7 @@ public class EslintBasedRulesSensor implements Sensor {
       .on(file);
 
     if (issue.endLine != null) {
-      location.at(file.newRange(issue.line, issue.column, issue.endLine, issue.endColumn));
+      location.at(file.newRange(issue.line, issue.column - 1, issue.endLine, issue.endColumn - 1));
     } else {
       location.at(file.selectLine(issue.line));
     }
@@ -123,7 +144,7 @@ public class EslintBasedRulesSensor implements Sensor {
   private RuleKey ruleKey(String eslintKey) {
     RuleKey ruleKey = checks.ruleKeyByEslintKey(eslintKey);
     if (ruleKey == null) {
-      throw new IllegalStateException("No SonarJS rule key found for an eslint-based rule " + eslintKey);
+      throw new IllegalStateException("No SonarJS rule key found for an eslint-based rule [" + eslintKey + "]");
     }
     return ruleKey;
   }
@@ -136,6 +157,14 @@ public class EslintBasedRulesSensor implements Sensor {
     return fileSystem.inputFiles(mainFilePredicate);
   }
 
+  private void startProgressReport(Iterable<InputFile> inputFiles) {
+    Collection<String> files = StreamSupport.stream(inputFiles.spliterator(), false)
+      .map(InputFile::toString)
+      .collect(Collectors.toList());
+
+    progressReport.start(files);
+  }
+
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
@@ -144,23 +173,27 @@ public class EslintBasedRulesSensor implements Sensor {
       .onlyOnFileType(Type.MAIN);
   }
 
-  private static class AnalysisRequest {
-    String filepath;
+  static class AnalysisRequest {
+    String fileUri;
     String fileContent;
     String[] rules;
 
     AnalysisRequest(InputFile file, String[] rules) {
-      this.filepath = file.uri().toString();
+      this.fileUri = file.uri().toString();
       this.fileContent = fileContent(file);
+      if (this.fileContent.startsWith("#!")) {
+        String[] lines = this.fileContent.split("\r\n|\n|\r", -1);
+        this.fileContent = this.fileContent.substring(lines[0].length());
+      }
       this.rules = rules;
     }
+  }
 
-    private static String fileContent(InputFile file) {
-      try {
-        return file.contents();
-      } catch (IOException e) {
-        throw new IllegalStateException(e);
-      }
+  private static String fileContent(InputFile file) {
+    try {
+      return file.contents();
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
     }
   }
 
