@@ -23,7 +23,7 @@ describe("server", () => {
       JSON.stringify({
         filepath: "dir/file.js",
         fileContent: "if (true) 42; else 42;",
-        rules: ["no-all-duplicated-branches"],
+        rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
       }),
     );
 

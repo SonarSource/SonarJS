@@ -19,10 +19,12 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -40,7 +42,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.javascript.checks.EslintBasedCheck;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonarsource.analyzer.commons.ProgressReport;
@@ -49,10 +50,10 @@ public class EslintBasedRulesSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(EslintBasedRulesSensor.class);
   private static final Gson GSON = new Gson();
-
-  private final String[] rules;
   private final JavaScriptChecks checks;
   private final EslintBridgeServer eslintBridgeServer;
+  @VisibleForTesting
+  final Rule[] rules;
 
   private ProgressReport progressReport =
     new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
@@ -62,8 +63,8 @@ public class EslintBasedRulesSensor implements Sensor {
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks());
 
     this.rules = this.checks.eslintBasedChecks().stream()
-      .map(EslintBasedCheck::eslintKey)
-      .toArray(String[]::new);
+      .map(check -> new Rule(check.eslintKey(), check.configurations()))
+      .toArray(Rule[]::new);
 
     this.eslintBridgeServer = eslintBridgeServer;
   }
@@ -174,12 +175,20 @@ public class EslintBasedRulesSensor implements Sensor {
       .onlyOnFileType(Type.MAIN);
   }
 
+  private static String fileContent(InputFile file) {
+    try {
+      return file.contents();
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
   static class AnalysisRequest {
     String fileUri;
     String fileContent;
-    String[] rules;
+    Rule[] rules;
 
-    AnalysisRequest(InputFile file, String[] rules) {
+    AnalysisRequest(InputFile file, Rule[] rules) {
       this.fileUri = file.uri().toString();
       this.fileContent = fileContent(file);
       if (this.fileContent.startsWith("#!")) {
@@ -190,11 +199,13 @@ public class EslintBasedRulesSensor implements Sensor {
     }
   }
 
-  private static String fileContent(InputFile file) {
-    try {
-      return file.contents();
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
+  static class Rule {
+    String key;
+    List<String> configurations;
+
+    Rule(String key, List<String> configurations) {
+      this.key = key;
+      this.configurations = configurations;
     }
   }
 

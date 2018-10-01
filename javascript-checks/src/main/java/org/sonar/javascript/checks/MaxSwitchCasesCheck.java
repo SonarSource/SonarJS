@@ -19,10 +19,25 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 
 @Rule(key = "S1479")
 public class MaxSwitchCasesCheck extends EslintBasedCheck {
+
+  private static final int DEFAULT_MAXIMUM = 30;
+
+  @RuleProperty(
+    key = "maximum",
+    description = "Maximum number of \"case\".",
+    defaultValue = "" + DEFAULT_MAXIMUM)
+  int maximum = DEFAULT_MAXIMUM;
+
+  @Override
+  public List<String> configurations() {
+    return configurations(maximum);
+  }
 
   @Override
   public String eslintKey() {
