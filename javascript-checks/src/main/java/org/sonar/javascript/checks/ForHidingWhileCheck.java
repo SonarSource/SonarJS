@@ -20,20 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S1264")
-public class ForHidingWhileCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Replace this \"for\" loop with a \"while\" loop";
+public class ForHidingWhileCheck extends EslintBasedCheck {
 
   @Override
-  public void visitForStatement(ForStatementTree tree) {
-    if (tree.init() == null && tree.update() == null && tree.condition() != null) {
-      addIssue(tree.forKeyword(), MESSAGE);
-    }
-
-    super.visitForStatement(tree);
+  public String eslintKey() {
+    return "prefer-while";
   }
 }
