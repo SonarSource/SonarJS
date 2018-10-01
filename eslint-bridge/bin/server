@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
-const server = require("../lib/server");
+const server = require("../bundle");
 server.start(process.argv[2]);

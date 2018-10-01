@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "commonjs",
+    "module": "es6",
     "lib": ["dom", "es2017"],
     "declaration": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
     "outDir": "lib",
     "strict": true,
     "sourceMap": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*", "./typings/**/*.d.ts"]
 }
