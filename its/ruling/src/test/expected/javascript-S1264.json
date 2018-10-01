@@ -1,4 +1,17 @@
 {
+'project:babylon/src/parser/statement.js':[
+729,
+],
+'project:babylon/src/plugins/jsx/index.js':[
+72,
+129,
+376,
+],
+'project:babylon/src/tokenizer/index.js':[
+674,
+894,
+921,
+],
 'project:dojo-1.8.1/dojo/string.js.uncompressed.js':[
 26,
 ],
