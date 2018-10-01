@@ -20,47 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S1125")
-public class BooleanEqualityComparisonCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE_REFACTOR = "Refactor the code to avoid using this boolean literal.";
-  private static final String MESSAGE_SIMPLIFY = "Simplify this unnecessary boolean operation.";
+public class BooleanEqualityComparisonCheck extends EslintBasedCheck {
 
   @Override
-  public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (tree.is(Kind.LOGICAL_COMPLEMENT)) {
-      visitExpression(tree.expression(), MESSAGE_SIMPLIFY);
-    }
-
-    super.visitUnaryExpression(tree);
+  public String eslintKey() {
+    return "no-redundant-boolean";
   }
-
-
-  @Override
-  public void visitBinaryExpression(BinaryExpressionTree tree) {
-    if (tree.is(Kind.EQUAL_TO, Kind.NOT_EQUAL_TO)) {
-      visitExpression(tree.leftOperand(), MESSAGE_REFACTOR);
-      visitExpression(tree.rightOperand(), MESSAGE_REFACTOR);
-    }
-
-    super.visitBinaryExpression(tree);
-  }
-
-  private void visitExpression(ExpressionTree expression, String message) {
-    if (expression.is(Kind.PARENTHESISED_EXPRESSION)) {
-      visitExpression(((ParenthesisedExpressionTree) expression).expression(), message);
-    }
-
-    if (expression.is(Kind.BOOLEAN_LITERAL)) {
-      addIssue(expression, message);
-    }
-  }
-
 }
