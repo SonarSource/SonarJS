@@ -19,95 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-
-import static org.sonar.javascript.tree.SyntacticEquivalence.areEquivalent;
 
 @Rule(key = "S4144")
-public class IdenticalFunctionsCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Update this function so that its implementation is not identical to the one on line %s.";
-
-
-  private final List<BlockTree> functionBlocks = new ArrayList<>();
+public class IdenticalFunctionsCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return KindSet.FUNCTION_KINDS.getSubKinds();
+  public String eslintKey() {
+    return "no-identical-functions";
   }
-
-  @Override
-  public void visitFile(Tree scriptTree) {
-    functionBlocks.clear();
-  }
-
-  @Override
-  public void leaveFile(Tree scriptTree) {
-    if (functionBlocks.size() < 2) {
-      return;
-    }
-
-    for (int i = 1; i < functionBlocks.size(); i++) {
-      BlockTree duplicatingFunctionBlock = functionBlocks.get(i);
-
-      for (int j = 0; j < i; j++) {
-        BlockTree originalFunctionBlock = functionBlocks.get(j);
-
-        if (areEquivalent(duplicatingFunctionBlock, originalFunctionBlock)) {
-
-          Tree originalFunctionIssueNode = functionTreeIssueNode((FunctionTree) originalFunctionBlock.parent());
-          String message = String.format(MESSAGE, originalFunctionIssueNode.firstToken().line());
-          Tree duplicatingFunctionIssueNode = functionTreeIssueNode((FunctionTree) duplicatingFunctionBlock.parent());
-
-          addIssue(duplicatingFunctionIssueNode, message)
-            .secondary(originalFunctionIssueNode, "original implementation");
-          break;
-        }
-      }
-    }
-
-  }
-
-  private static Tree functionTreeIssueNode(FunctionTree functionTree) {
-    if (functionTree.is(Kind.ARROW_FUNCTION)) {
-      return ((ArrowFunctionTree) functionTree).doubleArrowToken();
-    } else if (functionTree.is(Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
-      return ((FunctionExpressionTree) functionTree).functionKeyword();
-    } else {
-      return functionTree.name();
-    }
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    Tree body = ((FunctionTree) tree).body();
-    if (body.is(Kind.BLOCK) && isBigEnough(((BlockTree) body))) {
-      functionBlocks.add((BlockTree) body);
-    }
-  }
-
-  private static boolean isBigEnough(BlockTree block) {
-    List<StatementTree> statements = block.statements();
-
-    if (!statements.isEmpty()) {
-      int firstLine = statements.get(0).firstToken().line();
-      int lastLine = statements.get(statements.size() - 1).lastToken().endLine();
-      return lastLine - firstLine > 1;
-    }
-
-    return false;
-  }
-
 }
