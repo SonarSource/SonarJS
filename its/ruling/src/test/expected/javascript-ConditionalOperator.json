@@ -271,15 +271,6 @@
 'project:babylon/test/expressions/esprima/expression-conditional/migrated_0002/actual.js':[
 1,
 ],
-'project:babylon/test/fixtures/flow/regression/issue-166/actual.js':[
-3,
-],
-'project:babylon/test/fixtures/flow/type-annotations/78/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/type-annotations/79/actual.js':[
-1,
-],
 'project:babylon/test/helpers/runFixtureTests.js':[
 11,
 12,

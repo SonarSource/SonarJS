@@ -113,9 +113,6 @@
 'project:babylon/scripts/run_test262_utils.js':[
 10,
 ],
-'project:babylon/test/fixtures/flow/regression/issue-264/actual.js':[
-2,
-],
 'project:backbone-0.9.2.js':[
 150,
 538,
