@@ -62,15 +62,6 @@
 'project:babylon/src/util/identifier.js':[
 19,
 ],
-'project:babylon/test/fixtures/flow/tuples/3/actual.js':[
-1,
-],
-'project:babylon/test/fixtures/flow/type-parameter-declaration/object-method-type-param-jsx/actual.js':[
-2,
-],
-'project:babylon/test/fixtures/flow/type-parameter-declaration/object-reserved-word/actual.js':[
-5,
-],
 'project:ecmascript6/Ghost/core/client/app/mirage/factories/tag.js':[
 22,
 ],
