@@ -20,64 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S1126")
-public class ReturnOfBooleanExpressionCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Replace this if-then-else statement by a single return statement.";
+public class ReturnOfBooleanExpressionCheck extends EslintBasedCheck {
 
   @Override
-  public void visitIfStatement(IfStatementTree tree) {
-    if (tree.elseClause() != null && returnsBoolean(tree.elseClause().statement()) && returnsBoolean(tree.statement())) {
-      addIssue(tree.ifKeyword(), MESSAGE);
-    }
-
-    visitIf(tree);
-  }
-
-  public static boolean returnsBoolean(StatementTree statement) {
-    return isBlockReturningBooleanLiteral(statement) || isSimpleReturnBooleanLiteral(statement);
-  }
-
-  public static boolean isBlockReturningBooleanLiteral(StatementTree statement) {
-    if (statement.is(Kind.BLOCK)) {
-      BlockTree block = (BlockTree) statement;
-
-      return block.statements().size() == 1 && isSimpleReturnBooleanLiteral(block.statements().get(0));
-    }
-
-    return false;
-  }
-
-  public static boolean isSimpleReturnBooleanLiteral(StatementTree statement) {
-    if (statement.is(Kind.RETURN_STATEMENT)) {
-      ExpressionTree returnExpr = ((ReturnStatementTree) statement).expression();
-
-      return returnExpr != null && returnExpr.is(Kind.BOOLEAN_LITERAL);
-    }
-
-    return false;
-  }
-
-  private void visitIf(IfStatementTree tree) {
-    scan(tree.condition());
-    scan(tree.statement());
-
-    ElseClauseTree elseClauseTree = tree.elseClause();
-    if (tree.elseClause() != null && elseClauseTree.statement().is(Kind.IF_STATEMENT)) {
-      visitIf((IfStatementTreeImpl) tree.elseClause().statement());
-
-    } else {
-      scan(tree.elseClause());
-    }
+  public String eslintKey() {
+    return "prefer-single-boolean-return";
   }
 }
