@@ -62,6 +62,8 @@ public class JavaScriptRulingTest {
     ProfileGenerator.RulesConfiguration rulesConfiguration = new ProfileGenerator.RulesConfiguration()
       .add("S1451", "headerFormat", "// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.")
       .add("S1451", "isRegularExpression", "true")
+      // to test parameters for eslint-based rules
+      .add("S1192", "threshold", "4")
       .add("S2762", "threshold", "1");
     Set<String> excludedRules = Collections.singleton("CommentRegularExpression");
     File profile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "js", "javascript", rulesConfiguration, excludedRules);

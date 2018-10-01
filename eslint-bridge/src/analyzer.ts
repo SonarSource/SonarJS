@@ -27,7 +27,11 @@ export interface AnalysisInput {
 }
 
 // eslint rule key
-export type Rule = string;
+export interface Rule {
+  key: string;
+  // Currently we only have rules that accept strings, but configuration can be a JS object or a string.
+  configurations: any[];
+}
 
 export interface Issue {
   column: number;

@@ -19,10 +19,25 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 
 @Rule(key = "S1192")
 public class NoDuplicateStringCheck extends EslintBasedCheck {
+
+  private static final int DEFAULT_THRESHOLD = 3;
+
+  @RuleProperty(
+    key = "threshold",
+    description = "Number of times a literal must be duplicated to trigger an issue.",
+    defaultValue = "" + DEFAULT_THRESHOLD)
+  int threshold = DEFAULT_THRESHOLD;
+
+  @Override
+  public List<String> configurations() {
+    return configurations(threshold);
+  }
 
   @Override
   public String eslintKey() {

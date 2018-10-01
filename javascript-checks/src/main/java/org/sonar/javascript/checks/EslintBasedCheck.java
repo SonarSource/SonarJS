@@ -19,7 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -33,6 +35,10 @@ public abstract class EslintBasedCheck implements JavaScriptCheck {
   private static final IllegalStateException EXCEPTION = new IllegalStateException("No issue should be created for EslintBasedCheck");
 
   public abstract String eslintKey();
+
+  public List<String> configurations() {
+    return Collections.emptyList();
+  }
 
   @Override
   public List<Issue> scanFile(TreeVisitorContext context) {
@@ -52,6 +58,10 @@ public abstract class EslintBasedCheck implements JavaScriptCheck {
   @Override
   public <T extends Issue> T addIssue(T issue) {
     throw EXCEPTION;
+  }
+
+  static List<String> configurations(int singleNumericParameter) {
+    return Collections.unmodifiableList(Lists.newArrayList(String.valueOf(singleNumericParameter)));
   }
 
 }

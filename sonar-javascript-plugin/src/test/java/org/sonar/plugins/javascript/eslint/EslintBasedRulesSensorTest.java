@@ -195,9 +195,35 @@ public class EslintBasedRulesSensorTest {
       .setLanguage("js")
       .setContents("#!/usr/local/bin/node\nlet x = 0;")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile, new String[0]);
+    AnalysisRequest request = new AnalysisRequest(inputFile, new EslintBasedRulesSensor.Rule[0]);
 
     assertThat(request.fileContent).isEqualTo("\nlet x = 0;");
+  }
+
+  @Test
+  public void should_have_configured_rules() throws Exception {
+    ActiveRulesBuilder builder = new ActiveRulesBuilder();
+    builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, "S1192")).activate();// no-duplicate-string, default config
+    builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, "S1479")).setParam("maximum", "42").activate();// max-switch-cases
+    builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, "S3923")).activate();// no-all-duplicated-branches, without config
+    CheckFactory checkFactory = new CheckFactory(builder.build());
+
+    EslintBasedRulesSensor sensor = new EslintBasedRulesSensor(
+      checkFactory,
+      eslintBridgeServerMock);
+
+    EslintBasedRulesSensor.Rule[] rules = sensor.rules;
+
+    assertThat(rules).hasSize(3);
+
+    assertThat(rules[0].key).isEqualTo("no-duplicate-string");
+    assertThat(rules[0].configurations).containsExactly("3");
+
+    assertThat(rules[1].key).isEqualTo("max-switch-cases");
+    assertThat(rules[1].configurations).containsExactly("42");
+
+    assertThat(rules[2].key).isEqualTo("no-all-duplicated-branches");
+    assertThat(rules[2].configurations).isEmpty();
   }
 
   @Test

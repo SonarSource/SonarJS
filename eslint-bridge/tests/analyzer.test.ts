@@ -4,7 +4,7 @@ import { join } from "path";
 const fileUri = join(__dirname, "./fixtures/js-project/sample.lint.js");
 
 describe("#analyze", () => {
-  it("should report issue running eslint when providing fileContent", () => {
+  it("should report issue running eslint", () => {
     const issues = analyze({
       fileUri,
       fileContent: `
@@ -12,20 +12,31 @@ describe("#analyze", () => {
         for (var i = 0; i < 10; i++) {
           console.log("i is " + i);
           break;
-        }`,
-      rules: ["no-one-iteration-loop"],
+        }
+        "Hello, world"; "Hello, world";
+        `,
+      rules: [
+        { key: "no-one-iteration-loop", configurations: [] },
+        { key: "no-duplicate-string", configurations: ["2"] },
+      ],
     });
-    expect(issues).toHaveLength(1);
-    expect(issues).toEqual([
-      {
-        column: 9,
-        endColumn: 12,
-        endLine: 3,
-        line: 3,
-        message: "Refactor this loop to do more than one iteration.",
-        ruleId: "no-one-iteration-loop",
-      },
-    ]);
+    expect(issues).toHaveLength(2);
+    expect(issues).toContainEqual({
+      line: 3,
+      column: 9,
+      endLine: 3,
+      endColumn: 12,
+      message: "Refactor this loop to do more than one iteration.",
+      ruleId: "no-one-iteration-loop",
+    });
+    expect(issues).toContainEqual({
+      line: 7,
+      column: 9,
+      endLine: 7,
+      endColumn: 23,
+      message: "Define a constant instead of duplicating this literal 2 times.",
+      ruleId: "no-duplicate-string",
+    });
   });
 
   it("should not report issue when not receiving corresponding rule-key", () => {
@@ -36,7 +47,7 @@ describe("#analyze", () => {
           console.log("i is " + i);
           break;
         }`,
-      rules: ["no-all-duplicated-branches"],
+      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
     });
     expect(issues).toHaveLength(0);
   });
