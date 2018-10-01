@@ -1,4 +1,5 @@
 import { parseSourceFile, parseSourceFileAsModule, parseSourceFileAsScript } from "../src/parser";
+import * as espree from "espree";
 
 describe("parseSourceFile", () => {
   beforeEach(() => {
@@ -28,6 +29,12 @@ describe("parseSourceFile", () => {
     expect(console.error).toBeCalledTimes(0);
   });
 
+  it("should parse flow when with @flow", () => {
+    expect(parseSourceFile("/* @flow */ const foo: string = 'hello';", "foo.js")).toBeDefined();
+    expect(parseSourceFile("/* @flow */ var eval = 42", "foo.js")).toBeDefined();
+    expect(parseSourceFile("const foo: string = 'hello';", "foo.js")).toBeUndefined();
+  });
+
   it("should parse scripts (with retry after module)", () => {
     expect(parseSourceFile("var eval = 42", "foo.js").ast).toBeDefined();
     expect(console.error).toBeCalledTimes(0);
@@ -49,10 +56,10 @@ describe("parseSourceFile", () => {
     expectToParseInNonStrictMode(`delete x`, `"Deleting local variable in strict mode"`);
 
     function expectToParseInNonStrictMode(sourceCode, msgInStrictMode) {
-      expect(() => parseSourceFileAsModule(sourceCode)).toThrowErrorMatchingInlineSnapshot(
-        msgInStrictMode,
-      );
-      expect(parseSourceFileAsScript(sourceCode)).toBeDefined();
+      expect(() =>
+        parseSourceFileAsModule(espree.parse, sourceCode),
+      ).toThrowErrorMatchingInlineSnapshot(msgInStrictMode);
+      expect(parseSourceFileAsScript(espree.parse, sourceCode)).toBeDefined();
     }
   });
 
@@ -97,6 +104,15 @@ describe("parseSourceFile", () => {
     expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
       `Failed to parse file [foo.js] at line 1: Unexpected token ) (with espree parser in module mode)`,
+    );
+  });
+
+  it("should log when parse errors with @flow", () => {
+    const sourceCode = parseSourceFile("/* @flow */ if()", "foo.js");
+    expect(sourceCode).toBeUndefined();
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      "Failed to parse file [foo.js] at line 1: Unexpected token (1:15) (with babel-eslint parser in module mode)",
     );
   });
 });

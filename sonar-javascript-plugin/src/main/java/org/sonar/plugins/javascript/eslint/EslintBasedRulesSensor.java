@@ -86,8 +86,6 @@ public class EslintBasedRulesSensor implements Sensor {
       for (InputFile inputFile : inputFiles) {
         if (inputFile.filename().endsWith(".vue")) {
           LOG.debug("Skipping analysis of Vue.js file {}", inputFile.uri());
-        } else if (fileContent(inputFile).contains("@flow")) {
-          LOG.debug("Skipping analysis of Flow file {}", inputFile.uri());
         } else {
           analyze(inputFile, context);
         }
@@ -175,14 +173,6 @@ public class EslintBasedRulesSensor implements Sensor {
       .onlyOnFileType(Type.MAIN);
   }
 
-  private static String fileContent(InputFile file) {
-    try {
-      return file.contents();
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
-  }
-
   static class AnalysisRequest {
     String fileUri;
     String fileContent;
@@ -196,6 +186,14 @@ public class EslintBasedRulesSensor implements Sensor {
         this.fileContent = this.fileContent.substring(lines[0].length());
       }
       this.rules = rules;
+    }
+
+    private static String fileContent(InputFile file) {
+      try {
+        return file.contents();
+      } catch (IOException e) {
+        throw new IllegalStateException(e);
+      }
     }
   }
 

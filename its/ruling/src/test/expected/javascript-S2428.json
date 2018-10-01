@@ -94,11 +94,17 @@
 'project:jest/packages/jest-config/src/__tests__/normalize.test.js':[
 903,
 ],
+'project:jest/packages/jest-jasmine2/src/jasmine/jasmine_light.js':[
+47,
+],
 'project:jest/packages/jest-matcher-utils/src/__tests__/index.test.js':[
 36,
 ],
 'project:jest/packages/pretty-format/perf/test.js':[
 183,
+],
+'project:jest/packages/pretty-format/src/__tests__/pretty_format.test.js':[
+388,
 ],
 'project:open-layers-2.12/OpenLayers/Format/OWSCommon/v1.js':[
 220,

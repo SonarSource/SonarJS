@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as espree from "espree";
+import * as babel from "babel-eslint";
 import { SourceCode, Linter } from "eslint";
 
 const PARSER_CONFIG: Linter.ParserOptions = {
@@ -27,6 +28,7 @@ const PARSER_CONFIG: Linter.ParserOptions = {
   range: true,
   ecmaVersion: 2018,
   sourceType: "module",
+  codeFrame: false,
   ecmaFeatures: {
     jsx: true,
     globalReturn: true,
@@ -36,30 +38,37 @@ const PARSER_CONFIG: Linter.ParserOptions = {
 const PARSER_CONFIG_NOT_STRICT: Linter.ParserOptions = { ...PARSER_CONFIG, sourceType: "script" };
 
 export function parseSourceFile(fileContent: string, fileUri: string): SourceCode | undefined {
+  let parse = espree.parse;
+  let parser = "espree";
+  if (fileContent.includes("@flow")) {
+    parse = babel.parse;
+    parser = "babel-eslint";
+  }
+
   try {
-    return parseSourceFileAsModule(fileContent);
+    return parseSourceFileAsModule(parse, fileContent);
   } catch (exceptionAsModule) {
     try {
-      return parseSourceFileAsScript(fileContent);
+      return parseSourceFileAsScript(parse, fileContent);
     } catch (exceptionAsScript) {
-      console.error(message(fileUri, "module", exceptionAsModule));
-      console.log(message(fileUri, "script", exceptionAsScript, true));
+      console.error(message(fileUri, "module", exceptionAsModule, parser));
+      console.log(message(fileUri, "script", exceptionAsScript, parser, true));
     }
   }
 }
 
-function message(fileUri: string, mode: string, exception: any, debug = false) {
+function message(fileUri: string, mode: string, exception: any, parser: string, debug = false) {
   return `${debug ? "DEBUG " : ""}Failed to parse file [${fileUri}] at line ${
     exception.lineNumber
-  }: ${exception.message} (with espree parser in ${mode} mode)`;
+  }: ${exception.message} (with ${parser} parser in ${mode} mode)`;
 }
 
-export function parseSourceFileAsScript(fileContent: string): SourceCode {
-  const ast = espree.parse(fileContent, PARSER_CONFIG_NOT_STRICT);
+export function parseSourceFileAsScript(parse: Function, fileContent: string): SourceCode {
+  const ast = parse(fileContent, PARSER_CONFIG_NOT_STRICT);
   return new SourceCode(fileContent, ast);
 }
 
-export function parseSourceFileAsModule(fileContent: string): SourceCode {
-  const ast = espree.parse(fileContent, PARSER_CONFIG);
+export function parseSourceFileAsModule(parse: Function, fileContent: string): SourceCode {
+  const ast = parse(fileContent, PARSER_CONFIG);
   return new SourceCode(fileContent, ast);
 }

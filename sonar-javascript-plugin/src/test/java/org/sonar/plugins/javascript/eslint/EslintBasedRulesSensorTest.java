@@ -227,7 +227,7 @@ public class EslintBasedRulesSensorTest {
   }
 
   @Test
-  public void should_skip_vue_and_flow() throws Exception {
+  public void should_skip_vue() throws Exception {
     DefaultInputFile flowFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
       .setLanguage("js")
       .setContents("// @flow\nlet x = 0;")
@@ -244,8 +244,7 @@ public class EslintBasedRulesSensorTest {
 
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Skipping analysis of Flow file " + flowFile.uri());
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Skipping analysis of Vue.js file " + vueFile.uri());
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly("Skipping analysis of Vue.js file " + vueFile.uri());
   }
 
   @Test

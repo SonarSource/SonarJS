@@ -1,4 +1,10 @@
 {
+'project:babylon/src/plugins/estree.js':[
+97,
+],
+'project:babylon/src/plugins/typescript.js':[
+1892,
+],
 'project:dojo-1.8.1/dijit/MenuBar.js.uncompressed.js':[
 70,
 ],
