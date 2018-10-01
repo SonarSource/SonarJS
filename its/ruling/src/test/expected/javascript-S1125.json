@@ -25,6 +25,9 @@
 'project:dojo-1.8.1/dojox/form/BusyButton.js.uncompressed.js':[
 99,
 ],
+'project:dojo-1.8.1/dojox/form/CheckedMultiSelect.js.uncompressed.js':[
+83,
+],
 'project:dojo-1.8.1/dojox/help/_base.js.uncompressed.js':[
 172,
 ],
@@ -97,6 +100,17 @@
 ],
 'project:ecmascript6/expressionist.js/test/parser.spec.js':[
 31,
+56,
+56,
+57,
+57,
+61,
+62,
+63,
+73,
+73,
+74,
+74,
 384,
 658,
 ],
