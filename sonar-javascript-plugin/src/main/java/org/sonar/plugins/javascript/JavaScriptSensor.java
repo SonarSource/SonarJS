@@ -76,7 +76,6 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
-import org.sonar.plugins.javascript.minify.MinificationAssessor;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEPRECATED_ESLINT_PROPERTY;
@@ -149,9 +148,7 @@ public class JavaScriptSensor implements Sensor {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
-        if (!isExcluded(inputFile)) {
-          analyse(context, inputFile, executor, treeVisitors);
-        }
+        analyse(context, inputFile, executor, treeVisitors);
         progressReport.nextFile();
       }
       success = true;
@@ -299,14 +296,6 @@ public class JavaScriptSensor implements Sensor {
       throw new IllegalStateException("No rule key found for a rule");
     }
     return ruleKey;
-  }
-
-  public boolean isExcluded(InputFile file) {
-    boolean isMinified = new MinificationAssessor().isMinified(file);
-    if (isMinified) {
-      LOG.debug("File [" + file.uri() + "] looks like a minified file and will not be analyzed");
-    }
-    return isMinified;
   }
 
   @Override

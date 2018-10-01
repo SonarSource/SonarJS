@@ -371,19 +371,6 @@ public class JavaScriptSensorTest {
     verify(progressReport).cancel();
   }
 
-  @Test
-  public void should_exclude_minified_files() {
-    inputFile("test_minified/file.js");
-    inputFile("test_minified/file.min.js");
-    inputFile("test_minified/file-min.js");
-
-    createSensor().execute(context);
-
-    assertThat(context.measure("moduleKey:test_minified/file.js", CoreMetrics.NCLOC)).isNotNull();
-    assertThat(context.measure("moduleKey:test_minified/file.min.js", CoreMetrics.NCLOC)).isNull();
-    assertThat(context.measure("moduleKey:test_minified/file-min.js", CoreMetrics.NCLOC)).isNull();
-  }
-
   private void analyseFile(String relativePath) {
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))

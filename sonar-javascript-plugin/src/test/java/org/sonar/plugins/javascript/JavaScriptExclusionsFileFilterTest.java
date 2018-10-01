@@ -85,8 +85,26 @@ public class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
   }
 
+  @Test
+  public void should_exclude_minified_files() {
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
+
+    assertThat(filter.accept(inputFile("file.js"))).isTrue();
+    assertThat(filter.accept(inputFile("file-min.js"))).isFalse();
+    assertThat(filter.accept(inputFile("file.min.js"))).isFalse();
+  }
+
+
   private DefaultInputFile inputFile(String file) {
-    return new TestInputFileBuilder("test","test_node_modules/" + file).setLanguage(file.split("\\.")[1]).build();
+    return new TestInputFileBuilder("test","test_node_modules/" + file)
+      .setLanguage(language(file))
+      .setContents("foo();")
+      .build();
+  }
+
+  private static String language(String filename) {
+    String[] parts = filename.split("\\.");
+    return parts[parts.length - 1];
   }
 
 }
