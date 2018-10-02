@@ -6,3 +6,4 @@ eslint-plugin-angular v3.3.0
 eslint-plugin-vue v4.5.0
 eslint-plugin-ember v5.2.0
 eslint-plugin-jsx-a11y v6.1.0
+eslint-plugin-sonarjs v0.2.0 (to generate run `npx ts-node scripts/generate-rules-sonar-meta.ts <absolute path to file>` from eslint-plugin-sonarjs root)
