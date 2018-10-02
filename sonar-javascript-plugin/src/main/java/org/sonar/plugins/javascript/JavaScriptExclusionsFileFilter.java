@@ -23,10 +23,15 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.minify.MinificationAssessor;
 
 public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   private final Configuration configuration;
+
+  private static final Logger LOG = Loggers.get(JavaScriptExclusionsFileFilter.class);
 
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
     this.configuration = configuration;
@@ -37,8 +42,19 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
     if (!JavaScriptLanguage.KEY.equals(inputFile.language())) {
       return true;
     }
+
     String[] excludedPatterns = this.configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY);
     String relativePath = inputFile.uri().toString();
-    return !WildcardPattern.match(WildcardPattern.create(excludedPatterns), relativePath);
+    if (WildcardPattern.match(WildcardPattern.create(excludedPatterns), relativePath)) {
+      return false;
+    }
+
+    boolean isMinified = new MinificationAssessor().isMinified(inputFile);
+    if (isMinified) {
+      LOG.debug("File [" + inputFile.uri() + "] looks like a minified file and will not be analyzed");
+      return false;
+    }
+
+    return true;
   }
 }

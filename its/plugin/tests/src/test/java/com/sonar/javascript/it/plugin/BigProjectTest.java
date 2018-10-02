@@ -25,9 +25,7 @@ import com.sonar.orchestrator.locator.FileLocation;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.Measures.Measure;
 
-import static com.sonar.javascript.it.plugin.Tests.getMeasure;
 import static com.sonar.javascript.it.plugin.Tests.getMeasureAsDouble;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,9 +57,9 @@ public class BigProjectTest {
     // Size
     assertThat(getProjectMeasureAsDouble("ncloc")).isEqualTo(577829d);
     // SONAR-5077: computation of line is done on SQ side
-    assertThat(getProjectMeasureAsDouble("lines")).isEqualTo(1029040d);
-    assertThat(getProjectMeasureAsDouble("files")).isEqualTo(4523d);
-    assertThat(getProjectMeasureAsDouble("directories")).isEqualTo(972d);
+    assertThat(getProjectMeasureAsDouble("lines")).isEqualTo(1026726d);
+    assertThat(getProjectMeasureAsDouble("files")).isEqualTo(4387d);
+    assertThat(getProjectMeasureAsDouble("directories")).isEqualTo(966d);
     assertThat(getProjectMeasureAsDouble("functions")).isEqualTo(46609d);
     assertThat(getProjectMeasureAsDouble("statements")).isEqualTo(285817d);
 
@@ -73,14 +71,10 @@ public class BigProjectTest {
     // Complexity
     // Since ES6 support
     assertThat(getProjectMeasureAsDouble("complexity")).isEqualTo(140046.0d);
-    assertThat(getProjectMeasure("function_complexity_distribution").getValue())
-      .isEqualTo("1=22819;2=13140;4=5014;6=2233;8=1188;10=701;12=1045;20=318;30=151");
 
     // SONARJS-299
     assertThat(getProjectMeasureAsDouble("function_complexity")).isEqualTo(2.9);
     assertThat(getProjectMeasureAsDouble("file_complexity")).isEqualTo(31.9);
-    assertThat(getProjectMeasure("file_complexity_distribution").getValue())
-      .isEqualTo("0=2101;5=321;10=500;20=364;30=486;60=271;90=344");
 
     // Duplication
     // SONAR-7026
@@ -90,10 +84,6 @@ public class BigProjectTest {
     assertThat(getProjectMeasureAsDouble("duplicated_files")).isEqualTo(561.0);
 
     assertThat(getProjectMeasureAsDouble("cognitive_complexity")).isEqualTo(147929.0d);
-  }
-
-  private Measure getProjectMeasure(String metricKey) {
-    return getMeasure("project", metricKey);
   }
 
   private Double getProjectMeasureAsDouble(String metricKey) {
