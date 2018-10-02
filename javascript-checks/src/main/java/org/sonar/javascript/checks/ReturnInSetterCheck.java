@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 @Rule(key = "S2432")
 public class ReturnInSetterCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Remove this return statement.";
+  private static final String MESSAGE = "Consider removing this return statement; it will be ignored.";
 
   private final DoubleDispatchVisitorCheck forbiddenReturnVisitor = new ForbiddenReturnVisitor();
 
