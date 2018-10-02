@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {Server} from "http";
+import { Server } from "http";
 import express from "express";
 import bodyParser from "body-parser";
-import {AnalysisInput, analyze} from "./analyzer";
-import {AddressInfo} from "net";
+import { AnalysisInput, analyze } from "./analyzer";
+import { AddressInfo } from "net";
 
 const MAX_REQUEST_SIZE = "50mb";
 
