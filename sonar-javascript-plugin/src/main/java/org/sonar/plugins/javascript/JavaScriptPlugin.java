@@ -85,10 +85,7 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptExclusionsFileFilter.class,
       JavaScriptRulesDefinition.class,
       SonarWayRecommendedProfile.class,
-      SonarWayProfile.class,
-      EslintBridgeServerImpl.class,
-      NodeCommand.builder(),
-      EslintBasedRulesSensor.class
+      SonarWayProfile.class
     );
 
     context.addExtensions(
@@ -167,6 +164,12 @@ public class JavaScriptPlugin implements Plugin {
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
       context.addExtension(CoverageSensor.class);
       context.addExtension(EslintReportSensor.class);
+      // ESLint bridge not available on SonarLint because of performance issue.
+      // It will be handled in ticket https://github.com/SonarSource/SonarJS/issues/1095
+      context.addExtensions(
+        EslintBridgeServerImpl.class,
+        NodeCommand.builder(),
+        EslintBasedRulesSensor.class);
 
       if (externalIssuesSupported) {
         context.addExtension(EslintRulesDefinition.class);
