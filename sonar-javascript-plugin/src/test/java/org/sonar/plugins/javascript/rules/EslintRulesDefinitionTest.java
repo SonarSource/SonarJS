@@ -38,7 +38,7 @@ public class EslintRulesDefinitionTest {
     assertThat(eslintRepo.isExternal()).isTrue();
     assertThat(eslintRepo.name()).isEqualTo("ESLint");
     assertThat(eslintRepo.language()).isEqualTo("js");
-    assertThat(eslintRepo.rules()).hasSize(587);
+    assertThat(eslintRepo.rules()).hasSize(607);
 
     // checking randoms rules from each ESLint plugin we support
     assertThat(eslintRepo.rule("angular/function-type")).isNotNull();
@@ -50,6 +50,7 @@ public class EslintRulesDefinitionTest {
     assertThat(eslintRepo.rule("promise/no-return-wrap")).isNotNull();
     assertThat(eslintRepo.rule("react/no-find-dom-node")).isNotNull();
     assertThat(eslintRepo.rule("vue/v-on-style")).isNotNull();
+    assertThat(eslintRepo.rule("sonarjs/no-duplicate-string")).isNotNull();
   }
 
 }

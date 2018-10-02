@@ -41,6 +41,7 @@ public class EslintRulesDefinition implements RulesDefinition {
     "jsx-a11y",
     "promise",
     "react",
+    "sonarjs",
     "vue"
   );
 
