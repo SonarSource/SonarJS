@@ -42,7 +42,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private static final String NODE_EXECUTABLE_DEFAULT = "node";
 
-  private static final String[] NODE_EXECUTABLE_PROPERTIES = {"sonar.nodejs.executable", "sonar.typescript.node", "sonar.css.node"};
+  private static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
 
   private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile("v?(\\d+)\\.\\d+\\.\\d+");
 
@@ -108,18 +108,18 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   /**
-   * First will check Node.js version by running {@code node -v}, then
+   * Retrieves node executable from sonar.node.executable property or using default if absent.
+   * Then will check Node.js version by running {@code node -v}, then
    * returns {@link NodeCommand} instance.
    *
-   * @throws NodeCommandException when actual Node.js version doesn't satisfy minimum version requested.
+   * @throws NodeCommandException when actual Node.js version doesn't satisfy minimum version requested,
+   * or if failed to run {@code node -v}
    */
   @Override
   public NodeCommand build() {
     String nodeExecutable = retrieveNodeExecutableFromConfig(configuration);
-    boolean isCompatible = isCompatibleNodeVersion(nodeExecutable);
-    if (!isCompatible) {
-      throw new NodeCommandException("Node.js is not compatible.");
-    }
+    checkNodeCompatibility(nodeExecutable);
+
     if (nodeJsArgs.isEmpty() && scriptFilename == null && args.isEmpty()) {
       throw new IllegalArgumentException("Missing arguments for Node.js.");
     }
@@ -136,18 +136,19 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
       errorConsumer);
   }
 
-  private boolean isCompatibleNodeVersion(String nodeExecutable) {
+  private void checkNodeCompatibility(String nodeExecutable) {
     if (minNodeVersion == null) {
-      return true;
+      return;
     }
     LOG.debug("Checking Node.js version");
-    try {
-      String actualVersion = getVersion(nodeExecutable);
-      return checkVersion(actualVersion, minNodeVersion);
-    } catch (Exception e) {
-      LOG.error("Failed to get Node.js version.", e);
-      return false;
+
+    String actualVersion = getVersion(nodeExecutable);
+    boolean isCompatible = checkVersion(actualVersion, minNodeVersion);
+    if (!isCompatible) {
+      throw new NodeCommandException(String.format("Only Node.js v%s or later is supported, got %s.", minNodeVersion, actualVersion));
     }
+
+    LOG.debug("Using Node.js {}.", actualVersion);
   }
 
   @VisibleForTesting
@@ -156,15 +157,12 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     if (versionMatcher.lookingAt()) {
       int major = Integer.parseInt(versionMatcher.group(1));
       if (major < requiredVersion) {
-        LOG.error("Only Node.js v{} or later is supported, got {}.", requiredVersion, actualVersion);
         return false;
       }
     } else {
-      LOG.error("Failed to parse Node.js version, got {}.", actualVersion);
-      return false;
+      throw new NodeCommandException("Failed to parse Node.js version, got '" + actualVersion + "'");
     }
 
-    LOG.debug("Using Node.js {}.", actualVersion);
     return true;
   }
 
@@ -174,7 +172,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     if (exitValue != 0) {
-      throw new NodeCommandException("Failed to run Node.js with -v to determine the version");
+      throw new NodeCommandException("Failed to run Node.js with -v to determine the version, exit value " + exitValue);
     }
     return output.toString();
   }
@@ -183,22 +181,20 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     if (configuration == null) {
       return NODE_EXECUTABLE_DEFAULT;
     }
-    for (String property : NODE_EXECUTABLE_PROPERTIES) {
-      Optional<String> nodeExecutableOptional = configuration.get(property);
-      if (nodeExecutableOptional.isPresent()) {
-        String nodeExecutable = nodeExecutableOptional.get();
-        File file = new File(nodeExecutable);
-        if (file.exists()) {
-          // TODO add deprecation warning when not using sonar.nodejs.executable
-          // when SonarCSS and SonarTS will migrate to this module
-          LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), property);
-          return nodeExecutable;
-        }
-        LOG.warn("Provided Node.js executable file does not exist. Property: {}. File: {}", property, file.getAbsoluteFile());
+
+    Optional<String> nodeExecutableOptional = configuration.get(NODE_EXECUTABLE_PROPERTY);
+    if (nodeExecutableOptional.isPresent()) {
+      String nodeExecutable = nodeExecutableOptional.get();
+      File file = new File(nodeExecutable);
+      if (file.exists()) {
+        LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), NODE_EXECUTABLE_PROPERTY);
+        return nodeExecutable;
       }
+      LOG.warn("Provided Node.js executable file (property '{}') does not exist. File: {}", NODE_EXECUTABLE_PROPERTY, file.getAbsoluteFile());
     }
 
-    LOG.info("Using Node.js executable 'node' default.");
+
+    LOG.info("Using default Node.js executable: '{}'.", NODE_EXECUTABLE_DEFAULT);
     return NODE_EXECUTABLE_DEFAULT;
   }
 }

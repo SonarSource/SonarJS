@@ -90,7 +90,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
     File scriptFile = deployLocation.resolve(startServerScript).toFile();
     if (!scriptFile.exists()) {
-      throw new IllegalStateException("Script doesn't exists. " + scriptFile.getAbsolutePath());
+      throw new IllegalStateException("Node.JS script to start eslint-bridge server doesn't exist: " + scriptFile.getAbsolutePath());
     }
     nodeCommand = nodeCommandBuilder
       .outputConsumer(message -> {
@@ -109,7 +109,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     nodeCommand.start();
 
     if (!waitServerToStart("localhost", port, timeoutSeconds * 1000)) {
-      throw new IllegalStateException("Timeout error: failed to start server");
+      throw new IllegalStateException("Failed to start server (" + timeoutSeconds +"s timeout)");
     }
 
     LOG.debug("Server is started");
@@ -137,9 +137,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public String toString() {
-    return "EslintBridgeServerImpl{" +
-      "nodeCommand=" + nodeCommand +
-      '}';
+  public String getCommandInfo() {
+    if (nodeCommand == null) {
+      return "Node.JS command to start eslint-bridge server was not built yet.";
+    } else {
+      return "Node.JS command to start eslint-bridge was: " + nodeCommand.toString();
+    }
   }
+
 }

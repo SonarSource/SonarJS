@@ -29,6 +29,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -37,6 +38,7 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,8 +53,11 @@ public class NodeCommandTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  @org.junit.Rule
+  @Rule
   public LogTester logTester = new LogTester();
+
+  @Rule
+  public final ExpectedException thrown = ExpectedException.none();
 
   @Captor
   private ArgumentCaptor<List<String>> processStartArgument;
@@ -94,11 +99,12 @@ public class NodeCommandTest {
 
   @Test
   public void test_min_version() {
-    assertThatThrownBy(() -> NodeCommand.builder()
+    thrown.expect(NodeCommandException.class);
+    thrown.expectMessage("Only Node.js v99 or later is supported, got");
+
+    NodeCommand.builder()
       .minNodeVersion(99)
-      .build())
-      .isInstanceOf(NodeCommandException.class)
-      .hasMessage("Node.js is not compatible.");
+      .build();
   }
 
   @Test
@@ -116,10 +122,12 @@ public class NodeCommandTest {
   @Test
   public void test_version_check() {
     assertThat(NodeCommandBuilderImpl.checkVersion("v5.1.1", 6)).isFalse();
-    assertThat(NodeCommandBuilderImpl.checkVersion("Invalid version", 6)).isFalse();
     assertThat(NodeCommandBuilderImpl.checkVersion("v10.8.0", 6)).isTrue();
     assertThat(NodeCommandBuilderImpl.checkVersion("v10.8.0+123", 6)).isTrue();
 
+    thrown.expect(NodeCommandException.class);
+    thrown.expectMessage("Failed to parse Node.js version, got 'Invalid version'");
+    assertThat(NodeCommandBuilderImpl.checkVersion("Invalid version", 6)).isFalse();
   }
 
   @Test
@@ -178,8 +186,10 @@ public class NodeCommandTest {
 
     verify(mockProcessWrapper).start(processStartArgument.capture());
     assertThat(processStartArgument.getValue()).contains("node");
-    await().until(() -> logTester.logs().stream()
-      .anyMatch(log -> log.startsWith("Provided Node.js executable file does not exist")));
+    await().until(() -> logTester.logs(LoggerLevel.WARN).stream()
+      .anyMatch(log -> log.startsWith("Provided Node.js executable file (property 'sonar.nodejs.executable') does not exist")));
+    await().until(() -> logTester.logs(LoggerLevel.INFO).stream()
+      .anyMatch(log -> log.startsWith("Using default Node.js executable: 'node'.")));
   }
 
   @Test
@@ -233,7 +243,7 @@ public class NodeCommandTest {
       .script(resourceScript("script.js"));
     assertThatThrownBy(commandBuilder::build)
       .isInstanceOf(NodeCommandException.class)
-      .hasMessage("Node.js is not compatible.");
+      .hasMessage("Failed to run Node.js with -v to determine the version, exit value 1");
   }
 
   @Test

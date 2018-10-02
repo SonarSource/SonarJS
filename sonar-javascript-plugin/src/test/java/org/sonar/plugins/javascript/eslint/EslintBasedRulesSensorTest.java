@@ -44,10 +44,8 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor.AnalysisRequest;
-import org.sonarsource.nodejs.NodeCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -59,11 +57,11 @@ public class EslintBasedRulesSensorTest {
   @org.junit.Rule
   public LogTester logTester = new LogTester();
 
-  @org.junit.Rule
-  public final ExpectedException thrown = ExpectedException.none();
-
   @Mock
   private EslintBridgeServer eslintBridgeServerMock;
+
+  @Rule
+  public final ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
@@ -73,12 +71,15 @@ public class EslintBasedRulesSensorTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     when(eslintBridgeServerMock.call(any())).thenReturn("[]");
+    when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = SensorContextTester.create(tempFolder.newDir());
   }
 
   @Test
   public void should_create_issues_from_eslint_based_rules() throws Exception {
-    EslintBasedRulesSensor sensor = createSensor(createEslintBridgeServer("startServer.js"));
+    when(eslintBridgeServerMock.call(any())).thenReturn("[{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\"},{\"line\":1,\"column\":2,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\"}]");
+
+    EslintBasedRulesSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
@@ -115,48 +116,21 @@ public class EslintBasedRulesSensorTest {
   }
 
   @Test
-  public void should_not_explode_if_bridge_server_not_started() throws Exception {
-    doThrow(new IllegalStateException("Timeout error: failed to start server")).when(eslintBridgeServerMock).startServer(context);
+  public void should_catch_if_bridge_server_not_started() throws Exception {
+    doThrow(new IllegalStateException("failed to start server")).when(eslintBridgeServerMock).startServer(context);
 
-    EslintBasedRulesSensor sensor = createSensor(eslintBridgeServerMock);
+    EslintBasedRulesSensor sensor = createSensor();
     createInputFile(context);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Timeout error: failed to start server");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failure during analysis, eslintBridgeServerMock command info");
     assertThat(context.allIssues()).isEmpty();
   }
-
-  @Test
-  public void should_log_process_streams() throws Exception {
-    EslintBasedRulesSensor sensor = createSensor(createEslintBridgeServer("logging.js"));
-    sensor.execute(context);
-
-    await().untilAsserted(() -> {
-      assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("starting server");
-      assertThat(logTester.logs(LoggerLevel.INFO)).contains("server is started");
-      assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Something wrong happened");
-      assertThat(context.allIssues()).isEmpty();
-    });
-  }
-
-  @Test
-  public void should_not_explode_if_failed_to_start_process() throws Exception {
-    doThrow(new IOException("error")).when(eslintBridgeServerMock).startServer(any());
-    EslintBasedRulesSensor sensor = createSensor(eslintBridgeServerMock);
-    sensor.execute(context);
-
-    assertThat(logTester.logs(LoggerLevel.ERROR).stream()
-      .anyMatch(log -> log.startsWith("Failure during analysis: ")
-      )).isTrue();
-
-    assertThat(context.allIssues()).isEmpty();
-  }
-
 
   @Test
   public void should_not_explode_if_bad_json_response() throws Exception {
     when(eslintBridgeServerMock.call(any())).thenReturn("Invalid response");
-    EslintBasedRulesSensor sensor = createSensor(eslintBridgeServerMock);
+    EslintBasedRulesSensor sensor = createSensor();
 
     createInputFile(context);
     sensor.execute(context);
@@ -171,7 +145,7 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void should_not_explode_if_no_response() throws Exception {
     when(eslintBridgeServerMock.call(any())).thenThrow(new IOException("error"));
-    EslintBasedRulesSensor sensor = createSensor(eslintBridgeServerMock);
+    EslintBasedRulesSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
     sensor.execute(context);
 
@@ -183,8 +157,8 @@ public class EslintBasedRulesSensorTest {
   public void should_have_descriptor() throws Exception {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
-    createSensor(eslintBridgeServerMock).describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("SonarJS ESLint-based rules execution");
+    createSensor().describe(descriptor);
+    assertThat(descriptor.name()).isEqualTo("ESLint-based SonarJS");
     assertThat(descriptor.languages()).containsOnly("js");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
   }
@@ -238,7 +212,7 @@ public class EslintBasedRulesSensorTest {
       .setContents("<script>let x = 0;</script>")
       .build();
 
-    EslintBasedRulesSensor sensor = createSensor(eslintBridgeServerMock);
+    EslintBasedRulesSensor sensor = createSensor();
     context.fileSystem().add(flowFile);
     context.fileSystem().add(vueFile);
 
@@ -248,15 +222,14 @@ public class EslintBasedRulesSensorTest {
   }
 
   @Test
-  public void should_log_unknown_rule_key() throws Exception {
-    when(eslintBridgeServerMock.call(any())).thenReturn("[ { ruleId: \"unknown-rule-key\", line: 1, message: \"Message\" } ]");
-    EslintBasedRulesSensor sensor = createSensor(eslintBridgeServerMock);
-    createInputFile(context);
-    sensor.execute(context);
+  public void should_detect_unknown_rule_key() throws Exception {
+    EslintBasedRulesSensor sensor = createSensor();
+    assertThat(sensor.ruleKey("no-all-duplicated-branches")).isEqualTo(RuleKey.of("javascript", "S3923"));
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("No SonarJS rule key found for an eslint-based rule [unknown-rule-key]");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failure during analysis: eslintBridgeServerMock");
+    thrown.expectMessage("No SonarJS rule key found for an eslint-based rule [unknown-rule-key]");
+    sensor.ruleKey("unknown-rule-key");
   }
+
 
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
@@ -276,11 +249,7 @@ public class EslintBasedRulesSensorTest {
   }
 
 
-  private static EslintBasedRulesSensor createSensor(EslintBridgeServer eslintBridgeServer) {
-    return new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServer);
-  }
-
-  private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(NodeCommand.builder(), tempFolder, 1, startServerScript, "mock-eslint-bridge");
+  private EslintBasedRulesSensor createSensor() {
+    return new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
   }
 }

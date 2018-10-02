@@ -37,5 +37,6 @@ public interface EslintBridgeServer {
 
   void clean();
 
+  String getCommandInfo();
 }
 
