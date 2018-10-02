@@ -79,6 +79,22 @@ public class CheckListTest {
     assertThat(keys).doesNotHaveDuplicates();
   }
 
+  @Test
+  public void test_eslint_key() throws IllegalAccessException, InstantiationException {
+    List<Class> checks = CheckList.getChecks();
+    List<String> keys = Lists.newArrayList();
+
+    for (Class cls : checks) {
+      if (isEslintBasedCheck(cls)) {
+        EslintBasedCheck eslintBasedCheck = (EslintBasedCheck) cls.newInstance();
+        keys.add(eslintBasedCheck.eslintKey());
+        assertThat(eslintBasedCheck.eslintKey()).matches("[a-z\\-]+");
+      }
+    }
+
+    assertThat(keys).doesNotHaveDuplicates();
+  }
+
   private boolean isEslintBasedCheck(Class cls) {
     try {
       cls.getMethod("eslintKey");
