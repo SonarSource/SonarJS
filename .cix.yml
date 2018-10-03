@@ -6,6 +6,7 @@ TEST:
   - plugin
   - ruling
   - performancing
+  - ci
 
 SQ_VERSION: 
   - DEV
@@ -14,93 +15,62 @@ SQ_VERSION:
 
 
 exclude:
+  - SLAVE: linux
+    TEST: performancing
+
+  - SLAVE: linux
+    TEST: ci
+
+
+  - SLAVE: performance
+    TEST: plugin
+
+  - SLAVE: performance
+    TEST: ruling
+
+  - SLAVE: performance
+    TEST: ci
+
+
+  - SLAVE: windows
+    TEST: ruling
+
+  - SLAVE: windows
+    TEST: performancing
+
+
   - TEST: plugin
     SLAVE: linux
     SQ_VERSION: LATEST_RELEASE
 
-  - SLAVE: linux 
-    SQ_VERSION: DEV 
-    TEST: ruling
+  - TEST: ruling
+    SLAVE: linux
+    SQ_VERSION: DEV
 
-  - SLAVE: linux
-    SQ_VERSION: LATEST_RELEASE[6.7] 
-    TEST: ruling
+  - TEST: ruling
+    SLAVE: linux
+    SQ_VERSION: LATEST_RELEASE[6.7]
 
-#remove all jobs on performance slave
-  - TEST: plugin
+  - TEST: performancing
+    SLAVE: performance
+    SQ_VERSION: DEV
+
+  - TEST: performancing
     SLAVE: performance
     SQ_VERSION: LATEST_RELEASE
 
-  - SLAVE: performance 
-    SQ_VERSION: DEV 
-    TEST: ruling
-
-  - SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE[6.7] 
-    TEST: ruling
-
-  - SLAVE: performance
-    SQ_VERSION: DEV 
-    TEST: plugin
-
-  - SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE 
-    TEST: ruling
-
-  - SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE[6.7] 
-    TEST: plugin
-
-#remove all jobs on windows slave plugin on LATEST_RELEASE
-  - SLAVE: windows 
-    SQ_VERSION: DEV 
-    TEST: ruling
-
-  - SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE[6.7] 
-    TEST: ruling
-
-  - SLAVE: windows
-    SQ_VERSION: DEV 
-    TEST: plugin
-
-  - SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE 
-    TEST: ruling
-
-  - SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE[6.7] 
-    TEST: plugin
-
-# only run performancing on DEV LATEST_RELEASE on performance Slave
-  - SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE
-    TEST: performancing
-
-  - SLAVE: performance
+  - TEST: plugin
+    SLAVE: windows
     SQ_VERSION: DEV
-    TEST: performancing
 
-  - SLAVE: linux
-    SQ_VERSION: LATEST_RELEASE[6.7] 
-    TEST: performancing
+  - TEST: plugin
+    SLAVE: windows
+    SQ_VERSION: LATEST_RELEASE[6.7]
 
-  - SLAVE: linux
+  - TEST: ci
+    SLAVE: windows
     SQ_VERSION: DEV
-    TEST: performancing
 
-  - SLAVE: linux
-    SQ_VERSION: LATEST_RELEASE
-    TEST: performancing
-
-  - SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE[6.7] 
-    TEST: performancing 
-
-  - SLAVE: windows
-    SQ_VERSION: DEV
-    TEST: performancing          
-
-  - SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE
-    TEST: performancing 
+  - TEST: ci
+    SLAVE: windows
+    SQ_VERSION: LATEST_RELEASE[6.7]
