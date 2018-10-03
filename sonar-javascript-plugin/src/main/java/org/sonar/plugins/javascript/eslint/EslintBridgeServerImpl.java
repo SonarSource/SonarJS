@@ -21,7 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import okhttp3.MediaType;
@@ -33,10 +33,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonarsource.nodejs.BundleUtils;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 
-import static org.sonar.plugins.javascript.eslint.FileUtils.copyFromClasspath;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
 
@@ -45,9 +45,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 10;
-  private static final String DEFAULT_STARTUP_SCRIPT = "eslint-bridge/bin/server";
-  private static final String NODE_MODULES = "node_modules";
-  private static final String DEFAULT_BUNDLE = NODE_MODULES;
+  private static final String DEFAULT_STARTUP_SCRIPT = "node_modules/eslint-bridge/bin/server";
+  private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
+
+  // this archive is created in eslint-bridge/scripts/package.js
+  private static final String BUNDLE_LOCATION = "/eslint-bridge.tar.xz";
 
   private final OkHttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
@@ -58,8 +60,10 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private String bundleLocation;
   private Path deployLocation;
 
+  // Used by pico container for dependency injection
+  @SuppressWarnings("unused")
   public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder) {
-    this(nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, DEFAULT_BUNDLE);
+    this(nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION);
   }
 
   EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
@@ -68,19 +72,22 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.startServerScript = startServerScript;
-    this.bundleLocation = bundleLocation;
     this.client = new OkHttpClient.Builder()
       .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
       .build();
-    // name has to be "node_modules" for correct dependency resolution in NodeJS
-    this.deployLocation = tempFolder.newDir(NODE_MODULES).toPath();
+    this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
+    this.bundleLocation = bundleLocation;
   }
 
   @Override
-  public void deploy() throws IOException, URISyntaxException {
+  public void deploy() throws IOException {
     long start = System.currentTimeMillis();
     LOG.debug("Deploying eslint-bridge into {}", deployLocation);
-    copyFromClasspath(bundleLocation, deployLocation);
+    InputStream bundle = getClass().getResourceAsStream(bundleLocation);
+    if (bundle == null) {
+      throw new IllegalStateException("eslint-bridge not found in plugin jar");
+    }
+    BundleUtils.extractFromClasspath(bundle, deployLocation);
     LOG.debug("Deployment done in {}ms", System.currentTimeMillis() - start);
   }
 
@@ -90,7 +97,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
     File scriptFile = deployLocation.resolve(startServerScript).toFile();
     if (!scriptFile.exists()) {
-      throw new IllegalStateException("Node.JS script to start eslint-bridge server doesn't exist: " + scriptFile.getAbsolutePath());
+      throw new IllegalStateException("Node.js script to start eslint-bridge server doesn't exist: " + scriptFile.getAbsolutePath());
     }
     nodeCommand = nodeCommandBuilder
       .outputConsumer(message -> {
@@ -139,9 +146,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public String getCommandInfo() {
     if (nodeCommand == null) {
-      return "Node.JS command to start eslint-bridge server was not built yet.";
+      return "Node.js command to start eslint-bridge server was not built yet.";
     } else {
-      return "Node.JS command to start eslint-bridge was: " + nodeCommand.toString();
+      return "Node.js command to start eslint-bridge was: " + nodeCommand.toString();
     }
   }
 
