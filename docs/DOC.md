@@ -12,9 +12,6 @@
 
 SonarJS is integrated inside of [SonarLint](https://www.sonarlint.org/) IDE extension. It is available for [WebStorm/IntelliJ](https://www.sonarlint.org/intellij/index.html), [Visual Studio](https://www.sonarlint.org/visualstudio/index.html), [VS Code](https://www.sonarlint.org/vscode/index.html), [Atom](https://www.sonarlint.org/atom/index.html) and [Eclipse](https://www.sonarlint.org/eclipse/index.html).
 
-### Use as a Command Line Tool or as a Library
-The [SonarJS](https://www.npmjs.com/package/sonarjs) npm package can be used as a command line tool and as a JavaScript/TypeScript library.
-
 ### Use online on sonarcloud.io :cloud:
 SonarJS is integrated inside of [sonarcloud.io](https://about.sonarcloud.io/), an online service for continuous code quality. To set up analysis of your project, follow instructions on [this page](https://about.sonarcloud.io/get-started/). 
 
@@ -41,7 +38,14 @@ sonar-scanner
 
 >We recommend to set the version of the project manually through script file to not depend on the one from `package.json` ([like this](https://github.com/SonarSource/SonarTS-example/blob/master/example1/analyse.js#L8)). That way you will be able to profit from a correct [leak period](https://docs.sonarqube.org/display/SONAR/Fixing+the+Water+Leak) and focus on quality issues introduced since last release.
 
+> :exclamation: To perform analysis SonarJS requires Node.js >=6
+
 ## <a name="advanced-configuration"></a>Advanced Configuration
+
+### Node.js executable
+Property | Example | Description
+---------|---------|------------
+`sonar.nodejs.executable` |	`/Users/John/bin/node`	| Set this property to absolute path to Node.js executable, if standard `node` is not available.
 
 ### File Extensions
 Property | Example | Description

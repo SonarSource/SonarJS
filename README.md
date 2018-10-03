@@ -2,9 +2,11 @@
 
 SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program_analysis) for the JavaScript language. It will allow you to produce stable and easily supported code by helping you to find and to correct bugs, vulnerabilities and smells in your code.
 
-**[Have some feedback?](#support)**
+:arrow_right: [Have some feedback?](#support)
 
-**[Try out SonarTS, our analyzer for TypeScript!](https://github.com/SonarSource/sonarts)**
+:arrow_right: [SonarTS](https://github.com/SonarSource/sonarts), our analyzer for TypeScript
+
+:arrow_right: [eslint-plugin-sonarjs](https://github.com/SonarSource/eslint-plugin-sonarjs), our plugin for ESLint
 
 # Features
 
