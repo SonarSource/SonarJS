@@ -93,8 +93,7 @@ public class EslintBasedRulesSensor implements Sensor {
       }
       progressReport.stop();
     } catch (Exception e) {
-      LOG.error(e.getMessage());
-      LOG.error("Failure during analysis: " + eslintBridgeServer, e);
+      LOG.error("Failure during analysis, " + eslintBridgeServer.getCommandInfo(), e);
     } finally {
       progressReport.cancel();
       eslintBridgeServer.clean();
@@ -141,7 +140,8 @@ public class EslintBasedRulesSensor implements Sensor {
       .save();
   }
 
-  private RuleKey ruleKey(String eslintKey) {
+  @VisibleForTesting
+  RuleKey ruleKey(String eslintKey) {
     RuleKey ruleKey = checks.ruleKeyByEslintKey(eslintKey);
     if (ruleKey == null) {
       throw new IllegalStateException("No SonarJS rule key found for an eslint-based rule [" + eslintKey + "]");
@@ -169,7 +169,7 @@ public class EslintBasedRulesSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguage(JavaScriptLanguage.KEY)
-      .name("SonarJS ESLint-based rules execution")
+      .name("ESLint-based SonarJS")
       .onlyOnFileType(Type.MAIN);
   }
 
