@@ -61,6 +61,7 @@ public final class Tests {
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
     .build();
 
   private Tests() {
