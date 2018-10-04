@@ -18,5 +18,10 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-888",
   "sqKey": "S888",
-  "scope": "All"
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      835
+    ]
+  }
 }

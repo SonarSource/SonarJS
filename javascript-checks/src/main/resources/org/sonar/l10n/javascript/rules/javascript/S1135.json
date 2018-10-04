@@ -11,5 +11,10 @@
   "defaultSeverity": "Info",
   "ruleSpecification": "RSPEC-1135",
   "sqKey": "S1135",
-  "scope": "All"
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      546
+    ]
+  }
 }

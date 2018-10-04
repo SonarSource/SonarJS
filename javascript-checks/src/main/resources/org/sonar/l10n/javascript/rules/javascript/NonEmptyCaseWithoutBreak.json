@@ -18,5 +18,10 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-128",
   "sqKey": "NonEmptyCaseWithoutBreak",
-  "scope": "All"
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      484
+    ]
+  }
 }

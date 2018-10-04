@@ -18,5 +18,11 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2589",
   "sqKey": "S2589",
-  "scope": "All"
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      489,
+      571
+    ]
+  }
 }
