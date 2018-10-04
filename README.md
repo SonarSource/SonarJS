@@ -35,7 +35,7 @@ If you want to report a bug, request a feature or provide other kind of feedback
 You can also use [SonarQube Community Forum](https://community.sonarsource.com/). Please do not forget to specify the details of your request, as well as analysers' and SonarQube versions.
 
 ### Twitter
-We have a [twitter account](https://twitter.com/sonarjs) where you can follow the development of this plugin.
+We have a [twitter account](https://twitter.com/sonardash) where you can follow the development of this plugin.
 
 # Contributing
 
