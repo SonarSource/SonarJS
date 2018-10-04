@@ -6,6 +6,7 @@ at worst, it's a bug that is likely to induce further bugs as the code is mainta
 there is the risk in this situation that future maintenance will be done on the dead case, rather than on the one that's actually used.</p>
 <p>On the other hand, if the first case does not end with a <code>break</code>, both cases will be executed, but future maintainers may not notice
 that.</p>
+<p><em>Note that this rule requires Node.js to be available during analysis.</em></p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (param == 1)
