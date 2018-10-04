@@ -80,7 +80,10 @@ public class EslintReportTest {
         "external_eslint_repo:semi",
         "external_eslint_repo:semi");
     } else {
-      assertThat(jsIssuesList).isEmpty();
+      assertThat(jsIssuesList).extracting("rule").containsExactlyInAnyOrder(
+        "javascript:S2688",
+        "javascript:S1116");
+
       assertThat(tsIssuesList).isEmpty();
     }
   }
