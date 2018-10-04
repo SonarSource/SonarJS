@@ -58,7 +58,7 @@ public class EslintBasedRulesTest {
   @Test
   public void test() {
     SearchRequest request = new SearchRequest();
-    request.setComponentKeys(Collections.singletonList("eslint-based-rules-project")).setRules(ImmutableList.of("typescript:S3923"));
+    request.setComponentKeys(Collections.singletonList("eslint-based-rules-project")).setRules(ImmutableList.of("javascript:S3923"));
     List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(1);
