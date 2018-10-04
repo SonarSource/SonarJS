@@ -18,5 +18,10 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1121",
   "sqKey": "AssignmentWithinCondition",
-  "scope": "All"
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      481
+    ]
+  }
 }

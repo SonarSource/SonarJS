@@ -2,14 +2,14 @@
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (x != undefined) {
-  if (x === 2) {
+  if (y === 2) {
     // ...
   }
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-if (x != undefined &amp;&amp; x === 2) {
+if (x != undefined &amp;&amp; y === 2) {
   // ...
 }
 </pre>
