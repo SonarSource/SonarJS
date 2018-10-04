@@ -23,8 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import org.junit.BeforeClass;
@@ -44,7 +42,7 @@ public class EslintBasedRulesTest {
   private static final File PROJECT_DIR = TestUtils.projectDir("eslint_based_rules");
 
   @BeforeClass
-  public static void startServer() throws IOException, URISyntaxException, InterruptedException {
+  public static void startServer() {
     orchestrator.resetData();
 
     SonarScanner build = SonarScanner.create()

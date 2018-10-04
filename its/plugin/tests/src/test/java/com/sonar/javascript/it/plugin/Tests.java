@@ -41,17 +41,19 @@ import static java.util.Collections.singletonList;
 @Suite.SuiteClasses({
   BigProjectTest.class,
   CoverageTest.class,
+  EslintBasedRulesTest.class,
+  EslintReportTest.class,
   MetricsTest.class,
   MinifiedFilesTest.class,
+  NoSonarTest.class,
   SonarLintTest.class,
-  NoSonarTest.class
 })
 public final class Tests {
 
 
-  public static final String PROJECT_KEY = "project";
+  static final String PROJECT_KEY = "project";
 
-  public static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
+  static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
   @ClassRule
