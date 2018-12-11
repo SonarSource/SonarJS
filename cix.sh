@@ -25,7 +25,7 @@ case "$TEST" in
   mvn clean package
   ;;
 
-  plugin|ruling|performancing)
+  plugin|ruling)
 
   cd its/$TEST
   mvn -B -e -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false package

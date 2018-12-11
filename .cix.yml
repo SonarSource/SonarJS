@@ -5,7 +5,6 @@
 TEST:
   - plugin
   - ruling
-  - performancing
   - ci
 
 SQ_VERSION: 
@@ -15,29 +14,12 @@ SQ_VERSION:
 
 
 exclude:
-  - SLAVE: linux
-    TEST: performancing
-
+  
   - SLAVE: linux
     TEST: ci
 
-
-  - SLAVE: performance
-    TEST: plugin
-
-  - SLAVE: performance
-    TEST: ruling
-
-  - SLAVE: performance
-    TEST: ci
-
-
   - SLAVE: windows
     TEST: ruling
-
-  - SLAVE: windows
-    TEST: performancing
-
 
   - TEST: plugin
     SLAVE: linux
@@ -50,14 +32,6 @@ exclude:
   - TEST: ruling
     SLAVE: linux
     SQ_VERSION: LATEST_RELEASE[6.7]
-
-  - TEST: performancing
-    SLAVE: performance
-    SQ_VERSION: DEV
-
-  - TEST: performancing
-    SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE
 
   - TEST: plugin
     SLAVE: windows

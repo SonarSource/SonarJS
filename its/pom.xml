@@ -15,7 +15,6 @@
   <modules>
     <module>plugin</module>
     <module>ruling</module>
-    <module>performancing</module>
   </modules>
 
 </project>
