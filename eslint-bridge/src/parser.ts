@@ -40,7 +40,8 @@ const PARSER_CONFIG_NOT_STRICT: Linter.ParserOptions = { ...PARSER_CONFIG, sourc
 export function parseSourceFile(fileContent: string, fileUri: string): SourceCode | undefined {
   let parse = espree.parse;
   let parser = "espree";
-  if (fileContent.includes("@flow")) {
+  const staticMatch = fileContent.match(/\n\s*static /);
+  if (fileContent.includes("@flow") || staticMatch !== null) {
     parse = babel.parse;
     parser = "babel-eslint";
   }

@@ -94,8 +94,19 @@ describe("parseSourceFile", () => {
       "foo.js",
     );
     expect(sourceCode.ast.body.length).toBeGreaterThan(0);
-
     expect(console.error).toBeCalledTimes(0);
+
+    // Static Props
+    sourceCode = parseSourceFile(
+        `
+      class A {
+        static foo = 42;
+      }`,
+        "foo.js",
+    );
+    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+    expect(console.error).toBeCalledTimes(0);
+
   });
 
   it("should log when parse errors", () => {
