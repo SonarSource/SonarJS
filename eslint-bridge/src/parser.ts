@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as espree from "espree";
 import * as babel from "babel-eslint";
 import { SourceCode, Linter } from "eslint";
 
@@ -38,12 +37,8 @@ const PARSER_CONFIG: Linter.ParserOptions = {
 const PARSER_CONFIG_NOT_STRICT: Linter.ParserOptions = { ...PARSER_CONFIG, sourceType: "script" };
 
 export function parseSourceFile(fileContent: string, fileUri: string): SourceCode | undefined {
-  let parse = espree.parse;
-  let parser = "espree";
-  if (fileContent.includes("@flow")) {
-    parse = babel.parse;
-    parser = "babel-eslint";
-  }
+  const parse = babel.parse;
+  const parser = "babel-eslint";
 
   try {
     return parseSourceFileAsModule(parse, fileContent);

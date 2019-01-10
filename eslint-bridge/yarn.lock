@@ -1291,7 +1291,7 @@ eslint@5.6.0:
     table "^4.0.3"
     text-table "^0.2.0"
 
-espree@4.0.0, espree@^4.0.0:
+espree@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/espree/-/espree-4.0.0.tgz#253998f20a0f82db5d866385799d912a83a36634"
   integrity sha512-kapdTCt1bjmspxStVKX6huolXVV5ZfyZguY1lcfhVVZstce3bqxH9mcLzNn3/mlgW6wQ732+0fuG9v7h0ZQoKg==
