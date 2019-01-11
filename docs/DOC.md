@@ -97,10 +97,10 @@ Property | Description
 SonarJS provides 2 rule profiles out of the box: `Sonar way` (default) and `Sonar way Recommended`.
 
 #### `Sonar way` Profile
-`Sonar way` profile is activated by default. It defines a trimmed list of high-value/low-noise rules useful in almost any JS development context. You can check out the list of rules belonging to `Sonar way` on [SonarCloud](https://sonarcloud.io/organizations/default/rules#qprofile=js-sonar-way-56838|activation=true).
+`Sonar way` profile is activated by default. It defines a trimmed list of high-value/low-noise rules useful in almost any JS development context. You can check out the list of rules belonging to `Sonar way` on [SonarCloud](https://sonarcloud.io/organizations/default/rules?activation=true&qprofile=js-sonar-way-56838).
 
 #### `Sonar way Recommended` Profile
-`Sonar way Recommended` contains all rules from `Sonar way` (bugs and pitfall detection), plus more rules that mandate high code readability and long-term project evolution. You can check out the list of rules belonging to `Sonar way Recommended` on [SonarCloud](https://sonarcloud.io/organizations/default/rules#qprofile=js-sonar-way-recommended-64843|activation=true).
+`Sonar way Recommended` contains all rules from `Sonar way` (bugs and pitfall detection), plus more rules that mandate high code readability and long-term project evolution. You can check out the list of rules belonging to `Sonar way Recommended` on [SonarCloud](https://sonarcloud.io/organizations/default/rules?activation=true&qprofile=js-sonar-way-recommended-64843).
 
 #### Above Predefined Rule Profiles
 By using SonarQube/SonarCloud UI you can create your own rule profiles and activate even more rules which are valuable in your development context. We recommend you to look at the following rules, which are highly valuable but whose activation depends on your environment, coding principles or requires some configuration.
