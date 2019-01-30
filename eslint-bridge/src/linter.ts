@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules } from "eslint-plugin-sonarjs";
+import { rules as externalRules } from "eslint-plugin-sonarjs";
+import { rules as internalRules } from "./rules/main";
 import { Linter, SourceCode } from "eslint";
 import { Rule, Issue } from "./analyzer";
 
 const linter = new Linter();
-linter.defineRules(rules);
+linter.defineRules(externalRules);
+linter.defineRules(internalRules);
 
 export function analyze(sourceCode: SourceCode, rules: Rule[], fileUri: string): Issue[] {
   return linter

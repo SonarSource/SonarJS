@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@types/eslint": "4.16.3",
+    "@types/estree": "0.0.39",
     "@types/esprima": "4.0.2",
     "@types/express": "4.16.0",
     "@types/jest": "23.3.2",

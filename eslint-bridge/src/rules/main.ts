@@ -17,17 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import { Rule } from "eslint";
+import { rule as codeEval } from "./code-eval";
 
-public class EvalCheckTest {
+const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new EvalCheck(), new File("src/test/resources/checks/eval.js"));
-  }
+ruleModules["code-eval"] = codeEval;
 
-}
+export { ruleModules as rules };
