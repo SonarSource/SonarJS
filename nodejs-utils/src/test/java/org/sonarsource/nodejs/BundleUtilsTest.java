@@ -37,11 +37,14 @@ public class BundleUtilsTest {
   @Test
   public void test() throws Exception {
     Path tmp = temporaryFolder.newFolder().toPath();
+    // "test.tar.xz" is created from "files" directory
+    // with this command: tar -cJ -f test.tar.xz files
+    // might require "--force-local" option for windows
     BundleUtils.extractFromClasspath(getClass().getResourceAsStream("/test.tar.xz"), tmp);
     File testFile = tmp.resolve("resources/bundle.txt").toFile();
     assertThat(testFile.exists()).isTrue();
     byte[] actual = Files.readAllBytes(testFile.toPath());
-    byte[] expected = IOUtils.toByteArray(getClass().getResourceAsStream("/bundle.txt"));
+    byte[] expected = IOUtils.toByteArray(getClass().getResourceAsStream("/files/bundle.txt"));
     assertThat(actual).isEqualTo(expected);
   }
 

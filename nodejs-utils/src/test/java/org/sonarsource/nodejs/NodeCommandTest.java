@@ -1,3 +1,4 @@
+
 /*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2018 SonarSource SA
@@ -50,6 +51,7 @@ import static org.mockito.Mockito.when;
 
 public class NodeCommandTest {
 
+  private static final String PATH_TO_SCRIPT = "files/script.js";
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -65,6 +67,7 @@ public class NodeCommandTest {
   @Mock
   private NodeCommand.ProcessWrapper mockProcessWrapper;
 
+
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
@@ -74,7 +77,7 @@ public class NodeCommandTest {
   @Test
   public void test() throws Exception {
     NodeCommand nodeCommand = NodeCommand.builder()
-      .script(resourceScript("script.js"))
+      .script(resourceScript(PATH_TO_SCRIPT))
       .build();
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
@@ -86,7 +89,7 @@ public class NodeCommandTest {
     StringBuilder output = new StringBuilder();
     StringBuilder error = new StringBuilder();
     NodeCommand nodeCommand = NodeCommand.builder()
-      .script(resourceScript("error.js"))
+      .script(resourceScript("files/error.js"))
       .outputConsumer(output::append)
       .errorConsumer(error::append)
       .build();
@@ -111,7 +114,7 @@ public class NodeCommandTest {
   public void test_min_version_positive() throws Exception {
     NodeCommand nodeCommand = NodeCommand.builder()
       .minNodeVersion(1)
-      .script(resourceScript("script.js"))
+      .script(resourceScript(PATH_TO_SCRIPT))
       .build();
 
     nodeCommand.start();
@@ -197,7 +200,7 @@ public class NodeCommandTest {
     IOException cause = new IOException("Error starting process");
     when(mockProcessWrapper.start(any())).thenThrow(cause);
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
-      .script(resourceScript("script.js"))
+      .script(resourceScript(PATH_TO_SCRIPT))
       .build();
     assertThatThrownBy(nodeCommand::start)
       .isInstanceOf(NodeCommandException.class)
@@ -210,7 +213,7 @@ public class NodeCommandTest {
   public void test_interrupted_waitFor() throws Exception {
     when(mockProcessWrapper.waitFor(any())).thenThrow(new InterruptedException());
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
-      .script(resourceScript("script.js"))
+      .script(resourceScript(PATH_TO_SCRIPT))
       .build();
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
@@ -240,7 +243,7 @@ public class NodeCommandTest {
     when(mockProcessWrapper.waitFor(any())).thenReturn(1);
     NodeCommandBuilder commandBuilder = NodeCommand.builder(mockProcessWrapper)
       .minNodeVersion(8)
-      .script(resourceScript("script.js"));
+      .script(resourceScript(PATH_TO_SCRIPT));
     assertThatThrownBy(commandBuilder::build)
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Failed to run Node.js with -v to determine the version, exit value 1");

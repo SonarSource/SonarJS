@@ -54,32 +54,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <phase>test-compile</phase>
-          </execution>
-        </executions>
-        <configuration>
-          <executable>tar</executable>
-          <workingDirectory>src/test/</workingDirectory>
-          <arguments>
-            <argument>--force-local</argument>
-            <argument>-cJ</argument>
-            <argument>-f</argument>
-            <argument>${project.build.testOutputDirectory}${file.separator}test.tar.xz</argument>
-            <argument>resources</argument>
-          </arguments>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

@@ -90,31 +90,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.6.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <phase>test-compile</phase>
-          </execution>
-        </executions>
-        <configuration>
-          <executable>tar</executable>
-          <workingDirectory>src/test/resources/mock-eslint-bridge</workingDirectory>
-          <arguments>
-            <argument>--force-local</argument>
-            <argument>-cJ</argument>
-            <argument>-f</argument>
-            <argument>${project.build.testOutputDirectory}${file.separator}mock-eslint-bundle.tar.xz</argument>
-            <argument>.</argument>
-          </arguments>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <configuration>

@@ -37,6 +37,9 @@ import static org.mockito.Mockito.mock;
 
 public class EslintBridgeServerImplTest {
 
+  // "mock-eslint-bundle.tar.xz" is created from "mock-eslint-bridge" directory
+  // with this command: tar -cJ -f mock-eslint-bridge.tar.xz mock-eslint-bridge
+  // might require "--force-local" option for windows
   private static final String MOCK_ESLINT_BUNDLE = "/mock-eslint-bundle.tar.xz";
 
   @Rule
