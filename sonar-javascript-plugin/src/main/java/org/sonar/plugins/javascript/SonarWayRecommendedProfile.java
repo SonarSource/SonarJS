@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript;
 
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.javascript.checks.CheckList;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
@@ -31,11 +32,16 @@ public class SonarWayRecommendedProfile implements BuiltInQualityProfilesDefinit
 
   static final String PROFILE_NAME = "Sonar way Recommended";
   private static final String PATH_TO_JSON = "org/sonar/l10n/javascript/rules/javascript/Sonar_way_recommended_profile.json";
+  private final SonarRuntime runtime;
+
+  public SonarWayRecommendedProfile(SonarRuntime runtime) {
+    this.runtime = runtime;
+  }
 
   @Override
   public void define(Context context) {
     NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, JavaScriptLanguage.KEY);
-    BuiltInQualityProfileJsonLoader.load(profile, CheckList.REPOSITORY_KEY, PATH_TO_JSON);
+    BuiltInQualityProfileJsonLoader.load(profile, CheckList.REPOSITORY_KEY, PATH_TO_JSON, SonarWayProfile.RESOURCE_PATH, runtime);
     profile.activateRule("common-" + JavaScriptLanguage.KEY, "DuplicatedBlocks");
     profile.done();
   }
