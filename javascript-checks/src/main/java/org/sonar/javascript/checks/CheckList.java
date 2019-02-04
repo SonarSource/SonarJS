@@ -164,6 +164,7 @@ public final class CheckList {
       OctalNumberCheck.class,
       OneStatementPerLineCheck.class,
       OpenCurlyBracesAtEOLCheck.class,
+      OSCommandCheck.class,
       ParenthesesCheck.class,
       ParseIntCallWithoutBaseCheck.class,
       ParsingErrorCheck.class,
