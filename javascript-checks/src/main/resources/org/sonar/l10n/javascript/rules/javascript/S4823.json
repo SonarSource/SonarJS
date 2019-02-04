@@ -1,0 +1,27 @@
+{
+  "title": "Using command line arguments is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a1",
+    "sans-top25-insecure"
+  ],
+  "standards": [
+    "CWE",
+    "OWASP Top Ten"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4823",
+  "sqKey": "S4823",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      88,
+      214
+    ],
+    "OWASP": [
+      "A1"
+    ]
+  }
+}
