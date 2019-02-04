@@ -171,6 +171,7 @@ public final class CheckList {
       PostMessageCheck.class,
       PreferObjectLiteralCheck.class,
       PrimitiveWrappersCheck.class,
+      ProcessArgvCheck.class,
       PseudoRandomCheck.class,
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,

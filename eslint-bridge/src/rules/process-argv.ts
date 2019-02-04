@@ -18,19 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+// https://jira.sonarsource.com/browse/RSPEC-4823
+
 import { Rule } from "eslint";
-import { rule as codeEval } from "./code-eval";
-import { rule as osCommand } from "./os-command";
-import { rule as processArgv } from "./process-argv";
-import { rule as pseudoRandom } from "./pseudo-random";
-import { rule as standardInput } from "./standard-input";
+import * as estree from "estree";
 
-const ruleModules: { [key: string]: Rule.RuleModule } = {};
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      MemberExpression(node: estree.Node) {
+        const { object, property } = node as estree.MemberExpression;
+        if (isIdentifier(object, "process") && isIdentifier(property, "argv")) {
+          context.report({
+            message: `Make sure that command line arguments are used safely here.`,
+            node,
+          });
+        }
+      },
+    };
+  },
+};
 
-ruleModules["code-eval"] = codeEval;
-ruleModules["os-command"] = osCommand;
-ruleModules["process-argv"] = processArgv;
-ruleModules["pseudo-random"] = pseudoRandom;
-ruleModules["standard-input"] = standardInput;
-
-export { ruleModules as rules };
+function isIdentifier(node: estree.Node, value: string) {
+  return node.type === "Identifier" && node.name === value;
+}

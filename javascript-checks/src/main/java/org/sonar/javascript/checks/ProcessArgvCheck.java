@@ -17,20 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.javascript.checks;
 
-import { Rule } from "eslint";
-import { rule as codeEval } from "./code-eval";
-import { rule as osCommand } from "./os-command";
-import { rule as processArgv } from "./process-argv";
-import { rule as pseudoRandom } from "./pseudo-random";
-import { rule as standardInput } from "./standard-input";
+import org.sonar.check.Rule;
 
-const ruleModules: { [key: string]: Rule.RuleModule } = {};
+@Rule(key = "S4823")
+public class ProcessArgvCheck extends EslintBasedCheck {
 
-ruleModules["code-eval"] = codeEval;
-ruleModules["os-command"] = osCommand;
-ruleModules["process-argv"] = processArgv;
-ruleModules["pseudo-random"] = pseudoRandom;
-ruleModules["standard-input"] = standardInput;
+  @Override
+  public String eslintKey() {
+    return "process-argv";
+  }
+}
 
-export { ruleModules as rules };
