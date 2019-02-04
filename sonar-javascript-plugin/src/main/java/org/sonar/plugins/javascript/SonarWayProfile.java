@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript;
 
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.javascript.checks.CheckList;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
@@ -30,12 +31,19 @@ import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 public class SonarWayProfile implements BuiltInQualityProfilesDefinition {
 
   static final String PROFILE_NAME = "Sonar way";
-  public static final String PATH_TO_JSON = "org/sonar/l10n/javascript/rules/javascript/Sonar_way_profile.json";
+  public static final String RESOURCE_PATH = "org/sonar/l10n/javascript/rules/javascript";
+  public static final String PATH_TO_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
+
+  private final SonarRuntime runtime;
+
+  public SonarWayProfile(SonarRuntime runtime) {
+    this.runtime = runtime;
+  }
 
   @Override
   public void define(Context context) {
     NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, JavaScriptLanguage.KEY);
-    BuiltInQualityProfileJsonLoader.load(profile, CheckList.REPOSITORY_KEY, PATH_TO_JSON);
+    BuiltInQualityProfileJsonLoader.load(profile, CheckList.REPOSITORY_KEY, PATH_TO_JSON, RESOURCE_PATH, runtime);
     profile.done();
   }
 }

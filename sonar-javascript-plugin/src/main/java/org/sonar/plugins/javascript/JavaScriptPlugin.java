@@ -84,8 +84,8 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptSensor.class,
       JavaScriptExclusionsFileFilter.class,
       new JavaScriptRulesDefinition(context.getRuntime()),
-      SonarWayRecommendedProfile.class,
-      SonarWayProfile.class
+      new SonarWayRecommendedProfile(context.getRuntime()),
+      new SonarWayProfile(context.getRuntime())
     );
 
     context.addExtensions(

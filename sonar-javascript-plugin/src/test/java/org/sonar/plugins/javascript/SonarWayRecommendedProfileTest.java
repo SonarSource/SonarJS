@@ -20,25 +20,44 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
+import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SonarWayRecommendedProfileTest {
+  
+  private static final SonarRuntime RUNTIME_73 = SonarRuntimeImpl.forSonarQube(Version.create(7, 3), SonarQubeSide.SERVER);
+  private static final SonarRuntime RUNTIME_72 = SonarRuntimeImpl.forSonarQube(Version.create(7, 2), SonarQubeSide.SERVER);
 
   @Test
   public void should_create_sonar_way_recommended_profile() {
-    SonarWayRecommendedProfile definition = new SonarWayRecommendedProfile();
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    definition.define(context);
-    BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile(JavaScriptLanguage.KEY, SonarWayRecommendedProfile.PROFILE_NAME);
-
+    BuiltInQualityProfile profile = getBuiltInQualityProfile(RUNTIME_73);
 
     assertThat(profile.language()).isEqualTo(JavaScriptLanguage.KEY);
     assertThat(profile.name()).isEqualTo(SonarWayRecommendedProfile.PROFILE_NAME);
     assertThat(profile.rules()).extracting("repoKey").containsOnly("common-js", CheckList.REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(110);
+  }
+
+  @Test
+  public void should_not_activate_hotspot_rules_in_old_SQ() throws Exception {
+    BuiltInQualityProfile profileNew = getBuiltInQualityProfile(RUNTIME_73);
+    BuiltInQualityProfile profileOld = getBuiltInQualityProfile(RUNTIME_72);
+
+    assertThat(profileOld.rules().size()).isLessThan(profileNew.rules().size());
+  }
+
+  private static BuiltInQualityProfile getBuiltInQualityProfile(SonarRuntime runtime) {
+    SonarWayRecommendedProfile definition = new SonarWayRecommendedProfile(runtime);
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    definition.define(context);
+    return context.profile(JavaScriptLanguage.KEY, SonarWayRecommendedProfile.PROFILE_NAME);
   }
 
 }
