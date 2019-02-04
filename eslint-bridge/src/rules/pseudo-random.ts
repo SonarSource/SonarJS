@@ -18,13 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+// https://jira.sonarsource.com/browse/RSPEC-2245
+
 import { Rule } from "eslint";
-import { rule as codeEval } from "./code-eval";
-import { rule as pseudoRandom } from "./pseudo-random";
+import * as estree from "estree";
 
-const ruleModules: { [key: string]: Rule.RuleModule } = {};
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      CallExpression(node: estree.Node) {
+        const { callee } = node as estree.CallExpression;
+        if (callee.type === "MemberExpression") {
+          const { object, property } = callee;
+          if (isIdentifier(object, "Math") && isIdentifier(property, "random")) {
+            context.report({
+              message: `Make sure that using this pseudorandom number generator is safe here.`,
+              node,
+            });
+          }
+        }
+      },
+    };
+  },
+};
 
-ruleModules["code-eval"] = codeEval;
-ruleModules["pseudo-random"] = pseudoRandom;
-
-export { ruleModules as rules };
+function isIdentifier(node: estree.Node, value: string) {
+  return node.type === "Identifier" && node.name === value;
+}

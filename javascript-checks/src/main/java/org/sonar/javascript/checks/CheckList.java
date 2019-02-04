@@ -170,6 +170,7 @@ public final class CheckList {
       PostMessageCheck.class,
       PreferObjectLiteralCheck.class,
       PrimitiveWrappersCheck.class,
+      PseudoRandomCheck.class,
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,
       GratuitousConditionCheck.class,
