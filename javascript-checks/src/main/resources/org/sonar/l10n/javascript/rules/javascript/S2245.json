@@ -1,0 +1,33 @@
+{
+  "title": "Using pseudorandom number generators (PRNGs) is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "cwe",
+    "cert",
+    "owasp-a3"
+  ],
+  "standards": [
+    "CWE",
+    "OWASP Top Ten"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-2245",
+  "sqKey": "S2245",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      338,
+      330,
+      326,
+      310
+    ],
+    "OWASP": [
+      "A3"
+    ]
+  }
+}

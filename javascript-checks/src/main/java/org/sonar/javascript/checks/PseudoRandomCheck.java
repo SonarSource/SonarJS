@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.javascript.checks;
 
-import { Rule } from "eslint";
-import { rule as codeEval } from "./code-eval";
-import { rule as pseudoRandom } from "./pseudo-random";
+import org.sonar.check.Rule;
 
-const ruleModules: { [key: string]: Rule.RuleModule } = {};
+@Rule(key = "S2245")
+public class PseudoRandomCheck extends EslintBasedCheck {
 
-ruleModules["code-eval"] = codeEval;
-ruleModules["pseudo-random"] = pseudoRandom;
+  @Override
+  public String eslintKey() {
+    return "pseudo-random";
+  }
+}
 
-export { ruleModules as rules };
