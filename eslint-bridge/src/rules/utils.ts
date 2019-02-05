@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from "eslint";
+import { Rule, Scope } from "eslint";
 import * as estree from "estree";
 
 /**
@@ -26,13 +26,13 @@ import * as estree from "estree";
  * example: Given `import * as X from 'module_name'`, `getModuleNameOfIdentifier(X)` returns `module_name`
  */
 export function getModuleNameOfIdentifier(
-  expression: estree.Identifier,
+  identifier: estree.Identifier,
   context: Rule.RuleContext,
 ) {
-  const { name } = expression;
+  const { name } = identifier;
   // check if importing using `import * as X from 'module_name'`
   const importDeclaration = getImportDeclarations(context).find(importDecl =>
-    checkNamespaceSpecifier(importDecl, name),
+    isNamespaceSpecifier(importDecl, name),
   );
   if (importDeclaration) {
     return importDeclaration.source;
@@ -54,8 +54,9 @@ export function getModuleNameOfImportedIdentifier(
   identifier: estree.Identifier,
   context: Rule.RuleContext,
 ) {
-  const importedDeclaration = getImportDeclarations(context).find(importDeclaration =>
-    importDeclaration.specifiers.some(
+  // check if importing using `import { f } from 'module_name'`
+  const importedDeclaration = getImportDeclarations(context).find(({ specifiers }) =>
+    specifiers.some(
       spec => spec.type === "ImportSpecifier" && spec.imported.name === identifier.name,
     ),
   );
@@ -71,6 +72,7 @@ export function getModuleNameOfImportedIdentifier(
   ) {
     return getModuleNameFromRequire(writeExpression.object);
   }
+
   return undefined;
 }
 
@@ -84,7 +86,7 @@ function getImportDeclarations(context: Rule.RuleContext) {
   return [];
 }
 
-function checkNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
+function isNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
   return importDeclaration.specifiers.some(
     ({ type, local }) => type === "ImportNamespaceSpecifier" && local.name === name,
   );
@@ -93,8 +95,7 @@ function checkNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, na
 function getModuleNameFromRequire(node: estree.Node) {
   if (
     node.type === "CallExpression" &&
-    node.callee.type === "Identifier" &&
-    node.callee.name === "require" &&
+    isIdentifier(node.callee, "require") &&
     node.arguments.length === 1
   ) {
     const moduleName = node.arguments[0];
@@ -106,7 +107,13 @@ function getModuleNameFromRequire(node: estree.Node) {
 }
 
 function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
-  const variable = context.getScope().variables.find(value => value.name === name);
+  let scope: Scope.Scope | null = context.getScope();
+  let variable;
+  while (variable == null && scope != null) {
+    variable = scope.variables.find(value => value.name === name);
+    scope = scope.upper;
+  }
+
   if (variable) {
     const writeReferences = variable.references.filter(reference => reference.isWrite());
     if (writeReferences.length === 1 && writeReferences[0].writeExpr) {
@@ -116,6 +123,6 @@ function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
   return undefined;
 }
 
-export function isIdentifier(node: estree.Node, ...values: string[]) {
+export function isIdentifier(node: estree.Node, ...values: string[]): node is estree.Identifier {
   return node.type === "Identifier" && values.some(value => value === node.name);
 }

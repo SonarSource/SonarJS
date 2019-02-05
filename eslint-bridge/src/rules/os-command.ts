@@ -47,47 +47,43 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function checkCallExpression(node: estree.CallExpression, context: Rule.RuleContext) {
-  if (node.callee.type === "MemberExpression") {
-    if (node.callee.object.type === "Identifier") {
-      const moduleName = getModuleNameOfIdentifier(node.callee.object, context);
-      checkOSCommand(moduleName, node.callee.property, node.arguments, context);
+function checkCallExpression(
+  { callee, arguments: args }: estree.CallExpression,
+  context: Rule.RuleContext,
+) {
+  if (callee.type === "MemberExpression") {
+    if (callee.object.type === "Identifier") {
+      const moduleName = getModuleNameOfIdentifier(callee.object, context);
+      checkOSCommand(moduleName, callee.property, args, context);
     }
-  } else if (node.callee.type === "Identifier") {
-    const moduleName = getModuleNameOfImportedIdentifier(node.callee, context);
-    checkOSCommand(moduleName, node.callee, node.arguments, context);
+  } else if (callee.type === "Identifier") {
+    const moduleName = getModuleNameOfImportedIdentifier(callee, context);
+    checkOSCommand(moduleName, callee, args, context);
   }
 }
 
 function checkOSCommand(
   moduleName: estree.Literal | undefined,
-  expression: estree.Expression,
+  callee: estree.Expression,
   args: Argument[],
   context: Rule.RuleContext,
 ) {
-  if (
-    moduleName &&
-    moduleName.value === CHILD_PROCESS_MODULE &&
-    isQuestionableFunctionCall(expression, args)
-  ) {
+  if (moduleName && moduleName.value === CHILD_PROCESS_MODULE && isQuestionable(callee, args)) {
     context.report({
-      node: expression,
+      node: callee,
       message: MESSAGE,
     });
   }
 }
 
-function isQuestionableFunctionCall(
-  expression: estree.Expression,
-  [command, ...otherArguments]: Argument[],
-) {
+function isQuestionable(expression: estree.Expression, [command, ...otherArguments]: Argument[]) {
   // if command is hardcoded => no issue
   if (!command || command.type === "Literal") {
     return false;
   }
   // for `spawn` and `execFile`, `shell` option must be set to `true`
   if (isIdentifier(expression, ...SPAWN_EXEC_FILE_FUNCTIONS)) {
-    return otherArguments && containsShellOption(otherArguments);
+    return containsShellOption(otherArguments);
   }
   return isIdentifier(expression, ...EXEC_FUNCTIONS);
 }
