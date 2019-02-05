@@ -1,0 +1,69 @@
+<p>Using cookies is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+<ul>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-7772">CVE-2018-7772</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10085">CVE-2018-10085</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-6537">CVE-2016-6537</a> </li>
+</ul>
+<p>Attackers can use widely-available tools to read and modify cookies, thus:</p>
+<ul>
+  <li> sensitive information written by the server will be exposed. </li>
+  <li> cookies sent by the client can be crafted to attack server vulnerabilities. </li>
+</ul>
+<p>This rule flags code that reads or writes cookies.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> sensitive information is stored inside the cookie. </li>
+  <li> cookie values are used without being first sanitized. </li>
+</ul>
+<p>You are at risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Cookies should only be used to manage the user session. The best practice is to keep all user-related information server-side and link them to the
+user session, never sending them to the client. In a very few corner cases, cookies can be used for non-sensitive information that need to live longer
+than the user session.</p>
+<p>Do not try to encode sensitive information in a non human-readable format before writing them in a cookie. The encoding can be reverted and the
+original information will be exposed.</p>
+<p><a href="https://www.owasp.org/index.php/Input_Validation_Cheat_Sheet">Sanitize</a> every information read from a cookie before using them.</p>
+<p>Using cookies only for session IDs doesn't make them secure. Follow <a
+href="https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Cookies">OWASP best practices</a> when you configure your cookies.</p>
+<h2>Questionable Code Example</h2>
+<pre>
+// === Built-in NodeJS modules ===
+const http = require('http');
+const https = require('https');
+
+http.createServer(function(req, res) {
+  res.setHeader('Set-Cookie', ['type=ninja', 'lang=js']); // Questionable
+});
+https.createServer(function(req, res) {
+  res.setHeader('Set-Cookie', ['type=ninja', 'lang=js']); // Questionable
+});
+</pre>
+<pre>
+// === ExpressJS ===
+const express = require('express');
+const app = express();
+app.use(function(req, res, next) {
+  res.cookie('name', 'John'); // Questionable
+});
+</pre>
+<pre>
+// === In browser ===
+// Set cookie
+document.cookie = "name=John"; // Questionable
+
+// Read cookie
+var x = document.cookie; // Questionable
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="http://cwe.mitre.org/data/definitions/312.html">MITRE, CWE-312</a> - Cleartext Storage of Sensitive Information </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/315.html">MITRE, CWE-315</a> - Cleartext Storage of Sensitive Information in a Cookie </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/565.html">MITRE CWE-565</a> - Reliance on Cookies without Validation and Integrity Checking
+  </li>
+  <li> OWASP Top 10 2017 Category A1 - Injection </li>
+  <li> OWASP Top 10 2017 Category A3 - Sensitive Data Exposure </li>
+  <li> <a href="https://wiki.sei.cmu.edu/confluence/display/java/FIO52-J.+Do+not+store+unencrypted+sensitive+information+on+the+client+side">CERT,
+  FIO52-J.</a> - Do not store unencrypted sensitive information on the client side </li>
+  <li> Derived from FindSecBugs rule <a href="https://find-sec-bugs.github.io/bugs.htm#COOKIE_USAGE">COOKIE_USAGE</a> </li>
+</ul>
+

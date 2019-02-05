@@ -17,18 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.javascript.checks;
 
-import { Rule } from "eslint";
-import { rule as codeEval } from "./code-eval";
-import { rule as cookies } from "./cookies";
-import { rule as osCommand } from "./os-command";
-import { rule as pseudoRandom } from "./pseudo-random";
+import org.sonar.check.Rule;
 
-const ruleModules: { [key: string]: Rule.RuleModule } = {};
+@Rule(key = "S2255")
+public class CookiesCheck extends EslintBasedCheck {
 
-ruleModules["code-eval"] = codeEval;
-ruleModules["cookies"] = cookies;
-ruleModules["os-command"] = osCommand;
-ruleModules["pseudo-random"] = pseudoRandom;
+  @Override
+  public String eslintKey() {
+    return "cookies";
+  }
+}
 
-export { ruleModules as rules };
