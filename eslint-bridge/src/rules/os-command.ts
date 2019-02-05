@@ -77,24 +77,28 @@ function checkOSCommand(
   }
 }
 
-function isQuestionableFunctionCall(expression: estree.Expression, [command, options]: Argument[]) {
+function isQuestionableFunctionCall(
+  expression: estree.Expression,
+  [command, ...otherArguments]: Argument[],
+) {
   // if command is hardcoded => no issue
   if (!command || command.type === "Literal") {
     return false;
   }
   // for `spawn` and `execFile`, `shell` option must be set to `true`
   if (isIdentifier(expression, ...SPAWN_EXEC_FILE_FUNCTIONS)) {
-    return options && containsShellOption(options);
+    return otherArguments && containsShellOption(otherArguments);
   }
   return isIdentifier(expression, ...EXEC_FUNCTIONS);
 }
 
-function containsShellOption(options: Argument) {
-  return (
-    options.type === "ObjectExpression" &&
-    options.properties.some(
-      ({ key, value }) =>
-        isIdentifier(key, "shell") && value.type === "Literal" && value.value === true,
-    )
+function containsShellOption(otherArguments: Argument[]) {
+  return otherArguments.some(
+    arg =>
+      arg.type === "ObjectExpression" &&
+      arg.properties.some(
+        ({ key, value }) =>
+          isIdentifier(key, "shell") && value.type === "Literal" && value.value === true,
+      ),
   );
 }

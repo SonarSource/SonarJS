@@ -101,8 +101,8 @@ function getModuleNameFromRequire(node: estree.Node) {
     if (moduleName.type === "Literal") {
       return moduleName;
     }
-    return undefined;
   }
+  return undefined;
 }
 
 function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
