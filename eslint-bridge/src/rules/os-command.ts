@@ -24,18 +24,15 @@ import { Rule } from "eslint";
 import * as estree from "estree";
 import { getModuleFromIdentifier, getModuleFromImportedIdentifier } from "./utils";
 
-const QUESTIONABLE_FUNCTIONS = new Set([
-  "exec",
-  "execSync",
-  "spawn",
-  "spawnSync",
-  "execFile",
-  "execFileSync",
-]);
+const EXEC_FUNCTIONS = ["exec", "execSync"];
+
+const SPAWN_EXEC_FILE_FUNCTIONS = ["spawn", "spawnSync", "execFile", "execFileSync"];
 
 const CHILD_PROCESS_MODULE = "child_process";
 
 const MESSAGE = "Make sure that executing this OS command is safe here.";
+
+type Argument = estree.Expression | estree.SpreadElement;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -61,7 +58,7 @@ function checkCallExpression(node: estree.CallExpression, context: Rule.RuleCont
 function checkOSCommand(
   moduleName: estree.Literal | undefined,
   expression: estree.Expression,
-  args: Array<estree.Expression | estree.SpreadElement>,
+  args: Argument[],
   context: Rule.RuleContext,
 ) {
   if (
@@ -76,20 +73,19 @@ function checkOSCommand(
   }
 }
 
-function isQuestionableFunctionCall(
-  expression: estree.Expression,
-  [command, options]: Array<estree.Expression | estree.SpreadElement>,
-) {
+function isQuestionableFunctionCall(expression: estree.Expression, [command, options]: Argument[]) {
+  // if command is hardcoded => no issue
   if (!command || command.type === "Literal") {
-    return;
+    return false;
   }
-  if (options && !containsShellOption(options)) {
-    return;
+  // for `spawn` and `execFile`, `shell` option must be set to `true`
+  if (isIdentifier(expression, ...SPAWN_EXEC_FILE_FUNCTIONS)) {
+    return options && containsShellOption(options);
   }
-  return expression.type === "Identifier" && QUESTIONABLE_FUNCTIONS.has(expression.name);
+  return isIdentifier(expression, ...EXEC_FUNCTIONS);
 }
 
-function containsShellOption(options: estree.Expression | estree.SpreadElement) {
+function containsShellOption(options: Argument) {
   return (
     options.type === "ObjectExpression" &&
     options.properties.some(
@@ -99,6 +95,6 @@ function containsShellOption(options: estree.Expression | estree.SpreadElement) 
   );
 }
 
-function isIdentifier(node: estree.Node, value: string) {
-  return node.type === "Identifier" && node.name === value;
+function isIdentifier(node: estree.Node, ...values: string[]) {
+  return node.type === "Identifier" && values.some(value => value === node.name);
 }

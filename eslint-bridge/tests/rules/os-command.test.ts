@@ -66,5 +66,11 @@ ruleTester.run("Executing OS commands is security-sensitive", rule, {
         cp.spawn('echo child_process.exec ' + process.argv[2] + ' >> output.txt', { shell: true });`,
       errors: 1,
     },
+    {
+      code: `
+      import * as cp from 'child_process';
+      cp.exec('echo child_process.exec ' + process.argv[2] + ' >> output.txt', { env: "" });`,
+      errors: 1,
+    },
   ],
 });

@@ -81,5 +81,6 @@ function getModuleName(node: estree.Node) {
     if (moduleName.type === "Literal") {
       return moduleName;
     }
+    return undefined;
   }
 }
