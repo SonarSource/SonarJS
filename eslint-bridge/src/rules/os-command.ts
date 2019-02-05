@@ -22,7 +22,11 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
-import { getModuleFromIdentifier, getModuleFromImportedIdentifier } from "./utils";
+import {
+  getModuleNameOfIdentifier,
+  getModuleNameOfImportedIdentifier,
+  isIdentifier,
+} from "./utils";
 
 const EXEC_FUNCTIONS = ["exec", "execSync"];
 
@@ -46,11 +50,11 @@ export const rule: Rule.RuleModule = {
 function checkCallExpression(node: estree.CallExpression, context: Rule.RuleContext) {
   if (node.callee.type === "MemberExpression") {
     if (node.callee.object.type === "Identifier") {
-      const moduleName = getModuleFromIdentifier(node.callee.object, context);
+      const moduleName = getModuleNameOfIdentifier(node.callee.object, context);
       checkOSCommand(moduleName, node.callee.property, node.arguments, context);
     }
   } else if (node.callee.type === "Identifier") {
-    const moduleName = getModuleFromImportedIdentifier(node.callee, context);
+    const moduleName = getModuleNameOfImportedIdentifier(node.callee, context);
     checkOSCommand(moduleName, node.callee, node.arguments, context);
   }
 }
@@ -93,8 +97,4 @@ function containsShellOption(options: Argument) {
         isIdentifier(key, "shell") && value.type === "Literal" && value.value === true,
     )
   );
-}
-
-function isIdentifier(node: estree.Node, ...values: string[]) {
-  return node.type === "Identifier" && values.some(value => value === node.name);
 }

@@ -31,6 +31,11 @@ ruleTester.run("Executing OS commands is security-sensitive", rule, {
         const cp = require('child_process');
         cp.spawn('echo child_process.spawn ' + userinput + ' >> output.txt', { shell: false });`,
     },
+    {
+      code: `
+      const exec = require('child_process').fork;
+      exec('echo child_process.exec ' + process.argv[2] + ' >> output.txt');`,
+    },
   ],
   invalid: [
     {
@@ -70,6 +75,12 @@ ruleTester.run("Executing OS commands is security-sensitive", rule, {
       code: `
       import * as cp from 'child_process';
       cp.exec('echo child_process.exec ' + process.argv[2] + ' >> output.txt', { env: "" });`,
+      errors: 1,
+    },
+    {
+      code: `
+      const exec = require('child_process').exec;
+      exec('echo child_process.exec ' + process.argv[2] + ' >> output.txt');`,
       errors: 1,
     },
   ],

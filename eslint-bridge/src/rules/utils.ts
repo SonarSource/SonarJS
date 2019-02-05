@@ -20,26 +20,37 @@
 import { Rule } from "eslint";
 import * as estree from "estree";
 
-export function getModuleFromIdentifier(expression: estree.Identifier, context: Rule.RuleContext) {
+/**
+ * Returns the module name, when an identifier represents a namespace for that module.
+ * Returns undefined otherwise.
+ * example: Given `import * as X from 'module_name'`, `getModuleNameOfIdentifier(X)` returns `module_name`
+ */
+export function getModuleNameOfIdentifier(
+  expression: estree.Identifier,
+  context: Rule.RuleContext,
+) {
   const { name } = expression;
+  // check if importing using `import * as X from 'module_name'`
   const importDeclaration = getImportDeclarations(context).find(importDecl =>
     checkNamespaceSpecifier(importDecl, name),
   );
   if (importDeclaration) {
     return importDeclaration.source;
   }
-
-  const variable = context.getScope().variables.find(value => value.name === name);
-  if (variable) {
-    const writeReferences = variable.references.filter(reference => reference.isWrite());
-    if (writeReferences.length === 1 && writeReferences[0].writeExpr) {
-      return getModuleName(writeReferences[0].writeExpr!);
-    }
+  // check if importing using `const X = require('module_name')`
+  const writeExpression = getUniqueWriteUsage(context, name);
+  if (writeExpression) {
+    return getModuleNameFromRequire(writeExpression);
   }
   return undefined;
 }
 
-export function getModuleFromImportedIdentifier(
+/**
+ * Returns the module name, when an identifier represents a binding imported from another module.
+ * Returns undefined otherwise.
+ * example: Given `import { f } from 'module_name'`, `getModuleNameOfImportedIdentifier(f)` returns `module_name`
+ */
+export function getModuleNameOfImportedIdentifier(
   identifier: estree.Identifier,
   context: Rule.RuleContext,
 ) {
@@ -50,6 +61,15 @@ export function getModuleFromImportedIdentifier(
   );
   if (importedDeclaration) {
     return importedDeclaration.source;
+  }
+  // check if importing using `const f = require('module_name').f`
+  const writeExpression = getUniqueWriteUsage(context, identifier.name);
+  if (
+    writeExpression &&
+    writeExpression.type === "MemberExpression" &&
+    isIdentifier(writeExpression.property, identifier.name)
+  ) {
+    return getModuleNameFromRequire(writeExpression.object);
   }
   return undefined;
 }
@@ -70,7 +90,7 @@ function checkNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, na
   );
 }
 
-function getModuleName(node: estree.Node) {
+function getModuleNameFromRequire(node: estree.Node) {
   if (
     node.type === "CallExpression" &&
     node.callee.type === "Identifier" &&
@@ -83,4 +103,19 @@ function getModuleName(node: estree.Node) {
     }
     return undefined;
   }
+}
+
+function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
+  const variable = context.getScope().variables.find(value => value.name === name);
+  if (variable) {
+    const writeReferences = variable.references.filter(reference => reference.isWrite());
+    if (writeReferences.length === 1 && writeReferences[0].writeExpr) {
+      return writeReferences[0].writeExpr;
+    }
+  }
+  return undefined;
+}
+
+export function isIdentifier(node: estree.Node, ...values: string[]) {
+  return node.type === "Identifier" && values.some(value => value === node.name);
 }
