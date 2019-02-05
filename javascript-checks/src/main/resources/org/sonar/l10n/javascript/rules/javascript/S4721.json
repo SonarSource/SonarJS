@@ -1,0 +1,26 @@
+{
+  "title": "Executing OS commands is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "cwe",
+    "sans-top25-insecure"
+  ],
+  "standards": [
+    "CWE",
+    "SANS Top 25"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4721",
+  "sqKey": "S4721",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      78
+    ]
+  }
+}

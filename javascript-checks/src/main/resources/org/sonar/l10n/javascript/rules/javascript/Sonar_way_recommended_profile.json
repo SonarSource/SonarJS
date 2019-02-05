@@ -125,6 +125,7 @@
     "S4143",
     "S4144",
     "S4165",
+    "S4721",
     "TrailingWhitespace",
     "UnreachableCode",
     "UnusedVariable",
