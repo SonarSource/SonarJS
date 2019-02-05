@@ -188,6 +188,7 @@ public final class CheckList {
       ShorthandPropertiesNotGroupedCheck.class,
       SingleQuoteStringLiteralsCheck.class,
       SpaceInModelPropertyNameCheck.class,
+      StandardInputCheck.class,
       StrictModeCheck.class,
       StringConcatenatedWithNonStringCheck.class,
       StringConcatenationCheck.class,

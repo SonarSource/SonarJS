@@ -18,17 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+// https://jira.sonarsource.com/browse/RSPEC-4829
+
 import { Rule } from "eslint";
-import { rule as codeEval } from "./code-eval";
-import { rule as osCommand } from "./os-command";
-import { rule as pseudoRandom } from "./pseudo-random";
-import { rule as standardInput } from "./standard-input";
+import * as estree from "estree";
 
-const ruleModules: { [key: string]: Rule.RuleModule } = {};
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      MemberExpression(node: estree.Node) {
+        const { object, property } = node as estree.MemberExpression;
+        if (isIdentifier(object, "process") && isIdentifier(property, "stdin")) {
+          context.report({
+            message: `Make sure that reading the standard input is safe here.`,
+            node,
+          });
+        }
+      },
+    };
+  },
+};
 
-ruleModules["code-eval"] = codeEval;
-ruleModules["os-command"] = osCommand;
-ruleModules["pseudo-random"] = pseudoRandom;
-ruleModules["standard-input"] = standardInput;
-
-export { ruleModules as rules };
+function isIdentifier(node: estree.Node, value: string) {
+  return node.type === "Identifier" && node.name === value;
+}
