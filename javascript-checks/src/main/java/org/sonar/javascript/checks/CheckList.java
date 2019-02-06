@@ -70,6 +70,7 @@ public final class CheckList {
       ConsoleLoggingCheck.class,
       ConstructorFunctionsForSideEffectsCheck.class,
       ContinueStatementCheck.class,
+      CookiesCheck.class,
       CounterUpdatedInLoopCheck.class,
       DeadStoreCheck.class,
       DebuggerStatementCheck.class,
