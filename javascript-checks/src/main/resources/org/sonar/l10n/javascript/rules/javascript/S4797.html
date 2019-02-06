@@ -1,0 +1,91 @@
+<p>Handling files is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+<ul>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-0358">CVE-2018-0358</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-7560">CVE-2017-7560</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-4015">CVE-2005-4015</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3835">CVE-2018-3835</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-8008">CVE-2018-8008</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-2320">CVE-2010-2320</a> </li>
+</ul>
+<p>Any access to the file system can create a vulnerability. Exposing a file's content, path or even its existence or absence is dangerous. It is also
+extremely risky to create or write files without making sure that their permission and content is safe and controlled. Using a file path or reading a
+file content must be always done with caution as they could have been tampered with.</p>
+<p>The file system is a resource which can be easily exhausted. Opening too many files will use up all file descriptors, preventing other software
+from opening files. Filling the storage space will also prevent any additional write from happening.</p>
+<p>This rule flags code that initiates the use of files. The goal is to guide manual security code reviews.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> the file or directory path you are using is coming from a user input or could have been tampered with. </li>
+  <li> the code exposes to an unauthorized person the existence of a file or directory. Any hint given to a user might be dangerous. The information
+  could be given by displaying an error if the file/directory does not exist or just by returning an "Unauthorized" error when the file/directory
+  exists but the person can't perform an action. </li>
+  <li> the code exposes to an unauthorized person the paths of files and/or directories, for example by listing the content of a directory and
+  displaying the output. </li>
+  <li> a file or directory may be created with the wrong permissions. </li>
+  <li> an unvalidated user input is written into a file. </li>
+  <li> a file is read and its content is used without being validated. </li>
+  <li> a file is read and its content is exposed to an unauthorized person. </li>
+  <li> a file is open, created or written into each time a user performs an action. </li>
+  <li> files are open and not closed before executing a child process. This is only dangerous if file descriptors are inherited in your programming
+  language (example: C, C++). </li>
+</ul>
+<p>You are at risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Avoid using paths provided by users or other untrusted sources if possible. If this is required, check that the path does not reference an
+unauthorized directory or file. See <a href="https://www.owasp.org/index.php/Testing_Directory_traversal/file_include_(OTG-AUTHZ-001)">OWASP
+recommendations</a> as to how to test for directory traversal. Note that the paths length should be validated too.</p>
+<p>No File and directory names should be exposed. They can contain sensitive information. This means that a user should not be able to list the
+content of unauthorized directories.</p>
+<p>Make sure that no attackers can test for the existence or absence of sensitive files. Knowing that a specific file exists can reveal a
+vulnerability or at least expose file and directory names.</p>
+<p>Files and directories should be created with restricted permissions and ownership. Only authorized users and applications should be able to access
+the files, and they should have as little permissions as needed. Modifying a file's permissions is not good enough. The permissions should be
+restricted from the very beginning.</p>
+<p>Writing user input into files should be done with caution. It could fill the storage space if the amount of data written is not controlled. It
+could also write dangerous data which will later be used by an application or returned to another user. This is why the user input should be validated
+before being written.</p>
+<p>Reading a file can lead to other vulnerabilities. Any file could have been modified by an attacker. Thus the same validation as for any user input
+should be performed on file content.</p>
+<p>Once a file is read, its content should only be exposed to authorized users.</p>
+<p>Add limits to the number of files your application access simultaneously or create because of a user action. It is possible to perform a Denial of
+Service attack by opening too many files, and thus exhausting available file descriptors, or by filling the file system with new files. Release file
+descriptors by closing files as soon as possible.</p>
+<p>We also recommended to have tools monitoring your system and alerting you whenever resources are nearly exhausted.</p>
+<p>Do not allow untrusted code to access the filesystem. For some programming languages, child-processes may have access to file descriptors opened by
+the parent process before the creation of the child process. This creates a vulnerability when a child process doesn't have the permission to access a
+file but is still able to modify it via the inherited file descriptor. Check your language documentation for "file descriptor leak" or the use of the
+flags <code>O_CLOEXEC</code>, <code>FD_CLOEXEC</code>, or <code>bInheritHandles</code>. File descriptors can be inherited in the following languages:
+C, C++, C#, Objective-C, Swift, Go (but disabled by default), some JVM versions, Javascript and TypeScript in Nodejs, Some PHP versions, Python, Ruby,
+Rust, VB6 and VB.NET.</p>
+<h2>Questionable Code Example</h2>
+<pre>
+const fs = require('fs'); // Questionable: review how the 'fs' module is used
+// All 'fs' operations accepting a path as a parameter are security-sensitive and should be reviewed
+// Examples:
+var res = fs.readdirSync(path); // Questionable
+var fd = fs.openSync(path, 'r'); // Questionable
+var ws = fs.createWriteStream(path); // Questionable
+</pre>
+<h2>Exceptions</h2>
+<p>No issue will be raised if the path is fully hard-coded.</p>
+<h2>See</h2>
+<ul>
+  <li> <a href="http://cwe.mitre.org/data/definitions/732">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/73">MITRE, CWE-73</a> - External Control of File Name or Path </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/20">MITRE, CWE-20</a> - Improper Input Validation </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/22">MITRE, CWE-22</a> - Improper Limitation of a Pathname to a Restricted Directory ('Path
+  Traversal') </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/400">MITRE, CWE-400</a> - Uncontrolled Resource Consumption ('Resource Exhaustion') </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/538">MITRE, CWE-538</a> - File and Directory Information Exposure </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/403">MITRE, CWE-403</a> - Exposure of File Descriptor to Unintended Control Sphere ('File
+  Descriptor Leak') </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/g4HWAw">CERT, FIO01-J.</a> - Create files with appropriate access permissions </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/KQU">CERT, FIO06-C.</a> - Create files with appropriate access permissions </li>
+  <li> <a href="https://wiki.sei.cmu.edu/confluence/display/c/FIO22-C.+Close+files+before+spawning+processes">CERT, FIO22-C.</a> Close files before
+  spawning processes </li>
+  <li> OWASP Top 10 2017 Category A1 - Injection </li>
+  <li> OWASP Top 10 2017 Category A3 - Sensitive Data Exposure </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat2">SANS Top 25</a> - Risky Resource Management </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
+</ul>
+

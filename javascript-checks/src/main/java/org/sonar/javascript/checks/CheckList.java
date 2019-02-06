@@ -101,6 +101,7 @@ public final class CheckList {
       EvalCheck.class,
       ExcessiveParameterListCheck.class,
       ExpressionComplexityCheck.class,
+      FileHandlingCheck.class,
       FileHeaderCheck.class,
       FileNameDiffersFromClassCheck.class,
       FixmeTagPresenceCheck.class,

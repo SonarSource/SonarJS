@@ -1,0 +1,37 @@
+{
+  "title": "Handling files is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a1",
+    "sans-top25-risky",
+    "cert",
+    "sans-top25-porous",
+    "owasp-a3"
+  ],
+  "standards": [
+    "CWE",
+    "OWASP Top Ten",
+    "SANS Top 25"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4797",
+  "sqKey": "S4797",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      732,
+      73,
+      20,
+      22,
+      400,
+      538,
+      403
+    ],
+    "OWASP": [
+      "A1",
+      "A3"
+    ]
+  }
+}
