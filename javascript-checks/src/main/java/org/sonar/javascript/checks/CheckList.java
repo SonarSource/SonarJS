@@ -121,6 +121,7 @@ public final class CheckList {
       GetterSetterCheck.class,
       GlobalThisCheck.class,
       HtmlCommentsCheck.class,
+      HttpEndpointCheck.class,
       IdChildrenSelectorCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
       IdenticalFunctionsCheck.class,
