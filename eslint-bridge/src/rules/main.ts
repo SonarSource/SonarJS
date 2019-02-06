@@ -26,6 +26,7 @@ import { rule as fileHandling } from "./file-handling";
 import { rule as osCommand } from "./os-command";
 import { rule as processArgv } from "./process-argv";
 import { rule as pseudoRandom } from "./pseudo-random";
+import { rule as sockets } from "./sockets";
 import { rule as standardInput } from "./standard-input";
 
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
@@ -37,6 +38,7 @@ ruleModules["file-handling"] = fileHandling;
 ruleModules["os-command"] = osCommand;
 ruleModules["process-argv"] = processArgv;
 ruleModules["pseudo-random"] = pseudoRandom;
+ruleModules["sockets"] = sockets;
 ruleModules["standard-input"] = standardInput;
 
 export { ruleModules as rules };
