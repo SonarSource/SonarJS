@@ -22,13 +22,13 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
+import { isMemberExpression } from "./utils";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       MemberExpression(node: estree.Node) {
-        const { object, property } = node as estree.MemberExpression;
-        if (isIdentifier(object, "process") && isIdentifier(property, "argv")) {
+        if (isMemberExpression(node, "process", "argv")) {
           context.report({
             message: `Make sure that command line arguments are used safely here.`,
             node,
@@ -38,7 +38,3 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function isIdentifier(node: estree.Node, value: string) {
-  return node.type === "Identifier" && node.name === value;
-}

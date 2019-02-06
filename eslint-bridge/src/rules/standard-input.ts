@@ -22,13 +22,13 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
+import { isMemberExpression } from "./utils";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       MemberExpression(node: estree.Node) {
-        const { object, property } = node as estree.MemberExpression;
-        if (isIdentifier(object, "process") && isIdentifier(property, "stdin")) {
+        if (isMemberExpression(node, "process", "stdin")) {
           context.report({
             message: `Make sure that reading the standard input is safe here.`,
             node,
@@ -38,7 +38,3 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function isIdentifier(node: estree.Node, value: string) {
-  return node.type === "Identifier" && node.name === value;
-}

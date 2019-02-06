@@ -133,3 +133,17 @@ export function isMemberWithProperty(
 ): node is estree.MemberExpression {
   return node.type === "MemberExpression" && isIdentifier(node.property, ...values);
 }
+
+export function isMemberExpression(
+  node: estree.Node,
+  objectValue: string,
+  propertyValue: string,
+): node is estree.MemberExpression {
+  if (node.type === "MemberExpression") {
+    const { object, property } = node;
+    if (isIdentifier(object, objectValue) && isIdentifier(property, propertyValue)) {
+      return true;
+    }
+  }
+  return false;
+}

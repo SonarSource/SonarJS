@@ -22,26 +22,20 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
+import { isMemberExpression } from "./utils";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.Node) {
         const { callee } = node as estree.CallExpression;
-        if (callee.type === "MemberExpression") {
-          const { object, property } = callee;
-          if (isIdentifier(object, "Math") && isIdentifier(property, "random")) {
-            context.report({
-              message: `Make sure that using this pseudorandom number generator is safe here.`,
-              node,
-            });
-          }
+        if (isMemberExpression(callee, "Math", "random")) {
+          context.report({
+            message: `Make sure that using this pseudorandom number generator is safe here.`,
+            node,
+          });
         }
       },
     };
   },
 };
-
-function isIdentifier(node: estree.Node, value: string) {
-  return node.type === "Identifier" && node.name === value;
-}
