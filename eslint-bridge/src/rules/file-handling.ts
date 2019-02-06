@@ -68,8 +68,10 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function checkCallExpression(callExpression: estree.CallExpression, context: Rule.RuleContext) {
-  const { callee, arguments: args } = callExpression;
+function checkCallExpression(
+  { callee, arguments: args }: estree.CallExpression,
+  context: Rule.RuleContext,
+) {
   if (
     callee.type === "MemberExpression" &&
     callee.object.type === "Identifier" &&
@@ -80,7 +82,7 @@ function checkCallExpression(callExpression: estree.CallExpression, context: Rul
     callee.type === "Identifier" &&
     isQuestionable(callee, args, getModuleNameOfImportedIdentifier(callee, context))
   ) {
-    context.report({ message: MESSAGE, node: callExpression });
+    context.report({ message: MESSAGE, node: callee });
   }
 }
 
