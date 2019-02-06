@@ -126,3 +126,10 @@ function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
 export function isIdentifier(node: estree.Node, ...values: string[]): node is estree.Identifier {
   return node.type === "Identifier" && values.some(value => value === node.name);
 }
+
+export function isMemberWithProperty(
+  node: estree.Node,
+  ...values: string[]
+): node is estree.MemberExpression {
+  return node.type === "MemberExpression" && isIdentifier(node.property, ...values);
+}

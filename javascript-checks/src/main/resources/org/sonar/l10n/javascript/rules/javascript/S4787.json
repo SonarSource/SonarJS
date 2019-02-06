@@ -1,0 +1,36 @@
+{
+  "title": "Encrypting data is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a6",
+    "sans-top25-porous",
+    "owasp-a3"
+  ],
+  "standards": [
+    "CWE",
+    "OWASP Top Ten",
+    "SANS Top 25"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4787",
+  "sqKey": "S4787",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      321,
+      322,
+      323,
+      324,
+      325,
+      326,
+      327,
+      522
+    ],
+    "OWASP": [
+      "A3",
+      "A6"
+    ]
+  }
+}
