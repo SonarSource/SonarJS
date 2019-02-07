@@ -13,7 +13,7 @@ ruleTester.run("Handling files is security-sensitive", rule, {
     },
     {
       code: `
-         net.Socket();
+         new net.Socket();
         `,
     },
   ],
@@ -21,15 +21,15 @@ ruleTester.run("Handling files is security-sensitive", rule, {
     {
       code: `
         const net = require('net');
-        net.Socket();
+        new net.Socket();
         `,
       errors: [
         {
           message: "Make sure that sockets are used safely here.",
           line: 3,
           endLine: 3,
-          column: 9,
-          endColumn: 19,
+          column: 13,
+          endColumn: 23,
         },
       ],
     },

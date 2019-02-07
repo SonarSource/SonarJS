@@ -28,35 +28,51 @@ const NET_MODULE = "net";
 
 const MESSAGE = "Make sure that sockets are used safely here.";
 
-const SOCKET_CREATION_FUNCTIONS = new Set(["Socket", "createConnection", "connect"]);
+const SOCKET_CREATION_FUNCTIONS = new Set(["createConnection", "connect"]);
+
+const SOCKET_CONSTRUCTOR = "Socket";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
+      NewExpression: (node: estree.Node) =>
+        checkCallExpression(node as estree.NewExpression, context),
       CallExpression: (node: estree.Node) =>
         checkCallExpression(node as estree.CallExpression, context),
     };
   },
 };
 
-function checkCallExpression({ callee }: estree.CallExpression, context: Rule.RuleContext) {
-  if (
-    callee.type === "MemberExpression" &&
-    callee.object.type === "Identifier" &&
-    isQuestionable(callee.property, getModuleNameOfIdentifier(callee.object, context))
-  ) {
-    context.report({ message: MESSAGE, node: callee });
-  } else if (
-    callee.type === "Identifier" &&
-    isQuestionable(callee, getModuleNameOfImportedIdentifier(callee, context))
-  ) {
+function checkCallExpression({ callee, type }: estree.CallExpression, context: Rule.RuleContext) {
+  let moduleName;
+  let expression: estree.Expression | undefined;
+  if (callee.type === "MemberExpression" && callee.object.type === "Identifier") {
+    moduleName = getModuleNameOfIdentifier(callee.object, context);
+    expression = callee.property;
+  }
+
+  if (callee.type === "Identifier") {
+    moduleName = getModuleNameOfImportedIdentifier(callee, context);
+    expression = callee;
+  }
+
+  if (expression && isQuestionable(expression, type === "NewExpression", moduleName)) {
     context.report({ message: MESSAGE, node: callee });
   }
 }
 
-function isQuestionable(expression: estree.Expression, moduleName?: estree.Literal) {
-  if (!moduleName || moduleName.value !== NET_MODULE) {
+function isQuestionable(
+  expression: estree.Expression,
+  isConstructor: boolean,
+  moduleName?: estree.Literal,
+) {
+  if (!moduleName || moduleName.value !== NET_MODULE || expression.type !== "Identifier") {
     return false;
   }
-  return expression.type === "Identifier" && SOCKET_CREATION_FUNCTIONS.has(expression.name);
+
+  if (isConstructor) {
+    return expression.name === SOCKET_CONSTRUCTOR;
+  }
+
+  return SOCKET_CREATION_FUNCTIONS.has(expression.name);
 }
