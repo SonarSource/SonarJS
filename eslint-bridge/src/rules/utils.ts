@@ -145,5 +145,17 @@ export function isMemberExpression(
       return true;
     }
   }
+
+  return false;
+}
+
+export function isRequireModule(node: estree.CallExpression, ...moduleNames: string[]) {
+  if (isIdentifier(node.callee, "require") && node.arguments.length === 1) {
+    const argument = node.arguments[0];
+    if (argument.type === "Literal") {
+      return moduleNames.includes(String(argument.value));
+    }
+  }
+
   return false;
 }

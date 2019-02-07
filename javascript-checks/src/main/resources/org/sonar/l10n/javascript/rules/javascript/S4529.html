@@ -1,0 +1,94 @@
+<p>Exposing HTTP endpoints is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+<ul>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-3072">CVE-2016-3072</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3175">CVE-2015-3175</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2003-0218">CVE-2003-0218</a> </li>
+</ul>
+<p>HTTP endpoints are webservices' main entrypoint. Attackers will take advantage of any vulnerability by sending crafted inputs for headers
+(including cookies), body and URI. No input should be trusted and extreme care should be taken with all returned value (header, body and status
+code).</p>
+<p>This rule flags code which creates HTTP endpoint. It guides security code reviews to security-sensitive code.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> an input is not sanitized before being used. This includes any value coming from the URI, header, body and cookies. </li>
+  <li> the response contains some unsafe data. for example the input could come from a database which contains user inputs. Check the response's
+  headers, cookies, body and status code. </li>
+  <li> the response contains some sensitive information which the user shouldn't have access to. </li>
+</ul>
+<p>no access control prevents attackers from successfully performing a forbidden request.</p>
+<ul>
+  <li> an attacker can get sensitive information by analyzing the returned errors. For example, a web service can expose the existence of user
+  accounts by returning 403 (Forbidden) instead of 404 (Not Found) when an attacker ask for them. </li>
+</ul>
+<p>You are at risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Never trust any part of the request to be safe. Make sure that the URI, header and body are properly <a
+href="https://www.owasp.org/index.php/Input_Validation_Cheat_Sheet">sanitized</a> before being used. Their content, length, encoding, name (ex: name
+of URL query parameters) should be checked. Validate that the values are in a predefined whitelist. The opposite, i.e. searching for dangerous values
+in a given input, can easily miss some of them.</p>
+<p>Do not rely solely on cookies when you implement your authentication and permission logic. Use additional protections such as <a
+href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet">CSRF</a> tokens when possible.</p>
+<p>Do not expose sensitive information in your response. If the endpoint serves files, limit the access to a dedicated directory. <a
+href="https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Cookies">Protect your sensitive cookies</a> so that client-side javascript cannot
+read or modify them.</p>
+<p>Sanitize all values before returning them in a response, be it in the body, header or status code. Special care should be taken to avoid the
+following attacks:</p>
+<ul>
+  <li> <a href="https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet">Cross-site Scripting (XSS)</a>, which happens when
+  an unsafe value is included in an HTML page. </li>
+  <li> <a href="https://www.owasp.org/index.php/Unvalidated_Redirects_and_Forwards_Cheat_Sheet">Unvalidated redirects</a> which can happen when the
+  <code>Location</code> header is compromised. </li>
+</ul>
+<p>Restrict security-sensitive actions, such as file upload, to authenticated users.</p>
+<p>Be careful when errors are returned to the client, as they can provide sensitive information. Use 404 (Not Found) instead of 403 (Forbidden) when
+the existence of a resource is sensitive.</p>
+<h2>Questionable Code Example</h2>
+<pre>
+// === NodeJS built-in modules ===
+const http = require('http');
+const https = require('https');
+
+// http.Server and https.Server objects are security-sensitive and should be reviewed.
+
+const srv = new http.Server((req, res) =&gt; {}); // Questionable
+srv.listen(3000);
+
+// http.createServer creates a new http.Server object.
+const srv = http.createServer((req, res) =&gt; {}); // Questionable
+srv.listen(3000);
+
+const srv = new https.Server((req, res) =&gt; {}); // Questionable
+srv.listen(3000);
+
+// https.createServer creates a new https.Server object.
+const srv = https.createServer((req, res) =&gt; {}); // Questionable
+srv.listen(3000);
+</pre>
+<pre>
+// === ExpressJS ===
+const express = require('express');
+
+const app = express();
+// All express.Application methods exposing endpoints are security-sensitive and should be reviewed.
+// Examples:
+app.get('/', function (req, res) {}); // Questionable
+app.post('/', function (req, res) {}); // Questionable
+app.all('/', function (req, res) {}); // Questionable
+app.listen(3000);
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="http://cwe.mitre.org/data/definitions/20.html">MITRE, CWE-20</a> - Improper Input Validation </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/352.html">MITRE, CWE-352</a> - Cross-Site Request Forgery (CSRF) </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/79.html">MITRE, CWE-79</a> - Improper Neutralization of Input During Web Page Generation
+  ('Cross-site Scripting') </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/22.html">MITRE, CWE-22</a> - Improper Limitation of a Pathname to a Restricted Directory ('Path
+  Traversal') </li>
+  <li> OWASP Top 10 2017 Category A1 - Injection </li>
+  <li> OWASP Top 10 2017 Category A3 - Sensitive Data Exposure </li>
+  <li> OWASP Top 10 2017 Category A7 - Cross-Site Scripting (XSS) </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat1">SANS Top 25</a> - Insecure Interaction Between Components </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat2">SANS Top 25</a> - Risky Resource Management </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
+</ul>
+
