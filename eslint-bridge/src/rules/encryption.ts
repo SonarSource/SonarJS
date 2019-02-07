@@ -80,7 +80,12 @@ function checkForServerSide(
   message: string,
 ) {
   let moduleName: estree.Literal | undefined;
-  if (isMemberWithProperty(callee, ...serverSideMethods) && callee.object.type === "Identifier") {
+
+  if (
+    callee.type === "MemberExpression" &&
+    isMemberWithProperty(callee, ...serverSideMethods) &&
+    callee.object.type === "Identifier"
+  ) {
     moduleName = getModuleNameOfIdentifier(callee.object, context);
   } else if (isIdentifier(callee, ...serverSideMethods)) {
     moduleName = getModuleNameOfImportedIdentifier(callee, context);
