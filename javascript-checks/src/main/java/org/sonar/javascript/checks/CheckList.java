@@ -120,6 +120,7 @@ public final class CheckList {
       GeneratorWithoutYieldCheck.class,
       GetterSetterCheck.class,
       GlobalThisCheck.class,
+      HashingCheck.class,
       HtmlCommentsCheck.class,
       HttpEndpointCheck.class,
       IdChildrenSelectorCheck.class,

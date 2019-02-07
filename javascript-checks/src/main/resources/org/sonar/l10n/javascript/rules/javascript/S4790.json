@@ -1,0 +1,29 @@
+{
+  "title": "Hashing data is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "sans-top25-porous",
+    "owasp-a3"
+  ],
+  "standards": [
+    "CWE",
+    "OWASP Top Ten",
+    "SANS Top 25"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4790",
+  "sqKey": "S4790",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      759,
+      760,
+      916
+    ],
+    "OWASP": [
+      "A3"
+    ]
+  }
+}
