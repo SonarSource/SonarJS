@@ -29,21 +29,11 @@ import {
   isMemberWithProperty,
 } from "./utils";
 
-const message = `Make sure that encrypting data is safe here.`;
-
-const clientSideEncryptMethods = ["encrypt", "decrypt"];
-const serverSideEncryptMethods = [
-  "createCipher",
-  "createCipheriv",
-  "createDecipher",
-  "createDecipheriv",
-  "publicEncrypt",
-  "publicDecrypt",
-  "privateEncrypt",
-  "privateDecrypt",
-];
-
-export const rule: Rule.RuleModule = {
+export const getEncryptionRuleModule = (
+  clientSideMethods: string[],
+  serverSideMethods: string[],
+  message: string,
+): Rule.RuleModule => ({
   create(context: Rule.RuleContext) {
     // for client side
     let usingCryptoInFile = false;
@@ -71,26 +61,28 @@ export const rule: Rule.RuleModule = {
 
         if (usingCryptoInFile) {
           // e.g.: crypto.subtle.encrypt()
-          checkForClientSide(callee, context);
+          checkForClientSide(callee, context, clientSideMethods, message);
         }
 
         // e.g.
         // const crypto = require("crypto");
         // const cipher = crypto.createCipher(alg, key);
-        checkForServerSide(callee, context);
+        checkForServerSide(callee, context, serverSideMethods, message);
       },
     };
   },
-};
+});
 
-function checkForServerSide(callee: estree.Node, context: Rule.RuleContext) {
+function checkForServerSide(
+  callee: estree.Node,
+  context: Rule.RuleContext,
+  serverSideMethods: string[],
+  message: string,
+) {
   let moduleName: estree.Literal | undefined;
-  if (
-    isMemberWithProperty(callee, ...serverSideEncryptMethods) &&
-    callee.object.type === "Identifier"
-  ) {
+  if (isMemberWithProperty(callee, ...serverSideMethods) && callee.object.type === "Identifier") {
     moduleName = getModuleNameOfIdentifier(callee.object, context);
-  } else if (isIdentifier(callee, ...serverSideEncryptMethods)) {
+  } else if (isIdentifier(callee, ...serverSideMethods)) {
     moduleName = getModuleNameOfImportedIdentifier(callee, context);
   }
   if (moduleName && moduleName.value === "crypto") {
@@ -101,10 +93,15 @@ function checkForServerSide(callee: estree.Node, context: Rule.RuleContext) {
   }
 }
 
-function checkForClientSide(callee: estree.Node, context: Rule.RuleContext) {
+function checkForClientSide(
+  callee: estree.Node,
+  context: Rule.RuleContext,
+  clientSideMethods: string[],
+  message: string,
+) {
   if (
-    isIdentifier(callee, ...clientSideEncryptMethods) ||
-    isMemberWithProperty(callee, ...clientSideEncryptMethods)
+    isIdentifier(callee, ...clientSideMethods) ||
+    isMemberWithProperty(callee, ...clientSideMethods)
   ) {
     context.report({
       message,
@@ -112,3 +109,23 @@ function checkForClientSide(callee: estree.Node, context: Rule.RuleContext) {
     });
   }
 }
+
+const message = `Make sure that encrypting data is safe here.`;
+
+const clientSideEncryptMethods = ["encrypt", "decrypt"];
+const serverSideEncryptMethods = [
+  "createCipher",
+  "createCipheriv",
+  "createDecipher",
+  "createDecipheriv",
+  "publicEncrypt",
+  "publicDecrypt",
+  "privateEncrypt",
+  "privateDecrypt",
+];
+
+export const rule: Rule.RuleModule = getEncryptionRuleModule(
+  clientSideEncryptMethods,
+  serverSideEncryptMethods,
+  message,
+);
