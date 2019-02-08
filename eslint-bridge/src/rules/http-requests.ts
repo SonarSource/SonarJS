@@ -92,7 +92,7 @@ function checkCallExpression({ callee }: estree.CallExpression, context: Rule.Ru
     return;
   }
 
-  let [moduleName, expression] = getNodeModule(callee, context);
+  const [moduleName, expression] = getNodeModule(callee, context);
 
   if (expression && isQuestionable(expression, moduleName)) {
     context.report({
