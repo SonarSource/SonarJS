@@ -1,0 +1,36 @@
+{
+  "title": "Executing SQL queries is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a1",
+    "sans-top25-insecure",
+    "cert",
+    "sql"
+  ],
+  "standards": [
+    "CWE",
+    "OWASP Top Ten",
+    "SANS Top 25"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-2077",
+  "sqKey": "S2077",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      564,
+      89,
+      20,
+      943
+    ],
+    "OWASP": [
+      "A1"
+    ]
+  }
+}

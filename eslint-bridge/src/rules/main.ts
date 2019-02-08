@@ -29,6 +29,7 @@ import { rule as osCommand } from "./os-command";
 import { rule as processArgv } from "./process-argv";
 import { rule as pseudoRandom } from "./pseudo-random";
 import { rule as sockets } from "./sockets";
+import { rule as sqlQueries } from "./sql-queries";
 import { rule as standardInput } from "./standard-input";
 
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
@@ -43,6 +44,7 @@ ruleModules["os-command"] = osCommand;
 ruleModules["process-argv"] = processArgv;
 ruleModules["pseudo-random"] = pseudoRandom;
 ruleModules["sockets"] = sockets;
+ruleModules["sql-queries"] = sqlQueries;
 ruleModules["standard-input"] = standardInput;
 
 export { ruleModules as rules };

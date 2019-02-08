@@ -195,6 +195,7 @@ public final class CheckList {
       SingleQuoteStringLiteralsCheck.class,
       SocketsCheck.class,
       SpaceInModelPropertyNameCheck.class,
+      SqlQueriesCheck.class,
       StandardInputCheck.class,
       StrictModeCheck.class,
       StringConcatenatedWithNonStringCheck.class,
