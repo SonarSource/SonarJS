@@ -18,7 +18,7 @@ ruleTester.run("Sending HTTP requests is security-sensitive: client side", rule,
       code: `window.fetch(url);`,
       errors: [
         {
-          message: "Make sure that this http request is sent safely.",
+          message: "Make sure that this HTTP request is sent safely.",
           line: 1,
           endLine: 1,
           column: 1,
@@ -34,6 +34,16 @@ ruleTester.run("Sending HTTP requests is security-sensitive: client side", rule,
       code: `
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", url, false);
+        `,
+      errors: 1,
+    },
+    {
+      code: `
+        var xmlhttp = createHtmlRequestObject();
+        xmlhttp.open("GET", url, false);
+        function createHtmlRequestObject() {
+          return new XMLHttpRequest();
+        }
         `,
       errors: 1,
     },
@@ -55,8 +65,9 @@ ruleTester.run("Sending HTTP requests is security-sensitive: client side", rule,
       code: `
         $.ajax({ url: url });
         $.get(url, function(data) {});
+        jQuery.post(url, data => {});
         `,
-      errors: 2,
+      errors: 3,
     },
   ],
 });
@@ -81,7 +92,7 @@ ruleTester.run("Sending HTTP requests is security-sensitive: server side", rule,
         `,
       errors: [
         {
-          message: "Make sure that this http request is sent safely.",
+          message: "Make sure that this HTTP request is sent safely.",
           line: 3,
           endLine: 3,
           column: 9,
@@ -107,9 +118,10 @@ ruleTester.run("Sending HTTP requests is security-sensitive: server side", rule,
     {
       code: `
       const axios = require('axios');
+      axios({method: 'get', url});
       axios.post(url);
       `,
-      errors: 1,
+      errors: 2,
     },
   ],
 });

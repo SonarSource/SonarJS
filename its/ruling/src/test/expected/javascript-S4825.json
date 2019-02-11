@@ -253,6 +253,14 @@
 'project:ecmascript6/sonar-web/src/main/js/helpers/request.js':[
 58,
 ],
+'project:ecmascript6/sonar-web/src/main/js/libs/application.js':[
+82,
+124,
+172,
+],
+'project:ecmascript6/sonar-web/src/main/js/libs/translate.js':[
+64,
+],
 'project:ecmascript6/sonar-web/src/main/js/main/nav/global/search-view.js':[
 123,
 169,
@@ -295,6 +303,9 @@
 'project:frameworks/wordpress/inline-edit-tax.js':[
 97,
 ],
+'project:frameworks/wordpress/media-gallery.js':[
+13,
+],
 'project:frameworks/wordpress/media.js':[
 56,
 ],
@@ -320,6 +331,9 @@
 179,
 285,
 ],
+'project:frameworks/wordpress/set-post-thumbnail.js':[
+8,
+],
 'project:frameworks/wordpress/tags-box.js':[
 139,
 ],
@@ -335,6 +349,11 @@
 361,
 ],
 'project:jquery-1.7.2.js':[
+6070,
+7162,
+7245,
+7258,
+7262,
 8204,
 8206,
 ],

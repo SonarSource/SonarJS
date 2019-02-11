@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-// https://jira.sonarsource.com/browse/RSPEC-2077
+// https://jira.sonarsource.com/browse/RSPEC-4825
 
 import { Rule } from "eslint";
 import * as estree from "estree";
@@ -29,9 +29,9 @@ import {
   isIdentifier,
 } from "./utils";
 
-const MESSAGE = `Make sure that this http request is sent safely.`;
+const MESSAGE = `Make sure that this HTTP request is sent safely.`;
 
-const httpRequestFunctions = new Set(["request", "get"]);
+const httpFunctions = new Set(["request", "get"]);
 const requestFunctions = [
   "request",
   "get",
@@ -47,8 +47,8 @@ const requestFunctions = [
 const jQueryFunctions = ["ajax", "get", "getJson", "getScript", "post", "load"];
 
 const httpModules: { [key: string]: Set<string> } = {
-  http: httpRequestFunctions,
-  https: httpRequestFunctions,
+  http: httpFunctions,
+  https: httpFunctions,
   request: new Set(requestFunctions),
   axios: new Set(["axios", ...requestFunctions]),
 };
@@ -58,7 +58,7 @@ const httpRequestConstructors = new Set(["XMLHttpRequest", "ActiveXObject", "XDo
 type Callee = estree.Expression | estree.Super;
 
 let openCalls: Callee[] = [];
-let isHttpRequestConstructorCalled = false;
+let isHttpRequestObjectCreated = false;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -66,18 +66,18 @@ export const rule: Rule.RuleModule = {
       Program() {
         // init flag for each file
         openCalls = [];
-        isHttpRequestConstructorCalled = false;
+        isHttpRequestObjectCreated = false;
       },
       NewExpression(node: estree.Node) {
         const { callee } = node as estree.NewExpression;
         if (isGlobalIdentifier(callee, ...httpRequestConstructors)) {
-          isHttpRequestConstructorCalled = true;
+          isHttpRequestObjectCreated = true;
         }
       },
       CallExpression: (node: estree.Node) =>
         checkCallExpression(node as estree.CallExpression, context),
       "Program:exit"() {
-        if (isHttpRequestConstructorCalled) {
+        if (isHttpRequestObjectCreated) {
           openCalls.forEach(callee => context.report({ message: MESSAGE, node: callee }));
         }
       },
@@ -87,7 +87,11 @@ export const rule: Rule.RuleModule = {
 
 function checkCallExpression({ callee }: estree.CallExpression, context: Rule.RuleContext) {
   // check for fetch API and jQuery API
-  if (isGlobalIdentifier(callee, "fetch") || isMemberExpression(callee, "$", ...jQueryFunctions)) {
+  if (
+    isGlobalIdentifier(callee, "fetch") ||
+    isMemberExpression(callee, "$", ...jQueryFunctions) ||
+    isMemberExpression(callee, "jQuery", ...jQueryFunctions)
+  ) {
     context.report({ message: MESSAGE, node: callee });
     return;
   }
