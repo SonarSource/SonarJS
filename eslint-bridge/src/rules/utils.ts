@@ -127,10 +127,7 @@ export function isIdentifier(node: estree.Node, ...values: string[]): node is es
   return node.type === "Identifier" && values.some(value => value === node.name);
 }
 
-export function isMemberWithProperty(
-  node: estree.Node,
-  ...values: string[]
-): node is estree.MemberExpression {
+export function isMemberWithProperty(node: estree.Node, ...values: string[]) {
   return node.type === "MemberExpression" && isIdentifier(node.property, ...values);
 }
 

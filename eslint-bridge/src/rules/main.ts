@@ -31,6 +31,7 @@ import { rule as pseudoRandom } from "./pseudo-random";
 import { rule as sockets } from "./sockets";
 import { rule as sqlQueries } from "./sql-queries";
 import { rule as standardInput } from "./standard-input";
+import { rule as xpath } from "./xpath";
 
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
@@ -46,5 +47,6 @@ ruleModules["pseudo-random"] = pseudoRandom;
 ruleModules["sockets"] = sockets;
 ruleModules["sql-queries"] = sqlQueries;
 ruleModules["standard-input"] = standardInput;
+ruleModules["xpath"] = xpath;
 
 export { ruleModules as rules };
