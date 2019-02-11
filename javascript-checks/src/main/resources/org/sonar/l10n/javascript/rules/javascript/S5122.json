@@ -1,0 +1,23 @@
+{
+  "title": "Enabling Cross-Origin Resource Sharing is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a6",
+    "sans-top25-porous"
+  ],
+  "standards": [
+    "CWE"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5122",
+  "sqKey": "S5122",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      346,
+      942
+    ]
+  }
+}

@@ -21,6 +21,7 @@
 import { Rule } from "eslint";
 import { rule as codeEval } from "./code-eval";
 import { rule as cookies } from "./cookies";
+import { rule as cors } from "./cors";
 import { rule as encryption } from "./encryption";
 import { rule as fileHandling } from "./file-handling";
 import { rule as hashing } from "./hashing";
@@ -39,6 +40,7 @@ const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
 ruleModules["code-eval"] = codeEval;
 ruleModules["cookies"] = cookies;
+ruleModules["cors"] = cors;
 ruleModules["encryption"] = encryption;
 ruleModules["file-handling"] = fileHandling;
 ruleModules["hashing"] = hashing;
