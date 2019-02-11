@@ -68,7 +68,7 @@ export const rule: Rule.RuleModule = {
           if (moduleName && moduleName.value === "cors") {
             context.report({
               message: MESSAGE,
-              node: callee,
+              node,
             });
           }
         }
