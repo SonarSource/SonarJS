@@ -1,0 +1,29 @@
+{
+  "title": "Sending HTTP requests is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a1",
+    "owasp-a3"
+  ],
+  "standards": [
+    "CWE",
+    "OWASP Top Ten"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4825",
+  "sqKey": "S4825",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      20,
+      200,
+      400
+    ],
+    "OWASP": [
+      "A1",
+      "A3"
+    ]
+  }
+}
