@@ -73,7 +73,7 @@ function isStringLiteral(node: estree.Node) {
 function isSafeRegexLiteral(node: estree.Node) {
   if (node.type === "Literal" && (node as estree.RegExpLiteral).regex) {
     const pattern = (node as estree.RegExpLiteral).regex.pattern;
-    return !pattern.includes("*") && !pattern.includes("+");
+    return pattern.length <= 1 || pattern.match(/^[\^$\w\\]+$/);
   }
 
   return false;

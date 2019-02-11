@@ -66,6 +66,10 @@ ruleTester.run("Using regular expressions is security-sensitive", rule, {
       errors: 1,
     },
     {
+      code: `str.replace(/[a-d]/, str);`,
+      errors: 1,
+    },
+    {
       code: `regex.exec(str);`,
       errors: 1,
     },

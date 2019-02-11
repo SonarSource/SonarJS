@@ -51,8 +51,8 @@ regex.exec(str);
 regex.test(str);
 </pre>
 <h2>Exceptions</h2>
-<p>Regardless of the string being matched, a hardcoded regular expression pattern is not vulnerable to ReDoS attacks if it does not contain
-<code>+</code> or <code>*</code>. No issue will be raised for these cases.</p>
+<p>Regardless of the string being matched, a hardcoded regular expression pattern is not vulnerable to ReDoS attacks if it consists only of one
+character or only alphanumeric characters. No issue will be raised for these cases.</p>
 <h2>See</h2>
 <ul>
   <li> <a href="https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS">MITRA, CWE-624</a> - Executable Regular Expression Error
