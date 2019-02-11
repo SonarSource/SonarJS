@@ -184,6 +184,7 @@ public final class CheckList {
       GratuitousConditionCheck.class,
       RedundantAssignmentCheck.class,
       ReferenceErrorCheck.class,
+      RegularExprCheck.class,
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,
       ReturnValueNotIgnoredCheck.class,

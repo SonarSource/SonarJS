@@ -1,0 +1,65 @@
+<p>Using regular expressions is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+<ul>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-16021">CVE-2017-16021</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-13863">CVE-2018-13863</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-8926">CVE-2018-8926</a> </li>
+</ul>
+<p>Regular Expressions are subject to different kinds of vulnerabilities.</p>
+<p> </p>
+<p>First, evaluating regular expressions against input strings is potentially an extremely CPU-intensive task. Specially crafted regular expressions
+such as <code>(a+)+</code> will take several seconds to evaluate the input string <code>aaaaaaaaaaaaaaaaaaaaaaaaaaaaa!</code>. The problem is that
+with every additional <code>a</code> character added to the input, the time required to evaluate the regex doubles. However, the equivalent regular
+expression, <code>a+</code> (without grouping) is efficiently evaluated in milliseconds and scales linearly with the input size.</p>
+<p>Evaluating user-provided strings as regular expressions opens the door to <a
+href="https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS">Regular expression Denial of Service (ReDoS)</a> attacks. In the
+context of a web application, attackers can force the web server to spend all of its resources evaluating regular expressions thereby making the
+service inaccessible to genuine users.</p>
+<p> </p>
+<p>Another type of vulnerability can occur when regular expressions are used to validate user input. A regular expression can be used to filter unsafe
+input by either matching a whole input when it is valid (example: the whole string should only contain alphanumeric characters) or by detecting
+dangerous parts of an input. In both cases it is possible to let dangerous values through. For example, searching for <code>&lt;script&gt;</code> tags
+in some HTML code with the regular expression <code>.*&lt;script&gt;.*</code> will miss <code>&lt;script id="test"&gt;</code>.</p>
+<p> </p>
+<p>This rule flags any regular expression execution or compilation for review.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> a user input string is executed as a regular-expression, or it is inserted in a regular expression. </li>
+  <li> a user can provide a string which will be analyzed by a regular expression. </li>
+  <li> your regular expression engine performance decrease with specially crafted inputs and regular expressions. </li>
+  <li> the regular expression is used to validate unsafe input, but it does not detect all dangerous values. </li>
+</ul>
+<p>You may be at risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Avoid executing a user input string as a regular expression. If this is required, restrict the allowed regular expressions.</p>
+<p>Check whether your regular expression engine (the algorithm executing your regular expression) has any known vulnerabilities. Search for
+vulnerability reports mentioning the one engine you're are using.</p>
+<p>Test your regular expressions with techniques such as equivalence partitioning, and boundary value analysis, and test for robustness. Try not to
+make complex regular expressions as they are difficult to understand and test. Note that some regular expression engines will match only part of the
+input if no anchors are used. In PHP for example <code>preg_match("/[A-Za-z0-9]+/", $text)</code> will accept any string containing at least one
+alphanumeric character because it has no anchors.</p>
+<h2>Questionable Code Example</h2>
+<pre>
+const regex = /(a+)+/; // RegExp object from regex literal
+const regex = new RegExp(regex); // RegExp object from string
+
+// All the following method calls are questionable. Validate the regular expression and matched string.
+str.search(regex);
+str.match(regex);
+str.split(regex);
+str.replace(regex);
+regex.exec(str);
+regex.test(str);
+</pre>
+<h2>Exceptions</h2>
+<p>Regardless of the string being matched, a hardcoded regular expression pattern is not vulnerable to ReDoS attacks if it consists only of one
+character or only alphanumeric characters. No issue will be raised for these cases.</p>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS">MITRA, CWE-624</a> - Executable Regular Expression Error
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/185.html">MITRA, CWE-185</a> - Incorrect Regular Expression </li>
+  <li> OWASP Regular expression Denial of Service - ReDoS </li>
+  <li> OWASP Top 10 2017 Category A1 - Injection </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
+</ul>
+

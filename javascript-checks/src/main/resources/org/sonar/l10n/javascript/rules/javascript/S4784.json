@@ -1,0 +1,27 @@
+{
+  "title": "Using regular expressions is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a1",
+    "sans-top25-porous"
+  ],
+  "standards": [
+    "CWE",
+    "OWASP Top Ten"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4784",
+  "sqKey": "S4784",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      624,
+      185
+    ],
+    "OWASP": [
+      "A1"
+    ]
+  }
+}
