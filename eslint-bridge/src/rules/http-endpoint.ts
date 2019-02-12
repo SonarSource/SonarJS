@@ -54,11 +54,12 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (isHttpModuleImported && isMemberWithProperty(callee, "listen")) {
-          context.report({
-            message,
-            node: callee,
-          });
+        if (
+          isHttpModuleImported &&
+          callee.type === "MemberExpression" &&
+          isMemberWithProperty(callee, "listen")
+        ) {
+          context.report({ message, node: callee.property });
         }
       },
     };

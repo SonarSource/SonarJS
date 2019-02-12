@@ -32,8 +32,26 @@ ruleTester.run("Exposing HTTP endpoints is security-sensitive", rule, {
           message: "Make sure that exposing this HTTP endpoint is safe here.",
           line: 1,
           endLine: 1,
-          column: 29,
+          column: 33,
           endColumn: 39,
+        },
+      ],
+    },
+    {
+      code: `
+      import { createServer } from "http";
+      createServer((req, res => {
+        log();
+        handle(req,res);
+      })).listen(3000);
+      //  ^^^^^^`,
+      errors: [
+        {
+          message: "Make sure that exposing this HTTP endpoint is safe here.",
+          line: 6,
+          endLine: 6,
+          column: 11,
+          endColumn: 17,
         },
       ],
     },
