@@ -22,7 +22,7 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
-import { isMemberWithProperty } from "./utils";
+import { isMemberWithProperty, getModuleNameOfIdentifier } from "./utils";
 
 const stringMethods = ["match", "search", "replace", "split"];
 const regexMethods = ["exec", "test"];
@@ -51,7 +51,8 @@ function checkRegexMethods(callee: estree.Node, args: estree.Node[], context: Ru
   if (
     callee.type === "MemberExpression" &&
     isMemberWithProperty(callee, ...regexMethods) &&
-    args.length === 1
+    args.length === 1 &&
+    !isChildProcess(callee.object, context)
   ) {
     report(callee.object, context);
   }
@@ -77,4 +78,9 @@ function isSafeRegexLiteral(node: estree.Node) {
   }
 
   return false;
+}
+
+function isChildProcess(node: estree.Node, context: Rule.RuleContext) {
+  const module = node.type === "Identifier" && getModuleNameOfIdentifier(node, context);
+  return module && module.value === "child_process";
 }

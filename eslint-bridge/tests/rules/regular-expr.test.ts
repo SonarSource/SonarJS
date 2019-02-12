@@ -35,6 +35,9 @@ ruleTester.run("Using regular expressions is security-sensitive", rule, {
     {
       code: `str.replace(/abc/, str);`,
     },
+    {
+      code: `import * as cp from "child_process"; cp.exec(str);`,
+    },
   ],
   invalid: [
     {
@@ -71,6 +74,10 @@ ruleTester.run("Using regular expressions is security-sensitive", rule, {
     },
     {
       code: `regex.exec(str);`,
+      errors: 1,
+    },
+    {
+      code: `import * as regex from "foo"; regex.exec(str);`,
       errors: 1,
     },
     {
