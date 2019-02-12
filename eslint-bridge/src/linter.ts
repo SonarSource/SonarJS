@@ -19,16 +19,21 @@
  */
 import { rules as externalRules } from "eslint-plugin-sonarjs";
 import { rules as internalRules } from "./rules/main";
-import { Linter, SourceCode } from "eslint";
+import { Linter, SourceCode, Rule as ESLintRule } from "eslint";
 import { Rule, Issue } from "./analyzer";
 
-const linter = new Linter();
-linter.defineRules(externalRules);
-linter.defineRules(internalRules);
+type RuleDefinitions = {
+  [key: string]: ESLintRule.RuleModule;
+};
 
-export function analyze(sourceCode: SourceCode, rules: Rule[], fileUri: string): Issue[] {
+const linter = new Linter();
+const ruleDefinitions: RuleDefinitions = { ...externalRules, ...internalRules };
+
+linter.defineRules(ruleDefinitions);
+
+export function analyze(sourceCode: SourceCode, inputRules: Rule[], fileUri: string): Issue[] {
   return linter
-    .verify(sourceCode, createLinterConfig(rules), fileUri)
+    .verify(sourceCode, createLinterConfig(ruleDefinitions, inputRules), fileUri)
     .map(removeIrrelevantProperties)
     .filter(issue => issue !== null) as Issue[];
 }
@@ -45,10 +50,30 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
   return relevantProperties as Issue;
 }
 
-function createLinterConfig(rules: Rule[]) {
+// exported for unit testing
+export function createLinterConfig(ruleDefinitions: RuleDefinitions, inputRules: Rule[]) {
   const ruleConfig: Linter.Config = { rules: {}, parserOptions: { sourceType: "module" } };
-  rules.forEach(rule => {
-    ruleConfig.rules![rule.key] = ["error", ...rule.configurations];
+  inputRules.forEach(rule => {
+    const options = rule.configurations;
+    if (hasSonarRuntimeOption(ruleDefinitions, rule.key)) {
+      // 'sonar-runtime' always added in last position
+      options.push("sonar-runtime");
+    }
+    ruleConfig.rules![rule.key] = ["error", ...options];
   });
   return ruleConfig;
+}
+
+/**
+ * 'sonar-runtime' is the option used by eslint-plugin-sonarjs rules to distinguish
+ *  when they are executed in a sonar* context or in eslint
+ */
+function hasSonarRuntimeOption(ruleMap: RuleDefinitions, ruleKey: string) {
+  const rule = ruleMap[ruleKey];
+  if (!rule || !rule.meta || !rule.meta.schema) {
+    return false;
+  }
+  const { schema } = rule.meta;
+  const props = Array.isArray(schema) ? schema : [schema];
+  return props.some(option => !!option.enum && option.enum.includes("sonar-runtime"));
 }
