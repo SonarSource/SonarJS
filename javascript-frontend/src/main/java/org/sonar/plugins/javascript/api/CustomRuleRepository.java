@@ -21,12 +21,14 @@ package org.sonar.plugins.javascript.api;
 
 import java.util.List;
 import org.sonar.api.batch.ScannerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * This interface should be implemented by custom rules plugins to register their rules with SonarJS
  * 
  */
 @ScannerSide
+@SonarLintSide
 public interface CustomRuleRepository {
 
   /**
