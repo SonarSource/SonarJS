@@ -19,16 +19,16 @@
  */
 import { rules as externalRules } from "eslint-plugin-sonarjs";
 import { rules as internalRules } from "./rules/main";
-import { Linter, SourceCode } from "eslint";
+import { Linter, SourceCode, Rule as ESLintRule } from "eslint";
 import { Rule, Issue } from "./analyzer";
 
 const linter = new Linter();
 linter.defineRules(externalRules);
 linter.defineRules(internalRules);
 
-export function analyze(sourceCode: SourceCode, rules: Rule[], fileUri: string): Issue[] {
+export function analyze(sourceCode: SourceCode, inputRules: Rule[], fileUri: string): Issue[] {
   return linter
-    .verify(sourceCode, createLinterConfig(rules), fileUri)
+    .verify(sourceCode, createLinterConfig(inputRules), fileUri)
     .map(removeIrrelevantProperties)
     .filter(issue => issue !== null) as Issue[];
 }
@@ -45,10 +45,37 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
   return relevantProperties as Issue;
 }
 
-function createLinterConfig(rules: Rule[]) {
+function createLinterConfig(inputRules: Rule[]) {
   const ruleConfig: Linter.Config = { rules: {}, parserOptions: { sourceType: "module" } };
-  rules.forEach(rule => {
-    ruleConfig.rules![rule.key] = ["error", ...rule.configurations];
+  inputRules.forEach(inputRule => {
+    const ruleModule = linter.getRules().get(inputRule.key);
+    ruleConfig.rules![inputRule.key] = [
+      "error",
+      ...getRuleConfig(ruleModule && ruleModule.meta, inputRule),
+    ];
   });
   return ruleConfig;
+}
+
+/**
+ * 'sonar-runtime' is the option used by eslint-plugin-sonarjs rules to distinguish
+ *  when they are executed in a sonar* context or in eslint
+ *
+ * exported for testing
+ */
+export function getRuleConfig(ruleMetadata: ESLintRule.RuleMetaData | undefined, inputRule: Rule) {
+  const options = inputRule.configurations;
+  if (hasSonarRuntimeOption(ruleMetadata)) {
+    return options.concat("sonar-runtime");
+  }
+  return options;
+}
+
+function hasSonarRuntimeOption(ruleMetadata: ESLintRule.RuleMetaData | undefined) {
+  if (!ruleMetadata || !ruleMetadata.schema) {
+    return false;
+  }
+  const { schema } = ruleMetadata;
+  const props = Array.isArray(schema) ? schema : [schema];
+  return props.some(option => !!option.enum && option.enum.includes("sonar-runtime"));
 }
