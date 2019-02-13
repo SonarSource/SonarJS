@@ -135,11 +135,32 @@ public class EslintBasedRulesSensor implements Sensor {
       location.at(file.selectLine(issue.line));
     }
 
+    issue.secondaryLocations.forEach(secondary -> newIssue.addLocation(newLocation(file, newIssue, secondary)));
+
+    if (issue.cost != null) {
+      newIssue.gap(issue.cost);
+    }
+
     Optional<RuleKey> ruleKeyOptional = ruleKey(issue.ruleId);
     ruleKeyOptional.ifPresent(ruleKey ->
       newIssue.at(location)
       .forRule(ruleKey)
       .save());
+  }
+
+  private static NewIssueLocation newLocation(InputFile inputFile, NewIssue issue, IssueLocation location) {
+    NewIssueLocation newIssueLocation = issue.newLocation().on(inputFile);
+
+    if (location.endLine != null) {
+      newIssueLocation.at(inputFile.newRange(location.line, location.column - 1, location.endLine, location.endColumn - 1));
+    } else {
+      newIssueLocation.at(inputFile.selectLine(location.line));
+    }
+
+    if (location.message != null) {
+      newIssueLocation.message(location.message);
+    }
+    return newIssueLocation;
   }
 
   @VisibleForTesting
@@ -217,6 +238,16 @@ public class EslintBasedRulesSensor implements Sensor {
     Integer endColumn;
     String message;
     String ruleId;
+    List<IssueLocation> secondaryLocations;
+    Double cost;
+  }
+
+  static class IssueLocation {
+    Integer line;
+    Integer column;
+    Integer endLine;
+    Integer endColumn;
+    String message;
   }
 
 }

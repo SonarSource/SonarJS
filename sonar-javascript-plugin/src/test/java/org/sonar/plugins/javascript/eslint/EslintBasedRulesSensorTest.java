@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.util.List;
 import java.io.IOException;
 import java.util.Iterator;
 import org.junit.Before;
@@ -77,7 +78,10 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_create_issues_from_eslint_based_rules() throws Exception {
-    when(eslintBridgeServerMock.call(any())).thenReturn("[{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\"},{\"line\":1,\"column\":2,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\"}]");
+    when(eslintBridgeServerMock.call(any())).thenReturn("[{" +
+      "\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+      "{\"line\":1,\"column\":2,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []" +
+      "}]");
 
     EslintBasedRulesSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -102,6 +106,39 @@ public class EslintBasedRulesSensorTest {
 
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
+  }
+
+
+  @Test
+  public void should_report_secondary_issue_locations_from_eslint_based_rules() throws Exception {
+    when(eslintBridgeServerMock.call(any())).thenReturn(
+      "[{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+        "\"cost\": 14," +
+        "\"secondaryLocations\": [{ message: \"Secondary\", \"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5}]}]");
+
+    EslintBasedRulesSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(1);
+
+    Iterator<Issue> issues = context.allIssues().iterator();
+    Issue issue = issues.next();
+
+    IssueLocation location = issue.primaryLocation();
+    assertThat(location.inputComponent()).isEqualTo(inputFile);
+    assertThat(location.message()).isEqualTo("Issue message");
+    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4)));
+
+    assertThat(issue.gap()).isEqualTo(14);
+
+    List<IssueLocation> secondaryLocations = issue.flows().get(0).locations();
+    assertThat(secondaryLocations).hasSize(1);
+    IssueLocation secondary = secondaryLocations.get(0);
+    assertThat(secondary.inputComponent()).isEqualTo(inputFile);
+    assertThat(secondary.message()).isEqualTo("Secondary");
+    assertThat(secondary.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4)));
   }
 
   @Test
