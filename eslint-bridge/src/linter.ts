@@ -48,10 +48,10 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
 function createLinterConfig(inputRules: Rule[]) {
   const ruleConfig: Linter.Config = { rules: {}, parserOptions: { sourceType: "module" } };
   inputRules.forEach(inputRule => {
-    const ruleDefinition = linter.getRules().get(inputRule.key);
+    const ruleModule = linter.getRules().get(inputRule.key);
     ruleConfig.rules![inputRule.key] = [
       "error",
-      ...getRuleConfig(ruleDefinition && ruleDefinition.meta, inputRule),
+      ...getRuleConfig(ruleModule && ruleModule.meta, inputRule),
     ];
   });
   return ruleConfig;
