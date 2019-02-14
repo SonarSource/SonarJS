@@ -21,7 +21,7 @@ import * as espree from "espree";
 import * as babel from "babel-eslint";
 import { SourceCode, Linter } from "eslint";
 
-const PARSER_CONFIG: Linter.ParserOptions = {
+export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
   comment: true,
   loc: true,
@@ -35,40 +35,53 @@ const PARSER_CONFIG: Linter.ParserOptions = {
   },
 };
 
-const PARSER_CONFIG_NOT_STRICT: Linter.ParserOptions = { ...PARSER_CONFIG, sourceType: "script" };
+// 'script' source type forces not strict
+export const PARSER_CONFIG_SCRIPT: Linter.ParserOptions = {
+  ...PARSER_CONFIG_MODULE,
+  sourceType: "script",
+};
 
 export function parseSourceFile(fileContent: string, fileUri: string): SourceCode | undefined {
-  let parse = espree.parse;
-  let parser = "espree";
+  let parseFunctions = [espree.parse, babel.parse];
   if (fileContent.includes("@flow")) {
-    parse = babel.parse;
-    parser = "babel-eslint";
+    parseFunctions = [babel.parse];
   }
 
-  try {
-    return parseSourceFileAsModule(parse, fileContent);
-  } catch (exceptionAsModule) {
-    try {
-      return parseSourceFileAsScript(parse, fileContent);
-    } catch (exceptionAsScript) {
-      console.error(message(fileUri, "module", exceptionAsModule, parser));
-      console.log(message(fileUri, "script", exceptionAsScript, parser, true));
+  let exceptionToReport: ParseException | null = null;
+  for (const parseFunction of parseFunctions) {
+    for (const config of [PARSER_CONFIG_MODULE, PARSER_CONFIG_SCRIPT]) {
+      const result = parse(parseFunction, config, fileContent);
+      if (result instanceof SourceCode) {
+        return result;
+      } else if (!exceptionToReport) {
+        exceptionToReport = result;
+      }
     }
   }
+
+  if (exceptionToReport) {
+    console.error(
+      `Failed to parse file [${fileUri}] at line ${exceptionToReport.lineNumber}: ${
+        exceptionToReport.message
+      }`,
+    );
+  }
 }
 
-function message(fileUri: string, mode: string, exception: any, parser: string, debug = false) {
-  return `${debug ? "DEBUG " : ""}Failed to parse file [${fileUri}] at line ${
-    exception.lineNumber
-  }: ${exception.message} (with ${parser} parser in ${mode} mode)`;
+export function parse(
+  parse: Function,
+  config: Linter.ParserOptions,
+  fileContent: string,
+): SourceCode | ParseException {
+  try {
+    const ast = parse(fileContent, config);
+    return new SourceCode(fileContent, ast);
+  } catch (exception) {
+    return exception;
+  }
 }
 
-export function parseSourceFileAsScript(parse: Function, fileContent: string): SourceCode {
-  const ast = parse(fileContent, PARSER_CONFIG_NOT_STRICT);
-  return new SourceCode(fileContent, ast);
-}
-
-export function parseSourceFileAsModule(parse: Function, fileContent: string): SourceCode {
-  const ast = parse(fileContent, PARSER_CONFIG);
-  return new SourceCode(fileContent, ast);
-}
+export type ParseException = {
+  lineNumber: number;
+  message: string;
+};
