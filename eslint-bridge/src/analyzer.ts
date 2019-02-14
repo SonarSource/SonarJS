@@ -47,8 +47,8 @@ export interface Issue {
 export interface IssueLocation {
   column: number;
   line: number;
-  endColumn?: number;
-  endLine?: number;
+  endColumn: number;
+  endLine: number;
   message?: string;
 }
 

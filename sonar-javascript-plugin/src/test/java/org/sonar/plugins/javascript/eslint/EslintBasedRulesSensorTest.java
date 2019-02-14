@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.util.List;
 import java.io.IOException;
 import java.util.Iterator;
 import org.junit.Before;
@@ -114,7 +113,61 @@ public class EslintBasedRulesSensorTest {
     when(eslintBridgeServerMock.call(any())).thenReturn(
       "[{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"cost\": 14," +
-        "\"secondaryLocations\": [{ message: \"Secondary\", \"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5}]}]");
+        "\"secondaryLocations\": [" +
+        "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":2,\"endColumn\":4}," +
+        "{ message: \"Secondary\", \"line\":3,\"column\":2,\"endLine\":3,\"endColumn\":5}" +
+        "]}]");
+
+    EslintBasedRulesSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(1);
+
+    Iterator<Issue> issues = context.allIssues().iterator();
+    Issue issue = issues.next();
+
+    assertThat(issue.gap()).isEqualTo(14);
+
+    assertThat(issue.flows()).hasSize(2);
+
+    IssueLocation secondary1 = issue.flows().get(0).locations().get(0);
+    assertThat(secondary1.inputComponent()).isEqualTo(inputFile);
+    assertThat(secondary1.message()).isEqualTo("Secondary");
+    assertThat(secondary1.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(2, 0), new DefaultTextPointer(2, 3)));
+
+    IssueLocation secondary2 = issue.flows().get(1).locations().get(0);
+    assertThat(secondary2.inputComponent()).isEqualTo(inputFile);
+    assertThat(secondary2.message()).isEqualTo("Secondary");
+    assertThat(secondary2.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(3, 1), new DefaultTextPointer(3, 4)));
+  }
+
+  @Test
+  public void should_not_report_secondary_when_location_are_null() throws Exception {
+    when(eslintBridgeServerMock.call(any())).thenReturn(
+      "[{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+        "\"secondaryLocations\": [" +
+        "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
+        "]}]");
+
+    EslintBasedRulesSensor sensor = createSensor();
+    createInputFile(context);
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(1);
+
+    Iterator<Issue> issues = context.allIssues().iterator();
+    Issue issue = issues.next();
+
+    assertThat(issue.flows()).hasSize(0);
+  }
+
+  @Test
+  public void should_report_cost_from_eslint_based_rules() throws Exception {
+    when(eslintBridgeServerMock.call(any())).thenReturn(
+      "[{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+        "\"cost\": 42," + "\"secondaryLocations\": []}]");
 
     EslintBasedRulesSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -131,14 +184,8 @@ public class EslintBasedRulesSensorTest {
     assertThat(location.message()).isEqualTo("Issue message");
     assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4)));
 
-    assertThat(issue.gap()).isEqualTo(14);
-
-    List<IssueLocation> secondaryLocations = issue.flows().get(0).locations();
-    assertThat(secondaryLocations).hasSize(1);
-    IssueLocation secondary = secondaryLocations.get(0);
-    assertThat(secondary.inputComponent()).isEqualTo(inputFile);
-    assertThat(secondary.message()).isEqualTo("Secondary");
-    assertThat(secondary.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4)));
+    assertThat(issue.gap()).isEqualTo(42);
+    assertThat(issue.flows()).hasSize(0);
   }
 
   @Test

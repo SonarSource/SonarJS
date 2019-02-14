@@ -1,4 +1,4 @@
-import { getRuleConfig, decodeSecondaryLocations } from "../src/linter";
+import { getRuleConfig, decodeSonarRuntimeIssue } from "../src/linter";
 import { Rule } from "eslint";
 
 const ruleUsingSecondaryLocations = {
@@ -33,10 +33,23 @@ describe("#getRuleConfig", () => {
 
   it("should always set sonar-runtime as last option", () => {
     const config = getRuleConfig(ruleUsingSecondaryLocations, {
-      key: "regularRule",
+      key: "ruleUsingSecondaryLocations",
       configurations: ["someOtherOption"],
     });
     expect(config).toEqual(["someOtherOption", "sonar-runtime"]);
+  });
+
+  it("should log debug when rule module is not found", () => {
+    console.log = jest.fn();
+    const config = getRuleConfig(undefined, {
+      key: "notExistingRuleModule",
+      configurations: [],
+    });
+    expect(console.log).toHaveBeenCalledWith(
+      "DEBUG ruleModule not found for rule notExistingRuleModule",
+    );
+    expect(config).toEqual([]);
+    jest.resetAllMocks();
   });
 });
 
@@ -55,7 +68,7 @@ describe("#decodeSecondaryLocations", () => {
     message: "Issue message",
   };
 
-  const issueWithSecondary = {
+  const issueWithEncodedMessage = {
     column: 1,
     line: 1,
     ruleId: "ruleUsingSecondaryLocations",
@@ -64,25 +77,28 @@ describe("#decodeSecondaryLocations", () => {
   };
 
   it("should not alter message coming from regular rule", () => {
-    const { message } = decodeSecondaryLocations(regularRule, issue);
+    const { message } = decodeSonarRuntimeIssue(regularRule, issue);
     expect(message).toEqual(issue.message);
   });
 
-  it("should decode message containing secondary location", () => {
-    const decodedIssue = decodeSecondaryLocations(ruleUsingSecondaryLocations, issueWithSecondary);
+  it("should decode message coming from rule with sonar-runtime parameter", () => {
+    const decodedIssue = decodeSonarRuntimeIssue(
+      ruleUsingSecondaryLocations,
+      issueWithEncodedMessage,
+    );
     expect(decodedIssue.secondaryLocations).toEqual(encodedMessage.secondaryLocations);
     expect(decodedIssue.cost).toEqual(encodedMessage.cost);
   });
 
   it("should log error when cannot parse secondary locations", () => {
     console.error = jest.fn();
-    const decodedIssue = decodeSecondaryLocations(ruleUsingSecondaryLocations, {
-      ...issueWithSecondary,
+    const decodedIssue = decodeSonarRuntimeIssue(ruleUsingSecondaryLocations, {
+      ...issueWithEncodedMessage,
       message: "Incorrect message",
     });
     expect(decodedIssue).toBe(null);
     expect(console.error).toHaveBeenCalledWith(
-      "Failed to parse issue message containing secondary locations for rule ruleUsingSecondaryLocations",
+      `Failed to parse encoded issue message for rule ${issue.ruleId}:\n"Incorrect message"`,
       new SyntaxError("Unexpected token I in JSON at position 0"),
     );
     jest.resetAllMocks();

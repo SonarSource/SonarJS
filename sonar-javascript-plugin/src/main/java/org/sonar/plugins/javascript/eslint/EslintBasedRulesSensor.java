@@ -135,7 +135,12 @@ public class EslintBasedRulesSensor implements Sensor {
       location.at(file.selectLine(issue.line));
     }
 
-    issue.secondaryLocations.forEach(secondary -> newIssue.addLocation(newLocation(file, newIssue, secondary)));
+    issue.secondaryLocations.forEach(secondary -> {
+      NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
+      if (newIssueLocation != null) {
+        newIssue.addLocation(newIssueLocation);
+      }
+    });
 
     if (issue.cost != null) {
       newIssue.gap(issue.cost);
@@ -148,19 +153,17 @@ public class EslintBasedRulesSensor implements Sensor {
       .save());
   }
 
-  private static NewIssueLocation newLocation(InputFile inputFile, NewIssue issue, IssueLocation location) {
+  private static NewIssueLocation newSecondaryLocation(InputFile inputFile, NewIssue issue, IssueLocation location) {
     NewIssueLocation newIssueLocation = issue.newLocation().on(inputFile);
 
-    if (location.endLine != null) {
+    if (location.line != null && location.endLine != null && location.column != null && location.endColumn != null) {
       newIssueLocation.at(inputFile.newRange(location.line, location.column - 1, location.endLine, location.endColumn - 1));
-    } else {
-      newIssueLocation.at(inputFile.selectLine(location.line));
+      if (location.message != null) {
+        newIssueLocation.message(location.message);
+      }
+      return newIssueLocation;
     }
-
-    if (location.message != null) {
-      newIssueLocation.message(location.message);
-    }
-    return newIssueLocation;
+    return null;
   }
 
   @VisibleForTesting

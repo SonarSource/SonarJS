@@ -22,6 +22,11 @@ import { rules as internalRules } from "./rules/main";
 import { Linter, SourceCode, Rule as ESLintRule } from "eslint";
 import { Rule, Issue, IssueLocation } from "./analyzer";
 
+/**
+ * In order to overcome ESLint limitation regarding issue reporting,
+ * ESLint-based rules send extra information by serializing in the issue message an object
+ * having the following structure
+ */
 interface EncodedMessage {
   message: string;
   cost?: number;
@@ -40,23 +45,23 @@ export function analyze(sourceCode: SourceCode, inputRules: Rule[], fileUri: str
       if (!issue) {
         return null;
       }
-      return decodeSecondaryLocations(linter.getRules().get(issue.ruleId), issue);
+      return decodeSonarRuntimeIssue(linter.getRules().get(issue.ruleId), issue);
     })
     .filter((issue): issue is Issue => issue !== null);
 }
 
 // exported for testing
-export function decodeSecondaryLocations(
+export function decodeSonarRuntimeIssue(
   ruleModule: ESLintRule.RuleModule | undefined,
   issue: Issue,
 ): Issue | null {
-  if (hasSonarRuntimeOption(ruleModule)) {
+  if (hasSonarRuntimeOption(ruleModule, issue.ruleId)) {
     try {
       const encodedMessage: EncodedMessage = JSON.parse(issue.message);
       return { ...issue, ...encodedMessage };
     } catch (e) {
       console.error(
-        `Failed to parse issue message containing secondary locations for rule ${issue.ruleId}`,
+        `Failed to parse encoded issue message for rule ${issue.ruleId}:\n"${issue.message}"`,
         e,
       );
       return null;
@@ -72,7 +77,8 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
     console.error("Illegal 'null' ruleId for eslint issue");
     return null;
   }
-
+  // we need to extract and insert ruleId field, in order to make it non-nullable for the type checker
+  // and so avoid casting
   const { nodeType, severity, fatal, fix, source, ruleId, ...relevantProperties } = eslintIssue;
   return { ...relevantProperties, ruleId, secondaryLocations: [] };
 }
@@ -94,14 +100,18 @@ function createLinterConfig(inputRules: Rule[]) {
  */
 export function getRuleConfig(ruleModule: ESLintRule.RuleModule | undefined, inputRule: Rule) {
   const options = inputRule.configurations;
-  if (hasSonarRuntimeOption(ruleModule)) {
+  if (hasSonarRuntimeOption(ruleModule, inputRule.key)) {
     return options.concat("sonar-runtime");
   }
   return options;
 }
 
-function hasSonarRuntimeOption(ruleModule: ESLintRule.RuleModule | undefined) {
-  if (!ruleModule || !ruleModule.meta || !ruleModule.meta.schema) {
+function hasSonarRuntimeOption(ruleModule: ESLintRule.RuleModule | undefined, ruleId: string) {
+  if (!ruleModule) {
+    console.log(`DEBUG ruleModule not found for rule ${ruleId}`);
+    return false;
+  }
+  if (!ruleModule.meta || !ruleModule.meta.schema) {
     return false;
   }
   const { schema } = ruleModule.meta;
