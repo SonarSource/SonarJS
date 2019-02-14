@@ -224,10 +224,8 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void should_detect_unknown_rule_key() throws Exception {
     EslintBasedRulesSensor sensor = createSensor();
-    assertThat(sensor.ruleKey("no-all-duplicated-branches")).isEqualTo(RuleKey.of("javascript", "S3923"));
-
-    thrown.expectMessage("No SonarJS rule key found for an eslint-based rule [unknown-rule-key]");
-    sensor.ruleKey("unknown-rule-key");
+    assertThat(sensor.ruleKey("no-all-duplicated-branches")).contains(RuleKey.of("javascript", "S3923"));
+    assertThat(sensor.ruleKey("unknown-rule-key")).isEmpty();
   }
 
 

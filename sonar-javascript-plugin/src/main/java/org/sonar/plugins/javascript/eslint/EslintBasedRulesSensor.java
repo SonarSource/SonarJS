@@ -25,6 +25,7 @@ import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -134,19 +135,21 @@ public class EslintBasedRulesSensor implements Sensor {
       location.at(file.selectLine(issue.line));
     }
 
-    newIssue.at(
-      location)
-      .forRule(ruleKey(issue.ruleId))
-      .save();
+    Optional<RuleKey> ruleKeyOptional = ruleKey(issue.ruleId);
+    ruleKeyOptional.ifPresent(ruleKey ->
+      newIssue.at(location)
+      .forRule(ruleKey)
+      .save());
   }
 
   @VisibleForTesting
-  RuleKey ruleKey(String eslintKey) {
+  Optional<RuleKey> ruleKey(String eslintKey) {
     RuleKey ruleKey = checks.ruleKeyByEslintKey(eslintKey);
     if (ruleKey == null) {
-      throw new IllegalStateException("No SonarJS rule key found for an eslint-based rule [" + eslintKey + "]");
+      // for eslint rules activated by comment (e.g. `/*eslint no-magic-numbers: "error"*/`)
+      return Optional.empty();
     }
-    return ruleKey;
+    return Optional.of(ruleKey);
   }
 
   private static Iterable<InputFile> getInputFiles(SensorContext sensorContext) {
