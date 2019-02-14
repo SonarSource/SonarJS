@@ -22,6 +22,7 @@ package com.sonar.javascript.it.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -125,6 +126,16 @@ public class SonarLintTest {
       @Override
       public String contents() throws IOException {
         return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+      }
+
+      @Override
+      public String relativePath() {
+        return path.toString();
+      }
+
+      @Override
+      public URI uri() {
+        return path.toUri();
       }
 
       @Override
