@@ -1,118 +1,120 @@
-import { parseSourceFile, parseSourceFileAsModule, parseSourceFileAsScript } from "../src/parser";
+import {
+  parseSourceFile,
+  parse,
+  PARSER_CONFIG_MODULE,
+  ParseException,
+  PARSER_CONFIG_SCRIPT,
+} from "../src/parser";
 import * as espree from "espree";
+import { SourceCode } from "eslint";
 
 describe("parseSourceFile", () => {
   beforeEach(() => {
     console.error = jest.fn();
-    console.log = jest.fn();
   });
 
   afterEach(() => {
     jest.resetAllMocks();
   });
 
-  it("should not parse when invalid code and log reason", () => {
-    expect(parseSourceFile("export { a, a }", "foo.js")).toBeUndefined();
-    expect(console.error).toBeCalledWith(
-      "Failed to parse file [foo.js] at line 1: Duplicate export 'a' (with espree parser in module mode)",
-    );
-    expect(console.log).toBeCalledWith(
-      "DEBUG Failed to parse file [foo.js] at line 1: 'import' and 'export' may appear only with 'sourceType: module' (with espree parser in script mode)",
-    );
-
-    expect(parseSourceFile("export Foo from 'Foo'", "foo.js")).toBeUndefined();
-  });
-
   it("should parse jsx", () => {
-    const sourceCode = parseSourceFile("const foo = <div>bar</div>;", "foo.js");
-    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
-    expect(console.error).toBeCalledTimes(0);
+    expectToParse("const foo = <div>bar</div>;");
   });
 
   it("should parse flow when with @flow", () => {
-    expect(parseSourceFile("/* @flow */ const foo: string = 'hello';", "foo.js")).toBeDefined();
-    expect(parseSourceFile("/* @flow */ var eval = 42", "foo.js")).toBeDefined();
-    expect(parseSourceFile("const foo: string = 'hello';", "foo.js")).toBeUndefined();
-  });
-
-  it("should parse scripts (with retry after module)", () => {
-    expect(parseSourceFile("var eval = 42", "foo.js").ast).toBeDefined();
-    expect(console.error).toBeCalledTimes(0);
+    expectToParse("/* @flow */ const foo: string = 'hello';");
+    expectToParse("/* @flow */ var eval = 42");
+    // even without @flow annotation
+    expectToParse("const foo: string = 'hello';");
   });
 
   it("should parse as script (non-strict mode)", () => {
-    expectToParseInNonStrictMode(`var eval = 42`, `"Binding eval in strict mode"`);
-    expectToParseInNonStrictMode(`eval = 42`, `"Assigning to eval in strict mode"`);
+    expectToParseInNonStrictMode(`var eval = 42`, `Binding eval in strict mode`);
+    expectToParseInNonStrictMode(`eval = 42`, `Assigning to eval in strict mode`);
     expectToParseInNonStrictMode(
       `function foo() {}\n var foo = 42;`,
-      `"Identifier 'foo' has already been declared"`,
+      `Identifier 'foo' has already been declared`,
     );
 
-    expectToParseInNonStrictMode(`x = 043;`, `"Invalid number"`);
-    expectToParseInNonStrictMode(`'\\033'`, `"Octal literal in strict mode"`);
-    expectToParseInNonStrictMode(`with (a) {}`, `"'with' in strict mode"`);
-    expectToParseInNonStrictMode(`public = 42`, `"The keyword 'public' is reserved"`);
-    expectToParseInNonStrictMode(`function foo(a, a) {}`, `"Argument name clash"`);
-    expectToParseInNonStrictMode(`delete x`, `"Deleting local variable in strict mode"`);
-
-    function expectToParseInNonStrictMode(sourceCode, msgInStrictMode) {
-      expect(() =>
-        parseSourceFileAsModule(espree.parse, sourceCode),
-      ).toThrowErrorMatchingInlineSnapshot(msgInStrictMode);
-      expect(parseSourceFileAsScript(espree.parse, sourceCode)).toBeDefined();
-    }
+    expectToParseInNonStrictMode(`x = 043;`, `Invalid number`);
+    expectToParseInNonStrictMode(`'\\033'`, `Octal literal in strict mode`);
+    expectToParseInNonStrictMode(`with (a) {}`, `'with' in strict mode`);
+    expectToParseInNonStrictMode(`public = 42`, `The keyword 'public' is reserved`);
+    expectToParseInNonStrictMode(`function foo(a, a) {}`, `Argument name clash`);
+    expectToParseInNonStrictMode(`delete x`, `Deleting local variable in strict mode`);
   });
 
   it("should parse recent javascript syntax", () => {
     let sourceCode;
     // ES2018
-    sourceCode = parseSourceFile(
+    expectToParse(
       `const obj = {foo: 1, bar: 2, baz: 3};
        const {foo, ...rest} = obj;`,
-      "foo.js",
     );
-    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     // ES2017
-    sourceCode = parseSourceFile(
+    expectToParse(
       `async function f() {
         await readFile();
       }`,
-      "foo.js",
     );
-    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     // ES2016
-    sourceCode = parseSourceFile(`4**2`, "foo.js");
-    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+    expectToParse(`4**2`);
     // ES2015
-    sourceCode = parseSourceFile(`const f = (x, y) => x + y`, "foo.js");
-    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+    expectToParse(`const f = (x, y) => x + y`);
 
     // Modules
-    sourceCode = parseSourceFile(
+    expectToParse(
       `import * as Foo from "foo";
        export class A{}`,
-      "foo.js",
     );
-    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+  });
 
-    expect(console.error).toBeCalledTimes(0);
+  it("should parse next javascript syntax", () => {
+    let sourceCode;
+    // ES2019
+    sourceCode = parseSourceFile(`try {} catch {}`, "foo.js");
+    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+    // next
+    // class fields
+    expectToParse(`class A {
+       static a = 1; 
+       b = 2 
+    }`);
+    // private fields are not supported
+    expectToNotParse(
+      `class A { static #x = 2
+        #privateMethod() { this.#privateField = 42; }
+        #privateField = 42
+        set #x(value) {}  }`,
+      "Unexpected character '#'",
+    );
   });
 
   it("should log when parse errors", () => {
-    const sourceCode = parseSourceFile("if()", "foo.js");
-    expect(sourceCode).toBeUndefined();
-    expect(console.error).toHaveBeenCalledTimes(1);
-    expect(console.error).toHaveBeenCalledWith(
-      `Failed to parse file [foo.js] at line 1: Unexpected token ) (with espree parser in module mode)`,
-    );
-  });
-
-  it("should log when parse errors with @flow", () => {
-    const sourceCode = parseSourceFile("/* @flow */ if()", "foo.js");
-    expect(sourceCode).toBeUndefined();
-    expect(console.error).toHaveBeenCalledTimes(1);
-    expect(console.error).toHaveBeenCalledWith(
-      "Failed to parse file [foo.js] at line 1: Unexpected token (1:15) (with babel-eslint parser in module mode)",
-    );
+    expectToNotParse("if()", "Unexpected token )");
+    expectToNotParse("/* @flow */ if()", "Unexpected token (1:15)");
   });
 });
+
+function expectToParse(code: string) {
+  const sourceCode = parseSourceFile(code, "foo.js");
+  expect(sourceCode).toBeDefined();
+  expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+  expect(console.error).toBeCalledTimes(0);
+}
+
+function expectToNotParse(code: string, message: string) {
+  const sourceCode = parseSourceFile(code, "foo.js");
+  expect(sourceCode).toBeUndefined();
+  expect(console.error).toHaveBeenCalledWith("Failed to parse file [foo.js] at line 1: " + message);
+  expect(console.error).toBeCalledTimes(1);
+  jest.resetAllMocks();
+}
+
+function expectToParseInNonStrictMode(code: string, msgInStrictMode: string) {
+  const result1 = parse(espree.parse, PARSER_CONFIG_MODULE, code);
+  expect((result1 as ParseException).message).toEqual(msgInStrictMode);
+
+  const result2 = parse(espree.parse, PARSER_CONFIG_SCRIPT, code);
+  expect((result2 as SourceCode).ast.body.length).toBeGreaterThan(0);
+}
