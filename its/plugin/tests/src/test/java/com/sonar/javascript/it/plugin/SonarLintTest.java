@@ -82,10 +82,11 @@ public class SonarLintTest {
       + "  var b = 42; \n"
       + "} \n");
 
+    String filePath = new File(baseDir, FILE_PATH).getAbsolutePath();
     assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
-      tuple("javascript:UnusedVariable", 2, FILE_PATH, "MINOR"),
-      tuple("javascript:UnusedVariable", 4, FILE_PATH, "MINOR"),
-      tuple("javascript:S1854", 4, FILE_PATH, "MAJOR"));
+      tuple("javascript:UnusedVariable", 2, filePath, "MINOR"),
+      tuple("javascript:UnusedVariable", 4, filePath, "MINOR"),
+      tuple("javascript:S1854", 4, filePath, "MAJOR"));
   }
 
   @Test
