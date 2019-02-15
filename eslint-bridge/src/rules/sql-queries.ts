@@ -26,7 +26,7 @@ import { isMemberWithProperty, isRequireModule } from "./utils";
 
 const message = `Make sure that executing SQL queries is safe here.`;
 
-const dbModules = ["pg", "mysql"];
+const dbModules = ["pg", "mysql", "mysql2"];
 
 type Argument = estree.Expression | estree.SpreadElement;
 

@@ -65,6 +65,13 @@ ruleTester.run("Executing SQL queries is security-sensitive", rule, {
       `,
       errors: 1,
     },
+    {
+      code: `
+      import { query } from 'mysql2';
+      conn.query('SELECT * FROM users WHERE id = ' + userId, (err, res => {}));
+      `,
+      errors: 1,
+    },
     // FP, parameters are escaped
     {
       code: `
