@@ -33,8 +33,8 @@ const xpathModule = "xpath";
 
 const message = "Make sure that executing this XPATH expression is safe.";
 
-const xpathEvalMethods = ["select", "select1"];
-const ieEvalMethods = ["selectNodes", "selectSingleNode"];
+const xpathEvalMethods = ["select", "select1", "evaluate"];
+const ieEvalMethods = ["selectNodes", "SelectSingleNode"];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

@@ -67,8 +67,14 @@ ruleTester.run("Executing XPath expressions is security-sensitive", rule, {
     },
     {
       code: `
-        import { select1 } 'xpath';
+        import { select1 } from 'xpath';
         select1(expr);`,
+      errors: 1,
+    },
+    {
+      code: `
+        import { evaluate } from 'xpath';
+        evaluate(expr);`,
       errors: 1,
     },
     {
@@ -88,7 +94,7 @@ ruleTester.run("Executing XPath expressions is security-sensitive", rule, {
       errors: 1,
     },
     {
-      code: `a.b().selectSingleNode(expr)`,
+      code: `a.b().SelectSingleNode(expr)`,
       errors: 1,
     },
     {
