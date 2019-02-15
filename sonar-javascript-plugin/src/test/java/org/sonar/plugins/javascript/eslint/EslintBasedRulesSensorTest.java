@@ -204,10 +204,11 @@ public class EslintBasedRulesSensorTest {
     doThrow(new IllegalStateException("failed to start server")).when(eslintBridgeServerMock).startServer();
 
     EslintBasedRulesSensor sensor = createSensor();
+    when(eslintBridgeServerMock.isAlive()).thenReturn(false);
     createInputFile(context);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failure during analysis, eslintBridgeServerMock command info");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Skipping execution of eslint-based rules because eslintbridge server is not started");
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -332,6 +333,7 @@ public class EslintBasedRulesSensorTest {
 
 
   private EslintBasedRulesSensor createSensor() {
+    when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     return new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
   }
 }

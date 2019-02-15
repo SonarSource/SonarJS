@@ -134,6 +134,18 @@ public class EslintBridgeServerImplTest {
     assertThat(eslintBridgeServer.getCommandInfo()).contains("Node.js command to start eslint-bridge was: node", "startServer.js");
   }
 
+  @Test
+  public void test_isAlive() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("startServer.js");
+    assertThat(eslintBridgeServer.isAlive()).isFalse();
+    eslintBridgeServer.deploy();
+    assertThat(eslintBridgeServer.isAlive()).isFalse();
+    eslintBridgeServer.startServer();
+    assertThat(eslintBridgeServer.isAlive()).isTrue();
+    eslintBridgeServer.clean();
+    assertThat(eslintBridgeServer.isAlive()).isFalse();
+  }
+
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
     return new EslintBridgeServerImpl(null, NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
   }

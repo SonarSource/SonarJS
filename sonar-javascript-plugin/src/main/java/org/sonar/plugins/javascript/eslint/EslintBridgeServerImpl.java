@@ -141,6 +141,27 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
+  public boolean isAlive() {
+    if (nodeCommand == null) {
+      return false;
+    }
+    Request request = new Request.Builder()
+      .url("http://localhost:" + port + "/status")
+      .get()
+      .build();
+
+    try (Response response = client.newCall(request).execute()) {
+      String body = response.body().string();
+      LOG.debug("Response to isAlive request: {}", body);
+      // in this case response.body() is never null (according to docs)
+      return "OK!".equals(body);
+    } catch (IOException e) {
+      LOG.error("Error requesting server status. Server is probably dead.", e);
+      return false;
+    }
+  }
+
+  @Override
   public void clean() {
     if (nodeCommand != null) {
       nodeCommand.destroy();

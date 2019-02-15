@@ -76,6 +76,9 @@ public class EslintBasedRulesSensor implements Sensor {
       LOG.debug("Skipping execution of eslint-based rules because none of them are activated");
       return;
     }
+    if (!eslintBridgeServer.isAlive()) {
+      LOG.debug("Skipping execution of eslint-based rules because eslintbridge server is not started");
+    }
     try {
       Iterable<InputFile> inputFiles = getInputFiles(context);
       startProgressReport(inputFiles);

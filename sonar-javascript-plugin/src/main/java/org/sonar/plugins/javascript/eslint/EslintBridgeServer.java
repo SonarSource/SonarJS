@@ -36,6 +36,8 @@ public interface EslintBridgeServer extends Startable {
 
   String call(String request) throws IOException;
 
+  boolean isAlive();
+
   void clean();
 
   String getCommandInfo();
