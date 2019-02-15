@@ -24,12 +24,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -59,14 +60,17 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private String startServerScript;
   private String bundleLocation;
   private Path deployLocation;
+  private Configuration configuration;
 
   // Used by pico container for dependency injection
   @SuppressWarnings("unused")
-  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder) {
-    this(nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION);
+  public EslintBridgeServerImpl(Configuration configuration, NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder) {
+    this(configuration, nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION);
   }
 
-  EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
+  EslintBridgeServerImpl(@Nullable Configuration configuration, NodeCommandBuilder nodeCommandBuilder,
+                         TempFolder tempFolder,
+                         int timeoutSeconds,
                          String startServerScript,
                          String bundleLocation) {
     this.nodeCommandBuilder = nodeCommandBuilder;
@@ -77,6 +81,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .build();
     this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
     this.bundleLocation = bundleLocation;
+    this.configuration = configuration;
   }
 
   @Override
@@ -92,7 +97,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void startServer(SensorContext context) throws IOException {
+  public void startServer() throws IOException {
     port = findOpenPort();
 
     File scriptFile = deployLocation.resolve(startServerScript).toFile();
@@ -108,7 +113,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
         }
       })
       .minNodeVersion(6)
-      .configuration(context.config())
+      .configuration(configuration)
       .script(scriptFile.getAbsolutePath())
       .scriptArgs(String.valueOf(port))
       .build();
@@ -152,4 +157,18 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
   }
 
+  @Override
+  public void start() {
+    try {
+      deploy();
+      startServer();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to start EslintBridgeServer component", e);
+    }
+  }
+
+  @Override
+  public void stop() {
+    clean();
+  }
 }

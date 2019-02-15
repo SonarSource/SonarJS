@@ -20,11 +20,9 @@
 package org.sonar.plugins.javascript.eslint;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -51,13 +49,7 @@ public class EslintBridgeServerImplTest {
   @Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
-  private SensorContextTester context;
   private EslintBridgeServerImpl eslintBridgeServer;
-
-  @Before
-  public void setUp() throws Exception {
-    context = SensorContextTester.create(tempFolder.newDir());
-  }
 
   @After
   public void tearDown() throws Exception {
@@ -79,7 +71,7 @@ public class EslintBridgeServerImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Node.js script to start eslint-bridge server doesn't exist:");
 
-    eslintBridgeServer.startServer(context);
+    eslintBridgeServer.startServer();
   }
 
   @Test
@@ -92,20 +84,20 @@ public class EslintBridgeServerImplTest {
       }
     });
 
-    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, tempFolder, 1, "startServer.js", MOCK_ESLINT_BUNDLE);
+    eslintBridgeServer = new EslintBridgeServerImpl(null, nodeCommandBuilder, tempFolder, 1, "startServer.js", MOCK_ESLINT_BUNDLE);
     eslintBridgeServer.deploy();
 
     thrown.expect(NodeCommandException.class);
     thrown.expectMessage("msg");
 
-    eslintBridgeServer.startServer(context);
+    eslintBridgeServer.startServer();
   }
 
   @Test
   public void should_forward_process_streams() throws Exception {
     eslintBridgeServer = createEslintBridgeServer("logging.js");
     eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context);
+    eslintBridgeServer.startServer();
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("testing debug log");
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("testing info log");
@@ -115,7 +107,7 @@ public class EslintBridgeServerImplTest {
   public void should_get_answer_from_server() throws Exception {
     eslintBridgeServer = createEslintBridgeServer("startServer.js");
     eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context);
+    eslintBridgeServer.startServer();
 
     assertThat(eslintBridgeServer.call("{}")).isEqualTo("answer from eslint-bridge");
   }
@@ -128,7 +120,7 @@ public class EslintBridgeServerImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Failed to start server (1s timeout)");
 
-    eslintBridgeServer.startServer(context);
+    eslintBridgeServer.startServer();
   }
 
   @Test
@@ -137,12 +129,12 @@ public class EslintBridgeServerImplTest {
     assertThat(eslintBridgeServer.getCommandInfo()).isEqualTo("Node.js command to start eslint-bridge server was not built yet.");
 
     eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context);
+    eslintBridgeServer.startServer();
 
     assertThat(eslintBridgeServer.getCommandInfo()).contains("Node.js command to start eslint-bridge was: node", "startServer.js");
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
+    return new EslintBridgeServerImpl(null, NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
   }
 }

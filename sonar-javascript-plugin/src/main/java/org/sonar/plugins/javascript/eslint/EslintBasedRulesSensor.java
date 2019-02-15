@@ -76,11 +76,7 @@ public class EslintBasedRulesSensor implements Sensor {
       LOG.debug("Skipping execution of eslint-based rules because none of them are activated");
       return;
     }
-
     try {
-      eslintBridgeServer.deploy();
-      eslintBridgeServer.startServer(context);
-
       Iterable<InputFile> inputFiles = getInputFiles(context);
       startProgressReport(inputFiles);
 
@@ -97,7 +93,6 @@ public class EslintBasedRulesSensor implements Sensor {
       LOG.error("Failure during analysis, " + eslintBridgeServer.getCommandInfo(), e);
     } finally {
       progressReport.cancel();
-      eslintBridgeServer.clean();
     }
   }
 

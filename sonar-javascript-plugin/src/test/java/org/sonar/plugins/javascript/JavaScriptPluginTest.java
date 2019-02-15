@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JavaScriptPluginTest {
 
   private static final int BASE_EXTENSIONS = 16;
-  private static final int ESLINT_BRIDGE_EXTENSIONS = 3;
 
   @Test
   public void count_extensions_lts() throws Exception {
@@ -71,7 +70,7 @@ public class JavaScriptPluginTest {
   @Test
   public void count_extensions_for_sonarlint() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(Version.create(6, 7)));
-    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS - ESLINT_BRIDGE_EXTENSIONS);
+    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS);
   }
 
   private List<PropertyDefinition> properties() {

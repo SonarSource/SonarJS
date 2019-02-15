@@ -49,6 +49,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class SonarLintTest {
 
+  private static final String FILE_PATH = "foo.js";
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
@@ -75,23 +76,37 @@ public class SonarLintTest {
 
   @Test
   public void should_raise_three_issues() throws IOException {
-    ClientInputFile inputFile = prepareInputFile("foo.js",
-      "function foo() { \n"
-        + "  var a; \n"
-        + "  var c; // NOSONAR\n"
-        + "  var b = 42; \n"
-        + "} \n",
-      false);
+    List<Issue> issues = analyze(FILE_PATH, "function foo() { \n"
+      + "  var a; \n"
+      + "  var c; // NOSONAR\n"
+      + "  var b = 42; \n"
+      + "} \n");
+
+    assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
+      tuple("javascript:UnusedVariable", 2, FILE_PATH, "MINOR"),
+      tuple("javascript:UnusedVariable", 4, FILE_PATH, "MINOR"),
+      tuple("javascript:S1854", 4, FILE_PATH, "MAJOR"));
+  }
+
+  @Test
+  public void should_run_eslint_based_rules() throws Exception {
+    List<Issue> issues = analyze(FILE_PATH, "function foo() { try {" +
+      "  doSomething();" +
+      "} catch (ex) {" +
+      "  throw ex;" +
+      "}}");
+    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
+  }
+
+
+  private List<Issue> analyze(String filePath, String sourceCode) throws IOException {
+    ClientInputFile inputFile = prepareInputFile(filePath, sourceCode, false);
 
     List<Issue> issues = new ArrayList<>();
     sonarlintEngine.analyze(
       new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), new HashMap<>()),
       issues::add, null, null);
-
-    assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
-      tuple("javascript:UnusedVariable", 2, inputFile.getPath(), "MINOR"),
-      tuple("javascript:UnusedVariable", 4, inputFile.getPath(), "MINOR"),
-      tuple("javascript:S1854", 4, inputFile.getPath(), "MAJOR"));
+    return issues;
   }
 
   private ClientInputFile prepareInputFile(String relativePath, String content, final boolean isTest) throws IOException {
