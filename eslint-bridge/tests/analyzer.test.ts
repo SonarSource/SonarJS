@@ -28,6 +28,7 @@ describe("#analyze", () => {
       endColumn: 12,
       message: "Refactor this loop to do more than one iteration.",
       ruleId: "no-one-iteration-loop",
+      secondaryLocations: [],
     });
     expect(issues).toContainEqual({
       line: 7,
@@ -36,6 +37,7 @@ describe("#analyze", () => {
       endColumn: 23,
       message: "Define a constant instead of duplicating this literal 2 times.",
       ruleId: "no-duplicate-string",
+      secondaryLocations: [],
     });
   });
 

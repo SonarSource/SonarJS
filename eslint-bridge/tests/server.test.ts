@@ -36,6 +36,7 @@ describe("server", () => {
         message:
           "Remove this conditional structure or edit its code blocks so that they're not all the same.",
         ruleId: "no-all-duplicated-branches",
+        secondaryLocations: [],
       },
     ]);
   });

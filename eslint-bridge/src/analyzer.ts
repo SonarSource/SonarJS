@@ -40,6 +40,16 @@ export interface Issue {
   endLine?: number;
   ruleId: string;
   message: string;
+  cost?: number;
+  secondaryLocations: IssueLocation[];
+}
+
+export interface IssueLocation {
+  column: number;
+  line: number;
+  endColumn: number;
+  endLine: number;
+  message?: string;
 }
 
 export function analyze(input: AnalysisInput) {

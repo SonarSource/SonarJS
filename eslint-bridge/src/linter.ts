@@ -20,7 +20,18 @@
 import { rules as externalRules } from "eslint-plugin-sonarjs";
 import { rules as internalRules } from "./rules/main";
 import { Linter, SourceCode, Rule as ESLintRule } from "eslint";
-import { Rule, Issue } from "./analyzer";
+import { Rule, Issue, IssueLocation } from "./analyzer";
+
+/**
+ * In order to overcome ESLint limitation regarding issue reporting,
+ * ESLint-based rules send extra information by serializing in the issue message an object
+ * having the following structure
+ */
+interface EncodedMessage {
+  message: string;
+  cost?: number;
+  secondaryLocations: IssueLocation[];
+}
 
 const linter = new Linter();
 linter.defineRules(externalRules);
@@ -30,7 +41,33 @@ export function analyze(sourceCode: SourceCode, inputRules: Rule[], fileUri: str
   return linter
     .verify(sourceCode, createLinterConfig(inputRules), fileUri)
     .map(removeIrrelevantProperties)
-    .filter(issue => issue !== null) as Issue[];
+    .map(issue => {
+      if (!issue) {
+        return null;
+      }
+      return decodeSonarRuntimeIssue(linter.getRules().get(issue.ruleId), issue);
+    })
+    .filter((issue): issue is Issue => issue !== null);
+}
+
+// exported for testing
+export function decodeSonarRuntimeIssue(
+  ruleModule: ESLintRule.RuleModule | undefined,
+  issue: Issue,
+): Issue | null {
+  if (hasSonarRuntimeOption(ruleModule, issue.ruleId)) {
+    try {
+      const encodedMessage: EncodedMessage = JSON.parse(issue.message);
+      return { ...issue, ...encodedMessage };
+    } catch (e) {
+      console.error(
+        `Failed to parse encoded issue message for rule ${issue.ruleId}:\n"${issue.message}"`,
+        e,
+      );
+      return null;
+    }
+  }
+  return issue;
 }
 
 function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | null {
@@ -40,19 +77,17 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
     console.error("Illegal 'null' ruleId for eslint issue");
     return null;
   }
-
-  const { nodeType, severity, fatal, fix, source, ...relevantProperties } = eslintIssue;
-  return relevantProperties as Issue;
+  // we need to extract and insert ruleId field, in order to make it non-nullable for the type checker
+  // and so avoid casting
+  const { nodeType, severity, fatal, fix, source, ruleId, ...relevantProperties } = eslintIssue;
+  return { ...relevantProperties, ruleId, secondaryLocations: [] };
 }
 
 function createLinterConfig(inputRules: Rule[]) {
   const ruleConfig: Linter.Config = { rules: {}, parserOptions: { sourceType: "module" } };
   inputRules.forEach(inputRule => {
     const ruleModule = linter.getRules().get(inputRule.key);
-    ruleConfig.rules![inputRule.key] = [
-      "error",
-      ...getRuleConfig(ruleModule && ruleModule.meta, inputRule),
-    ];
+    ruleConfig.rules![inputRule.key] = ["error", ...getRuleConfig(ruleModule, inputRule)];
   });
   return ruleConfig;
 }
@@ -63,19 +98,23 @@ function createLinterConfig(inputRules: Rule[]) {
  *
  * exported for testing
  */
-export function getRuleConfig(ruleMetadata: ESLintRule.RuleMetaData | undefined, inputRule: Rule) {
+export function getRuleConfig(ruleModule: ESLintRule.RuleModule | undefined, inputRule: Rule) {
   const options = inputRule.configurations;
-  if (hasSonarRuntimeOption(ruleMetadata)) {
+  if (hasSonarRuntimeOption(ruleModule, inputRule.key)) {
     return options.concat("sonar-runtime");
   }
   return options;
 }
 
-function hasSonarRuntimeOption(ruleMetadata: ESLintRule.RuleMetaData | undefined) {
-  if (!ruleMetadata || !ruleMetadata.schema) {
+function hasSonarRuntimeOption(ruleModule: ESLintRule.RuleModule | undefined, ruleId: string) {
+  if (!ruleModule) {
+    console.log(`DEBUG ruleModule not found for rule ${ruleId}`);
     return false;
   }
-  const { schema } = ruleMetadata;
+  if (!ruleModule.meta || !ruleModule.meta.schema) {
+    return false;
+  }
+  const { schema } = ruleModule.meta;
   const props = Array.isArray(schema) ? schema : [schema];
   return props.some(option => !!option.enum && option.enum.includes("sonar-runtime"));
 }
