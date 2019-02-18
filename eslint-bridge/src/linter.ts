@@ -47,7 +47,8 @@ export function analyze(sourceCode: SourceCode, inputRules: Rule[], fileUri: str
       }
       return decodeSonarRuntimeIssue(linter.getRules().get(issue.ruleId), issue);
     })
-    .filter((issue): issue is Issue => issue !== null);
+    .filter((issue): issue is Issue => issue !== null)
+    .map(normalizeIssueLocation);
 }
 
 // exported for testing
@@ -117,4 +118,19 @@ function hasSonarRuntimeOption(ruleModule: ESLintRule.RuleModule | undefined, ru
   const { schema } = ruleModule.meta;
   const props = Array.isArray(schema) ? schema : [schema];
   return props.some(option => !!option.enum && option.enum.includes("sonar-runtime"));
+}
+
+function normalizeIssueLocation(issue: Issue) {
+  const { column, endColumn, secondaryLocations } = issue;
+  const normalizedIssue = issue;
+  normalizedIssue.column = column - 1;
+  if (endColumn) {
+    normalizedIssue.endColumn = endColumn - 1;
+  }
+  normalizedIssue.secondaryLocations = secondaryLocations.map(location => ({
+    ...location,
+    column: location.column - 1,
+    endColumn: location.endColumn - 1,
+  }));
+  return normalizedIssue;
 }

@@ -29,8 +29,8 @@ describe("server", () => {
 
     expect(JSON.parse(response)).toEqual([
       {
-        column: 1,
-        endColumn: 23,
+        column: 0,
+        endColumn: 22,
         endLine: 1,
         line: 1,
         message:

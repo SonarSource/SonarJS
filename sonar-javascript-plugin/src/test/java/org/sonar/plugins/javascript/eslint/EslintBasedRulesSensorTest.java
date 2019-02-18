@@ -78,8 +78,8 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void should_create_issues_from_eslint_based_rules() throws Exception {
     when(eslintBridgeServerMock.call(any())).thenReturn("[{" +
-      "\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":1,\"column\":2,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []" +
+      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+      "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []" +
       "}]");
 
     EslintBasedRulesSensor sensor = createSensor();
@@ -111,11 +111,11 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void should_report_secondary_issue_locations_from_eslint_based_rules() throws Exception {
     when(eslintBridgeServerMock.call(any())).thenReturn(
-      "[{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+      "[{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"cost\": 14," +
         "\"secondaryLocations\": [" +
-        "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":2,\"endColumn\":4}," +
-        "{ message: \"Secondary\", \"line\":3,\"column\":2,\"endLine\":3,\"endColumn\":5}" +
+        "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
+        "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
         "]}]");
 
     EslintBasedRulesSensor sensor = createSensor();
@@ -166,7 +166,7 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void should_report_cost_from_eslint_based_rules() throws Exception {
     when(eslintBridgeServerMock.call(any())).thenReturn(
-      "[{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+      "[{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"cost\": 42," + "\"secondaryLocations\": []}]");
 
     EslintBasedRulesSensor sensor = createSensor();
