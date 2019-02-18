@@ -16,7 +16,14 @@ foo((p1 = 1, p2) => {   // Noncompliant [[sc=6;ec=8]]
 function foo({a, b} = {a:42, b:"hello"}, p1){ // Noncompliant {{Move parameter "{a, b}" after parameters without default value.}}
 }
 
-function foo(p1 = 1, ...restArgs) {  // Noncompliant
+function foo() {
+}
+
+// OK for functions with rest parameter
+function foo(p1 = 1, ...restArgs) {
+}
+
+function foo(p1 = 1, p2, ...restArgs) {
 }
 
 function foo(p1, p2, p3 = 1, p4 = 2) {  // OK
