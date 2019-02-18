@@ -54,24 +54,28 @@ function checkCallExpression(
   { callee, arguments: args }: estree.CallExpression,
   context: Rule.RuleContext,
 ) {
+  // IE
   if (isMemberWithProperty(callee, ...ieEvalMethods) && args.length === 1) {
     context.report({ message, node: callee });
     return;
   }
 
-  let moduleName;
-  let expression: estree.Expression | undefined;
-
-  if (callee.type === "MemberExpression" && callee.object.type === "Identifier") {
-    moduleName = getModuleNameOfIdentifier(callee.object, context);
-    expression = callee.property;
+  // Document.evaluate
+  if (
+    isMemberWithProperty(callee, "evaluate") &&
+    !isMemberExpression(callee, "document", "evaluate") &&
+    args.length >= 4
+  ) {
+    const resultTypeArgument = args[3];
+    const argumentAsText = context.getSourceCode().getText(resultTypeArgument);
+    if (argumentAsText.includes("XPathResult")) {
+      context.report({ message, node: callee });
+      return;
+    }
   }
 
-  if (callee.type === "Identifier") {
-    moduleName = getModuleNameOfImportedIdentifier(callee, context);
-    expression = callee;
-  }
-
+  // "xpath" module
+  const { moduleName, expression } = getModuleAndCalledMethod(callee, context);
   if (
     expression &&
     moduleName &&
@@ -81,4 +85,18 @@ function checkCallExpression(
   ) {
     context.report({ message, node: callee });
   }
+}
+function getModuleAndCalledMethod(callee: estree.Node, context: Rule.RuleContext) {
+  let moduleName;
+  let expression: estree.Expression | undefined;
+
+  if (callee.type === "MemberExpression" && callee.object.type === "Identifier") {
+    moduleName = getModuleNameOfIdentifier(callee.object, context);
+    expression = callee.property;
+  }
+  if (callee.type === "Identifier") {
+    moduleName = getModuleNameOfImportedIdentifier(callee, context);
+    expression = callee;
+  }
+  return { moduleName, expression };
 }

@@ -35,7 +35,7 @@ ruleTester.run("Executing XPath expressions is security-sensitive", rule, {
       code: `document.evaluateFoo(userInput, xmlDoc, null, XPathResult.ANY_TYPE, null);`,
     },
     {
-      code: `foo.evaluate(userInput, xmlDoc, null, XPathResult.ANY_TYPE, null);`,
+      code: `foo.evaluate(userInput, xmlDoc, null, foo);`,
     },
   ],
   invalid: [
@@ -99,6 +99,10 @@ ruleTester.run("Executing XPath expressions is security-sensitive", rule, {
     },
     {
       code: `document.evaluate(userInput, xmlDoc, null, XPathResult.ANY_TYPE, null);`,
+      errors: 1,
+    },
+    {
+      code: `foo.bar.evaluate(userInput, xmlDoc, null, XPathResult.STRING_TYPE);`,
       errors: 1,
     },
     {
