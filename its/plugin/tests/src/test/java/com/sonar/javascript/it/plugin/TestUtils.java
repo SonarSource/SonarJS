@@ -20,7 +20,17 @@
 package com.sonar.javascript.it.plugin;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 
 public class TestUtils {
 
@@ -48,4 +58,63 @@ public class TestUtils {
     return new File(homeDir(), relativePath);
   }
 
+  static ClientInputFile prepareInputFile(File baseDir, String relativePath, String content) throws IOException {
+    File file = new File(baseDir, relativePath);
+    FileUtils.write(file, content, StandardCharsets.UTF_8);
+    return createInputFile(file.toPath());
+  }
+
+  private static ClientInputFile createInputFile(final Path path) {
+    return new ClientInputFile() {
+
+      @Override
+      public String getPath() {
+        return path.toString();
+      }
+
+      @Override
+      public boolean isTest() {
+        return false;
+      }
+
+      @Override
+      public Charset getCharset() {
+        return StandardCharsets.UTF_8;
+      }
+
+      @Override
+      public <G> G getClientObject() {
+        return null;
+      }
+
+      @Override
+      public String contents() throws IOException {
+        return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+      }
+
+      @Override
+      public String relativePath() {
+        return path.toString();
+      }
+
+      @Override
+      public URI uri() {
+        return path.toUri();
+      }
+
+      @Override
+      public InputStream inputStream() throws IOException {
+        return Files.newInputStream(path);
+      }
+
+    };
+  }
+
+  static String getNodeJSExecutable() {
+    String executable = SystemUtils.IS_OS_WINDOWS ? "node.exe" : "node";
+    return Paths.get(System.getProperty("user.dir"), "target", "node", executable)
+      .toAbsolutePath().toString();
+  }
+
 }
+

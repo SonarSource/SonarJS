@@ -23,10 +23,8 @@ import com.google.common.collect.ImmutableList;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.SystemUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -52,16 +50,10 @@ public class EslintBasedRulesTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR)
-      .setProperty("sonar.nodejs.executable", getNodeJSExecutable())
+      .setProperty("sonar.nodejs.executable", TestUtils.getNodeJSExecutable())
       .setProfile("eslint-based-rules-profile");
 
     orchestrator.executeBuild(build);
-  }
-
-  private static String getNodeJSExecutable() {
-    String executable = SystemUtils.IS_OS_WINDOWS ? "node.exe" : "node";
-    return Paths.get(System.getProperty("user.dir"), "target", "node", executable)
-      .toAbsolutePath().toString();
   }
 
   @Test

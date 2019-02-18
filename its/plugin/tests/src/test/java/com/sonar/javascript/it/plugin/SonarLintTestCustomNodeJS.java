@@ -20,7 +20,6 @@
 package com.sonar.javascript.it.plugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,9 +37,8 @@ import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConf
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
-public class SonarLintTest {
+public class SonarLintTestCustomNodeJS {
 
   private static final String FILE_PATH = "foo.js";
   @ClassRule
@@ -69,44 +67,22 @@ public class SonarLintTest {
   }
 
   @Test
-  public void should_raise_three_issues() throws IOException {
-    List<Issue> issues = analyze(FILE_PATH, "function foo() { \n"
-      + "  var a; \n"
-      + "  var c; // NOSONAR\n"
-      + "  var b = 42; \n"
-      + "} \n");
-
-    String filePath = new File(baseDir, FILE_PATH).getAbsolutePath();
-    assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
-      tuple("javascript:UnusedVariable", 2, filePath, "MINOR"),
-      tuple("javascript:UnusedVariable", 4, filePath, "MINOR"),
-      tuple("javascript:S1854", 4, filePath, "MAJOR"));
-  }
-
-  @Test
-  public void should_run_eslint_based_rules() throws Exception {
-    String sourceCode = "function foo() { try {" +
+  public void should_use_set_nodejs() throws Exception {
+    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, FILE_PATH, "function foo() { try {" +
       "  doSomething();" +
       "} catch (ex) {" +
       "  throw ex;" +
-      "}}";
-    List<Issue> issues = analyze(FILE_PATH, sourceCode);
-    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
-    // let's analyze again
-    issues = analyze(FILE_PATH, sourceCode);
-    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
-    assertThat(logs).contains("Server already alive, skipping start.");
-  }
-
-
-  private List<Issue> analyze(String filePath, String sourceCode) throws IOException {
-    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, filePath, sourceCode);
+      "}}");
 
     List<Issue> issues = new ArrayList<>();
-    sonarlintEngine.analyze(
-      new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), new HashMap<>()),
-      issues::add, null, null);
-    return issues;
+    HashMap<String, String> properties = new HashMap<>();
+    properties.put("sonar.nodejs.executable", TestUtils.getNodeJSExecutable());
+    StandaloneAnalysisConfiguration configuration = new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), properties);
+    sonarlintEngine.analyze(configuration, issues::add, null, null);
+    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
+
+    assertThat(logs.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
   }
+
 
 }

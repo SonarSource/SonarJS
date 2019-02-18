@@ -25,7 +25,7 @@ import org.sonar.api.config.Configuration;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
-@SonarLintSide
+@SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
 public interface NodeCommandBuilder {
   NodeCommandBuilder minNodeVersion(int minNodeVersion);
 

@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -73,14 +73,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     this.timeoutSeconds = timeoutSeconds;
     this.startServerScript = startServerScript;
     this.client = new OkHttpClient.Builder()
-      .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
+      .callTimeout(Duration.ofSeconds(timeoutSeconds))
       .build();
     this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
     this.bundleLocation = bundleLocation;
   }
 
-  @Override
-  public void deploy() throws IOException {
+  void deploy() throws IOException {
     long start = System.currentTimeMillis();
     LOG.debug("Deploying eslint-bridge into {}", deployLocation);
     InputStream bundle = getClass().getResourceAsStream(bundleLocation);
@@ -91,8 +90,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     LOG.debug("Deployment done in {}ms", System.currentTimeMillis() - start);
   }
 
-  @Override
-  public void startServer(SensorContext context) throws IOException {
+  void startServer(SensorContext context) throws IOException {
     port = findOpenPort();
 
     File scriptFile = deployLocation.resolve(startServerScript).toFile();
@@ -118,8 +116,17 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     if (!waitServerToStart("localhost", port, timeoutSeconds * 1000)) {
       throw new IllegalStateException("Failed to start server (" + timeoutSeconds +"s timeout)");
     }
-
     LOG.debug("Server is started");
+  }
+
+  @Override
+  public void startServerLazily(SensorContext context) throws IOException {
+    if (isAlive()) {
+      LOG.debug("Server already alive, skipping start.");
+      return;
+    }
+    deploy();
+    startServer(context);
   }
 
   @Override
@@ -132,6 +139,26 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     try (Response response = client.newCall(request).execute()) {
       // in this case response.body() is never null (according to docs)
       return response.body().string();
+    }
+  }
+
+  boolean isAlive() {
+    if (nodeCommand == null) {
+      return false;
+    }
+    Request request = new Request.Builder()
+      .url("http://localhost:" + port + "/status")
+      .get()
+      .build();
+
+    try (Response response = client.newCall(request).execute()) {
+      String body = response.body().string();
+      LOG.info("Response to isAlive request: {}", body);
+      // in this case response.body() is never null (according to docs)
+      return "OK!".equals(body);
+    } catch (IOException e) {
+      LOG.error("Error requesting server status. Server is probably dead.", e);
+      return false;
     }
   }
 
@@ -152,4 +179,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
   }
 
+  @Override
+  public void start() {
+    // Server is started lazily from the org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor
+  }
+
+  @Override
+  public void stop() {
+    clean();
+  }
 }

@@ -34,11 +34,12 @@ import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 
 public class EslintBridgeServerImplTest {
 
   // "mock-eslint-bundle.tar.xz" is created from "mock-eslint-bridge" directory
-  // with this command: tar -cJ -f mock-eslint-bridge.tar.xz mock-eslint-bridge
+  // with this command: tar -cJ -f mock-eslint-bundle.tar.xz mock-eslint-bridge
   // might require "--force-local" option for windows
   private static final String MOCK_ESLINT_BUNDLE = "/mock-eslint-bundle.tar.xz";
 
@@ -107,7 +108,7 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("testing debug log");
+    assertThat(logTester.logs(DEBUG)).contains("testing debug log");
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("testing info log");
   }
 
@@ -140,6 +141,28 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.startServer(context);
 
     assertThat(eslintBridgeServer.getCommandInfo()).contains("Node.js command to start eslint-bridge was: node", "startServer.js");
+  }
+
+  @Test
+  public void test_isAlive() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("startServer.js");
+    assertThat(eslintBridgeServer.isAlive()).isFalse();
+    eslintBridgeServer.startServerLazily(context);
+    assertThat(eslintBridgeServer.isAlive()).isTrue();
+    eslintBridgeServer.clean();
+    assertThat(eslintBridgeServer.isAlive()).isFalse();
+  }
+
+  @Test
+  public void test_lazy_start() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("startServer.js");
+    eslintBridgeServer.startServerLazily(context);
+    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith("Starting Node.js process to start eslint-bridge server at port"))).isTrue();
+    assertThat(logTester.logs(DEBUG)).doesNotContain("Server already alive, skipping start.");
+    logTester.clear();
+    eslintBridgeServer.startServerLazily(context);
+    assertThat(logTester.logs(DEBUG).stream().noneMatch(s -> s.startsWith("Starting Node.js process to start eslint-bridge server at port"))).isTrue();
+    assertThat(logTester.logs(DEBUG)).contains("Server already alive, skipping start.");
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {

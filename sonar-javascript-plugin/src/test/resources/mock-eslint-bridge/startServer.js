@@ -1,10 +1,19 @@
 #!/usr/bin/env node
 
+/**
+ * Note that any edits in this file have to be repackaged to the mock-eslint-bundle.tar.xz to be effective for tests
+ */
+
 const http = require('http')
 const port = process.argv[2]
 
 const requestHandler = (request, response) => {
-  response.end("answer from eslint-bridge")
+  if (request.url == '/status') {
+    response.writeHead(200, { 'Content-Type': 'text/plain' });
+    response.end('OK!');
+  } else {
+    response.end("answer from eslint-bridge")
+  }
 }
 
 const server = http.createServer(requestHandler)
