@@ -48,6 +48,10 @@ public class DefaultParametersNotLastCheck extends SubscriptionVisitorCheck {
   public void visitNode(Tree tree) {
     List<BindingElementTree> parameterList = ((FunctionTree) tree).parameterList();
 
+    if (!parameterList.isEmpty() && parameterList.get(parameterList.size() - 1).is(Kind.REST_ELEMENT)) {
+      return;
+    }
+
     List<InitializedBindingElementTree> parametersWithDefault = new ArrayList<>();
     boolean raiseIssue = false;
 
