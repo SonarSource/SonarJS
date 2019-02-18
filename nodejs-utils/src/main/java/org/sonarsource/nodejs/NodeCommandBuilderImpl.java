@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -178,13 +177,8 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private static String retrieveNodeExecutableFromConfig(@Nullable Configuration configuration) {
-    if (configuration == null) {
-      return NODE_EXECUTABLE_DEFAULT;
-    }
-
-    Optional<String> nodeExecutableOptional = configuration.get(NODE_EXECUTABLE_PROPERTY);
-    if (nodeExecutableOptional.isPresent()) {
-      String nodeExecutable = nodeExecutableOptional.get();
+    if (configuration != null && configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
+      String nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
       File file = new File(nodeExecutable);
       if (file.exists()) {
         LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), NODE_EXECUTABLE_PROPERTY);
@@ -192,7 +186,6 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
       }
       LOG.warn("Provided Node.js executable file (property '{}') does not exist. File: {}", NODE_EXECUTABLE_PROPERTY, file.getAbsoluteFile());
     }
-
 
     LOG.info("Using default Node.js executable: '{}'.", NODE_EXECUTABLE_DEFAULT);
     return NODE_EXECUTABLE_DEFAULT;

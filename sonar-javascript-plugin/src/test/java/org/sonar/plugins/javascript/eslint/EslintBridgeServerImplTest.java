@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.io.IOException;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,6 +30,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.AnalysisWarningsWrapper;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -35,6 +38,8 @@ import org.sonarsource.nodejs.NodeCommandException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.eq;
 
 public class EslintBridgeServerImplTest {
 
@@ -42,6 +47,7 @@ public class EslintBridgeServerImplTest {
   // with this command: tar -cJ -f mock-eslint-bundle.tar.xz mock-eslint-bridge
   // might require "--force-local" option for windows
   private static final String MOCK_ESLINT_BUNDLE = "/mock-eslint-bundle.tar.xz";
+  private static final String START_SERVER_SCRIPT = "startServer.js";
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -67,7 +73,7 @@ public class EslintBridgeServerImplTest {
 
   @Test
   public void should_not_fail_when_deployed_twice() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer("startServer.js");
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();
     eslintBridgeServer.deploy();
   }
@@ -85,6 +91,28 @@ public class EslintBridgeServerImplTest {
 
   @Test
   public void should_throw_if_failed_to_build_node_command() throws Exception {
+    setUpFailingNodeCommandBuilder(null);
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Failed to build Node.js command");
+
+    eslintBridgeServer.startServer(context);
+  }
+
+  @Test
+  public void should_add_analysis_warning_if_failed_to_build_node_command() throws Exception {
+    AnalysisWarningsWrapper analysisWarnings = mock(AnalysisWarningsWrapper.class);
+    setUpFailingNodeCommandBuilder(analysisWarnings);
+
+    try {
+      eslintBridgeServer.startServer(context);
+    } catch (Exception e) {
+      // do nothing
+    }
+    verify(analysisWarnings).addUnique(eq("Some JavaScript rules were not executed: msg"));
+  }
+
+  private void setUpFailingNodeCommandBuilder(@Nullable AnalysisWarningsWrapper analysisWarnings) throws IOException {
     NodeCommandBuilder nodeCommandBuilder = mock(NodeCommandBuilder.class, invocation -> {
       if (NodeCommandBuilder.class.equals(invocation.getMethod().getReturnType())) {
         return invocation.getMock();
@@ -93,13 +121,14 @@ public class EslintBridgeServerImplTest {
       }
     });
 
-    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, tempFolder, 1, "startServer.js", MOCK_ESLINT_BUNDLE);
+    eslintBridgeServer = new EslintBridgeServerImpl(
+      nodeCommandBuilder,
+      tempFolder,
+      1,
+      START_SERVER_SCRIPT,
+      MOCK_ESLINT_BUNDLE,
+      analysisWarnings);
     eslintBridgeServer.deploy();
-
-    thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("msg");
-
-    eslintBridgeServer.startServer(context);
   }
 
   @Test
@@ -114,7 +143,7 @@ public class EslintBridgeServerImplTest {
 
   @Test
   public void should_get_answer_from_server() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer("startServer.js");
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context);
 
@@ -134,18 +163,18 @@ public class EslintBridgeServerImplTest {
 
   @Test
   public void should_return_command_info() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer("startServer.js");
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     assertThat(eslintBridgeServer.getCommandInfo()).isEqualTo("Node.js command to start eslint-bridge server was not built yet.");
 
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context);
 
-    assertThat(eslintBridgeServer.getCommandInfo()).contains("Node.js command to start eslint-bridge was: node", "startServer.js");
+    assertThat(eslintBridgeServer.getCommandInfo()).contains("Node.js command to start eslint-bridge was: ", "node", START_SERVER_SCRIPT);
   }
 
   @Test
   public void test_isAlive() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer("startServer.js");
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     assertThat(eslintBridgeServer.isAlive()).isFalse();
     eslintBridgeServer.startServerLazily(context);
     assertThat(eslintBridgeServer.isAlive()).isTrue();
@@ -168,6 +197,6 @@ public class EslintBridgeServerImplTest {
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
+    return new EslintBridgeServerImpl(NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE, null);
   }
 }

@@ -77,8 +77,6 @@ public class JavaScriptPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
-    boolean externalIssuesSupported = context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2));
-
     context.addExtensions(
       JavaScriptLanguage.class,
       JavaScriptSensor.class,
@@ -168,6 +166,9 @@ public class JavaScriptPlugin implements Plugin {
       context.addExtension(CoverageSensor.class);
       context.addExtension(EslintReportSensor.class);
 
+      boolean externalIssuesSupported = context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2));
+      boolean analysisWarningsSupported = context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 4));
+
       if (externalIssuesSupported) {
         context.addExtension(EslintRulesDefinition.class);
 
@@ -180,6 +181,10 @@ public class JavaScriptPlugin implements Plugin {
             .subCategory(EXTERNAL_ANALYZERS_SUB_CATEGORY)
             .multiValues(true)
             .build());
+      }
+
+      if (analysisWarningsSupported) {
+        context.addExtension(AnalysisWarningsWrapper.class);
       }
     }
 
