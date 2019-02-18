@@ -48,6 +48,12 @@ public class JavaScriptPluginTest {
   }
 
   @Test
+  public void count_extensions_analysis_warnings_supported() throws Exception {
+    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(7, 4), SonarQubeSide.SERVER));
+    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + 5);
+  }
+
+  @Test
   public void should_contain_right_properties_number() throws Exception {
     assertThat(properties()).hasSize(7);
   }

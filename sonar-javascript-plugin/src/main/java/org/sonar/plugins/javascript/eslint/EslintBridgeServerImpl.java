@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Duration;
+import javax.annotation.Nullable;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -33,9 +34,11 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.AnalysisWarningsWrapper;
 import org.sonarsource.nodejs.BundleUtils;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
+import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
@@ -51,6 +54,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   // this archive is created in eslint-bridge/scripts/package.js
   private static final String BUNDLE_LOCATION = "/eslint-bridge.tar.xz";
 
+  private final AnalysisWarningsWrapper analysisWarnings;
   private final OkHttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
   private final int timeoutSeconds;
@@ -62,13 +66,20 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   // Used by pico container for dependency injection
   @SuppressWarnings("unused")
+  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, AnalysisWarningsWrapper analysisWarnings) {
+    this(nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION, analysisWarnings);
+  }
+
+  // Used by pico container for dependency injection
+  @SuppressWarnings("unused")
   public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder) {
-    this(nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION);
+    this(nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION, null);
   }
 
   EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
                          String startServerScript,
-                         String bundleLocation) {
+                         String bundleLocation,
+                         @Nullable AnalysisWarningsWrapper analysisWarnings) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.startServerScript = startServerScript;
@@ -77,6 +88,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .build();
     this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
     this.bundleLocation = bundleLocation;
+    this.analysisWarnings = analysisWarnings;
   }
 
   void deploy() throws IOException {
@@ -97,19 +109,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     if (!scriptFile.exists()) {
       throw new IllegalStateException("Node.js script to start eslint-bridge server doesn't exist: " + scriptFile.getAbsolutePath());
     }
-    nodeCommand = nodeCommandBuilder
-      .outputConsumer(message -> {
-        if (message.startsWith("DEBUG")) {
-          LOG.debug(message.substring(5).trim());
-        } else {
-          LOG.info(message);
-        }
-      })
-      .minNodeVersion(6)
-      .configuration(context.config())
-      .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port))
-      .build();
+
+    initNodeCommand(context, scriptFile);
+
     LOG.debug("Starting Node.js process to start eslint-bridge server at port " + port);
     nodeCommand.start();
 
@@ -117,6 +119,29 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       throw new IllegalStateException("Failed to start server (" + timeoutSeconds +"s timeout)");
     }
     LOG.debug("Server is started");
+  }
+
+  private void initNodeCommand(SensorContext context, File scriptFile) {
+    try {
+      nodeCommand = nodeCommandBuilder
+        .outputConsumer(message -> {
+          if (message.startsWith("DEBUG")) {
+            LOG.debug(message.substring(5).trim());
+          } else {
+            LOG.info(message);
+          }
+        })
+        .minNodeVersion(6)
+        .configuration(context.config())
+        .script(scriptFile.getAbsolutePath())
+        .scriptArgs(String.valueOf(port))
+        .build();
+    } catch (NodeCommandException e) {
+      if (analysisWarnings != null) {
+        analysisWarnings.addUnique("Some JavaScript rules were not executed: " + e.getMessage());
+      }
+      throw new IllegalStateException("Failed to build Node.js command", e);
+    }
   }
 
   @Override
