@@ -130,7 +130,7 @@ public class EslintBasedRulesSensor implements Sensor {
       .on(file);
 
     if (issue.endLine != null) {
-      location.at(file.newRange(issue.line, issue.column - 1, issue.endLine, issue.endColumn - 1));
+      location.at(file.newRange(issue.line, issue.column, issue.endLine, issue.endColumn));
     } else {
       location.at(file.selectLine(issue.line));
     }
@@ -157,7 +157,7 @@ public class EslintBasedRulesSensor implements Sensor {
     NewIssueLocation newIssueLocation = issue.newLocation().on(inputFile);
 
     if (location.line != null && location.endLine != null && location.column != null && location.endColumn != null) {
-      newIssueLocation.at(inputFile.newRange(location.line, location.column - 1, location.endLine, location.endColumn - 1));
+      newIssueLocation.at(inputFile.newRange(location.line, location.column, location.endLine, location.endColumn));
       if (location.message != null) {
         newIssueLocation.message(location.message);
       }

@@ -23,18 +23,18 @@ describe("#analyze", () => {
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual({
       line: 3,
-      column: 9,
+      column: 8,
       endLine: 3,
-      endColumn: 12,
+      endColumn: 11,
       message: "Refactor this loop to do more than one iteration.",
       ruleId: "no-one-iteration-loop",
       secondaryLocations: [],
     });
     expect(issues).toContainEqual({
       line: 7,
-      column: 9,
+      column: 8,
       endLine: 7,
-      endColumn: 23,
+      endColumn: 22,
       message: "Define a constant instead of duplicating this literal 2 times.",
       ruleId: "no-duplicate-string",
       secondaryLocations: [],
