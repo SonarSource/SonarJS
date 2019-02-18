@@ -125,9 +125,5 @@ function normalizeIssueLocation(issue: Issue) {
   if (issue.endColumn) {
     issue.endColumn -= 1;
   }
-  issue.secondaryLocations.forEach(loc => {
-    loc.column -= 1;
-    loc.endColumn -= 1;
-  });
   return issue;
 }
