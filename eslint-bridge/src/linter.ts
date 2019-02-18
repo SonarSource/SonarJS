@@ -121,16 +121,13 @@ function hasSonarRuntimeOption(ruleModule: ESLintRule.RuleModule | undefined, ru
 }
 
 function normalizeIssueLocation(issue: Issue) {
-  const { column, endColumn, secondaryLocations } = issue;
-  const normalizedIssue = issue;
-  normalizedIssue.column = column - 1;
-  if (endColumn) {
-    normalizedIssue.endColumn = endColumn - 1;
+  issue.column -= 1;
+  if (issue.endColumn) {
+    issue.endColumn -= 1;
   }
-  normalizedIssue.secondaryLocations = secondaryLocations.map(location => ({
-    ...location,
-    column: location.column - 1,
-    endColumn: location.endColumn - 1,
-  }));
-  return normalizedIssue;
+  issue.secondaryLocations.forEach(loc => {
+    loc.column -= 1;
+    loc.endColumn -= 1;
+  });
+  return issue;
 }
