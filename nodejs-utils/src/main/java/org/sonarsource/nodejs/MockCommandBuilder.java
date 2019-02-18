@@ -22,6 +22,7 @@ package org.sonarsource.nodejs;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
@@ -107,7 +108,7 @@ public class MockCommandBuilder implements NodeCommandBuilder {
   private class MockCommand extends NodeCommand {
 
     private MockCommand(Consumer<String> outputConsumer, Consumer<String> errorConsumer) {
-      super(null, "", Collections.emptyList(), "", Collections.emptyList(), outputConsumer, errorConsumer);
+      super(new MockProcessWrapper(), "", Collections.emptyList(), "", Collections.emptyList(), outputConsumer, errorConsumer);
     }
 
     @Override
@@ -129,6 +130,34 @@ public class MockCommandBuilder implements NodeCommandBuilder {
     @Override
     public String toString() {
       return "mock-node mock-command";
+    }
+  }
+
+  static class MockProcessWrapper implements NodeCommand.ProcessWrapper {
+
+    @Override
+    public Process start(List<String> commandLine) {
+      return null;
+    }
+
+    @Override
+    public int waitFor(Process process) {
+      return 0;
+    }
+
+    @Override
+    public void interrupt() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void destroy(Process process) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isMac() {
+      return false;
     }
   }
 
