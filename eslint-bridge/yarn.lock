@@ -1226,10 +1226,10 @@ escodegen@^1.9.1:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-plugin-sonarjs@0.3.0-1:
-  version "0.3.0-1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.3.0-1.tgz#fa249cb7fff26f3a5e5e07ffc959a6baa9c3e1c5"
-  integrity sha512-IyrgUBie47cet5Sp7cT0jmTCtJ1kaq98I+mjbhiTqpG05c2NUQHNS/knJEIQ/6lcpWpJqHKatr/J63YYO2S7Mw==
+eslint-plugin-sonarjs@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.3.0.tgz#e680438e816142c1a85d5ec4d0d36a12b1491459"
+  integrity sha512-75e/FgU04ySKVYsrMOioINMphJNtfXq/tJ6FOC/50H9osuM0E3pqAKckMja2zl+CHqhDroz0qJdcS3kFy5GYlQ==
 
 eslint-scope@3.7.1:
   version "3.7.1"
