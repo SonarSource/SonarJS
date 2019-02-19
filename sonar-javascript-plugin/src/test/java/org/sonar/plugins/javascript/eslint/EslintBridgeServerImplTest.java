@@ -36,10 +36,10 @@ import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
-import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 
 public class EslintBridgeServerImplTest {
 
@@ -93,8 +93,8 @@ public class EslintBridgeServerImplTest {
   public void should_throw_if_failed_to_build_node_command() throws Exception {
     setUpFailingNodeCommandBuilder(null);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Failed to build Node.js command");
+    thrown.expect(NodeCommandException.class);
+    thrown.expectMessage("msg");
 
     eslintBridgeServer.startServer(context);
   }

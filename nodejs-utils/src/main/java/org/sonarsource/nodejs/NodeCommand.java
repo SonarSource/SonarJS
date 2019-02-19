@@ -74,6 +74,9 @@ public class NodeCommand {
       streamConsumer.consumeStream(process.getInputStream(), outputConsumer);
       streamConsumer.consumeStream(process.getErrorStream(), errorConsumer);
     } catch (IOException e) {
+      if (e.getMessage().contains("CreateProcess error=2")) {
+        throw new MissingNodeException("Failed to start Node.js process. Is Node.js installed?", e);
+      }
       throw new NodeCommandException("Error when starting the process: " + toString(), e);
     }
   }

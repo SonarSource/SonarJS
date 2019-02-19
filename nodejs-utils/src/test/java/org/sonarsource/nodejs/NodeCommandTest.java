@@ -190,7 +190,7 @@ public class NodeCommandTest {
       .configuration(settings.asConfig())
       .script("not-used");
 
-    assertThatThrownBy(() -> nodeCommand.build())
+    assertThatThrownBy(nodeCommand::build)
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Provided Node.js executable file does not exist.");
 
@@ -272,6 +272,16 @@ public class NodeCommandTest {
     nodeCommand.start();
     verify(mockProcessWrapper).start(processStartArgument.capture());
     assertThat(processStartArgument.getValue()).contains("/bin/sh", "-c", "node script.js");
+  }
+
+  @Test
+  public void test_missing_node() throws Exception {
+    when(mockProcessWrapper.start(any())).thenThrow(new IOException("CreateProcess error=2"));
+    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+      .script("not-used")
+      .build();
+
+    assertThatThrownBy(nodeCommand::start).isInstanceOf(MissingNodeException.class);
   }
 
   private static String resourceScript(String script) throws URISyntaxException {

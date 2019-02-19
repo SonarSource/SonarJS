@@ -46,6 +46,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonarsource.analyzer.commons.ProgressReport;
+import org.sonarsource.nodejs.MissingNodeException;
 
 public class EslintBasedRulesSensor implements Sensor {
 
@@ -90,6 +91,8 @@ public class EslintBasedRulesSensor implements Sensor {
         progressReport.nextFile();
       }
       progressReport.stop();
+    } catch (MissingNodeException e) {
+      LOG.error("Failed to start Node.js process. Some JavaScript rules will not be executed. Is Node.js installed?", e);
     } catch (Exception e) {
       LOG.error("Failure during analysis, " + eslintBridgeServer.getCommandInfo(), e);
     } finally {

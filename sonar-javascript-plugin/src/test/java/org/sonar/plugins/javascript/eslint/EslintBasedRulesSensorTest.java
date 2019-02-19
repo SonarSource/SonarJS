@@ -44,6 +44,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor.AnalysisRequest;
+import org.sonarsource.nodejs.MissingNodeException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -310,6 +311,14 @@ public class EslintBasedRulesSensorTest {
     EslintBasedRulesSensor sensor = createSensor();
     assertThat(sensor.ruleKey("no-all-duplicated-branches")).contains(RuleKey.of("javascript", "S3923"));
     assertThat(sensor.ruleKey("unknown-rule-key")).isEmpty();
+  }
+
+  @Test
+  public void handle_missing_node() throws Exception {
+    doThrow(new MissingNodeException("msg", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
+    EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
+    eslintBasedRulesSensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to start Node.js process. Some JavaScript rules will not be executed. Is Node.js installed?");
   }
 
 

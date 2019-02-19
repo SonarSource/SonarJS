@@ -140,7 +140,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       if (analysisWarnings != null) {
         analysisWarnings.addUnique("Some JavaScript rules were not executed: " + e.getMessage());
       }
-      throw new IllegalStateException("Failed to build Node.js command", e);
+      throw e;
     }
   }
 
