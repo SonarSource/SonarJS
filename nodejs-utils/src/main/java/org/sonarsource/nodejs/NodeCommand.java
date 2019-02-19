@@ -21,10 +21,12 @@ package org.sonarsource.nodejs;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -76,7 +78,7 @@ public class NodeCommand {
     }
   }
 
-  private static List<String> buildCommand(String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename, List<String> args) {
+  private List<String> buildCommand(String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename, List<String> args) {
     List<String> result = new ArrayList<>();
     result.add(nodeExecutable);
     result.addAll(nodeJsArgs);
@@ -84,7 +86,13 @@ public class NodeCommand {
       result.add(scriptFilename);
     }
     result.addAll(args);
-    return Collections.unmodifiableList(result);
+    // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured
+    // in .bashrc or similar, thus we launch node via sh, which should load required configuration
+    if (processWrapper.isMac()) {
+      return Arrays.asList("/bin/sh", "-c", String.join(" ", result));
+    } else {
+      return Collections.unmodifiableList(result);
+    }
   }
 
   /**
@@ -134,6 +142,8 @@ public class NodeCommand {
     void interrupt();
 
     void destroy(Process process);
+
+    boolean isMac();
   }
 
   private static class ProcessWrapperImpl implements ProcessWrapper {
@@ -157,6 +167,11 @@ public class NodeCommand {
     @Override
     public void destroy(Process process) {
       process.destroy();
+    }
+
+    @Override
+    public boolean isMac() {
+      return SystemUtils.IS_OS_MAC;
     }
   }
 }

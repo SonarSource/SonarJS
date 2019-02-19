@@ -1,9 +1,10 @@
 import { start } from "../src/server";
 import * as http from "http";
+import { Server } from "http";
 import { promisify } from "util";
 
 describe("server", () => {
-  let server;
+  let server: Server;
   let close;
 
   beforeEach(async () => {
@@ -39,6 +40,29 @@ describe("server", () => {
         secondaryLocations: [],
       },
     ]);
+  });
+
+  it("should respond OK! when started", done => {
+    expect(server.listening).toEqual(true);
+    const req = http.request(
+      {
+        host: "localhost",
+        port: server.address().port,
+        path: "/status",
+        method: "GET",
+      },
+      res => {
+        let data = "";
+        res.on("data", chunk => {
+          data += chunk;
+        });
+        res.on("end", () => {
+          expect(data).toEqual("OK!");
+          done();
+        });
+      },
+    );
+    req.end();
   });
 
   function post(data): Promise<string> {

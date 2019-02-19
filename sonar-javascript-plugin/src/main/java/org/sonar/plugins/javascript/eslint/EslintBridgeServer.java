@@ -20,17 +20,18 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import org.sonar.api.Startable;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
+import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
+
 @ScannerSide
-@SonarLintSide
-public interface EslintBridgeServer {
+@SonarLintSide(lifespan = MULTIPLE_ANALYSES)
+public interface EslintBridgeServer extends Startable {
 
-  void deploy() throws IOException;
-
-  void startServer(SensorContext context) throws IOException;
+  void startServerLazily(SensorContext context) throws IOException;
 
   String call(String request) throws IOException;
 

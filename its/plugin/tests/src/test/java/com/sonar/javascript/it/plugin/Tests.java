@@ -47,6 +47,7 @@ import static java.util.Collections.singletonList;
   MinifiedFilesTest.class,
   NoSonarTest.class,
   SonarLintTest.class,
+  SonarLintTestCustomNodeJS.class,
 })
 public final class Tests {
 

@@ -135,10 +135,15 @@ public class NodeCommandTest {
 
   @Test
   public void test_max_old_space_size_setting() {
+    String request = "v8.getHeapStatistics()";
+    if (System.getProperty("os.name").startsWith("Mac")) {
+      // on Mac Node.js is launched with "sh" so we need to escape
+      request = "v8.getHeapStatistics\\(\\)";
+    }
     StringBuilder output = new StringBuilder();
     NodeCommand command = NodeCommand.builder()
       .maxOldSpaceSize(2048)
-      .nodeJsArgs("-p", "v8.getHeapStatistics()")
+      .nodeJsArgs("-p", request)
       .outputConsumer(output::append)
       .build();
     command.start();
@@ -257,7 +262,18 @@ public class NodeCommandTest {
       .scriptArgs("arg1", "arg2")
       .build();
 
-    assertThat(nodeCommand.toString()).isEqualTo("node -v script.js arg1 arg2");
+    assertThat(nodeCommand.toString()).endsWith("node -v script.js arg1 arg2");
+  }
+
+  @Test
+  public void test_command_on_mac() throws Exception {
+    when(mockProcessWrapper.isMac()).thenReturn(true);
+    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+      .script("script.js")
+      .build();
+    nodeCommand.start();
+    verify(mockProcessWrapper).start(processStartArgument.capture());
+    assertThat(processStartArgument.getValue()).contains("/bin/sh", "-c", "node script.js");
   }
 
   private static String resourceScript(String script) throws URISyntaxException {

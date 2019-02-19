@@ -201,7 +201,7 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_catch_if_bridge_server_not_started() throws Exception {
-    doThrow(new IllegalStateException("failed to start server")).when(eslintBridgeServerMock).startServer(context);
+    doThrow(new IllegalStateException("failed to start server")).when(eslintBridgeServerMock).startServerLazily(context);
 
     EslintBasedRulesSensor sensor = createSensor();
     createInputFile(context);

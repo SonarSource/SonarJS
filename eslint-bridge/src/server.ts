@@ -39,6 +39,8 @@ export function start(port = 0): Promise<Server> {
       response.json(issues);
     });
 
+    app.get("/status", (_: express.Request, resp: express.Response) => resp.send("OK!"));
+
     const server = app.listen(port, () => {
       console.log(
         "DEBUG eslint-bridge server is running at port",
