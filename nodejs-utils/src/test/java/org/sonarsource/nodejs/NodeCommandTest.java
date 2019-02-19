@@ -186,18 +186,16 @@ public class NodeCommandTest {
   public void test_non_existing_node_file() throws Exception {
     MapSettings settings = new MapSettings();
     settings.setProperty("sonar.nodejs.executable", "non-existing-file");
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+    NodeCommandBuilder nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .configuration(settings.asConfig())
-      .script("not-used")
-      .build();
-    nodeCommand.start();
+      .script("not-used");
 
-    verify(mockProcessWrapper).start(processStartArgument.capture());
-    assertThat(processStartArgument.getValue()).contains("node");
-    await().until(() -> logTester.logs(LoggerLevel.WARN).stream()
-      .anyMatch(log -> log.startsWith("Provided Node.js executable file (property 'sonar.nodejs.executable') does not exist")));
-    await().until(() -> logTester.logs(LoggerLevel.INFO).stream()
-      .anyMatch(log -> log.startsWith("Using default Node.js executable: 'node'.")));
+    assertThatThrownBy(() -> nodeCommand.build())
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessage("Provided Node.js executable file does not exist.");
+
+    await().until(() -> logTester.logs(LoggerLevel.ERROR)
+      .contains("Provided Node.js executable file does not exist. Property 'sonar.nodejs.executable' was to 'non-existing-file'"));
   }
 
   @Test
