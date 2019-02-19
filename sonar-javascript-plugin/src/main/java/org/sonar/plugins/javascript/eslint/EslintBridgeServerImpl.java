@@ -122,7 +122,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public void startServerLazily(SensorContext context) throws IOException {
     if (isAlive()) {
-      LOG.debug("Node.js process is already started, no need to start.");
+      LOG.debug("SonarJS eslint-bridge server is up, no need to start.");
       return;
     }
     deploy();

@@ -95,7 +95,7 @@ public class SonarLintTest {
     // let's analyze again
     issues = analyze(FILE_PATH, sourceCode);
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
-    assertThat(logs).contains("Node.js process is already started, no need to start.");
+    assertThat(logs).contains("SonarJS eslint-bridge server is up, no need to start.");
   }
 
 
