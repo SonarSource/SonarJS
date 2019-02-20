@@ -74,7 +74,7 @@ public class NodeCommand {
       streamConsumer.consumeStream(process.getInputStream(), outputConsumer);
       streamConsumer.consumeStream(process.getErrorStream(), errorConsumer);
     } catch (IOException e) {
-      throw new NodeCommandException("Error when starting the process: " + toString(), e);
+      throw new NodeCommandException("Error when running: '" + toString() + "'. Is Node.js available during analysis?", e);
     }
   }
 

@@ -171,7 +171,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     if (exitValue != 0) {
-      throw new NodeCommandException("Failed to run Node.js with -v to determine the version, exit value " + exitValue);
+      throw new NodeCommandException("Failed to determine the version of Node.js, exit value " + exitValue + ". Executed: '" + nodeCommand.toString() + "'");
     }
     return output.toString();
   }
@@ -183,11 +183,13 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
       if (file.exists()) {
         LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), NODE_EXECUTABLE_PROPERTY);
         return nodeExecutable;
+      } else {
+        LOG.error("Provided Node.js executable file does not exist. Property '{}' was to '{}'", NODE_EXECUTABLE_PROPERTY, nodeExecutable);
+        throw new NodeCommandException("Provided Node.js executable file does not exist.");
       }
-      LOG.warn("Provided Node.js executable file (property '{}') does not exist. File: {}", NODE_EXECUTABLE_PROPERTY, file.getAbsoluteFile());
     }
 
-    LOG.info("Using default Node.js executable: '{}'.", NODE_EXECUTABLE_DEFAULT);
+    LOG.debug("Using default Node.js executable: '{}'.", NODE_EXECUTABLE_DEFAULT);
     return NODE_EXECUTABLE_DEFAULT;
   }
 }

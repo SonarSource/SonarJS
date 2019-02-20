@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -43,9 +44,11 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonarsource.analyzer.commons.ProgressReport;
+import org.sonarsource.nodejs.NodeCommandException;
 
 public class EslintBasedRulesSensor implements Sensor {
 
@@ -53,13 +56,21 @@ public class EslintBasedRulesSensor implements Sensor {
   private static final Gson GSON = new Gson();
   private final JavaScriptChecks checks;
   private final EslintBridgeServer eslintBridgeServer;
+  private final AnalysisWarningsWrapper analysisWarnings;
   @VisibleForTesting
   final Rule[] rules;
 
   private ProgressReport progressReport =
     new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
 
+  /**
+   * To be compatible with SQ versions not supporting AnalysisWarnings
+   */
   public EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer) {
+    this(checkFactory, eslintBridgeServer, null);
+  }
+
+  public EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer, @Nullable AnalysisWarningsWrapper analysisWarnings) {
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks());
 
@@ -68,6 +79,7 @@ public class EslintBasedRulesSensor implements Sensor {
       .toArray(Rule[]::new);
 
     this.eslintBridgeServer = eslintBridgeServer;
+    this.analysisWarnings = analysisWarnings;
   }
 
   @Override
@@ -90,6 +102,11 @@ public class EslintBasedRulesSensor implements Sensor {
         progressReport.nextFile();
       }
       progressReport.stop();
+    } catch (NodeCommandException e) {
+      LOG.error(e.getMessage(), e);
+      if (analysisWarnings != null) {
+        analysisWarnings.addUnique("Some JavaScript rules were not executed. " + e.getMessage());
+      }
     } catch (Exception e) {
       LOG.error("Failure during analysis, " + eslintBridgeServer.getCommandInfo(), e);
     } finally {
