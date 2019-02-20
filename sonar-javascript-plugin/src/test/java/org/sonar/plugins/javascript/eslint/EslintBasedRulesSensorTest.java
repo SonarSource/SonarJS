@@ -43,12 +43,15 @@ import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor.AnalysisRequest;
-import org.sonarsource.nodejs.MissingNodeException;
+import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class EslintBasedRulesSensorTest {
@@ -315,12 +318,13 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void handle_missing_node() throws Exception {
-    doThrow(new MissingNodeException("msg", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
-    EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
+    doThrow(new NodeCommandException("Exception Message", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
+    AnalysisWarningsWrapper analysisWarnings = mock(AnalysisWarningsWrapper.class);
+    EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, analysisWarnings);
     eslintBasedRulesSensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to start Node.js process. Some JavaScript rules will not be executed. Is Node.js installed?");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
+    verify(analysisWarnings).addUnique("Some JavaScript rules were not executed. Exception Message");
   }
-
 
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();

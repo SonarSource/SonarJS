@@ -25,7 +25,7 @@ public class NodeCommandException extends RuntimeException {
     super(message);
   }
 
-  NodeCommandException(String message, Throwable cause) {
+  public NodeCommandException(String message, Throwable cause) {
     super(message, cause);
   }
 }

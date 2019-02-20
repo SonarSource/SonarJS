@@ -171,7 +171,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     if (exitValue != 0) {
-      throw new NodeCommandException("Failed to run Node.js with -v to determine the version, exit value " + exitValue);
+      throw new NodeCommandException("Failed to determine the version of Node.js, exit value " + exitValue + ". Executed: '" + nodeCommand.toString() + "'");
     }
     return output.toString();
   }

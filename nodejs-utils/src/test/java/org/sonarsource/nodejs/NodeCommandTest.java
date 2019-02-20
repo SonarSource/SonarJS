@@ -207,9 +207,8 @@ public class NodeCommandTest {
       .build();
     assertThatThrownBy(nodeCommand::start)
       .isInstanceOf(NodeCommandException.class)
-      .hasMessageStartingWith("Error when starting the process: ")
+      .hasMessageStartingWith("Error when running: '")
       .hasCause(cause);
-
   }
 
   @Test
@@ -249,7 +248,7 @@ public class NodeCommandTest {
       .script(resourceScript(PATH_TO_SCRIPT));
     assertThatThrownBy(commandBuilder::build)
       .isInstanceOf(NodeCommandException.class)
-      .hasMessage("Failed to run Node.js with -v to determine the version, exit value 1");
+      .hasMessage("Failed to determine the version of Node.js, exit value 1. Executed: 'node -v'");
   }
 
   @Test
@@ -281,7 +280,7 @@ public class NodeCommandTest {
       .script("not-used")
       .build();
 
-    assertThatThrownBy(nodeCommand::start).isInstanceOf(MissingNodeException.class);
+    assertThatThrownBy(nodeCommand::start).isInstanceOf(NodeCommandException.class);
   }
 
   private static String resourceScript(String script) throws URISyntaxException {
