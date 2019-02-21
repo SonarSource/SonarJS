@@ -82,7 +82,6 @@ public class JavaScriptRulingTest {
       .setLanguage("js")
       .setSourceDirs("./")
       .setSourceEncoding("utf-8")
-      .setProperty("sonar.analysis.mode", "preview")
       .setProperty("dump.old", FileLocation.of("src/test/expected").getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
