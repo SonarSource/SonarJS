@@ -22,7 +22,8 @@
   "securityStandards": {
     "CWE": [
       489,
-      571
+      571,
+      570
     ]
   }
 }

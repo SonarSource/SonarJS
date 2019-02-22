@@ -29,7 +29,7 @@ var node = xpath.select1(userinput, doc); // Questionable
 // === Client side ===
 
 // Chrome, Firefox, Edge, Opera, and Safari use the evaluate() method to select nodes:
-var nodes = xmlDoc.evaluate(userinput, xmlDoc, null, XPathResult.ANY_TYPE, null); // Questionable
+var nodes = document.evaluate(userinput, xmlDoc, null, XPathResult.ANY_TYPE, null); // Questionable
 
 // Internet Explorer uses its own methods to select nodes:
 var nodes = xmlDoc.selectNodes(userinput); // Questionable

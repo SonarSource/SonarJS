@@ -16,5 +16,10 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-2228",
   "sqKey": "S2228",
-  "scope": "Main"
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A3"
+    ]
+  }
 }

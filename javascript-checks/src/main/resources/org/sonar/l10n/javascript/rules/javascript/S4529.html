@@ -48,33 +48,35 @@ the existence of a resource is sensitive.</p>
 const http = require('http');
 const https = require('https');
 
-// http.Server and https.Server objects are security-sensitive and should be reviewed.
+// Endpoints exposed by http.Server and https.Server objects are security-sensitive and should be reviewed.
+// Examples:
 
-const srv = new http.Server((req, res) =&gt; {}); // Questionable
-srv.listen(3000);
+const srv = new http.Server((req, res) =&gt; {});
+srv.listen(3000); // Questionable
 
 // http.createServer creates a new http.Server object.
-const srv = http.createServer((req, res) =&gt; {}); // Questionable
-srv.listen(3000);
+const srv = http.createServer((req, res) =&gt; {});
+srv.listen(3000); // Questionable
 
-const srv = new https.Server((req, res) =&gt; {}); // Questionable
-srv.listen(3000);
+const srv = new https.Server((req, res) =&gt; {});
+srv.listen(3000); // Questionable
 
 // https.createServer creates a new https.Server object.
-const srv = https.createServer((req, res) =&gt; {}); // Questionable
-srv.listen(3000);
+const srv = https.createServer((req, res) =&gt; {});
+srv.listen(3000); // Questionable
 </pre>
 <pre>
 // === ExpressJS ===
 const express = require('express');
-
 const app = express();
-// All express.Application methods exposing endpoints are security-sensitive and should be reviewed.
-// Examples:
-app.get('/', function (req, res) {}); // Questionable
-app.post('/', function (req, res) {}); // Questionable
-app.all('/', function (req, res) {}); // Questionable
-app.listen(3000);
+
+// Endpoints exposed by ExpressJS are security-sensitive and should be reviewed.
+// Example:
+
+app.get('/', function (req, res) {});
+app.post('/', function (req, res) {});
+app.all('/', function (req, res) {});
+app.listen(3000); // Questionable
 </pre>
 <h2>See</h2>
 <ul>
