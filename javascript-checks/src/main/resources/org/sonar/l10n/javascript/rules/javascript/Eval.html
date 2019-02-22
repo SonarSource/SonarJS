@@ -8,7 +8,8 @@ the arguments haven't been properly validated.</p>
 <p>Any code which is dynamically evaluated in your process will have the same permissions as the rest of your code. Thus it is very dangerous to do so
 with code coming from an untrusted source. <a href="https://www.owasp.org/index.php/Code_Injection">Injected Code</a> can either run on the server or
 in the client (exemple: XSS attack).</p>
-<p>This rule marks for review each occurence of dynamic code execution.</p>
+<p>Note that using the <code>eval</code> function and the <code>Function</code> constructor should in general be avoided altogether.</p>
+<p>This rule raises issues on calls to <code>eval</code> and <code>Function</code> constructor. This is for code review only.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> the executed code may come from a untrusted source and hasn't been sanitized. </li>
@@ -28,14 +29,12 @@ policy</a> for javascript in a web browser).</p>
 code to run. If you have to do it anyway, create a list of allowed code and choose among this list.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-var value = eval('obj.' + propName); // Noncompliant
-</pre>
-<h2>Compliant Solution</h2>
-<pre>
-var value = obj[propName];
+let value = eval('obj.' + propName); // Questionable
+let func = Function('obj' + propName); // Questionable
 </pre>
 <h2>Exceptions</h2>
-<p>This rule will not raise an issue when the argument of the <code>eval</code> call is a literal string as it is reasonably safe.</p>
+<p>This rule will not raise an issue when the argument of the <code>eval</code> or <code>Function</code> is a literal string as it is reasonably
+safe.</p>
 <h2>See</h2>
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/95.html">MITRE CWE-95</a> - Improper Neutralization of Directives in Dynamically Evaluated Code

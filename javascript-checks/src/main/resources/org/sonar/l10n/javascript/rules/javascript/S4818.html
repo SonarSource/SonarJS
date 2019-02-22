@@ -30,7 +30,7 @@ use of http connections.</p>
 <pre>
 const net = require('net');
 
-var socket = net.Socket(); // Questionable
+var socket = new net.Socket(); // Questionable
 socket.connect(80, 'google.com');
 
 // net.createConnection creates a new net.Socket, initiates connection with socket.connect(), then returns the net.Socket that starts the connection

@@ -7,7 +7,7 @@
     "constantCost": "2min"
   },
   "tags": [
-    
+    "error-handling"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3984",

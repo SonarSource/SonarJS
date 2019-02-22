@@ -14,7 +14,7 @@
   "standards": [
     "CWE"
   ],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1143",
   "sqKey": "S1143",
   "scope": "All",
