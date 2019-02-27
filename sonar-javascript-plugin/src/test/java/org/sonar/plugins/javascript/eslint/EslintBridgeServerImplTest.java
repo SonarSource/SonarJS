@@ -33,6 +33,7 @@ import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 
@@ -78,7 +79,7 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer("NOT_EXISTING.js");
     eslintBridgeServer.deploy();
 
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(NodeCommandException.class);
     thrown.expectMessage("Node.js script to start eslint-bridge server doesn't exist:");
 
     eslintBridgeServer.startServer(context);
@@ -132,7 +133,7 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer("throw.js");
     eslintBridgeServer.deploy();
 
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(NodeCommandException.class);
     thrown.expectMessage("Failed to start server (1s timeout)");
 
     eslintBridgeServer.startServer(context);
@@ -171,6 +172,18 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.startServerLazily(context);
     assertThat(logTester.logs(DEBUG).stream().noneMatch(s -> s.startsWith(starting))).isTrue();
     assertThat(logTester.logs(DEBUG)).contains(alreadyStarted);
+  }
+
+  @Test
+  public void should_throw_special_exception_when_failed_already() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("throw.js");
+    String failedToStartExceptionMessage = "Failed to start server (1s timeout)";
+    assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessage(failedToStartExceptionMessage);
+
+    assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
+      .isInstanceOf(ServerAlreadyFailedException.class);
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {

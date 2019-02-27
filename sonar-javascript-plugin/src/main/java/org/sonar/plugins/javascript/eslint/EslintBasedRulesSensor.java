@@ -102,6 +102,10 @@ public class EslintBasedRulesSensor implements Sensor {
         progressReport.nextFile();
       }
       progressReport.stop();
+    } catch (ServerAlreadyFailedException e) {
+      LOG.debug("Skipping start of eslint-bridge server due to the failure during first analysis");
+      LOG.debug("Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
+
     } catch (NodeCommandException e) {
       LOG.error(e.getMessage(), e);
       if (analysisWarnings != null) {

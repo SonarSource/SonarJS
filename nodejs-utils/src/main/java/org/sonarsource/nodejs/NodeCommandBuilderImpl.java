@@ -115,7 +115,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
    * or if failed to run {@code node -v}
    */
   @Override
-  public NodeCommand build() {
+  public NodeCommand build() throws NodeCommandException {
     String nodeExecutable = retrieveNodeExecutableFromConfig(configuration);
     checkNodeCompatibility(nodeExecutable);
 
@@ -135,7 +135,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
       errorConsumer);
   }
 
-  private void checkNodeCompatibility(String nodeExecutable) {
+  private void checkNodeCompatibility(String nodeExecutable) throws NodeCommandException {
     if (minNodeVersion == null) {
       return;
     }
@@ -151,7 +151,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   @VisibleForTesting
-  static boolean checkVersion(String actualVersion, int requiredVersion) {
+  static boolean checkVersion(String actualVersion, int requiredVersion) throws NodeCommandException {
     Matcher versionMatcher = NODEJS_VERSION_PATTERN.matcher(actualVersion);
     if (versionMatcher.lookingAt()) {
       int major = Integer.parseInt(versionMatcher.group(1));
@@ -165,7 +165,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return true;
   }
 
-  private String getVersion(String nodeExecutable) {
+  private String getVersion(String nodeExecutable) throws NodeCommandException {
     StringBuilder output = new StringBuilder();
     NodeCommand nodeCommand = new NodeCommand(processWrapper, nodeExecutable, singletonList("-v"), null, emptyList(), output::append, LOG::error);
     nodeCommand.start();
@@ -176,7 +176,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return output.toString();
   }
 
-  private static String retrieveNodeExecutableFromConfig(@Nullable Configuration configuration) {
+  private static String retrieveNodeExecutableFromConfig(@Nullable Configuration configuration) throws NodeCommandException {
     if (configuration != null && configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
       String nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
       File file = new File(nodeExecutable);

@@ -36,6 +36,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.nodejs.BundleUtils;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
+import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
@@ -59,6 +60,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private String startServerScript;
   private String bundleLocation;
   private Path deployLocation;
+  private boolean failedToStart;
 
   // Used by pico container for dependency injection
   @SuppressWarnings("unused")
@@ -92,12 +94,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     LOG.debug("Deployment done in {}ms", System.currentTimeMillis() - start);
   }
 
-  void startServer(SensorContext context) throws IOException {
+  void startServer(SensorContext context) throws IOException, NodeCommandException {
     port = findOpenPort();
 
     File scriptFile = deployLocation.resolve(startServerScript).toFile();
     if (!scriptFile.exists()) {
-      throw new IllegalStateException("Node.js script to start eslint-bridge server doesn't exist: " + scriptFile.getAbsolutePath());
+      throw new NodeCommandException("Node.js script to start eslint-bridge server doesn't exist: " + scriptFile.getAbsolutePath());
     }
 
     initNodeCommand(context, scriptFile);
@@ -106,7 +108,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     nodeCommand.start();
 
     if (!waitServerToStart("localhost", port, timeoutSeconds * 1000)) {
-      throw new IllegalStateException("Failed to start server (" + timeoutSeconds + "s timeout)");
+      throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
     }
     LOG.debug("Server is started");
   }
@@ -128,13 +130,23 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void startServerLazily(SensorContext context) throws IOException {
-    if (isAlive()) {
-      LOG.debug("SonarJS eslint-bridge server is up, no need to start.");
-      return;
+  public void startServerLazily(SensorContext context) throws IOException, ServerAlreadyFailedException, NodeCommandException {
+    // required for SonarLint context to avoid restarting already failed server
+    if (failedToStart) {
+      throw new ServerAlreadyFailedException();
     }
-    deploy();
-    startServer(context);
+
+    try {
+      if (isAlive()) {
+        LOG.debug("SonarJS eslint-bridge server is up, no need to start.");
+        return;
+      }
+      deploy();
+      startServer(context);
+    } catch (NodeCommandException e) {
+      failedToStart = true;
+      throw e;
+    }
   }
 
   @Override
