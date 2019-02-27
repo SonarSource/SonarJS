@@ -19,25 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.io.IOException;
-import org.sonar.api.Startable;
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonarsource.api.sonarlint.SonarLintSide;
-import org.sonarsource.nodejs.NodeCommandException;
-
-import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
-
-@ScannerSide
-@SonarLintSide(lifespan = MULTIPLE_ANALYSES)
-public interface EslintBridgeServer extends Startable {
-
-  void startServerLazily(SensorContext context) throws IOException, ServerAlreadyFailedException, NodeCommandException;
-
-  String call(String request) throws IOException;
-
-  void clean();
-
-  String getCommandInfo();
+/**
+ * This exception is required to inform sensor about Eslint-bridge server start up failure in SonarLint
+ * It is required to not try to start it again
+ */
+public class ServerAlreadyFailedException extends RuntimeException {
 }
-

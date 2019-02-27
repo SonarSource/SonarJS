@@ -326,6 +326,16 @@ public class EslintBasedRulesSensorTest {
     verify(analysisWarnings).addUnique("Some JavaScript rules were not executed. Exception Message");
   }
 
+  @Test
+  public void log_debug_if_already_failed_server() throws Exception {
+    doThrow(new ServerAlreadyFailedException()).when(eslintBridgeServerMock).startServerLazily(any());
+    EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
+    eslintBasedRulesSensor.execute(context);
+
+    assertThat(logTester.logs()).containsExactly("Skipping start of eslint-bridge server due to the failure during first analysis",
+      "Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
+  }
+
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {

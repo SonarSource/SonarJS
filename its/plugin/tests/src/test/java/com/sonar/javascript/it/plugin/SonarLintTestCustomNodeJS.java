@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
@@ -41,17 +41,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SonarLintTestCustomNodeJS {
 
   private static final String FILE_PATH = "foo.js";
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
 
-  private static StandaloneSonarLintEngine sonarlintEngine;
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  private StandaloneSonarLintEngine sonarlintEngine;
 
   private static File baseDir;
 
-  private static List<String> logs = new ArrayList<>();
+  private List<String> logs = new ArrayList<>();
 
-  @BeforeClass
-  public static void prepare() throws Exception {
+  @Before
+  public void prepare() throws Exception {
     StandaloneGlobalConfiguration sonarLintConfig = StandaloneGlobalConfiguration.builder()
       .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
       .setSonarLintUserHome(temp.newFolder().toPath())
@@ -61,8 +62,8 @@ public class SonarLintTestCustomNodeJS {
     baseDir = temp.newFolder();
   }
 
-  @AfterClass
-  public static void stop() {
+  @After
+  public void stop() {
     sonarlintEngine.stop();
   }
 
@@ -85,4 +86,25 @@ public class SonarLintTestCustomNodeJS {
   }
 
 
+  @Test
+  public void should_log_failure_only_once() throws Exception {
+    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, FILE_PATH, "function foo() { try {" +
+      "  doSomething();" +
+      "} catch (ex) {" +
+      "  throw ex;" +
+      "}}");
+
+    HashMap<String, String> properties = new HashMap<>();
+    properties.put("sonar.nodejs.executable", "invalid");
+    StandaloneAnalysisConfiguration configuration = new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), properties);
+    sonarlintEngine.analyze(configuration, i -> {
+    }, null, null);
+
+    assertThat(logs).contains("Provided Node.js executable file does not exist.");
+    logs.clear();
+    sonarlintEngine.analyze(configuration, i -> {
+    }, null, null);
+    assertThat(logs).doesNotContain("Provided Node.js executable file does not exist.");
+    assertThat(logs).contains("Skipping start of eslint-bridge server due to the failure during first analysis");
+  }
 }
