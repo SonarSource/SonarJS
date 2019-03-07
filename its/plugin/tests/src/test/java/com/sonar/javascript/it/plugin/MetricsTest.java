@@ -62,7 +62,6 @@ public class MetricsTest {
 
     // Documentation
     assertThat(getProjectMeasureAsDouble("comment_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsDouble("commented_out_code_lines")).isNull();
     assertThat(getProjectMeasureAsDouble("comment_lines_density")).isEqualTo(4.8);
 
     // Complexity
@@ -96,7 +95,6 @@ public class MetricsTest {
     assertThat(getDirectoryMeasureAsDouble("files")).isEqualTo(1);
     // Documentation
     assertThat(getDirectoryMeasureAsDouble("comment_lines")).isEqualTo(1);
-    assertThat(getDirectoryMeasureAsDouble("commented_out_code_lines")).isNull();
     assertThat(getDirectoryMeasureAsDouble("comment_lines_density")).isEqualTo(4.8);
     // Complexity
     assertThat(getDirectoryMeasure("file_complexity_distribution").getValue()).isEqualTo("0=0;5=1;10=0;20=0;30=0;60=0;90=0");
@@ -116,7 +114,6 @@ public class MetricsTest {
     assertThat(getFileMeasureAsDouble("files")).isEqualTo(1);
     // Documentation
     assertThat(getFileMeasureAsDouble("comment_lines")).isEqualTo(1);
-    assertThat(getFileMeasureAsDouble("commented_out_code_lines")).isZero();
     assertThat(getFileMeasureAsDouble("comment_lines_density")).isEqualTo(4.8);
     // Complexity
     assertThat(getFileMeasureAsDouble("file_complexity_distribution")).isNull();

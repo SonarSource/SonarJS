@@ -70,7 +70,6 @@ public class BigProjectTest {
 
     // Documentation
     assertThat(getProjectMeasureAsDouble("comment_lines")).isEqualTo(262126d);
-    assertThat(getProjectMeasureAsDouble("commented_out_code_lines")).isNull();
     assertThat(getProjectMeasureAsDouble("comment_lines_density")).isEqualTo(31.2);
 
     // Complexity
