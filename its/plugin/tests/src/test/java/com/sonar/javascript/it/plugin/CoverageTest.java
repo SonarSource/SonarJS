@@ -106,11 +106,10 @@ public class CoverageTest {
       .setSourceDirs(".");
 
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
-    BuildResult result = orchestrator.executeBuild(build);
+    orchestrator.executeBuild(build);
 
     assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(5);
     assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(5);
-    assertThat(getFileMeasure("coverage_line_hits_data").getValue()).startsWith("2=0;6=0;7=0;9=0");
 
     assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();
     assertThat(getProjectMeasureAsInt("uncovered_conditions")).isNull();
