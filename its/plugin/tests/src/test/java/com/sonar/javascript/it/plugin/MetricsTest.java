@@ -53,12 +53,9 @@ public class MetricsTest {
   public void project_level() {
     // Size
     assertThat(getProjectMeasureAsDouble("ncloc")).isEqualTo(20);
-    assertThat(getProjectMeasureAsDouble("lines")).isEqualTo(34);
     assertThat(getProjectMeasureAsDouble("classes")).isEqualTo(1);
     assertThat(getProjectMeasureAsDouble("functions")).isEqualTo(5);
     assertThat(getProjectMeasureAsDouble("statements")).isEqualTo(8);
-    assertThat(getProjectMeasureAsDouble("files")).isEqualTo(1);
-    assertThat(getProjectMeasureAsDouble("directories")).isEqualTo(1);
 
     // Documentation
     assertThat(getProjectMeasureAsDouble("comment_lines")).isEqualTo(1);
@@ -88,11 +85,9 @@ public class MetricsTest {
   public void directory_level() {
     // Size
     assertThat(getDirectoryMeasureAsDouble("ncloc")).isEqualTo(20);
-    assertThat(getDirectoryMeasureAsDouble("lines")).isEqualTo(34);
     assertThat(getDirectoryMeasureAsDouble("classes")).isEqualTo(1);
     assertThat(getDirectoryMeasureAsDouble("functions")).isEqualTo(5);
     assertThat(getDirectoryMeasureAsDouble("statements")).isEqualTo(8);
-    assertThat(getDirectoryMeasureAsDouble("files")).isEqualTo(1);
     // Documentation
     assertThat(getDirectoryMeasureAsDouble("comment_lines")).isEqualTo(1);
     assertThat(getDirectoryMeasureAsDouble("comment_lines_density")).isEqualTo(4.8);
@@ -111,7 +106,6 @@ public class MetricsTest {
   public void file_level() {
     // Size
     assertThat(getFileMeasureAsDouble("functions")).isEqualTo(5);
-    assertThat(getFileMeasureAsDouble("files")).isEqualTo(1);
     // Documentation
     assertThat(getFileMeasureAsDouble("comment_lines")).isEqualTo(1);
     assertThat(getFileMeasureAsDouble("comment_lines_density")).isEqualTo(4.8);

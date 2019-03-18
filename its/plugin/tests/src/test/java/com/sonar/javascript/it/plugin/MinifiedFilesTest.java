@@ -49,7 +49,6 @@ public class MinifiedFilesTest {
 
   @Test
   public void test() throws Exception {
-    assertThat(getProjectMeasureAsInt("files")).isEqualTo(1);
     assertThat(getProjectMeasureAsInt("functions")).isEqualTo(2);
     assertThat(getProjectMeasureAsInt("statements")).isEqualTo(1);
   }
