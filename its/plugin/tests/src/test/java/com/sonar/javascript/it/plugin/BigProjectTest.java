@@ -56,15 +56,6 @@ public class BigProjectTest {
   public void project_level() {
     // Size
     assertThat(getProjectMeasureAsDouble("ncloc")).isEqualTo(577829d);
-    // SONAR-5077: computation of line is done on SQ side
-    assertThat(getProjectMeasureAsDouble("lines")).isEqualTo(1026726d);
-    assertThat(getProjectMeasureAsDouble("files")).isEqualTo(4387d);
-
-    int expectedDirectories = 966;
-    if (isGreater75()) {
-      expectedDirectories = 970;
-    }
-    assertThat(getProjectMeasureAsDouble("directories")).isEqualTo(expectedDirectories);
     assertThat(getProjectMeasureAsDouble("functions")).isEqualTo(46609d);
     assertThat(getProjectMeasureAsDouble("statements")).isEqualTo(285817d);
 
@@ -92,10 +83,6 @@ public class BigProjectTest {
 
   private Double getProjectMeasureAsDouble(String metricKey) {
     return getMeasureAsDouble("project", metricKey);
-  }
-
-  private static boolean isGreater75() {
-    return orchestrator.getServer().version().isGreaterThanOrEquals(7, 6);
   }
 
 }
