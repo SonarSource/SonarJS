@@ -22,8 +22,6 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -39,17 +37,17 @@ public class NoSonarTest {
   private static final File PROJECT_DIR = TestUtils.projectDir("nosonar");
 
   @BeforeClass
-  public static void startServer() throws IOException, URISyntaxException, InterruptedException {
-    orchestrator.resetData();
-
+  public static void startServer() {
+    String projectKey = "nosonar-project";
     SonarScanner build = SonarScanner.create()
-      .setProjectKey("nosonar-project")
-      .setProjectName("nosonar-project")
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1")
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(PROJECT_DIR)
-      .setProfile("nosonar-profile");
+      .setProjectDir(PROJECT_DIR);
+
+    Tests.setProfile(projectKey, "nosonar-profile");
 
     orchestrator.executeBuild(build);
   }

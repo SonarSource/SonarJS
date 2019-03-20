@@ -48,7 +48,7 @@ public class BigProjectTest {
       // FIXME after full migration of the grammar: was 424m before migration (and with Java 6)
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx2500m");
 
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
   }
 

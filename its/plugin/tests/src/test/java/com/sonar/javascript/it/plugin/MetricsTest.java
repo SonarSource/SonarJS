@@ -45,7 +45,7 @@ public class MetricsTest {
       .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs("src");
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
   }
 
