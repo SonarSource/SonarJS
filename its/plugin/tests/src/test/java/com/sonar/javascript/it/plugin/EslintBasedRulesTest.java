@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class EslintBasedRulesTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
   private static final File PROJECT_DIR = TestUtils.projectDir("eslint_based_rules");
 
@@ -45,13 +45,15 @@ public class EslintBasedRulesTest {
   public static void startServer() {
     orchestrator.resetData();
 
+    String projectKey = "eslint-based-rules-project";
     SonarScanner build = SonarScanner.create()
-      .setProjectKey("eslint-based-rules-project")
+      .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR)
-      .setProperty("sonar.nodejs.executable", TestUtils.getNodeJSExecutable())
-      .setProfile("eslint-based-rules-profile");
+      .setProperty("sonar.nodejs.executable", TestUtils.getNodeJSExecutable());
+
+    Tests.setProfile(projectKey, "eslint-based-rules-profile");
 
     orchestrator.executeBuild(build);
   }

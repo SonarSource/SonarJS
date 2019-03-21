@@ -78,9 +78,13 @@ public final class Tests {
     return scanner;
   }
 
-  public static void setEmptyProfile(String projectKey, String projectName) {
-    ORCHESTRATOR.getServer().provisionProject(projectKey, projectName);
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", "empty-profile");
+  public static void setEmptyProfile(String projectKey) {
+    setProfile(projectKey, "empty-profile");
+  }
+
+  public static void setProfile(String projectKey, String profileName) {
+    ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", profileName);
   }
 
   @CheckForNull

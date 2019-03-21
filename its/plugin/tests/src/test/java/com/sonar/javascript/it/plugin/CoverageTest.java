@@ -51,7 +51,7 @@ public class CoverageTest {
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPaths", "coverage.lcov");
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
     assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
@@ -69,7 +69,7 @@ public class CoverageTest {
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
     assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
@@ -87,7 +87,7 @@ public class CoverageTest {
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
     assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
@@ -105,7 +105,7 @@ public class CoverageTest {
       .setProjectVersion("1.0")
       .setSourceDirs(".");
 
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
     assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(5);
@@ -123,7 +123,7 @@ public class CoverageTest {
       .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".");
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
 
@@ -144,7 +144,7 @@ public class CoverageTest {
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage-wrong-file-name.lcov").getAbsolutePath())
       .setDebugLogs(true);
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(Tests.PROJECT_KEY);
     BuildResult result = orchestrator.executeBuild(build);
 
     // Check that a log is printed
@@ -165,7 +165,7 @@ public class CoverageTest {
       .setSourceDirs(".")
       .setDebugLogs(true)
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage-wrong-line.lcov").getAbsolutePath());
-    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(Tests.PROJECT_KEY);
     BuildResult result = orchestrator.executeBuild(build);
 
     // Check that a log is printed
