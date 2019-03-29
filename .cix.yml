@@ -8,7 +8,7 @@ TEST:
   - ci
 
 SQ_VERSION: 
-  - DEV
+  - DOGFOOD
   - LATEST_RELEASE
   - LATEST_RELEASE[6.7]
 
@@ -27,7 +27,7 @@ exclude:
 
   - TEST: ruling
     SLAVE: linux
-    SQ_VERSION: DEV
+    SQ_VERSION: DOGFOOD
 
   - TEST: ruling
     SLAVE: linux
@@ -35,7 +35,7 @@ exclude:
 
   - TEST: plugin
     SLAVE: windows
-    SQ_VERSION: DEV
+    SQ_VERSION: DOGFOOD
 
   - TEST: plugin
     SLAVE: windows
@@ -43,7 +43,7 @@ exclude:
 
   - TEST: ci
     SLAVE: windows
-    SQ_VERSION: DEV
+    SQ_VERSION: DOGFOOD
 
   - TEST: ci
     SLAVE: windows
