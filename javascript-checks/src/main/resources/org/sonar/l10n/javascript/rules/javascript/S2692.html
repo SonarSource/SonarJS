@@ -1,6 +1,18 @@
 <p>Most checks against an <code>indexOf</code> call against a string or array compare it with -1 because 0 is a valid index. Any checks which look for
 values &gt;0 ignore the first element, which is likely a bug. If you're merely checking the presence of the string, consider using
 <code>includes</code> instead.</p>
+
+<p>
+  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes">
+    <code>String.includes</code>
+  </a>
+  and
+  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes">
+    <code>Array.includes</code>
+  </a> 
+  were added in ECMAScript 2015 and are available in browsers newer than Internet Explorer 11.
+</p>
+
 <h2>Noncompliant Code Example</h2>
 <pre>
 var color = "blue";
@@ -9,6 +21,9 @@ var number = 123;
 
 var arr = [color, name];
 
+if (color.indexOf("blue") &gt; 0) { // Noncompliant
+  // ...
+}
 if (arr.indexOf("blue") &gt; 0) { // Noncompliant
   // ...
 }
@@ -24,6 +39,9 @@ var number = 123;
 
 var arr = [color, name];
 
+if (color.includes("blue")) {
+  // ...
+}
 if (arr.indexOf("blue") &gt;= 0) {
   // ...
 }
