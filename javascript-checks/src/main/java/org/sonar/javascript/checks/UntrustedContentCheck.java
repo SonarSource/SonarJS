@@ -39,7 +39,7 @@ public class UntrustedContentCheck extends SubscriptionVisitorCheck {
 
   @RuleProperty(
     key = "domainsToIgnore",
-    description = "Comma-delimited list of domains to ignore. Regexes may be used, e.g. (.*\\.)?example.com,foo.org"
+    description = "Comma-delimited list of domains to ignore. Regexes may be used, e.g. (.*\\.)?example\\.com,foo\\.org"
   )
   public String domainsToIgnore = "";
   private List<Pattern> patterns = null;
