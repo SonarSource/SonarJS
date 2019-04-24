@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>49</version>
+    <version>52</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
@@ -91,6 +91,9 @@
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+
+    <!-- FIXME fix javadoc errors -->
+    <doclint>none</doclint>
   </properties>
 
   <dependencyManagement>
@@ -303,6 +306,16 @@
       <modules>
         <module>its</module>
       </modules>
+    </profile>
+    <profile>
+      <!-- Use javac's release flag for Java 9 and higher -->
+      <id>java9+</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <properties>
+        <maven.compiler.release>8</maven.compiler.release>
+      </properties>
     </profile>
   </profiles>
 
