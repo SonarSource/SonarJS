@@ -3,7 +3,7 @@ import { RuleTester } from "eslint";
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
 import { rule } from "../../src/rules/sql-queries";
 
-ruleTester.run("Executing SQL queries is security-sensitive", rule, {
+ruleTester.run("Formatting SQL queries is security-sensitive", rule, {
   valid: [
     {
       code: `
@@ -13,41 +13,105 @@ ruleTester.run("Executing SQL queries is security-sensitive", rule, {
     },
     {
       code: `
-      const pg = require('pg');
-      conn.query(sql, [userInput], (err, res) => {});
+      const mysql = require('mysql');
+      conn.query(sql, (err, res) => {});
+      `,
+    },
+    {
+      code: `
+      const mysql = require('mysql');
+      conn.query(sql);
+      `,
+    },
+    {
+      code: `
+      const mysql = require('mysql');
+      conn.query();
+      `,
+    },
+    {
+      code: `
+      const mysql = require('mysql');
+      conn.query("SELECT * FROM FOO");
+      `,
+    },
+    {
+      code: `
+      const mysql = require('mysql');
+      conn.query("SELECT *" + " FROM FOO" + " WHERE BAR");
+      `,
+    },
+    {
+      code: `
+      const mysql = require('mysql');
+      conn.query(foo("SELECT *" + userInput));
+      `,
+    },
+    {
+      code: `
+      const mysql = require('mysql');
+      conn.query(\`SELECT * FROM FOO\`);
+      `,
+    },
+    {
+      code: `
+      const mysql = require('mysql');
+      sql = "select from " + userInput;
+      conn.query(sql);
       `,
     },
     {
       code: `
       const pg = require('pg');
-      conn.query("SELECT * FROM FOO", (err, res) => {});
+      conn.query(sql);
+      `,
+    },
+    {
+      code: `
+      const mysql2 = require('mysql2');
+      conn.query(sql);
+      `,
+    },
+    {
+      code: `
+      const sequelize = require('sequelize');
+      conn.query(sql);
       `,
     },
     {
       code: `
       import { query } from 'myDB';
-      query("SELECT * FROM users WHERE id = ' + userId", (err, res) => {});
+      conn.query("select from " + userInput);
       `,
     },
     {
-      code: `
-      const pg = require('pg');
-      pg.query();
-      `,
-    },
-    // FN, userId is not escaped
-    {
+      // FN, userId is not escaped
       code: `
       const mysql = require('mysql');
       conn.query("SELECT * FROM users WHERE id = ' + userId", [userInput], (err, res) => {});
       `,
+    },
+    {
+      code: `
+      require('mysql');
+      conn.query(x.foo());`,
+    },
+    {
+      code: `
+      require('mysql');
+      conn.query(foo());`,
+    },
+    {
+      code: `
+      require('mysql');
+      conn.query(concat());`,
     },
   ],
   invalid: [
     {
       code: `
       const mysql = require('mysql');
-      conn.query(sql, (err, res) => {});`,
+      conn.query('SELECT * FROM users WHERE id = ' + userId, (err, res) => {});`,
       errors: [
         {
           message: "Make sure that executing SQL queries is safe here.",
@@ -72,12 +136,59 @@ ruleTester.run("Executing SQL queries is security-sensitive", rule, {
       `,
       errors: 1,
     },
+    {
+      code: `
+      import { query } from 'sequelize';
+      conn.query('SELECT * FROM users WHERE id = ' + userId, (err, res => {}));
+      `,
+      errors: 1,
+    },
     // FP, parameters are escaped
     {
       code: `
       const mysql = require('mysql');
       conn.query('SELECT * FROM users WHERE id = ' + connection.escape(userId), (err, res => {}));
       `,
+      errors: 1,
+    },
+
+    {
+      code: `
+      require('mysql');
+      conn.query('a' + 'b' + x);`,
+      errors: 1,
+    },
+    {
+      code: `
+      require('mysql');
+      conn.query('a' + x + 'b');`,
+      errors: 1,
+    },
+    {
+      code: `
+      require('mysql');
+      conn.query(x + 'a' + 'b');`,
+      errors: 1,
+    },
+
+    {
+      code: `
+      require('mysql');
+      conn.query(\`a \${x} b\`);`,
+      errors: 1,
+    },
+
+    {
+      code: `
+      require('mysql');
+      conn.query(x.concat());`,
+      errors: 1,
+    },
+
+    {
+      code: `
+      require('mysql');
+      conn.query(x.replace());`,
       errors: 1,
     },
   ],

@@ -25,7 +25,7 @@ import { isMemberWithProperty, isRequireModule } from "./utils";
 
 const message = `Make sure that executing SQL queries is safe here.`;
 
-const dbModules = ["pg", "mysql", "mysql2"];
+const dbModules = ["pg", "mysql", "mysql2", "sequelize"];
 
 type Argument = estree.Expression | estree.SpreadElement;
 
@@ -55,7 +55,11 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (isDbModuleImported && isMemberWithProperty(callee, "query") && isQuestionable(args)) {
+        if (
+          isDbModuleImported &&
+          isMemberWithProperty(callee, "query") &&
+          isQuestionable(args[0])
+        ) {
           context.report({
             message,
             node: callee,
@@ -66,9 +70,44 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isQuestionable([sqlQuery, ...otherArguments]: Argument[]) {
+function isQuestionable(sqlQuery: Argument | undefined) {
   if (!sqlQuery) {
     return false;
   }
-  return otherArguments.length < 2 && sqlQuery.type !== "Literal";
+  if (isTemplateWithVar(sqlQuery)) {
+    return true;
+  }
+  if (isConcatenation(sqlQuery)) {
+    return isVariableConcat(sqlQuery);
+  }
+  return (
+    sqlQuery.type === "CallExpression" && isMemberWithProperty(sqlQuery.callee, "concat", "replace")
+  );
+}
+
+function isVariableConcat(node: estree.BinaryExpression): boolean {
+  const { left, right } = node;
+  if (!isHardcodedLiteral(right)) {
+    return true;
+  }
+  if (isConcatenation(left)) {
+    return isVariableConcat(left);
+  }
+  return !isHardcodedLiteral(left);
+}
+
+function isTemplateWithVar(node: estree.Node) {
+  return node.type === "TemplateLiteral" && node.expressions.length !== 0;
+}
+
+function isTemplateWithoutVar(node: estree.Node) {
+  return node.type === "TemplateLiteral" && node.expressions.length === 0;
+}
+
+function isConcatenation(node: estree.Node): node is estree.BinaryExpression {
+  return node.type === "BinaryExpression" && node.operator === "+";
+}
+
+function isHardcodedLiteral(node: estree.Node) {
+  return node.type === "Literal" || isTemplateWithoutVar(node);
 }
