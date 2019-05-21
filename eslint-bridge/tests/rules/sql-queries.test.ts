@@ -174,6 +174,13 @@ ruleTester.run("Formatting SQL queries is security-sensitive", rule, {
     {
       code: `
       require('mysql');
+      conn.query(\`a \${x} b\`);`,
+      errors: 1,
+    },
+
+    {
+      code: `
+      require('mysql');
       conn.query(x.concat());`,
       errors: 1,
     },

@@ -74,15 +74,12 @@ function isQuestionable(sqlQuery: Argument | undefined) {
   if (!sqlQuery) {
     return false;
   }
-
   if (isTemplateWithVar(sqlQuery)) {
     return true;
   }
-
   if (isConcatenation(sqlQuery)) {
     return isVariableConcat(sqlQuery);
   }
-
   return (
     sqlQuery.type === "CallExpression" && isMemberWithProperty(sqlQuery.callee, "concat", "replace")
   );
@@ -92,19 +89,19 @@ function isVariableConcat(node: estree.BinaryExpression): boolean {
   const { left, right } = node;
   if (!isHardcodedLiteral(right)) {
     return true;
-  } else if (isConcatenation(left)) {
-    return isVariableConcat(left);
-  } else {
-    return !isHardcodedLiteral(left);
   }
+  if (isConcatenation(left)) {
+    return isVariableConcat(left);
+  }
+  return !isHardcodedLiteral(left);
 }
 
 function isTemplateWithVar(node: estree.Node) {
-  return node.type == "TemplateLiteral" && node.expressions.length !== 0;
+  return node.type === "TemplateLiteral" && node.expressions.length !== 0;
 }
 
 function isTemplateWithoutVar(node: estree.Node) {
-  return node.type == "TemplateLiteral" && node.expressions.length === 0;
+  return node.type === "TemplateLiteral" && node.expressions.length === 0;
 }
 
 function isConcatenation(node: estree.Node): node is estree.BinaryExpression {
