@@ -23,7 +23,7 @@ import { Rule } from "eslint";
 import * as estree from "estree";
 import { isIdentifier } from "./utils";
 
-const message = `Make sure that this cookie is used safely.`;
+const message = `Make sure that cookie is written safely here.`;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -41,25 +41,32 @@ export const rule: Rule.RuleModule = {
         }
       },
 
-      MemberExpression(node: estree.Node) {
-        const { object, property } = node as estree.MemberExpression;
-        if (isIdentifier(object, "document") && isIdentifier(property, "cookie")) {
-          context.report({
-            message,
-            node,
-          });
-        }
-
-        if (usingExpressFramework && isIdentifier(property, "cookie", "cookies")) {
-          context.report({
-            message,
-            node,
-          });
+      AssignmentExpression(node: estree.Node) {
+        const { left } = node as estree.AssignmentExpression;
+        if (left.type === "MemberExpression") {
+          const { object, property } = left;
+          if (isIdentifier(object, "document") && isIdentifier(property, "cookie")) {
+            context.report({
+              message,
+              node: left,
+            });
+          }
         }
       },
 
       CallExpression(node: estree.Node) {
         const { callee, arguments: args } = node as estree.CallExpression;
+        if (
+          callee.type === "MemberExpression" &&
+          usingExpressFramework &&
+          isIdentifier(callee.property, "cookie", "cookies")
+        ) {
+          context.report({
+            message,
+            node,
+          });
+        }
+
         if (
           callee.type === "MemberExpression" &&
           isIdentifier(callee.property, "setHeader") &&
