@@ -122,7 +122,6 @@ public final class CheckList {
       GlobalThisCheck.class,
       HashingCheck.class,
       HtmlCommentsCheck.class,
-      HttpEndpointCheck.class,
       IdChildrenSelectorCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
       IdenticalFunctionsCheck.class,
