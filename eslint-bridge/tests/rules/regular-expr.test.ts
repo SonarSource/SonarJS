@@ -12,6 +12,10 @@ ruleTester.run("Using regular expressions is security-sensitive", rule, {
       code: `str.match("(a+)b");`,
     },
     {
+      // not enough of special symbols
+      code: `str.match(/(a+)b/);`,
+    },
+    {
       // different method
       code: `str.foo("(a+)b+");`,
     },

@@ -78,18 +78,16 @@ function checkFirstArgument(args: estree.Node[], context: Rule.RuleContext) {
 }
 
 function isUnsafeRegexLiteral(value: string) {
-  // console.log(`[${value}]`);
   return value.length >= minPatternLength && hasEnoughNumberOfSpecialChars(value);
 }
 
 function hasEnoughNumberOfSpecialChars(value: string) {
   let numberOfSpecialChars = 0;
-  for (let i = 0; i < value.length; i++) {
-    let c = value[i];
+  for (let c of value) {
     if (specialChars.includes(c)) {
       numberOfSpecialChars++;
     }
-    if (numberOfSpecialChars == 2) {
+    if (numberOfSpecialChars === 2) {
       return true;
     }
   }
