@@ -4,12 +4,11 @@
   "status": "ready",
   "tags": [
     "cwe",
-    "owasp-a1",
-    "sans-top25-porous"
+    "owasp-a1"
   ],
   "standards": [
     "CWE",
-    "OWASP Top Ten"
+    "OWASP Top 10"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4784",

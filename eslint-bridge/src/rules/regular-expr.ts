@@ -21,65 +21,77 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
-import { isMemberWithProperty, getModuleNameOfIdentifier } from "./utils";
+import { isMemberWithProperty, isIdentifier } from "./utils";
 
-const stringMethods = ["match", "search", "replace", "split"];
-const regexMethods = ["exec", "test"];
+const stringMethods = ["match", "search", "split"];
+const minPatternLength = 3;
+const specialChars = ["+", "*", "{"];
 
 const message = "Make sure that using a regular expression is safe here.";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
+      Literal(node: estree.Node) {
+        const { regex } = node as estree.RegExpLiteral;
+        if (regex) {
+          const { pattern } = regex;
+          if (isUnsafeRegexLiteral(pattern)) {
+            context.report({
+              message,
+              node,
+            });
+          }
+        }
+      },
+
       CallExpression(node: estree.Node) {
         const { callee, arguments: args } = node as estree.CallExpression;
-        checkStringMethods(callee, args, context);
-        checkRegexMethods(callee, args, context);
+        if (isMemberWithProperty(callee, ...stringMethods)) {
+          checkFirstArgument(args, context);
+        }
+      },
+
+      NewExpression(node: estree.Node) {
+        const { callee, arguments: args } = node as estree.NewExpression;
+        if (isIdentifier(callee, "RegExp")) {
+          checkFirstArgument(args, context);
+        }
       },
     };
   },
 };
 
-function checkStringMethods(callee: estree.Node, args: estree.Node[], context: Rule.RuleContext) {
-  if (isMemberWithProperty(callee, ...stringMethods) && args[0] && !isStringLiteral(args[0])) {
-    report(args[0], context);
-  }
-}
-
-function checkRegexMethods(callee: estree.Node, args: estree.Node[], context: Rule.RuleContext) {
+function checkFirstArgument(args: estree.Node[], context: Rule.RuleContext) {
+  const firstArg = args[0];
   if (
-    callee.type === "MemberExpression" &&
-    isMemberWithProperty(callee, ...regexMethods) &&
-    args.length === 1 &&
-    !isChildProcess(callee.object, context)
+    firstArg &&
+    firstArg.type === "Literal" &&
+    typeof firstArg.value === "string" &&
+    isUnsafeRegexLiteral(firstArg.value)
   ) {
-    report(callee.object, context);
-  }
-}
-
-function report(node: estree.Node, context: Rule.RuleContext) {
-  if (!isSafeRegexLiteral(node)) {
     context.report({
       message,
-      node,
+      node: firstArg,
     });
   }
 }
 
-function isStringLiteral(node: estree.Node) {
-  return node.type === "Literal" && typeof node.value === "string";
+function isUnsafeRegexLiteral(value: string) {
+  // console.log(`[${value}]`);
+  return value.length >= minPatternLength && hasEnoughNumberOfSpecialChars(value);
 }
 
-function isSafeRegexLiteral(node: estree.Node) {
-  if (node.type === "Literal" && (node as estree.RegExpLiteral).regex) {
-    const pattern = (node as estree.RegExpLiteral).regex.pattern;
-    return pattern.length <= 1 || pattern.match(/^[\^$\w\\]+$/);
+function hasEnoughNumberOfSpecialChars(value: string) {
+  let numberOfSpecialChars = 0;
+  for (let i = 0; i < value.length; i++) {
+    let c = value[i];
+    if (specialChars.includes(c)) {
+      numberOfSpecialChars++;
+    }
+    if (numberOfSpecialChars == 2) {
+      return true;
+    }
   }
-
   return false;
-}
-
-function isChildProcess(node: estree.Node, context: Rule.RuleContext) {
-  const module = node.type === "Identifier" && getModuleNameOfIdentifier(node, context);
-  return module && module.value === "child_process";
 }
