@@ -83,7 +83,7 @@ function isUnsafeRegexLiteral(value: string) {
 
 function hasEnoughNumberOfSpecialChars(value: string) {
   let numberOfSpecialChars = 0;
-  for (let c of value) {
+  for (const c of value) {
     if (specialChars.includes(c)) {
       numberOfSpecialChars++;
     }
