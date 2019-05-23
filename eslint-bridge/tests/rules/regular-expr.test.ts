@@ -3,86 +3,86 @@ import { RuleTester } from "eslint";
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
 import { rule } from "../../src/rules/regular-expr";
 
+const message = "Make sure that using a regular expression is safe here.";
+
 ruleTester.run("Using regular expressions is security-sensitive", rule, {
   valid: [
     {
-      code: `str.replace("foo", str); str.replace('foo', str);`,
+      // not enough of special symbols
+      code: `str.match("(a+)b");`,
     },
     {
-      code: `let regex = /ab+c/; `,
+      // not enough of special symbols
+      code: `str.match(/(a+)b/);`,
     },
     {
-      code: `str.split();`,
+      // different method
+      code: `str.foo("(a+)b+");`,
     },
     {
-      code: `foo.test();`,
+      // argument is not hardcoded literal
+      code: `str.match(foo("(a+)b+"));`,
     },
     {
-      code: `foo.test(p1, p2);`,
+      // FN
+      code: `const x = "(a+)b+"; str.match(x);`,
     },
     {
-      code: `/abc/.test(p1);`,
+      // not enough length
+      code: `str.match("++");`,
     },
     {
-      code: `/abc/g.test(p1);`,
-    },
-    {
-      code: `/./.test(p1);`,
-    },
-    {
-      code: `/^\\w$/.test(p1);`,
-    },
-    {
-      code: `str.replace(/abc/, str);`,
-    },
-    {
-      code: `import * as cp from "child_process"; cp.exec(str);`,
+      // missing argument
+      code: `str.match();`,
     },
   ],
   invalid: [
     {
-      code: `str.replace(regex, str);`,
+      code: `str.match("(a+)+b");`,
       errors: [
         {
-          message: "Make sure that using a regular expression is safe here.",
+          message,
           line: 1,
           endLine: 1,
-          column: 13,
-          endColumn: 18,
+          column: 11,
+          endColumn: 19,
         },
       ],
     },
+
     {
-      code: `regex.test(str);`,
-      errors: [
-        {
-          message: "Make sure that using a regular expression is safe here.",
-          line: 1,
-          endLine: 1,
-          column: 1,
-          endColumn: 6,
-        },
-      ],
+      code: `str.match("+++");`,
+      errors: [{ message }],
     },
     {
-      code: `str.replace(/ab+c/, str);`,
-      errors: 1,
+      code: `str.match("***");`,
+      errors: [{ message }],
     },
     {
-      code: `str.replace(/[a-d]/, str);`,
-      errors: 1,
+      code: `str.match("{{{");`,
+      errors: [{ message }],
     },
     {
-      code: `regex.exec(str);`,
-      errors: 1,
+      code: `str.match(/(a+)+b/);`,
+      errors: [{ message }],
+    },
+
+    {
+      code: `str.split("(a+)+b");`,
+      errors: [{ message }],
     },
     {
-      code: `import * as regex from "foo"; regex.exec(str);`,
-      errors: 1,
+      code: `str.search("(a+)+b");`,
+      errors: [{ message }],
     },
     {
-      code: `foo.test("str");`,
-      errors: 1,
+      code: `new RegExp("(a+)+b");`,
+      errors: [{ message }],
+    },
+
+    {
+      code: `/(a+)+b/;`,
+      errors: [{ message }],
     },
   ],
 });
