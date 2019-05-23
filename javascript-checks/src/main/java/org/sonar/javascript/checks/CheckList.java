@@ -123,7 +123,6 @@ public final class CheckList {
       HashingCheck.class,
       HtmlCommentsCheck.class,
       HttpEndpointCheck.class,
-      HttpRequestsCheck.class,
       IdChildrenSelectorCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
       IdenticalFunctionsCheck.class,
