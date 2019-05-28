@@ -72,6 +72,9 @@
 'project:frameworks/wordpress/image-edit.js':[
 446,
 ],
+'project:frameworks/wordpress/nav-menu.js':[
+1146,
+],
 'project:frameworks/wordpress/post.js':[
 81,
 ],
@@ -92,6 +95,7 @@
 386,
 ],
 'project:google-closure-library/ui/customcolorpalette.js':[
+107,
 124,
 ],
 'project:google-closure-library/ui/dragdropdetector.js':[
