@@ -99,6 +99,14 @@ public class JsxElementTreeModelTest extends JavaScriptTreeModelTest {
   }
 
   @Test
+  public void complex_tag_name() throws Exception {
+    JsxStandardElementTree tree = parse("<foo:bar-baz.qux>Hello</foo:bar-baz.qux>", Kind.JSX_STANDARD_ELEMENT);
+    assertThat(tree.is(Kind.JSX_STANDARD_ELEMENT)).isTrue();
+    assertThat(expressionToString(tree.openingElement().elementName())).isEqualTo("foo:bar-baz.qux");
+    assertThat(expressionToString(tree.closingElement().elementName())).isEqualTo("foo:bar-baz.qux");
+  }
+
+  @Test
   public void short_fragment_syntax() throws Exception {
     JsxShortFragmentElementTree tree = parse("<> Hello <div/><div/></>", Kind.JSX_SHORT_FRAGMENT_ELEMENT);
 
