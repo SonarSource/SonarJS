@@ -81,6 +81,7 @@ public class SymbolicExecution {
   private final Set<Symbol> trackedVariables;
   private final Set<Symbol> functionParameters;
   private final Scope functionScope;
+  private final boolean isAsync;
   private final Deque<BlockExecution> workList = new ArrayDeque<>();
   private final SetMultimap<Tree, Constraint> conditionResults = HashMultimap.create();
   private final Set<BlockExecution> alreadyProcessed = new HashSet<>();
@@ -90,7 +91,7 @@ public class SymbolicExecution {
   private Constraint returnConstraint = null;
   private boolean executionInterrupted = false;
 
-  public SymbolicExecution(Scope functionScope, ControlFlowGraph cfg, List<SeCheck> checks) {
+  public SymbolicExecution(Scope functionScope, ControlFlowGraph cfg, List<SeCheck> checks, boolean isAsync) {
     this.cfgStartBlock = cfg.start();
     this.cfg = cfg;
     LocalVariables localVariables = new LocalVariables(functionScope, cfg);
@@ -99,6 +100,7 @@ public class SymbolicExecution {
     this.liveVariableAnalysis = LiveVariableAnalysis.createForSymbolicExecution(cfg, functionScope);
     this.functionScope = functionScope;
     this.checks = checks;
+    this.isAsync = isAsync;
   }
 
   public void visitCfg(ProgramState initialStateWithParameters) {
@@ -325,6 +327,10 @@ public class SymbolicExecution {
   private void checkForImplicitReturn(CfgBlock block) {
     boolean blockLeadsToEnd = block.successors().contains(cfg.end());
     if (blockLeadsToEnd) {
+      if (isAsync) {
+        addReturnConstraint(Constraint.OBJECT);
+        return;
+      }
       List<Tree> elements = block.elements();
       Tree lastElement = elements.get(elements.size() - 1);
 
