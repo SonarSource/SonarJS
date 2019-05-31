@@ -26,9 +26,7 @@ import java.util.regex.Pattern;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.Measures.Measure;
 
-import static com.sonar.javascript.it.plugin.Tests.getMeasure;
 import static com.sonar.javascript.it.plugin.Tests.getMeasureAsInt;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -181,14 +179,6 @@ public class CoverageTest {
 
   private Integer getProjectMeasureAsInt(String metricKey) {
     return getMeasureAsInt("project", metricKey);
-  }
-
-  private Integer getFileMeasureAsInt(String metricKey) {
-    return getMeasureAsInt("project:file.js", metricKey);
-  }
-
-  private Measure getFileMeasure(String metricKey) {
-    return getMeasure("project:file.js", metricKey);
   }
 
 }
