@@ -19,63 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
 @Rule(key = "CollapsibleIfStatements")
-public class CollapsibleIfStatementsCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Merge this if statement with the nested one.";
-  private static final String SECONDARY_MESSAGE = "Nested \"if\" statement";
-
+public class CollapsibleIfStatementsCheck extends EslintBasedCheck {
   @Override
-  public void visitIfStatement(IfStatementTree tree) {
-    if (tree.elseClause() == null) {
-      IfStatementTree innerIfStatement = getCollapsibleIfStatement(tree.statement());
-
-      if (innerIfStatement != null) {
-        IssueLocation primaryLocation = issueLocation(tree, MESSAGE);
-        IssueLocation secondaryLocation = issueLocation(innerIfStatement, SECONDARY_MESSAGE);
-        addIssue(new PreciseIssue(this, primaryLocation).secondary(secondaryLocation));
-      }
-    }
-
-    super.visitIfStatement(tree);
+  public String eslintKey() {
+    return "no-collapsible-if";
   }
-
-  private static IssueLocation issueLocation(IfStatementTree tree, String message) {
-    return new IssueLocation(tree.ifKeyword(), tree.closeParenthesisToken(), message);
-  }
-
-  @Nullable
-  private static IfStatementTree getCollapsibleIfStatement(StatementTree statement) {
-    if (statement.is(Kind.BLOCK)) {
-      BlockTree block = (BlockTree) statement;
-      if (block.statements().size() == 1) {
-        return getIfStatementWithoutElse(block.statements().get(0));
-      }
-
-    } else {
-      return getIfStatementWithoutElse(statement);
-    }
-
-    return null;
-  }
-
-  @Nullable
-  private static IfStatementTree getIfStatementWithoutElse(StatementTree statement) {
-    if (statement.is(Kind.IF_STATEMENT) && ((IfStatementTree) statement).elseClause() == null) {
-      return (IfStatementTree) statement;
-    } else {
-      return null;
-    }
-  }
-
 }
