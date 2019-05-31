@@ -282,7 +282,7 @@ public class ExpressionStack {
     Scope scopeToExecute = functionTreeToExecute.scope();
     List<Constraint> argumentConstraints = argumentValues.stream().map(constraints::getConstraint).collect(Collectors.toList());
     ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTreeToExecute.body());
-    SymbolicExecution symbolicExecution = new SymbolicExecution(scopeToExecute, cfg, ImmutableList.of());
+    SymbolicExecution symbolicExecution = new SymbolicExecution(scopeToExecute, cfg, ImmutableList.of(), functionTreeToExecute.asyncToken() != null);
     ProgramState initialProgramState = initialProgramStateWithParameterConstraints(functionTreeToExecute, argumentConstraints);
     symbolicExecution.visitCfg(initialProgramState);
     newStack.push(new SymbolicValueWithConstraint(symbolicExecution.getReturnConstraint()));

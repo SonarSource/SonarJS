@@ -299,3 +299,11 @@ function for_of_undefined() {
   for(x of obj) {                       // OK we should not care about x being undefined
   }
 }
+
+
+function async_function_undefined() {
+  async function foo_implicit_return() { console.log("foo"); } // async function always return a Promise
+  async function foo_return_undefined() { console.log("foo"); return undefined; } // async function always return a Promise
+  foo_implicit_return().then(); // OK
+  foo_return_undefined().then(); // OK
+}
