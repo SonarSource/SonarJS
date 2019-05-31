@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.ce.measure.RangeDistributionBuilder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -42,9 +41,6 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 public class MetricsVisitor extends SubscriptionVisitor {
 
-  private static final Number[] LIMITS_COMPLEXITY_FUNCTIONS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
-  private static final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
-
   private static final Kind[] CLASS_NODES = {
     Kind.CLASS_DECLARATION,
     Kind.CLASS_EXPRESSION
@@ -55,11 +51,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
   private final Boolean ignoreHeaderComments;
   private FileLinesContextFactory fileLinesContextFactory;
   private Map<InputFile, Set<Integer>> projectExecutableLines;
-
-  private int classComplexity;
-  private int functionComplexity;
-  private RangeDistributionBuilder functionComplexityDistribution;
-  private RangeDistributionBuilder fileComplexityDistribution;
 
   public MetricsVisitor(SensorContext context, Boolean ignoreHeaderComments, FileLinesContextFactory fileLinesContextFactory) {
     this.sensorContext = context;
@@ -90,28 +81,8 @@ public class MetricsVisitor extends SubscriptionVisitor {
   }
 
   @Override
-  public void visitNode(Tree tree) {
-    if (tree.is(CLASS_NODES)) {
-      classComplexity += new ComplexityVisitor(true).getComplexity(tree);
-
-    } else if (tree.is(KindSet.FUNCTION_KINDS)) {
-      int currentFunctionComplexity = new ComplexityVisitor(false).getComplexity(tree);
-      this.functionComplexity += currentFunctionComplexity;
-      functionComplexityDistribution.add(currentFunctionComplexity);
-    }
-  }
-
-  @Override
   public void visitFile(Tree scriptTree) {
     this.inputFile = ((JavaScriptFileImpl) getContext().getJavaScriptFile()).inputFile();
-    init();
-  }
-
-  private void init() {
-    classComplexity = 0;
-    functionComplexity = 0;
-    functionComplexityDistribution = new RangeDistributionBuilder(LIMITS_COMPLEXITY_FUNCTIONS);
-    fileComplexityDistribution = new RangeDistributionBuilder(FILES_DISTRIB_BOTTOM_LIMITS);
   }
 
   private void saveCounterMetrics(TreeVisitorContext context) {
@@ -125,27 +96,11 @@ public class MetricsVisitor extends SubscriptionVisitor {
     int fileComplexity = new ComplexityVisitor(true).getComplexity(context.getTopTree());
 
     saveMetric(CoreMetrics.COMPLEXITY, fileComplexity);
-    saveMetric(CoreMetrics.COMPLEXITY_IN_CLASSES, classComplexity);
-    saveMetric(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, functionComplexity);
 
     if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6,3))) {
       int cognitiveComplexity = new CognitiveComplexity().calculateScriptComplexity(context.getTopTree()).complexity();
       saveMetric(CoreMetrics.COGNITIVE_COMPLEXITY, cognitiveComplexity);
     }
-
-    sensorContext.<String>newMeasure()
-      .on(inputFile)
-      .forMetric(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION)
-      .withValue(functionComplexityDistribution.build())
-      .save();
-
-    fileComplexityDistribution.add(fileComplexity);
-
-    sensorContext.<String>newMeasure()
-      .on(inputFile)
-      .forMetric(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION)
-      .withValue(fileComplexityDistribution.build())
-      .save();
   }
 
   private void saveLineMetrics(TreeVisitorContext context) {
@@ -165,7 +120,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
     Set<Integer> executableLines = new ExecutableLineVisitor(context.getTopTree()).getExecutableLines();
     projectExecutableLines.put(inputFile, executableLines);
 
-    executableLines.stream().forEach(line -> fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1));
+    executableLines.forEach(line -> fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1));
     fileLinesContext.save();
   }
 

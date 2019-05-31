@@ -63,8 +63,6 @@ public class MetricsTest {
 
     // Complexity
     assertThat(getProjectMeasureAsDouble("complexity")).isEqualTo(6.0);
-    assertThat(getProjectMeasureAsDouble("function_complexity")).isEqualTo(1.2);
-    assertThat(getProjectMeasure("function_complexity_distribution").getValue()).isEqualTo("1=4;2=1;4=0;6=0;8=0;10=0;12=0;20=0;30=0");
     assertThat(getProjectMeasureAsDouble("file_complexity")).isEqualTo(6.0);
     assertThat(getProjectMeasure("file_complexity_distribution").getValue()).isEqualTo("0=0;5=1;10=0;20=0;30=0;60=0;90=0");
 
