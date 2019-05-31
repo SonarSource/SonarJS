@@ -1,0 +1,19 @@
+{
+  "title": "Variables should not be shadowed",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "based-on-misra",
+    "cert",
+    "suspicious",
+    "pitfall"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-1117",
+  "sqKey": "S1117",
+  "scope": "All"
+}

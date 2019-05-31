@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
-@Rule(key = "VariableShadowing")
+@Rule(key = "S1117")
 public class VariableShadowingCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "\"%s\" hides or potentially hides a variable declared in an outer scope at line %s.";
