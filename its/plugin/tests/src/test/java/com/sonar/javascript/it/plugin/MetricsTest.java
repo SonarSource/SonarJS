@@ -63,8 +63,6 @@ public class MetricsTest {
 
     // Complexity
     assertThat(getProjectMeasureAsDouble("complexity")).isEqualTo(6.0);
-    assertThat(getProjectMeasureAsDouble("file_complexity")).isEqualTo(6.0);
-    assertThat(getProjectMeasure("file_complexity_distribution").getValue()).isEqualTo("0=0;5=1;10=0;20=0;30=0;60=0;90=0");
 
     // Duplication
     assertThat(getProjectMeasureAsDouble("duplicated_lines")).isEqualTo(0.0);
@@ -89,8 +87,6 @@ public class MetricsTest {
     // Documentation
     assertThat(getDirectoryMeasureAsDouble("comment_lines")).isEqualTo(1);
     assertThat(getDirectoryMeasureAsDouble("comment_lines_density")).isEqualTo(4.8);
-    // Complexity
-    assertThat(getDirectoryMeasure("file_complexity_distribution").getValue()).isEqualTo("0=0;5=1;10=0;20=0;30=0;60=0;90=0");
     // Duplication
     assertThat(getDirectoryMeasureAsDouble("duplicated_lines")).isEqualTo(0.0);
     assertThat(getDirectoryMeasureAsDouble("duplicated_blocks")).isEqualTo(0.0);
@@ -107,8 +103,6 @@ public class MetricsTest {
     // Documentation
     assertThat(getFileMeasureAsDouble("comment_lines")).isEqualTo(1);
     assertThat(getFileMeasureAsDouble("comment_lines_density")).isEqualTo(4.8);
-    // Complexity
-    assertThat(getFileMeasureAsDouble("file_complexity_distribution")).isNull();
     // Duplication
     assertThat(getFileMeasureAsDouble("duplicated_lines")).isZero();
     assertThat(getFileMeasureAsDouble("duplicated_blocks")).isZero();

@@ -67,8 +67,6 @@ public class BigProjectTest {
     // Since ES6 support
     assertThat(getProjectMeasureAsDouble("complexity")).isEqualTo(140046.0d);
 
-    // SONARJS-299
-    assertThat(getProjectMeasureAsDouble("file_complexity")).isEqualTo(31.9);
 
     // Duplication
     // SONAR-7026
