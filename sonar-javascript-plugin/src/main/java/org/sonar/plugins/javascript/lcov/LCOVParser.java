@@ -185,7 +185,7 @@ public final class LCOVParser {
 
     FileData(InputFile inputFile) {
       linesInFile = inputFile.lines();
-      filename = inputFile.relativePath();
+      filename = inputFile.filename();
     }
 
     void addBranch(Integer lineNumber, String branchNumber, Integer taken) {

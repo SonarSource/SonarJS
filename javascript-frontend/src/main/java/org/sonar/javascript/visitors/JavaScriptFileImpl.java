@@ -33,11 +33,6 @@ public class JavaScriptFileImpl implements JavaScriptFile {
   }
 
   @Override
-  public String relativePath() {
-    return inputFile.relativePath();
-  }
-
-  @Override
   public String fileName() {
     return inputFile.filename();
   }

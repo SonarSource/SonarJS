@@ -25,12 +25,6 @@ import java.net.URI;
 public interface JavaScriptFile {
 
   /**
-   * @deprecated since 4.0, use {@link JavaScriptFile#fileName()} or {@link JavaScriptFile#uri()}
-   */
-  @Deprecated
-  String relativePath();
-
-  /**
    * File name with extension
    */
   String fileName();
