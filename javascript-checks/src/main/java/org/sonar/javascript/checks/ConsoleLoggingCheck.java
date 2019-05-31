@@ -28,10 +28,10 @@ import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
-@Rule(key = "S2228")
+@Rule(key = "S106")
 public class ConsoleLoggingCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Remove this logging statement.";
+  private static final String MESSAGE = "Replace this usage of console.%s by a logger.";
 
   private static final Set<String> LOG_METHODS = ImmutableSet.of("log", "warn", "error");
 
@@ -41,7 +41,7 @@ public class ConsoleLoggingCheck extends DoubleDispatchVisitorCheck {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
 
       if (isCalleeConsoleLogging(callee)) {
-        addIssue(callee, MESSAGE);
+        addIssue(callee, String.format(MESSAGE, callee.property().name()));
       }
     }
 
