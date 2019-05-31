@@ -22,9 +22,10 @@ package org.sonar.javascript.checks.verifier;
 import com.sonar.sslr.api.RecognitionException;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -88,26 +89,21 @@ public class BulkVerifier {
   }
 
   private static Iterator<Issue> getIssues(JavaScriptCheck check, InputFile file) {
-    Iterator<Issue> issues;
     try {
       JavaScriptVisitorContext context = TestUtils.createParallelContext(file);
-      issues = JavaScriptCheckVerifier.getActualIssues(check, context);
+      return JavaScriptCheckVerifier.getActualIssues(check, context);
     } catch (RecognitionException e) {
       LOGGER.info("Parsing failed on file " + file + ". The file is ignored");
-      issues = new LinkedList<Issue>().iterator();
+      return Collections.emptyIterator();
     }
-
-    return issues;
   }
 
   private static JavaScriptCheck instantiateCheck(Class<? extends JavaScriptCheck> checkClass) {
-    JavaScriptCheck check;
     try {
-      check = checkClass.newInstance();
-    } catch (IllegalAccessException | InstantiationException e) {
+      return checkClass.getDeclaredConstructor().newInstance();
+    } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
       throw new IllegalArgumentException(e);
     }
-    return check;
   }
 
 }
