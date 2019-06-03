@@ -1,0 +1,15 @@
+SF:js/file1.js
+DA:1,2
+DA:2,2
+DA:3,1
+FN:2,(anonymous_1)
+FNDA:2,(anonymous_1)
+BRDA:2,1,0,2
+BRDA:2,1,1,1
+BRDA:2,2,0,0
+BRDA:2,2,1,-
+end_of_record
+SF:js\file2.js
+DA:1,5
+DA:2,5
+end_of_record

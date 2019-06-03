@@ -60,8 +60,8 @@ public class CoverageSensor implements Sensor {
   }
 
   private static void saveMeasureFromLCOVFile(SensorContext context, List<String> reportPaths) {
-    LinkedList<File> lcovFiles=new LinkedList<>();
-    for(String providedPath: reportPaths) {
+    LinkedList<File> lcovFiles = new LinkedList<>();
+    for (String providedPath : reportPaths) {
 
       File lcovFile = getIOFile(context.fileSystem().baseDir(), providedPath);
 
@@ -73,20 +73,21 @@ public class CoverageSensor implements Sensor {
       }
     }
 
-    if(lcovFiles.isEmpty()) {
+    if (lcovFiles.isEmpty()) {
       LOG.warn("No coverage information will be saved because all LCOV files cannot be found.");
       return;
     }
 
     LOG.info("Analysing {}", lcovFiles);
 
-    LCOVParser parser = LCOVParser.create(context, lcovFiles.toArray(new File[lcovFiles.size()]));
-    Map<InputFile, NewCoverage> coveredFiles = parser.coverageByFile();
-
     FileSystem fileSystem = context.fileSystem();
     FilePredicate mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
+    FileLocator fileLocator = new FileLocator(fileSystem.inputFiles(mainFilePredicate));
+
+    LCOVParser parser = LCOVParser.create(context, lcovFiles, fileLocator);
+    Map<InputFile, NewCoverage> coveredFiles = parser.coverageByFile();
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
       NewCoverage fileCoverage = coveredFiles.get(inputFile);
