@@ -10,7 +10,7 @@
   ],
   "standards": [
     "CWE",
-    "OWASP Top Ten",
+    "OWASP Top 10",
     "SANS Top 25"
   ],
   "defaultSeverity": "Critical",

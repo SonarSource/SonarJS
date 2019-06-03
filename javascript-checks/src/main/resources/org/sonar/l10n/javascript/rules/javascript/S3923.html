@@ -1,6 +1,5 @@
 <p>Having all branches in a <code>switch</code> or <code>if</code> chain with the same implementation is an error. Either a copy-paste error was made
-and something different should be executed, or there shouldn't be a <code>switch</code>/<code>if</code> chain at all. Note that this rule does not
-apply to <code>if</code> chains without <code>else</code>-s, or to <code>switch</code>-es without <code>default</code> clauses.</p>
+and something different should be executed, or there shouldn't be a <code>switch</code>/<code>if</code> chain at all.</p>
 <p><em>Note that this rule requires Node.js to be available during analysis.</em></p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -25,6 +24,16 @@ switch (i) {  // Noncompliant
     break;
   default:
     doSomething();
+}
+</pre>
+<h2>Exceptions</h2>
+<p>This rule does not apply to <code>if</code> chains without <code>else</code>-s, or to <code>switch</code>-es without <code>default</code>
+clauses.</p>
+<pre>
+if(b == 0) {    //no issue, this could have been done on purpose to make the code more readable
+  doSomething();
+} else if(b == 1) {
+  doSomething();
 }
 </pre>
 

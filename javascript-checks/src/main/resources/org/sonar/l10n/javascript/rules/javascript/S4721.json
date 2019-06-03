@@ -8,19 +8,24 @@
   },
   "tags": [
     "cwe",
+    "owasp-a1",
     "sans-top25-insecure"
   ],
   "standards": [
     "CWE",
+    "OWASP Top 10",
     "SANS Top 25"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4721",
   "sqKey": "S4721",
-  "scope": "All",
+  "scope": "Main",
   "securityStandards": {
     "CWE": [
       78
+    ],
+    "OWASP": [
+      "A1"
     ]
   }
 }

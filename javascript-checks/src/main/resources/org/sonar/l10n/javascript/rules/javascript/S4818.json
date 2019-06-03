@@ -4,14 +4,13 @@
   "status": "ready",
   "tags": [
     "cwe",
-    "owasp-a1",
     "sans-top25-risky",
     "sans-top25-porous",
     "owasp-a3"
   ],
   "standards": [
     "CWE",
-    "OWASP Top Ten"
+    "OWASP Top 10"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4818",
@@ -24,7 +23,6 @@
       400
     ],
     "OWASP": [
-      "A1",
       "A3"
     ]
   }

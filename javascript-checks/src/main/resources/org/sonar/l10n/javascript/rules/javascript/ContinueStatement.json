@@ -7,7 +7,7 @@
     "constantCost": "1h"
   },
   "tags": [
-    "misra",
+    "based-on-misra",
     "bad-practice"
   ],
   "defaultSeverity": "Minor",
