@@ -1,13 +1,20 @@
 <p>Curly braces can be omitted from a one-line block, such as with an <code>if</code> statement or <code>for</code> loop, but doing so can be
 misleading and induce bugs. </p>
-<p>This rule raises an issue when the indentation of the lines after a one-line block indicates an intent to include those lines in the block, but the
-omission of curly braces means the lines will be unconditionally executed once.</p>
+<p>This rule raises an issue when the whitespacing of the lines after a one line block indicates an intent to include those lines in the block, but
+the omission of curly braces means the lines will be unconditionally executed once.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (condition)
   firstActionInBlock();
   secondAction();  // Noncompliant; executed unconditionally
 thirdAction();
+
+if (condition) firstActionInBlock(); secondAction();  // Noncompliant; secondAction executed unconditionally
+
+if (condition) firstActionInBlock();  // Noncompliant
+  secondAction();  // Executed unconditionally
+
+if (condition); secondAction();  // Noncompliant; secondAction executed unconditionally
 
 String str = null;
 for (int i = 0; i &lt; array.length; i++)

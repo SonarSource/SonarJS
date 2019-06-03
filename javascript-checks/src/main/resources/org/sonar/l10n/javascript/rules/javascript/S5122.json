@@ -8,7 +8,8 @@
     "sans-top25-porous"
   ],
   "standards": [
-    "CWE"
+    "CWE",
+    "OWASP Top 10"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5122",
@@ -18,6 +19,9 @@
     "CWE": [
       346,
       942
+    ],
+    "OWASP": [
+      "A6"
     ]
   }
 }

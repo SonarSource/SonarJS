@@ -8,7 +8,9 @@
   },
   "tags": [
     "cwe",
-    "misra"
+    "misra",
+    "misra-c2004",
+    "misra-c2012"
   ],
   "standards": [
     "CWE"

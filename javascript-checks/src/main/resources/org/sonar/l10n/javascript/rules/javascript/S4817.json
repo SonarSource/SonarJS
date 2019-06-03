@@ -8,7 +8,8 @@
     "cert"
   ],
   "standards": [
-    "CWE"
+    "CWE",
+    "OWASP Top 10"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4817",
@@ -17,6 +18,9 @@
   "securityStandards": {
     "CWE": [
       643
+    ],
+    "OWASP": [
+      "A1"
     ]
   }
 }

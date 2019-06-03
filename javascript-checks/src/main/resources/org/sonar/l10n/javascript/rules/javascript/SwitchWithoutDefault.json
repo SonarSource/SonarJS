@@ -8,7 +8,7 @@
   },
   "tags": [
     "cwe",
-    "misra",
+    "based-on-misra",
     "cert"
   ],
   "standards": [

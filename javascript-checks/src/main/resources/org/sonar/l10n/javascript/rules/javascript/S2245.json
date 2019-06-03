@@ -13,7 +13,7 @@
   ],
   "standards": [
     "CWE",
-    "OWASP Top Ten"
+    "OWASP Top 10"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2245",
@@ -23,8 +23,7 @@
     "CWE": [
       338,
       330,
-      326,
-      310
+      326
     ],
     "OWASP": [
       "A3"

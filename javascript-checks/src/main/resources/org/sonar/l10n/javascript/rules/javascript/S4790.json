@@ -4,12 +4,14 @@
   "status": "ready",
   "tags": [
     "cwe",
+    "spring",
+    "owasp-a6",
     "sans-top25-porous",
     "owasp-a3"
   ],
   "standards": [
     "CWE",
-    "OWASP Top Ten",
+    "OWASP Top 10",
     "SANS Top 25"
   ],
   "defaultSeverity": "Critical",
@@ -20,10 +22,13 @@
     "CWE": [
       759,
       760,
-      916
+      916,
+      328,
+      327
     ],
     "OWASP": [
-      "A3"
+      "A3",
+      "A6"
     ]
   }
 }

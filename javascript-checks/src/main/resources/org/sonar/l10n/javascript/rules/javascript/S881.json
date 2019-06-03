@@ -7,7 +7,7 @@
     "constantCost": "5min"
   },
   "tags": [
-    "misra",
+    "based-on-misra",
     "cert"
   ],
   "defaultSeverity": "Major",
