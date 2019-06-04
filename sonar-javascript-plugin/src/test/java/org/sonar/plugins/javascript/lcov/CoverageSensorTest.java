@@ -166,4 +166,26 @@ public class CoverageSensorTest {
     assertThat(descriptor.configurationPredicate().test(new MapSettings().asConfig())).isFalse();
   }
 
+  @Test
+  public void should_resolve_relative_path() throws Exception {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "reports/report_relative_path.lcov");
+    inputFile("deep/nested/dir/js/file1.js", Type.MAIN);
+    inputFile("deep/nested/dir/js/file2.js", Type.MAIN);
+    coverageSensor.execute(context);
+
+    String file1Key = "moduleKey:deep/nested/dir/js/file1.js";
+    assertThat(context.lineHits(file1Key, 0)).isNull();
+    assertThat(context.lineHits(file1Key, 1)).isEqualTo(2);
+    assertThat(context.lineHits(file1Key, 2)).isEqualTo(2);
+
+    assertThat(context.conditions(file1Key, 102)).isNull();
+    assertThat(context.conditions(file1Key, 2)).isEqualTo(4);
+    assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(2);
+
+    String file2Key = "moduleKey:deep/nested/dir/js/file2.js";
+    assertThat(context.lineHits(file2Key, 0)).isNull();
+    assertThat(context.lineHits(file2Key, 1)).isEqualTo(5);
+    assertThat(context.lineHits(file2Key, 2)).isEqualTo(5);
+  }
+
 }

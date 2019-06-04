@@ -49,25 +49,27 @@ public final class LCOVParser {
   private final Map<InputFile, NewCoverage> coverageByFile;
   private final SensorContext context;
   private final List<String> unresolvedPaths = Lists.newArrayList();
+  private final FileLocator fileLocator;
   private int inconsistenciesCounter = 0;
 
   private static final Logger LOG = Loggers.get(LCOVParser.class);
 
-  private LCOVParser(List<String> lines, SensorContext context) {
+  private LCOVParser(List<String> lines, SensorContext context, FileLocator fileLocator) {
     this.context = context;
+    this.fileLocator = fileLocator;
     this.coverageByFile = parse(lines);
   }
 
-  static LCOVParser create(SensorContext context, File... files) {
-    final List<String> lines=new LinkedList<>();
-    for(File file: files) {
-      try (Stream<String> fileLines = Files.lines(file.toPath())){
+  static LCOVParser create(SensorContext context, List<File> files, FileLocator fileLocator) {
+    final List<String> lines = new LinkedList<>();
+    for (File file : files) {
+      try (Stream<String> fileLines = Files.lines(file.toPath())) {
         lines.addAll(fileLines.collect(Collectors.toList()));
       } catch (IOException e) {
         throw new IllegalArgumentException("Could not read content from file: " + file, e);
       }
     }
-    return new LCOVParser(lines, context);
+    return new LCOVParser(lines, context, fileLocator);
   }
 
   Map<InputFile, NewCoverage> coverageByFile() {
@@ -150,7 +152,7 @@ public final class LCOVParser {
     String filePath = line.substring(SF.length());
     FileData fileData = null;
     // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
-    InputFile inputFile = context.fileSystem().inputFile(context.fileSystem().predicates().hasPath(filePath));
+    InputFile inputFile = fileLocator.getInputFile(filePath);
     if (inputFile != null) {
       fileData = files.get(inputFile);
       if (fileData == null) {
