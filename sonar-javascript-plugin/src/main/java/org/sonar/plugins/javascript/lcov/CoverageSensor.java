@@ -19,11 +19,13 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import com.google.common.collect.Lists;
 import java.io.File;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -52,32 +54,19 @@ public class CoverageSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     String[] reports = context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS);
-    List<String> reportPaths = Lists.newArrayList(reports);
-
-    if (!reportPaths.isEmpty()) {
-      saveMeasureFromLCOVFile(context, reportPaths);
-    }
-  }
-
-  private static void saveMeasureFromLCOVFile(SensorContext context, List<String> reportPaths) {
-    LinkedList<File> lcovFiles = new LinkedList<>();
-    for (String providedPath : reportPaths) {
-
-      File lcovFile = getIOFile(context.fileSystem().baseDir(), providedPath);
-
-      if (lcovFile.isFile()) {
-        lcovFiles.add(lcovFile);
-      } else {
-        LOG.warn("No coverage information will be saved because LCOV file cannot be found.");
-        LOG.warn("Provided LCOV file path: {}. Seek file with path: {}", providedPath, lcovFile.getAbsolutePath());
-      }
-    }
+    List<File> lcovFiles = Arrays.stream(reports)
+      .map(report -> getIOFile(context.fileSystem().baseDir(), report))
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
 
     if (lcovFiles.isEmpty()) {
       LOG.warn("No coverage information will be saved because all LCOV files cannot be found.");
       return;
     }
+    saveCoverageFromLcovFiles(context, lcovFiles);
+  }
 
+  private static void saveCoverageFromLcovFiles(SensorContext context, List<File> lcovFiles) {
     LOG.info("Analysing {}", lcovFiles);
 
     FileSystem fileSystem = context.fileSystem();
@@ -116,12 +105,17 @@ public class CoverageSensor implements Sensor {
    * Returns a java.io.File for the given path.
    * If path is not absolute, returns a File with module base directory as parent path.
    */
+  @CheckForNull
   private static File getIOFile(File baseDir, String path) {
     File file = new File(path);
     if (!file.isAbsolute()) {
       file = new File(baseDir, path);
     }
-
+    if (!file.isFile()) {
+      LOG.warn("No coverage information will be saved because LCOV file cannot be found.");
+      LOG.warn("Provided LCOV file path: {}. Seek file with path: {}", path, file.getAbsolutePath());
+      return null;
+    }
     return file;
   }
 }
