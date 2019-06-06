@@ -19,12 +19,11 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,7 @@ import org.sonar.api.utils.log.Loggers;
 /**
  * http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
  */
-public final class LCOVParser {
+class LCOVParser {
 
   private static final String SF = "SF:";
   private static final String DA = "DA:";
@@ -48,7 +47,7 @@ public final class LCOVParser {
 
   private final Map<InputFile, NewCoverage> coverageByFile;
   private final SensorContext context;
-  private final List<String> unresolvedPaths = Lists.newArrayList();
+  private final List<String> unresolvedPaths = new ArrayList<>();
   private final FileLocator fileLocator;
   private int inconsistenciesCounter = 0;
 
@@ -85,14 +84,15 @@ public final class LCOVParser {
   }
 
   private Map<InputFile, NewCoverage> parse(List<String> lines) {
-    final Map<InputFile, FileData> files = Maps.newHashMap();
+    final Map<InputFile, FileData> files = new HashMap<>();
     FileData fileData = null;
     int reportLineNum = 0;
 
     for (String line : lines) {
       reportLineNum++;
       if (line.startsWith(SF)) {
-        fileData = loadCurrentFileData(files, line);
+        fileData = files.computeIfAbsent(inputFileForSourceFile(line),
+          inputFile -> inputFile == null ? null : new FileData(inputFile));
 
       } else if (fileData != null) {
         if (line.startsWith(DA)) {
@@ -105,7 +105,8 @@ public final class LCOVParser {
 
     }
 
-    Map<InputFile, NewCoverage> coveredFiles = Maps.newHashMap();
+    Map<InputFile, NewCoverage> coveredFiles = new HashMap<>();
+
     for (Map.Entry<InputFile, FileData> e : files.entrySet()) {
       NewCoverage newCoverage = context.newCoverage().onFile(e.getKey());
       e.getValue().save(newCoverage);
@@ -147,34 +148,27 @@ public final class LCOVParser {
   }
 
   @CheckForNull
-  private FileData loadCurrentFileData(final Map<InputFile, FileData> files, String line) {
+  private InputFile inputFileForSourceFile(String line) {
     // SF:<absolute path to the source file>
     String filePath = line.substring(SF.length());
-    FileData fileData = null;
     // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
     InputFile inputFile = fileLocator.getInputFile(filePath);
-    if (inputFile != null) {
-      fileData = files.get(inputFile);
-      if (fileData == null) {
-        fileData = new FileData(inputFile);
-        files.put(inputFile, fileData);
-      }
-    } else {
+    if (inputFile == null) {
       unresolvedPaths.add(filePath);
     }
-    return fileData;
+    return inputFile;
   }
 
   private static class FileData {
     /**
      * line number -> branch number -> taken
      */
-    private Map<Integer, Map<String, Integer>> branches = Maps.newHashMap();
+    private Map<Integer, Map<String, Integer>> branches = new HashMap<>();
 
     /**
      * line number -> execution count
      */
-    private Map<Integer, Integer> hits = Maps.newHashMap();
+    private Map<Integer, Integer> hits = new HashMap<>();
 
     /**
      * Number of lines in the file
@@ -192,21 +186,13 @@ public final class LCOVParser {
 
     void addBranch(Integer lineNumber, String branchNumber, Integer taken) {
       checkLine(lineNumber);
-
-      Map<String, Integer> branchesForLine = branches.get(lineNumber);
-      if (branchesForLine == null) {
-        branchesForLine = Maps.newHashMap();
-        branches.put(lineNumber, branchesForLine);
-      }
-      Integer currentValue = branchesForLine.get(branchNumber);
-      branchesForLine.put(branchNumber, MoreObjects.firstNonNull(currentValue, 0) + taken);
+      Map<String, Integer> branchesForLine = branches.computeIfAbsent(lineNumber, l -> new HashMap<>());
+      branchesForLine.merge(branchNumber, taken, Integer::sum);
     }
 
     void addLine(Integer lineNumber, Integer executionCount) {
       checkLine(lineNumber);
-
-      Integer currentValue = hits.get(lineNumber);
-      hits.put(lineNumber, MoreObjects.firstNonNull(currentValue, 0) + executionCount);
+      hits.merge(lineNumber, executionCount, Integer::sum);
     }
 
     void save(NewCoverage newCoverage) {
