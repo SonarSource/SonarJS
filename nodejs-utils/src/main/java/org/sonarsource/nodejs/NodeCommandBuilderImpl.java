@@ -120,10 +120,10 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     checkNodeCompatibility(nodeExecutable);
 
     if (nodeJsArgs.isEmpty() && scriptFilename == null && args.isEmpty()) {
-      throw new IllegalArgumentException("Missing arguments for Node.js.");
+      throw new NodeCommandException("Missing arguments for Node.js.");
     }
     if (scriptFilename == null && !args.isEmpty()) {
-      throw new IllegalArgumentException("No script provided, but script arguments found.");
+      throw new NodeCommandException("No script provided, but script arguments found.");
     }
     return new NodeCommand(
       processWrapper,
