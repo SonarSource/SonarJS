@@ -1780,7 +1780,7 @@ public class JavaScriptGrammar {
         STRING_LITERAL(),
         f.jsxJavaScriptExpression(
           b.token(JavaScriptPunctuator.LCURLYBRACE),
-          ASSIGNMENT_EXPRESSION(),
+          EXPRESSION(),
           b.token(JavaScriptPunctuator.RCURLYBRACE)),
         JSX_ELEMENT()));
   }
