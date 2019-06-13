@@ -24,8 +24,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -46,6 +49,8 @@ public class CoverageSensorTest {
   private static final String IT_LCOV = "reports/report_it.lcov";
   private SensorContextTester context;
   private MapSettings settings;
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
 
   private CoverageSensor coverageSensor = new CoverageSensor();
   private File moduleBaseDir = new File("src/test/resources/coverage/").getAbsoluteFile();
@@ -183,6 +188,47 @@ public class CoverageSensorTest {
     assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(2);
 
     String file2Key = "moduleKey:deep/nested/dir/js/file2.js";
+    assertThat(context.lineHits(file2Key, 0)).isNull();
+    assertThat(context.lineHits(file2Key, 1)).isEqualTo(5);
+    assertThat(context.lineHits(file2Key, 2)).isEqualTo(5);
+  }
+
+  @Test
+  public void should_resolve_absolute_path() throws Exception {
+    File lcovFile = temp.newFile();
+    String absolutePathFile1 = new File("src/test/resources/coverage/file1.js").getAbsolutePath();
+    String absolutePathFile2 = new File("src/test/resources/coverage/file2.js").getAbsolutePath();
+
+    FileUtils.writeStringToFile(lcovFile, "SF:" + absolutePathFile1 + "\n" +
+      "DA:1,2\n" +
+      "DA:2,2\n" +
+      "DA:3,1\n" +
+      "FN:2,(anonymous_1)\n" +
+      "FNDA:2,(anonymous_1)\n" +
+      "BRDA:2,1,0,2\n" +
+      "BRDA:2,1,1,1\n" +
+      "BRDA:2,2,0,0\n" +
+      "BRDA:2,2,1,-\n" +
+      "end_of_record\n" +
+      "SF:" + absolutePathFile2 + "\n" +
+      "DA:1,5\n" +
+      "DA:2,5\n" +
+      "end_of_record\n", "UTF-8", false);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcovFile.getAbsolutePath());
+    inputFile("file1.js", Type.MAIN);
+    inputFile("file2.js", Type.MAIN);
+    coverageSensor.execute(context);
+
+    String file1Key = "moduleKey:file1.js";
+    assertThat(context.lineHits(file1Key, 0)).isNull();
+    assertThat(context.lineHits(file1Key, 1)).isEqualTo(2);
+    assertThat(context.lineHits(file1Key, 2)).isEqualTo(2);
+
+    assertThat(context.conditions(file1Key, 102)).isNull();
+    assertThat(context.conditions(file1Key, 2)).isEqualTo(4);
+    assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(2);
+
+    String file2Key = "moduleKey:file2.js";
     assertThat(context.lineHits(file2Key, 0)).isNull();
     assertThat(context.lineHits(file2Key, 1)).isEqualTo(5);
     assertThat(context.lineHits(file2Key, 2)).isEqualTo(5);

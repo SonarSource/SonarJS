@@ -152,7 +152,10 @@ class LCOVParser {
     // SF:<absolute path to the source file>
     String filePath = line.substring(SF.length());
     // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
-    InputFile inputFile = fileLocator.getInputFile(filePath);
+    InputFile inputFile = context.fileSystem().inputFile(context.fileSystem().predicates().hasPath(filePath));
+    if (inputFile == null) {
+      inputFile = fileLocator.getInputFile(filePath);
+    }
     if (inputFile == null) {
       unresolvedPaths.add(filePath);
     }
