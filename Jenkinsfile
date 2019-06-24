@@ -99,7 +99,6 @@ def runITs(TEST,SQ_VERSION) {
 
 
 def install_nodejs_win() {
-  #install npm
   sh '''
   node_home=$(pwd)/node-v8.9.0-win-x64
   node_archive=node.7z
