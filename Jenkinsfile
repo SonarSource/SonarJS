@@ -63,7 +63,10 @@ pipeline {
             label 'windows'
           }
           steps {
-            runMaven("clean package")
+            withMaven(maven: MAVEN_TOOL) {
+              mavenSetBuildVersion()
+              runMaven(JDK_VERSION,"clean package")
+            }
           }
         }
       }         
