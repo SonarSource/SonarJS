@@ -15,6 +15,7 @@ pipeline {
     MAVEN_TOOL = 'Maven 3.6.x'
     JDK_VERSION = 'Java 11'
   }
+  tools {nodejs "NodeJS latest"}
   stages {
     stage('Notify') {
       steps {
@@ -54,7 +55,6 @@ pipeline {
             label 'windows'
           }
           steps {
-            install_nodejs_win()
             runITs("plugin","LATEST_RELEASE")
           }
         }
@@ -63,7 +63,6 @@ pipeline {
             label 'windows'
           }
           steps {
-            install_nodejs_win()
             runMaven("clean package")
           }
         }
@@ -90,30 +89,10 @@ pipeline {
 
 def runITs(TEST,SQ_VERSION) {    
   withMaven(maven: MAVEN_TOOL) {
-    mavenSetBuildVersion()        
+    mavenSetBuildVersion()   
+    gitFetchSubmodules()     
     dir("its/$TEST") {    
       runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION")
     }
   }
-}
-
-
-def install_nodejs_win() {
-  sh '''
-  node_home=$(pwd)/node-v8.9.0-win-x64
-  node_archive=node.7z
-  if [ ! -d "$node_home" ]; then
-    echo "=== Install Node.js ===";
-    curl --insecure --silent --show-error -o $node_archive https://nodejs.org/dist/v8.9.0/node-v8.9.0-win-x64.7z;
-    7z x $node_archive;
-    rm $node_archive;
-  fi
-
-  chmod 755 $node_home/node;
-
-  export PATH=$node_home:$PATH;
-
-  echo "Node version"
-  node -v
-  '''
 }
