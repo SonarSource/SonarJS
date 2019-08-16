@@ -85,7 +85,7 @@
     <sslr-squid-bridge.version>2.7.0.377</sslr-squid-bridge.version>
     <gson.version>2.6.2</gson.version>
     <analyzer-commons.version>1.10.2.456</analyzer-commons.version>
-    <node.version>v10.11.0</node.version>
+    <node.version>v10.16.3</node.version>
     <yarn.version>v1.10.1</yarn.version>
     <npm.version>6.4.1</npm.version>
 
