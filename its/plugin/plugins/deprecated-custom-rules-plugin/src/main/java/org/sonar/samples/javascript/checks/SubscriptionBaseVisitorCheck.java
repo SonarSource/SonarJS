@@ -19,7 +19,7 @@
  */
 package org.sonar.samples.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import java.util.Set;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -37,9 +37,7 @@ public class SubscriptionBaseVisitorCheck extends SubscriptionVisitorCheck {
 
   @Override
   public Set<Tree.Kind> nodesToVisit() {
-    return ImmutableSet.of(
-      Tree.Kind.FOR_IN_STATEMENT
-    );
+    return Collections.singleton(Tree.Kind.FOR_IN_STATEMENT);
   }
 
   @Override

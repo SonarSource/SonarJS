@@ -19,10 +19,9 @@
  */
 package org.sonar.plugins.javascript;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,7 +46,7 @@ public class JavaScriptChecks {
   private static final Logger LOG = Loggers.get(JavaScriptSensor.class);
 
   private final CheckFactory checkFactory;
-  private Set<Checks<JavaScriptCheck>> checksByRepository = Sets.newHashSet();
+  private Set<Checks<JavaScriptCheck>> checksByRepository = new HashSet<>();
 
   private JavaScriptChecks(CheckFactory checkFactory) {
     this.checkFactory = checkFactory;
@@ -70,7 +69,7 @@ public class JavaScriptChecks {
     if (customRulesDefinitions != null) {
       LOG.warn("CustomJavaScriptRulesDefinition usage is deprecated. Use CustomRuleRepository API to define custom rules");
       for (CustomJavaScriptRulesDefinition rulesDefinition : customRulesDefinitions) {
-        addChecks(rulesDefinition.repositoryKey(), ImmutableList.copyOf(rulesDefinition.checkClasses()));
+        addChecks(rulesDefinition.repositoryKey(), Arrays.asList(rulesDefinition.checkClasses()));
       }
     }
 
@@ -84,7 +83,7 @@ public class JavaScriptChecks {
   }
 
   private List<JavaScriptCheck> all() {
-    List<JavaScriptCheck> allVisitors = Lists.newArrayList();
+    List<JavaScriptCheck> allVisitors = new ArrayList<>();
 
     for (Checks<JavaScriptCheck> checks : checksByRepository) {
       allVisitors.addAll(checks.all());

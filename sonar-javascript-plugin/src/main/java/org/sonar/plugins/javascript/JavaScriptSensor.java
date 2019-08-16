@@ -22,14 +22,13 @@ package org.sonar.plugins.javascript;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -312,11 +311,10 @@ public class JavaScriptSensor implements Sensor {
 
     ProductDependentExecutor executor = createProductDependentExecutor(context);
 
-    List<TreeVisitor> treeVisitors = Lists.newArrayList();
-
     // it's important to have an order here:
     // NoSonarVisitor (part of executor.getProductDependentTreeVisitors()) should go before all checks
-    treeVisitors.addAll(executor.getProductDependentTreeVisitors());
+
+    List<TreeVisitor> treeVisitors = new ArrayList<>(executor.getProductDependentTreeVisitors());
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
     treeVisitors.addAll(checks.visitorChecks());
 
@@ -407,7 +405,7 @@ public class JavaScriptSensor implements Sensor {
 
     @Override
     public List<TreeVisitor> getProductDependentTreeVisitors() {
-      return ImmutableList.of(new NoSonarVisitor(noSonarFilter, ignoreHeaderComments(context)));
+      return Collections.singletonList(new NoSonarVisitor(noSonarFilter, ignoreHeaderComments(context)));
     }
 
     @Override

@@ -20,8 +20,8 @@
 package org.sonar.javascript.checks.verifier;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -47,7 +47,7 @@ class ExpectedIssuesParser extends SubscriptionVisitorCheck {
 
   @Override
   public Set<Kind> nodesToVisit() {
-    return ImmutableSet.of(Kind.TOKEN);
+    return Collections.singleton(Kind.TOKEN);
   }
 
   @Override
