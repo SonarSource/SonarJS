@@ -8,7 +8,7 @@ To build the plugin and run its unit tests, execute this command from the projec
 ```
 mvn clean install
 ```
-
+In order to run the tests of `nodejs-utils` module, an installation of nodeJs must be available on the path of your system
 ### Integration Tests
 To run integration tests, you will need to create a properties file like the one shown below, and set its location in an environment variable named `ORCHESTRATOR_CONFIG_URL`.
 ```
