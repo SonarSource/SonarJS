@@ -19,10 +19,8 @@
  */
 package org.sonar.plugins.javascript.rules;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
@@ -32,7 +30,7 @@ public class EslintRulesDefinition implements RulesDefinition {
   public static final String REPO_KEY = "eslint_repo";
   public static final String LINTER_NAME = "ESLint";
 
-  private static final Set<String> ESLINT_PLUGINS = ImmutableSet.of(
+  private static final String[] ESLINT_PLUGINS = {
     "angular",
     "core",
     "ember",
@@ -43,16 +41,18 @@ public class EslintRulesDefinition implements RulesDefinition {
     "react",
     "sonarjs",
     "vue"
-  );
+  };
 
   private static final Map<String, ExternalRuleLoader> RULE_LOADERS = new HashMap<>();
 
   static {
-    ESLINT_PLUGINS.forEach(plugin -> RULE_LOADERS.put(plugin, new ExternalRuleLoader(
-      REPO_KEY,
-      LINTER_NAME,
-      "org/sonar/l10n/javascript/rules/eslint/" + plugin + ".json",
-      JavaScriptLanguage.KEY)));
+    for (String plugin : ESLINT_PLUGINS) {
+      RULE_LOADERS.put(plugin, new ExternalRuleLoader(
+        REPO_KEY,
+        LINTER_NAME,
+        "org/sonar/l10n/javascript/rules/eslint/" + plugin + ".json",
+        JavaScriptLanguage.KEY));
+    }
   }
 
   @Override

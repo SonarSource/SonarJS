@@ -19,14 +19,15 @@
  */
 package org.sonar.samples.javascript;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinitionAnnotationLoader;
 import org.sonar.api.utils.AnnotationUtils;
@@ -44,9 +45,9 @@ public class TestCustomRuleRepository implements RulesDefinition, CustomRuleRepo
       .setName("Custom Repository");
 
     List<Class> checkClasses = checkClasses();
-    ImmutableMap<String, String> remediation = ImmutableMap.of(
-      "subscription", "10min",
-      "base", "5min");
+    Map<String, String> remediation = new HashMap<>();
+    remediation.put("subscription", "10min");
+    remediation.put("base", "5min");
     new RulesDefinitionAnnotationLoader().load(repository, checkClasses.toArray(new Class[] {}));
     checkClasses.forEach(check -> {
       org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(check, org.sonar.check.Rule.class);
