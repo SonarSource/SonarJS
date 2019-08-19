@@ -63,6 +63,13 @@ public class EslintBasedRulesSensor implements Sensor {
   private ProgressReport progressReport =
     new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
 
+  /**
+   * Required for SonarLint
+   */
+  public EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer) {
+    this(checkFactory, eslintBridgeServer, null);
+  }
+
   public EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer, @Nullable AnalysisWarnings analysisWarnings) {
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks());

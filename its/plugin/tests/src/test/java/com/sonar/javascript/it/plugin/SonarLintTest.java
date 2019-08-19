@@ -22,8 +22,6 @@ package com.sonar.javascript.it.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -104,7 +102,7 @@ public class SonarLintTest {
 
     List<Issue> issues = new ArrayList<>();
     sonarlintEngine.analyze(
-      new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), new HashMap<>()),
+      StandaloneAnalysisConfiguration.builder().setBaseDir(baseDir.toPath()).addInputFile(inputFile).build(),
       issues::add, null, null);
     return issues;
   }
