@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.PropertyDefinition;
@@ -34,28 +35,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JavaScriptPluginTest {
 
   private static final int BASE_EXTENSIONS = 16;
+  public static final Version LTS_VERSION = Version.create(7, 9);
 
   @Test
   public void count_extensions_lts() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 7), SonarQubeSide.SERVER));
-    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + 2);
-  }
-
-  @Test
-  public void count_extensions_external_issues_supported() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(7, 2), SonarQubeSide.SERVER));
-    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + 4);
-  }
-
-  @Test
-  public void count_extensions_analysis_warnings_supported() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(7, 4), SonarQubeSide.SERVER));
+    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
     assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + 5);
   }
 
   @Test
   public void should_contain_right_properties_number() throws Exception {
-    assertThat(properties()).hasSize(7);
+    assertThat(properties()).hasSize(8);
   }
 
   @Test
@@ -69,19 +59,23 @@ public class JavaScriptPluginTest {
     List<PropertyDefinition> properties = properties();
     assertThat(properties).isNotEmpty();
     for (PropertyDefinition propertyDefinition : properties) {
-      assertThat(propertyDefinition.category()).isEqualTo("JavaScript");
+      if (propertyDefinition.key().equals("sonar.eslint.reportPaths")) {
+        assertThat(propertyDefinition.category()).isEqualTo("External Analyzers");
+      } else {
+        assertThat(propertyDefinition.category()).isEqualTo("JavaScript");
+      }
     }
   }
 
   @Test
   public void count_extensions_for_sonarlint() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(Version.create(6, 7)));
+    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(LTS_VERSION));
     assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS);
   }
 
   private List<PropertyDefinition> properties() {
     List<PropertyDefinition> propertiesList = new ArrayList<>();
-    List extensions = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(5, 6), SonarQubeSide.SERVER)).getExtensions();
+    List extensions = setupContext(SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)).getExtensions();
 
     for (Object extension : extensions) {
       if (extension instanceof PropertyDefinition) {

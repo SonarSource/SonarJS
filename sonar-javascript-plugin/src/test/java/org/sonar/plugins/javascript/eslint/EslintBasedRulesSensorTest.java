@@ -34,6 +34,7 @@ import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -265,9 +266,9 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void should_have_configured_rules() throws Exception {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, "S1192")).activate();// no-duplicate-string, default config
-    builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, "S1479")).setParam("maximum", "42").activate();// max-switch-cases
-    builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, "S3923")).activate();// no-all-duplicated-branches, without config
+    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "S1192")).build());// no-duplicate-string, default config
+    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "S1479")).setParam("maximum", "42").build());// max-switch-cases
+    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "S3923")).build());// no-all-duplicated-branches, without config
     CheckFactory checkFactory = new CheckFactory(builder.build());
 
     EslintBasedRulesSensor sensor = new EslintBasedRulesSensor(
@@ -339,7 +340,7 @@ public class EslintBasedRulesSensorTest {
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
-      builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, ruleKey)).activate();
+      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, ruleKey)).build());
     }
     return new CheckFactory(builder.build());
   }
