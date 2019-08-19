@@ -19,27 +19,26 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.resources.AbstractLanguage;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class TypeScriptLanguage extends AbstractLanguage {
 
-public class JavaScriptLanguageTest {
+  public static final String KEY = "ts";
 
-  @Test
-  public void defaultSuffixes() {
-    MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, "");
-    JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
-    assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(".js", ".jsx", ".vue");
+  static final String FILE_SUFFIXES_KEY = "sonar.typescript.file.suffixes";
+  static final String FILE_SUFFIXES_DEFVALUE = ".ts,.tsx";
+
+  private Configuration configuration;
+
+  public TypeScriptLanguage(Configuration configuration) {
+    super(KEY, "TypeScript");
+    this.configuration = configuration;
   }
 
-  @Test
-  public void customSuffixes() {
-    MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, "javascript");
-    JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
-    assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly("javascript");
+  @Override
+  public String[] getFileSuffixes() {
+    return configuration.getStringArray(FILE_SUFFIXES_KEY);
   }
 
 }

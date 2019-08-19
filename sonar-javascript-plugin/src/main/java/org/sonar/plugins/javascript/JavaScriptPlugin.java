@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript;
 
+import java.util.Arrays;
+import java.util.Collection;
 import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
@@ -44,9 +46,6 @@ public class JavaScriptPlugin implements Plugin {
   private static final String JAVASCRIPT_CATEGORY = "JavaScript";
 
   // Global JavaScript constants
-
-  public static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
-  public static final String FILE_SUFFIXES_DEFVALUE = ".js,.jsx,.vue";
 
   public static final String PROPERTY_PREFIX = "sonar.javascript";
 
@@ -74,6 +73,9 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String DEPRECATED_ESLINT_PROPERTY = "sonar.typescript.eslint.reportPaths";
 
+  private static final String TYPESCRIPT_CATEGORY = "TypeScript";
+  private static final String GENERAL_SUBCATEGORY = "General";
+
   @Override
   public void define(Context context) {
     context.addExtensions(
@@ -99,8 +101,8 @@ public class JavaScriptPlugin implements Plugin {
         .multiValues(true)
         .build(),
 
-      PropertyDefinition.builder(FILE_SUFFIXES_KEY)
-        .defaultValue(FILE_SUFFIXES_DEFVALUE)
+      PropertyDefinition.builder(JavaScriptLanguage.FILE_SUFFIXES_KEY)
+        .defaultValue(JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE)
         .name("File Suffixes")
         .description("List of suffixes for files to analyze.")
         .subCategory(GENERAL)
@@ -177,5 +179,22 @@ public class JavaScriptPlugin implements Plugin {
           .build());
     }
 
+    context.addExtensions(typeScriptExtensions());
+  }
+
+  private static Collection<?> typeScriptExtensions() {
+    return Arrays.asList(
+      TypeScriptLanguage.class,
+
+      PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
+      .defaultValue(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE)
+      .name("File Suffixes")
+      .description("Comma-separated list of suffixes for files to analyze.")
+      .subCategory(GENERAL_SUBCATEGORY)
+      .category(TYPESCRIPT_CATEGORY)
+      .onQualifiers(Qualifiers.PROJECT)
+      .multiValues(true)
+      .build()
+    );
   }
 }

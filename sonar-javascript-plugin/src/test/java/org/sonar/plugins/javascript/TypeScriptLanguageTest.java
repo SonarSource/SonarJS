@@ -24,22 +24,13 @@ import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JavaScriptLanguageTest {
+public class TypeScriptLanguageTest {
 
   @Test
-  public void defaultSuffixes() {
-    MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, "");
-    JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
-    assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(".js", ".jsx", ".vue");
+  public void should_have_correct_file_extensions() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(TypeScriptLanguage.FILE_SUFFIXES_KEY, TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE);
+    TypeScriptLanguage typeScriptLanguage = new TypeScriptLanguage(settings.asConfig());
+    assertThat(typeScriptLanguage.getFileSuffixes()).containsExactly(".ts", ".tsx");
   }
-
-  @Test
-  public void customSuffixes() {
-    MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, "javascript");
-    JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
-    assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly("javascript");
-  }
-
 }
