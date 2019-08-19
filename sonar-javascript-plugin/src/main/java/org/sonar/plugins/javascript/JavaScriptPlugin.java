@@ -24,7 +24,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.Version;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor;
@@ -94,7 +93,7 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(LCOV_REPORT_PATHS_DEFAULT_VALUE)
         .name("LCOV Files")
         .description("Paths (absolute or relative) to the files with LCOV data.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .subCategory(TEST_AND_COVERAGE)
         .category(JAVASCRIPT_CATEGORY)
         .multiValues(true)
@@ -114,7 +113,7 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE.toString())
         .name("Ignore header comments")
         .description("True to not count file header comments in comment metrics.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .category(JAVASCRIPT_CATEGORY)
         .type(PropertyType.BOOLEAN)
@@ -124,7 +123,7 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(JavaScriptPlugin.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE)
         .name("jQuery object aliases")
         .description("List of names used to address jQuery object.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .subCategory(LIBRARIES)
         .multiValues(true)
         .category(JAVASCRIPT_CATEGORY)
@@ -135,7 +134,7 @@ public class JavaScriptPlugin implements Plugin {
         .name("JavaScript execution environments")
         .description("List of environments names. The analyzer automatically adds global variables based on that list. "
           + "Available environment names: " + JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE + ".")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .multiValues(true)
         .category(JAVASCRIPT_CATEGORY)
@@ -145,7 +144,7 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(JavaScriptPlugin.GLOBALS_DEFAULT_VALUE)
         .name("Global variables")
         .description("List of global variables.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .multiValues(true)
         .category(JAVASCRIPT_CATEGORY)
@@ -155,7 +154,7 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(JS_EXCLUSIONS_DEFAULT_VALUE)
         .name("JavaScript Exclusions")
         .description("List of file path patterns to be excluded from analysis of JavaScript files.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .multiValues(true)
         .category(JAVASCRIPT_CATEGORY)
@@ -165,27 +164,17 @@ public class JavaScriptPlugin implements Plugin {
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
       context.addExtension(CoverageSensor.class);
       context.addExtension(EslintReportSensor.class);
+      context.addExtension(EslintRulesDefinition.class);
 
-      boolean externalIssuesSupported = context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2));
-      boolean analysisWarningsSupported = context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 4));
-
-      if (externalIssuesSupported) {
-        context.addExtension(EslintRulesDefinition.class);
-
-        context.addExtension(
-          PropertyDefinition.builder(ESLINT_REPORT_PATHS)
-            .name("ESLint Report Files")
-            .description("Paths (absolute or relative) to the JSON files with ESLint issues.")
-            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-            .category(EXTERNAL_ANALYZERS_CATEGORY)
-            .subCategory(EXTERNAL_ANALYZERS_SUB_CATEGORY)
-            .multiValues(true)
-            .build());
-      }
-
-      if (analysisWarningsSupported) {
-        context.addExtension(AnalysisWarningsWrapper.class);
-      }
+      context.addExtension(
+        PropertyDefinition.builder(ESLINT_REPORT_PATHS)
+          .name("ESLint Report Files")
+          .description("Paths (absolute or relative) to the JSON files with ESLint issues.")
+          .onQualifiers(Qualifiers.PROJECT)
+          .category(EXTERNAL_ANALYZERS_CATEGORY)
+          .subCategory(EXTERNAL_ANALYZERS_SUB_CATEGORY)
+          .multiValues(true)
+          .build());
     }
 
   }

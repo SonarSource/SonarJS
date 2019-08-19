@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.rules;
 
 import org.junit.Test;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.rules.RuleType;
@@ -57,7 +58,10 @@ public class JavaScriptRulesDefinitionTest {
   }
 
   private RulesDefinition.Repository buildRepository() {
-    JavaScriptRulesDefinition rulesDefinition = new JavaScriptRulesDefinition(SonarRuntimeImpl.forSonarQube(Version.create(7, 3), SonarQubeSide.SERVER));
+    JavaScriptRulesDefinition rulesDefinition = new JavaScriptRulesDefinition(
+      SonarRuntimeImpl.forSonarQube(Version.create(7, 9),
+        SonarQubeSide.SERVER,
+        SonarEdition.COMMUNITY));
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("javascript");

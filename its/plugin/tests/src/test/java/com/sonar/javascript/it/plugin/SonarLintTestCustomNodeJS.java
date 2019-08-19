@@ -21,7 +21,6 @@ package com.sonar.javascript.it.plugin;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.junit.After;
@@ -78,7 +77,10 @@ public class SonarLintTestCustomNodeJS {
     List<Issue> issues = new ArrayList<>();
     HashMap<String, String> properties = new HashMap<>();
     properties.put("sonar.nodejs.executable", TestUtils.getNodeJSExecutable());
-    StandaloneAnalysisConfiguration configuration = new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), properties);
+    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
+      .setBaseDir(baseDir.toPath())
+      .addInputFile(inputFile)
+      .putAllExtraProperties(properties).build();
     sonarlintEngine.analyze(configuration, issues::add, null, null);
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
 
@@ -96,7 +98,10 @@ public class SonarLintTestCustomNodeJS {
 
     HashMap<String, String> properties = new HashMap<>();
     properties.put("sonar.nodejs.executable", "invalid");
-    StandaloneAnalysisConfiguration configuration = new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), properties);
+    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
+      .setBaseDir(baseDir.toPath())
+      .addInputFile(inputFile)
+      .putAllExtraProperties(properties).build();
     sonarlintEngine.analyze(configuration, i -> {
     }, null, null);
 

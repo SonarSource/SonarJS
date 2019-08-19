@@ -35,6 +35,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
@@ -47,6 +48,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -84,9 +86,9 @@ import static org.sonar.plugins.javascript.JavaScriptPlugin.DEPRECATED_ESLINT_PR
 
 public class JavaScriptSensorTest {
 
-  private static final Version VERSION = Version.create(6, 7);
+  private static final Version VERSION = Version.create(7, 9);
   private static final SonarRuntime SONARLINT_RUNTIME = SonarRuntimeImpl.forSonarLint(VERSION);
-  private static final SonarRuntime NOSONARLINT_RUNTIME = SonarRuntimeImpl.forSonarQube(VERSION, SonarQubeSide.SERVER);
+  private static final SonarRuntime NOSONARLINT_RUNTIME = SonarRuntimeImpl.forSonarQube(VERSION, SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
 
   @org.junit.Rule
   public final ExpectedException thrown = ExpectedException.none();
@@ -199,9 +201,7 @@ public class JavaScriptSensorTest {
     String parsingErrorCheckKey = "ParsingError";
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .create(RuleKey.of(CheckList.REPOSITORY_KEY, parsingErrorCheckKey))
-      .setName("ParsingError")
-      .activate()
+      .addRule(new NewActiveRule.Builder().setName("ParsingError").setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, parsingErrorCheckKey)).build())
       .build();
 
     checkFactory = new CheckFactory(activeRules);
@@ -245,8 +245,7 @@ public class JavaScriptSensorTest {
     inputFile("file.js");
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "MissingNewlineAtEndOfFile"))
-      .activate()
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "MissingNewlineAtEndOfFile")).build())
       .build();
     checkFactory = new CheckFactory(activeRules);
 
@@ -263,10 +262,8 @@ public class JavaScriptSensorTest {
     inputFile("file.js");
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "MissingNewlineAtEndOfFile"))
-      .activate()
-      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))
-      .activate()
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "MissingNewlineAtEndOfFile")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage")).build())
       .build();
 
     checkFactory = new CheckFactory(activeRules);
@@ -279,8 +276,7 @@ public class JavaScriptSensorTest {
   public void should_run_custom_rule() throws Exception {
     inputFile("file.js");
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .create(RuleKey.of("customKey", "key"))
-      .activate()
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of("customKey", "key")).build())
       .build();
     checkFactory = new CheckFactory(activeRules);
     createSensorWithCustomRules().execute(context);
@@ -300,8 +296,7 @@ public class JavaScriptSensorTest {
   public void should_run_custom_rule_repository() throws Exception {
     inputFile("file.js");
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .create(RuleKey.of("custom-repo", "key2"))
-      .activate()
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of("custom-repo", "key2")).build())
       .build();
     checkFactory = new CheckFactory(activeRules);
     createSensorWithCustomRuleRepository().execute(context);
@@ -371,8 +366,7 @@ public class JavaScriptSensorTest {
 
   private void analyseFile(String relativePath) {
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))
-      .activate()
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage")).build())
       .build();
     checkFactory = new CheckFactory(activeRules);
     context.setActiveRules(activeRules);

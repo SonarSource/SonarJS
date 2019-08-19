@@ -34,16 +34,17 @@ import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor.AnalysisRequest;
 import org.sonarsource.nodejs.NodeCommandException;
 
@@ -196,7 +197,8 @@ public class EslintBasedRulesSensorTest {
   public void should_do_nothing_if_no_eslint_based_rules_activated() throws Exception {
     EslintBasedRulesSensor sensor = new EslintBasedRulesSensor(
       checkFactory("S2589"),
-      eslintBridgeServerMock);
+      eslintBridgeServerMock,
+      null);
     sensor.execute(context);
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Skipping execution of eslint-based rules because none of them are activated");
@@ -265,14 +267,15 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void should_have_configured_rules() throws Exception {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, "S1192")).activate();// no-duplicate-string, default config
-    builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, "S1479")).setParam("maximum", "42").activate();// max-switch-cases
-    builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, "S3923")).activate();// no-all-duplicated-branches, without config
+    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "S1192")).build());// no-duplicate-string, default config
+    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "S1479")).setParam("maximum", "42").build());// max-switch-cases
+    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "S3923")).build());// no-all-duplicated-branches, without config
     CheckFactory checkFactory = new CheckFactory(builder.build());
 
     EslintBasedRulesSensor sensor = new EslintBasedRulesSensor(
       checkFactory,
-      eslintBridgeServerMock);
+      eslintBridgeServerMock,
+      null);
 
     EslintBasedRulesSensor.Rule[] rules = sensor.rules;
 
@@ -319,7 +322,7 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void handle_missing_node() throws Exception {
     doThrow(new NodeCommandException("Exception Message", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
-    AnalysisWarningsWrapper analysisWarnings = mock(AnalysisWarningsWrapper.class);
+    AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
     EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, analysisWarnings);
     eslintBasedRulesSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
@@ -329,7 +332,7 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void log_debug_if_already_failed_server() throws Exception {
     doThrow(new ServerAlreadyFailedException()).when(eslintBridgeServerMock).startServerLazily(any());
-    EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
+    EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
     eslintBasedRulesSensor.execute(context);
 
     assertThat(logTester.logs()).containsExactly("Skipping start of eslint-bridge server due to the failure during first analysis",
@@ -339,7 +342,7 @@ public class EslintBasedRulesSensorTest {
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
-      builder.create(RuleKey.of(CheckList.REPOSITORY_KEY, ruleKey)).activate();
+      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, ruleKey)).build());
     }
     return new CheckFactory(builder.build());
   }
@@ -355,6 +358,6 @@ public class EslintBasedRulesSensorTest {
 
 
   private EslintBasedRulesSensor createSensor() {
-    return new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
+    return new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
   }
 }

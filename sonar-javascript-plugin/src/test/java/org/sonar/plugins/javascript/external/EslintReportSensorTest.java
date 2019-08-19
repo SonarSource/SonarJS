@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
@@ -35,9 +33,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
@@ -128,10 +124,6 @@ public class EslintReportSensorTest {
 
   private void setEslintReport(String reportFileName) {
     context.settings().setProperty(JavaScriptPlugin.ESLINT_REPORT_PATHS, reportFileName);
-  }
-
-  private SonarRuntime getRuntime(int major, int minor) {
-    return SonarRuntimeImpl.forSonarQube(Version.create(major, minor), SonarQubeSide.SERVER);
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester sensorContext, String content, String relativePath) {

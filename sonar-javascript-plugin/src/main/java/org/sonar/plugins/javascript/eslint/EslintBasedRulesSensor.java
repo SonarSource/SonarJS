@@ -40,11 +40,11 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonarsource.analyzer.commons.ProgressReport;
@@ -56,7 +56,7 @@ public class EslintBasedRulesSensor implements Sensor {
   private static final Gson GSON = new Gson();
   private final JavaScriptChecks checks;
   private final EslintBridgeServer eslintBridgeServer;
-  private final AnalysisWarningsWrapper analysisWarnings;
+  private final AnalysisWarnings analysisWarnings;
   @VisibleForTesting
   final Rule[] rules;
 
@@ -64,13 +64,13 @@ public class EslintBasedRulesSensor implements Sensor {
     new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
 
   /**
-   * To be compatible with SQ versions not supporting AnalysisWarnings
+   * Required for SonarLint
    */
   public EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer) {
     this(checkFactory, eslintBridgeServer, null);
   }
 
-  public EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer, @Nullable AnalysisWarningsWrapper analysisWarnings) {
+  public EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer, @Nullable AnalysisWarnings analysisWarnings) {
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks());
 
