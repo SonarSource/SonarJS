@@ -29,7 +29,7 @@ public class JavaScriptLanguageTest {
   @Test
   public void defaultSuffixes() {
     MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, "");
+    mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE);
     JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
     assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(".js", ".jsx", ".vue");
   }

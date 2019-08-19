@@ -74,7 +74,9 @@ public class JavaScriptPlugin implements Plugin {
   public static final String DEPRECATED_ESLINT_PROPERTY = "sonar.typescript.eslint.reportPaths";
 
   private static final String TYPESCRIPT_CATEGORY = "TypeScript";
-  private static final String GENERAL_SUBCATEGORY = "General";
+
+  private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
+  private static final String FILE_SUFFIXES_NAME = "File Suffixes";
 
   @Override
   public void define(Context context) {
@@ -103,8 +105,8 @@ public class JavaScriptPlugin implements Plugin {
 
       PropertyDefinition.builder(JavaScriptLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE)
-        .name("File Suffixes")
-        .description("List of suffixes for files to analyze.")
+        .name(FILE_SUFFIXES_NAME)
+        .description(FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
         .category(JAVASCRIPT_CATEGORY)
         .multiValues(true)
@@ -187,14 +189,14 @@ public class JavaScriptPlugin implements Plugin {
       TypeScriptLanguage.class,
 
       PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
-      .defaultValue(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE)
-      .name("File Suffixes")
-      .description("Comma-separated list of suffixes for files to analyze.")
-      .subCategory(GENERAL_SUBCATEGORY)
-      .category(TYPESCRIPT_CATEGORY)
-      .onQualifiers(Qualifiers.PROJECT)
-      .multiValues(true)
-      .build()
+        .defaultValue(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE)
+        .name(FILE_SUFFIXES_NAME)
+        .description(FILE_SUFFIXES_DESCRIPTION)
+        .subCategory(GENERAL)
+        .category(TYPESCRIPT_CATEGORY)
+        .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
+        .build()
     );
   }
 }
