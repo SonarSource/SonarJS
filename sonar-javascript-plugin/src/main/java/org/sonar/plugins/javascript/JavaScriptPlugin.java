@@ -165,7 +165,6 @@ public class JavaScriptPlugin implements Plugin {
       context.addExtension(CoverageSensor.class);
       context.addExtension(EslintReportSensor.class);
       context.addExtension(EslintRulesDefinition.class);
-      context.addExtension(AnalysisWarningsWrapper.class);
 
       context.addExtension(
         PropertyDefinition.builder(ESLINT_REPORT_PATHS)

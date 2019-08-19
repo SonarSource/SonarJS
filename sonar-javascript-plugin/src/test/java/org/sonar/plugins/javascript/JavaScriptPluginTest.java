@@ -40,7 +40,7 @@ public class JavaScriptPluginTest {
   @Test
   public void count_extensions_lts() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
-    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + 5);
+    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + 4);
   }
 
   @Test
