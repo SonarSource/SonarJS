@@ -22,16 +22,17 @@ package org.sonar.plugins.javascript;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
-public class JavaScriptLanguage extends AbstractLanguage {
+public class TypeScriptLanguage extends AbstractLanguage {
 
-  public static final String KEY = "js";
-  static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
-  static final String FILE_SUFFIXES_DEFVALUE = ".js,.jsx,.vue";
+  public static final String KEY = "ts";
+
+  static final String FILE_SUFFIXES_KEY = "sonar.typescript.file.suffixes";
+  static final String FILE_SUFFIXES_DEFVALUE = ".ts,.tsx";
 
   private Configuration configuration;
 
-  public JavaScriptLanguage(Configuration configuration) {
-    super(KEY, "JavaScript");
+  public TypeScriptLanguage(Configuration configuration) {
+    super(KEY, "TypeScript");
     this.configuration = configuration;
   }
 
