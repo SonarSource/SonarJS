@@ -19,70 +19,39 @@
  */
 package org.sonar.plugins.javascript.external;
 
-import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.rules.TsLintRulesDefinition;
-import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 import static org.sonar.plugins.javascript.JavaScriptPlugin.TSLINT_REPORT_PATHS;
 
-public class TslintReportSensor implements Sensor {
+public class TslintReportSensor extends AbstractReportSensor {
 
   private static final Logger LOG = Loggers.get(TslintReportSensor.class);
-  protected static final Gson gson = new Gson();
-
-  private static final long DEFAULT_REMEDIATION_COST = 5L;
-  private static final Severity DEFAULT_SEVERITY = Severity.MAJOR;
-  private static final String LINER_NAME = "TSLint";
-  private static final String FILE_EXCEPTION_MESSAGE = "No issues information will be saved as the report file can't be read.";
-
-  public static final String REPOSITORY = "tslint";
 
   @Override
-  public void describe(SensorDescriptor sensorDescriptor) {
-    sensorDescriptor
-      .onlyWhenConfiguration(conf -> conf.hasKey(TSLINT_REPORT_PATHS))
-      .name("Import of " + LINER_NAME + " issues");
+  String linterName() {
+    return TsLintRulesDefinition.LINTER_NAME;
   }
 
   @Override
-  public void execute(SensorContext context) {
-    List<File> reportFiles = ExternalReportProvider.getReportFiles(context, TSLINT_REPORT_PATHS);
-    for (File reportFile : reportFiles) {
-      importReport(reportFile, context);
-    }
+  String reportsPropertyName() {
+    return TSLINT_REPORT_PATHS;
   }
 
-  private static InputFile getInputFile(SensorContext context, String fileName) {
-    FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.hasPath(fileName));
-    if (inputFile == null) {
-      LOG.warn("No input file found for {}. No {} issues will be imported on this file.", fileName, LINER_NAME);
-      return null;
-    }
-    return inputFile;
-  }
-
-  private static void importReport(File report, SensorContext context) {
+  @Override
+  void importReport(File report, SensorContext context) {
     LOG.info("Importing {}", report.getAbsoluteFile());
-
     try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(report), StandardCharsets.UTF_8)) {
       TslintError[] tslintErrors = gson.fromJson(inputStreamReader, TslintError[].class);
       for (TslintError tslintError : tslintErrors) {
@@ -93,7 +62,7 @@ public class TslintReportSensor implements Sensor {
     }
   }
 
-  private static void saveTslintError(SensorContext context, TslintError tslintError) {
+  private void saveTslintError(SensorContext context, TslintError tslintError) {
     String tslintKey = tslintError.ruleName;
 
     InputFile inputFile = getInputFile(context, tslintError.name);
@@ -109,7 +78,8 @@ public class TslintReportSensor implements Sensor {
 
     newExternalIssue
       .at(primaryLocation)
-      .forRule(RuleKey.of(REPOSITORY, tslintKey))
+      .engineId(TsLintRulesDefinition.REPOSITORY_KEY)
+      .ruleId(tslintKey)
       .type(TsLintRulesDefinition.ruleType(tslintKey))
       .severity(DEFAULT_SEVERITY)
       .remediationEffortMinutes(DEFAULT_REMEDIATION_COST)

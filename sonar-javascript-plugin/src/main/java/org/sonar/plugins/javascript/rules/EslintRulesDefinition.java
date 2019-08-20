@@ -27,7 +27,7 @@ import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 public class EslintRulesDefinition implements RulesDefinition {
 
-  public static final String REPO_KEY = "eslint_repo";
+  public static final String REPOSITORY_KEY = "eslint_repo";
   public static final String LINTER_NAME = "ESLint";
 
   private static final String[] ESLINT_PLUGINS = {
@@ -48,7 +48,7 @@ public class EslintRulesDefinition implements RulesDefinition {
   static {
     for (String plugin : ESLINT_PLUGINS) {
       RULE_LOADERS.put(plugin, new ExternalRuleLoader(
-        REPO_KEY,
+        REPOSITORY_KEY,
         LINTER_NAME,
         "org/sonar/l10n/javascript/rules/eslint/" + plugin + ".json",
         JavaScriptLanguage.KEY));

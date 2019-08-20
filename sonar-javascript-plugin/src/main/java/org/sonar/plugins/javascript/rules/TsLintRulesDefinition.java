@@ -27,16 +27,18 @@ import java.util.stream.Collectors;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 public class TsLintRulesDefinition implements RulesDefinition {
 
+  public static final String REPOSITORY_KEY = "tslint_repo";
+  public static final String LINTER_NAME = "TSLint";
+
   private static final String JSON_CLASSPATH = "org/sonar/l10n/typescript/rules/%s/rules.json";
 
   private static final List<ExternalRuleLoader> RULE_LOADERS = Arrays.asList(
-    new ExternalRuleLoader(TslintReportSensor.REPOSITORY, "TSLint", String.format(JSON_CLASSPATH, "tslint"), TypeScriptLanguage.KEY),
-    new ExternalRuleLoader(TslintReportSensor.REPOSITORY, "tslint-sonarts", String.format(JSON_CLASSPATH, "tslint-sonarts"), TypeScriptLanguage.KEY)
+    new ExternalRuleLoader(REPOSITORY_KEY, LINTER_NAME, String.format(JSON_CLASSPATH, "tslint"), TypeScriptLanguage.KEY),
+    new ExternalRuleLoader(REPOSITORY_KEY, "tslint-sonarts", String.format(JSON_CLASSPATH, "tslint-sonarts"), TypeScriptLanguage.KEY)
   );
 
   private static final Map<String, RuleType> RULE_TYPE_MAP = RULE_LOADERS.stream()

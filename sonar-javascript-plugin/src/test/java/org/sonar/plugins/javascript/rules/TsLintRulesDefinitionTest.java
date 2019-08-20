@@ -34,7 +34,7 @@ public class TsLintRulesDefinitionTest {
     TsLintRulesDefinition rulesDefinition = new TsLintRulesDefinition();
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
-    RulesDefinition.Repository tslintRepository = context.repository("external_tslint");
+    RulesDefinition.Repository tslintRepository = context.repository("external_tslint_repo");
 
     assertThat(context.repositories()).hasSize(1);
     assertThat(tslintRepository.name()).isEqualTo("TSLint");
