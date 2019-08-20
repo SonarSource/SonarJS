@@ -61,7 +61,7 @@ public class JavaScriptPluginTest {
     List<PropertyDefinition> properties = properties();
     assertThat(properties).isNotEmpty();
     for (PropertyDefinition propertyDefinition : properties) {
-      if (propertyDefinition.key().equals("sonar.eslint.reportPaths") || propertyDefinition.key().equals("sonar.tslint.reportPaths")) {
+      if (propertyDefinition.key().endsWith("lint.reportPaths")) {
         assertThat(propertyDefinition.category()).isEqualTo("External Analyzers");
       } else {
         assertThat(propertyDefinition.category()).isIn("JavaScript", "TypeScript");

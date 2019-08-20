@@ -25,13 +25,13 @@ import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TSLintRulesDefinitionTest {
+public class TsLintRulesDefinitionTest {
   private static int NUMBER_TSLINT_RULES = 144;
 
 
   @Test
   public void test_external_repositories() {
-    TSLintRulesDefinition rulesDefinition = new TSLintRulesDefinition();
+    TsLintRulesDefinition rulesDefinition = new TsLintRulesDefinition();
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository tslintRepository = context.repository("external_tslint");

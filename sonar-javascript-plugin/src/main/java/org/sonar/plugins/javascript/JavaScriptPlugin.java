@@ -33,7 +33,7 @@ import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
-import org.sonar.plugins.javascript.rules.TSLintRulesDefinition;
+import org.sonar.plugins.javascript.rules.TsLintRulesDefinition;
 import org.sonarsource.nodejs.NodeCommand;
 
 public class JavaScriptPlugin implements Plugin {
@@ -70,6 +70,7 @@ public class JavaScriptPlugin implements Plugin {
   public static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   public static final String EXTERNAL_ANALYZERS_SUB_CATEGORY = "JavaScript/TypeScript";
   public static final String ESLINT_REPORT_PATHS = "sonar.eslint.reportPaths";
+  public static final String TSLINT_REPORT_PATHS = "sonar.tslint.reportPaths";
 
   public static final String DEPRECATED_ESLINT_PROPERTY = "sonar.typescript.eslint.reportPaths";
 
@@ -77,8 +78,6 @@ public class JavaScriptPlugin implements Plugin {
 
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
   private static final String FILE_SUFFIXES_NAME = "File Suffixes";
-
-  public static final String TSLINT_REPORT_PATHS = "sonar.tslint.reportPaths";
 
   @Override
   public void define(Context context) {
@@ -203,7 +202,7 @@ public class JavaScriptPlugin implements Plugin {
 
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
       context.addExtension(TslintReportSensor.class);
-      context.addExtension(TSLintRulesDefinition.class);
+      context.addExtension(TsLintRulesDefinition.class);
 
       context.addExtension(
         PropertyDefinition.builder(TSLINT_REPORT_PATHS)

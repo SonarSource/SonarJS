@@ -38,7 +38,7 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.rules.TSLintRulesDefinition;
+import org.sonar.plugins.javascript.rules.TsLintRulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 import static org.sonar.plugins.javascript.JavaScriptPlugin.TSLINT_REPORT_PATHS;
@@ -110,7 +110,7 @@ public class TslintReportSensor implements Sensor {
     newExternalIssue
       .at(primaryLocation)
       .forRule(RuleKey.of(REPOSITORY, tslintKey))
-      .type(TSLintRulesDefinition.ruleType(tslintKey))
+      .type(TsLintRulesDefinition.ruleType(tslintKey))
       .severity(DEFAULT_SEVERITY)
       .remediationEffortMinutes(DEFAULT_REMEDIATION_COST)
       .save();

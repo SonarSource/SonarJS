@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-public class TSLintRulesDefinition implements RulesDefinition {
+public class TsLintRulesDefinition implements RulesDefinition {
 
   private static final String JSON_CLASSPATH = "org/sonar/l10n/typescript/rules/%s/rules.json";
 

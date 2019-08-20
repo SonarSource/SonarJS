@@ -143,7 +143,7 @@ public class TslintReportSensorTest {
 
   @Test
   public void should_log_when_not_found_input_file() {
-    setTslintReport("invalid-ts-file.json");
+    setTslintReport("invalid-tslint-report.json");
     tslintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).hasSize(1);
@@ -159,7 +159,7 @@ public class TslintReportSensorTest {
 
   @Test
   public void should_accept_several_reports() {
-    setTslintReport("tslint-report.json, invalid-ts-file.json");
+    setTslintReport("tslint-report.json, invalid-tslint-report.json");
     tslintReportSensor.execute(context);
     assertThat(context.allExternalIssues()).hasSize(3);
   }
