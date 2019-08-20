@@ -42,8 +42,12 @@ public class SonarWayProfile implements BuiltInQualityProfilesDefinition {
 
   @Override
   public void define(Context context) {
-    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, JavaScriptLanguage.KEY);
-    BuiltInQualityProfileJsonLoader.load(profile, CheckList.REPOSITORY_KEY, PATH_TO_JSON, RESOURCE_PATH, runtime);
-    profile.done();
+    NewBuiltInQualityProfile jsProfile = context.createBuiltInQualityProfile(PROFILE_NAME, JavaScriptLanguage.KEY);
+    BuiltInQualityProfileJsonLoader.load(jsProfile, CheckList.REPOSITORY_KEY, PATH_TO_JSON, RESOURCE_PATH, runtime);
+    jsProfile.done();
+
+    NewBuiltInQualityProfile tsProfile = context.createBuiltInQualityProfile(PROFILE_NAME, TypeScriptLanguage.KEY);
+    // TODO add TypeScript rules to the built-in profile
+    tsProfile.done();
   }
 }
