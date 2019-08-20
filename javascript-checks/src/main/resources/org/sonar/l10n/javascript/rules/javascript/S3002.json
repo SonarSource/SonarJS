@@ -1,6 +1,9 @@
 {
   "title": "Unary operators \"+\" and \"-\" should not be used with objects",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

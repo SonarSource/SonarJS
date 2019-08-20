@@ -1,6 +1,9 @@
 {
   "title": "Selections should be stored",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",

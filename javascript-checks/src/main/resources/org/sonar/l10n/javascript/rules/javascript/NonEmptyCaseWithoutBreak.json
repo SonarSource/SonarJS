@@ -1,6 +1,9 @@
 {
   "title": "Switch cases should end with an unconditional \"break\" statement",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

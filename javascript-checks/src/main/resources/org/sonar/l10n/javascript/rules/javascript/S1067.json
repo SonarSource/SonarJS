@@ -1,6 +1,9 @@
 {
   "title": "Expressions should not be too complex",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",

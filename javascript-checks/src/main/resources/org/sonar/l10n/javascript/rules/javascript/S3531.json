@@ -1,6 +1,9 @@
 {
   "title": "Generators should \"yield\" something",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

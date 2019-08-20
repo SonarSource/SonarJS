@@ -1,6 +1,9 @@
 {
   "title": "Nested blocks of code should not be left empty",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

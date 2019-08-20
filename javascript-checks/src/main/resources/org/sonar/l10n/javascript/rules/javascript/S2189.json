@@ -1,6 +1,9 @@
 {
   "title": "Loops should not be infinite",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

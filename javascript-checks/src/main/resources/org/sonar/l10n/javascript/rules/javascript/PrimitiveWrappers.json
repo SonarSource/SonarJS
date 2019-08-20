@@ -1,6 +1,9 @@
 {
   "title": "Wrapper objects should not be used for primitive types",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

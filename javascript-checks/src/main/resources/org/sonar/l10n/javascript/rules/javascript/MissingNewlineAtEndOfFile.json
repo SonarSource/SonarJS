@@ -1,6 +1,9 @@
 {
   "title": "Files should contain an empty newline at the end",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

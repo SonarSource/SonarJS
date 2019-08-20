@@ -1,6 +1,9 @@
 {
   "title": "Attempts should not be made to update \"const\" variables",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

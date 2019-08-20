@@ -1,6 +1,9 @@
 {
   "title": "Collection elements should not be replaced unconditionally",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

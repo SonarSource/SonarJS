@@ -1,6 +1,9 @@
 {
   "title": "\"Symbol\" should not be used as a constructor",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,9 @@
 {
   "title": "Multiline blocks should be enclosed in curly braces",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

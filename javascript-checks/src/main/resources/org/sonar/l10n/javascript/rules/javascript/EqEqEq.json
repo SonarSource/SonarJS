@@ -1,6 +1,9 @@
 {
   "title": "\"===\" and \"!==\" should be used instead of \"==\" and \"!=\"",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

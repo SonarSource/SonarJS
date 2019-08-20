@@ -1,6 +1,9 @@
 {
   "title": "Related \"if\/else if\" statements and \"cases\" in a \"switch\" should not have the same condition",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,9 @@
 {
   "title": "All branches in a conditional structure should not have exactly the same implementation",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

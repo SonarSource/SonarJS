@@ -1,6 +1,9 @@
 {
   "title": "\"find\" should be used to select the children of an element known by id",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,9 @@
 {
   "title": "Function parameters with default values should be last",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

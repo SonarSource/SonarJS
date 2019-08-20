@@ -1,6 +1,9 @@
 {
   "title": "Two branches in a conditional structure should not have exactly the same implementation",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
