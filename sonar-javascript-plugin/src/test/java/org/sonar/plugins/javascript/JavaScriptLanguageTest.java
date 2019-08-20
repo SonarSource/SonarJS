@@ -29,7 +29,7 @@ public class JavaScriptLanguageTest {
   @Test
   public void defaultSuffixes() {
     MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "");
+    mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE);
     JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
     assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(".js", ".jsx", ".vue");
   }
@@ -37,7 +37,7 @@ public class JavaScriptLanguageTest {
   @Test
   public void customSuffixes() {
     MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "javascript");
+    mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, "javascript");
     JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
     assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly("javascript");
   }
