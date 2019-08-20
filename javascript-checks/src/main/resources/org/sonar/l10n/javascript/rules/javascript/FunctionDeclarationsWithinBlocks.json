@@ -1,6 +1,9 @@
 {
   "title": "Function declarations should not be made within blocks",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

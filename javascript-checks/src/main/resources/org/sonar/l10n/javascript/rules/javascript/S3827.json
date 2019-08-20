@@ -1,6 +1,9 @@
 {
   "title": "Non-existent variables should not be referenced",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

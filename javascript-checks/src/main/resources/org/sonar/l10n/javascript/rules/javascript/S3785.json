@@ -1,6 +1,9 @@
 {
   "title": "\"in\" should not be used with primitive types",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

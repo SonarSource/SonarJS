@@ -1,6 +1,9 @@
 {
   "title": "Local storage should not be used",
   "type": "VULNERABILITY",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",

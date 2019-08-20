@@ -1,6 +1,9 @@
 {
   "title": "Only \"while\", \"do\" and \"for\" statements should be labelled",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

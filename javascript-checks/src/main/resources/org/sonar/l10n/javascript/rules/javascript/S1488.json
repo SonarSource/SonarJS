@@ -1,6 +1,9 @@
 {
   "title": "Local variables should not be declared and then immediately returned or thrown",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

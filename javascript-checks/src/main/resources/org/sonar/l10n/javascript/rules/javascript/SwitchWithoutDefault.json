@@ -1,6 +1,9 @@
 {
   "title": "\"switch\" statements should have \"default\" clauses",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

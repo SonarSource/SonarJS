@@ -1,6 +1,9 @@
 {
   "title": "Non-existent operators '=+', '=-' and '=!' should not be used",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

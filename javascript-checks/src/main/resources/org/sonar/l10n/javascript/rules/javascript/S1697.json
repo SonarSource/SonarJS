@@ -1,6 +1,9 @@
 {
   "title": "Short-circuit logic should be used to prevent null pointer dereferences in conditionals",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",

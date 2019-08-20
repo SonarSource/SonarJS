@@ -1,6 +1,9 @@
 {
   "title": "Selection results should be tested with \"length\"",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

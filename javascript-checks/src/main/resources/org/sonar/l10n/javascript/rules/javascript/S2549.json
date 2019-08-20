@@ -1,6 +1,9 @@
 {
   "title": "The \"changed\" property should not be manipulated directly",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

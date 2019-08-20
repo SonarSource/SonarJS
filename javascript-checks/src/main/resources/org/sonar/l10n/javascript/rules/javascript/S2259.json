@@ -1,6 +1,9 @@
 {
   "title": "Properties of variables with \"null\" or \"undefined\" values should not be accessed",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

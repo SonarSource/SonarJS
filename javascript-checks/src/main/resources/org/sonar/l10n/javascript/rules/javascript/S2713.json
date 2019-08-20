@@ -1,6 +1,9 @@
 {
   "title": "JQuery cache variables should comply with a convention name",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

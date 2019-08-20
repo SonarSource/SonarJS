@@ -1,6 +1,9 @@
 {
   "title": "Unused function parameters should be removed",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

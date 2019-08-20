@@ -1,6 +1,9 @@
 {
   "title": "The names of model properties should not contain spaces",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

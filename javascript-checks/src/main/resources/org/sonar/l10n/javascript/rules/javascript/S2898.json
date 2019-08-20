@@ -1,6 +1,9 @@
 {
   "title": "\"[type=...]\" should be used to select elements by type",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

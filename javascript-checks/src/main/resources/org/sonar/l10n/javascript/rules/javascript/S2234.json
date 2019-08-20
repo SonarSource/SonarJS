@@ -1,6 +1,9 @@
 {
   "title": "Parameters should be passed in the correct order",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

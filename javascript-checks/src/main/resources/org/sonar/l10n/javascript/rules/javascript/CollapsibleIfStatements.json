@@ -1,6 +1,9 @@
 {
   "title": "Collapsible \"if\" statements should be merged",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
