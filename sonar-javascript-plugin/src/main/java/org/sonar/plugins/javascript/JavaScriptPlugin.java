@@ -70,7 +70,7 @@ public class JavaScriptPlugin implements Plugin {
   public static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   public static final String EXTERNAL_ANALYZERS_SUB_CATEGORY = "JavaScript/TypeScript";
   public static final String ESLINT_REPORT_PATHS = "sonar.eslint.reportPaths";
-  public static final String TSLINT_REPORT_PATHS = "sonar.tslint.reportPaths";
+  public static final String TSLINT_REPORT_PATHS = "sonar.typescript.tslint.reportPaths";
 
   public static final String DEPRECATED_ESLINT_PROPERTY = "sonar.typescript.eslint.reportPaths";
 
