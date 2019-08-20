@@ -1,6 +1,9 @@
 {
   "title": "Variables should not be self-assigned",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

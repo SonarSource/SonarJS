@@ -1,6 +1,9 @@
 {
   "title": "Values not convertible to numbers should not be used in numeric comparisons",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

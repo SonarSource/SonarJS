@@ -1,6 +1,9 @@
 {
   "title": "\"switch\" statements should not have too many \"case\" clauses",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

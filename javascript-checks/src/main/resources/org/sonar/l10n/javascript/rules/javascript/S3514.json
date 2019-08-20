@@ -1,6 +1,9 @@
 {
   "title": "Destructuring syntax should be used for assignments",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

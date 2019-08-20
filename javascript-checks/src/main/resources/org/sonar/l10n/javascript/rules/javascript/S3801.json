@@ -1,6 +1,9 @@
 {
   "title": "Functions should use \"return\" consistently",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

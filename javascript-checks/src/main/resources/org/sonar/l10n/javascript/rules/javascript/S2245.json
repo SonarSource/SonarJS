@@ -1,6 +1,9 @@
 {
   "title": "Using pseudorandom number generators (PRNGs) is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

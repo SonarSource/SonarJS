@@ -1,6 +1,9 @@
 {
   "title": "Element type selectors should not be used with class selectors",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

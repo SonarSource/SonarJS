@@ -1,6 +1,9 @@
 {
   "title": "Assignments should not be made from within sub-expressions",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

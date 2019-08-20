@@ -1,6 +1,9 @@
 {
   "title": "Arithmetic operations should not result in \"NaN\"",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

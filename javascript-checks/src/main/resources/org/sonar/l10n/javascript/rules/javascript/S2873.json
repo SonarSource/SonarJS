@@ -1,6 +1,9 @@
 {
   "title": "Calls should not be made to non-callable values",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

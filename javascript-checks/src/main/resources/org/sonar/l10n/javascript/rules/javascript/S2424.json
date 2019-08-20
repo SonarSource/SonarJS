@@ -1,6 +1,9 @@
 {
   "title": "Built-in objects should not be overridden",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

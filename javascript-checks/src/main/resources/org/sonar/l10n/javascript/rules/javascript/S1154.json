@@ -1,6 +1,9 @@
 {
   "title": "Results of operations on strings should not be ignored",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",

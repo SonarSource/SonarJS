@@ -1,6 +1,9 @@
 {
   "title": "Imports from the same modules should be merged",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

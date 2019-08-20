@@ -1,6 +1,9 @@
 {
   "title": "Function parameters, caught exceptions and foreach variables should not be reassigned",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

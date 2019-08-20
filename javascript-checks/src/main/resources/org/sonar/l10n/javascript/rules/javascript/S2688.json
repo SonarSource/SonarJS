@@ -1,6 +1,9 @@
 {
   "title": "\"NaN\" should not be used in comparisons",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

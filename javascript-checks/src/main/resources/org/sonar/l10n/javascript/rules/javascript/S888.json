@@ -1,6 +1,9 @@
 {
   "title": "Equality operators should not be used in \"for\" loop termination conditions",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,9 @@
 {
   "title": "\"for...in\" loops should filter properties before acting on them",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,9 @@
 {
   "title": "The output of functions that don't return anything should not be used",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

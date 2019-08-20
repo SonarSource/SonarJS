@@ -1,6 +1,9 @@
 {
   "title": "Writing cookies is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

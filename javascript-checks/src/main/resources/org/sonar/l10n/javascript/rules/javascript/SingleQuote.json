@@ -1,6 +1,9 @@
 {
   "title": "Single quotes should be used for string literals",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

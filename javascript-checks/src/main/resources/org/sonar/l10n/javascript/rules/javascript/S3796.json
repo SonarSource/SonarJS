@@ -1,6 +1,9 @@
 {
   "title": "Callbacks of array methods should have return statements",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

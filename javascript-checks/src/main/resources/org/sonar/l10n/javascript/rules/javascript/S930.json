@@ -1,6 +1,9 @@
 {
   "title": "Function calls should not pass extra arguments",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

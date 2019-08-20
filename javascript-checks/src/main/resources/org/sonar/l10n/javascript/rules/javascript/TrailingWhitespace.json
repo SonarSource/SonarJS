@@ -1,6 +1,9 @@
 {
   "title": "Lines should not end with trailing whitespaces",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

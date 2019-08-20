@@ -1,6 +1,9 @@
 {
   "title": "Useless \"if(true) {...}\" and \"if(false){...}\" blocks should be removed",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",

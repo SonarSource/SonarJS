@@ -1,6 +1,9 @@
 {
   "title": "Conditionally executed blocks should be reachable",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

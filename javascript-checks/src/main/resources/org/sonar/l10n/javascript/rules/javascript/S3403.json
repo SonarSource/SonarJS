@@ -1,6 +1,9 @@
 {
   "title": "Strict equality operators should not be used with dissimilar types",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

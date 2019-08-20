@@ -1,6 +1,9 @@
 {
   "title": "Property getters and setters should come in pairs",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

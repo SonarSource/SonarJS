@@ -1,6 +1,9 @@
 {
   "title": "Strings and non-strings should not be added",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
