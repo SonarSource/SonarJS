@@ -1,6 +1,9 @@
 {
   "title": "Reading the Standard Input is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "tags": [
     "cwe"

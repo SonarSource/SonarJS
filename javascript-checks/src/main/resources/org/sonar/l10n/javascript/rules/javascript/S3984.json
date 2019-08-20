@@ -1,6 +1,9 @@
 {
   "title": "Errors should not be created without being thrown",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

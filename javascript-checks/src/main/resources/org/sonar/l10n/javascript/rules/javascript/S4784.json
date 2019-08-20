@@ -1,6 +1,9 @@
 {
   "title": "Using regular expressions is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "tags": [
     "cwe",

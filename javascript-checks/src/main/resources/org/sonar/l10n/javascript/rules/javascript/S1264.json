@@ -1,6 +1,9 @@
 {
   "title": "A \"while\" loop should be used instead of a \"for\" loop",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

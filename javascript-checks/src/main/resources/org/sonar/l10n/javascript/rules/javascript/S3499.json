@@ -1,6 +1,9 @@
 {
   "title": "Shorthand object properties should be grouped at the beginning or end of an object declaration",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

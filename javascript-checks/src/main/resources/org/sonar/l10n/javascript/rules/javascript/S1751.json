@@ -1,6 +1,9 @@
 {
   "title": "Jump statements should not be used unconditionally",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

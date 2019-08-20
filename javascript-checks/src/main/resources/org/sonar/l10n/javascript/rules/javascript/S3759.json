@@ -1,6 +1,9 @@
 {
   "title": "Non-existent properties should not be read",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

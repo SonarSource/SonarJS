@@ -1,6 +1,9 @@
 {
   "title": "\"eval\" and \"arguments\" should not be bound or assigned",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",

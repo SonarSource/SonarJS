@@ -1,6 +1,9 @@
 {
   "title": "A conditionally executed single line should be denoted by indentation",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

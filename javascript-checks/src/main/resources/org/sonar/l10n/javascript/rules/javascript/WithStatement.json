@@ -1,6 +1,9 @@
 {
   "title": "\"with\" statements should not be used",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

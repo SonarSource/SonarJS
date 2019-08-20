@@ -1,6 +1,9 @@
 {
   "title": "Template literal placeholder syntax should not be used in regular strings",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

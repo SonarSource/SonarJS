@@ -1,6 +1,9 @@
 {
   "title": "\"delete\" should be used only with object properties",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

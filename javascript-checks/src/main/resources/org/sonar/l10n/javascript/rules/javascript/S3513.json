@@ -1,6 +1,9 @@
 {
   "title": "\"arguments\" should not be accessed directly",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

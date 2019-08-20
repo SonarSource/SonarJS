@@ -1,6 +1,9 @@
 {
   "title": "\"defaults\" should be a function when objects or arrays are used",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,9 @@
 {
   "title": "Web SQL databases should not be used",
   "type": "VULNERABILITY",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

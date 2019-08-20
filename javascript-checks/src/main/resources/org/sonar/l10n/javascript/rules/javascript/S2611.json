@@ -1,6 +1,9 @@
 {
   "title": "Untrusted content should not be included",
   "type": "VULNERABILITY",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,9 @@
 {
   "title": "\"yield\" expressions should not be used outside generators",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,9 @@
 {
   "title": "Encrypting data is security-sensitive",
   "type": "SECURITY_HOTSPOT",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "tags": [
     "cwe",

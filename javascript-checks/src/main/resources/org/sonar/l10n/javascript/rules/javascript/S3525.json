@@ -1,6 +1,9 @@
 {
   "title": "Class methods should be used instead of \"prototype\" assignments",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,6 +1,9 @@
 {
   "title": "Jump statements should not be followed by dead code",
   "type": "BUG",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

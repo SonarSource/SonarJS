@@ -1,6 +1,9 @@
 {
   "title": "Conditionals should start on new lines",
   "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
