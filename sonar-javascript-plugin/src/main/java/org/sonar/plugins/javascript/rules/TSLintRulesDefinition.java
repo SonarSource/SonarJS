@@ -1,6 +1,6 @@
 /*
- * SonarTS
- * Copyright (C) 2017-2019 SonarSource SA
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2019 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugin.typescript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 

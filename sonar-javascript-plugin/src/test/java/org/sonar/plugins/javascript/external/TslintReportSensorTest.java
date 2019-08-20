@@ -1,6 +1,6 @@
 /*
- * SonarTS
- * Copyright (C) 2017-2019 SonarSource SA
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2019 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,10 +29,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -43,11 +43,10 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugin.typescript.TestActiveRules;
-import org.sonar.plugin.typescript.TypeScriptPlugin;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugin.typescript.TestUtils.createInputFile;
+import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
 public class TslintReportSensorTest {
 
@@ -62,16 +61,15 @@ public class TslintReportSensorTest {
   private static final String CONTENT = "foo('aaaaaaa')\nif (cond) \n{ }";
 
   private SensorContextTester context = SensorContextTester.create(BASE_DIR);
-  private static final CheckFactory CHECK_FACTORY = new CheckFactory(new TestActiveRules("S1751", "S113"));
-  // S121 - "curly" at tslint
-  private static final CheckFactory CHECK_FACTORY_WITH_TSLINT_RULE = new CheckFactory(new TestActiveRules("S1751", "S113", "S121"));
 
-  private TslintReportSensor tslintReportSensor = new TslintReportSensor(CHECK_FACTORY);
+  private TslintReportSensor tslintReportSensor = new TslintReportSensor();
   private DefaultInputFile inputFile = createInputFile(context, CONTENT, "myFile.ts");
+
+  private static final SonarRuntime RUNTIME = SonarRuntimeImpl.forSonarQube(Version.create(7, 9), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
 
   @Before
   public void setUp() {
-    context.setRuntime(getRuntime(7, 2));
+    context.setRuntime(RUNTIME);
     context.fileSystem().add(inputFile);
   }
 
@@ -127,31 +125,6 @@ public class TslintReportSensorTest {
   }
 
   @Test
-  public void should_skip_duplicates() {
-    // when in SQ TS profile there is an activated rule matching to an external issue,
-    // that external issue is ignored
-    setTslintReport(TSLINT_REPORT_FILE_NAME);
-    new TslintReportSensor(CHECK_FACTORY_WITH_TSLINT_RULE).execute(context);
-
-    Collection<ExternalIssue> externalIssues = context.allExternalIssues();
-    assertThat(externalIssues).hasSize(1);
-    assertThat(externalIssues.iterator().next().primaryLocation().message()).isEqualTo("Missing semicolon");
-
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("TSLint issue for rule 'curly' is skipped because this rule is activated in your SonarQube profile for TypeScript (rule key in SQ typescript:S121)");
-  }
-
-  @Test
-  public void should_ignore_report_on_older_sonarqube() {
-    context.setRuntime(getRuntime(7, 1));
-    setTslintReport(TSLINT_REPORT_FILE_NAME);
-    tslintReportSensor.execute(context);
-
-    assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Import of external issues requires SonarQube 7.2 or greater.");
-  }
-
-  @Test
   public void should_do_nothing_when_no_report() {
     setTslintReport("");
     tslintReportSensor.execute(context);
@@ -201,11 +174,7 @@ public class TslintReportSensorTest {
 
   private void setTslintReport(String reportFileName) {
     MapSettings settings = new MapSettings();
-    settings.setProperty(TypeScriptPlugin.TSLINT_REPORT_PATHS, reportFileName);
+    settings.setProperty(JavaScriptPlugin.TSLINT_REPORT_PATHS, reportFileName);
     context.setSettings(settings);
-  }
-
-  private static SonarRuntime getRuntime(int major, int minor) {
-    return SonarRuntimeImpl.forSonarQube(Version.create(major, minor), SonarQubeSide.SERVER);
   }
 }

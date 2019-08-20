@@ -1,6 +1,6 @@
 /*
- * SonarTS
- * Copyright (C) 2017-2019 SonarSource SA
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2019 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -25,13 +25,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -41,11 +38,10 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugin.typescript.TypeScriptRules;
 import org.sonar.plugins.javascript.rules.TSLintRulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
-import static org.sonar.plugin.typescript.TypeScriptPlugin.TSLINT_REPORT_PATHS;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.TSLINT_REPORT_PATHS;
 
 public class TslintReportSensor implements Sensor {
 
@@ -57,20 +53,7 @@ public class TslintReportSensor implements Sensor {
   private static final String LINER_NAME = "TSLint";
   private static final String FILE_EXCEPTION_MESSAGE = "No issues information will be saved as the report file can't be read.";
 
-  // key - tslint key, value - SQ key
-  private final Map<String, String> activatedRules = new HashMap<>();
-
-  static final String REPOSITORY = "tslint";
-
-  public TslintReportSensor(CheckFactory checkFactory) {
-    TypeScriptRules typeScriptRules = new TypeScriptRules(checkFactory);
-    typeScriptRules.forEach(typeScriptRule -> {
-      if (typeScriptRule.isEnabled()) {
-        String tsLintKey = typeScriptRule.tsLintKey();
-        activatedRules.put(tsLintKey, typeScriptRules.ruleKeyFromTsLintKey(tsLintKey).toString());
-      }
-    });
-  }
+  public static final String REPOSITORY = "tslint";
 
   @Override
   public void describe(SensorDescriptor sensorDescriptor) {
@@ -97,7 +80,7 @@ public class TslintReportSensor implements Sensor {
     return inputFile;
   }
 
-  private void importReport(File report, SensorContext context) {
+  private static void importReport(File report, SensorContext context) {
     LOG.info("Importing {}", report.getAbsoluteFile());
 
     try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(report), StandardCharsets.UTF_8)) {
@@ -110,14 +93,8 @@ public class TslintReportSensor implements Sensor {
     }
   }
 
-  private void saveTslintError(SensorContext context, TslintError tslintError) {
+  private static void saveTslintError(SensorContext context, TslintError tslintError) {
     String tslintKey = tslintError.ruleName;
-
-    if (activatedRules.containsKey(tslintKey)) {
-      String message = "TSLint issue for rule '{}' is skipped because this rule is activated in your SonarQube profile for TypeScript (rule key in SQ {})";
-      LOG.debug(message, tslintKey, activatedRules.get(tslintKey));
-      return;
-    }
 
     InputFile inputFile = getInputFile(context, tslintError.name);
     if (inputFile == null) {

@@ -1,6 +1,6 @@
 /*
- * SonarTS
- * Copyright (C) 2017-2019 SonarSource SA
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2019 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or

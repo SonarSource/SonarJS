@@ -20,16 +20,13 @@
 package org.sonar.plugins.javascript.external;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
@@ -39,6 +36,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
 public class EslintReportSensorTest {
 
@@ -124,19 +122,6 @@ public class EslintReportSensorTest {
 
   private void setEslintReport(String reportFileName) {
     context.settings().setProperty(JavaScriptPlugin.ESLINT_REPORT_PATHS, reportFileName);
-  }
-
-  private static DefaultInputFile createInputFile(SensorContextTester sensorContext, String content, String relativePath) {
-    DefaultInputFile testInputFile = new TestInputFileBuilder("moduleKey", relativePath)
-      .setModuleBaseDir(sensorContext.fileSystem().baseDirPath())
-      .setType(Type.MAIN)
-      .setLanguage(relativePath.split("\\.")[1])
-      .setCharset(StandardCharsets.UTF_8)
-      .setContents(content)
-      .build();
-
-    sensorContext.fileSystem().add(testInputFile);
-    return testInputFile;
   }
 
 }
