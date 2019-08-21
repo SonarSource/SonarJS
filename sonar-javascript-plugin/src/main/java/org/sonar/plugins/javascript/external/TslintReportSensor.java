@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -87,20 +88,16 @@ public class TslintReportSensor extends AbstractExternalIssuesSensor {
   }
 
   private static TextRange getLocation(TslintError tslintError, InputFile inputFile) {
-    if (samePosition(tslintError.startPosition, tslintError.endPosition)) {
+    if (tslintError.startPosition.equals(tslintError.endPosition)) {
       // tslint allows issue location with 0 length, SonarQube doesn't allow that
-      return inputFile.selectLine(tslintError.startPosition.line + 1);
+      return inputFile.selectLine(tslintError.startPosition.getOneBasedLine());
     } else {
       return inputFile.newRange(
-        tslintError.startPosition.line + 1,
+        tslintError.startPosition.getOneBasedLine(),
         tslintError.startPosition.character,
-        tslintError.endPosition.line + 1,
+        tslintError.endPosition.getOneBasedLine(),
         tslintError.endPosition.character);
     }
-  }
-
-  private static boolean samePosition(TslintPosition p1, TslintPosition p2) {
-    return p1.line == p2.line && p1.character == p2.character;
   }
 
   private static class TslintError {
@@ -114,5 +111,27 @@ public class TslintReportSensor extends AbstractExternalIssuesSensor {
   private static class TslintPosition {
     int character;
     int line;
+
+    private int getOneBasedLine() {
+      return line + 1;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+
+      TslintPosition other = (TslintPosition) obj;
+      return this.line == other.line && this.character == other.character;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(line, character);
+    }
   }
 }

@@ -34,11 +34,12 @@ public class TslintRulesDefinition implements RulesDefinition {
   public static final String REPOSITORY_KEY = "tslint_repo";
   public static final String LINTER_NAME = "TSLint";
 
-  private static final String JSON_CLASSPATH = "org/sonar/l10n/typescript/rules/%s/rules.json";
+  private static final String TSLINT_JSON_CLASSPATH = "org/sonar/l10n/typescript/rules/tslint/rules.json";
+  private static final String TSLINT_SONARTS_JSON_CLASSPATH = "org/sonar/l10n/typescript/rules/tslint-sonarts/rules.json";
 
   private static final List<ExternalRuleLoader> RULE_LOADERS = Arrays.asList(
-    new ExternalRuleLoader(REPOSITORY_KEY, LINTER_NAME, String.format(JSON_CLASSPATH, "tslint"), TypeScriptLanguage.KEY),
-    new ExternalRuleLoader(REPOSITORY_KEY, "tslint-sonarts", String.format(JSON_CLASSPATH, "tslint-sonarts"), TypeScriptLanguage.KEY)
+    new ExternalRuleLoader(REPOSITORY_KEY, LINTER_NAME, TSLINT_JSON_CLASSPATH, TypeScriptLanguage.KEY),
+    new ExternalRuleLoader(REPOSITORY_KEY, "tslint-sonarts", TSLINT_SONARTS_JSON_CLASSPATH, TypeScriptLanguage.KEY)
   );
 
   private static final Map<String, RuleType> RULE_TYPE_MAP = RULE_LOADERS.stream()

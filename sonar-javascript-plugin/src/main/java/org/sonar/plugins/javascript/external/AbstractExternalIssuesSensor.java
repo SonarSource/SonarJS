@@ -32,7 +32,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
-public abstract class AbstractExternalIssuesSensor implements Sensor {
+abstract class AbstractExternalIssuesSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(AbstractExternalIssuesSensor.class);
   static final Gson gson = new Gson();
