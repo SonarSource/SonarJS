@@ -19,9 +19,9 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import com.google.common.collect.Sets;
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,11 +56,11 @@ public class CoverageSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    Set<String> reports = Sets.newHashSet(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS));
+    Set<String> reports = new HashSet<>(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS)));
 
     if (context.config().hasKey(JavaScriptPlugin.TS_LCOV_REPORT_PATHS)) {
       LOG.warn("The use of " + JavaScriptPlugin.TS_LCOV_REPORT_PATHS + " for coverage import is deprecated, use "
-        + JavaScriptPlugin.LCOV_REPORT_PATHS + " instead!");
+        + JavaScriptPlugin.LCOV_REPORT_PATHS + " instead.");
       reports.addAll(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.TS_LCOV_REPORT_PATHS)));
     }
 

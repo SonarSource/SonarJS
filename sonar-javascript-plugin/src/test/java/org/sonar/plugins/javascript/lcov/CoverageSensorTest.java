@@ -47,6 +47,7 @@ public class CoverageSensorTest {
 
   private static final String UT_LCOV = "reports/report_ut.lcov";
   private static final String IT_LCOV = "reports/report_it.lcov";
+  private final String DEPRECATED_MESSAGE = "The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead.";
   private SensorContextTester context;
   private MapSettings settings;
   @ClassRule
@@ -96,21 +97,40 @@ public class CoverageSensorTest {
   @Test
   public void test_coverage() {
     coverageSensor.execute(context);
-
-    testTwoFilesContext();
+    testUtAndItReportsCoverageData();
   }
 
   @Test
   public void should_work_and_log_warning_when_deprecated_key() throws Exception {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "");
     settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, UT_LCOV + ", " + IT_LCOV);
     coverageSensor.execute(context);
 
-    testTwoFilesContext();
-
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead!");
+    testUtAndItReportsCoverageData();
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains(DEPRECATED_MESSAGE);
   }
 
-  private void testTwoFilesContext() {
+  @Test
+  public void should_include_coverage_from_both_key() throws Exception {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, UT_LCOV);
+    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, IT_LCOV);
+    coverageSensor.execute(context);
+
+    testUtAndItReportsCoverageData();
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains(DEPRECATED_MESSAGE);
+  }
+
+  @Test
+  public void both_properties_reports_paths_overlap() throws Exception {
+    // LCOV_REPORT_PATHS is set with UT_LCOV and IT_LCOV during initialisation.
+    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, UT_LCOV + ", " + IT_LCOV);
+    coverageSensor.execute(context);
+
+    testUtAndItReportsCoverageData();
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains(DEPRECATED_MESSAGE);
+  }
+
+  private void testUtAndItReportsCoverageData() {
     Integer[] file1Expected = {3, 3, 1, null};
     Integer[] file2Expected = {5, 5, null, null};
 

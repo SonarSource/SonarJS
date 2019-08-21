@@ -111,7 +111,7 @@ public class CoverageTest {
     assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
     assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
 
-    assertThat(result.getLogs()).contains("The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead!");
+    assertThat(result.getLogs()).contains("The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead.");
   }
 
   @Test
