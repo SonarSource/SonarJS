@@ -32,9 +32,9 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
-public abstract class AbstractReportSensor implements Sensor {
+public abstract class AbstractExternalIssuesSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(AbstractReportSensor.class);
+  private static final Logger LOG = Loggers.get(AbstractExternalIssuesSensor.class);
   static final Gson gson = new Gson();
 
   static final long DEFAULT_REMEDIATION_COST = 5L;

@@ -37,7 +37,7 @@ import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 import static org.sonar.plugins.javascript.JavaScriptPlugin.ESLINT_REPORT_PATHS;
 
-public class EslintReportSensor extends AbstractReportSensor {
+public class EslintReportSensor extends AbstractExternalIssuesSensor {
 
   private static final Logger LOG = Loggers.get(EslintReportSensor.class);
 

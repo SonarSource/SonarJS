@@ -35,39 +35,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TslintExternalReportTest {
 
-  private static final String PROJECT_KEY = "SonarTS-tslint-report-test";
+  private static final String PROJECT_KEY = "SonarJS-tslint-report-test";
 
   @ClassRule
   public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
   @Test
   public void should_save_issues_from_external_report() {
-    if (sqSupportsExternalIssues()) {
-      orchestrator.resetData();
-      SonarScanner build = Tests.createScanner()
-      .setProjectDir(TestUtils.projectDir("tslint-report-project"))
-      .setProjectKey(PROJECT_KEY)
-      .setProjectName(PROJECT_KEY)
-      .setProjectVersion("1.0")
-      .setSourceDirs("src");
+    orchestrator.resetData();
+    SonarScanner build = Tests.createScanner()
+    .setProjectDir(TestUtils.projectDir("tslint-report-project"))
+    .setProjectKey(PROJECT_KEY)
+    .setProjectName(PROJECT_KEY)
+    .setProjectVersion("1.0")
+    .setSourceDirs("src");
 
-      build.setProperty("sonar.typescript.tslint.reportPaths", "report.json");
-      orchestrator.executeBuild(build);
+    build.setProperty("sonar.typescript.tslint.reportPaths", "report.json");
+    orchestrator.executeBuild(build);
 
-      SearchRequest request = new SearchRequest();
-      request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
-      List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
-      assertThat(issuesList).extracting("line").containsExactlyInAnyOrder(3, 5, 5, 7);
-      assertThat(issuesList).extracting("rule").containsExactlyInAnyOrder(
-        "external_tslint_repo:no-unused-expression",
-        "external_tslint_repo:prefer-const",
-        "external_tslint_repo:semicolon",
-        "external_tslint_repo:curly");
-    }
-  }
-
-  public static boolean sqSupportsExternalIssues() {
-    return orchestrator.getServer().version().isGreaterThanOrEquals(7, 2);
+    SearchRequest request = new SearchRequest();
+    request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
+    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    assertThat(issuesList).extracting("line").containsExactlyInAnyOrder(3, 5, 5, 7);
+    assertThat(issuesList).extracting("rule").containsExactlyInAnyOrder(
+      "external_tslint_repo:no-unused-expression",
+      "external_tslint_repo:prefer-const",
+      "external_tslint_repo:semicolon",
+      "external_tslint_repo:curly");
   }
 
   private static WsClient newWsClient() {

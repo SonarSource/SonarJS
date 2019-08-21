@@ -33,7 +33,7 @@ import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
-import org.sonar.plugins.javascript.rules.TsLintRulesDefinition;
+import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonarsource.nodejs.NodeCommand;
 
 public class JavaScriptPlugin implements Plugin {
@@ -202,7 +202,7 @@ public class JavaScriptPlugin implements Plugin {
 
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
       context.addExtension(TslintReportSensor.class);
-      context.addExtension(TsLintRulesDefinition.class);
+      context.addExtension(TslintRulesDefinition.class);
 
       context.addExtension(
         PropertyDefinition.builder(TSLINT_REPORT_PATHS)

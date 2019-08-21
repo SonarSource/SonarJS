@@ -29,7 +29,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-public class TsLintRulesDefinition implements RulesDefinition {
+public class TslintRulesDefinition implements RulesDefinition {
 
   public static final String REPOSITORY_KEY = "tslint_repo";
   public static final String LINTER_NAME = "TSLint";

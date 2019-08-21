@@ -62,34 +62,22 @@ public class EslintReportTest {
       .search(new SearchRequest().setComponentKeys(Collections.singletonList(PROJECT_KEY + ":src/file.ts")))
       .getIssuesList();
 
-    if (sqSupportsExternalIssues()) {
-      assertThat(jsIssuesList).extracting("line").containsExactlyInAnyOrder(1, 2, 2, 3, 5, 7, 7);
-      assertThat(jsIssuesList).extracting("rule").containsExactlyInAnyOrder(
-        "javascript:S2688",
-        "javascript:S1116",
-        "external_eslint_repo:no-unused-vars",
-        "external_eslint_repo:no-extra-semi",
-        "external_eslint_repo:use-isnan",
-        "external_eslint_repo:semi",
-        "external_eslint_repo:semi");
+    assertThat(jsIssuesList).extracting("line").containsExactlyInAnyOrder(1, 2, 2, 3, 5, 7, 7);
+    assertThat(jsIssuesList).extracting("rule").containsExactlyInAnyOrder(
+      "javascript:S2688",
+      "javascript:S1116",
+      "external_eslint_repo:no-unused-vars",
+      "external_eslint_repo:no-extra-semi",
+      "external_eslint_repo:use-isnan",
+      "external_eslint_repo:semi",
+      "external_eslint_repo:semi");
 
-      assertThat(tsIssuesList).extracting("rule").containsExactlyInAnyOrder(
-        "external_eslint_repo:no-unused-vars",
-        "external_eslint_repo:no-extra-semi",
-        "external_eslint_repo:use-isnan",
-        "external_eslint_repo:semi",
-        "external_eslint_repo:semi");
-    } else {
-      assertThat(jsIssuesList).extracting("rule").containsExactlyInAnyOrder(
-        "javascript:S2688",
-        "javascript:S1116");
-
-      assertThat(tsIssuesList).isEmpty();
-    }
-  }
-
-  private static boolean sqSupportsExternalIssues() {
-    return orchestrator.getServer().version().isGreaterThanOrEquals(7, 2);
+    assertThat(tsIssuesList).extracting("rule").containsExactlyInAnyOrder(
+      "external_eslint_repo:no-unused-vars",
+      "external_eslint_repo:no-extra-semi",
+      "external_eslint_repo:use-isnan",
+      "external_eslint_repo:semi",
+      "external_eslint_repo:semi");
   }
 
   private static WsClient newWsClient() {

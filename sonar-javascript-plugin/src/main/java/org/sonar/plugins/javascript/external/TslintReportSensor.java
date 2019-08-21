@@ -31,17 +31,17 @@ import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.rules.TsLintRulesDefinition;
+import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 
 import static org.sonar.plugins.javascript.JavaScriptPlugin.TSLINT_REPORT_PATHS;
 
-public class TslintReportSensor extends AbstractReportSensor {
+public class TslintReportSensor extends AbstractExternalIssuesSensor {
 
   private static final Logger LOG = Loggers.get(TslintReportSensor.class);
 
   @Override
   String linterName() {
-    return TsLintRulesDefinition.LINTER_NAME;
+    return TslintRulesDefinition.LINTER_NAME;
   }
 
   @Override
@@ -78,9 +78,9 @@ public class TslintReportSensor extends AbstractReportSensor {
 
     newExternalIssue
       .at(primaryLocation)
-      .engineId(TsLintRulesDefinition.REPOSITORY_KEY)
+      .engineId(TslintRulesDefinition.REPOSITORY_KEY)
       .ruleId(tslintKey)
-      .type(TsLintRulesDefinition.ruleType(tslintKey))
+      .type(TslintRulesDefinition.ruleType(tslintKey))
       .severity(DEFAULT_SEVERITY)
       .remediationEffortMinutes(DEFAULT_REMEDIATION_COST)
       .save();
