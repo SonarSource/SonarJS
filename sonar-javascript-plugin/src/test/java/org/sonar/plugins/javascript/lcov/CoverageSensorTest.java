@@ -97,6 +97,20 @@ public class CoverageSensorTest {
   public void test_coverage() {
     coverageSensor.execute(context);
 
+    testTwoFilesContext();
+  }
+
+  @Test
+  public void should_work_and_log_warning_when_deprecated_key() throws Exception {
+    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, UT_LCOV + ", " + IT_LCOV);
+    coverageSensor.execute(context);
+
+    testTwoFilesContext();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead!");
+  }
+
+  private void testTwoFilesContext() {
     Integer[] file1Expected = {3, 3, 1, null};
     Integer[] file2Expected = {5, 5, null, null};
 
@@ -164,10 +178,10 @@ public class CoverageSensorTest {
 
     coverageSensor.describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("SonarJS Coverage");
-    assertThat(descriptor.languages()).containsOnly("js");
+    assertThat(descriptor.languages()).contains("js", "ts");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
     assertThat(descriptor.configurationPredicate().test(new MapSettings().setProperty("sonar.javascript.lcov.reportPaths", "foo").asConfig())).isTrue();
-    assertThat(descriptor.configurationPredicate().test(new MapSettings().setProperty("sonar.typescript.lcov.reportPaths", "foo").asConfig())).isFalse();
+    assertThat(descriptor.configurationPredicate().test(new MapSettings().setProperty("sonar.typescript.lcov.reportPaths", "foo").asConfig())).isTrue();
     assertThat(descriptor.configurationPredicate().test(new MapSettings().asConfig())).isFalse();
   }
 
