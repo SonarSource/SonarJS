@@ -34,9 +34,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaScriptPluginTest {
 
-  private static final int BASE_EXTENSIONS = 18;
+  private static final int BASE_EXTENSIONS = 19;
   private static final int JS_ADDITIONAL_EXTENSIONS = 4;
   private static final int TS_ADDITIONAL_EXTENSIONS = 3;
+
   public static final Version LTS_VERSION = Version.create(7, 9);
 
   @Test
@@ -47,7 +48,7 @@ public class JavaScriptPluginTest {
 
   @Test
   public void should_contain_right_properties_number() throws Exception {
-    assertThat(properties()).hasSize(10);
+    assertThat(properties()).hasSize(11);
   }
 
   @Test

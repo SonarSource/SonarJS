@@ -79,6 +79,9 @@ public class JavaScriptPlugin implements Plugin {
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
   private static final String FILE_SUFFIXES_NAME = "File Suffixes";
 
+  public static final String TS_LCOV_REPORT_PATHS = "sonar.typescript.lcov.reportPaths";
+  public static final String TS_LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
+
   @Override
   public void define(Context context) {
     context.addExtensions(
@@ -196,6 +199,17 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(GENERAL)
         .category(TYPESCRIPT_CATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
+        .build(),
+
+      PropertyDefinition.builder(TS_LCOV_REPORT_PATHS)
+        .defaultValue(TS_LCOV_REPORT_PATHS_DEFAULT_VALUE)
+        .name("LCOV Files")
+        .description("DEPRECATED - Use " + LCOV_REPORT_PATHS + " instead. \n" +
+          "Paths (absolute or relative) to the files with LCOV data.")
+        .onQualifiers(Qualifiers.PROJECT)
+        .subCategory(TEST_AND_COVERAGE)
+        .category(TYPESCRIPT_CATEGORY)
         .multiValues(true)
         .build()
     );
