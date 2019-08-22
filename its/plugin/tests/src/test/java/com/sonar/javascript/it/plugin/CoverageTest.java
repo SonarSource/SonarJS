@@ -95,6 +95,26 @@ public class CoverageTest {
   }
 
   @Test
+  public void LCOV_report_paths_deprecated_key() {
+    SonarScanner build = Tests.createScanner()
+      .setProjectDir(TestUtils.projectDir("lcov"))
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectVersion("1.0")
+      .setSourceDirs(".")
+      .setProperty("sonar.typescript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    BuildResult result = orchestrator.executeBuild(build);
+
+    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
+    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
+    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
+
+    assertThat(result.getLogs()).contains("The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead.");
+  }
+
+  @Test
   public void zero_coverage() {
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))

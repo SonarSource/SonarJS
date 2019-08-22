@@ -21,9 +21,11 @@ package org.sonar.plugins.javascript.lcov;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -38,6 +40,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 public class CoverageSensor implements Sensor {
   private static final Logger LOG = Loggers.get(CoverageSensor.class);
@@ -45,16 +48,23 @@ public class CoverageSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguage(JavaScriptLanguage.KEY)
-      .onlyWhenConfiguration(conf -> conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS))
+      .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
+      .onlyWhenConfiguration(conf -> conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) || conf.hasKey(JavaScriptPlugin.TS_LCOV_REPORT_PATHS))
       .name("SonarJS Coverage")
       .onlyOnFileType(Type.MAIN);
   }
 
   @Override
   public void execute(SensorContext context) {
-    String[] reports = context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS);
-    List<File> lcovFiles = Arrays.stream(reports)
+    Set<String> reports = new HashSet<>(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS)));
+
+    if (context.config().hasKey(JavaScriptPlugin.TS_LCOV_REPORT_PATHS)) {
+      LOG.warn("The use of " + JavaScriptPlugin.TS_LCOV_REPORT_PATHS + " for coverage import is deprecated, use "
+        + JavaScriptPlugin.LCOV_REPORT_PATHS + " instead.");
+      reports.addAll(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.TS_LCOV_REPORT_PATHS)));
+    }
+
+    List<File> lcovFiles = reports.stream()
       .map(report -> getIOFile(context.fileSystem().baseDir(), report))
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
