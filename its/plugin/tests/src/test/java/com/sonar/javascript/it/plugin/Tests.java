@@ -39,7 +39,6 @@ import static java.util.Collections.singletonList;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  BigProjectTest.class,
   CoverageTest.class,
   EslintBasedRulesTest.class,
   EslintReportTest.class,
