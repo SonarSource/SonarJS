@@ -47,6 +47,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 import org.sonarsource.nodejs.NodeCommandException;
 
@@ -77,17 +78,17 @@ public class EslintBasedRulesSensorTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    when(eslintBridgeServerMock.call(any())).thenReturn(new AnalysisResponseIssue[0]);
+    when(eslintBridgeServerMock.call(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = SensorContextTester.create(tempFolder.newDir());
   }
 
   @Test
   public void should_create_issues_from_eslint_based_rules() throws Exception {
-    AnalysisResponseIssue[] responseIssues = issues("[{" +
+    AnalysisResponse responseIssues = response("{ issues: [{" +
       "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
       "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []" +
-      "}]");
+      "}]}");
     when(eslintBridgeServerMock.call(any())).thenReturn(responseIssues);
 
     EslintBasedRulesSensor sensor = createSensor();
@@ -115,20 +116,20 @@ public class EslintBasedRulesSensorTest {
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
   }
 
-  private AnalysisResponseIssue[] issues(String json) {
-    return new Gson().fromJson(json, AnalysisResponseIssue[].class);
+  private AnalysisResponse response(String json) {
+    return new Gson().fromJson(json, AnalysisResponse.class);
   }
 
 
   @Test
   public void should_report_secondary_issue_locations_from_eslint_based_rules() throws Exception {
-    when(eslintBridgeServerMock.call(any())).thenReturn(issues(
-      "[{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+    when(eslintBridgeServerMock.call(any())).thenReturn(response(
+      "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"cost\": 14," +
         "\"secondaryLocations\": [" +
         "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
         "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
-        "]}]"));
+        "]}]}"));
 
     EslintBasedRulesSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -157,11 +158,11 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_not_report_secondary_when_location_are_null() throws Exception {
-    when(eslintBridgeServerMock.call(any())).thenReturn(issues(
-      "[{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+    when(eslintBridgeServerMock.call(any())).thenReturn(response(
+      "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"secondaryLocations\": [" +
         "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
-        "]}]"));
+        "]}]}"));
 
     EslintBasedRulesSensor sensor = createSensor();
     createInputFile(context);
@@ -177,9 +178,9 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_report_cost_from_eslint_based_rules() throws Exception {
-    when(eslintBridgeServerMock.call(any())).thenReturn(issues(
-      "[{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
-        "\"cost\": 42," + "\"secondaryLocations\": []}]"));
+    when(eslintBridgeServerMock.call(any())).thenReturn(response(
+      "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+        "\"cost\": 42," + "\"secondaryLocations\": []}]}"));
 
     EslintBasedRulesSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);

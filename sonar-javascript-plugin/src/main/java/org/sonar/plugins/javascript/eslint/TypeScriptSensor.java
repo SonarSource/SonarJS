@@ -36,6 +36,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysisRequest;
 
@@ -81,8 +82,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   protected void analyze(InputFile file, SensorContext context) {
     try {
       TypeScriptAnalysisRequest request = new TypeScriptAnalysisRequest(file, rules, tsConfigs(context));
-      AnalysisResponseIssue[] issues = eslintBridgeServer.analyzeTypeScript(request);
-      for (AnalysisResponseIssue issue : issues) {
+      AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
+      for (AnalysisResponseIssue issue : response.issues) {
         new EslintIssue(issue).saveIssue(context, file, checks);
       }
     } catch (IOException e) {

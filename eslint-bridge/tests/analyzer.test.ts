@@ -5,7 +5,7 @@ describe("#analyze", () => {
   const fileUri = join(__dirname, "./fixtures/js-project/sample.lint.js");
 
   it("should report issue running eslint", () => {
-    const issues = analyze({
+    const { issues } = analyze({
       fileUri,
       fileContent: `
         import foo from "foo";
@@ -42,7 +42,7 @@ describe("#analyze", () => {
   });
 
   it("should not report issue when not receiving corresponding rule-key", () => {
-    const issues = analyze({
+    const { issues } = analyze({
       fileUri,
       fileContent: `
         for (var i = 0; i < 10; i++) {
@@ -55,7 +55,7 @@ describe("#analyze", () => {
   });
 
   it("should return empty list when parse error", () => {
-    const issues = analyze({
+    const { issues } = analyze({
       fileUri,
       fileContent: `if()`,
       rules: [],
@@ -69,7 +69,7 @@ describe("#analyzeTypeScript", () => {
   const tsConfig = join(__dirname, "./fixtures/ts-project/tsconfig.json");
 
   it("should report issue running eslint", () => {
-    const issues = analyzeTypeScript({
+    const { issues } = analyzeTypeScript({
       fileUri,
       fileContent: `
         import foo from "foo";
@@ -107,7 +107,7 @@ describe("#analyzeTypeScript", () => {
   });
 
   it("should not report issue when not receiving corresponding rule-key", () => {
-    const issues = analyzeTypeScript({
+    const { issues } = analyzeTypeScript({
       fileUri,
       fileContent: `
         for (var i = 0; i < 10; i++) {
@@ -121,7 +121,7 @@ describe("#analyzeTypeScript", () => {
   });
 
   it("should return empty list when parse error", () => {
-    const issues = analyzeTypeScript({
+    const { issues } = analyzeTypeScript({
       fileUri,
       fileContent: `if()`,
       rules: [],

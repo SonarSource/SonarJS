@@ -37,6 +37,10 @@ export interface Rule {
   configurations: any[];
 }
 
+export interface AnalysisResponse {
+  issues: Issue[];
+}
+
 export interface Issue {
   column: number;
   line: number;
@@ -56,7 +60,7 @@ export interface IssueLocation {
   message?: string;
 }
 
-export function analyze(input: AnalysisInput) {
+export function analyze(input: AnalysisInput): AnalysisResponse {
   const { fileUri, fileContent } = input;
   if (fileContent) {
     const sourceCode = parseSourceFile(fileContent, fileUri);
@@ -64,10 +68,10 @@ export function analyze(input: AnalysisInput) {
       return linter.analyze(sourceCode, input.rules, fileUri);
     }
   }
-  return [];
+  return { issues: [] };
 }
 
-export function analyzeTypeScript(input: TypeScriptAnalysisInput) {
+export function analyzeTypeScript(input: TypeScriptAnalysisInput): AnalysisResponse {
   const { fileUri, fileContent, rules, tsConfigs } = input;
   if (fileContent) {
     const sourceCode = parseTypeScriptSourceFile(fileContent, fileUri, tsConfigs);
@@ -75,5 +79,5 @@ export function analyzeTypeScript(input: TypeScriptAnalysisInput) {
       return linter.analyze(sourceCode, rules, fileUri);
     }
   }
-  return [];
+  return { issues: [] };
 }

@@ -37,8 +37,8 @@ const linter = new Linter();
 linter.defineRules(externalRules);
 linter.defineRules(internalRules);
 
-export function analyze(sourceCode: SourceCode, inputRules: Rule[], fileUri: string): Issue[] {
-  return linter
+export function analyze(sourceCode: SourceCode, inputRules: Rule[], fileUri: string) {
+  const issues = linter
     .verify(sourceCode, createLinterConfig(inputRules), fileUri)
     .map(removeIrrelevantProperties)
     .map(issue => {
@@ -49,6 +49,7 @@ export function analyze(sourceCode: SourceCode, inputRules: Rule[], fileUri: str
     })
     .filter((issue): issue is Issue => issue !== null)
     .map(normalizeIssueLocation);
+  return { issues };
 }
 
 // exported for testing

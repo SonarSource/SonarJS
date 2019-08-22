@@ -35,9 +35,9 @@ public interface EslintBridgeServer extends Startable {
 
   void startServerLazily(SensorContext context) throws IOException;
 
-  AnalysisResponseIssue[] call(AnalysisRequest request) throws IOException;
+  AnalysisResponse call(AnalysisRequest request) throws IOException;
 
-  AnalysisResponseIssue[] analyzeTypeScript(TypeScriptAnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeTypeScript(TypeScriptAnalysisRequest request) throws IOException;
 
   void clean();
 
@@ -75,6 +75,10 @@ public interface EslintBridgeServer extends Startable {
       this.key = key;
       this.configurations = configurations;
     }
+  }
+
+  class AnalysisResponse {
+    AnalysisResponseIssue[] issues = {};
   }
 
   class AnalysisResponseIssue {

@@ -31,6 +31,9 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysisRequest;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -131,8 +134,8 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    EslintBridgeServer.AnalysisRequest request = new EslintBridgeServer.AnalysisRequest(inputFile, new EslintBridgeServer.Rule[0]);
-    assertThat(eslintBridgeServer.call(request)).isEqualTo(new EslintBridgeServer.AnalysisResponseIssue[0]);
+    AnalysisRequest request = new AnalysisRequest(inputFile, new EslintBridgeServer.Rule[0]);
+    assertThat(eslintBridgeServer.call(request).issues).isEmpty();
   }
 
   @Test
@@ -147,8 +150,8 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
-    EslintBridgeServer.TypeScriptAnalysisRequest request = new EslintBridgeServer.TypeScriptAnalysisRequest(inputFile, new EslintBridgeServer.Rule[0], Collections.singletonList(tsConfig.absolutePath()));
-    assertThat(eslintBridgeServer.analyzeTypeScript(request)).isEqualTo(new EslintBridgeServer.AnalysisResponseIssue[0]);
+    TypeScriptAnalysisRequest request = new TypeScriptAnalysisRequest(inputFile, new EslintBridgeServer.Rule[0], Collections.singletonList(tsConfig.absolutePath()));
+    assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
 
   @Test
@@ -218,7 +221,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    EslintBridgeServer.AnalysisRequest request = new EslintBridgeServer.AnalysisRequest(inputFile, new EslintBridgeServer.Rule[0]);
+    AnalysisRequest request = new AnalysisRequest(inputFile, new EslintBridgeServer.Rule[0]);
     eslintBridgeServer.call(request);
 
     assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to parse: \n" +

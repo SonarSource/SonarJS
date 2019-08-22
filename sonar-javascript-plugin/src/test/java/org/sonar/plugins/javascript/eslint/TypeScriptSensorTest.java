@@ -44,6 +44,7 @@ import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +69,7 @@ public class TypeScriptSensorTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponseIssue[0]);
+    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
     context = SensorContextTester.create(tempFolder.newDir());
   }
 
@@ -84,7 +85,7 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_analyse() throws Exception {
-    AnalysisResponseIssue[] expectedIssues = createIssues();
+    AnalysisResponse expectedIssues = createIssues();
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedIssues);
 
     TypeScriptSensor sensor = createSensor();
@@ -93,7 +94,7 @@ public class TypeScriptSensorTest {
     
     sensor.execute(context);
 
-    assertThat(context.allIssues()).hasSize(expectedIssues.length);
+    assertThat(context.allIssues()).hasSize(expectedIssues.issues.length);
 
     Iterator<Issue> issues = context.allIssues().iterator();
     Issue firstIssue = issues.next();
@@ -129,11 +130,11 @@ public class TypeScriptSensorTest {
     return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
   }
 
-  private AnalysisResponseIssue[] createIssues() {
-    return new Gson().fromJson("[{"
+  private AnalysisResponse createIssues() {
+    return new Gson().fromJson("{ issues: [{"
         + "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []},"
         + "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []"
-        + "}]", AnalysisResponseIssue[].class);
+        + "}]}", AnalysisResponse.class);
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {

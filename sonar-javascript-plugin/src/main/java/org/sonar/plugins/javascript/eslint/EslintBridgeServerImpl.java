@@ -154,15 +154,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public AnalysisResponseIssue[] call(AnalysisRequest request) throws IOException {
+  public AnalysisResponse call(AnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return toIssues(request(json, "analyze"));
+    return response(request(json, "analyze"));
   }
 
   @Override
-  public AnalysisResponseIssue[] analyzeTypeScript(TypeScriptAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeTypeScript(TypeScriptAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return toIssues(request(json, "analyze-ts"));
+    return response(request(json, "analyze-ts"));
   }
 
   private String request(String json, String endpoint) throws IOException {
@@ -183,12 +183,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
   }
 
-  private static AnalysisResponseIssue[] toIssues(String result) {
+  private static AnalysisResponse response(String result) {
     try {
-      return GSON.fromJson(result, AnalysisResponseIssue[].class);
+      return GSON.fromJson(result, AnalysisResponse.class);
     } catch (JsonSyntaxException e) {
       LOG.error("Failed to parse: \n-----\n" + result + "\n-----\n");
-      return new AnalysisResponseIssue[0];
+      return new AnalysisResponse();
     }
   }
 

@@ -35,6 +35,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 
 public class EslintBasedRulesSensor extends AbstractEslintSensor {
@@ -64,8 +65,8 @@ public class EslintBasedRulesSensor extends AbstractEslintSensor {
     }
     AnalysisRequest analysisRequest = new AnalysisRequest(file, rules);
     try {
-      AnalysisResponseIssue[] issues = eslintBridgeServer.call(analysisRequest);
-      for (AnalysisResponseIssue issue : issues) {
+      AnalysisResponse response = eslintBridgeServer.call(analysisRequest);
+      for (AnalysisResponseIssue issue : response.issues) {
         new EslintIssue(issue).saveIssue(context, file, checks);
       }
     } catch (IOException e) {

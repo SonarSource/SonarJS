@@ -35,14 +35,14 @@ export function start(port = 0): Promise<Server> {
 
     app.post("/analyze", (request: express.Request, response: express.Response) => {
       const parsedRequest = request.body as AnalysisInput;
-      const issues = analyze(parsedRequest);
-      response.json(issues);
+      const analysisResponse = analyze(parsedRequest);
+      response.json(analysisResponse);
     });
 
     app.post("/analyze-ts", (request: express.Request, response: express.Response) => {
       const parsedRequest = request.body as TypeScriptAnalysisInput;
-      const issues = analyzeTypeScript(parsedRequest);
-      response.json(issues);
+      const analysisResponse = analyzeTypeScript(parsedRequest);
+      response.json(analysisResponse);
     });
 
     app.get("/status", (_: express.Request, resp: express.Response) => resp.send("OK!"));
