@@ -45,9 +45,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CoverageSensorTest {
 
-  private static final String REPORT1 = "reports/report_ut.lcov";
-  private static final String REPORT2 = "reports/report_it.lcov";
-  private static final String REPORT1AND2 = REPORT1 + ", " + REPORT2;
+  private static final String REPORT1 = "reports/report_1.lcov";
+  private static final String REPORT2 = "reports/report_2.lcov";
+  private static final String TWO_REPORTS = REPORT1 + ", " + REPORT2;
 
   private final String DEPRECATED_MESSAGE = "The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead.";
   private SensorContextTester context;
@@ -98,7 +98,7 @@ public class CoverageSensorTest {
 
   @Test
   public void test_coverage() {
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1AND2);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, TWO_REPORTS);
     coverageSensor.execute(context);
     assertTwoReportsCoverageDataPresent();
   }
@@ -106,7 +106,7 @@ public class CoverageSensorTest {
   @Test
   public void should_work_and_log_warning_when_deprecated_key() throws Exception {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "");
-    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, REPORT1AND2);
+    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, TWO_REPORTS);
     coverageSensor.execute(context);
 
     assertTwoReportsCoverageDataPresent();
@@ -125,8 +125,8 @@ public class CoverageSensorTest {
 
   @Test
   public void both_properties_reports_paths_overlap() throws Exception {
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1AND2);
-    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, REPORT1AND2);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, TWO_REPORTS);
+    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, TWO_REPORTS);
     coverageSensor.execute(context);
 
     assertTwoReportsCoverageDataPresent();
