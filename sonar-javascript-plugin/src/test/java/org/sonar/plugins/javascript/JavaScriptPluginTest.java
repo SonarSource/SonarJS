@@ -35,17 +35,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JavaScriptPluginTest {
 
   private static final int BASE_EXTENSIONS = 18;
+  private static final int JS_ADDITIONAL_EXTENSIONS = 4;
+  private static final int TS_ADDITIONAL_EXTENSIONS = 3;
   public static final Version LTS_VERSION = Version.create(7, 9);
 
   @Test
   public void count_extensions_lts() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
-    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + 4);
+    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + JS_ADDITIONAL_EXTENSIONS + TS_ADDITIONAL_EXTENSIONS);
   }
 
   @Test
   public void should_contain_right_properties_number() throws Exception {
-    assertThat(properties()).hasSize(9);
+    assertThat(properties()).hasSize(10);
   }
 
   @Test
@@ -59,7 +61,7 @@ public class JavaScriptPluginTest {
     List<PropertyDefinition> properties = properties();
     assertThat(properties).isNotEmpty();
     for (PropertyDefinition propertyDefinition : properties) {
-      if (propertyDefinition.key().equals("sonar.eslint.reportPaths")) {
+      if (propertyDefinition.key().endsWith("lint.reportPaths")) {
         assertThat(propertyDefinition.category()).isEqualTo("External Analyzers");
       } else {
         assertThat(propertyDefinition.category()).isIn("JavaScript", "TypeScript");
