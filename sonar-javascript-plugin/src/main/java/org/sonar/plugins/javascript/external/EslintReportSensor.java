@@ -19,54 +19,44 @@
  */
 package org.sonar.plugins.javascript.external;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
-import org.sonarsource.analyzer.commons.ExternalReportProvider;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 import static org.sonar.plugins.javascript.JavaScriptPlugin.ESLINT_REPORT_PATHS;
-import static org.sonar.plugins.javascript.rules.EslintRulesDefinition.LINTER_NAME;
-import static org.sonar.plugins.javascript.rules.EslintRulesDefinition.REPO_KEY;
 
-public class EslintReportSensor implements Sensor {
+public class EslintReportSensor extends AbstractExternalIssuesSensor {
 
   private static final Logger LOG = Loggers.get(EslintReportSensor.class);
 
   @Override
-  public void describe(SensorDescriptor sensorDescriptor) {
-    sensorDescriptor
-      .onlyWhenConfiguration(conf -> conf.hasKey(ESLINT_REPORT_PATHS))
-      .name("Import of " + LINTER_NAME + " issues");
+  String linterName() {
+    return EslintRulesDefinition.LINTER_NAME;
   }
 
   @Override
-  public void execute(SensorContext context) {
-    List<File> reportFiles = ExternalReportProvider.getReportFiles(context, ESLINT_REPORT_PATHS);
-    reportFiles.forEach(report -> importReport(report, context));
+  String reportsPropertyName() {
+    return ESLINT_REPORT_PATHS;
   }
 
-  private static void importReport(File report, SensorContext context) {
+  @Override
+  void importReport(File report, SensorContext context) {
     LOG.info("Importing {}", report.getAbsoluteFile());
 
     try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(report), StandardCharsets.UTF_8)) {
-      FileWithMessages[] filesWithMessages = new Gson().fromJson(inputStreamReader, FileWithMessages[].class);
+      FileWithMessages[] filesWithMessages = gson.fromJson(inputStreamReader, FileWithMessages[].class);
 
       for (FileWithMessages fileWithMessages : filesWithMessages) {
         InputFile inputFile = getInputFile(context, fileWithMessages.filePath);
@@ -77,7 +67,7 @@ public class EslintReportSensor implements Sensor {
         }
       }
     } catch (IOException|JsonSyntaxException e) {
-      LOG.error("No issues information will be saved as the report file can't be read.", e);
+      LOG.error(FILE_EXCEPTION_MESSAGE, e);
     }
   }
 
@@ -100,7 +90,7 @@ public class EslintReportSensor implements Sensor {
 
     newExternalIssue
       .at(primaryLocation)
-      .engineId(REPO_KEY)
+      .engineId(EslintRulesDefinition.REPOSITORY_KEY)
       .ruleId(eslintKey)
       .type(ruleLoader.ruleType(eslintKey))
       .severity(ruleLoader.ruleSeverity(eslintKey))
@@ -121,16 +111,6 @@ public class EslintReportSensor implements Sensor {
     }
   }
 
-  private static InputFile getInputFile(SensorContext context, String fileName) {
-    FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.or(predicates.hasRelativePath(fileName), predicates.hasAbsolutePath(fileName)));
-    if (inputFile == null) {
-      LOG.warn("No input file found for {}. No {} issues will be imported on this file.", fileName, LINTER_NAME);
-      return null;
-    }
-    return inputFile;
-  }
-
   private static class FileWithMessages {
     String filePath;
     EslintError[] messages;
@@ -148,6 +128,5 @@ public class EslintReportSensor implements Sensor {
       return line == endLine && column == endColumn;
     }
   }
-
 
 }

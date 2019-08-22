@@ -1,0 +1,34 @@
+[
+  {
+    "endPosition": {
+      "character": 1,
+      "line": 2,
+      "position": 18
+    },
+    "failure": "misplaced opening brace",
+    "name": "not-exist.ts",
+    "ruleName": "curly",
+    "startPosition": {
+      "character": 0,
+      "line": 2,
+      "position": 19
+    },
+    "ruleSeverity": "error"
+  },
+  {
+    "endPosition": {
+      "character": 1,
+      "line": 2,
+      "position": 18
+    },
+    "failure": "misplaced opening brace",
+    "name": "myFile.ts",
+    "ruleName": "curly",
+    "startPosition": {
+      "character": 0,
+      "line": 2,
+      "position": 19
+    },
+    "ruleSeverity": "error"
+  }
+]

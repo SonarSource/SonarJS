@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.javascript;
 
-import java.util.Arrays;
-import java.util.Collection;
 import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
@@ -31,9 +29,11 @@ import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
+import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
+import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonarsource.nodejs.NodeCommand;
 
 public class JavaScriptPlugin implements Plugin {
@@ -70,6 +70,7 @@ public class JavaScriptPlugin implements Plugin {
   public static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   public static final String EXTERNAL_ANALYZERS_SUB_CATEGORY = "JavaScript/TypeScript";
   public static final String ESLINT_REPORT_PATHS = "sonar.eslint.reportPaths";
+  public static final String TSLINT_REPORT_PATHS = "sonar.typescript.tslint.reportPaths";
 
   public static final String DEPRECATED_ESLINT_PROPERTY = "sonar.typescript.eslint.reportPaths";
 
@@ -181,11 +182,11 @@ public class JavaScriptPlugin implements Plugin {
           .build());
     }
 
-    context.addExtensions(typeScriptExtensions());
+    addTypeScriptExtensions(context);
   }
 
-  private static Collection<?> typeScriptExtensions() {
-    return Arrays.asList(
+  private static void addTypeScriptExtensions(Context context) {
+    context.addExtensions(
       TypeScriptLanguage.class,
 
       PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
@@ -198,5 +199,20 @@ public class JavaScriptPlugin implements Plugin {
         .multiValues(true)
         .build()
     );
+
+    if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
+      context.addExtension(TslintReportSensor.class);
+      context.addExtension(TslintRulesDefinition.class);
+
+      context.addExtension(
+        PropertyDefinition.builder(TSLINT_REPORT_PATHS)
+          .name("TSLint Report Files")
+          .description("Paths (absolute or relative) to the JSON files with TSLint issues.")
+          .onQualifiers(Qualifiers.PROJECT)
+          .category(EXTERNAL_ANALYZERS_CATEGORY)
+          .subCategory(EXTERNAL_ANALYZERS_SUB_CATEGORY)
+          .multiValues(true)
+          .build());
+    }
   }
 }
