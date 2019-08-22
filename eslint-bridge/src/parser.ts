@@ -19,7 +19,7 @@
  */
 import * as espree from "espree";
 import * as babel from "babel-eslint";
-import { SourceCode, Linter } from "eslint";
+import { Linter, SourceCode } from "eslint";
 
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
@@ -64,6 +64,27 @@ export function parseSourceFile(fileContent: string, fileUri: string): SourceCod
       `Failed to parse file [${fileUri}] at line ${exceptionToReport.lineNumber}: ${
         exceptionToReport.message
       }`,
+    );
+  }
+}
+
+export function parseTypeScriptSourceFile(
+  fileContent: string,
+  fileUri: string,
+  tsConfigs: string[],
+): SourceCode | undefined {
+  try {
+    // we load the typescript parser dynamically, so we don't need typescript dependency when analysing pure JS project
+    const tsParser = require("@typescript-eslint/parser");
+    const result = tsParser.parseForESLint(fileContent, {
+      ...PARSER_CONFIG_MODULE,
+      filePath: fileUri,
+      project: tsConfigs,
+    });
+    return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
+  } catch (exception) {
+    console.error(
+      `Failed to parse file [${fileUri}] at line ${exception.lineNumber}: ${exception.message}`,
     );
   }
 }

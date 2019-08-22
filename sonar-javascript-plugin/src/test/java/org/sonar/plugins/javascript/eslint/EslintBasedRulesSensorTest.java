@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.Iterator;
 import org.junit.Before;
@@ -45,7 +46,8 @@ import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor.AnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,17 +77,18 @@ public class EslintBasedRulesSensorTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    when(eslintBridgeServerMock.call(any())).thenReturn("[]");
+    when(eslintBridgeServerMock.call(any())).thenReturn(new AnalysisResponseIssue[0]);
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = SensorContextTester.create(tempFolder.newDir());
   }
 
   @Test
   public void should_create_issues_from_eslint_based_rules() throws Exception {
-    when(eslintBridgeServerMock.call(any())).thenReturn("[{" +
+    AnalysisResponseIssue[] responseIssues = issues("[{" +
       "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
       "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []" +
       "}]");
+    when(eslintBridgeServerMock.call(any())).thenReturn(responseIssues);
 
     EslintBasedRulesSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -112,16 +115,20 @@ public class EslintBasedRulesSensorTest {
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
   }
 
+  private AnalysisResponseIssue[] issues(String json) {
+    return new Gson().fromJson(json, AnalysisResponseIssue[].class);
+  }
+
 
   @Test
   public void should_report_secondary_issue_locations_from_eslint_based_rules() throws Exception {
-    when(eslintBridgeServerMock.call(any())).thenReturn(
+    when(eslintBridgeServerMock.call(any())).thenReturn(issues(
       "[{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"cost\": 14," +
         "\"secondaryLocations\": [" +
         "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
         "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
-        "]}]");
+        "]}]"));
 
     EslintBasedRulesSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -150,11 +157,11 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_not_report_secondary_when_location_are_null() throws Exception {
-    when(eslintBridgeServerMock.call(any())).thenReturn(
+    when(eslintBridgeServerMock.call(any())).thenReturn(issues(
       "[{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"secondaryLocations\": [" +
         "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
-        "]}]");
+        "]}]"));
 
     EslintBasedRulesSensor sensor = createSensor();
     createInputFile(context);
@@ -170,9 +177,9 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_report_cost_from_eslint_based_rules() throws Exception {
-    when(eslintBridgeServerMock.call(any())).thenReturn(
+    when(eslintBridgeServerMock.call(any())).thenReturn(issues(
       "[{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
-        "\"cost\": 42," + "\"secondaryLocations\": []}]");
+        "\"cost\": 42," + "\"secondaryLocations\": []}]"));
 
     EslintBasedRulesSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -217,20 +224,6 @@ public class EslintBasedRulesSensorTest {
     assertThat(context.allIssues()).isEmpty();
   }
 
-  @Test
-  public void should_not_explode_if_bad_json_response() throws Exception {
-    when(eslintBridgeServerMock.call(any())).thenReturn("Invalid response");
-    EslintBasedRulesSensor sensor = createSensor();
-
-    createInputFile(context);
-    sensor.execute(context);
-
-    assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to parse: \n" +
-      "-----\n" +
-      "Invalid response\n" +
-      "-----\n");
-    assertThat(context.allIssues()).isEmpty();
-  }
 
   @Test
   public void should_not_explode_if_no_response() throws Exception {
@@ -259,7 +252,7 @@ public class EslintBasedRulesSensorTest {
       .setLanguage("js")
       .setContents("#!/usr/local/bin/node\nlet x = 0;")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile, new EslintBasedRulesSensor.Rule[0]);
+    AnalysisRequest request = new AnalysisRequest(inputFile, new EslintBridgeServer.Rule[0]);
 
     assertThat(request.fileContent).isEqualTo("\nlet x = 0;");
   }
@@ -277,7 +270,7 @@ public class EslintBasedRulesSensorTest {
       eslintBridgeServerMock,
       null);
 
-    EslintBasedRulesSensor.Rule[] rules = sensor.rules;
+    EslintBridgeServer.Rule[] rules = sensor.rules;
 
     assertThat(rules).hasSize(3);
 
@@ -312,12 +305,7 @@ public class EslintBasedRulesSensorTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly("Skipping analysis of Vue.js file " + vueFile.uri());
   }
 
-  @Test
-  public void should_detect_unknown_rule_key() throws Exception {
-    EslintBasedRulesSensor sensor = createSensor();
-    assertThat(sensor.ruleKey("no-all-duplicated-branches")).contains(RuleKey.of("javascript", "S3923"));
-    assertThat(sensor.ruleKey("unknown-rule-key")).isEmpty();
-  }
+
 
   @Test
   public void handle_missing_node() throws Exception {
@@ -326,7 +314,7 @@ public class EslintBasedRulesSensorTest {
     EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, analysisWarnings);
     eslintBasedRulesSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
-    verify(analysisWarnings).addUnique("Some JavaScript rules were not executed. Exception Message");
+    verify(analysisWarnings).addUnique("Some eslint-based rules were not executed. Exception Message");
   }
 
   @Test
@@ -335,7 +323,7 @@ public class EslintBasedRulesSensorTest {
     EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
     eslintBasedRulesSensor.execute(context);
 
-    assertThat(logTester.logs()).containsExactly("Skipping start of eslint-bridge server due to the failure during first analysis",
+    assertThat(logTester.logs()).contains("Skipping start of eslint-bridge server due to the failure during first analysis",
       "Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
   }
 

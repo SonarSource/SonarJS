@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseSourceFile } from "./parser";
+import { parseSourceFile, parseTypeScriptSourceFile } from "./parser";
 import * as linter from "./linter";
 
 export interface AnalysisInput {
   fileUri: string;
   fileContent: string;
   rules: Rule[];
+}
+
+export interface TypeScriptAnalysisInput extends AnalysisInput {
+  tsConfigs: string[];
 }
 
 // eslint rule key
@@ -58,6 +62,17 @@ export function analyze(input: AnalysisInput) {
     const sourceCode = parseSourceFile(fileContent, fileUri);
     if (sourceCode) {
       return linter.analyze(sourceCode, input.rules, fileUri);
+    }
+  }
+  return [];
+}
+
+export function analyzeTypeScript(input: TypeScriptAnalysisInput) {
+  const { fileUri, fileContent, rules, tsConfigs } = input;
+  if (fileContent) {
+    const sourceCode = parseTypeScriptSourceFile(fileContent, fileUri, tsConfigs);
+    if (sourceCode) {
+      return linter.analyze(sourceCode, rules, fileUri);
     }
   }
   return [];

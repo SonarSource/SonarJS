@@ -1,0 +1,162 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2019 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.plugins.javascript.eslint;
+
+import com.google.gson.Gson;
+import java.io.IOException;
+import java.util.Iterator;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.internal.JUnitTempFolder;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+public class TypeScriptSensorTest {
+
+  private static final String ESLINT_BASED_RULE = "S3923";
+
+  @Rule
+  public LogTester logTester = new LogTester();
+
+  @Rule
+  public JUnitTempFolder tempFolder = new JUnitTempFolder();
+
+  @Mock
+  private EslintBridgeServer eslintBridgeServerMock;
+
+  private SensorContextTester context;
+
+  @Before
+  public void setUp() throws Exception {
+    MockitoAnnotations.initMocks(this);
+    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponseIssue[0]);
+    context = SensorContextTester.create(tempFolder.newDir());
+  }
+
+  @Test
+  public void should_have_descriptor() throws Exception {
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
+
+    createSensor().describe(descriptor);
+    assertThat(descriptor.name()).isEqualTo("ESLint-based TypeScript analysis");
+    assertThat(descriptor.languages()).containsOnly("ts");
+    assertThat(descriptor.type()).isEqualTo(Type.MAIN);
+  }
+
+  @Test
+  public void should_analyse() throws Exception {
+    AnalysisResponseIssue[] expectedIssues = createIssues();
+    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedIssues);
+
+    TypeScriptSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+    createTSConfigFile(context);
+    
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(expectedIssues.length);
+
+    Iterator<Issue> issues = context.allIssues().iterator();
+    Issue firstIssue = issues.next();
+    Issue secondIssue = issues.next();
+
+    IssueLocation location = firstIssue.primaryLocation();
+    assertThat(location.inputComponent()).isEqualTo(inputFile);
+    assertThat(location.message()).isEqualTo("Issue message");
+    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4)));
+
+    location = secondIssue.primaryLocation();
+    assertThat(location.inputComponent()).isEqualTo(inputFile);
+    assertThat(location.message()).isEqualTo("Line issue message");
+    assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 9)));
+
+    assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
+    assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
+  }
+
+  @Test
+  public void should_not_explode_if_no_response() throws Exception {
+    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
+    
+    TypeScriptSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+    sensor.execute(context);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to get response while analyzing " + inputFile);
+    assertThat(context.allIssues()).isEmpty();
+  }
+
+  private TypeScriptSensor createSensor() {
+    return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
+  }
+
+  private AnalysisResponseIssue[] createIssues() {
+    return new Gson().fromJson("[{"
+        + "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []},"
+        + "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []"
+        + "}]", AnalysisResponseIssue[].class);
+  }
+
+  private static DefaultInputFile createInputFile(SensorContextTester context) {
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
+      .setLanguage("ts")
+      .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
+      .build();
+    context.fileSystem().add(inputFile);
+    return inputFile;
+  }
+
+  private static void createTSConfigFile(SensorContextTester context) {
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "tsconfig.json")
+      .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
+      .build();
+    context.fileSystem().add(inputFile);
+  }
+
+  private static CheckFactory checkFactory(String... ruleKeys) {
+    ActiveRulesBuilder builder = new ActiveRulesBuilder();
+    for (String ruleKey : ruleKeys) {
+      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, ruleKey)).build());
+    }
+    return new CheckFactory(builder.build());
+  }
+}

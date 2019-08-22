@@ -19,11 +19,14 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -125,7 +128,27 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context);
 
-    assertThat(eslintBridgeServer.call("{}")).isEqualTo("answer from eslint-bridge");
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    EslintBridgeServer.AnalysisRequest request = new EslintBridgeServer.AnalysisRequest(inputFile, new EslintBridgeServer.Rule[0]);
+    assertThat(eslintBridgeServer.call(request)).isEqualTo(new EslintBridgeServer.AnalysisResponseIssue[0]);
+  }
+
+  @Test
+  public void should_get_answer_from_server_for_ts_request() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
+      .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
+      .build();
+    EslintBridgeServer.TypeScriptAnalysisRequest request = new EslintBridgeServer.TypeScriptAnalysisRequest(inputFile, new EslintBridgeServer.Rule[0], Collections.singletonList(tsConfig.absolutePath()));
+    assertThat(eslintBridgeServer.analyzeTypeScript(request)).isEqualTo(new EslintBridgeServer.AnalysisResponseIssue[0]);
   }
 
   @Test
@@ -185,6 +208,26 @@ public class EslintBridgeServerImplTest {
     assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
       .isInstanceOf(ServerAlreadyFailedException.class);
   }
+
+  @Test
+  public void should_not_explode_if_bad_json_response() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("badResponse.js");
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServerLazily(context);
+
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    EslintBridgeServer.AnalysisRequest request = new EslintBridgeServer.AnalysisRequest(inputFile, new EslintBridgeServer.Rule[0]);
+    eslintBridgeServer.call(request);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to parse: \n" +
+      "-----\n" +
+      "Invalid response\n" +
+      "-----\n");
+    assertThat(context.allIssues()).isEmpty();
+  }
+
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
     return new EslintBridgeServerImpl(NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);

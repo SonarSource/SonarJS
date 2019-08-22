@@ -19,11 +19,14 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Duration;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -48,6 +51,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private static final int DEFAULT_TIMEOUT_SECONDS = 10;
   private static final String DEFAULT_STARTUP_SCRIPT = "node_modules/eslint-bridge/bin/server";
   private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
+  private static final Gson GSON = new Gson();
 
   // this archive is created in eslint-bridge/scripts/package.js
   private static final String BUNDLE_LOCATION = "/eslint-bridge.tar.xz";
@@ -150,9 +154,26 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public String call(String json) throws IOException {
+  public AnalysisResponseIssue[] call(AnalysisRequest request) throws IOException {
+    String json = GSON.toJson(request);
+    return toIssues(request(json, "analyze"));
+  }
+
+  @Override
+  public AnalysisResponseIssue[] analyzeTypeScript(TypeScriptAnalysisRequest request) throws IOException {
+    String json = GSON.toJson(request);
+    return toIssues(request(json, "analyze-ts"));
+  }
+
+  private String request(String json, String endpoint) throws IOException {
+    HttpUrl url = new HttpUrl.Builder()
+      .scheme("http")
+      .host("localhost")
+      .port(port)
+      .addPathSegment(endpoint)
+      .build();
     Request request = new Request.Builder()
-      .url("http://localhost:" + port + "/analyze")
+      .url(url)
       .post(RequestBody.create(MediaType.get("application/json"), json))
       .build();
 
@@ -161,6 +182,16 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       return response.body().string();
     }
   }
+
+  private static AnalysisResponseIssue[] toIssues(String result) {
+    try {
+      return GSON.fromJson(result, AnalysisResponseIssue[].class);
+    } catch (JsonSyntaxException e) {
+      LOG.error("Failed to parse: \n-----\n" + result + "\n-----\n");
+      return new AnalysisResponseIssue[0];
+    }
+  }
+
 
   boolean isAlive() {
     if (nodeCommand == null) {

@@ -12,7 +12,7 @@ const requestHandler = (request, response) => {
     response.writeHead(200, { 'Content-Type': 'text/plain' });
     response.end('OK!');
   } else {
-    response.end("[]");
+    response.end("Invalid response");
   }
 }
 
