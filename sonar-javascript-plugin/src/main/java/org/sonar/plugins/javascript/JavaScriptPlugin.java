@@ -205,7 +205,7 @@ public class JavaScriptPlugin implements Plugin {
       PropertyDefinition.builder(TS_LCOV_REPORT_PATHS)
         .defaultValue(TS_LCOV_REPORT_PATHS_DEFAULT_VALUE)
         .name("LCOV Files")
-        .description("DEPRECATED - Use " + LCOV_REPORT_PATHS + " (Javascript tab) instead. \n" +
+        .description("DEPRECATED - Use " + LCOV_REPORT_PATHS + " instead. \n" +
           "Paths (absolute or relative) to the files with LCOV data.")
         .onQualifiers(Qualifiers.PROJECT)
         .subCategory(TEST_AND_COVERAGE)

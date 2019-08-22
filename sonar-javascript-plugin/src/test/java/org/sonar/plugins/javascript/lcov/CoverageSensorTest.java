@@ -45,8 +45,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CoverageSensorTest {
 
-  private static final String UT_LCOV = "reports/report_ut.lcov";
-  private static final String IT_LCOV = "reports/report_it.lcov";
+  private static final String REPORT1 = "reports/report_ut.lcov";
+  private static final String REPORT2 = "reports/report_it.lcov";
+  private static final String REPORT1AND2 = REPORT1 + ", " + REPORT2;
+
   private final String DEPRECATED_MESSAGE = "The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead.";
   private SensorContextTester context;
   private MapSettings settings;
@@ -62,7 +64,7 @@ public class CoverageSensorTest {
   @Before
   public void init() throws FileNotFoundException {
     settings = new MapSettings();
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, UT_LCOV + ", " + IT_LCOV);
+
     context = SensorContextTester.create(moduleBaseDir);
     context.setSettings(settings);
 
@@ -96,41 +98,42 @@ public class CoverageSensorTest {
 
   @Test
   public void test_coverage() {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1AND2);
     coverageSensor.execute(context);
-    testUtAndItReportsCoverageData();
+    assertTwoReportsCoverageDataPresent();
   }
 
   @Test
   public void should_work_and_log_warning_when_deprecated_key() throws Exception {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "");
-    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, UT_LCOV + ", " + IT_LCOV);
+    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, REPORT1AND2);
     coverageSensor.execute(context);
 
-    testUtAndItReportsCoverageData();
+    assertTwoReportsCoverageDataPresent();
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(DEPRECATED_MESSAGE);
   }
 
   @Test
   public void should_include_coverage_from_both_key() throws Exception {
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, UT_LCOV);
-    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, IT_LCOV);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1);
+    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, REPORT2);
     coverageSensor.execute(context);
 
-    testUtAndItReportsCoverageData();
+    assertTwoReportsCoverageDataPresent();
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(DEPRECATED_MESSAGE);
   }
 
   @Test
   public void both_properties_reports_paths_overlap() throws Exception {
-    // LCOV_REPORT_PATHS is set with UT_LCOV and IT_LCOV during initialisation.
-    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, UT_LCOV + ", " + IT_LCOV);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1AND2);
+    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, REPORT1AND2);
     coverageSensor.execute(context);
 
-    testUtAndItReportsCoverageData();
+    assertTwoReportsCoverageDataPresent();
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(DEPRECATED_MESSAGE);
   }
 
-  private void testUtAndItReportsCoverageData() {
+  private void assertTwoReportsCoverageDataPresent() {
     Integer[] file1Expected = {3, 3, 1, null};
     Integer[] file2Expected = {5, 5, null, null};
 
