@@ -26,58 +26,42 @@ import java.util.List;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
-import org.sonarqube.ws.client.issues.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EslintReportTest {
+public class TslintExternalReportTest {
+
+  private static final String PROJECT_KEY = "SonarJS-tslint-report-test";
 
   @ClassRule
   public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
-  private static final String PROJECT_KEY = "SonarJS-eslint-report-test";
-
   @Test
   public void should_save_issues_from_external_report() {
+    orchestrator.resetData();
     SonarScanner build = Tests.createScanner()
-      .setProjectDir(TestUtils.projectDir("eslint_report"))
-      .setProjectKey(PROJECT_KEY)
-      .setProjectName(PROJECT_KEY)
-      .setProjectVersion("1.0")
-      .setSourceDirs("src");
+    .setProjectDir(TestUtils.projectDir("tslint-report-project"))
+    .setProjectKey(PROJECT_KEY)
+    .setProjectName(PROJECT_KEY)
+    .setProjectVersion("1.0")
+    .setSourceDirs("src");
 
-    build.setProperty("sonar.eslint.reportPaths", "report.json");
+    build.setProperty("sonar.typescript.tslint.reportPaths", "report.json");
     orchestrator.executeBuild(build);
 
-    List<Issue> jsIssuesList = newWsClient()
-      .issues()
-      .search(new SearchRequest().setComponentKeys(Collections.singletonList(PROJECT_KEY + ":src/file.js")))
-      .getIssuesList();
-
-    List<Issue> tsIssuesList = newWsClient()
-      .issues()
-      .search(new SearchRequest().setComponentKeys(Collections.singletonList(PROJECT_KEY + ":src/file.ts")))
-      .getIssuesList();
-
-    assertThat(jsIssuesList).extracting("line").containsExactlyInAnyOrder(1, 2, 2, 3, 5, 7, 7);
-    assertThat(jsIssuesList).extracting("rule").containsExactlyInAnyOrder(
-      "javascript:S2688",
-      "javascript:S1116",
-      "external_eslint_repo:no-unused-vars",
-      "external_eslint_repo:no-extra-semi",
-      "external_eslint_repo:use-isnan",
-      "external_eslint_repo:semi",
-      "external_eslint_repo:semi");
-
-    assertThat(tsIssuesList).extracting("rule").containsExactlyInAnyOrder(
-      "external_eslint_repo:no-unused-vars",
-      "external_eslint_repo:no-extra-semi",
-      "external_eslint_repo:use-isnan",
-      "external_eslint_repo:semi",
-      "external_eslint_repo:semi");
+    SearchRequest request = new SearchRequest();
+    request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
+    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    assertThat(issuesList).extracting("line").containsExactlyInAnyOrder(3, 5, 5, 7);
+    assertThat(issuesList).extracting("rule").containsExactlyInAnyOrder(
+      "external_tslint_repo:no-unused-expression",
+      "external_tslint_repo:prefer-const",
+      "external_tslint_repo:semicolon",
+      "external_tslint_repo:curly");
   }
 
   private static WsClient newWsClient() {
@@ -85,5 +69,4 @@ public class EslintReportTest {
       .url(orchestrator.getServer().getUrl())
       .build());
   }
-
 }
