@@ -29,7 +29,7 @@ pipeline {
             label 'linux'
           }
           steps {
-            runITs("plugin","DOGFOOD")
+            runITsNoSubmodules("plugin","DOGFOOD")
           }
         }     
         stage('plugin/LATEST_RELEASE[7.9]/linux') {
@@ -37,7 +37,7 @@ pipeline {
             label 'linux'
           }
           steps {
-            runITs("plugin","LATEST_RELEASE[7.9]")
+            runITsNoSubmodules("plugin","LATEST_RELEASE[7.9]")
           }
         }
         stage('ruling/LATEST_RELEASE/linux') {
@@ -55,7 +55,7 @@ pipeline {
             label 'windows'
           }
           steps {
-            runITs("plugin","LATEST_RELEASE")
+            runITsNoSubmodules("plugin","LATEST_RELEASE")
           }
         }
         stage('ci/windows') {
@@ -95,6 +95,15 @@ def runITs(TEST,SQ_VERSION) {
     mavenSetBuildVersion()   
     gitFetchSubmodules()     
     dir("its/$TEST") {    
+      runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION")
+    }
+  }
+}
+
+def runITsNoSubmodules(TEST,SQ_VERSION) {
+  withMaven(maven: MAVEN_TOOL) {
+    mavenSetBuildVersion()
+    dir("its/$TEST") {
       runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION")
     }
   }
