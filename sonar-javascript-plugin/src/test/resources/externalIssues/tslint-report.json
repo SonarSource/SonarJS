@@ -1,0 +1,38 @@
+[
+  {
+    "endPosition": {
+      "character": 13,
+      "line": 0,
+      "position": 13
+    },
+    "failure": "Missing semicolon",
+    "fix": {
+      "innerStart": 13,
+      "innerLength": 0,
+      "innerText": ";"
+    },
+    "name": "myFile.ts",
+    "ruleName": "semicolon",
+    "startPosition": {
+      "character": 13,
+      "line": 0,
+      "position": 13
+    }
+  },
+  {
+    "endPosition": {
+      "character": 1,
+      "line": 2,
+      "position": 18
+    },
+    "failure": "misplaced opening brace",
+    "name": "myFile.ts",
+    "ruleName": "curly",
+    "startPosition": {
+      "character": 0,
+      "line": 2,
+      "position": 19
+    },
+    "ruleSeverity": "ERROR"
+  }
+]
