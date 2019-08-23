@@ -23,7 +23,7 @@ describe("server", () => {
 
     const response = await post(
       JSON.stringify({
-        fileUri: "dir/file.js",
+        filePath: "dir/file.js",
         fileContent: "if (true) 42; else 42;",
         rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
       }),
@@ -47,7 +47,7 @@ describe("server", () => {
   });
 
   it("should respond with issues for TypeScript", async () => {
-    const fileUri = join(__dirname, "./fixtures/ts-project/sample.lint.ts");
+    const filePath = join(__dirname, "./fixtures/ts-project/sample.lint.ts");
     const tsConfig = join(__dirname, "./fixtures/ts-project/tsconfig.json");
 
     expect.assertions(2);
@@ -55,7 +55,7 @@ describe("server", () => {
 
     const response = await post(
       JSON.stringify({
-        fileUri: fileUri,
+        filePath,
         fileContent: "if (true) 42; else 42;",
         rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
         tsConfigs: [tsConfig],

@@ -41,7 +41,7 @@ export const PARSER_CONFIG_SCRIPT: Linter.ParserOptions = {
   sourceType: "script",
 };
 
-export function parseSourceFile(fileContent: string, fileUri: string): SourceCode | undefined {
+export function parseSourceFile(fileContent: string, filePath: string): SourceCode | undefined {
   let parseFunctions = [espree.parse, babel.parse];
   if (fileContent.includes("@flow")) {
     parseFunctions = [babel.parse];
@@ -60,17 +60,13 @@ export function parseSourceFile(fileContent: string, fileUri: string): SourceCod
   }
 
   if (exceptionToReport) {
-    console.error(
-      `Failed to parse file [${fileUri}] at line ${exceptionToReport.lineNumber}: ${
-        exceptionToReport.message
-      }`,
-    );
+    logParseException(filePath, exceptionToReport);
   }
 }
 
 export function parseTypeScriptSourceFile(
   fileContent: string,
-  fileUri: string,
+  filePath: string,
   tsConfigs: string[],
 ): SourceCode | undefined {
   try {
@@ -78,15 +74,19 @@ export function parseTypeScriptSourceFile(
     const tsParser = require("@typescript-eslint/parser");
     const result = tsParser.parseForESLint(fileContent, {
       ...PARSER_CONFIG_MODULE,
-      filePath: fileUri,
+      filePath: filePath,
       project: tsConfigs,
     });
     return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
   } catch (exception) {
-    console.error(
-      `Failed to parse file [${fileUri}] at line ${exception.lineNumber}: ${exception.message}`,
-    );
+    logParseException(filePath, exception);
   }
+}
+
+function logParseException(filePath: string, exception: ParseException) {
+  console.error(
+    `Failed to parse file [${filePath}] at line ${exception.lineNumber}: ${exception.message}`,
+  );
 }
 
 export function parse(

@@ -29,11 +29,11 @@ import org.sonar.plugins.javascript.JavaScriptChecks;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
 
-class EslintIssue {
+class EslintBasedIssue {
 
   private final AnalysisResponseIssue issue;
 
-  EslintIssue(AnalysisResponseIssue issue) {
+  EslintBasedIssue(AnalysisResponseIssue issue) {
     this.issue = issue;
   }
 

@@ -314,7 +314,7 @@ public class EslintBasedRulesSensorTest {
     EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, analysisWarnings);
     eslintBasedRulesSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
-    verify(analysisWarnings).addUnique("Some eslint-based rules were not executed. Exception Message");
+    verify(analysisWarnings).addUnique("Eslint-based rules were not executed. Exception Message");
   }
 
   @Test

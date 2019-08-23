@@ -67,7 +67,7 @@ public class EslintBasedRulesSensor extends AbstractEslintSensor {
     try {
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
       for (AnalysisResponseIssue issue : response.issues) {
-        new EslintIssue(issue).saveIssue(context, file, checks);
+        new EslintBasedIssue(issue).saveIssue(context, file, checks);
       }
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);

@@ -84,7 +84,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       TypeScriptAnalysisRequest request = new TypeScriptAnalysisRequest(file, rules, tsConfigs(context));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       for (AnalysisResponseIssue issue : response.issues) {
-        new EslintIssue(issue).saveIssue(context, file, checks);
+        new EslintBasedIssue(issue).saveIssue(context, file, checks);
       }
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);

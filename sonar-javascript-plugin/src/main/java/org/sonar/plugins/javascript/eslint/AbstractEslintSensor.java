@@ -81,7 +81,7 @@ abstract class AbstractEslintSensor implements Sensor {
     } catch (NodeCommandException e) {
       LOG.error(e.getMessage(), e);
       if (analysisWarnings != null) {
-        analysisWarnings.addUnique("Some eslint-based rules were not executed. " + e.getMessage());
+        analysisWarnings.addUnique("Eslint-based rules were not executed. " + e.getMessage());
       }
     } catch (Exception e) {
       LOG.error("Failure during analysis, " + eslintBridgeServer.getCommandInfo(), e);

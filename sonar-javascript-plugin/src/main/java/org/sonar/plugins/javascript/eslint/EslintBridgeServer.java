@@ -44,12 +44,12 @@ public interface EslintBridgeServer extends Startable {
   String getCommandInfo();
 
   class AnalysisRequest {
-    String fileUri;
+    String filePath;
     String fileContent;
     Rule[] rules;
 
     AnalysisRequest(InputFile file, Rule[] rules) {
-      this.fileUri = file.absolutePath();
+      this.filePath = file.absolutePath();
       this.fileContent = fileContent(file);
       if (this.fileContent.startsWith("#!")) {
         String[] lines = this.fileContent.split("\r\n|\n|\r", -1);

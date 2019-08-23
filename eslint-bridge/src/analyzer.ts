@@ -20,8 +20,10 @@
 import { parseSourceFile, parseTypeScriptSourceFile } from "./parser";
 import * as linter from "./linter";
 
+const EMPTY_RESPONSE: AnalysisResponse = { issues: [] };
+
 export interface AnalysisInput {
-  fileUri: string;
+  filePath: string;
   fileContent: string;
   rules: Rule[];
 }
@@ -61,23 +63,23 @@ export interface IssueLocation {
 }
 
 export function analyze(input: AnalysisInput): AnalysisResponse {
-  const { fileUri, fileContent } = input;
+  const { filePath, fileContent } = input;
   if (fileContent) {
-    const sourceCode = parseSourceFile(fileContent, fileUri);
+    const sourceCode = parseSourceFile(fileContent, filePath);
     if (sourceCode) {
-      return linter.analyze(sourceCode, input.rules, fileUri);
+      return linter.analyze(sourceCode, input.rules, filePath);
     }
   }
-  return { issues: [] };
+  return EMPTY_RESPONSE;
 }
 
 export function analyzeTypeScript(input: TypeScriptAnalysisInput): AnalysisResponse {
-  const { fileUri, fileContent, rules, tsConfigs } = input;
+  const { filePath, fileContent, rules, tsConfigs } = input;
   if (fileContent) {
-    const sourceCode = parseTypeScriptSourceFile(fileContent, fileUri, tsConfigs);
+    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, tsConfigs);
     if (sourceCode) {
-      return linter.analyze(sourceCode, rules, fileUri);
+      return linter.analyze(sourceCode, rules, filePath);
     }
   }
-  return { issues: [] };
+  return EMPTY_RESPONSE;
 }
