@@ -27,6 +27,7 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -39,15 +40,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.wsclient.SonarClient;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
+import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
-  private static final Gson GSON = new Gson();
-
-  private static final String PROJECT_KEY = "project";
 
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
@@ -66,36 +65,72 @@ public class JavaScriptRulingTest {
       .add("S1192", "threshold", "4")
       .add("S2762", "threshold", "1");
     Set<String> excludedRules = Collections.singleton("CommentRegularExpression");
-    File profile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "js", "javascript", rulesConfiguration, excludedRules);
-    orchestrator.getServer().restoreProfile(FileLocation.of(profile));
+    File jsProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "js", "javascript", rulesConfiguration, excludedRules);
+    File tsProfile = ProfileGenerator.generateProfile(
+      orchestrator.getServer().getUrl(),
+      "ts", "typescript",
+      new ProfileGenerator.RulesConfiguration(),
+      Collections.emptySet());
+
+    orchestrator.getServer()
+      .restoreProfile(FileLocation.of(jsProfile))
+      .restoreProfile(FileLocation.of(tsProfile))
+      .restoreProfile(FileLocation.ofClasspath("/empty-ts-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"));
   }
 
   @Test
-  public void test() throws Exception {
-    File litsDifferencesFile = FileLocation.of("target/differences").getFile();
-    orchestrator.getServer().provisionProject("project", "project");
-    orchestrator.getServer().associateProjectToQualityProfile("project", "js", "rules");
-    SonarScanner build = SonarScanner.create(FileLocation.of("../sources/src").getFile())
-      .setProjectKey(PROJECT_KEY)
-      .setProjectName("project")
+  public void testJavaScript() throws Exception {
+    runRulingTest("project", "js", "ts", "../sources/src", "src/test/expected");
+  }
+
+  @Test
+  public void testTypeScript() throws Exception {
+    installTypeScript(FileLocation.of("../typescript-test-sources/src").getFile());
+    runRulingTest("ts-project", "ts", "js", "../typescript-test-sources/src", "src/test/ts-expected");
+  }
+
+  private void runRulingTest(String projectKey, String languageToAnalyze, String languageToIgnore, String sources, String expectedDir) throws IOException {
+    orchestrator.getServer().provisionProject(projectKey, projectKey);
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
+
+    if (languageToAnalyze.equals("js")) {
+      instantiateTemplateRule(
+        projectKey,
+        "CommentRegularExpression",
+        "CommentRegexTest",
+        "regularExpression=\"(?i).*TODO.*\";message=\"bad user\"");
+    }
+
+    SonarScanner build = SonarScanner.create(FileLocation.of(sources).getFile())
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1")
-      .setLanguage("js")
       .setSourceDirs("./")
       .setSourceEncoding("utf-8")
-      .setProperty("dump.old", FileLocation.of("src/test/expected").getFile().getAbsolutePath())
-      .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
-      .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
-      .setProperty("sonar.cpd.exclusions", "**/*")
-      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m");
-
-    instantiateTemplateRule("CommentRegularExpression", "CommentRegexTest", "regularExpression=\"(?i).*TODO.*\";message=\"bad user\"");
+      .setProperty("dump.old", FileLocation.of(expectedDir).getFile().getAbsolutePath())
+      .setProperty("dump.new", FileLocation.of("target/actual/" + languageToAnalyze).getFile().getAbsolutePath())
+      .setProperty("lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
+      .setProperty("sonar.exclusions", "**/*." + languageToIgnore)
+      .setProperty("sonar.cpd.exclusions", "**/*");
 
     orchestrator.executeBuild(build);
 
-    assertThat(Files.toString(litsDifferencesFile, StandardCharsets.UTF_8)).isEmpty();
+    assertThat(Files.asCharSource(FileLocation.of("target/differences").getFile(), StandardCharsets.UTF_8).read()).isEmpty();
   }
 
-  private static void instantiateTemplateRule(String ruleTemplateKey, String instantiationKey, String params) {
+  private static void installTypeScript(File projectDir) throws IOException, InterruptedException {
+    String npm = System2.INSTANCE.isOsWindows() ? "npm.cmd" : "npm";
+    String[] cmd = {npm, "install", "typescript@3.5.3"};
+    Process process = Runtime.getRuntime().exec(cmd, null, projectDir);
+    int returnValue = process.waitFor();
+    if (returnValue != 0) {
+      throw new IllegalStateException("Failed to install TypeScript");
+    }
+  }
+
+  private static void instantiateTemplateRule(String projectKey, String ruleTemplateKey, String instantiationKey, String params) {
     SonarClient sonarClient = orchestrator.getServer().adminWsClient();
     sonarClient.post("/api/rules/create", ImmutableMap.<String, Object>builder()
       .put("name", instantiationKey)
@@ -107,10 +142,10 @@ public class JavaScriptRulingTest {
       .put("prevent_reactivation", "true")
       .put("params", "name=\"" + instantiationKey + "\";key=\"" + instantiationKey + "\";markdown_description=\"" + instantiationKey + "\";" + params)
       .build());
-    String post = sonarClient.get("api/qualityprofiles/search?projectKey=" + PROJECT_KEY);
+    String post = sonarClient.get("api/qualityprofiles/search?projectKey=" + projectKey);
 
     String profileKey = null;
-    Map profilesForProject = GSON.fromJson(post, Map.class);
+    Map profilesForProject = new Gson().fromJson(post, Map.class);
     for (Map profileDescription : (List<Map>) profilesForProject.get("profiles")) {
       if ("rules".equals(profileDescription.get("name"))) {
         profileKey = (String) profileDescription.get("key");
