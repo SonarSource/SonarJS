@@ -57,8 +57,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   private static JavaScriptChecks checks(CheckFactory checkFactory) {
-    return JavaScriptChecks.createJavaScriptCheck(checkFactory)
-      .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks());
+    return JavaScriptChecks.createJavaScriptChecks(checkFactory)
+      .addChecks(CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
   }
 
   @Override

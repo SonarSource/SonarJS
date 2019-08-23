@@ -26,7 +26,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
-import org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor;
+import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
@@ -35,6 +35,7 @@ import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
+import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
 import org.sonarsource.nodejs.NodeCommand;
 
 public class JavaScriptPlugin implements Plugin {
@@ -90,11 +91,10 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptSensor.class,
       JavaScriptExclusionsFileFilter.class,
       new JavaScriptRulesDefinition(context.getRuntime()),
-      new SonarWayRecommendedProfile(context.getRuntime()),
-      new SonarWayProfile(context.getRuntime()),
+      JavaScriptProfilesDefinition.class,
       NodeCommand.builder(),
       EslintBridgeServerImpl.class,
-      EslintBasedRulesSensor.class
+      JavaScriptEslintBasedSensor.class
     );
 
     context.addExtensions(
@@ -193,6 +193,7 @@ public class JavaScriptPlugin implements Plugin {
     context.addExtensions(
       TypeScriptSensor.class,
       TypeScriptLanguage.class,
+      TypeScriptRulesDefinition.class,
 
       PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE)

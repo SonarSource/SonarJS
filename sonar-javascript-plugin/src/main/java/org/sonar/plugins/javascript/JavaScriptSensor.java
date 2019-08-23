@@ -123,8 +123,8 @@ public class JavaScriptSensor implements Sensor {
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
     @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition,
     @Nullable CustomRuleRepository[] customRuleRepositories) {
-    this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
-      .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
+    this.checks = JavaScriptChecks.createJavaScriptChecks(checkFactory)
+      .addChecks(CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks())
       .addCustomChecks(customRulesDefinition, customRuleRepositories);
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.fileSystem = fileSystem;

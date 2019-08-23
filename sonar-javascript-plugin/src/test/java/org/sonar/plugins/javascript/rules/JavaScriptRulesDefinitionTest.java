@@ -43,7 +43,7 @@ public class JavaScriptRulesDefinitionTest {
 
     assertThat(repository.name()).isEqualTo("SonarAnalyzer");
     assertThat(repository.language()).isEqualTo("js");
-    assertThat(repository.rules()).hasSize(CheckList.getChecks().size());
+    assertThat(repository.rules()).hasSize(CheckList.getJavaScriptChecks().size());
 
     assertRuleProperties(repository);
     assertParameterProperties(repository);

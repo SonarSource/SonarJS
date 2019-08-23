@@ -52,7 +52,7 @@ public class JavaScriptChecks {
     this.checkFactory = checkFactory;
   }
 
-  public static JavaScriptChecks createJavaScriptCheck(CheckFactory checkFactory) {
+  public static JavaScriptChecks createJavaScriptChecks(CheckFactory checkFactory) {
     return new JavaScriptChecks(checkFactory);
   }
 
