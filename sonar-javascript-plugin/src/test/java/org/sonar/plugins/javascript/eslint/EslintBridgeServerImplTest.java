@@ -32,7 +32,6 @@ import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysisRequest;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
@@ -135,7 +134,7 @@ public class EslintBridgeServerImplTest {
       .setContents("alert('Fly, you fools!')")
       .build();
     AnalysisRequest request = new AnalysisRequest(inputFile, new EslintBridgeServer.Rule[0]);
-    assertThat(eslintBridgeServer.call(request).issues).isEmpty();
+    assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
   }
 
   @Test
@@ -222,7 +221,7 @@ public class EslintBridgeServerImplTest {
       .setContents("alert('Fly, you fools!')")
       .build();
     AnalysisRequest request = new AnalysisRequest(inputFile, new EslintBridgeServer.Rule[0]);
-    eslintBridgeServer.call(request);
+    eslintBridgeServer.analyzeJavaScript(request);
 
     assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to parse: \n" +
       "-----\n" +
