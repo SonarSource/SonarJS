@@ -22,33 +22,29 @@ package org.sonar.plugins.javascript.rules;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
-public class JavaScriptRulesDefinition implements RulesDefinition {
+import static org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition.METADATA_LOCATION;
 
-  public static final String METADATA_LOCATION = "org/sonar/l10n/javascript/rules/javascript";
+public class TypeScriptRulesDefinition implements RulesDefinition {
+
   private final SonarRuntime sonarRuntime;
 
-  public JavaScriptRulesDefinition(SonarRuntime sonarRuntime) {
+  public TypeScriptRulesDefinition(SonarRuntime sonarRuntime) {
     this.sonarRuntime = sonarRuntime;
   }
 
   @Override
   public void define(Context context) {
     NewRepository repository = context
-      .createRepository(CheckList.JS_REPOSITORY_KEY, JavaScriptLanguage.KEY)
+      .createRepository(CheckList.TS_REPOSITORY_KEY, TypeScriptLanguage.KEY)
       .setName(CheckList.REPOSITORY_NAME);
 
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON, sonarRuntime);
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getJavaScriptChecks());
-
-    NewRule commentRegularExpression = repository.rule("CommentRegularExpression");
-    commentRegularExpression.setTemplate(true);
-
+    ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getTypeScriptChecks());
     repository.done();
   }
-
 
 }

@@ -21,17 +21,31 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class CheckList {
 
-  public static final String REPOSITORY_KEY = "javascript";
+  public static final String JS_REPOSITORY_KEY = "javascript";
+  public static final String TS_REPOSITORY_KEY = "typescript";
 
   public static final String REPOSITORY_NAME = "SonarAnalyzer";
 
   private CheckList() {
   }
 
-  public static List<Class> getChecks() {
+  public static List<Class> getTypeScriptChecks() {
+    List<Class> allChecks = getAllChecks();
+    return allChecks.stream()
+      .filter(c -> c.isAnnotationPresent(TypeScriptRule.class))
+      .collect(Collectors.toList());
+  }
+
+  public static List<Class> getJavaScriptChecks() {
+    // todo: filter only checks applied to JavaScript
+    return getAllChecks();
+  }
+
+  public static List<Class> getAllChecks() {
     return ImmutableList.<Class>of(
       AlertUseCheck.class,
       ConditionalUnreachableCodeCheck.class,

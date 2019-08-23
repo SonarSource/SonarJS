@@ -201,7 +201,7 @@ public class JavaScriptSensorTest {
     String parsingErrorCheckKey = "ParsingError";
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .addRule(new NewActiveRule.Builder().setName("ParsingError").setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, parsingErrorCheckKey)).build())
+      .addRule(new NewActiveRule.Builder().setName("ParsingError").setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, parsingErrorCheckKey)).build())
       .build();
 
     checkFactory = new CheckFactory(activeRules);
@@ -245,7 +245,7 @@ public class JavaScriptSensorTest {
     inputFile("file.js");
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "MissingNewlineAtEndOfFile")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "MissingNewlineAtEndOfFile")).build())
       .build();
     checkFactory = new CheckFactory(activeRules);
 
@@ -262,8 +262,8 @@ public class JavaScriptSensorTest {
     inputFile("file.js");
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "MissingNewlineAtEndOfFile")).build())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "MissingNewlineAtEndOfFile")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "VariableDeclarationAfterUsage")).build())
       .build();
 
     checkFactory = new CheckFactory(activeRules);
@@ -366,7 +366,7 @@ public class JavaScriptSensorTest {
 
   private void analyseFile(String relativePath) {
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "VariableDeclarationAfterUsage")).build())
       .build();
     checkFactory = new CheckFactory(activeRules);
     context.setActiveRules(activeRules);
