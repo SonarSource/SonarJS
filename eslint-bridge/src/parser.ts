@@ -19,7 +19,7 @@
  */
 import * as espree from "espree";
 import * as babel from "babel-eslint";
-import { SourceCode, Linter } from "eslint";
+import { Linter, SourceCode } from "eslint";
 
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
@@ -41,7 +41,7 @@ export const PARSER_CONFIG_SCRIPT: Linter.ParserOptions = {
   sourceType: "script",
 };
 
-export function parseSourceFile(fileContent: string, fileUri: string): SourceCode | undefined {
+export function parseSourceFile(fileContent: string, filePath: string): SourceCode | undefined {
   let parseFunctions = [espree.parse, babel.parse];
   if (fileContent.includes("@flow")) {
     parseFunctions = [babel.parse];
@@ -60,12 +60,33 @@ export function parseSourceFile(fileContent: string, fileUri: string): SourceCod
   }
 
   if (exceptionToReport) {
-    console.error(
-      `Failed to parse file [${fileUri}] at line ${exceptionToReport.lineNumber}: ${
-        exceptionToReport.message
-      }`,
-    );
+    logParseException(filePath, exceptionToReport);
   }
+}
+
+export function parseTypeScriptSourceFile(
+  fileContent: string,
+  filePath: string,
+  tsConfigs: string[],
+): SourceCode | undefined {
+  try {
+    // we load the typescript parser dynamically, so we don't need typescript dependency when analysing pure JS project
+    const tsParser = require("@typescript-eslint/parser");
+    const result = tsParser.parseForESLint(fileContent, {
+      ...PARSER_CONFIG_MODULE,
+      filePath: filePath,
+      project: tsConfigs,
+    });
+    return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
+  } catch (exception) {
+    logParseException(filePath, exception);
+  }
+}
+
+function logParseException(filePath: string, exception: ParseException) {
+  console.error(
+    `Failed to parse file [${filePath}] at line ${exception.lineNumber}: ${exception.message}`,
+  );
 }
 
 export function parse(

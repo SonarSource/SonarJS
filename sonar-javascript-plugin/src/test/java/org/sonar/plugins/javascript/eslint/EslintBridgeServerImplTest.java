@@ -19,19 +19,25 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Rule;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysisRequest;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -45,13 +51,13 @@ public class EslintBridgeServerImplTest {
   private static final String MOCK_ESLINT_BUNDLE = "/mock-eslint-bundle.tar.xz";
   private static final String START_SERVER_SCRIPT = "startServer.js";
 
-  @Rule
+  @org.junit.Rule
   public LogTester logTester = new LogTester();
 
-  @Rule
+  @org.junit.Rule
   public final ExpectedException thrown = ExpectedException.none();
 
-  @Rule
+  @org.junit.Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
   private SensorContextTester context;
@@ -125,7 +131,28 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context);
 
-    assertThat(eslintBridgeServer.call("{}")).isEqualTo("answer from eslint-bridge");
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    AnalysisRequest request = new AnalysisRequest(inputFile, new Rule[0]);
+    assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
+  }
+
+  @Test
+  public void should_get_answer_from_server_for_ts_request() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.ts")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
+      .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
+      .build();
+    TypeScriptAnalysisRequest request = new TypeScriptAnalysisRequest(inputFile, new Rule[0],
+      singletonList(tsConfig.absolutePath()));
+    assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
 
   @Test
@@ -185,6 +212,27 @@ public class EslintBridgeServerImplTest {
     assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
       .isInstanceOf(ServerAlreadyFailedException.class);
   }
+
+  @Test
+  public void should_not_explode_if_bad_json_response() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("badResponse.js");
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServerLazily(context);
+
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    AnalysisRequest request = new AnalysisRequest(inputFile, new Rule[0]);
+    EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(request);
+    assertThat(response.issues).isEmpty();
+
+    assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to parse: \n" +
+      "-----\n" +
+      "Invalid response\n" +
+      "-----\n");
+    assertThat(context.allIssues()).isEmpty();
+  }
+
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
     return new EslintBridgeServerImpl(NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);

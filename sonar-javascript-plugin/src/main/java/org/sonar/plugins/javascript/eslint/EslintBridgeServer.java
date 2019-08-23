@@ -20,11 +20,12 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.util.List;
 import org.sonar.api.Startable;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 
@@ -32,12 +33,80 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 @SonarLintSide(lifespan = MULTIPLE_ANALYSES)
 public interface EslintBridgeServer extends Startable {
 
-  void startServerLazily(SensorContext context) throws IOException, ServerAlreadyFailedException, NodeCommandException;
+  void startServerLazily(SensorContext context) throws IOException;
 
-  String call(String request) throws IOException;
+  AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException;
+
+  AnalysisResponse analyzeTypeScript(TypeScriptAnalysisRequest request) throws IOException;
 
   void clean();
 
   String getCommandInfo();
+
+  class AnalysisRequest {
+    String filePath;
+    String fileContent;
+    Rule[] rules;
+
+    AnalysisRequest(InputFile file, Rule[] rules) {
+      this.filePath = file.absolutePath();
+      this.fileContent = fileContent(file);
+      if (this.fileContent.startsWith("#!")) {
+        String[] lines = this.fileContent.split("\r\n|\n|\r", -1);
+        this.fileContent = this.fileContent.substring(lines[0].length());
+      }
+      this.rules = rules;
+    }
+
+    private static String fileContent(InputFile file) {
+      try {
+        return file.contents();
+      } catch (IOException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+  }
+
+  class Rule {
+    String key;
+    List<String> configurations;
+
+    Rule(String key, List<String> configurations) {
+      this.key = key;
+      this.configurations = configurations;
+    }
+  }
+
+  class AnalysisResponse {
+    AnalysisResponseIssue[] issues = {};
+  }
+
+  class AnalysisResponseIssue {
+    Integer line;
+    Integer column;
+    Integer endLine;
+    Integer endColumn;
+    String message;
+    String ruleId;
+    List<IssueLocation> secondaryLocations;
+    Double cost;
+  }
+
+  class IssueLocation {
+    Integer line;
+    Integer column;
+    Integer endLine;
+    Integer endColumn;
+    String message;
+  }
+
+  class TypeScriptAnalysisRequest extends AnalysisRequest {
+    List<String> tsConfigs;
+
+    TypeScriptAnalysisRequest(InputFile file, Rule[] rules, List<String> tsConfigs) {
+      super(file, rules);
+      this.tsConfigs = tsConfigs;
+    }
+  }
 }
 
