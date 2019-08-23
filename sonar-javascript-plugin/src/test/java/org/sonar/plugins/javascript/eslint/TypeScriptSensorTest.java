@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.Iterator;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -84,8 +86,8 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_analyse() throws Exception {
-    AnalysisResponse expectedIssues = createIssues();
-    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedIssues);
+    AnalysisResponse expectedResponse = createResponse();
+    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
 
     TypeScriptSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -93,7 +95,7 @@ public class TypeScriptSensorTest {
     
     sensor.execute(context);
 
-    assertThat(context.allIssues()).hasSize(expectedIssues.issues.length);
+    assertThat(context.allIssues()).hasSize(expectedResponse.issues.length);
 
     Iterator<Issue> issues = context.allIssues().iterator();
     Issue firstIssue = issues.next();
@@ -111,6 +113,12 @@ public class TypeScriptSensorTest {
 
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
+
+    assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isNotEmpty();
+    assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0).get(0)).isEqualTo(TypeOfText.KEYWORD);
+    assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1)).isNotEmpty();
+    assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1).get(0)).isEqualTo(TypeOfText.CONSTANT);
+    assertThat(context.highlightingTypeAt(inputFile.key(), 3, 0)).isEmpty();
   }
 
   @Test
@@ -129,11 +137,22 @@ public class TypeScriptSensorTest {
     return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
   }
 
-  private AnalysisResponse createIssues() {
-    return new Gson().fromJson("{ issues: [{"
-        + "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []},"
-        + "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []"
-        + "}]}", AnalysisResponse.class);
+  private AnalysisResponse createResponse() {
+    return new Gson().fromJson("{" + createIssues() + "," + createHighlights() + "}", AnalysisResponse.class);
+  }
+
+  private String createIssues() {
+    return "issues: [{"
+    + "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []},"
+    + "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []"
+    + "}]";
+  }
+
+  private String createHighlights() {
+    return "highlights: ["
+    + "{\"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4,\"textType\":\"keyword\"},"
+    + "{\"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5,\"textType\":\"constant\"}"
+    + "]";
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {

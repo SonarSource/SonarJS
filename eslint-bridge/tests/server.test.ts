@@ -17,7 +17,7 @@ describe("server", () => {
     await close();
   });
 
-  it("should respond with issues for JavaScript", async () => {
+  it("should respond to JavaScript analysis request", async () => {
     expect.assertions(2);
     expect(server.listening).toEqual(true);
 
@@ -27,7 +27,7 @@ describe("server", () => {
         fileContent: "if (true) 42; else 42;",
         rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
       }),
-      "/analyze",
+      "/analyze-js",
     );
 
     expect(JSON.parse(response)).toEqual({
@@ -43,10 +43,40 @@ describe("server", () => {
           secondaryLocations: [],
         },
       ],
+      highlights: [
+        {
+          startLine: 1,
+          startCol: 0,
+          endLine: 1,
+          endCol: 2,
+          textType: "keyword",
+        },
+        {
+          startLine: 1,
+          startCol: 10,
+          endLine: 1,
+          endCol: 12,
+          textType: "constant",
+        },
+        {
+          startLine: 1,
+          startCol: 14,
+          endLine: 1,
+          endCol: 18,
+          textType: "keyword",
+        },
+        {
+          startLine: 1,
+          startCol: 19,
+          endLine: 1,
+          endCol: 21,
+          textType: "constant",
+        },
+      ],
     });
   });
 
-  it("should respond with issues for TypeScript", async () => {
+  it("should respond to TypeScript analysis request", async () => {
     const filePath = join(__dirname, "./fixtures/ts-project/sample.lint.ts");
     const tsConfig = join(__dirname, "./fixtures/ts-project/tsconfig.json");
 
@@ -74,6 +104,36 @@ describe("server", () => {
             "Remove this conditional structure or edit its code blocks so that they're not all the same.",
           ruleId: "no-all-duplicated-branches",
           secondaryLocations: [],
+        },
+      ],
+      highlights: [
+        {
+          startLine: 1,
+          startCol: 0,
+          endLine: 1,
+          endCol: 2,
+          textType: "keyword",
+        },
+        {
+          startLine: 1,
+          startCol: 10,
+          endLine: 1,
+          endCol: 12,
+          textType: "constant",
+        },
+        {
+          startLine: 1,
+          startCol: 14,
+          endLine: 1,
+          endCol: 18,
+          textType: "keyword",
+        },
+        {
+          startLine: 1,
+          startCol: 19,
+          endLine: 1,
+          endCol: 21,
+          textType: "constant",
         },
       ],
     });

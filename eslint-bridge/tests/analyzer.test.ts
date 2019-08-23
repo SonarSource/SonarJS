@@ -1,4 +1,4 @@
-import { analyze, analyzeTypeScript } from "../src/analyzer";
+import { analyzeJavaScript, analyzeTypeScript } from "../src/analyzer";
 import { join } from "path";
 
 const codeToTest = `
@@ -28,11 +28,84 @@ const noDuplicateStringIssue = {
   secondaryLocations: [],
 };
 
-describe("#analyze", () => {
+const highlighting = [
+  {
+    startLine: 2,
+    startCol: 2,
+    endLine: 2,
+    endCol: 8,
+    textType: "keyword",
+  },
+  {
+    startLine: 2,
+    startCol: 18,
+    endLine: 2,
+    endCol: 23,
+    textType: "string",
+  },
+  {
+    startLine: 3,
+    startCol: 2,
+    endLine: 3,
+    endCol: 5,
+    textType: "keyword",
+  },
+  {
+    startLine: 3,
+    startCol: 7,
+    endLine: 3,
+    endCol: 10,
+    textType: "keyword",
+  },
+  {
+    startLine: 3,
+    startCol: 15,
+    endLine: 3,
+    endCol: 16,
+    textType: "constant",
+  },
+  {
+    startLine: 3,
+    startCol: 22,
+    endLine: 3,
+    endCol: 24,
+    textType: "constant",
+  },
+  {
+    startLine: 4,
+    startCol: 16,
+    endLine: 4,
+    endCol: 23,
+    textType: "string",
+  },
+  {
+    startLine: 5,
+    startCol: 4,
+    endLine: 5,
+    endCol: 9,
+    textType: "keyword",
+  },
+  {
+    startLine: 7,
+    startCol: 2,
+    endLine: 7,
+    endCol: 16,
+    textType: "string",
+  },
+  {
+    startLine: 7,
+    startCol: 18,
+    endLine: 7,
+    endCol: 32,
+    textType: "string",
+  },
+];
+
+describe("#analyzeJavaScript", () => {
   const filePath = join(__dirname, "./fixtures/js-project/sample.lint.js");
 
   it("should report issue running eslint", () => {
-    const { issues } = analyze({
+    const { issues } = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       rules: [
@@ -46,7 +119,7 @@ describe("#analyze", () => {
   });
 
   it("should not report issue when not receiving corresponding rule-key", () => {
-    const { issues } = analyze({
+    const { issues } = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
@@ -54,8 +127,18 @@ describe("#analyze", () => {
     expect(issues).toHaveLength(0);
   });
 
+  it("should report syntax highlights", () => {
+    const highlights = analyzeJavaScript({
+      filePath,
+      fileContent: codeToTest,
+      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+    }).highlights;
+    expect(highlights).toHaveLength(10);
+    expect(highlights).toEqual(highlighting);
+  });
+
   it("should return empty list when parse error", () => {
-    const { issues } = analyze({
+    const { issues } = analyzeJavaScript({
       filePath,
       fileContent: `if()`,
       rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
@@ -81,6 +164,17 @@ describe("#analyzeTypeScript", () => {
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noOneIterationIssue);
     expect(issues).toContainEqual(noDuplicateStringIssue);
+  });
+
+  it("should report syntax highlights", () => {
+    const highlights = analyzeTypeScript({
+      filePath: filePath,
+      fileContent: codeToTest,
+      rules: [],
+      tsConfigs: [tsConfig],
+    }).highlights;
+    expect(highlights).toHaveLength(10);
+    expect(highlights).toEqual(highlighting);
   });
 
   it("should not report issue when not receiving corresponding rule-key", () => {

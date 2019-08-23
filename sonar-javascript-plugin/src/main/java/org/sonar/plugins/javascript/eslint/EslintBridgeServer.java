@@ -79,6 +79,7 @@ public interface EslintBridgeServer extends Startable {
 
   class AnalysisResponse {
     AnalysisResponseIssue[] issues = {};
+    AnalysisResponseHighlight[] highlights = {};
   }
 
   class AnalysisResponseIssue {
@@ -98,6 +99,14 @@ public interface EslintBridgeServer extends Startable {
     Integer endLine;
     Integer endColumn;
     String message;
+  }
+
+  class AnalysisResponseHighlight {
+    Integer startLine;
+    Integer startCol;
+    Integer endLine;
+    Integer endCol;
+    String textType;
   }
 
   class TypeScriptAnalysisRequest extends AnalysisRequest {

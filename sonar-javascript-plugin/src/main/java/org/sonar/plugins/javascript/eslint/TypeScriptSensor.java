@@ -22,6 +22,8 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -30,6 +32,8 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -37,6 +41,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseHighlight;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysisRequest;
 
@@ -83,12 +88,26 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     try {
       TypeScriptAnalysisRequest request = new TypeScriptAnalysisRequest(file, rules, tsConfigs(context));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
-      for (AnalysisResponseIssue issue : response.issues) {
-        new EslintBasedIssue(issue).saveIssue(context, file, checks);
-      }
+      saveIssues(file, context, response.issues);
+      saveHighlights(file, context, response.highlights);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);
     }
+  }
+
+  private void saveIssues(InputFile file, SensorContext context, AnalysisResponseIssue[] issues) {
+    for (AnalysisResponseIssue issue : issues) {
+      new EslintBasedIssue(issue).saveIssue(context, file, checks);
+    }
+  }
+
+  private static void saveHighlights(InputFile file, SensorContext context, AnalysisResponseHighlight[] highlights) {
+    NewHighlighting highlighting = context.newHighlighting().onFile(file);
+    for (AnalysisResponseHighlight highlight : highlights) {
+      highlighting.highlight(highlight.startLine, highlight.startCol, highlight.endLine, highlight.endCol,
+        TypeOfText.valueOf(highlight.textType.toUpperCase(Locale.ENGLISH)));
+    }
+    highlighting.save();
   }
 
   private List<String> tsConfigs(SensorContext context) {

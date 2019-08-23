@@ -156,7 +156,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze"));
+    return response(request(json, "analyze-js"));
   }
 
   @Override
