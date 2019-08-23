@@ -45,7 +45,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -156,7 +155,7 @@ public class TypeScriptSensorTest {
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
-      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, ruleKey)).build());
+      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.TS_REPOSITORY_KEY, ruleKey)).build());
     }
     return new CheckFactory(builder.build());
   }

@@ -38,23 +38,23 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 
-public class EslintBasedRulesSensor extends AbstractEslintSensor {
+public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
-  private static final Logger LOG = Loggers.get(EslintBasedRulesSensor.class);
+  private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
 
   /**
    * Required for SonarLint
    */
-  public EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer) {
+  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer) {
     this(checkFactory, eslintBridgeServer, null);
   }
 
-  public EslintBasedRulesSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer, @Nullable AnalysisWarnings analysisWarnings) {
+  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer, @Nullable AnalysisWarnings analysisWarnings) {
     super(checks(checkFactory), eslintBridgeServer, analysisWarnings);
   }
 
   private static JavaScriptChecks checks(CheckFactory checkFactory) {
-    return JavaScriptChecks.createJavaScriptCheck(checkFactory).addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks());
+    return JavaScriptChecks.createJavaScriptChecks(checkFactory).addChecks(CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks());
   }
 
   @Override
