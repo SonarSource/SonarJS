@@ -32,8 +32,8 @@ public class JavaScriptChecksTest {
 
   @Test
   public void should_detect_unknown_rule_key() throws Exception {
-    JavaScriptChecks checks = JavaScriptChecks.createJavaScriptCheck(checkFactory("S3923"))
-      .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks());
+    JavaScriptChecks checks = JavaScriptChecks.createJavaScriptChecks(checkFactory("S3923"))
+      .addChecks(CheckList.JS_REPOSITORY_KEY, CheckList.getAllChecks());
 
     assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches")).isEqualTo(RuleKey.of("javascript", "S3923"));
     assertThat(checks.ruleKeyByEslintKey("unknown-rule-key")).isNull();
@@ -42,7 +42,7 @@ public class JavaScriptChecksTest {
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
-      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, ruleKey)).build());
+      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, ruleKey)).build());
     }
     return new CheckFactory(builder.build());
   }

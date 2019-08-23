@@ -44,7 +44,7 @@ public class CheckListTest {
         count++;
       }
     }
-    assertThat(CheckList.getChecks().size()).isEqualTo(count);
+    assertThat(CheckList.getAllChecks().size()).isEqualTo(count);
   }
 
   /**
@@ -52,7 +52,7 @@ public class CheckListTest {
    */
   @Test
   public void test() {
-    List<Class> checks = CheckList.getChecks();
+    List<Class> checks = CheckList.getAllChecks();
 
     for (Class cls : checks) {
       if (!cls.getSimpleName().equals("ParsingErrorCheck") && !isEslintBasedCheck(cls)) {
@@ -81,7 +81,7 @@ public class CheckListTest {
 
   @Test
   public void test_eslint_key() throws IllegalAccessException, InstantiationException {
-    List<Class> checks = CheckList.getChecks();
+    List<Class> checks = CheckList.getAllChecks();
     List<String> keys = Lists.newArrayList();
 
     for (Class cls : checks) {
@@ -93,6 +93,20 @@ public class CheckListTest {
     }
 
     assertThat(keys).doesNotHaveDuplicates();
+  }
+
+  @Test
+  public void testTypeScriptChecks() {
+    List<Class> typeScriptChecks = CheckList.getTypeScriptChecks();
+    assertThat(typeScriptChecks).isNotEmpty();
+    assertThat(typeScriptChecks).isNotEqualTo(CheckList.getAllChecks());
+    assertThat(typeScriptChecks).allMatch(c -> EslintBasedCheck.class.isAssignableFrom(c));
+  }
+
+  @Test
+  public void testJavaScriptChecks() {
+    List<Class> javaScriptChecks = CheckList.getJavaScriptChecks();
+    assertThat(javaScriptChecks).isNotEmpty();
   }
 
   private boolean isEslintBasedCheck(Class cls) {

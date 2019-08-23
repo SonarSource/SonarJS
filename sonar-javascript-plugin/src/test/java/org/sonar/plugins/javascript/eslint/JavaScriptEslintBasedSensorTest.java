@@ -57,7 +57,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class EslintBasedRulesSensorTest {
+public class JavaScriptEslintBasedSensorTest {
 
   private static final String ESLINT_BASED_RULE = "S3923";
 
@@ -90,7 +90,7 @@ public class EslintBasedRulesSensorTest {
       "}]}");
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
 
-    EslintBasedRulesSensor sensor = createSensor();
+    JavaScriptEslintBasedSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
@@ -130,7 +130,7 @@ public class EslintBasedRulesSensorTest {
         "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
         "]}]}"));
 
-    EslintBasedRulesSensor sensor = createSensor();
+    JavaScriptEslintBasedSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
@@ -163,7 +163,7 @@ public class EslintBasedRulesSensorTest {
         "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
         "]}]}"));
 
-    EslintBasedRulesSensor sensor = createSensor();
+    JavaScriptEslintBasedSensor sensor = createSensor();
     createInputFile(context);
     sensor.execute(context);
 
@@ -181,7 +181,7 @@ public class EslintBasedRulesSensorTest {
       "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"cost\": 42," + "\"secondaryLocations\": []}]}"));
 
-    EslintBasedRulesSensor sensor = createSensor();
+    JavaScriptEslintBasedSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
@@ -202,7 +202,7 @@ public class EslintBasedRulesSensorTest {
 
   @Test
   public void should_do_nothing_if_no_eslint_based_rules_activated() throws Exception {
-    EslintBasedRulesSensor sensor = new EslintBasedRulesSensor(
+    JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(
       checkFactory("S2589"),
       eslintBridgeServerMock,
       null);
@@ -216,7 +216,7 @@ public class EslintBasedRulesSensorTest {
   public void should_catch_if_bridge_server_not_started() throws Exception {
     doThrow(new IllegalStateException("failed to start server")).when(eslintBridgeServerMock).startServerLazily(context);
 
-    EslintBasedRulesSensor sensor = createSensor();
+    JavaScriptEslintBasedSensor sensor = createSensor();
     createInputFile(context);
     sensor.execute(context);
 
@@ -228,7 +228,7 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void should_not_explode_if_no_response() throws Exception {
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenThrow(new IOException("error"));
-    EslintBasedRulesSensor sensor = createSensor();
+    JavaScriptEslintBasedSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
     sensor.execute(context);
 
@@ -260,12 +260,12 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void should_have_configured_rules() throws Exception {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "S1192")).build());// no-duplicate-string, default config
-    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "S1479")).setParam("maximum", "42").build());// max-switch-cases
-    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, "S3923")).build());// no-all-duplicated-branches, without config
+    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S1192")).build());// no-duplicate-string, default config
+    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S1479")).setParam("maximum", "42").build());// max-switch-cases
+    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S3923")).build());// no-all-duplicated-branches, without config
     CheckFactory checkFactory = new CheckFactory(builder.build());
 
-    EslintBasedRulesSensor sensor = new EslintBasedRulesSensor(
+    JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(
       checkFactory,
       eslintBridgeServerMock,
       null);
@@ -296,7 +296,7 @@ public class EslintBasedRulesSensorTest {
       .setContents("<script>let x = 0;</script>")
       .build();
 
-    EslintBasedRulesSensor sensor = createSensor();
+    JavaScriptEslintBasedSensor sensor = createSensor();
     context.fileSystem().add(flowFile);
     context.fileSystem().add(vueFile);
 
@@ -311,8 +311,8 @@ public class EslintBasedRulesSensorTest {
   public void handle_missing_node() throws Exception {
     doThrow(new NodeCommandException("Exception Message", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
     AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
-    EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, analysisWarnings);
-    eslintBasedRulesSensor.execute(context);
+    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, analysisWarnings);
+    javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
     verify(analysisWarnings).addUnique("Eslint-based rules were not executed. Exception Message");
   }
@@ -320,8 +320,8 @@ public class EslintBasedRulesSensorTest {
   @Test
   public void log_debug_if_already_failed_server() throws Exception {
     doThrow(new ServerAlreadyFailedException()).when(eslintBridgeServerMock).startServerLazily(any());
-    EslintBasedRulesSensor eslintBasedRulesSensor = new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
-    eslintBasedRulesSensor.execute(context);
+    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
+    javaScriptEslintBasedSensor.execute(context);
 
     assertThat(logTester.logs()).contains("Skipping start of eslint-bridge server due to the failure during first analysis",
       "Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
@@ -330,7 +330,7 @@ public class EslintBasedRulesSensorTest {
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
-      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.REPOSITORY_KEY, ruleKey)).build());
+      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, ruleKey)).build());
     }
     return new CheckFactory(builder.build());
   }
@@ -345,7 +345,7 @@ public class EslintBasedRulesSensorTest {
   }
 
 
-  private EslintBasedRulesSensor createSensor() {
-    return new EslintBasedRulesSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
+  private JavaScriptEslintBasedSensor createSensor() {
+    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
   }
 }
