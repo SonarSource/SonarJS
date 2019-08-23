@@ -20,8 +20,8 @@
 package org.sonarsource.nodejs;
 
 import java.util.function.Consumer;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide

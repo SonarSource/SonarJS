@@ -43,7 +43,7 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
  */
 public class JavaScriptChecks {
 
-  private static final Logger LOG = Loggers.get(JavaScriptSensor.class);
+  private static final Logger LOG = Loggers.get(JavaScriptChecks.class);
 
   private final CheckFactory checkFactory;
   private Set<Checks<JavaScriptCheck>> checksByRepository = new HashSet<>();
