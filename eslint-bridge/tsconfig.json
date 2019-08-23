@@ -8,7 +8,8 @@
     "strict": true,
     "sourceMap": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*", "./typings/**/*.d.ts"]
 }

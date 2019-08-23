@@ -2,6 +2,7 @@ import { start } from "../src/server";
 import * as http from "http";
 import { Server } from "http";
 import { promisify } from "util";
+import { join } from "path";
 
 describe("server", () => {
   let server: Server;
@@ -16,30 +17,66 @@ describe("server", () => {
     await close();
   });
 
-  it("should respond with issues", async () => {
+  it("should respond with issues for JavaScript", async () => {
     expect.assertions(2);
     expect(server.listening).toEqual(true);
 
     const response = await post(
       JSON.stringify({
-        filepath: "dir/file.js",
+        filePath: "dir/file.js",
         fileContent: "if (true) 42; else 42;",
         rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
       }),
+      "/analyze",
     );
 
-    expect(JSON.parse(response)).toEqual([
-      {
-        column: 0,
-        endColumn: 22,
-        endLine: 1,
-        line: 1,
-        message:
-          "Remove this conditional structure or edit its code blocks so that they're not all the same.",
-        ruleId: "no-all-duplicated-branches",
-        secondaryLocations: [],
-      },
-    ]);
+    expect(JSON.parse(response)).toEqual({
+      issues: [
+        {
+          column: 0,
+          endColumn: 22,
+          endLine: 1,
+          line: 1,
+          message:
+            "Remove this conditional structure or edit its code blocks so that they're not all the same.",
+          ruleId: "no-all-duplicated-branches",
+          secondaryLocations: [],
+        },
+      ],
+    });
+  });
+
+  it("should respond with issues for TypeScript", async () => {
+    const filePath = join(__dirname, "./fixtures/ts-project/sample.lint.ts");
+    const tsConfig = join(__dirname, "./fixtures/ts-project/tsconfig.json");
+
+    expect.assertions(2);
+    expect(server.listening).toEqual(true);
+
+    const response = await post(
+      JSON.stringify({
+        filePath,
+        fileContent: "if (true) 42; else 42;",
+        rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+        tsConfigs: [tsConfig],
+      }),
+      "/analyze-ts",
+    );
+
+    expect(JSON.parse(response)).toEqual({
+      issues: [
+        {
+          column: 0,
+          endColumn: 22,
+          endLine: 1,
+          line: 1,
+          message:
+            "Remove this conditional structure or edit its code blocks so that they're not all the same.",
+          ruleId: "no-all-duplicated-branches",
+          secondaryLocations: [],
+        },
+      ],
+    });
   });
 
   it("should respond OK! when started", done => {
@@ -65,11 +102,11 @@ describe("server", () => {
     req.end();
   });
 
-  function post(data): Promise<string> {
+  function post(data, endpoint): Promise<string> {
     const options = {
       host: "localhost",
       port: server.address().port,
-      path: "/analyze",
+      path: endpoint,
       method: "POST",
       headers: {
         "Content-Type": "application/json",

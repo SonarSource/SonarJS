@@ -28,6 +28,7 @@ import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
+import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
@@ -190,6 +191,7 @@ public class JavaScriptPlugin implements Plugin {
 
   private static void addTypeScriptExtensions(Context context) {
     context.addExtensions(
+      TypeScriptSensor.class,
       TypeScriptLanguage.class,
 
       PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
