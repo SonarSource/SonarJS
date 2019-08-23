@@ -58,12 +58,12 @@ public class TypeScriptAnalysisTest {
 
     Tests.setProfile(projectKey, "eslint-based-rules-profile");
 
-    installTypesScript();
+    installTypeScript();
 
     orchestrator.executeBuild(build);
   }
 
-  private static void installTypesScript() throws IOException, InterruptedException {
+  private static void installTypeScript() throws IOException, InterruptedException {
     String npm = System2.INSTANCE.isOsWindows() ? "npm.cmd" : "npm";
     String[] cmd = {npm, "install", "typescript"};
     Process process = Runtime.getRuntime().exec(cmd, null, PROJECT_DIR);
@@ -76,7 +76,7 @@ public class TypeScriptAnalysisTest {
   @Test
   public void test() {
     SearchRequest request = new SearchRequest();
-    request.setComponentKeys(Collections.singletonList(TSPROJECT)).setRules(ImmutableList.of("javascript:S3923"));
+    request.setComponentKeys(Collections.singletonList(TSPROJECT)).setRules(ImmutableList.of("typescript:S3923"));
     List<Issues.Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(2);
