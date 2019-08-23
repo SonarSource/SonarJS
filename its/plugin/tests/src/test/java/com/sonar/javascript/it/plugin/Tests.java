@@ -48,7 +48,8 @@ import static java.util.Collections.singletonList;
   NoSonarTest.class,
   SonarLintTest.class,
   SonarLintTestCustomNodeJS.class,
-  TslintExternalReportTest.class
+  TslintExternalReportTest.class,
+  TypeScriptAnalysisTest.class
 })
 public final class Tests {
 
