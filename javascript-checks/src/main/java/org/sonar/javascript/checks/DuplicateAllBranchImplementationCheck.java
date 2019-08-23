@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 
 @Rule(key = "S3923")
+@TypeScriptRule
 public class DuplicateAllBranchImplementationCheck extends EslintBasedCheck {
 
   @Override
