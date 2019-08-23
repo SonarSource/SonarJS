@@ -1,9 +1,10 @@
 import {
-  parseSourceFile,
   parse,
-  PARSER_CONFIG_MODULE,
   ParseException,
+  PARSER_CONFIG_MODULE,
   PARSER_CONFIG_SCRIPT,
+  parseSourceFile,
+  parseTypeScriptSourceFile,
 } from "../src/parser";
 import * as espree from "espree";
 import { SourceCode } from "eslint";
@@ -87,6 +88,33 @@ describe("parseSourceFile", () => {
         #privateField = 42
         set #x(value) {}  }`,
       "Unexpected character '#'",
+    );
+  });
+
+  it("should parse typescript syntax", () => {
+    const file = __dirname + "/fixtures/ts-project/sample.lint.ts";
+    const sourceCode = parseTypeScriptSourceFile(
+      `if (b == 0) { // Noncompliant  
+      doOneMoreThing();
+    } else {
+      doOneMoreThing();
+    }
+    `,
+      file,
+      [__dirname + "/fixtures/ts-project/tsconfig.json"],
+    );
+    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.parserServices.program).toBeDefined();
+    const program = sourceCode.parserServices.program;
+    expect(program.getTypeChecker()).toBeDefined();
+  });
+
+  it("should log parse error with typescript", () => {
+    const file = __dirname + "/fixtures/ts-project/sample.error.lint.ts";
+    const sourceCode = parseTypeScriptSourceFile(`if (b == 0) {`, file, []);
+    expect(sourceCode).toBeUndefined();
+    expect(console.error).toHaveBeenCalledWith(
+      `Failed to parse file [${file}] at line 1: '}' expected.`,
     );
   });
 

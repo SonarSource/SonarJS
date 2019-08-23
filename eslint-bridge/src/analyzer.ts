@@ -17,13 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseSourceFile } from "./parser";
+import { parseSourceFile, parseTypeScriptSourceFile } from "./parser";
 import * as linter from "./linter";
 
+const EMPTY_RESPONSE: AnalysisResponse = { issues: [] };
+
 export interface AnalysisInput {
-  fileUri: string;
+  filePath: string;
   fileContent: string;
   rules: Rule[];
+}
+
+export interface TypeScriptAnalysisInput extends AnalysisInput {
+  tsConfigs: string[];
 }
 
 // eslint rule key
@@ -31,6 +37,10 @@ export interface Rule {
   key: string;
   // Currently we only have rules that accept strings, but configuration can be a JS object or a string.
   configurations: any[];
+}
+
+export interface AnalysisResponse {
+  issues: Issue[];
 }
 
 export interface Issue {
@@ -52,13 +62,24 @@ export interface IssueLocation {
   message?: string;
 }
 
-export function analyze(input: AnalysisInput) {
-  const { fileUri, fileContent } = input;
+export function analyze(input: AnalysisInput): AnalysisResponse {
+  const { filePath, fileContent } = input;
   if (fileContent) {
-    const sourceCode = parseSourceFile(fileContent, fileUri);
+    const sourceCode = parseSourceFile(fileContent, filePath);
     if (sourceCode) {
-      return linter.analyze(sourceCode, input.rules, fileUri);
+      return linter.analyze(sourceCode, input.rules, filePath);
     }
   }
-  return [];
+  return EMPTY_RESPONSE;
+}
+
+export function analyzeTypeScript(input: TypeScriptAnalysisInput): AnalysisResponse {
+  const { filePath, fileContent, rules, tsConfigs } = input;
+  if (fileContent) {
+    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, tsConfigs);
+    if (sourceCode) {
+      return linter.analyze(sourceCode, rules, filePath);
+    }
+  }
+  return EMPTY_RESPONSE;
 }

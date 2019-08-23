@@ -39,10 +39,6 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   @Override
   public boolean accept(InputFile inputFile) {
-    if (!JavaScriptLanguage.KEY.equals(inputFile.language())) {
-      return true;
-    }
-
     String[] excludedPatterns = this.configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY);
     String relativePath = inputFile.uri().toString();
     if (WildcardPattern.match(WildcardPattern.create(excludedPatterns), relativePath)) {
