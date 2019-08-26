@@ -95,7 +95,7 @@ def runITs(TEST,SQ_VERSION) {
     mavenSetBuildVersion()   
     gitFetchSubmodules()     
     dir("its/$TEST") {    
-      runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION")
+      runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION", '-Dmaven.test.redirectTestOutputToFile=false')
     }
   }
 }
@@ -104,7 +104,7 @@ def runITsNoSubmodules(TEST,SQ_VERSION) {
   withMaven(maven: MAVEN_TOOL) {
     mavenSetBuildVersion()
     dir("its/$TEST") {
-      runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION")
+      runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION", '-Dmaven.test.redirectTestOutputToFile=false')
     }
   }
 }
