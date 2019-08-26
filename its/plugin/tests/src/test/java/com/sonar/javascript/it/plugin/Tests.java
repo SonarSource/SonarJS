@@ -66,6 +66,7 @@ public final class Tests {
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/ts-eslint-based-rules.xml"))
     .build();
 
   private Tests() {
@@ -80,12 +81,12 @@ public final class Tests {
   }
 
   public static void setEmptyProfile(String projectKey) {
-    setProfile(projectKey, "empty-profile");
+    setProfile(projectKey, "empty-profile", "js");
   }
 
-  public static void setProfile(String projectKey, String profileName) {
+  public static void setProfile(String projectKey, String profileName, String language) {
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", profileName);
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, language, profileName);
   }
 
   @CheckForNull

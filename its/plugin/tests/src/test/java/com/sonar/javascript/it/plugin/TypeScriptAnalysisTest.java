@@ -56,7 +56,7 @@ public class TypeScriptAnalysisTest {
       .setProjectDir(PROJECT_DIR)
       .setProperty("sonar.nodejs.executable", TestUtils.getNodeJSExecutable());
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile");
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
 
     installTypeScript();
 

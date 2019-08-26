@@ -47,7 +47,7 @@ public class NoSonarTest {
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR);
 
-    Tests.setProfile(projectKey, "nosonar-profile");
+    Tests.setProfile(projectKey, "nosonar-profile", "js");
 
     orchestrator.executeBuild(build);
   }
