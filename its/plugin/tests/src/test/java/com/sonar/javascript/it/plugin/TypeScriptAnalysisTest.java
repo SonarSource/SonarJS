@@ -65,8 +65,8 @@ public class TypeScriptAnalysisTest {
 
   private static void installTypeScript() throws IOException, InterruptedException {
     String npm = System2.INSTANCE.isOsWindows() ? "npm.cmd" : "npm";
-    String[] cmd = {npm, "install", "typescript"};
-    Process process = Runtime.getRuntime().exec(cmd, null, PROJECT_DIR);
+    ProcessBuilder pb = new ProcessBuilder(npm, "install", "typescript").inheritIO().directory(PROJECT_DIR);
+    Process process = pb.start();
     int returnValue = process.waitFor();
     if (returnValue != 0) {
       throw new IllegalStateException("Failed to install TypeScript");
