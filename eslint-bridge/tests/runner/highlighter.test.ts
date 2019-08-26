@@ -49,9 +49,12 @@ it("should highlight strings", () => {
   expect(actual("`str`")).toContainEqual(token(1, 0, 1, 5, "STRING"));
   expect(actual("`line1\nline2`")).toContainEqual(token(1, 0, 2, 6, "STRING"));
 
-  expect(actual("`start ${x} middle ${y} end`")).toContainEqual(token(1, 0, 1, 9, "STRING"));
-  expect(actual("`start ${x} middle ${y} end`")).toContainEqual(token(1, 10, 1, 21, "STRING"));
-  expect(actual("`start ${x} middle ${y} end`")).toContainEqual(token(1, 22, 1, 28, "STRING"));
+  const template = "`start ${x} middle ${y} end`";
+  expect(actual(template)).toContainEqual(token(1, 0, 1, 9, "STRING"));
+  expect(actual(template)).toContainEqual(token(1, 10, 1, 21, "STRING"));
+  expect(actual(template)).toContainEqual(token(1, 22, 1, 28, "STRING"));
+
+  expect(actual("`There are ${42} apples`")).toContainEqual(token(1, 13, 1, 15, "CONSTANT"));
 });
 
 it("should highlight numbers", () => {

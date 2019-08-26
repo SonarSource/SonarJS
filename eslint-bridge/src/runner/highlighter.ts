@@ -22,31 +22,38 @@ import * as ESTree from "estree";
 
 export default function getHighlighting(sourceCode: SourceCode) {
   const highlights: Highlight[] = [];
-  const nodes: any[] = [...sourceCode.ast.tokens, ...sourceCode.ast.comments];
-  for (const node of nodes) {
-    let highlighted: Highlight | undefined;
-    switch (node.type) {
+  for (const token of sourceCode.ast.tokens) {
+    let highlight: Highlight | undefined;
+    switch ((token as any).type) {
       case "Keyword":
-        highlighted = highlight(node, "KEYWORD");
+        highlight = highlightTokenOrComment(token, "KEYWORD");
         break;
       case "String":
       case "Template":
-        highlighted = highlight(node, "STRING");
+        highlight = highlightTokenOrComment(token, "STRING");
         break;
       case "Numeric":
-        highlighted = highlight(node, "CONSTANT");
+        highlight = highlightTokenOrComment(token, "CONSTANT");
         break;
+    }
+    if (highlight) {
+      highlights.push(highlight);
+    }
+  }
+  for (const comment of sourceCode.ast.comments) {
+    let highlight: Highlight | undefined;
+    switch (comment.type) {
       case "Block":
-        if (node.value.startsWith("*")) {
-          highlighted = highlight(node, "STRUCTURED_COMMENT");
+        if (comment.value.startsWith("*")) {
+          highlight = highlightTokenOrComment(comment, "STRUCTURED_COMMENT");
           break;
         }
       case "Line":
-        highlighted = highlight(node, "COMMENT");
+        highlight = highlightTokenOrComment(comment, "COMMENT");
         break;
     }
-    if (highlighted) {
-      highlights.push(highlighted);
+    if (highlight) {
+      highlights.push(highlight);
     }
   }
   return { highlights };
@@ -62,7 +69,7 @@ export interface Highlight {
   textType: SonarTypeOfText;
 }
 
-function highlight(
+function highlightTokenOrComment(
   node: AST.Token | ESTree.Comment,
   highlightKind: SonarTypeOfText,
 ): Highlight | undefined {

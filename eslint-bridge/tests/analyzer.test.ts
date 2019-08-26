@@ -134,7 +134,6 @@ describe("#analyzeJavaScript", () => {
       rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
     }).highlights;
     expect(highlights).toHaveLength(10);
-    expect(highlights).toEqual(highlighting);
   });
 
   it("should return empty list when parse error", () => {
@@ -174,7 +173,6 @@ describe("#analyzeTypeScript", () => {
       tsConfigs: [tsConfig],
     }).highlights;
     expect(highlights).toHaveLength(10);
-    expect(highlights).toEqual(highlighting);
   });
 
   it("should not report issue when not receiving corresponding rule-key", () => {
