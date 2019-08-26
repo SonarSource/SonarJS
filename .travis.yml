@@ -9,6 +9,7 @@ node_js:
 git:
   submodules: false
 
+install: true
 script: ./travis.sh
 env:
   - TEST=ci
