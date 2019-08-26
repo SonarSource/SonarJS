@@ -24,12 +24,15 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
@@ -37,6 +40,8 @@ import static com.sonar.javascript.it.plugin.Tests.newWsClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TypeScriptAnalysisTest {
+
+  private static final Logger LOG = Loggers.get(TypeScriptAnalysisTest.class);
 
   @ClassRule
   public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
@@ -65,7 +70,9 @@ public class TypeScriptAnalysisTest {
 
   private static void installTypeScript() throws IOException, InterruptedException {
     String npm = System2.INSTANCE.isOsWindows() ? "npm.cmd" : "npm";
-    ProcessBuilder pb = new ProcessBuilder(npm, "install", "typescript").inheritIO().directory(PROJECT_DIR);
+    String npmPath = Paths.get("target", "node", npm).toAbsolutePath().toString();
+    ProcessBuilder pb = new ProcessBuilder(npmPath, "install", "typescript").inheritIO().directory(PROJECT_DIR);
+    LOG.info("Installing typescript with: " + pb.command());
     Process process = pb.start();
     int returnValue = process.waitFor();
     if (returnValue != 0) {
