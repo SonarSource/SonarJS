@@ -53,7 +53,7 @@ public class EslintBasedRulesTest {
       .setProjectDir(PROJECT_DIR)
       .setProperty("sonar.nodejs.executable", TestUtils.getNodeJSExecutable());
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile");
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
 
     orchestrator.executeBuild(build);
   }
