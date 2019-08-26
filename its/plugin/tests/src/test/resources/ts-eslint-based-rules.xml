@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <profile>
   <name>eslint-based-rules-profile</name>
-  <language>js</language>
+  <language>ts</language>
   <rules>
     <rule>
-      <repositoryKey>javascript</repositoryKey>
+      <repositoryKey>typescript</repositoryKey>
       <key>S3923</key> <!-- all duplicate branches -->
       <priority>INFO</priority>
     </rule>
