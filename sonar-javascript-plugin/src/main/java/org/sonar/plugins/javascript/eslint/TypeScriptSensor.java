@@ -105,7 +105,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
     for (AnalysisResponseHighlight highlight : highlights) {
       highlighting.highlight(highlight.startLine, highlight.startCol, highlight.endLine, highlight.endCol,
-        TypeOfText.valueOf(highlight.textType.toUpperCase(Locale.ENGLISH)));
+        TypeOfText.valueOf(highlight.textType));
     }
     highlighting.save();
   }

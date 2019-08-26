@@ -150,8 +150,8 @@ public class TypeScriptSensorTest {
 
   private String createHighlights() {
     return "highlights: ["
-    + "{\"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4,\"textType\":\"keyword\"},"
-    + "{\"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5,\"textType\":\"constant\"}"
+    + "{\"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4,\"textType\":\"KEYWORD\"},"
+    + "{\"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5,\"textType\":\"CONSTANT\"}"
     + "]";
   }
 

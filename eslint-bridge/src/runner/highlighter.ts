@@ -27,22 +27,22 @@ export default function getHighlighting(sourceCode: SourceCode) {
     let highlighted: Highlight | undefined;
     switch (node.type) {
       case "Keyword":
-        highlighted = highlight(node, "keyword");
+        highlighted = highlight(node, "KEYWORD");
         break;
       case "String":
       case "Template":
-        highlighted = highlight(node, "string");
+        highlighted = highlight(node, "STRING");
         break;
       case "Numeric":
-        highlighted = highlight(node, "constant");
+        highlighted = highlight(node, "CONSTANT");
         break;
       case "Block":
         if (node.value.startsWith("*")) {
-          highlighted = highlight(node, "structured_comment");
+          highlighted = highlight(node, "STRUCTURED_COMMENT");
           break;
         }
       case "Line":
-        highlighted = highlight(node, "comment");
+        highlighted = highlight(node, "COMMENT");
         break;
     }
     if (highlighted) {
@@ -52,7 +52,7 @@ export default function getHighlighting(sourceCode: SourceCode) {
   return { highlights };
 }
 
-export type SonarTypeOfText = "constant" | "comment" | "structured_comment" | "keyword" | "string";
+export type SonarTypeOfText = "CONSTANT" | "COMMENT" | "STRUCTURED_COMMENT" | "KEYWORD" | "STRING";
 
 export interface Highlight {
   startLine: number;

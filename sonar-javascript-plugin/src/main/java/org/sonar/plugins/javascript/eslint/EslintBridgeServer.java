@@ -102,10 +102,10 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class AnalysisResponseHighlight {
-    Integer startLine;
-    Integer startCol;
-    Integer endLine;
-    Integer endCol;
+    int startLine;
+    int startCol;
+    int endLine;
+    int endCol;
     String textType;
   }
 
