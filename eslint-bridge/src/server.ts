@@ -20,7 +20,12 @@
 import { Server } from "http";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import { AnalysisInput, analyze, analyzeTypeScript, TypeScriptAnalysisInput } from "./analyzer";
+import {
+  AnalysisInput,
+  analyzeJavaScript,
+  analyzeTypeScript,
+  TypeScriptAnalysisInput,
+} from "./analyzer";
 import { AddressInfo } from "net";
 
 const MAX_REQUEST_SIZE = "50mb";
@@ -33,9 +38,9 @@ export function start(port = 0): Promise<Server> {
     // for parsing application/json requests
     app.use(bodyParser.json({ limit: MAX_REQUEST_SIZE }));
 
-    app.post("/analyze", (request: express.Request, response: express.Response) => {
+    app.post("/analyze-js", (request: express.Request, response: express.Response) => {
       const parsedRequest = request.body as AnalysisInput;
-      const analysisResponse = analyze(parsedRequest);
+      const analysisResponse = analyzeJavaScript(parsedRequest);
       response.json(analysisResponse);
     });
 
