@@ -21,42 +21,29 @@ import { AST, SourceCode } from "eslint";
 import * as ESTree from "estree";
 
 export default function getHighlighting(sourceCode: SourceCode) {
-  const highlights: Highlight[] = [];
+  const highlights: (Highlight | undefined)[] = [];
   for (const token of sourceCode.ast.tokens) {
-    let highlight: Highlight | undefined;
     switch ((token as any).type) {
       case "Keyword":
-        highlight = highlightTokenOrComment(token, "KEYWORD");
+        highlights.push(highlight(token, "KEYWORD"));
         break;
       case "String":
       case "Template":
-        highlight = highlightTokenOrComment(token, "STRING");
+        highlights.push(highlight(token, "STRING"));
         break;
       case "Numeric":
-        highlight = highlightTokenOrComment(token, "CONSTANT");
+        highlights.push(highlight(token, "CONSTANT"));
         break;
-    }
-    if (highlight) {
-      highlights.push(highlight);
     }
   }
   for (const comment of sourceCode.ast.comments) {
-    let highlight: Highlight | undefined;
-    switch (comment.type) {
-      case "Block":
-        if (comment.value.startsWith("*")) {
-          highlight = highlightTokenOrComment(comment, "STRUCTURED_COMMENT");
-          break;
-        }
-      case "Line":
-        highlight = highlightTokenOrComment(comment, "COMMENT");
-        break;
-    }
-    if (highlight) {
-      highlights.push(highlight);
+    if (comment.type === "Block" && comment.value.startsWith("*")) {
+      highlights.push(highlight(comment, "STRUCTURED_COMMENT"));
+    } else {
+      highlights.push(highlight(comment, "COMMENT"));
     }
   }
-  return { highlights };
+  return { highlights: highlights.filter(h => h !== undefined) as Highlight[] };
 }
 
 export type SonarTypeOfText = "CONSTANT" | "COMMENT" | "STRUCTURED_COMMENT" | "KEYWORD" | "STRING";
@@ -69,7 +56,7 @@ export interface Highlight {
   textType: SonarTypeOfText;
 }
 
-function highlightTokenOrComment(
+function highlight(
   node: AST.Token | ESTree.Comment,
   highlightKind: SonarTypeOfText,
 ): Highlight | undefined {
