@@ -21,29 +21,29 @@ import { AST, SourceCode } from "eslint";
 import * as ESTree from "estree";
 
 export default function getHighlighting(sourceCode: SourceCode) {
-  const highlights: (Highlight | undefined)[] = [];
+  const highlights: Highlight[] = [];
   for (const token of sourceCode.ast.tokens) {
-    switch ((token as any).type) {
+    switch (token.type as any) {
       case "Keyword":
-        highlights.push(highlight(token, "KEYWORD"));
+        highlight(token, "KEYWORD", highlights);
         break;
       case "String":
       case "Template":
-        highlights.push(highlight(token, "STRING"));
+        highlight(token, "STRING", highlights);
         break;
       case "Numeric":
-        highlights.push(highlight(token, "CONSTANT"));
+        highlight(token, "CONSTANT", highlights);
         break;
     }
   }
   for (const comment of sourceCode.ast.comments) {
     if (comment.type === "Block" && comment.value.startsWith("*")) {
-      highlights.push(highlight(comment, "STRUCTURED_COMMENT"));
+      highlight(comment, "STRUCTURED_COMMENT", highlights);
     } else {
-      highlights.push(highlight(comment, "COMMENT"));
+      highlight(comment, "COMMENT", highlights);
     }
   }
-  return { highlights: highlights.filter(h => h !== undefined) as Highlight[] };
+  return { highlights };
 }
 
 export type SonarTypeOfText = "CONSTANT" | "COMMENT" | "STRUCTURED_COMMENT" | "KEYWORD" | "STRING";
@@ -59,17 +59,18 @@ export interface Highlight {
 function highlight(
   node: AST.Token | ESTree.Comment,
   highlightKind: SonarTypeOfText,
-): Highlight | undefined {
+  highlights: Highlight[],
+) {
   if (!node.loc) {
-    return undefined;
+    return;
   }
   const startPosition = node.loc.start;
   const endPosition = node.loc.end;
-  return {
+  highlights.push({
     startLine: startPosition.line,
     startCol: startPosition.column,
     endLine: endPosition.line,
     endCol: endPosition.column,
     textType: highlightKind,
-  };
+  });
 }
