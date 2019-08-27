@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { parseSourceFile, parseTypeScriptSourceFile } from "./parser";
+import getHighlighting, { Highlight } from "./runner/highlighter";
 import * as linter from "./linter";
 
-const EMPTY_RESPONSE: AnalysisResponse = { issues: [] };
+const EMPTY_RESPONSE: AnalysisResponse = { issues: [], highlights: [] };
 
 export interface AnalysisInput {
   filePath: string;
@@ -41,6 +42,7 @@ export interface Rule {
 
 export interface AnalysisResponse {
   issues: Issue[];
+  highlights: Highlight[];
 }
 
 export interface Issue {
@@ -62,12 +64,15 @@ export interface IssueLocation {
   message?: string;
 }
 
-export function analyze(input: AnalysisInput): AnalysisResponse {
-  const { filePath, fileContent } = input;
+export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
+  const { filePath, fileContent, rules } = input;
   if (fileContent) {
     const sourceCode = parseSourceFile(fileContent, filePath);
     if (sourceCode) {
-      return linter.analyze(sourceCode, input.rules, filePath);
+      return {
+        issues: linter.analyze(sourceCode, rules, filePath).issues,
+        highlights: getHighlighting(sourceCode).highlights,
+      };
     }
   }
   return EMPTY_RESPONSE;
@@ -78,7 +83,10 @@ export function analyzeTypeScript(input: TypeScriptAnalysisInput): AnalysisRespo
   if (fileContent) {
     const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, tsConfigs);
     if (sourceCode) {
-      return linter.analyze(sourceCode, rules, filePath);
+      return {
+        issues: linter.analyze(sourceCode, rules, filePath).issues,
+        highlights: getHighlighting(sourceCode).highlights,
+      };
     }
   }
   return EMPTY_RESPONSE;

@@ -1,4 +1,4 @@
-import { analyze, analyzeTypeScript } from "../src/analyzer";
+import { analyzeJavaScript, analyzeTypeScript } from "../src/analyzer";
 import { join } from "path";
 
 const codeToTest = `
@@ -28,11 +28,11 @@ const noDuplicateStringIssue = {
   secondaryLocations: [],
 };
 
-describe("#analyze", () => {
+describe("#analyzeJavaScript", () => {
   const filePath = join(__dirname, "./fixtures/js-project/sample.lint.js");
 
   it("should report issue running eslint", () => {
-    const { issues } = analyze({
+    const { issues } = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       rules: [
@@ -46,7 +46,7 @@ describe("#analyze", () => {
   });
 
   it("should not report issue when not receiving corresponding rule-key", () => {
-    const { issues } = analyze({
+    const { issues } = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
@@ -54,8 +54,17 @@ describe("#analyze", () => {
     expect(issues).toHaveLength(0);
   });
 
+  it("should report syntax highlights", () => {
+    const highlights = analyzeJavaScript({
+      filePath,
+      fileContent: codeToTest,
+      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+    }).highlights;
+    expect(highlights).toHaveLength(10);
+  });
+
   it("should return empty list when parse error", () => {
-    const { issues } = analyze({
+    const { issues } = analyzeJavaScript({
       filePath,
       fileContent: `if()`,
       rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
@@ -81,6 +90,16 @@ describe("#analyzeTypeScript", () => {
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noOneIterationIssue);
     expect(issues).toContainEqual(noDuplicateStringIssue);
+  });
+
+  it("should report syntax highlights", () => {
+    const highlights = analyzeTypeScript({
+      filePath: filePath,
+      fileContent: codeToTest,
+      rules: [],
+      tsConfigs: [tsConfig],
+    }).highlights;
+    expect(highlights).toHaveLength(10);
   });
 
   it("should not report issue when not receiving corresponding rule-key", () => {
