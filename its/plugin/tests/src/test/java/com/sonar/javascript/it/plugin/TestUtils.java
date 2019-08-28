@@ -32,6 +32,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 
+import static java.lang.String.format;
+
 public class TestUtils {
 
   private static final File HOME;
@@ -116,5 +118,15 @@ public class TestUtils {
       .toAbsolutePath().toString();
   }
 
+  static void npmInstall(File dir) throws IOException, InterruptedException {
+    String npm = SystemUtils.IS_OS_WINDOWS ? "npm.cmd" : "npm";
+    String npmPath = Paths.get("target", "node", npm).toAbsolutePath().toString();
+    ProcessBuilder pb = new ProcessBuilder(npmPath, "install").inheritIO().directory(dir);
+    Process process = pb.start();
+    int returnValue = process.waitFor();
+    if (returnValue != 0) {
+      throw new IllegalStateException(format("Failed to run npm install. '%s' returned %d.'", pb.command(), returnValue));
+    }
+  }
 }
 
