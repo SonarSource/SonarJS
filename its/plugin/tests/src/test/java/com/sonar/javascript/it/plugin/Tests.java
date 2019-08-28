@@ -44,6 +44,7 @@ import static java.util.Collections.singletonList;
   EslintReportTest.class,
   MetricsTest.class,
   MinifiedFilesTest.class,
+  MultiTsconfigTest.class,
   NoSonarTest.class,
   SonarLintTest.class,
   SonarLintTestCustomNodeJS.class,
