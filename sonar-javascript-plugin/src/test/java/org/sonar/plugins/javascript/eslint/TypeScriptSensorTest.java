@@ -21,11 +21,14 @@ package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Iterator;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -47,9 +50,11 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysisRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TypeScriptSensorTest {
@@ -133,6 +138,28 @@ public class TypeScriptSensorTest {
     assertThat(context.allIssues()).isEmpty();
   }
 
+  @Test
+  public void should_lookup_tsconfig_files() throws Exception {
+    Path baseDir = tempFolder.newDir().toPath();
+    Path tsconfig1 = baseDir.resolve("tsconfig.json");
+    Files.createFile(tsconfig1);
+    Path subdir = baseDir.resolve("subdir");
+    Files.createDirectory(subdir);
+    Path tsconfig2 = Files.createFile(subdir.resolve("tsconfig.json"));
+    // this one should not be taken into account
+    Files.createFile(subdir.resolve("base.tsconfig.json"));
+
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    createInputFile(ctx);
+    TypeScriptSensor typeScriptSensor = createSensor();
+    typeScriptSensor.execute(ctx);
+
+    ArgumentCaptor<TypeScriptAnalysisRequest> request = ArgumentCaptor.forClass(TypeScriptAnalysisRequest.class);
+    verify(eslintBridgeServerMock).analyzeTypeScript(request.capture());
+
+    assertThat(request.getValue().tsConfigs).containsOnly(tsconfig1.toString(), tsconfig2.toString());
+  }
+
   private TypeScriptSensor createSensor() {
     return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
   }
@@ -156,7 +183,7 @@ public class TypeScriptSensorTest {
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.ts")
       .setLanguage("ts")
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();

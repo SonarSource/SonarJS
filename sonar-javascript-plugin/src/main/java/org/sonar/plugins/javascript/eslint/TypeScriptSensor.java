@@ -20,9 +20,11 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -109,11 +111,17 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     highlighting.save();
   }
 
-  private List<String> tsConfigs(SensorContext context) {
+  private List<String> tsConfigs(SensorContext context) throws IOException {
     if (tsconfigs == null) {
       FileSystem fs = context.fileSystem();
-      tsconfigs = new ArrayList<>();
-      fs.inputFiles(fs.predicates().hasRelativePath("tsconfig.json")).forEach(file -> tsconfigs.add(file.absolutePath()));
+      Path baseDir = fs.baseDir().toPath();
+      try (Stream<Path> files = Files.walk(baseDir)) {
+        tsconfigs = files
+          .filter(p -> p.endsWith("tsconfig.json"))
+          .map(p -> p.toAbsolutePath().toString())
+          .collect(Collectors.toList());
+      }
+      LOG.info("Found " + tsconfigs.size() + " tsconfig.json files: " + tsconfigs);
     }
     return tsconfigs;
   }
