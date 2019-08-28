@@ -80,6 +80,7 @@ public interface EslintBridgeServer extends Startable {
   class AnalysisResponse {
     AnalysisResponseIssue[] issues = {};
     AnalysisResponseHighlight[] highlights = {};
+    AnalysisResponseMetrics metrics;
   }
 
   class AnalysisResponseIssue {
@@ -107,6 +108,16 @@ public interface EslintBridgeServer extends Startable {
     int endLine;
     int endCol;
     String textType;
+  }
+
+  class AnalysisResponseMetrics {
+    int[] ncloc;
+    int[] commentLines;
+    int[] nosonarLines;
+    int[] executableLines;
+    int functions;
+    int statements;
+    int classes;
   }
 
   class TypeScriptAnalysisRequest extends AnalysisRequest {

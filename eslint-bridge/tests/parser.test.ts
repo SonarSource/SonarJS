@@ -3,13 +3,13 @@ import {
   ParseException,
   PARSER_CONFIG_MODULE,
   PARSER_CONFIG_SCRIPT,
-  parseSourceFile,
+  parseJavaScriptSourceFile,
   parseTypeScriptSourceFile,
 } from "../src/parser";
 import * as espree from "espree";
 import { SourceCode } from "eslint";
 
-describe("parseSourceFile", () => {
+describe("parseJavaScriptSourceFile", () => {
   beforeEach(() => {
     console.error = jest.fn();
   });
@@ -73,7 +73,7 @@ describe("parseSourceFile", () => {
   it("should parse next javascript syntax", () => {
     let sourceCode;
     // ES2019
-    sourceCode = parseSourceFile(`try {} catch {}`, "foo.js");
+    sourceCode = parseJavaScriptSourceFile(`try {} catch {}`, "foo.js");
     expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     // next
     // class fields
@@ -125,14 +125,14 @@ describe("parseSourceFile", () => {
 });
 
 function expectToParse(code: string) {
-  const sourceCode = parseSourceFile(code, "foo.js");
+  const sourceCode = parseJavaScriptSourceFile(code, "foo.js");
   expect(sourceCode).toBeDefined();
   expect(sourceCode.ast.body.length).toBeGreaterThan(0);
   expect(console.error).toBeCalledTimes(0);
 }
 
 function expectToNotParse(code: string, message: string) {
-  const sourceCode = parseSourceFile(code, "foo.js");
+  const sourceCode = parseJavaScriptSourceFile(code, "foo.js");
   expect(sourceCode).toBeUndefined();
   expect(console.error).toHaveBeenCalledWith("Failed to parse file [foo.js] at line 1: " + message);
   expect(console.error).toBeCalledTimes(1);

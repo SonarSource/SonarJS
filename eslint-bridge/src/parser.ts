@@ -41,7 +41,10 @@ export const PARSER_CONFIG_SCRIPT: Linter.ParserOptions = {
   sourceType: "script",
 };
 
-export function parseSourceFile(fileContent: string, filePath: string): SourceCode | undefined {
+export function parseJavaScriptSourceFile(
+  fileContent: string,
+  filePath: string,
+): SourceCode | undefined {
   let parseFunctions = [espree.parse, babel.parse];
   if (fileContent.includes("@flow")) {
     parseFunctions = [babel.parse];

@@ -4,6 +4,60 @@ import { Server } from "http";
 import { promisify } from "util";
 import { join } from "path";
 
+const expectedResponse = {
+  issues: [
+    {
+      column: 0,
+      endColumn: 22,
+      endLine: 1,
+      line: 1,
+      message:
+        "Remove this conditional structure or edit its code blocks so that they're not all the same.",
+      ruleId: "no-all-duplicated-branches",
+      secondaryLocations: [],
+    },
+  ],
+  highlights: [
+    {
+      startLine: 1,
+      startCol: 0,
+      endLine: 1,
+      endCol: 2,
+      textType: "KEYWORD",
+    },
+    {
+      startLine: 1,
+      startCol: 10,
+      endLine: 1,
+      endCol: 12,
+      textType: "CONSTANT",
+    },
+    {
+      startLine: 1,
+      startCol: 14,
+      endLine: 1,
+      endCol: 18,
+      textType: "KEYWORD",
+    },
+    {
+      startLine: 1,
+      startCol: 19,
+      endLine: 1,
+      endCol: 21,
+      textType: "CONSTANT",
+    },
+  ],
+  metrics: {
+    ncloc: [1],
+    commentLines: [],
+    nosonarLines: [],
+    executableLines: [1],
+    functions: 0,
+    statements: 3,
+    classes: 0,
+  },
+};
+
 describe("server", () => {
   let server: Server;
   let close;
@@ -30,50 +84,7 @@ describe("server", () => {
       "/analyze-js",
     );
 
-    expect(JSON.parse(response)).toEqual({
-      issues: [
-        {
-          column: 0,
-          endColumn: 22,
-          endLine: 1,
-          line: 1,
-          message:
-            "Remove this conditional structure or edit its code blocks so that they're not all the same.",
-          ruleId: "no-all-duplicated-branches",
-          secondaryLocations: [],
-        },
-      ],
-      highlights: [
-        {
-          startLine: 1,
-          startCol: 0,
-          endLine: 1,
-          endCol: 2,
-          textType: "KEYWORD",
-        },
-        {
-          startLine: 1,
-          startCol: 10,
-          endLine: 1,
-          endCol: 12,
-          textType: "CONSTANT",
-        },
-        {
-          startLine: 1,
-          startCol: 14,
-          endLine: 1,
-          endCol: 18,
-          textType: "KEYWORD",
-        },
-        {
-          startLine: 1,
-          startCol: 19,
-          endLine: 1,
-          endCol: 21,
-          textType: "CONSTANT",
-        },
-      ],
-    });
+    expect(JSON.parse(response)).toEqual(expectedResponse);
   });
 
   it("should respond to TypeScript analysis request", async () => {
@@ -93,50 +104,7 @@ describe("server", () => {
       "/analyze-ts",
     );
 
-    expect(JSON.parse(response)).toEqual({
-      issues: [
-        {
-          column: 0,
-          endColumn: 22,
-          endLine: 1,
-          line: 1,
-          message:
-            "Remove this conditional structure or edit its code blocks so that they're not all the same.",
-          ruleId: "no-all-duplicated-branches",
-          secondaryLocations: [],
-        },
-      ],
-      highlights: [
-        {
-          startLine: 1,
-          startCol: 0,
-          endLine: 1,
-          endCol: 2,
-          textType: "KEYWORD",
-        },
-        {
-          startLine: 1,
-          startCol: 10,
-          endLine: 1,
-          endCol: 12,
-          textType: "CONSTANT",
-        },
-        {
-          startLine: 1,
-          startCol: 14,
-          endLine: 1,
-          endCol: 18,
-          textType: "KEYWORD",
-        },
-        {
-          startLine: 1,
-          startCol: 19,
-          endLine: 1,
-          endCol: 21,
-          textType: "CONSTANT",
-        },
-      ],
-    });
+    expect(JSON.parse(response)).toEqual(expectedResponse);
   });
 
   it("should respond OK! when started", done => {

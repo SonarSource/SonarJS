@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
@@ -44,6 +45,10 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -55,6 +60,7 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysis
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TypeScriptSensorTest {
@@ -70,13 +76,20 @@ public class TypeScriptSensorTest {
   @Mock
   private EslintBridgeServer eslintBridgeServerMock;
 
+  @Mock
+  private FileLinesContextFactory fileLinesContextFactory;
+
   private SensorContextTester context;
 
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
+
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
     context = SensorContextTester.create(tempFolder.newDir());
+
+    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
   }
 
   @Test
@@ -124,6 +137,12 @@ public class TypeScriptSensorTest {
     assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1)).isNotEmpty();
     assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1).get(0)).isEqualTo(TypeOfText.CONSTANT);
     assertThat(context.highlightingTypeAt(inputFile.key(), 3, 0)).isEmpty();
+
+    assertThat(context.measure(inputFile.key(), CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.STATEMENTS).value()).isEqualTo(2);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.CLASSES).value()).isEqualTo(3);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC).value()).isEqualTo(3);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.COMMENT_LINES).value()).isEqualTo(3);
   }
 
   @Test
@@ -161,11 +180,11 @@ public class TypeScriptSensorTest {
   }
 
   private TypeScriptSensor createSensor() {
-    return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock);
+    return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock);
   }
 
   private AnalysisResponse createResponse() {
-    return new Gson().fromJson("{" + createIssues() + "," + createHighlights() + "}", AnalysisResponse.class);
+    return new Gson().fromJson("{" + createIssues() + "," + createHighlights() + "," + createMetrics() + "}", AnalysisResponse.class);
   }
 
   private String createIssues() {
@@ -180,6 +199,18 @@ public class TypeScriptSensorTest {
     + "{\"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4,\"textType\":\"KEYWORD\"},"
     + "{\"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5,\"textType\":\"CONSTANT\"}"
     + "]";
+  }
+
+  private String createMetrics() {
+    return "metrics: {"
+    + "\"ncloc\":[1, 2, 3],"
+    + "\"commentLines\":[4, 5, 6],"
+    + "\"nosonarLines\":[7, 8, 9],"
+    + "\"executableLines\":[10, 11, 12],"
+    + "\"functions\":1,"
+    + "\"statements\":2,"
+    + "\"classes\":3"
+    + "}";
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {

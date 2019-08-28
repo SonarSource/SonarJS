@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseSourceFile, parseTypeScriptSourceFile } from "./parser";
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from "./parser";
 import getHighlighting, { Highlight } from "./runner/highlighter";
+import getMetrics, { Metrics, EMPTY_METRICS } from "./runner/metrics";
 import * as linter from "./linter";
 
-const EMPTY_RESPONSE: AnalysisResponse = { issues: [], highlights: [] };
+const EMPTY_RESPONSE: AnalysisResponse = { issues: [], highlights: [], metrics: EMPTY_METRICS };
 
 export interface AnalysisInput {
   filePath: string;
@@ -43,6 +44,7 @@ export interface Rule {
 export interface AnalysisResponse {
   issues: Issue[];
   highlights: Highlight[];
+  metrics: Metrics;
 }
 
 export interface Issue {
@@ -67,11 +69,12 @@ export interface IssueLocation {
 export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
   const { filePath, fileContent, rules } = input;
   if (fileContent) {
-    const sourceCode = parseSourceFile(fileContent, filePath);
+    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath);
     if (sourceCode) {
       return {
         issues: linter.analyze(sourceCode, rules, filePath).issues,
         highlights: getHighlighting(sourceCode).highlights,
+        metrics: getMetrics(sourceCode),
       };
     }
   }
@@ -86,6 +89,7 @@ export function analyzeTypeScript(input: TypeScriptAnalysisInput): AnalysisRespo
       return {
         issues: linter.analyze(sourceCode, rules, filePath).issues,
         highlights: getHighlighting(sourceCode).highlights,
+        metrics: getMetrics(sourceCode),
       };
     }
   }
