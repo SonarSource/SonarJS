@@ -23,16 +23,11 @@ import com.google.common.collect.ImmutableList;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
@@ -40,8 +35,6 @@ import static com.sonar.javascript.it.plugin.Tests.newWsClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TypeScriptAnalysisTest {
-
-  private static final Logger LOG = Loggers.get(TypeScriptAnalysisTest.class);
 
   @ClassRule
   public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
@@ -52,7 +45,10 @@ public class TypeScriptAnalysisTest {
   @BeforeClass
   public static void startServer() throws Exception {
     orchestrator.resetData();
+  }
 
+  @Test
+  public void test() throws Exception {
     String projectKey = TSPROJECT;
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
@@ -63,25 +59,10 @@ public class TypeScriptAnalysisTest {
 
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
 
-    installTypeScript();
+    TestUtils.npmInstall(PROJECT_DIR);
 
     orchestrator.executeBuild(build);
-  }
 
-  private static void installTypeScript() throws IOException, InterruptedException {
-    String npm = System2.INSTANCE.isOsWindows() ? "npm.cmd" : "npm";
-    String npmPath = Paths.get("target", "node", npm).toAbsolutePath().toString();
-    ProcessBuilder pb = new ProcessBuilder(npmPath, "install", "typescript").inheritIO().directory(PROJECT_DIR);
-    LOG.info("Installing typescript with: " + pb.command());
-    Process process = pb.start();
-    int returnValue = process.waitFor();
-    if (returnValue != 0) {
-      throw new IllegalStateException("Failed to install TypeScript");
-    }
-  }
-
-  @Test
-  public void test() {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(Collections.singletonList(TSPROJECT)).setRules(ImmutableList.of("typescript:S3923"));
     List<Issues.Issue> issuesList = newWsClient().issues().search(request).getIssuesList();

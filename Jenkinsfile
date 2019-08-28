@@ -45,7 +45,9 @@ pipeline {
             label 'linux'
           }
           steps {
-            runITs("ruling","LATEST_RELEASE")            
+            nodejs(configId: 'npm-artifactory', nodeJSInstallationName: 'NodeJS latest') {
+              runITs("ruling","LATEST_RELEASE")
+            }
           }
         }                       
 
