@@ -44,6 +44,7 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -54,6 +55,7 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysis
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -158,6 +160,36 @@ public class TypeScriptSensorTest {
     verify(eslintBridgeServerMock).analyzeTypeScript(request.capture());
 
     assertThat(request.getValue().tsConfigs).containsOnly(tsconfig1.toString(), tsconfig2.toString());
+  }
+
+  @Test
+  public void should_use_tsconfig_from_property() throws Exception {
+    Path baseDir = tempFolder.newDir().toPath();
+    Files.createFile(baseDir.resolve("custom.tsconfig.json"));
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "custom.tsconfig.json"));
+    createInputFile(ctx);
+    TypeScriptSensor typeScriptSensor = createSensor();
+    typeScriptSensor.execute(ctx);
+
+    ArgumentCaptor<TypeScriptAnalysisRequest> request = ArgumentCaptor.forClass(TypeScriptAnalysisRequest.class);
+    verify(eslintBridgeServerMock).analyzeTypeScript(request.capture());
+
+    assertThat(request.getValue().tsConfigs).containsOnly(baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString());
+  }
+
+  @Test
+  public void should_fail_with_wrong_tsconfig() throws Exception {
+    Path baseDir = tempFolder.newDir().toPath();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "wrong.json"));
+    createInputFile(ctx);
+    TypeScriptSensor typeScriptSensor = createSensor();
+    typeScriptSensor.execute(ctx);
+
+    verify(eslintBridgeServerMock, never()).analyzeTypeScript(any());
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exists. Path: '" + baseDir.resolve("wrong.json") + "'");
   }
 
   private TypeScriptSensor createSensor() {
