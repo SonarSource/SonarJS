@@ -51,10 +51,6 @@
 'ag-grid:src/ts/dragAndDrop/dragAndDropService.ts':[
 356,
 360,
-369,
-],
-'ag-grid:src/ts/dragAndDrop/dragService.ts':[
-70,
 ],
 'ag-grid:src/ts/entities/column.ts':[
 227,
@@ -98,9 +94,6 @@
 'ag-grid:src/ts/headerRendering/headerRowComp.ts':[
 179,
 ],
-'ag-grid:src/ts/headerRendering/horizontalDragService.ts':[
-25,
-],
 'ag-grid:src/ts/layout/tabbedLayout.ts':[
 26,
 27,
@@ -113,8 +106,6 @@
 13,
 ],
 'ag-grid:src/ts/rendering/cellRendererService.ts':[
-80,
-80,
 85,
 ],
 'ag-grid:src/ts/rendering/renderedCell.ts':[
@@ -128,7 +119,8 @@
 ],
 'ag-grid:src/ts/widgets/component.ts':[
 63,
+87,
 138,
 142,
-]
+],
 }
