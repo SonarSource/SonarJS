@@ -48,7 +48,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
 
-  private static final int DEFAULT_TIMEOUT_SECONDS = 10;
+  private static final int DEFAULT_TIMEOUT_SECONDS = 30;
   private static final String DEFAULT_STARTUP_SCRIPT = "node_modules/eslint-bridge/bin/server";
   private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
   private static final Gson GSON = new Gson();
@@ -82,6 +82,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     this.startServerScript = startServerScript;
     this.client = new OkHttpClient.Builder()
       .callTimeout(Duration.ofSeconds(timeoutSeconds))
+      .readTimeout(Duration.ofSeconds(timeoutSeconds))
       .build();
     this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
     this.bundleLocation = bundleLocation;
