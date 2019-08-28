@@ -82,8 +82,8 @@ public class SonarLintTestCustomNodeJS {
       .addInputFile(inputFile)
       .putAllExtraProperties(properties).build();
     sonarlintEngine.analyze(configuration, issues::add, null, null);
+    sonarlintEngine.stop();
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
-
     assertThat(logs.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
   }
 
@@ -109,6 +109,7 @@ public class SonarLintTestCustomNodeJS {
     logs.clear();
     sonarlintEngine.analyze(configuration, i -> {
     }, null, null);
+    sonarlintEngine.stop();
     assertThat(logs).doesNotContain("Provided Node.js executable file does not exist.");
     assertThat(logs).contains("Skipping start of eslint-bridge server due to the failure during first analysis");
   }
