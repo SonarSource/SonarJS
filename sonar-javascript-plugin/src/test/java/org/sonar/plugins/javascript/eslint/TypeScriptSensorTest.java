@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -147,8 +146,10 @@ public class TypeScriptSensorTest {
     Files.createFile(tsconfig1);
     Path subdir = baseDir.resolve("subdir");
     Files.createDirectory(subdir);
+    Files.createDirectory(subdir.resolve("node_modules"));
     Path tsconfig2 = Files.createFile(subdir.resolve("tsconfig.json"));
-    // this one should not be taken into account
+    // these should not be taken into account
+    Files.createFile(subdir.resolve("node_modules/tsconfig.json"));
     Files.createFile(subdir.resolve("base.tsconfig.json"));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);

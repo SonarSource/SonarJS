@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -143,11 +144,16 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     Path baseDir = fs.baseDir().toPath();
     try (Stream<Path> files = Files.walk(baseDir)) {
       return files
-        .filter(p -> p.endsWith("tsconfig.json"))
+        .filter(p -> p.endsWith("tsconfig.json") && !isNodeModulesPath(p))
         .map(p -> p.toAbsolutePath().toString())
         .collect(Collectors.toList());
     } catch (IOException e) {
       throw new IllegalStateException("Failed to lookup tsconfig JSON");
     }
+  }
+
+  private static boolean isNodeModulesPath(Path p) {
+    Path nodeModules = Paths.get("node_modules");
+    return StreamSupport.stream(p.spliterator(), false).anyMatch(nodeModules::equals);
   }
 }
