@@ -50,8 +50,7 @@ public class EslintBasedRulesTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(PROJECT_DIR)
-      .setProperty("sonar.nodejs.executable", TestUtils.getNodeJSExecutable());
+      .setProjectDir(PROJECT_DIR);
 
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
 

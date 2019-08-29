@@ -45,9 +45,7 @@ pipeline {
             label 'linux'
           }
           steps {
-            nodejs(configId: 'npm-artifactory', nodeJSInstallationName: 'NodeJS latest') {
-              runITs("ruling","LATEST_RELEASE")
-            }
+            runITs("ruling","LATEST_RELEASE")
           }
         }                       
 
@@ -92,21 +90,25 @@ pipeline {
   }
 }
 
-def runITs(TEST,SQ_VERSION) {    
-  withMaven(maven: MAVEN_TOOL) {
-    mavenSetBuildVersion()   
-    gitFetchSubmodules()     
-    dir("its/$TEST") {    
-      runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION", '-Dmaven.test.redirectTestOutputToFile=false')
+def runITs(TEST,SQ_VERSION) {
+  nodejs(configId: 'npm-artifactory', nodeJSInstallationName: 'NodeJS latest') {
+    withMaven(maven: MAVEN_TOOL) {
+      mavenSetBuildVersion()
+      gitFetchSubmodules()
+      dir("its/$TEST") {
+        runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION", '-Dmaven.test.redirectTestOutputToFile=false')
+      }
     }
   }
 }
 
 def runITsNoSubmodules(TEST,SQ_VERSION) {
-  withMaven(maven: MAVEN_TOOL) {
-    mavenSetBuildVersion()
-    dir("its/$TEST") {
-      runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION", '-Dmaven.test.redirectTestOutputToFile=false')
+  nodejs(configId: 'npm-artifactory', nodeJSInstallationName: 'NodeJS latest') {
+    withMaven(maven: MAVEN_TOOL) {
+      mavenSetBuildVersion()
+      dir("its/$TEST") {
+        runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION", '-Dmaven.test.redirectTestOutputToFile=false')
+      }
     }
   }
 }
