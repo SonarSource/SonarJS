@@ -93,9 +93,13 @@ export function parseTypeScriptSourceFile(
 }
 
 function logParseException(filePath: string, exception: ParseException) {
-  console.error(
-    `Failed to parse file [${filePath}] at line ${exception.lineNumber}: ${exception.message}`,
-  );
+  if (exception.lineNumber) {
+    console.error(
+      `Failed to parse file [${filePath}] at line ${exception.lineNumber}: ${exception.message}`,
+    );
+  } else {
+    console.error(`Failed to analyze file [${filePath}]: ${exception.message}`);
+  }
 }
 
 export function parse(
@@ -112,6 +116,6 @@ export function parse(
 }
 
 export type ParseException = {
-  lineNumber: number;
+  lineNumber?: number;
   message: string;
 };

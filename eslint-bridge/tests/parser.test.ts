@@ -118,6 +118,17 @@ describe("parseJavaScriptSourceFile", () => {
     );
   });
 
+  it("should log analysis error when file is not part of typescript project", () => {
+    const file = __dirname + "/fixtures/ts-project/excluded.ts";
+    const sourceCode = parseTypeScriptSourceFile(`if (b == 0) {}`, file, [
+      __dirname + "/fixtures/ts-project/tsconfig.json",
+    ]);
+    expect(console.error).toHaveBeenCalledWith(
+      `Failed to analyze file [${file}]: If \"parserOptions.project\" has been set for @typescript-eslint/parser, ${file} must be included in at least one of the projects provided.`,
+    );
+    expect(sourceCode).toBeUndefined();
+  });
+
   it("should log when parse errors", () => {
     expectToNotParse("if()", "Unexpected token )");
     expectToNotParse("/* @flow */ if()", "Unexpected token (1:15)");
