@@ -46,6 +46,7 @@ public class JavaScriptPlugin implements Plugin {
   private static final String TEST_AND_COVERAGE = "Tests and Coverage";
   private static final String LIBRARIES = "Libraries";
   private static final String JAVASCRIPT_CATEGORY = "JavaScript";
+  private static final String TYPESCRIPT_CATEGORY = "TypeScript";
 
   // Global JavaScript constants
 
@@ -76,13 +77,13 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String DEPRECATED_ESLINT_PROPERTY = "sonar.typescript.eslint.reportPaths";
 
-  private static final String TYPESCRIPT_CATEGORY = "TypeScript";
-
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
   private static final String FILE_SUFFIXES_NAME = "File Suffixes";
 
   public static final String TS_LCOV_REPORT_PATHS = "sonar.typescript.lcov.reportPaths";
   public static final String TS_LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
+
+  public static final String TSCONFIG_PATH = "sonar.typescript.tsconfigPath";
 
   @Override
   public void define(Context context) {
@@ -214,6 +215,14 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(TEST_AND_COVERAGE)
         .category(TYPESCRIPT_CATEGORY)
         .multiValues(true)
+        .build(),
+
+      PropertyDefinition.builder(TSCONFIG_PATH)
+        .name("tsconfig.json location")
+        .description("Path (relative to project base or absolute) to the tsconfig JSON file")
+        .onQualifiers(Qualifiers.PROJECT)
+        .subCategory(GENERAL)
+        .category(TYPESCRIPT_CATEGORY)
         .build()
     );
 

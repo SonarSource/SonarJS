@@ -22,9 +22,13 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -40,11 +44,14 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseHighlight;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysisRequest;
+
+import static java.lang.String.format;
 
 public class TypeScriptSensor extends AbstractEslintSensor {
 
@@ -113,16 +120,38 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   private List<String> tsConfigs(SensorContext context) throws IOException {
     if (tsconfigs == null) {
-      FileSystem fs = context.fileSystem();
-      Path baseDir = fs.baseDir().toPath();
-      try (Stream<Path> files = Files.walk(baseDir)) {
-        tsconfigs = files
-          .filter(p -> p.endsWith("tsconfig.json"))
-          .map(p -> p.toAbsolutePath().toString())
-          .collect(Collectors.toList());
+      Optional<String> tsConfigProperty = context.config().get(JavaScriptPlugin.TSCONFIG_PATH);
+      if (tsConfigProperty.isPresent()) {
+        Path tsconfig = Paths.get(tsConfigProperty.get());
+        tsconfig = tsconfig.isAbsolute() ? tsconfig : context.fileSystem().baseDir().toPath().resolve(tsconfig);
+        if (!tsconfig.toFile().exists()) {
+          String msg = format("Provided tsconfig.json path doesn't exist. Path: '%s'", tsconfig);
+          LOG.error(msg);
+          throw new IllegalStateException(msg);
+        }
+        tsconfigs = Collections.singletonList(tsconfig.toString());
+        LOG.info("Using {} from {} property", tsconfig, JavaScriptPlugin.TSCONFIG_PATH);
+      } else {
+        tsconfigs = lookupTsConfig(context);
+        LOG.info("Found " + tsconfigs.size() + " tsconfig.json file(s): " + tsconfigs);
       }
-      LOG.info("Found " + tsconfigs.size() + " tsconfig.json files: " + tsconfigs);
     }
     return tsconfigs;
+  }
+
+  private static List<String> lookupTsConfig(SensorContext context) throws IOException {
+    FileSystem fs = context.fileSystem();
+    Path baseDir = fs.baseDir().toPath();
+    try (Stream<Path> files = Files.walk(baseDir)) {
+      return files
+        .filter(p -> p.endsWith("tsconfig.json") && !isNodeModulesPath(p))
+        .map(p -> p.toAbsolutePath().toString())
+        .collect(Collectors.toList());
+    }
+  }
+
+  private static boolean isNodeModulesPath(Path p) {
+    Path nodeModules = Paths.get("node_modules");
+    return StreamSupport.stream(p.spliterator(), false).anyMatch(nodeModules::equals);
   }
 }
