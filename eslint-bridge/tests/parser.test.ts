@@ -8,6 +8,7 @@ import {
 } from "../src/parser";
 import * as espree from "espree";
 import { SourceCode } from "eslint";
+import { ParsingError } from "../src/analyzer";
 
 describe("parseJavaScriptSourceFile", () => {
   beforeEach(() => {
@@ -73,7 +74,7 @@ describe("parseJavaScriptSourceFile", () => {
   it("should parse next javascript syntax", () => {
     let sourceCode;
     // ES2019
-    sourceCode = parseJavaScriptSourceFile(`try {} catch {}`, "foo.js");
+    sourceCode = parseJavaScriptSourceFile(`try {} catch {}`);
     expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     // next
     // class fields
@@ -102,7 +103,7 @@ describe("parseJavaScriptSourceFile", () => {
     `,
       file,
       [__dirname + "/fixtures/ts-project/tsconfig.json"],
-    );
+    ) as SourceCode;
     expect(sourceCode.ast).toBeDefined();
     expect(sourceCode.parserServices.program).toBeDefined();
     const program = sourceCode.parserServices.program;
@@ -111,43 +112,42 @@ describe("parseJavaScriptSourceFile", () => {
 
   it("should log parse error with typescript", () => {
     const file = __dirname + "/fixtures/ts-project/sample.error.lint.ts";
-    const sourceCode = parseTypeScriptSourceFile(`if (b == 0) {`, file, []);
-    expect(sourceCode).toBeUndefined();
-    expect(console.error).toHaveBeenCalledWith(
-      `Failed to parse file [${file}] at line 1: '}' expected.`,
-    );
+    const parsingError = parseTypeScriptSourceFile(`if (b == 0) {`, file, []) as ParsingError;
+    expect(parsingError).toBeDefined();
+    expect(parsingError.line).toEqual(1);
+    expect(parsingError.message).toEqual("'}' expected.");
   });
 
-  it("should log analysis error when file is not part of typescript project", () => {
+  it("should return ParsingError with undefined line when file is not part of typescript project", () => {
     const file = __dirname + "/fixtures/ts-project/excluded.ts";
-    const sourceCode = parseTypeScriptSourceFile(`if (b == 0) {}`, file, [
+    const parsingError = parseTypeScriptSourceFile(`if (b == 0) {}`, file, [
       __dirname + "/fixtures/ts-project/tsconfig.json",
-    ]);
-    expect(console.error).toHaveBeenCalledWith(
-      `Failed to analyze file [${file}]: If \"parserOptions.project\" has been set for @typescript-eslint/parser, ${file} must be included in at least one of the projects provided.`,
+    ]) as ParsingError;
+    expect(parsingError).toBeDefined();
+    expect(parsingError.line).toBeUndefined();
+    expect(parsingError.message).toEqual(
+      `If \"parserOptions.project\" has been set for @typescript-eslint/parser, ${file} must be included in at least one of the projects provided.`,
     );
-    expect(sourceCode).toBeUndefined();
   });
 
-  it("should log when parse errors", () => {
+  it("should return ParsingError when parse errors", () => {
     expectToNotParse("if()", "Unexpected token )");
     expectToNotParse("/* @flow */ if()", "Unexpected token (1:15)");
   });
 });
 
 function expectToParse(code: string) {
-  const sourceCode = parseJavaScriptSourceFile(code, "foo.js");
+  const sourceCode = parseJavaScriptSourceFile(code) as SourceCode;
   expect(sourceCode).toBeDefined();
   expect(sourceCode.ast.body.length).toBeGreaterThan(0);
   expect(console.error).toBeCalledTimes(0);
 }
 
 function expectToNotParse(code: string, message: string) {
-  const sourceCode = parseJavaScriptSourceFile(code, "foo.js");
-  expect(sourceCode).toBeUndefined();
-  expect(console.error).toHaveBeenCalledWith("Failed to parse file [foo.js] at line 1: " + message);
-  expect(console.error).toBeCalledTimes(1);
-  jest.resetAllMocks();
+  const parsingError = parseJavaScriptSourceFile(code) as ParsingError;
+  expect(parsingError).toBeDefined();
+  expect(parsingError.line).toEqual(1);
+  expect(parsingError.message).toEqual(message);
 }
 
 function expectToParseInNonStrictMode(code: string, msgInStrictMode: string) {

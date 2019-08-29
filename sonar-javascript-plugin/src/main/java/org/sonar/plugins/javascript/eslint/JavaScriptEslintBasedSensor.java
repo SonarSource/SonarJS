@@ -66,6 +66,12 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     AnalysisRequest analysisRequest = new AnalysisRequest(file, rules);
     try {
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
+
+      if (response.parsingError != null) {
+        processParsingError(context, file, response.parsingError);
+        return;
+      }
+
       for (AnalysisResponseIssue issue : response.issues) {
         new EslintBasedIssue(issue).saveIssue(context, file, checks);
       }

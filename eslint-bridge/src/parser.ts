@@ -20,6 +20,7 @@
 import * as espree from "espree";
 import * as babel from "babel-eslint";
 import { Linter, SourceCode } from "eslint";
+import { ParsingError } from "./analyzer";
 
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
@@ -45,12 +46,9 @@ export type Parse = (
   fileContent: string,
   filePath: string,
   tsConfigs?: string[],
-) => SourceCode | undefined;
+) => SourceCode | ParsingError;
 
-export function parseJavaScriptSourceFile(
-  fileContent: string,
-  filePath: string,
-): SourceCode | undefined {
+export function parseJavaScriptSourceFile(fileContent: string): SourceCode | ParsingError {
   let parseFunctions = [espree.parse, babel.parse];
   if (fileContent.includes("@flow")) {
     parseFunctions = [babel.parse];
@@ -68,16 +66,18 @@ export function parseJavaScriptSourceFile(
     }
   }
 
-  if (exceptionToReport) {
-    logParseException(filePath, exceptionToReport);
-  }
+  // if we reach this point, we are sure that "exceptionToReport" is defined
+  return {
+    line: exceptionToReport!.lineNumber,
+    message: exceptionToReport!.message,
+  };
 }
 
 export function parseTypeScriptSourceFile(
   fileContent: string,
   filePath: string,
   tsConfigs?: string[],
-): SourceCode | undefined {
+): SourceCode | ParsingError {
   try {
     // we load the typescript parser dynamically, so we don't need typescript dependency when analysing pure JS project
     const tsParser = require("@typescript-eslint/parser");
@@ -88,17 +88,10 @@ export function parseTypeScriptSourceFile(
     });
     return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
   } catch (exception) {
-    logParseException(filePath, exception);
-  }
-}
-
-function logParseException(filePath: string, exception: ParseException) {
-  if (exception.lineNumber) {
-    console.error(
-      `Failed to parse file [${filePath}] at line ${exception.lineNumber}: ${exception.message}`,
-    );
-  } else {
-    console.error(`Failed to analyze file [${filePath}]: ${exception.message}`);
+    return {
+      line: exception.lineNumber,
+      message: exception.message,
+    };
   }
 }
 
