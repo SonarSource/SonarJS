@@ -88,7 +88,6 @@
     <analyzer-commons.version>1.10.3.524</analyzer-commons.version>
     <node.version>v10.16.3</node.version>
     <yarn.version>v1.10.1</yarn.version>
-    <npm.version>6.4.1</npm.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
