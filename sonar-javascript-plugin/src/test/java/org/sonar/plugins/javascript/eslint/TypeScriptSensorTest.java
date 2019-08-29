@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
-
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +44,7 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -54,6 +55,8 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysis
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -145,11 +148,36 @@ public class TypeScriptSensorTest {
     Files.createFile(tsconfig1);
     Path subdir = baseDir.resolve("subdir");
     Files.createDirectory(subdir);
+    Files.createDirectory(subdir.resolve("node_modules"));
     Path tsconfig2 = Files.createFile(subdir.resolve("tsconfig.json"));
-    // this one should not be taken into account
+    // these should not be taken into account
+    Files.createFile(subdir.resolve("node_modules/tsconfig.json"));
     Files.createFile(subdir.resolve("base.tsconfig.json"));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
+    createInputFile(ctx, "file1.ts");
+    createInputFile(ctx, "file2.ts");
+    TypeScriptSensor typeScriptSensor = createSensor();
+    typeScriptSensor.execute(ctx);
+
+    ArgumentCaptor<TypeScriptAnalysisRequest> request = ArgumentCaptor.forClass(TypeScriptAnalysisRequest.class);
+    verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(request.capture());
+
+    List<String> firstCall = request.getAllValues().get(0).tsConfigs;
+    List<String> secondCall = request.getAllValues().get(1).tsConfigs;
+
+    assertThat(firstCall).containsOnly(tsconfig1.toString(), tsconfig2.toString());
+
+    // test that we cache the instance and don't lookup twice
+    assertThat(firstCall).isSameAs(secondCall);
+  }
+
+  @Test
+  public void should_use_tsconfig_from_property() throws Exception {
+    Path baseDir = tempFolder.newDir().toPath();
+    Files.createFile(baseDir.resolve("custom.tsconfig.json"));
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "custom.tsconfig.json"));
     createInputFile(ctx);
     TypeScriptSensor typeScriptSensor = createSensor();
     typeScriptSensor.execute(ctx);
@@ -157,7 +185,26 @@ public class TypeScriptSensorTest {
     ArgumentCaptor<TypeScriptAnalysisRequest> request = ArgumentCaptor.forClass(TypeScriptAnalysisRequest.class);
     verify(eslintBridgeServerMock).analyzeTypeScript(request.capture());
 
-    assertThat(request.getValue().tsConfigs).containsOnly(tsconfig1.toString(), tsconfig2.toString());
+    String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
+    assertThat(request.getValue().tsConfigs).containsOnly(absolutePath);
+
+    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", absolutePath));
+    createSensor().execute(ctx);
+    assertThat(request.getValue().tsConfigs).containsOnly(absolutePath);
+  }
+
+  @Test
+  public void should_log_and_stop_with_wrong_tsconfig() throws Exception {
+    Path baseDir = tempFolder.newDir().toPath();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "wrong.json"));
+    createInputFile(ctx);
+    TypeScriptSensor typeScriptSensor = createSensor();
+    typeScriptSensor.execute(ctx);
+
+    verify(eslintBridgeServerMock, never()).analyzeTypeScript(any());
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exist. Path: '" + baseDir.resolve("wrong.json") + "'");
   }
 
   private TypeScriptSensor createSensor() {
@@ -183,7 +230,11 @@ public class TypeScriptSensorTest {
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.ts")
+    return createInputFile(context, "dir/file.ts");
+  }
+
+  private static DefaultInputFile createInputFile(SensorContextTester context, String relativePath) {
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setLanguage("ts")
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
