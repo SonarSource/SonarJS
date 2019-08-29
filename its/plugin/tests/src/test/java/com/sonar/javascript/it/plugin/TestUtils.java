@@ -120,8 +120,7 @@ public class TestUtils {
 
   static void npmInstall(File dir) throws IOException, InterruptedException {
     String npm = SystemUtils.IS_OS_WINDOWS ? "npm.cmd" : "npm";
-    String npmPath = Paths.get("target", "node", npm).toAbsolutePath().toString();
-    ProcessBuilder pb = new ProcessBuilder(npmPath, "install").inheritIO().directory(dir);
+    ProcessBuilder pb = new ProcessBuilder(npm, "install").inheritIO().directory(dir);
     Process process = pb.start();
     int returnValue = process.waitFor();
     if (returnValue != 0) {

@@ -53,7 +53,6 @@ public class MultiTsconfigTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR)
-      .setProperty("sonar.nodejs.executable", TestUtils.getNodeJSExecutable())
       // setting inclusions like this will exclude tsconfig.json files, which is what we want to test
       .setProperty("sonar.inclusions", "**/*.ts");
 
