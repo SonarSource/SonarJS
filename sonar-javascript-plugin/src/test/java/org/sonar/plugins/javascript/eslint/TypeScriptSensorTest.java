@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,6 +56,7 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TypeScriptAnalysis
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -153,14 +155,21 @@ public class TypeScriptSensorTest {
     Files.createFile(subdir.resolve("base.tsconfig.json"));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    createInputFile(ctx);
+    createInputFile(ctx, "file1.ts");
+    createInputFile(ctx, "file2.ts");
     TypeScriptSensor typeScriptSensor = createSensor();
     typeScriptSensor.execute(ctx);
 
     ArgumentCaptor<TypeScriptAnalysisRequest> request = ArgumentCaptor.forClass(TypeScriptAnalysisRequest.class);
-    verify(eslintBridgeServerMock).analyzeTypeScript(request.capture());
+    verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(request.capture());
 
-    assertThat(request.getValue().tsConfigs).containsOnly(tsconfig1.toString(), tsconfig2.toString());
+    List<String> firstCall = request.getAllValues().get(0).tsConfigs;
+    List<String> secondCall = request.getAllValues().get(1).tsConfigs;
+
+    assertThat(firstCall).containsOnly(tsconfig1.toString(), tsconfig2.toString());
+
+    // test that we cache the instance and don't lookup twice
+    assertThat(firstCall).isSameAs(secondCall);
   }
 
   @Test
@@ -176,7 +185,12 @@ public class TypeScriptSensorTest {
     ArgumentCaptor<TypeScriptAnalysisRequest> request = ArgumentCaptor.forClass(TypeScriptAnalysisRequest.class);
     verify(eslintBridgeServerMock).analyzeTypeScript(request.capture());
 
-    assertThat(request.getValue().tsConfigs).containsOnly(baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString());
+    String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
+    assertThat(request.getValue().tsConfigs).containsOnly(absolutePath);
+
+    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", absolutePath));
+    createSensor().execute(ctx);
+    assertThat(request.getValue().tsConfigs).containsOnly(absolutePath);
   }
 
   @Test
@@ -216,7 +230,11 @@ public class TypeScriptSensorTest {
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.ts")
+    return createInputFile(context, "dir/file.ts");
+  }
+
+  private static DefaultInputFile createInputFile(SensorContextTester context, String relativePath) {
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setLanguage("ts")
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();

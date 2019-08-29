@@ -118,7 +118,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     highlighting.save();
   }
 
-  private List<String> tsConfigs(SensorContext context) {
+  private List<String> tsConfigs(SensorContext context) throws IOException {
     if (tsconfigs == null) {
       Optional<String> tsConfigProperty = context.config().get(JavaScriptPlugin.TSCONFIG_PATH);
       if (tsConfigProperty.isPresent()) {
@@ -139,7 +139,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     return tsconfigs;
   }
 
-  private List<String> lookupTsConfig(SensorContext context) {
+  private static List<String> lookupTsConfig(SensorContext context) throws IOException {
     FileSystem fs = context.fileSystem();
     Path baseDir = fs.baseDir().toPath();
     try (Stream<Path> files = Files.walk(baseDir)) {
@@ -147,8 +147,6 @@ public class TypeScriptSensor extends AbstractEslintSensor {
         .filter(p -> p.endsWith("tsconfig.json") && !isNodeModulesPath(p))
         .map(p -> p.toAbsolutePath().toString())
         .collect(Collectors.toList());
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to lookup tsconfig JSON");
     }
   }
 
