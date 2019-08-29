@@ -66,7 +66,7 @@ public class TypeScriptAnalysisTest {
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(2);
 
-    assertThat(result.getLogsLines(log -> log.contains("Found 1 tsconfig.json files"))).hasSize(1);
+    assertThat(result.getLogsLines(log -> log.contains("Found 1 tsconfig.json file(s)"))).hasSize(1);
   }
 
   @Test

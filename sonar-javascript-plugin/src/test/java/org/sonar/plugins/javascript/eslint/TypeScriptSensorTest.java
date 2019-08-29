@@ -180,7 +180,7 @@ public class TypeScriptSensorTest {
   }
 
   @Test
-  public void should_fail_with_wrong_tsconfig() throws Exception {
+  public void should_log_and_stop_with_wrong_tsconfig() throws Exception {
     Path baseDir = tempFolder.newDir().toPath();
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "wrong.json"));
@@ -190,7 +190,7 @@ public class TypeScriptSensorTest {
 
     verify(eslintBridgeServerMock, never()).analyzeTypeScript(any());
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exists. Path: '" + baseDir.resolve("wrong.json") + "'");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exist. Path: '" + baseDir.resolve("wrong.json") + "'");
   }
 
   private TypeScriptSensor createSensor() {

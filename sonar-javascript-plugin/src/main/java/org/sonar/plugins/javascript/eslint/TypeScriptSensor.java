@@ -125,7 +125,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
         Path tsconfig = Paths.get(tsConfigProperty.get());
         tsconfig = tsconfig.isAbsolute() ? tsconfig : context.fileSystem().baseDir().toPath().resolve(tsconfig);
         if (!tsconfig.toFile().exists()) {
-          String msg = format("Provided tsconfig.json path doesn't exists. Path: '%s'", tsconfig);
+          String msg = format("Provided tsconfig.json path doesn't exist. Path: '%s'", tsconfig);
           LOG.error(msg);
           throw new IllegalStateException(msg);
         }
@@ -133,7 +133,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
         LOG.info("Using {} from {} property", tsconfig, JavaScriptPlugin.TSCONFIG_PATH);
       } else {
         tsconfigs = lookupTsConfig(context);
-        LOG.info("Found " + tsconfigs.size() + " tsconfig.json files: " + tsconfigs);
+        LOG.info("Found " + tsconfigs.size() + " tsconfig.json file(s): " + tsconfigs);
       }
     }
     return tsconfigs;
