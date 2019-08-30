@@ -21,7 +21,9 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.Lists;
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
@@ -100,13 +102,23 @@ public class CheckListTest {
     List<Class> typeScriptChecks = CheckList.getTypeScriptChecks();
     assertThat(typeScriptChecks).isNotEmpty();
     assertThat(typeScriptChecks).isNotEqualTo(CheckList.getAllChecks());
-    assertThat(typeScriptChecks).allMatch(c -> EslintBasedCheck.class.isAssignableFrom(c));
+    assertThat(typeScriptChecks).allMatch(EslintBasedCheck.class::isAssignableFrom);
   }
 
   @Test
   public void testJavaScriptChecks() {
     List<Class> javaScriptChecks = CheckList.getJavaScriptChecks();
     assertThat(javaScriptChecks).isNotEmpty();
+    assertThat(javaScriptChecks).isNotEqualTo(CheckList.getAllChecks());
+  }
+
+  @Test
+  public void testEveryCheckBelongsToLanguage() {
+    Set<Class> allChecks = new HashSet<>(CheckList.getAllChecks());
+    Set<Class> tsAndJsChecks = new HashSet<>(CheckList.getTypeScriptChecks());
+    tsAndJsChecks.addAll(CheckList.getJavaScriptChecks());
+
+    assertThat(allChecks).isEqualTo(tsAndJsChecks);
   }
 
   private boolean isEslintBasedCheck(Class cls) {
