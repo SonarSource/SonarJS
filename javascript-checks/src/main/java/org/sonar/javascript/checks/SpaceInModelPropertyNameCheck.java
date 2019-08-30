@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.symbols.type.Backbone;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -33,6 +34,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "S2508")
 public class SpaceInModelPropertyNameCheck extends DoubleDispatchVisitorCheck {
 

@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import java.util.EnumSet;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -30,6 +31,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
+@JavaScriptRule
 @Rule(key = "S3002")
 public class UnaryPlusMinusWithObjectCheck extends AbstractAllPathSeCheck<UnaryExpressionTree> {
 

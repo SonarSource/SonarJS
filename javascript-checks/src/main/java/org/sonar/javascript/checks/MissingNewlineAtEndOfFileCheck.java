@@ -20,10 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 
+@JavaScriptRule
 @Rule(key = "MissingNewlineAtEndOfFile")
 public class MissingNewlineAtEndOfFileCheck extends DoubleDispatchVisitorCheck {
 
