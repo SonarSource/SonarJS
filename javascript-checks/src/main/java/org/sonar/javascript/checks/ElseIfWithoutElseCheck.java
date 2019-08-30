@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
@@ -27,6 +28,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
+@JavaScriptRule
 @Rule(key = "ElseIfWithoutElse")
 public class ElseIfWithoutElseCheck extends DoubleDispatchVisitorCheck {
 

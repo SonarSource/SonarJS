@@ -26,6 +26,7 @@ import java.util.Deque;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -43,6 +44,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
+@JavaScriptRule
 @Rule(key = "TooManyBreakOrContinueInLoop")
 public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorCheck {
 

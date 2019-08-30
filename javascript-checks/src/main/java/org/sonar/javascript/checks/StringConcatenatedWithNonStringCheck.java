@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Type;
@@ -29,6 +30,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
+@JavaScriptRule
 @Rule(key = "S3402")
 public class StringConcatenatedWithNonStringCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
 

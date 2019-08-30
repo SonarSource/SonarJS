@@ -20,9 +20,11 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "NamedFunctionExpression")
 public class NamedFunctionExpressionCheck extends DoubleDispatchVisitorCheck {
 

@@ -23,6 +23,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -38,6 +39,7 @@ import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
+@JavaScriptRule
 @Rule(key = "NestedIfDepth")
 public class NestedControlFlowDepthCheck extends DoubleDispatchVisitorCheck {
 

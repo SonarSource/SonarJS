@@ -30,6 +30,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.LiveVariableAnalysis;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -42,6 +43,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "S2392")
 public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
 

@@ -24,12 +24,14 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "VariableDeclarationAfterUsage")
 public class VariableDeclarationAfterUsageCheck extends DoubleDispatchVisitorCheck {
 

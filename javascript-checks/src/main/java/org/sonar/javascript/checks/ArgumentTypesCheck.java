@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
@@ -43,6 +44,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
+@JavaScriptRule
 @Rule(key = "S3782")
 public class ArgumentTypesCheck extends SeCheck {
 

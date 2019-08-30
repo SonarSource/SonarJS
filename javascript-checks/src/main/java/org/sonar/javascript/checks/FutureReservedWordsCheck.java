@@ -22,9 +22,11 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
+@JavaScriptRule
 @Rule(key = "FutureReservedWords")
 public class FutureReservedWordsCheck extends AbstractSymbolNameCheck {
 

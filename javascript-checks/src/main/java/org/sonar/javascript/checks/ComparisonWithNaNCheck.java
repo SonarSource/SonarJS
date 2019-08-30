@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -32,6 +33,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "S2688")
 public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
 

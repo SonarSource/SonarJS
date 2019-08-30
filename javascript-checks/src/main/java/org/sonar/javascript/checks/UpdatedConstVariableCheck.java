@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -29,6 +30,7 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
+@JavaScriptRule
 @Rule(key = "S3500")
 public class UpdatedConstVariableCheck extends DoubleDispatchVisitorCheck {
 

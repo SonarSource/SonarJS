@@ -27,6 +27,7 @@ import java.util.Deque;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.javascript.tree.KindSet;
@@ -40,6 +41,7 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "S1994")
 public class ForLoopConditionAndUpdateCheck extends DoubleDispatchVisitorCheck {
 

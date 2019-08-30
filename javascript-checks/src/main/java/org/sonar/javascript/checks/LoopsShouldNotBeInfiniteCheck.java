@@ -34,6 +34,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.SeCheck;
@@ -55,6 +56,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
+@JavaScriptRule
 @Rule(key = "S2189")
 public class LoopsShouldNotBeInfiniteCheck extends SeCheck {
 

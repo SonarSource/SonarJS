@@ -27,6 +27,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -39,6 +40,7 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import static org.sonar.javascript.checks.utils.CheckUtils.isDescendant;
 import static org.sonar.javascript.tree.KindSet.LOOP_KINDS;
 
+@JavaScriptRule
 @Rule(key = "S1751")
 public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
 

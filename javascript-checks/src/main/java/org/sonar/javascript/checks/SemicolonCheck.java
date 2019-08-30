@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
@@ -39,6 +40,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "Semicolon")
 public class SemicolonCheck extends DoubleDispatchVisitorCheck {
 

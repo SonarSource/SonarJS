@@ -24,6 +24,7 @@ import com.google.common.collect.ListMultimap;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
@@ -41,6 +42,7 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKe
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "DuplicatePropertyName")
 public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
 

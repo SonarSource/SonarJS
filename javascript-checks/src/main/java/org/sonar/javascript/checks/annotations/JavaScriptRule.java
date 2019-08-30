@@ -17,22 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.checks.annotations;
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@JavaScriptRule
-@Rule(key = "ContinueStatement")
-public class ContinueStatementCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this \"continue\" statement.";
-
-  @Override
-  public void visitContinueStatement(ContinueStatementTree tree) {
-    addIssue(tree, MESSAGE);
-  }
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface JavaScriptRule {
 }

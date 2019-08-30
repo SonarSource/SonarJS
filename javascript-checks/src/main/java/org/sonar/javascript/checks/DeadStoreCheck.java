@@ -28,6 +28,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.LiveVariableAnalysis;
 import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
@@ -56,6 +57,7 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "S1854")
 public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 

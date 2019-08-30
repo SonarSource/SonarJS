@@ -24,12 +24,14 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "S1219")
 public class NonCaseLabelInSwitchCheck extends SubscriptionVisitorCheck {
 

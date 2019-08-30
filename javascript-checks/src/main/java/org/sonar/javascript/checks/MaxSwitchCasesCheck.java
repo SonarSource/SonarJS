@@ -22,7 +22,9 @@ package org.sonar.javascript.checks;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 
+@JavaScriptRule
 @Rule(key = "S1479")
 public class MaxSwitchCasesCheck extends EslintBasedCheck {
 

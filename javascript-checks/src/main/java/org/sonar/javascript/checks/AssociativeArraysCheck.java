@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -28,6 +29,7 @@ import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionT
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "S3579")
 public class AssociativeArraysCheck extends DoubleDispatchVisitorCheck {
   private static final String MESSAGE = "Make \"%s\" an object if it must have named properties; otherwise, use a numeric index here.";

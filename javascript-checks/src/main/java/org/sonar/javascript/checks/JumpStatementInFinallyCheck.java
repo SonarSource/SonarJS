@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import java.util.EnumSet;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -35,6 +36,7 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "S1143")
 public class JumpStatementInFinallyCheck extends DoubleDispatchVisitorCheck {
 
