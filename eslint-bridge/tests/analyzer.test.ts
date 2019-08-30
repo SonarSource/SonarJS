@@ -9,6 +9,7 @@ const codeToTest = `
   }
   "Hello, world"; "Hello, world";
   `;
+
 const noOneIterationIssue = {
   line: 3,
   column: 2,
@@ -18,6 +19,7 @@ const noOneIterationIssue = {
   ruleId: "no-one-iteration-loop",
   secondaryLocations: [],
 };
+
 const noDuplicateStringIssue = {
   line: 7,
   column: 2,
@@ -72,6 +74,15 @@ describe("#analyzeJavaScript", () => {
     expect(highlights).toHaveLength(10);
   });
 
+  it("should report cpd tokens", () => {
+    const cpdTokens = analyzeJavaScript({
+      filePath,
+      fileContent: codeToTest,
+      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+    }).cpdTokens;
+    expect(cpdTokens).toHaveLength(36);
+  });
+
   it("should return empty list when parse error", () => {
     const { issues } = analyzeJavaScript({
       filePath,
@@ -120,6 +131,16 @@ describe("#analyzeTypeScript", () => {
       tsConfigs: [tsConfig],
     }).highlights;
     expect(highlights).toHaveLength(10);
+  });
+
+  it("should report cpd tokens", () => {
+    const cpdTokens = analyzeTypeScript({
+      filePath: filePath,
+      fileContent: codeToTest,
+      rules: [],
+      tsConfigs: [tsConfig],
+    }).cpdTokens;
+    expect(cpdTokens).toHaveLength(36);
   });
 
   it("should not report issue when not receiving corresponding rule-key", () => {

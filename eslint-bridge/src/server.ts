@@ -20,12 +20,7 @@
 import { Server } from "http";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {
-  AnalysisInput,
-  analyzeJavaScript,
-  analyzeTypeScript,
-  TypeScriptAnalysisInput,
-} from "./analyzer";
+import { AnalysisInput, analyzeJavaScript, analyzeTypeScript } from "./analyzer";
 import { AddressInfo } from "net";
 
 const MAX_REQUEST_SIZE = "50mb";
@@ -45,7 +40,7 @@ export function start(port = 0): Promise<Server> {
     });
 
     app.post("/analyze-ts", (request: express.Request, response: express.Response) => {
-      const parsedRequest = request.body as TypeScriptAnalysisInput;
+      const parsedRequest = request.body as AnalysisInput;
       const analysisResponse = analyzeTypeScript(parsedRequest);
       response.json(analysisResponse);
     });

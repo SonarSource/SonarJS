@@ -37,7 +37,7 @@ public interface EslintBridgeServer extends Startable {
 
   AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException;
 
-  AnalysisResponse analyzeTypeScript(TypeScriptAnalysisRequest request) throws IOException;
+  AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException;
 
   void clean();
 
@@ -47,8 +47,13 @@ public interface EslintBridgeServer extends Startable {
     String filePath;
     String fileContent;
     Rule[] rules;
+    List<String> tsConfigs;
 
     AnalysisRequest(InputFile file, Rule[] rules) {
+      this(file, rules, null);
+    }
+
+    AnalysisRequest(InputFile file, Rule[] rules, List<String> tsConfigs) {
       this.filePath = file.absolutePath();
       this.fileContent = fileContent(file);
       if (this.fileContent.startsWith("#!")) {
@@ -56,6 +61,7 @@ public interface EslintBridgeServer extends Startable {
         this.fileContent = this.fileContent.substring(lines[0].length());
       }
       this.rules = rules;
+      this.tsConfigs = tsConfigs;
     }
 
     private static String fileContent(InputFile file) {
@@ -80,6 +86,8 @@ public interface EslintBridgeServer extends Startable {
   class AnalysisResponse {
     AnalysisResponseIssue[] issues = {};
     AnalysisResponseHighlight[] highlights = {};
+    AnalysisResponseMetrics metrics = new AnalysisResponseMetrics();
+    AnalysisResponseCpdToken[] cpdTokens = {};
   }
 
   class AnalysisResponseIssue {
@@ -109,13 +117,22 @@ public interface EslintBridgeServer extends Startable {
     String textType;
   }
 
-  class TypeScriptAnalysisRequest extends AnalysisRequest {
-    List<String> tsConfigs;
+  class AnalysisResponseMetrics {
+    int[] ncloc = {};
+    int[] commentLines = {};
+    int[] nosonarLines = {};
+    int[] executableLines = {};
+    int functions;
+    int statements;
+    int classes;
+  }
 
-    TypeScriptAnalysisRequest(InputFile file, Rule[] rules, List<String> tsConfigs) {
-      super(file, rules);
-      this.tsConfigs = tsConfigs;
-    }
+  class AnalysisResponseCpdToken {
+    int startLine;
+    int startCol;
+    int endLine;
+    int endCol;
+    String image;
   }
 }
 
