@@ -22,12 +22,14 @@ package org.sonar.javascript.checks;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 
+@JavaScriptRule
 @Rule(key = "LineLength")
 public class LineLengthCheck extends DoubleDispatchVisitorCheck {
 

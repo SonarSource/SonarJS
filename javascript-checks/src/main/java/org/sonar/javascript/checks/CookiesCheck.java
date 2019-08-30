@@ -20,7 +20,9 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 
+@JavaScriptRule
 @Rule(key = "S2255")
 public class CookiesCheck extends EslintBasedCheck {
 

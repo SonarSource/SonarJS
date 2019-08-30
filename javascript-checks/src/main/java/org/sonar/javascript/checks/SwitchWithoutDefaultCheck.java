@@ -21,12 +21,14 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.Iterables;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "SwitchWithoutDefault")
 public class SwitchWithoutDefaultCheck extends DoubleDispatchVisitorCheck {
 

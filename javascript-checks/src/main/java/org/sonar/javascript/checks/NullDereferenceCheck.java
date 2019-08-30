@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.points.MemberProgramPoint;
@@ -39,6 +40,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 
 import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
 
+@JavaScriptRule
 @Rule(key = "S2259")
 public class NullDereferenceCheck extends SeCheck {
 

@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -31,6 +32,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 /**
  * http://stackoverflow.com/questions/7246618/trailing-commas-in-javascript
  */
+@JavaScriptRule
 @Rule(key = "TrailingComma")
 public class TrailingCommaCheck extends DoubleDispatchVisitorCheck {
 

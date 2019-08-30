@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -34,6 +35,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingEleme
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "S1788")
 public class DefaultParametersNotLastCheck extends SubscriptionVisitorCheck {
 

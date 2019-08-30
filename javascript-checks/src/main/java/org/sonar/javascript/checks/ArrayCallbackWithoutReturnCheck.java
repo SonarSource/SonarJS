@@ -25,6 +25,7 @@ import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
@@ -46,6 +47,7 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 
+@JavaScriptRule
 @Rule(key = "S3796")
 public class ArrayCallbackWithoutReturnCheck extends AbstractAnyPathSeCheck {
 
