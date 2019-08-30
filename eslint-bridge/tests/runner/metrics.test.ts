@@ -105,3 +105,16 @@ it("should count classes", () => {
   );
   expect(metrics.countClasses(sourceCode)).toEqual(2);
 });
+
+it("should compute cyclomatic complexity", () => {
+  expect(cyclomaticComplexity(`1 && 2;`)).toEqual(1);
+  expect(cyclomaticComplexity(`function foo() { 1 || 2; }`)).toEqual(2);
+  expect(cyclomaticComplexity(`while (true) { foo(); }`)).toEqual(1);
+  expect(cyclomaticComplexity(`if (null) { return; }`)).toEqual(1);
+  expect(cyclomaticComplexity(`try {} catch (e) {}`)).toEqual(0);
+});
+
+function cyclomaticComplexity(code: string): number {
+  const sourceCode = parseTypeScriptSourceFile(code, "foo.ts", []);
+  return metrics.getCyclomaticComplexity(sourceCode);
+}

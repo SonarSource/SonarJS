@@ -55,6 +55,7 @@ const expectedResponse = {
     functions: 0,
     statements: 3,
     classes: 0,
+    complexity: 1,
   },
   cpdTokens: [
     {

@@ -31,7 +31,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -149,6 +148,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     saveMetric(file, context, CoreMetrics.CLASSES, metrics.classes);
     saveMetric(file, context, CoreMetrics.NCLOC, metrics.ncloc.length);
     saveMetric(file, context, CoreMetrics.COMMENT_LINES, metrics.commentLines.length);
+    saveMetric(file, context, CoreMetrics.COMPLEXITY, metrics.complexity);
 
     noSonarFilter.noSonarInFile(file, Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet()));
 

@@ -63,9 +63,26 @@ const STATEMENT_NODES = [
   "ClassDeclaration",
 ];
 
+const LOOP_NODES = [
+  "ForStatement",
+  "ForInStatement",
+  "ForOfStatement",
+  "WhileStatement",
+  "DoWhileStatement",
+];
+
+const CONDITIONAL_NODES = ["IfStatement", "ConditionalExpression", "SwitchCase"];
+
 const FUNCTION_NODES = ["FunctionDeclaration", "FunctionExpression", "ArrowFunctionExpression"];
 
 const CLASS_NODES = ["ClassDeclaration", "ClassExpression"];
+
+const COMPLEXITY_NODES = [
+  ...CONDITIONAL_NODES,
+  ...FUNCTION_NODES,
+  ...LOOP_NODES,
+  "LogicalExpression",
+];
 
 export default function getMetrics(sourceCode: SourceCode): Metrics {
   return {
@@ -75,6 +92,7 @@ export default function getMetrics(sourceCode: SourceCode): Metrics {
     functions: countFunctions(sourceCode),
     statements: countStatements(sourceCode),
     classes: countClasses(sourceCode),
+    complexity: getCyclomaticComplexity(sourceCode),
   };
 }
 
@@ -86,6 +104,7 @@ export interface Metrics {
   functions: number;
   statements: number;
   classes: number;
+  complexity: number;
 }
 
 export const EMPTY_METRICS: Metrics = {
@@ -96,6 +115,7 @@ export const EMPTY_METRICS: Metrics = {
   functions: 0,
   statements: 0,
   classes: 0,
+  complexity: 0,
 };
 
 export function findLinesOfCode(sourceCode: SourceCode): number[] {
@@ -157,6 +177,18 @@ export function countStatements(sourceCode: SourceCode): number {
 
 export function countClasses(sourceCode: SourceCode): number {
   return visitAndCountIf(sourceCode.ast, node => CLASS_NODES.includes(node.type));
+}
+
+export function getCyclomaticComplexity(sourceCode: SourceCode): number {
+  let complexity = 0;
+
+  visit(sourceCode.ast, node => {
+    if (COMPLEXITY_NODES.includes(node.type)) {
+      complexity++;
+    }
+  });
+
+  return complexity;
 }
 
 function visitAndCountIf(root: estree.Node, condition: (node: estree.Node) => boolean): number {
