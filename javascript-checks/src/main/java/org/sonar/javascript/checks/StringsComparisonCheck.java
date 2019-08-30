@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -27,6 +28,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
+@JavaScriptRule
 @Rule(key = "S3003")
 public class StringsComparisonCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
 

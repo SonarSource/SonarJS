@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import java.util.LinkedList;
 import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -33,6 +34,7 @@ import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
+@JavaScriptRule
 @Rule(key = "S2685")
 public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 

@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -53,6 +54,7 @@ import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PREFIX_DECREMENT;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PREFIX_INCREMENT;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.VAR_DECLARATION;
 
+@JavaScriptRule
 @Rule(key = "S888")
 public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
 

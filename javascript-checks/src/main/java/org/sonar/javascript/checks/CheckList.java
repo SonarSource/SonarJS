@@ -20,8 +20,11 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 public final class CheckList {
 
@@ -34,15 +37,18 @@ public final class CheckList {
   }
 
   public static List<Class> getTypeScriptChecks() {
-    List<Class> allChecks = getAllChecks();
-    return allChecks.stream()
-      .filter(c -> c.isAnnotationPresent(TypeScriptRule.class))
-      .collect(Collectors.toList());
+    return filterChecksByAnnotation(TypeScriptRule.class);
   }
 
   public static List<Class> getJavaScriptChecks() {
-    // todo: filter only checks applied to JavaScript
-    return getAllChecks();
+    return filterChecksByAnnotation(JavaScriptRule.class);
+  }
+
+  private static List<Class> filterChecksByAnnotation(Class<? extends Annotation> annotation) {
+    List<Class> allChecks = getAllChecks();
+    return allChecks.stream()
+      .filter(c -> c.isAnnotationPresent(annotation))
+      .collect(Collectors.toList());
   }
 
   public static List<Class> getAllChecks() {

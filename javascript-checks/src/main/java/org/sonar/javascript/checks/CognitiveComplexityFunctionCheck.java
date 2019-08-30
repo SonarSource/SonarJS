@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.metrics.CognitiveComplexity;
 import org.sonar.javascript.metrics.FunctionDefiningModuleVisitor;
 import org.sonar.javascript.tree.KindSet;
@@ -39,6 +40,7 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.ARROW_FUNCTION;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.SCRIPT;
 
+@JavaScriptRule
 @Rule(key = "S3776")
 public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
 

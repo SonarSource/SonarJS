@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import java.util.EnumSet;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.points.ProgramPoint;
@@ -48,6 +49,7 @@ import static org.sonar.plugins.javascript.api.tree.Tree.Kind.MINUS;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PLUS;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PLUS_ASSIGNMENT;
 
+@JavaScriptRule
 @Rule(key = "S3760")
 public class NonNumberInArithmeticExpressionCheck extends AbstractAnyPathSeCheck {
 

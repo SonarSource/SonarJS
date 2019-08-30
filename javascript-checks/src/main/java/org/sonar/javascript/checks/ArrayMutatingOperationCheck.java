@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import java.util.Optional;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.points.ProgramPoint;
@@ -32,6 +33,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 
+@JavaScriptRule
 @Rule(key = "S4043")
 public class ArrayMutatingOperationCheck extends AbstractAnyPathSeCheck {
 
