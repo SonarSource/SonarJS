@@ -17,20 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseSourceFile, parseTypeScriptSourceFile } from "./parser";
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile, Parse } from "./parser";
 import getHighlighting, { Highlight } from "./runner/highlighter";
+import getMetrics, { Metrics, EMPTY_METRICS } from "./runner/metrics";
+import getCpdTokens, { CpdToken } from "./runner/cpd";
 import * as linter from "./linter";
 
-const EMPTY_RESPONSE: AnalysisResponse = { issues: [], highlights: [] };
+const EMPTY_RESPONSE: AnalysisResponse = {
+  issues: [],
+  highlights: [],
+  metrics: EMPTY_METRICS,
+  cpdTokens: [],
+};
 
 export interface AnalysisInput {
   filePath: string;
   fileContent: string;
   rules: Rule[];
-}
-
-export interface TypeScriptAnalysisInput extends AnalysisInput {
-  tsConfigs: string[];
+  tsConfigs?: string[];
 }
 
 // eslint rule key
@@ -43,6 +47,8 @@ export interface Rule {
 export interface AnalysisResponse {
   issues: Issue[];
   highlights: Highlight[];
+  metrics: Metrics;
+  cpdTokens: CpdToken[];
 }
 
 export interface Issue {
@@ -65,27 +71,22 @@ export interface IssueLocation {
 }
 
 export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
-  const { filePath, fileContent, rules } = input;
-  if (fileContent) {
-    const sourceCode = parseSourceFile(fileContent, filePath);
-    if (sourceCode) {
-      return {
-        issues: linter.analyze(sourceCode, rules, filePath).issues,
-        highlights: getHighlighting(sourceCode).highlights,
-      };
-    }
-  }
-  return EMPTY_RESPONSE;
+  return analyze(input, parseJavaScriptSourceFile);
 }
 
-export function analyzeTypeScript(input: TypeScriptAnalysisInput): AnalysisResponse {
-  const { filePath, fileContent, rules, tsConfigs } = input;
-  if (fileContent) {
-    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, tsConfigs);
+export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
+  return analyze(input, parseTypeScriptSourceFile);
+}
+
+function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
+  if (input.fileContent) {
+    const sourceCode = parse(input.fileContent, input.filePath, input.tsConfigs);
     if (sourceCode) {
       return {
-        issues: linter.analyze(sourceCode, rules, filePath).issues,
+        issues: linter.analyze(sourceCode, input.rules, input.filePath).issues,
         highlights: getHighlighting(sourceCode).highlights,
+        metrics: getMetrics(sourceCode),
+        cpdTokens: getCpdTokens(sourceCode).cpdTokens,
       };
     }
   }
