@@ -150,7 +150,7 @@ public class RulingTest {
       .setProperty("dump.old", FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
-      .setProperty("sonar.exclusions", "**/*." + languageToIgnore)
+      .setProperty("sonar.exclusions", "**/*.d.ts, **/*." + languageToIgnore)
       .setProperty("sonar.cpd.exclusions", "**/*");
 
     orchestrator.executeBuild(build);

@@ -84,10 +84,16 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class AnalysisResponse {
+    ParsingError parsingError;
     AnalysisResponseIssue[] issues = {};
     AnalysisResponseHighlight[] highlights = {};
     AnalysisResponseMetrics metrics = new AnalysisResponseMetrics();
     AnalysisResponseCpdToken[] cpdTokens = {};
+  }
+
+  class ParsingError {
+    String message;
+    Integer line;
   }
 
   class AnalysisResponseIssue {

@@ -127,7 +127,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
           LOG.info(message);
         }
       })
-      .minNodeVersion(6)
+      .minNodeVersion(8)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
       .scriptArgs(String.valueOf(port))

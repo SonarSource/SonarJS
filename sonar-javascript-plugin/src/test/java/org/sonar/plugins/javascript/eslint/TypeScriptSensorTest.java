@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Before;
@@ -57,13 +58,14 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingError;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TypeScriptSensorTest {
@@ -228,8 +230,38 @@ public class TypeScriptSensorTest {
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exist. Path: '" + baseDir.resolve("wrong.json") + "'");
   }
 
+  @Test
+  public void should_raise_a_parsing_error() throws IOException {
+    when(eslintBridgeServerMock.analyzeTypeScript(any()))
+      .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\"} }", AnalysisResponse.class));
+    createInputFile(context);
+    createSensor().execute(context);
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.iterator().next();
+    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
+    assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
+    assertThat(context.allAnalysisErrors()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to parse file [dir/file.ts] at line 3: Parse error message");
+  }
+
+  @Test
+  public void should_raise_a_parsing_error_without_line() throws IOException {
+    when(eslintBridgeServerMock.analyzeTypeScript(any()))
+      .thenReturn(new Gson().fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class));
+    createInputFile(context);
+    createSensor().execute(context);
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.iterator().next();
+    assertThat(issue.primaryLocation().textRange()).isNull(); // file level issueCheckListTest.testTypeScriptChecks
+    assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
+    assertThat(context.allAnalysisErrors()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file.ts]: Parse error message");
+  }
+
   private TypeScriptSensor createSensor() {
-    return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock);
+    return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock);
   }
 
   private AnalysisResponse createResponse() {

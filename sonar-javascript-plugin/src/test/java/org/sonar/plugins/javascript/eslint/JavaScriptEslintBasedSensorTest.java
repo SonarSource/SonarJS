@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import org.junit.Before;
 import org.junit.Rule;
@@ -327,6 +328,33 @@ public class JavaScriptEslintBasedSensorTest {
       "Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
   }
 
+  @Test
+  public void should_raise_a_parsing_error() throws IOException {
+    when(eslintBridgeServerMock.analyzeJavaScript(any()))
+      .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\"} }", AnalysisResponse.class));
+    createInputFile(context);
+    createSensor().execute(context);
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.iterator().next();
+    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
+    assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
+    assertThat(context.allAnalysisErrors()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to parse file [dir/file.js] at line 3: Parse error message");
+  }
+
+  @Test
+  public void should_not_create_parsing_issue_when_no_rule() throws IOException {
+    when(eslintBridgeServerMock.analyzeJavaScript(any()))
+      .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\"} }", AnalysisResponse.class));
+    createInputFile(context);
+    new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null).execute(context);
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(0);
+    assertThat(context.allAnalysisErrors()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to parse file [dir/file.js] at line 3: Parse error message");
+  }
+
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
@@ -346,6 +374,6 @@ public class JavaScriptEslintBasedSensorTest {
 
 
   private JavaScriptEslintBasedSensor createSensor() {
-    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
+    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError"), eslintBridgeServerMock, null);
   }
 }

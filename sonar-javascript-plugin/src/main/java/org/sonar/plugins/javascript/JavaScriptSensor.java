@@ -54,7 +54,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.cpd.CpdVisitor;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
@@ -91,8 +90,6 @@ public class JavaScriptSensor implements Sensor {
   private final FilePredicate mainFilePredicate;
   private final ActionParser<Tree> parser;
   private final ActionParser<Tree> vueParser;
-  // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
-  private RuleKey parsingErrorRuleKey = null;
 
   public JavaScriptSensor(
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter) {
@@ -180,9 +177,8 @@ public class JavaScriptSensor implements Sensor {
       scanFile(sensorContext, inputFile, executor, visitors, scriptTree);
     } catch (RecognitionException e) {
       checkInterrupted(e);
-      LOG.error("Unable to parse file: " + inputFile.uri());
-      LOG.error(e.getMessage());
-      processRecognitionException(e, sensorContext, inputFile);
+      LOG.debug("Unable to parse file with java-based frontend (some rules will not be executed): " + inputFile.toString());
+      LOG.debug(e.getMessage());
     } catch (Exception e) {
       checkInterrupted(e);
       processException(e, sensorContext, inputFile);
@@ -195,29 +191,6 @@ public class JavaScriptSensor implements Sensor {
     if (cause instanceof InterruptedException || cause instanceof InterruptedIOException) {
       throw new AnalysisException("Analysis cancelled", e);
     }
-  }
-
-  private void processRecognitionException(RecognitionException e, SensorContext sensorContext, InputFile inputFile) {
-    if (parsingErrorRuleKey != null) {
-      NewIssue newIssue = sensorContext.newIssue();
-
-      NewIssueLocation primaryLocation = newIssue.newLocation()
-        .message(ParsingErrorCheck.MESSAGE)
-        .on(inputFile)
-        .at(inputFile.selectLine(e.getLine()));
-
-      newIssue
-        .forRule(parsingErrorRuleKey)
-        .at(primaryLocation)
-        .save();
-    }
-
-    sensorContext.newAnalysisError()
-      .onFile(inputFile)
-      .at(inputFile.newPointer(e.getLine(), 0))
-      .message(e.getMessage())
-      .save();
-
   }
 
   private static void processException(Exception e, SensorContext sensorContext, InputFile inputFile) {
@@ -317,13 +290,6 @@ public class JavaScriptSensor implements Sensor {
     List<TreeVisitor> treeVisitors = new ArrayList<>(executor.getProductDependentTreeVisitors());
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
     treeVisitors.addAll(checks.visitorChecks());
-
-    for (TreeVisitor check : treeVisitors) {
-      if (check instanceof ParsingErrorCheck) {
-        parsingErrorRuleKey = checks.ruleKeyFor((JavaScriptCheck) check);
-        break;
-      }
-    }
 
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate);
     Collection<String> files = StreamSupport.stream(inputFiles.spliterator(), false)
