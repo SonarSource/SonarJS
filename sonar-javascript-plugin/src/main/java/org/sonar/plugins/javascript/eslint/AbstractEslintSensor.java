@@ -51,7 +51,7 @@ abstract class AbstractEslintSensor implements Sensor {
   final JavaScriptChecks checks;
 
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
-  protected RuleKey parsingErrorRuleKey = null;
+  private RuleKey parsingErrorRuleKey = null;
 
   private ProgressReport progressReport =
     new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
@@ -65,10 +65,10 @@ abstract class AbstractEslintSensor implements Sensor {
     this.eslintBridgeServer = eslintBridgeServer;
     this.analysisWarnings = analysisWarnings;
 
-    checks.all().stream()
+    this.parsingErrorRuleKey = checks.all().stream()
       .filter(check -> check instanceof ParsingErrorCheck)
       .findFirst()
-      .ifPresent(parsingErrorCheck -> parsingErrorRuleKey = checks.ruleKeyFor(parsingErrorCheck));
+      .map(checks::ruleKeyFor).orElse(null);
   }
 
   @Override
