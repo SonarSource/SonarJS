@@ -21,11 +21,12 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "ParsingError")
 public class ParsingErrorCheck extends DoubleDispatchVisitorCheck {
 
-  public static final String MESSAGE = "Parse error";
 }

@@ -113,6 +113,12 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     try {
       AnalysisRequest request = new AnalysisRequest(file, rules, tsConfigs(context));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
+
+      if (response.parsingError != null) {
+        processParsingError(context, file, response.parsingError);
+        return;
+      }
+
       saveMetrics(file, context, response.metrics);
       saveIssues(file, context, response.issues);
       saveHighlights(file, context, response.highlights);
