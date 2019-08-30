@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.sonar.api.SonarEdition;
@@ -64,8 +65,10 @@ public class TypeScriptRulesDefinitionTest {
   public void compatibleLanguagesInJson() {
     Gson gson = new Gson();
     List<Class> typeScriptChecks = CheckList.getTypeScriptChecks();
+    List<Class> javaScriptChecks = CheckList.getJavaScriptChecks();
     CheckList.getAllChecks().forEach(c -> {
       boolean isTypeScriptCheck = typeScriptChecks.contains(c);
+      boolean isJavaScriptCheck = javaScriptChecks.contains(c);
       Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
       String key = ((org.sonar.check.Rule) ruleAnnotation).key();
       File file = new File(new File("../javascript-checks/src/main/resources", JavaScriptRulesDefinition.METADATA_LOCATION),
@@ -73,12 +76,15 @@ public class TypeScriptRulesDefinitionTest {
       try {
         RuleJson ruleJson = gson.fromJson(new FileReader(file), RuleJson.class);
         assertThat(ruleJson.compatibleLanguages).isNotNull().isNotEmpty();
+        List<String> expected = new ArrayList<>();
         if (isTypeScriptCheck) {
-          assertThat(ruleJson.compatibleLanguages).containsExactlyInAnyOrder("JAVASCRIPT", "TYPESCRIPT");
-        } else {
-          assertThat(ruleJson.compatibleLanguages).containsExactlyInAnyOrder("JAVASCRIPT");
+          expected.add("TYPESCRIPT");
+        }
+        if (isJavaScriptCheck) {
+          expected.add("JAVASCRIPT");
         }
 
+        assertThat(ruleJson.compatibleLanguages).containsAll(expected);
       } catch (FileNotFoundException e) {
         throw new AssertionError("File for rule " + key + " is not found", e);
       }

@@ -1,0 +1,19 @@
+{
+  "title": "Redundant casts and not-null assertions should be avoided",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "redundant"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-4325",
+  "sqKey": "S4325",
+  "scope": "All"
+}

@@ -181,6 +181,7 @@ public final class CheckList {
       NonNumberInArithmeticExpressionCheck.class,
       NonStandardImportCheck.class,
       NotStoredSelectionCheck.class,
+      NoUnnecessaryTypeAssertionCheck.class,
       NoUselessCatchCheck.class,
       NullDereferenceCheck.class,
       NullDereferenceInConditionalCheck.class,
