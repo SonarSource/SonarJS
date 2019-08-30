@@ -95,6 +95,11 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
         metrics: getMetrics(result),
         cpdTokens: getCpdTokens(result).cpdTokens,
       };
+    } else {
+      return {
+        ...EMPTY_RESPONSE,
+        parsingError: result,
+      };
     }
   }
   return EMPTY_RESPONSE;

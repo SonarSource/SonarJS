@@ -153,13 +153,15 @@ describe("#analyzeTypeScript", () => {
     expect(issues).toHaveLength(0);
   });
 
-  it("should return empty list when parse error", () => {
-    const { issues } = analyzeTypeScript({
+  it("should return empty issues list when parse error", () => {
+    const { issues, parsingError } = analyzeTypeScript({
       filePath: filePath,
       fileContent: `if()`,
       rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
       tsConfigs: [],
     });
     expect(issues).toHaveLength(0);
+    expect(parsingError.line).toBe(1);
+    expect(parsingError.message).toBe("Expression expected.");
   });
 });
