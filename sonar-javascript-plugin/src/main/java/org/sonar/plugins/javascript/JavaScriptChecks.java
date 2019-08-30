@@ -82,7 +82,7 @@ public class JavaScriptChecks {
     return this;
   }
 
-  private List<JavaScriptCheck> all() {
+  public List<JavaScriptCheck> all() {
     List<JavaScriptCheck> allVisitors = new ArrayList<>();
 
     for (Checks<JavaScriptCheck> checks : checksByRepository) {

@@ -22,6 +22,7 @@ import getHighlighting, { Highlight } from "./runner/highlighter";
 import getMetrics, { Metrics, EMPTY_METRICS } from "./runner/metrics";
 import getCpdTokens, { CpdToken } from "./runner/cpd";
 import * as linter from "./linter";
+import { SourceCode } from "eslint";
 
 const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -45,10 +46,16 @@ export interface Rule {
 }
 
 export interface AnalysisResponse {
+  parsingError?: ParsingError;
   issues: Issue[];
   highlights: Highlight[];
   metrics: Metrics;
   cpdTokens: CpdToken[];
+}
+
+export interface ParsingError {
+  line?: number;
+  message: string;
 }
 
 export interface Issue {
@@ -80,13 +87,18 @@ export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
 
 function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
   if (input.fileContent) {
-    const sourceCode = parse(input.fileContent, input.filePath, input.tsConfigs);
-    if (sourceCode) {
+    const result = parse(input.fileContent, input.filePath, input.tsConfigs);
+    if (result instanceof SourceCode) {
       return {
-        issues: linter.analyze(sourceCode, input.rules, input.filePath).issues,
-        highlights: getHighlighting(sourceCode).highlights,
-        metrics: getMetrics(sourceCode),
-        cpdTokens: getCpdTokens(sourceCode).cpdTokens,
+        issues: linter.analyze(result, input.rules, input.filePath).issues,
+        highlights: getHighlighting(result).highlights,
+        metrics: getMetrics(result),
+        cpdTokens: getCpdTokens(result).cpdTokens,
+      };
+    } else {
+      return {
+        ...EMPTY_RESPONSE,
+        parsingError: result,
       };
     }
   }

@@ -194,9 +194,9 @@ public class JavaScriptSensorTest {
   }
 
   @Test
-  public void should_raise_a_parsing_error() {
+  public void should_only_log_debug_if_a_parsing_error() {
     String relativePath = "cpd/parsingError.js";
-    inputFile(relativePath);
+    InputFile inputFile = inputFile(relativePath);
 
     String parsingErrorCheckKey = "ParsingError";
 
@@ -209,12 +209,11 @@ public class JavaScriptSensorTest {
     context.setActiveRules(activeRules);
     createSensor().execute(context);
     Collection<Issue> issues = context.allIssues();
-    assertThat(issues).hasSize(1);
-    Issue issue = issues.iterator().next();
-    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
-    assertThat(issue.primaryLocation().message()).isEqualTo("Parse error");
+    assertThat(issues).hasSize(0);
+    assertThat(context.allAnalysisErrors()).hasSize(0);
 
-    assertThat(context.allAnalysisErrors()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).isEqualTo("Unable to parse file with java-based frontend (some rules will not be executed): " + inputFile.toString());
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1)).startsWith("Parse error at line 3 column 1:");
   }
 
   @Test

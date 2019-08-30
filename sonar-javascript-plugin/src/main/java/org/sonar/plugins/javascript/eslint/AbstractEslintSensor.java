@@ -28,10 +28,15 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingError;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Rule;
 import org.sonarsource.analyzer.commons.ProgressReport;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -45,6 +50,9 @@ abstract class AbstractEslintSensor implements Sensor {
   final Rule[] rules;
   final JavaScriptChecks checks;
 
+  // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
+  private RuleKey parsingErrorRuleKey = null;
+
   private ProgressReport progressReport =
     new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
 
@@ -56,6 +64,11 @@ abstract class AbstractEslintSensor implements Sensor {
 
     this.eslintBridgeServer = eslintBridgeServer;
     this.analysisWarnings = analysisWarnings;
+
+    this.parsingErrorRuleKey = checks.all().stream()
+      .filter(check -> check instanceof ParsingErrorCheck)
+      .findFirst()
+      .map(checks::ruleKeyFor).orElse(null);
   }
 
   @Override
@@ -88,6 +101,40 @@ abstract class AbstractEslintSensor implements Sensor {
     } finally {
       progressReport.cancel();
     }
+  }
+
+  void processParsingError(SensorContext sensorContext, InputFile inputFile, ParsingError parsingError) {
+    Integer line = parsingError.line;
+    String message = parsingError.message;
+
+    if (line != null) {
+      LOG.error("Failed to parse file [{}] at line {}: {}", inputFile.toString(), line, message);
+    } else {
+      LOG.error("Failed to analyze file [{}]: {}", inputFile.toString(), message);
+    }
+
+    if (parsingErrorRuleKey != null) {
+      NewIssue newIssue = sensorContext.newIssue();
+
+      NewIssueLocation primaryLocation = newIssue.newLocation()
+        .message(message)
+        .on(inputFile);
+
+      if (line != null) {
+        primaryLocation.at(inputFile.selectLine(line));
+      }
+
+      newIssue
+        .forRule(parsingErrorRuleKey)
+        .at(primaryLocation)
+        .save();
+    }
+
+    sensorContext.newAnalysisError()
+      .onFile(inputFile)
+      .at(inputFile.newPointer(line != null ? line : 1, 0))
+      .message(message)
+      .save();
   }
 
   protected abstract Iterable<InputFile> getInputFiles(SensorContext sensorContext);

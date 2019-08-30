@@ -102,6 +102,7 @@ public class CheckListTest {
     List<Class> typeScriptChecks = CheckList.getTypeScriptChecks();
     assertThat(typeScriptChecks).isNotEmpty();
     assertThat(typeScriptChecks).isNotEqualTo(CheckList.getAllChecks());
+    typeScriptChecks.removeIf(c -> c == ParsingErrorCheck.class);
     assertThat(typeScriptChecks).allMatch(EslintBasedCheck.class::isAssignableFrom);
   }
 
