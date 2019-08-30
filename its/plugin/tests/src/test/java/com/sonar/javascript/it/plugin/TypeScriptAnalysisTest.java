@@ -58,13 +58,26 @@ public class TypeScriptAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR);
 
-
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
-    List<Issues.Issue> issuesList = getIssues(projectKey);
+    List<Issues.Issue> issuesList = getIssues(projectKey + ":sample.lint.ts");
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(2);
+
+    String sampleFileKey = projectKey + ":sample.lint.ts";
+    assertThat(Tests.getMeasureAsInt(sampleFileKey, "ncloc")).isEqualTo(7);
+    assertThat(Tests.getMeasureAsInt(sampleFileKey, "classes")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(sampleFileKey, "functions")).isEqualTo(1);
+    assertThat(Tests.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(4);
+    assertThat(Tests.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
+
+    assertThat(Tests.getMeasureAsDouble(projectKey, "duplicated_lines")).isEqualTo(111.0);
+    assertThat(Tests.getMeasureAsDouble(projectKey, "duplicated_blocks")).isEqualTo(2.0);
+    assertThat(Tests.getMeasureAsDouble(projectKey, "duplicated_files")).isEqualTo(1.0);
+
+    issuesList = getIssues(projectKey + ":nosonar.lint.ts");
+    assertThat(issuesList).hasSize(1);
 
     assertThat(result.getLogsLines(log -> log.contains("Found 1 tsconfig.json file(s)"))).hasSize(1);
   }

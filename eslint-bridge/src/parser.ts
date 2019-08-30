@@ -41,7 +41,16 @@ export const PARSER_CONFIG_SCRIPT: Linter.ParserOptions = {
   sourceType: "script",
 };
 
-export function parseSourceFile(fileContent: string, filePath: string): SourceCode | undefined {
+export type Parse = (
+  fileContent: string,
+  filePath: string,
+  tsConfigs?: string[],
+) => SourceCode | undefined;
+
+export function parseJavaScriptSourceFile(
+  fileContent: string,
+  filePath: string,
+): SourceCode | undefined {
   let parseFunctions = [espree.parse, babel.parse];
   if (fileContent.includes("@flow")) {
     parseFunctions = [babel.parse];
@@ -67,7 +76,7 @@ export function parseSourceFile(fileContent: string, filePath: string): SourceCo
 export function parseTypeScriptSourceFile(
   fileContent: string,
   filePath: string,
-  tsConfigs: string[],
+  tsConfigs?: string[],
 ): SourceCode | undefined {
   try {
     // we load the typescript parser dynamically, so we don't need typescript dependency when analysing pure JS project
