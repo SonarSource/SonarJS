@@ -27,6 +27,15 @@ const noDuplicateStringIssue = {
   ruleId: "no-duplicate-string",
   secondaryLocations: [],
 };
+const noUnnecessaryTypeAssertionIssue = {
+  line: 1,
+  column: 11,
+  endLine: 1,
+  endColumn: 22,
+  message: "This assertion is unnecessary since it does not change the type of the expression.",
+  ruleId: "no-unnecessary-type-assertion",
+  secondaryLocations: [],
+};
 
 describe("#analyzeJavaScript", () => {
   const filePath = join(__dirname, "./fixtures/js-project/sample.lint.js");
@@ -90,6 +99,17 @@ describe("#analyzeTypeScript", () => {
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noOneIterationIssue);
     expect(issues).toContainEqual(noDuplicateStringIssue);
+  });
+
+  it("should report issue using type-checker", () => {
+    const { issues } = analyzeTypeScript({
+      filePath: filePath,
+      fileContent: `let x = 4; x as number;`,
+      rules: [{ key: "no-unnecessary-type-assertion", configurations: [] }],
+      tsConfigs: [tsConfig],
+    });
+    expect(issues).toHaveLength(1);
+    expect(issues).toContainEqual(noUnnecessaryTypeAssertionIssue);
   });
 
   it("should report syntax highlights", () => {

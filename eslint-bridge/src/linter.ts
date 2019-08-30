@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules as externalRules } from "eslint-plugin-sonarjs";
+import { rules as sonarjsRules } from "eslint-plugin-sonarjs";
 import { rules as internalRules } from "./rules/main";
 import { Linter, SourceCode, Rule as ESLintRule } from "eslint";
 import { Rule, Issue, IssueLocation } from "./analyzer";
@@ -34,8 +34,16 @@ interface EncodedMessage {
 }
 
 const linter = new Linter();
-linter.defineRules(externalRules);
+linter.defineRules(sonarjsRules);
 linter.defineRules(internalRules);
+
+try {
+  // we load "@typescript-eslint/eslint-plugin" dynamically as it requires TS and so we don't need typescript dependency when analysing pure JS project
+  const typescriptEslintRules = require("@typescript-eslint/eslint-plugin").rules;
+  linter.defineRules(typescriptEslintRules);
+} catch {
+  // do nothing, "typescript" is not there
+}
 
 export function analyze(sourceCode: SourceCode, inputRules: Rule[], fileUri: string) {
   const issues = linter
@@ -79,10 +87,16 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
     console.error("Illegal 'null' ruleId for eslint issue");
     return null;
   }
-  // we need to extract and insert ruleId field, in order to make it non-nullable for the type checker
-  // and so avoid casting
-  const { nodeType, severity, fatal, fix, source, ruleId, ...relevantProperties } = eslintIssue;
-  return { ...relevantProperties, ruleId, secondaryLocations: [] };
+
+  return {
+    column: eslintIssue.column,
+    line: eslintIssue.line,
+    endColumn: eslintIssue.endColumn,
+    endLine: eslintIssue.endLine,
+    ruleId: eslintIssue.ruleId,
+    message: eslintIssue.message,
+    secondaryLocations: [],
+  };
 }
 
 function createLinterConfig(inputRules: Rule[]) {
