@@ -149,6 +149,8 @@ public class TypeScriptSensorTest {
     assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC).value()).isEqualTo(3);
     assertThat(context.measure(inputFile.key(), CoreMetrics.COMMENT_LINES).value()).isEqualTo(3);
 
+    assertThat(context.measure(inputFile.key(), CoreMetrics.COMPLEXITY).value()).isEqualTo(4);
+
     assertThat(context.cpdTokens(inputFile.key())).hasSize(2);
   }
 
@@ -290,7 +292,8 @@ public class TypeScriptSensorTest {
     + "\"executableLines\":[10, 11, 12],"
     + "\"functions\":1,"
     + "\"statements\":2,"
-    + "\"classes\":3"
+    + "\"classes\":3,"
+    + "\"complexity\":4"
     + "}";
   }
 
