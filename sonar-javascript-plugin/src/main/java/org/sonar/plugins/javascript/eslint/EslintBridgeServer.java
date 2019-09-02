@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -53,7 +54,7 @@ public interface EslintBridgeServer extends Startable {
       this(file, rules, null);
     }
 
-    AnalysisRequest(InputFile file, Rule[] rules, List<String> tsConfigs) {
+    AnalysisRequest(InputFile file, Rule[] rules, @Nullable List<String> tsConfigs) {
       this.filePath = file.absolutePath();
       this.fileContent = fileContent(file);
       if (this.fileContent.startsWith("#!")) {
@@ -131,6 +132,7 @@ public interface EslintBridgeServer extends Startable {
     int functions;
     int statements;
     int classes;
+    int complexity;
   }
 
   class AnalysisResponseCpdToken {
