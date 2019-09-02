@@ -45,9 +45,18 @@ try {
   // do nothing, "typescript" is not there
 }
 
-export function analyze(sourceCode: SourceCode, inputRules: Rule[], fileUri: string) {
+export function analyze(
+  sourceCode: SourceCode,
+  inputRules: Rule[],
+  fileUri: string,
+  additionalRule?: { ruleId: string; ruleModule: ESLintRule.RuleModule },
+) {
+  if (additionalRule) {
+    linter.defineRule(additionalRule.ruleId, additionalRule.ruleModule);
+  }
+
   const issues = linter
-    .verify(sourceCode, createLinterConfig(inputRules), fileUri)
+    .verify(sourceCode, createLinterConfig(inputRules, additionalRule), fileUri)
     .map(removeIrrelevantProperties)
     .map(issue => {
       if (!issue) {
@@ -99,12 +108,19 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
   };
 }
 
-function createLinterConfig(inputRules: Rule[]) {
+function createLinterConfig(
+  inputRules: Rule[],
+  additionalRule?: { ruleId: string; ruleModule: ESLintRule.RuleModule },
+) {
   const ruleConfig: Linter.Config = { rules: {}, parserOptions: { sourceType: "module" } };
   inputRules.forEach(inputRule => {
     const ruleModule = linter.getRules().get(inputRule.key);
     ruleConfig.rules![inputRule.key] = ["error", ...getRuleConfig(ruleModule, inputRule)];
   });
+
+  if (additionalRule) {
+    ruleConfig.rules![additionalRule.ruleId] = ["error"];
+  }
   return ruleConfig;
 }
 

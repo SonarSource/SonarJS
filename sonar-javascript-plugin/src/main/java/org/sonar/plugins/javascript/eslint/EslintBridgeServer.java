@@ -87,6 +87,7 @@ public interface EslintBridgeServer extends Startable {
     ParsingError parsingError;
     AnalysisResponseIssue[] issues = {};
     AnalysisResponseHighlight[] highlights = {};
+    AnalysisResponseHighlightedSymbol[] highlightedSymbols = {};
     AnalysisResponseMetrics metrics = new AnalysisResponseMetrics();
     AnalysisResponseCpdToken[] cpdTokens = {};
   }
@@ -121,6 +122,18 @@ public interface EslintBridgeServer extends Startable {
     int endLine;
     int endCol;
     String textType;
+  }
+
+  class AnalysisResponseHighlightedSymbol {
+    Location declaration;
+    Location[]  references;
+  }
+
+  class Location {
+    int startLine;
+    int startCol;
+    int endLine;
+    int endCol;
   }
 
   class AnalysisResponseMetrics {

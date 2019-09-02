@@ -43,6 +43,8 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.symbol.NewSymbol;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
@@ -59,8 +61,10 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseCpdToken;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseHighlight;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseHighlightedSymbol;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseMetrics;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Location;
 
 import static java.lang.String.format;
 
@@ -122,6 +126,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       saveMetrics(file, context, response.metrics);
       saveIssues(file, context, response.issues);
       saveHighlights(file, context, response.highlights);
+      saveHighlightedSymbols(file, context, response.highlightedSymbols);
       saveCpd(file, context, response.cpdTokens);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);
@@ -141,6 +146,18 @@ public class TypeScriptSensor extends AbstractEslintSensor {
         TypeOfText.valueOf(highlight.textType));
     }
     highlighting.save();
+  }
+
+  private static void saveHighlightedSymbols(InputFile file, SensorContext context, AnalysisResponseHighlightedSymbol[] highlightedSymbols) {
+    NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
+    for (AnalysisResponseHighlightedSymbol highlightedSymbol : highlightedSymbols) {
+      Location declaration = highlightedSymbol.declaration;
+      NewSymbol newSymbol = symbolTable.newSymbol(declaration.startLine, declaration.startCol, declaration.endLine, declaration.endCol);
+      for (Location reference : highlightedSymbol.references) {
+        newSymbol.newReference(reference.startLine, reference.startCol, reference.endLine, reference.endCol);
+      }
+    }
+    symbolTable.save();
   }
 
   private void saveMetrics(InputFile file, SensorContext context, AnalysisResponseMetrics metrics) {

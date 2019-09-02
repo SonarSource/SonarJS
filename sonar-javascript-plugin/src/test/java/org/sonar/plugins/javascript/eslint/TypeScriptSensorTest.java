@@ -34,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
@@ -58,7 +59,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingError;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -142,6 +142,10 @@ public class TypeScriptSensorTest {
     assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1)).isNotEmpty();
     assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1).get(0)).isEqualTo(TypeOfText.CONSTANT);
     assertThat(context.highlightingTypeAt(inputFile.key(), 3, 0)).isEmpty();
+
+    Collection<TextRange> symbols = context.referencesForSymbolAt(inputFile.key(), 1, 3);
+    assertThat(symbols).hasSize(1);
+    assertThat(symbols.iterator().next()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(2, 1), new DefaultTextPointer(2, 5)));
 
     assertThat(context.measure(inputFile.key(), CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
     assertThat(context.measure(inputFile.key(), CoreMetrics.STATEMENTS).value()).isEqualTo(2);
@@ -265,7 +269,13 @@ public class TypeScriptSensorTest {
   }
 
   private AnalysisResponse createResponse() {
-    return new Gson().fromJson("{" + createIssues() + "," + createHighlights() + "," + createMetrics() + "," + createCpdTokens() + "}", AnalysisResponse.class);
+    return new Gson().fromJson(
+      "{" + createIssues() + ","
+        + createHighlights() + ","
+        + createMetrics() + ","
+        + createCpdTokens() + ","
+        + createHighlightedSymbols() + "}"
+      , AnalysisResponse.class);
   }
 
   private String createIssues() {
@@ -280,6 +290,13 @@ public class TypeScriptSensorTest {
     + "{\"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4,\"textType\":\"KEYWORD\"},"
     + "{\"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5,\"textType\":\"CONSTANT\"}"
     + "]";
+  }
+
+  private String createHighlightedSymbols() {
+    return "highlightedSymbols: [{"
+    + "\"declaration\": {\"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},"
+    + "\"references\": [{\"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5}]"
+    + "}]";
   }
 
   private String createMetrics() {

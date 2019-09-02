@@ -133,6 +133,16 @@ describe("#analyzeTypeScript", () => {
     expect(highlights).toHaveLength(10);
   });
 
+  it("should report symbol highlighting", () => {
+    const highlightedSymbols = analyzeTypeScript({
+      filePath: filePath,
+      fileContent: codeToTest,
+      rules: [],
+      tsConfigs: [tsConfig],
+    }).highlightedSymbols;
+    expect(highlightedSymbols).toHaveLength(2);
+  });
+
   it("should report cpd tokens", () => {
     const cpdTokens = analyzeTypeScript({
       filePath: filePath,

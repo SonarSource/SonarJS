@@ -17,6 +17,7 @@ const expectedResponse = {
       secondaryLocations: [],
     },
   ],
+  highlightedSymbols: [],
   highlights: [
     {
       startLine: 1,

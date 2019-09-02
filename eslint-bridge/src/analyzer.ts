@@ -23,10 +23,16 @@ import getMetrics, { Metrics, EMPTY_METRICS } from "./runner/metrics";
 import getCpdTokens, { CpdToken } from "./runner/cpd";
 import * as linter from "./linter";
 import { SourceCode } from "eslint";
+import {
+  HighlightedSymbol,
+  symbolHighlightingRuleId,
+  rule as symbolHighlightingRule,
+} from "./runner/symbol-highlighter";
 
 const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
   highlights: [],
+  highlightedSymbols: [],
   metrics: EMPTY_METRICS,
   cpdTokens: [],
 };
@@ -49,6 +55,7 @@ export interface AnalysisResponse {
   parsingError?: ParsingError;
   issues: Issue[];
   highlights: Highlight[];
+  highlightedSymbols: HighlightedSymbol[];
   metrics: Metrics;
   cpdTokens: CpdToken[];
 }
@@ -89,9 +96,15 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
   if (input.fileContent) {
     const result = parse(input.fileContent, input.filePath, input.tsConfigs);
     if (result instanceof SourceCode) {
+      let issues = linter.analyze(result, input.rules, input.filePath, {
+        ruleId: symbolHighlightingRuleId,
+        ruleModule: symbolHighlightingRule,
+      }).issues;
+      const highlightedSymbols = getHighlightedSymbols(issues);
       return {
-        issues: linter.analyze(result, input.rules, input.filePath).issues,
+        issues,
         highlights: getHighlighting(result).highlights,
+        highlightedSymbols,
         metrics: getMetrics(result),
         cpdTokens: getCpdTokens(result).cpdTokens,
       };
@@ -103,4 +116,16 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
     }
   }
   return EMPTY_RESPONSE;
+}
+
+function getHighlightedSymbols(issues: Issue[]) {
+  for (const issue of issues) {
+    if (issue.ruleId === symbolHighlightingRuleId) {
+      const index = issues.indexOf(issue);
+      issues.splice(index, 1);
+      return JSON.parse(issue.message);
+    }
+  }
+  console.log("DEBUG Failed to retrieve symbol highlighting from analysis results");
+  return [];
 }
