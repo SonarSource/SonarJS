@@ -157,13 +157,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-js"));
+    return response(request(json, "analyze-js"), request.filePath);
   }
 
   @Override
   public AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-ts"));
+    return response(request(json, "analyze-ts"), request.filePath);
   }
 
   private String request(String json, String endpoint) throws IOException {
@@ -184,11 +184,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
   }
 
-  private static AnalysisResponse response(String result) {
+  private static AnalysisResponse response(String result, String filePath) {
     try {
       return GSON.fromJson(result, AnalysisResponse.class);
     } catch (JsonSyntaxException e) {
-      LOG.error("Failed to parse: \n-----\n" + result + "\n-----\n");
+      LOG.error("Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n");
       return new AnalysisResponse();
     }
   }

@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -225,7 +224,7 @@ public class EslintBridgeServerImplTest {
     EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(request);
     assertThat(response.issues).isEmpty();
 
-    assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to parse: \n" +
+    assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to parse response for file foo/foo.js: \n" +
       "-----\n" +
       "Invalid response\n" +
       "-----\n");
