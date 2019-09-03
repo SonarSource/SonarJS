@@ -287,8 +287,8 @@ public class TypeScriptSensorTest {
 
   private String createHighlights() {
     return "highlights: ["
-    + "{\"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4,\"textType\":\"KEYWORD\"},"
-    + "{\"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5,\"textType\":\"CONSTANT\"}"
+    + "{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"textType\":\"KEYWORD\"},"
+    + "{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"textType\":\"CONSTANT\"}"
     + "]";
   }
 
@@ -313,8 +313,8 @@ public class TypeScriptSensorTest {
 
   private String createCpdTokens() {
     return "cpdTokens: ["
-    + "{\"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4,\"image\":\"LITERAL\"},"
-    + "{\"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5,\"image\":\"if\"}"
+    + "{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"image\":\"LITERAL\"},"
+    + "{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"image\":\"if\"}"
     + "]";
   }
 

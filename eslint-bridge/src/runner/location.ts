@@ -23,4 +23,4 @@ export interface Location {
   startCol: number;
   endLine: number;
   endCol: number;
-} 
+}
