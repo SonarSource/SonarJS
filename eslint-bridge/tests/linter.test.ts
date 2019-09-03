@@ -1,5 +1,7 @@
-import { getRuleConfig, decodeSonarRuntimeIssue } from "../src/linter";
-import { Rule } from "eslint";
+import { getRuleConfig, decodeSonarRuntimeIssue, analyze } from "../src/linter";
+import { Rule, SourceCode } from "eslint";
+import { SYMBOL_HIGHLIGHTING_RULE } from "../src/analyzer";
+import { parse, parseJavaScriptSourceFile } from "../src/parser";
 
 const ruleUsingSecondaryLocations = {
   meta: { schema: { enum: ["sonar-runtime"] } },
@@ -102,5 +104,21 @@ describe("#decodeSecondaryLocations", () => {
       new SyntaxError("Unexpected token I in JSON at position 0"),
     );
     jest.resetAllMocks();
+  });
+
+  it("should compute symbol highlighting when additional rule", () => {
+    const sourceCode = parseJavaScriptSourceFile("let x = 42;") as SourceCode;
+    const result = analyze(sourceCode, [], "fileUri", SYMBOL_HIGHLIGHTING_RULE).issues;
+    expect(result).toHaveLength(1);
+    expect(result[0].ruleId).toEqual(SYMBOL_HIGHLIGHTING_RULE.ruleId);
+    expect(result[0].message).toEqual(
+      `[{\"declaration\":{\"startLine\":1,\"startCol\":4,\"endLine\":1,\"endCol\":5},\"references\":[]}]`,
+    );
+  });
+
+  it("should not compute symbol highlighting when no additional rule", () => {
+    const sourceCode = parseJavaScriptSourceFile("let x = 42;") as SourceCode;
+    const result = analyze(sourceCode, [], "fileUri").issues;
+    expect(result).toHaveLength(0);
   });
 });

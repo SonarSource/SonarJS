@@ -1,6 +1,7 @@
 import getHighlighting, { Highlight, SonarTypeOfText } from "../../src/runner/highlighter";
 import { parseTypeScriptSourceFile } from "../../src/parser";
 import { join } from "path";
+import { SourceCode } from "eslint";
 
 it("should highlight keywords", () => {
   const result = actual(
@@ -72,10 +73,12 @@ function token(
   textType: SonarTypeOfText,
 ): Highlight {
   return {
-    startLine,
-    startCol,
-    endLine,
-    endCol,
+    location: {
+      startLine,
+      startCol,
+      endLine,
+      endCol,
+    },
     textType,
   };
 }
@@ -83,6 +86,6 @@ function token(
 function actual(code: string): Highlight[] {
   const fileUri = join(__dirname, "/../fixtures/ts-project/sample.lint.ts");
   const tsConfig = join(__dirname, "/../fixtures/ts-project/tsconfig.json");
-  const sourceCode = parseTypeScriptSourceFile(code, fileUri, [tsConfig]);
+  const sourceCode = parseTypeScriptSourceFile(code, fileUri, [tsConfig]) as SourceCode;
   return getHighlighting(sourceCode).highlights;
 }

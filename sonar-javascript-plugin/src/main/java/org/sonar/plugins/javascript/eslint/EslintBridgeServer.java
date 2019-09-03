@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -86,10 +87,11 @@ public interface EslintBridgeServer extends Startable {
 
   class AnalysisResponse {
     ParsingError parsingError;
-    AnalysisResponseIssue[] issues = {};
-    AnalysisResponseHighlight[] highlights = {};
-    AnalysisResponseMetrics metrics = new AnalysisResponseMetrics();
-    AnalysisResponseCpdToken[] cpdTokens = {};
+    Issue[] issues = {};
+    Highlight[] highlights = {};
+    HighlightedSymbol[] highlightedSymbols = {};
+    Metrics metrics = new Metrics();
+    CpdToken[] cpdTokens = {};
   }
 
   class ParsingError {
@@ -97,7 +99,7 @@ public interface EslintBridgeServer extends Startable {
     Integer line;
   }
 
-  class AnalysisResponseIssue {
+  class Issue {
     Integer line;
     Integer column;
     Integer endLine;
@@ -116,15 +118,28 @@ public interface EslintBridgeServer extends Startable {
     String message;
   }
 
-  class AnalysisResponseHighlight {
+  class Highlight {
+    Location location;
+    String textType;
+  }
+
+  class HighlightedSymbol {
+    Location declaration;
+    Location[] references;
+  }
+
+  class Location {
     int startLine;
     int startCol;
     int endLine;
     int endCol;
-    String textType;
+
+    TextRange toTextRange(InputFile inputFile) {
+      return inputFile.newRange(this.startLine, this.startCol, this.endLine, this.endCol);
+    }
   }
 
-  class AnalysisResponseMetrics {
+  class Metrics {
     int[] ncloc = {};
     int[] commentLines = {};
     int[] nosonarLines = {};
@@ -135,11 +150,8 @@ public interface EslintBridgeServer extends Startable {
     int complexity;
   }
 
-  class AnalysisResponseCpdToken {
-    int startLine;
-    int startCol;
-    int endLine;
-    int endCol;
+  class CpdToken {
+    Location location;
     String image;
   }
 }
