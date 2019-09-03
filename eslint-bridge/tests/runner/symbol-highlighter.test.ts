@@ -21,6 +21,19 @@ x = 42;
   expect(result[0].references[2]).toEqual(location(4, 0, 4, 1));
 });
 
+it("should highlight parameter references", () => {
+  const result = actual(
+    `function foo(p: number) { return p; }`,
+  );
+  expect(result).toHaveLength(2);
+  expect(result[0].declaration).toEqual(location(1, 9, 1, 12));
+  expect(result[0].references).toHaveLength(0);
+  
+  expect(result[1].declaration).toEqual(location(1, 13, 1, 22));
+  expect(result[1].references).toHaveLength(1);
+  expect(result[1].references[0]).toEqual(location(1, 33, 1, 34));
+});
+
 it("should highlight variable declared with type", () => {
   const result = actual(`let x: number = 42;`);
   expect(result).toHaveLength(1);

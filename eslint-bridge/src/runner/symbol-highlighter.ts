@@ -51,6 +51,8 @@ export const rule: Rule.RuleModule = {
           };
           result.push(highlightedSymbol);
         });
+        // as issues are the only communication channel of a rule
+        // we pass data as serialized json as an issue message
         context.report({ node, message: JSON.stringify(result) });
       },
     };

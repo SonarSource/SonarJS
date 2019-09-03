@@ -126,7 +126,7 @@ public interface EslintBridgeServer extends Startable {
 
   class AnalysisResponseHighlightedSymbol {
     Location declaration;
-    Location[]  references;
+    Location[] references;
   }
 
   class Location {
