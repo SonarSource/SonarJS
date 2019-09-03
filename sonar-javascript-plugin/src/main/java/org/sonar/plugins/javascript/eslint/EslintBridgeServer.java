@@ -85,11 +85,11 @@ public interface EslintBridgeServer extends Startable {
 
   class AnalysisResponse {
     ParsingError parsingError;
-    AnalysisResponseIssue[] issues = {};
-    AnalysisResponseHighlight[] highlights = {};
-    AnalysisResponseHighlightedSymbol[] highlightedSymbols = {};
-    AnalysisResponseMetrics metrics = new AnalysisResponseMetrics();
-    AnalysisResponseCpdToken[] cpdTokens = {};
+    Issue[] issues = {};
+    Highlight[] highlights = {};
+    HighlightedSymbol[] highlightedSymbols = {};
+    Metrics metrics = new Metrics();
+    CpdToken[] cpdTokens = {};
   }
 
   class ParsingError {
@@ -97,7 +97,7 @@ public interface EslintBridgeServer extends Startable {
     Integer line;
   }
 
-  class AnalysisResponseIssue {
+  class Issue {
     Integer line;
     Integer column;
     Integer endLine;
@@ -116,7 +116,7 @@ public interface EslintBridgeServer extends Startable {
     String message;
   }
 
-  class AnalysisResponseHighlight {
+  class Highlight {
     int startLine;
     int startCol;
     int endLine;
@@ -124,7 +124,7 @@ public interface EslintBridgeServer extends Startable {
     String textType;
   }
 
-  class AnalysisResponseHighlightedSymbol {
+  class HighlightedSymbol {
     Location declaration;
     Location[] references;
   }
@@ -136,7 +136,7 @@ public interface EslintBridgeServer extends Startable {
     int endCol;
   }
 
-  class AnalysisResponseMetrics {
+  class Metrics {
     int[] ncloc = {};
     int[] commentLines = {};
     int[] nosonarLines = {};
@@ -146,7 +146,7 @@ public interface EslintBridgeServer extends Startable {
     int classes;
   }
 
-  class AnalysisResponseCpdToken {
+  class CpdToken {
     int startLine;
     int startCol;
     int endLine;

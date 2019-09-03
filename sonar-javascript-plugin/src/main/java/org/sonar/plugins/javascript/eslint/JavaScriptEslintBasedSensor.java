@@ -36,7 +36,7 @@ import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
@@ -72,7 +72,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
         return;
       }
 
-      for (AnalysisResponseIssue issue : response.issues) {
+      for (Issue issue : response.issues) {
         new EslintBasedIssue(issue).saveIssue(context, file, checks);
       }
     } catch (IOException e) {
