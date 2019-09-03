@@ -19,6 +19,7 @@
  */
 import { Rule, Scope } from "eslint";
 import * as estree from "estree";
+import { Location } from "./location";
 
 export const symbolHighlightingRuleId = "internal-symbol-highlighting";
 
@@ -62,13 +63,6 @@ export const rule: Rule.RuleModule = {
 export interface HighlightedSymbol {
   declaration: Location;
   references: Location[];
-}
-
-export interface Location {
-  startLine: number;
-  startCol: number;
-  endLine: number;
-  endCol: number;
 }
 
 function location(loc: estree.SourceLocation) {

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -117,10 +118,7 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class Highlight {
-    int startLine;
-    int startCol;
-    int endLine;
-    int endCol;
+    Location location;
     String textType;
   }
 
@@ -134,6 +132,10 @@ public interface EslintBridgeServer extends Startable {
     int startCol;
     int endLine;
     int endCol;
+
+    TextRange toTextRange(InputFile inputFile) {
+      return inputFile.newRange(this.startLine, this.startCol, this.endLine, this.endCol);
+    }
   }
 
   class Metrics {
@@ -147,10 +149,7 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class CpdToken {
-    int startLine;
-    int startCol;
-    int endLine;
-    int endCol;
+    Location location;
     String image;
   }
 }

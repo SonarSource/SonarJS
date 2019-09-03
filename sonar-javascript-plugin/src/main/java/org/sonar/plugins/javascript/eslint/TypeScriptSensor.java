@@ -142,8 +142,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private static void saveHighlights(InputFile file, SensorContext context, Highlight[] highlights) {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
     for (Highlight highlight : highlights) {
-      highlighting.highlight(highlight.startLine, highlight.startCol, highlight.endLine, highlight.endCol,
-        TypeOfText.valueOf(highlight.textType));
+      highlighting.highlight(highlight.location.toTextRange(file), TypeOfText.valueOf(highlight.textType));
     }
     highlighting.save();
   }
@@ -192,7 +191,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private static void saveCpd(InputFile file, SensorContext context, CpdToken[] cpdTokens) {
     NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(file);
     for (CpdToken cpdToken : cpdTokens) {
-      newCpdTokens.addToken(cpdToken.startLine, cpdToken.startCol, cpdToken.endLine, cpdToken.endCol, cpdToken.image);
+      newCpdTokens.addToken(cpdToken.location.toTextRange(file), cpdToken.image);
     }
     newCpdTokens.save();
   }

@@ -73,10 +73,12 @@ function token(
   textType: SonarTypeOfText,
 ): Highlight {
   return {
-    startLine,
-    startCol,
-    endLine,
-    endCol,
+    location: {
+      startLine,
+      startCol,
+      endLine,
+      endCol,
+    },
     textType,
   };
 }
