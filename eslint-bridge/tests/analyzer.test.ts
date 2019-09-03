@@ -123,6 +123,21 @@ describe("#analyzeTypeScript", () => {
     expect(issues).toContainEqual(noUnnecessaryTypeAssertionIssue);
   });
 
+  it("should read file content from fs when not provided", () => {
+    const { issues } = analyzeTypeScript({
+      filePath: filePath,
+      fileContent: undefined,
+      rules: [
+        { key: "no-one-iteration-loop", configurations: [] },
+        { key: "no-duplicate-string", configurations: ["2"] },
+      ],
+      tsConfigs: [tsConfig],
+    });
+    expect(issues).toHaveLength(2);
+    expect(issues).toContainEqual(noOneIterationIssue);
+    expect(issues).toContainEqual(noDuplicateStringIssue);
+  });
+
   it("should report syntax highlights", () => {
     const highlights = analyzeTypeScript({
       filePath: filePath,
