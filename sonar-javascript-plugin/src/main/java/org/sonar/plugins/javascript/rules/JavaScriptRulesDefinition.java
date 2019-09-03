@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.rules;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.javascript.checks.annotations.DeprecatedRuleKey;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
@@ -44,8 +45,19 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON, sonarRuntime);
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getJavaScriptChecks());
 
+    CheckList.getJavaScriptChecks().forEach(jsCheck -> {
+      org.sonar.check.Rule annotation = (org.sonar.check.Rule) jsCheck.getAnnotation(org.sonar.check.Rule.class);
+      NewRule newRule = repository.rule(annotation.key());
+
+      DeprecatedRuleKey deprecatedRuleKey = (DeprecatedRuleKey) jsCheck.getAnnotation(DeprecatedRuleKey.class);
+      if (deprecatedRuleKey != null) {
+        newRule.addDeprecatedRuleKey(CheckList.JS_REPOSITORY_KEY, deprecatedRuleKey.key());
+      }
+    });
+
     NewRule commentRegularExpression = repository.rule("CommentRegularExpression");
     commentRegularExpression.setTemplate(true);
+
 
     repository.done();
   }
