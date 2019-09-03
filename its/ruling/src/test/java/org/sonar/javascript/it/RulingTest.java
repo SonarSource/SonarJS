@@ -76,7 +76,7 @@ public class RulingTest {
     return new Object[][]{
       {"js-project", "js", "../sources/src"},
       tsProject("ag-grid"),
-//      tsProject("angular"),
+      tsProject("angular"),
       tsProject("ant-design"),
       tsProject("console"),
       tsProject("desktop"),
@@ -84,7 +84,7 @@ public class RulingTest {
       tsProject("fireface"),
       tsProject("ionic2-auth"),
       tsProject("Joust"),
-//      tsProject("postgraphql"),
+      tsProject("postgraphql"),
       tsProject("prettier-vscode"),
       tsProject("rxjs"),
       tsProject("searchkit"),
