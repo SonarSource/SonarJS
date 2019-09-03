@@ -242,7 +242,7 @@ public class JavaScriptEslintBasedSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     createSensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("ESLint-based SonarJS");
+    assertThat(descriptor.name()).isEqualTo("ESLint-based JavaScript analysis");
     assertThat(descriptor.languages()).containsOnly("js");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
   }
