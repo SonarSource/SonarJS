@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from "eslint";
+import { Location } from "./location";
 
 export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdToken[] } {
   const cpdTokens: CpdToken[] = [];
@@ -39,10 +40,12 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
     const endPosition = token.loc.end;
 
     cpdTokens.push({
-      startLine: startPosition.line,
-      startCol: startPosition.column,
-      endLine: endPosition.line,
-      endCol: endPosition.column,
+      location: {
+        startLine: startPosition.line,
+        startCol: startPosition.column,
+        endLine: endPosition.line,
+        endCol: endPosition.column,
+      },
       image: text,
     });
   });
@@ -51,9 +54,6 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
 }
 
 export interface CpdToken {
-  startLine: number;
-  startCol: number;
-  endLine: number;
-  endCol: number;
+  location: Location;
   image: string;
 }

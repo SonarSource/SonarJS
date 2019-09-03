@@ -1,6 +1,7 @@
 import getCpdTokens, { CpdToken } from "../../src/runner/cpd";
 import { parseTypeScriptSourceFile } from "../../src/parser";
 import { join } from "path";
+import { SourceCode } from "eslint";
 
 it("should not skip any token", () => {
   const result = actual(
@@ -99,10 +100,12 @@ function token(
   image: string,
 ): CpdToken {
   return {
-    startLine,
-    startCol,
-    endLine,
-    endCol,
+    location: {
+      startLine,
+      startCol,
+      endLine,
+      endCol,
+    },
     image,
   };
 }
@@ -110,6 +113,6 @@ function token(
 function actual(code: string): CpdToken[] {
   const fileUri = join(__dirname, "/../fixtures/tsx-project/sample.lint.tsx");
   const tsConfig = join(__dirname, "/../fixtures/tsx-project/tsconfig.json");
-  const sourceCode = parseTypeScriptSourceFile(code, fileUri, [tsConfig]);
+  const sourceCode = parseTypeScriptSourceFile(code, fileUri, [tsConfig]) as SourceCode;
   return getCpdTokens(sourceCode).cpdTokens;
 }

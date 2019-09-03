@@ -42,6 +42,8 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.symbol.NewSymbol;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
@@ -56,10 +58,12 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseCpdToken;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseHighlight;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseIssue;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponseMetrics;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CpdToken;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Highlight;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.HighlightedSymbol;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Metrics;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Location;
 
 import static java.lang.String.format;
 
@@ -121,28 +125,40 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       saveMetrics(file, context, response.metrics);
       saveIssues(file, context, response.issues);
       saveHighlights(file, context, response.highlights);
+      saveHighlightedSymbols(file, context, response.highlightedSymbols);
       saveCpd(file, context, response.cpdTokens);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);
     }
   }
 
-  private void saveIssues(InputFile file, SensorContext context, AnalysisResponseIssue[] issues) {
-    for (AnalysisResponseIssue issue : issues) {
+  private void saveIssues(InputFile file, SensorContext context, Issue[] issues) {
+    for (Issue issue : issues) {
       new EslintBasedIssue(issue).saveIssue(context, file, checks);
     }
   }
 
-  private static void saveHighlights(InputFile file, SensorContext context, AnalysisResponseHighlight[] highlights) {
+  private static void saveHighlights(InputFile file, SensorContext context, Highlight[] highlights) {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
-    for (AnalysisResponseHighlight highlight : highlights) {
-      highlighting.highlight(highlight.startLine, highlight.startCol, highlight.endLine, highlight.endCol,
-        TypeOfText.valueOf(highlight.textType));
+    for (Highlight highlight : highlights) {
+      highlighting.highlight(highlight.location.toTextRange(file), TypeOfText.valueOf(highlight.textType));
     }
     highlighting.save();
   }
 
-  private void saveMetrics(InputFile file, SensorContext context, AnalysisResponseMetrics metrics) {
+  private static void saveHighlightedSymbols(InputFile file, SensorContext context, HighlightedSymbol[] highlightedSymbols) {
+    NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
+    for (HighlightedSymbol highlightedSymbol : highlightedSymbols) {
+      Location declaration = highlightedSymbol.declaration;
+      NewSymbol newSymbol = symbolTable.newSymbol(declaration.startLine, declaration.startCol, declaration.endLine, declaration.endCol);
+      for (Location reference : highlightedSymbol.references) {
+        newSymbol.newReference(reference.startLine, reference.startCol, reference.endLine, reference.endCol);
+      }
+    }
+    symbolTable.save();
+  }
+
+  private void saveMetrics(InputFile file, SensorContext context, Metrics metrics) {
     saveMetric(file, context, CoreMetrics.FUNCTIONS, metrics.functions);
     saveMetric(file, context, CoreMetrics.STATEMENTS, metrics.statements);
     saveMetric(file, context, CoreMetrics.CLASSES, metrics.classes);
@@ -172,10 +188,10 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       .save();
   }
 
-  private static void saveCpd(InputFile file, SensorContext context, AnalysisResponseCpdToken[] cpdTokens) {
+  private static void saveCpd(InputFile file, SensorContext context, CpdToken[] cpdTokens) {
     NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(file);
-    for (AnalysisResponseCpdToken cpdToken : cpdTokens) {
-      newCpdTokens.addToken(cpdToken.startLine, cpdToken.startCol, cpdToken.endLine, cpdToken.endCol, cpdToken.image);
+    for (CpdToken cpdToken : cpdTokens) {
+      newCpdTokens.addToken(cpdToken.location.toTextRange(file), cpdToken.image);
     }
     newCpdTokens.save();
   }
