@@ -19,6 +19,7 @@
  */
 import { AST, SourceCode } from "eslint";
 import * as ESTree from "estree";
+import { Location } from "./location";
 
 export default function getHighlighting(sourceCode: SourceCode) {
   const highlights: Highlight[] = [];
@@ -49,10 +50,7 @@ export default function getHighlighting(sourceCode: SourceCode) {
 export type SonarTypeOfText = "CONSTANT" | "COMMENT" | "STRUCTURED_COMMENT" | "KEYWORD" | "STRING";
 
 export interface Highlight {
-  startLine: number;
-  startCol: number;
-  endLine: number;
-  endCol: number;
+  location: Location;
   textType: SonarTypeOfText;
 }
 
@@ -67,10 +65,12 @@ function highlight(
   const startPosition = node.loc.start;
   const endPosition = node.loc.end;
   highlights.push({
-    startLine: startPosition.line,
-    startCol: startPosition.column,
-    endLine: endPosition.line,
-    endCol: endPosition.column,
+    location: {
+      startLine: startPosition.line,
+      startCol: startPosition.column,
+      endLine: endPosition.line,
+      endCol: endPosition.column,
+    },
     textType: highlightKind,
   });
 }
