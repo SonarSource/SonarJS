@@ -37,6 +37,11 @@ const EMPTY_RESPONSE: AnalysisResponse = {
   cpdTokens: [],
 };
 
+export const SYMBOL_HIGHLIGHTING_RULE = {
+  ruleId: symbolHighlightingRuleId,
+  ruleModule: symbolHighlightingRule,
+};
+
 export interface AnalysisInput {
   filePath: string;
   fileContent: string;
@@ -96,10 +101,8 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
   if (input.fileContent) {
     const result = parse(input.fileContent, input.filePath, input.tsConfigs);
     if (result instanceof SourceCode) {
-      let issues = linter.analyze(result, input.rules, input.filePath, {
-        ruleId: symbolHighlightingRuleId,
-        ruleModule: symbolHighlightingRule,
-      }).issues;
+      let issues = linter.analyze(result, input.rules, input.filePath, SYMBOL_HIGHLIGHTING_RULE)
+        .issues;
       const highlightedSymbols = getHighlightedSymbols(issues);
       return {
         issues,
@@ -118,7 +121,8 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
   return EMPTY_RESPONSE;
 }
 
-function getHighlightedSymbols(issues: Issue[]) {
+// exported for testing
+export function getHighlightedSymbols(issues: Issue[]) {
   for (const issue of issues) {
     if (issue.ruleId === symbolHighlightingRuleId) {
       const index = issues.indexOf(issue);

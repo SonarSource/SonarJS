@@ -1,4 +1,4 @@
-import { analyzeJavaScript, analyzeTypeScript } from "../src/analyzer";
+import { analyzeJavaScript, analyzeTypeScript, getHighlightedSymbols } from "../src/analyzer";
 import { join } from "path";
 
 const codeToTest = `
@@ -173,5 +173,14 @@ describe("#analyzeTypeScript", () => {
     expect(issues).toHaveLength(0);
     expect(parsingError.line).toBe(1);
     expect(parsingError.message).toBe("Expression expected.");
+  });
+
+  it("should return empty list with highlighted symbols when issue is not found", () => {
+    console.log = jest.fn();
+    expect(getHighlightedSymbols([])).toHaveLength(0);
+    expect(console.log).toHaveBeenCalledWith(
+      "DEBUG Failed to retrieve symbol highlighting from analysis results",
+    );
+    jest.resetAllMocks();
   });
 });
