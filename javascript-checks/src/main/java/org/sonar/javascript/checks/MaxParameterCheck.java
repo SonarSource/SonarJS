@@ -22,13 +22,13 @@ package org.sonar.javascript.checks;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.annotations.DeprecatedRuleKey;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@DeprecatedRuleKey(key = "ExcessiveParameterList")
+@DeprecatedRuleKey(ruleKey = "ExcessiveParameterList")
 @Rule(key = "S107")
 public class MaxParameterCheck extends EslintBasedCheck {
 
