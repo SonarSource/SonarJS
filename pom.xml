@@ -85,7 +85,7 @@
     <sslr-squid-bridge.version>2.7.0.377</sslr-squid-bridge.version>
     <gson.version>2.6.2</gson.version>
     <!--  fixme: replace with released version before releasing SonarJS -->
-    <analyzer-commons.version>1.10.3.527</analyzer-commons.version>
+    <analyzer-commons.version>1.10.3.531</analyzer-commons.version>
     <node.version>v10.16.3</node.version>
     <yarn.version>v1.10.1</yarn.version>
 

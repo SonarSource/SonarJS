@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.rules;
 
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
@@ -29,11 +28,6 @@ import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 public class JavaScriptRulesDefinition implements RulesDefinition {
 
   public static final String METADATA_LOCATION = "org/sonar/l10n/javascript/rules/javascript";
-  private final SonarRuntime sonarRuntime;
-
-  public JavaScriptRulesDefinition(SonarRuntime sonarRuntime) {
-    this.sonarRuntime = sonarRuntime;
-  }
 
   @Override
   public void define(Context context) {
@@ -41,7 +35,7 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
       .createRepository(CheckList.JS_REPOSITORY_KEY, JavaScriptLanguage.KEY)
       .setName(CheckList.REPOSITORY_NAME);
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON, sonarRuntime);
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON);
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getJavaScriptChecks());
 
     NewRule commentRegularExpression = repository.rule("CommentRegularExpression");
