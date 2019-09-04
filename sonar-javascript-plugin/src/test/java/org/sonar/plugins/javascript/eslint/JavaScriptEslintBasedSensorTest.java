@@ -47,7 +47,6 @@ import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonarsource.nodejs.NodeCommandException;
 
@@ -245,17 +244,6 @@ public class JavaScriptEslintBasedSensorTest {
     assertThat(descriptor.name()).isEqualTo("ESLint-based JavaScript analysis");
     assertThat(descriptor.languages()).containsOnly("js");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
-  }
-
-  @Test
-  public void should_cut_shebang_in_request() throws Exception {
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
-      .setLanguage("js")
-      .setContents("#!/usr/local/bin/node\nlet x = 0;")
-      .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile, new EslintBridgeServer.Rule[0]);
-
-    assertThat(request.fileContent).isEqualTo("\nlet x = 0;");
   }
 
   @Test

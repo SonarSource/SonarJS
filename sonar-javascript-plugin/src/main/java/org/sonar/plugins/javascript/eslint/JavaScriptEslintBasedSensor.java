@@ -63,8 +63,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       LOG.debug("Skipping analysis of Vue.js file {}", file.uri());
       return;
     }
-    AnalysisRequest analysisRequest = new AnalysisRequest(file, rules);
     try {
+      AnalysisRequest analysisRequest = new AnalysisRequest(file, rules);
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
 
       if (response.parsingError != null) {

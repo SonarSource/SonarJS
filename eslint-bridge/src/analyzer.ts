@@ -28,6 +28,7 @@ import {
   symbolHighlightingRuleId,
   rule as symbolHighlightingRule,
 } from "./runner/symbol-highlighter";
+import * as fs from "fs";
 
 const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -44,7 +45,7 @@ export const SYMBOL_HIGHLIGHTING_RULE = {
 
 export interface AnalysisInput {
   filePath: string;
-  fileContent: string;
+  fileContent: string | undefined;
   rules: Rule[];
   tsConfigs?: string[];
 }
@@ -98,27 +99,28 @@ export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
 }
 
 function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
-  if (input.fileContent) {
-    const result = parse(input.fileContent, input.filePath, input.tsConfigs);
-    if (result instanceof SourceCode) {
-      let issues = linter.analyze(result, input.rules, input.filePath, SYMBOL_HIGHLIGHTING_RULE)
-        .issues;
-      const highlightedSymbols = getHighlightedSymbols(issues);
-      return {
-        issues,
-        highlights: getHighlighting(result).highlights,
-        highlightedSymbols,
-        metrics: getMetrics(result),
-        cpdTokens: getCpdTokens(result).cpdTokens,
-      };
-    } else {
-      return {
-        ...EMPTY_RESPONSE,
-        parsingError: result,
-      };
-    }
+  let fileContent = input.fileContent;
+  if (!fileContent) {
+    fileContent = fs.readFileSync(input.filePath, { encoding: "utf8" });
   }
-  return EMPTY_RESPONSE;
+  const result = parse(fileContent, input.filePath, input.tsConfigs);
+  if (result instanceof SourceCode) {
+    let issues = linter.analyze(result, input.rules, input.filePath, SYMBOL_HIGHLIGHTING_RULE)
+      .issues;
+    const highlightedSymbols = getHighlightedSymbols(issues);
+    return {
+      issues,
+      highlights: getHighlighting(result).highlights,
+      highlightedSymbols,
+      metrics: getMetrics(result),
+      cpdTokens: getCpdTokens(result).cpdTokens,
+    };
+  } else {
+    return {
+      ...EMPTY_RESPONSE,
+      parsingError: result,
+    };
+  }
 }
 
 // exported for testing
