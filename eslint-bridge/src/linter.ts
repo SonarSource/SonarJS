@@ -131,7 +131,10 @@ function createLinterConfig(
  * exported for testing
  */
 export function getRuleConfig(ruleModule: ESLintRule.RuleModule | undefined, inputRule: Rule) {
-  const options = inputRule.configurations;
+  // we need to convert to numeric type as some rules (like max-params) don't accept parameter as a string
+  const options = inputRule.configurations.map(
+    option => (isNaN(option) ? option : parseInt(option)),
+  );
   if (hasSonarRuntimeOption(ruleModule, inputRule.key)) {
     return options.concat("sonar-runtime");
   }

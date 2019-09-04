@@ -19,24 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExcessiveParameterListCheckTest {
 
-  private ExcessiveParameterListCheck check = new ExcessiveParameterListCheck();
-
   @Test
-  public void defaults() {
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/excessiveParameterList.js"));
+  public void configurations() {
+    ExcessiveParameterListCheck check = new ExcessiveParameterListCheck();
+    // default configuration
+    assertThat(check.configurations()).containsExactly("7");
+    check.maximumFunctionParameters = 4;
+    assertThat(check.configurations()).containsExactly("4");
   }
-
-  @Test
-  public void test() {
-    check.setMaximumFunctionParameters(8);
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/excessiveParameterList.js"))
-      .noMore();
-  }
-
 }

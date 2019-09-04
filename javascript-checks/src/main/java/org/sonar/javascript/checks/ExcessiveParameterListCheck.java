@@ -19,23 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.DeprecatedRuleKey;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @DeprecatedRuleKey(key = "ExcessiveParameterList")
 @Rule(key = "S107")
-public class ExcessiveParameterListCheck extends DoubleDispatchVisitorCheck {
+public class ExcessiveParameterListCheck extends EslintBasedCheck {
 
   private static final int DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 
@@ -43,47 +38,15 @@ public class ExcessiveParameterListCheck extends DoubleDispatchVisitorCheck {
     key = "maximumFunctionParameters",
     description = "The maximum authorized number of parameters",
     defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_PARAMETERS)
-  private int maximumFunctionParameters = DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
+  int maximumFunctionParameters = DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
 
   @Override
-  public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    checkNumberOfParameters(tree.parameterClause());
-    super.visitMethodDeclaration(tree);
-  }
-
-  @Override
-  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    checkNumberOfParameters(tree.parameterClause());
-    super.visitFunctionDeclaration(tree);
+  public List<String> configurations() {
+    return configurations(maximumFunctionParameters);
   }
 
   @Override
-  public void visitFunctionExpression(FunctionExpressionTree tree) {
-    checkNumberOfParameters(tree.parameterClause());
-    super.visitFunctionExpression(tree);
+  public String eslintKey() {
+    return "max-params";
   }
-
-  @Override
-  public void visitArrowFunction(ArrowFunctionTree tree) {
-    Tree parameterClause = tree.parameterClause();
-    if (parameterClause.is(Kind.PARAMETER_LIST)) {
-      checkNumberOfParameters((ParameterListTree) parameterClause);
-    }
-    super.visitArrowFunction(tree);
-  }
-
-  private void checkNumberOfParameters(ParameterListTree tree) {
-    Integer numberOfParameters = tree.parameters().size();
-
-    if (numberOfParameters > maximumFunctionParameters) {
-      addIssue(
-        tree,
-        "Function has " + numberOfParameters + " parameters which is greater than " + maximumFunctionParameters + " authorized.");
-    }
-  }
-
-  public void setMaximumFunctionParameters(int threshold) {
-    this.maximumFunctionParameters = threshold;
-  }
-
 }

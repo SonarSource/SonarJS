@@ -1,6 +1,6 @@
 import { getRuleConfig, decodeSonarRuntimeIssue, analyze } from "../src/linter";
 import { Rule, SourceCode } from "eslint";
-import { SYMBOL_HIGHLIGHTING_RULE } from "../src/analyzer";
+import { SYMBOL_HIGHLIGHTING_RULE, Rule as InputRule } from "../src/analyzer";
 import { parse, parseJavaScriptSourceFile } from "../src/parser";
 
 const ruleUsingSecondaryLocations = {
@@ -81,6 +81,15 @@ describe("#decodeSecondaryLocations", () => {
   it("should not alter message coming from regular rule", () => {
     const { message } = decodeSonarRuntimeIssue(regularRule, issue);
     expect(message).toEqual(issue.message);
+  });
+
+  it("should transform string rule config into number", () => {
+    const rule: InputRule = {
+      key: "rule-key",
+      configurations: ["error", "42"],
+    };
+
+    expect(getRuleConfig(null, rule)).toEqual(["error", 42]);
   });
 
   it("should decode message coming from rule with sonar-runtime parameter", () => {
