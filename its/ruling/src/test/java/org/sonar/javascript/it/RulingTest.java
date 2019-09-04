@@ -29,6 +29,7 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.wsclient.SonarClient;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Parameterized.class)
@@ -64,19 +66,21 @@ public class RulingTest {
   private String project;
   private String language;
   private String sourceDir;
+  private List<String> exclusions;
 
-  public RulingTest(String project, String language, String sourceDir) {
+  public RulingTest(String project, String language, String sourceDir, List<String> exclusions) {
     this.project = project;
     this.language = language;
     this.sourceDir = sourceDir;
+    this.exclusions = exclusions;
   }
 
   @Parameters(name = "{0}")
   public static Object[][] projects() {
     return new Object[][]{
-      {"js-project", "js", "../sources/src"},
+      {"js-project", "js", "../sources/src", singletonList("**/*.ts")},
       tsProject("ag-grid"),
-      tsProject("angular"),
+      tsProject("angular", Arrays.asList("**/*.d.ts","**/examples/**")),
       tsProject("ant-design"),
       tsProject("console"),
       tsProject("desktop"),
@@ -94,7 +98,11 @@ public class RulingTest {
   }
 
   private static Object[] tsProject(String project) {
-    return new Object[]{project, "ts", "../typescript-test-sources/src/" + project};
+    return tsProject(project, Arrays.asList("**/*.d.ts", "**/*.js"));
+  }
+
+  private static Object[] tsProject(String project, List<String> exclusions) {
+    return new Object[]{project, "ts", "../typescript-test-sources/src/" + project, exclusions};
   }
 
   @BeforeClass
@@ -125,10 +133,10 @@ public class RulingTest {
   @Test
   public void ruling() throws Exception {
     String languageToIgnore = "js".equals(language) ? "ts" : "js";
-    runRulingTest(project, language, languageToIgnore, sourceDir);
+    runRulingTest(project, language, languageToIgnore, sourceDir, exclusions);
   }
 
-  private static void runRulingTest(String projectKey, String languageToAnalyze, String languageToIgnore, String sources) throws IOException {
+  private static void runRulingTest(String projectKey, String languageToAnalyze, String languageToIgnore, String sources, List<String> exclusions) throws IOException {
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
@@ -150,7 +158,7 @@ public class RulingTest {
       .setProperty("dump.old", FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
-      .setProperty("sonar.exclusions", "**/*.d.ts, **/*." + languageToIgnore)
+      .setProperty("sonar.exclusions", String.join(",", exclusions))
       .setProperty("sonar.cpd.exclusions", "**/*");
 
     orchestrator.executeBuild(build);
