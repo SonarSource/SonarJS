@@ -30,7 +30,7 @@ import org.sonar.javascript.checks.annotations.TypeScriptRule;
 @TypeScriptRule
 @DeprecatedRuleKey(key = "ExcessiveParameterList")
 @Rule(key = "S107")
-public class ExcessiveParameterListCheck extends EslintBasedCheck {
+public class MaxParameterCheck extends EslintBasedCheck {
 
   private static final int DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 

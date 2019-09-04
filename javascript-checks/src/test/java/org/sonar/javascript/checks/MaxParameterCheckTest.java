@@ -23,11 +23,11 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ExcessiveParameterListCheckTest {
+public class MaxParameterCheckTest {
 
   @Test
   public void configurations() {
-    ExcessiveParameterListCheck check = new ExcessiveParameterListCheck();
+    MaxParameterCheck check = new MaxParameterCheck();
     // default configuration
     assertThat(check.configurations()).containsExactly("7");
     check.maximumFunctionParameters = 4;

@@ -120,7 +120,7 @@ public final class CheckList {
       EqualInForLoopTerminationCheck.class,
       ErrorWithoutThrowCheck.class,
       EvalCheck.class,
-      ExcessiveParameterListCheck.class,
+      MaxParameterCheck.class,
       ExpressionComplexityCheck.class,
       FileHeaderCheck.class,
       FileNameDiffersFromClassCheck.class,
