@@ -19,6 +19,10 @@
 'TypeScript:src/compiler/utilities.ts':[
 2837,
 ],
+'TypeScript:src/server/project.ts':[
+183,
+846,
+],
 'TypeScript:src/services/documentRegistry.ts':[
 163,
 ],
@@ -30,5 +34,5 @@
 'TypeScript:src/services/pathCompletions.ts':[
 55,
 72,
-]
+],
 }
