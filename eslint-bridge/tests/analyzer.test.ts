@@ -1,14 +1,6 @@
 import { analyzeJavaScript, analyzeTypeScript, getHighlightedSymbols } from "../src/analyzer";
 import { join } from "path";
-
-const codeToTest = `
-  import foo from "foo";
-  for (var i = 0; i < 10; i++) {
-    console.log("i is " + i);
-    break;
-  }
-  "Hello, world"; "Hello, world";
-  `;
+import * as fs from "fs";
 
 const noOneIterationIssue = {
   line: 3,
@@ -41,6 +33,7 @@ const noUnnecessaryTypeAssertionIssue = {
 
 describe("#analyzeJavaScript", () => {
   const filePath = join(__dirname, "./fixtures/js-project/sample.lint.js");
+  const codeToTest = fs.readFileSync(filePath, { encoding: "utf8" });
 
   it("should report issue running eslint", () => {
     const { issues } = analyzeJavaScript({
@@ -91,11 +84,26 @@ describe("#analyzeJavaScript", () => {
     });
     expect(issues).toHaveLength(0);
   });
+
+  it("should analyze shebang file", () => {
+    const { issues } = analyzeJavaScript({
+      filePath: join(__dirname, "fixtures/js-project/shebang.lint.js"),
+      fileContent: undefined,
+      rules: [
+        { key: "no-one-iteration-loop", configurations: [] },
+        { key: "no-duplicate-string", configurations: ["2"] },
+      ],
+    });
+    expect(issues).toHaveLength(2);
+    expect(issues).toContainEqual(noOneIterationIssue);
+    expect(issues).toContainEqual(noDuplicateStringIssue);
+  });
 });
 
 describe("#analyzeTypeScript", () => {
   const filePath = join(__dirname, "./fixtures/ts-project/sample.lint.ts");
   const tsConfig = join(__dirname, "./fixtures/ts-project/tsconfig.json");
+  const codeToTest = fs.readFileSync(filePath, { encoding: "utf8" });
 
   it("should report issue running eslint", () => {
     const { issues } = analyzeTypeScript({
@@ -121,6 +129,21 @@ describe("#analyzeTypeScript", () => {
     });
     expect(issues).toHaveLength(1);
     expect(issues).toContainEqual(noUnnecessaryTypeAssertionIssue);
+  });
+
+  it("should read file content from fs when not provided", () => {
+    const { issues } = analyzeTypeScript({
+      filePath: filePath,
+      fileContent: undefined,
+      rules: [
+        { key: "no-one-iteration-loop", configurations: [] },
+        { key: "no-duplicate-string", configurations: ["2"] },
+      ],
+      tsConfigs: [tsConfig],
+    });
+    expect(issues).toHaveLength(2);
+    expect(issues).toContainEqual(noOneIterationIssue);
+    expect(issues).toContainEqual(noDuplicateStringIssue);
   });
 
   it("should report syntax highlights", () => {

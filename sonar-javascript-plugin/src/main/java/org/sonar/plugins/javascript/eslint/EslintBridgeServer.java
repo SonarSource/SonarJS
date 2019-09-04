@@ -57,22 +57,11 @@ public interface EslintBridgeServer extends Startable {
 
     AnalysisRequest(InputFile file, Rule[] rules, @Nullable List<String> tsConfigs) {
       this.filePath = file.absolutePath();
-      this.fileContent = fileContent(file);
-      if (this.fileContent.startsWith("#!")) {
-        String[] lines = this.fileContent.split("\r\n|\n|\r", -1);
-        this.fileContent = this.fileContent.substring(lines[0].length());
-      }
+      // TODO provide fileContent in SonarLint context
       this.rules = rules;
       this.tsConfigs = tsConfigs;
     }
 
-    private static String fileContent(InputFile file) {
-      try {
-        return file.contents();
-      } catch (IOException e) {
-        throw new IllegalStateException(e);
-      }
-    }
   }
 
   class Rule {
