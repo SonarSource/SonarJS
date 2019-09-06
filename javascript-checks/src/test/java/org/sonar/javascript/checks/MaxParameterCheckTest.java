@@ -23,14 +23,14 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MaxSwitchCasesCheckTest {
+public class MaxParameterCheckTest {
 
   @Test
   public void configurations() {
-    MaxSwitchCasesCheck maxSwitchCasesCheck = new MaxSwitchCasesCheck();
+    MaxParameterCheck check = new MaxParameterCheck();
     // default configuration
-    assertThat(maxSwitchCasesCheck.configurations()).containsExactly(30);
-    maxSwitchCasesCheck.maximum = 4;
-    assertThat(maxSwitchCasesCheck.configurations()).containsExactly(4);
+    assertThat(check.configurations()).containsExactly(7);
+    check.maximumFunctionParameters = 4;
+    assertThat(check.configurations()).containsExactly(4);
   }
 }
