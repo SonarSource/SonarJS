@@ -202,7 +202,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
 
-  boolean isAlive() {
+  public boolean isAlive() {
     if (nodeCommand == null) {
       return false;
     }

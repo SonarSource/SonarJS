@@ -83,8 +83,12 @@ abstract class AbstractEslintSensor implements Sensor {
       startProgressReport(inputFiles);
 
       for (InputFile inputFile : inputFiles) {
-        analyze(inputFile, context);
-        progressReport.nextFile();
+        if (eslintBridgeServer.isAlive()) {
+          analyze(inputFile, context);
+          progressReport.nextFile();
+        } else {
+          throw new IllegalStateException("eslint-bridge server is not answering");
+        }
       }
       progressReport.stop();
     } catch (ServerAlreadyFailedException e) {
