@@ -29,8 +29,8 @@ public class MaxSwitchCasesCheckTest {
   public void configurations() {
     MaxSwitchCasesCheck maxSwitchCasesCheck = new MaxSwitchCasesCheck();
     // default configuration
-    assertThat(maxSwitchCasesCheck.configurations()).containsExactly("30");
+    assertThat(maxSwitchCasesCheck.configurations()).containsExactly(30);
     maxSwitchCasesCheck.maximum = 4;
-    assertThat(maxSwitchCasesCheck.configurations()).containsExactly("4");
+    assertThat(maxSwitchCasesCheck.configurations()).containsExactly(4);
   }
 }

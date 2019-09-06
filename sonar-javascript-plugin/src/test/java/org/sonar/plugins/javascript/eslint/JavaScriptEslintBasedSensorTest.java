@@ -264,10 +264,10 @@ public class JavaScriptEslintBasedSensorTest {
     assertThat(rules).hasSize(3);
 
     assertThat(rules[0].key).isEqualTo("no-duplicate-string");
-    assertThat(rules[0].configurations).containsExactly("3");
+    assertThat(rules[0].configurations).containsExactly(3);
 
     assertThat(rules[1].key).isEqualTo("max-switch-cases");
-    assertThat(rules[1].configurations).containsExactly("42");
+    assertThat(rules[1].configurations).containsExactly(42);
 
     assertThat(rules[2].key).isEqualTo("no-all-duplicated-branches");
     assertThat(rules[2].configurations).isEmpty();

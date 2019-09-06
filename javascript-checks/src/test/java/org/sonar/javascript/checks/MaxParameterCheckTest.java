@@ -29,8 +29,8 @@ public class MaxParameterCheckTest {
   public void configurations() {
     MaxParameterCheck check = new MaxParameterCheck();
     // default configuration
-    assertThat(check.configurations()).containsExactly("7");
+    assertThat(check.configurations()).containsExactly(7);
     check.maximumFunctionParameters = 4;
-    assertThat(check.configurations()).containsExactly("4");
+    assertThat(check.configurations()).containsExactly(4);
   }
 }

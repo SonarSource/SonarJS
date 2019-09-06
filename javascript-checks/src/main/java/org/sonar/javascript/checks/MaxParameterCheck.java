@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -41,8 +42,8 @@ public class MaxParameterCheck extends EslintBasedCheck {
   int maximumFunctionParameters = DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
 
   @Override
-  public List<String> configurations() {
-    return configurations(maximumFunctionParameters);
+  public List<Object> configurations() {
+    return Collections.singletonList(maximumFunctionParameters);
   }
 
   @Override

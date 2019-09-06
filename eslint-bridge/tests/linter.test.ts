@@ -83,15 +83,6 @@ describe("#decodeSecondaryLocations", () => {
     expect(message).toEqual(issue.message);
   });
 
-  it("should transform string rule config into number", () => {
-    const rule: InputRule = {
-      key: "rule-key",
-      configurations: ["error", "42"],
-    };
-
-    expect(getRuleConfig(null, rule)).toEqual(["error", 42]);
-  });
-
   it("should decode message coming from rule with sonar-runtime parameter", () => {
     const decodedIssue = decodeSonarRuntimeIssue(
       ruleUsingSecondaryLocations,
