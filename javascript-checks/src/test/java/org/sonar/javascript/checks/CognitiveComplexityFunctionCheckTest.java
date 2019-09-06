@@ -19,28 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CognitiveComplexityFunctionCheckTest {
 
-  private CognitiveComplexityFunctionCheck check = new CognitiveComplexityFunctionCheck();
-
   @Test
-  public void test() {
-    check.setThreshold(0);
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/CognitiveComplexityFunctionCheck/zeroThreshold.js"));
-  }
-
-  @Test
-  public void ignore_module_like_functions() {
-    check.setThreshold(1);
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/CognitiveComplexityFunctionCheck/amd.js"));
-  }
-
-  @Test
-  public void test_default() {
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/CognitiveComplexityFunctionCheck/defaultThreshold.js"));
+  public void testConfig() {
+    CognitiveComplexityFunctionCheck check = new CognitiveComplexityFunctionCheck();
+    assertThat(check.configurations()).containsExactly(15);
+    check.threshold = 42;
+    assertThat(check.configurations()).containsExactly(42);
   }
 }

@@ -33,6 +33,12 @@ interface EncodedMessage {
   secondaryLocations: IssueLocation[];
 }
 
+export interface AdditionalRule {
+  ruleId: string;
+  ruleModule: ESLintRule.RuleModule;
+  ruleConfig: any[];
+}
+
 const linter = new Linter();
 linter.defineRules(sonarjsRules);
 linter.defineRules(internalRules);
@@ -49,14 +55,16 @@ export function analyze(
   sourceCode: SourceCode,
   inputRules: Rule[],
   fileUri: string,
-  additionalRule?: { ruleId: string; ruleModule: ESLintRule.RuleModule },
+  ...additionalRules: AdditionalRule[]
 ) {
-  if (additionalRule) {
-    linter.defineRule(additionalRule.ruleId, additionalRule.ruleModule);
+  if (additionalRules.length > 0) {
+    additionalRules.forEach(additionalRule =>
+      linter.defineRule(additionalRule.ruleId, additionalRule.ruleModule),
+    );
   }
 
   const issues = linter
-    .verify(sourceCode, createLinterConfig(inputRules, additionalRule), fileUri)
+    .verify(sourceCode, createLinterConfig(inputRules, additionalRules), fileUri)
     .map(removeIrrelevantProperties)
     .map(issue => {
       if (!issue) {
@@ -110,7 +118,7 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
 
 function createLinterConfig(
   inputRules: Rule[],
-  additionalRule?: { ruleId: string; ruleModule: ESLintRule.RuleModule },
+  additionalRules: { ruleId: string; ruleModule: ESLintRule.RuleModule; ruleConfig: any[] }[],
 ) {
   const ruleConfig: Linter.Config = { rules: {}, parserOptions: { sourceType: "module" } };
   inputRules.forEach(inputRule => {
@@ -118,8 +126,11 @@ function createLinterConfig(
     ruleConfig.rules![inputRule.key] = ["error", ...getRuleConfig(ruleModule, inputRule)];
   });
 
-  if (additionalRule) {
-    ruleConfig.rules![additionalRule.ruleId] = ["error"];
+  if (additionalRules.length > 0) {
+    additionalRules.forEach(
+      additionalRule =>
+        (ruleConfig.rules![additionalRule.ruleId] = ["error", ...additionalRule.ruleConfig]),
+    );
   }
   return ruleConfig;
 }

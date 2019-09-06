@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
@@ -33,7 +32,7 @@ public class NoMagicNumbersCheck extends EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.unmodifiableList(Lists.newArrayList(new Config()));
+    return Collections.singletonList(new Config());
   }
 
   @Override

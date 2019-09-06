@@ -1,4 +1,9 @@
-import { analyzeJavaScript, analyzeTypeScript, getHighlightedSymbols } from "../src/analyzer";
+import {
+  analyzeJavaScript,
+  analyzeTypeScript,
+  getHighlightedSymbols,
+  getCognitiveComplexity,
+} from "../src/analyzer";
 import { join } from "path";
 import * as fs from "fs";
 
@@ -176,6 +181,16 @@ describe("#analyzeTypeScript", () => {
     expect(cpdTokens).toHaveLength(36);
   });
 
+  it("should report cognitive complexity", () => {
+    const cognitiveComplexity = analyzeTypeScript({
+      filePath: filePath,
+      fileContent: codeToTest,
+      rules: [],
+      tsConfigs: [tsConfig],
+    }).metrics.cognitiveComplexity;
+    expect(cognitiveComplexity).toEqual(1);
+  });
+
   it("should not report issue when not receiving corresponding rule-key", () => {
     const { issues } = analyzeTypeScript({
       filePath: filePath,
@@ -203,6 +218,34 @@ describe("#analyzeTypeScript", () => {
     expect(getHighlightedSymbols([])).toHaveLength(0);
     expect(console.log).toHaveBeenCalledWith(
       "DEBUG Failed to retrieve symbol highlighting from analysis results",
+    );
+    jest.resetAllMocks();
+  });
+
+  it("should return 0 for cognitive complexity when issue is not found", () => {
+    console.log = jest.fn();
+    expect(getCognitiveComplexity([])).toEqual(0);
+    expect(console.log).toHaveBeenCalledWith(
+      "DEBUG Failed to retrieve cognitive complexity metric from analysis results",
+    );
+    jest.resetAllMocks();
+  });
+
+  it("should return 0 for cognitive complexity when message is not numeric", () => {
+    console.log = jest.fn();
+    expect(
+      getCognitiveComplexity([
+        {
+          ruleId: "internal-cognitive-complexity",
+          message: "nan",
+          column: 0,
+          line: 0,
+          secondaryLocations: [],
+        },
+      ]),
+    ).toEqual(0);
+    expect(console.log).toHaveBeenCalledWith(
+      "DEBUG Failed to retrieve cognitive complexity metric from analysis results",
     );
     jest.resetAllMocks();
   });
