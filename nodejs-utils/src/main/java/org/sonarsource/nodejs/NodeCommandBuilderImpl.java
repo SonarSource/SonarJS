@@ -20,6 +20,7 @@
 package org.sonarsource.nodejs;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,6 +54,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private Consumer<String> outputConsumer = LOG::info;
   private Consumer<String> errorConsumer = LOG::error;
   private String scriptFilename;
+  private List<Path> nodePath = new ArrayList<>();
 
   NodeCommandBuilderImpl(NodeCommand.ProcessWrapper processWrapper) {
     this.processWrapper = processWrapper;
@@ -67,6 +69,15 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   @Override
   public NodeCommandBuilder configuration(Configuration configuration) {
     this.configuration = configuration;
+    return this;
+  }
+
+  @Override
+  public NodeCommandBuilder addToNodePath(Path path) {
+    if (path == null) {
+      throw new IllegalArgumentException("Node path can't be null");
+    }
+    nodePath.add(path);
     return this;
   }
 
@@ -128,6 +139,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return new NodeCommand(
       processWrapper,
       nodeExecutable,
+      nodePath,
       nodeJsArgs,
       scriptFilename,
       args,
@@ -167,7 +179,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private String getVersion(String nodeExecutable) throws NodeCommandException {
     StringBuilder output = new StringBuilder();
-    NodeCommand nodeCommand = new NodeCommand(processWrapper, nodeExecutable, singletonList("-v"), null, emptyList(), output::append, LOG::error);
+    NodeCommand nodeCommand = new NodeCommand(processWrapper, nodeExecutable, emptyList(), singletonList("-v"), null, emptyList(), output::append, LOG::error);
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     if (exitValue != 0) {

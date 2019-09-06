@@ -19,6 +19,7 @@
  */
 package org.sonarsource.nodejs;
 
+import java.nio.file.Path;
 import java.util.function.Consumer;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
@@ -30,6 +31,8 @@ public interface NodeCommandBuilder {
   NodeCommandBuilder minNodeVersion(int minNodeVersion);
 
   NodeCommandBuilder configuration(Configuration configuration);
+
+  NodeCommandBuilder addToNodePath(Path path);
 
   NodeCommandBuilder maxOldSpaceSize(int maxOldSpaceSize);
 

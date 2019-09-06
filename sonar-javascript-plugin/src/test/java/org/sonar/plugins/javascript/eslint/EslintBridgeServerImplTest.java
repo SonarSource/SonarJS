@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -243,6 +246,29 @@ public class EslintBridgeServerImplTest {
       "Invalid response\n" +
       "-----\n");
     assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
+  public void should_use_typescript_from_property() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
+    Path path = Paths.get("/tmp/my/typescript");
+    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.internal.typescriptLocation", path.toString()));
+    eslintBridgeServer.startServer(ctx);
+    assertThat(eslintBridgeServer.getCommandInfo()).contains("NODE_PATH=" + Paths.get("/tmp/my").toAbsolutePath());
+  }
+
+  @Test
+  public void should_use_typescript_from_filesystem() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    Path baseDir = tempFolder.newDir().toPath();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    Path tsDir = baseDir.resolve("dir/node_modules/typescript");
+    Files.createDirectories(tsDir);
+    eslintBridgeServer.startServer(ctx);
+    assertThat(eslintBridgeServer.getCommandInfo()).contains("NODE_PATH=" + baseDir.resolve("dir/node_modules"));
   }
 
 
