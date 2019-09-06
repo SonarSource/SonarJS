@@ -1,6 +1,6 @@
 import { getRuleConfig, decodeSonarRuntimeIssue, analyze } from "../src/linter";
 import { Rule, SourceCode } from "eslint";
-import { SYMBOL_HIGHLIGHTING_RULE } from "../src/analyzer";
+import { SYMBOL_HIGHLIGHTING_RULE, Rule as InputRule } from "../src/analyzer";
 import { parse, parseJavaScriptSourceFile } from "../src/parser";
 
 const ruleUsingSecondaryLocations = {

@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -37,8 +38,8 @@ public class MaxSwitchCasesCheck extends EslintBasedCheck {
   int maximum = DEFAULT_MAXIMUM;
 
   @Override
-  public List<String> configurations() {
-    return configurations(maximum);
+  public List<Object> configurations() {
+    return Collections.singletonList(maximum);
   }
 
   @Override

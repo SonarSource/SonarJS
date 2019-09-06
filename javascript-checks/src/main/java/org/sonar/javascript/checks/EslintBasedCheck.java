@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +35,7 @@ public abstract class EslintBasedCheck implements JavaScriptCheck {
 
   public abstract String eslintKey();
 
-  public List<String> configurations() {
+  public List<Object> configurations() {
     return Collections.emptyList();
   }
 
@@ -58,10 +57,6 @@ public abstract class EslintBasedCheck implements JavaScriptCheck {
   @Override
   public <T extends Issue> T addIssue(T issue) {
     throw EXCEPTION;
-  }
-
-  static List<String> configurations(int singleNumericParameter) {
-    return Collections.unmodifiableList(Lists.newArrayList(String.valueOf(singleNumericParameter)));
   }
 
 }
