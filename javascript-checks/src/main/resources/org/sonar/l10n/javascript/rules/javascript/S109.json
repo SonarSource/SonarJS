@@ -1,0 +1,20 @@
+{
+  "title": "Magic numbers should not be used",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "brain-overload"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-109",
+  "sqKey": "S109",
+  "scope": "Main"
+}
