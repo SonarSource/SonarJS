@@ -91,7 +91,7 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptLanguage.class,
       JavaScriptSensor.class,
       JavaScriptExclusionsFileFilter.class,
-      new JavaScriptRulesDefinition(context.getRuntime()),
+      JavaScriptRulesDefinition.class,
       JavaScriptProfilesDefinition.class,
       NodeCommand.builder(),
       EslintBridgeServerImpl.class,

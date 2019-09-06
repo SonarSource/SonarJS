@@ -66,9 +66,9 @@ public interface EslintBridgeServer extends Startable {
 
   class Rule {
     String key;
-    List<String> configurations;
+    List<Object> configurations;
 
-    Rule(String key, List<String> configurations) {
+    Rule(String key, List<Object> configurations) {
       this.key = key;
       this.configurations = configurations;
     }

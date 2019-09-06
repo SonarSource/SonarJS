@@ -24,26 +24,30 @@ import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "S1192")
-public class NoDuplicateStringCheck extends EslintBasedCheck {
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "ExcessiveParameterList")
+@Rule(key = "S107")
+public class MaxParameterCheck extends EslintBasedCheck {
 
-  private static final int DEFAULT_THRESHOLD = 3;
+  private static final int DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 
   @RuleProperty(
-    key = "threshold",
-    description = "Number of times a literal must be duplicated to trigger an issue.",
-    defaultValue = "" + DEFAULT_THRESHOLD)
-  int threshold = DEFAULT_THRESHOLD;
+    key = "maximumFunctionParameters",
+    description = "The maximum authorized number of parameters",
+    defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_PARAMETERS)
+  int maximumFunctionParameters = DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(threshold);
+    return Collections.singletonList(maximumFunctionParameters);
   }
 
   @Override
   public String eslintKey() {
-    return "no-duplicate-string";
+    return "max-params";
   }
 }

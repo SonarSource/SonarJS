@@ -29,8 +29,8 @@ public class NoDuplicateStringCheckTest {
   public void configurations() {
     NoDuplicateStringCheck noDuplicateStringCheck = new NoDuplicateStringCheck();
     // default configuration
-    assertThat(noDuplicateStringCheck.configurations()).containsExactly("3");
+    assertThat(noDuplicateStringCheck.configurations()).containsExactly(3);
     noDuplicateStringCheck.threshold = 10;
-    assertThat(noDuplicateStringCheck.configurations()).containsExactly("10");
+    assertThat(noDuplicateStringCheck.configurations()).containsExactly(10);
   }
 }
