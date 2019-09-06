@@ -49,6 +49,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 30;
+  // internal property to set "--max-old-space-size" for Node process running this server
+  private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String DEFAULT_STARTUP_SCRIPT = "node_modules/eslint-bridge/bin/server";
   private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
   private static final Gson GSON = new Gson();
@@ -119,7 +121,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   private void initNodeCommand(SensorContext context, File scriptFile) {
-    nodeCommand = nodeCommandBuilder
+    nodeCommandBuilder
       .outputConsumer(message -> {
         if (message.startsWith("DEBUG")) {
           LOG.debug(message.substring(5).trim());
@@ -130,7 +132,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .minNodeVersion(8)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port))
+      .scriptArgs(String.valueOf(port));
+
+    context.config()
+      .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
+      .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
+
+    nodeCommand = nodeCommandBuilder
       .build();
   }
 
