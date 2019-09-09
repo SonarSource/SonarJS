@@ -19,28 +19,36 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.FileIssue;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "MissingNewlineAtEndOfFile")
-public class MissingNewlineAtEndOfFileCheck extends DoubleDispatchVisitorCheck {
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "MissingNewlineAtEndOfFile")
+@Rule(key = "S113")
+public class MissingNewlineAtEndOfFileCheck extends EslintBasedCheck {
 
-  private static final String MESSAGE = "Add a new line at the end of this file.";
+  private static final String DEFAULT_PRESENCE = "always";
+
+  @RuleProperty(
+    key = "presence",
+    description = "Presence (or absence) of at least one newline at the end of non-empty files",
+    defaultValue = "" + DEFAULT_PRESENCE)
+  String presence = DEFAULT_PRESENCE;
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    if (tree.items() != null) {
-      int lastLine = tree.EOFToken().line();
-      int lastTokenLine = tree.items().lastToken().endLine();
-
-      if (lastLine == lastTokenLine) {
-        addIssue(new FileIssue(this, MESSAGE));
-      }
-    }
+  public List<Object> configurations() {
+    return Collections.singletonList(presence);
   }
 
+  @Override
+  public String eslintKey() {
+    return "eol-last";
+  }
 }
