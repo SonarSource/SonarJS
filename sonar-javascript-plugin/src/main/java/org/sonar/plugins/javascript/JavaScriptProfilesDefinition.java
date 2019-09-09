@@ -31,7 +31,10 @@ import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefinition {
 
   static final String SONAR_WAY = "Sonar way";
-  static final String SONAR_WAY_RECOMMENDED = "Sonar way Recommended";
+  // unfortunately we have this inconsistency in names
+  // in order to keep compatibility we should stick to these names
+  static final String SONAR_WAY_RECOMMENDED_JS = "Sonar way Recommended";
+  static final String SONAR_WAY_RECOMMENDED_TS = "Sonar way recommended";
 
   public static final String RESOURCE_PATH = "org/sonar/l10n/javascript/rules/javascript";
   public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
@@ -40,7 +43,8 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   private static final Map<String, String> PROFILES = new HashMap<>();
   static {
     PROFILES.put(SONAR_WAY, SONAR_WAY_JSON);
-    PROFILES.put(SONAR_WAY_RECOMMENDED, SONAR_WAY_RECOMMENDED_JSON);
+    PROFILES.put(SONAR_WAY_RECOMMENDED_JS, SONAR_WAY_RECOMMENDED_JSON);
+    PROFILES.put(SONAR_WAY_RECOMMENDED_TS, SONAR_WAY_RECOMMENDED_JSON);
   }
 
   private static final Map<String, String> REPO_BY_LANGUAGE = new HashMap<>();
@@ -53,11 +57,11 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public void define(Context context) {
     List<Class> javaScriptChecks = CheckList.getJavaScriptChecks();
     createProfile(SONAR_WAY, JavaScriptLanguage.KEY, javaScriptChecks, context);
-    createProfile(SONAR_WAY_RECOMMENDED, JavaScriptLanguage.KEY, javaScriptChecks, context);
+    createProfile(SONAR_WAY_RECOMMENDED_JS, JavaScriptLanguage.KEY, javaScriptChecks, context);
 
     List<Class> typeScriptChecks = CheckList.getTypeScriptChecks();
     createProfile(SONAR_WAY, TypeScriptLanguage.KEY, typeScriptChecks, context);
-    createProfile(SONAR_WAY_RECOMMENDED, TypeScriptLanguage.KEY, typeScriptChecks, context);
+    createProfile(SONAR_WAY_RECOMMENDED_TS, TypeScriptLanguage.KEY, typeScriptChecks, context);
   }
 
   private void createProfile(String profileName, String language, List<Class> checks, Context context) {
@@ -71,7 +75,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       .filter(activeKeysForBothLanguages::contains)
       .forEach(key -> newProfile.activateRule(repositoryKey, key));
 
-    if (profileName.equals(SONAR_WAY_RECOMMENDED)) {
+    if (profileName.equals(SONAR_WAY_RECOMMENDED_JS) || profileName.equals(SONAR_WAY_RECOMMENDED_TS)) {
       newProfile.activateRule("common-" + language, "DuplicatedBlocks");
     }
 
