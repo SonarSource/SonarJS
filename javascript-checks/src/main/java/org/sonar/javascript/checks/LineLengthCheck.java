@@ -19,21 +19,22 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
-import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "LineLength")
-public class LineLengthCheck extends DoubleDispatchVisitorCheck {
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "LineLength")
+@Rule(key = "S103")
+public class LineLengthCheck extends EslintBasedCheck  {
 
-  private static final String MESSAGE = "Split this %s characters long line (which is greater than %s authorized).";
   private static final int DEFAULT_MAXIMUM_LINE_LENGTH = 180;
 
   @RuleProperty(
@@ -42,20 +43,17 @@ public class LineLengthCheck extends DoubleDispatchVisitorCheck {
     defaultValue = "" + DEFAULT_MAXIMUM_LINE_LENGTH)
   public int maximumLineLength = DEFAULT_MAXIMUM_LINE_LENGTH;
 
+
   @Override
-  public void visitScript(ScriptTree tree) {
-    JavaScriptFile file = getContext().getJavaScriptFile();
-    List<String> lines = CheckUtils.readLines(file);
+  public List<Object> configurations() {
+    Map<String, Object> configurationsMap = new HashMap<>();
+    configurationsMap.put("code", maximumLineLength);
+    configurationsMap.put("tabWidth", 1);
+    return Collections.singletonList(configurationsMap);
+  }
 
-    for (int i = 0; i < lines.size(); i++) {
-      int length = lines.get(i).length();
-
-      if (length > maximumLineLength) {
-        addIssue(new LineIssue(
-          this,
-          i + 1,
-          String.format(MESSAGE, length, maximumLineLength)));
-      }
-    }
+  @Override
+  public String eslintKey() {
+    return "max-len";
   }
 }

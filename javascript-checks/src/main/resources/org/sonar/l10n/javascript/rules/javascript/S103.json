@@ -2,7 +2,8 @@
   "title": "Lines should not be too long",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
