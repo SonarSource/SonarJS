@@ -57,7 +57,6 @@ try {
 export function analyze(
   sourceCode: SourceCode,
   inputRules: Rule[],
-  fileUri: string,
   ...additionalRules: AdditionalRule[]
 ) {
   additionalRules.forEach(additionalRule =>
@@ -65,7 +64,9 @@ export function analyze(
   );
 
   const issues = linter
-    .verify(sourceCode, createLinterConfig(inputRules, additionalRules), fileUri)
+    .verify(sourceCode, createLinterConfig(inputRules, additionalRules), {
+      allowInlineConfig: false,
+    })
     .map(removeIrrelevantProperties)
     .map(issue => {
       if (!issue) {

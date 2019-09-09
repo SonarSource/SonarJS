@@ -61,11 +61,11 @@ public class TypeScriptAnalysisTest {
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
-    List<Issues.Issue> issuesList = getIssues(projectKey + ":sample.lint.ts");
-    assertThat(issuesList).hasSize(1);
-    assertThat(issuesList.get(0).getLine()).isEqualTo(2);
-
     String sampleFileKey = projectKey + ":sample.lint.ts";
+    List<Issues.Issue> issuesList = getIssues(sampleFileKey);
+    assertThat(issuesList).hasSize(1);
+    assertThat(issuesList.get(0).getLine()).isEqualTo(4);
+
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "ncloc")).isEqualTo(7);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "classes")).isEqualTo(0);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "functions")).isEqualTo(1);
@@ -111,7 +111,7 @@ public class TypeScriptAnalysisTest {
 
   private List<Issues.Issue> getIssues(String projectKey) {
     SearchRequest request = new SearchRequest();
-    request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("typescript:S3923"));
+    request.setComponentKeys(singletonList(projectKey));
     return newWsClient().issues().search(request).getIssuesList();
   }
 }
