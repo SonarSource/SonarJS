@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -34,21 +33,17 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @Rule(key = "S108")
 public class EmptyBlockCheck extends EslintBasedCheck {
 
-  private static final boolean DEFAULT = true;
-
-  @RuleProperty(
-    key = "allowEmptyCatch",
-    description = "Allowing empty catch clauses, i.e. which do not contain a comment",
-    defaultValue = "" + DEFAULT)
-  boolean allowEmptyCatch = DEFAULT;
-
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(allowEmptyCatch);
+    return Collections.singletonList(new Config());
   }
 
   @Override
   public String eslintKey() {
     return "no-empty";
+  }
+
+  private static class Config {
+    boolean allowEmptyCatch = true;
   }
 }

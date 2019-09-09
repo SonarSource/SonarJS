@@ -23,14 +23,13 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
+
 public class EmptyBlockCheckTest {
 
   @Test
   public void configurations() {
-    EmptyBlockCheck check = new EmptyBlockCheck();
-    // default configuration
-    assertThat(check.configurations()).containsExactly(true);
-    check.allowEmptyCatch = false;
-    assertThat(check.configurations()).containsExactly(false);
+    String configAsString = new Gson().toJson(new EmptyBlockCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"allowEmptyCatch\":true}]");
   }
 }
