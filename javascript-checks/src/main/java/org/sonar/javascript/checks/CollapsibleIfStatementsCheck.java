@@ -21,10 +21,15 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "CollapsibleIfStatements")
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "CollapsibleIfStatements")
+@Rule(key = "S1066")
 public class CollapsibleIfStatementsCheck extends EslintBasedCheck {
+
   @Override
   public String eslintKey() {
     return "no-collapsible-if";
