@@ -19,15 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmptyBlockCheckTest {
 
   @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new EmptyBlockCheck(), new File("src/test/resources/checks/emptyBlock.js"));
+  public void configurations() {
+    EmptyBlockCheck check = new EmptyBlockCheck();
+    // default configuration
+    assertThat(check.configurations()).containsExactly(true);
+    check.allowEmptyCatch = false;
+    assertThat(check.configurations()).containsExactly(false);
   }
-
 }
