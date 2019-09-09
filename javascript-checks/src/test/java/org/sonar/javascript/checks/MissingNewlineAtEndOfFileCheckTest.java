@@ -19,38 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MissingNewlineAtEndOfFileCheckTest {
 
-  private static final String DIRECTORY = "src/test/resources/checks/MissingNewlineAtEndOfFileCheck";
-  private static final MissingNewlineAtEndOfFileCheck check = new MissingNewlineAtEndOfFileCheck();
-
   @Test
-  public void nok() {
-    JavaScriptCheckVerifier.issues(check, new File(DIRECTORY, "newlineAtEndOfFile_nok.js"))
-      .next()
-      .noMore();
+  public void configurations() {
+    MissingNewlineAtEndOfFileCheck check = new MissingNewlineAtEndOfFileCheck();
+    assertThat(check.configurations()).containsExactly("always");
   }
-
-  @Test
-  public void ok() {
-    JavaScriptCheckVerifier.issues(check, new File(DIRECTORY, "newlineAtEndOfFile_ok.js"))
-      .noMore();
-  }
-
-  @Test
-  public void empty_lines() {
-    JavaScriptCheckVerifier.issues(check, new File(DIRECTORY, "empty_lines.js"))
-      .noMore();
-  }
-
-  @Test
-  public void empty() {
-    JavaScriptCheckVerifier.issues(check, new File(DIRECTORY, "empty.js"))
-      .noMore();
-  }
-
 }
