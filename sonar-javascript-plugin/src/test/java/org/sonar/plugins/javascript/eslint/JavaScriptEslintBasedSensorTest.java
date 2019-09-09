@@ -44,6 +44,7 @@ import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.JUnitTempFolder;
+import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
@@ -77,6 +78,7 @@ public class JavaScriptEslintBasedSensorTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
+    when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = SensorContextTester.create(tempFolder.newDir());
@@ -314,6 +316,17 @@ public class JavaScriptEslintBasedSensorTest {
 
     assertThat(logTester.logs()).contains("Skipping start of eslint-bridge server due to the failure during first analysis",
       "Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
+  }
+
+  @Test
+  public void stop_analysis_if_server_is_not_responding() throws Exception {
+    when(eslintBridgeServerMock.isAlive()).thenReturn(false);
+    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
+    createInputFile(context);
+    javaScriptEslintBasedSensor.execute(context);
+    final LogAndArguments logAndArguments = logTester.getLogs(LoggerLevel.ERROR).get(0);
+    assertThat(logAndArguments.getFormattedMsg()).isEqualTo("Failure during analysis, eslintBridgeServerMock command info");
+    assertThat(((IllegalStateException) logAndArguments.getArgs().get()[0]).getMessage()).isEqualTo("eslint-bridge server is not answering");
   }
 
   @Test

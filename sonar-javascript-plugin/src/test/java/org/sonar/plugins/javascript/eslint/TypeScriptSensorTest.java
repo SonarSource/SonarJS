@@ -90,6 +90,7 @@ public class TypeScriptSensorTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
+    when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
     context = SensorContextTester.create(tempFolder.newDir());
 
