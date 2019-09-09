@@ -28,9 +28,6 @@ public class MissingNewlineAtEndOfFileCheckTest {
   @Test
   public void configurations() {
     MissingNewlineAtEndOfFileCheck check = new MissingNewlineAtEndOfFileCheck();
-    // default configuration
     assertThat(check.configurations()).containsExactly("always");
-    check.presence = "never";
-    assertThat(check.configurations()).containsExactly("never");
   }
 }

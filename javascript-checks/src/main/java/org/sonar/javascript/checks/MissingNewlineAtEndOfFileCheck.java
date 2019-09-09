@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -34,17 +33,9 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @Rule(key = "S113")
 public class MissingNewlineAtEndOfFileCheck extends EslintBasedCheck {
 
-  private static final String DEFAULT_PRESENCE = "always";
-
-  @RuleProperty(
-    key = "presence",
-    description = "Presence (or absence) of at least one newline at the end of non-empty files",
-    defaultValue = "" + DEFAULT_PRESENCE)
-  String presence = DEFAULT_PRESENCE;
-
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(presence);
+    return Collections.singletonList("always");
   }
 
   @Override
