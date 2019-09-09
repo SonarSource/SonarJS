@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -173,6 +174,19 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.startServer(context);
 
     assertThat(eslintBridgeServer.getCommandInfo()).contains("Node.js command to start eslint-bridge was: ", "node", START_SERVER_SCRIPT);
+    assertThat(eslintBridgeServer.getCommandInfo()).doesNotContain("--max-old-space-size");
+  }
+
+  @Test
+  public void should_set_max_old_space_size() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    assertThat(eslintBridgeServer.getCommandInfo()).isEqualTo("Node.js command to start eslint-bridge server was not built yet.");
+
+    eslintBridgeServer.deploy();
+    context.setSettings(new MapSettings().setProperty("sonar.javascript.node.maxspace", 2048));
+    eslintBridgeServer.startServer(context);
+
+    assertThat(eslintBridgeServer.getCommandInfo()).contains("--max-old-space-size=2048");
   }
 
   @Test
