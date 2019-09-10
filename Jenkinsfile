@@ -42,7 +42,7 @@ pipeline {
         }
         stage('ruling/LATEST_RELEASE/linux') {
           agent {
-            label 'linux'
+            label 'multicpu'
           }
           steps {
             runITs("ruling","LATEST_RELEASE")
