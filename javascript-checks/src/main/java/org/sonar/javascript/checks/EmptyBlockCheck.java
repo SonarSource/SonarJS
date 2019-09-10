@@ -19,33 +19,31 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "EmptyBlock")
-public class EmptyBlockCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Either remove or fill this block of code.";
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "EmptyBlock")
+@Rule(key = "S108")
+public class EmptyBlockCheck extends EslintBasedCheck {
 
   @Override
-  public void visitBlock(BlockTree tree) {
-    Tree parent = tree.parent();
-
-    if (!parent.is(KindSet.FUNCTION_KINDS, Kind.CATCH_BLOCK) && tree.statements().isEmpty() && !hasComment(tree.closeCurlyBraceToken())) {
-      addIssue(tree, MESSAGE);
-    }
-    super.visitBlock(tree);
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config());
   }
 
-  private static boolean hasComment(SyntaxToken closingBrace) {
-    return !closingBrace.trivias().isEmpty();
+  @Override
+  public String eslintKey() {
+    return "no-empty";
   }
 
+  private static class Config {
+    boolean allowEmptyCatch = true;
+  }
 }
