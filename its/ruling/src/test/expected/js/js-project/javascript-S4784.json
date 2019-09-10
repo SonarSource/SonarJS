@@ -880,6 +880,13 @@
 'js-project:google-closure-library/useragent/useragent.js':[
 384,
 ],
+'js-project:jest/packages/expect/src/jasmine_utils.js':[
+247,
+],
+'js-project:jest/packages/jest-config/src/vendor/jsonlint.js':[
+684,
+685,
+],
 'js-project:jest/packages/jest-docblock/src/index.js':[
 12,
 13,
