@@ -19,15 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.google.gson.Gson;
 
 public class EmptyBlockCheckTest {
 
   @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new EmptyBlockCheck(), new File("src/test/resources/checks/emptyBlock.js"));
+  public void configurations() {
+    String configAsString = new Gson().toJson(new EmptyBlockCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"allowEmptyCatch\":true}]");
   }
-
 }

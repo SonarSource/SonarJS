@@ -1,0 +1,17 @@
+{
+'vscode:extensions/typescript/test/colorize-fixtures/test-issue11.ts':[
+2,
+3,
+4,
+5,
+6,
+7,
+],
+'vscode:src/vs/workbench/parts/search/browser/searchActions.ts':[
+378,
+398,
+],
+'vscode:src/vs/workbench/services/files/node/watcher/common.ts':[
+72,
+],
+}
