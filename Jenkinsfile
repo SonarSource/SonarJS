@@ -42,7 +42,7 @@ pipeline {
         }
         stage('ruling/JS/LATEST_RELEASE/linux') {
           agent {
-            label 'linux'
+            label 'multicpu'
           }
           steps {
             runRulingIT("ruling", "JavaScript", "LATEST_RELEASE")
