@@ -132,14 +132,11 @@ function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
     SYMBOL_HIGHLIGHTING_RULE,
     COGNITIVE_COMPLEXITY_RULE,
   ).issues;
-  const highlightedSymbols = getHighlightedSymbols(issues);
-  const metrics = getMetrics(sourceCode);
-  metrics.cognitiveComplexity = getCognitiveComplexity(issues);
   return {
     issues,
+    highlightedSymbols: getHighlightedSymbols(issues),
     highlights: getHighlighting(sourceCode).highlights,
-    highlightedSymbols,
-    metrics,
+    metrics: getMetrics(sourceCode, getCognitiveComplexity(issues)),
     cpdTokens: getCpdTokens(sourceCode).cpdTokens,
   };
 }

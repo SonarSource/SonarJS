@@ -51,17 +51,18 @@ try {
   // do nothing, "typescript" is not there
 }
 
+/**
+ * 'additionalRules' - rules used for computing metrics (incl. highlighting) when it requires access to the rule context; resulting value is encoded in the message
+ */
 export function analyze(
   sourceCode: SourceCode,
   inputRules: Rule[],
   fileUri: string,
   ...additionalRules: AdditionalRule[]
 ) {
-  if (additionalRules.length > 0) {
-    additionalRules.forEach(additionalRule =>
-      linter.defineRule(additionalRule.ruleId, additionalRule.ruleModule),
-    );
-  }
+  additionalRules.forEach(additionalRule =>
+    linter.defineRule(additionalRule.ruleId, additionalRule.ruleModule),
+  );
 
   const issues = linter
     .verify(sourceCode, createLinterConfig(inputRules, additionalRules), fileUri)
@@ -126,12 +127,10 @@ function createLinterConfig(
     ruleConfig.rules![inputRule.key] = ["error", ...getRuleConfig(ruleModule, inputRule)];
   });
 
-  if (additionalRules.length > 0) {
-    additionalRules.forEach(
-      additionalRule =>
-        (ruleConfig.rules![additionalRule.ruleId] = ["error", ...additionalRule.ruleConfig]),
-    );
-  }
+  additionalRules.forEach(
+    additionalRule =>
+      (ruleConfig.rules![additionalRule.ruleId] = ["error", ...additionalRule.ruleConfig]),
+  );
   return ruleConfig;
 }
 
