@@ -37,6 +37,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -74,18 +75,20 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private String bundleLocation;
   private Path deployLocation;
   private boolean failedToStart;
+  private Configuration configuration;
 
   // Used by pico container for dependency injection
   @SuppressWarnings("unused")
-  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder) {
-    this(nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION);
+  public EslintBridgeServerImpl(Configuration configuration, NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder) {
+    this(configuration, nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION);
   }
 
-  EslintBridgeServerImpl(
+  EslintBridgeServerImpl(Configuration configuration,
     NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
     String startServerScript,
     String bundleLocation
   ) {
+    this.configuration = configuration;
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.startServerScript = startServerScript;
@@ -258,11 +261,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     clean();
   }
 
-  private static Optional<Path> getTypeScriptLocation(SensorContext context) throws IOException {
-    Optional<String> typeScriptLocationProperty = context.config().get(TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY);
+  private Optional<Path> getTypeScriptLocation(SensorContext context) throws IOException {
+    Optional<String> typeScriptLocationProperty = configuration.get(TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY);
     if (typeScriptLocationProperty.isPresent()) {
+      LOG.debug("typescript location set via property {}={}", TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY, typeScriptLocationProperty.get());
       return Optional.of(Paths.get(typeScriptLocationProperty.get()));
     }
+    LOG.debug("Looking for typescript recursively in {}", context.fileSystem().baseDir().getAbsolutePath());
     try (Stream<Path> files = Files.walk(context.fileSystem().baseDir().toPath())) {
       return files
         .filter(p -> p.toFile().isDirectory() && p.endsWith("node_modules/typescript"))

@@ -29,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -103,7 +104,7 @@ public class EslintBridgeServerImplTest {
       }
     });
 
-    eslintBridgeServer = new EslintBridgeServerImpl(
+    eslintBridgeServer = new EslintBridgeServerImpl(new MapSettings().asConfig(),
       nodeCommandBuilder,
       tempFolder,
       1,
@@ -250,13 +251,16 @@ public class EslintBridgeServerImplTest {
 
   @Test
   public void should_use_typescript_from_property() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    Path path = Paths.get("/tmp/my/");
+    Configuration configuration = new MapSettings()
+      .setProperty("sonar.typescript.internal.typescriptLocation", path.toString())
+      .asConfig();
+    eslintBridgeServer = new EslintBridgeServerImpl(configuration, NodeCommand.builder(), tempFolder, 1, START_SERVER_SCRIPT, MOCK_ESLINT_BUNDLE);
     eslintBridgeServer.deploy();
     SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
-    Path path = Paths.get("/tmp/my/typescript");
-    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.internal.typescriptLocation", path.toString()));
     eslintBridgeServer.startServer(ctx);
-    assertThat(eslintBridgeServer.getCommandInfo()).contains("NODE_PATH=" + Paths.get("/tmp/my").toAbsolutePath());
+    assertThat(eslintBridgeServer.getCommandInfo())
+      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + path.toAbsolutePath() + "} node ");
   }
 
   @Test
@@ -268,11 +272,12 @@ public class EslintBridgeServerImplTest {
     Path tsDir = baseDir.resolve("dir/node_modules/typescript");
     Files.createDirectories(tsDir);
     eslintBridgeServer.startServer(ctx);
-    assertThat(eslintBridgeServer.getCommandInfo()).contains("NODE_PATH=" + baseDir.resolve("dir/node_modules"));
+    assertThat(eslintBridgeServer.getCommandInfo())
+      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + baseDir.resolve("dir/node_modules") + "} node ");
   }
 
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
+    return new EslintBridgeServerImpl(new MapSettings().asConfig(), NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
   }
 }
