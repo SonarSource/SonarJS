@@ -138,7 +138,7 @@ describe("#decodeSecondaryLocations", () => {
     const sourceCode = parseJavaScriptSourceFile(
       "if (true) if (true) if (true) return;",
     ) as SourceCode;
-    const result = analyze(sourceCode, [], "fileUri", COGNITIVE_COMPLEXITY_RULE).issues;
+    const result = analyze(sourceCode, [], COGNITIVE_COMPLEXITY_RULE).issues;
     expect(result).toHaveLength(1);
     expect(result[0].ruleId).toEqual(COGNITIVE_COMPLEXITY_RULE.ruleId);
     expect(result[0].message).toEqual("6");
