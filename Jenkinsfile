@@ -40,14 +40,22 @@ pipeline {
             runITsNoSubmodules("plugin","LATEST_RELEASE[7.9]")
           }
         }
-        stage('ruling/LATEST_RELEASE/linux') {
+        stage('ruling/JS/LATEST_RELEASE/linux') {
           agent {
             label 'multicpu'
           }
           steps {
-            runITs("ruling","LATEST_RELEASE")
+            runRulingIT("ruling", "JavaScript", "LATEST_RELEASE")
           }
         }                       
+        stage('ruling/TS/LATEST_RELEASE/linux') {
+          agent {
+            label 'multicpu'
+          }
+          steps {
+            runRulingIT("ruling", "TypeScript", "LATEST_RELEASE")
+          }
+        }
 
 
         stage('plugin/LATEST_RELEASE[7.9]/windows') {
@@ -90,13 +98,13 @@ pipeline {
   }
 }
 
-def runITs(TEST,SQ_VERSION) {
+def runRulingIT(TEST, LANG, SQ_VERSION) {
   nodejs(configId: 'npm-artifactory', nodeJSInstallationName: 'NodeJS latest') {
     withMaven(maven: MAVEN_TOOL) {
       mavenSetBuildVersion()
       gitFetchSubmodules()
       dir("its/$TEST") {
-        runMavenOrch(JDK_VERSION,"verify -Dsonar.runtimeVersion=$SQ_VERSION", '-Dmaven.test.redirectTestOutputToFile=false')
+        runMavenOrch(JDK_VERSION,"verify -Dtest=${LANG}RulingTest -Dsonar.runtimeVersion=$SQ_VERSION", '-Dmaven.test.redirectTestOutputToFile=false')
       }
     }
   }

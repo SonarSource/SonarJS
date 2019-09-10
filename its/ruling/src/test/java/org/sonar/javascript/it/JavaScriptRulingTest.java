@@ -29,7 +29,6 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,9 +49,9 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Parameterized.class)
-public class RulingTest {
+public class JavaScriptRulingTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RulingTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
 
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
@@ -63,12 +62,12 @@ public class RulingTest {
     .build();
 
 
-  private String project;
-  private String language;
-  private String sourceDir;
-  private List<String> exclusions;
+  String project;
+  String language;
+  String sourceDir;
+  List<String> exclusions;
 
-  public RulingTest(String project, String language, String sourceDir, List<String> exclusions) {
+  public JavaScriptRulingTest(String project, String language, String sourceDir, List<String> exclusions) {
     this.project = project;
     this.language = language;
     this.sourceDir = sourceDir;
@@ -79,30 +78,7 @@ public class RulingTest {
   public static Object[][] projects() {
     return new Object[][]{
       {"js-project", "js", "../sources/src", singletonList("**/*.ts")},
-      tsProject("ag-grid"),
-      tsProject("angular", Arrays.asList("**/*.d.ts", "**/*.js", "**/examples/**", "**/integrationtest/**", "**/benchmarks_external/**", "**/benchmarks/**")),
-      tsProject("ant-design"),
-      tsProject("console"),
-      tsProject("desktop"),
-      tsProject("emission"),
-      tsProject("fireface"),
-      tsProject("ionic2-auth"),
-      tsProject("Joust"),
-      tsProject("postgraphql"),
-      tsProject("prettier-vscode"),
-      tsProject("rxjs"),
-      tsProject("searchkit"),
-      tsProject("TypeScript"),
-      tsProject("vscode"),
     };
-  }
-
-  private static Object[] tsProject(String project) {
-    return tsProject(project, Arrays.asList("**/*.d.ts", "**/*.js"));
-  }
-
-  private static Object[] tsProject(String project, List<String> exclusions) {
-    return new Object[]{project, "ts", "../typescript-test-sources/src/" + project, exclusions};
   }
 
   @BeforeClass
@@ -132,11 +108,11 @@ public class RulingTest {
 
   @Test
   public void ruling() throws Exception {
-    String languageToIgnore = "js".equals(language) ? "ts" : "js";
-    runRulingTest(project, language, languageToIgnore, sourceDir, exclusions);
+    runRulingTest(project, language, sourceDir, exclusions);
   }
 
-  private static void runRulingTest(String projectKey, String languageToAnalyze, String languageToIgnore, String sources, List<String> exclusions) throws IOException {
+  static void runRulingTest(String projectKey, String languageToAnalyze, String sources, List<String> exclusions) throws IOException {
+    String languageToIgnore = "js".equals(languageToAnalyze) ? "ts" : "js";
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
