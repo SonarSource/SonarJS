@@ -104,7 +104,7 @@ def runRulingIT(TEST, LANG, SQ_VERSION) {
       mavenSetBuildVersion()
       gitFetchSubmodules()
       dir("its/$TEST") {
-        runMavenOrch(JDK_VERSION,"verify -Dtest=$LANGRulingTest -Dsonar.runtimeVersion=$SQ_VERSION", '-Dmaven.test.redirectTestOutputToFile=false')
+        runMavenOrch(JDK_VERSION,"verify -Dtest=${LANG}RulingTest -Dsonar.runtimeVersion=$SQ_VERSION", '-Dmaven.test.redirectTestOutputToFile=false')
       }
     }
   }
