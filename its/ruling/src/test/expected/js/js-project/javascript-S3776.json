@@ -3025,6 +3025,9 @@
 'js-project:jest/packages/eslint-plugin-jest/src/rules/valid_expect.js':[
 22,
 ],
+'js-project:jest/packages/expect/src/jasmine_utils.js':[
+59,
+],
 'js-project:jest/packages/expect/src/matchers.js':[
 490,
 ],
@@ -3055,6 +3058,10 @@
 ],
 'js-project:jest/packages/jest-config/src/normalize.js':[
 310,
+],
+'js-project:jest/packages/jest-config/src/vendor/jsonlint.js':[
+245,
+473,
 ],
 'js-project:jest/packages/jest-haste-map/src/crawlers/node.js':[
 21,
