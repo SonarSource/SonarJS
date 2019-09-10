@@ -24,8 +24,8 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,8 +62,8 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CpdToken;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Highlight;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.HighlightedSymbol;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Metrics;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Location;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Metrics;
 
 import static java.lang.String.format;
 
@@ -114,7 +114,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   @Override
   protected void analyze(InputFile file, SensorContext context) {
     try {
-      AnalysisRequest request = new AnalysisRequest(file, rules, tsConfigs(context));
+      String fileContent = isSonarLint(context) ? file.contents() : null;
+      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, rules, tsConfigs(context));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
 
       if (response.parsingError != null) {

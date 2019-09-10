@@ -137,7 +137,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile, new Rule[0]);
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, new Rule[0], null);
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
   }
 
@@ -153,7 +153,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile, new Rule[0],
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, new Rule[0],
       singletonList(tsConfig.absolutePath()));
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
@@ -238,7 +238,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile, new Rule[0]);
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, new Rule[0], null);
     EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(request);
     assertThat(response.issues).isEmpty();
 
@@ -260,7 +260,7 @@ public class EslintBridgeServerImplTest {
     SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
     eslintBridgeServer.startServer(ctx);
     assertThat(eslintBridgeServer.getCommandInfo())
-      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + path.toAbsolutePath() + "} node ");
+      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + path.toAbsolutePath() + "}");
   }
 
   @Test
@@ -273,7 +273,7 @@ public class EslintBridgeServerImplTest {
     Files.createDirectories(tsDir);
     eslintBridgeServer.startServer(ctx);
     assertThat(eslintBridgeServer.getCommandInfo())
-      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + baseDir.resolve("dir/node_modules") + "} node ");
+      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + baseDir.resolve("dir/node_modules") + "}");
   }
 
 

@@ -64,7 +64,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       return;
     }
     try {
-      AnalysisRequest analysisRequest = new AnalysisRequest(file, rules);
+      String fileContent = isSonarLint(context) ? file.contents() : null;
+      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, null);
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
 
       if (response.parsingError != null) {

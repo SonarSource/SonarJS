@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile, Parse } from "./parser";
+import { Parse, parseJavaScriptSourceFile, parseTypeScriptSourceFile } from "./parser";
 import getHighlighting, { Highlight } from "./runner/highlighter";
-import getMetrics, { Metrics, EMPTY_METRICS } from "./runner/metrics";
+import getMetrics, { EMPTY_METRICS, Metrics } from "./runner/metrics";
 import getCpdTokens, { CpdToken } from "./runner/cpd";
 import * as linter from "./linter";
 import { SourceCode } from "eslint";
 import {
   HighlightedSymbol,
-  symbolHighlightingRuleId,
   rule as symbolHighlightingRule,
+  symbolHighlightingRuleId,
 } from "./runner/symbol-highlighter";
 import * as fs from "fs";
 import { rules as sonarjsRules } from "eslint-plugin-sonarjs";
+import * as path from "path";
 
 const COGNITIVE_COMPLEXITY_RULE_ID = "internal-cognitive-complexity";
 
@@ -113,7 +114,8 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
   if (!fileContent) {
     fileContent = fs.readFileSync(input.filePath, { encoding: "utf8" });
   }
-  const result = parse(fileContent, input.filePath, input.tsConfigs);
+  const filePath = path.normalize(input.filePath);
+  const result = parse(fileContent, filePath, input.tsConfigs);
   if (result instanceof SourceCode) {
     return analyzeFile(result, input);
   } else {

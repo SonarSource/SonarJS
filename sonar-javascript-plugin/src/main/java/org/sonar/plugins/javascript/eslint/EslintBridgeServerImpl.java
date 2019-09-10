@@ -84,9 +84,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   EslintBridgeServerImpl(Configuration configuration,
-    NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
-    String startServerScript,
-    String bundleLocation
+                         NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
+                         String startServerScript,
+                         String bundleLocation
   ) {
     this.configuration = configuration;
     this.nodeCommandBuilder = nodeCommandBuilder;
@@ -148,10 +148,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
 
-    getTypeScriptLocation(context).ifPresent(typeScriptLocation -> {
-      LOG.debug("Using typescript at: '{}'", typeScriptLocation);
-      nodeCommandBuilder.addToNodePath(typeScriptLocation.toAbsolutePath());
-    });
+    Optional<Path> typeScriptLocation = getTypeScriptLocation(context);
+    if (typeScriptLocation.isPresent()) {
+      LOG.debug("Using TypeScript at: '{}'", typeScriptLocation.get());
+      nodeCommandBuilder.addToNodePath(typeScriptLocation.get().toAbsolutePath());
+    } else {
+      LOG.debug("TypeScript dependency was not found, TypeScript analysis might fail.");
+    }
     nodeCommand = nodeCommandBuilder.build();
   }
 
@@ -262,12 +265,14 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   private Optional<Path> getTypeScriptLocation(SensorContext context) throws IOException {
+    // we have to use global Configuration and not SensorContext#config to lookup typescript set from vscode extension
+    // see https://jira.sonarsource.com/browse/SLCORE-250
     Optional<String> typeScriptLocationProperty = configuration.get(TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY);
     if (typeScriptLocationProperty.isPresent()) {
-      LOG.debug("typescript location set via property {}={}", TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY, typeScriptLocationProperty.get());
+      LOG.debug("TypeScript location set via property {}={}", TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY, typeScriptLocationProperty.get());
       return Optional.of(Paths.get(typeScriptLocationProperty.get()));
     }
-    LOG.debug("Looking for typescript recursively in {}", context.fileSystem().baseDir().getAbsolutePath());
+    LOG.debug("Looking for TypeScript recursively in {}", context.fileSystem().baseDir().getAbsolutePath());
     try (Stream<Path> files = Files.walk(context.fileSystem().baseDir().toPath())) {
       return files
         .filter(p -> p.toFile().isDirectory() && p.endsWith("node_modules/typescript"))

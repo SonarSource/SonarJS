@@ -28,6 +28,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
@@ -118,9 +120,10 @@ public class TestUtils {
       .toAbsolutePath().toString();
   }
 
-  static void npmInstall(File dir) throws IOException, InterruptedException {
+  static void npmInstall(File dir, String... params) throws IOException, InterruptedException {
     String npm = SystemUtils.IS_OS_WINDOWS ? "npm.cmd" : "npm";
-    ProcessBuilder pb = new ProcessBuilder(npm, "install").inheritIO().directory(dir);
+    String[] cmd = Stream.concat(Stream.of(npm, "install"), Arrays.stream(params)).toArray(String[]::new);
+    ProcessBuilder pb = new ProcessBuilder(cmd).inheritIO().directory(dir);
     Process process = pb.start();
     int returnValue = process.waitFor();
     if (returnValue != 0) {
