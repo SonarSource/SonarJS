@@ -165,6 +165,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     saveMetric(file, context, CoreMetrics.NCLOC, metrics.ncloc.length);
     saveMetric(file, context, CoreMetrics.COMMENT_LINES, metrics.commentLines.length);
     saveMetric(file, context, CoreMetrics.COMPLEXITY, metrics.complexity);
+    saveMetric(file, context, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity);
 
     noSonarFilter.noSonarInFile(file, Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet()));
 

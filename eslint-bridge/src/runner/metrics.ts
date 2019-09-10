@@ -84,7 +84,10 @@ const COMPLEXITY_NODES = [
   "LogicalExpression",
 ];
 
-export default function getMetrics(sourceCode: SourceCode): Metrics {
+export default function getMetrics(
+  sourceCode: SourceCode,
+  cognitiveComplexity: number = 0,
+): Metrics {
   return {
     ncloc: findLinesOfCode(sourceCode),
     ...findCommentLines(sourceCode),
@@ -93,6 +96,7 @@ export default function getMetrics(sourceCode: SourceCode): Metrics {
     statements: countStatements(sourceCode),
     classes: countClasses(sourceCode),
     complexity: getCyclomaticComplexity(sourceCode),
+    cognitiveComplexity,
   };
 }
 
@@ -105,6 +109,7 @@ export interface Metrics {
   statements: number;
   classes: number;
   complexity: number;
+  cognitiveComplexity: number;
 }
 
 export const EMPTY_METRICS: Metrics = {
@@ -116,6 +121,7 @@ export const EMPTY_METRICS: Metrics = {
   statements: 0,
   classes: 0,
   complexity: 0,
+  cognitiveComplexity: 0,
 };
 
 export function findLinesOfCode(sourceCode: SourceCode): number[] {

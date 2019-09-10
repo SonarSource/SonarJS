@@ -19,91 +19,33 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.metrics.CognitiveComplexity;
-import org.sonar.javascript.metrics.FunctionDefiningModuleVisitor;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-
-import static org.sonar.plugins.javascript.api.tree.Tree.Kind.ARROW_FUNCTION;
-import static org.sonar.plugins.javascript.api.tree.Tree.Kind.SCRIPT;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3776")
-public class CognitiveComplexityFunctionCheck extends SubscriptionVisitorCheck {
+public class CognitiveComplexityFunctionCheck extends EslintBasedCheck {
 
-  private static final String MESSAGE = "Refactor this function to reduce its Cognitive Complexity from %s to the %s allowed.";
   private static final int DEFAULT_THRESHOLD = 15;
 
   @RuleProperty(
     key = "threshold",
     description = "The maximum authorized complexity.",
     defaultValue = "" + DEFAULT_THRESHOLD)
-  private int threshold = DEFAULT_THRESHOLD;
-
-  /* When complexity of nesting function is considered for this check, we ignore all nested in it functions */
-  private Set<Tree> ignoredNestedFunctions = new HashSet<>();
-
-  private Set<FunctionTree> functionsDefiningModule = new HashSet<>();
+  int threshold = DEFAULT_THRESHOLD;
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.<Kind>builder()
-      .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
-      .add(Kind.SCRIPT)
-      .build();
+  public String eslintKey() {
+    return "cognitive-complexity";
   }
 
   @Override
-  public void visitFile(Tree scriptTree) {
-    ignoredNestedFunctions.clear();
-    super.visitFile(scriptTree);
+  public List<Object> configurations() {
+    return Collections.singletonList(threshold);
   }
-
-  @Override
-  public void visitNode(Tree tree) {
-    if (tree.is(SCRIPT)) {
-      functionsDefiningModule = FunctionDefiningModuleVisitor.getFunctionsDefiningModule((ScriptTree) tree);
-      return;
-    }
-
-    if (!ignoredNestedFunctions.contains(tree)) {
-      CognitiveComplexity.ComplexityData complexityData = new CognitiveComplexity().calculateFunctionComplexity((FunctionTree) tree, functionsDefiningModule.contains(tree));
-      ignoredNestedFunctions.addAll(complexityData.aggregatedNestedFunctions());
-
-      if (complexityData.complexity() > threshold) {
-        raiseIssue(complexityData, tree);
-      }
-    }
-  }
-
-  private void raiseIssue(CognitiveComplexity.ComplexityData complexityData, Tree function) {
-    String message = String.format(MESSAGE, complexityData.complexity(), threshold);
-
-    SyntaxToken primaryLocation = function.firstToken();
-    if (function.is(ARROW_FUNCTION)) {
-      primaryLocation = ((ArrowFunctionTree) function).doubleArrowToken();
-    }
-
-    PreciseIssue issue = addIssue(primaryLocation, message).cost(complexityData.complexity() - (double)threshold);
-
-    complexityData.secondaryLocations().forEach(issue::secondary);
-  }
-
-  public void setThreshold(int threshold) {
-    this.threshold = threshold;
-  }
-
 }
