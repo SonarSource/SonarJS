@@ -139,6 +139,7 @@ public interface EslintBridgeServer extends Startable {
     int statements;
     int classes;
     int complexity;
+    int cognitiveComplexity;
   }
 
   class CpdToken {

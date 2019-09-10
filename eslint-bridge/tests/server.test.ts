@@ -65,6 +65,7 @@ const expectedResponse = {
     statements: 3,
     classes: 0,
     complexity: 1,
+    cognitiveComplexity: 2,
   },
   cpdTokens: [
     {

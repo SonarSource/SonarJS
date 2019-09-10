@@ -71,8 +71,8 @@ public class TypeScriptAnalysisTest {
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "functions")).isEqualTo(1);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(4);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
-
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "complexity")).isEqualTo(2);
+    assertThat(Tests.getMeasureAsInt(sampleFileKey, "cognitive_complexity")).isEqualTo(2);
 
     assertThat(Tests.getMeasureAsDouble(projectKey, "duplicated_lines")).isEqualTo(111.0);
     assertThat(Tests.getMeasureAsDouble(projectKey, "duplicated_blocks")).isEqualTo(2.0);
