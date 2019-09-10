@@ -24,8 +24,12 @@ import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Optional;
+import java.util.stream.Stream;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -47,6 +51,9 @@ import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
 public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
+
+  // SonarLint should pass in this property an absolute path to the directory containing TypeScript dependency
+  private static final String TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY = "sonar.typescript.internal.typescriptLocation";
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 60;
   // internal property to set "--max-old-space-size" for Node process running this server
@@ -120,7 +127,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     LOG.debug("Server is started");
   }
 
-  private void initNodeCommand(SensorContext context, File scriptFile) {
+  private void initNodeCommand(SensorContext context, File scriptFile) throws IOException {
     nodeCommandBuilder
       .outputConsumer(message -> {
         if (message.startsWith("DEBUG")) {
@@ -138,8 +145,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
 
-    nodeCommand = nodeCommandBuilder
-      .build();
+    getTypeScriptLocation(context).ifPresent(typeScriptLocation -> {
+      LOG.debug("Using typescript at: '{}'", typeScriptLocation);
+      nodeCommandBuilder.addToNodePath(typeScriptLocation.toAbsolutePath());
+    });
+    nodeCommand = nodeCommandBuilder.build();
   }
 
   @Override
@@ -246,5 +256,18 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public void stop() {
     clean();
+  }
+
+  private static Optional<Path> getTypeScriptLocation(SensorContext context) throws IOException {
+    Optional<String> typeScriptLocationProperty = context.config().get(TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY);
+    if (typeScriptLocationProperty.isPresent()) {
+      return Optional.of(Paths.get(typeScriptLocationProperty.get()));
+    }
+    try (Stream<Path> files = Files.walk(context.fileSystem().baseDir().toPath())) {
+      return files
+        .filter(p -> p.toFile().isDirectory() && p.endsWith("node_modules/typescript"))
+        .findFirst()
+        .map(Path::getParent);
+    }
   }
 }
