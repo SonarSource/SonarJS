@@ -128,7 +128,6 @@ function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
   const issues = linter.analyze(
     sourceCode,
     input.rules,
-    input.filePath,
     SYMBOL_HIGHLIGHTING_RULE,
     COGNITIVE_COMPLEXITY_RULE,
   ).issues;
