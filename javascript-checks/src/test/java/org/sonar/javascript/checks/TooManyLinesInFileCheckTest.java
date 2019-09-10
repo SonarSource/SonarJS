@@ -27,12 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TooManyLinesInFileCheckTest {
 
-  private Map<String, Object> expectedConfigurationsMap = new HashMap<>();
-
   @Test
-  public void testDefault() {
+  public void test_configuration() {
     TooManyLinesInFileCheck check = new TooManyLinesInFileCheck();
-
+    Map<String, Object> expectedConfigurationsMap = new HashMap<>();
     expectedConfigurationsMap.put("skipBlankLines", true);
     expectedConfigurationsMap.put("skipComments", true);
     expectedConfigurationsMap.put("max", 1000);
