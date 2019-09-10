@@ -116,9 +116,6 @@
 'angular:packages/platform-browser/src/browser/location/history.ts':[
 11,
 ],
-'angular:packages/platform-server/integrationtest/src/server.ts':[
-40,
-],
 'angular:packages/platform-server/src/private_export.ts':[
 11,
 ],

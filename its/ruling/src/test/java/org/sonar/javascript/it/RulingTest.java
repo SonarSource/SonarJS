@@ -80,7 +80,7 @@ public class RulingTest {
     return new Object[][]{
       {"js-project", "js", "../sources/src", singletonList("**/*.ts")},
       tsProject("ag-grid"),
-      tsProject("angular", Arrays.asList("**/*.d.ts", "**/*.js", "**/examples/**")),
+      tsProject("angular", Arrays.asList("**/*.d.ts", "**/*.js", "**/examples/**", "**/integrationtest/**", "**/benchmarks_external/**", "**/benchmarks/**")),
       tsProject("ant-design"),
       tsProject("console"),
       tsProject("desktop"),
