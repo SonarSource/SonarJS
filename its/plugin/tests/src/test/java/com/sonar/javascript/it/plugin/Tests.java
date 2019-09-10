@@ -42,6 +42,7 @@ import static java.util.Collections.singletonList;
   CoverageTest.class,
   EslintBasedRulesTest.class,
   EslintReportTest.class,
+  LookupTypeScriptTest.class,
   MetricsTest.class,
   MinifiedFilesTest.class,
   MultiTsconfigTest.class,

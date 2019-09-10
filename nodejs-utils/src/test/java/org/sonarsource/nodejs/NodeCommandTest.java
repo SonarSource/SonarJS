@@ -44,6 +44,8 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
@@ -62,6 +64,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -83,6 +86,9 @@ public class NodeCommandTest {
   @Captor
   private ArgumentCaptor<List<String>> processStartArgument;
 
+  @Captor
+  private ArgumentCaptor<Map<String, String>> processStartEnv;
+
   @Mock
   private NodeCommand.ProcessWrapper mockProcessWrapper;
 
@@ -90,7 +96,7 @@ public class NodeCommandTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    when(mockProcessWrapper.start(any())).thenReturn(mock(Process.class));
+    when(mockProcessWrapper.start(any(), any())).thenReturn(mock(Process.class));
   }
 
   @Test
@@ -185,7 +191,7 @@ public class NodeCommandTest {
       .build();
     nodeCommand.start();
 
-    verify(mockProcessWrapper).start(processStartArgument.capture());
+    verify(mockProcessWrapper).start(processStartArgument.capture(), any());
     assertThat(processStartArgument.getValue()).contains(nodeExecutable.getAbsolutePath());
   }
 
@@ -197,7 +203,7 @@ public class NodeCommandTest {
       .build();
     nodeCommand.start();
 
-    verify(mockProcessWrapper).start(processStartArgument.capture());
+    verify(mockProcessWrapper).start(processStartArgument.capture(), any());
     assertThat(processStartArgument.getValue()).contains("node");
   }
 
@@ -220,7 +226,7 @@ public class NodeCommandTest {
   @Test
   public void test_exception_start() throws Exception {
     IOException cause = new IOException("Error starting process");
-    when(mockProcessWrapper.start(any())).thenThrow(cause);
+    when(mockProcessWrapper.start(any(), any())).thenThrow(cause);
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .script(resourceScript(PATH_TO_SCRIPT))
       .build();
@@ -288,18 +294,50 @@ public class NodeCommandTest {
       .script("script.js")
       .build();
     nodeCommand.start();
-    verify(mockProcessWrapper).start(processStartArgument.capture());
-    assertThat(processStartArgument.getValue()).contains("/bin/sh", "-c", "node script.js");
+    verify(mockProcessWrapper).start(processStartArgument.capture(), any());
+    assertThat(processStartArgument.getValue()).containsExactly("/bin/sh", "-c", "node script.js");
   }
 
   @Test
   public void test_missing_node() throws Exception {
-    when(mockProcessWrapper.start(any())).thenThrow(new IOException("CreateProcess error=2"));
+    when(mockProcessWrapper.start(any(), any())).thenThrow(new IOException("CreateProcess error=2"));
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .script("not-used")
       .build();
 
     assertThatThrownBy(nodeCommand::start).isInstanceOf(NodeCommandException.class);
+  }
+
+  @Test
+  public void test_nodepath_setting() throws  Exception {
+    when(mockProcessWrapper.getenv(any())).thenReturn("/dir/previous");
+    Path path = Paths.get("/dir/node_modules/typescript");
+    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+      .addToNodePath(path)
+      .script("script.js")
+      .build();
+    nodeCommand.start();
+    verify(mockProcessWrapper).start(processStartArgument.capture(), processStartEnv.capture());
+    assertThat(processStartEnv.getValue()).containsExactly(entry("NODE_PATH", "/dir/previous" + File.pathSeparator + path));
+    assertThat(processStartArgument.getValue()).containsExactly("node", "script.js");
+  }
+
+  @Test
+  public void setting_null_path_should_throw() throws Exception {
+    assertThatThrownBy(() -> NodeCommand.builder(mockProcessWrapper)
+      .addToNodePath(null)).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void test_processwrapper() throws Exception {
+    Path path = Paths.get("/dir/typescript");
+    NodeCommand command = NodeCommand.builder()
+      .addToNodePath(path)
+      .script("script.js")
+      .build();
+    command.start();
+    assertThat(command.toString()).isEqualTo("{NODE_PATH=" + path + "} node script.js");
+    command.destroy();
   }
 
   private static String resourceScript(String script) throws URISyntaxException {
