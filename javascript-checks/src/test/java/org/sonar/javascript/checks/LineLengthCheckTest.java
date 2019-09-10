@@ -19,20 +19,31 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LineLengthCheckTest {
 
-  @Test
-  public void test() {
-    LineLengthCheck check = new LineLengthCheck();
-    check.maximumLineLength = 30;
+  private Map<String, Object> expectedConfigurationsMap = new HashMap<>();
 
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/lineLength.js"))
-      .next().atLine(2).withMessage("Split this 44 characters long line (which is greater than 30 authorized).")
-      .noMore();
+  @Test
+  public void default_configuration() {
+    LineLengthCheck check = new LineLengthCheck();
+    expectedConfigurationsMap.put("tabWidth", 1);
+    expectedConfigurationsMap.put("code", 180);
+    assertThat(check.configurations()).containsExactly(expectedConfigurationsMap);
+  }
+
+  @Test
+  public void custom_configuration() {
+    LineLengthCheck check = new LineLengthCheck();
+    check.maximumLineLength = 120;
+    expectedConfigurationsMap.put("tabWidth", 1);
+    expectedConfigurationsMap.put("code", 120);
+    assertThat(check.configurations()).containsExactly(expectedConfigurationsMap);
   }
 
 }
