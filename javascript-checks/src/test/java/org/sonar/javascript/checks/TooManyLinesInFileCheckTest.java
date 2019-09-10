@@ -19,26 +19,28 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TooManyLinesInFileCheckTest {
 
-  private TooManyLinesInFileCheck check = new TooManyLinesInFileCheck();
+  private Map<String, Object> expectedConfigurationsMap = new HashMap<>();
 
   @Test
   public void testDefault() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/tooManyLinesInFile.js"))
-      .noMore();
-  }
+    TooManyLinesInFileCheck check = new TooManyLinesInFileCheck();
 
-  @Test
-  public void testCustom() {
-    check.maximum = 1;
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/tooManyLinesInFile.js"))
-      .next().withMessage("File \"tooManyLinesInFile.js\" has 7 lines, which is greater than 1 authorized. Split it into smaller files.")
-      .noMore();
+    expectedConfigurationsMap.put("skipBlankLines", true);
+    expectedConfigurationsMap.put("skipComments", true);
+    expectedConfigurationsMap.put("max", 1000);
+    // default configuration
+    assertThat(check.configurations()).containsExactly(expectedConfigurationsMap);
+    expectedConfigurationsMap.put("max", 42);
+    check.maximum = 42;
+    assertThat(check.configurations()).containsExactly(expectedConfigurationsMap);
   }
 
 }

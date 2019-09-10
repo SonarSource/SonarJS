@@ -19,22 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.FileIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S104")
-public class TooManyLinesInFileCheck extends SubscriptionVisitorCheck {
+public class TooManyLinesInFileCheck extends EslintBasedCheck {
 
-  private static final String MESSAGE = "File \"%s\" has %d lines, which is greater than %d authorized. Split it into smaller files.";
   private static final int DEFAULT = 1000;
 
   @RuleProperty(
@@ -44,23 +42,17 @@ public class TooManyLinesInFileCheck extends SubscriptionVisitorCheck {
   public int maximum = DEFAULT;
 
   @Override
-  public void visitNode(Tree tree) {
-    if (!((InternalSyntaxToken) tree).isEOF()) {
-      return;
-    }
-
-    SyntaxToken token = (SyntaxToken) tree;
-    int lines = token.line();
-
-    if (lines > maximum) {
-      String fileName = getContext().getJavaScriptFile().fileName();
-      addIssue(new FileIssue(this, String.format(MESSAGE, fileName, lines, maximum)));
-    }
+  public List<Object> configurations() {
+    Map<String, Object> configurationsMap = new HashMap<>();
+    configurationsMap.put("max", maximum);
+    configurationsMap.put("skipBlankLines", true);
+    configurationsMap.put("skipComments", true);
+    return Collections.singletonList(configurationsMap);
   }
 
   @Override
-  public Set<Tree.Kind> nodesToVisit() {
-    return ImmutableSet.of(Tree.Kind.TOKEN);
+  public String eslintKey() {
+    return "max-lines";
   }
 
 }
