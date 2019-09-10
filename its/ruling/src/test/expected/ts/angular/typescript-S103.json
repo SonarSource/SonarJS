@@ -1,14 +1,4 @@
 {
-'angular:modules/benchmarks/src/tree/ng1/tree.ts':[
-20,
-],
-'angular:modules/benchmarks/src/tree/ng2/tree.ts':[
-21,
-],
-'angular:modules/benchmarks/src/tree/ng2_next/tree.ts':[
-10,
-11,
-],
 'angular:modules/e2e_util/perf_util.ts':[
 14,
 ],
