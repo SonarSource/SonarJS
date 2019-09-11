@@ -29,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -44,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
+import static org.sonar.api.utils.log.LoggerLevel.INFO;
 
 public class EslintBridgeServerImplTest {
 
@@ -103,7 +105,7 @@ public class EslintBridgeServerImplTest {
       }
     });
 
-    eslintBridgeServer = new EslintBridgeServerImpl(
+    eslintBridgeServer = new EslintBridgeServerImpl(new MapSettings().asConfig(),
       nodeCommandBuilder,
       tempFolder,
       1,
@@ -136,7 +138,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile, new Rule[0]);
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, new Rule[0], null);
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
   }
 
@@ -152,7 +154,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile, new Rule[0],
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, new Rule[0],
       singletonList(tsConfig.absolutePath()));
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
@@ -237,7 +239,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile, new Rule[0]);
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, new Rule[0], null);
     EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(request);
     assertThat(response.issues).isEmpty();
 
@@ -250,13 +252,18 @@ public class EslintBridgeServerImplTest {
 
   @Test
   public void should_use_typescript_from_property() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    Path path = Paths.get("/tmp/my/");
+    Configuration configuration = new MapSettings()
+      .setProperty("sonar.typescript.internal.typescriptLocation", path.toString())
+      .asConfig();
+    eslintBridgeServer = new EslintBridgeServerImpl(configuration, NodeCommand.builder(), tempFolder, 1, START_SERVER_SCRIPT, MOCK_ESLINT_BUNDLE);
     eslintBridgeServer.deploy();
     SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
-    Path path = Paths.get("/tmp/my/typescript");
-    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.internal.typescriptLocation", path.toString()));
+    DefaultInputFile tsFile = TestInputFileBuilder.create("", "foo.ts").setLanguage("ts").build();
+    ctx.fileSystem().add(tsFile);
     eslintBridgeServer.startServer(ctx);
-    assertThat(eslintBridgeServer.getCommandInfo()).contains("NODE_PATH=" + Paths.get("/tmp/my").toAbsolutePath());
+    assertThat(eslintBridgeServer.getCommandInfo())
+      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + path.toAbsolutePath() + "}");
   }
 
   @Test
@@ -265,14 +272,43 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     Path baseDir = tempFolder.newDir().toPath();
     SensorContextTester ctx = SensorContextTester.create(baseDir);
+    DefaultInputFile tsFile = TestInputFileBuilder.create("", "foo.ts").setLanguage("ts").build();
+    ctx.fileSystem().add(tsFile);
     Path tsDir = baseDir.resolve("dir/node_modules/typescript");
     Files.createDirectories(tsDir);
     eslintBridgeServer.startServer(ctx);
-    assertThat(eslintBridgeServer.getCommandInfo()).contains("NODE_PATH=" + baseDir.resolve("dir/node_modules"));
+    assertThat(eslintBridgeServer.getCommandInfo())
+      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + baseDir.resolve("dir/node_modules") + "}");
+  }
+
+  @Test
+  public void should_not_search_typescript_when_no_ts_file() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    Path baseDir = tempFolder.newDir().toPath();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    Path tsDir = baseDir.resolve("dir/node_modules/typescript");
+    Files.createDirectories(tsDir);
+    eslintBridgeServer.startServer(ctx);
+    assertThat(eslintBridgeServer.getCommandInfo()).doesNotContain("NODE_PATH");
+  }
+
+  @Test
+  public void should_log_when_typescript_not_found() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    Path baseDir = tempFolder.newDir().toPath();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    DefaultInputFile tsFile = TestInputFileBuilder.create("", "foo.ts").setLanguage("ts").build();
+    ctx.fileSystem().add(tsFile);
+    eslintBridgeServer.startServer(ctx);
+    assertThat(eslintBridgeServer.getCommandInfo()).doesNotContain("NODE_PATH");
+    assertThat(logTester.logs(INFO)).contains("TypeScript dependency was not found inside project directory, NodeJs will search TypeScript using " +
+      "module resolution algorithm; analysis will fail without TypeScript.");
   }
 
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
+    return new EslintBridgeServerImpl(new MapSettings().asConfig(), NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
   }
 }

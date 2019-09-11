@@ -48,11 +48,13 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -62,6 +64,7 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -265,6 +268,27 @@ public class TypeScriptSensorTest {
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file.ts]: Parse error message");
+  }
+
+  @Test
+  public void should_send_content_on_sonarlint() throws Exception {
+    SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    createInputFile(ctx);
+    ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
+    createSensor().execute(ctx);
+    verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
+    assertThat(captor.getValue().fileContent).isEqualTo("if (cond)\n" +
+      "doFoo(); \n" +
+      "else \n" +
+      "doFoo();");
+
+    clearInvocations(eslintBridgeServerMock);
+    ctx = SensorContextTester.create(tempFolder.newDir());
+    createInputFile(ctx);
+    createSensor().execute(ctx);
+    verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
+    assertThat(captor.getValue().fileContent).isNull();
   }
 
   private TypeScriptSensor createSensor() {

@@ -21,7 +21,10 @@ package com.sonar.javascript.it.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -35,6 +38,7 @@ import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisCo
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -94,6 +98,40 @@ public class SonarLintTest {
     issues = analyze(FILE_PATH, sourceCode);
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
     assertThat(logs).contains("SonarJS eslint-bridge server is up, no need to start.");
+  }
+
+  @Test
+  public void should_analyze_typescript() throws Exception {
+    // emulate typescript installation provided by vscode
+    File typescriptInstall = temp.newFolder();
+    TestUtils.npmInstall(typescriptInstall, "typescript");
+    HashMap<String, String> properties = new HashMap<>();
+    Path tsNodeModules = typescriptInstall.toPath().resolve("node_modules").toAbsolutePath();
+    properties.put("sonar.typescript.internal.typescriptLocation", tsNodeModules.toString());
+
+    StandaloneGlobalConfiguration sonarLintConfig = StandaloneGlobalConfiguration.builder()
+      .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
+      .setSonarLintUserHome(temp.newFolder().toPath())
+      .setLogOutput((formattedMessage, level) -> logs.add(formattedMessage))
+      .setExtraProperties(properties)
+      .build();
+    sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
+
+    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, "foo.ts", "true ? 42 : 42");
+    // we have to provide tsconfig.json
+    Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
+
+    List<Issue> issues = new ArrayList<>();
+    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
+      .setBaseDir(baseDir.toPath())
+      .addInputFile(inputFile)
+      .build();
+    sonarlintEngine.analyze(
+      configuration,
+      issues::add, (formattedMessage, level) -> logs.add(formattedMessage), null);
+
+    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("typescript:S3923");
+    assertThat(logs).contains("Using TypeScript at: '"+ tsNodeModules + "'");
   }
 
 

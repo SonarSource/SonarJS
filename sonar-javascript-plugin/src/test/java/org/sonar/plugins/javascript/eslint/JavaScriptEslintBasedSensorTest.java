@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -41,18 +42,22 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -354,6 +359,27 @@ public class JavaScriptEslintBasedSensorTest {
     assertThat(issues).hasSize(0);
     assertThat(context.allAnalysisErrors()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to parse file [dir/file.js] at line 3: Parse error message");
+  }
+
+  @Test
+  public void should_send_content_on_sonarlint() throws Exception {
+    SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    createInputFile(ctx);
+    ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
+    createSensor().execute(ctx);
+    verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
+    assertThat(captor.getValue().fileContent).isEqualTo("if (cond)\n" +
+      "doFoo(); \n" +
+      "else \n" +
+      "doFoo();");
+
+    clearInvocations(eslintBridgeServerMock);
+    ctx = SensorContextTester.create(tempFolder.newDir());
+    createInputFile(ctx);
+    createSensor().execute(ctx);
+    verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
+    assertThat(captor.getValue().fileContent).isNull();
   }
 
   private static CheckFactory checkFactory(String... ruleKeys) {
