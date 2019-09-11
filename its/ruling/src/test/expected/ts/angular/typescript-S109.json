@@ -4099,15 +4099,6 @@
 401,
 404,
 ],
-'angular:packages/upgrade/static/src/common/downgrade_component_adapter.ts':[
-139,
-141,
-141,
-],
-'angular:packages/upgrade/static/src/static/upgrade_component.ts':[
-401,
-404,
-],
 'angular:packages/upgrade/test/common/downgrade_component_adapter_spec.ts':[
 29,
 54,
