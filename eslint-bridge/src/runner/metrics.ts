@@ -165,7 +165,7 @@ export function findCommentLines(
 
 export function findExecutableLines(sourceCode: SourceCode): number[] {
   const lines: Set<number> = new Set();
-  visit(sourceCode.ast, node => {
+  visit(sourceCode, node => {
     if (EXECUTABLE_NODES.includes(node.type) && node.loc) {
       lines.add(node.loc.start.line);
     }
@@ -174,21 +174,21 @@ export function findExecutableLines(sourceCode: SourceCode): number[] {
 }
 
 export function countFunctions(sourceCode: SourceCode): number {
-  return visitAndCountIf(sourceCode.ast, node => FUNCTION_NODES.includes(node.type));
+  return visitAndCountIf(sourceCode, node => FUNCTION_NODES.includes(node.type));
 }
 
 export function countStatements(sourceCode: SourceCode): number {
-  return visitAndCountIf(sourceCode.ast, node => STATEMENT_NODES.includes(node.type));
+  return visitAndCountIf(sourceCode, node => STATEMENT_NODES.includes(node.type));
 }
 
 export function countClasses(sourceCode: SourceCode): number {
-  return visitAndCountIf(sourceCode.ast, node => CLASS_NODES.includes(node.type));
+  return visitAndCountIf(sourceCode, node => CLASS_NODES.includes(node.type));
 }
 
 export function getCyclomaticComplexity(sourceCode: SourceCode): number {
   let complexity = 0;
 
-  visit(sourceCode.ast, node => {
+  visit(sourceCode, node => {
     if (COMPLEXITY_NODES.includes(node.type)) {
       complexity++;
     }
@@ -197,9 +197,12 @@ export function getCyclomaticComplexity(sourceCode: SourceCode): number {
   return complexity;
 }
 
-function visitAndCountIf(root: estree.Node, condition: (node: estree.Node) => boolean): number {
+function visitAndCountIf(
+  sourceCode: SourceCode,
+  condition: (node: estree.Node) => boolean,
+): number {
   let results = 0;
-  visit(root, node => {
+  visit(sourceCode, node => {
     if (condition(node)) {
       results++;
     }
