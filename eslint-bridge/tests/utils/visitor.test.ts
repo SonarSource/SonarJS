@@ -1,5 +1,6 @@
 import visit from "../../src/utils/visitor";
 import { parseTypeScriptSourceFile } from "../../src/parser";
+import { SourceCode } from "eslint";
 
 it("should visit a node and its children", () => {
   const sourceCode = parseTypeScriptSourceFile(
@@ -11,14 +12,18 @@ it("should visit a node and its children", () => {
     }`,
     "foo.ts",
     [],
-  );
+  ) as SourceCode;
   const visited = [];
-  visit(sourceCode.ast, node => visited.push(node.type + " " + node.loc.start.line));
+  visit(sourceCode, node => visited.push(node.type + " " + node.loc.start.line));
   expect(visited).toEqual([
     "Program 1",
     "FunctionDeclaration 1",
     "Identifier 1",
     "Identifier 1",
+    "TSTypeAnnotation 1",
+    "TSNumberKeyword 1",
+    "TSTypeAnnotation 1",
+    "TSNumberKeyword 1",
     "BlockStatement 1",
     "IfStatement 2",
     "BinaryExpression 2",

@@ -18,19 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as estree from "estree";
-import * as evk from "eslint-visitor-keys";
+import { SourceCode } from "eslint";
 
-export default function visit(root: estree.Node, callback: (node: estree.Node) => void): void {
-  const stack: estree.Node[] = [root];
+export default function visit(sourceCode: SourceCode, callback: (node: estree.Node) => void): void {
+  const stack: estree.Node[] = [sourceCode.ast];
   while (stack.length) {
     const node = stack.pop() as estree.Node;
     callback(node);
-    stack.push(...childrenOf(node).reverse());
+    stack.push(...childrenOf(node, sourceCode.visitorKeys).reverse());
   }
 }
 
-function childrenOf(node: estree.Node): estree.Node[] {
-  const keys = evk.KEYS[node.type];
+function childrenOf(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): estree.Node[] {
+  const keys = visitorKeys[node.type];
   const children = [];
   if (keys) {
     for (const key of keys) {
