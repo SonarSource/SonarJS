@@ -26,16 +26,13 @@ import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -47,18 +44,10 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
-import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.javascript.cpd.CpdVisitor;
-import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
-import org.sonar.javascript.highlighter.HighlighterVisitor;
-import org.sonar.javascript.metrics.MetricsVisitor;
-import org.sonar.javascript.metrics.NoSonarVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.SeChecksDispatcher;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -73,7 +62,6 @@ import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEPRECATED_ESLINT_PROPERTY;
@@ -84,16 +72,14 @@ public class JavaScriptSensor implements Sensor {
   private static final Logger LOG = Loggers.get(JavaScriptSensor.class);
 
   private final JavaScriptChecks checks;
-  private final FileLinesContextFactory fileLinesContextFactory;
   private final FileSystem fileSystem;
-  private final NoSonarFilter noSonarFilter;
   private final FilePredicate mainFilePredicate;
   private final ActionParser<Tree> parser;
   private final ActionParser<Tree> vueParser;
 
   public JavaScriptSensor(
-    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter) {
-    this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, null, null);
+    CheckFactory checkFactory, FileSystem fileSystem) {
+    this(checkFactory, fileSystem, null, null);
   }
 
   /**
@@ -101,9 +87,8 @@ public class JavaScriptSensor implements Sensor {
    *  See plugin integration tests
    */
   public JavaScriptSensor(
-    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
-    @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
-    this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, customRulesDefinition, null);
+    CheckFactory checkFactory, FileSystem fileSystem, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
+    this(checkFactory, fileSystem, customRulesDefinition, null);
   }
 
   /**
@@ -111,21 +96,16 @@ public class JavaScriptSensor implements Sensor {
    *  See plugin integration tests
    */
   public JavaScriptSensor(
-    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
-    @Nullable CustomRuleRepository[] customRuleRepositories) {
-    this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, null, customRuleRepositories);
+    CheckFactory checkFactory, FileSystem fileSystem, @Nullable CustomRuleRepository[] customRuleRepositories) {
+    this(checkFactory, fileSystem, null, customRuleRepositories);
   }
 
   public JavaScriptSensor(
-    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
-    @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition,
-    @Nullable CustomRuleRepository[] customRuleRepositories) {
+    CheckFactory checkFactory, FileSystem fileSystem, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition, @Nullable CustomRuleRepository[] customRuleRepositories) {
     this.checks = JavaScriptChecks.createJavaScriptChecks(checkFactory)
       .addChecks(CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks())
       .addCustomChecks(customRulesDefinition, customRuleRepositories);
-    this.fileLinesContextFactory = fileLinesContextFactory;
     this.fileSystem = fileSystem;
-    this.noSonarFilter = noSonarFilter;
     this.mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
@@ -135,16 +115,14 @@ public class JavaScriptSensor implements Sensor {
 
   @VisibleForTesting
   protected void analyseFiles(
-    SensorContext context, List<TreeVisitor> treeVisitors, Iterable<InputFile> inputFiles,
-    ProductDependentExecutor executor, ProgressReport progressReport
-  ) {
+    SensorContext context, List<TreeVisitor> treeVisitors, Iterable<InputFile> inputFiles, ProgressReport progressReport) {
     boolean success = false;
     try {
       for (InputFile inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
-        analyse(context, inputFile, executor, treeVisitors);
+        analyse(context, inputFile, treeVisitors);
         progressReport.nextFile();
       }
       success = true;
@@ -164,7 +142,7 @@ public class JavaScriptSensor implements Sensor {
     }
   }
 
-  private void analyse(SensorContext sensorContext, InputFile inputFile, ProductDependentExecutor executor, List<TreeVisitor> visitors) {
+  private void analyse(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors) {
     ActionParser<Tree> currentParser = this.parser;
     if (inputFile.filename().endsWith(".vue")) {
       currentParser = this.vueParser;
@@ -174,7 +152,7 @@ public class JavaScriptSensor implements Sensor {
 
     try {
       scriptTree = (ScriptTree) currentParser.parse(inputFile.contents());
-      scanFile(sensorContext, inputFile, executor, visitors, scriptTree);
+      scanFile(sensorContext, inputFile, visitors, scriptTree);
     } catch (RecognitionException e) {
       checkInterrupted(e);
       LOG.debug("Unable to parse file with java-based frontend (some rules will not be executed): " + inputFile.toString());
@@ -200,7 +178,7 @@ public class JavaScriptSensor implements Sensor {
       .save();
   }
 
-  private void scanFile(SensorContext sensorContext, InputFile inputFile, ProductDependentExecutor executor, List<TreeVisitor> visitors, ScriptTree scriptTree) {
+  private void scanFile(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile, sensorContext.config());
 
     List<Issue> fileIssues = new ArrayList<>();
@@ -214,7 +192,6 @@ public class JavaScriptSensor implements Sensor {
     }
 
     saveFileIssues(sensorContext, fileIssues, inputFile);
-    executor.highlightSymbols(inputFile, context);
   }
 
   private void saveFileIssues(SensorContext sensorContext, List<Issue> fileIssues, InputFile inputFile) {
@@ -282,12 +259,7 @@ public class JavaScriptSensor implements Sensor {
   public void execute(SensorContext context) {
     checkDeprecatedEslintProperty(context);
 
-    ProductDependentExecutor executor = createProductDependentExecutor(context);
-
-    // it's important to have an order here:
-    // NoSonarVisitor (part of executor.getProductDependentTreeVisitors()) should go before all checks
-
-    List<TreeVisitor> treeVisitors = new ArrayList<>(executor.getProductDependentTreeVisitors());
+    List<TreeVisitor> treeVisitors = new ArrayList<>();
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
     treeVisitors.addAll(checks.visitorChecks());
 
@@ -299,7 +271,7 @@ public class JavaScriptSensor implements Sensor {
     ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(files);
 
-    analyseFiles(context, treeVisitors, inputFiles, executor, progressReport);
+    analyseFiles(context, treeVisitors, inputFiles, progressReport);
   }
 
   /**
@@ -309,83 +281,6 @@ public class JavaScriptSensor implements Sensor {
     if (ArrayUtils.isNotEmpty(context.config().getStringArray(DEPRECATED_ESLINT_PROPERTY))) {
       LOG.warn("Property '{}' is deprecated, use '{}'.", DEPRECATED_ESLINT_PROPERTY, ESLINT_REPORT_PATHS);
     }
-  }
-
-  private ProductDependentExecutor createProductDependentExecutor(SensorContext context) {
-    if (isSonarLint(context)) {
-      return new SonarLintProductExecutor(noSonarFilter, context);
-    }
-    return new SonarQubeProductExecutor(context, noSonarFilter, fileLinesContextFactory);
-  }
-
-  @VisibleForTesting
-  protected interface ProductDependentExecutor {
-    List<TreeVisitor> getProductDependentTreeVisitors();
-
-    void highlightSymbols(InputFile inputFile, TreeVisitorContext treeVisitorContext);
-  }
-
-  private static class SonarQubeProductExecutor implements ProductDependentExecutor {
-    private final SensorContext context;
-    private final NoSonarFilter noSonarFilter;
-    private final FileLinesContextFactory fileLinesContextFactory;
-
-    SonarQubeProductExecutor(SensorContext context, NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory) {
-      this.context = context;
-      this.noSonarFilter = noSonarFilter;
-      this.fileLinesContextFactory = fileLinesContextFactory;
-    }
-
-    @Override
-    public List<TreeVisitor> getProductDependentTreeVisitors() {
-      boolean ignoreHeaderComments = ignoreHeaderComments(context);
-
-      MetricsVisitor metricsVisitor = new MetricsVisitor(
-        context,
-        ignoreHeaderComments,
-        fileLinesContextFactory);
-
-      return Arrays.asList(
-        metricsVisitor,
-        new NoSonarVisitor(noSonarFilter, ignoreHeaderComments),
-        new HighlighterVisitor(context),
-        new CpdVisitor(context));
-    }
-
-    @Override
-    public void highlightSymbols(InputFile inputFile, TreeVisitorContext treeVisitorContext) {
-      NewSymbolTable newSymbolTable = context.newSymbolTable().onFile(inputFile);
-      HighlightSymbolTableBuilder.build(newSymbolTable, treeVisitorContext);
-    }
-  }
-
-  @VisibleForTesting
-  protected static class SonarLintProductExecutor implements ProductDependentExecutor {
-    private final NoSonarFilter noSonarFilter;
-    private final SensorContext context;
-
-    SonarLintProductExecutor(NoSonarFilter noSonarFilter, SensorContext context) {
-      this.noSonarFilter = noSonarFilter;
-      this.context = context;
-    }
-
-    @Override
-    public List<TreeVisitor> getProductDependentTreeVisitors() {
-      return Collections.singletonList(new NoSonarVisitor(noSonarFilter, ignoreHeaderComments(context)));
-    }
-
-    @Override
-    public void highlightSymbols(InputFile inputFile, TreeVisitorContext treeVisitorContext) {
-      // unnecessary in SonarLint context
-    }
-  }
-
-  private static boolean ignoreHeaderComments(SensorContext context) {
-    return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
-  }
-
-  private static boolean isSonarLint(SensorContext context) {
-    return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
   private static void saveLineIssue(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, LineIssue issue) {

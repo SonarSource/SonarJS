@@ -52,6 +52,7 @@ public interface EslintBridgeServer extends Startable {
     String fileContent;
     Rule[] rules;
     List<String> tsConfigs;
+    // TODO add field for IGNORE_HEADER_COMMENTS config
 
     AnalysisRequest(String filePath, @Nullable String fileContent, Rule[] rules, @Nullable List<String> tsConfigs) {
       this.filePath = filePath;
