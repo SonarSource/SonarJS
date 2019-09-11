@@ -97,6 +97,9 @@
 18226,
 19173,
 ],
+'js-project:ecmascript6/expressionist.js/test/parser.spec.js':[
+907,
+],
 'js-project:ecmascript6/reddit-mobile/buildTasks/js.js':[
 124,
 ],
@@ -108,6 +111,9 @@
 ],
 'js-project:ecmascript6/router/src/pipeline.js':[
 54,
+],
+'js-project:ecmascript6/router/src/router.js':[
+213,
 ],
 'js-project:ecmascript6/snoode/src/endpoints/v1.es6.js':[
 30,

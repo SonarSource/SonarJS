@@ -2,7 +2,8 @@
   "title": "Extra semicolons should be removed",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
@@ -10,8 +11,6 @@
     "constantCost": "2min"
   },
   "tags": [
-    "based-on-misra",
-    "cert",
     "unused"
   ],
   "defaultSeverity": "Minor",
