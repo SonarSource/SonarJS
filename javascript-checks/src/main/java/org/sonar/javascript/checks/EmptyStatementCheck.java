@@ -19,107 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.ModuleTree;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.EmptyStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1116")
-public class EmptyStatementCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this empty statement.";
-
-  /**
-   * The empty statements for which no issue is raised.
-   */
-  private Set<EmptyStatementTree> exceptedStatements;
+public class EmptyStatementCheck extends EslintBasedCheck {
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    // initialization
-    exceptedStatements = new HashSet<>();
-    
-    // in many libraries the script starts with a ";". We raise no issue for such leading empty statement
-    ModuleTree module = tree.items();
-    if (module != null && !module.items().isEmpty()) {
-      except(module.items().get(0));
-    }
-
-    super.visitScript(tree);
+  public String eslintKey() {
+    return "no-extra-semi";
   }
-
-  /**
-   * In
-   * <pre>
-   * if (a)
-   *  ;
-   * else
-   *  ;
-   * </pre>
-   * the semicolons are necessary (so no issue is raised) as there are no curly brackets.
-   */
-  @Override
-  public void visitIfStatement(IfStatementTree tree) {
-    except(tree.statement());
-
-    super.visitIfStatement(tree);
-  }
-  
-  /**
-   * Same as <code>visitIfStatement</code>.
-   */
-  @Override
-  public void visitElseClause(ElseClauseTree tree) {
-    except(tree.statement());
-
-    super.visitElseClause(tree);
-  }
-
-  /**
-   * In
-   * <pre>
-   * for (i = 0; i < arr.length; arr[i++] = 0);
-   * </pre>
-   * the semicolon is necessary (so no issue is raised) as there are no curly brackets.
-   */
-  @Override
-  public void visitForStatement(ForStatementTree tree) {
-    except(tree.statement());
-
-    super.visitForStatement(tree);
-  }
-
-  /**
-   * Same as <code>visitForStatement</code>.
-   */
-  @Override
-  public void visitWhileStatement(WhileStatementTree tree) {
-    except(tree.statement());
-
-    super.visitWhileStatement(tree);
-  }
-
-  @Override
-  public void visitEmptyStatement(EmptyStatementTree tree) {
-    if (!exceptedStatements.contains(tree)) {
-      addIssue(tree, MESSAGE);
-    }
-  }
-
-  private void except(Tree tree) {
-    if (tree.is(Tree.Kind.EMPTY_STATEMENT)) {
-      exceptedStatements.add((EmptyStatementTree)tree);
-    }
-  }
-
 }
