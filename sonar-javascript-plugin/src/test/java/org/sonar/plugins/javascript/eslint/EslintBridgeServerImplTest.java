@@ -45,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
+import static org.sonar.api.utils.log.LoggerLevel.INFO;
 
 public class EslintBridgeServerImplTest {
 
@@ -258,6 +259,8 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = new EslintBridgeServerImpl(configuration, NodeCommand.builder(), tempFolder, 1, START_SERVER_SCRIPT, MOCK_ESLINT_BUNDLE);
     eslintBridgeServer.deploy();
     SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
+    DefaultInputFile tsFile = TestInputFileBuilder.create("", "foo.ts").setLanguage("ts").build();
+    ctx.fileSystem().add(tsFile);
     eslintBridgeServer.startServer(ctx);
     assertThat(eslintBridgeServer.getCommandInfo())
       .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + path.toAbsolutePath() + "}");
@@ -269,11 +272,39 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     Path baseDir = tempFolder.newDir().toPath();
     SensorContextTester ctx = SensorContextTester.create(baseDir);
+    DefaultInputFile tsFile = TestInputFileBuilder.create("", "foo.ts").setLanguage("ts").build();
+    ctx.fileSystem().add(tsFile);
     Path tsDir = baseDir.resolve("dir/node_modules/typescript");
     Files.createDirectories(tsDir);
     eslintBridgeServer.startServer(ctx);
     assertThat(eslintBridgeServer.getCommandInfo())
       .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + baseDir.resolve("dir/node_modules") + "}");
+  }
+
+  @Test
+  public void should_not_search_typescript_when_no_ts_file() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    Path baseDir = tempFolder.newDir().toPath();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    Path tsDir = baseDir.resolve("dir/node_modules/typescript");
+    Files.createDirectories(tsDir);
+    eslintBridgeServer.startServer(ctx);
+    assertThat(eslintBridgeServer.getCommandInfo()).doesNotContain("NODE_PATH");
+  }
+
+  @Test
+  public void should_log_when_typescript_not_found() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    Path baseDir = tempFolder.newDir().toPath();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    DefaultInputFile tsFile = TestInputFileBuilder.create("", "foo.ts").setLanguage("ts").build();
+    ctx.fileSystem().add(tsFile);
+    eslintBridgeServer.startServer(ctx);
+    assertThat(eslintBridgeServer.getCommandInfo()).doesNotContain("NODE_PATH");
+    assertThat(logTester.logs(INFO)).contains("TypeScript dependency was not found inside project directory, NodeJs will search TypeScript using " +
+      "module resolution algorithm; analysis will fail without TypeScript.");
   }
 
 

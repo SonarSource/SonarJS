@@ -36,6 +36,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.TempFolder;
@@ -148,14 +149,21 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
 
-    Optional<Path> typeScriptLocation = getTypeScriptLocation(context);
-    if (typeScriptLocation.isPresent()) {
-      LOG.debug("Using TypeScript at: '{}'", typeScriptLocation.get());
-      nodeCommandBuilder.addToNodePath(typeScriptLocation.get().toAbsolutePath());
-    } else {
-      LOG.debug("TypeScript dependency was not found, TypeScript analysis might fail.");
+    if (shouldDetectTypeScript(context.fileSystem())) {
+      Optional<Path> typeScriptLocation = getTypeScriptLocation(context.fileSystem().baseDir());
+      if (typeScriptLocation.isPresent()) {
+        LOG.info("Using TypeScript at: '{}'", typeScriptLocation.get());
+        nodeCommandBuilder.addToNodePath(typeScriptLocation.get().toAbsolutePath());
+      } else {
+        LOG.info("TypeScript dependency was not found inside project directory, NodeJs will search TypeScript using " +
+          "module resolution algorithm; analysis will fail without TypeScript.");
+      }
     }
     nodeCommand = nodeCommandBuilder.build();
+  }
+
+  private static boolean shouldDetectTypeScript(FileSystem fileSystem) {
+    return fileSystem.hasFiles(TypeScriptSensor.filePredicate(fileSystem));
   }
 
   @Override
@@ -264,7 +272,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     clean();
   }
 
-  private Optional<Path> getTypeScriptLocation(SensorContext context) throws IOException {
+  private Optional<Path> getTypeScriptLocation(File baseDir) throws IOException {
     // we have to use global Configuration and not SensorContext#config to lookup typescript set from vscode extension
     // see https://jira.sonarsource.com/browse/SLCORE-250
     Optional<String> typeScriptLocationProperty = configuration.get(TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY);
@@ -272,8 +280,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       LOG.debug("TypeScript location set via property {}={}", TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY, typeScriptLocationProperty.get());
       return Optional.of(Paths.get(typeScriptLocationProperty.get()));
     }
-    LOG.debug("Looking for TypeScript recursively in {}", context.fileSystem().baseDir().getAbsolutePath());
-    try (Stream<Path> files = Files.walk(context.fileSystem().baseDir().toPath())) {
+    LOG.debug("Looking for TypeScript recursively in {}", baseDir.getAbsolutePath());
+    try (Stream<Path> files = Files.walk(baseDir.toPath())) {
       return files
         .filter(p -> p.toFile().isDirectory() && p.endsWith("node_modules/typescript"))
         .findFirst()

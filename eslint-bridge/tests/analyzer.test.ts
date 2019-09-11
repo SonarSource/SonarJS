@@ -1,8 +1,8 @@
 import {
   analyzeJavaScript,
   analyzeTypeScript,
-  getHighlightedSymbols,
   getCognitiveComplexity,
+  getHighlightedSymbols,
 } from "../src/analyzer";
 import { join } from "path";
 import * as fs from "fs";
@@ -149,6 +149,25 @@ describe("#analyzeTypeScript", () => {
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noOneIterationIssue);
     expect(issues).toContainEqual(noDuplicateStringIssue);
+  });
+
+  it("should normalize provided path", () => {
+    let result = analyzeTypeScript({
+      filePath: __dirname + "/./fixtures/ts-project/sample.lint.ts",
+      fileContent: "true ? 42 : 42",
+      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      tsConfigs: [tsConfig],
+    });
+    console.log(result);
+    expect(result.issues).toHaveLength(1);
+
+    result = analyzeTypeScript({
+      filePath: __dirname + "/././fixtures/ts-project/sample.lint.ts",
+      fileContent: "true ? 42 : 24",
+      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      tsConfigs: [tsConfig],
+    });
+    expect(result.issues).toHaveLength(0);
   });
 
   it("should report syntax highlights", () => {

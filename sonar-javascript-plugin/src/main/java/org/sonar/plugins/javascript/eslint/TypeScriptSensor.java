@@ -105,10 +105,14 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   @Override
   protected Iterable<InputFile> getInputFiles(SensorContext sensorContext) {
     FileSystem fileSystem = sensorContext.fileSystem();
-    FilePredicate mainFilePredicate = sensorContext.fileSystem().predicates().and(
-      fileSystem.predicates().hasType(InputFile.Type.MAIN),
-      fileSystem.predicates().hasLanguage(TypeScriptLanguage.KEY));
+    FilePredicate mainFilePredicate = filePredicate(fileSystem);
     return fileSystem.inputFiles(mainFilePredicate);
+  }
+
+  static FilePredicate filePredicate(FileSystem fileSystem) {
+    return fileSystem.predicates().and(
+        fileSystem.predicates().hasType(Type.MAIN),
+        fileSystem.predicates().hasLanguage(TypeScriptLanguage.KEY));
   }
 
   @Override
