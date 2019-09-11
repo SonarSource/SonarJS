@@ -158,7 +158,6 @@ describe("#analyzeTypeScript", () => {
       rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
       tsConfigs: [tsConfig],
     });
-    console.log(result);
     expect(result.issues).toHaveLength(1);
 
     result = analyzeTypeScript({
@@ -167,6 +166,7 @@ describe("#analyzeTypeScript", () => {
       rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
       tsConfigs: [tsConfig],
     });
+    // fileContent doesn't have the issue anymore, without path normalization we receive the AST from the first request
     expect(result.issues).toHaveLength(0);
   });
 
