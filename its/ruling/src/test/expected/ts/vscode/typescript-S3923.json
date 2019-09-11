@@ -1,11 +1,11 @@
 {
-  "vscode:src/vs/editor/browser/view/viewPart.ts": [
-    47
-  ],
-  "vscode:src/vs/editor/contrib/comment/common/lineCommentCommand.ts": [
-    122
-  ],
-  "vscode:src/vs/editor/contrib/dnd/common/dragAndDropCommand.ts": [
-    85
-  ]
+'vscode:src/vs/editor/browser/view/viewPart.ts':[
+47,
+],
+'vscode:src/vs/editor/contrib/comment/common/lineCommentCommand.ts':[
+122,
+],
+'vscode:src/vs/editor/contrib/dnd/common/dragAndDropCommand.ts':[
+85,
+],
 }
