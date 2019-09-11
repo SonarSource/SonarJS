@@ -2,6 +2,9 @@
 'rxjs:spec/helpers/test-helper.ts':[
 26,
 ],
+'rxjs:spec/observables/from-promise-spec.ts':[
+81,
+],
 'rxjs:spec/operators/filter-spec.ts':[
 93,
 169,
@@ -39,5 +42,5 @@
 ],
 'rxjs:src/util/tryCatch.ts':[
 17,
-]
+],
 }
