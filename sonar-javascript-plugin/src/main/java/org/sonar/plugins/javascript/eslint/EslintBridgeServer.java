@@ -53,13 +53,9 @@ public interface EslintBridgeServer extends Startable {
     Rule[] rules;
     List<String> tsConfigs;
 
-    AnalysisRequest(InputFile file, Rule[] rules) {
-      this(file, rules, null);
-    }
-
-    AnalysisRequest(InputFile file, Rule[] rules, @Nullable List<String> tsConfigs) {
-      this.filePath = file.absolutePath();
-      // TODO provide fileContent in SonarLint context
+    AnalysisRequest(String filePath, @Nullable String fileContent, Rule[] rules, @Nullable List<String> tsConfigs) {
+      this.filePath = filePath;
+      this.fileContent = fileContent;
       this.rules = rules;
       this.tsConfigs = tsConfigs;
     }

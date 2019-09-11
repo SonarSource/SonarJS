@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -139,6 +140,10 @@ abstract class AbstractEslintSensor implements Sensor {
       .at(inputFile.newPointer(line != null ? line : 1, 0))
       .message(message)
       .save();
+  }
+
+  protected boolean isSonarLint(SensorContext context) {
+    return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
   protected abstract Iterable<InputFile> getInputFiles(SensorContext sensorContext);

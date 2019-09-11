@@ -36,7 +36,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -74,18 +76,20 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private String bundleLocation;
   private Path deployLocation;
   private boolean failedToStart;
+  private Configuration configuration;
 
   // Used by pico container for dependency injection
   @SuppressWarnings("unused")
-  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder) {
-    this(nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION);
+  public EslintBridgeServerImpl(Configuration configuration, NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder) {
+    this(configuration, nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION);
   }
 
-  EslintBridgeServerImpl(
-    NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
-    String startServerScript,
-    String bundleLocation
+  EslintBridgeServerImpl(Configuration configuration,
+                         NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
+                         String startServerScript,
+                         String bundleLocation
   ) {
+    this.configuration = configuration;
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.startServerScript = startServerScript;
@@ -145,11 +149,21 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
 
-    getTypeScriptLocation(context).ifPresent(typeScriptLocation -> {
-      LOG.debug("Using typescript at: '{}'", typeScriptLocation);
-      nodeCommandBuilder.addToNodePath(typeScriptLocation.toAbsolutePath());
-    });
+    if (shouldDetectTypeScript(context.fileSystem())) {
+      Optional<Path> typeScriptLocation = getTypeScriptLocation(context.fileSystem().baseDir());
+      if (typeScriptLocation.isPresent()) {
+        LOG.info("Using TypeScript at: '{}'", typeScriptLocation.get());
+        nodeCommandBuilder.addToNodePath(typeScriptLocation.get().toAbsolutePath());
+      } else {
+        LOG.info("TypeScript dependency was not found inside project directory, NodeJs will search TypeScript using " +
+          "module resolution algorithm; analysis will fail without TypeScript.");
+      }
+    }
     nodeCommand = nodeCommandBuilder.build();
+  }
+
+  private static boolean shouldDetectTypeScript(FileSystem fileSystem) {
+    return fileSystem.hasFiles(TypeScriptSensor.filePredicate(fileSystem));
   }
 
   @Override
@@ -258,12 +272,16 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     clean();
   }
 
-  private static Optional<Path> getTypeScriptLocation(SensorContext context) throws IOException {
-    Optional<String> typeScriptLocationProperty = context.config().get(TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY);
+  private Optional<Path> getTypeScriptLocation(File baseDir) throws IOException {
+    // we have to use global Configuration and not SensorContext#config to lookup typescript set from vscode extension
+    // see https://jira.sonarsource.com/browse/SLCORE-250
+    Optional<String> typeScriptLocationProperty = configuration.get(TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY);
     if (typeScriptLocationProperty.isPresent()) {
+      LOG.debug("TypeScript location set via property {}={}", TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY, typeScriptLocationProperty.get());
       return Optional.of(Paths.get(typeScriptLocationProperty.get()));
     }
-    try (Stream<Path> files = Files.walk(context.fileSystem().baseDir().toPath())) {
+    LOG.debug("Looking for TypeScript recursively in {}", baseDir.getAbsolutePath());
+    try (Stream<Path> files = Files.walk(baseDir.toPath())) {
       return files
         .filter(p -> p.toFile().isDirectory() && p.endsWith("node_modules/typescript"))
         .findFirst()
