@@ -10,8 +10,14 @@ a +=  2;
 i = a + b;
 </pre>
 <h2>Exceptions</h2>
-<p>Use of comma operator is tolerated in initialization and increment expressions of <code>for</code> loops.</p>
+<p>Use of comma operator is tolerated:</p>
+<ul>
+  <li> in initialization and increment expressions of <code>for</code> loops. </li>
+</ul>
 <pre>
 for(i = 0, j = 5; i &lt; 6; i++, j++) { ... }
 </pre>
+<ul>
+  <li> If the expression sequence is explicitly wrapped in parentheses. </li>
+</ul>
 
