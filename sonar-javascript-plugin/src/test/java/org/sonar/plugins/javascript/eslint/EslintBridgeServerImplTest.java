@@ -305,7 +305,7 @@ public class EslintBridgeServerImplTest {
     ctx.fileSystem().add(tsFile);
     eslintBridgeServer.startServer(ctx);
     assertThat(eslintBridgeServer.getCommandInfo()).doesNotContain("NODE_PATH");
-    assertThat(logTester.logs(INFO)).contains("TypeScript dependency was not found inside project directory, NodeJs will search TypeScript using " +
+    assertThat(logTester.logs(INFO)).contains("TypeScript dependency was not found inside project directory, Node.js will search TypeScript using " +
       "module resolution algorithm; analysis will fail without TypeScript.");
   }
 
