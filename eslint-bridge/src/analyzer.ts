@@ -58,6 +58,7 @@ export interface AnalysisInput {
   filePath: string;
   fileContent: string | undefined;
   rules: Rule[];
+  ignoreHeaderComments: boolean;
   tsConfigs?: string[];
 }
 
@@ -137,7 +138,7 @@ function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
     issues,
     highlightedSymbols: getHighlightedSymbols(issues),
     highlights: getHighlighting(sourceCode).highlights,
-    metrics: getMetrics(sourceCode, getCognitiveComplexity(issues)),
+    metrics: getMetrics(sourceCode, input.ignoreHeaderComments, getCognitiveComplexity(issues)),
     cpdTokens: getCpdTokens(sourceCode).cpdTokens,
   };
 }

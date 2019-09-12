@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -100,7 +99,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   protected void analyze(InputFile file, SensorContext context) {
     try {
       String fileContent = isSonarLint(context) ? file.contents() : null;
-      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, rules, tsConfigs(context));
+      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(context), tsConfigs(context));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       processResponse(file, context, response);
     } catch (IOException e) {
@@ -143,5 +142,9 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private static boolean isNodeModulesPath(Path p) {
     Path nodeModules = Paths.get("node_modules");
     return StreamSupport.stream(p.spliterator(), false).anyMatch(nodeModules::equals);
+  }
+
+  private static boolean ignoreHeaderComments(SensorContext context) {
+    return context.config().getBoolean(JavaScriptPlugin.TS_IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.TS_IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
   }
 }
