@@ -28,11 +28,13 @@ import javax.annotation.CheckForNull;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
 import static java.util.Collections.singletonList;
@@ -40,6 +42,9 @@ import static java.util.Collections.singletonList;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   CoverageTest.class,
+//  these tests are run separately
+//  CustomRulesTest.class,
+//  CustomRulesWithDeprecatedPluginTest.class,
   EslintBasedRulesTest.class,
   EslintReportTest.class,
   LookupTypeScriptTest.class,
@@ -50,7 +55,8 @@ import static java.util.Collections.singletonList;
   SonarLintTest.class,
   SonarLintTestCustomNodeJS.class,
   TslintExternalReportTest.class,
-  TypeScriptAnalysisTest.class
+  TypeScriptAnalysisTest.class,
+  TypeScriptVersionsTest.class
 })
 public final class Tests {
 
@@ -121,4 +127,9 @@ public final class Tests {
       .build());
   }
 
+  static List<Issue> getIssues(String componentKey) {
+    SearchRequest request = new SearchRequest();
+    request.setComponentKeys(singletonList(componentKey));
+    return newWsClient().issues().search(request).getIssuesList();
+  }
 }
