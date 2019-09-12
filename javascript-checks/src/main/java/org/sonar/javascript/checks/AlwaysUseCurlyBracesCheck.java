@@ -19,57 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "CurlyBraces")
-public class AlwaysUseCurlyBracesCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Add curly braces around the nested statement(s) in this \"%s\" block.";
-
-  @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.<Kind>builder()
-      .add(Kind.IF_STATEMENT)
-      .add(Kind.ELSE_CLAUSE)
-      .addAll(KindSet.LOOP_KINDS.getSubKinds())
-      .build();
-  }
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "CurlyBraces")
+@Rule(key = "S121")
+public class AlwaysUseCurlyBracesCheck extends EslintBasedCheck {
 
   @Override
-  public void visitNode(Tree tree) {
-    if (tree.is(Kind.ELSE_CLAUSE)) {
-      visitElseClause(tree);
-    } else if (tree.is(Kind.IF_STATEMENT)) {
-      checkAreCurlyBracesUsed(((IfStatementTree) tree).statement(), tree);
-    } else {
-      checkAreCurlyBracesUsed(((IterationStatementTree) tree).statement(), tree);
-    }
+  public String eslintKey() {
+    return "curly";
   }
-
-  private void visitElseClause(Tree tree) {
-    if (!((ElseClauseTree) tree).statement().is(Kind.IF_STATEMENT)) {
-      checkAreCurlyBracesUsed(((ElseClauseTree) tree).statement(), tree);
-    }
-  }
-
-  private void checkAreCurlyBracesUsed(StatementTree statement, Tree tree) {
-    if (!statement.is(Kind.BLOCK)) {
-      SyntaxToken firstToken = tree.firstToken();
-      addIssue(firstToken, String.format(MESSAGE, firstToken.text()));
-    }
-  }
-
 }
