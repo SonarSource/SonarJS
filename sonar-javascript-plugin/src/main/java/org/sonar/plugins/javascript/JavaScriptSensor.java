@@ -68,6 +68,7 @@ import org.sonarsource.analyzer.commons.ProgressReport;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEPRECATED_ESLINT_PROPERTY;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.ESLINT_REPORT_PATHS;
 
+// Required for NoSonar
 @DependsUpon("ESLINT_SENSOR")
 public class JavaScriptSensor implements Sensor {
 
