@@ -40,6 +40,8 @@ import static java.util.Collections.singletonList;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   CoverageTest.class,
+  CustomRulesTest.class,
+  CustomRulesWithDeprecatedPluginTest.class,
   EslintBasedRulesTest.class,
   EslintReportTest.class,
   LookupTypeScriptTest.class,
@@ -50,6 +52,7 @@ import static java.util.Collections.singletonList;
   SonarLintTest.class,
   SonarLintTestCustomNodeJS.class,
   TslintExternalReportTest.class,
+  TypeScriptAnalysisTest.class,
   TypeScriptAnalysisTest.class
 })
 public final class Tests {

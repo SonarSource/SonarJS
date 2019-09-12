@@ -23,43 +23,65 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.util.List;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.sonarqube.ws.Issues;
 
 import static com.sonar.javascript.it.plugin.TestUtils.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LookupTypeScriptTest {
+@RunWith(Parameterized.class)
+public class TypeScriptVersionsTest {
+
+  private String tsVersion;
+  private boolean doesWork;
 
   @ClassRule
   public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
-  private static final File PROJECT_DIR = TestUtils.projectDir("nested-tsproject");
+  private static final File PROJECT_DIR = TestUtils.projectDir("tsproject-no-typescript");
 
-  @BeforeClass
-  public static void startServer() throws Exception {
-    orchestrator.resetData();
+  public TypeScriptVersionsTest(String tsVersion, boolean doesWork) {
+    this.tsVersion = tsVersion;
+    this.doesWork = doesWork;
+  }
 
-    TestUtils.npmInstall(new File(PROJECT_DIR, "tsproject"));
+  @Parameters(name = "{0}")
+  public static Object[][] versions() {
+    return new Object[][]{
+      {"2.9.2", false},
+      {"3.1.6", false},
+      {"3.2.4", true},
+      {"3.6.3", true},
+    };
   }
 
   @Test
   public void test() throws Exception {
-    String projectKey = "nested-tsproject";
+    TestUtils.npmInstall(PROJECT_DIR, "typescript@" + tsVersion, "--no-save");
+
+    String projectKey = "tsproject-test-ts-version-" + tsVersion;
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(PROJECT_DIR)
-      .setDebugLogs(true);
+      .setProjectDir(PROJECT_DIR);
 
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+
     orchestrator.executeBuild(build);
 
-    List<Issues.Issue> issuesList = getIssues(projectKey + ":tsproject/sample.lint.ts");
-    assertThat(issuesList).hasSize(1);
-    assertThat(issuesList.get(0).getLine()).isEqualTo(2);
+    String sampleFileKey = projectKey + ":file.ts";
+    List<Issues.Issue> issuesList = getIssues(sampleFileKey);
+
+    if (doesWork) {
+      assertThat(issuesList).hasSize(1);
+      assertThat(issuesList.get(0).getLine()).isEqualTo(2);
+    } else {
+      assertThat(issuesList).isEmpty();
+    }
   }
 }

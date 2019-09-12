@@ -22,15 +22,12 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
-import java.util.Collections;
-import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
-import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.sonar.javascript.it.plugin.Tests.newWsClient;
+import static com.sonar.javascript.it.plugin.TestUtils.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MultiTsconfigTest {
@@ -62,9 +59,6 @@ public class MultiTsconfigTest {
     TestUtils.npmInstall(PROJECT_DIR);
     orchestrator.executeBuild(build);
 
-    SearchRequest request = new SearchRequest();
-    request.setComponentKeys(Collections.singletonList(PROJECT));
-    List<Issues.Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
-    assertThat(issuesList).extracting(Issues.Issue::getLine).containsExactlyInAnyOrder(3, 4);
+    assertThat(getIssues(PROJECT)).extracting(Issues.Issue::getLine).containsExactlyInAnyOrder(3, 4);
   }
 }
