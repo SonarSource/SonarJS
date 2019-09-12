@@ -31,7 +31,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
 
-import static com.sonar.javascript.it.plugin.TestUtils.getIssues;
+import static com.sonar.javascript.it.plugin.Tests.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TypeScriptAnalysisTest {

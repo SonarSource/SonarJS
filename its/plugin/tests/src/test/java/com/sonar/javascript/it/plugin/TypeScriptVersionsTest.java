@@ -30,7 +30,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.sonarqube.ws.Issues;
 
-import static com.sonar.javascript.it.plugin.TestUtils.getIssues;
+import static com.sonar.javascript.it.plugin.Tests.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Parameterized.class)

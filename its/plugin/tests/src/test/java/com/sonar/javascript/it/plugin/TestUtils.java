@@ -29,17 +29,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 
-import static com.sonar.javascript.it.plugin.Tests.newWsClient;
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 
 public class TestUtils {
 
@@ -134,12 +129,6 @@ public class TestUtils {
     if (returnValue != 0) {
       throw new IllegalStateException(format("Failed to run npm install. '%s' returned %d.'", pb.command(), returnValue));
     }
-  }
-
-  static List<Issue> getIssues(String componentKey) {
-    SearchRequest request = new SearchRequest();
-    request.setComponentKeys(singletonList(componentKey));
-    return newWsClient().issues().search(request).getIssuesList();
   }
 }
 

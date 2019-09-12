@@ -25,11 +25,8 @@ import java.util.List;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.WsClientFactories;
 
-import static com.sonar.javascript.it.plugin.TestUtils.getIssues;
+import static com.sonar.javascript.it.plugin.Tests.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EslintReportTest {
@@ -70,12 +67,6 @@ public class EslintReportTest {
       "external_eslint_repo:use-isnan",
       "external_eslint_repo:semi",
       "external_eslint_repo:semi");
-  }
-
-  private static WsClient newWsClient() {
-    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .url(orchestrator.getServer().getUrl())
-      .build());
   }
 
 }
