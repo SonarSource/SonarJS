@@ -115,7 +115,7 @@ public class SonarLintTest {
       .setLogOutput((formattedMessage, level) -> logs.add(formattedMessage))
       .setExtraProperties(properties)
       .build();
-    sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
+    StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
 
     ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, "foo.ts", "true ? 42 : 42");
     // we have to provide tsconfig.json
@@ -130,6 +130,8 @@ public class SonarLintTest {
       configuration,
       issues::add, (formattedMessage, level) -> logs.add(formattedMessage), null);
 
+    // we need to stop the engine to make sure that sonarlint will not concurrently modify logs collection
+    sonarlintEngine.stop();
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("typescript:S3923");
     assertThat(logs).contains("Using TypeScript at: '"+ tsNodeModules + "'");
   }
