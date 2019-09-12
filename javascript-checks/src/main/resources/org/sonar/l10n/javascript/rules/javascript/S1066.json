@@ -15,6 +15,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1066",
-  "sqKey": "CollapsibleIfStatements",
+  "sqKey": "S1066",
   "scope": "All"
 }

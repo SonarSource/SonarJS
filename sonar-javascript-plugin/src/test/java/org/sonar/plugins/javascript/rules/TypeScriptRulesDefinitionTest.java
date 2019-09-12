@@ -39,6 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TypeScriptRulesDefinitionTest {
 
+  private static final Gson gson = new Gson();
+
   @Test
   public void test() {
     Repository repository = buildRepository();
@@ -59,7 +61,6 @@ public class TypeScriptRulesDefinitionTest {
 
   @Test
   public void compatibleLanguagesInJson() {
-    Gson gson = new Gson();
     List<Class> typeScriptChecks = CheckList.getTypeScriptChecks();
     List<Class> javaScriptChecks = CheckList.getJavaScriptChecks();
     CheckList.getAllChecks().forEach(c -> {
@@ -67,28 +68,44 @@ public class TypeScriptRulesDefinitionTest {
       boolean isJavaScriptCheck = javaScriptChecks.contains(c);
       Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
       String key = ((org.sonar.check.Rule) ruleAnnotation).key();
-      File file = new File(new File("../javascript-checks/src/main/resources", JavaScriptRulesDefinition.METADATA_LOCATION),
-        key + ".json");
-      try {
-        RuleJson ruleJson = gson.fromJson(new FileReader(file), RuleJson.class);
-        assertThat(ruleJson.compatibleLanguages).isNotNull().isNotEmpty();
-        List<String> expected = new ArrayList<>();
-        if (isTypeScriptCheck) {
-          expected.add("TYPESCRIPT");
-        }
-        if (isJavaScriptCheck) {
-          expected.add("JAVASCRIPT");
-        }
 
-        assertThat(ruleJson.compatibleLanguages).containsAll(expected);
-      } catch (FileNotFoundException e) {
-        throw new AssertionError("File for rule " + key + " is not found", e);
+      RuleJson ruleJson = getRuleJson(key);
+      assertThat(ruleJson.compatibleLanguages).isNotNull().isNotEmpty();
+      List<String> expected = new ArrayList<>();
+      if (isTypeScriptCheck) {
+        expected.add("TYPESCRIPT");
       }
+      if (isJavaScriptCheck) {
+        expected.add("JAVASCRIPT");
+      }
+
+      assertThat(ruleJson.compatibleLanguages).containsAll(expected);
     });
+  }
+
+  @Test
+  public void sqKeyInJson() {
+    CheckList.getAllChecks().forEach(c -> {
+      Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
+      String key = ((org.sonar.check.Rule) ruleAnnotation).key();
+      RuleJson ruleJson = getRuleJson(key);
+      assertThat(ruleJson.sqKey).isEqualTo(key);
+    });
+  }
+
+  private static RuleJson getRuleJson(String key) {
+    File file = new File(new File("../javascript-checks/src/main/resources", JavaScriptRulesDefinition.METADATA_LOCATION),
+      key + ".json");
+    try {
+      return gson.fromJson(new FileReader(file), RuleJson.class);
+    } catch (FileNotFoundException e) {
+      throw new AssertionError("File for rule " + key + " is not found", e);
+    }
   }
 
   private static class RuleJson {
     List<String> compatibleLanguages;
+    String sqKey;
   }
 
   private Repository buildRepository() {
