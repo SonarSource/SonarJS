@@ -14,10 +14,7 @@
 1504,
 ],
 'TypeScript:src/harness/fourslash.ts':[
-855,
 2106,
-2107,
-2165,
 ],
 'TypeScript:src/harness/harness.ts':[
 923,
@@ -50,10 +47,6 @@
 34,
 138,
 ],
-'TypeScript:src/harness/unittests/incrementalParser.ts':[
-128,
-824,
-],
 'TypeScript:src/harness/unittests/matchFiles.ts':[
 8,
 9,
@@ -85,8 +78,6 @@
 96,
 127,
 352,
-435,
-436,
 492,
 572,
 597,
@@ -209,5 +200,5 @@
 ],
 'TypeScript:src/services/jsTyping.ts':[
 96,
-]
+],
 }

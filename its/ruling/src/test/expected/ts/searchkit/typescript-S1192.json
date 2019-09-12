@@ -27,14 +27,10 @@
 184,
 ],
 'searchkit:src/components/search/filters/selected-filters/SelectedFilters.unit.tsx':[
-23,
-24,
 42,
+46,
 84,
 84,
-],
-'searchkit:src/components/search/filters/tag-filter/TagFilter.unit.tsx':[
-20,
 ],
 'searchkit:src/components/search/filters/tag-filter/TagFilterList.unit.tsx':[
 20,
@@ -56,5 +52,5 @@
 ],
 'searchkit:test/e2e/server/apps/playground/index.tsx':[
 119,
-]
+],
 }

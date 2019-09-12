@@ -24,7 +24,9 @@ import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
+@TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S1192")
 public class NoDuplicateStringCheck extends EslintBasedCheck {
