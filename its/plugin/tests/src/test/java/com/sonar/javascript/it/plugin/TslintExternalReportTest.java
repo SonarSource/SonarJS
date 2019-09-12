@@ -27,10 +27,8 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
-import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.WsClientFactories;
 
+import static com.sonar.javascript.it.plugin.Tests.newWsClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TslintExternalReportTest {
@@ -42,7 +40,8 @@ public class TslintExternalReportTest {
 
   @Test
   public void should_save_issues_from_external_report() {
-    orchestrator.resetData();
+    Tests.setEmptyProfile(PROJECT_KEY);
+
     SonarScanner build = Tests.createScanner()
     .setProjectDir(TestUtils.projectDir("tslint-report-project"))
     .setProjectKey(PROJECT_KEY)
@@ -62,11 +61,5 @@ public class TslintExternalReportTest {
       "external_tslint_repo:prefer-const",
       "external_tslint_repo:semicolon",
       "external_tslint_repo:curly");
-  }
-
-  private static WsClient newWsClient() {
-    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .url(orchestrator.getServer().getUrl())
-      .build());
   }
 }
