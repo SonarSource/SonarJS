@@ -291,6 +291,22 @@ public class TypeScriptSensorTest {
     assertThat(captor.getValue().fileContent).isNull();
   }
 
+  @Test
+  public void should_abort_when_missing_typescript() throws Exception {
+    AnalysisResponse parseError = new AnalysisResponse();
+    parseError.parsingError = new EslintBridgeServer.ParsingError();
+    parseError.parsingError.message = "Cannot find module 'typescript'";
+    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
+    createInputFile(context, "dir/file1.ts");
+    createInputFile(context, "dir/file2.ts");
+    createSensor().execute(context);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file1.ts]: Cannot find module 'typescript'");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).doesNotContain("Failed to analyze file [dir/file2.ts]: Cannot find module 'typescript'");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("TypeScript dependency was not found and it is required for analysis.");
+    // assert that analysis was interrupted after first file
+    verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(any());
+  }
+
   private TypeScriptSensor createSensor() {
     return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock);
   }
