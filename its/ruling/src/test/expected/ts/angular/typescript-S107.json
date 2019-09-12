@@ -76,7 +76,4 @@
 'angular:packages/upgrade/src/dynamic/upgrade_ng1_adapter.ts':[
 223,
 ],
-'angular:packages/upgrade/static/src/common/downgrade_component_adapter.ts':[
-28,
-],
 }

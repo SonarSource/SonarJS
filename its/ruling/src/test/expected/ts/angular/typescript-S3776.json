@@ -242,13 +242,6 @@
 'angular:packages/upgrade/src/static/upgrade_component.ts':[
 145,
 ],
-'angular:packages/upgrade/static/src/common/downgrade_component_adapter.ts':[
-67,
-130,
-],
-'angular:packages/upgrade/static/src/static/upgrade_component.ts':[
-145,
-],
 'angular:packages/upgrade/test/dynamic/upgrade_spec.ts':[
 18,
 ],

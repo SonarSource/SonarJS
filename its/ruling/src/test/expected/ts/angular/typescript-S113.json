@@ -146,9 +146,6 @@
 'angular:packages/upgrade/src/static/upgrade_module.ts':[
 256,
 ],
-'angular:packages/upgrade/static/src/static/upgrade_module.ts':[
-256,
-],
 'angular:tools/@angular/tsc-wrapped/src/compiler_host.ts':[
 169,
 ],
