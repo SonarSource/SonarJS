@@ -1,7 +1,4 @@
 {
-'angular:packages/animations/browser/src/dsl/animation_timeline_visitor.ts':[
-260,
-],
 'angular:packages/compiler/src/ml_parser/html_tags.ts':[
 62,
 ],
@@ -11,8 +8,7 @@
 ],
 'angular:tools/@angular/tsc-wrapped/test/evaluator.spec.ts':[
 100,
-100,
 101,
 101,
-]
+],
 }
