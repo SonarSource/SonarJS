@@ -1,0 +1,17 @@
+{
+'desktop:app/src/lib/dispatcher/app-store.ts':[
+1215,
+],
+'desktop:app/src/ui/app-menu/app-menu-bar.tsx':[
+410,
+],
+'desktop:app/src/ui/history/commit-summary.tsx':[
+49,
+],
+'desktop:app/src/ui/lib/features.ts':[
+38,
+],
+'desktop:app/src/ui/list.tsx':[
+225,
+]
+}
