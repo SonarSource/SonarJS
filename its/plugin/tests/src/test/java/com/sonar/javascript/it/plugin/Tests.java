@@ -64,7 +64,8 @@ public final class Tests {
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-ts-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
@@ -83,7 +84,9 @@ public final class Tests {
   }
 
   public static void setEmptyProfile(String projectKey) {
-    setProfile(projectKey, "empty-profile", "js");
+    ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "ts", "empty-profile");
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", "empty-profile");
   }
 
   public static void setProfile(String projectKey, String profileName, String language) {
