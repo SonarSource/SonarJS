@@ -29,6 +29,7 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.wsclient.SonarClient;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Parameterized.class)
@@ -77,7 +77,7 @@ public class JavaScriptRulingTest {
   @Parameters(name = "{0}")
   public static Object[][] projects() {
     return new Object[][]{
-      {"js-project", "js", "../sources/src", singletonList("**/*.ts")},
+      {"js-project", "js", "../sources/src", Arrays.asList("**/*.ts", "**/.*")},
     };
   }
 

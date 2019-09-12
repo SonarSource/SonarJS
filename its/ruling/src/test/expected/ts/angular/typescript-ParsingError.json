@@ -14,10 +14,4 @@
 'angular:modules/payload_tests/hello_world/ts/webpack/index.ts':[
 0,
 ],
-'angular:packages/upgrade/static/src/dynamic/upgrade_adapter.ts':[
-0,
-],
-'angular:packages/upgrade/static/src/dynamic/upgrade_ng1_adapter.ts':[
-0,
-],
 }

@@ -80,7 +80,7 @@ public class CustomRulesTest {
     Orchestrator orchestrator = Orchestrator.builderEnv()
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
       .addPlugin(FileLocation.byWildcardMavenFilename(
         new File("../plugins/" + customRulesArtifactId + "/target"), customRulesArtifactId + "-*.jar"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))

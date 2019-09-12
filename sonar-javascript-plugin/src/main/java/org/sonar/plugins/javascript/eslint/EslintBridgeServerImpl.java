@@ -136,6 +136,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .outputConsumer(message -> {
         if (message.startsWith("DEBUG")) {
           LOG.debug(message.substring(5).trim());
+        } else if (message.startsWith("WARN")) {
+          LOG.warn(message.substring(4).trim());
         } else {
           LOG.info(message);
         }

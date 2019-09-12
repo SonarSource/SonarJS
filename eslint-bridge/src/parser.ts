@@ -22,6 +22,11 @@ import * as babel from "babel-eslint";
 import { Linter, SourceCode } from "eslint";
 import { ParsingError } from "./analyzer";
 
+// this value is taken from typescript-estree
+// still we might consider extending this range
+// if everything which we need is working on older/newer versions
+const COMPATIBLE_TS_VERSIONS = ">=3.2.1 <3.6.0";
+
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
   comment: true,
@@ -47,6 +52,27 @@ export type Parse = (
   filePath: string,
   tsConfigs?: string[],
 ) => SourceCode | ParsingError;
+
+// exported for testing
+export function loggerFn(msg: string) {
+  if (
+    msg.includes(
+      `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.`,
+    )
+  ) {
+    const currentVersionMatch = msg.match(/YOUR TYPESCRIPT VERSION: (.+)\n/);
+    const currentVersion = currentVersionMatch ? currentVersionMatch[1] : "";
+
+    // to make warning coming from typescipt-eslint parser less importunate
+    console.log(
+      `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions ` +
+        COMPATIBLE_TS_VERSIONS,
+    );
+  } else {
+    // fall back to default behavior of 'typescript-estree'
+    console.log(msg);
+  }
+}
 
 export function parseJavaScriptSourceFile(fileContent: string): SourceCode | ParsingError {
   let parseFunctions = [espree.parse, babel.parse];
@@ -79,12 +105,13 @@ export function parseTypeScriptSourceFile(
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   try {
-    // we load the typescript parser dynamically, so we don't need typescript dependency when analysing pure JS project
+    // we load the typescript parser dynamically, so we don't need typescript dependency when analyzing pure JS project
     const tsParser = require("@typescript-eslint/parser");
     const result = tsParser.parseForESLint(fileContent, {
       ...PARSER_CONFIG_MODULE,
       filePath: filePath,
       project: tsConfigs,
+      loggerFn,
     });
     return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
   } catch (exception) {

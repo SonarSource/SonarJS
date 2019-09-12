@@ -5,6 +5,7 @@ import {
   PARSER_CONFIG_SCRIPT,
   parseJavaScriptSourceFile,
   parseTypeScriptSourceFile,
+  loggerFn,
 } from "../src/parser";
 import * as espree from "espree";
 import { SourceCode } from "eslint";
@@ -133,6 +134,32 @@ describe("parseJavaScriptSourceFile", () => {
   it("should return ParsingError when parse errors", () => {
     expectToNotParse("if()", "Unexpected token )");
     expectToNotParse("/* @flow */ if()", "Unexpected token (1:15)");
+  });
+
+  it("should log nicely warning about bad TypeScript version", () => {
+    console.log = jest.fn();
+
+    loggerFn("Just message");
+    loggerFn(
+      "WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.",
+    );
+    loggerFn(
+      `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
+      YOUR TYPESCRIPT VERSION: 1.2.3
+      `,
+    );
+
+    expect(console.log).toHaveBeenNthCalledWith(1, "Just message");
+    expect(console.log).toHaveBeenNthCalledWith(
+      2,
+      "WARN You are using version of TypeScript  which is not officially supported; supported versions >=3.2.1 <3.6.0",
+    );
+    expect(console.log).toHaveBeenNthCalledWith(
+      3,
+      "WARN You are using version of TypeScript 1.2.3 which is not officially supported; supported versions >=3.2.1 <3.6.0",
+    );
+
+    jest.resetAllMocks();
   });
 });
 
