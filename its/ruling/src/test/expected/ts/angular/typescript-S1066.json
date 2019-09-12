@@ -43,9 +43,6 @@
 'angular:packages/upgrade/src/static/upgrade_component.ts':[
 268,
 ],
-'angular:packages/upgrade/static/src/static/upgrade_component.ts':[
-268,
-],
 'angular:tools/@angular/tsc-wrapped/src/bundler.ts':[
 307,
 ],
