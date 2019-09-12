@@ -157,7 +157,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
         LOG.info("Using TypeScript at: '{}'", typeScriptLocation.get());
         nodeCommandBuilder.addToNodePath(typeScriptLocation.get().toAbsolutePath());
       } else {
-        LOG.info("TypeScript dependency was not found inside project directory, NodeJs will search TypeScript using " +
+        LOG.info("TypeScript dependency was not found inside project directory, Node.js will search TypeScript using " +
           "module resolution algorithm; analysis will fail without TypeScript.");
       }
     }

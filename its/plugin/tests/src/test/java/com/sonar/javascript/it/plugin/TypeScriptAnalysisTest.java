@@ -25,6 +25,7 @@ import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -106,6 +107,31 @@ public class TypeScriptAnalysisTest {
 
     Path tsconfig = PROJECT_DIR.toPath().resolve("custom.tsconfig.json").toAbsolutePath();
     assertThat(result.getLogsLines(l -> l.contains("Using " + tsconfig + " from sonar.typescript.tsconfigPath property"))).hasSize(1);
+  }
+
+  @Test
+  public void test_missing_typescript() throws Exception {
+    File dir = TestUtils.projectDir("tsproject-no-typescript");
+    File node_modules = new File(dir, "node_modules");
+    if (node_modules.exists()) {
+      FileUtils.deleteDirectory(node_modules);
+    }
+
+    String projectKey = "tsproject-no-typescript";
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(dir);
+
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    BuildResult result = orchestrator.executeBuild(build);
+    assertThat(result.isSuccess()).isTrue();
+    assertThat(result.getLogsLines(l -> l.contains("TypeScript dependency was not found inside project directory, " +
+      "Node.js will search TypeScript using module resolution algorithm; analysis will fail without TypeScript."))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("TypeScript dependency was not found and it is required for analysis."))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Install TypeScript in the project directory or use NODE_PATH env. " +
+      "variable to set TypeScript location, if it's located outside of project directory."))).hasSize(1);
   }
 
   @Test
