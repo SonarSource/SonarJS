@@ -4,6 +4,7 @@ const http = require('http')
 const port = process.argv[2]
 
 console.log(`DEBUG testing debug log`)
+console.log(`WARN testing warn log`)
 console.log(`testing info log`)
 
 const server = http.createServer((req, res) => {
