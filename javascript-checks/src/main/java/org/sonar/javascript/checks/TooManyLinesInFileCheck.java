@@ -20,9 +20,7 @@
 package org.sonar.javascript.checks;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
@@ -43,16 +41,22 @@ public class TooManyLinesInFileCheck extends EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    Map<String, Object> configurationsMap = new HashMap<>();
-    configurationsMap.put("max", maximum);
-    configurationsMap.put("skipBlankLines", true);
-    configurationsMap.put("skipComments", true);
-    return Collections.singletonList(configurationsMap);
+    return Collections.singletonList(new Config(maximum));
   }
 
   @Override
   public String eslintKey() {
     return "max-lines";
+  }
+
+  private static class Config {
+    int max;
+    boolean skipBlankLines = true;
+    boolean skipComments = true;
+
+    Config(int max) {
+      this.max = max;
+    }
   }
 
 }

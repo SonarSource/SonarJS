@@ -19,8 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.Gson;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,15 +29,13 @@ public class TooManyLinesInFileCheckTest {
   @Test
   public void test_configuration() {
     TooManyLinesInFileCheck check = new TooManyLinesInFileCheck();
-    Map<String, Object> expectedConfigurationsMap = new HashMap<>();
-    expectedConfigurationsMap.put("skipBlankLines", true);
-    expectedConfigurationsMap.put("skipComments", true);
-    expectedConfigurationsMap.put("max", 1000);
-    // default configuration
-    assertThat(check.configurations()).containsExactly(expectedConfigurationsMap);
-    expectedConfigurationsMap.put("max", 42);
+
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"max\":1000,\"skipBlankLines\":true,\"skipComments\":true}]");
+
     check.maximum = 42;
-    assertThat(check.configurations()).containsExactly(expectedConfigurationsMap);
+    String configAsString = new Gson().toJson(check.configurations());
+    assertThat(configAsString).isEqualTo("[{\"max\":42,\"skipBlankLines\":true,\"skipComments\":true}]");
   }
 
 }

@@ -19,24 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TooManyLinesInFunctionCheckTest {
 
-  private final TooManyLinesInFunctionCheck check = new TooManyLinesInFunctionCheck();
-
   @Test
-  public void testDefault() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/tooManyLinesInFunction.js"))
-      .noMore();
-  }
+  public void test_configuration() {
+    TooManyLinesInFunctionCheck check = new TooManyLinesInFunctionCheck();
 
-  @Test
-  public void testCustom() {
-    check.max = 3;
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/tooManyLinesInFunction.js"));
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"max\":200,\"skipBlankLines\":true,\"skipComments\":true}]");
+
+    check.max = 42;
+    String configAsString = new Gson().toJson(check.configurations());
+    assertThat(configAsString).isEqualTo("[{\"max\":42,\"skipBlankLines\":true,\"skipComments\":true}]");
   }
 
 }
