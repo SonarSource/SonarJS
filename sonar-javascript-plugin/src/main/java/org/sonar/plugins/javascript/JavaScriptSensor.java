@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -67,6 +68,7 @@ import org.sonarsource.analyzer.commons.ProgressReport;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEPRECATED_ESLINT_PROPERTY;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.ESLINT_REPORT_PATHS;
 
+@DependsUpon("ESLINT_SENSOR")
 public class JavaScriptSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptSensor.class);

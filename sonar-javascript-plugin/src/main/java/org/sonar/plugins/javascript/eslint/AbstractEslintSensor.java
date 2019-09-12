@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -62,6 +63,7 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Rule;
 import org.sonarsource.analyzer.commons.ProgressReport;
 import org.sonarsource.nodejs.NodeCommandException;
 
+@DependedUpon("ESLINT_SENSOR")
 abstract class AbstractEslintSensor implements Sensor {
   private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);
 
