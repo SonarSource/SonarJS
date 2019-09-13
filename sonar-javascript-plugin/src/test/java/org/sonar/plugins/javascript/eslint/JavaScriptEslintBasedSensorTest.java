@@ -30,6 +30,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
@@ -38,11 +39,16 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
@@ -73,6 +79,9 @@ public class JavaScriptEslintBasedSensorTest {
   @Mock
   private EslintBridgeServer eslintBridgeServerMock;
 
+  @Mock
+  private FileLinesContextFactory fileLinesContextFactory;
+
   @Rule
   public final ExpectedException thrown = ExpectedException.none();
 
@@ -87,6 +96,9 @@ public class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = SensorContextTester.create(tempFolder.newDir());
+
+    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
   }
 
   @Test
@@ -208,15 +220,52 @@ public class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
-  public void should_do_nothing_if_no_eslint_based_rules_activated() throws Exception {
-    JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(
-      checkFactory("S2589"),
-      eslintBridgeServerMock,
-      null);
+  public void should_create_metrics_from_eslint_based_rules() throws Exception {
+    AnalysisResponse responseMetrics = response("{ metrics: {\"ncloc\":[1, 2, 3],\"commentLines\":[4, 5, 6],\"nosonarLines\":[7, 8, 9],\"executableLines\":[10, 11, 12],\"functions\":1,\"statements\":2,\"classes\":3,\"complexity\":4,\"cognitiveComplexity\":5} }");
+    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
+
+    JavaScriptEslintBasedSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Skipping execution of eslint-based rules because none of them are activated");
-    assertThat(context.allIssues()).isEmpty();
+    assertThat(context.measure(inputFile.key(), CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.STATEMENTS).value()).isEqualTo(2);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.CLASSES).value()).isEqualTo(3);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC).value()).isEqualTo(3);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.COMMENT_LINES).value()).isEqualTo(3);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.COMPLEXITY).value()).isEqualTo(4);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(5);
+  }
+
+  @Test
+  public void should_create_highlights_from_eslint_based_rules() throws Exception {
+    AnalysisResponse responseCpdTokens = response("{ highlights: [{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"textType\":\"KEYWORD\"},{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"textType\":\"CONSTANT\"}] }");
+    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseCpdTokens);
+
+    JavaScriptEslintBasedSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+
+    sensor.execute(context);
+
+    assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isNotEmpty();
+    assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0).get(0)).isEqualTo(TypeOfText.KEYWORD);
+    assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1)).isNotEmpty();
+    assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1).get(0)).isEqualTo(TypeOfText.CONSTANT);
+    assertThat(context.highlightingTypeAt(inputFile.key(), 3, 0)).isEmpty();
+  }
+
+  @Test
+  public void should_create_cpd_from_eslint_based_rules() throws Exception {
+    AnalysisResponse responseCpdTokens = response("{ cpdTokens: [{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"image\":\"LITERAL\"},{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"image\":\"if\"}] }");
+    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseCpdTokens);
+
+    JavaScriptEslintBasedSensor sensor = createSensor();
+    DefaultInputFile inputFile = createInputFile(context);
+
+    sensor.execute(context);
+
+    assertThat(context.cpdTokens(inputFile.key())).hasSize(2);
   }
 
   @Test
@@ -263,6 +312,8 @@ public class JavaScriptEslintBasedSensorTest {
 
     JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(
       checkFactory,
+      new NoSonarFilter(),
+      fileLinesContextFactory,
       eslintBridgeServerMock,
       null);
 
@@ -307,7 +358,7 @@ public class JavaScriptEslintBasedSensorTest {
   public void handle_missing_node() throws Exception {
     doThrow(new NodeCommandException("Exception Message", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
     AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
-    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, analysisWarnings);
+    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, analysisWarnings);
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
     verify(analysisWarnings).addUnique("Eslint-based rules were not executed. Exception Message");
@@ -316,7 +367,7 @@ public class JavaScriptEslintBasedSensorTest {
   @Test
   public void log_debug_if_already_failed_server() throws Exception {
     doThrow(new ServerAlreadyFailedException()).when(eslintBridgeServerMock).startServerLazily(any());
-    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
+    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = createSensor();
     javaScriptEslintBasedSensor.execute(context);
 
     assertThat(logTester.logs()).contains("Skipping start of eslint-bridge server due to the failure during first analysis",
@@ -326,7 +377,7 @@ public class JavaScriptEslintBasedSensorTest {
   @Test
   public void stop_analysis_if_server_is_not_responding() throws Exception {
     when(eslintBridgeServerMock.isAlive()).thenReturn(false);
-    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null);
+    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = createSensor();
     createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
     final LogAndArguments logAndArguments = logTester.getLogs(LoggerLevel.ERROR).get(0);
@@ -354,7 +405,7 @@ public class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\"} }", AnalysisResponse.class));
     createInputFile(context);
-    new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), eslintBridgeServerMock, null).execute(context);
+    new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, null).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(0);
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -401,6 +452,6 @@ public class JavaScriptEslintBasedSensorTest {
 
 
   private JavaScriptEslintBasedSensor createSensor() {
-    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError"), eslintBridgeServerMock, null);
+    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock);
   }
 }
