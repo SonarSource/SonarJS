@@ -1,25 +1,48 @@
-<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when an open curly brace is not placed at the end of a
-line of code.</p>
+<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when:</p>
+<p> * an open curly brace is not placed at the end of a line of code.</p>
+<p> * the closing brace is not on the same line as the <code>else</code>, <code>if-else</code>, <code>catch</code> or <code>finally</code>
+keyword.</p>
+<p> * a statements inside brace appears at the same line as the opening or closing brace.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (condition)
 {                                                      //Noncompliant
   doSomething();
+}                                                      //Noncompliant
+else {
+  doSomethingElse();
 }
+
+try { somethingRisky();                            //Noncompliant
+} catch (err) {
+  handleError();
+}{code}
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
 if (condition) {                                   //Compliant
   doSomething();
+} else {                                           //Compliant
+  doSomethingElse();
+}
+
+try {
+  somethingRisky();                                //Compliant
+} catch (err) {
+  handleError();
 }
 </pre>
 <h2>Exceptions</h2>
-<p>Object literals appearing as arguments can start on their own line.</p>
+<p> * Object literals appearing as arguments can start on their own line.</p>
 <pre>
 functionWithObject(
    {                                                 //Compliant
         g: "someValue"
    }
 );
+</pre>
+<p> * When blocks are inlined (left and right curly braces on the same line), no issue is triggered.</p>
+<pre>
+if(condition) {doSomething();}                       //Compliant
 </pre>
 
