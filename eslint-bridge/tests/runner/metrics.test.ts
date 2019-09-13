@@ -26,7 +26,7 @@ it("should return lines of code", () => {
   expect(metrics.findLinesOfCode(sourceCode)).toEqual([4, 6, 7, 8, 9, 11]);
 });
 
-it("should return comment lines", () => {
+it("should return comment lines with header ignoring and no header comment", () => {
   expect(
     comments(
       `x; // NoSonar foo
@@ -45,6 +45,9 @@ it("should return comment lines", () => {
       true,
     ),
   ).toEqual([5, 6]);
+});
+
+it("should return comment lines with header ignoring and block header comment", () => {
   expect(
     comments(
       `/* header */
@@ -55,6 +58,9 @@ it("should return comment lines", () => {
       true,
     ),
   ).toEqual([3, 4, 5]);
+});
+
+it("should return comment lines with header ignoring and special block header comment", () => {
   expect(
     comments(
       `/** header */
@@ -65,6 +71,9 @@ it("should return comment lines", () => {
       true,
     ),
   ).toEqual([3, 4, 5]);
+});
+
+it("should return comment lines with header ignoring and line header comment", () => {
   expect(
     comments(
       `// header
@@ -75,6 +84,9 @@ it("should return comment lines", () => {
       true,
     ),
   ).toEqual([3, 4, 5]);
+});
+
+it("should return comment lines without header ignoring and block header comment", () => {
   expect(
     comments(
       `/* header */
@@ -85,6 +97,18 @@ it("should return comment lines", () => {
       false,
     ),
   ).toEqual([1, 3, 4, 5]);
+});
+
+it("should return comment lines without header ignoring and no header comment", () => {
+  expect(
+    comments(
+      `x;
+    y; /*
+    some coment
+    */`,
+      false,
+    ),
+  ).toEqual([2, 3, 4]);
 });
 
 it("should return NOSONAR lines", () => {
