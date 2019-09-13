@@ -30,10 +30,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
-import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.sonar.javascript.it.plugin.Tests.newWsClient;
-import static java.util.Collections.singletonList;
+import static com.sonar.javascript.it.plugin.Tests.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TypeScriptAnalysisTest {
@@ -70,7 +68,7 @@ public class TypeScriptAnalysisTest {
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "ncloc")).isEqualTo(7);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "classes")).isEqualTo(0);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "functions")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(4);
+    assertThat(Tests.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(3);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "complexity")).isEqualTo(2);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "cognitive_complexity")).isEqualTo(2);
@@ -149,11 +147,5 @@ public class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript 2.6.2 which is not officially supported; supported versions >=3.2.1 <3.6.0"))).hasSize(1);
-  }
-
-  private List<Issues.Issue> getIssues(String projectKey) {
-    SearchRequest request = new SearchRequest();
-    request.setComponentKeys(singletonList(projectKey));
-    return newWsClient().issues().search(request).getIssuesList();
   }
 }

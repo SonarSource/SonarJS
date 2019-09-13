@@ -27,10 +27,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
-import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.sonar.javascript.it.plugin.Tests.newWsClient;
-import static java.util.Collections.singletonList;
+import static com.sonar.javascript.it.plugin.Tests.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LookupTypeScriptTest {
@@ -63,11 +61,5 @@ public class LookupTypeScriptTest {
     List<Issues.Issue> issuesList = getIssues(projectKey + ":tsproject/sample.lint.ts");
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(2);
-  }
-
-  private List<Issues.Issue> getIssues(String projectKey) {
-    SearchRequest request = new SearchRequest();
-    request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("typescript:S3923"));
-    return newWsClient().issues().search(request).getIssuesList();
   }
 }

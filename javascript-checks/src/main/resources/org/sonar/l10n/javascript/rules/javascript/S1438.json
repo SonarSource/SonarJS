@@ -1,0 +1,20 @@
+{
+  "title": "Statements should end with semicolons",
+  "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "convention"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1438",
+  "sqKey": "S1438",
+  "scope": "Main"
+}
