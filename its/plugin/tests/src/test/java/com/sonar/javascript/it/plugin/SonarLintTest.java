@@ -117,7 +117,7 @@ public class SonarLintTest {
       .build();
     StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
 
-    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, "foo.ts", "true ? 42 : 42");
+    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, "foo.ts", "x = true ? 42 : 42");
     // we have to provide tsconfig.json
     Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
 
