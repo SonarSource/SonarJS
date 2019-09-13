@@ -2,7 +2,8 @@
   "title": "Non-empty statements should change control flow or have at least one side-effect",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {

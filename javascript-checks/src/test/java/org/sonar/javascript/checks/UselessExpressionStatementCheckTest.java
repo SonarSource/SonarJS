@@ -19,14 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UselessExpressionStatementCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new UselessExpressionStatementCheck(), new File("src/test/resources/checks/UselessExpressionStatement.js"));
+    String configAsString = new Gson().toJson(new UselessExpressionStatementCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"allowShortCircuit\":true,\"allowTaggedTemplates\":true,\"allowTernary\":true}]");
   }
 }

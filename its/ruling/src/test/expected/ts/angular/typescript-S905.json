@@ -1,0 +1,14 @@
+{
+'angular:packages/benchpress/src/metric/user_metric.ts':[
+56,
+],
+'angular:packages/compiler/src/aot/static_symbol_resolver.ts':[
+385,
+],
+'angular:packages/compiler/test/selector_spec.ts':[
+383,
+],
+'angular:packages/forms/test/validators_spec.ts':[
+359,
+],
+}

@@ -19,90 +19,30 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.Kinds;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S905")
-public class UselessExpressionStatementCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Refactor or remove this statement.";
-
-  private static final Set<String> KNOWN_DIRECTIVES = ImmutableSet.of("use strict", "$:nomunge", "ngInject");
-
-  private static final Kinds[] KINDS_WITH_SIDE_EFFECTS = {
-    KindSet.ASSIGNMENT_KINDS,
-    Kind.CONDITIONAL_AND,
-    Kind.CONDITIONAL_OR,
-    Kind.CONDITIONAL_EXPRESSION,
-    Kind.CALL_EXPRESSION,
-    Kind.NEW_EXPRESSION,
-    KindSet.INC_DEC_KINDS,
-    Kind.YIELD_EXPRESSION,
-    Kind.DELETE,
-    Kind.COMMA_OPERATOR,
-    Kind.BRACKET_MEMBER_EXPRESSION,
-    Kind.DOT_MEMBER_EXPRESSION,
-    Kind.VOID,
-    Kind.AWAIT,
-    Kind.TAGGED_TEMPLATE
-  };
+public class UselessExpressionStatementCheck extends EslintBasedCheck {
 
   @Override
-  public void visitExpressionStatement(ExpressionStatementTree tree) {
-    ExpressionTree expression = CheckUtils.removeParenthesis(tree.expression());
-
-    if (expression.is(Kind.STRING_LITERAL)) {
-      if (!isDirective((LiteralTree) expression)) {
-        addIssue(tree, MESSAGE);
-      }
-
-    } else if (!expression.is(KINDS_WITH_SIDE_EFFECTS) && !isIIFE(expression) && !insideTry(tree)) {
-      addIssue(tree, MESSAGE);
-    }
-
-    super.visitExpressionStatement(tree);
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config());
   }
 
-  private static boolean insideTry(ExpressionStatementTree tree) {
-    return tree.parent().parent().is(Kind.TRY_STATEMENT);
+  @Override
+  public String eslintKey() {
+    return "no-unused-expressions";
   }
 
-  private static boolean isIIFE(ExpressionTree expression) {
-    if (expression.is(Kind.CALL_EXPRESSION)) {
-      CallExpressionTree callExpressionTree = (CallExpressionTree) expression;
-      ExpressionTree callee = CheckUtils.removeParenthesis(callExpressionTree.callee());
-      return callee.is(Kind.FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION);
-
-    } else if (expression.is(Kind.LOGICAL_COMPLEMENT)) {
-      ExpressionTree operand = ((UnaryExpressionTree) expression).expression();
-      return isIIFE(CheckUtils.removeParenthesis(operand));
-    }
-
-    return false;
-  }
-
-  private static boolean isDirective(LiteralTree tree) {
-    if (tree.is(Kind.STRING_LITERAL)) {
-      return KNOWN_DIRECTIVES.contains(trimQuotes((tree).value()));
-    }
-
-    return false;
-  }
-
-  private static String trimQuotes(String value) {
-    return value.substring(1, value.length() - 1);
+  private static class Config {
+    boolean allowShortCircuit = true;
+    boolean allowTaggedTemplates = true;
+    boolean allowTernary = true;
   }
 }
