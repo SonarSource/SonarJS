@@ -2,7 +2,8 @@
   "title": "Jump statements should not occur in \"finally\" blocks",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {

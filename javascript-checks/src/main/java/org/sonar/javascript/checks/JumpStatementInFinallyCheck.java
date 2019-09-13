@@ -19,102 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.EnumSet;
-import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.FinallyBlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1143")
-public class JumpStatementInFinallyCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this \"%s\" statement from this \"finally\" block.";
-
-  private static final EnumSet<Kind> SAFE_PARENTS_FOR_RETURN;
-  private static final EnumSet<Kind> SAFE_PARENTS_FOR_CONTINUE;
-  private static final EnumSet<Kind> SAFE_PARENTS_FOR_BREAK;
-
-  static {
-    SAFE_PARENTS_FOR_RETURN = EnumSet.of(
-      Kind.SCRIPT,
-      Kind.TRY_STATEMENT,
-      Kind.CLASS_DECLARATION,
-      Kind.CLASS_EXPRESSION);
-    SAFE_PARENTS_FOR_RETURN.addAll(KindSet.FUNCTION_KINDS.getSubKinds());
-
-    SAFE_PARENTS_FOR_CONTINUE = EnumSet.copyOf(KindSet.LOOP_KINDS.getSubKinds());
-    SAFE_PARENTS_FOR_CONTINUE.addAll(SAFE_PARENTS_FOR_RETURN);
-
-    SAFE_PARENTS_FOR_BREAK = EnumSet.of(
-      Kind.SWITCH_STATEMENT);
-    SAFE_PARENTS_FOR_BREAK.addAll(SAFE_PARENTS_FOR_CONTINUE);
-
-  }
+public class JumpStatementInFinallyCheck extends EslintBasedCheck {
 
   @Override
-  public void visitReturnStatement(ReturnStatementTree tree) {
-    check(tree, tree.returnKeyword(), SAFE_PARENTS_FOR_RETURN);
-    super.visitReturnStatement(tree);
+  public String eslintKey() {
+    return "no-unsafe-finally";
   }
-
-  @Override
-  public void visitContinueStatement(ContinueStatementTree tree) {
-    check(tree, tree.continueKeyword(), SAFE_PARENTS_FOR_CONTINUE);
-  }
-
-  @Override
-  public void visitBreakStatement(BreakStatementTree tree) {
-    EnumSet<Kind> safeParents = tree.labelToken() == null ? SAFE_PARENTS_FOR_BREAK : SAFE_PARENTS_FOR_RETURN;
-    check(tree, tree.breakKeyword(), safeParents);
-  }
-
-  @Override
-  public void visitThrowStatement(ThrowStatementTree tree) {
-    check(tree, tree.throwKeyword(), SAFE_PARENTS_FOR_RETURN);
-    super.visitThrowStatement(tree);
-  }
-
-  private void check(StatementTree jumpStatement, SyntaxToken token, EnumSet<Kind> safeParents) {
-    Tree parent = parent(jumpStatement);
-
-    while (!safeParents.contains(((JavaScriptTree) parent).getKind())) {
-      SyntaxToken finallyKeyword = getFinallyKeywordForFinallyBlock(parent);
-      if (finallyKeyword != null) {
-        addIssue(token, String.format(MESSAGE, token.text()))
-          .secondary(finallyKeyword);
-        return;
-      }
-      parent = parent(parent);
-    }
-  }
-
-  private static Tree parent(Tree tree) {
-    return tree.parent();
-  }
-
-  @CheckForNull
-  private static SyntaxToken getFinallyKeywordForFinallyBlock(Tree tree) {
-    if (tree.is(Kind.BLOCK)) {
-      Tree parent = parent(tree);
-
-      if (parent.is(Kind.FINALLY_BLOCK)) {
-        return ((FinallyBlockTree) parent).finallyKeyword();
-      }
-    }
-
-    return null;
-  }
-
 }
