@@ -50,7 +50,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.plugins.javascript.JavaScriptChecks;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CpdToken;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Highlight;
@@ -81,7 +80,9 @@ abstract class AbstractEslintSensor implements Sensor {
   private ProgressReport progressReport =
     new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
 
-  AbstractEslintSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer, @Nullable AnalysisWarnings analysisWarnings) {
+  AbstractEslintSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
+      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
+      @Nullable AnalysisWarnings analysisWarnings) {
     this.checks = checks;
     this.rules = checks.eslintBasedChecks().stream()
       .map(check -> new EslintBridgeServer.Rule(check.eslintKey(), check.configurations()))
@@ -193,7 +194,7 @@ abstract class AbstractEslintSensor implements Sensor {
     }
 
     // it's important to have an order here:
-    // saving metrics should be done before saving issues so that NOSONAR lines with issues are indeed ignored
+    // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
     saveMetrics(file, context, response.metrics);
     saveIssues(file, context, response.issues);
     saveHighlights(file, context, response.highlights);

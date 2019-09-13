@@ -47,11 +47,14 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   /**
    * Required for SonarLint
    */
-  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer) {
+  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
+      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer) {
     this(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null);
   }
 
-  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer, @Nullable AnalysisWarnings analysisWarnings) {
+  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
+      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
+      @Nullable AnalysisWarnings analysisWarnings) {
     super(checks(checkFactory), noSonarFilter, fileLinesContextFactory, eslintBridgeServer, analysisWarnings);
   }
 
