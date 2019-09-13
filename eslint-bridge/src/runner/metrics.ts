@@ -42,25 +42,23 @@ const EXECUTABLE_NODES = [
 ];
 
 const STATEMENT_NODES = [
+  "VariableDeclaration",
+  "EmptyStatement",
   "ExpressionStatement",
   "IfStatement",
-  "LabeledStatement",
-  "BreakStatement",
+  "DoWhileStatement",
+  "WhileStatement",
+  "ForInStatement",
+  "ForOfStatement",
+  "ForStatement",
   "ContinueStatement",
+  "BreakStatement",
+  "ReturnStatement",
   "WithStatement",
   "SwitchStatement",
-  "ReturnStatement",
   "ThrowStatement",
   "TryStatement",
-  "WhileStatement",
-  "DoWhileStatement",
-  "ForStatement",
-  "ForInStatement",
   "DebuggerStatement",
-  "FunctionDeclaration",
-  "VariableDeclaration",
-  "ForOfStatement",
-  "ClassDeclaration",
 ];
 
 const LOOP_NODES = [
@@ -86,11 +84,12 @@ const COMPLEXITY_NODES = [
 
 export default function getMetrics(
   sourceCode: SourceCode,
+  ignoreHeaderComments: boolean,
   cognitiveComplexity: number = 0,
 ): Metrics {
   return {
     ncloc: findLinesOfCode(sourceCode),
-    ...findCommentLines(sourceCode),
+    ...findCommentLines(sourceCode, ignoreHeaderComments),
     executableLines: findExecutableLines(sourceCode),
     functions: countFunctions(sourceCode),
     statements: countStatements(sourceCode),
@@ -135,28 +134,33 @@ export function findLinesOfCode(sourceCode: SourceCode): number[] {
 
 export function findCommentLines(
   sourceCode: SourceCode,
+  ignoreHeaderComments: boolean,
 ): { commentLines: number[]; nosonarLines: number[] } {
   const commentLines: Set<number> = new Set();
   const nosonarLines: Set<number> = new Set();
+
+  let comments = sourceCode.ast.comments;
+
+  // ignore header comments -> comments before first token
   const firstToken = sourceCode.getFirstToken(sourceCode.ast);
-  if (firstToken) {
-    // ignore header comments -> comments before first token
+  if (firstToken && ignoreHeaderComments) {
     const header = sourceCode.getCommentsBefore(firstToken);
-    const comments = sourceCode.ast.comments.slice(header.length);
-    for (const comment of comments) {
-      if (comment.loc) {
-        if (
-          comment.value
-            .trim()
-            .toUpperCase()
-            .startsWith("NOSONAR")
-        ) {
-          addLines(comment.loc.start.line, comment.loc.end.line, nosonarLines);
-        }
+    comments = comments.slice(header.length);
+  }
+
+  for (const comment of comments) {
+    if (comment.loc) {
+      const commentValue = comment.value.startsWith("*")
+        ? comment.value.substring(1).trim()
+        : comment.value.trim();
+      if (commentValue.toUpperCase().startsWith("NOSONAR")) {
+        addLines(comment.loc.start.line, comment.loc.end.line, nosonarLines);
+      } else if (commentValue.length > 0) {
         addLines(comment.loc.start.line, comment.loc.end.line, commentLines);
       }
     }
   }
+
   return {
     commentLines: Array.from(commentLines).sort((a, b) => a - b),
     nosonarLines: Array.from(nosonarLines).sort((a, b) => a - b),
