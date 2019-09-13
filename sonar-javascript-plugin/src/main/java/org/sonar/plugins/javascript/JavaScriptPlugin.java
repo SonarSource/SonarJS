@@ -64,8 +64,8 @@ public class JavaScriptPlugin implements Plugin {
   public static final String GLOBALS = GlobalVariableNames.GLOBALS_PROPERTY_KEY;
   public static final String GLOBALS_DEFAULT_VALUE = GlobalVariableNames.GLOBALS_DEFAULT_VALUE;
 
-  public static final String JS_IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
-  public static final Boolean JS_IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
+  public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
+  public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
   public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
   public static final String JS_EXCLUSIONS_DEFAULT_VALUE = "**/node_modules/**,**/bower_components/**";
@@ -82,9 +82,6 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String TS_LCOV_REPORT_PATHS = "sonar.typescript.lcov.reportPaths";
   public static final String TS_LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
-
-  public static final String TS_IGNORE_HEADER_COMMENTS = "sonar.typescript.ignoreHeaderComments";
-  public static final Boolean TS_IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
   public static final String TSCONFIG_PATH = "sonar.typescript.tsconfigPath";
 
@@ -122,8 +119,8 @@ public class JavaScriptPlugin implements Plugin {
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
 
-      PropertyDefinition.builder(JavaScriptPlugin.JS_IGNORE_HEADER_COMMENTS)
-        .defaultValue(JavaScriptPlugin.JS_IGNORE_HEADER_COMMENTS_DEFAULT_VALUE.toString())
+      PropertyDefinition.builder(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
+        .defaultValue(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE.toString())
         .name("Ignore header comments")
         .description("True to not count file header comments in comment metrics.")
         .onQualifiers(Qualifiers.PROJECT)
@@ -226,16 +223,6 @@ public class JavaScriptPlugin implements Plugin {
         .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .category(TYPESCRIPT_CATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(JavaScriptPlugin.TS_IGNORE_HEADER_COMMENTS)
-        .defaultValue(JavaScriptPlugin.TS_IGNORE_HEADER_COMMENTS_DEFAULT_VALUE.toString())
-        .name("Ignore header comments")
-        .description("True to not count file header comments in comment metrics.")
-        .onQualifiers(Qualifiers.PROJECT)
-        .subCategory(GENERAL)
-        .category(TYPESCRIPT_CATEGORY)
-        .type(PropertyType.BOOLEAN)
         .build()
     );
 

@@ -50,6 +50,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CpdToken;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Highlight;
@@ -265,5 +266,9 @@ abstract class AbstractEslintSensor implements Sensor {
       newCpdTokens.addToken(cpdToken.location.toTextRange(file), cpdToken.image);
     }
     newCpdTokens.save();
+  }
+
+  protected static boolean ignoreHeaderComments(SensorContext context) {
+    return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
   }
 }

@@ -143,8 +143,4 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     Path nodeModules = Paths.get("node_modules");
     return StreamSupport.stream(p.spliterator(), false).anyMatch(nodeModules::equals);
   }
-
-  private static boolean ignoreHeaderComments(SensorContext context) {
-    return context.config().getBoolean(JavaScriptPlugin.TS_IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.TS_IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
-  }
 }

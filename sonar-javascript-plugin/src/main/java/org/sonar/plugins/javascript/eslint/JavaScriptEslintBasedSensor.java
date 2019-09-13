@@ -36,7 +36,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 
@@ -93,9 +92,5 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       .onlyOnLanguage(JavaScriptLanguage.KEY)
       .name("ESLint-based JavaScript analysis")
       .onlyOnFileType(Type.MAIN);
-  }
-
-  private static boolean ignoreHeaderComments(SensorContext context) {
-    return context.config().getBoolean(JavaScriptPlugin.JS_IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.JS_IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
   }
 }
