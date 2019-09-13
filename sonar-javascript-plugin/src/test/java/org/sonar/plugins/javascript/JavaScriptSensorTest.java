@@ -32,12 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -52,20 +48,12 @@ import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.JavaScriptSensor.ProductDependentExecutor;
-import org.sonar.plugins.javascript.JavaScriptSensor.SonarLintProductExecutor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -78,17 +66,11 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEPRECATED_ESLINT_PROPERTY;
 
 public class JavaScriptSensorTest {
-
-  private static final Version VERSION = Version.create(7, 9);
-  private static final SonarRuntime SONARLINT_RUNTIME = SonarRuntimeImpl.forSonarLint(VERSION);
-  private static final SonarRuntime NOSONARLINT_RUNTIME = SonarRuntimeImpl.forSonarQube(VERSION, SonarQubeSide.SERVER, SonarEdition.DEVELOPER);
 
   @org.junit.Rule
   public final ExpectedException thrown = ExpectedException.none();
@@ -96,7 +78,6 @@ public class JavaScriptSensorTest {
   @org.junit.Rule
   public LogTester logTester = new LogTester();
 
-  private FileLinesContextFactory fileLinesContextFactory;
   private CheckFactory checkFactory = new CheckFactory(mock(ActiveRules.class));
   private final CustomJavaScriptRulesDefinition[] CUSTOM_RULES = {new CustomJavaScriptRulesDefinition() {
     @Override
@@ -132,27 +113,17 @@ public class JavaScriptSensorTest {
   private File baseDir = new File("src/test/resources");
   private final ProgressReport progressReport = mock(ProgressReport.class);
   private SensorContextTester context = SensorContextTester.create(baseDir);
-  private ProductDependentExecutor executor = new SonarLintProductExecutor(new NoSonarFilter(), context);
 
   private JavaScriptSensor createSensor() {
-    return new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter());
+    return new JavaScriptSensor(checkFactory, context.fileSystem());
   }
 
   private JavaScriptSensor createSensorWithCustomRules() {
-    return new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(),
-      CUSTOM_RULES);
+    return new JavaScriptSensor(checkFactory, context.fileSystem(), CUSTOM_RULES);
   }
 
   private JavaScriptSensor createSensorWithCustomRuleRepository() {
-    return new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(),
-      CUSTOM_RULE_REPOSITORIES);
-  }
-
-  @Before
-  public void setUp() {
-    fileLinesContextFactory = mock(FileLinesContextFactory.class);
-    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
-    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+    return new JavaScriptSensor(checkFactory, context.fileSystem(), CUSTOM_RULE_REPOSITORIES);
   }
 
   @Test
@@ -163,34 +134,6 @@ public class JavaScriptSensorTest {
     assertThat(descriptor.name()).isEqualTo("SonarJS");
     assertThat(descriptor.languages()).containsOnly("js");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
-  }
-
-  @Test
-  public void should_analyse() {
-    String relativePath = "cpd/Person.js";
-    inputFile(relativePath);
-    context.settings().setProperty(JavaScriptPlugin.IGNORE_HEADER_COMMENTS, true);
-
-    createSensor().execute(context);
-
-    String key = "moduleKey:" + relativePath;
-
-    assertThat(context.measure(key, CoreMetrics.NCLOC).value()).isEqualTo(19);
-    assertThat(context.measure(key, CoreMetrics.CLASSES).value()).isEqualTo(1);
-    assertThat(context.measure(key, CoreMetrics.FUNCTIONS).value()).isEqualTo(5);
-    assertThat(context.measure(key, CoreMetrics.STATEMENTS).value()).isEqualTo(8);
-    assertThat(context.measure(key, CoreMetrics.COMPLEXITY).value()).isEqualTo(6);
-    assertThat(context.measure(key, CoreMetrics.COMMENT_LINES).value()).isEqualTo(1);
-  }
-
-  @Test
-  public void should_calculate_cognitive_complexity() throws Exception {
-    final String relativePath = "complexity/complexity.js";
-    inputFile(relativePath);
-    final String componentKey = "moduleKey:" + relativePath;
-
-    createSensor().execute(context);
-    assertThat(context.measure(componentKey, CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(3);
   }
 
   @Test
@@ -221,7 +164,7 @@ public class JavaScriptSensorTest {
     JavaScriptCheck check = new ExceptionRaisingCheck(new NullPointerException("NPE forcibly raised by check class"));
 
     InputFile file = inputFile("file.js");
-    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(file), executor, progressReport);
+    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(file), progressReport);
     assertThat(context.allAnalysisErrors()).hasSize(1);
 
     assertThat(logTester.logs()).contains("Unable to analyse file: " + file.uri());
@@ -314,14 +257,12 @@ public class JavaScriptSensorTest {
 
   @Test
   public void should_log_deprecation_warning() throws Exception {
-    JavaScriptSensor sensor = new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(),
-      CUSTOM_RULES, CUSTOM_RULE_REPOSITORIES);
+    JavaScriptSensor sensor = new JavaScriptSensor(checkFactory, context.fileSystem(), CUSTOM_RULES, CUSTOM_RULE_REPOSITORIES);
     sensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("CustomJavaScriptRulesDefinition usage is deprecated. Use CustomRuleRepository API to define custom rules");
 
     logTester.clear();
-    sensor = new JavaScriptSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(),
-      null, CUSTOM_RULE_REPOSITORIES);
+    sensor = new JavaScriptSensor(checkFactory, context.fileSystem(), null, CUSTOM_RULE_REPOSITORIES);
     sensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.WARN)).doesNotContain("CustomJavaScriptRulesDefinition usage is deprecated. Use CustomRuleRepository API to define custom rules");
   }
@@ -329,13 +270,13 @@ public class JavaScriptSensorTest {
   @Test
   public void should_stop_progress_report() throws Exception {
     InputFile inputFile = inputFile("cpd/Person.js");
-    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(inputFile), executor, progressReport);
+    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(inputFile), progressReport);
     verify(progressReport).stop();
   }
 
   @Test
   public void should_stop_progress_report_without_files() throws Exception {
-    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(), executor, progressReport);
+    createSensor().analyseFiles(context, ImmutableList.of(), ImmutableList.of(), progressReport);
     verify(progressReport).stop();
   }
 
@@ -359,7 +300,7 @@ public class JavaScriptSensorTest {
     JavaScriptSensor sensor = createSensor();
     SensorContextTester cancelledContext = SensorContextTester.create(baseDir);
     cancelledContext.setCancelled(true);
-    sensor.analyseFiles(cancelledContext, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile("cpd/Person.js")), executor, progressReport);
+    sensor.analyseFiles(cancelledContext, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile("cpd/Person.js")), progressReport);
     verify(progressReport).cancel();
   }
 
@@ -394,43 +335,6 @@ public class JavaScriptSensorTest {
   }
 
   @Test
-  public void should_disable_unnecessary_features_for_sonarlint() throws Exception {
-    baseDir = new File("src/test/resources/coverage");
-    context = SensorContextTester.create(baseDir);
-    String key = inputFile("file1.js").key();
-
-    context.setRuntime(SONARLINT_RUNTIME);
-    createSensor().execute(context);
-
-    // no cpd tokens
-    assertThat(context.cpdTokens(key)).isNull();
-
-    // no highlighting
-    assertThat(context.highlightingTypeAt(key, 1, 0)).isEmpty();
-
-    // metrics are not saved
-    assertThat(context.measure(key, CoreMetrics.NCLOC)).isNull();
-
-    // no symbol highlighting
-    assertThat(context.referencesForSymbolAt(key, 1, 13)).isNull();
-
-    context.setRuntime(NOSONARLINT_RUNTIME);
-    createSensor().execute(context);
-
-    // cpd tokens exist
-    assertThat(context.cpdTokens(key)).isNotEmpty();
-
-    // highlighting exists
-    assertThat(context.highlightingTypeAt(key, 1, 0)).isNotEmpty();
-
-    // metrics are saved
-    assertThat(context.measure(key, CoreMetrics.NCLOC)).isNotNull();
-
-    // symbol highlighting is there
-    assertThat(context.referencesForSymbolAt(key, 1, 13)).isNotNull();
-  }
-
-  @Test
   public void should_log_deprecated_property_used() throws Exception {
     context.settings().setProperty(DEPRECATED_ESLINT_PROPERTY, "eslint-report.json");
     createSensor().execute(context);
@@ -442,7 +346,7 @@ public class JavaScriptSensorTest {
     thrown.expect(JavaScriptSensor.AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
     try {
-      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile), executor, progressReport);
+      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor) check), ImmutableList.of(inputFile), progressReport);
     } finally {
       verify(progressReport).cancel();
     }

@@ -2,11 +2,12 @@ import * as fs from "fs";
 import * as path from "path";
 import * as metrics from "../../src/runner/metrics";
 import { parseTypeScriptSourceFile } from "../../src/parser";
+import { SourceCode } from "eslint";
 
-it("should return lines of code and comment lines", () => {
+it("should return lines of code", () => {
   const sourceCode = parseTypeScriptSourceFile(
     `/*
-      * header comment is ignored
+      * header
       */
      class /*after first token*/ A {
 
@@ -23,7 +24,91 @@ it("should return lines of code and comment lines", () => {
     [],
   );
   expect(metrics.findLinesOfCode(sourceCode)).toEqual([4, 6, 7, 8, 9, 11]);
-  expect(metrics.findCommentLines(sourceCode).commentLines).toEqual([4, 6, 10, 12, 13, 14]);
+});
+
+it("should return comment lines with header ignoring and no header comment", () => {
+  expect(
+    comments(
+      `x; // NoSonar foo
+    y; /* NOSONAR */
+    // NOSONAR
+
+    z; // NOOOSONAR
+    z; // some comment
+    
+    //   
+
+    /*  
+        */
+       
+    /**   */`,
+      true,
+    ),
+  ).toEqual([5, 6]);
+});
+
+it("should return comment lines with header ignoring and block header comment", () => {
+  expect(
+    comments(
+      `/* header */
+    x;
+    y; /*
+      some coment
+    */`,
+      true,
+    ),
+  ).toEqual([3, 4, 5]);
+});
+
+it("should return comment lines with header ignoring and special block header comment", () => {
+  expect(
+    comments(
+      `/** header */
+    x;
+    y; /*
+      some coment
+    */`,
+      true,
+    ),
+  ).toEqual([3, 4, 5]);
+});
+
+it("should return comment lines with header ignoring and line header comment", () => {
+  expect(
+    comments(
+      `// header
+    x;
+    y; /*
+      some coment
+    */`,
+      true,
+    ),
+  ).toEqual([3, 4, 5]);
+});
+
+it("should return comment lines without header ignoring and block header comment", () => {
+  expect(
+    comments(
+      `/* header */
+    x;
+    y; /*
+    some coment
+    */`,
+      false,
+    ),
+  ).toEqual([1, 3, 4, 5]);
+});
+
+it("should return comment lines without header ignoring and no header comment", () => {
+  expect(
+    comments(
+      `x;
+    y; /*
+    some coment
+    */`,
+      false,
+    ),
+  ).toEqual([2, 3, 4]);
 });
 
 it("should return NOSONAR lines", () => {
@@ -31,13 +116,12 @@ it("should return NOSONAR lines", () => {
     `x; // NoSonar foo
      y; /* NOSONAR */
      // NOSONAR
-
      z; // NOOOSONAR
      z; // some comment`,
     "foo.ts",
     [],
   );
-  expect(metrics.findCommentLines(sourceCode).nosonarLines).toEqual([1, 2, 3]);
+  expect(metrics.findCommentLines(sourceCode, true).nosonarLines).toEqual([1, 2, 3]);
 });
 
 it("should return executable lines", () => {
@@ -48,7 +132,7 @@ it("should return executable lines", () => {
     [],
   );
   expect(metrics.findExecutableLines(sourceCode)).toEqual(
-    metrics.findCommentLines(sourceCode).commentLines,
+    metrics.findCommentLines(sourceCode, true).commentLines,
   );
 });
 
@@ -117,4 +201,9 @@ it("should compute cyclomatic complexity", () => {
 function cyclomaticComplexity(code: string): number {
   const sourceCode = parseTypeScriptSourceFile(code, "foo.ts", []);
   return metrics.getCyclomaticComplexity(sourceCode);
+}
+
+function comments(code: string, ignoreHeader: boolean): number[] {
+  const sourceCode = parseTypeScriptSourceFile(code, "foo.ts", []);
+  return metrics.findCommentLines(sourceCode, ignoreHeader).commentLines;
 }
