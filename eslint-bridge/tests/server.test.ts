@@ -193,6 +193,7 @@ describe("server", () => {
         filePath,
         fileContent: "if (true) 42; else 42;",
         rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+        ignoreHeaderComments: true,
         tsConfigs: [tsConfig],
       }),
       "/analyze-ts",

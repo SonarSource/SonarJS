@@ -68,7 +68,7 @@ public class TypeScriptAnalysisTest {
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "ncloc")).isEqualTo(7);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "classes")).isEqualTo(0);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "functions")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(4);
+    assertThat(Tests.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(3);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "complexity")).isEqualTo(2);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "cognitive_complexity")).isEqualTo(2);

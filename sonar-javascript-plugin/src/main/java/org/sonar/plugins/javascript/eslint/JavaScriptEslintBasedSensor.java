@@ -28,6 +28,8 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -36,7 +38,6 @@ import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
@@ -45,12 +46,15 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   /**
    * Required for SonarLint
    */
-  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer) {
-    this(checkFactory, eslintBridgeServer, null);
+  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
+      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer) {
+    this(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null);
   }
 
-  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, EslintBridgeServer eslintBridgeServer, @Nullable AnalysisWarnings analysisWarnings) {
-    super(checks(checkFactory), eslintBridgeServer, analysisWarnings);
+  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
+      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
+      @Nullable AnalysisWarnings analysisWarnings) {
+    super(checks(checkFactory), noSonarFilter, fileLinesContextFactory, eslintBridgeServer, analysisWarnings);
   }
 
   private static JavaScriptChecks checks(CheckFactory checkFactory) {
@@ -65,17 +69,9 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     }
     try {
       String fileContent = isSonarLint(context) ? file.contents() : null;
-      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, null);
+      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(context), null);
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
-
-      if (response.parsingError != null) {
-        processParsingError(context, file, response.parsingError);
-        return;
-      }
-
-      for (Issue issue : response.issues) {
-        new EslintBasedIssue(issue).saveIssue(context, file, checks);
-      }
+      processResponse(file, context, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
     }
@@ -97,5 +93,4 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       .name("ESLint-based JavaScript analysis")
       .onlyOnFileType(Type.MAIN);
   }
-
 }
