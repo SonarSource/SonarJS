@@ -19,125 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "Semicolon")
-public class SemicolonCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Add a semicolon at the end of this statement.";
-
-  private void checkEOS(Tree tree, @Nullable SyntaxToken semicolonToken) {
-    if (semicolonToken == null) {
-      addIssue(tree, MESSAGE);
-    }
-  }
+@TypeScriptRule
+@Rule(key = "S1438")
+@DeprecatedRuleKey(ruleKey = "Semicolon")
+public class SemicolonCheck extends EslintBasedCheck {
 
   @Override
-  public void visitDefaultExportDeclaration(DefaultExportDeclarationTree tree) {
-    super.visitDefaultExportDeclaration(tree);
-    boolean exportedObjectIsClassOrFunctionDeclaration = tree.object().is(
-      Kind.FUNCTION_DECLARATION,
-      Kind.FUNCTION_EXPRESSION,
-      Kind.CLASS_DECLARATION,
-      Kind.CLASS_EXPRESSION,
-      Kind.GENERATOR_DECLARATION,
-      Kind.GENERATOR_FUNCTION_EXPRESSION
-    );
-    if (!exportedObjectIsClassOrFunctionDeclaration) {
-      checkEOS(tree, tree.semicolonToken());
-    }
+  public String eslintKey() {
+    return "semi";
   }
-
-  @Override
-  public void visitNameSpaceExportDeclaration(NameSpaceExportDeclarationTree tree) {
-    super.visitNameSpaceExportDeclaration(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitExportClause(ExportClauseTree tree) {
-    super.visitExportClause(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitImportDeclaration(ImportDeclarationTree tree) {
-    super.visitImportDeclaration(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitImportModuleDeclaration(ImportModuleDeclarationTree tree) {
-    super.visitImportModuleDeclaration(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitVariableStatement(VariableStatementTree tree) {
-    super.visitVariableStatement(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitExpressionStatement(ExpressionStatementTree tree) {
-    super.visitExpressionStatement(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitDoWhileStatement(DoWhileStatementTree tree) {
-    super.visitDoWhileStatement(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitContinueStatement(ContinueStatementTree tree) {
-    super.visitContinueStatement(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitBreakStatement(BreakStatementTree tree) {
-    super.visitBreakStatement(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitReturnStatement(ReturnStatementTree tree) {
-    super.visitReturnStatement(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitThrowStatement(ThrowStatementTree tree) {
-    super.visitThrowStatement(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
-  @Override
-  public void visitDebugger(DebuggerStatementTree tree) {
-    super.visitDebugger(tree);
-    checkEOS(tree, tree.semicolonToken());
-  }
-
 }
