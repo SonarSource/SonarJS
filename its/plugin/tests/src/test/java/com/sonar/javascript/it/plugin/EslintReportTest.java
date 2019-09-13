@@ -21,16 +21,12 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.util.Collections;
 import java.util.List;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.WsClientFactories;
-import org.sonarqube.ws.client.issues.SearchRequest;
 
+import static com.sonar.javascript.it.plugin.Tests.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EslintReportTest {
@@ -52,15 +48,8 @@ public class EslintReportTest {
     build.setProperty("sonar.eslint.reportPaths", "report.json");
     orchestrator.executeBuild(build);
 
-    List<Issue> jsIssuesList = newWsClient()
-      .issues()
-      .search(new SearchRequest().setComponentKeys(Collections.singletonList(PROJECT_KEY + ":src/file.js")))
-      .getIssuesList();
-
-    List<Issue> tsIssuesList = newWsClient()
-      .issues()
-      .search(new SearchRequest().setComponentKeys(Collections.singletonList(PROJECT_KEY + ":src/file.ts")))
-      .getIssuesList();
+    List<Issue> jsIssuesList = getIssues(PROJECT_KEY + ":src/file.js");
+    List<Issue> tsIssuesList = getIssues(PROJECT_KEY + ":src/file.ts");
 
     assertThat(jsIssuesList).extracting("line").containsExactlyInAnyOrder(1, 2, 2, 3, 5, 7, 7);
     assertThat(jsIssuesList).extracting("rule").containsExactlyInAnyOrder(
@@ -78,12 +67,6 @@ public class EslintReportTest {
       "external_eslint_repo:use-isnan",
       "external_eslint_repo:semi",
       "external_eslint_repo:semi");
-  }
-
-  private static WsClient newWsClient() {
-    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .url(orchestrator.getServer().getUrl())
-      .build());
   }
 
 }

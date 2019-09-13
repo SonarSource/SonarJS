@@ -21,14 +21,12 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.util.Collections;
 import java.util.List;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.sonar.javascript.it.plugin.Tests.newWsClient;
+import static com.sonar.javascript.it.plugin.Tests.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TslintExternalReportTest {
@@ -52,9 +50,7 @@ public class TslintExternalReportTest {
     build.setProperty("sonar.typescript.tslint.reportPaths", "report.json");
     orchestrator.executeBuild(build);
 
-    SearchRequest request = new SearchRequest();
-    request.setComponentKeys(Collections.singletonList(PROJECT_KEY));
-    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    List<Issue> issuesList = getIssues(PROJECT_KEY);
     assertThat(issuesList).extracting("line").containsExactlyInAnyOrder(3, 5, 5, 7);
     assertThat(issuesList).extracting("rule").containsExactlyInAnyOrder(
       "external_tslint_repo:no-unused-expression",

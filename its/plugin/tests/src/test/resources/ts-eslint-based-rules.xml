@@ -13,5 +13,10 @@
       <key>S107</key>
       <priority>INFO</priority>
     </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S4325</key>    <!-- useless cast -->
+      <priority>INFO</priority>
+  </rule>
   </rules>
 </profile>
