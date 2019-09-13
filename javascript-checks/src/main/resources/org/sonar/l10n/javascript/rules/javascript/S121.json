@@ -2,7 +2,8 @@
   "title": "Control structures should use curly braces",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
@@ -16,6 +17,6 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-121",
-  "sqKey": "CurlyBraces",
+  "sqKey": "S121",
   "scope": "All"
 }
