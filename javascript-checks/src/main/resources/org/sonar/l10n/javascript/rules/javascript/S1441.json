@@ -1,5 +1,5 @@
 {
-  "title": "Single quotes should be used for string literals",
+  "title": "Quotes for string literals should be used consistently",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
     "JAVASCRIPT",
