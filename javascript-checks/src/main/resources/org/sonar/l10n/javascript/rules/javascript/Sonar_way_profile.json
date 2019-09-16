@@ -5,7 +5,6 @@
     "DebuggerStatement",
     "DuplicateFunctionArgument",
     "DuplicatePropertyName",
-    "EmptyBlock",
     "Eval",
     "FunctionDefinitionInsideLoop",
     "FutureReservedWords",
