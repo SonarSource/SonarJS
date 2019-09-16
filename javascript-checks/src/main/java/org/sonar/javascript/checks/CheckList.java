@@ -171,6 +171,7 @@ public final class CheckList {
       NestedConditionalOperatorsCheck.class,
       NestedControlFlowDepthCheck.class,
       NewOperatorMisuseCheck.class,
+      NoEvalCheck.class,
       NoDuplicateStringCheck.class,
       NoElementOverwriteCheck.class,
       NoInvertedBooleanCheckCheck.class,
