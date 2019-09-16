@@ -144,6 +144,9 @@ public class JavaScriptRulingTest {
   }
 
   private static void installTypeScript(File projectDir) throws IOException, InterruptedException {
+    if (!projectDir.exists() || !projectDir.isDirectory()) {
+      throw new IllegalStateException(projectDir.getAbsolutePath() + " is not valid directory");
+    }
     String npm = System2.INSTANCE.isOsWindows() ? "npm.cmd" : "npm";
     String[] cmd = {npm, "install", "typescript@3.5.3"};
     Process process = Runtime.getRuntime().exec(cmd, null, projectDir);

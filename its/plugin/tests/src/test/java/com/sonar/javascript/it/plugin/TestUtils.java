@@ -55,7 +55,11 @@ public class TestUtils {
   }
 
   public static File projectDir(String projectName) {
-    return new File(homeDir(), "projects/" + projectName);
+    File file = new File(homeDir(), "projects/" + projectName);
+    if (!file.exists()) {
+      throw new IllegalStateException("Invalid project directory " + file.getAbsolutePath());
+    }
+    return file;
   }
 
   public static File file(String relativePath) {
