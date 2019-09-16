@@ -19,15 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class VariableShadowingCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new VariableShadowingCheck(), new File("src/test/resources/checks/variableShadowing.js"));
+    assertThat(new Gson().toJson(new VariableShadowingCheck().configurations())).isEqualTo("[{\"hoist\":\"all\"}]");
   }
 
 }
