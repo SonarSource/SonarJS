@@ -2,7 +2,4 @@
 'angular:packages/compiler-cli/src/path_mapped_compiler_host.ts':[
 134,
 ],
-'angular:packages/compiler/src/expression_parser/lexer.ts':[
-299,
-]
 }
