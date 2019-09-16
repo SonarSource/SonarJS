@@ -21,20 +21,17 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "DebuggerStatement")
-public class DebuggerStatementCheck extends DoubleDispatchVisitorCheck {
-
-
-  private static final String MESSAGE = "Remove this debugger statement.";
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "DebuggerStatement")
+@Rule(key = "S1525")
+public class DebuggerStatementCheck extends EslintBasedCheck {
 
   @Override
-  public void visitDebugger(DebuggerStatementTree tree) {
-    addIssue(tree, MESSAGE);
-    // no sub tree
+  public String eslintKey() {
+    return "no-debugger";
   }
-
 }
