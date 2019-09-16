@@ -21,21 +21,17 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "MultilineStringLiterals")
-public class MultilineStringLiteralsCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Use string concatenation rather than line continuation.";
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "MultilineStringLiterals")
+@Rule(key = "S1516")
+public class MultilineStringLiteralsCheck extends EslintBasedCheck {
 
   @Override
-  public void visitLiteral(LiteralTree tree) {
-    if (tree.is(Kind.STRING_LITERAL) && tree.value().contains("\n")) {
-      addIssue(tree, MESSAGE);
-    }
+  public String eslintKey() {
+    return "no-multi-str";
   }
-
 }
