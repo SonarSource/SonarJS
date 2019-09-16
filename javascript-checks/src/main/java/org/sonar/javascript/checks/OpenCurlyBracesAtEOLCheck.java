@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
@@ -30,9 +31,17 @@ import org.sonar.javascript.checks.annotations.TypeScriptRule;
 @Rule(key = "S1105")
 public class OpenCurlyBracesAtEOLCheck extends EslintBasedCheck {
 
+  private static final String DEFAULT_BRACE_STYLE = "1tbs";
+
+  @RuleProperty(
+    key = "braceStyle",
+    description = "enforced brace-style: 1tbs, stroustrup or allman.",
+    defaultValue = DEFAULT_BRACE_STYLE)
+  public String braceStyle = DEFAULT_BRACE_STYLE;
+
   @Override
   public List<Object> configurations() {
-    return Arrays.asList("1tbs", new Config());
+    return Arrays.asList(braceStyle, new Config());
   }
 
   @Override

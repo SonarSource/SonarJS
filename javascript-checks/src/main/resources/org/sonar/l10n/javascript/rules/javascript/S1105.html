@@ -1,9 +1,10 @@
-<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when:</p>
-<p> * an open curly brace is not placed at the end of a line of code.</p>
-<p> * the closing brace is not on the same line as the <code>else</code>, <code>if-else</code>, <code>catch</code> or <code>finally</code>
-keyword.</p>
-<p> * a statements inside brace appears at the same line as the opening or closing brace.</p>
+<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when the brace-style is not respecting the convention
+setup in parameter:</p>
+<p> * <a href="https://en.wikipedia.org/wiki/Indentation_style#K&amp;R_style">1tbs</a> (default)</p>
+<p> * <a href="https://en.wikipedia.org/wiki/Indentation_style#Allman_style">allman</a></p>
+<p> * <a href="https://en.wikipedia.org/wiki/Indentation_style#Variant:_Stroustrup">stroustrup</a></p>
 <h2>Noncompliant Code Example</h2>
+<p>Using the parameter default (1tbs):</p>
 <pre>
 if (condition)
 {                                                      //Noncompliant
@@ -11,11 +12,6 @@ if (condition)
 }                                                      //Noncompliant
 else {
   doSomethingElse();
-}
-
-try { somethingRisky();                            //Noncompliant
-} catch (err) {
-  handleError();
 }{code}
 </pre>
 <h2>Compliant Solution</h2>
@@ -24,12 +20,6 @@ if (condition) {                                   //Compliant
   doSomething();
 } else {                                           //Compliant
   doSomethingElse();
-}
-
-try {
-  somethingRisky();                                //Compliant
-} catch (err) {
-  handleError();
 }
 </pre>
 <h2>Exceptions</h2>

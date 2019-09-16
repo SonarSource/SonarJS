@@ -31,6 +31,9 @@ public class OpenCurlyBracesAtEOLCheckTest {
     OpenCurlyBracesAtEOLCheck check = new OpenCurlyBracesAtEOLCheck();
     String defaultConfigAsString = new Gson().toJson(check.configurations());
     assertThat(defaultConfigAsString).isEqualTo("[\"1tbs\",{\"allowSingleLine\":true}]");
+    check.braceStyle = "stroustrup";
+    String stroustrupConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(stroustrupConfigAsString).isEqualTo("[\"stroustrup\",{\"allowSingleLine\":true}]");
   }
 
 }
