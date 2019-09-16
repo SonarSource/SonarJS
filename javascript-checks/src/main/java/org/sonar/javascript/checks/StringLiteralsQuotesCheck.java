@@ -32,7 +32,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "SingleQuote")
 @Rule(key = "S1441")
-public class SingleQuoteStringLiteralsCheck extends EslintBasedCheck {
+public class StringLiteralsQuotesCheck extends EslintBasedCheck {
 
   private static final boolean DEFAULT = true;
 

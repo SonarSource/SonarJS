@@ -25,11 +25,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.gson.Gson;
 
-public class SingleQuoteStringLiteralsCheckTest {
+public class StringLiteralsQuotesCheckTest {
 
   @Test
   public void configurations() {
-    SingleQuoteStringLiteralsCheck check = new SingleQuoteStringLiteralsCheck();
+    StringLiteralsQuotesCheck check = new StringLiteralsQuotesCheck();
 
     // default configuration
     String defaultConfigAsString = new Gson().toJson(check.configurations());
