@@ -19,32 +19,41 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "SingleQuote")
-public class SingleQuoteStringLiteralsCheck extends DoubleDispatchVisitorCheck {
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "SingleQuote")
+@Rule(key = "S1441")
+public class StringLiteralsQuotesCheck extends EslintBasedCheck {
 
-  private static final String MESSAGE = "Replace double quotes by single quotes";
+  private static final boolean DEFAULT = true;
+
+  @RuleProperty(
+    key = "singleQuotes",
+    description = "Set to true to require single quotes, false for double quotes.",
+    defaultValue = "" + DEFAULT)
+  public boolean singleQuotes = DEFAULT;
 
   @Override
-  public void visitJsxStandardAttribute(JsxStandardAttributeTree tree) {
-    if (!tree.value().is(Kind.STRING_LITERAL)) {
-      scan(tree.value());
-    }
+  public List<Object> configurations() {
+    return Arrays.asList(singleQuotes ? "single" : "double", new Config());
   }
 
   @Override
-  public void visitLiteral(LiteralTree tree) {
-    String value = tree.value();
-    if (tree.is(Kind.STRING_LITERAL) && value.startsWith("\"") && value.indexOf('\'') < 0) {
-      addIssue(tree, MESSAGE);
-    }
+  public String eslintKey() {
+    return "quotes";
   }
 
+  private static class Config {
+    boolean avoidEscape = true;
+    boolean allowTemplateLiterals = true;
+  }
 }

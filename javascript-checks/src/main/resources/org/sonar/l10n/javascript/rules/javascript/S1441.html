@@ -1,5 +1,6 @@
-<p>For consistency single-quotes (') are preferred to double-quotes ("). This is helpful when creating strings that include HTML. </p>
+<p>This rule checks that all string literals use the same kind of quotes.</p>
 <h2>Noncompliant Code Example</h2>
+<p>Using the parameter default (forcing single quotes):</p>
 <pre>
 var firstParameter = "something";
 </pre>
@@ -8,7 +9,7 @@ var firstParameter = "something";
 var firstParameter = 'something';
 </pre>
 <h2>Exceptions</h2>
-<p>JSX code and strings that contain quotes are ignored.</p>
+<p>Strings that contain quotes are ignored.</p>
 <pre>
 let heSaid = "Then he said 'What?'."  // ignored
 let sheSaid = '"Whatever!" she replied.'  // ignored
