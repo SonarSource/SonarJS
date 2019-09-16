@@ -173,6 +173,7 @@ public final class CheckList {
       NewOperatorMisuseCheck.class,
       NoDuplicateStringCheck.class,
       NoElementOverwriteCheck.class,
+      NoEvalCheck.class,
       NoInvertedBooleanCheckCheck.class,
       NoMagicNumbersCheck.class,
       NonCaseLabelInSwitchCheck.class,

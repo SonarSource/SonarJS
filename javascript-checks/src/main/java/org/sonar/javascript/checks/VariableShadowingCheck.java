@@ -19,61 +19,31 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.symbols.Scope;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
+// deprecated key in TS
+@DeprecatedRuleKey(ruleKey = "S1524")
 @Rule(key = "S1117")
-public class VariableShadowingCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "\"%s\" hides or potentially hides a variable declared in an outer scope at line %s.";
+public class VariableShadowingCheck extends EslintBasedCheck {
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getContext().getSymbolModel().getSymbols()) {
-      if (symbol.isVariable() || symbol.is(Kind.PARAMETER)) {
-        visitSymbol(symbol);
-      }
-    }
+  public String eslintKey() {
+    return "no-shadow";
   }
 
-  private void visitSymbol(Symbol symbol) {
-    if ("arguments".equals(symbol.name()) && symbol.external()) {
-      return;
-    }
-    Scope scope = symbol.scope();
-    if (scope.outer() != null) {
-      Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
-      if (outerSymbol != null && !outerSymbol.external()) {
-        IdentifierTree shadowedDeclaration = getDeclaration(outerSymbol).identifierTree();
-        String message = String.format(MESSAGE, symbol.name(), shadowedDeclaration.identifierToken().line());
-        raiseIssuesOnDeclarations(symbol, message, shadowedDeclaration);
-      }
-    }
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config());
   }
 
-  private void raiseIssuesOnDeclarations(Symbol symbol, String message, IdentifierTree shadowedDeclaration) {
-    for (Usage usage : symbol.usages()) {
-      if (usage.isDeclaration()) {
-        addIssue(usage.identifierTree(), message).secondary(shadowedDeclaration);
-      }
-    }
+  private static class Config {
+    String hoist = "all";
   }
-
-  private static Usage getDeclaration(Symbol symbol) {
-    for (Usage usage : symbol.usages()) {
-      if (usage.isDeclaration()) {
-        return usage;
-      }
-    }
-    return symbol.usages().iterator().next();
-  }
-
 }
