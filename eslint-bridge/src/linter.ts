@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rules as sonarjsRules } from "eslint-plugin-sonarjs";
+import { rules as chaiFriendlyRules } from "eslint-plugin-chai-friendly";
 import { rules as internalRules } from "./rules/main";
 import { Linter, SourceCode, Rule as ESLintRule } from "eslint";
 import { Rule, Issue, IssueLocation } from "./analyzer";
@@ -42,6 +43,8 @@ export interface AdditionalRule {
 const linter = new Linter();
 linter.defineRules(sonarjsRules);
 linter.defineRules(internalRules);
+// core implementation of this rule raises FPs on chai framework
+linter.defineRule("no-unused-expressions", chaiFriendlyRules["no-unused-expressions"]);
 
 try {
   // we load "@typescript-eslint/eslint-plugin" dynamically as it requires TS and so we don't need typescript dependency when analysing pure JS project

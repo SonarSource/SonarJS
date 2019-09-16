@@ -143,4 +143,14 @@ describe("#decodeSecondaryLocations", () => {
     expect(result[0].ruleId).toEqual(COGNITIVE_COMPLEXITY_RULE.ruleId);
     expect(result[0].message).toEqual("6");
   });
+
+  it("should not report unused expressions when chai lib is used", () => {
+    const sourceCode = parseJavaScriptSourceFile(
+      `expect(true).to.be.true;
+       42;`, // we report only here
+    ) as SourceCode;
+    const result = analyze(sourceCode, [{ key: "no-unused-expressions", configurations: [] }])
+      .issues;
+    expect(result).toHaveLength(1);
+  });
 });
