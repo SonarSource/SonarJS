@@ -20,16 +20,15 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S1264")
-public class ForHidingWhileCheck extends EslintBasedCheck {
+@Rule(key = "S1523")
+public class NoEvalCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "prefer-while";
+    return "no-eval";
   }
 }
+
