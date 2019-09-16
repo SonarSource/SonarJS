@@ -1,25 +1,38 @@
-<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when an open curly brace is not placed at the end of a
-line of code.</p>
+<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when the brace-style is not respecting the convention
+setup in parameter:</p>
+<p> * <a href="https://en.wikipedia.org/wiki/Indentation_style#K&amp;R_style">1tbs</a> (default)</p>
+<p> * <a href="https://en.wikipedia.org/wiki/Indentation_style#Allman_style">allman</a></p>
+<p> * <a href="https://en.wikipedia.org/wiki/Indentation_style#Variant:_Stroustrup">stroustrup</a></p>
 <h2>Noncompliant Code Example</h2>
+<p>Using the parameter default (1tbs):</p>
 <pre>
 if (condition)
 {                                                      //Noncompliant
   doSomething();
-}
+}                                                      //Noncompliant
+else {
+  doSomethingElse();
+}{code}
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
 if (condition) {                                   //Compliant
   doSomething();
+} else {                                           //Compliant
+  doSomethingElse();
 }
 </pre>
 <h2>Exceptions</h2>
-<p>Object literals appearing as arguments can start on their own line.</p>
+<p> * Object literals appearing as arguments can start on their own line.</p>
 <pre>
 functionWithObject(
    {                                                 //Compliant
         g: "someValue"
    }
 );
+</pre>
+<p> * When blocks are inlined (left and right curly braces on the same line), no issue is triggered.</p>
+<pre>
+if(condition) {doSomething();}                       //Compliant
 </pre>
 
