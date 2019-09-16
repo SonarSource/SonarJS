@@ -125,6 +125,9 @@ public class TestUtils {
   }
 
   static void npmInstall(File dir, String... params) throws IOException, InterruptedException {
+    if (isUserHome(dir)) {
+      throw new IllegalStateException("Attempt to install in user home " + Arrays.toString(params));
+    }
     String npm = SystemUtils.IS_OS_WINDOWS ? "npm.cmd" : "npm";
     String[] cmd = Stream.concat(Stream.of(npm, "install"), Arrays.stream(params)).toArray(String[]::new);
     ProcessBuilder pb = new ProcessBuilder(cmd).inheritIO().directory(dir);
@@ -133,6 +136,11 @@ public class TestUtils {
     if (returnValue != 0) {
       throw new IllegalStateException(format("Failed to run npm install. '%s' returned %d.'", pb.command(), returnValue));
     }
+  }
+
+  private static boolean isUserHome(File dir) throws IOException {
+    String userHome = System.getProperty("user.home");
+    return Files.isSameFile(dir.toPath(), Paths.get(userHome));
   }
 }
 
