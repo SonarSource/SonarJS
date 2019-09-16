@@ -19,18 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class VariableDeclarationAfterUsageCheckTest {
 
   @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(
-      new VariableDeclarationAfterUsageCheck(),
-      new File("src/test/resources/checks/variableDeclarationAfterUsageCheck.js"));
+  public void configurations() {
+    String configAsString = new Gson().toJson(new VariableDeclarationAfterUsageCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"functions\":false,\"classes\":false}]");
   }
-
 }
