@@ -2,7 +2,6 @@
   "name": "Sonar way",
   "ruleKeys": [
     "BitwiseOperators",
-    "DebuggerStatement",
     "DuplicateFunctionArgument",
     "DuplicatePropertyName",
     "Eval",
@@ -29,6 +28,7 @@
     "S1442",
     "S1472",
     "S1479",
+    "S1525",
     "S1656",
     "S1751",
     "S1764",
