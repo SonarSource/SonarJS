@@ -19,16 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.gson.Gson;
-import org.junit.Test;
+import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-import static org.assertj.core.api.Assertions.assertThat;
+@TypeScriptRule
+@Rule(key = "S1523")
+public class NoEvalCheck extends EslintBasedCheck {
 
-public class VariableShadowingCheckTest {
-
-  @Test
-  public void test() {
-    assertThat(new Gson().toJson(new VariableShadowingCheck().configurations())).isEqualTo("[{\"hoist\":\"all\"}]");
+  @Override
+  public String eslintKey() {
+    return "no-eval";
   }
-
 }
+
