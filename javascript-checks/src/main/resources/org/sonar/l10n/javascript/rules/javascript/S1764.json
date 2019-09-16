@@ -2,7 +2,8 @@
   "title": "Identical expressions should not be used on both sides of a binary operator",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
