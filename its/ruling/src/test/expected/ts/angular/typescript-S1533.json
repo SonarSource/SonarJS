@@ -1,0 +1,14 @@
+{
+'angular:modules/playground/src/web_workers/images/index_common.ts':[
+17,
+],
+'angular:packages/core/test/linker/view_injector_integration_spec.ts':[
+98,
+98,
+99,
+],
+'angular:packages/http/src/http_utils.ts':[
+45,
+54,
+]
+}
