@@ -30,7 +30,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "VariableDeclarationAfterUsage")
 @Rule(key = "S1526")
-public class VariableDeclarationAfterUsageCheck extends EslintBasedCheck {
+public class DeclarationAfterUsageCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
