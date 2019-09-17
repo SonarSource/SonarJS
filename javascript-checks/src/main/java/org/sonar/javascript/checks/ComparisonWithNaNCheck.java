@@ -19,68 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
-import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2688")
-public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Use a test of the format \"a %s a\" instead.";
-  private static final String NAN = "NaN";
+public class ComparisonWithNaNCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.copyOf(KindSet.EQUALITY_KINDS.getSubKinds());
+  public String eslintKey() {
+    return "use-isnan";
   }
-
-  @Override
-  public void visitNode(Tree tree) {
-    BinaryExpressionTree expression = (BinaryExpressionTree) tree;
-    ExpressionTree nan = getNaN(expression);
-
-    if (nan != null) {
-      addIssue(nan, String.format(MESSAGE, expression.operatorToken().text()))
-        .secondary(expression.operatorToken());
-    }
-  }
-
-  /**
-   * Returns true for "NaN" and "Number.NaN"
-   */
-  private static boolean isNaN(ExpressionTree expression) {
-    if (expression.is(Kind.DOT_MEMBER_EXPRESSION)) {
-      DotMemberExpressionTree memberExpression = (DotMemberExpressionTree) expression;
-      return isIdentifier(memberExpression.object(), "Number") && isIdentifier(memberExpression.property(), NAN);
-    } else {
-      return isIdentifier(expression, NAN);
-    }
-  }
-
-  private static boolean isIdentifier(Tree tree, String value) {
-    return tree instanceof IdentifierTree && value.equals(((IdentifierTree) tree).name());
-  }
-
-  @CheckForNull
-  private static ExpressionTree getNaN(BinaryExpressionTree expression) {
-    if (isNaN(expression.leftOperand())) {
-      return expression.leftOperand();
-    } else if (isNaN(expression.rightOperand())) {
-      return expression.rightOperand();
-    }
-
-    return null;
-  }
-
 }

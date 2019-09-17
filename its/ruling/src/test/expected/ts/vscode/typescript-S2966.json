@@ -1,0 +1,17 @@
+{
+'vscode:extensions/grunt/src/main.ts':[
+89,
+91,
+],
+'vscode:extensions/gulp/src/main.ts':[
+92,
+94,
+],
+'vscode:extensions/vscode-api-tests/src/window.test.ts':[
+22,
+124,
+125,
+128,
+129,
+],
+}

@@ -1,8 +1,9 @@
 {
-  "title": "Related \"if\/else if\" statements and \"cases\" in a \"switch\" should not have the same condition",
+  "title": "Related \"if\/else if\" statements should not have the same condition",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
