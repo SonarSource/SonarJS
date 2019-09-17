@@ -105,7 +105,7 @@ public final class CheckList {
       DifferentTypesComparisonCheck.class,
       DuplicateAllBranchImplementationCheck.class,
       DuplicateBranchImplementationCheck.class,
-      DuplicateConditionIfElseAndSwitchCasesCheck.class,
+      DuplicateConditionIfCheck.class,
       DuplicateFunctionArgumentCheck.class,
       DuplicatePropertyNameCheck.class,
       ElementTypeSelectorCheck.class,
