@@ -2,7 +2,8 @@
   "title": "\"NaN\" should not be used in comparisons",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
