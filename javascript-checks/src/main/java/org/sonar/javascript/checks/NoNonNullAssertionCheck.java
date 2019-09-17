@@ -20,16 +20,15 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S2737")
-public class NoUselessCatchCheck extends EslintBasedCheck {
+@Rule(key = "S2966")
+public class NoNonNullAssertionCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-useless-catch";
+    return "no-non-null-assertion";
   }
+
 }
