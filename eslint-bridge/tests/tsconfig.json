@@ -1,6 +1,9 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "strictNullChecks": false
-  }
+    "strictNullChecks": false,
+    "noImplicitAny": false
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["**/fixtures/**"]
 }

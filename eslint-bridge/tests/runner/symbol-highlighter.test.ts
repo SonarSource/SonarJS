@@ -1,9 +1,7 @@
-import getHighlighting, { Highlight, SonarTypeOfText } from "../../src/runner/highlighter";
-import { parseTypeScriptSourceFile } from "../../src/parser";
 import { join } from "path";
-import { SourceCode } from "eslint";
 import { analyzeTypeScript } from "../../src/analyzer";
-import { HighlightedSymbol, Location } from "../../src/runner/symbol-highlighter";
+import { HighlightedSymbol } from "../../src/runner/symbol-highlighter";
+import { Location } from "../../src/runner/location";
 
 it("should highlight variable references", () => {
   const result = actual(
