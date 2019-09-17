@@ -19,15 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import com.google.gson.Gson;
+import org.junit.Test;
 
-@JavaScriptRule
-@Rule(key = "S1862")
-public class DuplicateConditionIfElseAndSwitchCasesCheck extends EslintBasedCheck {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public String eslintKey() {
-    return "no-identical-conditions";
+
+public class DeclarationAfterUsageCheckTest {
+
+  @Test
+  public void configurations() {
+    String configAsString = new Gson().toJson(new DeclarationAfterUsageCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"functions\":false,\"classes\":false}]");
   }
 }
