@@ -21,10 +21,12 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1862")
-public class DuplicateConditionIfElseAndSwitchCasesCheck extends EslintBasedCheck {
+public class DuplicateConditionIfCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
