@@ -2,7 +2,8 @@
   "title": "\"arguments.caller\" and \"arguments.callee\" should not be used",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
