@@ -61,15 +61,16 @@ public class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     String sampleFileKey = projectKey + ":sample.lint.ts";
-    List<Issues.Issue> issuesList = getIssues(sampleFileKey);
-    assertThat(issuesList).hasSize(1);
-    assertThat(issuesList.get(0).getLine()).isEqualTo(4);
 
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "ncloc")).isEqualTo(7);
+    assertThat(getIssues(sampleFileKey)).hasSize(2);
+    assertThat(getIssues(sampleFileKey, "typescript:S1874")).extracting("line").containsExactly(11);
+    assertThat(getIssues(sampleFileKey, "typescript:S3923")).extracting("line").containsExactly(4);
+
+    assertThat(Tests.getMeasureAsInt(sampleFileKey, "ncloc")).isEqualTo(8);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "classes")).isEqualTo(0);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "functions")).isEqualTo(1);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(3);
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
+    assertThat(Tests.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(2);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "complexity")).isEqualTo(2);
     assertThat(Tests.getMeasureAsInt(sampleFileKey, "cognitive_complexity")).isEqualTo(2);
 
@@ -77,8 +78,7 @@ public class TypeScriptAnalysisTest {
     assertThat(Tests.getMeasureAsDouble(projectKey, "duplicated_blocks")).isEqualTo(2.0);
     assertThat(Tests.getMeasureAsDouble(projectKey, "duplicated_files")).isEqualTo(1.0);
 
-    issuesList = getIssues(projectKey + ":nosonar.lint.ts");
-    assertThat(issuesList).hasSize(1);
+    assertThat(getIssues(projectKey + ":nosonar.lint.ts")).hasSize(1);
 
     assertThat(result.getLogsLines(log -> log.contains("Found 1 tsconfig.json file(s)"))).hasSize(1);
   }

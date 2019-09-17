@@ -17,6 +17,11 @@
       <repositoryKey>typescript</repositoryKey>
       <key>S4325</key>    <!-- useless cast -->
       <priority>INFO</priority>
-  </rule>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S1874</key>    <!-- deprecation -->
+      <priority>INFO</priority>
+    </rule>
   </rules>
 </profile>

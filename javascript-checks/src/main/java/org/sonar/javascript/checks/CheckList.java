@@ -100,6 +100,7 @@ public final class CheckList {
       DefaultParametersNotLastCheck.class,
       DeleteArrayElementCheck.class,
       DeleteNonPropertyCheck.class,
+      DeprecatedCheck.class,
       DeprecatedJQueryAPICheck.class,
       DestructuringAssignmentSyntaxCheck.class,
       DifferentTypesComparisonCheck.class,

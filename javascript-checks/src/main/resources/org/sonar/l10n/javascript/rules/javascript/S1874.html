@@ -1,0 +1,20 @@
+<p>Once deprecated, classes, and interfaces, and their members should be avoided, rather than used, inherited or extended. Deprecation is a warning
+that the class or interface has been superseded, and will eventually be removed. The deprecation period allows you to make a smooth transition away
+from the aging, soon-to-be-retired technology.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+export interface LanguageService {
+  /**
+  * @deprecated Use getEncodedSyntacticClassifications instead.
+  */
+  getSyntacticClassifications(fileName: string, span: TextSpan): ClassifiedSpan[];
+}
+
+const syntacticClassifications = getLanguageService().getSyntacticClassifications(file, span); // Noncompliant
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="http://cwe.mitre.org/data/definitions/477.html">MITRE, CWE-477</a> - Use of Obsolete Functions </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/KgAVAg">CERT, MET02-J.</a> - Do not use deprecated or obsolete classes or methods </li>
+</ul>
+

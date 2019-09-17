@@ -7,3 +7,6 @@ function foo(b: number, c: number) {
     doOneMoreThing();
   }
 }
+
+import { old } from "./deprecatedFunc"; // Noncompliant, deprecated
+

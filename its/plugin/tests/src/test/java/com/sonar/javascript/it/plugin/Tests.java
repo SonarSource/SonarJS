@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.junit.ClassRule;
@@ -127,9 +128,9 @@ public final class Tests {
       .build());
   }
 
-  static List<Issue> getIssues(String componentKey) {
+  static List<Issue> getIssues(String componentKey, String... ruleKeys) {
     SearchRequest request = new SearchRequest();
-    request.setComponentKeys(singletonList(componentKey));
+    request.setComponentKeys(singletonList(componentKey)).setRules(Arrays.asList(ruleKeys));
     return newWsClient().issues().search(request).getIssuesList();
   }
 }

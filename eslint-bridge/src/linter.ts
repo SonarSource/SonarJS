@@ -19,6 +19,7 @@
  */
 import { rules as sonarjsRules } from "eslint-plugin-sonarjs";
 import { rules as chaiFriendlyRules } from "eslint-plugin-chai-friendly";
+import { rules as importRules } from "eslint-plugin-import";
 import { rules as internalRules } from "./rules/main";
 import { Linter, SourceCode, Rule as ESLintRule } from "eslint";
 import { Rule, Issue, IssueLocation } from "./analyzer";
@@ -43,6 +44,7 @@ export interface AdditionalRule {
 const linter = new Linter();
 linter.defineRules(sonarjsRules);
 linter.defineRules(internalRules);
+linter.defineRules(importRules);
 // core implementation of this rule raises FPs on chai framework
 linter.defineRule("no-unused-expressions", chaiFriendlyRules["no-unused-expressions"]);
 
@@ -125,7 +127,11 @@ function createLinterConfig(
   inputRules: Rule[],
   additionalRules: { ruleId: string; ruleModule: ESLintRule.RuleModule; ruleConfig: any[] }[],
 ) {
-  const ruleConfig: Linter.Config = { rules: {}, parserOptions: { sourceType: "module" } };
+  const ruleConfig: Linter.Config = {
+    rules: {},
+    parserOptions: { sourceType: "module" },
+    settings: settingsToLintImportsInTypeScript(),
+  };
   inputRules.forEach(inputRule => {
     const ruleModule = linter.getRules().get(inputRule.key);
     ruleConfig.rules![inputRule.key] = ["error", ...getRuleConfig(ruleModule, inputRule)];
@@ -136,6 +142,21 @@ function createLinterConfig(
       (ruleConfig.rules![additionalRule.ruleId] = ["error", ...additionalRule.ruleConfig]),
   );
   return ruleConfig;
+}
+
+function settingsToLintImportsInTypeScript() {
+  const allExtensions = [".ts", ".tsx", ".d.ts", ".js", ".jsx"];
+  return {
+    "import/extensions": allExtensions,
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx", ".d.ts"],
+    },
+    "import/resolver": {
+      node: {
+        extensions: allExtensions,
+      },
+    },
+  };
 }
 
 /**
