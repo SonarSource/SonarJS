@@ -1,0 +1,18 @@
+<p>The point of declaring an optional property or parameter is to make explicit the fact that it might contain no valid value, i.e. <code>null</code>
+or <code>undefined</code>. Using a non-null assertion (the <code>!.</code> operator) will lead to a runtime error if the optional does contain
+<code>null</code> or <code>undefined</code>. Even if the value is tested first, it's still considered a bad practice to use a non-null assertion. </p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function doTheThing(foo?: Foo) {
+  let s = foo!.bar;  // Noncompliant
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function doTheThing(foo?: Foo) {
+  if (foo) {
+    let s = foo.bar;
+  }
+}
+</pre>
+

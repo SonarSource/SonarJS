@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S1656")
-public class SelfAssignmentCheck extends EslintBasedCheck {
-
+@Rule(key = "S3257")
+public class NoInferrableTypesCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-self-assign";
+    return "no-inferrable-types";
   }
 }

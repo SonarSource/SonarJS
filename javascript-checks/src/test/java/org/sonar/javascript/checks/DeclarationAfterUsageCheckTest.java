@@ -19,18 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import com.google.gson.Gson;
+import org.junit.Test;
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S1656")
-public class SelfAssignmentCheck extends EslintBasedCheck {
+import static org.assertj.core.api.Assertions.assertThat;
 
 
-  @Override
-  public String eslintKey() {
-    return "no-self-assign";
+public class DeclarationAfterUsageCheckTest {
+
+  @Test
+  public void configurations() {
+    String configAsString = new Gson().toJson(new DeclarationAfterUsageCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"functions\":false,\"classes\":false}]");
   }
 }

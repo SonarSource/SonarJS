@@ -19,18 +19,32 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S1656")
-public class SelfAssignmentCheck extends EslintBasedCheck {
-
+@DeprecatedRuleKey(ruleKey = "VariableDeclarationAfterUsage")
+@Rule(key = "S1526")
+public class DeclarationAfterUsageCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-self-assign";
+    return "no-use-before-define";
   }
+
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config());
+  }
+
+  private static class Config {
+    boolean functions = false;
+    boolean classes = false;
+  }
+
 }
