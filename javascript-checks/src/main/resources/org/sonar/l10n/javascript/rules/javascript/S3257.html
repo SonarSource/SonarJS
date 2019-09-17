@@ -1,0 +1,24 @@
+<p>Unnecessarily verbose declarations and initializations make it harder to read the code, and should be simplified. Specifically, primitive
+(<code>number</code>, <code>string</code>, and <code>boolean</code>) types should be omitted from variable and parameter declaration when they can be
+easily inferred from the initialized or defaulted value.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+const n: number = 1; // Noncompliant, "number" can be omitted
+
+function foo(s: string = "") {} // Noncompliant, "string" can be omitted
+
+class Bar {
+  b: boolean = true;  // Noncompliant, "boolean" can be omitted
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+const n = 1;
+
+function foo(s = "") {}
+
+class Bar {
+  b = true;
+}
+</pre>
+
