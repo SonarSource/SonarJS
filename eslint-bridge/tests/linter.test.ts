@@ -1,21 +1,17 @@
 import { getRuleConfig, decodeSonarRuntimeIssue, analyze } from "../src/linter";
 import { Rule, SourceCode } from "eslint";
-import {
-  SYMBOL_HIGHLIGHTING_RULE,
-  COGNITIVE_COMPLEXITY_RULE,
-  Rule as InputRule,
-} from "../src/analyzer";
-import { parse, parseJavaScriptSourceFile } from "../src/parser";
+import { SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE } from "../src/analyzer";
+import { parseJavaScriptSourceFile } from "../src/parser";
 
 const ruleUsingSecondaryLocations = {
   meta: { schema: { enum: ["sonar-runtime"] } },
-  create(context: Rule.RuleContext) {
+  create(_context: Rule.RuleContext) {
     return {};
   },
 };
 
 const regularRule = {
-  create(context: Rule.RuleContext) {
+  create(_context: Rule.RuleContext) {
     return {};
   },
 };
