@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,7 +49,7 @@ public class SonarLintTestCustomNodeJS {
 
   private static File baseDir;
 
-  private List<String> logs = new ArrayList<>();
+  private List<String> logs = new CopyOnWriteArrayList<>();
 
   @Before
   public void prepare() throws Exception {
@@ -90,6 +91,7 @@ public class SonarLintTestCustomNodeJS {
 
   @Test
   public void should_log_failure_only_once() throws Exception {
+    List<Issue> issues = new ArrayList<>();
     ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, FILE_PATH, "function foo() { try {" +
       "  doSomething();" +
       "} catch (ex) {" +
@@ -102,13 +104,13 @@ public class SonarLintTestCustomNodeJS {
       .setBaseDir(baseDir.toPath())
       .addInputFile(inputFile)
       .putAllExtraProperties(properties).build();
-    sonarlintEngine.analyze(configuration, i -> {
-    }, null, null);
+    sonarlintEngine.analyze(configuration, issues::add, null, null);
 
     assertThat(logs).contains("Provided Node.js executable file does not exist.");
+    assertThat(issues).isEmpty();
     logs.clear();
-    sonarlintEngine.analyze(configuration, i -> {
-    }, null, null);
+    sonarlintEngine.analyze(configuration, issues::add, null, null);
+    assertThat(issues).isEmpty();
     sonarlintEngine.stop();
     assertThat(logs).doesNotContain("Provided Node.js executable file does not exist.");
     assertThat(logs).contains("Skipping start of eslint-bridge server due to the failure during first analysis");
