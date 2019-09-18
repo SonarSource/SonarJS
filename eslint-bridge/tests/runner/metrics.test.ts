@@ -5,7 +5,7 @@ import { parseTypeScriptSourceFile } from "../../src/parser";
 import { SourceCode } from "eslint";
 
 it("should return lines of code", () => {
-  const sourceCode = parseTypeScriptSourceFile(
+  const sourceCode = parseTS(
     `/*
       * header
       */
@@ -20,8 +20,6 @@ it("should return lines of code", () => {
      /* multi
      line
      comment */`,
-    "foo.ts",
-    [],
   );
   expect(metrics.findLinesOfCode(sourceCode)).toEqual([4, 6, 7, 8, 9, 11]);
 });
@@ -112,24 +110,20 @@ it("should return comment lines without header ignoring and no header comment", 
 });
 
 it("should return NOSONAR lines", () => {
-  const sourceCode = parseTypeScriptSourceFile(
+  const sourceCode = parseTS(
     `x; // NoSonar foo
      y; /* NOSONAR */
      // NOSONAR
      z; // NOOOSONAR
      z; // some comment`,
-    "foo.ts",
-    [],
   );
   expect(metrics.findCommentLines(sourceCode, true).nosonarLines).toEqual([1, 2, 3]);
 });
 
 it("should return executable lines", () => {
   // executable lines simply have trailling comments in the fixture file
-  const sourceCode = parseTypeScriptSourceFile(
+  const sourceCode = parseTS(
     fs.readFileSync(path.join(__dirname, "./fixtures/executableLines.lint.ts"), "utf-8"),
-    "foo.ts",
-    [],
   );
   expect(metrics.findExecutableLines(sourceCode)).toEqual(
     metrics.findCommentLines(sourceCode, true).commentLines,
@@ -137,7 +131,7 @@ it("should return executable lines", () => {
 });
 
 it("should count functions", () => {
-  const sourceCode = parseTypeScriptSourceFile(
+  const sourceCode = parseTS(
     `class A {
        foo() { // 1
          return function(){};// 2
@@ -150,14 +144,12 @@ it("should count functions", () => {
        return ()=>42; // 5
      }
      function * gen(){} // 6`,
-    "foo.ts",
-    [],
   );
   expect(metrics.countFunctions(sourceCode)).toEqual(6);
 });
 
 it("should count statements", () => {
-  const sourceCode = parseTypeScriptSourceFile(
+  const sourceCode = parseTS(
     `let x = 42; // 1
     ; // 2
     foo(); // 3
@@ -171,21 +163,17 @@ it("should count statements", () => {
       do{} while (x); // 10
     } catch (e) {}
     finally {}`,
-    "foo.ts",
-    [],
   );
   expect(metrics.countStatements(sourceCode)).toEqual(10);
 });
 
 it("should count classes", () => {
-  const sourceCode = parseTypeScriptSourceFile(
+  const sourceCode = parseTS(
     `class A { // 1
       foo() {
         return class {}; // 2
       }
     }`,
-    "foo.ts",
-    [],
   );
   expect(metrics.countClasses(sourceCode)).toEqual(2);
 });
@@ -199,11 +187,19 @@ it("should compute cyclomatic complexity", () => {
 });
 
 function cyclomaticComplexity(code: string): number {
-  const sourceCode = parseTypeScriptSourceFile(code, "foo.ts", []);
+  const sourceCode = parseTS(code);
   return metrics.getCyclomaticComplexity(sourceCode);
 }
 
 function comments(code: string, ignoreHeader: boolean): number[] {
-  const sourceCode = parseTypeScriptSourceFile(code, "foo.ts", []);
+  const sourceCode = parseTS(code);
   return metrics.findCommentLines(sourceCode, ignoreHeader).commentLines;
+}
+
+function parseTS(code: string) {
+  const sourceCode = parseTypeScriptSourceFile(code, "foo.ts", []);
+  if (!(sourceCode instanceof SourceCode)) {
+    throw new Error("Failed to parse " + sourceCode);
+  }
+  return sourceCode;
 }
