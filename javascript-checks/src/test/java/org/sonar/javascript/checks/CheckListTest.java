@@ -78,6 +78,8 @@ public class CheckListTest {
         .isNull();
     }
 
+    // this rule has different implementation for TS and JS
+    keys.remove("S3402");
     assertThat(keys).doesNotHaveDuplicates();
   }
 
