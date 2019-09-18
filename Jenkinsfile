@@ -31,7 +31,7 @@ pipeline {
           steps {
             runITsNoSubmodules("plugin","DOGFOOD")
           }
-        }     
+        }
         stage('plugin/LATEST_RELEASE[7.9]/linux') {
           agent {
             label 'linux'
@@ -47,7 +47,7 @@ pipeline {
           steps {
             runRulingIT("ruling", "JavaScript", "LATEST_RELEASE")
           }
-        }                       
+        }
         stage('ruling/TS/LATEST_RELEASE/linux') {
           agent {
             label 'multicpu'
@@ -56,7 +56,6 @@ pipeline {
             runRulingIT("ruling", "TypeScript", "LATEST_RELEASE")
           }
         }
-
 
         stage('plugin/LATEST_RELEASE[7.9]/windows') {
           agent {
@@ -77,7 +76,7 @@ pipeline {
             }
           }
         }
-      }         
+      }
       post {
         always {
           sendAllNotificationQaResult()
