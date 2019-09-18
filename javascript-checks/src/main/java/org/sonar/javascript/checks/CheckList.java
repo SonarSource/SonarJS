@@ -205,6 +205,7 @@ public final class CheckList {
       PseudoRandomCheck.class,
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,
+      RestrictPlusOperandsCheck.class,
       GratuitousConditionCheck.class,
       RedundantAssignmentCheck.class,
       ReferenceErrorCheck.class,
