@@ -3,6 +3,7 @@ import * as http from "http";
 import { Server } from "http";
 import { promisify } from "util";
 import { join } from "path";
+import { AddressInfo } from "net";
 
 const expectedResponse = {
   issues: [
@@ -207,7 +208,7 @@ describe("server", () => {
     const req = http.request(
       {
         host: "localhost",
-        port: server.address().port,
+        port: (<AddressInfo>server.address()).port,
         path: "/status",
         method: "GET",
       },
@@ -228,7 +229,7 @@ describe("server", () => {
   function post(data, endpoint): Promise<string> {
     const options = {
       host: "localhost",
-      port: server.address().port,
+      port: (<AddressInfo>server.address()).port,
       path: endpoint,
       method: "POST",
       headers: {
