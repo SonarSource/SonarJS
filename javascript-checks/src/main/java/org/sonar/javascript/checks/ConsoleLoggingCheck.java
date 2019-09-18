@@ -19,40 +19,32 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
+// deprecated key in TS
+@DeprecatedRuleKey(ruleKey = "S2228")
 @Rule(key = "S106")
-public class ConsoleLoggingCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Replace this usage of console.%s by a logger.";
-
-  private static final Set<String> LOG_METHODS = ImmutableSet.of("log", "warn", "error");
+public class ConsoleLoggingCheck extends EslintBasedCheck {
 
   @Override
-  public void visitCallExpression(CallExpressionTree tree) {
-    if (tree.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
-      DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
-
-      if (isCalleeConsoleLogging(callee)) {
-        addIssue(callee, String.format(MESSAGE, callee.property().name()));
-      }
-    }
-
-    super.visitCallExpression(tree);
+  public String eslintKey() {
+    return "no-console";
   }
 
-  private static boolean isCalleeConsoleLogging(DotMemberExpressionTree callee) {
-    return callee.object().is(Kind.IDENTIFIER_REFERENCE) && "console".equals(((IdentifierTree) callee.object()).name())
-      && LOG_METHODS.contains(callee.property().name());
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config());
   }
 
+  private static class Config {
+    List<String> allow = Arrays.asList("assert", "clear", "count", "group", "groupCollapsed", "groupEnd", "info", "table", "time", "timeEnd", "trace");
+  }
 }

@@ -19,29 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3504")
-public class VarDeclarationCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Replace \"var\" with \"let\" or \"const\"";
+public class VarDeclarationCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.of(Kind.VAR_DECLARATION);
+  public String eslintKey() {
+    return "no-var";
   }
-
-  @Override
-  public void visitNode(Tree tree) {
-    addIssue(((VariableDeclarationTree) tree).token(), MESSAGE);
-  }
-
 }

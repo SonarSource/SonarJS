@@ -19,91 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import java.util.LinkedList;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2685")
-public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
-
-  private static final String ARGUMENTS = "arguments";
-  private static final String CALLER = "caller";
-  private static final String CALLEE = "callee";
-
-  LinkedList<String> scope = Lists.newLinkedList();
+public class ArgumentsCallerCalleeUsageCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.<Kind>builder()
-      .add(Kind.DOT_MEMBER_EXPRESSION)
-      .addAll(KindSet.FUNCTION_KINDS.getSubKinds())
-      .build();
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    if (tree.is(KindSet.FUNCTION_KINDS)) {
-      Tree name = ((FunctionTree) tree).name();
-
-      if (name != null) {
-        scope.add(CheckUtils.asString(name));
-      }
-
-    } else {
-      checkExpression((DotMemberExpressionTree) tree);
-    }
-  }
-
-  private void checkExpression(DotMemberExpressionTree expression) {
-    if (!expression.object().is(Kind.IDENTIFIER_REFERENCE) || !expression.property().is(Kind.PROPERTY_IDENTIFIER)) {
-      return;
-    }
-
-    String object = ((IdentifierTree) expression.object()).name();
-    String property = (expression.property()).name();
-
-    if (ARGUMENTS.equals(object)) {
-      checkArgumentsProperty(expression, property);
-
-    } else if (scope.contains(object)) {
-      checkFunctionsProperty(expression, object, property);
-    }
-  }
-
-  private void checkFunctionsProperty(Tree tree, String object, String property) {
-    if (CALLER.equals(property)) {
-      addIssue(tree, "Remove this use of \"" + object + ".caller\".");
-
-    } else if (ARGUMENTS.equals(property)) {
-      addIssue(tree, "Remove this use of \"" + object + ".arguments\".");
-    }
-  }
-
-  private void checkArgumentsProperty(Tree tree, String property) {
-    if (CALLER.equals(property)) {
-      addIssue(tree, "Remove this use of \"arguments.caller\".");
-
-    } else if (CALLEE.equals(property)) {
-      addIssue(tree, "Name the enclosing function instead of using the deprecated property \"arguments.callee\".");
-    }
-  }
-
-  @Override
-  public void leaveNode(Tree tree) {
-    if (tree.is(KindSet.FUNCTION_KINDS) && ((FunctionTree) tree).name() != null) {
-      scope.removeLast();
-    }
+  public String eslintKey() {
+    return "no-caller";
   }
 }

@@ -48,7 +48,6 @@ describe("parseJavaScriptSourceFile", () => {
   });
 
   it("should parse recent javascript syntax", () => {
-    let sourceCode;
     // ES2018
     expectToParse(
       `const obj = {foo: 1, bar: 2, baz: 3};
