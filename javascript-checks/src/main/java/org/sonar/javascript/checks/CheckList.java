@@ -186,6 +186,7 @@ public final class CheckList {
       NonStandardImportCheck.class,
       NotStoredSelectionCheck.class,
       NoNonNullAssertionCheck.class,
+      NoReturnAwaitCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
       NoUselessCatchCheck.class,
       NullDereferenceCheck.class,
