@@ -20,16 +20,15 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S1764")
-public class IdenticalExpressionOnBinaryOperatorCheck extends EslintBasedCheck {
+@Rule(key = "S2933")
+public class PreferReadonlyCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-identical-expressions";
+    return "prefer-readonly";
   }
+
 }

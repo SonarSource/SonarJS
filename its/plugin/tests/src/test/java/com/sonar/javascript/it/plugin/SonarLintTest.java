@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -48,36 +47,32 @@ public class SonarLintTest {
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
-  private static StandaloneSonarLintEngine sonarlintEngine;
+  private StandaloneSonarLintEngine sonarlintEngine;
 
   private static File baseDir;
 
   private static List<String> logs = new ArrayList<>();
+  private static StandaloneGlobalConfiguration sonarLintConfig;
 
   @BeforeClass
   public static void prepare() throws Exception {
-    StandaloneGlobalConfiguration sonarLintConfig = StandaloneGlobalConfiguration.builder()
+    sonarLintConfig = StandaloneGlobalConfiguration.builder()
       .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
       .setSonarLintUserHome(temp.newFolder().toPath())
       .setLogOutput((formattedMessage, level) -> logs.add(formattedMessage))
       .build();
-    sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
     baseDir = temp.newFolder();
-  }
-
-  @AfterClass
-  public static void stop() {
-    sonarlintEngine.stop();
   }
 
   @Test
   public void should_raise_three_issues() throws IOException {
+    sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
     List<Issue> issues = analyze(FILE_PATH, "function foo() { \n"
       + "  var a; \n"
       + "  var c; // NOSONAR\n"
       + "  var b = 42; \n"
       + "} \n");
-
+    sonarlintEngine.stop();
     String filePath = new File(baseDir, FILE_PATH).getAbsolutePath();
     assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
       tuple("javascript:UnusedVariable", 2, filePath, "MINOR"),
@@ -87,6 +82,7 @@ public class SonarLintTest {
 
   @Test
   public void should_run_eslint_based_rules() throws Exception {
+    sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
     String sourceCode = "function foo() { try {" +
       "  doSomething();" +
       "} catch (ex) {" +
@@ -96,6 +92,7 @@ public class SonarLintTest {
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
     // let's analyze again
     issues = analyze(FILE_PATH, sourceCode);
+    sonarlintEngine.stop();
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
     assertThat(logs).contains("SonarJS eslint-bridge server is up, no need to start.");
   }

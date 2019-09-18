@@ -1,8 +1,7 @@
 {
-  "title": "Identical expressions should not be used on both sides of a binary operator",
-  "type": "BUG",
+  "title": "Private properties that are only assigned in the constructor or at declaration should be \"readonly\"",
+  "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT",
     "TYPESCRIPT"
   ],
   "status": "ready",
@@ -11,10 +10,10 @@
     "constantCost": "2min"
   },
   "tags": [
-    "cert"
+    "confusing"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1764",
-  "sqKey": "S1764",
+  "ruleSpecification": "RSPEC-2933",
+  "sqKey": "S2933",
   "scope": "All"
 }
