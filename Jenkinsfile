@@ -24,6 +24,7 @@ pipeline {
     }
     stage('QA') {
       parallel {
+        /*
         stage('plugin/DOGFOOD/linux') {
           agent {
             label 'linux'
@@ -31,7 +32,9 @@ pipeline {
           steps {
             runITsNoSubmodules("plugin","DOGFOOD")
           }
-        }     
+        }
+        */
+        /*
         stage('plugin/LATEST_RELEASE[7.9]/linux') {
           agent {
             label 'linux'
@@ -40,6 +43,7 @@ pipeline {
             runITsNoSubmodules("plugin","LATEST_RELEASE[7.9]")
           }
         }
+        */
         stage('ruling/JS/LATEST_RELEASE/linux') {
           agent {
             label 'multicpu'
@@ -47,7 +51,8 @@ pipeline {
           steps {
             runRulingIT("ruling", "JavaScript", "LATEST_RELEASE")
           }
-        }                       
+        }
+        /*
         stage('ruling/TS/LATEST_RELEASE/linux') {
           agent {
             label 'multicpu'
@@ -56,8 +61,9 @@ pipeline {
             runRulingIT("ruling", "TypeScript", "LATEST_RELEASE")
           }
         }
+        */
 
-
+        /*
         stage('plugin/LATEST_RELEASE[7.9]/windows') {
           agent {
             label 'windows'
@@ -66,6 +72,8 @@ pipeline {
             runITsNoSubmodules("plugin","LATEST_RELEASE")
           }
         }
+        */
+        /*
         stage('ci/windows') {
           agent {
             label 'windows'
@@ -77,6 +85,7 @@ pipeline {
             }
           }
         }
+        */
       }         
       post {
         always {
