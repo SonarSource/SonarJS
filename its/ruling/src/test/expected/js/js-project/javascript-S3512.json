@@ -1524,9 +1524,6 @@
 'js-project:jest/packages/jest-haste-map/src/index.js':[
 533,
 ],
-'js-project:jest/packages/jest-haste-map/src/module_map.js':[
-152,
-],
 'js-project:jest/packages/jest-jasmine2/src/jasmine/Env.js':[
 430,
 ],
