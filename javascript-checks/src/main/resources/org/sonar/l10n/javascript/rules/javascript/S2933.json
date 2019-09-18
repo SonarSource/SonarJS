@@ -1,0 +1,19 @@
+{
+  "title": "Private properties that are only assigned in the constructor or at declaration should be \"readonly\"",
+  "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "confusing"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2933",
+  "sqKey": "S2933",
+  "scope": "All"
+}
