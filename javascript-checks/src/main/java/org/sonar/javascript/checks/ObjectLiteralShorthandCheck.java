@@ -19,39 +19,27 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Arrays;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3498")
-public class ObjectLiteralShorthandCheck extends DoubleDispatchVisitorCheck {
+public class ObjectLiteralShorthandCheck extends EslintBasedCheck {
 
-  private static final String MESSAGE = "Use shorthand for %s \"%s\".";
-
-  @Override
-  public void visitPairProperty(PairPropertyTree tree) {
-    if (tree.key().is(Kind.PROPERTY_IDENTIFIER)) {
-      String keyName = ((IdentifierTree) tree.key()).name();
-
-      if (tree.value().is(Kind.IDENTIFIER_REFERENCE) && ((IdentifierTree) tree.value()).name().equals(keyName)) {
-        raiseIssue("property", keyName, tree.key());
-      }
-
-      if (tree.value().is(Kind.FUNCTION_EXPRESSION)) {
-        raiseIssue("method", keyName, tree.key());
-      }
-    }
-
-    super.visitPairProperty(tree);
+  public List<Object> configurations() {
+    return Arrays.asList("always", new Config());
   }
 
-  private void raiseIssue(String kind, String keyName, Tree highlighted) {
-    String message = String.format(MESSAGE, kind, keyName);
-    addIssue(highlighted, message);
+  @Override
+  public String eslintKey() {
+    return "object-shorthand";
+  }
+
+  private static class Config {
+    boolean avoidQuotes = true;
   }
 }
