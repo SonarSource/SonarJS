@@ -1,0 +1,14 @@
+{
+'desktop:app/src/lib/equality.ts':[
+35,
+],
+'desktop:app/src/ui/app-menu/menu-pane.tsx':[
+115,
+],
+'desktop:app/src/ui/app.tsx':[
+451,
+],
+'desktop:tslint-rules/buttonGroupOrderRule.ts':[
+55,
+],
+}

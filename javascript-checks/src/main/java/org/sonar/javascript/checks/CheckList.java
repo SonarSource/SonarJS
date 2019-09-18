@@ -200,6 +200,7 @@ public final class CheckList {
       ParseIntCallWithoutBaseCheck.class,
       ParsingErrorCheck.class,
       PostMessageCheck.class,
+      PreferForOfCheck.class,
       PreferObjectLiteralCheck.class,
       PreferReadonlyCheck.class,
       PrimitiveWrappersCheck.class,
