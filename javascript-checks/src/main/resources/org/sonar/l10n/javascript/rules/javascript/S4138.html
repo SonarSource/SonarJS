@@ -1,0 +1,19 @@
+<p>If you have an iterable, such as an array, set, or list, your best option for looping through its values is the <code>for of</code> syntax. Use a
+counter, and ... well you'll get the right behavior, but your code just isn't as clean or clear.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+const arr = [4, 3, 2, 1];
+
+for (let i = 0; i &lt; arr.length; i++) {  // Noncompliant
+  console.log(arr[i]);
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+const arr = [4, 3, 2, 1];
+
+for (let value of arr) {
+  console.log(value);
+}
+</pre>
+
