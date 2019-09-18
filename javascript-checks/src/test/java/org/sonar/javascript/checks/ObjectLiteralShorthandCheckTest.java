@@ -19,15 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ObjectLiteralShorthandCheckTest {
 
   @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new ObjectLiteralShorthandCheck(), new File("src/test/resources/checks/ObjectLiteralShorthand.js"));
+  public void configurations() {
+    String configAsString = new Gson().toJson(new ObjectLiteralShorthandCheck().configurations());
+    assertThat(configAsString).isEqualTo("[\"always\",{\"avoidQuotes\":true}]");
   }
-
 }
