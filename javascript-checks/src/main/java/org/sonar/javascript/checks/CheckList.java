@@ -199,6 +199,7 @@ public final class CheckList {
       ParsingErrorCheck.class,
       PostMessageCheck.class,
       PreferObjectLiteralCheck.class,
+      PreferReadonlyCheck.class,
       PrimitiveWrappersCheck.class,
       ProcessArgvCheck.class,
       PseudoRandomCheck.class,
