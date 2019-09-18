@@ -1,0 +1,20 @@
+{
+  "title": "\"await\" should not be used redundantly",
+  "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "redundant"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-4326",
+  "sqKey": "S4326",
+  "scope": "All"
+}
