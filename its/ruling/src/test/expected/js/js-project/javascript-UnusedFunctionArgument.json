@@ -1144,9 +1144,6 @@
 'js-project:jest/packages/jest-haste-map/src/lib/extract_requires.js':[
 23,
 ],
-'js-project:jest/packages/jest-haste-map/src/module_map.js':[
-54,
-],
 'js-project:jest/packages/jest-jasmine2/src/__tests__/queue_runner.test.js':[
 91,
 ],
