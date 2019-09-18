@@ -1,0 +1,24 @@
+<p>An <code>async</code> function always wraps the return value in a <code>Promise</code>. Using <code>return await</code> is therefore redundant.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+async function foo() {
+  // ...
+}
+
+async function bar() {
+  // ...
+  return await foo(); // Noncompliant
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+async function foo() {
+  // ...
+}
+
+async function bar() {
+  // ...
+  return foo();
+}
+</pre>
+
