@@ -4683,10 +4683,6 @@
 'js-project:jest/packages/jest-haste-map/src/lib/get_platform_extension.js':[
 19,
 ],
-'js-project:jest/packages/jest-haste-map/src/module_map.js':[
-172,
-179,
-],
 'js-project:jest/packages/jest-jasmine2/src/assert_support.js':[
 91,
 ],
