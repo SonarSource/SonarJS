@@ -20,7 +20,6 @@
 package org.sonar.javascript.it;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -29,6 +28,8 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -140,10 +141,13 @@ public class JavaScriptRulingTest {
 
     orchestrator.executeBuild(build);
 
-    assertThat(Files.asCharSource(FileLocation.of("target/differences").getFile(), StandardCharsets.UTF_8).read()).isEmpty();
+    assertThat(new String(Files.readAllBytes(Paths.get("target/differences")), StandardCharsets.UTF_8)).isEmpty();
   }
 
   private static void installTypeScript(File projectDir) throws IOException, InterruptedException {
+    if (!projectDir.exists() || !projectDir.isDirectory() || isUserHome(projectDir)) {
+      throw new IllegalStateException(projectDir.getAbsolutePath() + " is not valid directory");
+    }
     String npm = System2.INSTANCE.isOsWindows() ? "npm.cmd" : "npm";
     String[] cmd = {npm, "install", "typescript@3.5.3"};
     Process process = Runtime.getRuntime().exec(cmd, null, projectDir);
@@ -151,6 +155,11 @@ public class JavaScriptRulingTest {
     if (returnValue != 0) {
       throw new IllegalStateException("Failed to install TypeScript");
     }
+  }
+
+  private static boolean isUserHome(File dir) throws IOException {
+    String userHome = System.getProperty("user.home");
+    return Files.isSameFile(dir.toPath(), Paths.get(userHome));
   }
 
   private static void instantiateTemplateRule(String projectKey, String ruleTemplateKey, String instantiationKey, String params) {
