@@ -29,12 +29,8 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,7 +77,7 @@ public class JavaScriptRulingTest {
   @Parameters(name = "{0}")
   public static Object[][] projects() {
     return new Object[][]{
-      {"js-project", "js", "../sources/src", Arrays.asList("**/*.ts", "**/.*")},
+      {"js-project", "js", "../sources/src", Arrays.asList("**/*.ts", "**/.*", "**/module_map.js")},
     };
   }
 
@@ -144,70 +140,7 @@ public class JavaScriptRulingTest {
 
     orchestrator.executeBuild(build);
 
-
-    //============Test code
-    if (!Files.asCharSource(FileLocation.of("target/differences").getFile(), StandardCharsets.UTF_8).read().equals("")) {
-      final File folder = FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile();
-      List<String> result = new ArrayList<>();
-      if (folder.exists()) {
-        search(".*\\.json", folder, result);
-      }
-
-      Map<String, String> actual = new HashMap<>();
-
-      for (String s : result) {
-        actual.put(getfileNameFromPath(s), Files.asCharSource(FileLocation.of(s).getFile(), StandardCharsets.UTF_8).read());
-        LOG.error(s);
-      }
-
-
-      final File folderExpected = FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile();
-      List<String> resultExpected = new ArrayList<>();
-      if (folder.exists()) {
-        search(".*\\.json", folderExpected, resultExpected);
-      }
-
-      for (String s : resultExpected) {
-        String expectedString = Files.asCharSource(FileLocation.of(s).getFile(), StandardCharsets.UTF_8).read();
-        String actualString = actual.getOrDefault(getfileNameFromPath(s), "");
-
-
-        if (!expectedString.trim().equals(actualString.trim())) {
-          LOG.error("DIFF IN + " + s);
-          LOG.error("EXPECTED");
-          LOG.error(expectedString);
-          LOG.error("ACTUAL");
-          LOG.error(actualString);
-        }
-      }
-    }
-
-    //===========
     assertThat(Files.asCharSource(FileLocation.of("target/differences").getFile(), StandardCharsets.UTF_8).read()).isEmpty();
-  }
-
-  private static String getfileNameFromPath(String s) {
-
-    Path path = Paths.get(s);
-
-    // call getFileName() and get FileName path object
-    return path.getFileName().toString();
-  }
-
-  static void search(final String pattern, final File folder, List<String> result) {
-    for (final File f : folder.listFiles()) {
-
-      if (f.isDirectory()) {
-        search(pattern, f, result);
-      }
-
-      if (f.isFile()) {
-        if (f.getName().matches(pattern)) {
-          result.add(f.getAbsolutePath());
-        }
-      }
-
-    }
   }
 
   private static void installTypeScript(File projectDir) throws IOException, InterruptedException {
