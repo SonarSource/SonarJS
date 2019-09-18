@@ -1,8 +1,8 @@
 {
-'postgraphql:src/postgraphql/__tests__/withPostGraphQLContext-test.js':[
-88,
+'postgraphql:src/postgraphql/schema/procedures/createPgProcedureObjectTypeGqlFieldEntry.ts':[
+83,
 ],
-'postgraphql:src/postgraphql/http/__tests__/createPostGraphQLHttpRequestHandler-test.js':[
-233,
-]
+'postgraphql:src/postgraphql/schema/procedures/createPgProcedureQueryGqlFieldEntry.ts':[
+79,
+],
 }
