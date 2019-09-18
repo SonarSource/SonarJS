@@ -19,44 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collection;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2814")
-public class RedeclaredSymbolCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Rename \"%s\" as this name is already used in declaration at line %s.";
+public class RedeclaredSymbolCheck extends EslintBasedCheck {
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    Collection<Symbol> symbols = symbolModel.getSymbols();
-    for (Symbol symbol : symbols) {
-      visitSymbol(symbol);
-    }
+  public String eslintKey() {
+    return "no-redeclare";
   }
-
-  private void visitSymbol(Symbol symbol) {
-    Usage firstDeclaration = null;
-
-    for (Usage usage : symbol.usages()) {
-
-      if (firstDeclaration == null) {
-        if (usage.isDeclaration()) {
-          firstDeclaration = usage;
-        }
-      } else if (usage.isDeclaration() && usage.kind() != Usage.Kind.LEXICAL_DECLARATION) {
-        String message = String.format(MESSAGE, symbol.name(), firstDeclaration.identifierTree().identifierToken().line());
-        addIssue(usage.identifierTree(), message).secondary(firstDeclaration.identifierTree());
-      }
-    }
-  }
-
 }
