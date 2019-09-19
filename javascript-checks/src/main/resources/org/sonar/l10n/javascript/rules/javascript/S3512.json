@@ -2,7 +2,8 @@
   "title": "Template strings should be used instead of concatenation",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
