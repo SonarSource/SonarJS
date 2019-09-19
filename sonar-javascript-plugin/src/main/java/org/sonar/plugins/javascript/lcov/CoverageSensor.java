@@ -82,7 +82,7 @@ public class CoverageSensor implements Sensor {
     FileSystem fileSystem = context.fileSystem();
     FilePredicate mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(Type.MAIN),
-      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
+      fileSystem.predicates().hasLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY));
     FileLocator fileLocator = new FileLocator(fileSystem.inputFiles(mainFilePredicate));
 
     LCOVParser parser = LCOVParser.create(context, lcovFiles, fileLocator);
