@@ -11,6 +11,12 @@ function seek(input) {
   }
   return false;
 }
+
+function getUrl(query) { &nbsp;&nbsp;&nbsp;
+  let&nbsp;url; // Noncompliant
+  url = "http://example.com";
+  return url;
+}
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
@@ -22,6 +28,11 @@ function seek(input) {
     }
   }
   return false;
+}
+
+function getUrl(query) { &nbsp;
+  const&nbsp;url = "http://example.com";
+  return url;
 }
 </pre>
 
