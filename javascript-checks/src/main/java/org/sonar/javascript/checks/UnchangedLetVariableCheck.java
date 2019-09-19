@@ -19,89 +19,29 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3353")
-public class UnchangedLetVariableCheck extends DoubleDispatchVisitorCheck {
+public class UnchangedLetVariableCheck extends EslintBasedCheck {
 
-  private static final String MESSAGE = "Make \"%s\" \"const\".";
-
-  private Set<Symbol> ignoredSymbols;
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    ignoredSymbols = new HashSet<>();
-
-    super.visitScript(tree);
-
-    for (Symbol letVariableSymbol : getContext().getSymbolModel().getSymbols(Kind.LET_VARIABLE)) {
-      if (!ignoredSymbols.contains(letVariableSymbol)) {
-        boolean isWritten = false;
-        Usage declarationWithInit = null;
-
-        for (Usage usage : letVariableSymbol.usages()) {
-          if (usage.kind() == Usage.Kind.DECLARATION_WRITE) {
-            declarationWithInit = usage;
-
-          } else if (usage.isWrite()) {
-            isWritten = true;
-          }
-        }
-
-        if (declarationWithInit != null && !isWritten && letVariableSymbol.usages().size() > 1) {
-          addIssue(declarationWithInit.identifierTree(), String.format(MESSAGE, letVariableSymbol.name()));
-        }
-      }
-    }
+  public String eslintKey() {
+    return "prefer-const";
   }
 
   @Override
-  public void visitForStatement(ForStatementTree tree) {
-    Tree init = tree.init();
-
-    if (init != null && init.is(Tree.Kind.LET_DECLARATION)) {
-      List<IdentifierTree> identifiers = ((VariableDeclarationTreeImpl) init).variableIdentifiers();
-      ignore(identifiers);
-    }
-
-    super.visitForStatement(tree);
+  public List<Object> configurations() {
+    return Collections.singletonList(new Configuration());
   }
 
-  @Override
-  public void visitArrayBindingPattern(ArrayBindingPatternTree tree) {
-    ignore(tree.bindingIdentifiers());
+  static class Configuration {
+    String destructuring = "all";
   }
-
-  @Override
-  public void visitObjectBindingPattern(ObjectBindingPatternTree tree) {
-    ignore(tree.bindingIdentifiers());
-  }
-
-  private void ignore(List<IdentifierTree> identifiers) {
-    if (identifiers.size() > 1) {
-      identifiers.stream()
-        .map(IdentifierTree::symbol)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .forEach(ignoredSymbols::add);
-    }
-  }
-
 }
