@@ -126,7 +126,7 @@ describe("parseJavaScriptSourceFile", () => {
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toBeUndefined();
     expect(parsingError.message).toEqual(
-      `If \"parserOptions.project\" has been set for @typescript-eslint/parser, ${file} must be included in at least one of the projects provided.`,
+      `\"parserOptions.project\" has been set for @typescript-eslint/parser.\nThe file does not match your project config: ${file}.\nThe file must be included in at least one of the projects provided.`,
     );
   });
 
