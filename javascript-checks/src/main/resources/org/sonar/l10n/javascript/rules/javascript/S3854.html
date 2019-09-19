@@ -12,81 +12,22 @@
 </ul>
 <h2>Noncompliant Code Example</h2>
 <pre>
-class Animal {
-  constructor() {
-    super();         // Noncompliant, super() cannot be invoked in a base class
-  }
-
-  doSomething() {
-  }
-}
-
 class Dog extends Animal {
   constructor(name) {
+    super();
     this.name = name;
+    super();         // Noncompliant
     super.doSomething();
-    super();         // Noncompliant, super() must be invoked before "this" or "super" is used
-  }
-
-  doSomething() {
-    super();         // Noncompliant, super() cannot be invoked outside of a constructor
-  }
-}
-
-class Labrador extends Dog {
-  constructor(name) {
-    super();         // Noncompliant, super() must be invoked with one argument
-  }
-}
-
-class GermanShepherd extends Dog {
-  constructor(name) {
-  }                  // Noncompliant, super() must be invoked in constructor of derived class
-}
-
-class FilaBrasileiro extends Dog {
-  constructor(name) {
-    super(name);
-    super(name);    // Noncompliant, super() can only be invoked once
   }
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-class Animal {
-  constructor() {
-  }
-
-  doSomething() {
-  }
-}
-
 class Dog extends Animal {
   constructor(name) {
     super();
     this.name = name;
     super.doSomething();
-  }
-
-  doSomething() {
-  }
-}
-
-class Labrador extends Dog {
-  constructor(name) {
-    super(name);
-  }
-}
-
-class GermanShepherd extends Dog {
-  constructor(name) {
-    super(name);
-  }
-}
-
-class FilaBrasileiro extends Dog {
-  constructor(name) {
-    super(name);
   }
 }
 </pre>
