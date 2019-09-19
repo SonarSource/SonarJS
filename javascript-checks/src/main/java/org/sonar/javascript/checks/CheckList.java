@@ -201,6 +201,7 @@ public final class CheckList {
       ParsingErrorCheck.class,
       PostMessageCheck.class,
       PreferForOfCheck.class,
+      PreferNamespaceCheck.class,
       PreferObjectLiteralCheck.class,
       PreferReadonlyCheck.class,
       PrimitiveWrappersCheck.class,

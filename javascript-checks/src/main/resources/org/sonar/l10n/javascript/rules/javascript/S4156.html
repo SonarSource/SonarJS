@@ -1,0 +1,16 @@
+<p>Each file is considered an "external" module. The use of the <code>module</code> keyword creates an internal module, and was used before the
+ECMAScript 2015 addition of <code>namespace</code>s for the same purpose. Now that <code>namespace</code> is available, the use of <code>module</code>
+is deprecated because it does the same thing, and its use could confuse maintainers unaware of the history of the language.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+module myMod {  // Noncompliant
+  // ...
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+namespace myMod {
+  // ...
+}
+</pre>
+
