@@ -129,7 +129,7 @@ public class SonarLintTest {
 
     // we need to stop the engine to make sure that sonarlint will not concurrently modify logs collection
     sonarlintEngine.stop();
-    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("typescript:S3923");
+    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("typescript:S3923", "typescript:S2589");
     assertThat(logs).contains("Using TypeScript at: '"+ tsNodeModules + "'");
   }
 
