@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -269,6 +270,42 @@ public class CoverageSensorTest {
     assertThat(context.lineHits(file2Key, 0)).isNull();
     assertThat(context.lineHits(file2Key, 1)).isEqualTo(5);
     assertThat(context.lineHits(file2Key, 2)).isEqualTo(5);
+  }
+
+  @Test
+  public void should_import_coverage_for_ts() throws Exception {
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "src/file1.ts")
+      .setModuleBaseDir(moduleBaseDir.toPath())
+      .setLanguage("ts")
+      .setContents("function foo(x: any) {\n" +
+        "  if (x && !x)\n" +
+        "    console.log(\"file1\");\n" +
+        "}\n")
+      .build();
+    context.fileSystem().add(inputFile);
+
+    File lcov = temp.newFile();
+    FileUtils.writeStringToFile(lcov, "SF:src/file1.ts\n" +
+      "DA:1,2\n" +
+      "DA:2,2\n" +
+      "DA:3,1\n" +
+      "FN:2,(anonymous_1)\n" +
+      "FNDA:2,(anonymous_1)\n" +
+      "BRDA:2,1,0,2\n" +
+      "BRDA:2,1,1,1\n" +
+      "BRDA:2,2,0,0\n" +
+      "BRDA:2,2,1,-\n" +
+      "end_of_record\n" +
+      "SF:src/file2.ts\n" +
+      "DA:1,5\n" +
+      "DA:2,5\n" +
+      "end_of_record\n", StandardCharsets.UTF_8);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.getAbsolutePath());
+    coverageSensor.execute(context);
+    assertThat(context.lineHits(inputFile.key(), 1)).isEqualTo(2);
+    assertThat(context.lineHits(inputFile.key(), 2)).isEqualTo(2);
+    assertThat(context.lineHits(inputFile.key(), 3)).isEqualTo(1);
+    assertThat(context.lineHits(inputFile.key(), 0)).isNull();
   }
 
 }
