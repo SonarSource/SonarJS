@@ -2,13 +2,4 @@
 'TypeScript:src/compiler/checker.ts':[
 19049,
 ],
-'TypeScript:src/harness/loggedIO.ts':[
-246,
-],
-'TypeScript:src/harness/unittests/session.ts':[
-248,
-],
-'TypeScript:src/server/editorServices.ts':[
-1443,
-]
 }
