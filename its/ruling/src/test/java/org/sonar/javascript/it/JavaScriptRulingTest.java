@@ -89,10 +89,11 @@ public class JavaScriptRulingTest {
     "S3981",
     "S4043",
     "S4123",
-    "S4275",
     "S4322",
+    "S4275",
     "S4323",
     "S4324",
+    "S4328",
     "S4335",
     "S4524",
     "S4619",
@@ -102,7 +103,6 @@ public class JavaScriptRulingTest {
     "S4798",
     "S4822",
     "S1874",
-    "S4328",
     "S2589",
 
     "S1226",
@@ -111,7 +111,9 @@ public class JavaScriptRulingTest {
     "S3516",
     "S3626",
     "S4030",
-    "S4158"
+    "S4157",
+    "S4158",
+    "S3801"
   );
 
   @ClassRule

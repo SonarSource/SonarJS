@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -31,6 +32,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.RULES_PROVIDED_BY_SONARTS;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_RECOMMENDED_JSON;
 
@@ -70,6 +72,7 @@ public class JavaScriptProfilesDefinitionTest {
     assertThat(profile.name()).isEqualTo(JavaScriptProfilesDefinition.SONAR_WAY);
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.TS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(0);
+    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S2201");
   }
 
   @Test
@@ -80,6 +83,7 @@ public class JavaScriptProfilesDefinitionTest {
     assertThat(profile.name()).isEqualTo("Sonar way recommended");
     assertThat(profile.rules()).extracting("repoKey").containsOnly("common-ts", CheckList.TS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(1);
+    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S2201");
   }
 
   @Test
@@ -88,6 +92,9 @@ public class JavaScriptProfilesDefinitionTest {
       Annotation ruleAnnotation = c.getAnnotation(Rule.class);
       return ((Rule) ruleAnnotation).key();
     }).collect(Collectors.toSet());
+    allKeys.addAll(RULES_PROVIDED_BY_SONARTS);
+    // TODO remove this 3 rules once they are implemented in SonarJS
+    allKeys.addAll(Arrays.asList("S4136", "S4139", "S4137"));
 
     Set<String> sonarWayKeys = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(SONAR_WAY_JSON);
     Set<String> sonarRecommendedWayKeys = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(SONAR_WAY_RECOMMENDED_JSON);
