@@ -19,14 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UnchangedLetVariableCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new UnchangedLetVariableCheck(), new File("src/test/resources/checks/UnchangedLetVariable.js"));
+    String json = new Gson().toJson(new UnchangedLetVariableCheck().configurations());
+    assertThat(json).isEqualTo("[{\"destructuring\":\"all\"}]");
   }
+
 }
