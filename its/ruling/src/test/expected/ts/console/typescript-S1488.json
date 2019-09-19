@@ -8,9 +8,6 @@
 'console:src/utils/utils.ts':[
 146,
 ],
-'console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx':[
-257,
-],
 'console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx':[
 286,
 ],
@@ -32,5 +29,8 @@
 300,
 315,
 330,
-]
+],
+'console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx':[
+257,
+],
 }
