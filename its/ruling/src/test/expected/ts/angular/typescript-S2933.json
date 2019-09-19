@@ -68,9 +68,7 @@
 27,
 ],
 'angular:aio/src/app/layout/doc-viewer/doc-viewer.component.ts':[
-29,
 30,
-31,
 40,
 41,
 42,
@@ -89,9 +87,6 @@
 'angular:aio/src/app/search/search.service.ts':[
 32,
 35,
-],
-'angular:aio/src/app/shared/custom-md-icon-registry.ts':[
-36,
 ],
 'angular:aio/src/app/shared/ga.service.ts':[
 20,
@@ -132,13 +127,11 @@
 ],
 'angular:modules/playground/src/order_management/index.ts':[
 32,
-110,
 177,
 ],
 'angular:modules/playground/src/person_management/index.ts':[
 106,
 153,
-175,
 ],
 'angular:modules/playground/src/routing/app/inbox-app.ts':[
 115,
@@ -158,9 +151,6 @@
 ],
 'angular:packages/animations/browser/src/dsl/animation_timeline_visitor.ts':[
 317,
-318,
-319,
-320,
 322,
 ],
 'angular:packages/animations/browser/src/dsl/animation_transition_factory.ts':[
@@ -179,7 +169,6 @@
 40,
 41,
 43,
-45,
 46,
 50,
 50,
@@ -187,7 +176,6 @@
 'angular:packages/animations/browser/src/render/noop_animation_engine.ts':[
 31,
 33,
-35,
 ],
 'angular:packages/animations/browser/src/render/web_animations/web_animations_player.ts':[
 16,
@@ -266,9 +254,6 @@
 20,
 53,
 ],
-'angular:packages/benchpress/test/metric/multi_metric_spec.ts':[
-54,
-],
 'angular:packages/benchpress/test/metric/perflog_metric_spec.ts':[
 667,
 667,
@@ -313,11 +298,9 @@
 122,
 ],
 'angular:packages/common/src/directives/ng_if.ts':[
-104,
 110,
 ],
 'angular:packages/common/src/directives/ng_plural.ts':[
-51,
 53,
 ],
 'angular:packages/common/src/directives/ng_style.ts':[
@@ -401,7 +384,6 @@
 434,
 436,
 464,
-465,
 495,
 495,
 514,
@@ -544,21 +526,12 @@
 26,
 26,
 ],
-'angular:packages/compiler/src/i18n/serializers/placeholder.ts':[
-51,
-53,
-],
 'angular:packages/compiler/src/i18n/serializers/serializer.ts':[
-43,
-44,
-45,
 48,
 ],
 'angular:packages/compiler/src/i18n/translation_bundle.ts':[
 20,
 23,
-60,
-61,
 65,
 65,
 66,
@@ -604,9 +577,6 @@
 54,
 55,
 56,
-],
-'angular:packages/compiler/src/ml_parser/html_tags.ts':[
-12,
 ],
 'angular:packages/compiler/src/ml_parser/lexer.ts':[
 79,
@@ -662,7 +632,6 @@
 49,
 50,
 51,
-52,
 54,
 57,
 58,
@@ -672,9 +641,6 @@
 302,
 303,
 304,
-],
-'angular:packages/compiler/src/schema/dom_element_schema_registry.ts':[
-245,
 ],
 'angular:packages/compiler/src/selector.ts':[
 141,
@@ -724,9 +690,6 @@
 40,
 40,
 109,
-110,
-115,
-117,
 119,
 122,
 122,
@@ -1150,9 +1113,7 @@
 58,
 ],
 'angular:packages/platform-webworker/src/web_workers/shared/post_message_bus.ts':[
-22,
 25,
-71,
 ],
 'angular:packages/platform-webworker/src/web_workers/shared/render_store.ts':[
 14,
@@ -1175,7 +1136,6 @@
 19,
 20,
 23,
-24,
 25,
 ],
 'angular:packages/platform-webworker/src/web_workers/ui/renderer.ts':[
@@ -1202,8 +1162,6 @@
 12,
 ],
 'angular:packages/platform-webworker/test/web_workers/shared/web_worker_test_util.ts':[
-77,
-96,
 134,
 ],
 'angular:packages/router/src/apply_redirects.ts':[
@@ -1298,7 +1256,6 @@
 ],
 'angular:packages/upgrade/src/common/downgrade_component.ts':[
 128,
-129,
 ],
 'angular:packages/upgrade/src/common/downgrade_component_adapter.ts':[
 23,
@@ -1316,11 +1273,9 @@
 'angular:packages/upgrade/src/dynamic/upgrade_adapter.ts':[
 102,
 103,
-112,
 113,
 119,
 119,
-600,
 ],
 'angular:packages/upgrade/src/dynamic/upgrade_ng1_adapter.ts':[
 224,
@@ -1338,7 +1293,6 @@
 86,
 87,
 88,
-90,
 91,
 92,
 94,
@@ -1357,8 +1311,6 @@
 98,
 ],
 'angular:packages/upgrade/test/static/integration/upgrade_component_spec.ts':[
-2167,
-2304,
 2519,
 2527,
 ],
@@ -1394,7 +1346,6 @@
 16,
 ],
 'angular:tools/@angular/tsc-wrapped/src/tsc.ts':[
-30,
 110,
 110,
 ],
