@@ -45,6 +45,7 @@ import static java.util.Collections.singletonList;
 //  these tests are run separately
 //  CustomRulesTest.class,
 //  CustomRulesWithDeprecatedPluginTest.class,
+//  TypeScriptRuleTest.class,
   EslintBasedRulesTest.class,
   EslintReportTest.class,
   LookupTypeScriptTest.class,
@@ -56,6 +57,7 @@ import static java.util.Collections.singletonList;
   SonarLintTestCustomNodeJS.class,
   TslintExternalReportTest.class,
   TypeScriptAnalysisTest.class,
+
   TypeScriptVersionsTest.class
 })
 public final class Tests {
