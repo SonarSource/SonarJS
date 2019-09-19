@@ -311,9 +311,6 @@
 92,
 93,
 ],
-'vscode:extensions/git/src/contentProvider.ts':[
-59,
-],
 'vscode:extensions/git/src/git.ts':[
 658,
 ],
@@ -771,9 +768,6 @@
 ],
 'vscode:extensions/json/server/src/utils/uri.ts':[
 188,
-277,
-277,
-277,
 286,
 306,
 ],
@@ -1801,9 +1795,6 @@
 ],
 'vscode:src/vs/base/common/uri.ts':[
 230,
-332,
-332,
-332,
 341,
 365,
 415,
@@ -4209,8 +4200,6 @@
 328,
 329,
 330,
-354,
-354,
 407,
 444,
 449,
@@ -4268,7 +4257,6 @@
 84,
 88,
 103,
-140,
 228,
 276,
 280,
@@ -5463,8 +5451,6 @@
 ],
 'vscode:src/vs/editor/contrib/snippet/browser/snippetSession.ts':[
 169,
-177,
-177,
 200,
 201,
 202,
@@ -5485,8 +5471,6 @@
 208,
 209,
 217,
-219,
-219,
 310,
 319,
 376,
@@ -5525,7 +5509,6 @@
 97,
 155,
 156,
-334,
 350,
 351,
 351,
@@ -6797,13 +6780,6 @@
 49,
 96,
 ],
-'vscode:src/vs/platform/markers/common/markerService.ts':[
-183,
-183,
-183,
-262,
-262,
-],
 'vscode:src/vs/platform/markers/common/problemMatcher.ts':[
 160,
 181,
@@ -6918,8 +6894,6 @@
 134,
 ],
 'vscode:src/vs/platform/telemetry/common/telemetryUtils.ts':[
-59,
-60,
 160,
 ],
 'vscode:src/vs/platform/telemetry/node/appInsightsAppender.ts':[
@@ -7540,12 +7514,6 @@
 683,
 728,
 832,
-],
-'vscode:src/vs/workbench/electron-browser/commands.ts':[
-379,
-379,
-379,
-379,
 ],
 'vscode:src/vs/workbench/electron-browser/extensionHost.ts':[
 114,
@@ -9681,7 +9649,6 @@
 'vscode:src/vs/workbench/test/electron-browser/api/extHostMessagerService.test.ts':[
 17,
 37,
-50,
 65,
 ],
 'vscode:src/vs/workbench/test/electron-browser/api/extHostTextEditor.test.ts':[

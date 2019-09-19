@@ -19,29 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import com.google.gson.Gson;
+import org.junit.Test;
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S3353")
-public class UnchangedLetVariableCheck extends EslintBasedCheck {
+import static org.assertj.core.api.Assertions.assertThat;
 
+public class UnchangedLetVariableCheckTest {
 
-  @Override
-  public String eslintKey() {
-    return "prefer-const";
+  @Test
+  public void test() {
+    String json = new Gson().toJson(new UnchangedLetVariableCheck().configurations());
+    assertThat(json).isEqualTo("[{\"destructuring\":\"all\"}]");
   }
 
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Configuration());
-  }
-
-  static class Configuration {
-    String destructuring = "all";
-  }
 }
