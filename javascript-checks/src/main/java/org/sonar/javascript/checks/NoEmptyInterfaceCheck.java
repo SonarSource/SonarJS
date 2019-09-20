@@ -20,16 +20,15 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S3786")
-public class TemplateStringMisuseCheck extends EslintBasedCheck {
+@Rule(key = "S4023")
+public class NoEmptyInterfaceCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-template-curly-in-string";
+    return "no-empty-interface";
   }
+
 }

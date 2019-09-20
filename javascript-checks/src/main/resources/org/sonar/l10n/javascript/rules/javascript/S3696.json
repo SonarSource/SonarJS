@@ -1,6 +1,6 @@
 {
-  "title": "Template literal placeholder syntax should not be used in regular strings",
-  "type": "BUG",
+  "title": "Literals should not be thrown",
+  "type": "CODE_SMELL",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
@@ -8,13 +8,14 @@
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "1min"
+    "constantCost": "20min"
   },
   "tags": [
-    
+    "error-handling",
+    "api-design"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-3786",
-  "sqKey": "S3786",
+  "ruleSpecification": "RSPEC-3696",
+  "sqKey": "S3696",
   "scope": "All"
 }

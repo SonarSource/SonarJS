@@ -23,13 +23,13 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S3786")
-public class TemplateStringMisuseCheck extends EslintBasedCheck {
+@JavaScriptRule
+@Rule(key = "S3696")
+public class ThrowLiteralCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-template-curly-in-string";
+    return "no-throw-literal";
   }
 }

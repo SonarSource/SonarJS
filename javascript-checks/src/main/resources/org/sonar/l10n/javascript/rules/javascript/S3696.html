@@ -1,0 +1,19 @@
+<p>It is a bad practice to <code>throw</code> something that's not derived at some level from <code>Error</code>. If you can't find an existing
+<code>Error</code> type that suitably conveys what you need to convey, then you should extend <code>Error</code> to create one.</p>
+<p>Specifically, part of the point of throwing \<code>Error</code>s is to communicate about the conditions of the error, but literals have far less
+ability to communicate meaningfully than \<code>Error</code>s because they don't include stacktraces.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+throw 404;                              // Noncompliant
+throw "Invalid negative index.";        // Noncompliant
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+throw new Error("Status: " + 404);
+throw new Error("Invalid negative index.");{code}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> MISRA C++:2008, 15-1-2 - NULL shall not be thrown explicitly. </li>
+</ul>
+
