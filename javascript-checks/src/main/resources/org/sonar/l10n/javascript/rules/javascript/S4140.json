@@ -1,0 +1,20 @@
+{
+  "title": "Sparse arrays should not be declared",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "suspicious"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4140",
+  "sqKey": "S4140",
+  "scope": "All"
+}
