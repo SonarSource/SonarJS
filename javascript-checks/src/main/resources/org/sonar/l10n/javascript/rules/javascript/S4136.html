@@ -1,0 +1,19 @@
+<p>For clarity, all overloads of the same method should be grouped together. That lets both users and maintainers quickly understand all the current
+available options.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+interface MyInterface {
+  doTheThing(): number;
+  doTheOtherThing(): string;
+  doTheThing(str: string): string;  // Noncompliant
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+interface MyInterface {
+  doTheThing(): number;
+  doTheThing(str: string): string;
+  doTheOtherThing(): string;
+}
+</pre>
+

@@ -1,8 +1,7 @@
 {
-  "title": "\"super()\" should be invoked appropriately",
-  "type": "BUG",
+  "title": "Method overloads should be grouped together",
+  "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT",
     "TYPESCRIPT"
   ],
   "status": "ready",
@@ -11,10 +10,10 @@
     "constantCost": "5min"
   },
   "tags": [
-    
+    "convention"
   ],
-  "defaultSeverity": "Critical",
-  "ruleSpecification": "RSPEC-3854",
-  "sqKey": "S3854",
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-4136",
+  "sqKey": "S4136",
   "scope": "All"
 }
