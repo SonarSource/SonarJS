@@ -2,7 +2,8 @@
   "title": "Collection elements should not be replaced unconditionally",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
