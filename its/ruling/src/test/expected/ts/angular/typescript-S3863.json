@@ -1,0 +1,15 @@
+{
+'angular:aio/src/app/app.component.spec.ts':[
+6,
+],
+'angular:aio/src/app/layout/doc-viewer/doc-viewer.component.spec.ts':[
+9,
+],
+'angular:aio/src/test.ts':[
+20,
+25,
+],
+'angular:packages/core/test/animation/animations_with_web_animations_integration_spec.ts':[
+10,
+],
+}
