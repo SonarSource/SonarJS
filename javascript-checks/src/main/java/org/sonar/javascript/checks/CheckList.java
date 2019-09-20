@@ -246,6 +246,7 @@ public final class CheckList {
       TooManyBreakOrContinueInLoopCheck.class,
       TooManyLinesInFileCheck.class,
       TooManyLinesInFunctionCheck.class,
+      ThrowLiteralCheck.class,
       TrailingCommaCheck.class,
       TrailingCommentCheck.class,
       TrailingWhitespaceCheck.class,
