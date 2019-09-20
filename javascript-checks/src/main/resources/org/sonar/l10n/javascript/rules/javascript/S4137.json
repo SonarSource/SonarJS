@@ -1,0 +1,19 @@
+{
+  "title": "Type assertions should use \"as\"",
+  "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "confusing"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-4137",
+  "sqKey": "S4137",
+  "scope": "All"
+}
