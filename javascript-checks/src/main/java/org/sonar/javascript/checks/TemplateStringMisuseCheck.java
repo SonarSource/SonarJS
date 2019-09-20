@@ -19,36 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3786")
-public class TemplateStringMisuseCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Replace the quotes (%s) with back-ticks (`).";
+public class TemplateStringMisuseCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.of(Kind.STRING_LITERAL);
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    LiteralTree stringLiteral = (LiteralTree) tree;
-    String value = stringLiteral.value();
-    int startIndex = value.indexOf("${");
-    int endIndex = value.indexOf('}');
-
-    if (startIndex != -1 && startIndex < endIndex) {
-      addIssue(tree, String.format(MESSAGE, value.charAt(0)));
-    }
-
+  public String eslintKey() {
+    return "no-template-curly-in-string";
   }
 }
