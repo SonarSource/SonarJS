@@ -2,7 +2,8 @@
   "title": "Destructuring patterns should not be empty",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
