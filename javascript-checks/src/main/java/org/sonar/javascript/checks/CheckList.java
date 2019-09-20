@@ -184,6 +184,7 @@ public final class CheckList {
       NonEmptyCaseWithoutBreakCheck.class,
       NonExistentAssignmentOperatorCheck.class,
       NonExistentPropertyAccessCheck.class,
+      NoMisusedNewCheck.class,
       NonNumberInArithmeticExpressionCheck.class,
       NonStandardImportCheck.class,
       NotStoredSelectionCheck.class,
