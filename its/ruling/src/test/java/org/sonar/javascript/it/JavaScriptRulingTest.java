@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.Location;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,11 +56,70 @@ public class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
 
+  private static final Location TS_PLUGIN_LOCATION = MavenLocation.of("org.sonarsource.typescript", "sonar-typescript-plugin", "DOGFOOD");
+
+  private static final List<String> RULES_PROVIDED_BY_SONARTS = Arrays.asList(
+    "S101",
+    "S117",
+    "S105",
+    "S1439",
+    "S881",
+    "S1110",
+    "S1451",
+    "S1821",
+    "S2757",
+    "S2870",
+    "S3616",
+    "S3972",
+    "S3984",
+    "S4622",
+    "S4624",
+    "S4782",
+
+    "S125",
+    "S1533",
+    "S1541",
+    "S1121",
+    "S2068",
+    "S2123",
+    "S2201",
+    "S2234",
+    "S2681",
+    "S2871",
+    "S3981",
+    "S4043",
+    "S4123",
+    "S4275",
+    "S4322",
+    "S4323",
+    "S4324",
+    "S4335",
+    "S4524",
+    "S4619",
+    "S4621",
+    "S4623",
+    "S4634",
+    "S4798",
+    "S4822",
+    "S1874",
+    "S4328",
+    "S2589",
+
+    "S1226",
+    "S1751",
+    "S1854",
+    "S3516",
+    "S3626",
+    "S4030",
+    "S4158"
+  );
+
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
+    .addPlugin(TS_PLUGIN_LOCATION)
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.8.0.1209"))
     .build();
 
@@ -96,7 +157,7 @@ public class JavaScriptRulingTest {
       orchestrator.getServer().getUrl(),
       "ts", "typescript",
       new ProfileGenerator.RulesConfiguration(),
-      Collections.emptySet());
+      new HashSet<>(RULES_PROVIDED_BY_SONARTS));
 
     orchestrator.getServer()
       .restoreProfile(FileLocation.of(jsProfile))
