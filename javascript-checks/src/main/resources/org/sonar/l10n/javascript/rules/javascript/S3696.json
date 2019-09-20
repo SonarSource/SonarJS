@@ -1,5 +1,5 @@
 {
-  "title": "Non-exception types should not be thrown",
+  "title": "Literals should not be thrown",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
     "JAVASCRIPT",

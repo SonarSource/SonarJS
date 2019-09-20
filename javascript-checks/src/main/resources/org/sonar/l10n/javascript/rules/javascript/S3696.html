@@ -1,25 +1,16 @@
-<p>Just because you <em>can</em> stick your hand in a blender, that doesn't mean you <em>should</em>. Similarly, you <em>can</em> <code>throw</code>
-anything, but that doesn't mean you <em>should</em> <code>throw</code> something that's not derived at some level from
-<code>std::exception</code>.</p>
-<p>If you can't find an existing exception type that suitably conveys what you need to convey, then you should extend <code>std::exception</code> to
-create one.</p>
-<p>Specifically, part of the point of throwing exceptions is to communicate about the conditions of the error, but primitives have far less ability to
-communicate meaningfully than <code>exception</code>s. And, the creation of some other object type could itself <code>throw</code> an exception,
-resulting in program termination.</p>
-<p>Further, <code>catch</code>ing non-exception types is painful and fraught with the potential for (further) error.</p>
+<p>It is a bad practice to <code>throw</code> something that's not derived at some level from <code>Error</code>. If you can't find an existing
+<code>Error</code> type that suitably conveys what you need to convey, then you should extend <code>Error</code> to create one.</p>
+<p>Specifically, part of the point of throwing \<code>Error</code>s is to communicate about the conditions of the error, but literals have far less
+ability to communicate meaningfully than \<code>Error</code>s because they don't include stacktraces.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-throw 42;                               // Noncompliant
+throw 404;                              // Noncompliant
 throw "Invalid negative index.";        // Noncompliant
-throw std::string("Permission denied"); // Noncompliant
-throw nullptr;                          // Noncompliant
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-throw std::domain_error("User ID not found.");
-throw std::out_of_range("Invalid negative index.");
-throw std::system_error(EACCES, std::system_category());
-throw std::invalid_argument("Unexpected null 'user_id' argument.");
+throw new Error("Status: " + 404);
+throw new Error("Invalid negative index.");{code}
 </pre>
 <h2>See</h2>
 <ul>
