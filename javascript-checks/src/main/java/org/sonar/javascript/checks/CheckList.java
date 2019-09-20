@@ -53,8 +53,8 @@ public final class CheckList {
 
   public static List<Class> getAllChecks() {
     return ImmutableList.<Class>of(
+      AdjacentOverloadSignaturesCheck.class,
       AlertUseCheck.class,
-      ConditionalUnreachableCodeCheck.class,
       AlwaysUseCurlyBracesCheck.class,
       ArgumentsCallerCalleeUsageCheck.class,
       ArgumentsUsageCheck.class,
@@ -81,6 +81,7 @@ public final class CheckList {
       CommaOperatorUseCheck.class,
       CommentedCodeCheck.class,
       CommentRegularExpressionCheck.class,
+      ConditionalUnreachableCodeCheck.class,
       ConsistentReturnsCheck.class,
       ValuesNotConvertibleToNumbersCheck.class,
       ComparisonWithNaNCheck.class,

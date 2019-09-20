@@ -1,0 +1,19 @@
+{
+  "title": "Method overloads should be grouped together",
+  "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "convention"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-4136",
+  "sqKey": "S4136",
+  "scope": "All"
+}
