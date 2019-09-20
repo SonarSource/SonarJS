@@ -180,6 +180,7 @@ public final class CheckList {
       NoElementOverwriteCheck.class,
       NoEmptyInterfaceCheck.class,
       NoEvalCheck.class,
+      NoForInArrayCheck.class,
       NoInferrableTypesCheck.class,
       NoInvertedBooleanCheckCheck.class,
       NoMagicNumbersCheck.class,
