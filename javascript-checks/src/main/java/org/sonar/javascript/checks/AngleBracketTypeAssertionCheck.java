@@ -29,6 +29,7 @@ import org.sonar.javascript.checks.annotations.TypeScriptRule;
 @Rule(key = "S4137")
 public class AngleBracketTypeAssertionCheck extends EslintBasedCheck {
 
+  @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config());
   }
