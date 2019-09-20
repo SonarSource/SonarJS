@@ -80,6 +80,7 @@ public class CheckListTest {
 
     // these rules have different implementation for TS and JS
     keys.remove("S3402");
+    keys.remove("S3533");
     keys.remove("S3863");
     assertThat(keys).doesNotHaveDuplicates();
   }

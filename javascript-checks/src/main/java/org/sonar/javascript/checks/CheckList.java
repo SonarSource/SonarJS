@@ -179,6 +179,7 @@ public final class CheckList {
       NoInferrableTypesCheck.class,
       NoInvertedBooleanCheckCheck.class,
       NoMagicNumbersCheck.class,
+      NoRequireImportsCheck.class,
       NoThisAliasCheck.class,
       NonCaseLabelInSwitchCheck.class,
       NonEmptyCaseWithoutBreakCheck.class,
