@@ -1,0 +1,21 @@
+{
+  "title": "Non-exception types should not be thrown",
+  "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "error-handling",
+    "api-design"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-3696",
+  "sqKey": "S3696",
+  "scope": "All"
+}
