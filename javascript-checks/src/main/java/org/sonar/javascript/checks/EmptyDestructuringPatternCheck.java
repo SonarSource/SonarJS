@@ -21,31 +21,15 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3799")
-public class EmptyDestructuringPatternCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Change this pattern to not be empty.";
+public class EmptyDestructuringPatternCheck extends EslintBasedCheck {
 
   @Override
-  public void visitArrayBindingPattern(ArrayBindingPatternTree tree) {
-    if (tree.elements().isEmpty()) {
-      addIssue(tree, MESSAGE);
-    }
-
-    super.visitArrayBindingPattern(tree);
-  }
-
-  @Override
-  public void visitObjectBindingPattern(ObjectBindingPatternTree tree) {
-    if (tree.elements().isEmpty()) {
-      addIssue(tree, MESSAGE);
-    }
-
-    super.visitObjectBindingPattern(tree);
+  public String eslintKey() {
+    return "no-empty-pattern";
   }
 }
