@@ -90,6 +90,7 @@ public final class CheckList {
       ConditionalOperatorCheck.class,
       ConsoleLoggingCheck.class,
       ConstructorFunctionsForSideEffectsCheck.class,
+      ConstructorSuperCheck.class,
       ContinueStatementCheck.class,
       CookiesCheck.class,
       CorsCheck.class,
