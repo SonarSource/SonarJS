@@ -442,6 +442,12 @@
 'js-project:ocanvas-2.2.2.js':[
 464,
 ],
+'js-project:vuejs/jcc-blog/resources/assets/js/components/Comment.vue':[
+241,
+],
+'js-project:vuejs/web-learn/src/components/Typeahead.vue':[
+72,
+],
 'js-project:yui-3.7.3/yui-log/yui-log.js':[
 70,
 71,

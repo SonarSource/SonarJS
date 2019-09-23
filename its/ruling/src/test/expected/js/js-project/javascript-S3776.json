@@ -1539,6 +1539,12 @@
 'js-project:underscore-1.3.3.js':[
 9,
 ],
+'js-project:vuejs/jcc-blog/resources/assets/js/components/VoteButton.vue':[
+46,
+],
+'js-project:vuejs/tomato5/src/components/TeamPanel.vue':[
+226,
+],
 'js-project:yui-3.7.3/align-plugin/align-plugin.js':[
 64,
 ],
