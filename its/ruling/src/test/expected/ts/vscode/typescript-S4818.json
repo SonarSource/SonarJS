@@ -1,0 +1,12 @@
+{
+'vscode:extensions/typescript/src/utils/electronForkStart.ts':[
+41,
+50,
+],
+'vscode:src/vs/base/parts/ipc/node/ipc.net.ts':[
+213,
+],
+'vscode:src/vs/workbench/node/extensionHostProcess.ts':[
+36,
+],
+}
