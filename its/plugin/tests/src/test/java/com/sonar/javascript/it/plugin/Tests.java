@@ -22,6 +22,8 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.Location;
+import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -68,10 +70,13 @@ public final class Tests {
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
+  static final Location TS_PLUGIN_LOCATION = MavenLocation.of("org.sonarsource.typescript", "sonar-typescript-plugin", "DOGFOOD");
+
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
+    .addPlugin(TS_PLUGIN_LOCATION)
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-ts-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))

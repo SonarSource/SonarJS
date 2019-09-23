@@ -36,6 +36,7 @@ import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.rules.SearchRequest;
 
 import static com.sonar.javascript.it.plugin.Tests.JAVASCRIPT_PLUGIN_LOCATION;
+import static com.sonar.javascript.it.plugin.Tests.TS_PLUGIN_LOCATION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CustomRulesTest {
@@ -80,6 +81,7 @@ public class CustomRulesTest {
     Orchestrator orchestrator = Orchestrator.builderEnv()
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
+      .addPlugin(TS_PLUGIN_LOCATION)
       .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
       .addPlugin(FileLocation.byWildcardMavenFilename(
         new File("../plugins/" + customRulesArtifactId + "/target"), customRulesArtifactId + "-*.jar"))

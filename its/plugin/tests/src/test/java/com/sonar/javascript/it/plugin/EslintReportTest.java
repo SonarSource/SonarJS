@@ -27,7 +27,9 @@ import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
 
 import static com.sonar.javascript.it.plugin.Tests.getIssues;
+import static com.sonar.javascript.it.plugin.Tests.setEmptyProfile;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class EslintReportTest {
 
@@ -45,28 +47,28 @@ public class EslintReportTest {
       .setProjectVersion("1.0")
       .setSourceDirs("src");
 
+    setEmptyProfile(PROJECT_KEY);
     build.setProperty("sonar.eslint.reportPaths", "report.json");
     orchestrator.executeBuild(build);
 
     List<Issue> jsIssuesList = getIssues(PROJECT_KEY + ":src/file.js");
     List<Issue> tsIssuesList = getIssues(PROJECT_KEY + ":src/file.ts");
 
-    assertThat(jsIssuesList).extracting("line").containsExactlyInAnyOrder(1, 2, 2, 3, 5, 7, 7);
-    assertThat(jsIssuesList).extracting("rule").containsExactlyInAnyOrder(
-      "javascript:S2688",
-      "javascript:S1116",
-      "external_eslint_repo:no-unused-vars",
-      "external_eslint_repo:no-extra-semi",
-      "external_eslint_repo:use-isnan",
-      "external_eslint_repo:semi",
-      "external_eslint_repo:semi");
+    assertThat(jsIssuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
+      tuple(1, "external_eslint_repo:no-unused-vars"),
+      tuple(2, "external_eslint_repo:use-isnan"),
+      tuple(3, "external_eslint_repo:semi"),
+      tuple(5, "external_eslint_repo:semi"),
+      tuple(7, "external_eslint_repo:no-extra-semi")
+      );
 
-    assertThat(tsIssuesList).extracting("rule").containsExactlyInAnyOrder(
-      "external_eslint_repo:no-unused-vars",
-      "external_eslint_repo:no-extra-semi",
-      "external_eslint_repo:use-isnan",
-      "external_eslint_repo:semi",
-      "external_eslint_repo:semi");
+    assertThat(tsIssuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
+      tuple(1, "external_eslint_repo:no-unused-vars"),
+      tuple(2, "external_eslint_repo:use-isnan"),
+      tuple(3, "external_eslint_repo:semi"),
+      tuple(5, "external_eslint_repo:semi"),
+      tuple(7, "external_eslint_repo:no-extra-semi")
+    );
   }
 
 }
