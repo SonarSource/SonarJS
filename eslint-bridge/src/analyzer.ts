@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Parse, parseJavaScriptSourceFile, parseTypeScriptSourceFile } from "./parser";
+import {
+  Parse,
+  parseJavaScriptSourceFile,
+  parseTypeScriptSourceFile,
+  parseVueSourceFile,
+} from "./parser";
 import getHighlighting, { Highlight } from "./runner/highlighter";
 import getMetrics, { EMPTY_METRICS, Metrics } from "./runner/metrics";
 import getCpdTokens, { CpdToken } from "./runner/cpd";
@@ -103,7 +108,10 @@ export interface IssueLocation {
 }
 
 export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(input, parseJavaScriptSourceFile);
+  return analyze(
+    input,
+    input.filePath.endsWith(".vue") ? parseVueSourceFile : parseJavaScriptSourceFile,
+  );
 }
 
 export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {

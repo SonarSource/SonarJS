@@ -21,6 +21,7 @@ import * as espree from "espree";
 import * as babel from "babel-eslint";
 import { Linter, SourceCode } from "eslint";
 import { ParsingError } from "./analyzer";
+import * as VueJS from "vue-eslint-parser";
 
 // this value is taken from typescript-estree
 // still we might consider extending this range
@@ -120,6 +121,23 @@ export function parseTypeScriptSourceFile(
       message: exception.message,
     };
   }
+}
+
+export function parseVueSourceFile(fileContent: string): SourceCode | ParsingError {
+  let exceptionToReport: ParseException | null = null;
+  for (const config of [PARSER_CONFIG_MODULE, PARSER_CONFIG_SCRIPT]) {
+    try {
+      const result = VueJS.parseForESLint(fileContent, config);
+      return new SourceCode(fileContent, result.ast as any);
+    } catch (exception) {
+      exceptionToReport = exception;
+    }
+  }
+  // if we reach this point, we are sure that "exceptionToReport" is defined
+  return {
+    line: exceptionToReport!.lineNumber,
+    message: exceptionToReport!.message,
+  };
 }
 
 export function parse(

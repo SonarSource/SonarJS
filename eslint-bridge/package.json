@@ -39,6 +39,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
+    "@types/eslint-scope": "3.7.0",
     "@typescript-eslint/eslint-plugin": "2.0.0",
     "@typescript-eslint/parser": "2.0.0",
     "babel-eslint": "10.0.1",
@@ -47,7 +48,8 @@
     "eslint-plugin-chai-friendly": "0.4.1",
     "eslint-plugin-sonarjs": "0.5.0-internal",
     "espree": "5.0.0",
-    "express": "4.16.3"
+    "express": "4.16.3",
+    "vue-eslint-parser": "6.0.4"
   },
   "prettier": {
     "printWidth": 100,

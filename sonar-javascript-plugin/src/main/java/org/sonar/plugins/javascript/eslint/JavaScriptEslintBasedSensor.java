@@ -63,10 +63,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   @Override
   protected void analyze(InputFile file, SensorContext context) {
-    if (file.filename().endsWith(".vue")) {
-      LOG.debug("Skipping analysis of Vue.js file {}", file.uri());
-      return;
-    }
     try {
       String fileContent = isSonarLint(context) ? file.contents() : null;
       AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(context), null);
