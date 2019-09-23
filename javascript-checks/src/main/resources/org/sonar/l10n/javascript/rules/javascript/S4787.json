@@ -2,7 +2,8 @@
   "title": "Encrypting data is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "tags": [
