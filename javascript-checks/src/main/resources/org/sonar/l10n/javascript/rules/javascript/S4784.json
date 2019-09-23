@@ -2,7 +2,8 @@
   "title": "Using regular expressions is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "tags": [
