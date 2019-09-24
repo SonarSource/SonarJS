@@ -68,7 +68,9 @@ public class TypeScriptRuleTest {
 
     orchestrator.getServer()
       .restoreProfile(FileLocation.of(jsProfile))
-      .restoreProfile(FileLocation.of(tsProfile));
+      .restoreProfile(FileLocation.of(tsProfile))
+      .restoreProfile(FileLocation.ofClasspath("/ts-rules-project-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"));
 
     TestUtils.npmInstall(PROJECT_DIR);
   }
@@ -83,8 +85,9 @@ public class TypeScriptRuleTest {
   public void test() throws Exception {
     ExpectedIssues.parseForExpectedIssues(PROJECT_KEY, PROJECT_DIR.toPath());
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "ts", "rules");
-    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "js", "rules");
+
+    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "ts", "ts-rules-project-profile");
+    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "js", "empty-profile");
 
     SonarScanner build = SonarScanner.create()
       .setProjectDir(PROJECT_DIR)
