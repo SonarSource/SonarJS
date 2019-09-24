@@ -332,29 +332,6 @@ public class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
-  public void should_skip_vue() throws Exception {
-    DefaultInputFile flowFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
-      .setLanguage("js")
-      .setContents("// @flow\nlet x = 0;")
-      .build();
-
-    DefaultInputFile vueFile = new TestInputFileBuilder("moduleKey", "dir/file.vue")
-      .setLanguage("js")
-      .setContents("<script>let x = 0;</script>")
-      .build();
-
-    JavaScriptEslintBasedSensor sensor = createSensor();
-    context.fileSystem().add(flowFile);
-    context.fileSystem().add(vueFile);
-
-    sensor.execute(context);
-
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly("Skipping analysis of Vue.js file " + vueFile.uri());
-  }
-
-
-
-  @Test
   public void handle_missing_node() throws Exception {
     doThrow(new NodeCommandException("Exception Message", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
     AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);

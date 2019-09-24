@@ -5,11 +5,13 @@ import {
   PARSER_CONFIG_SCRIPT,
   parseJavaScriptSourceFile,
   parseTypeScriptSourceFile,
+  parseVueSourceFile,
   loggerFn,
 } from "../src/parser";
 import * as espree from "espree";
 import { SourceCode } from "eslint";
 import { ParsingError } from "../src/analyzer";
+import visit from "../src/utils/visitor";
 
 describe("parseJavaScriptSourceFile", () => {
   beforeEach(() => {
@@ -92,6 +94,13 @@ describe("parseJavaScriptSourceFile", () => {
     );
   });
 
+  it("should return ParsingError when parse errors", () => {
+    expectToNotParse("if()", "Unexpected token )");
+    expectToNotParse("/* @flow */ if()", "Unexpected token (1:15)");
+  });
+});
+
+describe("parseTypeScriptSourceFile", () => {
   it("should parse typescript syntax", () => {
     const file = __dirname + "/fixtures/ts-project/sample.lint.ts";
     const sourceCode = parseTypeScriptSourceFile(
@@ -130,11 +139,6 @@ describe("parseJavaScriptSourceFile", () => {
     );
   });
 
-  it("should return ParsingError when parse errors", () => {
-    expectToNotParse("if()", "Unexpected token )");
-    expectToNotParse("/* @flow */ if()", "Unexpected token (1:15)");
-  });
-
   it("should log nicely warning about bad TypeScript version", () => {
     console.log = jest.fn();
 
@@ -159,6 +163,48 @@ describe("parseJavaScriptSourceFile", () => {
     );
 
     jest.resetAllMocks();
+  });
+});
+
+describe("parseVueSourceFile", () => {
+  it("should parse Vue.js syntax", () => {
+    const code = `
+      module.exports = {
+        data: function () {
+          return {
+            foo: 'bar'
+          }
+        }
+      }`;
+
+    const parsedJS = parseJavaScriptSourceFile(code) as SourceCode;
+    const parsedVueJS = parseVueSourceFile(`
+      <template>
+        <p>{{foo}}</p>
+      </template>
+      <script>
+        ${code}
+      </script>
+      <style>
+        p { text-align: center; }
+      </style>
+    `) as SourceCode;
+
+    const expected = [],
+      actual = [];
+    visit(parsedJS, node => expected.push(node.type));
+    visit(parsedVueJS, node => actual.push(node.type));
+    expect(actual).toEqual(expected);
+  });
+
+  it("should log parse error with Vue.js", () => {
+    const parsingError = parseVueSourceFile(`
+    <script>
+    module.exports = {
+    </script>`) as ParsingError;
+    expect(parsingError).toBeDefined();
+    expect(parsingError.line).toEqual(4);
+    expect(parsingError.message).toEqual("Unexpected token");
   });
 });
 

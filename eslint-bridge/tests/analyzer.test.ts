@@ -103,6 +103,20 @@ describe("#analyzeJavaScript", () => {
     expect(issues).toContainEqual(noOneIterationIssue);
     expect(issues).toContainEqual(noDuplicateStringIssue);
   });
+
+  it("should analyze Vue.js file", () => {
+    const filePath = join(__dirname, "./fixtures/vue-project/sample.lint.vue");
+    const fileContent = fs.readFileSync(filePath, { encoding: "utf8" });
+    const { issues } = analyzeJavaScript({
+      filePath: filePath,
+      fileContent: fileContent,
+      rules: [
+        { key: "no-one-iteration-loop", configurations: [] },
+        { key: "no-duplicate-string", configurations: ["2"] },
+      ],
+    });
+    expect(issues).toHaveLength(2);
+  });
 });
 
 describe("#analyzeTypeScript", () => {
