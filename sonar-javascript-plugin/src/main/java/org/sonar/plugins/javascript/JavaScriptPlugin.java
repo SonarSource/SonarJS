@@ -83,6 +83,10 @@ public class JavaScriptPlugin implements Plugin {
   public static final String TS_LCOV_REPORT_PATHS = "sonar.typescript.lcov.reportPaths";
   public static final String TS_LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
 
+  private static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
+  private static final String NODE_EXECUTABLE_PROPERTY_TS = "sonar.typescript.node";
+  private static final String NODE_EXECUTABLE_DEFAULT = "node";
+
   public static final String TSCONFIG_PATH = "sonar.typescript.tsconfigPath";
 
   @Override
@@ -215,6 +219,16 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(TEST_AND_COVERAGE)
         .category(TYPESCRIPT_CATEGORY)
         .multiValues(true)
+        .build(),
+
+      PropertyDefinition.builder(NODE_EXECUTABLE_PROPERTY_TS)
+        .defaultValue(NODE_EXECUTABLE_DEFAULT)
+        .name("Node.js executable")
+        .description("DEPRECATED - Use " + NODE_EXECUTABLE_PROPERTY + " instead. \n" +
+          "Node.js executable used to run the analysis.")
+        .category(TYPESCRIPT_CATEGORY)
+        .subCategory(GENERAL)
+        .hidden()
         .build(),
 
       PropertyDefinition.builder(TSCONFIG_PATH)
