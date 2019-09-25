@@ -10,14 +10,14 @@ key: javascript
 
 ## Prerequisites
 
-In order to analyze JavaScript code, you need to have Node.js >= 8 installed on the machine running the scan. Set property `sonar.nodejs.executable` to an absolute path to Node.js executable, if standard `node` is not available.
+In order to analyze JavaScript code, you need to have Node.js >= 8 installed on the machine running the scan. If standard `node` is not available, you have to set property `sonar.nodejs.executable` to an absolute path to Node.js executable.
  
 ## Language-Specific Properties
 
 Discover and update the JavaScript-specific properties in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > JavaScript](/#sonarqube-admin#/admin/settings?category=javascript)**
 
 ## Supported Frameworks and Versions
-* ECMAScript 5 / ECMAScript 2015 (ECMAScript 6) / ECMAScript 2016 / ECMAScript 2017
+* ECMAScript 5 / ECMAScript 2015 (ECMAScript 6) / ECMAScript 2016-2017-2018
 * React JSX
 * Vue.js
 * Flow
@@ -31,7 +31,11 @@ There are 2 built-in rule profiles for JavaScript: `Sonar way` (default) and `So
 <!-- sonarqube -->
 ## Custom rules
 [[warning]]
-| ![](/images/exclamation.svg) This feature is deprecated
+| This feature is deprecated
+
+As a replacement, we suggest you to have a look at [ESLint](https://eslint.org/docs/developer-guide/), it provides custom rules that you can then import thanks to the [external issues](https://docs.sonarqube.org/latest/analysis/external-issues/) feature.
+
+
 ### Overview
 
 The JavaScript Analyzer parses the source code, creates an Abstract Syntax Tree (AST) and then walks through the entire tree. A coding rule is a visitor that is able to visit nodes from this AST.
@@ -97,6 +101,9 @@ To test the rule you can use `JavaScriptCheckVerifier#verify()` or `JavaScriptCh
 ```
 
 ### API Changes
+#### SonarJS 6.0
+Feature and API are deprecated.
+
 #### SonarJS 4.2.1
 * `CustomJavaScriptRulesDefinition` is deprecated. Implement extension `RulesDefinition` and `CustomRuleRepository` instead.
 
