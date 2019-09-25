@@ -250,6 +250,22 @@ public class NodeCommandTest {
   }
 
   @Test
+  public void test_non_existing_node_file_deprecated_key() throws Exception {
+    MapSettings settings = new MapSettings();
+    settings.setProperty("sonar.typescript.node", "non-existing-file");
+    NodeCommandBuilder nodeCommand = NodeCommand.builder(mockProcessWrapper)
+      .configuration(settings.asConfig())
+      .script("not-used");
+
+    assertThatThrownBy(nodeCommand::build)
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessage("Provided Node.js executable file does not exist.");
+
+    await().until(() -> logTester.logs(LoggerLevel.ERROR)
+      .contains("Provided Node.js executable file does not exist. Property 'sonar.typescript.node' was to 'non-existing-file'"));
+  }
+
+  @Test
   public void test_exception_start() throws Exception {
     IOException cause = new IOException("Error starting process");
     when(mockProcessWrapper.start(any(), any())).thenThrow(cause);
