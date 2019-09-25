@@ -33,7 +33,7 @@ There are 2 built-in rule profiles for JavaScript: `Sonar way` (default) and `So
 [[warning]]
 | This feature is deprecated
 
-As a replacement, we suggest you to have a look at [ESLint](https://eslint.org/docs/developer-guide/), it provides custom rules that you can then import thanks to the [external issues](https://docs.sonarqube.org/latest/analysis/external-issues/) feature.
+As a replacement, we suggest you to have a look at [ESLint](https://eslint.org/docs/developer-guide/), it provides custom rules that you can then import thanks to the [External Issues](/analysis/external-issues/) feature.
 
 
 ### Overview
@@ -102,7 +102,7 @@ To test the rule you can use `JavaScriptCheckVerifier#verify()` or `JavaScriptCh
 
 ### API Changes
 #### SonarJS 6.0
-Feature and API are deprecated.
+* Feature and API are deprecated.
 
 #### SonarJS 4.2.1
 * `CustomJavaScriptRulesDefinition` is deprecated. Implement extension `RulesDefinition` and `CustomRuleRepository` instead.
