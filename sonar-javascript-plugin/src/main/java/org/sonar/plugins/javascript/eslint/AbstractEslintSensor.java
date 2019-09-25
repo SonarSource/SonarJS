@@ -80,6 +80,7 @@ abstract class AbstractEslintSensor implements Sensor {
 
   private ProgressReport progressReport =
     new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
+  SensorContext context;
 
   AbstractEslintSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
       FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
@@ -102,14 +103,15 @@ abstract class AbstractEslintSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
+    this.context = context;
     try {
       eslintBridgeServer.startServerLazily(context);
-      Iterable<InputFile> inputFiles = getInputFiles(context);
+      Iterable<InputFile> inputFiles = getInputFiles();
       startProgressReport(inputFiles);
 
       for (InputFile inputFile : inputFiles) {
         if (eslintBridgeServer.isAlive()) {
-          analyze(inputFile, context);
+          analyze(inputFile);
           progressReport.nextFile();
         } else {
           throw new IllegalStateException("eslint-bridge server is not answering");
@@ -176,9 +178,9 @@ abstract class AbstractEslintSensor implements Sensor {
     return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
-  protected abstract Iterable<InputFile> getInputFiles(SensorContext sensorContext);
+  protected abstract Iterable<InputFile> getInputFiles();
 
-  protected abstract void analyze(InputFile file, SensorContext context);
+  protected abstract void analyze(InputFile file);
 
   private void startProgressReport(Iterable<InputFile> inputFiles) {
     Collection<String> files = StreamSupport.stream(inputFiles.spliterator(), false)
@@ -188,7 +190,7 @@ abstract class AbstractEslintSensor implements Sensor {
     progressReport.start(files);
   }
 
-  protected void processResponse(InputFile file, SensorContext context, AnalysisResponse response) {
+  protected void processResponse(InputFile file, AnalysisResponse response) {
     if (response.parsingError != null) {
       processParsingError(context, file, response.parsingError);
       return;
@@ -196,20 +198,20 @@ abstract class AbstractEslintSensor implements Sensor {
 
     // it's important to have an order here:
     // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
-    saveMetrics(file, context, response.metrics);
-    saveIssues(file, context, response.issues);
-    saveHighlights(file, context, response.highlights);
-    saveHighlightedSymbols(file, context, response.highlightedSymbols);
-    saveCpd(file, context, response.cpdTokens);
+    saveMetrics(file, response.metrics);
+    saveIssues(file, response.issues);
+    saveHighlights(file, response.highlights);
+    saveHighlightedSymbols(file, response.highlightedSymbols);
+    saveCpd(file, response.cpdTokens);
   }
 
-  private void saveIssues(InputFile file, SensorContext context, Issue[] issues) {
+  private void saveIssues(InputFile file, Issue[] issues) {
     for (Issue issue : issues) {
       new EslintBasedIssue(issue).saveIssue(context, file, checks);
     }
   }
 
-  private static void saveHighlights(InputFile file, SensorContext context, Highlight[] highlights) {
+  private void saveHighlights(InputFile file, Highlight[] highlights) {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
     for (Highlight highlight : highlights) {
       highlighting.highlight(highlight.location.toTextRange(file), TypeOfText.valueOf(highlight.textType));
@@ -217,7 +219,7 @@ abstract class AbstractEslintSensor implements Sensor {
     highlighting.save();
   }
 
-  private static void saveHighlightedSymbols(InputFile file, SensorContext context, HighlightedSymbol[] highlightedSymbols) {
+  private void saveHighlightedSymbols(InputFile file, HighlightedSymbol[] highlightedSymbols) {
     NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
     for (HighlightedSymbol highlightedSymbol : highlightedSymbols) {
       Location declaration = highlightedSymbol.declaration;
@@ -229,14 +231,14 @@ abstract class AbstractEslintSensor implements Sensor {
     symbolTable.save();
   }
 
-  private void saveMetrics(InputFile file, SensorContext context, Metrics metrics) {
-    saveMetric(file, context, CoreMetrics.FUNCTIONS, metrics.functions);
-    saveMetric(file, context, CoreMetrics.STATEMENTS, metrics.statements);
-    saveMetric(file, context, CoreMetrics.CLASSES, metrics.classes);
-    saveMetric(file, context, CoreMetrics.NCLOC, metrics.ncloc.length);
-    saveMetric(file, context, CoreMetrics.COMMENT_LINES, metrics.commentLines.length);
-    saveMetric(file, context, CoreMetrics.COMPLEXITY, metrics.complexity);
-    saveMetric(file, context, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity);
+  private void saveMetrics(InputFile file, Metrics metrics) {
+    saveMetric(file, CoreMetrics.FUNCTIONS, metrics.functions);
+    saveMetric(file, CoreMetrics.STATEMENTS, metrics.statements);
+    saveMetric(file, CoreMetrics.CLASSES, metrics.classes);
+    saveMetric(file, CoreMetrics.NCLOC, metrics.ncloc.length);
+    saveMetric(file, CoreMetrics.COMMENT_LINES, metrics.commentLines.length);
+    saveMetric(file, CoreMetrics.COMPLEXITY, metrics.complexity);
+    saveMetric(file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity);
 
     noSonarFilter.noSonarInFile(file, Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet()));
 
@@ -252,7 +254,7 @@ abstract class AbstractEslintSensor implements Sensor {
     fileLinesContext.save();
   }
 
-  private static <T extends Serializable> void saveMetric(InputFile file, SensorContext context, Metric<T> metric, T value) {
+  private <T extends Serializable> void saveMetric(InputFile file, Metric<T> metric, T value) {
     context.<T>newMeasure()
       .withValue(value)
       .forMetric(metric)
@@ -260,7 +262,7 @@ abstract class AbstractEslintSensor implements Sensor {
       .save();
   }
 
-  private static void saveCpd(InputFile file, SensorContext context, CpdToken[] cpdTokens) {
+  private void saveCpd(InputFile file, CpdToken[] cpdTokens) {
     NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(file);
     for (CpdToken cpdToken : cpdTokens) {
       newCpdTokens.addToken(cpdToken.location.toTextRange(file), cpdToken.image);
@@ -268,7 +270,7 @@ abstract class AbstractEslintSensor implements Sensor {
     newCpdTokens.save();
   }
 
-  protected static boolean ignoreHeaderComments(SensorContext context) {
+  protected boolean ignoreHeaderComments() {
     return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
   }
 }

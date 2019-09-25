@@ -81,8 +81,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected Iterable<InputFile> getInputFiles(SensorContext sensorContext) {
-    FileSystem fileSystem = sensorContext.fileSystem();
+  protected Iterable<InputFile> getInputFiles() {
+    FileSystem fileSystem = context.fileSystem();
     FilePredicate mainFilePredicate = filePredicate(fileSystem);
     return fileSystem.inputFiles(mainFilePredicate);
   }
@@ -94,12 +94,12 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected void analyze(InputFile file, SensorContext context) {
+  protected void analyze(InputFile file) {
     try {
       String fileContent = isSonarLint(context) ? file.contents() : null;
-      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(context), tsConfigs(context));
+      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), tsConfigs(context));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
-      processResponse(file, context, response);
+      processResponse(file, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);
     }
