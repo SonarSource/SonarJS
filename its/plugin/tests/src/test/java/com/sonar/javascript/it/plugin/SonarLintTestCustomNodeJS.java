@@ -51,6 +51,8 @@ public class SonarLintTestCustomNodeJS {
 
   private List<String> logs = new CopyOnWriteArrayList<>();
 
+  private static ClientInputFile inputFile;
+
   @Before
   public void prepare() throws Exception {
     StandaloneGlobalConfiguration sonarLintConfig = StandaloneGlobalConfiguration.builder()
@@ -60,6 +62,12 @@ public class SonarLintTestCustomNodeJS {
       .build();
     sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
     baseDir = temp.newFolder();
+
+    inputFile = TestUtils.prepareInputFile(baseDir, FILE_PATH, "function foo() { try {" +
+      "  doSomething();" +
+      "} catch (ex) {" +
+      "  throw ex;" +
+      "}}");
   }
 
   @After
@@ -68,13 +76,7 @@ public class SonarLintTestCustomNodeJS {
   }
 
   @Test
-  public void should_use_set_nodejs() throws Exception {
-    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, FILE_PATH, "function foo() { try {" +
-      "  doSomething();" +
-      "} catch (ex) {" +
-      "  throw ex;" +
-      "}}");
-
+  public void should_use_set_nodejs() {
     List<Issue> issues = new ArrayList<>();
     HashMap<String, String> properties = new HashMap<>();
     properties.put("sonar.nodejs.executable", TestUtils.getNodeJSExecutable());
@@ -88,16 +90,25 @@ public class SonarLintTestCustomNodeJS {
     assertThat(logs.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
   }
 
+  @Test
+  public void should_use_set_nodejs_depracated_key() {
+    List<Issue> issues = new ArrayList<>();
+    HashMap<String, String> properties = new HashMap<>();
+    properties.put("sonar.typescript.node", TestUtils.getNodeJSExecutable());
+    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
+      .setBaseDir(baseDir.toPath())
+      .addInputFile(inputFile)
+      .putAllExtraProperties(properties).build();
+    sonarlintEngine.analyze(configuration, issues::add, null, null);
+    sonarlintEngine.stop();
+    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
+    assertThat(logs.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.typescript\\.node\\."))).isTrue();
+    assertThat(logs.stream().anyMatch(s -> s.matches("The use of sonar\\.typescript\\.node is deprecated, use sonar\\.nodejs\\.executable instead\\."))).isTrue();
+  }
 
   @Test
-  public void should_log_failure_only_once() throws Exception {
+  public void should_log_failure_only_once() {
     List<Issue> issues = new ArrayList<>();
-    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, FILE_PATH, "function foo() { try {" +
-      "  doSomething();" +
-      "} catch (ex) {" +
-      "  throw ex;" +
-      "}}");
-
     HashMap<String, String> properties = new HashMap<>();
     properties.put("sonar.nodejs.executable", "invalid");
     StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()

@@ -158,12 +158,12 @@ public class NodeCommandTest {
     assertThat(total_available_size).isGreaterThan(2048 * 1000);
   }
 
-
   @Test
   public void test_executable_from_configuration() throws Exception {
+    String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
     File nodeExecutable = temporaryFolder.newFile("custom-node");
     MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty("sonar.nodejs.executable", nodeExecutable.getAbsolutePath());
+    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY, nodeExecutable.getAbsolutePath());
     Configuration configuration = mapSettings.asConfig();
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .configuration(configuration)
@@ -173,6 +173,52 @@ public class NodeCommandTest {
 
     verify(mockProcessWrapper).start(processStartArgument.capture(), any());
     assertThat(processStartArgument.getValue()).contains(nodeExecutable.getAbsolutePath());
+    await().until(() -> logTester.logs(LoggerLevel.INFO)
+      .contains("Using Node.js executable " + nodeExecutable.getAbsolutePath() + " from property " + NODE_EXECUTABLE_PROPERTY + "."));
+  }
+
+  @Test
+  public void test_node_with_deprecated_key() throws Exception {
+    String NODE_EXECUTABLE_PROPERTY_TS = "sonar.typescript.node";
+    File nodeExecutable = temporaryFolder.newFile("custom-node");
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY_TS, nodeExecutable.getAbsolutePath());
+    Configuration configuration = mapSettings.asConfig();
+    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+      .configuration(configuration)
+      .script("not-used")
+      .build();
+    nodeCommand.start();
+
+    verify(mockProcessWrapper).start(processStartArgument.capture(), any());
+    assertThat(processStartArgument.getValue()).contains(nodeExecutable.getAbsolutePath());
+    await().until(() -> logTester.logs(LoggerLevel.WARN)
+      .contains("The use of " + NODE_EXECUTABLE_PROPERTY_TS + " is deprecated, use sonar.nodejs.executable instead."));
+    await().until(() -> logTester.logs(LoggerLevel.INFO)
+      .contains("Using Node.js executable " + nodeExecutable.getAbsolutePath() + " from property " + NODE_EXECUTABLE_PROPERTY_TS + "."));
+  }
+
+  @Test
+  public void test_node_with_both_key() throws Exception {
+    String NODE_EXECUTABLE_PROPERTY_TS = "sonar.typescript.node";
+    String NODE_EXECUTABLE_PROPERTY = "sonar.typescript.node";
+    File nodeExecutable = temporaryFolder.newFile("custom-node");
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY, nodeExecutable.getAbsolutePath());
+    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY_TS, nodeExecutable.getAbsolutePath());
+    Configuration configuration = mapSettings.asConfig();
+    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+      .configuration(configuration)
+      .script("not-used")
+      .build();
+    nodeCommand.start();
+
+    verify(mockProcessWrapper).start(processStartArgument.capture(), any());
+    assertThat(processStartArgument.getValue()).contains(nodeExecutable.getAbsolutePath());
+    await().until(() -> logTester.logs(LoggerLevel.WARN)
+      .contains("The use of " + NODE_EXECUTABLE_PROPERTY_TS + " is deprecated, use sonar.nodejs.executable instead."));
+    await().until(() -> logTester.logs(LoggerLevel.INFO)
+      .contains("Using Node.js executable " + nodeExecutable.getAbsolutePath() + " from property " + NODE_EXECUTABLE_PROPERTY + "."));
   }
 
   @Test
