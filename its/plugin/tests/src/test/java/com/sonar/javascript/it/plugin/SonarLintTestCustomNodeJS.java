@@ -91,7 +91,7 @@ public class SonarLintTestCustomNodeJS {
   }
 
   @Test
-  public void should_use_set_nodejs_depracated_key() {
+  public void should_use_set_nodejs_deprecated_key() {
     List<Issue> issues = new ArrayList<>();
     HashMap<String, String> properties = new HashMap<>();
     properties.put("sonar.typescript.node", TestUtils.getNodeJSExecutable());
