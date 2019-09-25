@@ -125,7 +125,10 @@ function createLinterConfig(
   inputRules: Rule[],
   additionalRules: { ruleId: string; ruleModule: ESLintRule.RuleModule; ruleConfig: any[] }[],
 ) {
-  const ruleConfig: Linter.Config = { rules: {}, parserOptions: { sourceType: "module" } };
+  const ruleConfig: Linter.Config = {
+    rules: {},
+    parserOptions: { sourceType: "module", ecmaVersion: 2018 },
+  };
   inputRules.forEach(inputRule => {
     const ruleModule = linter.getRules().get(inputRule.key);
     ruleConfig.rules![inputRule.key] = ["error", ...getRuleConfig(ruleModule, inputRule)];
