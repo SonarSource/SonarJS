@@ -19,29 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
+import org.junit.Test;
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S2814")
-public class RedeclaredSymbolCheck extends EslintBasedCheck {
+import com.google.gson.Gson;
 
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
+public class RedeclaredSymbolCheckTest {
 
-  @Override
-  public String eslintKey() {
-    return "no-redeclare";
-  }
-
-  private static class Config {
-    boolean builtinGlobals = false;
+  @Test
+  public void configurations() {
+    String configAsString = new Gson().toJson(new RedeclaredSymbolCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"builtinGlobals\":false}]");
   }
 }
