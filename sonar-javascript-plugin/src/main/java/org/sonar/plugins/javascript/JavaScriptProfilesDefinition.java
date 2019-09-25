@@ -123,7 +123,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     createProfile(SONAR_WAY_RECOMMENDED_TS, TypeScriptLanguage.KEY, typeScriptRuleKeys, context);
   }
 
-  private void createProfile(String profileName, String language, Set<String> keys, Context context) {
+  private static void createProfile(String profileName, String language, Set<String> keys, Context context) {
     NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(profileName, language);
     String jsonProfilePath = PROFILES.get(profileName);
     String repositoryKey = REPO_BY_LANGUAGE.get(language);
