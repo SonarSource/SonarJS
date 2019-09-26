@@ -139,7 +139,7 @@ public class JavaScriptRulingTest {
   @Parameters(name = "{0}")
   public static Object[][] projects() {
     return new Object[][]{
-      {"js-project", "js", "../sources/src", Arrays.asList("**/*.ts", "**/.*", "**/module_map.js")},
+      {"js-project", "js", "../sources/src", Arrays.asList("**/*.ts", "**/.*")},
     };
   }
 
