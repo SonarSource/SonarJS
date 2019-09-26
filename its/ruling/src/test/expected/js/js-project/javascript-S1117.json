@@ -1,0 +1,17 @@
+{
+'js-project:jest/packages/jest-haste-map/src/__tests__/worker.test.js':[
+53,
+],
+'js-project:jest/packages/jest-haste-map/src/crawlers/node.js':[
+42,
+111,
+],
+'js-project:jest/packages/jest-haste-map/src/crawlers/watchman.js':[
+43,
+43,
+],
+'js-project:jest/packages/jest-haste-map/src/index.js':[
+356,
+689,
+],
+}

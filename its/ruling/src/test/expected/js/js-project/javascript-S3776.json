@@ -1,0 +1,13 @@
+{
+'js-project:jest/packages/jest-haste-map/src/crawlers/node.js':[
+21,
+74,
+],
+'js-project:jest/packages/jest-haste-map/src/crawlers/watchman.js':[
+38,
+],
+'js-project:jest/packages/jest-haste-map/src/index.js':[
+321,
+575,
+],
+}
