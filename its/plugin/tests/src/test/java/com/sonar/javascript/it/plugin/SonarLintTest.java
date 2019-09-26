@@ -130,7 +130,42 @@ public class SonarLintTest {
     // we need to stop the engine to make sure that sonarlint will not concurrently modify logs collection
     sonarlintEngine.stop();
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("typescript:S3923");
-    assertThat(logs).contains("Using TypeScript at: '"+ tsNodeModules + "'");
+    assertThat(logs).contains("Using TypeScript at: '" + tsNodeModules + "'");
+  }
+
+  @Test
+  public void should_not_analyze_ts_project_without_config() throws Exception {
+    // emulate typescript installation provided by vscode
+    File typescriptInstall = temp.newFolder();
+    TestUtils.npmInstall(typescriptInstall, "typescript");
+    HashMap<String, String> properties = new HashMap<>();
+    Path tsNodeModules = typescriptInstall.toPath().resolve("node_modules").toAbsolutePath();
+    properties.put("sonar.typescript.internal.typescriptLocation", tsNodeModules.toString());
+
+    StandaloneGlobalConfiguration sonarLintConfig = StandaloneGlobalConfiguration.builder()
+      .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
+      .setSonarLintUserHome(temp.newFolder().toPath())
+      .setLogOutput((formattedMessage, level) -> logs.add(formattedMessage))
+      .setExtraProperties(properties)
+      .build();
+    StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
+
+    File baseDir = temp.newFolder();
+    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, "foo.ts", "x = true ? 42 : 42");
+
+    List<Issue> issues = new ArrayList<>();
+    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
+      .setBaseDir(baseDir.toPath())
+      .addInputFile(inputFile)
+      .build();
+    sonarlintEngine.analyze(
+      configuration,
+      issues::add, (formattedMessage, level) -> logs.add(formattedMessage), null);
+
+    // we need to stop the engine to make sure that sonarlint will not concurrently modify logs collection
+    sonarlintEngine.stop();
+    assertThat(issues).isEmpty();
+    assertThat(logs).contains("No tsconfig.json file found, analysis will be stopped.");
   }
 
 

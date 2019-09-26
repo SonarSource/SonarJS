@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -69,8 +70,7 @@ class TsConfigProvider {
         return tsconfigs;
       }
     }
-    // this should be impossible, DefaultTsConfigProvider always creates the file
-    throw new IllegalStateException("Failed to provide tsconfig.json file");
+    return emptyList();
   }
 
   static class PropertyTsConfigProvider implements Provider {
@@ -125,6 +125,10 @@ class TsConfigProvider {
 
     @Override
     public List<String> tsconfigs(SensorContext context) throws IOException {
+      if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
+        // we don't support per analysis temporary files in SonarLint see https://jira.sonarsource.com/browse/SLCORE-235
+        return emptyList();
+      }
       Iterable<InputFile> inputFiles = context.fileSystem().inputFiles(TypeScriptSensor.filePredicate(context.fileSystem()));
       TsConfig tsConfig = new TsConfig(inputFiles);
       File tsconfigFile = writeToJsonFile(tsConfig);

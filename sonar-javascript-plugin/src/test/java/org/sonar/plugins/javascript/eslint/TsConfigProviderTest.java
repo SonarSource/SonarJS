@@ -31,6 +31,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,6 +118,17 @@ public class TsConfigProviderTest {
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = new String(Files.readAllBytes(Paths.get(tsconfigs.get(0))), StandardCharsets.UTF_8);
     assertThat(tsconfig).isEqualTo("{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"]}");
+  }
+
+  @Test
+  public void should_not_create_tsconfig_in_sonarlint() throws Exception {
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    createInputFile(ctx, "file1.ts");
+    createInputFile(ctx, "file2.ts");
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4,4)));
+
+    List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
+    assertThat(tsconfigs).isEmpty();
   }
 
   private static void createInputFile(SensorContextTester context, String relativePath) {

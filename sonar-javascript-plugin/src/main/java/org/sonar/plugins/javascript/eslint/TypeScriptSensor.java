@@ -40,6 +40,7 @@ import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonarsource.nodejs.NodeCommandException;
 
 public class TypeScriptSensor extends AbstractEslintSensor {
 
@@ -102,6 +103,9 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private List<String> tsConfigs(SensorContext context) throws IOException {
     if (tsconfigs == null) {
       tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
+      if (tsconfigs.isEmpty()) {
+        throw new NodeCommandException("No tsconfig.json file found, analysis will be stopped.");
+      }
     }
     return tsconfigs;
   }

@@ -20,7 +20,9 @@
 package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
@@ -60,6 +62,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
@@ -220,9 +223,11 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_send_content_on_sonarlint() throws Exception {
-    SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
+    File baseDir = tempFolder.newDir();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx);
+    Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
