@@ -43,6 +43,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private static final String NODE_EXECUTABLE_DEFAULT = "node";
 
   private static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
+  private static final String NODE_EXECUTABLE_PROPERTY_TS = "sonar.typescript.node";
 
   private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile("v?(\\d+)\\.\\d+\\.\\d+");
 
@@ -189,14 +190,28 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private static String retrieveNodeExecutableFromConfig(@Nullable Configuration configuration) throws NodeCommandException {
-    if (configuration != null && configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
-      String nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
+    if (configuration != null && (configuration.hasKey(NODE_EXECUTABLE_PROPERTY) || configuration.hasKey(NODE_EXECUTABLE_PROPERTY_TS))) {
+      String nodeExecutable = "";
+      String usedProperty = "";
+
+      if (configuration.hasKey(NODE_EXECUTABLE_PROPERTY_TS)) {
+        LOG.warn("The use of " + NODE_EXECUTABLE_PROPERTY_TS + " is deprecated, use "
+          + NODE_EXECUTABLE_PROPERTY + " instead.");
+        usedProperty = NODE_EXECUTABLE_PROPERTY_TS;
+        nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY_TS).get();
+      }
+
+      if (configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
+        usedProperty = NODE_EXECUTABLE_PROPERTY;
+        nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
+      }
+
       File file = new File(nodeExecutable);
       if (file.exists()) {
-        LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), NODE_EXECUTABLE_PROPERTY);
+        LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), usedProperty);
         return nodeExecutable;
       } else {
-        LOG.error("Provided Node.js executable file does not exist. Property '{}' was to '{}'", NODE_EXECUTABLE_PROPERTY, nodeExecutable);
+        LOG.error("Provided Node.js executable file does not exist. Property '{}' was to '{}'", usedProperty, nodeExecutable);
         throw new NodeCommandException("Provided Node.js executable file does not exist.");
       }
     }
