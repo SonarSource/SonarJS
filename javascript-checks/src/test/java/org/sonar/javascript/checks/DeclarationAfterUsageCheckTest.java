@@ -30,6 +30,6 @@ public class DeclarationAfterUsageCheckTest {
   @Test
   public void configurations() {
     String configAsString = new Gson().toJson(new DeclarationAfterUsageCheck().configurations());
-    assertThat(configAsString).isEqualTo("[{\"functions\":false,\"classes\":false}]");
+    assertThat(configAsString).isEqualTo("[{\"functions\":false,\"classes\":false,\"variables\":false}]");
   }
 }

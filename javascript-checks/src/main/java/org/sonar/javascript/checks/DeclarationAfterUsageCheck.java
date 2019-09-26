@@ -45,6 +45,7 @@ public class DeclarationAfterUsageCheck extends EslintBasedCheck {
   private static class Config {
     boolean functions = false;
     boolean classes = false;
+    boolean variables  = false;
   }
 
 }
