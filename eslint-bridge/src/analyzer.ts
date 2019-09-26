@@ -181,4 +181,5 @@ function findAndRemoveFirstIssue(issues: Issue[], ruleId: string) {
       return issue;
     }
   }
+  return undefined;
 }
