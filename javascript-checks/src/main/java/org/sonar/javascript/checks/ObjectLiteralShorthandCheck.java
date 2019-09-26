@@ -30,6 +30,7 @@ import org.sonar.javascript.checks.annotations.TypeScriptRule;
 @Rule(key = "S3498")
 public class ObjectLiteralShorthandCheck extends EslintBasedCheck {
 
+  @Override
   public List<Object> configurations() {
     return Arrays.asList("always", new Config());
   }

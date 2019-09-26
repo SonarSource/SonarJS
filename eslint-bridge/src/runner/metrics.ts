@@ -85,7 +85,7 @@ const COMPLEXITY_NODES = [
 export default function getMetrics(
   sourceCode: SourceCode,
   ignoreHeaderComments: boolean,
-  cognitiveComplexity: number = 0,
+  cognitiveComplexity = 0,
 ): Metrics {
   return {
     ncloc: findLinesOfCode(sourceCode),
