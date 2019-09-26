@@ -191,12 +191,12 @@ public class JavaScriptRulingTest {
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")
-      .setSourceDirs("./jest/packages/jest-haste-map/src/")
+      .setSourceDirs("./")
       .setSourceEncoding("utf-8")
       .setProperty("dump.old", FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
-//      .setProperty("sonar.exclusions", String.join(",", exclusions))
+      .setProperty("sonar.exclusions", String.join(",", exclusions))
       .setProperty("sonar.javascript.node.maxspace", "2048")
       .setProperty("sonar.cpd.exclusions", "**/*");
 
