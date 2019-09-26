@@ -66,8 +66,9 @@ public class JavaScriptChecks {
 
   public JavaScriptChecks addCustomChecks(@Nullable CustomJavaScriptRulesDefinition[] customRulesDefinitions,
                                           @Nullable CustomRuleRepository[] customRuleRepositories) {
+
+    LOG.warn("SonarJS custom rules usage is deprecated. Consider using ESlint custom rules instead");
     if (customRulesDefinitions != null) {
-      LOG.warn("CustomJavaScriptRulesDefinition usage is deprecated. Use CustomRuleRepository API to define custom rules");
       for (CustomJavaScriptRulesDefinition rulesDefinition : customRulesDefinitions) {
         addChecks(rulesDefinition.repositoryKey(), Arrays.asList(rulesDefinition.checkClasses()));
       }
