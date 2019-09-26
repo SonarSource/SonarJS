@@ -5123,6 +5123,9 @@
 533,
 603,
 ],
+'js-project:jest/packages/jest-haste-map/src/module_map.js':[
+152,
+],
 'js-project:jest/packages/jest-haste-map/src/worker.js':[
 21,
 ],

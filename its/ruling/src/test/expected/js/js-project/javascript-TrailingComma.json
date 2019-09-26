@@ -1567,6 +1567,9 @@
 'js-project:jest/packages/jest-haste-map/src/lib/get_platform_extension.js':[
 15,
 ],
+'js-project:jest/packages/jest-haste-map/src/module_map.js':[
+67,
+],
 'js-project:jest/packages/jest-haste-map/src/worker.js':[
 31,
 39,
