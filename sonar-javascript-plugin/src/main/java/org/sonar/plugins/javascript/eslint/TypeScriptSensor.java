@@ -51,13 +51,18 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   /**
    * Required for SonarLint
    */
-  public TypeScriptSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter, FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer, TempFolder tempFolder) {
+  public TypeScriptSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
+                          FileLinesContextFactory fileLinesContextFactory,
+                          EslintBridgeServer eslintBridgeServer,
+                          TempFolder tempFolder) {
     this(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, tempFolder);
   }
 
   public TypeScriptSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
-                          FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-                          @Nullable AnalysisWarnings analysisWarnings, TempFolder tempFolder) {
+                          FileLinesContextFactory fileLinesContextFactory,
+                          EslintBridgeServer eslintBridgeServer,
+                          @Nullable AnalysisWarnings analysisWarnings,
+                          TempFolder tempFolder) {
     super(checks(checkFactory), noSonarFilter, fileLinesContextFactory, eslintBridgeServer, analysisWarnings);
     this.tempFolder = tempFolder;
   }
@@ -84,8 +89,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   static FilePredicate filePredicate(FileSystem fileSystem) {
     return fileSystem.predicates().and(
-        fileSystem.predicates().hasType(Type.MAIN),
-        fileSystem.predicates().hasLanguage(TypeScriptLanguage.KEY));
+      fileSystem.predicates().hasType(Type.MAIN),
+      fileSystem.predicates().hasLanguage(TypeScriptLanguage.KEY));
   }
 
   @Override
