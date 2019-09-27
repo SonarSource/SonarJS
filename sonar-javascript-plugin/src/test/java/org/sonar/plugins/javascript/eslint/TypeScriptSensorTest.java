@@ -20,12 +20,12 @@
 package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,6 +62,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
@@ -174,57 +175,7 @@ public class TypeScriptSensorTest {
     assertThat(context.allIssues()).isEmpty();
   }
 
-  @Test
-  public void should_lookup_tsconfig_files() throws Exception {
-    Path baseDir = tempFolder.newDir().toPath();
-    Path tsconfig1 = baseDir.resolve("tsconfig.json");
-    Files.createFile(tsconfig1);
-    Path subdir = baseDir.resolve("subdir");
-    Files.createDirectory(subdir);
-    Files.createDirectory(subdir.resolve("node_modules"));
-    Path tsconfig2 = Files.createFile(subdir.resolve("tsconfig.json"));
-    // these should not be taken into account
-    Files.createFile(subdir.resolve("node_modules/tsconfig.json"));
-    Files.createFile(subdir.resolve("base.tsconfig.json"));
 
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
-    createInputFile(ctx, "file1.ts");
-    createInputFile(ctx, "file2.ts");
-    TypeScriptSensor typeScriptSensor = createSensor();
-    typeScriptSensor.execute(ctx);
-
-    ArgumentCaptor<AnalysisRequest> request = ArgumentCaptor.forClass(AnalysisRequest.class);
-    verify(eslintBridgeServerMock, times(2)).analyzeTypeScript(request.capture());
-
-    List<String> firstCall = request.getAllValues().get(0).tsConfigs;
-    List<String> secondCall = request.getAllValues().get(1).tsConfigs;
-
-    assertThat(firstCall).containsOnly(tsconfig1.toString(), tsconfig2.toString());
-
-    // test that we cache the instance and don't lookup twice
-    assertThat(firstCall).isSameAs(secondCall);
-  }
-
-  @Test
-  public void should_use_tsconfig_from_property() throws Exception {
-    Path baseDir = tempFolder.newDir().toPath();
-    Files.createFile(baseDir.resolve("custom.tsconfig.json"));
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "custom.tsconfig.json"));
-    createInputFile(ctx);
-    TypeScriptSensor typeScriptSensor = createSensor();
-    typeScriptSensor.execute(ctx);
-
-    ArgumentCaptor<AnalysisRequest> request = ArgumentCaptor.forClass(AnalysisRequest.class);
-    verify(eslintBridgeServerMock).analyzeTypeScript(request.capture());
-
-    String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
-    assertThat(request.getValue().tsConfigs).containsOnly(absolutePath);
-
-    ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", absolutePath));
-    createSensor().execute(ctx);
-    assertThat(request.getValue().tsConfigs).containsOnly(absolutePath);
-  }
 
   @Test
   public void should_log_and_stop_with_wrong_tsconfig() throws Exception {
@@ -272,9 +223,11 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_send_content_on_sonarlint() throws Exception {
-    SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
+    File baseDir = tempFolder.newDir();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx);
+    Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
@@ -308,7 +261,7 @@ public class TypeScriptSensorTest {
   }
 
   private TypeScriptSensor createSensor() {
-    return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock);
+    return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, tempFolder);
   }
 
   private AnalysisResponse createResponse() {

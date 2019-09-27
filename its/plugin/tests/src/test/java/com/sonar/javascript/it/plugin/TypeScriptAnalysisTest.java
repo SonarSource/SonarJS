@@ -30,10 +30,11 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.Issue;
 
 import static com.sonar.javascript.it.plugin.Tests.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class TypeScriptAnalysisTest {
 
@@ -62,7 +63,7 @@ public class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     String sampleFileKey = projectKey + ":sample.lint.ts";
-    List<Issues.Issue> issuesList = getIssues(sampleFileKey);
+    List<Issue> issuesList = getIssues(sampleFileKey);
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(4);
 
@@ -98,9 +99,9 @@ public class TypeScriptAnalysisTest {
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
-    List<Issues.Issue> issuesList = getIssues(projectKey);
+    List<Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).hasSize(1);
-    Issues.Issue issue = issuesList.get(0);
+    Issue issue = issuesList.get(0);
     assertThat(issue.getLine()).isEqualTo(2);
     assertThat(issue.getComponent()).isEqualTo(projectKey + ":fileUsedInCustomTsConfig.ts");
 
@@ -151,5 +152,30 @@ public class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript 2.6.2 which is not officially supported; supported versions >=3.2.1 <3.6.0"))).hasSize(1);
+  }
+
+  @Test
+  public void should_analyze_without_tsconfig() throws Exception {
+    File dir = TestUtils.projectDir("missing-tsconfig");
+    TestUtils.npmInstall(dir);
+
+    String projectKey = "missing-tsconfig";
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(dir)
+      .setDebugLogs(true);
+
+
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    BuildResult result = orchestrator.executeBuild(build);
+
+    List<Issue> issuesList = getIssues(projectKey);
+    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
+      tuple(2, "typescript:S4325", "missing-tsconfig:src/main.ts")
+    );
+
+    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).hasSize(1);
   }
 }
