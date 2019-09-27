@@ -211,6 +211,7 @@ public class JavaScriptSensorTest {
     createSensor().execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN)).doesNotContain("SonarJS custom rules usage is deprecated. Consider using ESlint custom rules instead");
   }
 
   @Test
