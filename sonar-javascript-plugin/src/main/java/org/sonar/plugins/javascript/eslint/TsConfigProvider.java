@@ -127,6 +127,7 @@ class TsConfigProvider {
     public List<String> tsconfigs(SensorContext context) throws IOException {
       if (context.runtime().getProduct() == SonarProduct.SONARLINT) {
         // we don't support per analysis temporary files in SonarLint see https://jira.sonarsource.com/browse/SLCORE-235
+        LOG.warn("Generating temporary tsconfig is not supported in SonarLint context.");
         return emptyList();
       }
       Iterable<InputFile> inputFiles = context.fileSystem().inputFiles(TypeScriptSensor.filePredicate(context.fileSystem()));
