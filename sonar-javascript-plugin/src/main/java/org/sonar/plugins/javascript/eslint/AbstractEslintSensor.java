@@ -20,9 +20,11 @@
 package org.sonar.plugins.javascript.eslint;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -78,7 +80,7 @@ abstract class AbstractEslintSensor implements Sensor {
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
 
-  private ProgressReport progressReport =
+  protected ProgressReport progressReport =
     new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
   SensorContext context;
 
@@ -106,17 +108,10 @@ abstract class AbstractEslintSensor implements Sensor {
     this.context = context;
     try {
       eslintBridgeServer.startServerLazily(context);
-      Iterable<InputFile> inputFiles = getInputFiles();
+      List<InputFile> inputFiles = getInputFiles();
       startProgressReport(inputFiles);
 
-      for (InputFile inputFile : inputFiles) {
-        if (eslintBridgeServer.isAlive()) {
-          analyze(inputFile);
-          progressReport.nextFile();
-        } else {
-          throw new IllegalStateException("eslint-bridge server is not answering");
-        }
-      }
+      analyzeFiles(inputFiles);
       progressReport.stop();
     } catch (ServerAlreadyFailedException e) {
       LOG.debug("Skipping start of eslint-bridge server due to the failure during first analysis");
@@ -133,6 +128,8 @@ abstract class AbstractEslintSensor implements Sensor {
       progressReport.cancel();
     }
   }
+
+  abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
 
   void processParsingError(SensorContext sensorContext, InputFile inputFile, ParsingError parsingError) {
     Integer line = parsingError.line;
@@ -178,9 +175,8 @@ abstract class AbstractEslintSensor implements Sensor {
     return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
 
-  protected abstract Iterable<InputFile> getInputFiles();
+  protected abstract List<InputFile> getInputFiles();
 
-  protected abstract void analyze(InputFile file);
 
   private void startProgressReport(Iterable<InputFile> inputFiles) {
     Collection<String> files = StreamSupport.stream(inputFiles.spliterator(), false)

@@ -22,6 +22,7 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import { AnalysisInput, analyzeJavaScript, analyzeTypeScript } from "./analyzer";
 import { AddressInfo } from "net";
+import { unloadTypeScriptEslint } from "./parser";
 
 const MAX_REQUEST_SIZE = "50mb";
 
@@ -43,6 +44,11 @@ export function start(port = 0): Promise<Server> {
       const parsedRequest = request.body as AnalysisInput;
       const analysisResponse = analyzeTypeScript(parsedRequest);
       response.json(analysisResponse);
+    });
+
+    app.post("/new-tsconfig", (_request: express.Request, response: express.Response) => {
+      unloadTypeScriptEslint();
+      response.send("OK!");
     });
 
     app.get("/status", (_: express.Request, resp: express.Response) => resp.send("OK!"));

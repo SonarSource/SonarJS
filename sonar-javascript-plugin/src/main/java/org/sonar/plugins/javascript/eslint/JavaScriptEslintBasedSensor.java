@@ -20,6 +20,9 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -61,7 +64,18 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected void analyze(InputFile file) {
+  void analyzeFiles(List<InputFile> inputFiles) {
+    for (InputFile inputFile : inputFiles) {
+      if (eslintBridgeServer.isAlive()) {
+        analyze(inputFile);
+        progressReport.nextFile();
+      } else {
+        throw new IllegalStateException("eslint-bridge server is not answering");
+      }
+    }
+  }
+
+  private void analyze(InputFile file) {
     try {
       String fileContent = isSonarLint(context) ? file.contents() : null;
       AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), null);
@@ -73,12 +87,13 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected Iterable<InputFile> getInputFiles() {
+  protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicate mainFilePredicate = context.fileSystem().predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
-    return fileSystem.inputFiles(mainFilePredicate);
+    return StreamSupport.stream(fileSystem.inputFiles(mainFilePredicate).spliterator(), false)
+      .collect(Collectors.toList());
   }
 
   @Override

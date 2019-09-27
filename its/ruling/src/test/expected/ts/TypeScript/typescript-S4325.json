@@ -339,13 +339,6 @@
 'TypeScript:src/harness/unittests/tsserverProjectSystem.ts':[
 2238,
 ],
-'TypeScript:src/harness/virtualFileSystem.ts':[
-45,
-50,
-69,
-152,
-170,
-],
 'TypeScript:src/server/editorServices.ts':[
 1123,
 ],

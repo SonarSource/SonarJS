@@ -248,6 +248,19 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
+  public void newTsConfig() {
+    Request request = new Request.Builder()
+      .url("http://localhost:" + port + "/new-tsconfig")
+      .post(RequestBody.create(null, ""))
+      .build();
+    try (Response response = client.newCall(request).execute()) {
+      // no need to handle response
+    } catch (IOException e) {
+      LOG.error("Failed to post new-tsconfig", e);
+    }
+  }
+
+  @Override
   public void clean() {
     if (nodeCommand != null) {
       nodeCommand.destroy();

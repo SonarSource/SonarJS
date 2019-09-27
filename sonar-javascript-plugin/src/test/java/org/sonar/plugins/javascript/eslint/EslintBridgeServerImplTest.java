@@ -245,10 +245,10 @@ public class EslintBridgeServerImplTest {
     EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(request);
     assertThat(response.issues).isEmpty();
 
-    assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to parse response for file foo/foo.js: \n" +
+    assertThat(logTester.logs(LoggerLevel.ERROR).stream().anyMatch(log -> log.startsWith("Failed to parse response for file foo/foo.js: \n" +
       "-----\n" +
       "Invalid response\n" +
-      "-----\n");
+      "-----\n"))).isTrue();
     assertThat(context.allIssues()).isEmpty();
   }
 
