@@ -22,11 +22,12 @@ import * as babel from "babel-eslint";
 import { Linter, SourceCode } from "eslint";
 import { ParsingError } from "./analyzer";
 import * as VueJS from "vue-eslint-parser";
+import * as semver from "semver";
 
 // this value is taken from typescript-estree
 // still we might consider extending this range
 // if everything which we need is working on older/newer versions
-const COMPATIBLE_TS_VERSIONS = ">=3.2.1 <3.6.0";
+const TYPESCRIPT_MINIMUM_VERSION = ">=3.2.1";
 
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
@@ -64,11 +65,11 @@ export function loggerFn(msg: string) {
     const currentVersionMatch = msg.match(/YOUR TYPESCRIPT VERSION: (.+)\n/);
     const currentVersion = currentVersionMatch ? currentVersionMatch[1] : "";
 
-    // to make warning coming from typescipt-eslint parser less importunate
-    console.log(
-      `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions ` +
-        COMPATIBLE_TS_VERSIONS,
-    );
+    if (!semver.satisfies(currentVersion, TYPESCRIPT_MINIMUM_VERSION)) {
+      throw {
+        message: `You are using version of TypeScript ${currentVersion} which is not supported; supported versions ${TYPESCRIPT_MINIMUM_VERSION}`,
+      } as ParseException;
+    }
   } else {
     // fall back to default behavior of 'typescript-estree'
     console.log(msg);

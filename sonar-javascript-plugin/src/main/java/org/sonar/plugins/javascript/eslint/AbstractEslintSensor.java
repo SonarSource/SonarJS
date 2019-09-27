@@ -144,6 +144,8 @@ abstract class AbstractEslintSensor implements Sensor {
         LOG.error("Install TypeScript in the project directory or use NODE_PATH env. variable to set TypeScript " +
           "location, if it's located outside of project directory.");
         throw new IllegalStateException("Missing TypeScript dependency");
+      } else if (parsingError.message.startsWith("You are using version of TypeScript")) {
+        throw new IllegalStateException("Unsupported TypeScript version");
       }
     }
 

@@ -139,28 +139,44 @@ describe("parseTypeScriptSourceFile", () => {
     );
   });
 
-  it("should log nicely warning about bad TypeScript version", () => {
+  it("should throw a parsing exception with bad TypeScript version", () => {
+    let parsingException = undefined;
+    try {
+      loggerFn(
+        `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
+        YOUR TYPESCRIPT VERSION: 1.2.3
+        `,
+      );
+    } catch (exception) {
+      parsingException = exception;
+    }
+    expect(parsingException).toBeDefined;
+    expect(parsingException).toEqual({
+      message:
+        "You are using version of TypeScript 1.2.3 which is not supported; supported versions >=3.2.1",
+    });
+
+    try {
+      loggerFn(
+        `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
+        YOUR TYPESCRIPT VERSION:
+        `,
+      );
+    } catch (exception) {
+      parsingException = exception;
+    }
+    expect(parsingException).toBeDefined;
+    expect(parsingException).toEqual({
+      message:
+        "You are using version of TypeScript  which is not supported; supported versions >=3.2.1",
+    });
+  });
+
+  it("should fall back to default logging behaviour of 'typescript-estree'", () => {
     console.log = jest.fn();
 
     loggerFn("Just message");
-    loggerFn(
-      "WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.",
-    );
-    loggerFn(
-      `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
-      YOUR TYPESCRIPT VERSION: 1.2.3
-      `,
-    );
-
-    expect(console.log).toHaveBeenNthCalledWith(1, "Just message");
-    expect(console.log).toHaveBeenNthCalledWith(
-      2,
-      "WARN You are using version of TypeScript  which is not officially supported; supported versions >=3.2.1 <3.6.0",
-    );
-    expect(console.log).toHaveBeenNthCalledWith(
-      3,
-      "WARN You are using version of TypeScript 1.2.3 which is not officially supported; supported versions >=3.2.1 <3.6.0",
-    );
+    expect(console.log).toHaveBeenCalledWith("Just message");
 
     jest.resetAllMocks();
   });
