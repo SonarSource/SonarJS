@@ -162,11 +162,11 @@ describe("parseTypeScriptSourceFile", () => {
 
     loggerFn(
       `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
-      YOUR TYPESCRIPT VERSION: 4.5.6
+      YOUR TYPESCRIPT VERSION: 3.6.0
       `,
     );
     expect(console.log).toHaveBeenCalledWith(
-      "WARN You are using version of TypeScript 4.5.6 which is not officially supported; supported versions >=3.2.1 <3.6.0",
+      "WARN You are using version of TypeScript 3.6.0 which is not officially supported; supported versions >=3.2.1 <3.6.0",
     );
 
     jest.resetAllMocks();

@@ -64,11 +64,11 @@ export function loggerFn(msg: string) {
   ) {
     const currentVersionMatch = msg.match(/YOUR TYPESCRIPT VERSION: (.+)\n/);
     const currentVersion = currentVersionMatch ? currentVersionMatch[1] : "";
-    if (currentVersion > TYPESCRIPT_MAXIMUM_VERSION) {
+    if (currentVersion >= TYPESCRIPT_MAXIMUM_VERSION) {
       console.log(
         `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION} <${TYPESCRIPT_MAXIMUM_VERSION}`,
       );
-    } else if (currentVersion < TYPESCRIPT_MINIMUM_VERSION) {
+    } else {
       throw {
         message: `You are using version of TypeScript ${currentVersion} which is not supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION}`,
       } as ParseException;
