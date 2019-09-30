@@ -309,6 +309,14 @@ public class EslintBridgeServerImplTest {
       "module resolution algorithm; analysis will fail without TypeScript.");
   }
 
+  @Test
+  public void should_reload_tsconfig() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+    assertThat(eslintBridgeServer.newTsConfig()).isTrue();
+  }
+
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
     return new EslintBridgeServerImpl(new MapSettings().asConfig(), NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);

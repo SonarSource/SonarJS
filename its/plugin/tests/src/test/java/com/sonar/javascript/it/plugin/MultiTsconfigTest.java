@@ -25,10 +25,11 @@ import java.io.File;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.Issue;
 
 import static com.sonar.javascript.it.plugin.Tests.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class MultiTsconfigTest {
 
@@ -59,6 +60,11 @@ public class MultiTsconfigTest {
     TestUtils.npmInstall(PROJECT_DIR);
     orchestrator.executeBuild(build);
 
-    assertThat(getIssues(PROJECT)).extracting(Issues.Issue::getLine).containsExactlyInAnyOrder(3, 4);
+    assertThat(getIssues(PROJECT)).extracting(Issue::getLine, Issue::getComponent).containsExactlyInAnyOrder(
+      tuple(4,  "multi-tsconfig-test-project:src/bar/main.ts"),
+      tuple(3, "multi-tsconfig-test-project:src/dir1/main.ts"),
+      tuple(3, "multi-tsconfig-test-project:src/dir2/main.ts"),
+      tuple(3, "multi-tsconfig-test-project:src/foo/main.ts")
+    );
   }
 }

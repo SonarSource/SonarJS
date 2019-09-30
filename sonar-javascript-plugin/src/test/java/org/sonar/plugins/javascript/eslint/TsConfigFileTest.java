@@ -40,6 +40,34 @@ public class TsConfigFileTest {
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
+  @Test
+  public void should_include_files_by_default() throws Exception {
+    TsConfigFile.Model model = new TsConfigFile.Model();
+    Path basedir = temp.newFolder().toPath();
+    Files.createDirectory(basedir.resolve("dir"));
+    TsConfigFile tsConfigFile = new TsConfigFile("tsconfig.json", basedir, model);
+    InputFile inputFile1 = TestInputFileBuilder.create(basedir.toString(), "dir/file1.ts").build();
+    assertThat(tsConfigFile.test(inputFile1)).isTrue();
+    InputFile inputFile2 = TestInputFileBuilder.create(basedir.toString(), "file2.tsx").build();
+    assertThat(tsConfigFile.test(inputFile2)).isTrue();
+  }
+
+  @Test
+  public void should_union_include_and_files() throws Exception {
+    TsConfigFile.Model model = new TsConfigFile.Model();
+    model.include = Arrays.asList("include_dir");
+    model.files = Arrays.asList("file.ts");
+    Path basedir = temp.newFolder().toPath();
+    Files.createDirectory(basedir.resolve("include_dir"));
+    TsConfigFile tsConfigFile = new TsConfigFile("tsconfig.json", basedir, model);
+    InputFile inputFile1 = TestInputFileBuilder.create(basedir.toString(), "include_dir/file1.ts").build();
+    assertThat(tsConfigFile.test(inputFile1)).isTrue();
+    InputFile inputFile2 = TestInputFileBuilder.create(basedir.toString(), "file.ts").build();
+    InputFile inputFile3 = TestInputFileBuilder.create(basedir.toString(), "notlisted.ts").build();
+    assertThat(tsConfigFile.test(inputFile2)).isTrue();
+    assertThat(tsConfigFile.test(inputFile3)).isFalse();
+  }
+
 
   @Test
   public void should_include_directory() throws Exception {
@@ -63,6 +91,41 @@ public class TsConfigFileTest {
     TsConfigFile tsConfigFile = new TsConfigFile("tsconfig.json", basedir, model);
     InputFile inputFile = TestInputFileBuilder.create(basedir.toString(), "exclude_dir/file1.ts").build();
     assertThat(tsConfigFile.test(inputFile)).isFalse();
+  }
+
+  @Test
+  public void should_exclude_included_directory() throws Exception {
+    TsConfigFile.Model model = new TsConfigFile.Model();
+    model.include = Arrays.asList("include_dir");
+    model.exclude = Arrays.asList("include_dir/exclude");
+    Path basedir = temp.newFolder().toPath();
+    Files.createDirectory(basedir.resolve("include_dir"));
+    TsConfigFile tsConfigFile = new TsConfigFile("tsconfig.json", basedir, model);
+    InputFile inputFile1 = TestInputFileBuilder.create(basedir.toString(), "include_dir/file1.ts").build();
+    InputFile inputFile2 = TestInputFileBuilder.create(basedir.toString(), "include_dir/exclude/file1.ts").build();
+    InputFile inputFile3 = TestInputFileBuilder.create(basedir.toString(), "file2.ts").build();
+    assertThat(tsConfigFile.test(inputFile1)).isTrue();
+    assertThat(tsConfigFile.test(inputFile2)).isFalse();
+    assertThat(tsConfigFile.test(inputFile3)).isFalse();
+  }
+
+  @Test
+  public void should_not_exclude_files() throws Exception {
+    TsConfigFile.Model model = new TsConfigFile.Model();
+    model.include = Arrays.asList("include_dir");
+    model.exclude = Arrays.asList("include_dir/exclude");
+    model.files = Arrays.asList("include_dir/exclude/file.ts");
+    Path basedir = temp.newFolder().toPath();
+    Files.createDirectory(basedir.resolve("include_dir"));
+    TsConfigFile tsConfigFile = new TsConfigFile("tsconfig.json", basedir, model);
+    InputFile inputFile1 = TestInputFileBuilder.create(basedir.toString(), "include_dir/file1.ts").build();
+    InputFile inputFile2 = TestInputFileBuilder.create(basedir.toString(), "include_dir/exclude/file.ts").build();
+    InputFile inputFile3 = TestInputFileBuilder.create(basedir.toString(), "include_dir/exclude/excluded.ts").build();
+    InputFile inputFile4 = TestInputFileBuilder.create(basedir.toString(), "file2.ts").build();
+    assertThat(tsConfigFile.test(inputFile1)).isTrue();
+    assertThat(tsConfigFile.test(inputFile2)).isTrue();
+    assertThat(tsConfigFile.test(inputFile3)).isFalse();
+    assertThat(tsConfigFile.test(inputFile4)).isFalse();
   }
 
   @Test
