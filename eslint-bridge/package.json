@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "@types/eslint-scope": "3.7.0",
-    "@types/semver": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "2.0.0",
     "@typescript-eslint/parser": "2.0.0",
     "babel-eslint": "10.0.1",
@@ -50,7 +49,6 @@
     "eslint-plugin-sonarjs": "0.5.0-internal",
     "espree": "5.0.0",
     "express": "4.16.3",
-    "semver": "^6.3.0",
     "vue-eslint-parser": "6.0.4"
   },
   "prettier": {

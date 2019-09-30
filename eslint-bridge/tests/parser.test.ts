@@ -139,7 +139,7 @@ describe("parseTypeScriptSourceFile", () => {
     );
   });
 
-  it("should throw a parsing exception with bad TypeScript version", () => {
+  it("should throw a parsing exception with TypeScript version below minimum expected", () => {
     let parsingException = undefined;
     try {
       loggerFn(
@@ -155,7 +155,25 @@ describe("parseTypeScriptSourceFile", () => {
       message:
         "You are using version of TypeScript 1.2.3 which is not supported; supported versions >=3.2.1",
     });
+  });
 
+  it("should log a warning with TypeScript version above maximum expected", () => {
+    console.log = jest.fn();
+
+    loggerFn(
+      `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
+      YOUR TYPESCRIPT VERSION: 4.5.6
+      `,
+    );
+    expect(console.log).toHaveBeenCalledWith(
+      "WARN You are using version of TypeScript 4.5.6 which is not officially supported; supported versions >=3.2.1 <3.6.0",
+    );
+
+    jest.resetAllMocks();
+  });
+
+  it("should throw a parsing exception with missing TypeScript version", () => {
+    let parsingException = undefined;
     try {
       loggerFn(
         `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.

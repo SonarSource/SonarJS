@@ -22,12 +22,12 @@ import * as babel from "babel-eslint";
 import { Linter, SourceCode } from "eslint";
 import { ParsingError } from "./analyzer";
 import * as VueJS from "vue-eslint-parser";
-import * as semver from "semver";
 
 // this value is taken from typescript-estree
 // still we might consider extending this range
 // if everything which we need is working on older/newer versions
-const TYPESCRIPT_MINIMUM_VERSION = ">=3.2.1";
+const TYPESCRIPT_MINIMUM_VERSION = "3.2.1";
+const TYPESCRIPT_MAXIMUM_VERSION = "3.6.0";
 
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
@@ -64,10 +64,13 @@ export function loggerFn(msg: string) {
   ) {
     const currentVersionMatch = msg.match(/YOUR TYPESCRIPT VERSION: (.+)\n/);
     const currentVersion = currentVersionMatch ? currentVersionMatch[1] : "";
-
-    if (!semver.satisfies(currentVersion, TYPESCRIPT_MINIMUM_VERSION)) {
+    if (currentVersion > TYPESCRIPT_MAXIMUM_VERSION) {
+      console.log(
+        `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION} <${TYPESCRIPT_MAXIMUM_VERSION}`,
+      );
+    } else if (currentVersion < TYPESCRIPT_MINIMUM_VERSION) {
       throw {
-        message: `You are using version of TypeScript ${currentVersion} which is not supported; supported versions ${TYPESCRIPT_MINIMUM_VERSION}`,
+        message: `You are using version of TypeScript ${currentVersion} which is not supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION}`,
       } as ParseException;
     }
   } else {
