@@ -39,9 +39,8 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   @Override
   public boolean accept(InputFile inputFile) {
-    String[] excludedPatterns = this.configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY);
-    String relativePath = inputFile.uri().toString();
-    if (WildcardPattern.match(WildcardPattern.create(excludedPatterns), relativePath)) {
+    if (isExcludedWithProperty(inputFile, JavaScriptPlugin.JS_EXCLUSIONS_KEY)
+      || isExcludedWithProperty(inputFile, JavaScriptPlugin.TS_EXCLUSIONS_KEY)) {
       return false;
     }
 
@@ -52,5 +51,11 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
     }
 
     return true;
+  }
+
+  private boolean isExcludedWithProperty(InputFile inputFile, String property) {
+    String[] excludedPatterns = this.configuration.getStringArray(property);
+    String relativePath = inputFile.uri().toString();
+    return WildcardPattern.match(WildcardPattern.create(excludedPatterns), relativePath);
   }
 }
