@@ -7,6 +7,8 @@ import {
   parseTypeScriptSourceFile,
   parseVueSourceFile,
   loggerFn,
+  ParseExceptionCode,
+  parseExceptionCodeOf,
 } from "../src/parser";
 import * as espree from "espree";
 import { SourceCode } from "eslint";
@@ -69,6 +71,7 @@ describe("parseJavaScriptSourceFile", () => {
     // Modules
     expectToParse(
       `import * as Foo from "foo";
+import { ParseExceptionCode } from '../src/parser';
        export class A{}`,
     );
   });
@@ -125,6 +128,7 @@ describe("parseTypeScriptSourceFile", () => {
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(1);
     expect(parsingError.message).toEqual("'}' expected.");
+    expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
   });
 
   it("should return ParsingError with undefined line when file is not part of typescript project", () => {
@@ -198,6 +202,16 @@ describe("parseTypeScriptSourceFile", () => {
 
     jest.resetAllMocks();
   });
+
+  it("should return correct parsing exception code from exception message", () => {
+    expect(parseExceptionCodeOf("Cannot find module 'typescript'")).toEqual(
+      ParseExceptionCode.MissingTypeScript,
+    );
+    expect(parseExceptionCodeOf("You are using version of TypeScript")).toEqual(
+      ParseExceptionCode.UnsupportedTypeScript,
+    );
+    expect(parseExceptionCodeOf("Unexpected token )")).toEqual(ParseExceptionCode.Parsing);
+  });
 });
 
 describe("parseVueSourceFile", () => {
@@ -239,6 +253,7 @@ describe("parseVueSourceFile", () => {
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(4);
     expect(parsingError.message).toEqual("Unexpected token");
+    expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
   });
 });
 

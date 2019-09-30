@@ -71,7 +71,7 @@ export function loggerFn(msg: string) {
     } else {
       throw {
         message: `You are using version of TypeScript ${currentVersion} which is not supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION}`,
-      } as ParseException;
+      };
     }
   } else {
     // fall back to default behavior of 'typescript-estree'
@@ -101,6 +101,7 @@ export function parseJavaScriptSourceFile(fileContent: string): SourceCode | Par
   return {
     line: exceptionToReport!.lineNumber,
     message: exceptionToReport!.message,
+    code: ParseExceptionCode.Parsing,
   };
 }
 
@@ -123,6 +124,7 @@ export function parseTypeScriptSourceFile(
     return {
       line: exception.lineNumber,
       message: exception.message,
+      code: parseExceptionCodeOf(exception.message),
     };
   }
 }
@@ -146,6 +148,7 @@ export function parseVueSourceFile(fileContent: string): SourceCode | ParsingErr
   return {
     line: exceptionToReport!.lineNumber,
     message: exceptionToReport!.message,
+    code: ParseExceptionCode.Parsing,
   };
 }
 
@@ -165,4 +168,22 @@ export function parse(
 export type ParseException = {
   lineNumber?: number;
   message: string;
+  code: string;
 };
+
+export enum ParseExceptionCode {
+  Parsing = "PARSING",
+  MissingTypeScript = "MISSING_TYPESCRIPT",
+  UnsupportedTypeScript = "UNSUPPORTED_TYPESCRIPT",
+}
+
+// exported for testing
+export function parseExceptionCodeOf(exceptionMsg: string): string {
+  if (exceptionMsg === "Cannot find module 'typescript'") {
+    return ParseExceptionCode.MissingTypeScript;
+  } else if (exceptionMsg.startsWith("You are using version of TypeScript")) {
+    return ParseExceptionCode.UnsupportedTypeScript;
+  } else {
+    return ParseExceptionCode.Parsing;
+  }
+}

@@ -63,6 +63,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -196,7 +197,7 @@ public class TypeScriptSensorTest {
   @Test
   public void should_raise_a_parsing_error() throws IOException {
     when(eslintBridgeServerMock.analyzeTypeScript(any()))
-      .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\"} }", AnalysisResponse.class));
+      .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
     createSensor().execute(context);
     Collection<Issue> issues = context.allIssues();
@@ -251,6 +252,7 @@ public class TypeScriptSensorTest {
     AnalysisResponse parseError = new AnalysisResponse();
     parseError.parsingError = new EslintBridgeServer.ParsingError();
     parseError.parsingError.message = "Cannot find module 'typescript'";
+    parseError.parsingError.code = ParsingErrorCode.MISSING_TYPESCRIPT;
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
     createInputFile(context, "dir/file1.ts");
     createInputFile(context, "dir/file2.ts");
@@ -262,10 +264,12 @@ public class TypeScriptSensorTest {
     verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(any());
   }
 
+  @Test
   public void should_abort_when_unsupported_typescript() throws Exception {
     AnalysisResponse parseError = new AnalysisResponse();
     parseError.parsingError = new EslintBridgeServer.ParsingError();
     parseError.parsingError.message = "You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6";
+    parseError.parsingError.code = ParsingErrorCode.UNSUPPORTED_TYPESCRIPT;
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
     createInputFile(context, "dir/file1.ts");
     createInputFile(context, "dir/file2.ts");
