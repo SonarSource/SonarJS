@@ -19,23 +19,24 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ClassNameCheckTest {
 
   @Test
-  public void test() {
+  public void configurations() {
     ClassNameCheck check = new ClassNameCheck();
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/className.js"));
-  }
 
-  @Test
-  public void test_custom_format() {
-    ClassNameCheck check = new ClassNameCheck();
+    // default configuration
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"format\":\"^[A-Z][a-zA-Z0-9]*$\"}]");
+
+    // custom configuration
     check.format = "^[_A-Z][a-zA-Z0-9]*$";
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/classNameCustomFormat.js"));
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"format\":\"^[_A-Z][a-zA-Z0-9]*$\"}]");
   }
-
 }
