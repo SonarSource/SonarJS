@@ -201,14 +201,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   private String request(String json, String endpoint) throws IOException {
-    HttpUrl url = new HttpUrl.Builder()
-      .scheme("http")
-      .host("localhost")
-      .port(port)
-      .addPathSegment(endpoint)
-      .build();
     Request request = new Request.Builder()
-      .url(url)
+      .url(url(endpoint))
       .post(RequestBody.create(MediaType.get("application/json"), json))
       .build();
 
@@ -233,7 +227,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       return false;
     }
     Request request = new Request.Builder()
-      .url("http://localhost:" + port + "/status")
+      .url(url("status"))
       .get()
       .build();
 
@@ -245,6 +239,21 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       LOG.error("Error requesting server status. Server is probably dead.", e);
       return false;
     }
+  }
+
+  @Override
+  public boolean newTsConfig() {
+    Request request = new Request.Builder()
+      .url(url("new-tsconfig"))
+      .post(RequestBody.create(null, ""))
+      .build();
+    try (Response response = client.newCall(request).execute()) {
+      String body = response.body().string();
+      return "OK!".equals(body);
+    } catch (IOException e) {
+      LOG.error("Failed to post new-tsconfig", e);
+    }
+    return false;
   }
 
   @Override
@@ -272,6 +281,16 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public void stop() {
     clean();
+  }
+
+  private HttpUrl url(String endpoint) {
+    HttpUrl.Builder builder = new HttpUrl.Builder();
+    return builder
+      .scheme("http")
+      .host("localhost")
+      .port(port)
+      .addPathSegment(endpoint)
+      .build();
   }
 
   private Optional<Path> getTypeScriptLocation(File baseDir) throws IOException {

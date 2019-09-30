@@ -22,8 +22,10 @@ package org.sonar.plugins.javascript.eslint;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Iterator;
 import org.junit.Before;
@@ -258,6 +260,43 @@ public class TypeScriptSensorTest {
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("TypeScript dependency was not found and it is required for analysis.");
     // assert that analysis was interrupted after first file
     verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(any());
+  }
+
+  @Test
+  public void should_analyze_by_tsconfig() throws Exception {
+    Path baseDir = Paths.get("src/test/resources/multi-tsconfig");
+    SensorContextTester context = SensorContextTester.create(baseDir);
+    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
+    DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir2/file.ts");
+    DefaultInputFile file3 = inputFileFromResource(context, baseDir, "dir3/file.ts");
+    inputFileFromResource(context, baseDir, "noconfig.ts");
+    ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
+    createSensor().execute(context);
+    verify(eslintBridgeServerMock, times(3)).analyzeTypeScript(captor.capture());
+    assertThat(captor.getAllValues()).extracting(req -> req.filePath).containsExactlyInAnyOrder(
+      file1.absolutePath(),
+      file2.absolutePath(),
+      file3.absolutePath()
+    );
+    verify(eslintBridgeServerMock, times(3)).newTsConfig();
+  }
+
+  private DefaultInputFile inputFileFromResource(SensorContextTester context, Path baseDir, String file) throws IOException {
+    Path filePath = baseDir.resolve(file);
+    DefaultInputFile inputFile = new TestInputFileBuilder("projectKey", baseDir.toFile(), filePath.toFile())
+      .setContents(new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8))
+      .setLanguage("ts")
+      .build();
+    context.fileSystem().add(inputFile);
+    return inputFile;
+  }
+
+  @Test
+  public void should_stop_without_tsconfig() {
+    SensorContextTester context = SensorContextTester.create(tempFolder.newDir());
+    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4,4)));
+    createSensor().execute(context);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("No tsconfig.json file found, analysis will be stopped.");
   }
 
   private TypeScriptSensor createSensor() {

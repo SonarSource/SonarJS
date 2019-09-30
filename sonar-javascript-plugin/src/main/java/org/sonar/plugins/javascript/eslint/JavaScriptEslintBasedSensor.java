@@ -20,13 +20,15 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -62,24 +64,36 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   @Override
-  protected void analyze(InputFile file, SensorContext context) {
+  void analyzeFiles(List<InputFile> inputFiles) {
+    for (InputFile inputFile : inputFiles) {
+      if (eslintBridgeServer.isAlive()) {
+        analyze(inputFile);
+        progressReport.nextFile();
+      } else {
+        throw new IllegalStateException("eslint-bridge server is not answering");
+      }
+    }
+  }
+
+  private void analyze(InputFile file) {
     try {
       String fileContent = isSonarLint(context) ? file.contents() : null;
-      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(context), null);
+      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), null);
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
-      processResponse(file, context, response);
+      processResponse(file, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
     }
   }
 
   @Override
-  protected Iterable<InputFile> getInputFiles(SensorContext sensorContext) {
-    FileSystem fileSystem = sensorContext.fileSystem();
-    FilePredicate mainFilePredicate = sensorContext.fileSystem().predicates().and(
+  protected List<InputFile> getInputFiles() {
+    FileSystem fileSystem = context.fileSystem();
+    FilePredicate mainFilePredicate = context.fileSystem().predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
-    return fileSystem.inputFiles(mainFilePredicate);
+    return StreamSupport.stream(fileSystem.inputFiles(mainFilePredicate).spliterator(), false)
+      .collect(Collectors.toList());
   }
 
   @Override

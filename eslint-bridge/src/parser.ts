@@ -123,6 +123,11 @@ export function parseTypeScriptSourceFile(
   }
 }
 
+export function unloadTypeScriptEslint() {
+  const tsParser = require.resolve("@typescript-eslint/parser");
+  delete require.cache[tsParser];
+}
+
 export function parseVueSourceFile(fileContent: string): SourceCode | ParsingError {
   let exceptionToReport: ParseException | null = null;
   for (const config of [PARSER_CONFIG_MODULE, PARSER_CONFIG_SCRIPT]) {

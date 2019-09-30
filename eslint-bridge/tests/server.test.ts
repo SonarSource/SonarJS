@@ -226,6 +226,13 @@ describe("server", () => {
     req.end();
   });
 
+  it("should unload ts module", async () => {
+    const response = await post("", "/new-tsconfig");
+    expect(response).toEqual("OK!");
+    // note there is no easy way to test that module was unloaded, because jest is modifying require calls for tests
+    // see https://github.com/facebook/jest/issues/6725
+  });
+
   function post(data, endpoint): Promise<string> {
     const options = {
       host: "localhost",

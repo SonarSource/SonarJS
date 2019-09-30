@@ -245,10 +245,10 @@ public class EslintBridgeServerImplTest {
     EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(request);
     assertThat(response.issues).isEmpty();
 
-    assertThat(logTester.logs(LoggerLevel.ERROR).get(0)).startsWith("Failed to parse response for file foo/foo.js: \n" +
+    assertThat(logTester.logs(LoggerLevel.ERROR).stream().anyMatch(log -> log.startsWith("Failed to parse response for file foo/foo.js: \n" +
       "-----\n" +
       "Invalid response\n" +
-      "-----\n");
+      "-----\n"))).isTrue();
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -307,6 +307,14 @@ public class EslintBridgeServerImplTest {
     assertThat(eslintBridgeServer.getCommandInfo()).doesNotContain("NODE_PATH");
     assertThat(logTester.logs(INFO)).contains("TypeScript dependency was not found inside project directory, Node.js will search TypeScript using " +
       "module resolution algorithm; analysis will fail without TypeScript.");
+  }
+
+  @Test
+  public void should_reload_tsconfig() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+    assertThat(eslintBridgeServer.newTsConfig()).isTrue();
   }
 
 

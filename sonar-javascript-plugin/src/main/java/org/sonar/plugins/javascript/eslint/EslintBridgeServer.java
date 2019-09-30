@@ -47,6 +47,8 @@ public interface EslintBridgeServer extends Startable {
 
   boolean isAlive();
 
+  boolean newTsConfig();
+
   class AnalysisRequest {
     String filePath;
     String fileContent;
