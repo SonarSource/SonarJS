@@ -171,12 +171,14 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean isBasicValue(ExpressionTree expression) {
-    if (expression.is(Kind.BOOLEAN_LITERAL, Kind.NUMERIC_LITERAL, Kind.STRING_LITERAL, Kind.NULL_LITERAL)) {
+    if (isLiteral(expression)) {
       return BASIC_LITERAL_VALUES.contains(((LiteralTree) expression).value());
 
     } else if (expression.is(Kind.UNARY_MINUS)) {
       ExpressionTree operand = ((UnaryExpressionTree) expression).expression();
-      return BASIC_LITERAL_VALUES.contains("-" + ((LiteralTree) operand).value());
+      if (isLiteral(operand)) {
+        return BASIC_LITERAL_VALUES.contains("-" + ((LiteralTree) operand).value());
+      }
 
     } else if (expression.is(Kind.ARRAY_LITERAL)) {
       return ((ArrayLiteralTree) expression).elements().isEmpty();
@@ -194,6 +196,10 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       return operand.is(Kind.NUMERIC_LITERAL) && "0".equals(((LiteralTree) operand).value());
     }
     return false;
+  }
+
+  private static boolean isLiteral(ExpressionTree expression) {
+    return expression.is(Kind.BOOLEAN_LITERAL, Kind.NUMERIC_LITERAL, Kind.STRING_LITERAL, Kind.NULL_LITERAL);
   }
 
   private void raiseIssuesForNeverReadSymbols(Usages usages) {

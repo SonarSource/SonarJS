@@ -214,6 +214,7 @@ function ok_initializer_to_standard_value() {
   let x13 = [1, 2]; // Noncompliant
   let x14 = {a: 1}; // Noncompliant
   let x15 = undefined;
+  let x16 = -foo(); // Noncompliant
 
   x1 = 42;
   foo(x1);
