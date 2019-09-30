@@ -88,6 +88,13 @@ public interface EslintBridgeServer extends Startable {
   class ParsingError {
     String message;
     Integer line;
+    ParsingErrorCode code;
+  }
+
+  enum ParsingErrorCode {
+    PARSING,
+    MISSING_TYPESCRIPT,
+    UNSUPPORTED_TYPESCRIPT
   }
 
   class Issue {

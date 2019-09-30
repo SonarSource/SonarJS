@@ -26,7 +26,8 @@ import * as VueJS from "vue-eslint-parser";
 // this value is taken from typescript-estree
 // still we might consider extending this range
 // if everything which we need is working on older/newer versions
-const COMPATIBLE_TS_VERSIONS = ">=3.2.1 <3.6.0";
+const TYPESCRIPT_MINIMUM_VERSION = "3.2.1";
+const TYPESCRIPT_MAXIMUM_VERSION = "3.6.0";
 
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
@@ -63,12 +64,15 @@ export function loggerFn(msg: string) {
   ) {
     const currentVersionMatch = msg.match(/YOUR TYPESCRIPT VERSION: (.+)\n/);
     const currentVersion = currentVersionMatch ? currentVersionMatch[1] : "";
-
-    // to make warning coming from typescipt-eslint parser less importunate
-    console.log(
-      `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions ` +
-        COMPATIBLE_TS_VERSIONS,
-    );
+    if (currentVersion >= TYPESCRIPT_MAXIMUM_VERSION) {
+      console.log(
+        `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION} <${TYPESCRIPT_MAXIMUM_VERSION}`,
+      );
+    } else {
+      throw {
+        message: `You are using version of TypeScript ${currentVersion} which is not supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION}`,
+      };
+    }
   } else {
     // fall back to default behavior of 'typescript-estree'
     console.log(msg);
@@ -97,6 +101,7 @@ export function parseJavaScriptSourceFile(fileContent: string): SourceCode | Par
   return {
     line: exceptionToReport!.lineNumber,
     message: exceptionToReport!.message,
+    code: ParseExceptionCode.Parsing,
   };
 }
 
@@ -119,6 +124,7 @@ export function parseTypeScriptSourceFile(
     return {
       line: exception.lineNumber,
       message: exception.message,
+      code: parseExceptionCodeOf(exception.message),
     };
   }
 }
@@ -142,6 +148,7 @@ export function parseVueSourceFile(fileContent: string): SourceCode | ParsingErr
   return {
     line: exceptionToReport!.lineNumber,
     message: exceptionToReport!.message,
+    code: ParseExceptionCode.Parsing,
   };
 }
 
@@ -161,4 +168,22 @@ export function parse(
 export type ParseException = {
   lineNumber?: number;
   message: string;
+  code: string;
 };
+
+export enum ParseExceptionCode {
+  Parsing = "PARSING",
+  MissingTypeScript = "MISSING_TYPESCRIPT",
+  UnsupportedTypeScript = "UNSUPPORTED_TYPESCRIPT",
+}
+
+// exported for testing
+export function parseExceptionCodeOf(exceptionMsg: string): string {
+  if (exceptionMsg === "Cannot find module 'typescript'") {
+    return ParseExceptionCode.MissingTypeScript;
+  } else if (exceptionMsg.startsWith("You are using version of TypeScript")) {
+    return ParseExceptionCode.UnsupportedTypeScript;
+  } else {
+    return ParseExceptionCode.Parsing;
+  }
+}

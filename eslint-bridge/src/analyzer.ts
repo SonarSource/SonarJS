@@ -86,6 +86,7 @@ export interface AnalysisResponse {
 export interface ParsingError {
   line?: number;
   message: string;
+  code: string;
 }
 
 export interface Issue {

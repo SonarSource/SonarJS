@@ -365,7 +365,7 @@ public class JavaScriptEslintBasedSensorTest {
   @Test
   public void should_raise_a_parsing_error() throws IOException {
     when(eslintBridgeServerMock.analyzeJavaScript(any()))
-      .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\"} }", AnalysisResponse.class));
+      .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
     createSensor().execute(context);
     Collection<Issue> issues = context.allIssues();
@@ -380,7 +380,7 @@ public class JavaScriptEslintBasedSensorTest {
   @Test
   public void should_not_create_parsing_issue_when_no_rule() throws IOException {
     when(eslintBridgeServerMock.analyzeJavaScript(any()))
-      .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\"} }", AnalysisResponse.class));
+      .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
     new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, null).execute(context);
     Collection<Issue> issues = context.allIssues();

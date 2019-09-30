@@ -7,6 +7,8 @@ import {
   parseTypeScriptSourceFile,
   parseVueSourceFile,
   loggerFn,
+  ParseExceptionCode,
+  parseExceptionCodeOf,
 } from "../src/parser";
 import * as espree from "espree";
 import { SourceCode } from "eslint";
@@ -69,6 +71,7 @@ describe("parseJavaScriptSourceFile", () => {
     // Modules
     expectToParse(
       `import * as Foo from "foo";
+import { ParseExceptionCode } from '../src/parser';
        export class A{}`,
     );
   });
@@ -125,6 +128,7 @@ describe("parseTypeScriptSourceFile", () => {
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(1);
     expect(parsingError.message).toEqual("'}' expected.");
+    expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
   });
 
   it("should return ParsingError with undefined line when file is not part of typescript project", () => {
@@ -139,30 +143,74 @@ describe("parseTypeScriptSourceFile", () => {
     );
   });
 
-  it("should log nicely warning about bad TypeScript version", () => {
+  it("should throw a parsing exception with TypeScript version below minimum expected", () => {
+    let parsingException = undefined;
+    try {
+      loggerFn(
+        `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
+        YOUR TYPESCRIPT VERSION: 1.2.3
+        `,
+      );
+    } catch (exception) {
+      parsingException = exception;
+    }
+    expect(parsingException).toBeDefined;
+    expect(parsingException).toEqual({
+      message:
+        "You are using version of TypeScript 1.2.3 which is not supported; supported versions >=3.2.1",
+    });
+  });
+
+  it("should log a warning with TypeScript version above maximum expected", () => {
     console.log = jest.fn();
 
-    loggerFn("Just message");
-    loggerFn(
-      "WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.",
-    );
     loggerFn(
       `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
-      YOUR TYPESCRIPT VERSION: 1.2.3
+      YOUR TYPESCRIPT VERSION: 3.6.0
       `,
     );
-
-    expect(console.log).toHaveBeenNthCalledWith(1, "Just message");
-    expect(console.log).toHaveBeenNthCalledWith(
-      2,
-      "WARN You are using version of TypeScript  which is not officially supported; supported versions >=3.2.1 <3.6.0",
-    );
-    expect(console.log).toHaveBeenNthCalledWith(
-      3,
-      "WARN You are using version of TypeScript 1.2.3 which is not officially supported; supported versions >=3.2.1 <3.6.0",
+    expect(console.log).toHaveBeenCalledWith(
+      "WARN You are using version of TypeScript 3.6.0 which is not officially supported; supported versions >=3.2.1 <3.6.0",
     );
 
     jest.resetAllMocks();
+  });
+
+  it("should throw a parsing exception with missing TypeScript version", () => {
+    let parsingException = undefined;
+    try {
+      loggerFn(
+        `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
+        YOUR TYPESCRIPT VERSION:
+        `,
+      );
+    } catch (exception) {
+      parsingException = exception;
+    }
+    expect(parsingException).toBeDefined;
+    expect(parsingException).toEqual({
+      message:
+        "You are using version of TypeScript  which is not supported; supported versions >=3.2.1",
+    });
+  });
+
+  it("should fall back to default logging behaviour of 'typescript-estree'", () => {
+    console.log = jest.fn();
+
+    loggerFn("Just message");
+    expect(console.log).toHaveBeenCalledWith("Just message");
+
+    jest.resetAllMocks();
+  });
+
+  it("should return correct parsing exception code from exception message", () => {
+    expect(parseExceptionCodeOf("Cannot find module 'typescript'")).toEqual(
+      ParseExceptionCode.MissingTypeScript,
+    );
+    expect(parseExceptionCodeOf("You are using version of TypeScript")).toEqual(
+      ParseExceptionCode.UnsupportedTypeScript,
+    );
+    expect(parseExceptionCodeOf("Unexpected token )")).toEqual(ParseExceptionCode.Parsing);
   });
 });
 
@@ -205,6 +253,7 @@ describe("parseVueSourceFile", () => {
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(4);
     expect(parsingError.message).toEqual("Unexpected token");
+    expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
   });
 });
 
