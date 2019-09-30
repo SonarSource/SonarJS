@@ -42,6 +42,19 @@ public class JavaScriptExclusionsFileFilterTest {
   }
 
   @Test
+  public void should_exclude_using_ts_property() throws Exception {
+    MapSettings settings = new MapSettings();
+    settings.setProperty(JavaScriptPlugin.TS_EXCLUSIONS_KEY, JavaScriptPlugin.JS_EXCLUSIONS_DEFAULT_VALUE);
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
+    assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
+    assertThat(filter.accept(inputFile("some_app.ts"))).isTrue();
+    assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("node_modules/my_lib_folder/my_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("sub_module/node_modules/submodule_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("sub_module2/bower_components/bower_lib/lib.js"))).isFalse();
+  }
+
+  @Test
   public void should_include_node_modules_when_property_is_overridden() throws Exception {
     MapSettings settings = new MapSettings();
     settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "");

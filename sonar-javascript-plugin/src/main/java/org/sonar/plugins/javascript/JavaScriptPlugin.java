@@ -26,8 +26,8 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
-import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
+import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
 import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
@@ -39,6 +39,7 @@ import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
 import org.sonarsource.nodejs.NodeCommand;
 
 public class JavaScriptPlugin implements Plugin {
+
 
   // Subcategories
 
@@ -69,6 +70,7 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
   public static final String JS_EXCLUSIONS_DEFAULT_VALUE = "**/node_modules/**,**/bower_components/**";
+  public static final String TS_EXCLUSIONS_KEY = "sonar.typescript.exclusions";
 
   public static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   public static final String EXTERNAL_ANALYZERS_SUB_CATEGORY = "JavaScript/TypeScript";
