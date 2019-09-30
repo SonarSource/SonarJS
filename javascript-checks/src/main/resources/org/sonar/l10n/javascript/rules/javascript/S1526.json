@@ -2,8 +2,7 @@
   "title": "Variables, Classes and Enums should be declared before they are used",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JAVASCRIPT"
   ],
   "status": "ready",
   "remediation": {

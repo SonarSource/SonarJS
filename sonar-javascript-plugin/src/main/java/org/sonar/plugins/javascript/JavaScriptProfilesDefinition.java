@@ -53,6 +53,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     "S1226",
     "S1439",
     "S1451",
+    "S1526",
     "S1533",
     "S1541",
     "S1751",

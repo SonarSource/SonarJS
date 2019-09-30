@@ -275,7 +275,7 @@ public final class CheckList {
       UselessStringOperationCheck.class,
       UseOfEmptyReturnValueCheck.class,
       VarDeclarationCheck.class,
-      DeclarationAfterUsageCheck.class,
+      VariableDeclarationAfterUsageCheck.class,
       VariableDeclarationWithoutVarCheck.class,
       VariableShadowingCheck.class,
       VoidUseCheck.class,

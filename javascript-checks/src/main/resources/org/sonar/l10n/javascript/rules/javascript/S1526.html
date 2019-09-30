@@ -1,9 +1,6 @@
 <p>Variables declared with <code>var</code> have the special property that regardless of where they're declared in a function they "float" to the top
-of the function and are available for use even before they're declared. </p>
-<p> Similar behavior occurs for Classes and Enums, they are hoisted, but not initialized if used before the declaration.</p>
-<p>Such examples make scoping confusing, especially for new coders. </p>
-<p> To keep confusion to a minimum, <code>var</code>, <code>class</code> and <code>enum</code> declarations should happen before they are used for the
-first time.</p>
+of the function and are available for use even before they're declared. That makes scoping confusing, especially for new coders. </p>
+<p>To keep confusion to a minimum, <code>var</code> declarations should happen before they are used for the first time.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var x = 1;
