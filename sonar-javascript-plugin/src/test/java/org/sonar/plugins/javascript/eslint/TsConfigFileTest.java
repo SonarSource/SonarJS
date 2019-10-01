@@ -198,6 +198,18 @@ public class TsConfigFileTest {
     );
   }
 
+  @Test
+  public void should_return_files_by_tsconfig_with_null_element() throws Exception {
+    Path tsconfig = writeTsConfig("{\n" +
+      "  \"include\": [\"src/**/*\",]\n" + //Trailing comma here
+      "}");
+    InputFile file1 = TestInputFileBuilder.create(tsconfig.getParent().toString(), "src/file1.ts").build();
+    Map<String, List<InputFile>> map = TsConfigFile.inputFilesByTsConfig(Arrays.asList(tsconfig.toString()), Arrays.asList(file1));
+    assertThat(map).containsExactly(
+      entry(tsconfig.toString(), Arrays.asList(file1))
+    );
+  }
+
   private static Path writeTsConfig(String json) throws IOException {
     Path tsconfig = temp.newFile().toPath();
     Files.write(tsconfig, json.getBytes(StandardCharsets.UTF_8));

@@ -69,6 +69,7 @@ class TsConfigFile implements Predicate<InputFile> {
 
     FilesMatcher(Path baseDir, List<String> files) {
       this.files = files.stream()
+        .filter(Objects::nonNull)
         .map(Paths::get)
         .map(p -> p.isAbsolute() ? p : baseDir.resolve(p))
         .map(Path::normalize)
@@ -90,6 +91,7 @@ class TsConfigFile implements Predicate<InputFile> {
     GlobMatcher(Path baseDir, Model model) {
       if (model.include != null) {
         this.includes = model.include.stream()
+          .filter(Objects::nonNull)
           .flatMap(include -> defaultGlobPattern(baseDir, include))
           .collect(Collectors.toList());
       } else if (model.files == null) {
@@ -99,6 +101,7 @@ class TsConfigFile implements Predicate<InputFile> {
       }
       if (model.exclude != null) {
         this.excludes = model.exclude.stream()
+          .filter(Objects::nonNull)
           .flatMap(exclude -> defaultGlobPattern(baseDir, exclude))
           .collect(Collectors.toList());
       } else {
@@ -180,7 +183,7 @@ class TsConfigFile implements Predicate<InputFile> {
       Model model = GSON.fromJson(reader, Model.class);
       return new TsConfigFile(filename, path.getParent(), model);
     } catch (Exception e) {
-      LOG.error("Failed to load tsconfig file from " + filename + ". It will be ignored!", e);
+      LOG.error("Failed to load tsconfig file from " + filename + ". It will be ignored!\n" + e.toString());
       return null;
     }
   }
