@@ -175,10 +175,11 @@ export enum ParseExceptionCode {
   Parsing = "PARSING",
   MissingTypeScript = "MISSING_TYPESCRIPT",
   UnsupportedTypeScript = "UNSUPPORTED_TYPESCRIPT",
+  GeneralError = "GENERAL_ERROR",
 }
 
 // exported for testing
-export function parseExceptionCodeOf(exceptionMsg: string): string {
+export function parseExceptionCodeOf(exceptionMsg: string): ParseExceptionCode {
   if (exceptionMsg === "Cannot find module 'typescript'") {
     return ParseExceptionCode.MissingTypeScript;
   } else if (exceptionMsg.startsWith("You are using version of TypeScript")) {

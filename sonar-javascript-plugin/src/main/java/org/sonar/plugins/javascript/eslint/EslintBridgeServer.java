@@ -94,7 +94,8 @@ public interface EslintBridgeServer extends Startable {
   enum ParsingErrorCode {
     PARSING,
     MISSING_TYPESCRIPT,
-    UNSUPPORTED_TYPESCRIPT
+    UNSUPPORTED_TYPESCRIPT,
+    GENERAL_ERROR
   }
 
   class Issue {
