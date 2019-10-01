@@ -19,14 +19,32 @@
  */
 import { Server } from "http";
 import * as express from "express";
+import { RequestHandler } from "express";
 import * as bodyParser from "body-parser";
-import { AnalysisInput, analyzeJavaScript, analyzeTypeScript } from "./analyzer";
+import {
+  AnalysisInput,
+  analyzeJavaScript,
+  analyzeTypeScript,
+  EMPTY_RESPONSE,
+  AnalysisResponse,
+} from "./analyzer";
 import { AddressInfo } from "net";
-import { unloadTypeScriptEslint } from "./parser";
+import { unloadTypeScriptEslint, ParseExceptionCode } from "./parser";
 
 const MAX_REQUEST_SIZE = "50mb";
 
 export function start(port = 0): Promise<Server> {
+  return startServer(port, analyzeJavaScript, analyzeTypeScript);
+}
+
+type AnalysisFunction = (input: AnalysisInput) => AnalysisResponse;
+
+// exported for test
+export function startServer(
+  port = 0,
+  analyzeJS: AnalysisFunction,
+  analyzeTS: AnalysisFunction,
+): Promise<Server> {
   return new Promise(resolve => {
     console.log("DEBUG starting eslint-bridge server at port", port);
     const app = express();
@@ -34,17 +52,9 @@ export function start(port = 0): Promise<Server> {
     // for parsing application/json requests
     app.use(bodyParser.json({ limit: MAX_REQUEST_SIZE }));
 
-    app.post("/analyze-js", (request: express.Request, response: express.Response) => {
-      const parsedRequest = request.body as AnalysisInput;
-      const analysisResponse = analyzeJavaScript(parsedRequest);
-      response.json(analysisResponse);
-    });
+    app.post("/analyze-js", analyze(analyzeJS));
 
-    app.post("/analyze-ts", (request: express.Request, response: express.Response) => {
-      const parsedRequest = request.body as AnalysisInput;
-      const analysisResponse = analyzeTypeScript(parsedRequest);
-      response.json(analysisResponse);
-    });
+    app.post("/analyze-ts", analyze(analyzeTS));
 
     app.post("/new-tsconfig", (_request: express.Request, response: express.Response) => {
       unloadTypeScriptEslint();
@@ -61,4 +71,23 @@ export function start(port = 0): Promise<Server> {
       resolve(server);
     });
   });
+}
+
+function analyze(analysisFunction: AnalysisFunction): RequestHandler {
+  return (request: express.Request, response: express.Response) => {
+    try {
+      const parsedRequest = request.body as AnalysisInput;
+      const analysisResponse = analysisFunction(parsedRequest);
+      response.json(analysisResponse);
+    } catch (e) {
+      console.error(e.stack);
+      response.json({
+        ...EMPTY_RESPONSE,
+        parsingError: {
+          message: e.message,
+          code: ParseExceptionCode.GeneralError,
+        },
+      });
+    }
+  };
 }
