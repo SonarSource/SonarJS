@@ -4,7 +4,6 @@
     "BitwiseOperators",
     "DuplicateFunctionArgument",
     "DuplicatePropertyName",
-    "Eval",
     "FunctionDefinitionInsideLoop",
     "FutureReservedWords",
     "NonEmptyCaseWithoutBreak",

@@ -179,7 +179,6 @@ public final class CheckList {
       NoDuplicateStringCheck.class,
       NoElementOverwriteCheck.class,
       NoEmptyInterfaceCheck.class,
-      NoEvalCheck.class,
       NoForInArrayCheck.class,
       NoInferrableTypesCheck.class,
       NoInvertedBooleanCheckCheck.class,
