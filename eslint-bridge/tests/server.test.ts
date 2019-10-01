@@ -1,4 +1,4 @@
-import { start } from "../src/server";
+import { start, startServer } from "../src/server";
 import * as http from "http";
 import { Server } from "http";
 import { promisify } from "util";
@@ -233,32 +233,81 @@ describe("server", () => {
     // see https://github.com/facebook/jest/issues/6725
   });
 
-  function post(data, endpoint): Promise<string> {
-    const options = {
-      host: "localhost",
-      port: (<AddressInfo>server.address()).port,
-      path: endpoint,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    return new Promise((resolve, reject) => {
-      let response = "";
-
-      const req = http.request(options, res => {
-        res.on("data", chunk => {
-          response += chunk;
-        });
-
-        res.on("end", () => resolve(response));
-      });
-
-      req.on("error", reject);
-
-      req.write(data);
-      req.end();
-    });
+  function post(data, endpoint) {
+    return postToServer(data, endpoint, server);
   }
 });
+
+describe("should send error when failing", () => {
+  const failAnalysis = () => {
+    throw new Error("general error");
+  };
+  let server: Server;
+  let close;
+
+  beforeEach(async () => {
+    server = await startServer(0, failAnalysis, failAnalysis);
+    close = promisify(server.close.bind(server));
+  });
+
+  afterEach(async () => {
+    await close();
+  });
+
+  it("should not fail JS analysis", async () => {
+    const response = await postToServer(
+      JSON.stringify({
+        filePath: "dir/file.js",
+        fileContent: "if (true) 42; else 42;",
+        rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      }),
+      "/analyze-js",
+      server,
+    );
+    expect(JSON.parse(response).parsingError.message).toEqual("general error");
+    expect(JSON.parse(response).parsingError.code).toEqual("GENERAL_ERROR");
+  });
+
+  it("should not fail TS analysis", async () => {
+    const response = await postToServer(
+      JSON.stringify({
+        filePath: "dir/file.js",
+        fileContent: "if (true) 42; else 42;",
+        rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      }),
+      "/analyze-ts",
+      server,
+    );
+    expect(JSON.parse(response).parsingError.message).toEqual("general error");
+    expect(JSON.parse(response).parsingError.code).toEqual("GENERAL_ERROR");
+  });
+});
+
+function postToServer(data, endpoint, server: Server): Promise<string> {
+  const options = {
+    host: "localhost",
+    port: (<AddressInfo>server.address()).port,
+    path: endpoint,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  return new Promise((resolve, reject) => {
+    let response = "";
+
+    const req = http.request(options, res => {
+      res.on("data", chunk => {
+        response += chunk;
+      });
+
+      res.on("end", () => resolve(response));
+    });
+
+    req.on("error", reject);
+
+    req.write(data);
+    req.end();
+  });
+}

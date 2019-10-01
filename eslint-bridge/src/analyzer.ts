@@ -22,6 +22,7 @@ import {
   parseJavaScriptSourceFile,
   parseTypeScriptSourceFile,
   parseVueSourceFile,
+  ParseExceptionCode,
 } from "./parser";
 import getHighlighting, { Highlight } from "./runner/highlighter";
 import getMetrics, { EMPTY_METRICS, Metrics } from "./runner/metrics";
@@ -39,7 +40,7 @@ import * as path from "path";
 
 const COGNITIVE_COMPLEXITY_RULE_ID = "internal-cognitive-complexity";
 
-const EMPTY_RESPONSE: AnalysisResponse = {
+export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
   highlights: [],
   highlightedSymbols: [],
@@ -86,7 +87,7 @@ export interface AnalysisResponse {
 export interface ParsingError {
   line?: number;
   message: string;
-  code: string;
+  code: ParseExceptionCode;
 }
 
 export interface Issue {
