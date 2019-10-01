@@ -19,32 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
-import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "TabCharacter")
-public class TabCharacterCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Replace all tab characters in this file by sequences of white-spaces.";
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "TabCharacter")
+@Rule(key = "S105")
+public class TabCharacterCheck extends EslintBasedCheck {
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    JavaScriptFile javaScriptFile = getContext().getJavaScriptFile();
-    List<String> lines = CheckUtils.readLines(javaScriptFile);
-
-    for (int i = 0; i < lines.size(); i++) {
-      if (lines.get(i).contains("\t")) {
-        addIssue(new LineIssue(this, i + 1, MESSAGE));
-        break;
-      }
-    }
-
+  public String eslintKey() {
+    return "no-tab";
   }
 }
