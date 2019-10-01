@@ -21,9 +21,13 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
+@TypeScriptRule
 @JavaScriptRule
-@Rule(key = "Eval")
+@Rule(key = "S1523")
+@DeprecatedRuleKey(ruleKey = "Eval")
 public class EvalCheck extends EslintBasedCheck {
 
   @Override

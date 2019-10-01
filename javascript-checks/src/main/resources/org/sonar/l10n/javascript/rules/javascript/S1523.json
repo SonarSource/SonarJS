@@ -2,6 +2,7 @@
   "title": "Dynamically executing code is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "compatibleLanguages": [
+    "JAVASCRIPT",
     "TYPESCRIPT"
   ],
   "status": "ready",
