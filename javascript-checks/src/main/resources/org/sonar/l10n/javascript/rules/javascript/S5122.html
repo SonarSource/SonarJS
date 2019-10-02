@@ -27,7 +27,7 @@ information.</p>
 // === NodeJS built-in modules ===
 const http = require('http');
 const srv = http.createServer((req, res) =&gt; {
-  res.writeHead(200, { 'Access-Control-Allow-Origin': '*' }); // Questionable
+  res.writeHead(200, { 'Access-Control-Allow-Origin': '*' }); // Sensitive
   res.end('ok');
 });
 srv.listen(3000);
@@ -37,8 +37,8 @@ srv.listen(3000);
 const express = require('express');
 const cors = require('cors');
 const app = express();
-app.use(cors()); // Questionable
-app.get('/product/:id', cors(), function (req, res, next) {}); // Questionable
+app.use(cors()); // Sensitive
+app.get('/product/:id', cors(), function (req, res, next) {}); // Sensitive
 app.listen(3000);
 </pre>
 <h2>See</h2>

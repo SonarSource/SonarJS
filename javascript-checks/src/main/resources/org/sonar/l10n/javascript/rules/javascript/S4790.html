@@ -39,14 +39,14 @@ original data with another one having the same hash.</p>
 // === Server side ===
 const crypto = require("crypto");
 
-const hash = crypto.createHash('sha1'); // Questionable regardless of algorithm used
+const hash = crypto.createHash('sha1'); // Sensitive regardless of algorithm used
 
-crypto.scrypt(secret, salt, keylen, (err, derivedKey) =&gt; {}); // Questionable
-const derivedKey = crypto.scryptSync(secret, salt, keylen); // Questionable
+crypto.scrypt(secret, salt, keylen, (err, derivedKey) =&gt; {}); // Sensitive
+const derivedKey = crypto.scryptSync(secret, salt, keylen); // Sensitive
 </pre>
 <pre>
 // === Client side ===
-crypto.subtle.digest("SHA-256", buffer) // Questionable regardless of algorithm used
+crypto.subtle.digest("SHA-256", buffer) // Sensitive regardless of algorithm used
   .then(function (hash) {});
 </pre>
 <h2>See</h2>

@@ -19,7 +19,7 @@ can be dangerous and should be validated.</p>
 // All uses of process.stdin are security-sensitive and should be reviewed
 
 process.stdin.on('readable', () =&gt; {
-	const chunk = process.stdin.read(); // Questionable
+	const chunk = process.stdin.read(); // Sensitive
 	if (chunk !== null) {
 		dosomething(chunk);
 	}
@@ -27,7 +27,7 @@ process.stdin.on('readable', () =&gt; {
 
 const readline = require('readline');
 readline.createInterface({
-	input: process.stdin // Questionable
+	input: process.stdin // Sensitive
 }).on('line', (input) =&gt; {
 	dosomething(input);
 });

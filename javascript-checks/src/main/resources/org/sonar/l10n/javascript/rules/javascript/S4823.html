@@ -23,7 +23,7 @@ path to a file containing the information.</p>
 <h2>Sensitive Code Example</h2>
 <pre>
 // The process object is a global that provides information about, and control over, the current Node.js process
-var param = process.argv[2]; // Questionable: check how the argument is used
+var param = process.argv[2]; // Sensitive: check how the argument is used
 console.log('Param: ' + param);
 </pre>
 <h2>See</h2>
