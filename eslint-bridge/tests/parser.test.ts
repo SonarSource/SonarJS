@@ -111,7 +111,8 @@ describe("parseTypeScriptSourceFile", () => {
         doOneMoreThing();
       } else {
         doOneMoreThing();
-      }`,
+      }
+    `,
       file,
       [__dirname + "/fixtures/ts-project/tsconfig.json"],
     ) as SourceCode;
