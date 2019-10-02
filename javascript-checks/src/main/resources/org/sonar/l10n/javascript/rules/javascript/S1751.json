@@ -1,6 +1,6 @@
 {
-  "title": "Jump statements should not be used unconditionally",
-  "type": "CODE_SMELL",
+  "title": "Loops with at most one iteration should be refactored",
+  "type": "BUG",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],

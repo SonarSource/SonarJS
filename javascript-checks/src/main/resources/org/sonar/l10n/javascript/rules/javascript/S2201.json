@@ -10,8 +10,7 @@
     "constantCost": "5min"
   },
   "tags": [
-    "cert",
-    "misra-c2012"
+    
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2201",

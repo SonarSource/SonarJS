@@ -1,5 +1,5 @@
 {
-  "title": "Jump statements should not be followed by dead code",
+  "title": "All code should be reachable",
   "type": "BUG",
   "compatibleLanguages": [
     "JAVASCRIPT"
@@ -11,12 +11,7 @@
   },
   "tags": [
     "cwe",
-    "based-on-misra",
-    "cert",
     "unused"
-  ],
-  "standards": [
-    "CWE"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1763",

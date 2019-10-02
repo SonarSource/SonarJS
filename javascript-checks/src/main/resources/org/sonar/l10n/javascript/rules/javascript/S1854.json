@@ -11,11 +11,7 @@
   },
   "tags": [
     "cwe",
-    "cert",
     "unused"
-  ],
-  "standards": [
-    "CWE"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1854",

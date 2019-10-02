@@ -10,13 +10,7 @@
     "constantCost": "2min"
   },
   "tags": [
-    "cwe",
-    "misra",
-    "misra-c2004",
-    "misra-c2012"
-  ],
-  "standards": [
-    "CWE"
+    "cwe"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1145",

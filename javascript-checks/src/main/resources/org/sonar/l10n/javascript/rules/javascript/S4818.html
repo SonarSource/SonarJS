@@ -26,18 +26,18 @@ use of http connections.</p>
   <li> <a href="https://www.owasp.org/index.php/Input_Validation_Cheat_Sheet">Sanitize</a> any input read from the socket. </li>
   <li> Limit the number of sockets a given user can create. Close the sockets as soon as possible. </li>
 </ul>
-<h2>Questionable Code Example</h2>
+<h2>Sensitive Code Example</h2>
 <pre>
 const net = require('net');
 
-var socket = new net.Socket(); // Questionable
+var socket = new net.Socket(); // Sensitive
 socket.connect(80, 'google.com');
 
 // net.createConnection creates a new net.Socket, initiates connection with socket.connect(), then returns the net.Socket that starts the connection
-net.createConnection({ port: port }, () =&gt; {}); // Questionable
+net.createConnection({ port: port }, () =&gt; {}); // Sensitive
 
 // net.connect is an alias to net.createConnection
-net.connect({ port: port }, () =&gt; {}); // Questionable
+net.connect({ port: port }, () =&gt; {}); // Sensitive
 </pre>
 <h2>See</h2>
 <ul>

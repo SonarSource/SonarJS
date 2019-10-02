@@ -11,10 +11,6 @@
     "owasp-a6",
     "sans-top25-porous"
   ],
-  "standards": [
-    "CWE",
-    "OWASP Top 10"
-  ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5122",
   "sqKey": "S5122",

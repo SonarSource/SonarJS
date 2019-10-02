@@ -11,16 +11,8 @@
   },
   "tags": [
     "cwe",
-    "based-on-misra",
-    "misra",
-    "cert",
-    "misra-c2004",
     "unused",
-    "misra-c2012",
     "pitfall"
-  ],
-  "standards": [
-    "CWE"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2583",

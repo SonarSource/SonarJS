@@ -14,7 +14,7 @@ injections attacks can read sensitive information from the XML document.</p>
 <p>You are at risk if you answered yes to this question.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>Sanitize any user input before using it in an XPATH expression.</p>
-<h2>Questionable Code Example</h2>
+<h2>Sensitive Code Example</h2>
 <pre>
 // === Server side ===
 
@@ -22,18 +22,18 @@ var xpath = require('xpath');
 var xmldom = require('xmldom');
 
 var doc = new xmldom.DOMParser().parseFromString(xml);
-var nodes = xpath.select(userinput, doc); // Questionable
-var node = xpath.select1(userinput, doc); // Questionable
+var nodes = xpath.select(userinput, doc); // Sensitive
+var node = xpath.select1(userinput, doc); // Sensitive
 </pre>
 <pre>
 // === Client side ===
 
 // Chrome, Firefox, Edge, Opera, and Safari use the evaluate() method to select nodes:
-var nodes = document.evaluate(userinput, xmlDoc, null, XPathResult.ANY_TYPE, null); // Questionable
+var nodes = document.evaluate(userinput, xmlDoc, null, XPathResult.ANY_TYPE, null); // Sensitive
 
 // Internet Explorer uses its own methods to select nodes:
-var nodes = xmlDoc.selectNodes(userinput); // Questionable
-var node = xmlDoc.SelectSingleNode(userinput); // Questionable
+var nodes = xmlDoc.selectNodes(userinput); // Sensitive
+var node = xmlDoc.SelectSingleNode(userinput); // Sensitive
 </pre>
 <h2>See</h2>
 <ul>

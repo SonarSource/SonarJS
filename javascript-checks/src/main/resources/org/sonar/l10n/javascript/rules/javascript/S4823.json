@@ -11,10 +11,6 @@
     "owasp-a1",
     "sans-top25-insecure"
   ],
-  "standards": [
-    "CWE",
-    "OWASP Top 10"
-  ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4823",
   "sqKey": "S4823",

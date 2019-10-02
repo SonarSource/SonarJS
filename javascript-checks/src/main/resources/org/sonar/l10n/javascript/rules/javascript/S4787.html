@@ -7,7 +7,7 @@
 <p>Proper encryption requires both the encryption algorithm and the key to be strong. Obviously the private key needs to remain secret and be renewed
 regularly. However these are not the only means to defeat or weaken an encryption.</p>
 <p> </p>
-<p>This rule flags function calls that initiate encryption/decryption. The goal is to guide security code reviews.</p>
+<p>This rule flags function calls that initiate encryption/decryption.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> the private key might not be random, strong enough or the same key is reused for a long long time. </li>
@@ -51,23 +51,23 @@ regularly. However these are not the only means to defeat or weaken an encryptio
       <li> Cipher Block Chaining (CBC) with PKCS#5 padding (or PKCS#7) is susceptible to padding oracle attacks. </li>
     </ul> </li>
 </ul>
-<h2>Questionable Code Example</h2>
+<h2>Sensitive Code Example</h2>
 <pre>
 // === Client side ===
-crypto.subtle.encrypt(algo, key, plainData); // Questionable
-crypto.subtle.decrypt(algo, key, encData); // Questionable
+crypto.subtle.encrypt(algo, key, plainData); // Sensitive
+crypto.subtle.decrypt(algo, key, encData); // Sensitive
 </pre>
 <pre>
 // === Server side ===
 const crypto = require("crypto");
-const cipher = crypto.createCipher(algo, key); // Questionable
-const cipheriv = crypto.createCipheriv(algo, key, iv); // Questionable
-const decipher = crypto.createDecipher(algo, key); // Questionable
-const decipheriv = crypto.createDecipheriv(algo, key, iv); // Questionable
-const pubEnc = crypto.publicEncrypt(key, buf); // Questionable
-const privDec = crypto.privateDecrypt({ key: key, passphrase: secret }, pubEnc); // Questionable
-const privEnc = crypto.privateEncrypt({ key: key, passphrase: secret }, buf); // Questionable
-const pubDec = crypto.publicDecrypt(key, privEnc); // Questionable
+const cipher = crypto.createCipher(algo, key); // Sensitive
+const cipheriv = crypto.createCipheriv(algo, key, iv); // Sensitive
+const decipher = crypto.createDecipher(algo, key); // Sensitive
+const decipheriv = crypto.createDecipheriv(algo, key, iv); // Sensitive
+const pubEnc = crypto.publicEncrypt(key, buf); // Sensitive
+const privDec = crypto.privateDecrypt({ key: key, passphrase: secret }, pubEnc); // Sensitive
+const privEnc = crypto.privateEncrypt({ key: key, passphrase: secret }, buf); // Sensitive
+const pubDec = crypto.publicDecrypt(key, privEnc); // Sensitive
 </pre>
 <h2>See</h2>
 <ul>

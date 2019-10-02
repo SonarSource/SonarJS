@@ -8,9 +8,6 @@
   "tags": [
     "cwe"
   ],
-  "standards": [
-    "CWE"
-  ],
   "defaultSeverity": "Info",
   "ruleSpecification": "RSPEC-1135",
   "sqKey": "S1135",

@@ -10,7 +10,7 @@
     "constantCost": "5min"
   },
   "tags": [
-    "cert"
+    
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2251",

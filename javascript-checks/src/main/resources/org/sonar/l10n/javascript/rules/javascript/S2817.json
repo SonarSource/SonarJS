@@ -14,9 +14,6 @@
     "owasp-a9",
     "owasp-a3"
   ],
-  "standards": [
-    "OWASP Top 10"
-  ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-2817",
   "sqKey": "S2817",

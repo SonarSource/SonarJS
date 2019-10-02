@@ -14,9 +14,6 @@
   "tags": [
     "owasp-a3"
   ],
-  "standards": [
-    "OWASP Top 10"
-  ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3271",
   "sqKey": "S3271",
