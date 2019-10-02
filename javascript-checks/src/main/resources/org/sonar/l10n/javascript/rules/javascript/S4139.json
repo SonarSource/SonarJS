@@ -1,5 +1,5 @@
 {
-  "title": "\"for in\" should not be used with iterables",
+  "title": "bar",
   "type": "CODE_SMELL",
   "status": "ready",
   "compatibleLanguages": [

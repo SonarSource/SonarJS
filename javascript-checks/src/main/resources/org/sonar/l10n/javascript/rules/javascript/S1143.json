@@ -12,11 +12,7 @@
   },
   "tags": [
     "cwe",
-    "error-handling",
-    "cert"
-  ],
-  "standards": [
-    "CWE"
+    "error-handling"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1143",

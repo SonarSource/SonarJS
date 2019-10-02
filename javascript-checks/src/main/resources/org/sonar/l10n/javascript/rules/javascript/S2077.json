@@ -15,13 +15,7 @@
     "owasp-a1",
     "sans-top25-insecure",
     "bad-practice",
-    "cert",
     "sql"
-  ],
-  "standards": [
-    "CWE",
-    "OWASP Top 10",
-    "SANS Top 25"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2077",

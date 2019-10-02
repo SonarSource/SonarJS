@@ -11,7 +11,7 @@
     "constantCost": "3min"
   },
   "tags": [
-    "cert"
+    
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1656",

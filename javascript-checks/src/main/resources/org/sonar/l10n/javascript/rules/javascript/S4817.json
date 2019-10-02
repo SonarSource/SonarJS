@@ -8,12 +8,7 @@
   "status": "ready",
   "tags": [
     "cwe",
-    "owasp-a1",
-    "cert"
-  ],
-  "standards": [
-    "CWE",
-    "OWASP Top 10"
+    "owasp-a1"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4817",

@@ -12,11 +12,7 @@
   },
   "tags": [
     "cwe",
-    "based-on-misra",
     "unused"
-  ],
-  "standards": [
-    "CWE"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-905",

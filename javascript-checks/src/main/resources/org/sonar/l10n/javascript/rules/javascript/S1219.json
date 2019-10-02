@@ -10,7 +10,6 @@
     "constantCost": "10min"
   },
   "tags": [
-    "based-on-misra",
     "suspicious"
   ],
   "defaultSeverity": "Blocker",

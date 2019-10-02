@@ -10,7 +10,7 @@
     "constantCost": "15min"
   },
   "tags": [
-    "cert"
+    
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-2189",

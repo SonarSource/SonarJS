@@ -11,7 +11,7 @@
     "constantCost": "5min"
   },
   "tags": [
-
+    
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-878",

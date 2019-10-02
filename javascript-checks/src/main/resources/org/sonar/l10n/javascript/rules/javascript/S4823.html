@@ -20,7 +20,7 @@ security code reviews.</p>
 <p>Any user or application can list running processes and see the command line arguments they were started with. There are safer ways of providing
 sensitive information to an application than exposing them in the command line. It is common to write them on the process' standard input, or give the
 path to a file containing the information.</p>
-<h2>Questionable Code Example</h2>
+<h2>Sensitive Code Example</h2>
 <pre>
 // The process object is a global that provides information about, and control over, the current Node.js process
 var param = process.argv[2]; // Questionable: check how the argument is used

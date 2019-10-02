@@ -15,10 +15,6 @@
     "user-experience",
     "owasp-a3"
   ],
-  "standards": [
-    "CWE",
-    "OWASP Top 10"
-  ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1525",
   "sqKey": "S1525",

@@ -7,7 +7,7 @@
 <p>Proper encryption requires both the encryption algorithm and the key to be strong. Obviously the private key needs to remain secret and be renewed
 regularly. However these are not the only means to defeat or weaken an encryption.</p>
 <p> </p>
-<p>This rule flags function calls that initiate encryption/decryption. The goal is to guide security code reviews.</p>
+<p>This rule flags function calls that initiate encryption/decryption.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> the private key might not be random, strong enough or the same key is reused for a long long time. </li>
@@ -51,7 +51,7 @@ regularly. However these are not the only means to defeat or weaken an encryptio
       <li> Cipher Block Chaining (CBC) with PKCS#5 padding (or PKCS#7) is susceptible to padding oracle attacks. </li>
     </ul> </li>
 </ul>
-<h2>Questionable Code Example</h2>
+<h2>Sensitive Code Example</h2>
 <pre>
 // === Client side ===
 crypto.subtle.encrypt(algo, key, plainData); // Questionable

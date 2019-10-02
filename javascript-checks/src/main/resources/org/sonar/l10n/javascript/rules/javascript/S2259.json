@@ -10,11 +10,7 @@
     "constantCost": "10min"
   },
   "tags": [
-    "cwe",
-    "cert"
-  ],
-  "standards": [
-    "CWE"
+    "cwe"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2259",
