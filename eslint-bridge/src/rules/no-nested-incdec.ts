@@ -34,9 +34,34 @@ export const rule: Rule.RuleModule = {
       });
     }
 
+    function isIgnored(node: estree.Node): boolean {
+      const ancestors: estree.Node[] = context.getAncestors();
+      const firstAncestor = ancestors.pop();
+
+      if (firstAncestor) {
+        switch (firstAncestor.type) {
+          case "ExpressionStatement":
+            return true;
+          case "ForStatement":
+            return firstAncestor.update === node;
+          case "SequenceExpression": {
+            const secondAncestor = ancestors.pop();
+            return (
+              secondAncestor !== undefined &&
+              secondAncestor.type === "ForStatement" &&
+              secondAncestor.update === firstAncestor
+            );
+          }
+        }
+      }
+      return false;
+    }
+
     return {
       UpdateExpression(node: estree.Node) {
-        reportUpdateExpression(node as estree.UpdateExpression);
+        if (!isIgnored(node)) {
+          reportUpdateExpression(node as estree.UpdateExpression);
+        }
       },
     };
   },
