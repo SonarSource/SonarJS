@@ -42,63 +42,6 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
   public static final String SONAR_WAY_RECOMMENDED_JSON = RESOURCE_PATH + "/Sonar_way_recommended_profile.json";
 
-  static final List<String> RULES_PROVIDED_BY_SONARTS = Arrays.asList(
-    "S101",
-    "S105",
-    "S117",
-    "S125",
-    "S881",
-    "S1110",
-    "S1121",
-    "S1226",
-    "S1439",
-    "S1451",
-    "S1526",
-    "S1533",
-    "S1541",
-    "S1751",
-    "S1821",
-    "S1854",
-    "S1874",
-    "S2068",
-    "S2123",
-    "S2201",
-    "S2234",
-    "S2589",
-    "S2681",
-    "S2757",
-    "S2870",
-    "S2871",
-    "S3516",
-    "S3616",
-    "S3626",
-    "S3801",
-    "S3972",
-    "S3981",
-    "S3984",
-    "S4030",
-    "S4043",
-    "S4123",
-    "S4157",
-    "S4158",
-    "S4275",
-    "S4322",
-    "S4323",
-    "S4324",
-    "S4328",
-    "S4335",
-    "S4524",
-    "S4619",
-    "S4621",
-    "S4622",
-    "S4623",
-    "S4624",
-    "S4634",
-    "S4782",
-    "S4798",
-    "S4822"
-  );
-
   private static final Map<String, String> PROFILES = new HashMap<>();
   static {
     PROFILES.put(SONAR_WAY, SONAR_WAY_JSON);
@@ -119,7 +62,6 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     createProfile(SONAR_WAY_RECOMMENDED_JS, JavaScriptLanguage.KEY, javaScriptRuleKeys, context);
 
     Set<String> typeScriptRuleKeys = ruleKeys(CheckList.getTypeScriptChecks());
-    typeScriptRuleKeys.addAll(RULES_PROVIDED_BY_SONARTS);
     createProfile(SONAR_WAY, TypeScriptLanguage.KEY, typeScriptRuleKeys, context);
     createProfile(SONAR_WAY_RECOMMENDED_TS, TypeScriptLanguage.KEY, typeScriptRuleKeys, context);
   }
