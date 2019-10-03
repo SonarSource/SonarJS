@@ -61,7 +61,6 @@ public class JavaScriptRulingTest {
   private static final List<String> RULES_PROVIDED_BY_SONARTS = Arrays.asList(
     "S117",
     "S125",
-    "S881",
     "S1110",
     "S1121",
     "S1226",
