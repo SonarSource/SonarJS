@@ -5,9 +5,6 @@
 'angular:aio/src/app/shared/web-worker.ts':[
 26,
 ],
-'angular:modules/benchmarks/src/util.ts':[
-47,
-],
 'angular:modules/playground/src/async/index.ts':[
 76,
 ],
@@ -147,10 +144,6 @@
 'angular:packages/core/testing/src/test_bed.ts':[
 442,
 ],
-'angular:packages/examples/common/ngIf/ts/module.ts':[
-96,
-98,
-],
 'angular:packages/forms/src/directives/select_control_value_accessor.ts':[
 142,
 ],
@@ -179,13 +172,6 @@
 'angular:packages/upgrade/src/dynamic/upgrade_adapter.ts':[
 102,
 ],
-'angular:packages/upgrade/static/src/common/downgrade_component.ts':[
-60,
-93,
-],
-'angular:packages/upgrade/static/src/dynamic/upgrade_adapter.ts':[
-102,
-],
 'angular:packages/upgrade/test/dynamic/upgrade_spec.ts':[
 351,
 ],
@@ -194,5 +180,5 @@
 ],
 'angular:tools/@angular/tsc-wrapped/src/bundler.ts':[
 221,
-]
+],
 }
