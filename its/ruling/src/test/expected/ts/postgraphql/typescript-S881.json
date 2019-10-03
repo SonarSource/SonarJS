@@ -1,0 +1,8 @@
+{
+'postgraphql:src/postgraphql/__tests__/postgraphql-test.js':[
+116,
+],
+'postgraphql:src/postgres/utils/sql.ts':[
+79,
+]
+}
