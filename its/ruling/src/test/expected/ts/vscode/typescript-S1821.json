@@ -1,0 +1,12 @@
+{
+'vscode:src/vs/base/common/json.ts':[
+384,
+],
+'vscode:src/vs/editor/common/viewModel/viewModelImpl.ts':[
+301,
+],
+'vscode:src/vs/workbench/browser/parts/editor/editorGroupsControl.ts':[
+870,
+883,
+]
+}
