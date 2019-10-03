@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>sonarsource</id>
+      <username>${env.ARTIFACTORY_PRIVATE_USERNAME}</username>
+      <password>${env.ARTIFACTORY_PRIVATE_PASSWORD}</password>
+      <configuration>
+        <wagonProvider>httpclient</wagonProvider>
+        <httpConfiguration>
+          <all>
+            <params> 
+              <param>
+                <name>http.authentication.preemptive</name> 
+                <value>%b,false</value> 
+              </param> 
+            </params> 
+            <usePreemptive>true</usePreemptive>
+          </all>
+        </httpConfiguration>
+      </configuration>
+    </server>
+  </servers>
+  <profiles>
+    <profile>
+      <id>sonarsource-repo</id>
+      <activation>
+        <property>
+          <name>!skip-sonarsource-repo</name>
+        </property>
+      </activation>
+      <repositories>
+        <repository>
+          <id>sonarsource</id>
+          <name>SonarSource Central Repository</name>
+          <url>${env.ARTIFACTORY_URL}/sonarsource</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>interval:60</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>sonarsource</id>
+          <name>SonarSource Central Repository</name>
+          <url>${env.ARTIFACTORY_URL}/sonarsource</url>
+          <releases>
+            <enabled>true</enabled>
+            <!-- no need to always check if new versions are available when
+            executing a maven plugin without specifying the version -->
+            <updatePolicy>interval:60</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+</settings>
