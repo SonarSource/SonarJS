@@ -20,10 +20,14 @@
 package com.sonar.javascript.it.plugin;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -76,10 +80,10 @@ public class SonarLintTestCustomNodeJS {
   }
 
   @Test
-  public void should_use_set_nodejs() {
+  public void should_use_set_nodejs() throws Exception {
     List<Issue> issues = new ArrayList<>();
     HashMap<String, String> properties = new HashMap<>();
-    properties.put("sonar.nodejs.executable", TestUtils.getNodeJSExecutable());
+    properties.put("sonar.nodejs.executable", getNodeJSExecutable());
     StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
       .setBaseDir(baseDir.toPath())
       .addInputFile(inputFile)
@@ -91,10 +95,10 @@ public class SonarLintTestCustomNodeJS {
   }
 
   @Test
-  public void should_use_set_nodejs_deprecated_key() {
+  public void should_use_set_nodejs_deprecated_key() throws Exception {
     List<Issue> issues = new ArrayList<>();
     HashMap<String, String> properties = new HashMap<>();
-    properties.put("sonar.typescript.node", TestUtils.getNodeJSExecutable());
+    properties.put("sonar.typescript.node", getNodeJSExecutable());
     StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
       .setBaseDir(baseDir.toPath())
       .addInputFile(inputFile)
@@ -125,5 +129,15 @@ public class SonarLintTestCustomNodeJS {
     sonarlintEngine.stop();
     assertThat(logs).doesNotContain("Provided Node.js executable file does not exist.");
     assertThat(logs).contains("Skipping start of eslint-bridge server due to the failure during first analysis");
+  }
+
+  private static String getNodeJSExecutable() throws IOException {
+    Process findNode;
+    if (SystemUtils.IS_OS_WINDOWS) {
+      findNode = Runtime.getRuntime().exec("where.exe node.exe");
+    } else {
+      findNode = Runtime.getRuntime().exec("which node");
+    }
+    return IOUtils.toString(findNode.getInputStream(), StandardCharsets.UTF_8);
   }
 }
