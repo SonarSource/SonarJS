@@ -57,6 +57,7 @@ public class TypeScriptAnalysisTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
+      .setDebugLogs(true)
       .setProjectDir(PROJECT_DIR);
 
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");

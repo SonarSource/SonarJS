@@ -92,7 +92,7 @@ public final class Tests {
     SonarScanner scanner = SonarScanner.create();
     scanner.setProperty("sonar.exclusions", "**/ecmascript6/**, **/file-for-rules/**, **/frameworks/**, **/jest/**/*, **/babylon/**/*");
     scanner.setSourceEncoding("UTF-8");
-
+    scanner.setDebugLogs(true);
     return scanner;
   }
 
