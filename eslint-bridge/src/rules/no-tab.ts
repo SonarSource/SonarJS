@@ -17,21 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-105
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
+import { Rule } from "eslint";
 
-@JavaScriptRule
-@TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "TabCharacter")
-@Rule(key = "S105")
-public class TabCharacterCheck extends EslintBasedCheck {
+const message = "Replace all tab characters in this file by sequences of white-spaces.";
 
-  @Override
-  public String eslintKey() {
-    return "no-tab";
-  }
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      "Program:exit": function() {
+        const firstTab = context
+          .getSourceCode()
+          .lines.map((content, line) => ({ content, line }))
+          .find(t => t.content.includes("\t"));
+
+        if (firstTab !== undefined) {
+          context.report({
+            message,
+            loc: { line: firstTab.line + 1, column: 0 },
+          });
+        }
+      },
+    };
+  },
+};
