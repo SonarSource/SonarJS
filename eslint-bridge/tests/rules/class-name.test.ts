@@ -7,106 +7,64 @@ const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018 },
 });
 
-const DEFAULT_FORMAT = /^[A-Z][a-zA-Z0-9]*$/;
-const CUSTOM_FORMAT = /^[_A-Z][a-zA-Z0-9]*$/;
+const DEFAULT_FORMAT = "^[A-Z][a-zA-Z0-9]*$";
+const CUSTOM_FORMAT = "^[_A-Z][a-zA-Z0-9]*$";
 
 ruleTester.run("Class and interface names should comply with a naming convention", rule, {
   valid: [
     {
       code: `
-      class MyClass {
-
-      }
-
-      var x = class y { // Compliant, rule doesn't check class expressions
-
-      }
-
-      interface MyInterface {
-
-      }
+      class MyClass {}
+      var x = class y {} // Compliant, rule doesn't check class expressions
+      interface MyInterface {}
       `,
       options: [{ format: DEFAULT_FORMAT }],
     },
     {
       code: `
-      class _MyClass {
-
-      }
-
-      interface _MyInterface {
-
-      }
+      class  MyClass {}
+      class _MyClass {}
+      interface _MyInterface {}
       `,
       options: [{ format: CUSTOM_FORMAT }],
     },
   ],
   invalid: [
     {
-      code: `
-      class my_class {
-
-      }
-      `,
+      code: `class my_class {}`,
       options: [{ format: DEFAULT_FORMAT }],
       errors: [
         {
-          message: `Rename class "my_class" to match the regular expression /^[A-Z][a-zA-Z0-9]*$/.`,
-          line: 2,
-          endLine: 2,
-          column: 13,
-          endColumn: 21,
+          message: `Rename class "my_class" to match the regular expression ${DEFAULT_FORMAT}.`,
+          line: 1,
+          endLine: 1,
+          column: 7,
+          endColumn: 15,
         },
       ],
     },
     {
-      code: `
-      interface my_interface {
-
-      }
-      `,
+      code: `interface my_interface {}`,
       options: [{ format: DEFAULT_FORMAT }],
       errors: [
         {
-          message: `Rename interface "my_interface" to match the regular expression /^[A-Z][a-zA-Z0-9]*$/.`,
-          line: 2,
-          endLine: 2,
-          column: 17,
-          endColumn: 29,
+          message: `Rename interface "my_interface" to match the regular expression ${DEFAULT_FORMAT}.`,
         },
       ],
     },
     {
-      code: `
-      class __MyClass {
-
-      }
-      `,
+      code: `class __MyClass {}`,
       options: [{ format: CUSTOM_FORMAT }],
       errors: [
-        {
-          message: `Rename class "__MyClass" to match the regular expression /^[_A-Z][a-zA-Z0-9]*$/.`,
-          line: 2,
-          endLine: 2,
-          column: 13,
-          endColumn: 22,
-        },
+        { message: `Rename class "__MyClass" to match the regular expression ${CUSTOM_FORMAT}.` },
       ],
     },
     {
-      code: `
-      interface __MyInterface {
-
-      }
-      `,
+      code: `interface __MyInterface {}`,
       options: [{ format: CUSTOM_FORMAT }],
       errors: [
         {
-          message: `Rename interface "__MyInterface" to match the regular expression /^[_A-Z][a-zA-Z0-9]*$/.`,
-          line: 2,
-          endLine: 2,
-          column: 17,
-          endColumn: 30,
+          message: `Rename interface "__MyInterface" to match the regular expression ${CUSTOM_FORMAT}.`,
         },
       ],
     },
