@@ -27,9 +27,9 @@ const message = 'Refactor the code to eliminate this nested "switch".';
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "SwitchStatement SwitchStatement"(node: estree.Node) {
+      "SwitchStatement SwitchStatement": function(node: estree.Node) {
         context.report({
-          message: message,
+          message,
           node,
         });
       },
