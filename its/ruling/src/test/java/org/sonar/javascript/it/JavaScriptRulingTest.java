@@ -66,7 +66,6 @@ public class JavaScriptRulingTest {
     "S1110",
     "S1121",
     "S1226",
-    "S1439",
     "S1451",
     "S1526",
     "S1533",
