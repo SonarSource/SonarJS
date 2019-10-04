@@ -31,13 +31,11 @@ export const rule: Rule.RuleModule = {
         const switchToken = context
           .getSourceCode()
           .getFirstToken(node, token => token.value === "switch");
-        if (switchToken !== null) {
-          context.report({
-            message,
-            node,
-            loc: switchToken.loc,
-          });
-        }
+        context.report({
+          message,
+          node,
+          loc: switchToken!.loc,
+        });
       },
     };
   },
