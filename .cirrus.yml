@@ -40,7 +40,6 @@ build_task:
     - curl -sSL https://github.com/SonarSource/buildTools/tarball/master | tar zx --strip-components 1 -C .
     - . ./cirrus-env.sh BUILD
     - echo $BUILD_NUMBER
-    - . ./set_maven_build_version $BUILD_NUMBER
     - ./regular_mvn_build_deploy_analyse
 
 qa_task:
