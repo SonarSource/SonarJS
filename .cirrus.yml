@@ -54,6 +54,7 @@ qa_task:
   submodules_script:
     - git submodule update --init
   build_script:
+    - . ./set_maven_build_version $BUILD_NUMBER
     - cd its/plugin
     - mvn verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=true -B -e -V
 
