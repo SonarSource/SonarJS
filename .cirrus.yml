@@ -54,6 +54,7 @@ qa_task:
   submodules_script:
     - git submodule update --init
   build_script:
+    - curl -sSL https://github.com/SonarSource/buildTools/tarball/master | tar zx --strip-components 1 -C .
     - . ./set_maven_build_version $BUILD_NUMBER
     - cd its/plugin
     - mvn verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=true -B -e -V
