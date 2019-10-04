@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from "eslint";
+import { rule as className } from "./class-name";
 import { rule as codeEval } from "./code-eval";
 import { rule as cookies } from "./cookies";
 import { rule as cors } from "./cors";
@@ -36,6 +37,7 @@ import { rule as xpath } from "./xpath";
 
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
+ruleModules["class-name"] = className;
 ruleModules["code-eval"] = codeEval;
 ruleModules["cookies"] = cookies;
 ruleModules["cors"] = cors;

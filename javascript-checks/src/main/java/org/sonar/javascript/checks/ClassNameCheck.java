@@ -19,17 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S101")
-public class ClassNameCheck extends DoubleDispatchVisitorCheck {
+public class ClassNameCheck extends EslintBasedCheck {
 
   private static final String DEFAULT_FORMAT = "^[A-Z][a-zA-Z0-9]*$";
 
@@ -40,16 +41,19 @@ public class ClassNameCheck extends DoubleDispatchVisitorCheck {
   public String format = DEFAULT_FORMAT;
 
   @Override
-  public void visitClass(ClassTree tree) {
-    if (tree.is(Kind.CLASS_DECLARATION)) {
-      IdentifierTree className = tree.name();
-      if (className != null) {
-        String name = className.name();
-        if (!name.matches(format)) {
-          addIssue(className, String.format("Rename class \"%s\" to match the regular expression %s.", name, format));
-        }
-      }
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config(format));
+  }
+
+  @Override
+  public String eslintKey() {
+    return "class-name";
+  }
+
+  private static class Config {
+    String format;
+    Config(String format) {
+      this.format = format;
     }
-    super.visitClass(tree);
   }
 }
