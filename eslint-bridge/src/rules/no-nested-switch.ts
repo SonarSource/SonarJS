@@ -28,10 +28,16 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       "SwitchStatement SwitchStatement": function(node: estree.Node) {
-        context.report({
-          message,
-          node,
-        });
+        const switchToken = context
+          .getSourceCode()
+          .getFirstToken(node, token => token.value === "switch");
+        if (switchToken !== null) {
+          context.report({
+            message,
+            node,
+            loc: switchToken.loc,
+          });
+        }
       },
     };
   },
