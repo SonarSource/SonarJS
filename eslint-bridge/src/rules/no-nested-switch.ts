@@ -33,7 +33,6 @@ export const rule: Rule.RuleModule = {
           .getFirstToken(node, token => token.value === "switch");
         context.report({
           message,
-          node,
           loc: switchToken!.loc,
         });
       },
