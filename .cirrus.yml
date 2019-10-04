@@ -21,7 +21,7 @@ env:
 
 linux_task:
   gke_container:
-    dockerfile: Dockerfile
+    dockerfile: .cirrus/Dockerfile
     builder_image_project: language-team
     builder_image_name: docker-build-lt-v1
     cluster_name: cirrus-ci-lt-cluster
@@ -32,16 +32,17 @@ linux_task:
   maven_cache:
     folder: ~/.m2  
   build_script:
-    - . ./.cirrus/cirrus-env.sh BUILD
+    - curl -sSL https://github.com/SonarSource/buildTools/tarball/master | tar zx --strip-components 1 -C .
+    - . ./cirrus-env.sh BUILD
     - echo $BUILD_NUMBER
-    - python3 ./.cirrus/setBuildVersion.py
-    - mvn deploy sonar:sonar -Pcoverage,deploy-sonarsource,release -Dmaven.test.redirectTestOutputToFile=false -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -B -e -V $*
+    - ./regular_mvn_build_deploy_analyse
+
 
 promote_task:
   depends_on:
     - linux
   gke_container:
-    dockerfile: Dockerfile
+    dockerfile: .cirrus/Dockerfile
     builder_image_project: language-team
     builder_image_name: docker-build-lt-v1
     cluster_name: cirrus-ci-lt-cluster
@@ -52,7 +53,8 @@ promote_task:
   maven_cache:
     folder: ~/.m2     
   script:
-    - . ./.cirrus/cirrus-env.sh PROMOTE
-    - python3 ./.cirrus/setBuildVersion.py
+    - curl -sSL https://github.com/SonarSource/buildTools/tarball/master | tar zx --strip-components 1 -C .
+    - . ./cirrus-env.sh PROMOTE
+    - . ./set_maven_build_version $BUILD_NUMBER
     - curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "$PROMOTE_URL/$GITHUB_REPO/$GITHUB_BRANCH/$BUILD_NUMBER/$PULL_REQUEST"
-    - ./cirrus/burgr-notify-promotion.sh
+    - ./burgr-notify-promotion.sh
