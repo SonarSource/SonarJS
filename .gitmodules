@@ -3,4 +3,4 @@
 	url = https://github.com/SonarCommunity/javascript-test-sources.git
 [submodule "its/typescript-test-sources"]
 	path = its/typescript-test-sources
-	url = git@github.com:SonarSource/typescript-test-sources.git
+	url = https://github.com/SonarSource/typescript-test-sources.git
