@@ -46,7 +46,10 @@ To request a new feature, [create a GitHub issue](https://github.com/SonarSource
 To submit a contribution, create a pull request for this repository. Please make sure that you follow our [code style](https://github.com/SonarSource/sonar-developer-toolset) and all [tests](/docs/DEV.md#testing) are passing (Travis build is created for each PR).
 
 #### Custom Rules
-If you have an idea for a rule but you are not sure that everyone needs it you can implement a [custom rule](/docs/CUSTOM_RULES.md) available only for you. 
+If you have an idea for a rule but you are not sure that everyone needs it you can implement a [custom rule](/docs/CUSTOM_RULES.md) available only for you.
+
+#### Work with us
+Would you like to work on this project full-time? We are hiring! Check out https://www.sonarsource.com/hiring 
 
 ## License
 
