@@ -57,4 +57,4 @@ promote_task:
     - . ./cirrus-env.sh PROMOTE
     - . ./set_maven_build_version $BUILD_NUMBER
     - curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "$PROMOTE_URL/$GITHUB_REPO/$GITHUB_BRANCH/$BUILD_NUMBER/$PULL_REQUEST"
-    - ./burgr-notify-promotion.sh
+    # - ./burgr-notify-promotion.sh
