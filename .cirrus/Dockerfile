@@ -26,8 +26,9 @@ RUN  wget -U "nodejs" -q -O nodejs.tar.xz https://nodejs.org/dist/${NODE_VERSION
     && rm nodejs.tar.xz \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
-# On cirrus context is set to the root of the repository
-COPY .cirrus/settings.xml /usr/share/maven/conf/settings.xml
 
 ENV MAVEN_CONFIG "/home/sonarsource/.m2"
 USER sonarsource
+# On cirrus context is set to the root of the repository
+COPY .cirrus/settings.xml ${MAVEN_CONFIG}/settings.xml
+
