@@ -19,6 +19,7 @@
  */
 import { Rule } from "eslint";
 import { rule as className } from "./class-name";
+import { rule as noUselessIncrement } from "./no-useless-increment";
 import { rule as codeEval } from "./code-eval";
 import { rule as cookies } from "./cookies";
 import { rule as cors } from "./cors";
@@ -41,6 +42,7 @@ import { rule as xpath } from "./xpath";
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
 ruleModules["class-name"] = className;
+ruleModules["no-useless-increment"] = noUselessIncrement;
 ruleModules["code-eval"] = codeEval;
 ruleModules["cookies"] = cookies;
 ruleModules["cors"] = cors;
