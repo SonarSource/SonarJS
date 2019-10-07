@@ -35,7 +35,7 @@ http://maven.apache.org/xsd/settings-1.0.0.xsd">
         <repository>
           <id>sonarsource</id>
           <name>SonarSource Central Repository</name>
-          <url>${env.ARTIFACTORY_URL}/sonarsource</url>
+          <url>${env.ARTIFACTORY_URL}/sonarsource-qa</url>
           <releases>
             <enabled>true</enabled>
             <updatePolicy>interval:60</updatePolicy>
@@ -51,7 +51,7 @@ http://maven.apache.org/xsd/settings-1.0.0.xsd">
         <pluginRepository>
           <id>sonarsource</id>
           <name>SonarSource Central Repository</name>
-          <url>${env.ARTIFACTORY_URL}/sonarsource</url>
+          <url>${env.ARTIFACTORY_URL}/sonarsource-qa</url>
           <releases>
             <enabled>true</enabled>
             <!-- no need to always check if new versions are available when
