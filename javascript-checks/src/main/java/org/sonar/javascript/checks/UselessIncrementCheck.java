@@ -21,29 +21,16 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.SyntacticEquivalence;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2123")
-public class UselessIncrementCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this %s or correct the code not to waste it.";
+public class UselessIncrementCheck extends EslintBasedCheck {
 
   @Override
-  public void visitAssignmentExpression(AssignmentExpressionTree assignment) {
-    if (assignment.expression().is(Tree.Kind.POSTFIX_INCREMENT, Tree.Kind.POSTFIX_DECREMENT)) {
-      UnaryExpressionTree postfix = (UnaryExpressionTree) assignment.expression();
-      if (SyntacticEquivalence.areEquivalent(assignment.variable(), postfix.expression())) {
-        String type = postfix.is(Tree.Kind.POSTFIX_INCREMENT) ? "increment" : "decrement";
-        String message = String.format(MESSAGE, type);
-        addIssue(postfix.operatorToken(), message);
-      }
-    }
-    super.visitAssignmentExpression(assignment);
+  public String eslintKey() {
+    return "no-useless-increment";
   }
 
 }

@@ -1,12 +1,20 @@
 <p>A value that is incremented or decremented and then not stored is at best wasted code and at worst a bug.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-let i = 0;
-i = i++; // Noncompliant; i is still zero
+function pickNumber() {
+  let i = 0;
+  i = i++; // Noncompliant; i is still zero
+
+  return i++; // Noncompliant; 0 returned
+}
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-let i = 0;
-i++;
+function pickNumber() {
+  let i = 0;
+  i++;
+
+  return ++i;
+}
 </pre>
 
