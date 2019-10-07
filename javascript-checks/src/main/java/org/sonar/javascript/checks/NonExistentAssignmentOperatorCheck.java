@@ -19,51 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2757")
-public class NonExistentAssignmentOperatorCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Was \"%s=\" meant instead?";
+public class NonExistentAssignmentOperatorCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.of(Kind.ASSIGNMENT);
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    AssignmentExpressionTree assignment = (AssignmentExpressionTree) tree;
-    ExpressionTree expression = assignment.expression();
-    if (expression.is(Kind.UNARY_PLUS, Kind.UNARY_MINUS, Kind.LOGICAL_COMPLEMENT)) {
-      UnaryExpressionTree unaryExpression = (UnaryExpressionTree) expression;
-      SyntaxToken assignmentOperator = assignment.operatorToken();
-      SyntaxToken expressionOperator = unaryExpression.operatorToken();
-      if (areAdjacent(assignmentOperator, expressionOperator) && !areAdjacent(expressionOperator, unaryExpression.expression())) {
-        String message = String.format(MESSAGE, unaryExpression.operatorToken());
-        addIssue(new PreciseIssue(this, new IssueLocation(assignmentOperator, expressionOperator, message)));
-      }
-    }
-    super.visitNode(tree);
-  }
-
-  private static boolean areAdjacent(Tree tree1, Tree tree2) {
-    SyntaxToken tree1LastToken = tree1.lastToken();
-    SyntaxToken tree2FirstToken = tree2.firstToken();
-    return tree1LastToken.endColumn() == tree2FirstToken.column() && tree1LastToken.endLine() == tree2FirstToken.line();
+  public String eslintKey() {
+    return "non-existent-operator";
   }
 
 }

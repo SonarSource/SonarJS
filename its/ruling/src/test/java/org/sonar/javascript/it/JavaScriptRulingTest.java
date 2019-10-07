@@ -77,7 +77,6 @@ public class JavaScriptRulingTest {
     "S2234",
     "S2589",
     "S2681",
-    "S2757",
     "S2870",
     "S2871",
     "S3516",
