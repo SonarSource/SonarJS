@@ -5,6 +5,11 @@
   <rules>
     <rule>
       <repositoryKey>typescript</repositoryKey>
+      <key>S1439</key>    <!-- LabelPlacementCheck -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
       <key>S2077</key>    <!-- SqlQueriesCheck -->
       <priority>INFO</priority>
     </rule>
@@ -24,7 +29,7 @@
       <priority>INFO</priority>
     </rule>
     <rule>
-    <repositoryKey>typescript</repositoryKey>
+      <repositoryKey>typescript</repositoryKey>
       <key>S4787</key>    <!-- EncryptionCheck -->
       <priority>INFO</priority>
     </rule>

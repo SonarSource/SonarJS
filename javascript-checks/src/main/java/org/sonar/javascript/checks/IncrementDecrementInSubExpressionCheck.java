@@ -19,68 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S881")
-public class IncrementDecrementInSubExpressionCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Extract this %s operation into a dedicated statement.";
+public class IncrementDecrementInSubExpressionCheck extends EslintBasedCheck {
 
   @Override
-  public void visitExpressionStatement(ExpressionStatementTree tree) {
-    if (tree.expression().is(KindSet.INC_DEC_KINDS)) {
-      scan(((UnaryExpressionTree) tree.expression()).expression());
-    } else {
-      scan(tree.expression());
-    }
+  public String eslintKey() {
+    return "no-nested-incdec";
   }
 
-  @Override
-  public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (tree.is(KindSet.INC_DEC_KINDS)) {
-      raiseIssue(tree);
-    }
-
-    super.visitUnaryExpression(tree);
-  }
-
-  @Override
-  public void visitForStatement(ForStatementTree tree) {
-    scan(tree.init());
-    scan(tree.condition());
-    scanUpdateClause(tree.update());
-    scan(tree.statement());
-  }
-
-  private void scanUpdateClause(@Nullable ExpressionTree tree) {
-    if (tree != null) {
-      if (tree.is(KindSet.INC_DEC_KINDS)) {
-        scan(((UnaryExpressionTree) tree).expression());
-
-      } else if (tree.is(Kind.COMMA_OPERATOR)) {
-        BinaryExpressionTree expressionList = (BinaryExpressionTree) tree;
-        scanUpdateClause(expressionList.leftOperand());
-        scanUpdateClause(expressionList.rightOperand());
-
-      } else {
-        scan(tree);
-      }
-    }
-  }
-
-  private void raiseIssue(UnaryExpressionTree tree) {
-    String message = String.format(MESSAGE, "++".equals(tree.operatorToken().text()) ? "increment" : "decrement");
-    addIssue(tree.operatorToken(), message);
-  }
 }

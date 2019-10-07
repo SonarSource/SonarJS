@@ -1,0 +1,21 @@
+<p>Any statement or block of statements can be identified by a label, but those labels should be used only on <code>while</code>,
+<code>do-while</code>, <code>for</code> and <code>switch</code> statements. Using labels in any other context leads to unstructured, confusing code.
+</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+myLabel: if (i % 2 == 0) {  // Noncompliant
+  if (i == 12) {
+    console.log("12");
+    break myLabel;
+  }
+  console.log("Odd number, but not 12");
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+myLabel: for (i = 0; i &lt; 10; i++) {   // Compliant
+  console.log("Loop");
+  break myLabel;
+}
+</pre>
+

@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-1821
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import { Rule } from "eslint";
+import * as estree from "estree";
 
-public class LabelPlacementCheckTest {
+const message = 'Refactor the code to eliminate this nested "switch".';
 
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new LabelPlacementCheck(), new File("src/test/resources/checks/labelPlacement.js"));
-  }
-
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      "SwitchStatement SwitchStatement": function(node: estree.Node) {
+        const switchToken = context
+          .getSourceCode()
+          .getFirstToken(node, token => token.value === "switch");
+        context.report({
+          message,
+          loc: switchToken!.loc,
+        });
+      },
+    };
+  },
+};

@@ -19,41 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S101")
-public class ClassNameCheck extends EslintBasedCheck {
-
-  private static final String DEFAULT_FORMAT = "^[A-Z][a-zA-Z0-9]*$";
-
-  @RuleProperty(
-      key = "format",
-      description = "Regular expression used to check the class names against.",
-      defaultValue = "" + DEFAULT_FORMAT)
-  public String format = DEFAULT_FORMAT;
-
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config(format));
-  }
+@Rule(key = "S1821")
+public class NoNestedSwitchCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "class-name";
+    return "no-nested-switch";
   }
 
-  private static class Config {
-    String format;
-    Config(String format) {
-      this.format = format;
-    }
-  }
 }
