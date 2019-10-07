@@ -37,9 +37,10 @@ build_task:
   maven_cache:
     folder: ~/.m2  
   build_script:
-    - source cirrus-env BUILD
-    - source set_maven_build_version $BUILD_NUMBER
-    - regular_mvn_build_deploy_analyse
+    - curl -sSL https://github.com/SonarSource/buildTools/tarball/master | tar zx --strip-components 1 -C .
+    - . ./cirrus-env.sh BUILD
+    - echo $BUILD_NUMBER
+    - ./regular_mvn_build_deploy_analyse
 
 qa_task:
   depends_on:
@@ -58,8 +59,10 @@ qa_task:
   submodules_script:
     - git submodule update --init
   build_script:
-    - source cirrus-env BUILD
-    - source set_maven_build_version $BUILD_NUMBER
+    - curl -sSL https://github.com/SonarSource/buildTools/tarball/master | tar zx --strip-components 1 -C .
+    - . ./cirrus-env.sh QA
+    - . ./set_maven_build_version $BUILD_NUMBER
+    - cd its/plugin
     - mvn verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=true -B -e -V
 
 
@@ -79,7 +82,8 @@ promote_task:
   maven_cache:
     folder: ~/.m2     
   script:
-    - source cirrus-env PROMOTE
-    - source set_maven_build_version $BUILD_NUMBER
+    - curl -sSL https://github.com/SonarSource/buildTools/tarball/master | tar zx --strip-components 1 -C .
+    - . ./cirrus-env.sh PROMOTE
+    - . ./set_maven_build_version $BUILD_NUMBER
     - curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "$PROMOTE_URL/$GITHUB_REPO/$GITHUB_BRANCH/$BUILD_NUMBER/$PULL_REQUEST"
-    - burgr-notify-promotion
+    # - ./burgr-notify-promotion.sh
