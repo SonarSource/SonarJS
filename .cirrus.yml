@@ -20,7 +20,7 @@ env:
   ACCESS_TOKEN: ENCRYPTED[!1fb91961a5c01e06e38834e55755231d649dc62eca354593105af9f9d643d701ae4539ab6a8021278b8d9348ae2ce8be!]
   PROMOTE_URL: ENCRYPTED[!e22ed2e34a8f7a1aea5cff653585429bbd3d5151e7201022140218f9c5d620069ec2388f14f83971e3fd726215bc0f5e!]
   #artifacts that will have downloadable links in burgr
-  ARTIFACTS: com.sonarsource.dummy:sonar-dummy-plugin:jar
+  ARTIFACTS: org.sonarsource.javascript:sonar-javascript-plugin:jar
   #allow deployment of pull request artifacts to repox
   DEPLOY_PULL_REQUEST: true
 
