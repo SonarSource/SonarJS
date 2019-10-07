@@ -21,24 +21,18 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "LabelPlacement")
-public class LabelPlacementCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this \"%s\" label.";
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "LabelPlacement")
+@Rule(key = "S1439")
+public class LabelPlacementCheck extends EslintBasedCheck {
 
   @Override
-  public void visitLabelledStatement(LabelledStatementTree tree) {
-    if (!tree.statement().is(KindSet.LOOP_KINDS)) {
-      addIssue(tree.labelToken(), String.format(MESSAGE, tree.labelToken().text()));
-    }
-
-    super.visitLabelledStatement(tree);
+  public String eslintKey() {
+    return "label-position";
   }
-
 
 }
