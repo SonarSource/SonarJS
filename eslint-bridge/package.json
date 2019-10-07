@@ -41,6 +41,7 @@
   "dependencies": {
     "@types/eslint-scope": "3.7.0",
     "@typescript-eslint/eslint-plugin": "2.0.0",
+    "@typescript-eslint/experimental-utils": "2.0.0",
     "@typescript-eslint/parser": "2.0.0",
     "babel-eslint": "10.0.1",
     "body-parser": "1.18.3",

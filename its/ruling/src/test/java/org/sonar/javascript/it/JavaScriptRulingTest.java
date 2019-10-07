@@ -59,7 +59,6 @@ public class JavaScriptRulingTest {
   private static final Location TS_PLUGIN_LOCATION = MavenLocation.of("org.sonarsource.typescript", "sonar-typescript-plugin", "DEV");
 
   private static final List<String> RULES_PROVIDED_BY_SONARTS = Arrays.asList(
-    "S101",
     "S117",
     "S125",
     "S881",
@@ -71,7 +70,6 @@ public class JavaScriptRulingTest {
     "S1533",
     "S1541",
     "S1751",
-    "S1821",
     "S1854",
     "S1874",
     "S2068",
