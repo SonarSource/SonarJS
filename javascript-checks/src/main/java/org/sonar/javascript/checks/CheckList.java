@@ -182,6 +182,7 @@ public final class CheckList {
       NoForInArrayCheck.class,
       NoInferrableTypesCheck.class,
       NoInvertedBooleanCheckCheck.class,
+      NoNestedSwitchCheck.class,
       NoMagicNumbersCheck.class,
       NoRequireImportsCheck.class,
       NoThisAliasCheck.class,

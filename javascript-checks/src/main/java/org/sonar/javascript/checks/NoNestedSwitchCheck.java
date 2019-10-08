@@ -19,15 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-public class UselessIncrementCheckTest {
+@JavaScriptRule
+@TypeScriptRule
+@Rule(key = "S1821")
+public class NoNestedSwitchCheck extends EslintBasedCheck {
 
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new UselessIncrementCheck(), new File("src/test/resources/checks/uselessIncrement.js"));
+  @Override
+  public String eslintKey() {
+    return "no-nested-switch";
   }
 
 }

@@ -58,62 +58,6 @@ public class JavaScriptRulingTest {
 
   private static final Location TS_PLUGIN_LOCATION = MavenLocation.of("org.sonarsource.typescript", "sonar-typescript-plugin", "DEV");
 
-  private static final List<String> RULES_PROVIDED_BY_SONARTS = Arrays.asList(
-    "S101",
-    "S117",
-    "S125",
-    "S881",
-    "S1110",
-    "S1121",
-    "S1226",
-    "S1439",
-    "S1451",
-    "S1526",
-    "S1533",
-    "S1541",
-    "S1751",
-    "S1821",
-    "S1854",
-    "S1874",
-    "S2068",
-    "S2123",
-    "S2201",
-    "S2234",
-    "S2589",
-    "S2681",
-    "S2757",
-    "S2870",
-    "S2871",
-    "S3516",
-    "S3616",
-    "S3626",
-    "S3801",
-    "S3972",
-    "S3981",
-    "S3984",
-    "S4030",
-    "S4043",
-    "S4123",
-    "S4157",
-    "S4158",
-    "S4275",
-    "S4322",
-    "S4323",
-    "S4324",
-    "S4328",
-    "S4335",
-    "S4524",
-    "S4619",
-    "S4621",
-    "S4622",
-    "S4623",
-    "S4624",
-    "S4634",
-    "S4782",
-    "S4798",
-    "S4822"
-  );
-
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
@@ -157,7 +101,7 @@ public class JavaScriptRulingTest {
       orchestrator.getServer().getUrl(),
       "ts", "typescript",
       new ProfileGenerator.RulesConfiguration(),
-      new HashSet<>(RULES_PROVIDED_BY_SONARTS));
+      new HashSet<>());
 
     orchestrator.getServer()
       .restoreProfile(FileLocation.of(jsProfile))
