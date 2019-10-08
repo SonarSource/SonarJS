@@ -35,7 +35,7 @@ build_task:
     cpu: 2
     memory: 2G
   maven_cache:
-    folder: ~/.m2  
+    folder: ~/.m2/repository
   build_script:
     - source cirrus-env BUILD
     - source set_maven_build_version $BUILD_NUMBER
@@ -56,7 +56,7 @@ qa_task:
     cpu: 2
     memory: 2G
   maven_cache:
-    folder: ~/.m2
+    folder: ~/.m2/repository
   submodules_script:
     - git submodule update --init
   build_script:
@@ -82,7 +82,7 @@ promote_task:
     cpu: 1
     memory: 1G
   maven_cache:
-    folder: ~/.m2     
+    folder: ~/.m2/repository   
   script:
     - source cirrus-env PROMOTE
     - source set_maven_build_version $BUILD_NUMBER
