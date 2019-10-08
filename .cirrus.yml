@@ -4,8 +4,6 @@ env:
   ARTIFACTORY_URL: ENCRYPTED[!2f8fa307d3289faa0aa6791f18b961627ae44f1ef46b136e1a1e63b0b4c86454dbb25520d49b339e2d50a1e1e5f95c88!]
   ARTIFACTORY_PRIVATE_USERNAME: private-reader
   ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[!921e2792ce1fc164aaea1146ab2478e7aefd8aaa87022ca745adccee4deaa470bb883ad3066738fceb37622f239296a7!]
-  #ARTIFACTORY_PRIVATE_USERNAME: qa-reader
-  #ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[!9ec01699ae609f656b07f2d0eaf40fcdf1e77ebbd3d4ca6487840af9f0085a314baeb33d6d63200df0ae1eb847f043c8!]
   ARTIFACTORY_DEPLOY_USERNAME: public-qa-deployer
   ARTIFACTORY_DEPLOY_PASSWORD: ENCRYPTED[!ee8f6410a42b81c6c91c7b760e7be7796a7774b6e6e6acf3ff2ecf8c7c04c732865a0300673ea41155c0d19a989c0a5a!]
   ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
@@ -43,6 +41,8 @@ build_task:
     - . ./cirrus-env.sh BUILD
     - echo $BUILD_NUMBER
     - . ./regular_mvn_build_deploy_analyse
+  cleanup_before_cache_script:
+    - rm -rf $HOME/.m2/repository/org/sonarsource/
 
 qa_task:
   depends_on:
@@ -65,8 +65,10 @@ qa_task:
     - . ./cirrus-env.sh QA
     - . ./set_maven_build_version $BUILD_NUMBER
     - cd its/plugin
+    - export SONARSOURCE_QA=true
     - mvn verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=true -B -e -V
-
+  cleanup_before_cache_script:
+    - rm -rf $HOME/.m2/repository/org/sonarsource/
 
 
 promote_task:
