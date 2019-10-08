@@ -25,6 +25,11 @@ import { IssueLocation } from "../analyzer";
 import { EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 
+interface ParenthesesPair {
+  openingParenthesis: AST.Token;
+  closingParenthesis: AST.Token;
+}
+
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
@@ -37,59 +42,65 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       "*": function(node: estree.Node) {
-        checkRedundantParenthesis(context.getSourceCode(), node, context);
+        checkRedundantParentheses(context.getSourceCode(), node, context);
       },
     };
   },
 };
 
-function isParentStatementWithParentheses(node: estree.Node, parent: estree.Node): boolean {
-  return (
-    ((parent.type === "IfStatement" ||
-      parent.type === "WhileStatement" ||
-      parent.type === "DoWhileStatement") &&
-      parent.test === node) ||
-    ((parent.type === "CallExpression" || parent.type === "NewExpression") &&
-      parent.arguments.includes(node as estree.Expression))
-  );
-}
-
-function checkRedundantParenthesis(
+function checkRedundantParentheses(
   sourceCode: SourceCode,
   node: estree.Node,
   context: Rule.RuleContext,
 ) {
-  const tokenBefore = sourceCode.getTokenBefore(node);
-  const tokenAfter = sourceCode.getTokenAfter(node);
+  const parenthesesPairsAroundNode = getParenthesesPairsAround(sourceCode, node, node);
+  const parent = getParent(context);
 
-  if (tokenBefore !== null && tokenAfter !== null && isParenthesesPair(tokenBefore, tokenAfter)) {
-    let previousToken = sourceCode.getTokenBefore(tokenBefore);
-    let followingToken = sourceCode.getTokenAfter(tokenAfter);
-
-    const parent = getParent(context);
-    let skipFirst = !!parent && isParentStatementWithParentheses(node, parent);
-
-    while (
-      previousToken !== null &&
-      followingToken !== null &&
-      isParenthesesPair(previousToken, followingToken)
-    ) {
-      if (!skipFirst) {
-        context.report({
-          message: toEncodedMessage(followingToken),
-          loc: previousToken.loc,
-        });
-      }
-
-      skipFirst = false;
-      previousToken = sourceCode.getTokenBefore(previousToken);
-      followingToken = sourceCode.getTokenAfter(followingToken);
-    }
+  // Ignore parentheses pair from the parent node
+  if (!!parent && isInParentNodeParentheses(node, parent)) {
+    parenthesesPairsAroundNode.pop();
   }
+  // One pair of parentheses is allowed for readability purposes
+  parenthesesPairsAroundNode.shift();
+
+  parenthesesPairsAroundNode.forEach(parentheses => {
+    context.report({
+      message: toEncodedMessage(parentheses.closingParenthesis),
+      loc: parentheses.openingParenthesis.loc,
+    });
+  });
 }
 
-function isParenthesesPair(tokenBefore: AST.Token, tokenAfter: AST.Token): boolean {
-  return tokenBefore.value === "(" && tokenAfter.value === ")";
+function getParenthesesPairsAround(
+  sourceCode: SourceCode,
+  start: estree.Node | AST.Token,
+  end: estree.Node | AST.Token,
+): ParenthesesPair[] {
+  const tokenBefore = sourceCode.getTokenBefore(start);
+  const tokenAfter = sourceCode.getTokenAfter(end);
+
+  if (!!tokenBefore && !!tokenAfter && tokenBefore.value === "(" && tokenAfter.value === ")") {
+    return [
+      { openingParenthesis: tokenBefore, closingParenthesis: tokenAfter },
+      ...getParenthesesPairsAround(sourceCode, tokenBefore, tokenAfter),
+    ];
+  }
+
+  return [];
+}
+
+function isInParentNodeParentheses(node: estree.Node, parent: estree.Node): boolean {
+  const nodeIsInConditionOfParent =
+    (parent.type === "IfStatement" ||
+      parent.type === "WhileStatement" ||
+      parent.type === "DoWhileStatement") &&
+    parent.test === node;
+
+  const nodeIsArgumentOfCallExpression =
+    (parent.type === "CallExpression" || parent.type === "NewExpression") &&
+    parent.arguments.includes(node as estree.Expression);
+
+  return nodeIsInConditionOfParent || nodeIsArgumentOfCallExpression;
 }
 
 function toEncodedMessage(secondaryLocationToken: AST.Token): string {

@@ -88,6 +88,24 @@ ruleTester.run("Redundant pairs of parentheses should be removed", rule, {
       ],
     },
     {
+      // Type assertion test requiring @typescript-eslint/parser
+      code: `if (myBool) { ((<myCast>obj)).methodCall() }`,
+      errors: [
+        {
+          message:
+            '{"message":"Remove these useless parentheses.","secondaryLocations":[{"column":28,"line":1,"endColumn":29,"endLine":1}]}',
+          line: 1,
+          endLine: 1,
+          column: 15,
+          endColumn: 16,
+        },
+      ],
+    },
+    {
+      code: `(((((a)))))`,
+      errors: 4,
+    },
+    {
       code: `let a = doSomething(( /** @type MyObject */ (b)));`,
       errors: 1,
     },
@@ -102,20 +120,6 @@ ruleTester.run("Redundant pairs of parentheses should be removed", rule, {
     {
       code: `let a = new MyClass(((b = c)));`,
       errors: 1,
-    },
-    {
-      // Type assertion test requiring @typescript-eslint/parser
-      code: `if (myBool) { ((<myCast>obj)).methodCall() }`,
-      errors: [
-        {
-          message:
-            '{"message":"Remove these useless parentheses.","secondaryLocations":[{"column":28,"line":1,"endColumn":29,"endLine":1}]}',
-          line: 1,
-          endLine: 1,
-          column: 15,
-          endColumn: 16,
-        },
-      ],
     },
   ],
 });
