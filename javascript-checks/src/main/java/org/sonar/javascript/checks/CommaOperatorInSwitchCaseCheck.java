@@ -19,88 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3616")
-public class CommaOperatorInSwitchCaseCheck extends DoubleDispatchVisitorCheck {
-  
-  private static final String MESSAGE = "Explicitly specify %d separate cases that fall through; currently this case clause only works for \"%s\".";
-  
+public class CommaOperatorInSwitchCaseCheck extends EslintBasedCheck {
+
   @Override
-  public void visitCaseClause(CaseClauseTree tree) {
-    ExpressionTree expression = tree.expression();
-
-    if (expression.is(Kind.COMMA_OPERATOR)) {
-      int nbCommas = getNumberOfCommas(expression);
-      raiseIssue(expression, nbCommas + 1, ((BinaryExpressionTree) expression).rightOperand());
-    }
-
-    if (expression.is(Kind.CONDITIONAL_OR)) {
-      List<ExpressionTree> expressionTrees = orExpressionOperands(expression);
-      if (!expressionTrees.isEmpty()) {
-        raiseIssue(expression, expressionTrees.size(), expressionTrees.get(0));
-      }
-    }
-    
-    super.visitCaseClause(tree);
-  }
-
-  private void raiseIssue(ExpressionTree expression, int operandsNumber, ExpressionTree expressionResult) {
-    String lastCase = CheckUtils.asString(expressionResult);
-    String msg = String.format(MESSAGE, operandsNumber, lastCase);
-    addIssue(expression, msg);
-  }
-  
-  /**
-   * Gets the number of "," characters in the specified expression.
-   * <p>
-   * Example 1: expression 10 (as in "case 10:") returns 0.
-   * <p>
-   * Example 2: expression 10,11,12,13 (as in "case 10,11,12,13:") returns 3.
-   */
-  private static int getNumberOfCommas(ExpressionTree expression) {
-    int nbCommas = 0;
-    if (expression.is(Kind.COMMA_OPERATOR)) {
-      BinaryExpressionTree binaryExpression = (BinaryExpressionTree) expression;
-      nbCommas = getNumberOfCommas(binaryExpression.leftOperand()) + 1;
-    }
-    return nbCommas;
-  }
-
-  /**
-   * Returns the list of "or" expression operands where all operands are literals
-   * Returns empty list if at least one operand is not literal
-   */
-  private static List<ExpressionTree> orExpressionOperands(ExpressionTree expression) {
-    if (expression.is(Kind.CONDITIONAL_OR)) {
-      BinaryExpressionTree binaryExpression = (BinaryExpressionTree) expression;
-
-      if (binaryExpression.rightOperand().is(KindSet.LITERAL_KINDS)) {
-        List<ExpressionTree> expressionTrees = orExpressionOperands(binaryExpression.leftOperand());
-        if (!expressionTrees.isEmpty()) {
-          expressionTrees.add(binaryExpression.rightOperand());
-          return expressionTrees;
-        }
-      }
-
-    } else if (expression.is(KindSet.LITERAL_KINDS)) {
-      return Lists.newArrayList(expression);
-
-    }
-
-    return ImmutableList.of();
+  public String eslintKey() {
+    return "comma-or-logical-or-case";
   }
 
 }
