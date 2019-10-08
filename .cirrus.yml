@@ -37,10 +37,9 @@ build_task:
   maven_cache:
     folder: ~/.m2  
   build_script:
-    - curl -sSL https://github.com/SonarSource/buildTools/tarball/master | tar zx --strip-components 1 -C .
-    - . ./cirrus-env.sh BUILD
-    - echo $BUILD_NUMBER
-    - . ./regular_mvn_build_deploy_analyse
+    - source cirrus-env BUILD
+    - source set_maven_build_version $BUILD_NUMBER
+    - regular_mvn_build_deploy_analyse
   cleanup_before_cache_script:
     - rm -rf $HOME/.m2/repository/org/sonarsource/
 
@@ -50,7 +49,7 @@ qa_task:
   gke_container:
     dockerfile: .cirrus/Dockerfile
     builder_image_project: language-team
-    builder_image_name: docker-build-lt-v1
+    builder_image_name: docker-builder-lt-v1
     cluster_name: cirrus-ci-lt-cluster
     zone: us-central1-a
     namespace: default
@@ -61,9 +60,8 @@ qa_task:
   submodules_script:
     - git submodule update --init
   build_script:
-    - curl -sSL https://github.com/SonarSource/buildTools/tarball/master | tar zx --strip-components 1 -C .
-    - . ./cirrus-env.sh QA
-    - . ./set_maven_build_version $BUILD_NUMBER
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
     - cd its/plugin
     - export SONARSOURCE_QA=true
     - mvn verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=true -B -e -V
@@ -77,7 +75,7 @@ promote_task:
   gke_container:
     dockerfile: .cirrus/Dockerfile
     builder_image_project: language-team
-    builder_image_name: docker-build-lt-v1
+    builder_image_name: docker-builder-lt-v1
     cluster_name: cirrus-ci-lt-cluster
     zone: us-central1-a
     namespace: default
@@ -86,8 +84,7 @@ promote_task:
   maven_cache:
     folder: ~/.m2     
   script:
-    - curl -sSL https://github.com/SonarSource/buildTools/tarball/master | tar zx --strip-components 1 -C .
-    - . ./cirrus-env.sh PROMOTE
-    - . ./set_maven_build_version $BUILD_NUMBER
+    - source cirrus-env PROMOTE
+    - source set_maven_build_version $BUILD_NUMBER
     - curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "$PROMOTE_URL/$GITHUB_REPO/$GITHUB_BRANCH/$BUILD_NUMBER/$PULL_REQUEST"
-    # - ./burgr-notify-promotion.sh
+    - burgr-notify-promotion
