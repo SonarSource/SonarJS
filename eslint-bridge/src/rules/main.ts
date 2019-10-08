@@ -40,6 +40,7 @@ import { rule as noNestedTemplateLiterals } from "./no-nested-template-literals"
 import { rule as noPrimitiveWrappers } from "./no-primitive-wrappers";
 import { rule as noSameLineConditional } from "./no-same-line-conditional";
 import { rule as noUnthrownError } from "./no-unthrown-error";
+import { rule as noReturnTypeAny } from "./no-return-type-any";
 import { rule as osCommand } from "./os-command";
 import { rule as processArgv } from "./process-argv";
 import { rule as preferDefaultLast } from "./prefer-default-last";
@@ -76,6 +77,7 @@ ruleModules["no-nested-template-literals"] = noNestedTemplateLiterals;
 ruleModules["no-primitive-wrappers"] = noPrimitiveWrappers;
 ruleModules["no-same-line-conditional"] = noSameLineConditional;
 ruleModules["no-unthrown-error"] = noUnthrownError;
+ruleModules["no-return-type-any"] = noReturnTypeAny;
 ruleModules["os-command"] = osCommand;
 ruleModules["process-argv"] = processArgv;
 ruleModules["prefer-default-last"] = preferDefaultLast;

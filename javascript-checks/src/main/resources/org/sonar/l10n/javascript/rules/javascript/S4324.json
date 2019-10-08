@@ -1,0 +1,19 @@
+{
+  "title": "Primitive return types should be used",
+  "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "proficiency"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-4324",
+  "sqKey": "S4324",
+  "scope": "All"
+}
