@@ -63,7 +63,7 @@ qa_task:
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/plugin
     - export SONARSOURCE_QA=true
-    - mvn verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=true -B -e -V
+    - mvn verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
   cleanup_before_cache_script:
     - rm -rf $HOME/.m2/repository/org/sonarsource/
 
