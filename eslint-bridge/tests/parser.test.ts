@@ -107,8 +107,11 @@ describe("parseTypeScriptSourceFile", () => {
   it("should parse typescript syntax", () => {
     const file = __dirname + "/fixtures/ts-project/sample.lint.ts";
     const sourceCode = parseTypeScriptSourceFile(
-      `function nokFn(a: A | (B | C | D)) {}
-    `,
+      `if (b == 0) { // Noncompliant  
+        doOneMoreThing();
+      } else {
+        doOneMoreThing();
+      }`,
       file,
       [__dirname + "/fixtures/ts-project/tsconfig.json"],
     ) as SourceCode;
