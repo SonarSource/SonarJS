@@ -1,7 +1,4 @@
 {
-'TypeScript:scripts/buildProtocol.ts':[
-81,
-],
 'TypeScript:src/compiler/checker.ts':[
 8105,
 19257,
@@ -60,6 +57,9 @@
 1068,
 1118,
 1163,
+],
+'TypeScript:src/server/client.ts':[
+133,
 ],
 'TypeScript:src/server/server.ts':[
 324,
