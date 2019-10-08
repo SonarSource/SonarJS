@@ -38,7 +38,6 @@ build_task:
     folder: ~/.m2/repository
   build_script:
     - source cirrus-env BUILD
-    - source set_maven_build_version $BUILD_NUMBER
     - regular_mvn_build_deploy_analyse
   cleanup_before_cache_script:
     - rm -rf $HOME/.m2/repository/org/sonarsource/
