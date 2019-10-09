@@ -37,7 +37,6 @@ public class TypeScriptRulingTest extends JavaScriptRulingTest {
   public static Object[][] projects() {
     return new Object[][]{
       tsProject("ag-grid"),
-      tsProject("angular", Arrays.asList("**/*.d.ts", "**/*.js", "**/examples/**", "**/integrationtest/**", "**/benchmarks_external/**", "**/benchmarks/**")),
       tsProject("ant-design"),
       tsProject("console"),
       tsProject("desktop"),
@@ -50,7 +49,6 @@ public class TypeScriptRulingTest extends JavaScriptRulingTest {
       tsProject("rxjs"),
       tsProject("searchkit"),
       tsProject("TypeScript"),
-      tsProject("vscode"),
     };
   }
 
