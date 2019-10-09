@@ -17,20 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-4622
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import { Rule } from "eslint";
+import * as estree from "estree";
+import { TSESTree } from "@typescript-eslint/experimental-utils";
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S3616")
-public class CommaOperatorInSwitchCaseCheck extends EslintBasedCheck {
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      TSUnionType: (node: estree.Node) => {
+        const union = (node as unknown) as TSESTree.TSUnionType;
+        const [threshold] = context.options;
+        if (union.types.length > threshold && !isFromTypeStatement(union)) {
+          context.report({
+            message: `Refactor this union type to have less than ${threshold} elements.`,
+            node,
+          });
+        }
+      },
+    };
+  },
+};
 
-  @Override
-  public String eslintKey() {
-    return "comma-or-logical-or-case";
-  }
-
+function isFromTypeStatement(node: TSESTree.TSUnionType): boolean {
+  return node.parent !== undefined && node.parent.type === "TSTypeAliasDeclaration";
 }
