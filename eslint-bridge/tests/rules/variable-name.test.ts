@@ -7,7 +7,7 @@ const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018 },
 });
 
-const DEFAULT_FORMAT = "^[_$A-Z][$A-Za-z0-9]*$|^[_$a-z][$A-Za-z0-9]*$|^[_$A-Z0-9][_$A-Z0-9]+$";
+const DEFAULT_FORMAT = "^[_$A-Z][$A-Za-z0-9]*$|^[_$a-z][$A-Za-z0-9]*$|^[_$A-Z][_$A-Z0-9]+$";
 const CUSTOM_FORMAT = "^[a-z][a-z0-9]+$";
 
 ruleTester.run(

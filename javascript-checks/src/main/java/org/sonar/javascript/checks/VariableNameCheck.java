@@ -34,7 +34,7 @@ public class VariableNameCheck extends EslintBasedCheck {
 
   private static final String PASCAL_CAMEL_CASED = "^[_$A-Z][$A-Za-z0-9]*$";
   private static final String LOWER_CAMEL_CASED = "^[_$a-z][$A-Za-z0-9]*$";
-  private static final String UPPER_CASED = "^[_$A-Z0-9][_$A-Z0-9]+$";
+  private static final String UPPER_CASED = "^[_$A-Z][_$A-Z0-9]+$";
 
   private static final String DEFAULT_FORMAT = PASCAL_CAMEL_CASED + "|" + LOWER_CAMEL_CASED + "|" + UPPER_CASED;
 
