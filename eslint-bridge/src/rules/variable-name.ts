@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
     return {
       VariableDeclaration: (node: estree.Node) =>
         checkVariable(node as TSESTree.VariableDeclaration, context),
-      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression": (
+      ":function, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression": (
         node: estree.Node,
       ) => checkFunction(node as FunctionLike, context),
       ClassProperty: (node: estree.Node) =>
