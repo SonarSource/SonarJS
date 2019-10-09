@@ -19,66 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.ModuleTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3972")
-public class SameLineConditionalCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Move this \"if\" to a new line or add the missing \"else\".";
+public class SameLineConditionalCheck extends EslintBasedCheck {
 
   @Override
-  public void visitModule(ModuleTree tree) {
-    visitStatements(tree.items());
-    super.visitModule(tree);
+  public String eslintKey() {
+    return "no-same-line-conditional";
   }
 
-  @Override
-  public void visitBlock(BlockTree tree) {
-    visitStatements(tree.statements());
-    super.visitBlock(tree);
-  }
-
-  @Override
-  public void visitDefaultClause(DefaultClauseTree tree) {
-    visitStatements(tree.statements());
-    super.visitDefaultClause(tree);
-  }
-
-  @Override
-  public void visitCaseClause(CaseClauseTree tree) {
-    visitStatements(tree.statements());
-    super.visitCaseClause(tree);
-  }
-
-  private <T extends Tree> void visitStatements(List<T> statementTrees) {
-    if (statementTrees.size() < 2) {
-      return;
-    }
-
-    for (int i = 1; i < statementTrees.size(); i++) {
-      Tree currentStatement = statementTrees.get(i);
-      Tree previousStatement = statementTrees.get(i - 1);
-
-      if (currentStatement.is(Kind.IF_STATEMENT) && previousStatement.is(Kind.IF_STATEMENT)) {
-        int previousStatementLastLine = previousStatement.lastToken().endLine();
-        int previousStatementFirstLine = previousStatement.firstToken().line();
-        int currentStatementFirstLine = currentStatement.firstToken().line();
-        int currentStatementLastLine = currentStatement.lastToken().endLine();
-
-        if (previousStatementLastLine == currentStatementFirstLine && previousStatementFirstLine != currentStatementLastLine) {
-          addIssue(currentStatement.firstToken(), MESSAGE);
-        }
-      }
-    }
-  }
 }

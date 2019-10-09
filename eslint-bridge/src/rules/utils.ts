@@ -161,7 +161,7 @@ export function isRequireModule(node: estree.CallExpression, ...moduleNames: str
 
 export function toEncodedMessage(message: string, secondaryLocationsToken: AST.Token[]): string {
   const encodedMessage: EncodedMessage = {
-    message: message,
+    message,
     secondaryLocations: secondaryLocationsToken.map(token => toSecondaryLocation(token)),
   };
   return JSON.stringify(encodedMessage);
