@@ -1,7 +1,7 @@
-<p>Sharing some naming conventions is a key point to make it possible for a team to efficiently collaborate. This rule allows to check that all
-variable, property and parameter names match one of the following patterns: <code>lowerCamelCase</code>, <code>PascalCamelCase</code> or
-<code>UPPER_CASED</code>. This rule also allows leading underscore.</p>
+<p>Sharing some naming conventions is a key point to make it possible for a team to efficiently collaborate. This rule checks that all variable,
+property and parameter names match a provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
+<p>With the default regular expression <code>^[_$A-Za-z][$A-Za-z0-9]*$|^[_$A-Z][_$A-Z0-9]+$</code>:</p>
 <pre>
 const foo_bar = 1;
 const baz_ = 2;
@@ -9,6 +9,6 @@ const baz_ = 2;
 <h2>Compliant Solution</h2>
 <pre>
 const fooBar = 1;
-const _baz = 2;{code}
+const _baz = 2;
 </pre>
 
