@@ -94,36 +94,34 @@ function raiseOnInvalidIdentifier(
 
 function resolveIdentifiers(node: TSESTree.Node): TSESTree.Identifier[] {
   const identifiers: TSESTree.Identifier[] = [];
-  const toResolve: TSESTree.Node[] = [node];
-  while (toResolve.length > 0) {
-    const node = toResolve.pop();
-    if (node) {
-      switch (node.type) {
-        case "Identifier":
-          identifiers.push(node);
-          break;
-        case "ObjectPattern":
-          toResolve.push(...node.properties);
-          break;
-        case "ArrayPattern":
-          toResolve.push(...node.elements);
-          break;
-        case "Property":
-          if (!node.shorthand) {
-            toResolve.push(node.value);
-          }
-          break;
-        case "RestElement":
-          toResolve.push(node.argument);
-          break;
-        case "AssignmentPattern":
-          toResolve.push(node.left);
-          break;
-        case "TSParameterProperty":
-          toResolve.push(node.parameter);
-          break;
-      }
-    }
-  }
+  resolveIdentifiersAcc(node, identifiers);
   return identifiers;
+}
+
+function resolveIdentifiersAcc(node: TSESTree.Node, identifiers: TSESTree.Identifier[]): void {
+  switch (node.type) {
+    case "Identifier":
+      identifiers.push(node);
+      break;
+    case "ObjectPattern":
+      node.properties.forEach(prop => resolveIdentifiersAcc(prop, identifiers));
+      break;
+    case "ArrayPattern":
+      node.elements.forEach(elem => resolveIdentifiersAcc(elem, identifiers));
+      break;
+    case "Property":
+      if (!node.shorthand) {
+        resolveIdentifiersAcc(node.value, identifiers);
+      }
+      break;
+    case "RestElement":
+      resolveIdentifiersAcc(node.argument, identifiers);
+      break;
+    case "AssignmentPattern":
+      resolveIdentifiersAcc(node.left, identifiers);
+      break;
+    case "TSParameterProperty":
+      resolveIdentifiersAcc(node.parameter, identifiers);
+      break;
+  }
 }
