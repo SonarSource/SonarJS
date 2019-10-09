@@ -2,7 +2,8 @@
   "title": "Loops with at most one iteration should be refactored",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
