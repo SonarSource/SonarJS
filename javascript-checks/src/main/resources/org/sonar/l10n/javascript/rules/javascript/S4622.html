@@ -1,0 +1,27 @@
+<p>Union types represent a value that can be one of the several types. When a union type is used for a function parameter and it is accepting too many
+types, it may indicate the function is having too many responsibilities. Sometimes it's worth creating a type alias for this union type. In all cases,
+the code should be reviewed and refactored to make it more maintainable.</p>
+<h2>Noncompliant Code Example</h2>
+<p>With the default threshold of 3:</p>
+<pre>
+let x: MyType1 | MyType2 | MyType3 | MyType4; // Noncompliant
+
+function foo(p1: string, p2: MyType1 | MyType2 | MyType3 | MyType4) { // Noncompliant
+    // ...
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+type MyUnionType = MyType1 | MyType2 | MyType3 | MyType4; // Compliant, "type" statements are ignored
+let x: MyUnionType;
+
+function foo(value: string, padding: MyUnionType) {
+    // ...
+}
+</pre>
+<h2>Exceptions</h2>
+<p>This rule ignores union types part of <code>type</code> statement:</p>
+<pre>
+type MyUnionType = MyType1 | MyType2 | MyType3 | MyType4;
+</pre>
+

@@ -1,8 +1,7 @@
 {
-  "title": "Comma and logical OR operators should not be used in switch cases",
-  "type": "BUG",
+  "title": "Union types should not have too many elements",
+  "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT",
     "TYPESCRIPT"
   ],
   "status": "ready",
@@ -11,10 +10,10 @@
     "constantCost": "5min"
   },
   "tags": [
-    
+    "brain-overload"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-3616",
-  "sqKey": "S3616",
+  "ruleSpecification": "RSPEC-4622",
+  "sqKey": "S4622",
   "scope": "All"
 }

@@ -19,18 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.junit.Test;
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S3616")
-public class CommaOperatorInSwitchCaseCheck extends EslintBasedCheck {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public String eslintKey() {
-    return "comma-or-logical-or-case";
+public class MaxUnionSizeCheckTest {
+
+  @Test
+  public void configurations() {
+    MaxUnionSizeCheck check = new MaxUnionSizeCheck();
+    // default configuration
+    assertThat(check.configurations()).containsExactly(3);
+    check.threshold = 4;
+    assertThat(check.configurations()).containsExactly(4);
   }
-
 }

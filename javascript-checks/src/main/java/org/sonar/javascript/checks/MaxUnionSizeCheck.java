@@ -19,18 +19,31 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S3616")
-public class CommaOperatorInSwitchCaseCheck extends EslintBasedCheck {
+@Rule(key = "S4622")
+public class MaxUnionSizeCheck extends EslintBasedCheck {
+
+  private static final int DEFAULT_THRESHOLD = 3;
+
+  @RuleProperty(
+    key = "max",
+    description = "Maximum elements authorized in a union type definition.",
+    defaultValue = "" + DEFAULT_THRESHOLD)
+  int threshold = DEFAULT_THRESHOLD;
+
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(threshold);
+  }
 
   @Override
   public String eslintKey() {
-    return "comma-or-logical-or-case";
+    return "max-union-size";
   }
-
 }
