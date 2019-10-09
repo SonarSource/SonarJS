@@ -1,0 +1,13 @@
+{
+'vscode:src/vs/editor/test/common/model/textModelWithTokens.test.ts':[
+324,
+],
+'vscode:src/vs/editor/test/common/modes/textToHtmlTokenizer.test.ts':[
+80,
+86,
+92,
+],
+'vscode:src/vs/editor/test/common/modesTestUtils.ts':[
+24,
+],
+}

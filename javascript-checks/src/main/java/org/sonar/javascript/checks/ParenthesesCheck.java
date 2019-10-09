@@ -21,24 +21,18 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
+@TypeScriptRule
 @JavaScriptRule
-@Rule(key = "Parentheses")
-public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove those useless parentheses.";
-
+@DeprecatedRuleKey(ruleKey = "Parentheses")
+@Rule(key = "S1110")
+public class ParenthesesCheck extends EslintBasedCheck {
 
   @Override
-  public void visitParenthesisedExpression(ParenthesisedExpressionTree tree) {
-    if (tree.expression().is(Kind.PARENTHESISED_EXPRESSION)) {
-      addIssue(tree.openParenthesisToken(), MESSAGE)
-        .secondary(tree.closeParenthesisToken());
-    }
-
-    super.visitParenthesisedExpression(tree);
+  public String eslintKey() {
+    return "no-redundant-parentheses";
   }
+
 }
