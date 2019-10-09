@@ -21,6 +21,7 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
+import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 
 const message = "Remove this redundant jump.";
 const loops = "WhileStatement, ForStatement, DoWhileStatement, ForInStatement, ForOfStatement";
@@ -30,8 +31,7 @@ export const rule: Rule.RuleModule = {
     function reportIfLastStatement(node: estree.ContinueStatement | estree.ReturnStatement) {
       const withArgument = node.type === "ContinueStatement" ? !!node.label : !!node.argument;
       if (!withArgument) {
-        const ancestors = context.getAncestors();
-        const block = ancestors[ancestors.length - 1] as estree.BlockStatement;
+        const block = getParent(context) as estree.BlockStatement;
         if (block.body[block.body.length - 1] === node && block.body.length > 1) {
           context.report({
             message,
@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
       const ifStatement = ancestors[ancestors.length - 2];
       const upperBlock = ancestors[ancestors.length - 3] as estree.BlockStatement;
       if (upperBlock.body[upperBlock.body.length - 1] === ifStatement) {
-        reportIfLastStatement(node as estree.ContinueStatement);
+        reportIfLastStatement(node);
       }
     }
 
