@@ -17,19 +17,19 @@ ruleTester.run(
     valid: [
       {
         code: `
-        let foo;
+        var foo;
         let lowerCamelCase;
         let _leadingUnderScore;
         let PascalCase;
-        let UPPER_CASE;`,
+        const UPPER_CASE = "UPPER_CASE";`,
         options: [{ format: DEFAULT_FORMAT }],
       },
       {
-        code: `let [ foo, [ bar, [ baz, ...qux ] ] ] = arr;`,
+        code: `let [ foo, [ bar, [ baz, [ qux = quux_quuz, ...corge ] ] ] ] = arr;`,
         options: [{ format: DEFAULT_FORMAT }],
       },
       {
-        code: `let { foo, bar: bar, baz: { qux: { quux: Quux }, ...corge } } = obj;`,
+        code: `let { foo, foo_foo, bar: bar, bar_bar: bar, baz: { qux: { quux: Quux, quuz: { corge: Corge = grault_garply, ...waldo } } } } = obj;`,
         options: [{ format: DEFAULT_FORMAT }],
       },
       {
@@ -41,7 +41,8 @@ ruleTester.run(
         try {} catch {}
         try {} catch (foo) {}
         try {} catch ([ foo ]) {}
-        try {} catch ({ foo: Foo }) {}`,
+        try {} catch ({ foo: Foo }) {}
+        try {} finally {}`,
         options: [{ format: DEFAULT_FORMAT }],
       },
       {
@@ -54,6 +55,11 @@ ruleTester.run(
         function f({a: foo, b: bar}: {a: number, b: number}) {}
         foo => foo;
         let f = function (foo: number) {};`,
+        options: [{ format: DEFAULT_FORMAT }],
+      },
+      {
+        code: `
+        let foo = bar_baz`,
         options: [{ format: DEFAULT_FORMAT }],
       },
       {
@@ -78,36 +84,32 @@ ruleTester.run(
         ],
       },
       {
+        code: `
+        var foo_foo;
+        const bar_bar = 5;`,
+        options: [{ format: DEFAULT_FORMAT }],
+        errors: [
+          error("foo_foo", "local variable", DEFAULT_FORMAT),
+          error("bar_bar", "local variable", DEFAULT_FORMAT),
+        ],
+      },
+      {
         code: `let [ foo_foo, [ bar_bar, [ baz_baz, ...qux_qux ] ] ] = arr;`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          {
-            message: `Rename this local variable "foo_foo" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this local variable "bar_bar" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this local variable "baz_baz" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this local variable "qux_qux" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
+          error("foo_foo", "local variable", DEFAULT_FORMAT),
+          error("bar_bar", "local variable", DEFAULT_FORMAT),
+          error("baz_baz", "local variable", DEFAULT_FORMAT),
+          error("qux_qux", "local variable", DEFAULT_FORMAT),
         ],
       },
       {
         code: `let { foo, bar: bar_bar, baz: { qux: { quux: quux_quux }, ...corge_corge } } = obj;`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          {
-            message: `Rename this local variable "bar_bar" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this local variable "quux_quux" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this local variable "corge_corge" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
+          error("bar_bar", "local variable", DEFAULT_FORMAT),
+          error("quux_quux", "local variable", DEFAULT_FORMAT),
+          error("corge_corge", "local variable", DEFAULT_FORMAT),
         ],
       },
       {
@@ -117,15 +119,9 @@ ruleTester.run(
         try {} catch ({ foo: foo_bar3 }) {}`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          {
-            message: `Rename this parameter "foo_bar1" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar2" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar3" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
+          error("foo_bar1", "parameter", DEFAULT_FORMAT),
+          error("foo_bar2", "parameter", DEFAULT_FORMAT),
+          error("foo_bar3", "parameter", DEFAULT_FORMAT),
         ],
       },
       {
@@ -134,56 +130,38 @@ ruleTester.run(
         function f(foo_bar2 = 5) {}
         function f(...foo_bar3: number[]) {}
         function f([foo_bar4, foo_bar5]: number[]) {}
-        function f({a: foo_bar6, b: foo_bar7, foo_bar8}: {a: number, b: number}) {}
+        function f({a: foo_bar6, b: foo_bar7, foo_bar8}: {a: a_a, b: number}) {}
         foo_bar9 => foo_bar9;
         let f = function (foo_bar10: number) {};`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          {
-            message: `Rename this parameter "foo_bar1" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar2" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar3" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar4" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar5" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar6" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar7" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar9" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar10" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
+          error("foo_bar1", "parameter", DEFAULT_FORMAT),
+          error("foo_bar2", "parameter", DEFAULT_FORMAT),
+          error("foo_bar3", "parameter", DEFAULT_FORMAT),
+          error("foo_bar4", "parameter", DEFAULT_FORMAT),
+          error("foo_bar5", "parameter", DEFAULT_FORMAT),
+          error("foo_bar6", "parameter", DEFAULT_FORMAT),
+          error("foo_bar7", "parameter", DEFAULT_FORMAT),
+          error("foo_bar9", "parameter", DEFAULT_FORMAT),
+          error("foo_bar10", "parameter", DEFAULT_FORMAT),
         ],
       },
       {
         code: `
         interface i {
-          m(foo_bar: number);
+          new(foo_bar1: number);
+          m(foo_bar2: number);
         }`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          {
-            message: `Rename this parameter "foo_bar" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
+          error("foo_bar1", "parameter", DEFAULT_FORMAT),
+          error("foo_bar2", "parameter", DEFAULT_FORMAT),
         ],
       },
       {
         code: `
         class c {
-          "foo_bar": number;
+          "foo_bar": number; // Compliant
           foo_bar1: number;
           constructor(foo_bar2: number, readonly foo_bar3: number) {}
           m(foo_bar4: number) {}
@@ -191,32 +169,24 @@ ruleTester.run(
         }`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          {
-            message: `Rename this property "foo_bar1" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar2" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar3" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar4" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
-          {
-            message: `Rename this parameter "foo_bar5" to match the regular expression ${DEFAULT_FORMAT}.`,
-          },
+          error("foo_bar1", "property", DEFAULT_FORMAT),
+          error("foo_bar2", "parameter", DEFAULT_FORMAT),
+          error("foo_bar3", "parameter", DEFAULT_FORMAT),
+          error("foo_bar4", "parameter", DEFAULT_FORMAT),
+          error("foo_bar5", "parameter", DEFAULT_FORMAT),
         ],
       },
       {
         code: `let custom_format`,
         options: [{ format: CUSTOM_FORMAT }],
-        errors: [
-          {
-            message: `Rename this local variable "custom_format" to match the regular expression ${CUSTOM_FORMAT}.`,
-          },
-        ],
+        errors: [error("custom_format", "local variable", CUSTOM_FORMAT)],
       },
     ],
   },
 );
+
+function error(symbol: string, symbolType: string, format: string) {
+  return {
+    message: `Rename this ${symbolType} "${symbol}" to match the regular expression ${format}.`,
+  };
+}
