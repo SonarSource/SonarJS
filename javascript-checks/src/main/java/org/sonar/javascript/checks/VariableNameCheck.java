@@ -32,10 +32,10 @@ import org.sonar.javascript.checks.annotations.TypeScriptRule;
 @Rule(key = "S117")
 public class VariableNameCheck extends EslintBasedCheck {
 
-  private static final String CAMEL_CAMEL_CASED = "^[_$A-Za-z][$A-Za-z0-9]*$";
+  private static final String CAMEL_CASED = "^[_$A-Za-z][$A-Za-z0-9]*$";
   private static final String UPPER_CASED = "^[_$A-Z][_$A-Z0-9]+$";
 
-  private static final String DEFAULT_FORMAT = CAMEL_CAMEL_CASED + "|" + UPPER_CASED;
+  private static final String DEFAULT_FORMAT = CAMEL_CASED + "|" + UPPER_CASED;
 
   @RuleProperty(
       key = "format",
