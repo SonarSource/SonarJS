@@ -42,7 +42,7 @@ ruleTester.run("Exception should not be created without being thrown", rule, {
       code: `new Error();`,
       errors: [
         {
-          message: "Throw this exception/error or remove this useless statement.",
+          message: "Throw this error or remove this useless statement.",
           line: 1,
           column: 1,
           endLine: 1,

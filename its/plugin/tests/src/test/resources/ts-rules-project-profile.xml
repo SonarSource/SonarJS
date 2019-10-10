@@ -35,7 +35,7 @@
     </rule>
     <rule>
       <repositoryKey>typescript</repositoryKey>
-      <key>S3984</key>    <!-- no-misused-new -->
+      <key>S3984</key>    <!-- no-unthrown-error -->
       <priority>INFO</priority>
     </rule>
     <rule>

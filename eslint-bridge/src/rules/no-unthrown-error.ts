@@ -22,7 +22,7 @@
 import { Rule } from "eslint";
 import * as estree from "estree";
 
-const message = "Throw this exception/error or remove this useless statement.";
+const message = "Throw this error or remove this useless statement.";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
