@@ -89,18 +89,23 @@ public class JavaScriptRulingTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    ProfileGenerator.RulesConfiguration rulesConfiguration = new ProfileGenerator.RulesConfiguration()
+    ProfileGenerator.RulesConfiguration jsRulesConfiguration = new ProfileGenerator.RulesConfiguration()
       .add("S1451", "headerFormat", "// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.")
       .add("S1451", "isRegularExpression", "true")
       // to test parameters for eslint-based rules
       .add("S1192", "threshold", "4")
       .add("S2762", "threshold", "1");
+
+    ProfileGenerator.RulesConfiguration tsRulesConfiguration = new ProfileGenerator.RulesConfiguration()
+      // should be no issue only on files starting with a single-line comment
+      .add("S1451", "headerFormat", "//.*")
+      .add("S1451", "isRegularExpression", "true");
     Set<String> excludedRules = Collections.singleton("CommentRegularExpression");
-    File jsProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "js", "javascript", rulesConfiguration, excludedRules);
+    File jsProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "js", "javascript", jsRulesConfiguration, excludedRules);
     File tsProfile = ProfileGenerator.generateProfile(
       orchestrator.getServer().getUrl(),
       "ts", "typescript",
-      new ProfileGenerator.RulesConfiguration(),
+      tsRulesConfiguration,
       new HashSet<>());
 
     orchestrator.getServer()

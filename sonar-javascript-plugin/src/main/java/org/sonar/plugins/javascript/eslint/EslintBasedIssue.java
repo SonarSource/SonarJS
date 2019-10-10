@@ -46,7 +46,9 @@ class EslintBasedIssue {
     if (issue.endLine != null) {
       location.at(file.newRange(issue.line, issue.column, issue.endLine, issue.endColumn));
     } else {
-      location.at(file.selectLine(issue.line));
+      if (issue.line != 0) {
+        location.at(file.selectLine(issue.line));
+      }
     }
 
     issue.secondaryLocations.forEach(secondary -> {
