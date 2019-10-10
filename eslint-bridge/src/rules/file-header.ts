@@ -23,28 +23,29 @@ import { Rule } from "eslint";
 
 const message = "Add or update the header of this file.";
 
+let cached: {
+  headerFormat: string;
+  isRegularExpression: boolean;
+  expectedLines?: string[];
+  searchPattern?: RegExp;
+  failedToCompile?: boolean;
+};
+
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    const [{ headerFormat, isRegularExpression }] = context.options;
-    const expectedLines = headerFormat.split(/(?:\r)?\n|\r/);
-    let searchPattern: RegExp;
-    if (isRegularExpression) {
-      try {
-        searchPattern = new RegExp(headerFormat, "s");
-      } catch (e) {
-        console.error("Failed to compile regular expression for rule S1451");
-        console.error(e.message);
-        // don't visit anything
-        return {};
-      }
+    updateCache(context.options);
+
+    if (cached.failedToCompile) {
+      // don't visit anything
+      return {};
     }
 
     return {
       "Program:exit": function() {
-        if (isRegularExpression) {
-          checkRegularExpression(searchPattern, context);
+        if (cached.isRegularExpression) {
+          checkRegularExpression(cached.searchPattern!, context);
         } else {
-          checkPlainText(expectedLines, context);
+          checkPlainText(cached.expectedLines!, context);
         }
       },
     };
@@ -87,4 +88,31 @@ function addFileIssue(context: Rule.RuleContext) {
     message,
     loc: { line: 0, column: 0 },
   });
+}
+
+function updateCache(options: any[]) {
+  const [{ headerFormat, isRegularExpression }] = options;
+
+  if (
+    !cached ||
+    cached.headerFormat !== headerFormat ||
+    cached.isRegularExpression !== isRegularExpression
+  ) {
+    cached = {
+      headerFormat,
+      isRegularExpression,
+    };
+
+    if (isRegularExpression) {
+      try {
+        cached.searchPattern = new RegExp(headerFormat, "s");
+        cached.failedToCompile = false;
+      } catch (e) {
+        console.error(`Failed to compile regular expression for rule S1451 (${e.message})`);
+        cached.failedToCompile = true;
+      }
+    } else {
+      cached.expectedLines = headerFormat.split(/(?:\r)?\n|\r/);
+    }
+  }
 }
