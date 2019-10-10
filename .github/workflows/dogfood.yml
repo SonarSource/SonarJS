@@ -1,0 +1,27 @@
+name: dogfood merge
+# This workflow is triggered on pushes to master and dogfood branches
+on: 
+  push:
+    branches:
+      - master
+      - 'dogfood/*'
+  delete:
+    branches: 
+      - 'dogfood/*'
+    
+
+jobs:
+  dogfood_merge:
+    runs-on: ubuntu-latest
+    name: Update dogfood branch
+    steps:
+    - name: git octopus step      
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      id: dogfood
+      uses: SonarSource/gh-action_dogfood_merge@master
+      with:
+        dogfood-branch: 'dogfood-on-next'
+    # Use the output from the `dogfood` step
+    - name: Get the name of the dogfood branch and its HEAD SHA1
+      run: echo "The dogfood branch was ${{ steps.dogfood.outputs.dogfood-branch }} and its HEAD SHA1 was ${{ steps.dogfood.outputs.sha1 }}"
