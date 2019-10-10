@@ -49,6 +49,23 @@ build_task:
   cleanup_before_cache_script:
     - rm -rf "$HOME/.m2/repository/org/sonarsource/"
 
+
+build_win_task:
+  depends_on:
+    - build
+  gce_instance:
+    image_project: sonarsource-peachee-languages
+    image_name: windows-peachee-languages
+    platform: windows
+    zone: us-central1-a
+    preemptible: false
+    disk: 60
+    cpu: 2
+    memory: 7G
+    use_ssd: true
+  build_script:
+    - mvn clean install
+
 plugin_qa_task:
   depends_on:
     - build
