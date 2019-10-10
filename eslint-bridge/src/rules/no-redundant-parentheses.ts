@@ -21,9 +21,8 @@
 
 import { AST, Rule, SourceCode } from "eslint";
 import * as estree from "estree";
-import { IssueLocation } from "../analyzer";
-import { EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { toEncodedMessage } from "./utils";
 
 interface ParenthesesPair {
   openingParenthesis: AST.Token;
@@ -65,7 +64,9 @@ function checkRedundantParentheses(
 
   parenthesesPairsAroundNode.forEach(parentheses => {
     context.report({
-      message: toEncodedMessage(parentheses.closingParenthesis),
+      message: toEncodedMessage(`Remove these useless parentheses.`, [
+        parentheses.closingParenthesis,
+      ]),
       loc: parentheses.openingParenthesis.loc,
     });
   });
@@ -101,21 +102,4 @@ function isInParentNodeParentheses(node: estree.Node, parent: estree.Node): bool
     parent.arguments.includes(node as estree.Expression);
 
   return nodeIsInConditionOfParent || nodeIsArgumentOfCallExpression;
-}
-
-function toEncodedMessage(secondaryLocationToken: AST.Token): string {
-  const encodedMessage: EncodedMessage = {
-    message: `Remove these useless parentheses.`,
-    secondaryLocations: [toSecondaryLocation(secondaryLocationToken)],
-  };
-  return JSON.stringify(encodedMessage);
-}
-
-function toSecondaryLocation(secondaryLocation: AST.Token): IssueLocation {
-  return {
-    column: secondaryLocation.loc.start.column,
-    line: secondaryLocation.loc.start.line,
-    endColumn: secondaryLocation.loc.end.column,
-    endLine: secondaryLocation.loc.end.line,
-  };
 }
