@@ -17,30 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from "estree";
-import { SourceCode } from "eslint";
+package org.sonar.javascript.checks;
 
-export default function visit(sourceCode: SourceCode, callback: (node: estree.Node) => void): void {
-  const stack: estree.Node[] = [sourceCode.ast];
-  while (stack.length) {
-    const node = stack.pop() as estree.Node;
-    callback(node);
-    stack.push(...childrenOf(node, sourceCode.visitorKeys).reverse());
-  }
-}
+import org.junit.Test;
 
-export function childrenOf(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): estree.Node[] {
-  const keys = visitorKeys[node.type];
-  const children = [];
-  if (keys) {
-    for (const key of keys) {
-      const child = (node as any)[key];
-      if (Array.isArray(child)) {
-        children.push(...child);
-      } else {
-        children.push(child);
-      }
-    }
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class McCabeComplexityCheckTest {
+
+  @Test
+  public void configurations() {
+    McCabeComplexityCheck check = new McCabeComplexityCheck();
+    // default configuration
+    assertThat(check.configurations()).containsExactly(10);
+    // custom configuration
+    check.threshold = 15;
+    assertThat(check.configurations()).containsExactly(15);
   }
-  return children.filter(Boolean);
 }
