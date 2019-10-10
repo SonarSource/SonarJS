@@ -23,64 +23,50 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <configuration>
-          <installDirectory>target</installDirectory>
-        </configuration>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>install node and yarn</id>
-            <goals>
-              <goal>install-node-and-yarn</goal>
-            </goals>
-            <configuration>
-              <nodeVersion>${node.version}</nodeVersion>
-              <yarnVersion>${yarn.version}</yarnVersion>
-            </configuration>
-          </execution>
-          <execution>
-            <!-- node installation is cached, only npm will be installed -->
-            <id>install npm</id>
-            <goals>
-              <goal>install-node-and-npm</goal>
-            </goals>
-            <configuration>
-              <nodeVersion>${node.version}</nodeVersion>
-            </configuration>
-          </execution>
-          <execution>
             <id>yarn install</id>
-            <goals>
-              <goal>yarn</goal>
-            </goals>
-          </execution>
-          <execution>
             <phase>generate-resources</phase>
-            <id>yarn run script</id>
-            <goals>
-              <goal>yarn</goal>
-            </goals>
             <configuration>
-              <arguments>run build</arguments>
+              <executable>yarn</executable>
+              <arguments>
+                <argument>install</argument>
+              </arguments>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>yarn build</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>yarn</executable>
+              <arguments>build</arguments>
             </configuration>
           </execution>
           <execution>
+            <id>yarn test</id>
             <phase>test</phase>
-            <id>yarn run test</id>
             <goals>
-              <goal>yarn</goal>
+              <goal>exec</goal>
             </goals>
             <configuration>
-              <arguments>run test --coverage</arguments>
+              <executable>yarn</executable>
+              <commandlineArgs>test --coverage</commandlineArgs>
             </configuration>
           </execution>
           <execution>
+            <id>yarn jar</id>
             <phase>prepare-package</phase>
             <goals>
-              <goal>yarn</goal>
+              <goal>exec</goal>
             </goals>
             <configuration>
+              <executable>yarn</executable>
               <arguments>jar</arguments>
             </configuration>
           </execution>
