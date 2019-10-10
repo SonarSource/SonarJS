@@ -19,6 +19,7 @@ container_definition: &CONTAINER_DEFINITION
   cluster_name: cirrus-ci-lt-cluster
   zone: us-central1-a
   namespace: default
+  use_in_memory_disk: true
 
 plugin_qa_definition: &PLUGIN_QA_DEFINITION
   qa_script:
