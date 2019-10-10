@@ -177,6 +177,7 @@ public final class CheckList {
       NewOperatorMisuseCheck.class,
       NoAnyCheck.class,
       NoDuplicateImportsCheck.class,
+      NoDuplicateInCompositeCheck.class,
       NoDuplicateStringCheck.class,
       NoElementOverwriteCheck.class,
       NoEmptyInterfaceCheck.class,

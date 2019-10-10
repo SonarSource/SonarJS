@@ -21,6 +21,7 @@ import { AST, Rule, Scope } from "eslint";
 import * as estree from "estree";
 import { EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
 import { IssueLocation } from "../analyzer";
+import { TSESTree } from "@typescript-eslint/experimental-utils";
 
 /**
  * Returns the module name, when an identifier represents a namespace for that module.
@@ -159,16 +160,26 @@ export function isRequireModule(node: estree.CallExpression, ...moduleNames: str
   return false;
 }
 
-export function toEncodedMessage(message: string, secondaryLocationsToken: AST.Token[]): string {
+export function toEncodedMessage(
+  message: string,
+  secondaryLocationsToken: Array<AST.Token | TSESTree.Node>,
+  secondaryMessages?: string[],
+): string {
   const encodedMessage: EncodedMessage = {
     message,
-    secondaryLocations: secondaryLocationsToken.map(token => toSecondaryLocation(token)),
+    secondaryLocations: secondaryLocationsToken.map((token, index) =>
+      toSecondaryLocation(token, !!secondaryMessages ? secondaryMessages[index] : undefined),
+    ),
   };
   return JSON.stringify(encodedMessage);
 }
 
-function toSecondaryLocation(secondaryLocation: AST.Token): IssueLocation {
+function toSecondaryLocation(
+  secondaryLocation: AST.Token | TSESTree.Node,
+  message?: string,
+): IssueLocation {
   return {
+    message,
     column: secondaryLocation.loc.start.column,
     line: secondaryLocation.loc.start.line,
     endColumn: secondaryLocation.loc.end.column,

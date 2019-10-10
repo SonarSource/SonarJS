@@ -1,0 +1,31 @@
+<p>The TypeScript type system offers a basic support for composite types:</p>
+<ul>
+  <li> <em>Union Types</em> represent a value that can be one of the several types. They are constructed using a vertical bar (<code>|</code>) like
+  the following <code>type NumberOrString = number | string</code>. </li>
+  <li> <em>Intersection Types</em> combine multiple types into one, so that the object of such type will have all the members of all intersection type
+  elements. They are constructed using an ampersand (<code>&amp;</code>) like the following <code>type SerializablePerson = Person &amp;
+  Serializable</code>. Intersection Types are often used to represent mixins. </li>
+</ul>
+<p>Duplicating types when defining a union or interaction type makes the code less readable. Moreover duplicated types might be a simple mistake and
+another type should be used instead.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function padLeft(value: string, padding: string | number | string) { // Noncompliant; 'string' type is used twice in a union type declaration
+  // ...
+}
+
+function extend(p : Person) : Person &amp; Person &amp; Loggable { // Noncompliant; 'Person' is used twice
+ // ...
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function padLeft(value: string, padding: string | number | boolean) {
+  // ...
+}
+
+function extend(p : Person) : Person &amp; Loggable {
+  // ...
+}
+</pre>
+
