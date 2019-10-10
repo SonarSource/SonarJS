@@ -111,61 +111,6 @@ ruleTester.run("Conditionals should start on new lines", rule, {
     },
     {
       code: `
-      if (cond1) {
-      } else if (cond2) {
-      } if (cond3) {
-      }`,
-      errors: [
-        {
-          message:
-            '{"message":"Move this \\"if\\" to a new line or add the missing \\"else\\".","secondaryLocations":[{"column":6,"line":4,"endColumn":7,"endLine":4}]}',
-          line: 4,
-          endLine: 4,
-          column: 9,
-          endColumn: 11,
-        },
-      ],
-    },
-    {
-      code: `
-      if (cond1)
-        if (cond2) {
-          if (cond3) {
-          } if (cond4) {
-          }
-        }`,
-      errors: [
-        {
-          message:
-            '{"message":"Move this \\"if\\" to a new line or add the missing \\"else\\".","secondaryLocations":[{"column":10,"line":5,"endColumn":11,"endLine":5}]}',
-          line: 5,
-          endLine: 5,
-          column: 13,
-          endColumn: 15,
-        },
-      ],
-    },
-    {
-      code: `
-      function myFunc() {
-        if (cond1) {
-        } else if (cond2) {
-        } if (cond3) {
-        }
-      }`,
-      errors: [
-        {
-          message:
-            '{"message":"Move this \\"if\\" to a new line or add the missing \\"else\\".","secondaryLocations":[{"column":8,"line":5,"endColumn":9,"endLine":5}]}',
-          line: 5,
-          endLine: 5,
-          column: 11,
-          endColumn: 13,
-        },
-      ],
-    },
-    {
-      code: `
       switch(x) {
         case 1:
           if (cond1) {
@@ -196,6 +141,49 @@ ruleTester.run("Conditionals should start on new lines", rule, {
           endLine: 11,
           column: 13,
           endColumn: 15,
+        },
+      ],
+    },
+    {
+      code: `
+      if (cond1) {
+      } else if (cond2) {
+      } if (cond3) {
+      }`,
+      errors: [
+        {
+          message:
+            '{"message":"Move this \\"if\\" to a new line or add the missing \\"else\\".","secondaryLocations":[{"column":6,"line":4,"endColumn":7,"endLine":4}]}',
+        },
+      ],
+    },
+    {
+      code: `
+      if (cond1)
+        if (cond2) {
+          if (cond3) {
+          } if (cond4) {
+          }
+        }`,
+      errors: [
+        {
+          message:
+            '{"message":"Move this \\"if\\" to a new line or add the missing \\"else\\".","secondaryLocations":[{"column":10,"line":5,"endColumn":11,"endLine":5}]}',
+        },
+      ],
+    },
+    {
+      code: `
+      function myFunc() {
+        if (cond1) {
+        } else if (cond2) {
+        } if (cond3) {
+        }
+      }`,
+      errors: [
+        {
+          message:
+            '{"message":"Move this \\"if\\" to a new line or add the missing \\"else\\".","secondaryLocations":[{"column":8,"line":5,"endColumn":9,"endLine":5}]}',
         },
       ],
     },

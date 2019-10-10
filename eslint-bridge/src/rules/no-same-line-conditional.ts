@@ -39,42 +39,40 @@ export const rule: Rule.RuleModule = {
   },
 
   create(context: Rule.RuleContext) {
-    return {
-      "Program, BlockStatement, FunctionBody, SwitchCase": function(node: estree.Node) {
-        const sourceCode = context.getSourceCode();
-        const siblingIfStatements = getSiblingIfStatements(node);
+    function checkStatements(statements: estree.Node[]) {
+      const sourceCode = context.getSourceCode();
+      const siblingIfStatements = getSiblingIfStatements(statements);
 
-        siblingIfStatements.forEach(siblingIfStatement => {
-          const precedingIf = siblingIfStatement.first;
-          const followingIf = siblingIfStatement.following;
+      siblingIfStatements.forEach(siblingIfStatement => {
+        const precedingIf = siblingIfStatement.first;
+        const followingIf = siblingIfStatement.following;
+        if (
+          !!precedingIf.loc &&
+          !!followingIf.loc &&
+          precedingIf.loc.end.line === followingIf.loc.start.line &&
+          precedingIf.loc.start.line !== followingIf.loc.end.line
+        ) {
           const precedingIfLastToken = sourceCode.getLastToken(precedingIf) as AST.Token;
           const followingIfToken = sourceCode.getFirstToken(followingIf) as AST.Token;
-          if (
-            !!precedingIf.loc &&
-            !!followingIf.loc &&
-            precedingIf.loc.end.line === followingIf.loc.start.line &&
-            precedingIf.loc.start.line !== followingIf.loc.end.line
-          ) {
-            context.report({
-              message: toEncodedMessage(`Move this "if" to a new line or add the missing "else".`, [
-                precedingIfLastToken,
-              ]),
-              loc: followingIfToken.loc,
-            });
-          }
-        });
-      },
+          context.report({
+            message: toEncodedMessage(`Move this "if" to a new line or add the missing "else".`, [
+              precedingIfLastToken,
+            ]),
+            loc: followingIfToken.loc,
+          });
+        }
+      });
+    }
+
+    return {
+      Program: (node: estree.Node) => checkStatements((node as estree.Program).body),
+      BlockStatement: (node: estree.Node) => checkStatements((node as estree.BlockStatement).body),
+      SwitchCase: (node: estree.Node) => checkStatements((node as estree.SwitchCase).consequent),
     };
   },
 };
 
-function getSiblingIfStatements(node: estree.Node): SiblingIfStatement[] {
-  let statements: Array<estree.Node> = [];
-  if (node.type === "Program" || node.type === "BlockStatement") {
-    statements = node.body;
-  } else if (node.type === "SwitchCase") {
-    statements = node.consequent;
-  }
+function getSiblingIfStatements(statements: estree.Node[]): SiblingIfStatement[] {
   return statements.reduce<SiblingIfStatement[]>((siblingsArray, statement, currentIndex) => {
     const previousStatement = statements[currentIndex - 1];
     if (
