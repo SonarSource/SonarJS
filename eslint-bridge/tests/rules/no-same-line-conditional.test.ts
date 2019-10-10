@@ -19,17 +19,22 @@
  */
 import { RuleTester } from "eslint";
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const tsParserPath = require.resolve("@typescript-eslint/parser");
+const ruleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parser: tsParserPath,
+});
 import { rule } from "../../src/rules/no-same-line-conditional";
 
 ruleTester.run("Conditionals should start on new lines", rule, {
   valid: [
     {
       code: `
-      if (cond1) {
-      } else if (cond2) {
-      } else {
-      }`,
+      if (cond1)
+        if (cond2) {
+          if (cond3) {
+          }
+        }`,
     },
     {
       code: `
@@ -59,6 +64,32 @@ ruleTester.run("Conditionals should start on new lines", rule, {
     {
       // OK if everything is on one line
       code: `if (cond1) foo(); if (cond2) bar();`,
+    },
+    {
+      code: `
+      function myFunc() {
+        if (cond1) {
+        } else if (cond2) {
+        } else if (cond3) {
+        }
+      }`,
+    },
+    {
+      code: `
+      switch(x) {
+        case 1:
+          if (cond1) {
+          } else if (cond2) {
+          } else if (cond3) {
+          }
+          break;
+        default:
+          if (cond1) {
+          } else if (cond2) {
+          } else if (cond3) {
+          }
+          break;
+      }`,
     },
   ],
   invalid: [
@@ -92,6 +123,79 @@ ruleTester.run("Conditionals should start on new lines", rule, {
           endLine: 4,
           column: 9,
           endColumn: 11,
+        },
+      ],
+    },
+    {
+      code: `
+      if (cond1)
+        if (cond2) {
+          if (cond3) {
+          } if (cond4) {
+          }
+        }`,
+      errors: [
+        {
+          message:
+            '{"message":"Move this \\"if\\" to a new line or add the missing \\"else\\".","secondaryLocations":[{"column":10,"line":5,"endColumn":11,"endLine":5}]}',
+          line: 5,
+          endLine: 5,
+          column: 13,
+          endColumn: 15,
+        },
+      ],
+    },
+    {
+      code: `
+      function myFunc() {
+        if (cond1) {
+        } else if (cond2) {
+        } if (cond3) {
+        }
+      }`,
+      errors: [
+        {
+          message:
+            '{"message":"Move this \\"if\\" to a new line or add the missing \\"else\\".","secondaryLocations":[{"column":8,"line":5,"endColumn":9,"endLine":5}]}',
+          line: 5,
+          endLine: 5,
+          column: 11,
+          endColumn: 13,
+        },
+      ],
+    },
+    {
+      code: `
+      switch(x) {
+        case 1:
+          if (cond1) {
+          } else if (cond2) {
+          } if (cond3) {
+          }
+          break;
+        default:
+          if (cond1) {
+          } if (cond2) {
+          } else if (cond3) {
+          }
+          break;
+      }`,
+      errors: [
+        {
+          message:
+            '{"message":"Move this \\"if\\" to a new line or add the missing \\"else\\".","secondaryLocations":[{"column":10,"line":6,"endColumn":11,"endLine":6}]}',
+          line: 6,
+          endLine: 6,
+          column: 13,
+          endColumn: 15,
+        },
+        {
+          message:
+            '{"message":"Move this \\"if\\" to a new line or add the missing \\"else\\".","secondaryLocations":[{"column":10,"line":11,"endColumn":11,"endLine":11}]}',
+          line: 11,
+          endLine: 11,
+          column: 13,
+          endColumn: 15,
         },
       ],
     },

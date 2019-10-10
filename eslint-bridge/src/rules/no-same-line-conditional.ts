@@ -23,6 +23,11 @@ import { AST, Rule } from "eslint";
 import * as estree from "estree";
 import { toEncodedMessage } from "./utils";
 
+interface SiblingIfStatement {
+  first: estree.IfStatement;
+  following: estree.IfStatement;
+}
+
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
@@ -35,31 +40,50 @@ export const rule: Rule.RuleModule = {
 
   create(context: Rule.RuleContext) {
     return {
-      "IfStatement + IfStatement": function(node: estree.Node) {
+      "Program, BlockStatement, FunctionBody, SwitchCase": function(node: estree.Node) {
         const sourceCode = context.getSourceCode();
-        const previousIfToken = sourceCode.getTokenBefore(
-          node,
-          token => token.value === "if",
-        ) as AST.Token;
-        const precedingIfStatement = sourceCode.getNodeByRangeIndex(
-          previousIfToken.range[0],
-        ) as estree.Node;
-        const precedingIfLastToken = sourceCode.getLastToken(precedingIfStatement) as AST.Token;
-        const followingIfToken = sourceCode.getFirstToken(node) as AST.Token;
+        const siblingIfStatements = getSiblingIfStatements(node);
 
-        if (
-          !!precedingIfStatement.loc &&
-          precedingIfStatement.loc.end.line === followingIfToken.loc.start.line &&
-          precedingIfStatement.loc.start.line !== followingIfToken.loc.end.line
-        ) {
-          context.report({
-            message: toEncodedMessage(`Move this "if" to a new line or add the missing "else".`, [
-              precedingIfLastToken,
-            ]),
-            loc: followingIfToken.loc,
-          });
-        }
+        siblingIfStatements.forEach(siblingIfStatement => {
+          const precedingIf = siblingIfStatement.first;
+          const followingIf = siblingIfStatement.following;
+          const precedingIfLastToken = sourceCode.getLastToken(precedingIf) as AST.Token;
+          const followingIfToken = sourceCode.getFirstToken(followingIf) as AST.Token;
+          if (
+            !!precedingIf.loc &&
+            !!followingIf.loc &&
+            precedingIf.loc.end.line === followingIf.loc.start.line &&
+            precedingIf.loc.start.line !== followingIf.loc.end.line
+          ) {
+            context.report({
+              message: toEncodedMessage(`Move this "if" to a new line or add the missing "else".`, [
+                precedingIfLastToken,
+              ]),
+              loc: followingIfToken.loc,
+            });
+          }
+        });
       },
     };
   },
 };
+
+function getSiblingIfStatements(node: estree.Node): SiblingIfStatement[] {
+  let statements: Array<estree.Node> = [];
+  if (node.type === "Program" || node.type === "BlockStatement") {
+    statements = node.body;
+  } else if (node.type === "SwitchCase") {
+    statements = node.consequent;
+  }
+  return statements.reduce<SiblingIfStatement[]>((siblingsArray, statement, currentIndex) => {
+    const previousStatement = statements[currentIndex - 1];
+    if (
+      statement.type === "IfStatement" &&
+      !!previousStatement &&
+      previousStatement.type === "IfStatement"
+    ) {
+      return [{ first: previousStatement, following: statement }, ...siblingsArray];
+    }
+    return siblingsArray;
+  }, []);
+}
