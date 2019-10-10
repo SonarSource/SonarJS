@@ -3628,6 +3628,9 @@
 632,
 633,
 ],
+'js-project:jest/packages/jest-haste-map/src/index.js':[
+278,
+],
 'js-project:jest/packages/jest-jasmine2/src/jasmine/js_api_reporter.js':[
 70,
 ],

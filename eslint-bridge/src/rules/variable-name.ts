@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
     return {
       VariableDeclaration: (node: estree.Node) =>
         checkVariable(node as TSESTree.VariableDeclaration, context),
-      ":function, TSDeclareFunction, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression": (
+      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSDeclareFunction, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression": (
         node: estree.Node,
       ) => checkFunction(node as FunctionLike, context),
       ClassProperty: (node: estree.Node) =>
@@ -99,6 +99,9 @@ function resolveIdentifiers(node: TSESTree.Node): TSESTree.Identifier[] {
 }
 
 function resolveIdentifiersAcc(node: TSESTree.Node, identifiers: TSESTree.Identifier[]): void {
+  if (!node) {
+    return;
+  }
   switch (node.type) {
     case "Identifier":
       identifiers.push(node);
