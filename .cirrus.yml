@@ -94,8 +94,8 @@ ruling_task:
   gke_container:
     dockerfile: .cirrus/nodejs-lts.Dockerfile
     <<: *CONTAINER_DEFINITION
-    cpu: 3
-    memory: 8G
+    cpu: 4
+    memory: 12G
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
