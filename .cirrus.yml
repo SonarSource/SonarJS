@@ -109,12 +109,14 @@ plugin_qa_nodejs12_task:
     - rm -rf "$HOME/.m2/repository/org/sonarsource/"
 
 plugin_qa_win_task:
+  depends_on:
+    - build
   <<: *WINDOWS_VM_DEFINITION
+  env:
+    SONARSOURCE_QA: true
   qa_script:
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - cd its/plugin
-    - mvn verify -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V
+    - cd its\plugin
+    - mvn.cmd verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
 
 ruling_task:
   depends_on:
