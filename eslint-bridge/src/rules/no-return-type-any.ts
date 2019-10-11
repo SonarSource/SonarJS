@@ -21,7 +21,6 @@
 
 import { Rule } from "eslint";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { TypeFlags, Type } from "typescript";
 import { isRequiredParserServices } from "../utils/isRequiredParserServices";
 import * as estree from "estree";
 
@@ -33,56 +32,63 @@ const message = "Remove this return type or change it to a more specific.";
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-    if (isRequiredParserServices(services)) {
-      let returnedExpressions: returnsArrayType = [];
-      const checker = services.program.getTypeChecker();
+    try {
+      const ts = require("typescript");
 
-      function allReturnTypesEqual(returns: returnsArrayType): boolean {
-        const firstReturnType = getTypeFromTreeNode(returns.pop());
-        if (!!firstReturnType && !!isPrimitiveType(firstReturnType)) {
-          return returns.every(nextReturn => {
-            const nextReturnType = getTypeFromTreeNode(nextReturn);
-            return !!nextReturnType && nextReturnType.flags === firstReturnType.flags;
-          });
-        }
-        return false;
-      }
+      if (isRequiredParserServices(services)) {
+        let returnedExpressions: returnsArrayType = [];
+        const checker = services.program.getTypeChecker();
 
-      function getTypeFromTreeNode(node: returnsTypes) {
-        return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
-      }
-
-      function isPrimitiveType({ flags }: Type) {
-        return (
-          flags & TypeFlags.BooleanLike ||
-          flags & TypeFlags.NumberLike ||
-          flags & TypeFlags.StringLike ||
-          flags & TypeFlags.EnumLike
-        );
-      }
-
-      return {
-        ReturnStatement(node: estree.Node) {
-          returnedExpressions.push((node as estree.ReturnStatement).argument);
-        },
-        "FunctionDeclaration:exit": function(node: estree.Node) {
-          const returnType = (node as TSESTree.FunctionDeclaration).returnType;
-          if (
-            returnType &&
-            returnType.typeAnnotation.type === "TSAnyKeyword" &&
-            returnedExpressions.length > 0 &&
-            allReturnTypesEqual(returnedExpressions)
-          ) {
-            context.report({
-              message,
-              loc: returnType.loc,
+        function allReturnTypesEqual(returns: returnsArrayType): boolean {
+          const firstReturnType = getTypeFromTreeNode(returns.pop());
+          if (!!firstReturnType && !!isPrimitiveType(firstReturnType)) {
+            return returns.every(nextReturn => {
+              const nextReturnType = getTypeFromTreeNode(nextReturn);
+              return !!nextReturnType && nextReturnType.flags === firstReturnType.flags;
             });
           }
-          returnedExpressions = [];
-        },
-      };
-    } else {
-      return {};
+          return false;
+        }
+
+        function getTypeFromTreeNode(node: returnsTypes) {
+          return checker.getTypeAtLocation(
+            services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node),
+          );
+        }
+
+        function isPrimitiveType({ flags }: any) {
+          return (
+            flags & ts.TypeFlags.BooleanLike ||
+            flags & ts.TypeFlags.NumberLike ||
+            flags & ts.TypeFlags.StringLike ||
+            flags & ts.TypeFlags.EnumLike
+          );
+        }
+
+        return {
+          ReturnStatement(node: estree.Node) {
+            returnedExpressions.push((node as estree.ReturnStatement).argument);
+          },
+          "FunctionDeclaration:exit": function(node: estree.Node) {
+            const returnType = (node as TSESTree.FunctionDeclaration).returnType;
+            if (
+              returnType &&
+              returnType.typeAnnotation.type === "TSAnyKeyword" &&
+              returnedExpressions.length > 0 &&
+              allReturnTypesEqual(returnedExpressions)
+            ) {
+              context.report({
+                message,
+                loc: returnType.loc,
+              });
+            }
+            returnedExpressions = [];
+          },
+        };
+      }
+    } catch {
+      //Do nothing
     }
+    return {};
   },
 };
