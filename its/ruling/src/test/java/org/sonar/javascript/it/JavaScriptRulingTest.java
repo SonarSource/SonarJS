@@ -56,7 +56,7 @@ public class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
 
-  private static final Location TS_PLUGIN_LOCATION = MavenLocation.of("org.sonarsource.typescript", "sonar-typescript-plugin", "DOGFOOD");
+  private static final Location TS_PLUGIN_LOCATION = MavenLocation.of("org.sonarsource.typescript", "sonar-typescript-plugin", "LATEST_RELEASE");
 
   private static final List<String> RULES_PROVIDED_BY_SONARTS = Arrays.asList(
     "S101",
