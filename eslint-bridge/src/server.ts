@@ -30,6 +30,7 @@ import {
 } from "./analyzer";
 import { AddressInfo } from "net";
 import { unloadTypeScriptEslint, ParseExceptionCode } from "./parser";
+import { getFilesForTsConfig } from "./tsconfig";
 
 const MAX_REQUEST_SIZE = "50mb";
 
@@ -59,6 +60,16 @@ export function startServer(
     app.post("/new-tsconfig", (_request: express.Request, response: express.Response) => {
       unloadTypeScriptEslint();
       response.send("OK!");
+    });
+
+    app.post("/tsconfig-files", (request: express.Request, response: express.Response) => {
+      try {
+        const tsconfig = request.body.tsconfig;
+        response.json(getFilesForTsConfig(tsconfig));
+      } catch (e) {
+        console.error(e.stack);
+        response.json([]);
+      }
     });
 
     app.get("/status", (_: express.Request, resp: express.Response) => resp.send("OK!"));

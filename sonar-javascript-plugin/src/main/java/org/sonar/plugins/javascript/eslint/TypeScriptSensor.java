@@ -110,7 +110,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   private void splitAnalysisByTsConfig(List<InputFile> inputFiles) {
-    Map<String, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(tsconfigs, inputFiles);
+    Map<String, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(tsconfigs, inputFiles, eslintBridgeServer);
     for (Map.Entry<String, List<InputFile>> entry : filesByTsConfig.entrySet()) {
       String tsConfigFile = entry.getKey();
       List<InputFile> files = entry.getValue();

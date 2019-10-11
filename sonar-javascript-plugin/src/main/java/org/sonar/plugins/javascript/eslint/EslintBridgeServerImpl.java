@@ -84,10 +84,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     this(configuration, nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION);
   }
 
-  EslintBridgeServerImpl(Configuration configuration,
-                         NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
-                         String startServerScript,
-                         String bundleLocation
+  EslintBridgeServerImpl(
+    Configuration configuration,
+    NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
+    String startServerScript,
+    String bundleLocation
   ) {
     this.configuration = configuration;
     this.nodeCommandBuilder = nodeCommandBuilder;
@@ -254,6 +255,22 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       LOG.error("Failed to post new-tsconfig", e);
     }
     return false;
+  }
+
+  @Override
+  public String[] tsConfigFiles(String tsconfigAbsolutePath) {
+    String result = "";
+    try {
+      result = request("{ \"tsconfig\":  \"" + tsconfigAbsolutePath + "\" }", "tsconfig-files");
+      return GSON.fromJson(result, String[].class);
+    } catch (IOException e) {
+      LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
+    } catch (JsonSyntaxException e) {
+      LOG.error("Failed to parse response when requesting files for tsconfig: " + tsconfigAbsolutePath + ": \n-----\n" + result + "\n-----\n");
+    }
+
+
+    return new String[0];
   }
 
   @Override

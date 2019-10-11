@@ -233,6 +233,24 @@ describe("server", () => {
     // see https://github.com/facebook/jest/issues/6725
   });
 
+  it("should return list of files for tsconfig", async () => {
+    const tsconfig = join(__dirname, "./fixtures/ts-project/tsconfig.json");
+    const response = JSON.parse(
+      await post(JSON.stringify({ tsconfig }), "/tsconfig-files"),
+    ) as string[];
+    expect(response).toHaveLength(2);
+    expect(response[0].endsWith("sample.error.lint.ts")).toBeTruthy();
+    expect(response[1].endsWith("sample.lint.ts")).toBeTruthy();
+  });
+
+  it("should return empty list of files for invalid tsconfig", async () => {
+    const tsconfig = join(__dirname, "./fixtures/invalid-tsconfig.json");
+    const response = JSON.parse(
+      await post(JSON.stringify({ tsconfig }), "/tsconfig-files"),
+    ) as string[];
+    expect(response).toHaveLength(0);
+  });
+
   function post(data, endpoint) {
     return postToServer(data, endpoint, server);
   }

@@ -11,6 +11,8 @@ const requestHandler = (request, response) => {
   if (request.url === '/status' || request.url === '/new-tsconfig') {
     response.writeHead(200, { 'Content-Type': 'text/plain' });
     response.end('OK!');
+  } else if (request.url === '/tsconfig-files') {
+    response.end("['abs/path/file1', 'abs/path/file2', 'abs/path/file3']");
   } else {
     response.end("{ issues: [] }");
   }
