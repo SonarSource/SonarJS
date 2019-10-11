@@ -43,8 +43,7 @@ ruleTester.run('"default" clauses should be first or last', rule, {
         }`,
       errors: [
         {
-          message:
-            'Move this "case default" clause to the beginning or end of this "switch" statement.',
+          message: 'Move this "default" clause to the beginning or end of this "switch" statement.',
           line: 5,
           endLine: 5,
           column: 11,

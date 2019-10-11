@@ -22,8 +22,7 @@
 import { Rule } from "eslint";
 import * as estree from "estree";
 
-const message =
-  'Move this "case default" clause to the beginning or end of this "switch" statement.';
+const message = 'Move this "default" clause to the beginning or end of this "switch" statement.';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
