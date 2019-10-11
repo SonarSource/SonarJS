@@ -64,7 +64,7 @@ build_win_task:
     memory: 7G
     use_ssd: true
   maven_cache:
-    folder: "%userprofile%\.m2\repository"
+    folder: "\%userprofile\%\\.m2\\repository"
   build_script:
     - mvn.cmd test
 
