@@ -17,16 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-3984
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import { Rule } from "eslint";
+import * as estree from "estree";
 
-public class SameLineConditionalCheckTest {
+const message = "Throw this error or remove this useless statement.";
 
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new SameLineConditionalCheck(), new File("src/test/resources/checks/SameLineConditional.js"));
-  }
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    function looksLikeAnError(expression: estree.Expression | estree.Super): boolean {
+      const text = context.getSourceCode().getText(expression);
+      return text.endsWith("Error") || text.endsWith("Exception");
+    }
+
+    return {
+      "ExpressionStatement > NewExpression": function(node: estree.Node) {
+        const expression = (node as estree.NewExpression).callee;
+        if (looksLikeAnError(expression)) {
+          context.report({
+            message,
+            node,
+          });
+        }
+      },
+    };
+  },
+};

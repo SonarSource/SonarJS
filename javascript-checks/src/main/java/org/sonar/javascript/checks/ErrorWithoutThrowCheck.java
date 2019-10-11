@@ -21,22 +21,16 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3984")
-public class ErrorWithoutThrowCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Throw this error or remove this useless statement.";
+public class ErrorWithoutThrowCheck extends EslintBasedCheck {
 
   @Override
-  public void visitNewExpression(NewExpressionTree tree) {
-    if (tree.parent().is(Kind.EXPRESSION_STATEMENT) && CheckUtils.asString(tree.expression()).endsWith("Error")) {
-      addIssue(tree, MESSAGE);
-    }
-    super.visitNewExpression(tree);
+  public String eslintKey() {
+    return "no-unthrown-error";
   }
+
 }

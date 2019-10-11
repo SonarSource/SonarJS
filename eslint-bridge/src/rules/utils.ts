@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, Scope } from "eslint";
+import { AST, Rule, Scope } from "eslint";
 import * as estree from "estree";
+import { EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
+import { IssueLocation } from "../analyzer";
 
 /**
  * Returns the module name, when an identifier represents a namespace for that module.
@@ -155,4 +157,21 @@ export function isRequireModule(node: estree.CallExpression, ...moduleNames: str
   }
 
   return false;
+}
+
+export function toEncodedMessage(message: string, secondaryLocationsToken: AST.Token[]): string {
+  const encodedMessage: EncodedMessage = {
+    message,
+    secondaryLocations: secondaryLocationsToken.map(token => toSecondaryLocation(token)),
+  };
+  return JSON.stringify(encodedMessage);
+}
+
+function toSecondaryLocation(secondaryLocation: AST.Token): IssueLocation {
+  return {
+    column: secondaryLocation.loc.start.column,
+    line: secondaryLocation.loc.start.line,
+    endColumn: secondaryLocation.loc.end.column,
+    endLine: secondaryLocation.loc.end.line,
+  };
 }

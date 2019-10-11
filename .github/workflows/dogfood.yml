@@ -21,7 +21,7 @@ jobs:
       id: dogfood
       uses: SonarSource/gh-action_dogfood_merge@master
       with:
-        dogfood-branch: 'dogfood-on-next'
+        dogfood-branch: 'dogfood-on-peach'
     # Use the output from the `dogfood` step
     - name: Get the name of the dogfood branch and its HEAD SHA1
       run: echo "The dogfood branch was ${{ steps.dogfood.outputs.dogfood-branch }} and its HEAD SHA1 was ${{ steps.dogfood.outputs.sha1 }}"
