@@ -63,8 +63,10 @@ build_win_task:
     cpu: 2
     memory: 7G
     use_ssd: true
+  maven_cache:
+    folder: %userprofile%\.m2\repository
   build_script:
-    - mvn.cmd clean install
+    - mvn.cmd test
 
 plugin_qa_task:
   depends_on:
