@@ -66,8 +66,6 @@ build_win_task:
   depends_on:
     - build
   <<: *WINDOWS_VM_DEFINITION
-  maven_cache:
-    folder: %userprofile%\.m2\repository
   build_script:
     - mvn.cmd test
 
@@ -112,8 +110,6 @@ plugin_qa_nodejs12_task:
 
 plugin_qa_win_task:
   <<: *WINDOWS_VM_DEFINITION
-  maven_cache:
-    folder: %userprofile%\.m2\repository
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
