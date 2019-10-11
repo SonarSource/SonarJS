@@ -47,8 +47,8 @@ plugin_qa_win_task:
     SONARSOURCE_QA: true
   qa_script:
     - curl -sSL -o buildtools.zip https://github.com/SonarSource/buildTools/archive/docker.zip
-    - 7z.exe x buildtools.zip
-    - bash buildTools-docker\bin\set_maven_build_version 1.2.3
+    - 7z.exe e buildtools.zip buildTools-docker/bin/*
+    - bash set_maven_build_version 1.2.3
     - cd its\plugin
     - mvn.cmd verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
 
