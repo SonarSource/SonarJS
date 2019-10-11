@@ -54,8 +54,8 @@ build_win_task:
   depends_on:
     - build
   gce_instance:
-    image_project: sonarsource-peachee-languages
-    image_name: windows-peachee-languages
+    image_project: language-team
+    image_name: windows-dotnet
     platform: windows
     zone: us-central1-a
     preemptible: false
