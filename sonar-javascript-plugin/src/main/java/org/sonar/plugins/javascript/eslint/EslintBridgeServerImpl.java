@@ -269,7 +269,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       LOG.error("Failed to parse response when requesting files for tsconfig: " + tsconfigAbsolutePath + ": \n-----\n" + result + "\n-----\n");
     }
 
-
     return new String[0];
   }
 

@@ -333,6 +333,15 @@ public class EslintBridgeServerImplTest {
     assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json")).isEmpty();
   }
 
+  @Test
+  public void should_return_no_files_for_tsconfig_no_response() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("badResponse.js");
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+    eslintBridgeServer.stop();
+    assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json")).isEmpty();
+  }
+
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
     return new EslintBridgeServerImpl(new MapSettings().asConfig(), NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
   }

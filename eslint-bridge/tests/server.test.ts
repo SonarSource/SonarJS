@@ -251,6 +251,14 @@ describe("server", () => {
     expect(response).toHaveLength(0);
   });
 
+  it("should return empty list of files for invalid request", async () => {
+    const tsconfig = join(__dirname, "./fixtures/tsconfig.json");
+    const response = JSON.parse(
+      await post(JSON.stringify({ tsconfig42: tsconfig }), "/tsconfig-files"),
+    ) as string[];
+    expect(response).toHaveLength(0);
+  });
+
   function post(data, endpoint) {
     return postToServer(data, endpoint, server);
   }

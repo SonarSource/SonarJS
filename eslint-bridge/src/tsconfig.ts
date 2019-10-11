@@ -24,13 +24,13 @@ import * as path from "path";
 const parseConfigHost: ts.ParseConfigHost = {
   fileExists: fs.existsSync,
   readDirectory: ts.sys.readDirectory,
-  readFile: file => fs.readFileSync(file, "utf8"),
+  // 'readFile' is unused for our purposes
+  readFile: file => /* istanbul ignore next */ fs.readFileSync(file, "utf8"),
   useCaseSensitiveFileNames: true,
 };
 
 export function getFilesForTsConfig(tsConfig: string): string[] {
-  let projectDirectory = path.dirname(tsConfig);
-  let config = ts.readConfigFile(tsConfig, ts.sys.readFile);
+  const config = ts.readConfigFile(tsConfig, ts.sys.readFile);
 
   if (config.error !== undefined) {
     console.error(`Failed to parse tsconfig: ${tsConfig} (${config.error.messageText})`);
@@ -40,7 +40,7 @@ export function getFilesForTsConfig(tsConfig: string): string[] {
   const parsed = ts.parseJsonConfigFileContent(
     config.config,
     parseConfigHost,
-    path.resolve(projectDirectory),
+    path.resolve(path.dirname(tsConfig)),
     {
       noEmit: true,
     },

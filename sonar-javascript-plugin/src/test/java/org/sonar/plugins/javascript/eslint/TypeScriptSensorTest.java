@@ -291,12 +291,12 @@ public class TypeScriptSensorTest {
     DefaultInputFile file3 = inputFileFromResource(context, baseDir, "dir3/file.ts");
     inputFileFromResource(context, baseDir, "noconfig.ts");
 
-    when(eslintBridgeServerMock.tsConfigFiles(absolutePath(baseDir,"dir1", "tsconfig.json")))
-      .thenReturn(new String[]{ absolutePath(baseDir,"dir1", "file.ts") });
-    when(eslintBridgeServerMock.tsConfigFiles(absolutePath(baseDir,"dir2", "tsconfig.json")))
-      .thenReturn(new String[]{ absolutePath(baseDir,"dir2", "file.ts") });
-    when(eslintBridgeServerMock.tsConfigFiles(absolutePath(baseDir,"dir3", "tsconfig.json")))
-      .thenReturn(new String[]{ absolutePath(baseDir,"dir3", "file.ts") });
+    when(eslintBridgeServerMock.tsConfigFiles(absolutePath(baseDir,"dir1/tsconfig.json")))
+      .thenReturn(new String[]{ file1.absolutePath() });
+    when(eslintBridgeServerMock.tsConfigFiles(absolutePath(baseDir,"dir2/tsconfig.json")))
+      .thenReturn(new String[]{ file2.absolutePath() });
+    when(eslintBridgeServerMock.tsConfigFiles(absolutePath(baseDir,"dir3/tsconfig.json")))
+      .thenReturn(new String[]{ file3.absolutePath() });
 
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(context);
@@ -309,8 +309,8 @@ public class TypeScriptSensorTest {
     verify(eslintBridgeServerMock, times(3)).newTsConfig();
   }
 
-  private String absolutePath(Path baseDir, String dir, String file) {
-    return new File(baseDir.toFile(), dir + File.separator + file).getAbsolutePath();
+  private String absolutePath(Path baseDir, String relativePath) {
+    return new File(baseDir.toFile(), relativePath).getAbsolutePath();
   }
 
   private DefaultInputFile inputFileFromResource(SensorContextTester context, Path baseDir, String file) throws IOException {
