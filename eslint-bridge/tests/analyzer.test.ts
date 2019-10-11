@@ -117,6 +117,23 @@ describe("#analyzeJavaScript", () => {
     });
     expect(issues).toHaveLength(2);
   });
+
+  it("should handle BOM", () => {
+    const filePath = join(__dirname, "./fixtures/js-project/fileWithBom.lint.js");
+
+    const cpdTokens = analyzeJavaScript({
+      filePath,
+      fileContent: undefined,
+      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+    }).cpdTokens;
+    expect(cpdTokens).toHaveLength(17);
+    const firstLineEnd = Math.max(
+      ...cpdTokens
+        .filter(token => token.location.startLine == 1)
+        .map(token => token.location.endCol),
+    );
+    expect(firstLineEnd).toBe(11);
+  });
 });
 
 describe("#analyzeTypeScript", () => {
