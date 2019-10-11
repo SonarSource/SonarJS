@@ -62,52 +62,6 @@ build_task:
     - rm -rf "$HOME/.m2/repository/org/sonarsource/"
 
 
-build_win_task:
-  depends_on:
-    - build
-  <<: *WINDOWS_VM_DEFINITION
-  build_script:
-    - mvn.cmd test
-
-plugin_qa_task:
-  depends_on:
-    - build
-  gke_container:
-    dockerfile: .cirrus/nodejs-lts.Dockerfile
-    <<: *CONTAINER_DEFINITION
-    cpu: 3
-    memory: 8G
-  env:
-    CIRRUS_CLONE_DEPTH: 1
-    SONARSOURCE_QA: true
-    matrix:
-      - SQ_VERSION: LATEST_RELEASE
-      - SQ_VERSION: LATEST_RELEASE[7.9]
-      - SQ_VERSION: DOGFOOD
-  maven_cache:
-    folder: ~/.m2/repository
-  <<: *PLUGIN_QA_DEFINITION
-  cleanup_before_cache_script:
-    - rm -rf "$HOME/.m2/repository/org/sonarsource/"
-
-plugin_qa_nodejs12_task:
-  depends_on:
-    - build
-  gke_container:
-    dockerfile: .cirrus/nodejs-12.Dockerfile
-    <<: *CONTAINER_DEFINITION
-    cpu: 3
-    memory: 8G
-  env:
-    CIRRUS_CLONE_DEPTH: 1
-    SONARSOURCE_QA: true
-    SQ_VERSION: LATEST_RELEASE
-  maven_cache:
-    folder: ~/.m2/repository
-  <<: *PLUGIN_QA_DEFINITION
-  cleanup_before_cache_script:
-    - rm -rf "$HOME/.m2/repository/org/sonarsource/"
-
 plugin_qa_win_task:
   depends_on:
     - build
@@ -115,55 +69,9 @@ plugin_qa_win_task:
   env:
     SONARSOURCE_QA: true
   qa_script:
+    - curl -sSL -o buildtools.zip https://github.com/SonarSource/travis-utils/tarball/v56
+    - 7z.exe x buildtools.zip
+    - bash buildTools-docker/bin/set_maven_build_version 1.2.3
     - cd its\plugin
     - mvn.cmd verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
 
-ruling_task:
-  depends_on:
-    - build
-  gke_container:
-    dockerfile: .cirrus/nodejs-lts.Dockerfile
-    <<: *CONTAINER_DEFINITION
-    cpu: 4
-    memory: 12G
-  env:
-    CIRRUS_CLONE_DEPTH: 1
-    SONARSOURCE_QA: true
-    matrix:
-      - RULING: JavaScriptRulingTest
-      - RULING: TypeScriptRulingTest
-  maven_cache:
-    folder: ~/.m2/repository
-  submodules_script:
-    - git submodule update --init
-  ruling_script:
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - cd its/ruling
-    - mvn verify -Dtest=${RULING} -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
-  cleanup_before_cache_script:
-    - rm -rf "$HOME/.m2/repository/org/sonarsource/"
-
-
-promote_task:
-  depends_on:
-    - plugin_qa
-    - ruling
-  gke_container:
-    dockerfile: .cirrus/nodejs-lts.Dockerfile
-    <<: *CONTAINER_DEFINITION
-    cpu: 1
-    memory: 1G
-  env:
-    #promotion cloud function
-    ACCESS_TOKEN: ENCRYPTED[!1fb91961a5c01e06e38834e55755231d649dc62eca354593105af9f9d643d701ae4539ab6a8021278b8d9348ae2ce8be!]
-    PROMOTE_URL: ENCRYPTED[!e22ed2e34a8f7a1aea5cff653585429bbd3d5151e7201022140218f9c5d620069ec2388f14f83971e3fd726215bc0f5e!]
-    #artifacts that will have downloadable links in burgr
-    ARTIFACTS: org.sonarsource.javascript:sonar-javascript-plugin:jar
-  maven_cache:
-    folder: ~/.m2/repository
-  script:
-    - source cirrus-env PROMOTE
-    - source set_maven_build_version $BUILD_NUMBER
-    - curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "$PROMOTE_URL/$GITHUB_REPO/$GITHUB_BRANCH/$BUILD_NUMBER/$PULL_REQUEST"
-    - burgr-notify-promotion
