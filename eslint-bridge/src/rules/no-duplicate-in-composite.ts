@@ -43,10 +43,10 @@ export const rule: Rule.RuleModule = {
           | TSESTree.TSIntersectionType;
         const groupedTypes: Map<string, Array<TSESTree.Node>> = new Map();
 
-        compositeType.types.forEach(type => {
-          const nodeValue = sourceCode.getText(type as estree.Node);
+        compositeType.types.forEach(typescriptType => {
+          const nodeValue = sourceCode.getText(typescriptType as estree.Node);
           const nodesWithGivenType = groupedTypes.get(nodeValue);
-          const nodeType = type as TSESTree.Node;
+          const nodeType = typescriptType as TSESTree.Node;
           if (!nodesWithGivenType) {
             groupedTypes.set(nodeValue, [nodeType]);
           } else {
@@ -54,9 +54,8 @@ export const rule: Rule.RuleModule = {
           }
         });
 
-        groupedTypes.forEach(equivalentNodes => {
-          if (equivalentNodes.length > 1) {
-            const duplicates = equivalentNodes;
+        groupedTypes.forEach(duplicates => {
+          if (duplicates.length > 1) {
             const primaryNode = duplicates.splice(1, 1)[0];
             const secondaryMessages = Array(duplicates.length);
             secondaryMessages[0] = `Original`;

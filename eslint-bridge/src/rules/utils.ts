@@ -162,27 +162,30 @@ export function isRequireModule(node: estree.CallExpression, ...moduleNames: str
 
 export function toEncodedMessage(
   message: string,
-  secondaryLocationsToken: Array<AST.Token | TSESTree.Node>,
+  secondaryLocationsHolder: Array<AST.Token | TSESTree.Node>,
   secondaryMessages?: string[],
 ): string {
   const encodedMessage: EncodedMessage = {
     message,
-    secondaryLocations: secondaryLocationsToken.map((token, index) =>
-      toSecondaryLocation(token, !!secondaryMessages ? secondaryMessages[index] : undefined),
+    secondaryLocations: secondaryLocationsHolder.map((locationHolder, index) =>
+      toSecondaryLocation(
+        locationHolder,
+        !!secondaryMessages ? secondaryMessages[index] : undefined,
+      ),
     ),
   };
   return JSON.stringify(encodedMessage);
 }
 
 function toSecondaryLocation(
-  secondaryLocation: AST.Token | TSESTree.Node,
+  locationHolder: AST.Token | TSESTree.Node,
   message?: string,
 ): IssueLocation {
   return {
     message,
-    column: secondaryLocation.loc.start.column,
-    line: secondaryLocation.loc.start.line,
-    endColumn: secondaryLocation.loc.end.column,
-    endLine: secondaryLocation.loc.end.line,
+    column: locationHolder.loc.start.column,
+    line: locationHolder.loc.start.line,
+    endColumn: locationHolder.loc.end.column,
+    endLine: locationHolder.loc.end.line,
   };
 }
