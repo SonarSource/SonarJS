@@ -200,6 +200,7 @@ public final class CheckList {
       NotStoredSelectionCheck.class,
       NoNonNullAssertionCheck.class,
       NoReturnAwaitCheck.class,
+      NoNestedTemplateLiteralsCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
       NoUselessCatchCheck.class,
       NullDereferenceCheck.class,
