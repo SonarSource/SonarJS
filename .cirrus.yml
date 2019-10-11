@@ -64,7 +64,7 @@ build_win_task:
     memory: 7G
     use_ssd: true
   build_script:
-    - mvn clean install
+    - mvn.cmd clean install
 
 plugin_qa_task:
   depends_on:
