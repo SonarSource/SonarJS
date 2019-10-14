@@ -186,7 +186,7 @@ ruleTester.run("Functions should not be too complex", rule, {
     {
       code: `
       function ko() {  // +1
-    //^^^^^^^^
+             //^^
         if (x) {}      // +1
       //^^
         else if (y) {} // +1
@@ -197,7 +197,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(2, 6, 2, 14),
+          sndloc(2, 15, 2, 17),
           sndloc(4, 8, 4, 10),
           sndloc(6, 13, 6, 15),
         ]),
@@ -206,7 +206,7 @@ ruleTester.run("Functions should not be too complex", rule, {
     {
       code: `
       function ko() {  // +1
-    //^^^^^^^^
+             //^^
         if (x) {}      // +1
       //^^
         else if (y) {} // +1
@@ -220,7 +220,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(5, DEFAULT_THRESHOLD, [
-          sndloc(2, 6, 2, 14),
+          sndloc(2, 15, 2, 17),
           sndloc(4, 8, 4, 10),
           sndloc(6, 13, 6, 15),
           sndloc(8, 13, 8, 15),
@@ -231,7 +231,7 @@ ruleTester.run("Functions should not be too complex", rule, {
     {
       code: `
       function * ko() {  // +1
-    //^^^^^^^^
+               //^^
         if (x) {}        // +1
       //^^
         else if (y) {}   // +1
@@ -241,7 +241,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(2, 6, 2, 14),
+          sndloc(2, 17, 2, 19),
           sndloc(4, 8, 4, 10),
           sndloc(6, 13, 6, 15),
         ]),
@@ -250,7 +250,7 @@ ruleTester.run("Functions should not be too complex", rule, {
     {
       code: `
       function * ko() {  // +1
-    //^^^^^^^^
+               //^^
         if (x) {         // +1
       //^^
           if (y) {}      // +1
@@ -261,7 +261,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(2, 6, 2, 14),
+          sndloc(2, 17, 2, 19),
           sndloc(4, 8, 4, 10),
           sndloc(6, 10, 6, 12),
         ]),
@@ -270,7 +270,7 @@ ruleTester.run("Functions should not be too complex", rule, {
     {
       code: `
       function ko(x) {    // +1
-    //^^^^^^^^
+             //^^
         switch (x) {
           case 0:         // +1
         //^^^^
@@ -289,7 +289,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(4, DEFAULT_THRESHOLD, [
-          sndloc(2, 6, 2, 14),
+          sndloc(2, 15, 2, 17),
           sndloc(5, 10, 5, 14),
           sndloc(8, 10, 8, 14),
           sndloc(11, 10, 11, 14),
@@ -299,7 +299,7 @@ ruleTester.run("Functions should not be too complex", rule, {
     {
       code: `
       function ko() {          // +1
-    //^^^^^^^^
+             //^^
         a = true && false;     // +1
                //^^
         c = true || false;     // +1
@@ -309,7 +309,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(2, 6, 2, 14),
+          sndloc(2, 15, 2, 17),
           sndloc(4, 17, 4, 19),
           sndloc(6, 17, 6, 19),
         ]),
@@ -319,7 +319,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       code: `
       function nesting() {     // OK            +1 for nesting
         function nested() {    // Noncompliant  +1 for nested
-      //^^^^^^^^
+               //^^^^^^
           if (x) {             //               +1 for nested
         //^^
           } else if (y) {      //               +1 for nested
@@ -331,7 +331,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(3, 8, 3, 16),
+          sndloc(3, 17, 3, 23),
           sndloc(5, 10, 5, 12),
           sndloc(7, 17, 7, 19),
         ]),
@@ -340,13 +340,13 @@ ruleTester.run("Functions should not be too complex", rule, {
     {
       code: `
       function nesting() {     // Noncompliant  +1 for nesting
-    //^^^^^^^^
+             //^^^^^^^
         if (x) {               //               +1 for nesting
       //^^
         }
 
         function nested() {    // Noncompliant  +1 for nested
-      //^^^^^^^^
+               //^^^^^^
           if (x) {             //               +1 for nested
         //^^
           } else if (y) {      //               +1 for nested
@@ -362,12 +362,12 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(2, 6, 2, 14),
+          sndloc(2, 15, 2, 22),
           sndloc(4, 8, 4, 10),
           sndloc(17, 8, 17, 10),
         ]),
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(8, 8, 8, 16),
+          sndloc(8, 17, 8, 23),
           sndloc(10, 10, 10, 12),
           sndloc(12, 17, 12, 19),
         ]),
@@ -378,7 +378,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       function nesting1() {    // OK            +1 for nesting1
         function nesting2() {  // OK            +1 for nesting2
           function nested() {  // Noncompliant  +1 for nested
-        //^^^^^^^^
+                 //^^^^^^
             if (x) {}          //               +1 for nested
           //^^
             else if (y) {}     //               +1 for nested
@@ -390,7 +390,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(4, 10, 4, 18),
+          sndloc(4, 19, 4, 25),
           sndloc(6, 12, 6, 14),
           sndloc(8, 17, 8, 19),
         ]),
@@ -400,13 +400,13 @@ ruleTester.run("Functions should not be too complex", rule, {
       code: `
       function nesting1() {    // OK            +1 for nesting1
         function nesting2() {  // Noncompliant  +1 for nesting2
-      //^^^^^^^^
+               //^^^^^^^^
           a = true && false;   //               +1 for nesting2
                  //^^
           b = true && false;   //               +1 for nesting2
                  //^^
           function nested() {  // Noncompliant  +1 for nested
-        //^^^^^^^^
+                 //^^^^^^
             if (x) {}          //               +1 for nested
           //^^
             else if (y) {}     //               +1 for nested
@@ -418,12 +418,12 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(3, 8, 3, 16),
+          sndloc(3, 17, 3, 25),
           sndloc(5, 19, 5, 21),
           sndloc(7, 19, 7, 21),
         ]),
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(9, 10, 9, 18),
+          sndloc(9, 19, 9, 25),
           sndloc(11, 12, 11, 14),
           sndloc(13, 17, 13, 19),
         ]),
@@ -470,7 +470,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       class D {
         nesting() {             // OK            +1 for nesting
           function nested() {   // Noncompliant  +1 for nested
-        //^^^^^^^^
+                 //^^^^^^
             while (x < y) {     //               +1 for nested
           //^^^^^
               return x || y     //               +1 for nested
@@ -483,7 +483,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(4, 10, 4, 18),
+          sndloc(4, 19, 4, 25),
           sndloc(6, 12, 6, 17),
           sndloc(8, 23, 8, 25),
         ]),
@@ -511,7 +511,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(4, DEFAULT_THRESHOLD, [
-          sndloc(4, 15, 4, 16),
+          sndloc(4, 14, 4, 15),
           sndloc(9, 12, 9, 14),
           sndloc(11, 17, 11, 19),
           sndloc(13, 12, 13, 14),
@@ -539,7 +539,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(4, DEFAULT_THRESHOLD, [
-          sndloc(6, 15, 6, 16),
+          sndloc(6, 14, 6, 15),
           sndloc(8, 12, 8, 15),
           sndloc(10, 12, 10, 14),
           sndloc(12, 12, 12, 14),
@@ -551,7 +551,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       (function () {       // OK - Immediately Invoked Function Expression
 
         function f() {     //  Noncompliant
-      //^^^^^^^^
+               //^
             var a = true && false && true;
                        //^^       ^^
         }
@@ -567,7 +567,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [DEFAULT_THRESHOLD],
       errors: [
         error(3, DEFAULT_THRESHOLD, [
-          sndloc(4, 8, 4, 16),
+          sndloc(4, 17, 4, 18),
           sndloc(6, 34, 6, 36),
           sndloc(6, 25, 6, 27),
         ]),
@@ -595,7 +595,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       export function toCreateModule() {}
 
         function complexFunction() { // +1
-      //^^^^^^^^
+                //^^^^^^^^^^^^^^
 
           if (42) {}; // +1
         //^^
@@ -633,7 +633,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       options: [CUSTOM_THRESHOLD],
       errors: [
         error(12, CUSTOM_THRESHOLD, [
-          sndloc(4, 8, 4, 16),
+          sndloc(4, 17, 4, 32),
           sndloc(7, 10, 7, 12),
           sndloc(9, 10, 9, 15),
           sndloc(11, 10, 11, 12),

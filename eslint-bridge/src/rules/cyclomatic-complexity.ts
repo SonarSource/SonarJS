@@ -21,8 +21,9 @@
 
 import { Rule, AST } from "eslint";
 import * as estree from "estree";
-import { EncodedMessage, IssueLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
+import { EncodedMessage, IssueLocation, getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
 import visit, { childrenOf } from "../utils/visitor";
+import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 
 type FunctionLike =
   | estree.FunctionDeclaration
@@ -137,7 +138,7 @@ class FunctionComplexityVisitor {
         if (node !== this.root) {
           return;
         } else {
-          token = node;
+          token = { loc: getMainFunctionTokenLocation(node, getParent(this.context), this.context) };
         }
       } else {
         switch (node.type) {
@@ -181,23 +182,6 @@ class FunctionComplexityVisitor {
 
   getComplexityTokens() {
     return this.tokens;
-  }
-
-  private tokenOf(node: FunctionLike): ComplexityToken | undefined | null {
-    if (node.type === "FunctionExpression") {
-      const ancestors = this.context.getAncestors();
-      if (ancestors.length > 0) {
-        const parent = ancestors[ancestors.length - 1];
-        if (parent.type === "MethodDefinition") {
-          return parent.key;
-        }
-      }
-      return this.context.getSourceCode().getFirstToken(node)!;
-    } else if (node.type === "ArrowFunctionExpression") {
-      return this.context.getSourceCode().getTokenBefore(node.body)!;
-    } else {
-      return this.context.getSourceCode().getFirstToken(node)!;
-    }
   }
 }
 
