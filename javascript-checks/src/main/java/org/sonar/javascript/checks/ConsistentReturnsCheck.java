@@ -19,68 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.FunctionReturns;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-
-import static org.sonar.javascript.checks.utils.FunctionReturns.getFunctionReturns;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3801")
-public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Refactor this function to use \"return\" consistently.";
+public class ConsistentReturnsCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.copyOf(KindSet.FUNCTION_KINDS.getSubKinds());
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    FunctionTree functionTree = (FunctionTree) tree;
-    if (functionTree.body().is(Kind.BLOCK)) {
-
-      BlockTree body = (BlockTree) functionTree.body();
-      FunctionReturns functionReturns = getFunctionReturns(body);
-
-      if (functionReturns.containsReturnWithoutValue() && functionReturns.containsReturnWithValue()) {
-        raiseIssue(tree, functionReturns, body);
-      }
-    }
-  }
-
-  private void raiseIssue(Tree functionTree, FunctionReturns functionReturns, BlockTree body) {
-    SyntaxToken tokenToRaiseIssue = functionTree.firstToken();
-    if (functionTree.is(Kind.ARROW_FUNCTION)) {
-      tokenToRaiseIssue = ((ArrowFunctionTree) functionTree).doubleArrowToken();
-    }
-
-    if (functionTree.is(Kind.GENERATOR_METHOD)) {
-      tokenToRaiseIssue = ((MethodDeclarationTree) functionTree).name().firstToken();
-    }
-
-    PreciseIssue issue = addIssue(tokenToRaiseIssue, MESSAGE);
-    for (ReturnStatementTree returnStatement : functionReturns.returnStatements()) {
-      issue.secondary(returnStatement.returnKeyword(), returnStatement.expression() == null ? "Return without value" : "Return with value");
-    }
-
-    if (functionReturns.containsImplicitReturn()) {
-      issue.secondary(body.closeCurlyBraceToken(), "Implicit return without value");
-    }
+  public String eslintKey() {
+    return "no-inconsistent-returns";
   }
 
 }
