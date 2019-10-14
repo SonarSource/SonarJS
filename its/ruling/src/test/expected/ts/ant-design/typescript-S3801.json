@@ -1,0 +1,12 @@
+{
+'ant-design:components/button/button.tsx':[
+15,
+],
+'ant-design:components/table/Table.tsx':[
+340,
+485,
+],
+'ant-design:components/upload/UploadList.tsx':[
+35,
+],
+}
