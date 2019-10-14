@@ -257,8 +257,8 @@ public class TypeScriptSensorTest {
     createInputFile(context, "dir/file1.ts");
     createInputFile(context, "dir/file2.ts");
     createSensor().execute(context);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file1.ts]: Cannot find module 'typescript'");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).doesNotContain("Failed to analyze file [dir/file2.ts]: Cannot find module 'typescript'");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnlyOnce("Cannot find module 'typescript'");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).doesNotContain("Failed to analyze file [dir/file1.ts]: Cannot find module 'typescript'");
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("TypeScript dependency was not found and it is required for analysis.");
     // assert that analysis was interrupted after first file
     verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(any());
@@ -274,10 +274,12 @@ public class TypeScriptSensorTest {
     createInputFile(context, "dir/file1.ts");
     createInputFile(context, "dir/file2.ts");
     createSensor().execute(context);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains(
-        "Failed to analyze file [dir/file1.ts]: You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnlyOnce(
+        "You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnlyOnce(
+        "If it's not possible to upgrade version of TypeScript used by the project, consider installing supported TypeScript version just for the time of analysis");
     assertThat(logTester.logs(LoggerLevel.ERROR)).doesNotContain(
-        "Failed to analyze file [dir/file2.ts]: You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6");
+        "Failed to analyze file [dir/file1.ts]: You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6");
     // assert that analysis was interrupted after first file
     verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(any());
   }
