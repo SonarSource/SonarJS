@@ -120,10 +120,22 @@ export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
   return analyze(input, parseTypeScriptSourceFile);
 }
 
+function getFileContent(filePath: string) {
+  const fileContent = fs.readFileSync(filePath, { encoding: "utf8" });
+  return stripBom(fileContent);
+}
+
+function stripBom(s: string) {
+  if (s.charCodeAt(0) === 0xfeff) {
+    return s.slice(1);
+  }
+  return s;
+}
+
 function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
   let fileContent = input.fileContent;
   if (!fileContent) {
-    fileContent = fs.readFileSync(input.filePath, { encoding: "utf8" });
+    fileContent = getFileContent(input.filePath);
   }
   const filePath = path.normalize(input.filePath);
   const result = parse(fileContent, filePath, input.tsConfigs);
