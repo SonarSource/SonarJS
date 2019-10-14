@@ -18,30 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTesterTs } from "../RuleTesterTs";
-import { RuleTester } from "eslint";
-import * as path from "path";
 
-const ruleTesterNoTsConfig = new RuleTester({
-  parser: path.resolve(`${__dirname}/../../node_modules/@typescript-eslint/parser`),
-  parserOptions: { ecmaVersion: 2018 },
-});
-
-const ruleTester = new RuleTesterTs({});
+const ruleTester = new RuleTesterTs();
 
 import { rule } from "../../src/rules/no-return-type-any";
-
-ruleTesterNoTsConfig.run("Primitive return types should be used.", rule, {
-  valid: [
-    {
-      code: `function foo() {return 1;}`,
-    },
-    {
-      //No issue are raised if we don't have access to types.
-      code: `function returnNumericLiteral(): any {return 1;}`,
-    },
-  ],
-  invalid: [],
-});
 
 ruleTester.run("Primitive return types should be used.", rule, {
   valid: [

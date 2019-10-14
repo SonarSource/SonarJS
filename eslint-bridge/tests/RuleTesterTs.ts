@@ -30,9 +30,13 @@ const parserOptions = {
 const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-project/file.ts`);
 
 class RuleTesterTs extends RuleTester {
-  constructor(options: any) {
+  ruleTesterNoTsConfig = new RuleTester({
+    parser,
+    parserOptions: { ecmaVersion: 2018 },
+  });
+
+  constructor() {
     super({
-      ...options,
       parser,
       parserOptions,
     });
@@ -58,6 +62,14 @@ class RuleTesterTs extends RuleTester {
     });
 
     super.run(name, rule, tests);
+
+    tests.invalid.map(test => {
+      code: test.code;
+    });
+    this.ruleTesterNoTsConfig.run(name, rule, {
+      valid: tests.invalid,
+      invalid: [],
+    });
   }
 }
 
