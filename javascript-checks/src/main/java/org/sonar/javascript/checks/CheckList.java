@@ -219,6 +219,7 @@ public final class CheckList {
       PreferNamespaceCheck.class,
       PreferObjectLiteralCheck.class,
       PreferReadonlyCheck.class,
+      PreferTypeGuardCheck.class,
       PrimitiveWrappersCheck.class,
       ProcessArgvCheck.class,
       PreferDefaultLastCheck.class,
