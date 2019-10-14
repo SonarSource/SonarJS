@@ -20,7 +20,7 @@
 import { RuleTester } from "eslint";
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
-import { rule } from "../../src/rules/mccabe-complexity";
+import { rule } from "../../src/rules/cyclomatic-complexity";
 import { IssueLocation, EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
 
 const DEFAULT_THRESHOLD = 2;

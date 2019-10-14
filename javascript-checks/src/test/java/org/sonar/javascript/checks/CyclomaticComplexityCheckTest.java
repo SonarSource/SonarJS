@@ -19,36 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
+import org.junit.Test;
 
-import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@JavaScriptRule
-@TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "FunctionComplexity")
-@Rule(key = "S1541")
-public class McCabeComplexityCheck extends EslintBasedCheck {
+public class CyclomaticComplexityCheckTest {
 
-  private static final int DEFAULT_THRESHOLD = 10;
-
-  @RuleProperty(
-    key = "Threshold",
-    description = "The maximum authorized complexity.",
-    defaultValue = "" + DEFAULT_THRESHOLD)
-  int threshold = DEFAULT_THRESHOLD;
-
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(threshold);
-  }
-
-  @Override
-  public String eslintKey() {
-    return "mccabe-complexity";
+  @Test
+  public void configurations() {
+    CyclomaticComplexityCheck check = new CyclomaticComplexityCheck();
+    // default configuration
+    assertThat(check.configurations()).containsExactly(10);
+    // custom configuration
+    check.threshold = 15;
+    assertThat(check.configurations()).containsExactly(15);
   }
 }
