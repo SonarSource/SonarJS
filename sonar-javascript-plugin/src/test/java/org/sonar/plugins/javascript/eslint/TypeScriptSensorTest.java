@@ -248,6 +248,25 @@ public class TypeScriptSensorTest {
   }
 
   @Test
+  public void should_send_content_when_not_utf8() throws Exception {
+    File baseDir = tempFolder.newDir();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.ts")
+      .setLanguage("ts")
+      .setCharset(StandardCharsets.ISO_8859_1)
+      .setContents(content)
+      .build();
+    ctx.fileSystem().add(inputFile);
+    Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
+
+    ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
+    createSensor().execute(ctx);
+    verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
+    assertThat(captor.getValue().fileContent).isEqualTo(content );
+  }
+
+  @Test
   public void should_abort_when_missing_typescript() throws Exception {
     AnalysisResponse parseError = new AnalysisResponse();
     parseError.parsingError = new EslintBridgeServer.ParsingError();
@@ -384,6 +403,7 @@ public class TypeScriptSensorTest {
   private static DefaultInputFile createInputFile(SensorContextTester context, String relativePath) {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setLanguage("ts")
+      .setCharset(StandardCharsets.UTF_8)
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
     context.fileSystem().add(inputFile);

@@ -77,7 +77,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private void analyze(InputFile file) {
     try {
-      String fileContent = isSonarLint(context) ? file.contents() : null;
+      String fileContent = shouldSendFileContent(file) ? file.contents() : null;
       AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), null);
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
       processResponse(file, response);
