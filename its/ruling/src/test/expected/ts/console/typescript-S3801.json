@@ -5,6 +5,9 @@
 'console:src/utils/location.ts':[
 1,
 ],
+'console:src/views/ActionsView/ActionsView.tsx':[
+38,
+],
 'console:src/views/CLIAuthView/CLIAuthView/CLIAuthView.tsx':[
 30,
 ],
@@ -41,5 +44,11 @@
 ],
 'console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx':[
 444,
+],
+'console:src/views/models/DatabrowserView/DatabrowserView.tsx':[
+317,
+],
+'console:src/views/models/DatabrowserView/RelationsPopup.tsx':[
+67,
 ],
 }

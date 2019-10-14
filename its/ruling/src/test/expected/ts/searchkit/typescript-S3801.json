@@ -1,9 +1,16 @@
 {
+'searchkit:src/components/search/filters/hierarchical-menu-filter/src/HierarchicalMenuFilter.tsx':[
+78,
+],
+'searchkit:src/components/search/filters/hierarchical-refinement-filter/src/HierarchicalRefinementFilter.tsx':[
+78,
+],
 'searchkit:src/core/accessors/FacetAccessor.ts':[
 147,
 ],
 'searchkit:src/core/accessors/HierarchicalFacetAccessor.ts':[
 50,
+94,
 ],
 'searchkit:src/core/query/query_dsl/full_text/MatchPhrasePrefix.ts':[
 1,
@@ -19,5 +26,8 @@
 ],
 'searchkit:src/core/query/query_dsl/full_text/SimpleQueryString.ts':[
 11,
+],
+'searchkit:src/core/react/RenderComponent.ts':[
+13,
 ],
 }
