@@ -21,29 +21,15 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2870")
-public class DeleteArrayElementCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this use of \"delete\".";
+public class NoArrayDeleteCheck extends EslintBasedCheck {
 
   @Override
-  public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (tree.is(Tree.Kind.DELETE) && isArrayElement(tree.expression())) {
-      addIssue(tree.operatorToken(), MESSAGE);
-    }
-    super.visitUnaryExpression(tree);
+  public String eslintKey() {
+    return "no-array-delete";
   }
-
-  private static boolean isArrayElement(ExpressionTree expression) {
-    return expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) && ((BracketMemberExpressionTree) expression).object().types().containsOnly(Type.Kind.ARRAY);
-  }
-
 }

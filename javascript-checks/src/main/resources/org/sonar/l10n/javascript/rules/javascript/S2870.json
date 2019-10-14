@@ -2,7 +2,8 @@
   "title": "\"delete\" should not be used on arrays",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
