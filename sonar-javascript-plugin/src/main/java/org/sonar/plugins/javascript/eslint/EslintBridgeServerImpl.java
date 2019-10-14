@@ -261,7 +261,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   public String[] tsConfigFiles(String tsconfigAbsolutePath) {
     String result = "";
     try {
-      result = request("{ \"tsconfig\":  \"" + tsconfigAbsolutePath + "\" }", "tsconfig-files");
+      TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
+      result = request(GSON.toJson(tsConfigRequest), "tsconfig-files");
       return GSON.fromJson(result, String[].class);
     } catch (IOException e) {
       LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
@@ -323,6 +324,14 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
         .filter(p -> p.toFile().isDirectory() && p.endsWith("node_modules/typescript"))
         .findFirst()
         .map(Path::getParent);
+    }
+  }
+
+  static class TsConfigRequest {
+    final String tsconfig;
+
+    TsConfigRequest(String tsconfig) {
+      this.tsconfig = tsconfig;
     }
   }
 }
