@@ -124,7 +124,7 @@ describe("#analyzeJavaScript", () => {
     const cpdTokens = analyzeJavaScript({
       filePath,
       fileContent: undefined,
-      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      rules: [],
     }).cpdTokens;
     expect(cpdTokens).toHaveLength(17);
     const firstLineEnd = Math.max(
