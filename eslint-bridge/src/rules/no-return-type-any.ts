@@ -21,74 +21,74 @@
 
 import { Rule } from "eslint";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { isRequiredParserServices } from "../utils/isRequiredParserServices";
+import {
+  isRequiredParserServices,
+  RequiredParserServices,
+} from "../utils/isRequiredParserServices";
 import * as estree from "estree";
 
-type returnsTypes = estree.Expression | undefined | null;
-type returnsArrayType = returnsTypes[];
+type ReturnedExpression = estree.Expression | undefined | null;
+type ReturnedArrayType = ReturnedExpression[];
 
 const message = "Remove this return type or change it to a more specific.";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-    try {
+
+    if (isRequiredParserServices(services)) {
       const ts = require("typescript");
-
-      if (isRequiredParserServices(services)) {
-        let returnedExpressions: returnsArrayType = [];
-        const checker = services.program.getTypeChecker();
-
-        function allReturnTypesEqual(returns: returnsArrayType): boolean {
-          const firstReturnType = getTypeFromTreeNode(returns.pop());
-          if (!!firstReturnType && !!isPrimitiveType(firstReturnType)) {
-            return returns.every(nextReturn => {
-              const nextReturnType = getTypeFromTreeNode(nextReturn);
-              return !!nextReturnType && nextReturnType.flags === firstReturnType.flags;
+      let returnedExpressions: ReturnedArrayType = [];
+      return {
+        ReturnStatement(node: estree.Node) {
+          returnedExpressions.push((node as estree.ReturnStatement).argument);
+        },
+        "FunctionDeclaration:exit": function(node: estree.Node) {
+          const returnType = (node as TSESTree.FunctionDeclaration).returnType;
+          if (
+            returnType &&
+            returnType.typeAnnotation.type === "TSAnyKeyword" &&
+            returnedExpressions.length > 0 &&
+            allReturnTypesEqual(returnedExpressions, services, ts)
+          ) {
+            context.report({
+              message,
+              loc: returnType.loc,
             });
           }
-          return false;
-        }
-
-        function getTypeFromTreeNode(node: returnsTypes) {
-          return checker.getTypeAtLocation(
-            services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node),
-          );
-        }
-
-        function isPrimitiveType({ flags }: any) {
-          return (
-            flags & ts.TypeFlags.BooleanLike ||
-            flags & ts.TypeFlags.NumberLike ||
-            flags & ts.TypeFlags.StringLike ||
-            flags & ts.TypeFlags.EnumLike
-          );
-        }
-
-        return {
-          ReturnStatement(node: estree.Node) {
-            returnedExpressions.push((node as estree.ReturnStatement).argument);
-          },
-          "FunctionDeclaration:exit": function(node: estree.Node) {
-            const returnType = (node as TSESTree.FunctionDeclaration).returnType;
-            if (
-              returnType &&
-              returnType.typeAnnotation.type === "TSAnyKeyword" &&
-              returnedExpressions.length > 0 &&
-              allReturnTypesEqual(returnedExpressions)
-            ) {
-              context.report({
-                message,
-                loc: returnType.loc,
-              });
-            }
-            returnedExpressions = [];
-          },
-        };
-      }
-    } catch {
-      //Do nothing
+          returnedExpressions = [];
+        },
+      };
     }
     return {};
   },
 };
+
+function allReturnTypesEqual(
+  returns: ReturnedArrayType,
+  services: RequiredParserServices,
+  ts: any,
+): boolean {
+  const firstReturnType = getTypeFromTreeNode(returns.pop(), services);
+  if (!!firstReturnType && !!isPrimitiveType(firstReturnType, ts)) {
+    return returns.every(nextReturn => {
+      const nextReturnType = getTypeFromTreeNode(nextReturn, services);
+      return !!nextReturnType && nextReturnType.flags === firstReturnType.flags;
+    });
+  }
+  return false;
+}
+
+function getTypeFromTreeNode(node: ReturnedExpression, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+}
+
+function isPrimitiveType({ flags }: any, ts: any) {
+  return (
+    flags & ts.TypeFlags.BooleanLike ||
+    flags & ts.TypeFlags.NumberLike ||
+    flags & ts.TypeFlags.StringLike ||
+    flags & ts.TypeFlags.EnumLike
+  );
+}

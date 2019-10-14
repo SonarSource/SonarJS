@@ -20,7 +20,7 @@
 
 import { ParserServices } from "@typescript-eslint/parser";
 
-type RequiredParserServices = {
+export type RequiredParserServices = {
   [k in keyof ParserServices]: Exclude<ParserServices[k], undefined>
 };
 
