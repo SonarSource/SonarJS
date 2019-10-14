@@ -20,7 +20,9 @@
 package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 import org.junit.Before;
@@ -410,6 +412,24 @@ public class JavaScriptEslintBasedSensorTest {
     assertThat(captor.getValue().fileContent).isNull();
   }
 
+  @Test
+  public void should_send_content_when_not_utf8() throws Exception {
+    File baseDir = tempFolder.newDir();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
+      .setLanguage("js")
+      .setCharset(StandardCharsets.ISO_8859_1)
+      .setContents(content)
+      .build();
+    ctx.fileSystem().add(inputFile);
+
+    ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
+    createSensor().execute(ctx);
+    verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
+    assertThat(captor.getValue().fileContent).isEqualTo(content );
+  }
+
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
@@ -421,6 +441,7 @@ public class JavaScriptEslintBasedSensorTest {
   private static DefaultInputFile createInputFile(SensorContextTester context) {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
       .setLanguage("js")
+      .setCharset(StandardCharsets.UTF_8)
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
     context.fileSystem().add(inputFile);
