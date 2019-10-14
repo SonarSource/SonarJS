@@ -50,6 +50,11 @@ class RuleTesterTs extends RuleTester {
       invalid?: RuleTester.InvalidTestCase[];
     },
   ): void {
+    this.ruleTesterNoTsConfig.run(name, rule, {
+      valid: tests.invalid,
+      invalid: [],
+    });
+
     tests.valid.forEach(test => {
       if (!test.filename) {
         test.filename = placeHolderFilePath;
@@ -62,14 +67,6 @@ class RuleTesterTs extends RuleTester {
     });
 
     super.run(name, rule, tests);
-
-    tests.invalid.map(test => {
-      code: test.code;
-    });
-    this.ruleTesterNoTsConfig.run(name, rule, {
-      valid: tests.invalid,
-      invalid: [],
-    });
   }
 }
 

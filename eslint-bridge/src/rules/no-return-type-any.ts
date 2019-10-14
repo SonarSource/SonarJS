@@ -28,7 +28,6 @@ import {
 import * as estree from "estree";
 
 type ReturnedExpression = estree.Expression | undefined | null;
-type ReturnedArrayType = ReturnedExpression[];
 
 const message = "Remove this return type or change it to a more specific.";
 
@@ -38,7 +37,7 @@ export const rule: Rule.RuleModule = {
 
     if (isRequiredParserServices(services)) {
       const ts = require("typescript");
-      let returnedExpressions: ReturnedArrayType = [];
+      let returnedExpressions: ReturnedExpression[] = [];
       return {
         ReturnStatement(node: estree.Node) {
           returnedExpressions.push((node as estree.ReturnStatement).argument);
@@ -65,7 +64,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function allReturnTypesEqual(
-  returns: ReturnedArrayType,
+  returns: ReturnedExpression[],
   services: RequiredParserServices,
   ts: any,
 ): boolean {
