@@ -19,25 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.IOException;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.FileIssue;
-import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1451")
-public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
+public class FileHeaderCheck extends EslintBasedCheck {
 
-  private static final String MESSAGE = "Add or update the header of this file.";
   private static final String DEFAULT_HEADER_FORMAT = "";
 
   @RuleProperty(
@@ -53,70 +46,23 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
     defaultValue = "false")
   public boolean isRegularExpression = false;
 
-  private String[] expectedLines = null;
-  private Pattern searchPattern = null;
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config(headerFormat, isRegularExpression));
+  }
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    if (isRegularExpression) {
-      checkRegularExpression();
-
-    } else {
-      checkPlainText();
-    }
+  public String eslintKey() {
+    return "file-header";
   }
 
-  private void checkPlainText() {
-    if (expectedLines == null) {
-      expectedLines = headerFormat.split("(?:\r)?\n|\r");
-    }
-    JavaScriptFile file = getContext().getJavaScriptFile();
-    List<String> lines = CheckUtils.readLines(file);
-    if (!matches(expectedLines, lines)) {
-      addIssue(new FileIssue(this, MESSAGE));
-    }
-  }
+  private static class Config {
+    String headerFormat;
+    boolean isRegularExpression;
 
-  private void checkRegularExpression() {
-    if (searchPattern == null) {
-      try {
-        searchPattern = Pattern.compile(headerFormat, Pattern.DOTALL);
-      } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException("[" + getClass().getSimpleName() + "] Unable to compile the regular expression: " + headerFormat, e);
-      }
-    }
-    String fileContent;
-    try {
-      fileContent = getContext().getJavaScriptFile().contents();
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to read file " + getContext().getJavaScriptFile().toString(), e);
-    }
-
-    Matcher matcher = searchPattern.matcher(fileContent);
-    if (!matcher.find() || matcher.start() != 0) {
-      addIssue(new FileIssue(this, MESSAGE));
+    Config(String headerFormat, boolean isRegularExpression) {
+      this.headerFormat = headerFormat;
+      this.isRegularExpression = isRegularExpression;
     }
   }
-
-  private static boolean matches(String[] expectedLines, List<String> lines) {
-    boolean result;
-
-    if (expectedLines.length <= lines.size()) {
-      result = true;
-
-      Iterator<String> it = lines.iterator();
-      for (String expectedLine : expectedLines) {
-        String line = it.next();
-        if (!line.equals(expectedLine)) {
-          result = false;
-          break;
-        }
-      }
-    } else {
-      result = false;
-    }
-
-    return result;
-  }
-
 }

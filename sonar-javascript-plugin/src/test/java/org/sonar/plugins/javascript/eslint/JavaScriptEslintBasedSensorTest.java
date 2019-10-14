@@ -105,8 +105,9 @@ public class JavaScriptEslintBasedSensorTest {
   public void should_create_issues_from_eslint_based_rules() throws Exception {
     AnalysisResponse responseIssues = response("{ issues: [{" +
       "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []" +
-      "}]}");
+      "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
+      "{\"line\":0,\"column\":1,\"ruleId\":\"file-header\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
+      "]}");
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
 
     JavaScriptEslintBasedSensor sensor = createSensor();
@@ -114,11 +115,12 @@ public class JavaScriptEslintBasedSensorTest {
 
     sensor.execute(context);
 
-    assertThat(context.allIssues()).hasSize(2);
+    assertThat(context.allIssues()).hasSize(3);
 
     Iterator<Issue> issues = context.allIssues().iterator();
     Issue firstIssue = issues.next();
     Issue secondIssue = issues.next();
+    Issue thirdIssue = issues.next();
 
     IssueLocation location = firstIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
@@ -130,8 +132,14 @@ public class JavaScriptEslintBasedSensorTest {
     assertThat(location.message()).isEqualTo("Line issue message");
     assertThat(location.textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 9)));
 
+    location = thirdIssue.primaryLocation();
+    assertThat(location.inputComponent()).isEqualTo(inputFile);
+    assertThat(location.message()).isEqualTo("File issue message");
+    assertThat(location.textRange()).isNull();
+
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
+    assertThat(thirdIssue.ruleKey().rule()).isEqualTo("S1451");
   }
 
   private AnalysisResponse response(String json) {
@@ -429,6 +437,6 @@ public class JavaScriptEslintBasedSensorTest {
 
 
   private JavaScriptEslintBasedSensor createSensor() {
-    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock);
+    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError", "S1451"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock);
   }
 }

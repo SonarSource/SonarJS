@@ -19,22 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.gson.Gson;
-import org.junit.Test;
+import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-import static org.assertj.core.api.Assertions.assertThat;
+@TypeScriptRule
+@Rule(key = "S4621")
+public class NoDuplicateInCompositeCheck extends EslintBasedCheck {
 
-public class FileHeaderCheckTest {
-
-  @Test
-  public void config() {
-    final FileHeaderCheck check = new FileHeaderCheck();
-    String configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString).isEqualTo("[{\"headerFormat\":\"\",\"isRegularExpression\":false}]");
-
-    check.headerFormat = "// header format 20\\d\\d";
-    check.isRegularExpression = true;
-    configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString).isEqualTo("[{\"headerFormat\":\"// header format 20\\\\d\\\\d\",\"isRegularExpression\":true}]");
+  @Override
+  public String eslintKey() {
+    return "no-duplicate-in-composite";
   }
+
 }
