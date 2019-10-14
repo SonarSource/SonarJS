@@ -34,7 +34,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class ProjectWithISO8859Test {
+public class ProjectWithDifferentEncodingTest {
   @ClassRule
   public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
@@ -45,10 +45,10 @@ public class ProjectWithISO8859Test {
 
   @Test
   public void test() {
-    String projectKey = "project-with-iso8859";
+    String projectKey = "project-with-different-encoding";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
-      .setSourceEncoding("ISO-8859-1")
+      .setSourceEncoding("UTF-16")
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDir(projectKey));
 
@@ -60,7 +60,7 @@ public class ProjectWithISO8859Test {
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
     List<Issues.Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
     assertThat(issuesList).extracting(Issues.Issue::getLine, Issues.Issue::getComponent, Issues.Issue::getRule)
-      .containsExactly(tuple(2, "project-with-iso8859:fileWithIso8859.js", "javascript:S3923"));
+      .containsExactly(tuple(2, projectKey + ":fileWithUtf16.js", "javascript:S3923"));
   }
 
 }
