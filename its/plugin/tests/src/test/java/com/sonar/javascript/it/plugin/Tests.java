@@ -55,6 +55,8 @@ import static java.util.Collections.singletonList;
   MinifiedFilesTest.class,
   MultiTsconfigTest.class,
   NoSonarTest.class,
+  ProjectWithBOMTest.class,
+  ProjectWithDifferentEncodingTest.class,
   SonarLintTest.class,
   SonarLintTestCustomNodeJS.class,
   TslintExternalReportTest.class,
