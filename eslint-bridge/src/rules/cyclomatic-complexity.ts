@@ -29,10 +29,10 @@ type FunctionLike =
   | estree.FunctionExpression
   | estree.ArrowFunctionExpression;
 
-const FunctionLikeType = "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression";
+const functionLikeType = "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression";
 
-function isFunctionLike(node: estree.Node): boolean {
-  return FunctionLikeType.split(", ").includes(node.type);
+function isFunctionLike(node: estree.Node): node is FunctionLike {
+  return functionLikeType.split(", ").includes(node.type);
 }
 
 let functionsDefiningModule: estree.Node[];
@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
         functionsDefiningModule = getFunctionsDefiningModule(context);
         functionsImmediatelyInvoked = getFunctionsImmediatelyInvoked(context);
       },
-      [`${FunctionLikeType}`]: (node: estree.Node) => {
+      [`${functionLikeType}`]: (node: estree.Node) => {
         if (
           !functionsDefiningModule.includes(node) &&
           !functionsImmediatelyInvoked.includes(node)
@@ -70,7 +70,7 @@ function getFunctionsImmediatelyInvoked(context: Rule.RuleContext): estree.Node[
 }
 
 function raiseOnUnauthorizedComplexity(node: FunctionLike, context: Rule.RuleContext): void {
-  const tokens = getComplexityTokens(node, context);
+  const tokens = computeCyclomaticComplexity(node, context);
   const complexity = tokens.length;
   const [threshold] = context.options;
   if (complexity > threshold) {
@@ -114,7 +114,7 @@ function toSecondaryLocation(token: ComplexityToken): IssueLocation {
   };
 }
 
-function getComplexityTokens(node: estree.Node, context: Rule.RuleContext): ComplexityToken[] {
+function computeCyclomaticComplexity(node: estree.Node, context: Rule.RuleContext): ComplexityToken[] {
   const visitor = new FunctionComplexityVisitor(node, context);
   visitor.visit();
   return visitor.getComplexityTokens();
@@ -137,7 +137,7 @@ class FunctionComplexityVisitor {
         if (node !== this.root) {
           return;
         } else {
-          token = this.tokenOf(node as FunctionLike);
+          token = node;
         }
       } else {
         switch (node.type) {
