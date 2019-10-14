@@ -40,6 +40,7 @@ let functionsImmediatelyInvoked: estree.Node[];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    const [threshold] = context.options;
     return {
       Program: (_node: estree.Node) => {
         functionsDefiningModule = getFunctionsDefiningModule(context);
@@ -50,7 +51,7 @@ export const rule: Rule.RuleModule = {
           !functionsDefiningModule.includes(node) &&
           !functionsImmediatelyInvoked.includes(node)
         ) {
-          raiseOnUnauthorizedComplexity(node as FunctionLike, context);
+          raiseOnUnauthorizedComplexity(node as FunctionLike, threshold, context);
         }
       },
     };
@@ -69,10 +70,9 @@ function getFunctionsImmediatelyInvoked(context: Rule.RuleContext): estree.Node[
   return visitor.getFunctions();
 }
 
-function raiseOnUnauthorizedComplexity(node: FunctionLike, context: Rule.RuleContext): void {
+function raiseOnUnauthorizedComplexity(node: FunctionLike, threshold: number, context: Rule.RuleContext): void {
   const tokens = computeCyclomaticComplexity(node, context);
   const complexity = tokens.length;
-  const [threshold] = context.options;
   if (complexity > threshold) {
     context.report({
       message: toEncodedMessage(complexity, threshold, tokens),
