@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -178,8 +179,9 @@ abstract class AbstractEslintSensor implements Sensor {
       .save();
   }
 
-  protected boolean isSonarLint(SensorContext context) {
-    return context.runtime().getProduct() == SonarProduct.SONARLINT;
+  protected boolean shouldSendFileContent(InputFile file) {
+    return context.runtime().getProduct() == SonarProduct.SONARLINT
+      || !StandardCharsets.UTF_8.equals(file.charset());
   }
 
   protected abstract List<InputFile> getInputFiles();

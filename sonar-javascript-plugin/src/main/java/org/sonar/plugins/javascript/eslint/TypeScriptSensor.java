@@ -138,7 +138,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   private void analyze(InputFile file, List<String> tsConfigs) {
     try {
-      String fileContent = isSonarLint(context) ? file.contents() : null;
+      String fileContent = shouldSendFileContent(file) ? file.contents() : null;
       AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), tsConfigs);
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       processResponse(file, response);
