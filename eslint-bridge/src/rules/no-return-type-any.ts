@@ -37,10 +37,15 @@ export const rule: Rule.RuleModule = {
 
     if (isRequiredParserServices(services)) {
       const ts = require("typescript");
-      let returnedExpressions: ReturnedExpression[] = [];
+      let returnedExpressions: ReturnedExpression[][] = [];
       return {
         ReturnStatement(node: estree.Node) {
-          returnedExpressions.push((node as estree.ReturnStatement).argument);
+          returnedExpressions[returnedExpressions.length - 1].push(
+            (node as estree.ReturnStatement).argument,
+          );
+        },
+        FunctionDeclaration: function() {
+          returnedExpressions.push([]);
         },
         "FunctionDeclaration:exit": function(node: estree.Node) {
           const returnType = (node as TSESTree.FunctionDeclaration).returnType;
@@ -48,14 +53,14 @@ export const rule: Rule.RuleModule = {
             returnType &&
             returnType.typeAnnotation.type === "TSAnyKeyword" &&
             returnedExpressions.length > 0 &&
-            allReturnTypesEqual(returnedExpressions, services, ts)
+            allReturnTypesEqual(returnedExpressions[returnedExpressions.length - 1], services, ts)
           ) {
             context.report({
               message,
               loc: returnType.loc,
             });
           }
-          returnedExpressions = [];
+          returnedExpressions.pop();
         },
       };
     }

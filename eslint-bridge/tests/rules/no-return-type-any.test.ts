@@ -44,6 +44,14 @@ ruleTester.run("Primitive return types should be used.", rule, {
         }`,
     },
     {
+      code: `// OK, returns different primitive types
+            function outer(x: any): any {
+              if (x) return "";
+              function inner(): number {}
+              return 1;
+            }`,
+    },
+    {
       code: `// OK, returns union type
         function ternary(x: any): any {
           const y = x ? 1 : 2;
@@ -150,6 +158,17 @@ ruleTester.run("Primitive return types should be used.", rule, {
             return x;
           }
         }`,
+      errors: 1,
+    },
+    {
+      code: `//Nested functions
+            function outer(): number {
+              if (false) return -1;
+              function inner(): any {
+                return ""; //Nomcompliant
+              } // returnedExpressions === [-1, ""] @inner:exit
+              return 0;
+            }`,
       errors: 1,
     },
   ],
