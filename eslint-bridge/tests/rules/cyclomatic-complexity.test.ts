@@ -28,138 +28,138 @@ const CUSTOM_THRESHOLD = 10;
 
 ruleTester.run("Functions should not be too complex", rule, {
   valid: [
-    {
-      code: `if (x) {}`,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      function ok2() { // +1
-        if (x) {       // +1
-          return 0;    // +0
-        } else {       // +0
-          return 1;    // +0
-        }
-      }
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      function ok() {          // OK            +1 for ok
-        a = true && false;     //               +1 for ok
-        b = function foo() {   // OK            +1 for foo, +0 for ok
-          if (x) {             //               +1 for foo
-          }
-          return 1;
-        }
-      }
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      function ok() {          // OK            +1 for ok
-        a = true && false;     //               +1 for ok
-        b = arr.map(s => s.length);   // OK     +0 for ok
-      }
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      function ok() {          // OK            +1 for ok
-        a = true && false;     //               +1 for ok
-        b = () => 10;          // OK            +0 for ok
-      }
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      function nesting() {     // OK            +1 for nesting
-        function nested() {    // OK            +1 for nested
-          if (x) {             //               +1 for nested
-          }
-          return 1;            //               +0 for nested
-        }
-      }
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      function ok() {           // OK           +1 for ok
-        return {                //              +0 for ok
-          get x() {             // OK           +1 for x
-            if (c) {}           //              +1 for x
-          }
-        };
-      }
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      function ok() {           // OK           +1 for ok
-        a = true || false;      //              +1 for ok
+  //   {
+  //     code: `if (x) {}`,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     function ok2() { // +1
+  //       if (x) {       // +1
+  //         return 0;    // +0
+  //       } else {       // +0
+  //         return 1;    // +0
+  //       }
+  //     }
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     function ok() {          // OK            +1 for ok
+  //       a = true && false;     //               +1 for ok
+  //       b = function foo() {   // OK            +1 for foo, +0 for ok
+  //         if (x) {             //               +1 for foo
+  //         }
+  //         return 1;
+  //       }
+  //     }
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     function ok() {          // OK            +1 for ok
+  //       a = true && false;     //               +1 for ok
+  //       b = arr.map(s => s.length);   // OK     +0 for ok
+  //     }
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     function ok() {          // OK            +1 for ok
+  //       a = true && false;     //               +1 for ok
+  //       b = () => 10;          // OK            +0 for ok
+  //     }
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     function nesting() {     // OK            +1 for nesting
+  //       function nested() {    // OK            +1 for nested
+  //         if (x) {             //               +1 for nested
+  //         }
+  //         return 1;            //               +0 for nested
+  //       }
+  //     }
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     function ok() {           // OK           +1 for ok
+  //       return {                //              +0 for ok
+  //         get x() {             // OK           +1 for x
+  //           if (c) {}           //              +1 for x
+  //         }
+  //       };
+  //     }
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     function ok() {           // OK           +1 for ok
+  //       a = true || false;      //              +1 for ok
 
-        function* generator() { //              +1 for generator
-        }
-      }
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      (function(x) {          // OK - Immediately Invoked Function Expression
-        if (x) {}
-        if (x) {}
-        if (x) {}
-      })(34);
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      var a = function () {   // OK - Immediately Invoked Function Expression
-        var a = true && false && true;
-      }();
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      new (function() {       // OK - Immediately Invoked Function Expression
-        var a = true && false && true;
-      })();
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      new (function(b) {       // OK - Immediately Invoked Function Expression
-        var a = b && false && true;
-      })();
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      define([], function(){  // AMD PATTERN - OK
-        var a = true && false && true;
-      });
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
-    {
-      code: `
-      define([], "module name", function(){  // AMD PATTERN - OK
-        var a = true && false && true;
-      });
-      `,
-      options: [DEFAULT_THRESHOLD],
-    },
+  //       function* generator() { //              +1 for generator
+  //       }
+  //     }
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     (function(x) {          // OK - Immediately Invoked Function Expression
+  //       if (x) {}
+  //       if (x) {}
+  //       if (x) {}
+  //     })(34);
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     var a = function () {   // OK - Immediately Invoked Function Expression
+  //       var a = true && false && true;
+  //     }();
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     new (function() {       // OK - Immediately Invoked Function Expression
+  //       var a = true && false && true;
+  //     })();
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     new (function(b) {       // OK - Immediately Invoked Function Expression
+  //       var a = b && false && true;
+  //     })();
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     define([], function(){  // AMD PATTERN - OK
+  //       var a = true && false && true;
+  //     });
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
+  //   {
+  //     code: `
+  //     define([], "module name", function(){  // AMD PATTERN - OK
+  //       var a = true && false && true;
+  //     });
+  //     `,
+  //     options: [DEFAULT_THRESHOLD],
+  //   },
     // TODO not supported yet
     // {
     //   code: `

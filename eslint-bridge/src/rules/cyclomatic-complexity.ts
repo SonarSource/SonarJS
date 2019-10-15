@@ -23,7 +23,7 @@ import { Rule, AST } from "eslint";
 import * as estree from "estree";
 import { EncodedMessage, IssueLocation, getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
 import visit, { childrenOf } from "../utils/visitor";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 type FunctionLike =
   | estree.FunctionDeclaration
@@ -36,34 +36,30 @@ function isFunctionLike(node: estree.Node): node is FunctionLike {
   return functionLikeType.split(", ").includes(node.type);
 }
 
-let functionsDefiningModule: estree.Node[];
-let functionsImmediatelyInvoked: estree.Node[];
-
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const [threshold] = context.options;
+    let functions: Map<estree.Node, estree.Node | undefined>;
+    let functionsDefiningModule: estree.Node[];
+    let functionsImmediatelyInvoked: estree.Node[];
     return {
-      Program: (_node: estree.Node) => {
-        functionsDefiningModule = getFunctionsDefiningModule(context);
+      "Program": () => {
+        functions = new Map<estree.Node, estree.Node>();
+        functionsDefiningModule = [];
         functionsImmediatelyInvoked = getFunctionsImmediatelyInvoked(context);
       },
-      [`${functionLikeType}`]: (node: estree.Node) => {
-        if (
-          !functionsDefiningModule.includes(node) &&
-          !functionsImmediatelyInvoked.includes(node)
-        ) {
-          raiseOnUnauthorizedComplexity(node as FunctionLike, threshold, context);
-        }
+      "Program:exit": () => {
+        functions.forEach((parent, fun) => {
+          if (!functionsDefiningModule.includes(fun) && !functionsImmediatelyInvoked.includes(fun)) {
+            raiseOnUnauthorizedComplexity(fun as FunctionLike, parent, threshold, context)
+          }
+        })
       },
+      [`${functionLikeType}`]: (node: estree.Node) => functions.set(node, getParent(context)),
+      "CallExpression[callee.type='Identifier'][callee.name='define'] FunctionExpression": (node: estree.Node) => functionsDefiningModule.push(node),
     };
   },
 };
-
-function getFunctionsDefiningModule(context: Rule.RuleContext): estree.Node[] {
-  const visitor = new FunctionDefiningModuleVisitor(context);
-  visitor.visit();
-  return visitor.getFunctions();
-}
 
 function getFunctionsImmediatelyInvoked(context: Rule.RuleContext): estree.Node[] {
   const visitor = new FunctionImmediatelyInvokedVisitor(context);
@@ -71,8 +67,8 @@ function getFunctionsImmediatelyInvoked(context: Rule.RuleContext): estree.Node[
   return visitor.getFunctions();
 }
 
-function raiseOnUnauthorizedComplexity(node: FunctionLike, threshold: number, context: Rule.RuleContext): void {
-  const tokens = computeCyclomaticComplexity(node, context);
+function raiseOnUnauthorizedComplexity(node: FunctionLike, parent: estree.Node | undefined, threshold: number, context: Rule.RuleContext): void {
+  const tokens = computeCyclomaticComplexity(node, parent, context);
   const complexity = tokens.length;
   if (complexity > threshold) {
     context.report({
@@ -115,8 +111,8 @@ function toSecondaryLocation(token: ComplexityToken): IssueLocation {
   };
 }
 
-function computeCyclomaticComplexity(node: estree.Node, context: Rule.RuleContext): ComplexityToken[] {
-  const visitor = new FunctionComplexityVisitor(node, context);
+function computeCyclomaticComplexity(node: estree.Node, parent: estree.Node | undefined, context: Rule.RuleContext): ComplexityToken[] {
+  const visitor = new FunctionComplexityVisitor(node, parent, context);
   visitor.visit();
   return visitor.getComplexityTokens();
 }
@@ -128,7 +124,7 @@ interface ComplexityToken {
 class FunctionComplexityVisitor {
   private tokens: ComplexityToken[] = [];
 
-  constructor(private root: estree.Node, private context: Rule.RuleContext) {}
+  constructor(private root: estree.Node, private parent: estree.Node | undefined, private context: Rule.RuleContext) {}
 
   visit() {
     const visitNode = (node: estree.Node) => {
@@ -138,7 +134,7 @@ class FunctionComplexityVisitor {
         if (node !== this.root) {
           return;
         } else {
-          token = { loc: getMainFunctionTokenLocation(node, getParent(this.context), this.context) };
+          token = { loc: getMainFunctionTokenLocation(node, this.parent, this.context) };
         }
       } else {
         switch (node.type) {
@@ -182,43 +178,6 @@ class FunctionComplexityVisitor {
 
   getComplexityTokens() {
     return this.tokens;
-  }
-}
-
-class FunctionDefiningModuleVisitor {
-  private functions: estree.Node[] = [];
-  private amdPattern = false;
-
-  constructor(private context: Rule.RuleContext) {}
-
-  visit() {
-    const sourceCode = this.context.getSourceCode();
-    visit(sourceCode, node => {
-      if (node.type === "CallExpression") {
-        this.checkForAMDPattern(node);
-        // TODO check for Angular module method call
-        // we are missing type information
-      }
-
-      if (isFunctionLike(node) && this.amdPattern) {
-        this.functions.push(node);
-        this.amdPattern = false;
-      }
-    });
-  }
-
-  getFunctions() {
-    return this.functions;
-  }
-
-  private checkForAMDPattern(node: estree.CallExpression): void {
-    if (node.callee.type === "Identifier" && node.callee.name === "define") {
-      for (const argument of node.arguments) {
-        if (argument.type === "FunctionExpression") {
-          this.amdPattern = true;
-        }
-      }
-    }
   }
 }
 
