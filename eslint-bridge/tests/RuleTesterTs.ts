@@ -29,6 +29,10 @@ const parserOptions = {
 
 const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-project/file.ts`);
 
+/**
+ * Rule tester for Typescript, using @typescript-eslint parser, making sure that type information is present.
+ * It will also assert that no issues is raised when there are no type information.
+ */
 class RuleTesterTs extends RuleTester {
   ruleTesterNoTsConfig = new RuleTester({
     parser,
