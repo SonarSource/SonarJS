@@ -10,20 +10,17 @@ ruleTester.run("Type aliases should be used", rule, {
   valid: [
     {
       code: `type MyType = string | null | number;`,
-      options: [],
     },
     {
       code: `
       type MyType = string | null | number;
       const another: MyType | undefined = "";`,
-      options: [],
     },
     {
       code: `
       let x: number | string;
       let y: number | string;
       let z: number | string; // this fine because only 2 types in the union`,
-      options: [],
     },
     {
       code: `
@@ -41,7 +38,6 @@ ruleTester.run("Type aliases should be used", rule, {
         name: string;
         b: number;
       }`,
-      options: [],
     },
     {
       code: `
@@ -49,7 +45,6 @@ ruleTester.run("Type aliases should be used", rule, {
       type Alias = number | number[] | undefined;
       function one(x: number | number[] | undefined) {}
       function two(x: number | number[] | undefined) {}`,
-      options: [],
     },
   ],
   invalid: [
@@ -59,7 +54,6 @@ ruleTester.run("Type aliases should be used", rule, {
       const bar: string | null | number = null;
       function zoo(): string | null | number {}
       `,
-      options: [],
       errors: [
         {
           message:
@@ -77,7 +71,6 @@ ruleTester.run("Type aliases should be used", rule, {
       const bar: string & null & number = null;
       function zoo(): string & null & number {}
       `,
-      options: [],
       errors: [
         {
           message:
