@@ -28,138 +28,130 @@ const CUSTOM_THRESHOLD = 10;
 
 ruleTester.run("Functions should not be too complex", rule, {
   valid: [
-  //   {
-  //     code: `if (x) {}`,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     function ok2() { // +1
-  //       if (x) {       // +1
-  //         return 0;    // +0
-  //       } else {       // +0
-  //         return 1;    // +0
-  //       }
-  //     }
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     function ok() {          // OK            +1 for ok
-  //       a = true && false;     //               +1 for ok
-  //       b = function foo() {   // OK            +1 for foo, +0 for ok
-  //         if (x) {             //               +1 for foo
-  //         }
-  //         return 1;
-  //       }
-  //     }
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     function ok() {          // OK            +1 for ok
-  //       a = true && false;     //               +1 for ok
-  //       b = arr.map(s => s.length);   // OK     +0 for ok
-  //     }
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     function ok() {          // OK            +1 for ok
-  //       a = true && false;     //               +1 for ok
-  //       b = () => 10;          // OK            +0 for ok
-  //     }
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     function nesting() {     // OK            +1 for nesting
-  //       function nested() {    // OK            +1 for nested
-  //         if (x) {             //               +1 for nested
-  //         }
-  //         return 1;            //               +0 for nested
-  //       }
-  //     }
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     function ok() {           // OK           +1 for ok
-  //       return {                //              +0 for ok
-  //         get x() {             // OK           +1 for x
-  //           if (c) {}           //              +1 for x
-  //         }
-  //       };
-  //     }
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     function ok() {           // OK           +1 for ok
-  //       a = true || false;      //              +1 for ok
+    {
+      code: `if (x) {}`,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      function ok2() { // +1
+        if (x) {       // +1
+          return 0;    // +0
+        } else {       // +0
+          return 1;    // +0
+        }
+      }
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      function ok() {          // OK            +1 for ok
+        a = true && false;     //               +1 for ok
+        b = function foo() {   // OK            +1 for foo, +0 for ok
+          if (x) {             //               +1 for foo
+          }
+          return 1;
+        }
+      }
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      function ok() {          // OK            +1 for ok
+        a = true && false;     //               +1 for ok
+        b = arr.map(s => s.length);   // OK     +0 for ok
+      }
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      function ok() {          // OK            +1 for ok
+        a = true && false;     //               +1 for ok
+        b = () => 10;          // OK            +0 for ok
+      }
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      function nesting() {     // OK            +1 for nesting
+        function nested() {    // OK            +1 for nested
+          if (x) {             //               +1 for nested
+          }
+          return 1;            //               +0 for nested
+        }
+      }
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      function ok() {           // OK           +1 for ok
+        return {                //              +0 for ok
+          get x() {             // OK           +1 for x
+            if (c) {}           //              +1 for x
+          }
+        };
+      }
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      function ok() {           // OK           +1 for ok
+        a = true || false;      //              +1 for ok
 
-  //       function* generator() { //              +1 for generator
-  //       }
-  //     }
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     (function(x) {          // OK - Immediately Invoked Function Expression
-  //       if (x) {}
-  //       if (x) {}
-  //       if (x) {}
-  //     })(34);
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     var a = function () {   // OK - Immediately Invoked Function Expression
-  //       var a = true && false && true;
-  //     }();
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     new (function() {       // OK - Immediately Invoked Function Expression
-  //       var a = true && false && true;
-  //     })();
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     new (function(b) {       // OK - Immediately Invoked Function Expression
-  //       var a = b && false && true;
-  //     })();
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     define([], function(){  // AMD PATTERN - OK
-  //       var a = true && false && true;
-  //     });
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
-  //   {
-  //     code: `
-  //     define([], "module name", function(){  // AMD PATTERN - OK
-  //       var a = true && false && true;
-  //     });
-  //     `,
-  //     options: [DEFAULT_THRESHOLD],
-  //   },
+        function* generator() { //              +1 for generator
+        }
+      }
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      (function(x) {          // OK - Immediately Invoked Function Expression
+        if (x) {}
+        if (x) {}
+        if (x) {}
+      })(34);
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      var a = function () {   // OK - Immediately Invoked Function Expression
+        var a = true && false && true;
+      }();
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      new (function() {       // OK - Immediately Invoked Function Expression
+        var a = true && false && true;
+      })();
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      define([], function(){  // AMD PATTERN - OK
+        var a = true && false && true;
+      });
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
+    {
+      code: `
+      define([], "module name", function(){  // AMD PATTERN - OK
+        var a = true && false && true;
+      });
+      `,
+      options: [DEFAULT_THRESHOLD],
+    },
     // TODO not supported yet
     // {
     //   code: `
@@ -196,7 +188,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(2, 15, 2, 17),
           sndloc(4, 8, 4, 10),
           sndloc(6, 13, 6, 15),
@@ -219,7 +211,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(5, DEFAULT_THRESHOLD, [
+        err(5, DEFAULT_THRESHOLD, [
           sndloc(2, 15, 2, 17),
           sndloc(4, 8, 4, 10),
           sndloc(6, 13, 6, 15),
@@ -240,7 +232,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(2, 17, 2, 19),
           sndloc(4, 8, 4, 10),
           sndloc(6, 13, 6, 15),
@@ -260,7 +252,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(2, 17, 2, 19),
           sndloc(4, 8, 4, 10),
           sndloc(6, 10, 6, 12),
@@ -288,7 +280,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(4, DEFAULT_THRESHOLD, [
+        err(4, DEFAULT_THRESHOLD, [
           sndloc(2, 15, 2, 17),
           sndloc(5, 10, 5, 14),
           sndloc(8, 10, 8, 14),
@@ -308,7 +300,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(2, 15, 2, 17),
           sndloc(4, 17, 4, 19),
           sndloc(6, 17, 6, 19),
@@ -330,7 +322,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(3, 17, 3, 23),
           sndloc(5, 10, 5, 12),
           sndloc(7, 17, 7, 19),
@@ -361,12 +353,12 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(2, 15, 2, 22),
           sndloc(4, 8, 4, 10),
           sndloc(17, 8, 17, 10),
         ]),
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(8, 17, 8, 23),
           sndloc(10, 10, 10, 12),
           sndloc(12, 17, 12, 19),
@@ -389,7 +381,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(4, 19, 4, 25),
           sndloc(6, 12, 6, 14),
           sndloc(8, 17, 8, 19),
@@ -417,12 +409,12 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(3, 17, 3, 25),
           sndloc(5, 19, 5, 21),
           sndloc(7, 19, 7, 21),
         ]),
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(9, 19, 9, 25),
           sndloc(11, 12, 11, 14),
           sndloc(13, 17, 13, 19),
@@ -453,12 +445,12 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(3, 8, 3, 10),
           sndloc(5, 10, 5, 12),
           sndloc(7, 15, 7, 17),
         ]),
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(13, 8, 13, 11),
           sndloc(15, 10, 15, 12),
           sndloc(17, 15, 17, 17),
@@ -482,7 +474,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(3, DEFAULT_THRESHOLD, [
+        err(3, DEFAULT_THRESHOLD, [
           sndloc(4, 19, 4, 25),
           sndloc(6, 12, 6, 17),
           sndloc(8, 23, 8, 25),
@@ -510,7 +502,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(4, DEFAULT_THRESHOLD, [
+        err(4, DEFAULT_THRESHOLD, [
           sndloc(4, 14, 4, 15),
           sndloc(9, 12, 9, 14),
           sndloc(11, 17, 11, 19),
@@ -538,55 +530,11 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [DEFAULT_THRESHOLD],
       errors: [
-        error(4, DEFAULT_THRESHOLD, [
+        err(4, DEFAULT_THRESHOLD, [
           sndloc(6, 14, 6, 15),
           sndloc(8, 12, 8, 15),
           sndloc(10, 12, 10, 14),
           sndloc(12, 12, 12, 14),
-        ]),
-      ],
-    },
-    {
-      code: `
-      (function () {       // OK - Immediately Invoked Function Expression
-
-        function f() {     //  Noncompliant
-               //^
-            var a = true && false && true;
-                       //^^       ^^
-        }
-
-        function g() {     // OK - complexity = 1
-        }
-
-        if (x) {}
-        if (x) {}
-        if (x) {}
-      })();
-      `,
-      options: [DEFAULT_THRESHOLD],
-      errors: [
-        error(3, DEFAULT_THRESHOLD, [
-          sndloc(4, 17, 4, 18),
-          sndloc(6, 34, 6, 36),
-          sndloc(6, 25, 6, 27),
-        ]),
-      ],
-    },
-    {
-      code: `
-      new function(){  //  Noncompliant
-        //^^^^^^^^
-          var a = true && false && true;
-                     //^^       ^^
-      };
-      `,
-      options: [DEFAULT_THRESHOLD],
-      errors: [
-        error(3, DEFAULT_THRESHOLD, [
-          sndloc(2, 10, 2, 18),
-          sndloc(4, 32, 4, 34),
-          sndloc(4, 23, 4, 25),
         ]),
       ],
     },
@@ -632,7 +580,7 @@ ruleTester.run("Functions should not be too complex", rule, {
       `,
       options: [CUSTOM_THRESHOLD],
       errors: [
-        error(12, CUSTOM_THRESHOLD, [
+        err(12, CUSTOM_THRESHOLD, [
           sndloc(4, 17, 4, 32),
           sndloc(7, 10, 7, 12),
           sndloc(9, 10, 9, 15),
@@ -651,7 +599,7 @@ ruleTester.run("Functions should not be too complex", rule, {
   ],
 });
 
-function error(complexity: number, threshold: number, secondaryLocations: IssueLocation[]) {
+function err(complexity: number, threshold: number, secondaryLocations: IssueLocation[]) {
   return {
     message: encode(complexity, threshold, secondaryLocations),
   };
