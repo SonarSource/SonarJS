@@ -48,6 +48,7 @@ import { rule as regularExpr } from "./regular-expr";
 import { rule as sockets } from "./sockets";
 import { rule as sqlQueries } from "./sql-queries";
 import { rule as standardInput } from "./standard-input";
+import { rule as useTypeAlias } from "./use-type-alias";
 import { rule as variableName } from "./variable-name";
 import { rule as xpath } from "./xpath";
 
@@ -83,6 +84,7 @@ ruleModules["regular-expr"] = regularExpr;
 ruleModules["sockets"] = sockets;
 ruleModules["sql-queries"] = sqlQueries;
 ruleModules["standard-input"] = standardInput;
+ruleModules["use-type-alias"] = useTypeAlias;
 ruleModules["variable-name"] = variableName;
 ruleModules["xpath"] = xpath;
 
