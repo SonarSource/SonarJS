@@ -3,7 +3,7 @@ import { RuleTester } from "eslint";
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
 import { rule } from "../../src/rules/prefer-default-last";
 
-ruleTester.run('"default" clauses should be first or last', rule, {
+ruleTester.run('"default" clauses should be last', rule, {
   valid: [
     {
       code: `switch (true) {}`,
@@ -43,7 +43,7 @@ ruleTester.run('"default" clauses should be first or last', rule, {
         }`,
       errors: [
         {
-          message: 'Move this "default" clause to the beginning or end of this "switch" statement.',
+          message: 'Move this "default" clause to the end of this "switch" statement.',
           line: 5,
           endLine: 5,
           column: 11,
