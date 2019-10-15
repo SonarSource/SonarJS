@@ -27,10 +27,17 @@ import { toEncodedMessage } from "./utils";
 const TYPE_THRESHOLD = 2;
 const USAGE_THRESHOLD = 2;
 
-let usage: Map<string, TSESTree.Node[]>;
-
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ["sonar-runtime"],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
+    let usage: Map<string, TSESTree.Node[]>;
     return {
       Program: () => (usage = new Map<string, TSESTree.Node[]>()),
       "Program:exit": () =>
