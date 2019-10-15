@@ -60,7 +60,10 @@ export const rule: Rule.RuleModule = {
         if (!declaration) {
           const composite = (node as unknown) as TSESTree.TSUnionType | TSESTree.TSIntersectionType;
           if (composite.types.length > TYPE_THRESHOLD) {
-            const text = context.getSourceCode().getText(node);
+            const text = composite.types
+              .map(typeNode => context.getSourceCode().getText(typeNode as estree.Node))
+              .sort((a, b) => a.localeCompare(b))
+              .join("|");
             let occurrences = usage.get(text);
             if (!occurrences) {
               occurrences = [composite];

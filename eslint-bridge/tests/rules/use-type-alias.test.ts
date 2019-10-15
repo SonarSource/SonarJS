@@ -46,6 +46,12 @@ ruleTester.run("Type aliases should be used", rule, {
       function one(x: number | number[] | undefined) {}
       function two(x: number | number[] | undefined) {}`,
     },
+    {
+      code: `
+      let x: number | string | undefined;
+      let y: number | string | undefined;
+      let z: number | String | undefined; // this fine because case-sensitive`,
+    },
   ],
   invalid: [
     {
@@ -79,6 +85,32 @@ ruleTester.run("Type aliases should be used", rule, {
           endLine: 2,
           column: 23,
           endColumn: 45,
+        },
+      ],
+    },
+    {
+      code: `
+      let x: string | null | number;
+      let y: number | string | null ;
+      let z:   null  |number|     string  ;
+      `,
+      errors: [
+        {
+          message:
+            '{"message":"Replace this union type with a type alias.","secondaryLocations":[{"column":13,"line":3,"endColumn":35,"endLine":3},{"column":15,"line":4,"endColumn":40,"endLine":4}]}',
+        },
+      ],
+    },
+    {
+      code: `
+      let x: string & null & number;
+      let y: number & string & null ;
+      let z:   null  &number&     string  ;
+      `,
+      errors: [
+        {
+          message:
+            '{"message":"Replace this intersection type with a type alias.","secondaryLocations":[{"column":13,"line":3,"endColumn":35,"endLine":3},{"column":15,"line":4,"endColumn":40,"endLine":4}]}',
         },
       ],
     },
