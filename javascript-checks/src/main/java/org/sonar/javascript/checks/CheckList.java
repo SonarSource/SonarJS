@@ -220,6 +220,7 @@ public final class CheckList {
       PreferReadonlyCheck.class,
       PrimitiveWrappersCheck.class,
       ProcessArgvCheck.class,
+      PreferDefaultLastCheck.class,
       PseudoRandomCheck.class,
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,
