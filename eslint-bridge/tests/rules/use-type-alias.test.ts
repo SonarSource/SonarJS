@@ -114,5 +114,18 @@ ruleTester.run("Type aliases should be used", rule, {
         },
       ],
     },
+    {
+      code: `
+      let x: A | B | C;
+      let y: A | B | C;
+      let z: A | B | C;
+      `,
+      errors: [
+        {
+          message:
+            '{"message":"Replace this union type with a type alias.","secondaryLocations":[{"column":13,"line":3,"endColumn":22,"endLine":3},{"column":13,"line":4,"endColumn":22,"endLine":4}]}',
+        },
+      ],
+    },
   ],
 });
