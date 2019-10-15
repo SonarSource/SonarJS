@@ -45,10 +45,7 @@ export const rule: Rule.RuleModule = {
           if (nodes.length > USAGE_THRESHOLD) {
             const [node, ...rest] = nodes;
             const kind = node.type === "TSUnionType" ? "union" : "intersection";
-            const message = toEncodedMessage(
-              `Replace this ${kind} type with a type alias.`,
-              rest.slice(0, USAGE_THRESHOLD),
-            );
+            const message = toEncodedMessage(`Replace this ${kind} type with a type alias.`, rest);
             context.report({ message, loc: node.loc });
           }
         }),
