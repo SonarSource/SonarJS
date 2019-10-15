@@ -26,10 +26,6 @@ ruleTester.run("Type aliases should be used", rule, {
       options: [],
     },
     {
-      code: `let a: any[] | null; // this is not a union when strict is false`,
-      options: [],
-    },
-    {
       code: `
       interface A {
         name: string;
