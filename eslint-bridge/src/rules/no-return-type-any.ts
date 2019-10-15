@@ -40,9 +40,11 @@ export const rule: Rule.RuleModule = {
       let returnedExpressions: ReturnedExpression[][] = [];
       return {
         ReturnStatement(node: estree.Node) {
-          returnedExpressions[returnedExpressions.length - 1].push(
-            (node as estree.ReturnStatement).argument,
-          );
+          if (returnedExpressions.length > 0) {
+            returnedExpressions[returnedExpressions.length - 1].push(
+              (node as estree.ReturnStatement).argument,
+            );
+          }
         },
         FunctionDeclaration: function() {
           returnedExpressions.push([]);

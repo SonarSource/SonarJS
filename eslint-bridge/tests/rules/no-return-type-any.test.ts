@@ -99,6 +99,13 @@ ruleTester.run("Primitive return types should be used.", rule, {
           }
         }`,
     },
+    {
+      code: `class A {
+        isFish(animal: Animal): any {
+            return 1;
+        }
+      }`,
+    },
   ],
   invalid: [
     {
@@ -166,7 +173,7 @@ ruleTester.run("Primitive return types should be used.", rule, {
               if (false) return -1;
               function inner(): any {
                 return ""; //Nomcompliant
-              } // returnedExpressions === [-1, ""] @inner:exit
+              }
               return 0;
             }`,
       errors: 1,
