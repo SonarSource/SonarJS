@@ -199,6 +199,7 @@ public final class CheckList {
       NoMisusedNewCheck.class,
       NonNumberInArithmeticExpressionCheck.class,
       NonStandardImportCheck.class,
+      NoInMisuseCheck.class,
       NoSparseArraysCheck.class,
       NotStoredSelectionCheck.class,
       NoNonNullAssertionCheck.class,

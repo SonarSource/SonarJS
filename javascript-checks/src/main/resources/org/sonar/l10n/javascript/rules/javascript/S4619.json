@@ -1,0 +1,19 @@
+{
+  "title": "\"in\" should not be used on arrays",
+  "type": "BUG",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "pitfall"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4619",
+  "sqKey": "S4619",
+  "scope": "All"
+}
