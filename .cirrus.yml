@@ -40,6 +40,26 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     memory: 7G
     use_ssd: true
 
+build_task:
+  gke_container:
+    dockerfile: .cirrus/nodejs-lts.Dockerfile
+    <<: *CONTAINER_DEFINITION
+    cpu: 3
+    memory: 4G
+  env:
+    GITHUB_TOKEN: ENCRYPTED[!a4048528b1a03f194719e3295c10e46c1e197c706b3d7c71dfc93540535aa9012ae61c3b66d0d6c6901b6a5e0bd84c68!]
+    # analysis on next
+    SONAR_TOKEN: ENCRYPTED[!5ba7cbb5bf9d168de69bcd444d9e884c9cf664be1115640cc64e49df6d241c309a87fc527cab533c08f289b167187017!]
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+    #allow deployment of pull request artifacts to repox
+    DEPLOY_PULL_REQUEST: true
+  maven_cache:
+    folder: ~/.m2/repository
+  build_script:
+    - source cirrus-env BUILD
+    - regular_mvn_build_deploy_analyse
+  cleanup_before_cache_script:
+    - rm -rf "$HOME/.m2/repository/org/sonarsource/"
 
 plugin_qa_win_task:
   <<: *WINDOWS_VM_DEFINITION
