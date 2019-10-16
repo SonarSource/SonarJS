@@ -30,7 +30,7 @@ type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionE
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "MethodDefinition[kind='method'] FunctionExpression"(node: estree.Node) {
+      "MethodDefinition[kind='method'] FunctionExpression": function(node: estree.Node) {
         checkFunctionLikeDeclaration(node as FunctionLikeDeclaration, context);
       },
       FunctionDeclaration(node: estree.Node) {
@@ -60,14 +60,14 @@ function checkFunctionLikeDeclaration(
   if (isInequalityBinaryExpression(returnedExpression)) {
     const { left, right } = returnedExpression;
     if (isUndefined(right)) {
-      return checkCastedType(functionDeclaration, left, context);
+      checkCastedType(functionDeclaration, left, context);
     } else if (isUndefined(left)) {
-      return checkCastedType(functionDeclaration, right, context);
+      checkCastedType(functionDeclaration, right, context);
     }
   } else if (isBooleanCall(returnedExpression)) {
-    return checkCastedType(functionDeclaration, returnedExpression.arguments[0], context);
+    checkCastedType(functionDeclaration, returnedExpression.arguments[0], context);
   } else if (isNegation(returnedExpression) && isNegation(returnedExpression.argument)) {
-    return checkCastedType(functionDeclaration, returnedExpression.argument.argument, context);
+    checkCastedType(functionDeclaration, returnedExpression.argument.argument, context);
   }
 }
 
