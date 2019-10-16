@@ -83,6 +83,10 @@ public class CheckListTest {
     keys.remove("S3402");
     keys.remove("S3533");
     keys.remove("S3863");
+
+    // this rule has the same implementation for TS and JS, but defines a different rule property
+    keys.remove("S1541");
+
     assertThat(keys).doesNotHaveDuplicates();
   }
 
@@ -98,6 +102,9 @@ public class CheckListTest {
         assertThat(eslintBasedCheck.eslintKey()).matches("[a-z\\-]+");
       }
     }
+
+    // this rule has the same implementation for TS and JS, but defines a different rule property
+    keys.remove("cyclomatic-complexity");
 
     assertThat(keys).doesNotHaveDuplicates();
   }

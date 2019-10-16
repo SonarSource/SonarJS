@@ -134,6 +134,7 @@ public final class CheckList {
       ForLoopConditionAndUpdateCheck.class,
       ForLoopIncrementSignCheck.class,
       FunctionCallArgumentsOnNewLineCheck.class,
+      FunctionComplexityCheck.class,
       FunctionConstructorCheck.class,
       FunctionDeclarationsWithinBlocksCheck.class,
       FunctionDefinitionInsideLoopCheck.class,

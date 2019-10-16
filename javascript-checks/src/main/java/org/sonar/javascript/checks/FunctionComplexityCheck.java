@@ -24,19 +24,19 @@ import java.util.List;
 
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
-@TypeScriptRule
+@JavaScriptRule
 @DeprecatedRuleKey(ruleKey = "FunctionComplexity")
 @Rule(key = "S1541")
-public class CyclomaticComplexityCheck extends EslintBasedCheck {
+public class FunctionComplexityCheck extends EslintBasedCheck {
 
   private static final int DEFAULT_THRESHOLD = 10;
 
   @RuleProperty(
-    key = "Threshold",
-    description = "The maximum authorized complexity.",
+    key = "maximumFunctionComplexityThreshold",
+    description = "The maximum authorized complexity in function",
     defaultValue = "" + DEFAULT_THRESHOLD)
   int threshold = DEFAULT_THRESHOLD;
 
