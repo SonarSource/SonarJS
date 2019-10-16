@@ -28,7 +28,11 @@ const threshold = 2;
 ruleTester.run("Functions should not be too complex", rule, {
   valid: [
     {
-      code: `if (x) {}`,
+      code: `
+      if (x) {}
+      if (x) {}
+      if (x) {}
+      `,
       options: [threshold],
     },
     {
