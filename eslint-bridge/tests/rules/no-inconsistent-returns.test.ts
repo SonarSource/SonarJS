@@ -100,7 +100,12 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
           if (p) {
             return void 0;
           }
+        }
         
+        function explicitVoidDeclaration1(p: boolean): (void | string) | number {
+          if (p) {
+            return 0;
+          }
         }
         
         function withThrowAndExplicitReturn(cond: boolean) {

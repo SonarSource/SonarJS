@@ -24,6 +24,7 @@ import * as estree from "estree";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 import { toEncodedMessage } from "./utils";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -57,65 +58,33 @@ export const rule: Rule.RuleModule = {
         functionContextStack[functionContextStack.length - 1],
       );
 
-    function functionLikeMainLocation(
-      node: FunctionLikeDeclaration,
-      parent?: estree.Node,
-    ): estree.SourceLocation | undefined | null {
-      let mainLocationHolder: AST.Token | estree.Node | null = null;
-      if (!!node.id) {
-        mainLocationHolder = node.id;
-      } else if (!!parent && (parent.type === "MethodDefinition" || parent.type === "Property")) {
-        mainLocationHolder = parent.key;
-      } else if (node.type === "ArrowFunctionExpression") {
-        mainLocationHolder = sourceCode.getFirstToken(
-          node as estree.Node,
-          token => token.value === "=>",
-        );
-      } else {
-        mainLocationHolder = sourceCode.getFirstToken(
-          node as estree.Node,
-          token => token.value === "function",
-        );
-      }
-      return !!mainLocationHolder ? mainLocationHolder.loc : null;
-    }
-
-    function getSecondaryLocations(
-      functionContext: FunctionContext,
-      hasImplicitReturn: boolean,
-      node: estree.Node,
-    ): [Array<AST.Token | TSESTree.Node>, Array<string>] {
-      const secondaryLocationsHolder = functionContext.returnStatements.slice() as TSESTree.Node[];
-      const secondaryLocationMessages: string[] = functionContext.returnStatements.map(
-        returnStatement =>
-          !returnStatement.argument ? "Return without value" : "Return with value",
-      );
-
-      if (hasImplicitReturn) {
-        const closeCurlyBraceToken = sourceCode.getLastToken(node, token => token.value === "}");
-        if (!!closeCurlyBraceToken) {
-          secondaryLocationsHolder.push(closeCurlyBraceToken as TSESTree.Node);
-          secondaryLocationMessages.push("Implicit return without value");
-        }
-      }
-
-      return [secondaryLocationsHolder, secondaryLocationMessages];
-    }
-
     function checkFunctionLikeDeclaration(
       node: FunctionLikeDeclaration,
       functionContext?: FunctionContext,
     ) {
-      if (!functionContext || declaredReturnTypeContainsVoidTypes(node.returnType)) {
+      const mainLocation = getMainFunctionTokenLocation(
+        node as estree.Function,
+        getParent(context),
+        context,
+      );
+
+      if (
+        !functionContext ||
+        (!!node.returnType &&
+          declaredReturnTypeContainsVoidTypes(node.returnType.typeAnnotation)) ||
+        !mainLocation
+      ) {
         return;
       }
 
-      const mainLocation = functionLikeMainLocation(node, getParent(context));
+      // As this method is called at the exit point of a function definition, the current
+      // segments are the ones leading to the exit point at the end of the function. If they
+      // are reachable, it means there is an implicit return.
       const containsImplicitReturn = functionContext.codePath.currentSegments.some(
         segment => segment.reachable,
       );
 
-      if (!!mainLocation && hasInconsistentReturns(functionContext, containsImplicitReturn)) {
+      if (hasInconsistentReturns(functionContext, containsImplicitReturn)) {
         const [secondaryLocationsHolder, secondaryLocationMessages] = getSecondaryLocations(
           functionContext,
           containsImplicitReturn,
@@ -132,6 +101,28 @@ export const rule: Rule.RuleModule = {
           loc: mainLocation,
         });
       }
+    }
+
+    function getSecondaryLocations(
+      functionContext: FunctionContext,
+      hasImplicitReturn: boolean,
+      node: estree.Node,
+    ): [Array<AST.Token | TSESTree.Node>, Array<string>] {
+      const secondaryLocationsHolder = functionContext.returnStatements.slice() as TSESTree.Node[];
+      const secondaryLocationMessages: string[] = functionContext.returnStatements.map(
+        returnStatement =>
+          returnStatement.argument ? "Return with value" : "Return without value",
+      );
+
+      if (hasImplicitReturn) {
+        const closeCurlyBraceToken = sourceCode.getLastToken(node, token => token.value === "}");
+        if (!!closeCurlyBraceToken) {
+          secondaryLocationsHolder.push(closeCurlyBraceToken as TSESTree.Node);
+          secondaryLocationMessages.push("Implicit return without value");
+        }
+      }
+
+      return [secondaryLocationsHolder, secondaryLocationMessages];
     }
 
     return {
@@ -165,27 +156,23 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function hasInconsistentReturns(
-  functionContext: FunctionContext,
-  containsImplicitReturn: boolean,
-): boolean {
+function hasInconsistentReturns(functionContext: FunctionContext, containsImplicitReturn: boolean) {
   return (
     functionContext.containsReturnWithValue &&
     (functionContext.containsReturnWithoutValue || containsImplicitReturn)
   );
 }
 
-function declaredReturnTypeContainsVoidTypes(returnTypeNode?: TSESTree.TSTypeAnnotation): boolean {
-  if (!!returnTypeNode) {
-    const returnType = returnTypeNode.typeAnnotation;
-    return (
-      isVoidType(returnType) ||
-      (returnType.type === "TSUnionType" && !!returnType.types.find(isVoidType))
-    );
-  }
-  return false;
+function declaredReturnTypeContainsVoidTypes(returnTypeNode: TSESTree.TypeNode): boolean {
+  return (
+    isVoidType(returnTypeNode) ||
+    (returnTypeNode.type === "TSUnionType" &&
+      returnTypeNode.types.some(typeNode => declaredReturnTypeContainsVoidTypes(typeNode))) ||
+    (returnTypeNode.type === "TSParenthesizedType" &&
+      declaredReturnTypeContainsVoidTypes(returnTypeNode.typeAnnotation))
+  );
 }
 
-function isVoidType(typeNode: TSESTree.TypeNode): boolean {
+function isVoidType(typeNode: TSESTree.TypeNode) {
   return typeNode.type === "TSUndefinedKeyword" || typeNode.type === "TSVoidKeyword";
 }
