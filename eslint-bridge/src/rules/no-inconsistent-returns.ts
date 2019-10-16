@@ -30,6 +30,7 @@ interface FunctionContext {
   codePath: Rule.CodePath;
   containsReturnWithValue: boolean;
   containsReturnWithoutValue: boolean;
+  containsImplicitReturn: boolean;
   returnStatements: estree.ReturnStatement[];
 }
 
@@ -77,17 +78,11 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      // As this method is called at the exit point of a function definition, the current
-      // segments are the ones leading to the exit point at the end of the function. If they
-      // are reachable, it means there is an implicit return.
-      const containsImplicitReturn = functionContext.codePath.currentSegments.some(
-        segment => segment.reachable,
-      );
+      checkFunctionForImplicitReturn(functionContext);
 
-      if (hasInconsistentReturns(functionContext, containsImplicitReturn)) {
+      if (hasInconsistentReturns(functionContext)) {
         const [secondaryLocationsHolder, secondaryLocationMessages] = getSecondaryLocations(
           functionContext,
-          containsImplicitReturn,
           node as estree.Node,
         );
         const message = toEncodedMessage(
@@ -103,9 +98,17 @@ export const rule: Rule.RuleModule = {
       }
     }
 
+    function checkFunctionForImplicitReturn(functionContext: FunctionContext) {
+      // As this method is called at the exit point of a function definition, the current
+      // segments are the ones leading to the exit point at the end of the function. If they
+      // are reachable, it means there is an implicit return.
+      functionContext.containsImplicitReturn = functionContext.codePath.currentSegments.some(
+        segment => segment.reachable,
+      );
+    }
+
     function getSecondaryLocations(
       functionContext: FunctionContext,
-      hasImplicitReturn: boolean,
       node: estree.Node,
     ): [Array<AST.Token | TSESTree.Node>, Array<string>] {
       const secondaryLocationsHolder = functionContext.returnStatements.slice() as TSESTree.Node[];
@@ -114,7 +117,7 @@ export const rule: Rule.RuleModule = {
           returnStatement.argument ? "Return with value" : "Return without value",
       );
 
-      if (hasImplicitReturn) {
+      if (functionContext.containsImplicitReturn) {
         const closeCurlyBraceToken = sourceCode.getLastToken(node, token => token.value === "}");
         if (!!closeCurlyBraceToken) {
           secondaryLocationsHolder.push(closeCurlyBraceToken as TSESTree.Node);
@@ -131,6 +134,7 @@ export const rule: Rule.RuleModule = {
           codePath,
           containsReturnWithValue: false,
           containsReturnWithoutValue: false,
+          containsImplicitReturn: false,
           returnStatements: [],
         });
       },
@@ -156,10 +160,10 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function hasInconsistentReturns(functionContext: FunctionContext, containsImplicitReturn: boolean) {
+function hasInconsistentReturns(functionContext: FunctionContext) {
   return (
     functionContext.containsReturnWithValue &&
-    (functionContext.containsReturnWithoutValue || containsImplicitReturn)
+    (functionContext.containsReturnWithoutValue || functionContext.containsImplicitReturn)
   );
 }
 
@@ -167,7 +171,7 @@ function declaredReturnTypeContainsVoidTypes(returnTypeNode: TSESTree.TypeNode):
   return (
     isVoidType(returnTypeNode) ||
     (returnTypeNode.type === "TSUnionType" &&
-      returnTypeNode.types.some(typeNode => declaredReturnTypeContainsVoidTypes(typeNode))) ||
+      returnTypeNode.types.some(declaredReturnTypeContainsVoidTypes)) ||
     (returnTypeNode.type === "TSParenthesizedType" &&
       declaredReturnTypeContainsVoidTypes(returnTypeNode.typeAnnotation))
   );
