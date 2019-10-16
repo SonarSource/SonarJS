@@ -23,14 +23,13 @@ const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceTy
 import { rule } from "../../src/rules/cyclomatic-complexity";
 import { IssueLocation, EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
 
-const DEFAULT_THRESHOLD = 2;
-const CUSTOM_THRESHOLD = 10;
+const threshold = 2;
 
 ruleTester.run("Functions should not be too complex", rule, {
   valid: [
     {
       code: `if (x) {}`,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -42,7 +41,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -55,7 +54,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -64,7 +63,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         b = arr.map(s => s.length);   // OK     +0 for ok
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -73,7 +72,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         b = () => 10;          // OK            +0 for ok
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -85,7 +84,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -97,7 +96,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         };
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -108,7 +107,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -118,7 +117,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         if (x) {}
       })(34);
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -126,7 +125,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         var a = true && false && true;
       }();
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -134,7 +133,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         var a = true && false && true;
       })();
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -142,7 +141,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         var a = true && false && true;
       });
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     {
       code: `
@@ -150,7 +149,7 @@ ruleTester.run("Functions should not be too complex", rule, {
         var a = true && false && true;
       });
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
     },
     // TODO not supported yet
     // {
@@ -186,9 +185,9 @@ ruleTester.run("Functions should not be too complex", rule, {
         else {}        // +0
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(2, 15, 2, 17),
           sndloc(4, 8, 4, 10),
           sndloc(6, 13, 6, 15),
@@ -209,9 +208,9 @@ ruleTester.run("Functions should not be too complex", rule, {
            //^^
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(5, DEFAULT_THRESHOLD, [
+        err(5, threshold, [
           sndloc(2, 15, 2, 17),
           sndloc(4, 8, 4, 10),
           sndloc(6, 13, 6, 15),
@@ -230,9 +229,9 @@ ruleTester.run("Functions should not be too complex", rule, {
            //^^
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(2, 17, 2, 19),
           sndloc(4, 8, 4, 10),
           sndloc(6, 13, 6, 15),
@@ -250,9 +249,9 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(2, 17, 2, 19),
           sndloc(4, 8, 4, 10),
           sndloc(6, 10, 6, 12),
@@ -278,9 +277,9 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(4, DEFAULT_THRESHOLD, [
+        err(4, threshold, [
           sndloc(2, 15, 2, 17),
           sndloc(5, 10, 5, 14),
           sndloc(8, 10, 8, 14),
@@ -298,9 +297,9 @@ ruleTester.run("Functions should not be too complex", rule, {
                //^^
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(2, 15, 2, 17),
           sndloc(4, 17, 4, 19),
           sndloc(6, 17, 6, 19),
@@ -320,9 +319,9 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(3, 17, 3, 23),
           sndloc(5, 10, 5, 12),
           sndloc(7, 17, 7, 19),
@@ -351,14 +350,14 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(2, 15, 2, 22),
           sndloc(4, 8, 4, 10),
           sndloc(17, 8, 17, 10),
         ]),
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(8, 17, 8, 23),
           sndloc(10, 10, 10, 12),
           sndloc(12, 17, 12, 19),
@@ -379,9 +378,9 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(4, 19, 4, 25),
           sndloc(6, 12, 6, 14),
           sndloc(8, 17, 8, 19),
@@ -407,14 +406,14 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(3, 17, 3, 25),
           sndloc(5, 19, 5, 21),
           sndloc(7, 19, 7, 21),
         ]),
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(9, 19, 9, 25),
           sndloc(11, 12, 11, 14),
           sndloc(13, 17, 13, 19),
@@ -443,14 +442,14 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(3, 8, 3, 10),
           sndloc(5, 10, 5, 12),
           sndloc(7, 15, 7, 17),
         ]),
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(13, 8, 13, 11),
           sndloc(15, 10, 15, 12),
           sndloc(17, 15, 17, 17),
@@ -472,9 +471,9 @@ ruleTester.run("Functions should not be too complex", rule, {
         }
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(3, DEFAULT_THRESHOLD, [
+        err(3, threshold, [
           sndloc(4, 19, 4, 25),
           sndloc(6, 12, 6, 17),
           sndloc(8, 23, 8, 25),
@@ -500,9 +499,9 @@ ruleTester.run("Functions should not be too complex", rule, {
         };
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(4, DEFAULT_THRESHOLD, [
+        err(4, threshold, [
           sndloc(4, 14, 4, 15),
           sndloc(9, 12, 9, 14),
           sndloc(11, 17, 11, 19),
@@ -528,9 +527,9 @@ ruleTester.run("Functions should not be too complex", rule, {
         };
       }
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: [threshold],
       errors: [
-        err(4, DEFAULT_THRESHOLD, [
+        err(4, threshold, [
           sndloc(6, 14, 6, 15),
           sndloc(8, 12, 8, 15),
           sndloc(10, 12, 10, 14),
@@ -578,9 +577,9 @@ ruleTester.run("Functions should not be too complex", rule, {
           return 32;
       }
       `,
-      options: [CUSTOM_THRESHOLD],
+      options: [10],
       errors: [
-        err(12, CUSTOM_THRESHOLD, [
+        err(12, 10, [
           sndloc(4, 17, 4, 32),
           sndloc(7, 10, 7, 12),
           sndloc(9, 10, 9, 15),
