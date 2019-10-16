@@ -49,6 +49,8 @@ public interface EslintBridgeServer extends Startable {
 
   boolean newTsConfig();
 
+  String[] tsConfigFiles(String tsconfigAbsolutePath);
+
   class AnalysisRequest {
     String filePath;
     String fileContent;

@@ -1,0 +1,29 @@
+<p>Union and intersection types are convenient but can make code harder to read and maintain. So if a particular union or intersection is used in
+multiple places, the use of a type alias is recommended.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function foo(x:string|null|number) { // Noncompliant
+  // ...
+}
+function bar(x:string|null|number) {
+  // ...
+}
+function zoo(): string|null|number {
+  return null;
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+type MyType = string | null | number;
+
+function foo(x: MyType) {
+  // ...
+}
+function bar(x: MyType) {
+  // ...
+}
+function zoo(): MyType {
+  return null;
+}
+</pre>
+

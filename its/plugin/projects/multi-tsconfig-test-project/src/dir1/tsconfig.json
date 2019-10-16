@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "lib": [
-      "esnext"
+      "esnext", // to test trailing comma
     ]
   },
-  "include": ["main.ts"]
+  "include": ["main.ts"], // to test trailing comma
 }

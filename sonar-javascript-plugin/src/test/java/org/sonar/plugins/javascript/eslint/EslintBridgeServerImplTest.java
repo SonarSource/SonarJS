@@ -51,7 +51,7 @@ import static org.sonar.api.utils.log.LoggerLevel.WARN;
 public class EslintBridgeServerImplTest {
 
   // "mock-eslint-bundle.tar.xz" is created from "mock-eslint-bridge" directory
-  // with this command: tar -cJ -f mock-eslint-bundle.tar.xz mock-eslint-bridge
+  // with this command: tar -cJ -f ../mock-eslint-bundle.tar.xz .
   // might require "--force-local" option for windows
   private static final String MOCK_ESLINT_BUNDLE = "/mock-eslint-bundle.tar.xz";
   private static final String START_SERVER_SCRIPT = "startServer.js";
@@ -317,6 +317,30 @@ public class EslintBridgeServerImplTest {
     assertThat(eslintBridgeServer.newTsConfig()).isTrue();
   }
 
+  @Test
+  public void should_return_files_for_tsconfig() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+    assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json")).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
+  }
+
+  @Test
+  public void should_return_no_files_for_tsconfig_bad_response() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("badResponse.js");
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+    assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json")).isEmpty();
+  }
+
+  @Test
+  public void should_return_no_files_for_tsconfig_no_response() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("badResponse.js");
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+    eslintBridgeServer.stop();
+    assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json")).isEmpty();
+  }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
     return new EslintBridgeServerImpl(new MapSettings().asConfig(), NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
