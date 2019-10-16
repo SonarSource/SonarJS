@@ -62,6 +62,8 @@ build_task:
     - rm -rf "$HOME/.m2/repository/org/sonarsource/"
 
 plugin_qa_win_task:
+  depends_on:
+    - build
   <<: *WINDOWS_VM_DEFINITION
   env:
     SONARSOURCE_QA: true
