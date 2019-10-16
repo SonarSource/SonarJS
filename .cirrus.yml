@@ -67,10 +67,10 @@ plugin_qa_win_task:
   <<: *WINDOWS_VM_DEFINITION
   env:
     SONARSOURCE_QA: true
+    SQ_VERSION: LATEST_RELEASE[7.9]
   qa_script:
     - curl -sSL -o buildtools.zip https://github.com/SonarSource/buildTools/archive/fix_calling_mvn.zip
     - 7z.exe -obuildtools e buildtools.zip buildTools-*
     - bash -x -c ". buildtools/cirrus-env QA && . buildtools/set_maven_build_version $BUILD_NUMBER"
-    - cd its\plugin
-    - mvn.cmd --global-settings buildtools/settings.xml -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
+    - mvn.cmd --global-settings buildtools/settings.xml -f its/plugin/pom.xml -Dsonar.runtimeVersion=%SQ_VERSION% -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
 
