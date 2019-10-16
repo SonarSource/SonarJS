@@ -11,7 +11,7 @@ SonarJS is a [static code analyser](https://en.wikipedia.org/wiki/Static_program
 # Features
 
 * Advanced rules based on control flow and data flow analysis
-* [~190 rules](https://sonarcloud.io/coding_rules#languages=js) (including ~60 bug detection)
+* [~190 rules](https://rules.sonarsource.com/javascript) (including ~60 bug detection)
 * Compatible with ECMAScript 2015-2017
 * React JSX, Flow and Vue support
 * Metrics (complexity, number of lines etc.)
