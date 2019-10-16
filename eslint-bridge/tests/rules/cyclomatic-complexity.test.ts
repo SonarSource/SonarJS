@@ -33,7 +33,7 @@ ruleTester.run("Functions should not be too complex", rule, {
     },
     {
       code: `
-      function ok2() { // +1
+      function ok() { // +1
         if (x) {       // +1
           return 0;    // +0
         } else {       // +0
