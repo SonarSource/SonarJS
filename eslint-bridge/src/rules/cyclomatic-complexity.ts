@@ -138,12 +138,12 @@ interface ComplexityToken {
 }
 
 class FunctionComplexityVisitor {
-  private tokens: ComplexityToken[] = [];
+  private readonly tokens: ComplexityToken[] = [];
 
   constructor(
-    private root: estree.Node,
-    private parent: estree.Node | undefined,
-    private context: Rule.RuleContext,
+    private readonly root: estree.Node,
+    private readonly parent: estree.Node | undefined,
+    private readonly context: Rule.RuleContext,
   ) {}
 
   visit() {
