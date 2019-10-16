@@ -161,8 +161,7 @@ class FunctionComplexityVisitor {
           case "ConditionalExpression":
             token = this.context
               .getSourceCode()
-              .getFirstTokensBetween(node.test, node.consequent)
-              .find(token => token.value === "?");
+              .getFirstTokenBetween(node.test, node.consequent, token => token.value === "?");
             break;
           case "SwitchCase":
             // ignore default case
@@ -180,8 +179,10 @@ class FunctionComplexityVisitor {
           case "LogicalExpression":
             token = this.context
               .getSourceCode()
-              .getTokensAfter(node.left)
-              .find(token => ["||", "&&"].includes(token.value) && token.type === "Punctuator");
+              .getTokenAfter(
+                node.left,
+                token => ["||", "&&"].includes(token.value) && token.type === "Punctuator",
+              );
             break;
         }
       }
