@@ -41,15 +41,6 @@ function invalid(code: string) {
 }
 
 ruleTester.run("Type guards should be used", rule, {
-  /*
-  interface Animal {
-    name: string;
-  }
-
-  interface Fish extends Animal {
-    swim: Function;
-  }
-  */
   valid: [
     {
       code: `function isFish(animal: Animal): animal is Fish {
@@ -165,6 +156,11 @@ ruleTester.run("Type guards should be used", rule, {
       `// With explicit return type
         function isFish(animal: Animal) : boolean { // Noncompliant
             return (animal as Fish).swim !== undefined;
+        }`,
+    ),
+    invalid(
+      `function isFish(animal: Animal) { // Noncompliant
+            return undefined !== (animal as Fish).swim;
         }`,
     ),
     invalid(

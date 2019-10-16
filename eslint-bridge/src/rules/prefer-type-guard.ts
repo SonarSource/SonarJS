@@ -31,16 +31,16 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       "MethodDefinition[kind='method'] FunctionExpression"(node: estree.Node) {
-        checkFunctionDeclarationLike(node as FunctionLikeDeclaration, context);
+        checkFunctionLikeDeclaration(node as FunctionLikeDeclaration, context);
       },
       FunctionDeclaration(node: estree.Node) {
-        checkFunctionDeclarationLike(node as FunctionLikeDeclaration, context);
+        checkFunctionLikeDeclaration(node as FunctionLikeDeclaration, context);
       },
     };
   },
 };
 
-function checkFunctionDeclarationLike(
+function checkFunctionLikeDeclaration(
   functionDeclaration: FunctionLikeDeclaration,
   context: Rule.RuleContext,
 ) {
@@ -61,6 +61,8 @@ function checkFunctionDeclarationLike(
     const { left, right } = returnedExpression;
     if (isUndefined(right)) {
       return checkCastedType(functionDeclaration, left, context);
+    } else if (isUndefined(left)) {
+      return checkCastedType(functionDeclaration, right, context);
     }
   } else if (isBooleanCall(returnedExpression)) {
     return checkCastedType(functionDeclaration, returnedExpression.arguments[0], context);
