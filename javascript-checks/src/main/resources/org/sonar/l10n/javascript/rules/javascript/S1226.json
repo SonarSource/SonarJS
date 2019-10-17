@@ -1,8 +1,9 @@
 {
-  "title": "Function parameters, caught exceptions and foreach variables should not be reassigned",
+  "title": "Function parameters, caught exceptions and foreach variables' initial values should not be ignored",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {

@@ -235,10 +235,10 @@ export function isReferenceTo(ref: Scope.Reference, node: estree.Node) {
 
 export function resolveIdentifiers(
   node: TSESTree.Node,
-  acceptShorthand?: boolean,
+  acceptShorthand = false,
 ): TSESTree.Identifier[] {
   const identifiers: TSESTree.Identifier[] = [];
-  resolveIdentifiersAcc(node, identifiers, !!acceptShorthand);
+  resolveIdentifiersAcc(node, identifiers, acceptShorthand);
   return identifiers;
 }
 

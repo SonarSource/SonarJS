@@ -1,7 +1,12 @@
 import { RuleTester } from "eslint";
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 import { rule } from "../../src/rules/no-parameter-reassignment";
+
+const tsParserPath = require.resolve("@typescript-eslint/parser");
+const ruleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parser: tsParserPath,
+});
 
 ruleTester.run(
   "Function parameters, caught exceptions and foreach variables' initial values should not be ignored",
@@ -23,10 +28,20 @@ ruleTester.run(
         function bar({a: p1 = 1, p2 = 2}, [p3 = 3, p4 = 4], p5 = 5) {
           foo(p1, p2, p3, p4, p5);
           var p1 = 42; // OK - variable was read before
-          p2++; // OK - variable was read before
-          ++p3; // OK - variable was read before
-          p3--; // OK - variable was read before
-          --p4; // OK - variable was read before
+          foo(p2++); // OK - variable is updated based on previous value
+          foo(++p3); // OK - variable is updated based on previous value
+          p4--; // OK - variable is updated based on previous value
+          p5 /= 2; // OK - variable is updated based on previous value
+        }
+        
+        function foobar(opts?: any, p1: number, p2: number) {
+          opts = opts || {}; // Ok - variable is on right side of assignment
+          p1 += p1; // Ok - variable is on right side of assignment
+          p2 = doSomething(p2); // Ok - variable is on right side of assignment
+        }
+        
+        function myFunc() {
+          myFunc = () => "";
         }
         
         var p1;
@@ -37,17 +52,38 @@ ruleTester.run(
         try {
           foo();
         } catch (e) {
+          if (e === e1) {
+            e = 0;
+          } else {
+            e = 1;
+          }
           foo(e);
           e = 3;
         }
         
         for (var x in obj) {
           if (abc) {
-            x = foo();
+            let a = x;
           } else {
             let y = 2 * x;
           }
+          x = 3;
         }
+        
+        for (var var1 in obj)
+          for (var var2 in obj2) {
+            if (var1 === var2) {}
+            var1 = 3;
+          }
+          
+        for (var var1 in obj) {
+          for (var var2 in obj2) {
+            if (var1 === var2) {}
+            var1 = 3;
+          }
+          var1 = 3;
+          var2 = 3;
+        } 
         
         // OK - only foreach loop are checked
         for (let c = 0, d = 1; c < 3; c++) {
@@ -74,26 +110,12 @@ ruleTester.run(
       },
       {
         code: `
-        function foo(p1) {
-          foo(p1++);
-        }`,
-        errors: [
-          {
-            message: 'Introduce a new variable or use its initial value before reassigning "p1".',
-            line: 3,
-            endLine: 3,
-            column: 15,
-            endColumn: 17,
-          },
-        ],
-      },
-      {
-        code: `
         function bindingElements({a: p1 = 1, p2 = 2}, [p3 = 3, p4 = 4], p5 = 5) {
           p1 = 42;
           p2 = 42;
           p3 = 42;
           p4 = 42;
+          p5 = 42;
           p5 = 42;
         }`,
         errors: [
@@ -162,16 +184,20 @@ ruleTester.run(
         
         try {
           foo();
-        } catch ([e1, e2]) {
+        } catch ([e, e1, e2]) {
+          e = foo();
           e1 = foo();
           foo(e2);
         }`,
-        errors: 2,
+        errors: 3,
       },
       {
         code: `
         for (var x in obj) {
-          x = foo(); // Noncompliant
+          for (let x in obj) {
+            x = foo(); // Noncompliant
+          }
+          x = foo(); // Noncompliant - not same x
         }
         
         for (var [a, b] of obj) {
@@ -206,7 +232,7 @@ ruleTester.run(
           a = foo(); // Noncompliant
           b = foo(); // Noncompliant
         }`,
-        errors: 10,
+        errors: 11,
       },
     ],
   },
