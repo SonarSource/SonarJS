@@ -28,17 +28,16 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     platform: windows
     zone: us-central1-a
     preemptible: false
-    disk: 60
-    cpu: 2
-    memory: 7G
+    disk: 128
+    type: n1-standard-8
     use_ssd: true
 
 build_task:
   gke_container:
     dockerfile: .cirrus/nodejs-lts.Dockerfile
     <<: *CONTAINER_DEFINITION
-    cpu: 3
-    memory: 4G
+    cpu: 6
+    memory: 8G
   env:
     GITHUB_TOKEN: ENCRYPTED[!a4048528b1a03f194719e3295c10e46c1e197c706b3d7c71dfc93540535aa9012ae61c3b66d0d6c6901b6a5e0bd84c68!]
     # analysis on next
@@ -52,6 +51,7 @@ build_task:
     - source cirrus-env BUILD
     - regular_mvn_build_deploy_analyse
   cleanup_before_cache_script:
+    - find ~/.m2 -name resolver-status.properties -delete
     - rm -rf "$HOME/.m2/repository/org/sonarsource/"
 
 
@@ -86,6 +86,7 @@ plugin_qa_task:
     - source set_maven_build_version $BUILD_NUMBER
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
   cleanup_before_cache_script:
+    - find ~/.m2 -name resolver-status.properties -delete
     - rm -rf "$HOME/.m2/repository/org/sonarsource/"
 
 plugin_qa_nodejs12_task:
@@ -108,6 +109,7 @@ plugin_qa_nodejs12_task:
     - source set_maven_build_version $BUILD_NUMBER
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
   cleanup_before_cache_script:
+    - find ~/.m2 -name resolver-status.properties -delete
     - rm -rf "$HOME/.m2/repository/org/sonarsource/"
 
 plugin_qa_win_task:
