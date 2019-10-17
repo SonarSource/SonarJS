@@ -232,3 +232,47 @@ function isMemberExpressionReference(lhs: estree.Node, ref: Scope.Reference): bo
 export function isReferenceTo(ref: Scope.Reference, node: estree.Node) {
   return node.type === "Identifier" && node === ref.identifier;
 }
+
+export function resolveIdentifiers(
+  node: TSESTree.Node,
+  acceptShorthand?: boolean,
+): TSESTree.Identifier[] {
+  const identifiers: TSESTree.Identifier[] = [];
+  resolveIdentifiersAcc(node, identifiers, !!acceptShorthand);
+  return identifiers;
+}
+
+function resolveIdentifiersAcc(
+  node: TSESTree.Node,
+  identifiers: TSESTree.Identifier[],
+  acceptShorthand: boolean,
+): void {
+  if (!node) {
+    return;
+  }
+  switch (node.type) {
+    case "Identifier":
+      identifiers.push(node);
+      break;
+    case "ObjectPattern":
+      node.properties.forEach(prop => resolveIdentifiersAcc(prop, identifiers, acceptShorthand));
+      break;
+    case "ArrayPattern":
+      node.elements.forEach(elem => resolveIdentifiersAcc(elem, identifiers, acceptShorthand));
+      break;
+    case "Property":
+      if (acceptShorthand || !node.shorthand) {
+        resolveIdentifiersAcc(node.value, identifiers, acceptShorthand);
+      }
+      break;
+    case "RestElement":
+      resolveIdentifiersAcc(node.argument, identifiers, acceptShorthand);
+      break;
+    case "AssignmentPattern":
+      resolveIdentifiersAcc(node.left, identifiers, acceptShorthand);
+      break;
+    case "TSParameterProperty":
+      resolveIdentifiersAcc(node.parameter, identifiers, acceptShorthand);
+      break;
+  }
+}

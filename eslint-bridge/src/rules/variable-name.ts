@@ -22,6 +22,7 @@
 import { Rule } from "eslint";
 import * as estree from "estree";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { resolveIdentifiers } from "./utils";
 
 interface FunctionLike {
   declare?: boolean;
@@ -89,42 +90,5 @@ function raiseOnInvalidIdentifier(
       message: `Rename this ${idType} "${name}" to match the regular expression ${format}.`,
       node: id,
     });
-  }
-}
-
-function resolveIdentifiers(node: TSESTree.Node): TSESTree.Identifier[] {
-  const identifiers: TSESTree.Identifier[] = [];
-  resolveIdentifiersAcc(node, identifiers);
-  return identifiers;
-}
-
-function resolveIdentifiersAcc(node: TSESTree.Node, identifiers: TSESTree.Identifier[]): void {
-  if (!node) {
-    return;
-  }
-  switch (node.type) {
-    case "Identifier":
-      identifiers.push(node);
-      break;
-    case "ObjectPattern":
-      node.properties.forEach(prop => resolveIdentifiersAcc(prop, identifiers));
-      break;
-    case "ArrayPattern":
-      node.elements.forEach(elem => resolveIdentifiersAcc(elem, identifiers));
-      break;
-    case "Property":
-      if (!node.shorthand) {
-        resolveIdentifiersAcc(node.value, identifiers);
-      }
-      break;
-    case "RestElement":
-      resolveIdentifiersAcc(node.argument, identifiers);
-      break;
-    case "AssignmentPattern":
-      resolveIdentifiersAcc(node.left, identifiers);
-      break;
-    case "TSParameterProperty":
-      resolveIdentifiersAcc(node.parameter, identifiers);
-      break;
   }
 }
