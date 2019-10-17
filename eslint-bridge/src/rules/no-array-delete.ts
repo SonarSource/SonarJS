@@ -26,6 +26,7 @@ import {
   RequiredParserServices,
 } from "../utils/isRequiredParserServices";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 
 const ArrayDeleteExpression =
   "UnaryExpression[operator='delete'] > MemberExpression[computed=true]";
@@ -54,11 +55,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function raiseIssue(context: Rule.RuleContext): void {
-  const ancestor = context
-    .getAncestors()
-    .reverse()
-    .find(node => node.type === "UnaryExpression" && node.operator === "delete");
-  const deleteKeyword = context.getSourceCode().getFirstToken(ancestor!);
+  const deleteKeyword = context.getSourceCode().getFirstToken(getParent(context)!);
   context.report({
     message: `Remove this use of "delete".`,
     loc: deleteKeyword!.loc,
