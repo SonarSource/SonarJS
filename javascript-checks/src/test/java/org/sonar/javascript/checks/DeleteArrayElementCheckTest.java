@@ -19,15 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import java.io.File;
 
-@TypeScriptRule
-@Rule(key = "S2870")
-public class NoArrayDeleteCheck extends EslintBasedCheck {
+import org.junit.Test;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-  @Override
-  public String eslintKey() {
-    return "no-array-delete";
-  }
-}
+ public class DeleteArrayElementCheckTest {
+
+   @Test
+   public void test() {
+     JavaScriptCheckVerifier.verify(new DeleteArrayElementCheck(), new File("src/test/resources/checks/DeleteArrayElement.js"));
+   }
+
+ }
