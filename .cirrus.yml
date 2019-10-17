@@ -59,14 +59,14 @@ build_win_task:
   depends_on:
     - build
   <<: *WINDOWS_VM_DEFINITION
-  only_if: $CIRRUS_PR != ""
+  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
   build_script:
     - mvn.cmd test
 
 plugin_qa_task:
   depends_on:
     - build
-  only_if: $CIRRUS_PR != ""
+  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
   gke_container:
     dockerfile: .cirrus/nodejs-lts.Dockerfile
     <<: *CONTAINER_DEFINITION
@@ -91,7 +91,7 @@ plugin_qa_task:
 plugin_qa_nodejs12_task:
   depends_on:
     - build
-  only_if: $CIRRUS_PR != ""
+  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
   gke_container:
     dockerfile: .cirrus/nodejs-12.Dockerfile
     <<: *CONTAINER_DEFINITION
@@ -114,7 +114,7 @@ plugin_qa_win_task:
   depends_on:
     - build
   <<: *WINDOWS_VM_DEFINITION
-  only_if: $CIRRUS_PR != ""
+  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
   env:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE[7.9]
@@ -128,7 +128,7 @@ plugin_qa_win_task:
 ruling_task:
   depends_on:
     - build
-  only_if: $CIRRUS_PR != ""
+  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
   gke_container:
     dockerfile: .cirrus/nodejs-lts.Dockerfile
     <<: *CONTAINER_DEFINITION
@@ -160,7 +160,7 @@ promote_task:
     - plugin_qa_win
     - plugin_qa_nodejs12
     - ruling
-  only_if: $CIRRUS_PR != ""
+  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
   gke_container:
     dockerfile: .cirrus/nodejs-lts.Dockerfile
     <<: *CONTAINER_DEFINITION
