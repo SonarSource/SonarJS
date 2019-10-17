@@ -1,0 +1,19 @@
+{
+  "title": "\"undefined\" should not be passed as the value of optional parameters",
+  "type": "CODE_SMELL",
+    "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "confusing"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4623",
+  "sqKey": "S4623",
+  "scope": "All"
+}

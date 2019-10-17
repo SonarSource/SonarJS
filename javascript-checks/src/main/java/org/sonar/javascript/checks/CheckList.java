@@ -275,6 +275,7 @@ public final class CheckList {
       NoOneIterationLoopCheck.class,
       UndefinedAssignmentCheck.class,
       GlobalsShadowingCheck.class,
+      UndefinedArgumentCheck.class,
       UniversalSelectorCheck.class,
       UnreachableCodeCheck.class,
       UntrustedContentCheck.class,
