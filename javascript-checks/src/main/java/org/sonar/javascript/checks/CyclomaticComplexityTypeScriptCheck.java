@@ -19,19 +19,32 @@
  */
 package org.sonar.javascript.checks;
 
-import org.junit.Test;
+import java.util.Collections;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-public class FunctionComplexityCheckTest {
+@TypeScriptRule
+@Rule(key = "S1541")
+public class CyclomaticComplexityTypeScriptCheck extends EslintBasedCheck {
 
-  @Test
-  public void configurations() {
-    FunctionComplexityCheck check = new FunctionComplexityCheck();
-    // default configuration
-    assertThat(check.configurations()).containsExactly(10);
-    // custom configuration
-    check.threshold = 15;
-    assertThat(check.configurations()).containsExactly(15);
+  private static final int DEFAULT_THRESHOLD = 10;
+
+  @RuleProperty(
+    key = "Threshold",
+    description = "The maximum authorized complexity.",
+    defaultValue = "" + DEFAULT_THRESHOLD)
+  int threshold = DEFAULT_THRESHOLD;
+
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(threshold);
+  }
+
+  @Override
+  public String eslintKey() {
+    return "cyclomatic-complexity";
   }
 }

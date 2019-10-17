@@ -23,11 +23,11 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CyclomaticComplexityCheckTest {
+public class CyclomaticComplexityJavaScriptCheckTest {
 
   @Test
   public void configurations() {
-    CyclomaticComplexityCheck check = new CyclomaticComplexityCheck();
+    CyclomaticComplexityJavaScriptCheck check = new CyclomaticComplexityJavaScriptCheck();
     // default configuration
     assertThat(check.configurations()).containsExactly(10);
     // custom configuration

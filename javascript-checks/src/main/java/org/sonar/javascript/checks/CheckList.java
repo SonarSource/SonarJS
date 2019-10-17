@@ -19,10 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.ImmutableList;
+
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
@@ -96,7 +98,8 @@ public final class CheckList {
       CookiesCheck.class,
       CorsCheck.class,
       CounterUpdatedInLoopCheck.class,
-      CyclomaticComplexityCheck.class,
+      CyclomaticComplexityJavaScriptCheck.class,
+      CyclomaticComplexityTypeScriptCheck.class,
       DeadStoreCheck.class,
       DebuggerStatementCheck.class,
       DeclarationInGlobalScopeCheck.class,
@@ -134,7 +137,6 @@ public final class CheckList {
       ForLoopConditionAndUpdateCheck.class,
       ForLoopIncrementSignCheck.class,
       FunctionCallArgumentsOnNewLineCheck.class,
-      FunctionComplexityCheck.class,
       FunctionConstructorCheck.class,
       FunctionDeclarationsWithinBlocksCheck.class,
       FunctionDefinitionInsideLoopCheck.class,
