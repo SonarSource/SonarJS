@@ -39,7 +39,7 @@ class RuleTesterTs extends RuleTester {
     parserOptions: { ecmaVersion: 2018 },
   });
 
-  constructor(private noRaisedIssuesOnMissingTypeInformation = true) {
+  constructor() {
     super({
       parser,
       parserOptions,
@@ -54,12 +54,10 @@ class RuleTesterTs extends RuleTester {
       invalid?: RuleTester.InvalidTestCase[];
     },
   ): void {
-    if (this.noRaisedIssuesOnMissingTypeInformation) {
-      this.ruleTesterNoTsConfig.run(name, rule, {
-        valid: tests.invalid,
-        invalid: [],
-      });
-    }
+    this.ruleTesterNoTsConfig.run(name, rule, {
+      valid: tests.invalid,
+      invalid: [],
+    });
 
     tests.valid.forEach(test => {
       if (!test.filename) {

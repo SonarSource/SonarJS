@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester as RuleTesterJs } from "eslint";
 import { rule } from "../../src/rules/no-array-delete";
 import { RuleTesterTs } from "../RuleTesterTs";
 
-const ruleTesterTs = new RuleTesterTs(false);
-ruleTesterTs.run("[ts] delete should not be used on arrays", rule, {
+const ruleTester = new RuleTesterTs();
+ruleTester.run("[ts] delete should not be used on arrays", rule, {
   valid: [
     {
       code: `
@@ -94,40 +93,6 @@ ruleTesterTs.run("[ts] delete should not be used on arrays", rule, {
       function arr() { return ['a', 'b', 'c', 'd']; }
       delete arr()[1];
       `,
-      errors: 1,
-    },
-  ],
-});
-
-const ruleTesterJs = new RuleTesterJs({ parserOptions: { ecmaVersion: 2018 } });
-ruleTesterJs.run("[js] delete should not be used on arrays", rule, {
-  valid: [
-    {
-      code: `delete arr;`,
-    },
-    {
-      code: `delete arr.length;`,
-    },
-  ],
-  invalid: [
-    {
-      code: `delete arr[1]`,
-      errors: [
-        {
-          message: `Remove this use of "delete".`,
-          line: 1,
-          endLine: 1,
-          column: 1,
-          endColumn: 7,
-        },
-      ],
-    },
-    {
-      code: `delete a.b.c[1];`,
-      errors: 1,
-    },
-    {
-      code: `delete arr()[1]`,
       errors: 1,
     },
   ],

@@ -44,13 +44,8 @@ export const rule: Rule.RuleModule = {
           }
         },
       };
-    } else {
-      return {
-        [ArrayDeleteExpression]: () => {
-          raiseIssue(context);
-        },
-      };
     }
+    return {};
   },
 };
 
