@@ -179,204 +179,158 @@ ruleTester.run("Functions should not be too complex", rule, {
   ],
   invalid: [
     invalid(`
-    function ko() {  // Noncompliant +1 for ko
-           //^^        [ko]
-      if (x) {}      // +1 for ko
-    //^^               [ko]
-      else if (y) {} // +1 for ko
-         //^^          [ko]
-      else {}        // +0 for ko
+    function ko() {
+  //---------^^--
+      if (x) {}
+    //^^
+      else if (y) {}
+         //^^
+      else {}
     }
     `),
     invalid(`
-    function ko() {  // Noncompliant +1 for ko
-           //^^        [ko]
-      if (x) {}      // +1 for ko
-    //^^               [ko]
-      else if (y) {} // +1 for ko
-         //^^          [ko]
-      else if (z) {} // +1 for ko
-         //^^          [ko]
-      else if (t) {} // +1 for ko
-         //^^          [ko]
+    function ko() {
+  //---------^^--
+      if (x) {}
+    //^^
+      else if (y) {}
+         //^^
+      else if (z) {}
+         //^^
+      else if (t) {}
+         //^^
     }
     `),
     invalid(`
-    function * ko() {  // Noncompliant +1 for ko
-             //^^        [ko]
-      if (x) {}        // +1 for ko
-    //^^                 [ko]
-      else if (y) {}   // +1 for ko
-         //^^            [ko]
+    function * ko() {
+  //-----------^^--
+      if (x) {}
+    //^^
+      else if (y) {}
+         //^^
     }
     `),
     invalid(`
-    function * ko() {  // Noncompliant +1 for ko
-             //^^        [ko]
-      if (x) {         // +1 for ko
-    //^^                 [ko]
-      if (y) {}        // +1 for ko
-    //^^                 [ko]
+    function * ko() {
+  //-----------^^-- 
+      if (x) {
+    //^^
+      if (y) {}
+    //^^
       }
     }
     `),
     invalid(`
-    function ko(x) {    // Noncompliant +1 for ko
-           //^^           [ko]
+    function ko(x) {
+  //---------^^---
       switch (x) {
-        case 0:         // +1 for ko
-      //^^^^              [ko]
+        case 0:
+      //^^^^
           break;
-        case 1:         // +1 for ko
-      //^^^^              [ko]
+        case 1:
+      //^^^^
           break;
-        case 2:         // +1 for ko
-      //^^^^              [ko]
+        case 2:
+      //^^^^
           break;
-        default:        // +0 for ko
+        default:
           break;
       }
     }
     `),
     invalid(`
-    function ko() {          // Noncompliant +1 for ko
-           //^^                [ko]
-      a = true && false;     // +1 for ko
-             //^^              [ko]
-      c = true || false;     // +1 for ko
-             //^^              [ko]
+    function ko() {
+  //---------^^--
+      a = true && false;
+             //^^
+      c = true || false;
+             //^^
     }
     `),
     invalid(`
-    function nesting() {     // OK            +1 for nesting
-      function nested() {    // Noncompliant  +1 for nested
-             //^^^^^^          [nested]
-        if (x) {             // +1 for nested
-      //^^                     [nested]
-        } else if (y) {      // +1 for nested
-             //^^              [nested]
+    function nesting() {
+      function nested() {
+    //---------^^^^^^--
+        if (x) {
+      //^^
+        } else if (y) {
+             //^^
         }
       }
     }
     `),
     invalid(`
-    function nesting() {     // Noncompliant  +1 for nesting
-           //^^^^^^^           [nesting]
-      if (x) {               //               +1 for nesting
-    //^^                       [nesting]
-      }
-
-      function nested() {    // Noncompliant  +1 for nested
-             //^^^^^^          [nested]
-        if (x) {             // +1 for nested
-      //^^                     [nested]
-        } else if (y) {      // +1 for nested
-             //^^              [nested]
-        }
-      }
-
-      if (x) {               //               +1 for nesting
-    //^^                       [nesting]
-      }
-    }
-    `),
-    invalid(`
-    function nesting1() {    // OK            +1 for nesting1
-      function nesting2() {  // OK            +1 for nesting2
-        function nested() {  // Noncompliant  +1 for nested
-               //^^^^^^        [nested]
-          if (x) {}          //               +1 for nested
-        //^^                   [nested]
-          else if (y) {}     //               +1 for nested
-             //^^              [nested]
-        }
-      }
-    }
-    `),
-    invalid(`
-    function nesting1() {    // OK            +1 for nesting1
-      function nesting2() {  // Noncompliant  +1 for nesting2
-             //^^^^^^^^        [nesting2]
-        a = true && false;   //               +1 for nesting2
-               //^^            [nesting2]
-        b = true && false;   //               +1 for nesting2
-               //^^            [nesting2]
-        function nested() {  // Noncompliant  +1 for nested
-               //^^^^^^        [nested]
-          if (x) {}          //               +1 for nested
-        //^^                   [nested]
-          else if (y) {}     //               +1 for nested
-             //^^              [nested]
+    function nesting1() {
+      function nesting2() {
+        function nested() {
+      //---------^^^^^^--
+          if (x) {}
+        //^^
+          else if (y) {}
+             //^^
         }
       }
     }
     `),
     invalid(`
     class C {
-      ko() {            // Noncompliant +1 for ko
-    //^^                  [ko]
-        if (x) {}       // +1 for ko
-      //^^                [ko]
-        else if (y) {}  // +1 for ko
-           //^^           [ko]
+      ko() {
+    //^^--
+        if (x) {}
+      //^^
+        else if (y) {}
+           //^^
       }
-      ok() {            // +1 for ok
-        if (x) {}       // +1 for ok
-      }
-      ko2() {           // Noncompliant +1 for ko2
-    //^^^                 [ko2]
-        if (x) {}       // +1 for ko2
-      //^^                [ko2]
-        else if (y) {}  // +1 for ko2
-           //^^           [ko2]
+      ok() {
+        if (x) {}
       }
     }
     `),
     invalid(`
     class D {
-      nesting() {             // OK            +1 for nesting
-        function nested() {   // Noncompliant  +1 for nested
-               //^^^^^^         [nested]
-          while (x < y) {     // +1 for nested
-        //^^^^^                 [nested]
-            return x || y     // +1 for nested
-                   //^^         [nested]
+      nesting() {
+        function nested() {
+      //---------^^^^^^--
+          while (x < y) {
+        //^^^^^
+            return x || y;
+                   //^^
           }
         }
       }
     }
     `),
     invalid(`
-    function ko() {          // OK           +1 for ko
-      return {               // +0 for ko
-        get x() {            // Noncompliant +1 for x
-          //^                  [x]
+    function ko() {
+      return {
+        get x() {
+          //^--
           try {}
           catch(err) {}
           finally {}
-          if (c) {}          // +1 for x
-        //^^                   [x]
-          else if (d) {}     // +1 for x
-             //^^              [x]
-          if (c) {}          // +1 for x
-        //^^                   [x]
+          if (c) {}
+        //^^
+          else if (d) {}
+             //^^
+          if (c) {}
+        //^^
         }
       };
     }
     `),
     invalid(`
-    function ok() {               // OK           +1 for ko
-      if (a) {}                   //              +1 for ko
-      throw "error";              //
-      return {                    //
-        get x() {                 // Noncompliant +1 for x
-          //^                       [x]
-          for (i=0; i<2; i++){};  // +1 for x
-        //^^^                       [x]
-          if (b) {}               // +1 for x
-        //^^                        [x]
-          if (c) {}               // +1 for x
-        //^^                        [x]
+    function ok() {
+      if (a) {}
+      throw "error";
+      return {
+        get x() {
+          //^--
+          for (i=0; i<2; i++){};
+        //^^^
+          if (b) {}
+        //^^
+          if (c) {}
+        //^^
         }
       };
     }
@@ -385,35 +339,33 @@ ruleTester.run("Functions should not be too complex", rule, {
       `
     export function toCreateModule() {}
 
-    function complexFunction() {    // Noncompliant +1 for complexFunction
-           //^^^^^^^^^^^^^^^          [complexFunction]
-
-      if (42) {};                   // +1 for complexFunction
-    //^^                              [complexFunction]
-      while (42) {};                // +1 for complexFunction
-    //^^^^^                           [complexFunction]
-      do {} while (42);             // +1 for complexFunction
-    //^^                              [complexFunction]
-      for (let x in {}) {}          // +1 for complexFunction
-    //^^^                             [complexFunction]
-      for (let x of []) {}          // +1 for complexFunction
-    //^^^                             [complexFunction]
-      for (;42;) {}                 // +1 for complexFunction
-    //^^^                             [complexFunction]
+    function complexFunction() {
+  //---------^^^^^^^^^^^^^^^-- 
+      if (42) {};
+    //^^
+      while (42) {};
+    //^^^^^
+      do {} while (42);
+    //^^
+      for (let x in {}) {}
+    //^^^
+      for (let x of []) {}
+    //^^^
+      for (;42;) {}
+    //^^^
       switch (21 * 3) {
-        case 1:                     // +1 for complexFunction
-      //^^^^                          [complexFunction]
-        case 2:                     // +1 for complexFunction
-      //^^^^                          [complexFunction]
+        case 1:
+      //^^^^
+        case 2:
+      //^^^^
         default:
       }
-      1 && 2;                       // +1 for complexFunction
-      //^^                            [complexFunction]
-      1 || 2;                       // +1 for complexFunction
-      //^^                            [complexFunction]
-      1 ? 2 : 3;                    // +1 for complexFunction
-      //^                             [complexFunction]
-
+      1 && 2;
+      //^^
+      1 || 2;
+      //^^
+      1 ? 2 : 3;
+      //^
 
       // no complexity
       try {} catch (e) {}
@@ -427,61 +379,47 @@ ruleTester.run("Functions should not be too complex", rule, {
 });
 
 function invalid(code: string, threshold = THRESHOLD) {
-  const issues: Map<string, { complexity: number; locations: IssueLocation[] }> = new Map();
+  const issue = {
+    complexity: 0,
+    primaryLocation: {} as IssueLocation,
+    secondaryLocations: [] as IssueLocation[],
+  };
   const lines = code.split("\n");
   for (const [index, line] of lines.entries()) {
     let found: RegExpMatchArray | null;
 
-    // // Noncompliant +1 for <function>
-    const f = /\/\/\s*Noncompliant\s+\+1\s+for\s+([a-zA-Z0-9]+)\s*/;
-    found = line.match(f);
+    const primary = /\/\/\s*(\-+\^+\-+)/;
+    found = line.match(primary);
     if (found) {
-      const key = found[1];
-      issues.set(key, { complexity: 1, locations: [] });
+      const marker = found[1];
+      const column = line.indexOf(marker);
+      issue.primaryLocation = location(index, column, index, column + marker.length);
     }
 
-    // // +1 for <function>
-    const c = /\/\/\s*\+1\s+for\s+([a-zA-Z0-9]+)\s*/;
-    found = line.match(c);
+    const secondary = /\/\/\s*[^\^]*(\^+)/;
+    found = line.match(secondary);
     if (found) {
-      const key = found[1];
-      const func = issues.get(key);
-      if (func) {
-        func.complexity += 1;
-      }
-    }
-
-    // ^ ^^ ^^^ <function>
-    const l = /(\^+\s+)+\[([a-zA-Z0-9]+)\]/;
-    found = line.match(l);
-    if (found) {
-      const key = found[2];
-      const matched = found[0];
-      const markers = matched.split(" ");
-      markers.pop();
-      let column = line.indexOf(matched);
-      for (const marker of markers) {
-        if (marker.trim().length > 0) {
-          const func = issues.get(key);
-          if (func) {
-            func.locations.push(location(index, column, index, column + marker.length));
-          }
-        }
-        column += marker.length;
-      }
+      const marker = found[1];
+      const column = line.indexOf(marker);
+      issue.complexity += 1;
+      issue.secondaryLocations.push(location(index, column, index, column + marker.length, "+1"));
     }
   }
 
-  const errors = [];
-  for (const issue of issues.values()) {
-    errors.push(error(issue, threshold));
-  }
-  return { code, errors, options: [threshold] };
+  return { code, errors: [error(issue, threshold)], options: [threshold] };
 }
 
-function error(issue: { complexity: number; locations: IssueLocation[] }, threshold: number) {
+function error(
+  issue: {
+    complexity: number;
+    primaryLocation: IssueLocation;
+    secondaryLocations: IssueLocation[];
+  },
+  threshold: number,
+) {
   return {
-    message: encode(issue.complexity, threshold, issue.locations),
+    message: encode(issue.complexity, threshold, issue.secondaryLocations),
+    loc: issue.primaryLocation,
   };
 }
 
@@ -498,6 +436,12 @@ function encode(
   return JSON.stringify(encodedMessage);
 }
 
-function location(line: number, column: number, endLine: number, endColumn: number): IssueLocation {
-  return { line, column, endLine, endColumn, message: "+1" };
+function location(
+  line: number,
+  column: number,
+  endLine: number,
+  endColumn: number,
+  message?: string,
+): IssueLocation {
+  return { line, column, endLine, endColumn, message };
 }
