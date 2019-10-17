@@ -93,7 +93,6 @@ public class TypeScriptAnalysisTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR)
-      .setProperty("sonar.nodejs.executable", TestUtils.getNodeJSExecutable())
       .setProperty("sonar.typescript.tsconfigPath", "custom.tsconfig.json");
 
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
