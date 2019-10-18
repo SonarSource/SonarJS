@@ -65,7 +65,7 @@ ruleTester.run('"in" should not be used on arrays"', rule, {
     {
       code: `// in different contexts
             let arr = ["a", "b", "c"];
-            const result = "car" in arr ? "something" : "someething else"; // Noncompliant
+            const result = "car" in arr ? "something" : "something else"; // Noncompliant
             foo("car" in arr); // Noncompliant
             if ("car" in arr) {} // Noncompliant`,
       errors: 3,
