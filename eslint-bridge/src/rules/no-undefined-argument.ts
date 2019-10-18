@@ -40,14 +40,14 @@ export const rule: Rule.RuleModule = {
             return;
           }
 
-          const largArgument = args[args.length - 1];
+          const lastArgument = args[args.length - 1];
           if (
-            isUndefined(largArgument) &&
+            isUndefined(lastArgument) &&
             isOptionalParameter(args.length - 1, call, services, ts)
           ) {
             context.report({
               message: `Remove this redundant "undefined".`,
-              node: largArgument,
+              node: lastArgument,
             });
           }
         },
