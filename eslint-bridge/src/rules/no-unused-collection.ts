@@ -77,27 +77,27 @@ function collectUnusedCollections(scope: Scope.Scope, unusedArray: Scope.Variabl
 }
 
 function isUnusedCollection(variable: Scope.Variable) {
-  if (variable.references.length > 1) {
-    let assignCollection = false;
+  if (variable.references.length <= 1) {
+    return false;
+  }
+  let assignCollection = false;
 
-    for (let ref of variable.references) {
-      if (ref.isWriteOnly()) {
-        if (isReferenceAssigningCollection(ref)) {
-          assignCollection = true;
-        } else {
-          //One assignment is not a collection, we don't go further
-          return false;
-        }
+  for (let ref of variable.references) {
+    if (ref.isWriteOnly()) {
+      if (isReferenceAssigningCollection(ref)) {
+        assignCollection = true;
       } else {
-        //Unfortunately, isRead (!isWrite) from Scope.Reference consider A[1] = 1; and A.xxx(); as a read operation, we need to filter further
-        if (isRead(ref)) {
-          return false;
-        }
+        //One assignment is not a collection, we don't go further
+        return false;
+      }
+    } else {
+      //Unfortunately, isRead (!isWrite) from Scope.Reference consider A[1] = 1; and A.xxx(); as a read operation, we need to filter further
+      if (isRead(ref)) {
+        return false;
       }
     }
-    return assignCollection;
   }
-  return false;
+  return assignCollection;
 }
 
 function isReferenceAssigningCollection(ref: Scope.Reference) {
