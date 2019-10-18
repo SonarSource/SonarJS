@@ -2,7 +2,8 @@
   "title": "Functions should not be too complex",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
@@ -16,6 +17,6 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1541",
-  "sqKey": "FunctionComplexity",
+  "sqKey": "S1541",
   "scope": "Main"
 }
