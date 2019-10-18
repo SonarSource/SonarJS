@@ -1,0 +1,19 @@
+{
+  "title": "\"await\" should only be used with promises",
+  "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "confusing"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4123",
+  "sqKey": "S4123",
+  "scope": "All"
+}

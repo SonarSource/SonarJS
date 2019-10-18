@@ -24,6 +24,7 @@ const parser = path.resolve(`${__dirname}/../node_modules/@typescript-eslint/par
 
 const parserOptions = {
   ecmaVersion: 2018,
+  sourceType: "module",
   project: path.resolve(`${__dirname}/fixtures/rule-tester-project/tsconfig.json`),
 };
 
