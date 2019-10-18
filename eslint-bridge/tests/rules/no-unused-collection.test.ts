@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from "eslint";
-import * as path from "path";
 
 const ruleTester = new RuleTester({
-  parser: path.resolve(`${__dirname}/../../node_modules/@typescript-eslint/parser`),
+  parser: require.resolve("@typescript-eslint/parser"),
   parserOptions: { ecmaVersion: 2018, sourceType: "module" },
 });
 
