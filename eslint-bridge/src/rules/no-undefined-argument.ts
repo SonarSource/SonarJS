@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
         CallExpression: (node: estree.Node) => {
           const call = node as estree.CallExpression;
           const { arguments: args } = call;
-          if (args.length == 0) {
+          if (args.length === 0) {
             return;
           }
 
@@ -78,6 +78,7 @@ function isOptionalParameter(
       return parameter && ((parameter as any).initializer || (parameter as any).questionToken);
     }
   }
+  return false;
 }
 
 function isFunctionLikeDeclaration(declaration: any, ts: any) {
