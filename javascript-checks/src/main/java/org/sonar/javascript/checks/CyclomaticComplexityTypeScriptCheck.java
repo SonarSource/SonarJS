@@ -17,30 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from "estree";
-import { SourceCode } from "eslint";
+package org.sonar.javascript.checks;
 
-export default function visit(sourceCode: SourceCode, callback: (node: estree.Node) => void): void {
-  const stack: estree.Node[] = [sourceCode.ast];
-  while (stack.length) {
-    const node = stack.pop() as estree.Node;
-    callback(node);
-    stack.push(...childrenOf(node, sourceCode.visitorKeys).reverse());
-  }
-}
+import java.util.Collections;
+import java.util.List;
 
-export function childrenOf(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): estree.Node[] {
-  const keys = visitorKeys[node.type];
-  const children = [];
-  if (keys) {
-    for (const key of keys) {
-      const child = (node as any)[key];
-      if (Array.isArray(child)) {
-        children.push(...child);
-      } else {
-        children.push(child);
-      }
-    }
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+
+@TypeScriptRule
+@Rule(key = "S1541")
+public class CyclomaticComplexityTypeScriptCheck extends EslintBasedCheck {
+
+  private static final int DEFAULT_THRESHOLD = 10;
+
+  @RuleProperty(
+    key = "Threshold",
+    description = "The maximum authorized complexity.",
+    defaultValue = "" + DEFAULT_THRESHOLD)
+  int threshold = DEFAULT_THRESHOLD;
+
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(threshold);
   }
-  return children.filter(Boolean);
+
+  @Override
+  public String eslintKey() {
+    return "cyclomatic-complexity";
+  }
 }
