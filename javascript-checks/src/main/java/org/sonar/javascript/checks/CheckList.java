@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.ImmutableList;
-
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
