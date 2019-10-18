@@ -179,6 +179,7 @@ public final class CheckList {
       NestedControlFlowDepthCheck.class,
       NewOperatorMisuseCheck.class,
       NoAnyCheck.class,
+      NoArrayDeleteCheck.class,
       NoDuplicateImportsCheck.class,
       NoDuplicateInCompositeCheck.class,
       NoDuplicateStringCheck.class,

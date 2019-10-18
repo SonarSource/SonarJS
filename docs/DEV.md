@@ -4,11 +4,15 @@
 To run tests locally follow these instructions
 
 ### Build the Project and Run Unit Tests
+You will need Java development environment (JDK, Maven), [Node.js](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/lang/en/) 
+to build the project. You can also use dockerfile in (./.cirrus/nodejs-lts.Dockerfile) which bundles all dependencies and 
+is used for CI pipeline.
+
 To build the plugin and run its unit tests, execute this command from the project's root directory:
 ```
 mvn clean install
 ```
-In order to run the tests of `nodejs-utils` module, an installation of nodeJs must be available on the path of your system
+
 ### Integration Tests
 To run integration tests, you will need to create a properties file like the one shown below, and set its location in an environment variable named `ORCHESTRATOR_CONFIG_URL`.
 ```

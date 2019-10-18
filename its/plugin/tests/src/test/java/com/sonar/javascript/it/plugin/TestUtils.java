@@ -118,12 +118,6 @@ public class TestUtils {
     };
   }
 
-  static String getNodeJSExecutable() {
-    String executable = SystemUtils.IS_OS_WINDOWS ? "node.exe" : "node";
-    return Paths.get(System.getProperty("user.dir"), "target", "node", executable)
-      .toAbsolutePath().toString();
-  }
-
   static void npmInstall(File dir, String... params) throws IOException, InterruptedException {
     if (isUserHome(dir)) {
       throw new IllegalStateException("Attempt to install in user home " + Arrays.toString(params));
