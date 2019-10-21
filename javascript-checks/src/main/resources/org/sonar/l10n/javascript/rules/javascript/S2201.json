@@ -2,7 +2,8 @@
   "title": "Return values from functions without side effects should not be ignored",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
