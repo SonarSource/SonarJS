@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 
@@ -29,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BundleImplTest {
 
-  @org.junit.Rule
+  @Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
   @Test
