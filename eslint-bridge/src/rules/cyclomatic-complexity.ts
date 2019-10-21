@@ -41,6 +41,16 @@ function isFunctionLike(node: estree.Node): node is FunctionLike {
 }
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      { type: "integer" },
+      {
+        // internal parameter for rules having secondary locations
+        enum: ["sonar-runtime"],
+      },
+    ],
+  },
+
   create(context: Rule.RuleContext) {
     const [threshold] = context.options;
     let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
