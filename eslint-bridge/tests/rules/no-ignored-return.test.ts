@@ -58,6 +58,14 @@ ruleTester.run("Return values from functions without side effects should not be 
         return rest;
       }`,
     },
+    {
+      code: `
+      function methodsOnString() {
+        // "replace" with callback is OK
+        "abc".replace(/ab/, () => "");
+        "abc".replace(/ab/, function() {return ""});
+      }`,
+    },
   ],
   invalid: [
     {
@@ -78,11 +86,31 @@ ruleTester.run("Return values from functions without side effects should not be 
     },
     {
       code: `
-      function methodsOnDates() {
-        var date = new Date();
-        date.getDay();
+      function methodsOnMath() {
+        let x = -42;
+        Math.abs(x);
       }`,
-      errors: 1,
+      errors: [
+        {
+          message: `The return value of "abs" must be used.`,
+          line: 4,
+          endLine: 4,
+          column: 9,
+          endColumn: 20,
+        },
+      ],
+    },
+    {
+      code: `
+      function mapOnArray() {
+        let arr = [1, 2, 3];
+        arr.map(function(x){ });
+      }`,
+      errors: [
+        {
+          message: `Consider using "forEach" instead of "map" as its return value is not being used here.`,
+        },
+      ],
     },
     {
       code: `
@@ -92,27 +120,17 @@ ruleTester.run("Return values from functions without side effects should not be 
         arr.slice(0, 2);
 
         arr1.join(",");
-
-        arr.map(function(x){ });
       }`,
-      errors: 3,
+      errors: 2,
     },
     {
       code: `
       function methodsOnString() {
         let x = "abc";
-
         x.concat("abc");
-
-        "abc".concat("bcd").charCodeAt(2);
-
         "abc".concat("bcd");
-
+        "abc".concat("bcd").charCodeAt(2);
         "abc".replace(/ab/, "d");
-
-        // "replace" with callback is OK
-        "abc".replace(/ab/, () => "");
-        "abc".replace(/ab/, function() {return ""});
       }`,
       errors: 4,
     },

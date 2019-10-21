@@ -184,10 +184,10 @@ export const rule: Rule.RuleModule = {
       return {
         CallExpression: (node: estree.Node) => {
           const call = node as estree.CallExpression;
-          if (call.callee.type === "MemberExpression") {
+          const callee = call.callee;
+          if (callee.type === "MemberExpression") {
             const parent = getParent(context);
             if (parent && parent.type === "ExpressionStatement") {
-              const callee = call.callee;
               const methodName = context.getSourceCode().getText(callee.property);
               const objectType = services.program
                 .getTypeChecker()
@@ -199,7 +199,7 @@ export const rule: Rule.RuleModule = {
                 !isReplaceWithCallback(methodName, call.arguments)
               ) {
                 context.report({
-                  message: `The return value of "${methodName}" must be used.`,
+                  message: message(methodName),
                   node,
                 });
               }
@@ -211,6 +211,14 @@ export const rule: Rule.RuleModule = {
     return {};
   },
 };
+
+function message(methodName: string): string {
+  if (methodName === "map") {
+    return `Consider using "forEach" instead of "map" as its return value is not being used here.`;
+  } else {
+    return `The return value of "${methodName}" must be used.`;
+  }
+}
 
 function hasSideEffect(methodName: string, objectType: any, services: RequiredParserServices) {
   const typeAsString = typeToString(objectType, services);
