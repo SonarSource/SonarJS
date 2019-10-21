@@ -26,6 +26,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.javascript.tree.symbols.GlobalVariableNames;
 import org.sonar.javascript.tree.symbols.type.JQuery;
+import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
 import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
@@ -97,6 +98,7 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptProfilesDefinition.class,
       NodeCommand.builder(),
       EslintBridgeServerImpl.class,
+      BundleImpl.class,
       JavaScriptEslintBasedSensor.class
     );
 

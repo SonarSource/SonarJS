@@ -50,11 +50,8 @@ import static org.sonar.api.utils.log.LoggerLevel.WARN;
 
 public class EslintBridgeServerImplTest {
 
-  // "mock-eslint-bundle.tar.xz" is created from "mock-eslint-bridge" directory
-  // with this command: tar -cJ -f ../mock-eslint-bundle.tar.xz .
-  // might require "--force-local" option for windows
-  private static final String MOCK_ESLINT_BUNDLE = "/mock-eslint-bundle.tar.xz";
   private static final String START_SERVER_SCRIPT = "startServer.js";
+  private static final int TEST_TIMEOUT_SECONDS = 1;
 
   @org.junit.Rule
   public LogTester logTester = new LogTester();
@@ -67,6 +64,7 @@ public class EslintBridgeServerImplTest {
 
   private SensorContextTester context;
   private EslintBridgeServerImpl eslintBridgeServer;
+  private TestBundle testBundle = new TestBundle(START_SERVER_SCRIPT);
 
   @Before
   public void setUp() throws Exception {
@@ -76,13 +74,6 @@ public class EslintBridgeServerImplTest {
   @After
   public void tearDown() throws Exception {
     eslintBridgeServer.clean();
-  }
-
-  @Test
-  public void should_not_fail_when_deployed_twice() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
-    eslintBridgeServer.deploy();
-    eslintBridgeServer.deploy();
   }
 
   @Test
@@ -106,12 +97,7 @@ public class EslintBridgeServerImplTest {
       }
     });
 
-    eslintBridgeServer = new EslintBridgeServerImpl(new MapSettings().asConfig(),
-      nodeCommandBuilder,
-      tempFolder,
-      1,
-      START_SERVER_SCRIPT,
-      MOCK_ESLINT_BUNDLE);
+    eslintBridgeServer = new EslintBridgeServerImpl(new MapSettings().asConfig(), nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle);
     eslintBridgeServer.deploy();
 
     thrown.expect(NodeCommandException.class);
@@ -128,7 +114,7 @@ public class EslintBridgeServerImplTest {
 
     assertThat(logTester.logs(DEBUG)).contains("testing debug log");
     assertThat(logTester.logs(WARN)).contains("testing warn log");
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("testing info log");
+    assertThat(logTester.logs(INFO)).contains("testing info log");
   }
 
   @Test
@@ -167,7 +153,7 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
 
     thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("Failed to start server (1s timeout)");
+    thrown.expectMessage("Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)");
 
     eslintBridgeServer.startServer(context);
   }
@@ -223,7 +209,7 @@ public class EslintBridgeServerImplTest {
   @Test
   public void should_throw_special_exception_when_failed_already() throws Exception {
     eslintBridgeServer = createEslintBridgeServer("throw.js");
-    String failedToStartExceptionMessage = "Failed to start server (1s timeout)";
+    String failedToStartExceptionMessage = "Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)";
     assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
       .isInstanceOf(NodeCommandException.class)
       .hasMessage(failedToStartExceptionMessage);
@@ -258,7 +244,7 @@ public class EslintBridgeServerImplTest {
     Configuration configuration = new MapSettings()
       .setProperty("sonar.typescript.internal.typescriptLocation", path.toString())
       .asConfig();
-    eslintBridgeServer = new EslintBridgeServerImpl(configuration, NodeCommand.builder(), tempFolder, 1, START_SERVER_SCRIPT, MOCK_ESLINT_BUNDLE);
+    eslintBridgeServer = new EslintBridgeServerImpl(configuration, NodeCommand.builder(), TEST_TIMEOUT_SECONDS, testBundle);
     eslintBridgeServer.deploy();
     SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
     DefaultInputFile tsFile = TestInputFileBuilder.create("", "foo.ts").setLanguage("ts").build();
@@ -343,6 +329,25 @@ public class EslintBridgeServerImplTest {
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(new MapSettings().asConfig(), NodeCommand.builder(), tempFolder, 1, startServerScript, MOCK_ESLINT_BUNDLE);
+    return new EslintBridgeServerImpl(new MapSettings().asConfig(), NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript));
+  }
+
+  static class TestBundle implements Bundle {
+
+    final String startServerScript;
+
+    TestBundle(String startServerScript) {
+      this.startServerScript = startServerScript;
+    }
+
+    @Override
+    public void deploy() {
+      // no-op for unit test
+    }
+
+    @Override
+    public String startServerScript() {
+      return "src/test/resources/mock-eslint-bridge/" + startServerScript;
+    }
   }
 }
