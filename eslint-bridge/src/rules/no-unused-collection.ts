@@ -52,12 +52,10 @@ export const rule: Rule.RuleModule = {
         collectUnusedCollections(context.getScope(), unusedArrays);
 
         unusedArrays.forEach(unusedArray => {
-          if (unusedArray.defs.length > 0) {
-            context.report({
-              message,
-              node: unusedArray.identifiers[0],
-            });
-          }
+          context.report({
+            message,
+            node: unusedArray.identifiers[0],
+          });
         });
       },
     };
@@ -82,7 +80,7 @@ function isUnusedCollection(variable: Scope.Variable) {
   }
   let assignCollection = false;
 
-  for (let ref of variable.references) {
+  for (const ref of variable.references) {
     if (ref.isWriteOnly()) {
       if (isReferenceAssigningCollection(ref)) {
         assignCollection = true;
