@@ -19,138 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.checks.utils.FunctionReturns;
-import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
-import org.sonar.javascript.se.sv.LiteralSymbolicValue;
-import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.tree.symbols.Scope;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3516")
-public class InvariantReturnCheck extends SeCheck {
-
-  private static final String MESSAGE = "Refactor this method to not always return the same value.";
-
-  private Multimap<ReturnStatementTree, ValueConstraint> valuesPerReturn = ArrayListMultimap.create();
+public class InvariantReturnCheck extends EslintBasedCheck {
 
   @Override
-  public void startOfExecution(Scope functionScope) {
-    valuesPerReturn.clear();
-  }
-
-  @Override
-  public void afterBlockElement(ProgramState currentState, Tree element) {
-    Tree parent = CheckUtils.parentIgnoreParentheses(element);
-    if (parent.is(Kind.RETURN_STATEMENT)) {
-      SymbolicValue value = currentState.peekStack();
-      Constraint constraint = currentState.getConstraint(value);
-      valuesPerReturn.put((ReturnStatementTree) parent, new ValueConstraint(value, constraint));
-    }
-  }
-
-  @Override
-  public void endOfExecution(Scope functionScope) {
-    if (valuesPerReturn.keySet().size() > 1) {
-      Collection<ValueConstraint> returnedValues = valuesPerReturn.values();
-      Set<Constraint> uniqueConstraints = returnedValues.stream().map(valueConstraint -> valueConstraint.constraint).collect(Collectors.toSet());
-
-      if (uniqueConstraints.size() == 1) {
-        Constraint onlyConstraint = uniqueConstraints.iterator().next();
-
-        if (onlyConstraint.isSingleValue() && !isCallbackException() && !onlyConstraint.equals(Constraint.UNDEFINED)) {
-          raiseIssue((FunctionTree) functionScope.tree());
-          return;
-        }
-      }
-
-      Set<SymbolicValue> uniqueSymbolicValues = returnedValues.stream().map(valueConstraint -> valueConstraint.value).collect(Collectors.toSet());
-      Constraint reducedConstraint = uniqueConstraints.stream().reduce(Constraint.NO_POSSIBLE_VALUE, Constraint::or);
-
-      if (uniqueSymbolicValues.size() == 1 && isImmutable(reducedConstraint)) {
-        raiseIssue((FunctionTree) functionScope.tree());
-        return;
-      }
-
-      if (allSameLiteralSymbolicValue(uniqueSymbolicValues)) {
-        raiseIssue((FunctionTree) functionScope.tree());
-      }
-    }
-  }
-
-  private static boolean allSameLiteralSymbolicValue(Set<SymbolicValue> values) {
-    Set<String> literals = new HashSet<>();
-    for (SymbolicValue value : values) {
-      if (value instanceof LiteralSymbolicValue) {
-        LiteralTree literal = ((LiteralSymbolicValue) value).getLiteral();
-        if (literal.is(Kind.BOOLEAN_LITERAL)) {
-          return false;
-        }
-        literals.add(literal.value());
-
-      } else {
-        return false;
-      }
-    }
-
-    return literals.size() == 1;
-  }
-
-  private boolean isCallbackException() {
-    for (ReturnStatementTree returnStatementTree : valuesPerReturn.keySet()) {
-      ExpressionTree expression = returnStatementTree.expression();
-      if (expression != null && !expression.is(Kind.BOOLEAN_LITERAL)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  private static boolean isImmutable(Constraint constraint) {
-    return constraint.isStricterOrEqualTo(Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE).or(Constraint.BOOLEAN_PRIMITIVE).or(Constraint.NULL));
-  }
-
-  private void raiseIssue(FunctionTree tree) {
-    if (containsImplicitReturnOfUndefined(tree)) {
-      return;
-    }
-
-    PreciseIssue issue = addIssue(tree.firstToken(), MESSAGE);
-    valuesPerReturn.keySet().forEach(issue::secondary);
-  }
-
-  private static boolean containsImplicitReturnOfUndefined(FunctionTree tree) {
-    BlockTree body = (BlockTree) tree.body();
-    FunctionReturns functionReturns = FunctionReturns.getFunctionReturns(body);
-    return functionReturns.containsImplicitReturn() || functionReturns.containsReturnWithoutValue();
-  }
-
-  private static class ValueConstraint {
-    SymbolicValue value;
-    Constraint constraint;
-
-    ValueConstraint(SymbolicValue value, Constraint constraint) {
-      this.value = value;
-      this.constraint = constraint;
-    }
+  public String eslintKey() {
+    return "no-invariant-returns";
   }
 }

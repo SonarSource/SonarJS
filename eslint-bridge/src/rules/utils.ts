@@ -164,9 +164,11 @@ export function toEncodedMessage(
   message: string,
   secondaryLocationsHolder: Array<AST.Token | TSESTree.Node>,
   secondaryMessages?: string[],
+  cost?: number,
 ): string {
   const encodedMessage: EncodedMessage = {
     message,
+    cost,
     secondaryLocations: secondaryLocationsHolder.map((locationHolder, index) =>
       toSecondaryLocation(
         locationHolder,
