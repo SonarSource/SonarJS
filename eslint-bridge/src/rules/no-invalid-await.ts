@@ -21,11 +21,8 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
-import {
-  isRequiredParserServices,
-  RequiredParserServices,
-} from "../utils/isRequiredParserServices";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { isRequiredParserServices } from "../utils/isRequiredParserServices";
+import { getTypeFromTreeNode } from "./utils";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -54,11 +51,6 @@ export const rule: Rule.RuleModule = {
     return {};
   },
 };
-
-function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
-  const checker = services.program.getTypeChecker();
-  return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
-}
 
 function hasThenMethod(type: any, ts: any) {
   const thenProperty = type.getProperty("then");
