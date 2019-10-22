@@ -35,10 +35,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getPromiseExecutor(
-  node: estree.NewExpression,
-  context: Rule.RuleContext,
-): estree.Node | undefined {
+function getPromiseExecutor(node: estree.NewExpression, context: Rule.RuleContext) {
   if (
     node.callee.type === "Identifier" &&
     context.getSourceCode().getText(node.callee) === "Promise" &&
@@ -49,7 +46,7 @@ function getPromiseExecutor(
   return undefined;
 }
 
-function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.RuleContext): void {
+function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.RuleContext) {
   if (isFunction(executor)) {
     const { params, body } = executor;
     const [resolveParameterDeclaration, rejectParameterDeclaration] = params;
@@ -81,7 +78,7 @@ function isFunction(node: estree.Node): node is estree.Function {
   );
 }
 
-function getOnlyBodyExpression(node: estree.Node): estree.Node | undefined {
+function getOnlyBodyExpression(node: estree.Node) {
   let bodyExpression: estree.Node | undefined;
   if (node.type === "BlockStatement") {
     if (node.body.length === 1) {
@@ -100,7 +97,7 @@ function getPromiseAction(
   callee: string,
   resolveParameterName: string | undefined,
   rejectParameterName: string | undefined,
-): string | undefined {
+) {
   switch (callee) {
     case resolveParameterName:
       return "resolve";
@@ -111,6 +108,6 @@ function getPromiseAction(
   }
 }
 
-function getParameterName(node: estree.Node | undefined): string | undefined {
+function getParameterName(node: estree.Node | undefined) {
   return node && node.type === "Identifier" ? node.name : undefined;
 }
