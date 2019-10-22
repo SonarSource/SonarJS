@@ -108,9 +108,6 @@ public class TypeScriptAnalysisTest {
     assertThat(result.getLogsLines(l -> l.contains("Using " + tsconfig + " from sonar.typescript.tsconfigPath property"))).hasSize(1);
   }
 
-  // disabling this test as it's failing inconsistency
-  // probably we are installing TS globally, but we can't detect where
-  @Ignore
   @Test
   public void test_missing_typescript() throws Exception {
     File dir = TestUtils.projectDir("tsproject-no-typescript");
