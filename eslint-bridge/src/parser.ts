@@ -180,7 +180,7 @@ export enum ParseExceptionCode {
 
 // exported for testing
 export function parseExceptionCodeOf(exceptionMsg: string): ParseExceptionCode {
-  if (exceptionMsg === "Cannot find module 'typescript'") {
+  if (exceptionMsg.startsWith("Cannot find module 'typescript'")) {
     return ParseExceptionCode.MissingTypeScript;
   } else if (exceptionMsg.startsWith("You are using version of TypeScript")) {
     return ParseExceptionCode.UnsupportedTypeScript;

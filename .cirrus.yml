@@ -13,6 +13,9 @@ env:
   BURGR_USERNAME: ENCRYPTED[!b29ddc7610116de511e74bec9a93ad9b8a20ac217a0852e94a96d0066e6e822b95e7bc1fe152afb707f16b70605fddd3!]
   BURGR_PASSWORD: ENCRYPTED[!83e130718e92b8c9de7c5226355f730e55fb46e45869149a9223e724bb99656878ef9684c5f8cfef434aa716e87f4cf2!]
 
+  # Use bash (instead of sh on linux or cmd.exe on windows)
+  CIRRUS_SHELL: bash
+
 container_definition: &CONTAINER_DEFINITION
   builder_image_project: language-team
   builder_image_name: docker-builder-lt-v1
@@ -121,10 +124,9 @@ plugin_qa_win_task:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE[7.9]
   qa_script:
-    - curl -sSL -o buildtools.zip https://github.com/SonarSource/buildTools/archive/docker.zip
-    - 7z.exe -obuildtools e buildtools.zip buildTools-*
-    - bash -x -c ". buildtools/cirrus-env QA && . buildtools/set_maven_build_version $BUILD_NUMBER"
-    - mvn.cmd --global-settings buildtools/settings.xml -f its/plugin/pom.xml -Dsonar.runtimeVersion=%SQ_VERSION% -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
+    - source /c/buildTools-docker/bin/cirrus-env QA
+    - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
+    - mvn --global-settings c:\\buildTools-docker\\settings.xml -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
 
 
 ruling_task:
