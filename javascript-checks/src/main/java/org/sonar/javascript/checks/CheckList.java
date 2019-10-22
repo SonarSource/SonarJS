@@ -286,6 +286,7 @@ public final class CheckList {
       UpdatedConstVariableCheck.class,
       UselessExpressionStatementCheck.class,
       UselessIncrementCheck.class,
+      UselessIntersectionCheck.class,
       UselessStringOperationCheck.class,
       UseOfEmptyReturnValueCheck.class,
       UseTypeAliasCheck.class,
