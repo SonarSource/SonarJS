@@ -55,6 +55,7 @@ public final class CheckList {
     return ImmutableList.<Class>of(
       AdjacentOverloadSignaturesCheck.class,
       AlertUseCheck.class,
+      AlphabeticalSortCheck.class,
       AlwaysUseCurlyBracesCheck.class,
       AngleBracketTypeAssertionCheck.class,
       ArgumentsCallerCalleeUsageCheck.class,

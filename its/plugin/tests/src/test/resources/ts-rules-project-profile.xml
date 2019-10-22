@@ -25,6 +25,11 @@
     </rule>
     <rule>
       <repositoryKey>typescript</repositoryKey>
+      <key>S2871</key>    <!-- no-alphabetical-sort -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
       <key>S3616</key>    <!-- CommaOperatorInSwitchCaseCheck -->
       <priority>INFO</priority>
     </rule>

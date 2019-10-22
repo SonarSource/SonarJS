@@ -1,0 +1,19 @@
+{
+  "title": "A compare function should be provided when using \"Array.prototype.sort()\"",
+  "type": "BUG",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "bad-practice"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-2871",
+  "sqKey": "S2871",
+  "scope": "Main"
+}

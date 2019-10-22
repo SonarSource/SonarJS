@@ -1,0 +1,24 @@
+var arrayOfNumbers = [80, 3, 9, 34, 23, 5, 1];
+arrayOfNumbers.sort(); // Noncompliant
+
+arrayOfNumbers.sort((n, m) => n - m);
+
+var emptyArrayOfNumbers: number[] = [];
+emptyArrayOfNumbers.sort(); // Noncompliant
+
+sort();
+
+function getArrayOfNumbers(): number[] {}
+getArrayOfNumbers().sort(); // Noncompliant
+
+var arrayOfStrings = ["foo", "bar"];
+arrayOfStrings.sort();
+
+var arrayOfObjects = [{a: 2}, {a: 4}];
+arrayOfObjects.sort();
+
+unknownArrayType.sort();
+
+interface MyCustomNumber extends Number {}
+const arrayOfCustomNumbers: MyCustomNumber[];
+arrayOfCustomNumbers.sort();
