@@ -22,7 +22,7 @@
 import { Rule, Scope } from "eslint";
 import * as estree from "estree";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { isIdentifier } from "./utils";
+import { findFirstMatchingAncestor, isElementWrite, isIdentifier, isReferenceTo } from "./utils";
 
 const message = "Either use this collection's contents or remove the collection.";
 
@@ -145,20 +145,6 @@ function isRead(ref: Scope.Reference) {
   return true;
 }
 
-function findFirstMatchingAncestor(
-  node: TSESTree.Node,
-  predicate: (node: TSESTree.Node) => boolean,
-) {
-  let currentNode = node.parent;
-  while (currentNode) {
-    if (predicate(currentNode)) {
-      return currentNode;
-    }
-    currentNode = currentNode.parent;
-  }
-  return undefined;
-}
-
 /**
  * Detect expression statements like the following:
  * myArray.push(1);
@@ -172,24 +158,6 @@ function isWritingMethodCall(statement: estree.ExpressionStatement, ref: Scope.R
     }
   }
   return false;
-}
-
-/**
- * Detect expression statements like the following:
- *  myArray[1] = 42;
- *  myArray[1] += 42;
- */
-function isElementWrite(statement: estree.ExpressionStatement, ref: Scope.Reference) {
-  if (statement.expression.type === "AssignmentExpression") {
-    const assignmentExpression = statement.expression;
-    const lhs = assignmentExpression.left;
-    return isMemberExpression(lhs) && isReferenceTo(ref, lhs.object);
-  }
-  return false;
-}
-
-function isReferenceTo(ref: Scope.Reference, node: estree.Node) {
-  return node.type === "Identifier" && node === ref.identifier;
 }
 
 function isMemberExpression(node: estree.Node): node is estree.MemberExpression {

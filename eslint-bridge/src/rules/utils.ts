@@ -189,3 +189,44 @@ function toSecondaryLocation(
     endLine: locationHolder.loc.end.line,
   };
 }
+
+export function findFirstMatchingAncestor(
+  node: TSESTree.Node,
+  predicate: (node: TSESTree.Node) => boolean,
+) {
+  let currentNode = node.parent;
+  while (currentNode) {
+    if (predicate(currentNode)) {
+      return currentNode;
+    }
+    currentNode = currentNode.parent;
+  }
+  return undefined;
+}
+
+/**
+ * Detect expression statements like the following:
+ *  myArray[1] = 42;
+ *  myArray[1] += 42;
+ *  myObj.prop1 = 3;
+ *  myObj.prop1 += 3;
+ */
+export function isElementWrite(statement: estree.ExpressionStatement, ref: Scope.Reference) {
+  if (statement.expression.type === "AssignmentExpression") {
+    const assignmentExpression = statement.expression;
+    const lhs = assignmentExpression.left;
+    return isMemberExpressionReference(lhs, ref);
+  }
+  return false;
+}
+
+function isMemberExpressionReference(lhs: estree.Node, ref: Scope.Reference): boolean {
+  return (
+    lhs.type === "MemberExpression" &&
+    (isReferenceTo(ref, lhs.object) || isMemberExpressionReference(lhs.object, ref))
+  );
+}
+
+export function isReferenceTo(ref: Scope.Reference, node: estree.Node) {
+  return node.type === "Identifier" && node === ref.identifier;
+}

@@ -189,6 +189,11 @@ ruleTester.run("Primitive return types should be used.", rule, {
           arrayConstructor[1] = 42;
       }
       `),
+    invalidTest(`function nok2_1() {
+          let arrayConstructor = new Array(); // Noncompliant
+          arrayConstructor[1][2] = 42;
+      }
+      `),
     invalidTest(`function nok3() {
           let arrayWithoutNew = Array(); // Noncompliant
           arrayWithoutNew[1] = 42;
