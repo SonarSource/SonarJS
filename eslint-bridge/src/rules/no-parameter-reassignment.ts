@@ -56,7 +56,7 @@ export const rule: Rule.RuleModule = {
       }
 
       const currentReference = variableUsageContext.referencesByIdentifier.get(identifier);
-      if (!!currentReference && !currentReference.init) {
+      if (currentReference && !currentReference.init) {
         const variableName = identifier.name;
         if (
           variableUsageContext.variablesToCheck.has(variableName) &&
@@ -72,19 +72,13 @@ export const rule: Rule.RuleModule = {
 
     function isUsedInWriteExpression(variableName: string, writeExpr: estree.Node | null) {
       return (
-        !!writeExpr &&
-        !!context.getSourceCode().getFirstToken(writeExpr, token => token.value === variableName)
+        writeExpr &&
+        context.getSourceCode().getFirstToken(writeExpr, token => token.value === variableName)
       );
     }
 
     function raiseIssue(reference: Scope.Reference) {
-      let locationHolder: { node: estree.Node } | { loc: AST.SourceLocation } = {
-        node: reference.identifier,
-      };
-      const location = getPreciseLocation(reference, reference.identifier.loc);
-      if (!!location) {
-        locationHolder = { loc: location };
-      }
+      const locationHolder = getPreciseLocationHolder(reference);
       context.report({
         message: `Introduce a new variable or use its initial value before reassigning "${
           reference.identifier.name
@@ -95,8 +89,8 @@ export const rule: Rule.RuleModule = {
 
     return {
       onCodePathStart(_codePath: Rule.CodePath, node: estree.Node) {
-        const currentScope = context.getSourceCode().scopeManager.acquire(node);
-        if (!!currentScope && currentScope.type === "function") {
+        const currentScope = context.getScope();
+        if (currentScope && currentScope.type === "function") {
           let {
             referencesByIdentifier,
             variablesToCheck,
@@ -104,7 +98,7 @@ export const rule: Rule.RuleModule = {
           } = computeNewContextInfo(variableUsageContext, context, node);
 
           const functionName = getFunctionName(node as estree.FunctionExpression);
-          if (!!functionName) {
+          if (functionName) {
             variablesToCheck.delete(functionName);
           }
 
@@ -127,9 +121,9 @@ export const rule: Rule.RuleModule = {
         }
       },
       onCodePathEnd() {
-        variableUsageContext = !variableUsageContext.parentContext
-          ? variableUsageContext
-          : variableUsageContext.parentContext;
+        variableUsageContext = variableUsageContext.parentContext
+          ? variableUsageContext.parentContext
+          : variableUsageContext;
       },
 
       onCodePathSegmentLoop(
@@ -148,11 +142,10 @@ export const rule: Rule.RuleModule = {
           variablesToCheckInCurrentScope,
         } = computeNewContextInfo(variableUsageContext, context, parent.left);
 
-        if (!!currentScope) {
-          referencesByIdentifier = currentScope.references.reduce(
-            (currentMap, currentRef) => currentMap.set(currentRef.identifier, currentRef),
-            referencesByIdentifier,
-          );
+        if (currentScope) {
+          for (const ref of currentScope.references) {
+            referencesByIdentifier.set(ref.identifier, ref);
+          }
         }
 
         // In case of array or object pattern expression, the left hand side are not declared variables but simply identifiers
@@ -198,9 +191,9 @@ export const rule: Rule.RuleModule = {
           node.type === "ForInStatement" ||
           node.type === "ForOfStatement"
         ) {
-          variableUsageContext = !variableUsageContext.parentContext
-            ? variableUsageContext
-            : variableUsageContext.parentContext;
+          variableUsageContext = variableUsageContext.parentContext
+            ? variableUsageContext.parentContext
+            : variableUsageContext;
         }
       },
 
@@ -254,17 +247,17 @@ function computeNewContextInfo(
 
 function markAsRead(context: ReassignmentContext, variableName: string) {
   context.variablesRead.add(variableName);
-  if (!context.variablesToCheckInCurrentScope.has(variableName) && !!context.parentContext) {
+  if (!context.variablesToCheckInCurrentScope.has(variableName) && context.parentContext) {
     markAsRead(context.parentContext, variableName);
   }
 }
 
-function getPreciseLocation(
+function getPreciseLocationHolder(
   reference: Scope.Reference,
-  identifierLoc?: estree.SourceLocation | null,
-) {
-  if (!!identifierLoc && !!reference.writeExpr && !!reference.writeExpr.loc) {
-    return { start: identifierLoc.start, end: reference.writeExpr.loc.end };
+): { node: estree.Node } | { loc: AST.SourceLocation } {
+  const identifierLoc = reference.identifier.loc;
+  if (identifierLoc && reference.writeExpr && reference.writeExpr.loc) {
+    return { loc: { start: identifierLoc.start, end: reference.writeExpr.loc.end } };
   }
-  return identifierLoc;
+  return { node: reference.identifier };
 }
