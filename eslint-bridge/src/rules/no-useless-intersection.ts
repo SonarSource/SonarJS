@@ -63,26 +63,19 @@ export const rule: Rule.RuleModule = {
 };
 
 function isTypeWithoutMembers(tp: any, ts: any): boolean {
-  const isNullLike = isNullType(tp, ts) || isUndefinedType(tp, ts) || isVoidType(tp, ts);
-  const isEmptyInterface = Boolean(
-    tp.symbol &&
-      tp.symbol.members &&
-      tp.symbol.members.size === 0 &&
-      isStandaloneInterface(tp.symbol, ts),
+  return isNullLike(tp, ts) || (isEmptyInterface(tp) && isStandaloneInterface(tp.symbol, ts));
+}
+
+function isNullLike(tp: any, ts: any): boolean {
+  return (
+    Boolean(tp.flags & ts.TypeFlags.Null) ||
+    Boolean(tp.flags & ts.TypeFlags.Undefined) ||
+    Boolean(tp.flags & ts.TypeFlags.Void)
   );
-  return isNullLike || isEmptyInterface;
 }
 
-function isNullType(tp: any, ts: any): boolean {
-  return Boolean(tp.flags & ts.TypeFlags.Null);
-}
-
-function isUndefinedType(tp: any, ts: any): boolean {
-  return Boolean(tp.flags & ts.TypeFlags.Undefined);
-}
-
-function isVoidType(tp: any, ts: any): boolean {
-  return Boolean(tp.flags & ts.TypeFlags.Void);
+function isEmptyInterface(tp: any): boolean {
+  return tp.symbol && tp.symbol.members && tp.symbol.members.size === 0;
 }
 
 function isStandaloneInterface({ declarations }: any, ts: any) {
