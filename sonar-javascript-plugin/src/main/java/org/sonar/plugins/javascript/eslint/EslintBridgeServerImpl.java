@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,10 +38,9 @@ import okhttp3.Response;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonarsource.nodejs.BundleUtils;
+import org.sonar.api.utils.log.Profiler;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -53,6 +51,7 @@ import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
 public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
+  private static final Profiler PROFILER = Profiler.createIfDebug(LOG);
 
   // SonarLint should pass in this property an absolute path to the directory containing TypeScript dependency
   private static final String TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY = "sonar.typescript.internal.typescriptLocation";
@@ -60,63 +59,44 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private static final int DEFAULT_TIMEOUT_SECONDS = 60;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
-  private static final String DEFAULT_STARTUP_SCRIPT = "node_modules/eslint-bridge/bin/server";
-  private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
   private static final Gson GSON = new Gson();
-
-  // this archive is created in eslint-bridge/scripts/package.js
-  private static final String BUNDLE_LOCATION = "/eslint-bridge.tar.xz";
 
   private final OkHttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
   private final int timeoutSeconds;
+  private final Bundle bundle;
   private int port;
   private NodeCommand nodeCommand;
-  private String startServerScript;
-  private String bundleLocation;
-  private Path deployLocation;
   private boolean failedToStart;
   private Configuration configuration;
 
   // Used by pico container for dependency injection
   @SuppressWarnings("unused")
-  public EslintBridgeServerImpl(Configuration configuration, NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder) {
-    this(configuration, nodeCommandBuilder, tempFolder, DEFAULT_TIMEOUT_SECONDS, DEFAULT_STARTUP_SCRIPT, BUNDLE_LOCATION);
+  public EslintBridgeServerImpl(Configuration configuration, NodeCommandBuilder nodeCommandBuilder, Bundle bundle) {
+    this(configuration, nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle);
   }
 
-  EslintBridgeServerImpl(
-    Configuration configuration,
-    NodeCommandBuilder nodeCommandBuilder, TempFolder tempFolder, int timeoutSeconds,
-    String startServerScript,
-    String bundleLocation
-  ) {
+  EslintBridgeServerImpl(Configuration configuration, NodeCommandBuilder nodeCommandBuilder, int timeoutSeconds,
+                         Bundle bundle) {
     this.configuration = configuration;
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
-    this.startServerScript = startServerScript;
+    this.bundle = bundle;
     this.client = new OkHttpClient.Builder()
       .callTimeout(Duration.ofSeconds(timeoutSeconds))
       .readTimeout(Duration.ofSeconds(timeoutSeconds))
       .build();
-    this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
-    this.bundleLocation = bundleLocation;
   }
 
   void deploy() throws IOException {
-    long start = System.currentTimeMillis();
-    LOG.debug("Deploying eslint-bridge into {}", deployLocation);
-    InputStream bundle = getClass().getResourceAsStream(bundleLocation);
-    if (bundle == null) {
-      throw new IllegalStateException("eslint-bridge not found in plugin jar");
-    }
-    BundleUtils.extractFromClasspath(bundle, deployLocation);
-    LOG.debug("Deployment done in {}ms", System.currentTimeMillis() - start);
+    bundle.deploy();
   }
 
   void startServer(SensorContext context) throws IOException, NodeCommandException {
+    PROFILER.startDebug("Starting server");
     port = findOpenPort();
 
-    File scriptFile = deployLocation.resolve(startServerScript).toFile();
+    File scriptFile = new File(bundle.startServerScript());
     if (!scriptFile.exists()) {
       throw new NodeCommandException("Node.js script to start eslint-bridge server doesn't exist: " + scriptFile.getAbsolutePath());
     }
@@ -129,7 +109,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     if (!waitServerToStart("localhost", port, timeoutSeconds * 1000)) {
       throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
     }
-    LOG.debug("Server is started");
+    PROFILER.stopDebug();
   }
 
   private void initNodeCommand(SensorContext context, File scriptFile) throws IOException {

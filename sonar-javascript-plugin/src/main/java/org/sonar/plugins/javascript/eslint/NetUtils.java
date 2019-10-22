@@ -20,8 +20,10 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 public class NetUtils {
 
@@ -35,10 +37,11 @@ public class NetUtils {
   }
 
   public static boolean waitServerToStart(String host, int port, int timeoutMs) {
-    int sleepStep = 500;
+    int sleepStep = 20;
+    SocketAddress address = new InetSocketAddress(host, port);
     long start = System.currentTimeMillis();
     try {
-      while (!serverListening(host, port)) {
+      while (!serverListening(address)) {
         if (System.currentTimeMillis() - start > timeoutMs) {
           return false;
         }
@@ -47,17 +50,15 @@ public class NetUtils {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
-
     return true;
   }
 
-  private static boolean serverListening(String host, int port) {
-    try (Socket s = new Socket(host, port)) {
+  private static boolean serverListening(SocketAddress address) {
+    try (Socket s = new Socket()) {
+      s.connect(address, 1);
       return true;
     } catch (Exception e) {
       return false;
     }
   }
-
-
 }

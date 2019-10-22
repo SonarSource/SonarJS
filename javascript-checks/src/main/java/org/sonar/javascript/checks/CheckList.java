@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.ImmutableList;
-
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
@@ -156,6 +154,7 @@ public final class CheckList {
       InconsistentFunctionCallCheck.class,
       IncrementDecrementInSubExpressionCheck.class,
       IndexOfCompareToPositiveNumberCheck.class,
+      IgnoredReturnCheck.class,
       InOperatorTypeErrorCheck.class,
       InstanceofInMisuseCheck.class,
       InvariantReturnCheck.class,
@@ -275,6 +274,7 @@ public final class CheckList {
       NoOneIterationLoopCheck.class,
       UndefinedAssignmentCheck.class,
       GlobalsShadowingCheck.class,
+      UndefinedArgumentCheck.class,
       UniversalSelectorCheck.class,
       UnreachableCodeCheck.class,
       UntrustedContentCheck.class,

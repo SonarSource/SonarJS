@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S4030")
-public class UnusedCollectionCheck extends EslintBasedCheck {
+@Rule(key = "S2201")
+public class IgnoredReturnCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-unused-collection";
+    return "no-ignored-return";
   }
-
 }

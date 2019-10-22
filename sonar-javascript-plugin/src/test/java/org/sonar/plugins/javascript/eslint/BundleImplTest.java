@@ -17,35 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarsource.nodejs;
+package org.sonar.plugins.javascript.eslint;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import org.apache.commons.compress.utils.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.sonar.api.utils.internal.JUnitTempFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BundleUtilsTest {
+public class BundleImplTest {
 
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
   @Test
   public void test() throws Exception {
-    Path tmp = temporaryFolder.newFolder().toPath();
-    // "test.tar.xz" is created from "files" directory
-    // with this command: tar -cJ -f test.tar.xz files
-    // might require "--force-local" option for windows
-    BundleUtils.extractFromClasspath(getClass().getResourceAsStream("/test.tar.xz"), tmp);
-    File testFile = tmp.resolve("resources/bundle.txt").toFile();
-    assertThat(testFile.exists()).isTrue();
-    byte[] actual = Files.readAllBytes(testFile.toPath());
-    byte[] expected = IOUtils.toByteArray(getClass().getResourceAsStream("/files/bundle.txt"));
-    assertThat(actual).isEqualTo(expected);
+    BundleImpl bundle = new BundleImpl(tempFolder, "/test-bundle.tgz");
+    bundle.deploy();
+    String script = bundle.startServerScript();
+    File scriptFile = new File(script);
+    assertThat(scriptFile).exists();
+    String content = new String(Files.readAllBytes(scriptFile.toPath()), StandardCharsets.UTF_8);
+    assertThat(content).startsWith("#!/usr/bin/env node");
   }
 
+  @Test
+  public void should_not_fail_when_deployed_twice() throws Exception {
+    BundleImpl bundle = new BundleImpl(tempFolder, "/test-bundle.tgz");
+    bundle.deploy();
+    bundle.deploy();
+    // no exception expected
+  }
 }
