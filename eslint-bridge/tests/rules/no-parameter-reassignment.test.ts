@@ -76,6 +76,11 @@ ruleTester.run(
           }
         }
         
+        // Ok - reassignment is based on arguments
+        function myFunc3(p1) {
+          p1 = arguments[1] || arguments[0];
+        }
+        
         var p1;
         p1 = 42;
         p1 = 3;

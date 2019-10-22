@@ -55,11 +55,14 @@ export const rule: Rule.RuleModule = {
       }
 
       const currentReference = variableUsageContext.referencesByIdentifier.get(identifier);
-      if (currentReference && !currentReference.init) {
-        const variableName = identifier.name;
+      const variableName = identifier.name;
+      if (currentReference && !currentReference.init && !variableUsageContext.variablesRead.has(variableName)) {
+        const functionHasReadArguments =
+          identifierContextType === "function" &&
+          variableUsageContext.variablesRead.has("arguments");
         if (
           variableUsageContext.variablesToCheck.has(variableName) &&
-          !variableUsageContext.variablesRead.has(variableName) &&
+          !functionHasReadArguments &&
           currentReference.isWriteOnly() &&
           !isUsedInWriteExpression(variableName, currentReference.writeExpr)
         ) {
@@ -78,7 +81,12 @@ export const rule: Rule.RuleModule = {
     function isUsedInWriteExpression(variableName: string, writeExpr: estree.Node | null) {
       return (
         writeExpr &&
-        context.getSourceCode().getFirstToken(writeExpr, token => token.value === variableName)
+        context
+          .getSourceCode()
+          .getFirstToken(
+            writeExpr,
+            token => token.value === variableName || token.value === "arguments",
+          )
       );
     }
 
