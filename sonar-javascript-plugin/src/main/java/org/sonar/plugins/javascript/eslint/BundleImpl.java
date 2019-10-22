@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarsource.nodejs;
+package org.sonar.plugins.javascript.eslint;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -27,22 +27,64 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.zip.GZIPInputStream;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
+import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
-public class BundleUtils {
+import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 
-  private BundleUtils() {
-    // do not instantiate - utility class
+@ScannerSide
+@SonarLintSide(lifespan = MULTIPLE_ANALYSES)
+public class BundleImpl implements Bundle {
+
+  private static final Logger LOG = Loggers.get(BundleImpl.class);
+  private static final Profiler PROFILER = Profiler.createIfDebug(LOG);
+
+  // this archive is created in eslint-bridge module
+  private static final String BUNDLE_LOCATION = "/eslint-bridge-1.0.0.tgz";
+  private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
+  private static final String DEFAULT_STARTUP_SCRIPT = "package/bin/server";
+  private final Path deployLocation;
+  private final String bundleLocation;
+
+  public BundleImpl(TempFolder tempFolder) {
+    this(tempFolder, BUNDLE_LOCATION);
   }
 
-  public static void extractFromClasspath(InputStream resource, Path targetPath) throws IOException {
+  BundleImpl(TempFolder tempFolder, String bundleLocation) {
+    this.bundleLocation = bundleLocation;
+    this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
+  }
+
+  @Override
+  public void deploy() throws IOException {
+    PROFILER.startDebug("Deploying bundle");
+    LOG.debug("Deploying eslint-bridge into {}", deployLocation);
+    InputStream bundle = getClass().getResourceAsStream(bundleLocation);
+    if (bundle == null) {
+      throw new IllegalStateException("eslint-bridge not found in plugin jar");
+    }
+    extractFromClasspath(bundle, deployLocation);
+    PROFILER.stopDebug();
+  }
+
+  @Override
+  public String startServerScript() {
+    return deployLocation.resolve(DEFAULT_STARTUP_SCRIPT).toAbsolutePath().toString();
+  }
+
+  private static void extractFromClasspath(InputStream resource, Path targetPath) throws IOException {
     Objects.requireNonNull(resource);
-    try (InputStream xzi = new XZCompressorInputStream(new BufferedInputStream(resource));
-         ArchiveInputStream archive = new TarArchiveInputStream(xzi)) {
+    try (InputStream stream = new GZIPInputStream(new BufferedInputStream(resource));
+         ArchiveInputStream archive = new TarArchiveInputStream(stream)) {
       ArchiveEntry entry;
       while ((entry = archive.getNextEntry()) != null) {
         if (!archive.canReadEntryData(entry)) {

@@ -17,20 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.plugins.javascript.eslint;
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import java.io.IOException;
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S4030")
-public class UnusedCollectionCheck extends EslintBasedCheck {
+interface Bundle {
 
-  @Override
-  public String eslintKey() {
-    return "no-unused-collection";
-  }
+  void deploy() throws IOException;
 
+  String startServerScript();
 }
