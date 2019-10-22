@@ -8,6 +8,20 @@ const ruleTester = new RuleTester({
   parser: tsParserPath,
 });
 
+/*function invalidTest(code: string) {
+  const line = code.split("\n").findIndex(str => str.includes("// Noncompliant")) + 1;
+  return {
+    code: code,
+    errors: [
+      {
+        message: "Either use this collection's contents or remove the collection.",
+        line,
+        endLine: line,
+      },
+    ],
+  };
+}*/
+
 ruleTester.run(
   "Function parameters, caught exceptions and foreach variables' initial values should not be ignored",
   rule,
@@ -40,8 +54,15 @@ ruleTester.run(
           p2 = doSomething(p2); // Ok - variable is on right side of assignment
         }
         
-        function myFunc() {
+        function myFunc1() {
           myFunc = () => "";
+        }
+        
+        // Ok - reassignment inside IfStatement are not raised
+        function myFunc2(p1) {
+          if (someBoolean) {
+            p1 = "defaultValue";
+          }
         }
         
         var p1;
@@ -105,6 +126,37 @@ ruleTester.run(
             endLine: 3,
             column: 11,
             endColumn: 18,
+          },
+        ],
+      },
+      {
+        code: `
+        function foo(p1) {
+           if (someBoolean) {
+            p1 = "defaultValue";
+          }
+          p1 = "newValue";
+        }`,
+        errors: [
+          {
+            message: 'Introduce a new variable or use its initial value before reassigning "p1".',
+            line: 6,
+            endLine: 6,
+          },
+        ],
+      },
+      {
+        code: `
+        function foo(p1) {
+           while (someBoolean) {
+            p1 = "defaultValue";
+          }
+        }`,
+        errors: [
+          {
+            message: 'Introduce a new variable or use its initial value before reassigning "p1".',
+            line: 4,
+            endLine: 4,
           },
         ],
       },

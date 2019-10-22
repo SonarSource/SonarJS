@@ -42,7 +42,6 @@ export const rule: Rule.RuleModule = {
       variablesRead: new Set<string>(),
       referencesByIdentifier: new Map<estree.Identifier, Scope.Reference>(),
     };
-    const invalidReassignmentReferences: Scope.Reference[] = [];
 
     function checkIdentifierUsage(
       identifier: estree.Identifier,
@@ -64,7 +63,13 @@ export const rule: Rule.RuleModule = {
           currentReference.isWriteOnly() &&
           !isUsedInWriteExpression(variableName, currentReference.writeExpr)
         ) {
-          invalidReassignmentReferences.push(currentReference);
+          const isInsideIfStatement = context
+            .getAncestors()
+            .find(node => node.type === "IfStatement");
+          if (isInsideIfStatement) {
+            return;
+          }
+          raiseIssue(currentReference);
         }
         markAsRead(variableUsageContext, variableName);
       }
@@ -205,8 +210,6 @@ export const rule: Rule.RuleModule = {
         checkIdentifierUsage(node as estree.Identifier, "foreach"),
       "CatchClause > BlockStatement Identifier": (node: estree.Node) =>
         checkIdentifierUsage(node as estree.Identifier, "catch"),
-      "Program:exit": () =>
-        invalidReassignmentReferences.forEach(reference => raiseIssue(reference)),
     };
   },
 };
