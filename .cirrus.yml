@@ -170,7 +170,7 @@ promote_task:
     memory: 1G
   env:
     #promotion cloud function
-    ACCESS_TOKEN: ENCRYPTED[!1fb91961a5c01e06e38834e55755231d649dc62eca354593105af9f9d643d701ae4539ab6a8021278b8d9348ae2ce8be!]
+    GCF_ACCESS_TOKEN: ENCRYPTED[!1fb91961a5c01e06e38834e55755231d649dc62eca354593105af9f9d643d701ae4539ab6a8021278b8d9348ae2ce8be!]
     PROMOTE_URL: ENCRYPTED[!e22ed2e34a8f7a1aea5cff653585429bbd3d5151e7201022140218f9c5d620069ec2388f14f83971e3fd726215bc0f5e!]
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: org.sonarsource.javascript:sonar-javascript-plugin:jar
@@ -179,5 +179,5 @@ promote_task:
   script:
     - source cirrus-env PROMOTE
     - source set_maven_build_version $BUILD_NUMBER
-    - curl -s -H "Authorization: Bearer $ACCESS_TOKEN" "$PROMOTE_URL/$GITHUB_REPO/$GITHUB_BRANCH/$BUILD_NUMBER/$PULL_REQUEST"
+    - curl -s -H "Authorization: Bearer $GCF_ACCESS_TOKEN" "$PROMOTE_URL/$GITHUB_REPO/$GITHUB_BRANCH/$BUILD_NUMBER/$PULL_REQUEST"
     - burgr-notify-promotion
