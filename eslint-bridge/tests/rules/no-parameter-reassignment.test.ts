@@ -8,19 +8,30 @@ const ruleTester = new RuleTester({
   parser: tsParserPath,
 });
 
-/*function invalidTest(code: string) {
-  const line = code.split("\n").findIndex(str => str.includes("// Noncompliant")) + 1;
+const NON_COMPLIANT_REGEX = /\/\/\sNoncompliant\s{{(\w+)}}/;
+function invalidTest(code: string) {
+  const errors = code.split("\n").reduce(
+    (accumulator, currentLine, index) => {
+      const res = NON_COMPLIANT_REGEX.exec(currentLine);
+      if (res && res[1]) {
+        const currentLine = index + 1;
+        accumulator.push({
+          message: `Introduce a new variable or use its initial value before reassigning "${
+            res[1]
+          }".`,
+          line: currentLine,
+          endLine: currentLine,
+        });
+      }
+      return accumulator;
+    },
+    [] as RuleTester.TestCaseError[],
+  );
   return {
     code: code,
-    errors: [
-      {
-        message: "Either use this collection's contents or remove the collection.",
-        line,
-        endLine: line,
-      },
-    ],
+    errors,
   };
-}*/
+}
 
 ruleTester.run(
   "Function parameters, caught exceptions and foreach variables' initial values should not be ignored",
@@ -129,163 +140,97 @@ ruleTester.run(
           },
         ],
       },
-      {
-        code: `
+      invalidTest(`
         function foo(p1) {
            if (someBoolean) {
             p1 = "defaultValue";
           }
-          p1 = "newValue";
-        }`,
-        errors: [
-          {
-            message: 'Introduce a new variable or use its initial value before reassigning "p1".',
-            line: 6,
-            endLine: 6,
-          },
-        ],
-      },
-      {
-        code: `
+          p1 = "newValue"; // Noncompliant {{p1}}
+        }`),
+      invalidTest(`
         function foo(p1) {
            while (someBoolean) {
-            p1 = "defaultValue";
+            p1 = "defaultValue"; // Noncompliant {{p1}}
           }
-        }`,
-        errors: [
-          {
-            message: 'Introduce a new variable or use its initial value before reassigning "p1".',
-            line: 4,
-            endLine: 4,
-          },
-        ],
-      },
-      {
-        code: `
+        }`),
+      invalidTest(`
         function bindingElements({a: p1 = 1, p2 = 2}, [p3 = 3, p4 = 4], p5 = 5) {
-          p1 = 42;
-          p2 = 42;
-          p3 = 42;
-          p4 = 42;
+          p1 = 42; // Noncompliant {{p1}}
+          p2 = 42; // Noncompliant {{p2}}
+          p3 = 42; // Noncompliant {{p3}}
+          p4 = 42; // Noncompliant {{p4}}
+          p5 = 42; // Noncompliant {{p5}}
           p5 = 42;
-          p5 = 42;
-        }`,
-        errors: [
-          {
-            message: 'Introduce a new variable or use its initial value before reassigning "p1".',
-            line: 3,
-            column: 11,
-            endLine: 3,
-            endColumn: 18,
-          },
-          {
-            message: 'Introduce a new variable or use its initial value before reassigning "p2".',
-            line: 4,
-            column: 11,
-            endLine: 4,
-            endColumn: 18,
-          },
-          {
-            message: 'Introduce a new variable or use its initial value before reassigning "p3".',
-            line: 5,
-            column: 11,
-            endLine: 5,
-            endColumn: 18,
-          },
-          {
-            message: 'Introduce a new variable or use its initial value before reassigning "p4".',
-            line: 6,
-            column: 11,
-            endLine: 6,
-            endColumn: 18,
-          },
-          {
-            message: 'Introduce a new variable or use its initial value before reassigning "p5".',
-            line: 7,
-            column: 11,
-            endLine: 7,
-            endColumn: 18,
-          },
-        ],
-      },
-      {
-        code: `
+        }`),
+      invalidTest(`
         var arrow_function1 = (p1, p2) => {
-          p2 = 42;
+          p2 = 42; // Noncompliant {{p2}}
           p1.prop1 = 42;
           foo(p1, p2);
         }
         
         var arrow_function2 = p1 => {
-          p1 = 42;
+          p1 = 42; // Noncompliant {{p1}}
           foo(p1);
         }
         
         (function(p1) {
-          p1 = 42;
-        })(1);`,
-        errors: 3,
-      },
-      {
-        code: `
+          p1 = 42; // Noncompliant {{p1}}
+        })(1);`),
+      invalidTest(`
         try {
           foo();
         } catch (e) {
-          e = foo();
+          e = foo(); // Noncompliant {{e}}
         }
         
         try {
           foo();
         } catch ([e, e1, e2]) {
-          e = foo();
-          e1 = foo();
+          e = foo(); // Noncompliant {{e}}
+          e1 = foo(); // Noncompliant {{e1}}
           foo(e2);
-        }`,
-        errors: 3,
-      },
-      {
-        code: `
+        }`),
+      invalidTest(`
         for (var x in obj) {
           for (let x in obj) {
-            x = foo(); // Noncompliant
+            x = foo(); // Noncompliant {{x}}
           }
-          x = foo(); // Noncompliant - not same x
+          x = foo(); // Noncompliant {{x}}
         }
         
         for (var [a, b] of obj) {
-          a = foo(); // Noncompliant
+          a = foo(); // Noncompliant {{a}}
         }
         
         for (let {prop1, prop2} in obj) {
-          prop1 = foo(); // Noncompliant
+          prop1 = foo(); // Noncompliant {{prop1}}
         }
         
         for (let x of obj) {
-          x = foo(); // Noncompliant
+          x = foo(); // Noncompliant {{x}}
         }
         
         var y = 1;
         y = 42;
         for (y of obj) {
-          y = foo(); // Noncompliant
+          y = foo(); // Noncompliant {{y}}
         }
         
         var z;
         for (z in obj) {
-          z = foo(); // Noncompliant
+          z = foo(); // Noncompliant {{z}}
         }
         
         for ([a, [b]] in obj) {
-          a = foo(); // Noncompliant
-          b = foo(); // Noncompliant
+          a = foo(); // Noncompliant {{a}}
+          b = foo(); // Noncompliant {{b}}
         }
         
         for ({a, b} in obj) {
-          a = foo(); // Noncompliant
-          b = foo(); // Noncompliant
-        }`,
-        errors: 11,
-      },
+          a = foo(); // Noncompliant {{a}}
+          b = foo(); // Noncompliant {{b}}
+        }`),
     ],
   },
 );
