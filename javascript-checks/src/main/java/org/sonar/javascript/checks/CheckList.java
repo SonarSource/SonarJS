@@ -155,6 +155,7 @@ public final class CheckList {
       InconsistentFunctionCallCheck.class,
       IncrementDecrementInSubExpressionCheck.class,
       IndexOfCompareToPositiveNumberCheck.class,
+      IgnoredReturnCheck.class,
       InOperatorTypeErrorCheck.class,
       InstanceofInMisuseCheck.class,
       InvariantReturnCheck.class,
