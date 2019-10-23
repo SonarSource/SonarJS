@@ -70,6 +70,7 @@ public final class CheckList {
       BackboneChangedIsUsedCheck.class,
       BitwiseOperatorsCheck.class,
       BooleanEqualityComparisonCheck.class,
+      BoolParamDefaultCheck.class,
       BoundOrAssignedEvalOrArgumentsCheck.class,
       BuiltInObjectOverriddenCheck.class,
       CallabilityCheck.class,
