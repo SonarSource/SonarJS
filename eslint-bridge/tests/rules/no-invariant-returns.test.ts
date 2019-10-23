@@ -111,6 +111,15 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
           }
           c.doSomething(); // Ok - we don't know whether state of c was updated or not 
           return c;
+        }
+        
+        function identifiers10(a: number) {
+          const c = {};
+          if (a == 1) {
+            return c;
+          }
+          doSomething(c); // Ok - we don't know whether state of c was updated or not
+          return c;
         }`,
     },
     {
@@ -224,7 +233,7 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
       errors: [
         {
           message:
-            '{"message":"Refactor this method to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":4,"endColumn":23,"endLine":4},{"column":17,"line":6,"endColumn":19,"endLine":6}]}',
+            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":4,"endColumn":23,"endLine":4},{"column":17,"line":6,"endColumn":19,"endLine":6}]}',
           line: 2,
           endLine: 2,
           column: 18,
@@ -245,11 +254,9 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
       errors: [
         {
           message:
-            '{"message":"Refactor this method to not always return the same value.","cost":3,"secondaryLocations":[{"column":21,"line":4,"endColumn":26,"endLine":4},{"column":21,"line":6,"endColumn":26,"endLine":6},{"column":19,"line":8,"endColumn":24,"endLine":8}]}',
+            '{"message":"Refactor this function to not always return the same value.","cost":3,"secondaryLocations":[{"column":21,"line":4,"endColumn":26,"endLine":4},{"column":21,"line":6,"endColumn":26,"endLine":6},{"column":19,"line":8,"endColumn":24,"endLine":8}]}',
           line: 2,
           endLine: 2,
-          column: 18,
-          endColumn: 25,
         },
       ],
     },
@@ -258,11 +265,9 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
       errors: [
         {
           message:
-            '{"message":"Refactor this method to not always return the same value.","cost":2,"secondaryLocations":[{"column":40,"line":1,"endColumn":45,"endLine":1},{"column":56,"line":1,"endColumn":61,"endLine":1}]}',
+            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":40,"line":1,"endColumn":45,"endLine":1},{"column":56,"line":1,"endColumn":61,"endLine":1}]}',
           line: 1,
           endLine: 1,
-          column: 20,
-          endColumn: 22,
         },
       ],
     },
@@ -278,11 +283,9 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
       errors: [
         {
           message:
-            '{"message":"Refactor this method to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":5,"endColumn":22,"endLine":5},{"column":17,"line":7,"endColumn":18,"endLine":7}]}',
+            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":5,"endColumn":22,"endLine":5},{"column":17,"line":7,"endColumn":18,"endLine":7}]}',
           line: 2,
           endLine: 2,
-          column: 18,
-          endColumn: 29,
         },
       ],
     },
@@ -300,11 +303,45 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
       errors: [
         {
           message:
-            '{"message":"Refactor this method to not always return the same value.","cost":2,"secondaryLocations":[{"column":19,"line":5,"endColumn":24,"endLine":5},{"column":17,"line":9,"endColumn":22,"endLine":9}]}',
+            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":19,"line":5,"endColumn":24,"endLine":5},{"column":17,"line":9,"endColumn":22,"endLine":9}]}',
           line: 2,
           endLine: 2,
-          column: 18,
-          endColumn: 29,
+        },
+      ],
+    },
+    {
+      code: `
+        function numbers(a: number) {
+          if (a == 1) {
+              return 42;
+          }
+          var arrowNull = (p) => { if (p) { return null; } return ""; };
+          return 42;
+        }`,
+      errors: [
+        {
+          message:
+            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":4,"endColumn":23,"endLine":4},{"column":17,"line":7,"endColumn":19,"endLine":7}]}',
+          line: 2,
+          endLine: 2,
+        },
+      ],
+    },
+    {
+      code: `
+        function numbers(a: number) {
+          if (a == 1) {
+              return 42;
+          }
+          var arrowNull = (p) => { if (p) { return ""; } return ""; };
+          return "";
+        }`,
+      errors: [
+        {
+          message:
+            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":51,"line":6,"endColumn":53,"endLine":6},{"column":64,"line":6,"endColumn":66,"endLine":6}]}',
+          line: 6,
+          endLine: 6,
         },
       ],
     },
@@ -320,7 +357,43 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         }`,
       errors: [
         {
-          message: `{"message":"Refactor this method to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":6,"endColumn":22,"endLine":6},{"column":17,"line":8,"endColumn":18,"endLine":8}]}`,
+          message: `{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":6,"endColumn":22,"endLine":6},{"column":17,"line":8,"endColumn":18,"endLine":8}]}`,
+        },
+      ],
+    },
+    {
+      code: `
+        function withThrowAndExplicitReturn(cond: boolean, cond2: boolean) {
+          try {
+              throw 42;
+          } catch(e) {}
+          
+          if (cond2) {
+              return 42;
+          }
+          return 42;
+        }`,
+      errors: [
+        {
+          message: `{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":8,"endColumn":23,"endLine":8},{"column":17,"line":10,"endColumn":19,"endLine":10}]}`,
+        },
+      ],
+    },
+    {
+      code: `
+        registerFunction(
+          function() {
+            const c = "foo";
+            if (a == 1) {
+                return c;
+            }
+            return c;
+          });`,
+      errors: [
+        {
+          message: `{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":23,"line":6,"endColumn":24,"endLine":6},{"column":19,"line":8,"endColumn":20,"endLine":8}]}`,
+          line: 3,
+          endLine: 3,
         },
       ],
     },

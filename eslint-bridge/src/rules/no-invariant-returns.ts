@@ -22,12 +22,7 @@
 import { Rule, Scope } from "eslint";
 import * as estree from "estree";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
-import {
-  findFirstMatchingAncestor,
-  isElementWrite,
-  isReferenceTo,
-  toEncodedMessage,
-} from "./utils";
+import { findFirstMatchingAncestor, isElementWrite, toEncodedMessage } from "./utils";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
 
@@ -43,6 +38,7 @@ interface SingleWriteVariable {
 }
 
 type LiteralValue = number | RegExp | string | null | boolean;
+const FUNCTION_NODES = ["FunctionDeclaration", "FunctionExpression", "ArrowFunctionExpression"];
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -76,7 +72,7 @@ export const rule: Rule.RuleModule = {
       );
       if (areAllSameValue(returnedValues, context.getScope())) {
         const message = toEncodedMessage(
-          `Refactor this method to not always return the same value.`,
+          `Refactor this function to not always return the same value.`,
           returnedValues as TSESTree.Node[],
           undefined,
           returnedValues.length,
@@ -132,14 +128,14 @@ function hasDifferentReturnTypes(functionContext: FunctionContext) {
 }
 
 function areAllSameValue(returnedValues: estree.Node[], scope: Scope.Scope) {
-  const firsReturnedValue = returnedValues[0];
-  const firstValue = getLiteralValue(firsReturnedValue, scope);
+  const firstReturnedValue = returnedValues[0];
+  const firstValue = getLiteralValue(firstReturnedValue, scope);
   if (firstValue !== undefined) {
-    return !returnedValues
+    return returnedValues
       .slice(1)
-      .some(returnedValue => getLiteralValue(returnedValue, scope) !== firstValue);
-  } else if (firsReturnedValue.type === "Identifier") {
-    const singleWriteVariable = getSingleWriteDefinition(firsReturnedValue.name, scope);
+      .every(returnedValue => getLiteralValue(returnedValue, scope) === firstValue);
+  } else if (firstReturnedValue.type === "Identifier") {
+    const singleWriteVariable = getSingleWriteDefinition(firstReturnedValue.name, scope);
     if (singleWriteVariable) {
       const readReferenceIdentifiers = singleWriteVariable.variable.references
         .slice(1)
@@ -173,25 +169,17 @@ function getSingleWriteDefinition(
 function isPossibleObjectUpdate(ref: Scope.Reference) {
   const expressionStatement = findFirstMatchingAncestor(
     ref.identifier as TSESTree.Node,
-    n => n.type === "ExpressionStatement",
-  ) as estree.ExpressionStatement | undefined;
+    n => n.type === "ExpressionStatement" || FUNCTION_NODES.includes(n.type),
+  ) as estree.Node | undefined;
 
-  // To avoid FP, we consider method calls on objects as write operations, since we do not know whether they will
+  // To avoid FP, we consider method calls as write operations, since we do not know whether they will
   // update the object state or not.
   return (
     expressionStatement &&
-    (isElementWrite(expressionStatement, ref) || isMethodCallOnReference(expressionStatement, ref))
+    expressionStatement.type === "ExpressionStatement" &&
+    (isElementWrite(expressionStatement, ref) ||
+      expressionStatement.expression.type === "CallExpression")
   );
-}
-
-function isMethodCallOnReference(statement: estree.ExpressionStatement, ref: Scope.Reference) {
-  if (statement.expression.type === "CallExpression") {
-    const callee = statement.expression.callee;
-    if (callee && callee.type === "MemberExpression") {
-      return isReferenceTo(ref, callee.object);
-    }
-  }
-  return false;
 }
 
 function getLiteralValue(returnedValue: estree.Node, scope: Scope.Scope): LiteralValue | undefined {
