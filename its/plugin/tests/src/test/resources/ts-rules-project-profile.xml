@@ -55,6 +55,11 @@
     </rule>
     <rule>
       <repositoryKey>typescript</repositoryKey>
+      <key>S4158</key>    <!-- no-empty-collection -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
       <key>S4524</key>    <!-- prefer-default-last -->
       <priority>INFO</priority>
     </rule>

@@ -202,36 +202,36 @@ function toSecondaryLocation(
   };
 }
 
-export function findFirstMatchingAncestor(
-  node: TSESTree.Node,
-  predicate: (node: TSESTree.Node) => boolean,
-) {
-  return findFirstMatchingAncestorWithBoundaries(node, predicate, new Set());
-}
-
 export function findFirstMatchingLocalAncestor(
   node: TSESTree.Node,
   predicate: (node: TSESTree.Node) => boolean,
 ) {
-  return findFirstMatchingAncestorWithBoundaries(node, predicate, functionLike);
+  return ancestorsChain(node, functionLike).find(predicate);
 }
 
-export function findFirstMatchingAncestorWithBoundaries(
+export function findFirstMatchingAncestor(
   node: TSESTree.Node,
   predicate: (node: TSESTree.Node) => boolean,
-  boundaryTypes: Set<string>,
 ) {
+  return ancestorsChain(node, new Set()).find(predicate);
+}
+
+export function localAncestorsChain(node: TSESTree.Node) {
+  return ancestorsChain(node, functionLike);
+}
+
+export function ancestorsChain(node: TSESTree.Node, boundaryTypes: Set<string>) {
+  const chain: TSESTree.Node[] = [];
+
   let currentNode = node.parent;
   while (currentNode) {
-    if (predicate(currentNode)) {
-      return currentNode;
-    }
+    chain.push(currentNode);
     if (boundaryTypes.has(currentNode.type)) {
-      return undefined;
+      break;
     }
     currentNode = currentNode.parent;
   }
-  return undefined;
+  return chain;
 }
 
 /**

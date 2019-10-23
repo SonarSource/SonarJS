@@ -161,6 +161,13 @@ ruleTester.run("Primitive return types should be used.", rule, {
         return subgroups;
       `,
     },
+    {
+      code: `
+        let array = [];
+        for (let i in array) {  // used here
+          console.log(i);
+        }`,
+    },
   ],
   invalid: [
     {
