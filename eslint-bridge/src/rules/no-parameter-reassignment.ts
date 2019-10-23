@@ -25,8 +25,11 @@ import { resolveIdentifiers } from "./utils";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 
+type ContextType = "catch" | "function" | "foreach" | "global";
+const FUNCTION_NODES = ["FunctionDeclaration", "FunctionExpression", "ArrowFunctionExpression"];
+
 interface ReassignmentContext {
-  type?: "catch" | "function" | "foreach";
+  type: ContextType;
   variablesToCheckInCurrentScope: Set<string>;
   variablesToCheck: Set<string>;
   variablesRead: Set<string>;
@@ -37,6 +40,7 @@ interface ReassignmentContext {
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let variableUsageContext: ReassignmentContext = {
+      type: "global",
       variablesToCheckInCurrentScope: new Set<string>(),
       variablesToCheck: new Set<string>(),
       variablesRead: new Set<string>(),
@@ -45,36 +49,34 @@ export const rule: Rule.RuleModule = {
 
     function checkIdentifierUsage(
       identifier: estree.Identifier,
-      identifierContextType: "catch" | "function" | "foreach",
+      identifierContextType: ContextType,
     ) {
-      if (
-        variableUsageContext.type !== identifierContextType ||
-        !variableUsageContext.variablesToCheck.has(identifier.name)
-      ) {
+      if (variableUsageContext.type !== identifierContextType) {
         return;
       }
 
-      const currentReference = variableUsageContext.referencesByIdentifier.get(identifier);
       const variableName = identifier.name;
-      if (currentReference && !currentReference.init && !variableUsageContext.variablesRead.has(variableName)) {
-        const functionHasReadArguments =
-          identifierContextType === "function" &&
-          variableUsageContext.variablesRead.has("arguments");
+      const currentReference = getReference(variableUsageContext, identifier);
+      if (
+        currentReference &&
+        !currentReference.init &&
+        !variableUsageContext.variablesRead.has(variableName)
+      ) {
         if (
           variableUsageContext.variablesToCheck.has(variableName) &&
-          !functionHasReadArguments &&
           currentReference.isWriteOnly() &&
           !isUsedInWriteExpression(variableName, currentReference.writeExpr)
         ) {
-          const isInsideIfStatement = context
-            .getAncestors()
-            .find(node => node.type === "IfStatement");
-          if (isInsideIfStatement) {
+          // we do not raise issue when value is reassigned inside a top-level IfStatement, as it might be a shift or
+          // default value reassignment
+          if (isInsideTopLevelIfStatement(context)) {
             return;
           }
           raiseIssue(currentReference);
         }
         markAsRead(variableUsageContext, variableName);
+      } else if (variableName === "arguments") {
+        markAllFunctionArgumentsAsRead(variableUsageContext);
       }
     }
 
@@ -100,11 +102,17 @@ export const rule: Rule.RuleModule = {
       });
     }
 
+    function popContext() {
+      variableUsageContext = variableUsageContext.parentContext
+        ? variableUsageContext.parentContext
+        : variableUsageContext;
+    }
+
     return {
       onCodePathStart(_codePath: Rule.CodePath, node: estree.Node) {
         const currentScope = context.getScope();
         if (currentScope && currentScope.type === "function") {
-          let {
+          const {
             referencesByIdentifier,
             variablesToCheck,
             variablesToCheckInCurrentScope,
@@ -121,10 +129,14 @@ export const rule: Rule.RuleModule = {
             variablesToCheck,
             referencesByIdentifier,
             variablesToCheckInCurrentScope,
-            variablesRead: new Set<string>(),
+            variablesRead: computeSetDifference(
+              variableUsageContext.variablesRead,
+              variablesToCheckInCurrentScope,
+            ),
           };
         } else {
           variableUsageContext = {
+            type: "global",
             parentContext: variableUsageContext,
             variablesToCheckInCurrentScope: new Set<string>(),
             variablesToCheck: new Set<string>(),
@@ -132,11 +144,6 @@ export const rule: Rule.RuleModule = {
             referencesByIdentifier: new Map<estree.Identifier, Scope.Reference>(),
           };
         }
-      },
-      onCodePathEnd() {
-        variableUsageContext = variableUsageContext.parentContext
-          ? variableUsageContext.parentContext
-          : variableUsageContext;
       },
 
       onCodePathSegmentLoop(
@@ -149,7 +156,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const currentScope = context.getSourceCode().scopeManager.acquire(parent.body);
-        let {
+        const {
           referencesByIdentifier,
           variablesToCheck,
           variablesToCheckInCurrentScope,
@@ -174,10 +181,14 @@ export const rule: Rule.RuleModule = {
           parentContext: variableUsageContext,
           variablesToCheckInCurrentScope,
           variablesToCheck,
-          variablesRead: new Set<string>(),
+          variablesRead: computeSetDifference(
+            variableUsageContext.variablesRead,
+            variablesToCheckInCurrentScope,
+          ),
           referencesByIdentifier,
         };
       },
+
       onCodePathSegmentStart(_segment: Rule.CodePathSegment, node: estree.Node) {
         if (node.type !== "CatchClause") {
           return;
@@ -194,22 +205,18 @@ export const rule: Rule.RuleModule = {
           parentContext: variableUsageContext,
           variablesToCheckInCurrentScope,
           variablesToCheck,
-          variablesRead: new Set<string>(),
+          variablesRead: computeSetDifference(
+            variableUsageContext.variablesRead,
+            variablesToCheckInCurrentScope,
+          ),
           referencesByIdentifier,
         };
       },
-      onCodePathSegmentEnd(_segment: Rule.CodePathSegment, node: estree.Node) {
-        if (
-          node.type === "CatchClause" ||
-          node.type === "ForInStatement" ||
-          node.type === "ForOfStatement"
-        ) {
-          variableUsageContext = variableUsageContext.parentContext
-            ? variableUsageContext.parentContext
-            : variableUsageContext;
-        }
-      },
 
+      onCodePathEnd: popContext,
+      "ForInStatement:exit": popContext,
+      "ForOfStatement:exit": popContext,
+      "CatchClause:exit": popContext,
       "*:function > BlockStatement Identifier": (node: estree.Node) =>
         checkIdentifierUsage(node as estree.Identifier, "function"),
       "ForInStatement > *:statement Identifier": (node: estree.Node) =>
@@ -221,6 +228,33 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isInsideTopLevelIfStatement(context: Rule.RuleContext) {
+  const ifStatementParent = context.getAncestors().find(node => node.type === "IfStatement") as
+    | TSESTree.IfStatement
+    | undefined;
+  if (ifStatementParent) {
+    return (
+      hasParentOfType(ifStatementParent.parent, ["BlockStatement"]) &&
+      hasParentOfType(ifStatementParent.parent.parent, FUNCTION_NODES)
+    );
+  }
+  return false;
+}
+
+function hasParentOfType(
+  parent: TSESTree.Node | undefined,
+  expectedType: string[],
+): parent is TSESTree.Node {
+  return !!parent && expectedType.includes(parent.type);
+}
+
+/**
+ * Computes the set difference (a \ b)
+ */
+function computeSetDifference(a: Set<string>, b: Set<string>) {
+  return new Set([...a].filter(str => !b.has(str)));
+}
 
 function getFunctionName(node: estree.FunctionExpression) {
   return !node.id ? null : node.id.name;
@@ -263,6 +297,19 @@ function markAsRead(context: ReassignmentContext, variableName: string) {
   }
 }
 
+function markAllFunctionArgumentsAsRead(variableUsageContext: ReassignmentContext) {
+  let functionContext: ReassignmentContext | undefined = variableUsageContext;
+  while (functionContext && functionContext.type !== "function") {
+    functionContext = functionContext.parentContext;
+  }
+
+  if (functionContext) {
+    for (const variableName of functionContext.variablesToCheckInCurrentScope) {
+      functionContext.variablesRead.add(variableName);
+    }
+  }
+}
+
 function getPreciseLocationHolder(
   reference: Scope.Reference,
 ): { node: estree.Node } | { loc: AST.SourceLocation } {
@@ -271,4 +318,15 @@ function getPreciseLocationHolder(
     return { loc: { start: identifierLoc.start, end: reference.writeExpr.loc.end } };
   }
   return { node: reference.identifier };
+}
+
+function getReference(
+  variableUsageContext: ReassignmentContext,
+  identifier: estree.Identifier,
+): Scope.Reference | undefined {
+  const identifierReference = variableUsageContext.referencesByIdentifier.get(identifier);
+  if (!identifierReference && variableUsageContext.parentContext) {
+    return getReference(variableUsageContext.parentContext, identifier);
+  }
+  return identifierReference;
 }

@@ -120,12 +120,24 @@ ruleTester.run(
           }
           var1 = 3;
           var2 = 3;
-        } 
+        }
+        
+        function mixedParams(param1) {
+          var val = param1;
+          for (var attr in attributes) {
+            param1 = t.names[attr] || attr;
+          }
+        }
         
         // OK - only foreach loop are checked
         for (let c = 0, d = 1; c < 3; c++) {
           c = foo();
           d = foo();
+        }
+        
+        function callingPrototypeFunctionWithArguments(p1) {
+          MyClass.prototype.functionToCall.apply(this, arguments);
+          p1 = this.position;
         }`,
       },
     ],
@@ -142,6 +154,23 @@ ruleTester.run(
             endLine: 3,
             column: 11,
             endColumn: 18,
+          },
+        ],
+      },
+      {
+        code: `
+        function foo(p1) {
+          while (someBoolean) {
+            if (p1 = doSomething()) return p1;
+          }
+        }`,
+        errors: [
+          {
+            message: 'Introduce a new variable or use its initial value before reassigning "p1".',
+            line: 4,
+            endLine: 4,
+            column: 17,
+            endColumn: 35,
           },
         ],
       },
@@ -235,6 +264,43 @@ ruleTester.run(
         for ({a, b} in obj) {
           a = foo(); // Noncompliant {{a}}
           b = foo(); // Noncompliant {{b}}
+        }`),
+      invalidTest(`
+        function foo(p1, p2) {
+          var p1Copied = p1;
+          for (var [forParam1, forParam2] in myArray) {
+            var forParam1Copier = forParam1;
+            try {
+              doSomething();
+            } catch ([e1, e2]) {
+              var e1Copied = e1;
+              p1 = 3;
+              p2 = 3; // Noncompliant {{p2}}
+              forParam1 = 3;
+              forParam2 = 3; // Noncompliant {{forParam2}}
+              e1 = 3;
+              e2 = 3;  // Noncompliant {{e2}}
+            }
+          }
+        }`),
+      invalidTest(`
+        function foo() {
+          const argumentsIsRead = arguments[0];
+        }
+        
+        function bar(p1) {
+          p1 = 3; // Noncompliant {{p1}}
+        }`),
+      invalidTest(`
+        function f1(p1) {
+          function f2(p2) {
+            var args = arguments[0];
+            function f3(p3) {
+              p1 = 1; // Noncompliant {{p1}}
+              p2 = 1;
+              p3 = 1; // Noncompliant {{p3}}
+            }
+          }
         }`),
     ],
   },
