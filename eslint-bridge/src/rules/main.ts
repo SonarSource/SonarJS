@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from "eslint";
+import { rule as boolParamDefault } from "./bool-param-default";
 import { rule as className } from "./class-name";
 import { rule as noUselessIncrement } from "./no-useless-increment";
 import { rule as codeEval } from "./code-eval";
@@ -48,6 +49,7 @@ import { rule as noSameLineConditional } from "./no-same-line-conditional";
 import { rule as noUndefinedArgument } from "./no-undefined-argument";
 import { rule as noUnthrownError } from "./no-unthrown-error";
 import { rule as noUnusedCollection } from "./no-unused-collection";
+import { rule as noUselessIntersection } from "./no-useless-intersection";
 import { rule as noReturnTypeAny } from "./no-return-type-any";
 import { rule as osCommand } from "./os-command";
 import { rule as preferTypeGuard } from "./prefer-type-guard";
@@ -65,6 +67,7 @@ import { rule as xpath } from "./xpath";
 
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
+ruleModules["bool-param-default"] = boolParamDefault;
 ruleModules["class-name"] = className;
 ruleModules["no-useless-increment"] = noUselessIncrement;
 ruleModules["code-eval"] = codeEval;
@@ -95,6 +98,7 @@ ruleModules["no-same-line-conditional"] = noSameLineConditional;
 ruleModules["no-unthrown-error"] = noUnthrownError;
 ruleModules["no-undefined-argument"] = noUndefinedArgument;
 ruleModules["no-unused-collection"] = noUnusedCollection;
+ruleModules["no-useless-intersection"] = noUselessIntersection;
 ruleModules["no-return-type-any"] = noReturnTypeAny;
 ruleModules["os-command"] = osCommand;
 ruleModules["prefer-type-guard"] = preferTypeGuard;
