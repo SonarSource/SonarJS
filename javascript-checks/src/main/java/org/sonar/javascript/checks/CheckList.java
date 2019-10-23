@@ -224,6 +224,7 @@ public final class CheckList {
       PreferForOfCheck.class,
       PreferNamespaceCheck.class,
       PreferObjectLiteralCheck.class,
+      PreferPromiseShorthandCheck.class,
       PreferReadonlyCheck.class,
       PreferTypeGuardCheck.class,
       PrimitiveWrappersCheck.class,
