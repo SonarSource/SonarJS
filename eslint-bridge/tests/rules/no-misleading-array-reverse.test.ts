@@ -30,14 +30,13 @@ ruleTester.run("Array-mutating methods should not be used misleadingly.", rule, 
         let a = [];
         let d;
       
-        // ok, there is "slice"
-        a.slice().reverse().forEach(() => {});
-
         // ok
         a.reverse();
 
         // ok
-        a.map(() => true).reverse();
+        d = a.map(() => true).reverse();
+        // ok, there is "slice"
+        d = a.slice().reverse().forEach(() => {});
 
         // ok, excluded
         a = a.reverse();
@@ -172,6 +171,15 @@ ruleTester.run("Array-mutating methods should not be used misleadingly.", rule, 
       code: `function qux(a: string[][]) {
                    return a.map(b => b.reverse());
               }`,
+      errors: 1,
+    },
+    {
+      code: `function foo(a: string[][]) {
+                return function(a: string[][]) {
+                  let b;
+                  b = a.reverse();
+              }
+            }`,
       errors: 1,
     },
   ],

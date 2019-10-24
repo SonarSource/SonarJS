@@ -204,17 +204,17 @@ export function findFirstMatchingAncestor(
   node: TSESTree.Node,
   predicate: (node: TSESTree.Node) => boolean,
 ) {
-  return findFirstMatchingAncestorWithBondaries(node, predicate, new Set());
+  return findFirstMatchingAncestorWithBoundaries(node, predicate, new Set());
 }
 
 export function findFirstMatchingLocalAncestor(
   node: TSESTree.Node,
   predicate: (node: TSESTree.Node) => boolean,
 ) {
-  return findFirstMatchingAncestorWithBondaries(node, predicate, functionLike);
+  return findFirstMatchingAncestorWithBoundaries(node, predicate, functionLike);
 }
 
-export function findFirstMatchingAncestorWithBondaries(
+export function findFirstMatchingAncestorWithBoundaries(
   node: TSESTree.Node,
   predicate: (node: TSESTree.Node) => boolean,
   boundaryTypes: Set<string>,
@@ -225,7 +225,7 @@ export function findFirstMatchingAncestorWithBondaries(
       return currentNode;
     }
     if (boundaryTypes.has(currentNode.type)) {
-      break;
+      return undefined;
     }
     currentNode = currentNode.parent;
   }
@@ -303,9 +303,9 @@ function resolveIdentifiersAcc(
   }
 }
 
-export function isArray(node: estree.Node, services: RequiredParserServices): boolean {
+export function isArray(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);
-  return !!type.symbol && type.symbol.name === "Array";
+  return type.symbol && type.symbol.name === "Array";
 }
 
 export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
