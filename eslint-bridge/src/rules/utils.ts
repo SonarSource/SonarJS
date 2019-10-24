@@ -22,6 +22,16 @@ import * as estree from "estree";
 import { EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
 import { IssueLocation } from "../analyzer";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { RequiredParserServices } from "../utils/isRequiredParserServices";
+
+export const functionLike = new Set([
+  "FunctionDeclaration",
+  "FunctionExpression",
+  "ArrowFunctionExpression",
+  "MethodDefinition",
+]);
+
+export const sortLike = ["sort", '"sort"', "'sort'"];
 
 /**
  * Returns the module name, when an identifier represents a namespace for that module.
@@ -196,10 +206,28 @@ export function findFirstMatchingAncestor(
   node: TSESTree.Node,
   predicate: (node: TSESTree.Node) => boolean,
 ) {
+  return findFirstMatchingAncestorWithBoundaries(node, predicate, new Set());
+}
+
+export function findFirstMatchingLocalAncestor(
+  node: TSESTree.Node,
+  predicate: (node: TSESTree.Node) => boolean,
+) {
+  return findFirstMatchingAncestorWithBoundaries(node, predicate, functionLike);
+}
+
+export function findFirstMatchingAncestorWithBoundaries(
+  node: TSESTree.Node,
+  predicate: (node: TSESTree.Node) => boolean,
+  boundaryTypes: Set<string>,
+) {
   let currentNode = node.parent;
   while (currentNode) {
     if (predicate(currentNode)) {
       return currentNode;
+    }
+    if (boundaryTypes.has(currentNode.type)) {
+      return undefined;
     }
     currentNode = currentNode.parent;
   }
@@ -275,4 +303,19 @@ function resolveIdentifiersAcc(
       resolveIdentifiersAcc(node.parameter, identifiers, acceptShorthand);
       break;
   }
+}
+
+export function isArray(node: estree.Node, services: RequiredParserServices) {
+  const type = getTypeFromTreeNode(node, services);
+  return type.symbol && type.symbol.name === "Array";
+}
+
+export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+}
+
+export function getSymbolAtLocation(node: estree.Node, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  return checker.getSymbolAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
 }

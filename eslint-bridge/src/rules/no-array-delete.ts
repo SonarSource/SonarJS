@@ -21,12 +21,9 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
-import {
-  isRequiredParserServices,
-  RequiredParserServices,
-} from "../utils/isRequiredParserServices";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { isRequiredParserServices } from "../utils/isRequiredParserServices";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { isArray } from "./utils";
 
 const ArrayDeleteExpression =
   "UnaryExpression[operator='delete'] > MemberExpression[computed=true]";
@@ -55,14 +52,4 @@ function raiseIssue(context: Rule.RuleContext): void {
     message: `Remove this use of "delete".`,
     loc: deleteKeyword!.loc,
   });
-}
-
-function isArray(node: estree.Node, services: RequiredParserServices): boolean {
-  const type = getTypeFromTreeNode(node, services);
-  return !!type.symbol && type.symbol.name === "Array";
-}
-
-function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
-  const checker = services.program.getTypeChecker();
-  return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
 }

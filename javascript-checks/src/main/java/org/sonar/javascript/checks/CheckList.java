@@ -190,6 +190,7 @@ public final class CheckList {
       NoInferrableTypesCheck.class,
       NoInvalidAwaitCheck.class,
       NoInvertedBooleanCheckCheck.class,
+      NoMisleadingArrayReverseCheck.class,
       NoNestedSwitchCheck.class,
       NoMagicNumbersCheck.class,
       NoRedundantJumpCheck.class,
