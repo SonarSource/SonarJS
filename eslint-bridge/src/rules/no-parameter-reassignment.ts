@@ -282,10 +282,9 @@ function computeNewContextInfo(
   context.getDeclaredVariables(node).forEach(variable => {
     variablesToCheck.add(variable.name);
     variablesToCheckInCurrentScope.add(variable.name);
-    referencesByIdentifier = variable.references.reduce(
-      (currentMap, currentRef) => currentMap.set(currentRef.identifier, currentRef),
-      referencesByIdentifier,
-    );
+    for (const currentRef of variable.references) {
+      referencesByIdentifier.set(currentRef.identifier, currentRef);
+    }
   });
   return { referencesByIdentifier, variablesToCheck, variablesToCheckInCurrentScope };
 }
