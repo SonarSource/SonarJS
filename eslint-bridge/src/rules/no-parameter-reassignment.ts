@@ -21,12 +21,11 @@
 
 import { AST, Rule, Scope } from "eslint";
 import * as estree from "estree";
-import { resolveIdentifiers } from "./utils";
+import { FUNCTION_NODES, resolveIdentifiers } from "./utils";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 
 type ContextType = "catch" | "function" | "foreach" | "global";
-const FUNCTION_NODES = ["FunctionDeclaration", "FunctionExpression", "ArrowFunctionExpression"];
 
 interface ReassignmentContext {
   type: ContextType;

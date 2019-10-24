@@ -22,7 +22,12 @@
 import { Rule, Scope } from "eslint";
 import * as estree from "estree";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { findFirstMatchingAncestor, isElementWrite, toEncodedMessage } from "./utils";
+import {
+  findFirstMatchingAncestor,
+  FUNCTION_NODES,
+  isElementWrite,
+  toEncodedMessage,
+} from "./utils";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
 
@@ -38,7 +43,6 @@ interface SingleWriteVariable {
 }
 
 type LiteralValue = number | RegExp | string | null | boolean;
-const FUNCTION_NODES = ["FunctionDeclaration", "FunctionExpression", "ArrowFunctionExpression"];
 
 export const rule: Rule.RuleModule = {
   meta: {
