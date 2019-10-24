@@ -1,14 +1,14 @@
 <p>When a collection is empty it makes no sense to access or iterate it. Doing so anyway is surely an error; either population was accidentally
 omitted or the developer doesn't understand the situation.</p>
-<p>This rule raises an issue when any use is made of an empty collection other than the following ignored calls: <code>add</code>,
-<code>addAll</code>, <code>equals</code>, <code>hashCode</code>.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-List&lt;String&gt; strings = new ArrayList&lt;&gt;();
+let strings = [];
 
-strings.remove("bar");  // Noncompliant
-if (strings.contains("foo")) {}  // Noncompliant
+if (strings.includes("foo")) {}  // Noncompliant
 
-for (String str : strings) {}  // Noncompliant
+for (str of strings) {}  // Noncompliant
+
+strings.forEach(str =&gt; doSomething(str)); // Noncompliant
+
 </pre>
 

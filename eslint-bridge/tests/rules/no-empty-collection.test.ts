@@ -123,7 +123,6 @@ ruleTester.run("Empty collections should not be accessed or iterated", rule, {
               foo(reassignedArray[0]); // OK
             }`,
     },
-
     {
       code: `function assignmentEmptyArray() {
               const assignmentEmptyArray: number[] = [];
