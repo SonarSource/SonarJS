@@ -140,6 +140,8 @@ ruleTester.run("Array-mutating methods should not be used misleadingly.", rule, 
         let b = [];
         const a = b["sort"]()
         const a = b['sort']()
+        const a = b["reverse"]()
+        const a = b['reverse']()
         `,
       errors: [
         {
@@ -147,6 +149,12 @@ ruleTester.run("Array-mutating methods should not be used misleadingly.", rule, 
         },
         {
           message: 'Move this array "sort" operation to a separate statement.',
+        },
+        {
+          message: 'Move this array "reverse" operation to a separate statement.',
+        },
+        {
+          message: 'Move this array "reverse" operation to a separate statement.',
         },
       ],
     },

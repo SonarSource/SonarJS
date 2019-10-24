@@ -28,7 +28,7 @@ import {
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 import { isArray, getSymbolAtLocation, findFirstMatchingLocalAncestor, sortLike } from "./utils";
 
-const arrayMutatingMethods = ["reverse", ...sortLike];
+const arrayMutatingMethods = ["reverse", "'reverse'", '"reverse"', ...sortLike];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
