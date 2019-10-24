@@ -26,14 +26,9 @@ import {
   RequiredParserServices,
 } from "../utils/isRequiredParserServices";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
-import {
-  isIdentifier,
-  isArray,
-  getSymbolAtLocation,
-  findFirstMatchingLocalAncestor,
-} from "./utils";
+import { isArray, getSymbolAtLocation, findFirstMatchingLocalAncestor, sortLike } from "./utils";
 
-const arrayMutatingMethods = ["reverse", "sort"];
+const arrayMutatingMethods = ["reverse", ...sortLike];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -45,21 +40,21 @@ export const rule: Rule.RuleModule = {
       return {
         CallExpression(node: estree.Node) {
           const callee = (node as estree.CallExpression).callee;
+          if (callee.type === "MemberExpression") {
+            const propertyText = context.getSourceCode().getText(callee.property);
+            if (isArrayMutatingCall(callee, services, propertyText)) {
+              const mutatedArray = callee.object;
 
-          if (callee.type === "MemberExpression" && isArrayMutatingCall(callee, services)) {
-            const mutatedArray = callee.object;
-
-            if (
-              isIdentifierOrPropertyAccessExpression(mutatedArray, services, ts) &&
-              !isInSelfAssignment(mutatedArray, node) &&
-              isForbiddenOperation(node)
-            ) {
-              context.report({
-                message: `Move this array "${
-                  (callee.property as estree.Identifier).name
-                }" operation to a separate statement.`,
-                node,
-              });
+              if (
+                isIdentifierOrPropertyAccessExpression(mutatedArray, services, ts) &&
+                !isInSelfAssignment(mutatedArray, node) &&
+                isForbiddenOperation(node)
+              ) {
+                context.report({
+                  message: formatMessage(propertyText),
+                  node,
+                });
+              }
             }
           }
         },
@@ -69,14 +64,22 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+function formatMessage(mutatingMethod: string) {
+  let mutatingMethodText;
+  if (mutatingMethod.startsWith('"') || mutatingMethod.startsWith("'")) {
+    mutatingMethodText = mutatingMethod.substr(1, mutatingMethod.length - 2);
+  } else {
+    mutatingMethodText = mutatingMethod;
+  }
+  return `Move this array "${mutatingMethodText}" operation to a separate statement.`;
+}
+
 function isArrayMutatingCall(
   memberExpression: estree.MemberExpression,
   services: RequiredParserServices,
+  propertyText: string,
 ) {
-  return (
-    isIdentifier(memberExpression.property, ...arrayMutatingMethods) &&
-    isArray(memberExpression.object, services)
-  );
+  return arrayMutatingMethods.includes(propertyText) && isArray(memberExpression.object, services);
 }
 
 function isIdentifierOrPropertyAccessExpression(

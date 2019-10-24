@@ -136,6 +136,21 @@ ruleTester.run("Array-mutating methods should not be used misleadingly.", rule, 
       ],
     },
     {
+      code: `
+        let b = [];
+        const a = b["sort"]()
+        const a = b['sort']()
+        `,
+      errors: [
+        {
+          message: 'Move this array "sort" operation to a separate statement.',
+        },
+        {
+          message: 'Move this array "sort" operation to a separate statement.',
+        },
+      ],
+    },
+    {
       code: `function foo() {
             const keys = [];
             // fill keys...

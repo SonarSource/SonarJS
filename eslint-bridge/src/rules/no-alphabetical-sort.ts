@@ -26,8 +26,7 @@ import {
   RequiredParserServices,
 } from "../utils/isRequiredParserServices";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
-
-const SORT_LIKE = ["sort", '"sort"', "'sort'"];
+import { sortLike } from "./utils";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -41,7 +40,7 @@ export const rule: Rule.RuleModule = {
           if (call.arguments.length === 0 && callee.type === "MemberExpression") {
             const { object, property } = callee;
             const text = context.getSourceCode().getText(property as estree.Node);
-            if (SORT_LIKE.includes(text)) {
+            if (sortLike.includes(text)) {
               const arrayElementType = arrayElementTypeOf(object, services, ts);
               if (arrayElementType && arrayElementType.kind === ts.SyntaxKind.NumberKeyword) {
                 context.report({

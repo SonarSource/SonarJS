@@ -31,6 +31,8 @@ export const functionLike = new Set([
   "MethodDefinition",
 ]);
 
+export const sortLike = ["sort", '"sort"', "'sort'"];
+
 /**
  * Returns the module name, when an identifier represents a namespace for that module.
  * Returns undefined otherwise.
