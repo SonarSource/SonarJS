@@ -21,79 +21,17 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.Kinds;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "AssignmentWithinCondition")
-public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Extract the assignment of \"%s\" from this expression.";
-
-  private static final Kinds[] ALLOWED_PARENT_KINDS = {
-    KindSet.LOOP_KINDS,
-    KindSet.EQUALITY_KINDS,
-    KindSet.COMPARISON_KINDS,
-    Kind.EXPRESSION_STATEMENT,
-    Kind.ARROW_FUNCTION
-  };
-
-  private static final Kinds[] ALLOWED_PARENT_KINDS_WITH_INITIALIZER = {
-    KindSet.LOOP_KINDS,
-    KindSet.EQUALITY_KINDS,
-    KindSet.COMPARISON_KINDS,
-    Kind.EXPRESSION_STATEMENT,
-    Kind.ARROW_FUNCTION,
-    Kind.INITIALIZED_BINDING_ELEMENT
-  };
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "AssignmentWithinCondition")
+@Rule(key = "S1121")
+public class AssignmentWithinConditionCheck extends EslintBasedCheck {
 
   @Override
-  public void visitAssignmentExpression(AssignmentExpressionTree tree) {
-    Tree parent = tree.parent();
-
-    if (parent.is(Kind.PARENTHESISED_EXPRESSION) && parent.parent().is(Kind.EXPRESSION_STATEMENT) && !tree.variable().is(Kind.OBJECT_ASSIGNMENT_PATTERN)) {
-      addIssue(tree);
-
-    } else {
-
-      Tree parentIgnoreParenthesesAndComma = parentIgnoreParenthesesAndComma(tree);
-      Tree parentIgnoreAssignment = parentIgnoreAssignment(tree);
-
-      if (!parentIgnoreParenthesesAndComma.is(ALLOWED_PARENT_KINDS) && !parentIgnoreAssignment.is(ALLOWED_PARENT_KINDS_WITH_INITIALIZER)) {
-        addIssue(tree);
-      }
-
-    }
-
-    super.visitAssignmentExpression(tree);
-  }
-
-  private void addIssue(AssignmentExpressionTree tree) {
-    addIssue(tree.operatorToken(), String.format(MESSAGE, CheckUtils.asString(tree.variable())));
-  }
-
-  private static Tree parentIgnoreParenthesesAndComma(Tree tree) {
-    Tree parent = tree.parent();
-
-    if (parent.is(Kind.PARENTHESISED_EXPRESSION, Kind.COMMA_OPERATOR)) {
-      return parentIgnoreParenthesesAndComma(parent);
-    }
-
-    return parent;
-  }
-
-  private static Tree parentIgnoreAssignment(Tree tree) {
-    Tree parent = tree.parent();
-
-    if (parent.is(Kind.ASSIGNMENT)) {
-      return parentIgnoreAssignment(parent);
-    }
-
-    return parent;
+  public String eslintKey() {
+    return "no-conditional-assignment";
   }
 }

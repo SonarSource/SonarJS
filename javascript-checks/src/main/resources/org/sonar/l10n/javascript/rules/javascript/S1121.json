@@ -2,7 +2,8 @@
   "title": "Assignments should not be made from within sub-expressions",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
@@ -15,7 +16,7 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1121",
-  "sqKey": "AssignmentWithinCondition",
+  "sqKey": "S1121",
   "scope": "All",
   "securityStandards": {
     "CWE": [
