@@ -51,6 +51,7 @@ import { rule as noNestedTemplateLiterals } from "./no-nested-template-literals"
 import { rule as noParameterReassignment } from "./no-parameter-reassignment";
 import { rule as noPrimitiveWrappers } from "./no-primitive-wrappers";
 import { rule as noSameLineConditional } from "./no-same-line-conditional";
+import { rule as noUnenclosedMultilineBlock } from "./no-unenclosed-multiline-block";
 import { rule as noUndefinedArgument } from "./no-undefined-argument";
 import { rule as noUnthrownError } from "./no-unthrown-error";
 import { rule as noUnusedCollection } from "./no-unused-collection";
@@ -105,6 +106,7 @@ ruleModules["no-nested-template-literals"] = noNestedTemplateLiterals;
 ruleModules["no-parameter-reassignment"] = noParameterReassignment;
 ruleModules["no-primitive-wrappers"] = noPrimitiveWrappers;
 ruleModules["no-same-line-conditional"] = noSameLineConditional;
+ruleModules["no-unenclosed-multiline-block"] = noUnenclosedMultilineBlock;
 ruleModules["no-unthrown-error"] = noUnthrownError;
 ruleModules["no-undefined-argument"] = noUndefinedArgument;
 ruleModules["no-unused-collection"] = noUnusedCollection;
