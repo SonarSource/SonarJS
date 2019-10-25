@@ -206,7 +206,7 @@ export function findFirstMatchingLocalAncestor(
   node: TSESTree.Node,
   predicate: (node: TSESTree.Node) => boolean,
 ) {
-  return ancestorsChain(node, functionLike).find(predicate);
+  return localAncestorsChain(node).find(predicate);
 }
 
 export function findFirstMatchingAncestor(

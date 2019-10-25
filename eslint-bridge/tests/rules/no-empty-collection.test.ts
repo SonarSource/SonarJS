@@ -197,6 +197,16 @@ ruleTester.run("Empty collections should not be accessed or iterated", rule, {
       ],
     },
     {
+      code: `const array : number[] = [];
+            export function testElementAccessRead() {
+              console.log(array[2]);
+              console.log(array[2]);
+              console.log(array[2]);
+              console.log(array[2]);
+            }`,
+      errors: 4,
+    },
+    {
       code: `function parametersAreIgnoreUnlessReAsigned(parameterArray: number[]) {
               foo(parameterArray[1]);
               parameterArray = [];
