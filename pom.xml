@@ -66,6 +66,8 @@
   </ciManagement>
 
   <properties>
+    <sonar.testExecutionReportPaths>eslint-bridge/test-report.xml</sonar.testExecutionReportPaths>
+
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <sonarQubeMinVersion>7.9</sonarQubeMinVersion>
