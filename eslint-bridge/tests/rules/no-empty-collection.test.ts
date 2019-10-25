@@ -235,7 +235,7 @@ ruleTester.run("Empty collections should not be accessed or iterated", rule, {
               arrayConstructor.forEach(item => console.log()); // Noncompliant
             
               const arrayWithoutNew = Array();
-              arrayWithoutNew.forEach(item => console.log()); // Noncompliant
+              arrayWithoutNew.map(item => console.log()); // Noncompliant
             
               const myMap = new Map();
               myMap.get(1); // Noncompliant

@@ -34,12 +34,14 @@ const nonAdditiveMutatorMethods = [
   "shift",
   "sort",
   // map, set methods
-  "delete",
   "clear",
+  "delete",
 ];
 const accessorMethods = [
   // array methods
   "concat",
+  "flat",
+  "flatMap",
   "includes",
   "indexOf",
   "join",
