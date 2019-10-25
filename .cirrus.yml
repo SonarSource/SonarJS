@@ -27,7 +27,7 @@ container_definition: &CONTAINER_DEFINITION
 win_vm_definition: &WINDOWS_VM_DEFINITION
   gce_instance:
     image_project: language-team
-    image_name: windows-dotnet
+    image_family: lt-base-windows
     platform: windows
     zone: us-central1-a
     preemptible: false
@@ -126,7 +126,7 @@ plugin_qa_win_task:
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
-    - mvn --global-settings c:\\buildTools-docker\\settings.xml -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
+    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
 
 
 ruling_task:
