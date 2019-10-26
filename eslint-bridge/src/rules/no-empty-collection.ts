@@ -20,7 +20,7 @@
 // https://jira.sonarsource.com/browse/RSPEC-4158
 
 import { Rule, Scope } from "eslint";
-import { isIdentifier, findFirstMatchingAncestor, ancestorsChain } from "./utils";
+import { isIdentifier, findFirstMatchingAncestor, isReferenceTo, ancestorsChain } from "./utils";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 import * as estree from "estree";
 import { collectionConstructor } from "../utils/collections";
@@ -129,10 +129,28 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
 }
 
 function isReferenceAssigningEmptyCollection(ref: Scope.Reference) {
-  return isEmptyCollectionType(ref.writeExpr);
+  const declOrExprStmt = findFirstMatchingAncestor(
+    ref.identifier as TSESTree.Node,
+    n => n.type === "VariableDeclarator" || n.type === "ExpressionStatement",
+  ) as estree.Node;
+  if (declOrExprStmt) {
+    if (declOrExprStmt.type === "VariableDeclarator" && declOrExprStmt.init) {
+      return isEmptyCollectionType(declOrExprStmt.init);
+    }
+
+    if (declOrExprStmt.type === "ExpressionStatement") {
+      const expression = declOrExprStmt.expression;
+      return (
+        expression.type === "AssignmentExpression" &&
+        isReferenceTo(ref, expression.left) &&
+        isEmptyCollectionType(expression.right)
+      );
+    }
+  }
+  return false;
 }
 
-function isEmptyCollectionType(node: estree.Node | null) {
+function isEmptyCollectionType(node: estree.Node) {
   if (node && node.type === "ArrayExpression") {
     return node.elements.length === 0;
   } else if (node && (node.type === "CallExpression" || node.type === "NewExpression")) {
