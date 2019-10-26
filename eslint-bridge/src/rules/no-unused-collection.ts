@@ -23,26 +23,9 @@ import { Rule, Scope } from "eslint";
 import * as estree from "estree";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 import { findFirstMatchingAncestor, isElementWrite, isIdentifier, isReferenceTo } from "./utils";
+import { collectionConstructor, writingMethods } from "../utils/collections";
 
 const message = "Either use this collection's contents or remove the collection.";
-
-const writingMethods = [
-  "copyWithin",
-  "fill",
-  "pop",
-  "push",
-  "reverse",
-  "shift",
-  "sort",
-  "splice",
-  "unshift",
-  "clear",
-  "delete",
-  "set",
-  "add",
-];
-
-const collectionConstructor = ["Array", "Set", "Map", "WeakSet", "WeakMap"];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
