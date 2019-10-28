@@ -66,6 +66,9 @@
   </ciManagement>
 
   <properties>
+    <!--  this is necessary because of drop of modules  -->
+    <sonar.testExecutionReportPaths>eslint-bridge/test-report.xml</sonar.testExecutionReportPaths>
+
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <sonarQubeMinVersion>7.9</sonarQubeMinVersion>

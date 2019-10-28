@@ -17,7 +17,6 @@
     <sonar.tests>tests</sonar.tests>
     <sonar.language>ts</sonar.language>
     <sonar.typescript.lcov.reportPaths>coverage/lcov.info</sonar.typescript.lcov.reportPaths>
-    <sonar.testExecutionReportPaths>test-report.xml</sonar.testExecutionReportPaths>
   </properties>
 
   <build>
