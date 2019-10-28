@@ -21,6 +21,7 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
+import { TSESTree } from "@typescript-eslint/experimental-utils";
 
 const NestingStatementLike = [
   "IfStatement",
@@ -70,10 +71,8 @@ function checkStatements(statements: Statement[], context: Rule.RuleContext) {
 function chain(statements: Statement[]): ChainedStatements[] {
   return statements
     .reduce((result, statement, i, array) => {
-      if (i < array.length - 1) {
-        if (isNestingStatement(statement)) {
-          result.push({ prev: statement, next: array[i + 1] });
-        }
+      if (i < array.length - 1 && isNestingStatement(statement)) {
+        result.push({ prev: statement, next: array[i + 1] });
       }
       return result;
     }, new Array<{ prev: NestingStatement; next: Statement }>())
@@ -95,14 +94,15 @@ function extractLastBody(statement: NestingStatement) {
 }
 
 function countStatementsInTheSamePile(reference: Statement, statements: Statement[]) {
-  const startOfPile = reference.loc!.start;
+  const startOfPile = position(reference).start;
   let lastLineOfPile = startOfPile.line;
   for (const statement of statements) {
-    const currentLine = statement.loc!.end.line;
-    const currentIndentation = statement.loc!.start.column;
+    const currentPosition = position(statement);
+    const currentLine = currentPosition.end.line;
+    const currentIndentation = currentPosition.start.column;
     if (currentLine > startOfPile.line) {
       if (currentIndentation === startOfPile.column) {
-        lastLineOfPile = statement.loc!.end.line;
+        lastLineOfPile = currentPosition.end.line;
       } else {
         break;
       }
@@ -113,7 +113,9 @@ function countStatementsInTheSamePile(reference: Statement, statements: Statemen
 
 function raiseAdjacenceIssue(adjacentStatements: ChainedStatements, context: Rule.RuleContext) {
   context.report({
-    message: `This statement will not be executed ${adjacentStatements.includedStatementQualifier()}; only the first statement will be. The rest will execute ${adjacentStatements.excludedStatementsQualifier()}.`,
+    message:
+      `This statement will not be executed ${adjacentStatements.includedStatementQualifier()}; only the first statement will be. ` +
+      `The rest will execute ${adjacentStatements.excludedStatementsQualifier()}.`,
     node: adjacentStatements.next,
   });
 }
@@ -124,7 +126,9 @@ function raiseBlockIssue(
   context: Rule.RuleContext,
 ) {
   context.report({
-    message: `This line will not be executed ${piledStatements.includedStatementQualifier()}; only the first line of this ${sizeOfPile}-line block will be. The rest will execute ${piledStatements.excludedStatementsQualifier()}.`,
+    message:
+      `This line will not be executed ${piledStatements.includedStatementQualifier()}; only the first line of this ${sizeOfPile}-line block will be. ` +
+      `The rest will execute ${piledStatements.excludedStatementsQualifier()}.`,
     node: piledStatements.next,
   });
 }
@@ -134,7 +138,9 @@ function raiseInlineAndIndentedIssue(
   context: Rule.RuleContext,
 ) {
   context.report({
-    message: `This line will not be executed ${chainedStatements.includedStatementQualifier()}; only the first statement will be. The rest will execute ${chainedStatements.excludedStatementsQualifier()}.`,
+    message:
+      `This line will not be executed ${chainedStatements.includedStatementQualifier()}; only the first statement will be. ` +
+      `The rest will execute ${chainedStatements.excludedStatementsQualifier()}.`,
     node: chainedStatements.next,
   });
 }
@@ -151,13 +157,16 @@ class ChainedStatements {
     readonly prev: Statement,
     readonly next: Statement,
   ) {
+    const topPosition = position(topStatement);
+    const prevPosition = position(prev);
+    const nextPosition = position(next);
     this.positions = {
-      prevTopStart: topStatement.loc!.start,
-      prevTopEnd: topStatement.loc!.end,
-      prevStart: prev.loc!.start,
-      prevEnd: prev.loc!.end,
-      nextStart: next.loc!.start,
-      nextEnd: next.loc!.end,
+      prevTopStart: topPosition.start,
+      prevTopEnd: topPosition.end,
+      prevStart: prevPosition.start,
+      prevEnd: prevPosition.end,
+      nextStart: nextPosition.start,
+      nextEnd: nextPosition.end,
     };
   }
 
@@ -203,3 +212,7 @@ type Positions = {
   nextStart: estree.Position;
   nextEnd: estree.Position;
 };
+
+function position(node: estree.Node) {
+  return (node as TSESTree.Node).loc;
+}
