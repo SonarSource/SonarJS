@@ -325,9 +325,19 @@ export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserS
   return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
 }
 
+export function getTypeAsString(node: estree.Node, services: RequiredParserServices) {
+  const { typeToString, getBaseTypeOfLiteralType } = services.program.getTypeChecker();
+  return typeToString(getBaseTypeOfLiteralType(getTypeFromTreeNode(node, services)));
+}
+
 export function getSymbolAtLocation(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   return checker.getSymbolAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+}
+
+export function getSignatureFromCallee(node: estree.Node, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  return checker.getResolvedSignature(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
 }
 
 export function isFunctionNode(node: estree.Node): node is FunctionNodeType {
