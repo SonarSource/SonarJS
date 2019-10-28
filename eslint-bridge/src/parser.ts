@@ -27,7 +27,7 @@ import * as VueJS from "vue-eslint-parser";
 // still we might consider extending this range
 // if everything which we need is working on older/newer versions
 const TYPESCRIPT_MINIMUM_VERSION = "3.2.1";
-const TYPESCRIPT_MAXIMUM_VERSION = "3.6.0";
+const TYPESCRIPT_MAXIMUM_VERSION = "3.7.0";
 
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
@@ -59,7 +59,7 @@ export type Parse = (
 export function loggerFn(msg: string) {
   if (
     msg.includes(
-      `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.`,
+      `You are currently running a version of TypeScript which is not officially supported by`,
     )
   ) {
     const currentVersionMatch = msg.match(/YOUR TYPESCRIPT VERSION: (.+)\n/);

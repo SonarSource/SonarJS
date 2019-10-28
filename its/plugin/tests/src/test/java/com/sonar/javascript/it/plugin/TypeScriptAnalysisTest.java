@@ -153,7 +153,7 @@ public class TypeScriptAnalysisTest {
   @Test
   public void test_new_typescript() throws Exception {
     File dir = TestUtils.projectDir("tsproject-no-typescript");
-    TestUtils.npmInstall(dir, "typescript@3.6.2", "--no-save");
+    TestUtils.npmInstall(dir, "typescript@3.7.0-beta", "--no-save");
     String projectKey = "tsproject-new-typescript";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
@@ -164,7 +164,7 @@ public class TypeScriptAnalysisTest {
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
     assertThat(result.isSuccess()).isTrue();
-    assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript 3.6.2 which is not officially supported; supported versions >=3.2.1 <3.6.0"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript 3.7.0-beta which is not officially supported; supported versions >=3.2.1 <3.7.0"))).hasSize(1);
   }
 
   @Test
