@@ -23,11 +23,11 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class CollectionSizeComparisonCheckTest {
+public class CollectionSizeComparisonJavaScriptCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new CollectionSizeComparisonCheck(), new File("src/test/resources/checks/collectionSizeComparison.js"));
+    JavaScriptCheckVerifier.verify(new CollectionSizeComparisonJavaScriptCheck(), new File("src/test/resources/checks/collectionSizeComparison.js"));
   }
 
 }

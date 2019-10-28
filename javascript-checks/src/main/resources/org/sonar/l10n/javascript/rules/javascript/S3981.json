@@ -2,7 +2,8 @@
   "title": "Collection sizes and array length comparisons should make sense",
   "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {

@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @JavaScriptRule
 @Rule(key = "S3981")
-public class CollectionSizeComparisonCheck extends DoubleDispatchVisitorCheck {
+public class CollectionSizeComparisonJavaScriptCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
