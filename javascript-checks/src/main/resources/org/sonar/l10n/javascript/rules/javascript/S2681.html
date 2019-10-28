@@ -1,5 +1,5 @@
 <p>Curly braces can be omitted from a one-line block, such as with an <code>if</code> statement or <code>for</code> loop, but doing so can be
-misleading and induce bugs. </p>
+misleading and induce bugs.</p>
 <p>This rule raises an issue when the whitespacing of the lines after a one line block indicates an intent to include those lines in the block, but
 the omission of curly braces means the lines will be unconditionally executed once.</p>
 <h2>Noncompliant Code Example</h2>
@@ -16,8 +16,8 @@ if (condition) firstActionInBlock();  // Noncompliant
 
 if (condition); secondAction();  // Noncompliant; secondAction executed unconditionally
 
-String str = null;
-for (int i = 0; i &lt; array.length; i++)
+let str = undefined;
+for (let i = 0; i &lt; array.length; i++)
   str = array[i];
   doTheThing(str);  // Noncompliant; executed only on last array element
 </pre>
@@ -29,16 +29,14 @@ if (condition) {
 }
 thirdAction();
 
-String str = null;
-for (int i = 0; i &lt; array.length; i++) {
+let str = undefined;
+for (let i = 0; i &lt; array.length; i++) {
   str = array[i];
   doTheThing(str);
 }
 </pre>
 <h2>See</h2>
-<ul>
-  <li> <a href="http://cwe.mitre.org/data/definitions/483.html">MITRE, CWE-483</a> - Incorrect Block Delimitation </li>
-  <li> <a href="https://www.securecoding.cert.org/confluence/x/3wHEAw">CERT, EXP52-J.</a> - Use braces for the body of an if, for, or while statement
-  </li>
-</ul>
+<p> * <a href="http://cwe.mitre.org/data/definitions/483.html">MITRE, CWE-483</a> - Incorrect Block Delimitation</p>
+<p> * <a href="https://www.securecoding.cert.org/confluence/x/3wHEAw">CERT, EXP52-J.</a> - Use braces for the body of an if, for, or while
+statement</p>
 

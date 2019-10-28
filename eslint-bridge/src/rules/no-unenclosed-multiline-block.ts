@@ -21,17 +21,14 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
-import * as util from "util";
-import { toEncodedMessage } from "./utils";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
 
-const IF_PRIMARY_MESSAGE =
-  "This line will not be executed conditionally; only the first line of this %s-line block will be. The rest will execute unconditionally.";
-const IF_SECONDARY_MESSAGE = "not conditionally executed";
-
-const LOOP_PRIMARY_MESSAGE =
-  "This line will not be executed in a loop; only the first line of this %s-line block will be. The rest will execute only once.";
-const LOOP_SECONDARY_MESSAGE = "not executed in a loop";
+const NestingStatementLike = [
+  "IfStatement",
+  "ForStatement",
+  "ForInStatement",
+  "ForOfStatement",
+  "WhileStatement",
+];
 
 type Statement = estree.Statement | estree.ModuleDeclaration;
 
@@ -43,14 +40,6 @@ type NestingStatement =
   | estree.WhileStatement;
 
 export const rule: Rule.RuleModule = {
-  meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
-      },
-    ],
-  },
   create(context: Rule.RuleContext) {
     return {
       Program: (node: estree.Node) => checkStatements((node as estree.Program).body, context),
@@ -61,79 +50,156 @@ export const rule: Rule.RuleModule = {
 };
 
 function checkStatements(statements: Statement[], context: Rule.RuleContext) {
-  let previous: Statement | undefined;
-  statements.forEach((statement, index) => {
-    if (previous && isNestingStatement(previous)) {
-      const nesting = previous;
-      const nested = nestedStatement(nesting);
-      if (
-        nested.type !== "BlockStatement" &&
-        column(nested) === column(statement) &&
-        column(nesting) < column(statement)
-      ) {
-        raiseIssue(statement, nesting, statements.slice(index + 1, statements.length), context);
+  chain(statements)
+    .filter(chainedStatements => chainedStatements.areUnenclosed())
+    .forEach(unenclosedConsecutives => {
+      if (unenclosedConsecutives.areAdjacent()) {
+        raiseAdjacenceIssue(unenclosedConsecutives, context);
+      } else if (unenclosedConsecutives.areBothIndented()) {
+        raiseBlockIssue(
+          unenclosedConsecutives,
+          countStatementsInTheSamePile(unenclosedConsecutives.prev, statements),
+          context,
+        );
+      } else if (unenclosedConsecutives.areInlinedAndIndented()) {
+        raiseInlineAndIndentedIssue(unenclosedConsecutives, context);
+      }
+    });
+}
+
+function chain(statements: Statement[]): ChainedStatements[] {
+  return statements
+    .reduce((result, statement, i, array) => {
+      if (i < array.length - 1) {
+        if (isNestingStatement(statement)) {
+          result.push({ prev: statement, next: array[i + 1] });
+        }
+      }
+      return result;
+    }, new Array<{ prev: NestingStatement; next: Statement }>())
+    .map(pair => {
+      return new ChainedStatements(pair.prev, extractLastBody(pair.prev), pair.next);
+    });
+}
+
+function extractLastBody(statement: NestingStatement) {
+  if (statement.type === "IfStatement") {
+    if (!statement.alternate) {
+      return statement.consequent;
+    } else {
+      return statement.alternate;
+    }
+  } else {
+    return statement.body;
+  }
+}
+
+function countStatementsInTheSamePile(reference: Statement, statements: Statement[]) {
+  const startOfPile = reference.loc!.start;
+  let lastLineOfPile = startOfPile.line;
+  for (const statement of statements) {
+    const currentLine = statement.loc!.end.line;
+    const currentIndentation = statement.loc!.start.column;
+    if (currentLine > startOfPile.line) {
+      if (currentIndentation === startOfPile.column) {
+        lastLineOfPile = statement.loc!.end.line;
+      } else {
+        break;
       }
     }
-    previous = statement;
+  }
+  return lastLineOfPile - startOfPile.line + 1;
+}
+
+function raiseAdjacenceIssue(adjacentStatements: ChainedStatements, context: Rule.RuleContext) {
+  context.report({
+    message: `This statement will not be executed ${adjacentStatements.includedStatementQualifier()}; only the first statement will be. The rest will execute ${adjacentStatements.excludedStatementsQualifier()}.`,
+    node: adjacentStatements.next,
   });
 }
 
-function raiseIssue(
-  statement: Statement,
-  nestingStatement: NestingStatement,
-  others: Statement[],
+function raiseBlockIssue(
+  piledStatements: ChainedStatements,
+  sizeOfPile: number,
   context: Rule.RuleContext,
 ) {
-  const [primaryMessage, secondaryMessage] =
-    nestingStatement.type === "IfStatement"
-      ? [IF_PRIMARY_MESSAGE, IF_SECONDARY_MESSAGE]
-      : [LOOP_PRIMARY_MESSAGE, LOOP_SECONDARY_MESSAGE];
-
-  let firstStatementInPseudoBlock = nestedStatement(nestingStatement);
-  let lastStatementInPseudoBlock = statement;
-
-  const secondaryLocations: Statement[] = [];
-  for (const other of others) {
-    if (column(other) !== column(statement)) {
-      break;
-    }
-    secondaryLocations.push(other);
-    lastStatementInPseudoBlock = other;
-  }
-
-  const message = util.format(
-    primaryMessage,
-    line(lastStatementInPseudoBlock) - line(firstStatementInPseudoBlock) + 1,
-  );
-  const secondaryMessages = Array(secondaryLocations.length).fill(secondaryMessage);
-
   context.report({
-    message: toEncodedMessage(message, secondaryLocations as TSESTree.Node[], secondaryMessages),
-    node: statement,
+    message: `This line will not be executed ${piledStatements.includedStatementQualifier()}; only the first line of this ${sizeOfPile}-line block will be. The rest will execute ${piledStatements.excludedStatementsQualifier()}.`,
+    node: piledStatements.next,
+  });
+}
+
+function raiseInlineAndIndentedIssue(
+  chainedStatements: ChainedStatements,
+  context: Rule.RuleContext,
+) {
+  context.report({
+    message: `This line will not be executed ${chainedStatements.includedStatementQualifier()}; only the first statement will be. The rest will execute ${chainedStatements.excludedStatementsQualifier()}.`,
+    node: chainedStatements.next,
   });
 }
 
 function isNestingStatement(node: estree.Node): node is NestingStatement {
-  return [
-    "IfStatement",
-    "ForStatement",
-    "ForInStatement",
-    "ForOfStatement",
-    "WhileStatement",
-  ].includes(node.type);
+  return NestingStatementLike.includes(node.type);
 }
 
-function nestedStatement(node: NestingStatement) {
-  if (node.type === "IfStatement") {
-    return node.consequent;
+class ChainedStatements {
+  private readonly positions: Positions;
+
+  constructor(
+    readonly topStatement: NestingStatement,
+    readonly prev: Statement,
+    readonly next: Statement,
+  ) {
+    this.positions = {
+      prevTopStart: topStatement.loc!.start,
+      prevTopEnd: topStatement.loc!.end,
+      prevStart: prev.loc!.start,
+      prevEnd: prev.loc!.end,
+      nextStart: next.loc!.start,
+      nextEnd: next.loc!.end,
+    };
   }
-  return node.body;
+
+  public areUnenclosed(): boolean {
+    return this.prev.type !== "BlockStatement";
+  }
+
+  public areAdjacent(): boolean {
+    return this.positions.prevEnd.line === this.positions.nextStart.line;
+  }
+
+  public areBothIndented(): boolean {
+    return (
+      this.positions.prevStart.column === this.positions.nextStart.column && this.prevIsIndented()
+    );
+  }
+
+  public areInlinedAndIndented(): boolean {
+    return (
+      this.positions.prevStart.line === this.positions.prevTopEnd.line &&
+      this.positions.nextStart.column > this.positions.prevTopStart.column
+    );
+  }
+
+  public includedStatementQualifier(): string {
+    return this.topStatement.type === "IfStatement" ? "conditionally" : "in a loop";
+  }
+
+  public excludedStatementsQualifier(): string {
+    return this.topStatement.type === "IfStatement" ? "unconditionally" : "only once";
+  }
+
+  private prevIsIndented(): boolean {
+    return this.positions.prevStart.column > this.positions.prevTopStart.column;
+  }
 }
 
-function column(node: estree.Node) {
-  return node.loc!.start.column;
-}
-
-function line(node: estree.Node) {
-  return node.loc!.start.line;
-}
+type Positions = {
+  prevTopStart: estree.Position;
+  prevTopEnd: estree.Position;
+  prevStart: estree.Position;
+  prevEnd: estree.Position;
+  nextStart: estree.Position;
+  nextEnd: estree.Position;
+};

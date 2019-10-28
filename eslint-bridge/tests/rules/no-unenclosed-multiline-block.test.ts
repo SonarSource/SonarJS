@@ -54,9 +54,6 @@ ruleTester.run("Multiline blocks should be enclosed in curly braces", rule, {
       `,
     },
     {
-      code: `if (condition) action1(); action2();`,
-    },
-    {
       code: `
       for(var i = 1; i < 3; i++) {
         action1();
@@ -80,11 +77,7 @@ ruleTester.run("Multiline blocks should be enclosed in curly braces", rule, {
         action1();
         action2();
       `,
-      errors: [
-        {
-          message: `{"message":"This line will not be executed conditionally; only the first line of this 2-line block will be. The rest will execute unconditionally.","secondaryLocations":[]}`,
-        },
-      ],
+      errors: 1,
     },
     {
       code: `
@@ -95,7 +88,11 @@ ruleTester.run("Multiline blocks should be enclosed in curly braces", rule, {
       `,
       errors: [
         {
-          message: `{"message":"This line will not be executed conditionally; only the first line of this 3-line block will be. The rest will execute unconditionally.","secondaryLocations":[{"message":"not conditionally executed","column":8,"line":5,"endColumn":18,"endLine":5}]}`,
+          message: `This line will not be executed conditionally; only the first line of this 3-line block will be. The rest will execute unconditionally.`,
+          line: 4,
+          endLine: 4,
+          column: 9,
+          endColumn: 19,
         },
       ],
     },
@@ -103,16 +100,6 @@ ruleTester.run("Multiline blocks should be enclosed in curly braces", rule, {
       code: `
       if (condition)
         action1();
-        action2();
-        action3();
-      action4();
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      if (condition)
-        action1();
 
         action2();
       `,
@@ -123,23 +110,19 @@ ruleTester.run("Multiline blocks should be enclosed in curly braces", rule, {
       if (condition)
         action1();
         action2();
-
+      
         action3();
       `,
       errors: 1,
     },
     {
+      code: `if (condition) action1(); action2();`,
+      errors: 1,
+    },
+    {
       code: `
-      function foo() {
-        if (condition) {
-          action1();
-          action2();
-        }
-
-        if (condition)
-          action1();
-          action2(); // Noncompliant
-      }
+      if (condition) action1();
+        action2();
       `,
       errors: 1,
     },
@@ -151,20 +134,11 @@ ruleTester.run("Multiline blocks should be enclosed in curly braces", rule, {
       `,
       errors: [
         {
-          message: `{"message":"This line will not be executed in a loop; only the first line of this 2-line block will be. The rest will execute only once.","secondaryLocations":[]}`,
-        },
-      ],
-    },
-    {
-      code: `
-      for(var i = 1; i < 3; i++)
-        action1();
-        action2();
-        action3();
-      `,
-      errors: [
-        {
-          message: `{"message":"This line will not be executed in a loop; only the first line of this 3-line block will be. The rest will execute only once.","secondaryLocations":[{"message":"not executed in a loop","column":8,"line":5,"endColumn":18,"endLine":5}]}`,
+          message: `This line will not be executed in a loop; only the first line of this 2-line block will be. The rest will execute only once.`,
+          line: 4,
+          endLine: 4,
+          column: 9,
+          endColumn: 19,
         },
       ],
     },
@@ -186,9 +160,44 @@ ruleTester.run("Multiline blocks should be enclosed in curly braces", rule, {
     },
     {
       code: `
+      function foo() {
+        if (condition) {
+          action1();
+          action2();
+        }
+      
+        if (condition)
+          action1();
+          action2();
+      }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
       while (condition)
         action1();
         action2();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      namespace A {
+        if (condition)
+          action1();
+          action2();
+      }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      module B {
+        if (condition)
+          action1();
+          action2();
+      }
       `,
       errors: 1,
     },
