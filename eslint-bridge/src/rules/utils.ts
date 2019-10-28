@@ -169,6 +169,14 @@ export function isMemberExpression(
   return false;
 }
 
+export function isUnaryExpression(node: estree.Node | undefined): node is estree.UnaryExpression {
+  return node !== undefined && node.type === "UnaryExpression";
+}
+
+export function isArrayExpression(node: estree.Node | undefined): node is estree.ArrayExpression {
+  return node !== undefined && node.type === "ArrayExpression";
+}
+
 export function isRequireModule(node: estree.CallExpression, ...moduleNames: string[]) {
   if (isIdentifier(node.callee, "require") && node.arguments.length === 1) {
     const argument = node.arguments[0];

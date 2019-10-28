@@ -28,7 +28,7 @@ const parserOptions = {
   project: path.resolve(`${__dirname}/fixtures/rule-tester-project/tsconfig.json`),
 };
 
-const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-project/file.ts`);
+const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-project/file.tsx`);
 
 /**
  * Rule tester for Typescript, using @typescript-eslint parser, making sure that type information is present.
@@ -37,7 +37,14 @@ const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-proj
 class RuleTesterTs extends RuleTester {
   ruleTesterNoTsConfig = new RuleTester({
     parser,
-    parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+    parserOptions: {
+      ecmaVersion: 2018,
+      sourceType: "module",
+      ecmaFeatures: {
+        jsx: true,
+        globalReturn: true,
+      },
+    },
   });
 
   constructor() {
@@ -55,7 +62,7 @@ class RuleTesterTs extends RuleTester {
       invalid?: RuleTester.InvalidTestCase[];
     },
   ): void {
-    this.ruleTesterNoTsConfig.run(name, rule, {
+    this.ruleTesterNoTsConfig.run(`${name}[noTsConfig]`, rule, {
       valid: tests.invalid,
       invalid: [],
     });

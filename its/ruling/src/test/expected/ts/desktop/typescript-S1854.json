@@ -1,12 +1,6 @@
 {
-'desktop:app/src/lib/dispatcher/git-store.ts':[
-365,
-],
 'desktop:app/src/ui/create-branch/index.tsx':[
 268,
-],
-'desktop:app/src/ui/list.tsx':[
-339,
 ],
 'desktop:app/src/ui/repositories-list/group-repositories.ts':[
 21,
@@ -21,5 +15,5 @@
 ],
 'desktop:app/test/unit/status-parser-test.ts':[
 80,
-]
+],
 }

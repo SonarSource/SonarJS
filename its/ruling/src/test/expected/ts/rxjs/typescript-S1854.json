@@ -37,6 +37,11 @@
 32,
 40,
 ],
+'rxjs:spec/observables/using-spec.ts':[
+30,
+47,
+88,
+],
 'rxjs:spec/observables/zip-spec.ts':[
 591,
 603,
@@ -68,9 +73,7 @@
 'rxjs:spec/schedulers/VirtualTimeScheduler-spec.ts':[
 90,
 ],
-'rxjs:src/operator/throttle.ts':[
-127,
-127,
-127,
-]
+'rxjs:spec/symbol/iterator-spec.ts':[
+27,
+],
 }
