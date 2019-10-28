@@ -83,10 +83,10 @@ function chain(statements: Statement[]): ChainedStatements[] {
 
 function extractLastBody(statement: NestingStatement) {
   if (statement.type === "IfStatement") {
-    if (!statement.alternate) {
-      return statement.consequent;
-    } else {
+    if (statement.alternate) {
       return statement.alternate;
+    } else {
+      return statement.consequent;
     }
   } else {
     return statement.body;
