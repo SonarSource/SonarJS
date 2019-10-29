@@ -52,51 +52,108 @@ export const rule: Rule.RuleModule = {
     const services = context.parserServices;
     const canResolveType = isRequiredParserServices(services);
 
+    function checkArguments(functionCall: estree.CallExpression) {
+      const resolvedFunction = resolveFunctionDeclaration(functionCall);
+      if (!resolvedFunction) {
+        return;
+      }
+
+      const { params: functionParameters, declaration: functionDeclaration } = resolvedFunction;
+      const argumentNames = functionCall.arguments.map(
+        arg => (isIdentifier(arg) ? arg.name : undefined),
+      );
+
+      for (let argumentIndex = 0; argumentIndex < argumentNames.length; argumentIndex++) {
+        const argumentName = argumentNames[argumentIndex];
+        if (argumentName) {
+          const swappedArgumentName = getSwappedArgumentName(
+            argumentNames,
+            functionParameters,
+            argumentName,
+            argumentIndex,
+            functionCall,
+          );
+          if (swappedArgumentName) {
+            raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
+            return;
+          }
+        }
+      }
+    }
+
     function resolveFunctionDeclaration(node: estree.CallExpression): FunctionSignature | null {
       if (canResolveType) {
-        const signature = getSignatureFromCallee(node, services);
-        if (signature && signature.declaration) {
-          return {
-            params: signature.parameters.map(param => param.name),
-            declaration: services.tsNodeToESTreeNodeMap.get(signature.declaration),
-          };
-        }
+        return resolveFromTSSignature(node);
       }
 
-      let functionDeclaration: FunctionNodeType | undefined;
-      const callee = node.callee;
-      if (callee.type === "Identifier") {
-        const functionReference = context
-          .getScope()
-          .references.find(ref => ref.identifier === callee);
-        if (
-          functionReference &&
-          functionReference.resolved &&
-          functionReference.resolved.defs.length === 1 &&
-          functionReference.resolved.defs[0] &&
-          functionReference.resolved.defs[0].type === "FunctionName"
-        ) {
-          functionDeclaration = functionReference.resolved.defs[0].node;
-        }
-      } else if (isFunctionNode(callee)) {
-        functionDeclaration = callee;
+      let functionDeclaration: FunctionNodeType | null = null;
+
+      if (isFunctionNode(node.callee)) {
+        functionDeclaration = node.callee;
+      } else if (node.callee.type === "Identifier") {
+        functionDeclaration = resolveFromFunctionReference(node.callee);
       }
 
-      if (functionDeclaration) {
-        const functionParameters = functionDeclaration.params.map(param => {
-          const identifiers = resolveIdentifiers(param as TSESTree.Node);
-          if (identifiers.length === 1 && identifiers[0]) {
-            return identifiers[0].name;
-          }
-          return undefined;
-        });
+      if (!functionDeclaration) {
+        return null;
+      }
 
+      return {
+        params: extractFunctionParameters(functionDeclaration),
+        declaration: functionDeclaration,
+      };
+    }
+
+    function resolveFromTSSignature(node: estree.CallExpression) {
+      const signature = getSignatureFromCallee(node, services);
+      if (signature && signature.declaration) {
         return {
-          params: functionParameters,
-          declaration: functionDeclaration,
+          params: signature.parameters.map(param => param.name),
+          declaration: services.tsNodeToESTreeNodeMap.get(signature.declaration),
         };
       }
+      return null;
+    }
 
+    function resolveFromFunctionReference(functionIdentifier: estree.Identifier) {
+      const reference = context
+        .getScope()
+        .references.find(ref => ref.identifier === functionIdentifier);
+      if (
+        reference &&
+        reference.resolved &&
+        reference.resolved.defs.length === 1 &&
+        reference.resolved.defs[0] &&
+        reference.resolved.defs[0].type === "FunctionName"
+      ) {
+        return reference.resolved.defs[0].node;
+      }
+      return null;
+    }
+
+    function getSwappedArgumentName(
+      argumentNames: Array<string | undefined>,
+      functionParameters: Array<string | undefined>,
+      argumentName: string,
+      argumentIndex: number,
+      node: estree.CallExpression,
+    ) {
+      const indexInFunctionDeclaration = functionParameters.findIndex(
+        functionParameterName => functionParameterName === argumentName,
+      );
+      if (indexInFunctionDeclaration >= 0 && indexInFunctionDeclaration !== argumentIndex) {
+        const potentiallySwappedArgument = argumentNames[indexInFunctionDeclaration];
+        if (
+          potentiallySwappedArgument &&
+          potentiallySwappedArgument === functionParameters[argumentIndex] &&
+          haveCompatibleTypes(
+            node.arguments[argumentIndex],
+            node.arguments[indexInFunctionDeclaration],
+          )
+        ) {
+          return potentiallySwappedArgument;
+        }
+      }
       return null;
     }
 
@@ -104,52 +161,27 @@ export const rule: Rule.RuleModule = {
       if (canResolveType) {
         const type1 = normalizeType(getTypeAsString(arg1, services));
         const type2 = normalizeType(getTypeAsString(arg2, services));
-
         return type1 === type2;
       }
       return true;
     }
 
-    function checkArguments(node: estree.CallExpression) {
-      const resolvedFunction = resolveFunctionDeclaration(node);
-      if (!resolvedFunction) {
-        return;
-      }
+    function raiseIssue(
+      arg1: string,
+      arg2: string,
+      functionDeclaration: FunctionNodeType | undefined,
+      node: estree.CallExpression,
+    ) {
+      const primaryMessage = `Arguments '${arg1}' and '${arg2}' have the same names but not the same order as the function parameters.`;
+      const encodedMessage: EncodedMessage = {
+        message: primaryMessage,
+        secondaryLocations: getSecondaryLocations(functionDeclaration),
+      };
 
-      const { params: functionParameters, declaration: functionDeclaration } = resolvedFunction;
-      const argumentNames = node.arguments.map(arg => (isIdentifier(arg) ? arg.name : undefined));
-
-      for (let argumentIndex = 0; argumentIndex < argumentNames.length; argumentIndex++) {
-        const argumentName = argumentNames[argumentIndex];
-        if (argumentName) {
-          const indexInFunctionDeclaration = functionParameters.findIndex(
-            functionParameterName => functionParameterName === argumentName,
-          );
-          if (indexInFunctionDeclaration >= 0 && indexInFunctionDeclaration != argumentIndex) {
-            const potentiallySwappedArgument = argumentNames[indexInFunctionDeclaration];
-            if (
-              potentiallySwappedArgument &&
-              potentiallySwappedArgument === functionParameters[argumentIndex] &&
-              haveCompatibleTypes(
-                node.arguments[argumentIndex],
-                node.arguments[indexInFunctionDeclaration],
-              )
-            ) {
-              const primaryMessage = `Arguments '${argumentName}' and '${potentiallySwappedArgument}' have the same names but not the same order as the function parameters.`;
-              const encodedMessage: EncodedMessage = {
-                message: primaryMessage,
-                secondaryLocations: getSecondaryLocations(functionDeclaration),
-              };
-
-              context.report({
-                message: JSON.stringify(encodedMessage),
-                loc: getParametersClauseLocation(node.arguments),
-              });
-              return;
-            }
-          }
-        }
-      }
+      context.report({
+        message: JSON.stringify(encodedMessage),
+        loc: getParametersClauseLocation(node.arguments),
+      });
     }
 
     return {
@@ -162,6 +194,16 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function extractFunctionParameters(functionDeclaration: FunctionNodeType) {
+  return functionDeclaration.params.map(param => {
+    const identifiers = resolveIdentifiers(param as TSESTree.Node);
+    if (identifiers.length === 1 && identifiers[0]) {
+      return identifiers[0].name;
+    }
+    return undefined;
+  });
+}
 
 function getSecondaryLocations(functionDeclaration: FunctionNodeType | undefined) {
   if (functionDeclaration && functionDeclaration.params && functionDeclaration.params.length > 0) {
