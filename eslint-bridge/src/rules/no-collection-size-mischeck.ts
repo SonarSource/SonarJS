@@ -27,7 +27,7 @@ import {
 } from "../utils/isRequiredParserServices";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 
-const CollectionLike = ["Array", "Map", "Set"];
+const CollectionLike = ["Array", "Map", "Set", "WeakMap", "WeakSet"];
 const CollectionSizeLike = ["length", "size"];
 
 export const rule: Rule.RuleModule = {

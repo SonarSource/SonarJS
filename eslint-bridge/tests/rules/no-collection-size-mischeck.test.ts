@@ -128,6 +128,20 @@ ruler.run("Collection sizes and array length comparisons should make sense", rul
         `,
         errors: 1,
       },
+      {
+        code: `
+        const set = new WeakSet();
+        if (set.length < 0) {}
+        `,
+        errors: 1,
+      },
+      {
+        code: `
+        const map = new WeakMap();
+        if (map.length < 0) {}
+        `,
+        errors: 1,
+      },
     ],
   },
 });
