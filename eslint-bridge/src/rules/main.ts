@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from "eslint";
+import { rule as argumentsOrder } from "./arguments-order";
 import { rule as boolParamDefault } from "./bool-param-default";
 import { rule as className } from "./class-name";
 import { rule as noUselessIncrement } from "./no-useless-increment";
@@ -41,6 +42,7 @@ import { rule as cyclomaticComplexity } from "./cyclomatic-complexity";
 import { rule as noAlphabeticalSort } from "./no-alphabetical-sort";
 import { rule as noTab } from "./no-tab";
 import { rule as noEmptyCollection } from "./no-empty-collection";
+import { rule as noTryPromise } from "./no-try-promise";
 import { rule as nonExistentOperator } from "./non-existent-operator";
 import { rule as noInMisuse } from "./no-in-misuse";
 import { rule as noInvariantReturns } from "./no-invariant-returns";
@@ -73,6 +75,7 @@ import { rule as xpath } from "./xpath";
 
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
+ruleModules["arguments-order"] = argumentsOrder;
 ruleModules["bool-param-default"] = boolParamDefault;
 ruleModules["class-name"] = className;
 ruleModules["no-useless-increment"] = noUselessIncrement;
@@ -96,6 +99,7 @@ ruleModules["cyclomatic-complexity"] = cyclomaticComplexity;
 ruleModules["no-alphabetical-sort"] = noAlphabeticalSort;
 ruleModules["no-tab"] = noTab;
 ruleModules["no-empty-collection"] = noEmptyCollection;
+ruleModules["no-try-promise"] = noTryPromise;
 ruleModules["non-existent-operator"] = nonExistentOperator;
 ruleModules["no-in-misuse"] = noInMisuse;
 ruleModules["no-invariant-returns"] = noInvariantReturns;

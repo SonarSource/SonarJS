@@ -1,8 +1,7 @@
 {
-  "title": "Parameters should be passed in the correct order",
-  "type": "CODE_SMELL",
+  "title": "Promise rejections should not be caught by 'try' block",
+  "type": "BUG",
   "compatibleLanguages": [
-    "JAVASCRIPT",
     "TYPESCRIPT"
   ],
   "status": "ready",
@@ -14,7 +13,7 @@
     
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-2234",
-  "sqKey": "S2234",
+  "ruleSpecification": "RSPEC-4822",
+  "sqKey": "S4822",
   "scope": "All"
 }

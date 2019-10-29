@@ -21,6 +21,7 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
+import { isFunctionNode } from "./utils";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -47,7 +48,7 @@ function getPromiseExecutor(node: estree.NewExpression, context: Rule.RuleContex
 }
 
 function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.RuleContext) {
-  if (isFunction(executor)) {
+  if (isFunctionNode(executor)) {
     const { params, body } = executor;
     const [resolveParameterDeclaration, rejectParameterDeclaration] = params;
 
@@ -70,12 +71,6 @@ function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.R
       }
     }
   }
-}
-
-function isFunction(node: estree.Node): node is estree.Function {
-  return ["FunctionDeclaration", "FunctionExpression", "ArrowFunctionExpression"].includes(
-    node.type,
-  );
 }
 
 function getOnlyBodyExpression(node: estree.Node) {
