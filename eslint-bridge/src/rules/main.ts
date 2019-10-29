@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from "eslint";
+import { rule as argumentsOrder } from "./arguments-order";
 import { rule as boolParamDefault } from "./bool-param-default";
 import { rule as className } from "./class-name";
 import { rule as noUselessIncrement } from "./no-useless-increment";
@@ -74,6 +75,7 @@ import { rule as xpath } from "./xpath";
 
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
+ruleModules["arguments-order"] = argumentsOrder;
 ruleModules["bool-param-default"] = boolParamDefault;
 ruleModules["class-name"] = className;
 ruleModules["no-useless-increment"] = noUselessIncrement;
