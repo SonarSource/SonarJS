@@ -55,30 +55,6 @@ export type Parse = (
   tsConfigs?: string[],
 ) => SourceCode | ParsingError;
 
-// exported for testing
-export function loggerFn(msg: string) {
-  if (
-    msg.includes(
-      `You are currently running a version of TypeScript which is not officially supported by`,
-    )
-  ) {
-    const currentVersionMatch = msg.match(/YOUR TYPESCRIPT VERSION: (.+)\n/);
-    const currentVersion = currentVersionMatch ? currentVersionMatch[1] : "";
-    if (currentVersion >= TYPESCRIPT_MAXIMUM_VERSION) {
-      console.log(
-        `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION} <${TYPESCRIPT_MAXIMUM_VERSION}`,
-      );
-    } else {
-      throw {
-        message: `You are using version of TypeScript ${currentVersion} which is not supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION}`,
-      };
-    }
-  } else {
-    // fall back to default behavior of 'typescript-estree'
-    console.log(msg);
-  }
-}
-
 export function parseJavaScriptSourceFile(fileContent: string): SourceCode | ParsingError {
   let parseFunctions = [espree.parse, babel.parse];
   if (fileContent.includes("@flow")) {
@@ -111,13 +87,14 @@ export function parseTypeScriptSourceFile(
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   try {
+    checkTypeScriptVersionCompatibility(require("typescript").version);
     // we load the typescript parser dynamically, so we don't need typescript dependency when analyzing pure JS project
     const tsParser = require("@typescript-eslint/parser");
     const result = tsParser.parseForESLint(fileContent, {
       ...PARSER_CONFIG_MODULE,
       filePath: filePath,
       project: tsConfigs,
-      loggerFn,
+      loggerFn: console.log,
     });
     return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
   } catch (exception) {
@@ -125,6 +102,19 @@ export function parseTypeScriptSourceFile(
       line: exception.lineNumber,
       message: exception.message,
       code: parseExceptionCodeOf(exception.message),
+    };
+  }
+}
+
+// exported for testing
+export function checkTypeScriptVersionCompatibility(currentVersion: string) {
+  if (currentVersion >= TYPESCRIPT_MAXIMUM_VERSION) {
+    console.log(
+      `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION} <${TYPESCRIPT_MAXIMUM_VERSION}`,
+    );
+  } else if (currentVersion < TYPESCRIPT_MINIMUM_VERSION) {
+    throw {
+      message: `You are using version of TypeScript ${currentVersion} which is not supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION}`,
     };
   }
 }

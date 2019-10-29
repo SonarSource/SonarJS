@@ -6,7 +6,7 @@ import {
   parseJavaScriptSourceFile,
   parseTypeScriptSourceFile,
   parseVueSourceFile,
-  loggerFn,
+  checkTypeScriptVersionCompatibility,
   ParseExceptionCode,
   parseExceptionCodeOf,
 } from "../src/parser";
@@ -147,11 +147,7 @@ describe("parseTypeScriptSourceFile", () => {
   it("should throw a parsing exception with TypeScript version below minimum expected", () => {
     let parsingException = undefined;
     try {
-      loggerFn(
-        `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
-        YOUR TYPESCRIPT VERSION: 1.2.3
-        `,
-      );
+      checkTypeScriptVersionCompatibility("1.2.3");
     } catch (exception) {
       parsingException = exception;
     }
@@ -165,41 +161,10 @@ describe("parseTypeScriptSourceFile", () => {
   it("should log a warning with TypeScript version above maximum expected", () => {
     console.log = jest.fn();
 
-    loggerFn(
-      `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
-      YOUR TYPESCRIPT VERSION: 3.8.5
-      `,
-    );
+    checkTypeScriptVersionCompatibility("3.8.5");
     expect(console.log).toHaveBeenCalledWith(
       "WARN You are using version of TypeScript 3.8.5 which is not officially supported; supported versions >=3.2.1 <3.8.0",
     );
-
-    jest.resetAllMocks();
-  });
-
-  it("should throw a parsing exception with missing TypeScript version", () => {
-    let parsingException = undefined;
-    try {
-      loggerFn(
-        `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
-        YOUR TYPESCRIPT VERSION:
-        `,
-      );
-    } catch (exception) {
-      parsingException = exception;
-    }
-    expect(parsingException).toBeDefined;
-    expect(parsingException).toEqual({
-      message:
-        "You are using version of TypeScript  which is not supported; supported versions >=3.2.1",
-    });
-  });
-
-  it("should fall back to default logging behaviour of 'typescript-estree'", () => {
-    console.log = jest.fn();
-
-    loggerFn("Just message");
-    expect(console.log).toHaveBeenCalledWith("Just message");
 
     jest.resetAllMocks();
   });
