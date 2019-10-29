@@ -1,0 +1,42 @@
+<p>In TypeScript there are several ways to declare a property with <code>undefined</code> value: adding <code>| undefined</code> in the property type
+or using optional property syntax (<code>?</code> after its name). Use <code>| undefined</code> syntax when you want to be explicit that an object has
+that property, in that case TypeScript compiler will not allow omitting it:</p>
+<pre>
+interface Person {
+  name: string;
+  address: string | undefined;
+}
+
+let John = { name: "John" }; // will not compile
+let John = { name: "John", address: undefined }; // will compile, we want to be explicit when person does not have home
+</pre>
+<p>Use optional property syntax for properties holding some additional information.</p>
+<pre>
+interface Person {
+  name: string;
+  pet?: string;
+}
+
+let John = { name: "John" }; // will compile
+let John = { name: "John", pet: undefined }; // will compile, there is no pet like for the object on previous line
+let John = { name: "John", pet: "Benji" }; // will compile
+</pre>
+<p>Using <code>| undefined</code> for optional property is redundant, it can be omitted without change to the actual type. Still if you want to force
+the property in the object consider using only <code>| undefined</code> without <code>?</code>.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+interface Person {
+  name: string;
+  address? : string | undefined;   // Noncompliant, "?" should be removed
+  pet?: Animal | undefined; // Noncompliant, "undefined" should be removed
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+interface Person {
+  name: string;
+  address: string | undefined;
+  pet?: Animal;
+}
+</pre>
+
