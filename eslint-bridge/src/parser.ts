@@ -27,7 +27,7 @@ import * as VueJS from "vue-eslint-parser";
 // still we might consider extending this range
 // if everything which we need is working on older/newer versions
 const TYPESCRIPT_MINIMUM_VERSION = "3.2.1";
-const TYPESCRIPT_MAXIMUM_VERSION = "3.6.0";
+const TYPESCRIPT_MAXIMUM_VERSION = "3.8.0";
 
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
@@ -54,30 +54,6 @@ export type Parse = (
   filePath: string,
   tsConfigs?: string[],
 ) => SourceCode | ParsingError;
-
-// exported for testing
-export function loggerFn(msg: string) {
-  if (
-    msg.includes(
-      `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.`,
-    )
-  ) {
-    const currentVersionMatch = msg.match(/YOUR TYPESCRIPT VERSION: (.+)\n/);
-    const currentVersion = currentVersionMatch ? currentVersionMatch[1] : "";
-    if (currentVersion >= TYPESCRIPT_MAXIMUM_VERSION) {
-      console.log(
-        `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION} <${TYPESCRIPT_MAXIMUM_VERSION}`,
-      );
-    } else {
-      throw {
-        message: `You are using version of TypeScript ${currentVersion} which is not supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION}`,
-      };
-    }
-  } else {
-    // fall back to default behavior of 'typescript-estree'
-    console.log(msg);
-  }
-}
 
 export function parseJavaScriptSourceFile(fileContent: string): SourceCode | ParsingError {
   let parseFunctions = [espree.parse, babel.parse];
@@ -111,13 +87,14 @@ export function parseTypeScriptSourceFile(
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   try {
+    checkTypeScriptVersionCompatibility(require("typescript").version);
     // we load the typescript parser dynamically, so we don't need typescript dependency when analyzing pure JS project
     const tsParser = require("@typescript-eslint/parser");
     const result = tsParser.parseForESLint(fileContent, {
       ...PARSER_CONFIG_MODULE,
       filePath: filePath,
       project: tsConfigs,
-      loggerFn,
+      loggerFn: console.log,
     });
     return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
   } catch (exception) {
@@ -125,6 +102,19 @@ export function parseTypeScriptSourceFile(
       line: exception.lineNumber,
       message: exception.message,
       code: parseExceptionCodeOf(exception.message),
+    };
+  }
+}
+
+// exported for testing
+export function checkTypeScriptVersionCompatibility(currentVersion: string) {
+  if (currentVersion >= TYPESCRIPT_MAXIMUM_VERSION) {
+    console.log(
+      `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION} <${TYPESCRIPT_MAXIMUM_VERSION}`,
+    );
+  } else if (currentVersion < TYPESCRIPT_MINIMUM_VERSION) {
+    throw {
+      message: `You are using version of TypeScript ${currentVersion} which is not supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION}`,
     };
   }
 }

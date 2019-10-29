@@ -20,7 +20,6 @@
 3337,
 3366,
 3433,
-3844,
 3895,
 3959,
 3988,
@@ -67,7 +66,6 @@
 'TypeScript:src/harness/unittests/session.ts':[
 400,
 401,
-451,
 452,
 ],
 'TypeScript:src/harness/unittests/tsserverProjectSystem.ts':[
@@ -113,9 +111,6 @@
 ],
 'TypeScript:src/server/utilities.ts':[
 196,
-],
-'TypeScript:src/services/codefixes/importFixes.ts':[
-26,
 ],
 'TypeScript:src/services/formatting/ruleOperationContext.ts':[
 7,

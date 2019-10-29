@@ -36,7 +36,6 @@ import {
 } from "./runner/symbol-highlighter";
 import * as fs from "fs";
 import { rules as sonarjsRules } from "eslint-plugin-sonarjs";
-import * as path from "path";
 
 const COGNITIVE_COMPLEXITY_RULE_ID = "internal-cognitive-complexity";
 
@@ -137,8 +136,7 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
   if (!fileContent) {
     fileContent = getFileContent(input.filePath);
   }
-  const filePath = path.normalize(input.filePath);
-  const result = parse(fileContent, filePath, input.tsConfigs);
+  const result = parse(fileContent, input.filePath, input.tsConfigs);
   if (result instanceof SourceCode) {
     return analyzeFile(result, input);
   } else {

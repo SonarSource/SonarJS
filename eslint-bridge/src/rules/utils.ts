@@ -33,6 +33,16 @@ export const functionLike = new Set([
 
 export const sortLike = ["sort", '"sort"', "'sort'"];
 
+export type FunctionNodeType =
+  | estree.FunctionDeclaration
+  | estree.FunctionExpression
+  | estree.ArrowFunctionExpression;
+export const FUNCTION_NODES = [
+  "FunctionDeclaration",
+  "FunctionExpression",
+  "ArrowFunctionExpression",
+];
+
 /**
  * Returns the module name, when an identifier represents a namespace for that module.
  * Returns undefined otherwise.
@@ -315,7 +325,21 @@ export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserS
   return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
 }
 
+export function getTypeAsString(node: estree.Node, services: RequiredParserServices) {
+  const { typeToString, getBaseTypeOfLiteralType } = services.program.getTypeChecker();
+  return typeToString(getBaseTypeOfLiteralType(getTypeFromTreeNode(node, services)));
+}
+
 export function getSymbolAtLocation(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   return checker.getSymbolAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+}
+
+export function getSignatureFromCallee(node: estree.Node, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  return checker.getResolvedSignature(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+}
+
+export function isFunctionNode(node: estree.Node): node is FunctionNodeType {
+  return FUNCTION_NODES.includes(node.type);
 }

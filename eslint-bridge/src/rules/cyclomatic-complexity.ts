@@ -28,17 +28,7 @@ import {
 } from "eslint-plugin-sonarjs/lib/utils/locations";
 import { childrenOf } from "../utils/visitor";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
-
-type FunctionLike =
-  | estree.FunctionDeclaration
-  | estree.FunctionExpression
-  | estree.ArrowFunctionExpression;
-
-const functionLikeType = "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression";
-
-function isFunctionLike(node: estree.Node): node is FunctionLike {
-  return functionLikeType.split(", ").includes(node.type);
-}
+import { FunctionNodeType, isFunctionNode } from "./utils";
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -68,11 +58,11 @@ export const rule: Rule.RuleModule = {
             !functionsDefiningModule.includes(func) &&
             !functionsImmediatelyInvoked.includes(func)
           ) {
-            raiseOnUnauthorizedComplexity(func as FunctionLike, parent, threshold, context);
+            raiseOnUnauthorizedComplexity(func as FunctionNodeType, parent, threshold, context);
           }
         });
       },
-      [`${functionLikeType}`]: (node: estree.Node) =>
+      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression": (node: estree.Node) =>
         functionsWithParent.set(node, getParent(context)),
       "CallExpression[callee.type='Identifier'][callee.name='define'] FunctionExpression": (
         node: estree.Node,
@@ -85,7 +75,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function raiseOnUnauthorizedComplexity(
-  node: FunctionLike,
+  node: FunctionNodeType,
   parent: estree.Node | undefined,
   threshold: number,
   context: Rule.RuleContext,
@@ -114,7 +104,7 @@ function toEncodedMessage(
 }
 
 function toPrimaryLocation(node: estree.Node, context: Rule.RuleContext): IssueLocation {
-  const func = node as FunctionLike;
+  const func = node as FunctionNodeType;
   return {
     line: func.loc!.start.line,
     column: func.loc!.start.column,
@@ -160,7 +150,7 @@ class FunctionComplexityVisitor {
     const visitNode = (node: estree.Node) => {
       let token: ComplexityToken | undefined | null;
 
-      if (isFunctionLike(node)) {
+      if (isFunctionNode(node)) {
         if (node !== this.root) {
           return;
         } else {

@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S2234")
-public class MisorderedParameterListCheck extends EslintBasedCheck {
+@Rule(key = "S4822")
+public class TryPromiseCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "arguments-order";
+    return "no-try-promise";
   }
-
 }

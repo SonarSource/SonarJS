@@ -6,7 +6,7 @@ import {
   parseJavaScriptSourceFile,
   parseTypeScriptSourceFile,
   parseVueSourceFile,
-  loggerFn,
+  checkTypeScriptVersionCompatibility,
   ParseExceptionCode,
   parseExceptionCodeOf,
 } from "../src/parser";
@@ -14,6 +14,7 @@ import * as espree from "espree";
 import { SourceCode } from "eslint";
 import { ParsingError } from "../src/analyzer";
 import visit from "../src/utils/visitor";
+import * as path from "path";
 
 describe("parseJavaScriptSourceFile", () => {
   beforeEach(() => {
@@ -132,25 +133,21 @@ describe("parseTypeScriptSourceFile", () => {
   });
 
   it("should return ParsingError with undefined line when file is not part of typescript project", () => {
-    const file = __dirname + "/fixtures/ts-project/excluded.ts";
+    const file = path.join(path.basename(__dirname), "/fixtures/ts-project/excluded.ts");
     const parsingError = parseTypeScriptSourceFile(`if (b == 0) {}`, file, [
       __dirname + "/fixtures/ts-project/tsconfig.json",
     ]) as ParsingError;
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toBeUndefined();
     expect(parsingError.message).toEqual(
-      `If \"parserOptions.project\" has been set for @typescript-eslint/parser, ${file} must be included in at least one of the projects provided.`,
+      `\"parserOptions.project\" has been set for @typescript-eslint/parser.\nThe file does not match your project config: ${file}.\nThe file must be included in at least one of the projects provided.`,
     );
   });
 
   it("should throw a parsing exception with TypeScript version below minimum expected", () => {
     let parsingException = undefined;
     try {
-      loggerFn(
-        `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
-        YOUR TYPESCRIPT VERSION: 1.2.3
-        `,
-      );
+      checkTypeScriptVersionCompatibility("1.2.3");
     } catch (exception) {
       parsingException = exception;
     }
@@ -164,41 +161,10 @@ describe("parseTypeScriptSourceFile", () => {
   it("should log a warning with TypeScript version above maximum expected", () => {
     console.log = jest.fn();
 
-    loggerFn(
-      `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
-      YOUR TYPESCRIPT VERSION: 3.6.0
-      `,
-    );
+    checkTypeScriptVersionCompatibility("3.8.5");
     expect(console.log).toHaveBeenCalledWith(
-      "WARN You are using version of TypeScript 3.6.0 which is not officially supported; supported versions >=3.2.1 <3.6.0",
+      "WARN You are using version of TypeScript 3.8.5 which is not officially supported; supported versions >=3.2.1 <3.8.0",
     );
-
-    jest.resetAllMocks();
-  });
-
-  it("should throw a parsing exception with missing TypeScript version", () => {
-    let parsingException = undefined;
-    try {
-      loggerFn(
-        `WARNING: You are currently running a version of TypeScript which is not officially supported by typescript-estree.
-        YOUR TYPESCRIPT VERSION:
-        `,
-      );
-    } catch (exception) {
-      parsingException = exception;
-    }
-    expect(parsingException).toBeDefined;
-    expect(parsingException).toEqual({
-      message:
-        "You are using version of TypeScript  which is not supported; supported versions >=3.2.1",
-    });
-  });
-
-  it("should fall back to default logging behaviour of 'typescript-estree'", () => {
-    console.log = jest.fn();
-
-    loggerFn("Just message");
-    expect(console.log).toHaveBeenCalledWith("Just message");
 
     jest.resetAllMocks();
   });
