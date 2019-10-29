@@ -102,8 +102,9 @@ export const rule: Rule.RuleModule = {
 
     function haveCompatibleTypes(arg1: estree.Node, arg2: estree.Node) {
       if (canResolveType) {
-        const type1 = getTypeAsString(arg1, services);
-        const type2 = getTypeAsString(arg2, services);
+        const type1 = normalizeType(getTypeAsString(arg1, services));
+        const type2 = normalizeType(getTypeAsString(arg2, services));
+
         return type1 === type2;
       }
       return true;
@@ -182,4 +183,17 @@ function getParametersClauseLocation(parameters: Array<estree.Node>) {
   const firstParam = parameters[0] as TSESTree.Node;
   const lastParam = parameters[parameters.length - 1] as TSESTree.Node;
   return { start: firstParam.loc.start, end: lastParam.loc.end };
+}
+
+function normalizeType(typeAsString: string) {
+  switch (typeAsString) {
+    case "String":
+      return "string";
+    case "Boolean":
+      return "boolean";
+    case "Number":
+      return "number";
+    default:
+      return typeAsString;
+  }
 }
