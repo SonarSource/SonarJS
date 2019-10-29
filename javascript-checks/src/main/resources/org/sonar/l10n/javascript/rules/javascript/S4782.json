@@ -1,0 +1,19 @@
+{
+  "title": "Optional property declarations should not use both '?' and 'undefined' syntax",
+  "type": "CODE_SMELL",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "redundant"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4782",
+  "sqKey": "S4782",
+  "scope": "All"
+}
