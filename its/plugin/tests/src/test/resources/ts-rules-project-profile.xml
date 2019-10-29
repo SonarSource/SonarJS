@@ -83,6 +83,11 @@
       <key>S4817</key>    <!-- XpathCheck -->
       <priority>INFO</priority>
     </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S4822</key>    <!-- no-try-promise -->
+      <priority>INFO</priority>
+    </rule>
   </rules>
 </profile>
 
