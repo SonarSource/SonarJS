@@ -33,36 +33,34 @@ const CollectionSizeLike = ["length", "size"];
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-    if (isRequiredParserServices(services)) {
-      return {
-        BinaryExpression: (node: estree.Node) => {
-          const expr = node as estree.BinaryExpression;
-          if (["<", ">="].includes(expr.operator)) {
-            const lhs = expr.left;
-            const rhs = expr.right;
-            if (isZeroLiteral(rhs) && lhs.type === "MemberExpression") {
-              const object = lhs.object;
-              const property = lhs.property;
-              if (
-                property.type === "Identifier" &&
-                CollectionSizeLike.includes(property.name) &&
-                isCollection(object, services)
-              ) {
-                context.report({
-                  message: `Fix this expression; ${
-                    property.name
-                  } of \"${context
-                    .getSourceCode()
-                    .getText(object)}\" is always greater or equal to zero.`,
-                  node,
-                });
-              }
+    const isTypeCheckerAvailable = isRequiredParserServices(services);
+    return {
+      BinaryExpression: (node: estree.Node) => {
+        const expr = node as estree.BinaryExpression;
+        if (["<", ">="].includes(expr.operator)) {
+          const lhs = expr.left;
+          const rhs = expr.right;
+          if (isZeroLiteral(rhs) && lhs.type === "MemberExpression") {
+            const object = lhs.object;
+            const property = lhs.property;
+            if (
+              property.type === "Identifier" &&
+              CollectionSizeLike.includes(property.name) &&
+              (!isTypeCheckerAvailable || isCollection(object, services))
+            ) {
+              context.report({
+                message: `Fix this expression; ${
+                  property.name
+                } of \"${context
+                  .getSourceCode()
+                  .getText(object)}\" is always greater or equal to zero.`,
+                node,
+              });
             }
           }
-        },
-      };
-    }
-    return {};
+        }
+      },
+    };
   },
 };
 

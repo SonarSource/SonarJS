@@ -19,15 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
-public class CollectionSizeComparisonJavaScriptCheckTest {
+@JavaScriptRule
+@TypeScriptRule
+@Rule(key = "S3981")
+public class CollectionSizeComparisonCheck extends EslintBasedCheck {
 
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new CollectionSizeComparisonJavaScriptCheck(), new File("src/test/resources/checks/collectionSizeComparison.js"));
+  @Override
+  public String eslintKey() {
+    return "no-collection-size-mischeck";
   }
-
 }
