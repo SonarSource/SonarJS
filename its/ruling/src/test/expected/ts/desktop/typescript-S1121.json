@@ -1,0 +1,17 @@
+{
+'desktop:app/src/lib/diff-parser.ts':[
+275,
+],
+'desktop:app/src/lib/git/status.ts':[
+86,
+88,
+92,
+94,
+],
+'desktop:app/src/lib/status-parser.ts':[
+49,
+],
+'desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx':[
+323,
+],
+}
