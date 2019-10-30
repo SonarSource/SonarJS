@@ -21,14 +21,21 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
+import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       AssignmentExpression: (node: estree.Node) => {
         const assignment = node as estree.AssignmentExpression;
-        const parent = parentOf(assignment, context.getAncestors());
-        if (parent && parent.type !== "ExpressionStatement") {
+        const ancestor = ancestorOf(assignment, context.getAncestors());
+        const parent = getParent(context);
+        if (
+          ancestor &&
+          ancestor.type !== "ExpressionStatement" &&
+          parent &&
+          !(parent.type === "ArrowFunctionExpression" && parent.body === assignment)
+        ) {
           raiseIssue(assignment, context);
         }
       },
@@ -50,13 +57,16 @@ function raiseIssue(node: estree.AssignmentExpression, context: Rule.RuleContext
   });
 }
 
-function parentOf(node: estree.Node, ancestors: estree.Node[]): estree.Node | undefined {
-  const parent = ancestors.pop();
-  if (parent && (parent.type === "SequenceExpression" || parent.type === "AssignmentExpression")) {
-    return parentOf(parent, ancestors);
+function ancestorOf(node: estree.Node, ancestors: estree.Node[]): estree.Node | undefined {
+  const ancestor = ancestors.pop();
+  if (
+    ancestor &&
+    (ancestor.type === "SequenceExpression" || ancestor.type === "AssignmentExpression")
+  ) {
+    return ancestorOf(ancestor, ancestors);
   }
-  if (parent && parent.type === "ForStatement" && parent.test !== node) {
+  if (ancestor && ancestor.type === "ForStatement" && ancestor.test !== node) {
     return undefined;
   }
-  return parent;
+  return ancestor;
 }

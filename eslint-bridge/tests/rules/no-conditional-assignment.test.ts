@@ -78,17 +78,25 @@ ruleTester.run("Assignments should not be made from within sub-expressions", rul
     {
       code: `for (;; i = 0) {}`,
     },
+    {
+      code: `let f = a => b = a;`,
+    },
+    {
+      code: `let f = a => (b = a);`,
+    },
   ],
   invalid: [
     {
       code: `if (a = 0) {}`,
-      errors: [{
-        message: `Extract the assignment of "a" from this expression.`,
-        line: 1,
-        endLine: 1,
-        column: 7,
-        endColumn: 8,
-      }],
+      errors: [
+        {
+          message: `Extract the assignment of "a" from this expression.`,
+          line: 1,
+          endLine: 1,
+          column: 7,
+          endColumn: 8,
+        },
+      ],
     },
     {
       code: `if (a, b = 0) {}`,
@@ -157,6 +165,10 @@ ruleTester.run("Assignments should not be made from within sub-expressions", rul
     {
       code: `let a = (b = (c = 0));`,
       errors: 2,
+    },
+    {
+      code: `let f = a => (a = (b = 0));`,
+      errors: 1,
     },
   ],
 });
