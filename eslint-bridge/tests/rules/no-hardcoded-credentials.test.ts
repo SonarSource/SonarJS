@@ -49,6 +49,11 @@ ruleTester.run("", rule, {
       ],
     },
     {
+      code: `let password = 'foo';`,
+      options,
+      errors: 1,
+    },
+    {
       code: `
       let my_pwd;
       my_pwd = "foo";
