@@ -1,0 +1,31 @@
+{
+  "title": "Hard-coded credential is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "cwe",
+    "sans-top25-porous",
+    "owasp-a2"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2068",
+  "sqKey": "S2068",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      798,
+      259
+    ],
+    "OWASP": [
+      "A2"
+    ]
+  }
+}
