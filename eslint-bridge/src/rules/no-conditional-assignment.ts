@@ -21,14 +21,13 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       AssignmentExpression: (node: estree.Node) => {
-        const assignment = node as TSESTree.AssignmentExpression;
-        const parent = parentOf(assignment);
+        const assignment = node as estree.AssignmentExpression;
+        const parent = parentOf(assignment, context.getAncestors());
         if (parent && parent.type !== "ExpressionStatement") {
           raiseIssue(assignment, context);
         }
@@ -37,24 +36,24 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function raiseIssue(node: TSESTree.AssignmentExpression, context: Rule.RuleContext) {
+function raiseIssue(node: estree.AssignmentExpression, context: Rule.RuleContext) {
   const sourceCode = context.getSourceCode();
   const operator = sourceCode.getFirstTokenBetween(
-    node.left as estree.Node,
-    node.right as estree.Node,
+    node.left,
+    node.right,
     token => token.value === node.operator,
   );
-  const text = sourceCode.getText(node.left as estree.Node);
+  const text = sourceCode.getText(node.left);
   context.report({
     message: `Extract the assignment of \"${text}\" from this expression.`,
     loc: operator!.loc,
   });
 }
 
-function parentOf(node: TSESTree.Node): TSESTree.Node | undefined {
-  const parent = node.parent;
+function parentOf(node: estree.Node, ancestors: estree.Node[]): estree.Node | undefined {
+  const parent = ancestors.pop();
   if (parent && (parent.type === "SequenceExpression" || parent.type === "AssignmentExpression")) {
-    return parentOf(parent);
+    return parentOf(parent, ancestors);
   }
   if (parent && parent.type === "ForStatement" && parent.test !== node) {
     return undefined;
