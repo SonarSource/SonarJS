@@ -82,7 +82,13 @@ ruleTester.run("Assignments should not be made from within sub-expressions", rul
   invalid: [
     {
       code: `if (a = 0) {}`,
-      errors: 1,
+      errors: [{
+        message: `Extract the assignment of "a" from this expression.`,
+        line: 1,
+        endLine: 1,
+        column: 7,
+        endColumn: 8,
+      }],
     },
     {
       code: `if (a, b = 0) {}`,
