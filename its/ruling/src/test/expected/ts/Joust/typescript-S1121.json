@@ -2,4 +2,16 @@
 'Joust:ts/components/EventLog.tsx':[
 51,
 ],
+'Joust:ts/components/GameWidget.tsx':[
+324,
+],
+'Joust:ts/components/Timeline.tsx':[
+170,
+],
+'Joust:ts/components/game/Hero.tsx':[
+55,
+],
+'Joust:ts/state/plugins/CoinDetector.ts':[
+33,
+],
 }
