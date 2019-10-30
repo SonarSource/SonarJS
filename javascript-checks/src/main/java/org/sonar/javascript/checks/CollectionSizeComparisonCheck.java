@@ -21,38 +21,15 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3981")
-public class CollectionSizeComparisonCheck extends DoubleDispatchVisitorCheck {
+public class CollectionSizeComparisonCheck extends EslintBasedCheck {
 
   @Override
-  public void visitBinaryExpression(BinaryExpressionTree tree) {
-    if (tree.is(Tree.Kind.LESS_THAN, Tree.Kind.GREATER_THAN_OR_EQUAL_TO)
-        && isZeroLiteral(tree.rightOperand())
-        && tree.leftOperand().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
-      DotMemberExpressionTree leftOperand = ((DotMemberExpressionTree) tree.leftOperand());
-      if (isLengthOrSizeProperty(leftOperand)) {
-        String propertyName = leftOperand.property().name();
-        addIssue(tree, String.format("Fix this expression; %s of \"%s\" is always greater or equal to zero.", propertyName, CheckUtils.asString(leftOperand.object())));
-      }
-    }
-    super.visitBinaryExpression(tree);
-  }
-
-  private static boolean isLengthOrSizeProperty(DotMemberExpressionTree memberExpressionTree) {
-    String name = memberExpressionTree.property().name();
-    return "length".equals(name) || "size".equals(name);
-  }
-
-  private static boolean isZeroLiteral(ExpressionTree tree) {
-    return tree.is(Tree.Kind.NUMERIC_LITERAL) && ((LiteralTree) tree).value().equals("0");
+  public String eslintKey() {
+    return "no-collection-size-mischeck";
   }
 }
