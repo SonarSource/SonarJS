@@ -1,0 +1,19 @@
+{
+  "title": "Getters and setters should access the expected fields",
+  "type": "BUG",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "pitfall"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4275",
+  "sqKey": "S4275",
+  "scope": "All"
+}

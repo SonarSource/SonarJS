@@ -181,6 +181,7 @@ public final class CheckList {
       NestedConditionalOperatorsCheck.class,
       NestedControlFlowDepthCheck.class,
       NewOperatorMisuseCheck.class,
+      NoAccessorFieldMismatchCheck.class,
       NoAnyCheck.class,
       NoArrayDeleteCheck.class,
       NoDuplicateImportsCheck.class,
