@@ -34,45 +34,43 @@ interface GroupComment {
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    function hasNoSemicolon(code: string) {
-      return code[code.length - 1] !== ";";
-    }
-
-    function isExpressionExclusion(statement: estree.Node, code: string) {
-      if (statement.type === "ExpressionStatement") {
-        const expression = statement.expression;
-        if (
-          expression.type === "Identifier" ||
-          expression.type === "SequenceExpression" ||
-          isUnaryPlusOrMinus(expression) ||
-          isStringLiteral(expression) ||
-          hasNoSemicolon(code)
+    function getGroupedComments(comments: TSESTree.Comment[]): GroupComment[] {
+      const groupedComments: GroupComment[] = [];
+      let currentGroup: TSESTree.Comment[] = [];
+      for (const comment of comments) {
+        if (comment.type === "Block") {
+          groupedComments.push({ value: comment.value, nodes: [comment] });
+        } else if (
+          currentGroup.length === 0 ||
+          areAdjacentLineComments(currentGroup[currentGroup.length - 1], comment)
         ) {
-          return true;
+          currentGroup.push(comment);
+        } else {
+          groupedComments.push({
+            value: currentGroup.map(lineComment => lineComment.value).join("\n"),
+            nodes: currentGroup,
+          });
+          currentGroup = [comment];
         }
       }
-      return false;
+
+      if (currentGroup.length > 0) {
+        groupedComments.push({
+          value: currentGroup.map(lineComment => lineComment.value).join("\n"),
+          nodes: currentGroup,
+        });
+      }
+
+      return groupedComments;
     }
 
-    function isExclusion(parsedBody: Array<estree.Node>, code: string) {
-      if (parsedBody.length === 1) {
-        const singleStatement = parsedBody[0];
-        return (
-          EXCLUDED_STATEMENTS.includes(singleStatement.type) ||
-          isReturnThrowExclusion(singleStatement) ||
-          isExpressionExclusion(singleStatement, code)
-        );
+    function areAdjacentLineComments(previous: TSESTree.Comment, next: TSESTree.Comment) {
+      const nextCommentLine = next.loc.start.line;
+      if (previous.loc.start.line + 1 === nextCommentLine) {
+        const nextCodeToken = context.getSourceCode().getTokenAfter(previous);
+        return !nextCodeToken || nextCodeToken.loc.start.line > nextCommentLine;
       }
       return false;
-    }
-
-    function containsCode(value: string) {
-      const parseResult = parseJavaScriptSourceFile(value);
-      return (
-        isSourceCode(parseResult) &&
-        parseResult.ast.body.length > 0 &&
-        !isExclusion(parseResult.ast.body, value)
-      );
     }
 
     return {
@@ -94,38 +92,41 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getGroupedComments(comments: TSESTree.Comment[]): GroupComment[] {
-  const groupedComments: GroupComment[] = [];
-  let currentGroup: TSESTree.Comment[] = [];
-  for (const comment of comments) {
-    if (comment.type === "Block") {
-      groupedComments.push({ value: comment.value, nodes: [comment] });
-    } else if (
-      currentGroup.length === 0 ||
-      areAdjacent(currentGroup[currentGroup.length - 1], comment)
+function isExpressionExclusion(statement: estree.Node, code: SourceCode) {
+  if (statement.type === "ExpressionStatement") {
+    const expression = statement.expression;
+    if (
+      expression.type === "Identifier" ||
+      expression.type === "SequenceExpression" ||
+      isUnaryPlusOrMinus(expression) ||
+      isExcludedLiteral(expression) ||
+      !code.getLastToken(statement, token => token.value === ";")
     ) {
-      currentGroup.push(comment);
-    } else {
-      groupedComments.push({
-        value: currentGroup.map(lineComment => lineComment.value).join("\n"),
-        nodes: currentGroup,
-      });
-      currentGroup = [comment];
+      return true;
     }
   }
-
-  if (currentGroup.length > 0) {
-    groupedComments.push({
-      value: currentGroup.map(lineComment => lineComment.value).join("\n"),
-      nodes: currentGroup,
-    });
-  }
-
-  return groupedComments;
+  return false;
 }
 
-function areAdjacent(previous: TSESTree.Comment, next: TSESTree.Comment) {
-  return previous.loc.start.line + 1 === next.loc.start.line;
+function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
+  if (parsedBody.length === 1) {
+    const singleStatement = parsedBody[0];
+    return (
+      EXCLUDED_STATEMENTS.includes(singleStatement.type) ||
+      isReturnThrowExclusion(singleStatement) ||
+      isExpressionExclusion(singleStatement, code)
+    );
+  }
+  return false;
+}
+
+function containsCode(value: string) {
+  const parseResult = parseJavaScriptSourceFile(value);
+  return (
+    isSourceCode(parseResult) &&
+    parseResult.ast.body.length > 0 &&
+    !isExclusion(parseResult.ast.body, parseResult)
+  );
 }
 
 function injectMissingBraces(value: string) {
@@ -175,6 +176,9 @@ function isUnaryPlusOrMinus(expression: estree.Expression) {
   );
 }
 
-function isStringLiteral(expression: estree.Expression) {
-  return expression.type === "Literal" && typeof expression.value === "string";
+function isExcludedLiteral(expression: estree.Expression) {
+  if (expression.type === "Literal") {
+    return typeof expression.value === "string" || typeof expression.value === "number";
+  }
+  return false;
 }

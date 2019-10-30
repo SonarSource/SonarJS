@@ -72,7 +72,10 @@ ruleTester.run("Sections of code should not be commented out", rule, {
         // throw exception;
       
         // labelName : id;
-      
+        
+        const a = 1; // TODO: $ReadOnlyArray
+        const b = 2; // TODO: Not in spec
+        
         //\t\t\t\tbreak;
       
         // foo.bar
@@ -90,6 +93,13 @@ ruleTester.run("Sections of code should not be commented out", rule, {
         //Object;
       
         //+ 10;
+        
+        // '\\r\\n'
+        const c = 1; // '\\n'
+        
+        // "abc";
+        
+        // 42;
       
         //"gradientunscaled";
       
@@ -105,6 +115,10 @@ ruleTester.run("Sections of code should not be commented out", rule, {
         */
       
         // }
+        
+        // // The following fails to parse as new parser raise an error because the break is not expected there
+        //     if (something) {}
+        //     break;
         `,
     },
   ],
@@ -169,7 +183,8 @@ ruleTester.run("Sections of code should not be commented out", rule, {
         
         /* foo();
            bar(); */
-           
+        const a = 1;
+        
         /* throw foo().bar() */
          
         // if (condition) {
@@ -186,8 +201,11 @@ ruleTester.run("Sections of code should not be commented out", rule, {
         // {{
       
         //   }
-        // }`,
-      errors: 12,
+        // }
+        
+        // YUI().use('*'); // Comment following ';'
+        `,
+      errors: 13,
     },
   ],
 });
