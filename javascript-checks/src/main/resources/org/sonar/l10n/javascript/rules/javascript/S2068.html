@@ -19,6 +19,21 @@ strings, and for variable names that match any of the patterns from the provided
 <ul>
   <li> Credentials should be stored outside of the code in a strongly-protected encrypted configuration file or database. </li>
 </ul>
+<h2>Noncompliant Code Example</h2>
+<pre>
+const password = "asdasd";
+
+let my_pwd;
+my_pwd = "qwerewt";
+
+login({ passwd: "zxvxcv"});
+
+const url = "https://example.com?password=hl2OAIXXZ60";
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+const password = loadCredentials();
+</pre>
 <h2>See</h2>
 <ul>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A2-Broken_Authentication">OWASP Top 10 2017 Category A2</a> - Broken Authentication </li>
