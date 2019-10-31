@@ -2,7 +2,8 @@
   "title": "Boolean expressions should not be gratuitous",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {

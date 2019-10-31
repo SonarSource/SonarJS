@@ -21,35 +21,15 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
+@TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S2589")
-public class GratuitousConditionCheck extends AbstractAlwaysTrueOrFalseConditionCheck {
-
-  private static final String MESSAGE = "Refactor this code so that this expression does not always evaluate to %s.";
+public class GratuitousConditionCheck extends EslintBasedCheck {
 
   @Override
-  protected void redundantCondition(Tree condition, boolean isTruthy) {
-    if (!isTruthyLiteral(condition, isTruthy) && !condition.is(Kind.ASSIGNMENT)) {
-      String result = isTruthy ? "true" : "false";
-      addIssue(condition, String.format(MESSAGE, result));
-    }
+  public String eslintKey() {
+    return "no-gratuitous-expressions";
   }
-
-  private static boolean isTruthyLiteral(Tree tree, boolean isTruthy) {
-    ExpressionTree conditionWithoutParentheses = CheckUtils.removeParenthesis((ExpressionTree) tree);
-
-    return isTruthy
-      && conditionWithoutParentheses.is(
-        Kind.ARRAY_LITERAL,
-        Kind.OBJECT_LITERAL,
-        Kind.NEW_EXPRESSION,
-        Kind.NUMERIC_LITERAL,
-        Kind.STRING_LITERAL);
-  }
-
 }
