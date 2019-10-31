@@ -17,42 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+package org.sonar.javascript.checks;
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/pseudo-random";
+import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
-ruleTester.run("Using pseudorandom number generators (PRNGs) is security-sensitive", rule, {
-  valid: [
-    {
-      code: `foo(x)`,
-    },
-    {
-      code: `"Math.random()"`,
-    },
-    {
-      code: `Math.foo()`,
-    },
-    {
-      code: `Foo.random()`,
-    },
-  ],
-  invalid: [
-    {
-      code: `let x = Math.random();`,
-      errors: [
-        {
-          message: "Make sure that using this pseudorandom number generator is safe here.",
-          line: 1,
-          endLine: 1,
-          column: 9,
-          endColumn: 22,
-        },
-      ],
-    },
-    {
-      code: `foo(Math.random())`,
-      errors: 1,
-    },
-  ],
-});
+@JavaScriptRule
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "AssignmentWithinCondition")
+@Rule(key = "S1121")
+public class NestedAssignmentCheck extends EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "no-nested-assignment";
+  }
+}

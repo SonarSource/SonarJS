@@ -17,42 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+package org.sonar.javascript.checks;
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/pseudo-random";
+import org.junit.Test;
 
-ruleTester.run("Using pseudorandom number generators (PRNGs) is security-sensitive", rule, {
-  valid: [
-    {
-      code: `foo(x)`,
-    },
-    {
-      code: `"Math.random()"`,
-    },
-    {
-      code: `Math.foo()`,
-    },
-    {
-      code: `Foo.random()`,
-    },
-  ],
-  invalid: [
-    {
-      code: `let x = Math.random();`,
-      errors: [
-        {
-          message: "Make sure that using this pseudorandom number generator is safe here.",
-          line: 1,
-          endLine: 1,
-          column: 9,
-          endColumn: 22,
-        },
-      ],
-    },
-    {
-      code: `foo(Math.random())`,
-      errors: 1,
-    },
-  ],
-});
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class HardcodedCredentialsCheckTest {
+
+  @Test
+  public void configurations() {
+    HardcodedCredentialsCheck check = new HardcodedCredentialsCheck();
+    // default configuration
+    assertThat(check.configurations()).containsExactly("password", "pwd", "passwd");
+    check.credentialWords = "foo, bar";
+    assertThat(check.configurations()).containsExactly("foo", "bar");
+  }
+}
