@@ -2,7 +2,8 @@
   "title": "Sections of code should not be commented out",
   "type": "CODE_SMELL",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "status": "ready",
   "remediation": {
@@ -14,6 +15,6 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-125",
-  "sqKey": "CommentedCode",
+  "sqKey": "S125",
   "scope": "All"
 }
