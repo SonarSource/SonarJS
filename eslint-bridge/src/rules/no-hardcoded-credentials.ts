@@ -83,9 +83,5 @@ function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: es
 }
 
 function isStringLiteral(node: estree.Node): node is estree.Literal {
-  return (
-    node.type === "Literal" &&
-    node.raw !== undefined &&
-    (node.raw.startsWith(`\"`) || node.raw.startsWith(`'`))
-  );
+  return node.type === "Literal" && typeof node.value === "string";
 }
