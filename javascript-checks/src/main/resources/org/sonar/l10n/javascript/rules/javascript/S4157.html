@@ -1,0 +1,17 @@
+<p>There's no reason to repeat a default type unless it is early in a list and other, non-default types come after it. Instead, leave it out and only
+supply type when it is something other than the default.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function foo&lt;N = number, S = string&gt;() {}
+foo&lt;number, string&gt;();  // Noncompliant; both types redundant
+foo&lt;string, string&gt;();  // Noncompliant; 2nd string is redundant
+foo&lt;number, number&gt;();  // Ignored; number is redundant but required
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function foo&lt;N = number, S = string&gt;() {}
+foo();
+foo&lt;string&gt;();
+foo&lt;number, number&gt;();
+</pre>
+

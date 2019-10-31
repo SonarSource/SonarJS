@@ -284,6 +284,7 @@ public final class CheckList {
       GlobalsShadowingCheck.class,
       UndefinedArgumentCheck.class,
       UniversalSelectorCheck.class,
+      UnnecessaryTypeArgumentsCheck.class,
       UnreachableCodeCheck.class,
       UntrustedContentCheck.class,
       UnusedCollectionCheck.class,
