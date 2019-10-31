@@ -19,68 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "VariableDeclarationAfterUsage")
 @Rule(key = "S1526")
-public class VariableDeclarationAfterUsageCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Move the declaration of \"%s\" before this usage.";
+public class VariableDeclarationAfterUsageCheck extends EslintBasedCheck {
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    for (Symbol symbol : symbolModel.getSymbols()) {
-      if (symbol.isVariable()) {
-        visitSymbol(symbol);
-      }
-    }
+  public String eslintKey() {
+    return "no-variable-usage-before-declaration";
   }
-
-  private static class LineComparator implements Comparator<Usage> {
-
-    @Override
-    public int compare(Usage usage1, Usage usage2) {
-      return Integer.compare(getLine(usage1), getLine(usage2));
-    }
-
-    private static int getLine(Usage usage) {
-      return usage.identifierTree().identifierToken().line();
-    }
-  }
-
-  private void visitSymbol(Symbol symbol) {
-    List<Usage> usages = new LinkedList<>(symbol.usages());
-
-    if (!usages.isEmpty()) {
-
-      Collections.sort(usages, new LineComparator());
-
-      if (usages.get(0).isDeclaration()) {
-        return;
-      }
-
-      for (int i = 1; i < usages.size(); i++) {
-        if (usages.get(i).isDeclaration()) {
-          addIssue(usages.get(0).identifierTree(), String.format(MESSAGE, symbol.name()))
-            .secondary(usages.get(i).identifierTree(), "Declaration");
-          return;
-        }
-      }
-
-    }
-  }
-
 }
