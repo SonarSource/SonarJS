@@ -81,7 +81,7 @@ export const rule: Rule.RuleModule = {
           map: Map<estree.Statement, Scope.Reference[]>,
           truthy: boolean,
         ) => {
-          map.forEach((references, _) => {
+          map.forEach(references => {
             const ref = references.find(ref => ref.resolved === symbol);
             if (ref) {
               report(id, ref, context, truthy);
@@ -108,8 +108,12 @@ function collectKnownIdentifiers(expression: estree.Expression) {
   const checkExpr = (expr: estree.Expression) => {
     if (isIdentifier(expr)) {
       truthy.push(expr);
-    } else if (isLogicalNegation(expr) && isIdentifier(expr.argument)) {
-      falsy.push(expr.argument);
+    } else if (isLogicalNegation(expr)) {
+      if (isIdentifier(expr.argument)) {
+        falsy.push(expr.argument);
+      } else if (isLogicalNegation(expr.argument) && isIdentifier(expr.argument.argument)) {
+        truthy.push(expr.argument.argument);
+      }
     }
   };
 
@@ -165,28 +169,20 @@ function getFunctionScope(scope: Scope.Scope): Scope.Scope | null {
 }
 
 function mightBeWritten(symbol: Scope.Variable, currentScope: Scope.Scope) {
-  return symbol.references.filter(ref => ref.isReadWrite() || ref.isWrite()).find(ref => {
+  return symbol.references.filter(ref => ref.isWrite()).find(ref => {
     const refScope = ref.from;
 
     let cur: Scope.Scope | null = refScope;
-    while (true) {
+    while (cur) {
       if (cur === currentScope) {
         return true;
       }
-      if (cur) {
-        cur = cur.upper;
-      } else {
-        break;
-      }
+      cur = cur.upper;
     }
 
     const currentFunc = getFunctionScope(currentScope);
     const refFunc = getFunctionScope(refScope);
-    if (refFunc !== currentFunc) {
-      return true;
-    }
-
-    return false;
+    return refFunc !== currentFunc;
   });
 }
 
@@ -221,6 +217,6 @@ function report(
 
   context.report({
     message: JSON.stringify(encodedMessage),
-    loc: { start: id.loc!.start, end: id.loc!.end },
+    node: id,
   });
 }

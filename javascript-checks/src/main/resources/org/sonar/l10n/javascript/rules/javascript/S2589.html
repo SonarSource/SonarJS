@@ -2,31 +2,22 @@
 because it does not match the programmer's intent, then it's a bug and the expression should be fixed.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-a = true;
-if (a) { // Noncompliant
-  doSomething();
-}
-
-if (b &amp;&amp; a) { // Noncompliant; "a" is always "true"
-  doSomething();
-}
-
-if (c || !a) { // Noncompliant; "!a" is always "false"
-  doSomething();
+if (a) {
+  if (a) { // Noncompliant
+    doSomething();
+  }
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-a = true;
-if (foo(a)) {
-  doSomething();
+if (a) {
+  if (b) {
+    doSomething();
+  }
 }
 
-if (b) {
-  doSomething();
-}
-
-if (c) {
+// or
+if (a) {
   doSomething();
 }
 </pre>

@@ -77,10 +77,10 @@ ruleTester.run("no-gratuitous-expressions", rule, {
   invalid: [
     {
       code: `
-      function bar(x: boolean) {
+      function bar(x: boolean, z) {
         if (x && z) {
-          if (y && x) { // "x" always true
-          }
+          if (y && x) {} // "x" always true
+          if (y && z) {} // "z" always true
         }
       }`,
       errors: [
@@ -89,6 +89,13 @@ ruleTester.run("no-gratuitous-expressions", rule, {
           line: 4,
           column: 20,
           endLine: 4,
+          endColumn: 21,
+        },
+        {
+          message: `{"message":"This always evaluates to truthy. Consider refactoring this code.","secondaryLocations":[{"message":"Evaluated here to be truthy","line":3,"column":17,"endLine":3,"endColumn":18}]}`,
+          line: 5,
+          column: 20,
+          endLine: 5,
           endColumn: 21,
         },
       ],
@@ -159,7 +166,18 @@ ruleTester.run("no-gratuitous-expressions", rule, {
         if (x) {
           return foo() || x; // OK
         } else {
-          return x || foo(); // Noncompliant
+          x || bar(); // Noncompliant
+          x || bar() || bar(); // Noncompliant
+          bar() || x || bar(); // FN, not supported
+        }
+      }`,
+      errors: 2,
+    },
+    {
+      code: `
+      function bar(x: boolean) {
+        if (!!x) {
+          x && foo(); // Noncompliant
         }
       }`,
       errors: 1,
