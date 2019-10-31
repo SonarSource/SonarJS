@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = {
       const accessorIsPublic =
         accessor.type !== "MethodDefinition" || accessor.accessibility === "public";
       const accessorInfo = getAccessorInfo(accessor);
-      const fields = getFields(accessor.parent);
+      const fields = getFields(accessor.parent as TSESTree.Node);
       if (!accessorInfo || !fields || !accessorIsPublic) {
         return;
       }
@@ -133,24 +133,22 @@ function setterOrGetter(name: string, functionExpression: TSESTree.Node): Access
   return null;
 }
 
-function getFields(parent: TSESTree.Node | undefined): Field[] {
-  if (parent) {
-    if (parent.type === "ClassBody") {
-      const fields = mapToField(
-        parent.body,
-        classElement =>
-          classElement.type === "ClassProperty" || classElement.type === "TSAbstractClassProperty"
-            ? classElement.key
-            : null,
-      );
-      const fieldsFromConstructor = fieldsDeclaredInConstructorParameters(parent);
-      return [...fields, ...fieldsFromConstructor];
-    } else if (parent.type === "ObjectExpression") {
-      return mapToField(parent.properties, prop => (prop.type === "Property" ? prop.key : null));
-    }
+function getFields(parent: TSESTree.Node): Field[] {
+  if (parent.type === "ClassBody") {
+    const fields = mapToField(
+      parent.body,
+      classElement =>
+        classElement.type === "ClassProperty" || classElement.type === "TSAbstractClassProperty"
+          ? classElement.key
+          : null,
+    );
+    const fieldsFromConstructor = fieldsDeclaredInConstructorParameters(parent);
+    return [...fields, ...fieldsFromConstructor];
+  } else if (parent.type === "ObjectExpression") {
+    return mapToField(parent.properties, prop => (prop.type === "Property" ? prop.key : null));
+  } else {
+    return [];
   }
-
-  return [];
 }
 
 function mapToField<T extends TSESTree.Node>(

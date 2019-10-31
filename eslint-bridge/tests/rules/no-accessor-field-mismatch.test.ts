@@ -66,7 +66,7 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
           private x: string;
           private y = "hello";
         
-          constructor(private z: number, private _v: number) {
+          constructor(private z: number, private _v: number, w: number) {
             
           }
         
@@ -78,7 +78,7 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
             return this.z;
           }
         
-          public setW(w: string) { // Compliant, w does not exist
+          public setW(w: string) { // Compliant, w does not exist as a field, only a parameter of the constructor
             this.x = w;
           }
         
@@ -138,7 +138,7 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
           private x: string;
           private y = "hello";
         
-          constructor(private z: number, private _v: number) {
+          constructor(private z: number, private _v: number, private [a, b]) {
             
           }
         
@@ -215,7 +215,9 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
           
           setZ(x: number) {
             this.z = x;
-          }
+          },
+          
+          ...theRest
         };`,
     },
   ],
