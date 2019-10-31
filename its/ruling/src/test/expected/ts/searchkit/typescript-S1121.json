@@ -2,16 +2,4 @@
 'searchkit:src/__test__/core/SearchkitManagerSpec.ts':[
 278,
 ],
-'searchkit:src/core/accessors/CheckboxFilterAccessor.ts':[
-48,
-],
-'searchkit:src/core/accessors/FacetAccessor.ts':[
-164,
-],
-'searchkit:src/core/accessors/NumericOptionsAccessor.ts':[
-132,
-],
-'searchkit:src/core/accessors/QueryAccessor.ts':[
-64,
-],
 }
