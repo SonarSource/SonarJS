@@ -1,10 +1,4 @@
 {
-'TypeScript:scripts/authors.ts':[
-48,
-],
-'TypeScript:scripts/createBenchmark.ts':[
-105,
-],
 'TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts':[
 84,
 92,
@@ -13,7 +7,6 @@
 'TypeScript:src/compiler/checker.ts':[
 1063,
 2774,
-21568,
 21580,
 22486,
 ],
@@ -21,12 +14,8 @@
 761,
 ],
 'TypeScript:src/compiler/factory.ts':[
-4142,
-4151,
 4160,
 4165,
-4170,
-4192,
 4208,
 4215,
 4229,
@@ -35,10 +24,8 @@
 'TypeScript:src/compiler/parser.ts':[
 5671,
 5744,
-5763,
 ],
 'TypeScript:src/compiler/transformers/es2015.ts':[
-664,
 716,
 735,
 1356,
@@ -52,7 +39,6 @@
 'TypeScript:src/compiler/transformers/module/module.ts':[
 507,
 513,
-523,
 561,
 694,
 730,
@@ -66,6 +52,8 @@
 ],
 'TypeScript:src/compiler/types.ts':[
 745,
+3749,
+3755,
 ],
 'TypeScript:src/harness/fourslash.ts':[
 1638,
@@ -90,11 +78,9 @@
 25,
 ],
 'TypeScript:src/services/preProcess.ts':[
-78,
 101,
 111,
 144,
-160,
 194,
 206,
 236,

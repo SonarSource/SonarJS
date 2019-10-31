@@ -86,9 +86,6 @@
 190,
 214,
 ],
-'js-project:ecmascript6/di.js/visualize/lib/angular.js':[
-10452,
-],
 'js-project:ecmascript6/react-router/examples/huge-apps/app.js':[
 33,
 ],
@@ -132,6 +129,7 @@
 ],
 'js-project:open-layers-2.12/OpenLayers/Request/XMLHttpRequest.js':[
 137,
+142,
 281,
 393,
 ],
@@ -253,13 +251,15 @@
 2068,
 2071,
 2075,
-2122,
 ],
 'js-project:yui-3.7.3/event-hover/event-hover.js':[
 34,
 ],
 'js-project:yui-3.7.3/event-mouseenter/event-mouseenter.js':[
 65,
+],
+'js-project:yui-3.7.3/event-simulate/event-simulate.js':[
+781,
 ],
 'js-project:yui-3.7.3/features/features.js':[
 63,
@@ -327,9 +327,6 @@
 'js-project:yui-3.7.3/node-menunav/node-menunav.js':[
 1394,
 ],
-'js-project:yui-3.7.3/oop/oop.js':[
-301,
-],
 'js-project:yui-3.7.3/recordset-base/recordset-base.js':[
 326,
 ],
@@ -338,6 +335,7 @@
 ],
 'js-project:yui-3.7.3/test/test.js':[
 1182,
+1347,
 ],
 'js-project:yui-3.7.3/transition-timer/transition-timer.js':[
 101,
