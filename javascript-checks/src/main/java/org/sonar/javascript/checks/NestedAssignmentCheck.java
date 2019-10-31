@@ -28,10 +28,10 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "AssignmentWithinCondition")
 @Rule(key = "S1121")
-public class AssignmentWithinConditionCheck extends EslintBasedCheck {
+public class NestedAssignmentCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-conditional-assignment";
+    return "no-nested-assignment";
   }
 }
