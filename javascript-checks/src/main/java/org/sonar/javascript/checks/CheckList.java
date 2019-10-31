@@ -145,6 +145,7 @@ public final class CheckList {
       GeneratorWithoutYieldCheck.class,
       GetterSetterCheck.class,
       GlobalThisCheck.class,
+      HardcodedCredentialsCheck.class,
       HashingCheck.class,
       HtmlCommentsCheck.class,
       IdChildrenSelectorCheck.class,
