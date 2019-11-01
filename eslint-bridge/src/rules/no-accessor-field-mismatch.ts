@@ -55,20 +55,17 @@ export const rule: Rule.RuleModule = {
       const accessorIsPublic =
         accessor.type !== "MethodDefinition" || accessor.accessibility === "public";
       const accessorInfo = getAccessorInfo(accessor);
-      const fields = getFields(accessor.parent as TSESTree.Node);
-      if (!accessorInfo || !fields || !accessorIsPublic) {
-        return;
-      }
-      const matchingFields = fields.filter(field => fieldNameMatch(field, accessorInfo.name));
       const statements = getFunctionBody(accessor.value);
-      if (!statements || statements.length > 1) {
+      if (!accessorInfo || !accessorIsPublic || !statements || statements.length > 1) {
         return;
       }
 
+      const fields = getFields(accessor.parent as TSESTree.Node);
+      const matchingFields = fields.filter(field => fieldNameMatch(field.name, accessorInfo.name));
       if (
         matchingFields.length > 0 &&
         (statements.length === 0 ||
-          isNotUsingAccessorFieldInBody(statements[0], accessorInfo, matchingFields))
+          !isUsingAccessorFieldInBody(statements[0], accessorInfo, matchingFields))
       ) {
         const fieldToRefer = matchingFields[0];
         const primaryMessage = `Refactor this ${
@@ -205,8 +202,8 @@ function getConstructorOf(
   }
 }
 
-function fieldNameMatch(field: Field, name: string) {
-  const fieldNameLowerCase = field.name.toLowerCase();
+function fieldNameMatch(fieldName: string, name: string) {
+  const fieldNameLowerCase = fieldName.toLowerCase();
   const underscoredTargetName = `_${name}`;
   return fieldNameLowerCase === name || fieldNameLowerCase === underscoredTargetName;
 }
@@ -243,11 +240,11 @@ function getFieldUsedInsideSimpleBody(statement: TSESTree.Statement, accessorInf
   return null;
 }
 
-function isNotUsingAccessorFieldInBody(
+function isUsingAccessorFieldInBody(
   statement: TSESTree.Statement,
   accessorInfo: AccessorInfo,
   matchingFields: Field[],
 ) {
   const usedField = getFieldUsedInsideSimpleBody(statement, accessorInfo);
-  return usedField && !matchingFields.some(matchingField => usedField === matchingField.name);
+  return !usedField || matchingFields.some(matchingField => usedField === matchingField.name);
 }

@@ -66,7 +66,7 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
           private x: string;
           private y = "hello";
         
-          constructor(private z: number, private _v: number, w: number) {
+          constructor(private z: number, private _v: number, private [a, b], w: number) {
             
           }
         
@@ -98,7 +98,9 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
           public getZ() { // Compliant, does not match "return this.?;" pattern
             this.setZ("",1);
           }
-        
+          
+          public abstract GetZ(): string; // Compliant, abstract method with no body
+          
           public set v(z:number) { // Compliant, does not match "this.? =" pattern
             this.x;
           }
@@ -129,64 +131,6 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
           
           public getY(someParam: number) { // Compliant, not a zero-parameters getter
             return 3;
-          }
-        }`,
-    },
-    {
-      code: `
-        class Exceptions {
-          private x: string;
-          private y = "hello";
-        
-          constructor(private z: number, private _v: number, private [a, b]) {
-            
-          }
-        
-          public getW(): string { // Compliant, w does not exist
-            return this.x;
-          }
-        
-          private GetY(): number { // Compliant, private method
-            return this.z;
-          }
-        
-          public setW(w: string) { // Compliant, w does not exist
-            this.x = w;
-          }
-        
-          public getY(someParam: number) { // Compliant, not a zero-parameters getter
-            return 3;
-          }
-        
-          public setZ(y: string, someParam: number) { // Compliant, not a one-parameters setter
-            this.z = 3;
-          }
-        
-          public setY(x: string) // Compliant, overload
-          public setY(y: string) {
-            this.y = y;
-          }
-        
-          public getZ() { // Compliant, does not match "return this.?;" pattern
-            this.setZ("",1);
-          }
-          
-          public abstract GetZ(): string; // Compliant, abstract method with no body
-        
-          public set v(z:number) { // Compliant, does not match "this.? =" pattern
-            this.x;
-          }
-        
-          public get v() { // Compliant, not a single return statement
-            if (this.z) {
-              return 1;
-            } else {
-              return this.z;
-            }
-          }
-        
-          public getV() { // Compliant
-            return \`v is ${this.z}\`;
           }
         }`,
     },
@@ -253,7 +197,7 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
     },
     {
       code: `
-      class NOK_Issue476 {
+      class NOK {
         static _filter: string = '';
         private _filter: string = '';
       
