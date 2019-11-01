@@ -3,7 +3,7 @@ arrayOfNumbers.sort(); // Noncompliant
 
 arrayOfNumbers.sort((n, m) => n - m);
 
-var emptyArrayOfNumbers: number[] = [];
+var emptyArrayOfNumbers: number[] = [1, 2, 3];
 emptyArrayOfNumbers.sort(); // Noncompliant
 
 sort();
