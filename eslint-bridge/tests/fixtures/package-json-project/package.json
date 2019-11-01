@@ -1,0 +1,14 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "dependencies": {
+    "foobar": "latest",
+    "@angular/core": "4.4.5"
+  },
+  "devDependencies": {
+    "jest": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "3.5.3"
+  }
+}
