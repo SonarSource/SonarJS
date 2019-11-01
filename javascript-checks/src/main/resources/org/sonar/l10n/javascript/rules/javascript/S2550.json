@@ -4,13 +4,13 @@
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "backbone"
+    
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2550",

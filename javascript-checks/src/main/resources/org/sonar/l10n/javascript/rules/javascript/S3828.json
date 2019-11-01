@@ -4,13 +4,13 @@
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "es2015"
+    
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-3828",
