@@ -160,7 +160,7 @@ function arrayInitializedByFunctionCall(init: () => number[]) {
 
 function arrayNotInitialized() {
   let notInitializedArray!: number[];
-  foo(notInitializedArray[0]); // Noncompliant
+  foo(notInitializedArray[0]);  // Not reported
 }
 
 function compoundAssignmentEmptyArray() {
