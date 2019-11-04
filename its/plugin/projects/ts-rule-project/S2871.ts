@@ -3,9 +3,6 @@ arrayOfNumbers.sort(); // Noncompliant
 
 arrayOfNumbers.sort((n, m) => n - m);
 
-var emptyArrayOfNumbers: number[] = [];
-emptyArrayOfNumbers.sort(); // Noncompliant
-
 sort();
 
 function getArrayOfNumbers(): number[] {}
