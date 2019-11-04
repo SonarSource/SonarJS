@@ -4,7 +4,7 @@
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "10min"
