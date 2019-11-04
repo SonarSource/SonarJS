@@ -45,6 +45,8 @@ export const rule: Rule.RuleModule = {
   },
 
   create(context: Rule.RuleContext) {
+    const currentFieldsStack = [new Map<string, Field>()];
+
     function checkAccessor(accessor: TSESTree.Property | TSESTree.MethodDefinition) {
       const accessorIsPublic =
         accessor.type !== "MethodDefinition" || accessor.accessibility === "public";
@@ -54,8 +56,10 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      const fields = getFields(accessor.parent as TSESTree.Node);
-      const matchingFields = fields.filter(field => fieldNameMatch(field.name, accessorInfo.name));
+      const matchingFields = findMatchingFields(
+        currentFieldsStack[currentFieldsStack.length - 1],
+        accessorInfo.name,
+      );
       if (
         matchingFields.length > 0 &&
         (statements.length === 0 ||
@@ -78,6 +82,35 @@ export const rule: Rule.RuleModule = {
     return {
       Property: (node: estree.Node) => checkAccessor(node as TSESTree.Property),
       MethodDefinition: (node: estree.Node) => checkAccessor(node as TSESTree.MethodDefinition),
+
+      ClassBody: (node: estree.Node) => {
+        const parent = node as TSESTree.ClassBody;
+        const fields = getFieldMap(
+          parent.body,
+          classElement =>
+            (classElement.type === "ClassProperty" ||
+              classElement.type === "TSAbstractClassProperty") &&
+            !classElement.static
+              ? classElement.key
+              : null,
+        );
+        const fieldsFromConstructor = fieldsDeclaredInConstructorParameters(parent);
+        const allFields = new Map([...fields, ...fieldsFromConstructor]);
+        currentFieldsStack.push(allFields);
+      },
+      ObjectExpression: (node: estree.Node) => {
+        const currentFields = getFieldMap(
+          (node as TSESTree.ObjectExpression).properties,
+          prop => (isValidObjectField(prop) ? prop.key : null),
+        );
+        currentFieldsStack.push(currentFields);
+      },
+      "ClassBody:exit": () => {
+        currentFieldsStack.pop();
+      },
+      "ObjectExpression:exit": () => {
+        currentFieldsStack.pop();
+      },
     };
   },
 };
@@ -124,35 +157,17 @@ function setterOrGetter(name: string, functionExpression: TSESTree.Node): Access
   return null;
 }
 
-function getFields(parent: TSESTree.Node): Field[] {
-  if (parent.type === "ClassBody") {
-    const fields = mapToField(
-      parent.body,
-      classElement =>
-        classElement.type === "ClassProperty" || classElement.type === "TSAbstractClassProperty"
-          ? classElement.key
-          : null,
-    );
-    const fieldsFromConstructor = fieldsDeclaredInConstructorParameters(parent);
-    return [...fields, ...fieldsFromConstructor];
-  } else if (parent.type === "ObjectExpression") {
-    return mapToField(parent.properties, prop => (prop.type === "Property" ? prop.key : null));
-  } else {
-    return [];
-  }
-}
-
-function mapToField<T extends TSESTree.Node>(
+function getFieldMap<T extends TSESTree.Node>(
   elements: T[],
   getPropertyName: (arg: T) => TSESTree.PropertyName | null,
 ) {
-  const fields: Field[] = [];
+  const fields: Map<string, Field> = new Map<string, Field>();
   for (const element of elements) {
     const propertyNameNode = getPropertyName(element);
     if (propertyNameNode) {
       const name = getName(propertyNameNode);
       if (name) {
-        fields.push({
+        fields.set(name.toLowerCase(), {
           name,
           node: element,
         });
@@ -162,10 +177,14 @@ function mapToField<T extends TSESTree.Node>(
   return fields;
 }
 
+function isValidObjectField(prop: TSESTree.Node): prop is TSESTree.Property {
+  return prop.type === "Property" && !prop.method && prop.kind === "init";
+}
+
 function fieldsDeclaredInConstructorParameters(containingClass: TSESTree.ClassBody) {
   const constr = getConstructorOf(containingClass);
   if (constr) {
-    const fieldsFromConstructor: Field[] = [];
+    const fieldsFromConstructor = new Map<string, Field>();
     for (const parameter of constr.params) {
       if (
         parameter.type === "TSParameterProperty" &&
@@ -173,7 +192,7 @@ function fieldsDeclaredInConstructorParameters(containingClass: TSESTree.ClassBo
       ) {
         const parameterName = getName(parameter.parameter);
         if (parameterName) {
-          fieldsFromConstructor.push({
+          fieldsFromConstructor.set(parameterName, {
             name: parameterName,
             node: parameter,
           });
@@ -182,7 +201,7 @@ function fieldsDeclaredInConstructorParameters(containingClass: TSESTree.ClassBo
     }
     return fieldsFromConstructor;
   } else {
-    return [];
+    return new Map<string, Field>();
   }
 }
 
@@ -196,10 +215,15 @@ function getConstructorOf(
   }
 }
 
-function fieldNameMatch(fieldName: string, name: string) {
-  const fieldNameLowerCase = fieldName.toLowerCase();
-  const underscoredTargetName = `_${name}`;
-  return fieldNameLowerCase === name || fieldNameLowerCase === underscoredTargetName;
+function findMatchingFields(currentFields: Map<string, Field>, name: string) {
+  const underscoredTargetName1 = `_${name}`;
+  const underscoredTargetName2 = `${name}_`;
+  const exactFieldName = currentFields.get(name);
+  const underscoreFieldName1 = currentFields.get(underscoredTargetName1);
+  const underscoreFieldName2 = currentFields.get(underscoredTargetName2);
+  return [exactFieldName, underscoreFieldName1, underscoreFieldName2].filter(
+    field => field,
+  ) as Field[];
 }
 
 function getFunctionBody(node: TSESTree.Node) {

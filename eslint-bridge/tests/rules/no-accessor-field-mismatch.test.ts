@@ -60,7 +60,6 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
           public setX(x: string) {
             this.x = x;
           }
-        
         }`,
     },
     {
@@ -135,11 +134,16 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
           public getY(someParam: number) { // Compliant, not a zero-parameters getter
             return 3;
           }
+          
+          public get ["i" + "2"]() { // FN - we do not handle computed properties
+            return this.x;
+          }
         }`,
     },
     {
       code: `
         export const ObjectLiteral = {
+          w_: "blah",
           _x: "blah",
           _experiments: "blah",
           'z': 3,
@@ -162,6 +166,18 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
           
           setZ(x: number) {
             this.z = x;
+          },
+          
+          set w(x: number) {
+            this.w_ = x;
+          },
+          
+          get myVal() {
+            return this.myVal_;
+          },
+          
+          set myVal(v) {
+            this.myVal_ = v;
           },
           
           ...theRest
