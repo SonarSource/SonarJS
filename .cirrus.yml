@@ -34,6 +34,10 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     disk: 128
     type: n1-standard-8
     use_ssd: true
+    
+only_sonarsource_qa: &ONLY_SONARSOURCE_QA
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
+
 
 build_task:
   gke_container:
@@ -62,14 +66,14 @@ build_win_task:
   depends_on:
     - build
   <<: *WINDOWS_VM_DEFINITION
-  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
+  <<: *ONLY_SONARSOURCE_QA
   build_script:
     - mvn.cmd test
 
 plugin_qa_task:
   depends_on:
     - build
-  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
+  <<: *ONLY_SONARSOURCE_QA
   gke_container:
     dockerfile: .cirrus/nodejs-lts.Dockerfile
     <<: *CONTAINER_DEFINITION
@@ -95,7 +99,7 @@ plugin_qa_task:
 plugin_qa_nodejs12_task:
   depends_on:
     - build
-  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
+  <<: *ONLY_SONARSOURCE_QA
   gke_container:
     dockerfile: .cirrus/nodejs-12.Dockerfile
     <<: *CONTAINER_DEFINITION
@@ -119,7 +123,7 @@ plugin_qa_win_task:
   depends_on:
     - build
   <<: *WINDOWS_VM_DEFINITION
-  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
+  <<: *ONLY_SONARSOURCE_QA
   env:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE[7.9]
@@ -132,7 +136,7 @@ plugin_qa_win_task:
 ruling_task:
   depends_on:
     - build
-  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
+  <<: *ONLY_SONARSOURCE_QA
   gke_container:
     dockerfile: .cirrus/nodejs-lts.Dockerfile
     <<: *CONTAINER_DEFINITION
@@ -164,7 +168,7 @@ promote_task:
     - plugin_qa_win
     - plugin_qa_nodejs12
     - ruling
-  only_if: $CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*"
+  <<: *ONLY_SONARSOURCE_QA
   gke_container:
     dockerfile: .cirrus/nodejs-lts.Dockerfile
     <<: *CONTAINER_DEFINITION

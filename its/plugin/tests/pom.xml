@@ -68,6 +68,7 @@
             <include>**/Tests.java</include>
             <include>**/CustomRulesTest.java</include>
             <include>**/CustomRulesWithDeprecatedPluginTest.java</include>
+            <include>**/TypeScriptRuleTest.java</include>
           </includes>
         </configuration>
       </plugin>
