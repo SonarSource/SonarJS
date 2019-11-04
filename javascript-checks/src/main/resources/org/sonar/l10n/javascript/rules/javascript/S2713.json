@@ -4,14 +4,13 @@
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "convention",
-    "jquery"
+    
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-2713",
