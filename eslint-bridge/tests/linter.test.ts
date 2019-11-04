@@ -127,7 +127,7 @@ describe("#decodeSecondaryLocations", () => {
 
   it("should compute symbol highlighting when additional rule", () => {
     const sourceCode = parseJavaScriptSourceFile("let x = 42;") as SourceCode;
-    const result = analyze(sourceCode, [], SYMBOL_HIGHLIGHTING_RULE).issues;
+    const result = analyze(sourceCode, "file.js", [], SYMBOL_HIGHLIGHTING_RULE).issues;
     expect(result).toHaveLength(1);
     expect(result[0].ruleId).toEqual(SYMBOL_HIGHLIGHTING_RULE.ruleId);
     expect(result[0].message).toEqual(
@@ -137,7 +137,7 @@ describe("#decodeSecondaryLocations", () => {
 
   it("should not compute symbol highlighting when no additional rule", () => {
     const sourceCode = parseJavaScriptSourceFile("let x = 42;") as SourceCode;
-    const result = analyze(sourceCode, []).issues;
+    const result = analyze(sourceCode, "file.js", []).issues;
     expect(result).toHaveLength(0);
   });
 
@@ -145,7 +145,7 @@ describe("#decodeSecondaryLocations", () => {
     const sourceCode = parseJavaScriptSourceFile(`
     /*eslint max-params: ["error", 1]*/
     function foo(a, b){}`) as SourceCode;
-    const result = analyze(sourceCode, []).issues;
+    const result = analyze(sourceCode, "file.js", []).issues;
     expect(result).toHaveLength(0);
   });
 
@@ -153,7 +153,7 @@ describe("#decodeSecondaryLocations", () => {
     const sourceCode = parseJavaScriptSourceFile(
       "if (true) if (true) if (true) return;",
     ) as SourceCode;
-    const result = analyze(sourceCode, [], COGNITIVE_COMPLEXITY_RULE).issues;
+    const result = analyze(sourceCode, "file.js", [], COGNITIVE_COMPLEXITY_RULE).issues;
     expect(result).toHaveLength(1);
     expect(result[0].ruleId).toEqual(COGNITIVE_COMPLEXITY_RULE.ruleId);
     expect(result[0].message).toEqual("6");
@@ -164,8 +164,9 @@ describe("#decodeSecondaryLocations", () => {
       `expect(true).to.be.true;
        42;`, // we report only here
     ) as SourceCode;
-    const result = analyze(sourceCode, [{ key: "no-unused-expressions", configurations: [] }])
-      .issues;
+    const result = analyze(sourceCode, "file.js", [
+      { key: "no-unused-expressions", configurations: [] },
+    ]).issues;
     expect(result).toHaveLength(1);
   });
 });

@@ -59,6 +59,7 @@ try {
  */
 export function analyze(
   sourceCode: SourceCode,
+  filePath: string,
   inputRules: Rule[],
   ...additionalRules: AdditionalRule[]
 ) {
@@ -68,6 +69,7 @@ export function analyze(
 
   const issues = linter
     .verify(sourceCode, createLinterConfig(inputRules, additionalRules), {
+      filename: filePath,
       allowInlineConfig: false,
     })
     .map(removeIrrelevantProperties)
