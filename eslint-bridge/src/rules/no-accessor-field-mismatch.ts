@@ -22,7 +22,6 @@
 import { Rule } from "eslint";
 import * as estree from "estree";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { isRequiredParserServices } from "../utils/isRequiredParserServices";
 import { toEncodedMessage } from "./utils";
 
 interface AccessorInfo {
@@ -46,11 +45,6 @@ export const rule: Rule.RuleModule = {
   },
 
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
     function checkAccessor(accessor: TSESTree.Property | TSESTree.MethodDefinition) {
       const accessorIsPublic =
         accessor.type !== "MethodDefinition" || accessor.accessibility === "public";

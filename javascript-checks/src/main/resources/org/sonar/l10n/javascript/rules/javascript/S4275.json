@@ -2,6 +2,7 @@
   "title": "Getters and setters should access the expected fields",
   "type": "BUG",
   "compatibleLanguages": [
+    "JAVASCRIPT",
     "TYPESCRIPT"
   ],
   "status": "ready",

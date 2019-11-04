@@ -1,8 +1,11 @@
-import { RuleTesterTs } from "../RuleTesterTs";
-
-const ruleTester = new RuleTesterTs();
 import { rule } from "../../src/rules/no-accessor-field-mismatch";
 import { RuleTester } from "eslint";
+
+const tsParserPath = require.resolve("@typescript-eslint/parser");
+const ruleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parser: tsParserPath,
+});
 
 function invalid(code: string) {
   const errors: RuleTester.TestCaseError[] = [];
