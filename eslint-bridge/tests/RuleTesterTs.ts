@@ -37,7 +37,7 @@ const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-proj
 class RuleTesterTs extends RuleTester {
   ruleTesterNoTsConfig = new RuleTester({
     parser,
-    parserOptions: { ecmaVersion: 2018 },
+    parserOptions: { ecmaVersion: 2018, sourceType: "module" },
   });
 
   constructor() {
