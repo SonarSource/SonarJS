@@ -147,7 +147,7 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
           _x: "blah",
           _experiments: "blah",
           'z': 3,
-        
+
           getExperiments(): string {
             return this._experiments;
           },
@@ -286,12 +286,18 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
     }`),
     invalid(`
     const nokObj = {
+      w_: 0,
       x : 3,
       _y : 1,
       'z': 2,
+      ["a" + 1]: 1,
+    
+      get w() { // Noncompliant
+        return this.x;
+      },
     
       get y() { // Noncompliant
-        return this.x;
+        return this.w_;
       },
     
       setX(x: number) { // Noncompliant
@@ -304,7 +310,11 @@ ruleTester.run("Getters and setters should access the expected fields", rule, {
       
       setZ(x: number) { // Noncompliant
         this.y = x;
-      }
+      },
+      
+      get a1() { // FN - cannot determine computed field a1 existence
+        return this.x;
+      },
     }`),
   ],
 });

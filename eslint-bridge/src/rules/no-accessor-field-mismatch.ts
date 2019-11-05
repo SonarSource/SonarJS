@@ -84,9 +84,9 @@ export const rule: Rule.RuleModule = {
       MethodDefinition: (node: estree.Node) => checkAccessor(node as TSESTree.MethodDefinition),
 
       ClassBody: (node: estree.Node) => {
-        const parent = node as TSESTree.ClassBody;
+        const classBody = node as TSESTree.ClassBody;
         const fields = getFieldMap(
-          parent.body,
+          classBody.body,
           classElement =>
             (classElement.type === "ClassProperty" ||
               classElement.type === "TSAbstractClassProperty") &&
@@ -94,7 +94,7 @@ export const rule: Rule.RuleModule = {
               ? classElement.key
               : null,
         );
-        const fieldsFromConstructor = fieldsDeclaredInConstructorParameters(parent);
+        const fieldsFromConstructor = fieldsDeclaredInConstructorParameters(classBody);
         const allFields = new Map([...fields, ...fieldsFromConstructor]);
         currentFieldsStack.push(allFields);
       },
@@ -105,10 +105,7 @@ export const rule: Rule.RuleModule = {
         );
         currentFieldsStack.push(currentFields);
       },
-      "ClassBody:exit": () => {
-        currentFieldsStack.pop();
-      },
-      "ObjectExpression:exit": () => {
+      ":matches(ClassBody, ObjectExpression):exit": () => {
         currentFieldsStack.pop();
       },
     };
