@@ -44,28 +44,29 @@ export const rule: Rule.RuleModule = {
         ) {
           const [argument] = call.arguments;
           if (argument.type === "Literal") {
-            const moduleName = argument.value;
+            const module = argument;
             const requireToken = call.callee;
-            raiseOnImplicitImport(moduleName, requireToken.loc!, dependencies, whitelist, context);
+            raiseOnImplicitImport(module, requireToken.loc!, dependencies, whitelist, context);
           }
         }
       },
       ImportDeclaration: (node: estree.Node) => {
-        const moduleName = (node as estree.ImportDeclaration).source.value;
+        const module = (node as estree.ImportDeclaration).source;
         const importToken = context.getSourceCode().getFirstToken(node);
-        raiseOnImplicitImport(moduleName, importToken!.loc, dependencies, whitelist, context);
+        raiseOnImplicitImport(module, importToken!.loc, dependencies, whitelist, context);
       },
     };
   },
 };
 
 function raiseOnImplicitImport(
-  moduleName: string | number | boolean | RegExp | undefined | null,
+  module: estree.Literal,
   loc: estree.SourceLocation,
   dependencies: Set<string>,
   whitelist: string[],
   context: Rule.RuleContext,
 ) {
+  const moduleName = module.value;
   if (typeof moduleName !== "string") {
     return;
   }
