@@ -70,6 +70,11 @@
     </rule>
     <rule>
       <repositoryKey>typescript</repositoryKey>
+      <key>S4275</key>    <!-- no-accessor-field-mismatch -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
       <key>S4524</key>    <!-- prefer-default-last -->
       <priority>INFO</priority>
     </rule>
