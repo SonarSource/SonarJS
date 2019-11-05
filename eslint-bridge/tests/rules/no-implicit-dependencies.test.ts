@@ -87,6 +87,11 @@ ruleTester.run("Dependencies should be explicit", rule, {
       filename,
       options,
     },
+    {
+      code: `import "dependency";`,
+      filename: path.join(__dirname, "../fixtures/bom-package-json-project/file.js"),
+      options,
+    },
   ],
   invalid: [
     {
