@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -40,7 +41,7 @@ public class ImplicitDependenciesCheck extends EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Arrays.asList((Object[])whitelist.split("\\s*,\\s*"));
+    return Arrays.asList(whitelist.split(",")).stream().map(String::trim).collect(Collectors.toList());
   }
 
   @Override
