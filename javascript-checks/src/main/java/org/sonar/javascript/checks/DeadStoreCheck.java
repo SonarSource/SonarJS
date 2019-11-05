@@ -31,6 +31,6 @@ public class DeadStoreCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-deadstore";
+    return "no-dead-store";
   }
 }

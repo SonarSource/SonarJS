@@ -21,7 +21,7 @@
 
 import { Rule, Scope } from "eslint";
 import * as estree from "estree";
-import { TSESTree, AST_NODE_TYPES } from "@typescript-eslint/experimental-utils";
+import { TSESTree } from "@typescript-eslint/experimental-utils";
 import {
   isLiteral,
   isObjectExpression,
@@ -29,6 +29,7 @@ import {
   isAssignmentExpression,
 } from "eslint-plugin-sonarjs/lib/utils/nodes";
 import { isUnaryExpression, isArrayExpression } from "./utils";
+import { LiveVariables, lva, ReferenceLike } from "./lva";
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
@@ -42,16 +43,10 @@ export const rule: Rule.RuleModule = {
     const variableUsages = new Map<Variable, Set<string>>();
 
     return {
-      "VariableDeclarator[init]": (node: estree.Node) => {
+      ":matches(AssignmentExpression, VariableDeclarator[init])": (node: estree.Node) => {
         pushAssignmentContext(node as AssignmentLike);
       },
-      "VariableDeclarator[init]:exit": (_node: estree.Node) => {
-        popAssignmentContext();
-      },
-      AssignmentExpression: (node: estree.Node) => {
-        pushAssignmentContext(node as AssignmentLike);
-      },
-      "AssignmentExpression:exit": (_node: estree.Node) => {
+      ":matches(AssignmentExpression, VariableDeclarator[init]):exit": () => {
         popAssignmentContext();
       },
       Identifier: (node: estree.Node) => {
@@ -73,13 +68,13 @@ export const rule: Rule.RuleModule = {
       },
 
       // CodePath events
-      onCodePathSegmentStart: (segment: CodePathSegment, _node: estree.Node) => {
+      onCodePathSegmentStart: (segment: CodePathSegment) => {
         liveVariablesMap.set(segment.id, new LiveVariables(segment));
       },
-      onCodePathStart: (codePath, _node) => {
+      onCodePathStart: codePath => {
         pushContext(new CodePathContext(codePath));
       },
-      onCodePathEnd: (_codePath, _node) => {
+      onCodePathEnd: () => {
         popContext();
       },
     };
@@ -92,18 +87,6 @@ export const rule: Rule.RuleModule = {
       const assignment = peek(codePathStack).assignmentStack.pop()!;
       assignment.rhs.forEach(r => processReference(r));
       assignment.lhs.forEach(r => processReference(r));
-    }
-
-    function lva(liveVariablesMap: Map<string, LiveVariables>) {
-      const worklist = Array.from(liveVariablesMap.values(), lva => lva.segment);
-      while (worklist.length > 0) {
-        const current = worklist.pop()!;
-        const liveVariables = liveVariablesMap.get(current.id)!;
-        const liveInHasChanged = liveVariables.propagate(current, liveVariablesMap);
-        if (liveInHasChanged) {
-          current.prevSegments.forEach(prev => worklist.push(prev));
-        }
-      }
     }
 
     function checkSegment(liveVariables: LiveVariables) {
@@ -164,7 +147,7 @@ export const rule: Rule.RuleModule = {
         return false;
       }
       const parent = (ref.identifier as TSESTree.Identifier).parent;
-      return parent && parent.type === AST_NODE_TYPES.AssignmentPattern;
+      return parent && parent.type === "AssignmentPattern";
     }
 
     function isLocalVar(variable: Scope.Variable) {
@@ -310,6 +293,8 @@ export const rule: Rule.RuleModule = {
         if (variable) {
           return { ref: null, variable };
         }
+        // in theory we only need 1-level recursion, only for switch expression, which is likely a bug in eslint
+        // generic recursion is used for safety & readability
         return resolveReferenceRecursively(node, scope.upper);
       }
     }
@@ -325,63 +310,6 @@ class CodePathContext {
 
   constructor(codePath: CodePath) {
     this.codePath = codePath;
-  }
-}
-
-class LiveVariables {
-  constructor(segment: Rule.CodePathSegment) {
-    this.segment = segment;
-  }
-
-  segment: CodePathSegment;
-
-  /**
-   * variables that are being read in the block
-   */
-  gen = new Set<Variable>();
-  /**
-   * variables that are being written in the block
-   */
-  kill = new Set<Variable>();
-  /**
-   * variables needed by this or a successor block and are not killed in this block
-   */
-  in = new Set<Variable>();
-  /**
-   * variables needed by successors
-   */
-  out = new Set<Variable>();
-
-  /**
-   * collects references in order they are evaluated, set in JS maintains insertion order
-   */
-  references = new Set<ReferenceLike>();
-
-  add(ref: ReferenceLike) {
-    const variable = ref.resolved;
-    if (variable) {
-      if (ref.isRead()) {
-        this.gen.add(variable);
-      }
-      if (ref.isWrite()) {
-        this.kill.add(variable);
-      }
-      this.references.add(ref);
-    }
-  }
-
-  propagate(segment: CodePathSegment, liveVariablesMap: Map<string, LiveVariables>) {
-    this.out.clear();
-    segment.nextSegments.forEach(next => {
-      liveVariablesMap.get(next.id)!.in.forEach(v => this.out.add(v));
-    });
-    const newIn = union(this.gen, difference(this.out, this.kill));
-    if (!equals(this.in, newIn)) {
-      this.in = newIn;
-      return true;
-    } else {
-      return false;
-    }
   }
 }
 
@@ -422,24 +350,6 @@ class AssignmentContext {
       throw new Error("failed to find assignment lhs/rhs");
     }
   }
-}
-
-interface ReferenceLike {
-  identifier: estree.Identifier | TSESTree.JSXIdentifier;
-  from: Scope.Scope;
-  resolved: Scope.Variable | null;
-  writeExpr: estree.Node | null;
-  init: boolean;
-
-  isWrite(): boolean;
-
-  isRead(): boolean;
-
-  isWriteOnly(): boolean;
-
-  isReadOnly(): boolean;
-
-  isReadWrite(): boolean;
 }
 
 class JSXReference implements ReferenceLike {
@@ -488,16 +398,4 @@ function findJSXVariableInScope(
 
 function peek<T>(arr: Array<T>) {
   return arr[arr.length - 1];
-}
-
-function difference<T>(a: Set<T>, b: Set<T>): Set<T> {
-  return new Set<T>([...a].filter(e => !b.has(e)));
-}
-
-function union<T>(a: Set<T>, b: Set<T>): Set<T> {
-  return new Set<T>([...a, ...b]);
-}
-
-function equals<T>(a: Set<T>, b: Set<T>): boolean {
-  return a.size === b.size && [...a].every(e => b.has(e));
 }
