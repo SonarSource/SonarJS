@@ -121,7 +121,6 @@ function getDependencies(fileName: string) {
   const packageJsonPath = findPackageJson(path.resolve(path.dirname(fileName)));
   if (packageJsonPath !== undefined) {
     try {
-      // don't use require here to avoid caching
       // remove BOM from file content before parsing
       const content = JSON.parse(
         fs.readFileSync(packageJsonPath, "utf8").replace(/^\uFEFF/, ""),
