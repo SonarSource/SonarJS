@@ -143,7 +143,7 @@ function findPackageJson(current: string): string | undefined {
     return fileName;
   }
 
-  let prev: string = current;
+  const prev: string = current;
   current = path.dirname(current);
 
   if (prev !== current) {
