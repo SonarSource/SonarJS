@@ -76,7 +76,7 @@ function raiseOnImplicitImport(
     return;
   }
 
-  const packageName = getPackageName(moduleName, whitelist);
+  const packageName = getPackageName(moduleName);
   if (
     !whitelist.includes(packageName) &&
     !builtins.includes(packageName) &&
@@ -89,12 +89,14 @@ function raiseOnImplicitImport(
   }
 }
 
-function getPackageName(name: string, whitelist: string[]) {
-  const parts = name.split(/\//g);
-  if (!name.startsWith("@") || whitelist.includes(parts[0])) {
+function getPackageName(name: string) {
+  /*
+    - scoped `@namespace/foo/bar` -> package `@namespace/foo`
+    - scope `foo/bar` -> package `foo`
+  */
+  const parts = name.split("/");
+  if (!name.startsWith("@")) {
     return parts[0];
-  } else if (whitelist.includes(name)) {
-    return name;
   } else {
     return `${parts[0]}/${parts[1]}`;
   }
@@ -113,9 +115,7 @@ function getDependencies(fileName: string) {
   if (packageJsonPath !== undefined) {
     try {
       // remove BOM from file content before parsing
-      const content = JSON.parse(
-        fs.readFileSync(packageJsonPath, "utf8").replace(/^\uFEFF/, ""),
-      );
+      const content = JSON.parse(fs.readFileSync(packageJsonPath, "utf8").replace(/^\uFEFF/, ""));
       if (content.dependencies !== undefined) {
         addDependencies(result, content.dependencies);
       }
