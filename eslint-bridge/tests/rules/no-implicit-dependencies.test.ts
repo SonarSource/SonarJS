@@ -37,32 +37,37 @@ ruleTester.run("Dependencies should be explicit", rule, {
       options,
     },
     {
-      code: `import * as ts from "typescript";`,
+      code: `import * as ts from "devDependencies";`,
       filename,
       options,
     },
     {
-      code: `import "jest";`,
+      code: `import "peerDependencies";`,
       filename,
       options,
     },
     {
-      code: `import "foobar";`,
+      code: `import "dependency";`,
       filename,
       options,
     },
     {
-      code: `import "@foo/foobar";`,
-      filename,
-      options: ["@foo/foobar"],
-    },
-    {
-      code: `import "@angular/core";`,
+      code: `import "@namespaced/dependency";`,
       filename,
       options,
     },
     {
-      code: `import "./foo";`,
+      code: `import "whitelist";`,
+      filename,
+      options: ["whitelist"],
+    },
+    {
+      code: `import "@whitelist/dependency";`,
+      filename,
+      options: ["@whitelist/dependency"],
+    },
+    {
+      code: `import "./relative";`,
       filename,
       options,
     },
@@ -71,18 +76,14 @@ ruleTester.run("Dependencies should be explicit", rule, {
       filename,
       options,
     },
-    {
-      code: `import "foo";`,
-      filename,
-      options: ["foo"],
-    },
+
     {
       code: `const fs = require("fs");`,
       filename,
       options,
     },
     {
-      code: `const foo = require("bar", "baz");`,
+      code: `const foo = require("foo", "bar");`,
       filename,
       options,
     },

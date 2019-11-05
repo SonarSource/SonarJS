@@ -1,14 +1,12 @@
 {
-  "name": "test",
-  "version": "1.0.0",
   "dependencies": {
-    "foobar": "latest",
-    "@angular/core": "4.4.5"
+    "dependency": "latest",
+    "@namespaced/dependency": "latest"
   },
   "devDependencies": {
-    "jest": "latest"
+    "devDependencies": "latest"
   },
   "peerDependencies": {
-    "typescript": "3.5.3"
+    "peerDependencies": "latest"
   }
 }
