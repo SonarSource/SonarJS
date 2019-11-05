@@ -118,7 +118,7 @@ function getDependencies(fileName: string) {
   }
 
   const result = new Set<string>();
-  const packageJsonPath = findPackageJson(path.resolve(path.dirname(fileName)));
+  const packageJsonPath = findPackageJson(path.resolve(dirname));
   if (packageJsonPath !== undefined) {
     try {
       // remove BOM from file content before parsing
