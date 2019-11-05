@@ -100,16 +100,6 @@ function getPackageName(name: string, whitelist: string[]) {
   }
 }
 
-interface Dependencies {
-  [name: string]: any;
-}
-
-interface PackageJson {
-  dependencies?: Dependencies;
-  devDependencies?: Dependencies;
-  peerDependencies?: Dependencies;
-}
-
 function getDependencies(fileName: string) {
   const dirname = path.dirname(fileName);
 
@@ -125,7 +115,7 @@ function getDependencies(fileName: string) {
       // remove BOM from file content before parsing
       const content = JSON.parse(
         fs.readFileSync(packageJsonPath, "utf8").replace(/^\uFEFF/, ""),
-      ) as PackageJson;
+      );
       if (content.dependencies !== undefined) {
         addDependencies(result, content.dependencies);
       }
@@ -143,7 +133,7 @@ function getDependencies(fileName: string) {
   return result;
 }
 
-function addDependencies(result: Set<string>, dependencies: Dependencies) {
+function addDependencies(result: Set<string>, dependencies: any) {
   Object.keys(dependencies).forEach(name => result.add(name));
 }
 
