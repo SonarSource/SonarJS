@@ -150,6 +150,7 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
 function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
   const issues = linter.analyze(
     sourceCode,
+    input.filePath,
     input.rules,
     SYMBOL_HIGHLIGHTING_RULE,
     COGNITIVE_COMPLEXITY_RULE,

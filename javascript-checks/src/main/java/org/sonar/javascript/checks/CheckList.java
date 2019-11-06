@@ -154,6 +154,7 @@ public final class CheckList {
       IdenticalFunctionsCheck.class,
       IfConditionalAlwaysTrueOrFalseCheck.class,
       ImmediatelyReturnedVariableCheck.class,
+      ImplicitDependenciesCheck.class,
       InconsistentFunctionCallCheck.class,
       IncrementDecrementInSubExpressionCheck.class,
       IndexOfCompareToPositiveNumberCheck.class,
