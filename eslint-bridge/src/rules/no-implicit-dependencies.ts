@@ -44,9 +44,8 @@ export const rule: Rule.RuleModule = {
         ) {
           const [argument] = call.arguments;
           if (argument.type === "Literal") {
-            const module = argument;
             const requireToken = call.callee;
-            raiseOnImplicitImport(module, requireToken.loc!, dependencies, whitelist, context);
+            raiseOnImplicitImport(argument, requireToken.loc!, dependencies, whitelist, context);
           }
         }
       },
