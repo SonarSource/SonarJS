@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "dependency": "latest",
+    "@namespaced/dependency": "latest"
+  },
+  "devDependencies": {
+    "devDependency": "latest"
+  },
+  "peerDependencies": {
+    "peerDependency": "latest"
+  }
+}
