@@ -37,12 +37,12 @@ ruleTester.run("Dependencies should be explicit", rule, {
       options,
     },
     {
-      code: `import * as ts from "devDependencies";`,
+      code: `import * as ts from "devDependency";`,
       filename,
       options,
     },
     {
-      code: `import "peerDependencies";`,
+      code: `import "peerDependency";`,
       filename,
       options,
     },

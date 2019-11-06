@@ -4,9 +4,9 @@
     "@namespaced/dependency": "latest"
   },
   "devDependencies": {
-    "devDependencies": "latest"
+    "devDependency": "latest"
   },
   "peerDependencies": {
-    "peerDependencies": "latest"
+    "peerDependency": "latest"
   }
 }
