@@ -2,5 +2,4 @@
   "compilerOptions": {
     "target": "es2018",
   },
-  "include": ["**/file.ts"]
 }
