@@ -320,7 +320,8 @@ public class NodeCommandTest {
 
   @Test
   public void test_toString() {
-    NodeCommand nodeCommand = NodeCommand.builder()
+    when(mockProcessWrapper.isMac()).thenReturn(false);
+    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .nodeJsArgs("-v")
       .script("script.js")
       .scriptArgs("arg1", "arg2")
@@ -337,7 +338,7 @@ public class NodeCommandTest {
       .build();
     nodeCommand.start();
     verify(mockProcessWrapper).start(processStartArgument.capture(), any());
-    assertThat(processStartArgument.getValue()).containsExactly("/bin/sh", "-c", "node script.js");
+    assertThat(processStartArgument.getValue()).containsExactly("/bin/sh", "-c", "'node' 'script.js'");
   }
 
   @Test
@@ -351,7 +352,7 @@ public class NodeCommandTest {
   }
 
   @Test
-  public void test_nodepath_setting() throws  Exception {
+  public void test_nodepath_setting() throws Exception {
     when(mockProcessWrapper.getenv(any())).thenReturn("/dir/previous");
     Path path = Paths.get("/dir/node_modules/typescript");
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
