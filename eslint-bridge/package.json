@@ -46,7 +46,7 @@
     "babel-eslint": "10.0.1",
     "body-parser": "1.18.3",
     "builtin-modules": "3.1.0",
-    "eslint": "5.16.0",
+    "eslint": "6.6.0",
     "eslint-plugin-chai-friendly": "0.4.1",
     "eslint-plugin-sonarjs": "0.5.0-internal",
     "express": "4.16.3",
