@@ -25,6 +25,8 @@ import * as builtins from "builtin-modules";
 import * as path from "path";
 import * as fs from "fs";
 
+const DefinitelyTyped = "@types/";
+
 /**
  * Cache for each dirname the dependencies of the nearest package.json.
  */
@@ -133,7 +135,9 @@ function getDependencies(fileName: string) {
 }
 
 function addDependencies(result: Set<string>, dependencies: any) {
-  Object.keys(dependencies).forEach(name => result.add(name));
+  Object.keys(dependencies).forEach(name =>
+    result.add(name.startsWith(DefinitelyTyped) ? name.substring(DefinitelyTyped.length) : name),
+  );
 }
 
 function findPackageJson(current: string): string | undefined {
