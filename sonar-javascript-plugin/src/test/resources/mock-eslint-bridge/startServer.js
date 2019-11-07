@@ -12,7 +12,7 @@ const requestHandler = (request, response) => {
     response.writeHead(200, { 'Content-Type': 'text/plain' });
     response.end('OK!');
   } else if (request.url === '/tsconfig-files') {
-    response.end("['abs/path/file1', 'abs/path/file2', 'abs/path/file3']");
+    response.end("{files: ['abs/path/file1', 'abs/path/file2', 'abs/path/file3']}");
   } else {
     response.end("{ issues: [] }");
   }

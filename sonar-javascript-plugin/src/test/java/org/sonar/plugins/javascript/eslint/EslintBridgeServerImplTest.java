@@ -45,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
+import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 import static org.sonar.api.utils.log.LoggerLevel.INFO;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
 
@@ -308,7 +309,14 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context);
-    assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json")).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
+    String tsconfig = "path/to/tsconfig.json";
+    EslintBridgeServerImpl.TsConfigResponse tsConfigResponse = eslintBridgeServer.tsConfigFiles(tsconfig);
+    assertThat(tsConfigResponse.files).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
+    assertThat(tsConfigResponse.error).isNull();
+
+    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(tsconfig);
+    assertThat(tsConfigFile.files).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
+    assertThat(tsConfigFile.filename).isEqualTo(tsconfig);
   }
 
   @Test
@@ -316,7 +324,9 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer("badResponse.js");
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context);
-    assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json")).isEmpty();
+    EslintBridgeServerImpl.TsConfigResponse response = eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json");
+    assertThat(response.files).isEmpty();
+    assertThat(response.error).isEqualTo("Invalid response");
   }
 
   @Test
@@ -324,8 +334,31 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer("badResponse.js");
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context);
-    eslintBridgeServer.stop();
-    assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json")).isEmpty();
+    assertThat(eslintBridgeServer.tsConfigFiles("path/to/tsconfig.json").files).isEmpty();
+    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
+    assertThat(tsConfigFile.files).isEmpty();
+  }
+
+  @Test
+  public void should_return_no_files_for_tsconfig_on_error() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("tsConfigError.js");
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+
+    TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
+    assertThat(tsConfigFile.files).isEmpty();
+    assertThat(logTester.logs(ERROR)).contains("Other error");
+  }
+
+  @Test
+  public void missing_typescript() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("missingTs.js");
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+    assertThatThrownBy(() -> eslintBridgeServer.loadTsConfig("tsconfig.json"))
+      .isInstanceOf(MissingTypeScriptException.class);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("TypeScript dependency was not found and it is required for analysis.");
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {

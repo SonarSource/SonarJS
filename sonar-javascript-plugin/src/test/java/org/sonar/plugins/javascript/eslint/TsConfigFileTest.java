@@ -19,15 +19,19 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,13 +41,30 @@ public class TsConfigFileTest {
   public LogTester logTester = new LogTester();
 
   @Test
+  public void test() {
+    List<String> files = Arrays.asList("dir1/file1.ts", "dir2/file2.ts", "dir3/file3.ts");
+    List<InputFile> inputFiles = files.stream().map(f -> TestInputFileBuilder.create("foo", f).build()).collect(Collectors.toList());
+
+    List<TsConfigFile> tsConfigFiles = Arrays.asList(
+      new TsConfigFile("dir1/tsconfig.json", singletonList("foo/dir1/file1.ts")),
+      new TsConfigFile("dir2/tsconfig.json", singletonList("foo/dir2/file2.ts")),
+      new TsConfigFile("dir3/tsconfig.json", singletonList("foo/dir3/file3.ts"))
+    );
+
+    Map<String, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(tsConfigFiles, inputFiles);
+    assertThat(result).containsExactly(
+      entry("dir1/tsconfig.json", singletonList(inputFiles.get(0))),
+      entry("dir2/tsconfig.json", singletonList(inputFiles.get(1))),
+      entry("dir3/tsconfig.json", singletonList(inputFiles.get(2)))
+    );
+  }
+
+  @Test
   public void failsToLoad() {
     EslintBridgeServer server = mock(EslintBridgeServer.class);
-    when(server.tsConfigFiles("tsconfig/path")).thenThrow(new IllegalStateException());
+    when(server.loadTsConfig("tsconfig/path")).thenReturn(null);
 
-    Map<String, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(Collections.singletonList("tsconfig/path"), Collections.emptyList(), server);
+    Map<String, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(singletonList(new TsConfigFile("tsconfig/path", emptyList())), emptyList());
     assertThat(result).isEmpty();
-
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Failed to load tsconfig file from tsconfig/path, it will be ignored.");
   }
 }

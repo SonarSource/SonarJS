@@ -258,28 +258,27 @@ describe("server", () => {
 
   it("should return list of files for tsconfig", async () => {
     const tsconfig = join(__dirname, "./fixtures/ts-project/tsconfig.json");
-    const response = JSON.parse(
-      await post(JSON.stringify({ tsconfig }), "/tsconfig-files"),
-    ) as string[];
-    expect(response).toHaveLength(2);
-    expect(response[0].endsWith("sample.error.lint.ts")).toBeTruthy();
-    expect(response[1].endsWith("sample.lint.ts")).toBeTruthy();
+    const response = JSON.parse(await post(JSON.stringify({ tsconfig }), "/tsconfig-files")) as {
+      files: string[];
+    };
+    expect(response.files).toHaveLength(2);
+    expect(response.files[0].endsWith("sample.error.lint.ts")).toBeTruthy();
+    expect(response.files[1].endsWith("sample.lint.ts")).toBeTruthy();
   });
 
   it("should return empty list of files for invalid tsconfig", async () => {
     const tsconfig = join(__dirname, "./fixtures/invalid-tsconfig.json");
-    const response = JSON.parse(
-      await post(JSON.stringify({ tsconfig }), "/tsconfig-files"),
-    ) as string[];
-    expect(response).toHaveLength(0);
+    const response = JSON.parse(await post(JSON.stringify({ tsconfig }), "/tsconfig-files"));
+    expect(response.error).toBeDefined();
+    expect(response.files).toBeUndefined();
   });
 
   it("should return empty list of files for invalid request", async () => {
     const tsconfig = join(__dirname, "./fixtures/tsconfig.json");
     const response = JSON.parse(
       await post(JSON.stringify({ tsconfig42: tsconfig }), "/tsconfig-files"),
-    ) as string[];
-    expect(response).toHaveLength(0);
+    );
+    expect(response.error.startsWith("Debug Failure")).toBeTruthy();
   });
 
   function post(data, endpoint) {
