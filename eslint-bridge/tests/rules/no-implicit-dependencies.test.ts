@@ -57,6 +57,11 @@ ruleTester.run("Dependencies should be explicit", rule, {
       options,
     },
     {
+      code: `import "typed-dependency";`,
+      filename,
+      options,
+    },
+    {
       code: `import "whitelist";`,
       filename,
       options: ["whitelist"],
