@@ -100,10 +100,10 @@ public class NodeCommand {
 
   private List<String> buildCommand(String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename, List<String> args) {
     List<String> result = new ArrayList<>();
-    result.add(nodeExecutable);
+    result.add(quote(nodeExecutable));
     result.addAll(nodeJsArgs);
     if (scriptFilename != null) {
-      result.add(scriptFilename);
+      result.add(quote(scriptFilename));
     }
     result.addAll(args);
     // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured
@@ -113,6 +113,13 @@ public class NodeCommand {
     } else {
       return Collections.unmodifiableList(result);
     }
+  }
+
+  private String quote(String s) {
+    if (processWrapper.isMac()) {
+      return "'" + s + "'";
+    }
+    return s;
   }
 
   /**

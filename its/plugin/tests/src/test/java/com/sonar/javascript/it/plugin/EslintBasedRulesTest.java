@@ -19,11 +19,8 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import com.google.common.collect.ImmutableList;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -32,6 +29,7 @@ import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
 import static com.sonar.javascript.it.plugin.Tests.newWsClient;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EslintBasedRulesTest {
@@ -39,28 +37,46 @@ public class EslintBasedRulesTest {
   @ClassRule
   public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
-  private static final File PROJECT_DIR = TestUtils.projectDir("eslint_based_rules");
-
   @BeforeClass
   public static void startServer() {
     orchestrator.resetData();
+  }
 
+  @Test
+  public void test() {
     String projectKey = "eslint-based-rules-project";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(PROJECT_DIR);
+      .setProjectDir(TestUtils.projectDir("eslint_based_rules"));
 
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
 
     orchestrator.executeBuild(build);
+
+    SearchRequest request = new SearchRequest();
+    request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
+    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    assertThat(issuesList).hasSize(1);
+    assertThat(issuesList.get(0).getLine()).isEqualTo(5);
   }
 
   @Test
-  public void test() {
+  public void test_directory_with_special_chars() {
+    String projectKey = "special-chars";
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(TestUtils.projectDir("(dir with paren)/eslint_based_rules"));
+
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
+
+    orchestrator.executeBuild(build);
+
     SearchRequest request = new SearchRequest();
-    request.setComponentKeys(Collections.singletonList("eslint-based-rules-project")).setRules(ImmutableList.of("javascript:S3923"));
+    request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
     List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(5);
