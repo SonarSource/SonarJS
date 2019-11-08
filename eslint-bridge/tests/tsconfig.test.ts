@@ -22,7 +22,7 @@ import { getFilesForTsConfig } from "../src/tsconfig";
 import { ParseExceptionCode } from "../src/parser";
 
 describe("tsconfig", () => {
-  it("should respond to JavaScript analysis request", () => {
+  it("should return error when typescript is missing", () => {
     jest.mock("typescript", () => {
       throw new Error("Missing module 'typescript'");
     });

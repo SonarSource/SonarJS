@@ -53,6 +53,5 @@ export function getFilesForTsConfig(
     },
   );
 
-  // defensive empty array
   return { files: parsed.fileNames };
 }

@@ -32,8 +32,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TsConfigFileTest {
 
@@ -61,10 +59,8 @@ public class TsConfigFileTest {
 
   @Test
   public void failsToLoad() {
-    EslintBridgeServer server = mock(EslintBridgeServer.class);
-    when(server.loadTsConfig("tsconfig/path")).thenReturn(null);
-
-    Map<String, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(singletonList(new TsConfigFile("tsconfig/path", emptyList())), emptyList());
+    List<TsConfigFile> tsConfigFiles = singletonList(new TsConfigFile("tsconfig/path", emptyList()));
+    Map<String, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(tsConfigFiles, emptyList());
     assertThat(result).isEmpty();
   }
 }
