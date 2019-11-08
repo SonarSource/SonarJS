@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
@@ -50,7 +51,6 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
   private static final int PER_TSCONFIG_ANALYSIS_THRESHOLD = 2;
-  private List<String> tsconfigs;
   private final TempFolder tempFolder;
 
   /**
@@ -101,16 +101,16 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   @Override
   void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    tsconfigs = tsConfigs();
-    if (tsconfigs.size() > PER_TSCONFIG_ANALYSIS_THRESHOLD) {
-      splitAnalysisByTsConfig(inputFiles);
+    List<String> tsConfigs = tsConfigs();
+    if (tsConfigs.size() > PER_TSCONFIG_ANALYSIS_THRESHOLD) {
+      splitAnalysisByTsConfig(inputFiles, tsConfigs);
     } else {
-      analyzeFilesWithTsConfigs(inputFiles, tsconfigs);
+      analyzeFilesWithTsConfigs(inputFiles, tsConfigs);
     }
   }
 
-  private void splitAnalysisByTsConfig(List<InputFile> inputFiles) {
-    Map<String, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(tsconfigs, inputFiles, eslintBridgeServer);
+  private void splitAnalysisByTsConfig(List<InputFile> inputFiles, List<String> tsconfigs) {
+    Map<String, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsconfigs), inputFiles);
     for (Map.Entry<String, List<InputFile>> entry : filesByTsConfig.entrySet()) {
       String tsConfigFile = entry.getKey();
       List<InputFile> files = entry.getValue();
@@ -148,12 +148,17 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   private List<String> tsConfigs() throws IOException {
-    if (tsconfigs == null) {
-      tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
-      if (tsconfigs.isEmpty()) {
-        throw new NodeCommandException("No tsconfig.json file found, analysis will be stopped.");
-      }
+    List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
+    if (tsConfigs.isEmpty()) {
+      throw new NodeCommandException("No tsconfig.json file found, analysis will be stopped.");
     }
-    return tsconfigs;
+    return tsConfigs;
+  }
+
+  private List<TsConfigFile> loadTsConfigs(List<String> tsConfigPaths) {
+    return tsConfigPaths.stream()
+      .map(eslintBridgeServer::loadTsConfig)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 }

@@ -49,7 +49,7 @@ public interface EslintBridgeServer extends Startable {
 
   boolean newTsConfig();
 
-  String[] tsConfigFiles(String tsconfigAbsolutePath);
+  TsConfigFile loadTsConfig(String tsConfigAbsolutePath);
 
   class AnalysisRequest {
     String filePath;
@@ -155,6 +155,18 @@ public interface EslintBridgeServer extends Startable {
   class CpdToken {
     Location location;
     String image;
+  }
+
+  class TsConfigResponse {
+    final List<String> files;
+    final String error;
+    final ParsingErrorCode errorCode;
+
+    TsConfigResponse(List<String> files, @Nullable String error, @Nullable ParsingErrorCode errorCode) {
+      this.files = files;
+      this.error = error;
+      this.errorCode = errorCode;
+    }
   }
 }
 

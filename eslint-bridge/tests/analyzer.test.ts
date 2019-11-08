@@ -237,7 +237,7 @@ describe("#analyzeTypeScript", () => {
       rules: [],
       tsConfigs: [tsConfig],
     }).highlightedSymbols;
-    expect(highlightedSymbols).toHaveLength(2);
+    expect(highlightedSymbols).toHaveLength(3);
   });
 
   it("should report cpd tokens", () => {

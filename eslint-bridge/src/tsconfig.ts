@@ -19,9 +19,17 @@
  */
 import * as fs from "fs";
 import * as path from "path";
+import { ParseExceptionCode } from "./parser";
 
-export function getFilesForTsConfig(tsConfig: string): string[] {
-  const ts = require("typescript");
+export function getFilesForTsConfig(
+  tsConfig: string,
+): { files: string[] } | { error: string; errorCode?: ParseExceptionCode } {
+  let ts;
+  try {
+    ts = require("typescript");
+  } catch (e) {
+    return { error: e.message, errorCode: ParseExceptionCode.MissingTypeScript };
+  }
 
   const parseConfigHost = {
     fileExists: fs.existsSync,
@@ -33,7 +41,7 @@ export function getFilesForTsConfig(tsConfig: string): string[] {
 
   if (config.error !== undefined) {
     console.error(`Failed to parse tsconfig: ${tsConfig} (${config.error.messageText})`);
-    return [];
+    return { error: config.error };
   }
 
   const parsed = ts.parseJsonConfigFileContent(
@@ -45,6 +53,5 @@ export function getFilesForTsConfig(tsConfig: string): string[] {
     },
   );
 
-  // defensive empty array
-  return parsed.fileNames;
+  return { files: parsed.fileNames };
 }
