@@ -68,7 +68,6 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsConfigResponse;
 
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
@@ -105,13 +104,14 @@ public class TypeScriptSensorTest {
 
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
-    when(eslintBridgeServerMock.tsConfigFiles(any())).thenAnswer(
+    when(eslintBridgeServerMock.loadTsConfig(any())).thenAnswer(
       invocationOnMock -> {
+        String tsConfigPath = (String) invocationOnMock.getArguments()[0];
         FilePredicates predicates = context.fileSystem().predicates();
         List<String> files = StreamSupport.stream(context.fileSystem().inputFiles(predicates.hasLanguage("ts")).spliterator(), false)
           .map(file -> file.absolutePath())
           .collect(Collectors.toList());
-        return new TsConfigResponse(files, null, null);
+        return new TsConfigFile(tsConfigPath, files);
       });
 
 
@@ -246,7 +246,7 @@ public class TypeScriptSensorTest {
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     DefaultInputFile file = createInputFile(ctx);
     Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
-    when(eslintBridgeServerMock.tsConfigFiles(any())).thenReturn(tsConfigResponse(file));
+    when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(new TsConfigFile("tsconfig.json", singletonList(file.absolutePath())));
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
@@ -263,10 +263,6 @@ public class TypeScriptSensorTest {
     assertThat(captor.getValue().fileContent).isNull();
   }
 
-  private static TsConfigResponse tsConfigResponse(DefaultInputFile file) {
-    return new TsConfigResponse(singletonList(file.absolutePath()), null, null);
-  }
-
   @Test
   public void should_send_content_when_not_utf8() throws Exception {
     File baseDir = tempFolder.newDir();
@@ -279,12 +275,12 @@ public class TypeScriptSensorTest {
       .build();
     ctx.fileSystem().add(inputFile);
     Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
-    when(eslintBridgeServerMock.tsConfigFiles(any())).thenReturn(tsConfigResponse(inputFile));
+    when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(new TsConfigFile("tsconfig.json", singletonList(inputFile.absolutePath())));
 
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
-    assertThat(captor.getValue().fileContent).isEqualTo(content );
+    assertThat(captor.getValue().fileContent).isEqualTo(content);
   }
 
   @Test
@@ -371,7 +367,7 @@ public class TypeScriptSensorTest {
   @Test
   public void should_stop_without_tsconfig() {
     SensorContextTester context = SensorContextTester.create(tempFolder.newDir());
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4,4)));
+    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("No tsconfig.json file found, analysis will be stopped.");
   }

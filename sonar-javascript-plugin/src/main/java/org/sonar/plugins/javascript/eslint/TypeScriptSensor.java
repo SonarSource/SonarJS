@@ -50,7 +50,6 @@ import static java.util.Collections.singletonList;
 public class TypeScriptSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
-  private static final int PER_TSCONFIG_ANALYSIS_THRESHOLD = 2;
   private final TempFolder tempFolder;
 
   /**
@@ -102,11 +101,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   @Override
   void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     List<String> tsConfigs = tsConfigs();
-    if (tsConfigs.size() > PER_TSCONFIG_ANALYSIS_THRESHOLD) {
-      splitAnalysisByTsConfig(inputFiles, tsConfigs);
-    } else {
-      analyzeFilesWithTsConfigs(inputFiles, tsConfigs);
-    }
+    splitAnalysisByTsConfig(inputFiles, tsConfigs);
   }
 
   private void splitAnalysisByTsConfig(List<InputFile> inputFiles, List<String> tsconfigs) {
