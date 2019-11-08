@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 import okhttp3.HttpUrl;
@@ -45,6 +46,7 @@ import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
 
@@ -237,21 +239,33 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     return false;
   }
 
-  @Override
-  public String[] tsConfigFiles(String tsconfigAbsolutePath) {
-    String result = "";
+  TsConfigResponse tsConfigFiles(String tsconfigAbsolutePath) {
+    String result = null;
     try {
       TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
       result = request(GSON.toJson(tsConfigRequest), "tsconfig-files");
-      return GSON.fromJson(result, String[].class);
+      return GSON.fromJson(result, TsConfigResponse.class);
     } catch (IOException e) {
       LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
     } catch (JsonSyntaxException e) {
       LOG.error("Failed to parse response when requesting files for tsconfig: " + tsconfigAbsolutePath + ": \n-----\n" + result + "\n-----\n");
     }
-
-    return new String[0];
+    return new TsConfigResponse(emptyList(), result, null);
   }
+
+  @Override
+  public TsConfigFile loadTsConfig(String filename) {
+    EslintBridgeServer.TsConfigResponse tsConfigResponse = tsConfigFiles(filename);
+    if (tsConfigResponse.error != null) {
+      LOG.error(tsConfigResponse.error);
+      if (tsConfigResponse.errorCode == EslintBridgeServer.ParsingErrorCode.MISSING_TYPESCRIPT) {
+        AbstractEslintSensor.logMissingTypescript();
+        throw new MissingTypeScriptException();
+      }
+    }
+    return new TsConfigFile(filename, tsConfigResponse.files == null ? emptyList() : tsConfigResponse.files);
+  }
+
 
   @Override
   public void clean() {

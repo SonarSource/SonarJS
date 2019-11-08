@@ -20,14 +20,10 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -37,10 +33,10 @@ class TsConfigFile implements Predicate<InputFile> {
 
   static final String UNMATCHED_CONFIG = "NO_CONFIG";
 
-  private final String filename;
-  private final List<String> files;
+  final String filename;
+  final List<String> files;
 
-  private TsConfigFile(String filename, List<String> files) {
+  TsConfigFile(String filename, List<String> files) {
     this.filename = filename;
     this.files = files;
   }
@@ -50,13 +46,8 @@ class TsConfigFile implements Predicate<InputFile> {
     return files.contains(inputFile.absolutePath());
   }
 
-  static Map<String, List<InputFile>> inputFilesByTsConfig(List<String> tsconfigs, List<InputFile> inputFiles, EslintBridgeServer eslintBridgeServer) {
-    Map<String, List<InputFile>> result = new HashMap<>();
-    List<TsConfigFile> tsConfigFiles = tsconfigs.stream()
-      .map(filename -> TsConfigFile.load(filename, eslintBridgeServer))
-      .filter(Objects::nonNull)
-      .collect(Collectors.toList());
-
+  static Map<String, List<InputFile>> inputFilesByTsConfig(List<TsConfigFile> tsConfigFiles, List<InputFile> inputFiles) {
+    Map<String, List<InputFile>> result = new LinkedHashMap<>();
     inputFiles.forEach(inputFile -> {
       String tsconfig = tsConfigFiles.stream()
         .filter(tsConfigFile -> tsConfigFile.test(inputFile))
@@ -68,14 +59,5 @@ class TsConfigFile implements Predicate<InputFile> {
     return result;
   }
 
-  @Nullable
-  private static TsConfigFile load(String filename, EslintBridgeServer eslintBridgeServer) {
-    try {
-      return new TsConfigFile(filename, Arrays.asList(eslintBridgeServer.tsConfigFiles(filename)));
-    } catch (Exception e) {
-      LOG.warn("Failed to load tsconfig file from " + filename + ", it will be ignored.", e);
-      return null;
-    }
-  }
 
 }

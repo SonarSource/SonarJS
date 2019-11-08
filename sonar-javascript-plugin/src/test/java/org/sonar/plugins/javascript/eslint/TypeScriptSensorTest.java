@@ -28,12 +28,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.TextRange;
@@ -64,8 +68,10 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.TsConfigResponse;
 
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
@@ -86,7 +92,7 @@ public class TypeScriptSensorTest {
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
   @Mock
-  private EslintBridgeServer eslintBridgeServerMock;
+  private EslintBridgeServerImpl eslintBridgeServerMock;
 
   @Mock
   private FileLinesContextFactory fileLinesContextFactory;
@@ -99,6 +105,16 @@ public class TypeScriptSensorTest {
 
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(eslintBridgeServerMock.tsConfigFiles(any())).thenAnswer(
+      invocationOnMock -> {
+        FilePredicates predicates = context.fileSystem().predicates();
+        List<String> files = StreamSupport.stream(context.fileSystem().inputFiles(predicates.hasLanguage("ts")).spliterator(), false)
+          .map(file -> file.absolutePath())
+          .collect(Collectors.toList());
+        return new TsConfigResponse(files, null, null);
+      });
+
+
     context = SensorContextTester.create(tempFolder.newDir());
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
@@ -123,7 +139,7 @@ public class TypeScriptSensorTest {
     TypeScriptSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
     createTSConfigFile(context);
-    
+
     sensor.execute(context);
 
     assertThat(context.allIssues()).hasSize(expectedResponse.issues.length);
@@ -169,7 +185,7 @@ public class TypeScriptSensorTest {
   @Test
   public void should_not_explode_if_no_response() throws Exception {
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
-    
+
     TypeScriptSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
     sensor.execute(context);
@@ -177,7 +193,6 @@ public class TypeScriptSensorTest {
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to get response while analyzing " + inputFile);
     assertThat(context.allIssues()).isEmpty();
   }
-
 
 
   @Test
@@ -229,8 +244,9 @@ public class TypeScriptSensorTest {
     File baseDir = tempFolder.newDir();
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
-    createInputFile(ctx);
+    DefaultInputFile file = createInputFile(ctx);
     Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
+    when(eslintBridgeServerMock.tsConfigFiles(any())).thenReturn(tsConfigResponse(file));
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
@@ -247,6 +263,10 @@ public class TypeScriptSensorTest {
     assertThat(captor.getValue().fileContent).isNull();
   }
 
+  private static TsConfigResponse tsConfigResponse(DefaultInputFile file) {
+    return new TsConfigResponse(singletonList(file.absolutePath()), null, null);
+  }
+
   @Test
   public void should_send_content_when_not_utf8() throws Exception {
     File baseDir = tempFolder.newDir();
@@ -259,6 +279,7 @@ public class TypeScriptSensorTest {
       .build();
     ctx.fileSystem().add(inputFile);
     Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
+    when(eslintBridgeServerMock.tsConfigFiles(any())).thenReturn(tsConfigResponse(inputFile));
 
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
@@ -294,11 +315,11 @@ public class TypeScriptSensorTest {
     createInputFile(context, "dir/file2.ts");
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnlyOnce(
-        "You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6");
+      "You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6");
     assertThat(logTester.logs(LoggerLevel.ERROR)).containsOnlyOnce(
-        "If it's not possible to upgrade version of TypeScript used by the project, consider installing supported TypeScript version just for the time of analysis");
+      "If it's not possible to upgrade version of TypeScript used by the project, consider installing supported TypeScript version just for the time of analysis");
     assertThat(logTester.logs(LoggerLevel.ERROR)).doesNotContain(
-        "Failed to analyze file [dir/file1.ts]: You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6");
+      "Failed to analyze file [dir/file1.ts]: You are using version of TypeScript 1.2.3 which is not supported; supported versions >=4.5.6");
     // assert that analysis was interrupted after first file
     verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(any());
   }
@@ -312,12 +333,15 @@ public class TypeScriptSensorTest {
     DefaultInputFile file3 = inputFileFromResource(context, baseDir, "dir3/file.ts");
     inputFileFromResource(context, baseDir, "noconfig.ts");
 
-    when(eslintBridgeServerMock.tsConfigFiles(absolutePath(baseDir,"dir1/tsconfig.json")))
-      .thenReturn(new String[]{ file1.absolutePath() });
-    when(eslintBridgeServerMock.tsConfigFiles(absolutePath(baseDir,"dir2/tsconfig.json")))
-      .thenReturn(new String[]{ file2.absolutePath() });
-    when(eslintBridgeServerMock.tsConfigFiles(absolutePath(baseDir,"dir3/tsconfig.json")))
-      .thenReturn(new String[]{ file3.absolutePath() });
+    String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
+    when(eslintBridgeServerMock.loadTsConfig(tsconfig1))
+      .thenReturn(new TsConfigFile(tsconfig1, singletonList(file1.absolutePath())));
+    String tsconfig2 = absolutePath(baseDir, "dir2/tsconfig.json");
+    when(eslintBridgeServerMock.loadTsConfig(tsconfig2))
+      .thenReturn(new TsConfigFile(tsconfig2, singletonList(file2.absolutePath())));
+    String tsconfig3 = absolutePath(baseDir, "dir3/tsconfig.json");
+    when(eslintBridgeServerMock.loadTsConfig(tsconfig3))
+      .thenReturn(new TsConfigFile(tsconfig3, singletonList(file3.absolutePath())));
 
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(context);
@@ -368,44 +392,44 @@ public class TypeScriptSensorTest {
 
   private String createIssues() {
     return "issues: [{"
-    + "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []},"
-    + "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []"
-    + "}]";
+      + "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []},"
+      + "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []"
+      + "}]";
   }
 
   private String createHighlights() {
     return "highlights: ["
-    + "{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"textType\":\"KEYWORD\"},"
-    + "{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"textType\":\"CONSTANT\"}"
-    + "]";
+      + "{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"textType\":\"KEYWORD\"},"
+      + "{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"textType\":\"CONSTANT\"}"
+      + "]";
   }
 
   private String createHighlightedSymbols() {
     return "highlightedSymbols: [{"
-    + "\"declaration\": {\"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},"
-    + "\"references\": [{\"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5}]"
-    + "}]";
+      + "\"declaration\": {\"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},"
+      + "\"references\": [{\"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5}]"
+      + "}]";
   }
 
   private String createMetrics() {
     return "metrics: {"
-    + "\"ncloc\":[1, 2, 3],"
-    + "\"commentLines\":[4, 5, 6],"
-    + "\"nosonarLines\":[7, 8, 9],"
-    + "\"executableLines\":[10, 11, 12],"
-    + "\"functions\":1,"
-    + "\"statements\":2,"
-    + "\"classes\":3,"
-    + "\"complexity\":4,"
-    + "\"cognitiveComplexity\":5"
-    + "}";
+      + "\"ncloc\":[1, 2, 3],"
+      + "\"commentLines\":[4, 5, 6],"
+      + "\"nosonarLines\":[7, 8, 9],"
+      + "\"executableLines\":[10, 11, 12],"
+      + "\"functions\":1,"
+      + "\"statements\":2,"
+      + "\"classes\":3,"
+      + "\"complexity\":4,"
+      + "\"cognitiveComplexity\":5"
+      + "}";
   }
 
   private String createCpdTokens() {
     return "cpdTokens: ["
-    + "{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"image\":\"LITERAL\"},"
-    + "{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"image\":\"if\"}"
-    + "]";
+      + "{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"image\":\"LITERAL\"},"
+      + "{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"image\":\"if\"}"
+      + "]";
   }
 
   private static DefaultInputFile createInputFile(SensorContextTester context) {

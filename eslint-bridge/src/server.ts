@@ -68,7 +68,7 @@ export function startServer(
         response.json(getFilesForTsConfig(tsconfig));
       } catch (e) {
         console.error(e.stack);
-        response.json([]);
+        response.json({ error: e.message });
       }
     });
 

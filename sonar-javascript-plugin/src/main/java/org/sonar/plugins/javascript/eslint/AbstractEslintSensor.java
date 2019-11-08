@@ -141,11 +141,10 @@ abstract class AbstractEslintSensor implements Sensor {
       LOG.error("Failed to parse file [{}] at line {}: {}", inputFile.toString(), line, message);
     } else {
       if (parsingError.code == ParsingErrorCode.MISSING_TYPESCRIPT) {
+        // effectively this is dead code, because missing typescript should be detected at the time we load tsconfig file
         LOG.error(message);
-        LOG.error("TypeScript dependency was not found and it is required for analysis.");
-        LOG.error("Install TypeScript in the project directory or use NODE_PATH env. variable to set TypeScript " +
-          "location, if it's located outside of project directory.");
-        throw new IllegalStateException("Missing TypeScript dependency");
+        logMissingTypescript();
+        throw new MissingTypeScriptException();
       } else if (parsingError.code == ParsingErrorCode.UNSUPPORTED_TYPESCRIPT) {
         LOG.error(message);
         LOG.error("If it's not possible to upgrade version of TypeScript used by the project, " +
@@ -277,5 +276,18 @@ abstract class AbstractEslintSensor implements Sensor {
 
   protected boolean ignoreHeaderComments() {
     return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
+  }
+
+  static void logMissingTypescript() {
+    LOG.error("TypeScript dependency was not found and it is required for analysis.");
+    LOG.error("Install TypeScript in the project directory or use NODE_PATH env. variable to set TypeScript " +
+      "location, if it's located outside of project directory.");
+  }
+}
+
+class MissingTypeScriptException extends RuntimeException {
+
+  public MissingTypeScriptException() {
+    super("Missing TypeScript dependency");
   }
 }
