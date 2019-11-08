@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, Scope } from "eslint";
+import { Rule, Scope, AST } from "eslint";
 import * as estree from "estree";
 import { Location } from "./location";
 
@@ -52,6 +52,23 @@ export const rule: Rule.RuleModule = {
           };
           result.push(highlightedSymbol);
         });
+
+        const openCurlyBracesStack: AST.Token[] = [];
+        context.getSourceCode().ast.tokens.forEach(token => {
+          if (token.type === "Punctuator") {
+            if (token.value === "{") {
+              openCurlyBracesStack.push(token);
+            }
+            if (token.value === "}") {
+              const highlightedSymbol: HighlightedSymbol = {
+                declaration: location(openCurlyBracesStack.pop()!.loc),
+                references: [location(token.loc)],
+              };
+              result.push(highlightedSymbol);
+            }
+          }
+        });
+
         // as issues are the only communication channel of a rule
         // we pass data as serialized json as an issue message
         context.report({ node, message: JSON.stringify(result) });
