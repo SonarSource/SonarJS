@@ -1311,10 +1311,10 @@ eslint-plugin-chai-friendly@0.4.1:
   resolved "https://registry.yarnpkg.com/eslint-plugin-chai-friendly/-/eslint-plugin-chai-friendly-0.4.1.tgz#9eeb17f92277ba80bb64f0e946c6936a3ae707b4"
   integrity sha512-hkpLN7VVoGGsofZjUhcQ+sufC3FgqMJwD0DvAcRfxY1tVRyQyVsqpaKnToPHJQOrRo0FQ0fSEDwW2gr4rsNdGA==
 
-eslint-plugin-sonarjs@0.5.0-internal:
-  version "0.5.0-internal"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.5.0-internal.tgz#6e97a1da901a966eacbadfa5fe83b6781c9a1c9e"
-  integrity sha512-9Zj+xZS/Gyeo4gSx5x1D3lnJ9VCdbB8QDttq0z9XK5ftkqWZFaoI+JDYmgbGXMZS3UH2akKymuqwdtdbkqMOGQ==
+eslint-plugin-sonarjs@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.5.0.tgz#ce17b2daba65a874c2862213a9e38e8986ad7d7d"
+  integrity sha512-XW5MnzlRjhXpIdbULC/qAdJYHWw3rRLws/DyawdlPU/IdVr9AmRK1r2LaCvabwKOAW2XYYSo3kDX58E4MrB7PQ==
 
 eslint-scope@3.7.1:
   version "3.7.1"

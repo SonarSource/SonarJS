@@ -38,9 +38,9 @@ const noOneIterationIssue = {
 
 const noDuplicateStringIssue = {
   line: 7,
-  column: 2,
+  column: 6,
   endLine: 7,
-  endColumn: 16,
+  endColumn: 20,
   message: "Define a constant instead of duplicating this literal 2 times.",
   ruleId: "no-duplicate-string",
   secondaryLocations: [],
@@ -97,7 +97,7 @@ describe("#analyzeJavaScript", () => {
       fileContent: codeToTest,
       rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
     }).cpdTokens;
-    expect(cpdTokens).toHaveLength(36);
+    expect(cpdTokens).toHaveLength(42);
   });
 
   it("should return empty list when parse error", () => {
@@ -247,7 +247,7 @@ describe("#analyzeTypeScript", () => {
       rules: [],
       tsConfigs: [tsConfig],
     }).cpdTokens;
-    expect(cpdTokens).toHaveLength(36);
+    expect(cpdTokens).toHaveLength(42);
   });
 
   it("should report cognitive complexity", () => {

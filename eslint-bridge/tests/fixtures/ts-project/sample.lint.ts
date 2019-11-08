@@ -4,4 +4,4 @@
     console.log("i is " + i);
     break;
   }
-  "Hello, world"; "Hello, world";
+  foo("Hello, world"); foo("Hello, world");
