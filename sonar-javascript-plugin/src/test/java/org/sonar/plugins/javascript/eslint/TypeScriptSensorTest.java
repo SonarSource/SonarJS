@@ -72,6 +72,7 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
@@ -370,6 +371,32 @@ public class TypeScriptSensorTest {
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("No tsconfig.json file found, analysis will be stopped.");
+  }
+
+  @Test
+  public void should_fail_fast() throws Exception {
+    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
+    TypeScriptSensor sensor = createSensor();
+    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(settings);
+    createInputFile(context);
+
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
+  }
+
+  @Test
+  public void should_fail_fast_with_parsing_error_without_line() throws IOException {
+    when(eslintBridgeServerMock.analyzeTypeScript(any()))
+      .thenReturn(new Gson().fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class));
+    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(settings);
+    createInputFile(context);
+    assertThatThrownBy(() -> createSensor().execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file.ts]: Parse error message");
   }
 
   private TypeScriptSensor createSensor() {

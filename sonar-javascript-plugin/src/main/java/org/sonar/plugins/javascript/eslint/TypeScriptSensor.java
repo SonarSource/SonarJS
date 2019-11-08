@@ -116,7 +116,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     }
   }
 
-  private void analyzeFilesWithTsConfig(List<InputFile> files, TsConfigFile tsConfigFile) {
+  private void analyzeFilesWithTsConfig(List<InputFile> files, TsConfigFile tsConfigFile) throws IOException {
     for (InputFile inputFile : files) {
       if (eslintBridgeServer.isAlive()) {
         analyze(inputFile, tsConfigFile);
@@ -127,7 +127,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     }
   }
 
-  private void analyze(InputFile file, TsConfigFile tsConfigFile) {
+  private void analyze(InputFile file, TsConfigFile tsConfigFile) throws IOException {
     try {
       String fileContent = shouldSendFileContent(file) ? file.contents() : null;
       AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), singletonList(tsConfigFile.filename));
@@ -135,6 +135,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       processResponse(file, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file, e);
+      throw e;
     }
   }
 

@@ -46,6 +46,7 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
@@ -64,6 +65,7 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
@@ -436,6 +438,29 @@ public class JavaScriptEslintBasedSensorTest {
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
     assertThat(captor.getValue().fileContent).isEqualTo(content );
+  }
+
+  @Test
+  public void should_fail_fast() throws Exception {
+    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenThrow(new IOException("error"));
+    JavaScriptEslintBasedSensor sensor = createSensor();
+    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(settings);
+    DefaultInputFile inputFile = createInputFile(context);
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
+  }
+
+  @Test
+  public void should_fail_fast_with_nodecommandexception() throws Exception {
+    doThrow(new NodeCommandException("error")).when(eslintBridgeServerMock).startServerLazily(any());
+    JavaScriptEslintBasedSensor sensor = createSensor();
+    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(settings);
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
   }
 
   private static CheckFactory checkFactory(String... ruleKeys) {

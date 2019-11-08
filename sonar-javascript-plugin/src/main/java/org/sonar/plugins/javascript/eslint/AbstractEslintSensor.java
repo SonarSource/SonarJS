@@ -85,6 +85,7 @@ abstract class AbstractEslintSensor implements Sensor {
   protected ProgressReport progressReport =
     new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
   SensorContext context;
+  private boolean failFast;
 
   AbstractEslintSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
       FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
@@ -108,6 +109,7 @@ abstract class AbstractEslintSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     this.context = context;
+    failFast = context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
     try {
       eslintBridgeServer.startServerLazily(context);
       List<InputFile> inputFiles = getInputFiles();
@@ -124,8 +126,14 @@ abstract class AbstractEslintSensor implements Sensor {
       if (analysisWarnings != null) {
         analysisWarnings.addUnique("Eslint-based rules were not executed. " + e.getMessage());
       }
+      if (failFast) {
+        throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
+      }
     } catch (Exception e) {
       LOG.error("Failure during analysis, " + eslintBridgeServer.getCommandInfo(), e);
+      if (failFast) {
+        throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
+      }
     } finally {
       progressReport.cancel();
     }
@@ -152,6 +160,9 @@ abstract class AbstractEslintSensor implements Sensor {
         throw new IllegalStateException("Unsupported TypeScript version");
       }
       LOG.error("Failed to analyze file [{}]: {}", inputFile.toString(), message);
+      if (failFast) {
+        throw new IllegalStateException("Failed to analyze file " + inputFile.toString());
+      }
     }
 
     if (parsingErrorRuleKey != null) {

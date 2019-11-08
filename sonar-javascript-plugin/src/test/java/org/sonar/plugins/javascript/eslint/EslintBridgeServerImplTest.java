@@ -220,7 +220,7 @@ public class EslintBridgeServerImplTest {
   }
 
   @Test
-  public void should_not_explode_if_bad_json_response() throws Exception {
+  public void should_fail_if_bad_json_response() throws Exception {
     eslintBridgeServer = createEslintBridgeServer("badResponse.js");
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServerLazily(context);
@@ -229,13 +229,7 @@ public class EslintBridgeServerImplTest {
       .setContents("alert('Fly, you fools!')")
       .build();
     AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, new Rule[0], true, null);
-    EslintBridgeServer.AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(request);
-    assertThat(response.issues).isEmpty();
-
-    assertThat(logTester.logs(LoggerLevel.ERROR).stream().anyMatch(log -> log.startsWith("Failed to parse response for file foo/foo.js: \n" +
-      "-----\n" +
-      "Invalid response\n" +
-      "-----\n"))).isTrue();
+    assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request)).isInstanceOf(IllegalStateException.class);
     assertThat(context.allIssues()).isEmpty();
   }
 

@@ -64,7 +64,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   @Override
-  void analyzeFiles(List<InputFile> inputFiles) {
+  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     for (InputFile inputFile : inputFiles) {
       if (eslintBridgeServer.isAlive()) {
         analyze(inputFile);
@@ -75,7 +75,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     }
   }
 
-  private void analyze(InputFile file) {
+  private void analyze(InputFile file) throws IOException {
     try {
       String fileContent = shouldSendFileContent(file) ? file.contents() : null;
       AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), null);
@@ -83,6 +83,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       processResponse(file, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
+      throw e;
     }
   }
 
