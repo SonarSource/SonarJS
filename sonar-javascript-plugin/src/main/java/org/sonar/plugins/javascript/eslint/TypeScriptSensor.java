@@ -101,11 +101,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   @Override
   void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     List<String> tsConfigs = tsConfigs();
-    splitAnalysisByTsConfig(inputFiles, tsConfigs);
-  }
-
-  private void splitAnalysisByTsConfig(List<InputFile> inputFiles, List<String> tsconfigs) {
-    Map<String, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsconfigs), inputFiles);
+    Map<String, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
     for (Map.Entry<String, List<InputFile>> entry : filesByTsConfig.entrySet()) {
       String tsConfigFile = entry.getKey();
       List<InputFile> files = entry.getValue();
