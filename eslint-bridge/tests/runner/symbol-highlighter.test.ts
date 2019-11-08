@@ -40,7 +40,7 @@ x = 42;
 
 it("should highlight parameter references", () => {
   const result = actual(`function foo(p: number) { return p; }`);
-  expect(result).toHaveLength(2);
+  expect(result).toHaveLength(3);
   expect(result[0].declaration).toEqual(location(1, 9, 1, 12));
   expect(result[0].references).toHaveLength(0);
 
@@ -70,10 +70,31 @@ it("should not highlight variable without declaration", () => {
 
 it("should highlight imported symbol", () => {
   const result = actual(`import { x } from "hello"; \nx();`);
-  expect(result).toHaveLength(1);
+  expect(result).toHaveLength(2);
   expect(result[0].declaration).toEqual(location(1, 9, 1, 10));
   expect(result[0].references).toHaveLength(1);
   expect(result[0].references[0]).toEqual(location(2, 0, 2, 1));
+});
+
+it("should highlight curly brackets", () => {
+  const result = actual(`
+(function () {
+  if (true) {
+    return {};
+  }
+})();
+  `);
+  result.sort((a, b) => a.declaration.startLine - b.declaration.startLine);
+  expect(result).toHaveLength(3);
+  expect(result[0].declaration).toEqual(location(2, 13, 2, 14));
+  expect(result[0].references).toHaveLength(1);
+  expect(result[0].references[0]).toEqual(location(6, 0, 6, 1));
+  expect(result[1].declaration).toEqual(location(3, 12, 3, 13));
+  expect(result[1].references).toHaveLength(1);
+  expect(result[1].references[0]).toEqual(location(5, 2, 5, 3));
+  expect(result[2].declaration).toEqual(location(4, 11, 4, 12));
+  expect(result[2].references).toHaveLength(1);
+  expect(result[2].references[0]).toEqual(location(4, 12, 4, 13));
 });
 
 function location(startLine: number, startCol: number, endLine: number, endCol: number): Location {
