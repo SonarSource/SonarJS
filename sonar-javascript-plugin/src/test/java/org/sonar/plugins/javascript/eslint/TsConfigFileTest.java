@@ -49,18 +49,18 @@ public class TsConfigFileTest {
       new TsConfigFile("dir3/tsconfig.json", singletonList("foo/dir3/file3.ts"))
     );
 
-    Map<String, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(tsConfigFiles, inputFiles);
+    Map<TsConfigFile, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(tsConfigFiles, inputFiles);
     assertThat(result).containsExactly(
-      entry("dir1/tsconfig.json", singletonList(inputFiles.get(0))),
-      entry("dir2/tsconfig.json", singletonList(inputFiles.get(1))),
-      entry("dir3/tsconfig.json", singletonList(inputFiles.get(2)))
+      entry(tsConfigFiles.get(0), singletonList(inputFiles.get(0))),
+      entry(tsConfigFiles.get(1), singletonList(inputFiles.get(1))),
+      entry(tsConfigFiles.get(2), singletonList(inputFiles.get(2)))
     );
   }
 
   @Test
   public void failsToLoad() {
     List<TsConfigFile> tsConfigFiles = singletonList(new TsConfigFile("tsconfig/path", emptyList()));
-    Map<String, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(tsConfigFiles, emptyList());
+    Map<TsConfigFile, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(tsConfigFiles, emptyList());
     assertThat(result).isEmpty();
   }
 }
