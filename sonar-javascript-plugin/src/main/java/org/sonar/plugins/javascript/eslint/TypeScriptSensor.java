@@ -50,7 +50,6 @@ import static java.util.Collections.singletonList;
 public class TypeScriptSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
-  private static final int PER_TSCONFIG_ANALYSIS_THRESHOLD = 2;
   private final TempFolder tempFolder;
 
   /**
@@ -102,17 +101,9 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   @Override
   void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     List<String> tsConfigs = tsConfigs();
-    if (tsConfigs.size() > PER_TSCONFIG_ANALYSIS_THRESHOLD) {
-      splitAnalysisByTsConfig(inputFiles, tsConfigs);
-    } else {
-      analyzeFilesWithTsConfigs(inputFiles, tsConfigs);
-    }
-  }
-
-  private void splitAnalysisByTsConfig(List<InputFile> inputFiles, List<String> tsconfigs) {
-    Map<String, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsconfigs), inputFiles);
-    for (Map.Entry<String, List<InputFile>> entry : filesByTsConfig.entrySet()) {
-      String tsConfigFile = entry.getKey();
+    Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
+    for (Map.Entry<TsConfigFile, List<InputFile>> entry : filesByTsConfig.entrySet()) {
+      TsConfigFile tsConfigFile = entry.getKey();
       List<InputFile> files = entry.getValue();
       if (TsConfigFile.UNMATCHED_CONFIG.equals(tsConfigFile)) {
         LOG.info("Skipping {} files with no tsconfig.json", files.size());
@@ -120,15 +111,15 @@ public class TypeScriptSensor extends AbstractEslintSensor {
         continue;
       }
       LOG.info("Analyzing {} files using tsconfig: {}", files.size(), tsConfigFile);
-      analyzeFilesWithTsConfigs(files, singletonList(tsConfigFile));
+      analyzeFilesWithTsConfig(files, tsConfigFile);
       eslintBridgeServer.newTsConfig();
     }
   }
 
-  private void analyzeFilesWithTsConfigs(List<InputFile> files, List<String> tsConfigs) {
+  private void analyzeFilesWithTsConfig(List<InputFile> files, TsConfigFile tsConfigFile) {
     for (InputFile inputFile : files) {
       if (eslintBridgeServer.isAlive()) {
-        analyze(inputFile, tsConfigs);
+        analyze(inputFile, tsConfigFile);
         progressReport.nextFile();
       } else {
         throw new IllegalStateException("eslint-bridge server is not answering");
@@ -136,10 +127,10 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     }
   }
 
-  private void analyze(InputFile file, List<String> tsConfigs) {
+  private void analyze(InputFile file, TsConfigFile tsConfigFile) {
     try {
       String fileContent = shouldSendFileContent(file) ? file.contents() : null;
-      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), tsConfigs);
+      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), singletonList(tsConfigFile.filename));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       processResponse(file, response);
     } catch (IOException e) {

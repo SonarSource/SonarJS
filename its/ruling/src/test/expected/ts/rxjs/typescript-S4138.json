@@ -8,7 +8,4 @@
 'rxjs:spec/operators/bufferWhen-spec.ts':[
 72,
 ],
-'rxjs:src/symbol/iterator.ts':[
-21,
-],
 }

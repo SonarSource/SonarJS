@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ import org.sonar.api.utils.log.Loggers;
 class TsConfigFile implements Predicate<InputFile> {
   private static final Logger LOG = Loggers.get(TsConfigFile.class);
 
-  static final String UNMATCHED_CONFIG = "NO_CONFIG";
+  static final TsConfigFile UNMATCHED_CONFIG = new TsConfigFile("NO_CONFIG", Collections.emptyList());
 
   final String filename;
   final List<String> files;
@@ -46,12 +47,11 @@ class TsConfigFile implements Predicate<InputFile> {
     return files.contains(inputFile.absolutePath());
   }
 
-  static Map<String, List<InputFile>> inputFilesByTsConfig(List<TsConfigFile> tsConfigFiles, List<InputFile> inputFiles) {
-    Map<String, List<InputFile>> result = new LinkedHashMap<>();
+  static Map<TsConfigFile, List<InputFile>> inputFilesByTsConfig(List<TsConfigFile> tsConfigFiles, List<InputFile> inputFiles) {
+    Map<TsConfigFile, List<InputFile>> result = new LinkedHashMap<>();
     inputFiles.forEach(inputFile -> {
-      String tsconfig = tsConfigFiles.stream()
+      TsConfigFile tsconfig = tsConfigFiles.stream()
         .filter(tsConfigFile -> tsConfigFile.test(inputFile))
-        .map(tsConfigFile -> tsConfigFile.filename)
         .findFirst().orElse(UNMATCHED_CONFIG);
       LOG.debug("{} matched {}", inputFile.absolutePath(), tsconfig);
       result.computeIfAbsent(tsconfig, t -> new ArrayList<>()).add(inputFile);
@@ -59,5 +59,8 @@ class TsConfigFile implements Predicate<InputFile> {
     return result;
   }
 
-
+  @Override
+  public String toString() {
+    return filename;
+  }
 }

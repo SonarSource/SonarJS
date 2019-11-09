@@ -2,9 +2,4 @@
 'rxjs:spec/observables/dom/webSocket-spec.ts':[
 11,
 ],
-'rxjs:src/util/root.ts':[
-16,
-17,
-19,
-],
 }
