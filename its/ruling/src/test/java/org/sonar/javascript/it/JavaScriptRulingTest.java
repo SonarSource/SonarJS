@@ -147,7 +147,8 @@ public class JavaScriptRulingTest {
       .setProperty("lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
       .setProperty("sonar.exclusions", String.join(",", exclusions))
       .setProperty("sonar.javascript.node.maxspace", "2048")
-      .setProperty("sonar.cpd.exclusions", "**/*");
+      .setProperty("sonar.cpd.exclusions", "**/*")
+      .setProperty("sonar.internal.analysis.failFast", "true");
 
     orchestrator.executeBuild(build);
 

@@ -199,8 +199,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     try {
       return GSON.fromJson(result, AnalysisResponse.class);
     } catch (JsonSyntaxException e) {
-      LOG.error("Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n");
-      return new AnalysisResponse();
+      String msg = "Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n";
+      LOG.error(msg, e);
+      throw new IllegalStateException("Failed to parse response", e);
     }
   }
 
