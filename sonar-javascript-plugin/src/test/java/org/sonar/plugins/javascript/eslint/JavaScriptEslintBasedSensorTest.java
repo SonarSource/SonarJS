@@ -489,6 +489,15 @@ public class JavaScriptEslintBasedSensorTest {
     assertThat(context.allIssues()).extracting(i -> i.ruleKey().toString()).containsExactly("javascript:OctalNumber");
   }
 
+  @Test
+  public void stop_analysis_if_cancelled() throws Exception {
+    JavaScriptEslintBasedSensor sensor = createSensor();
+    createInputFile(context);
+    context.setCancelled(true);
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
+  }
+
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {

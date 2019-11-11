@@ -105,6 +105,9 @@ abstract class AbstractEslintSensor implements Sensor {
     try {
       eslintBridgeServer.startServerLazily(context);
       analyzeFiles();
+    } catch (CancellationException e) {
+      // do not propagate the exception
+      LOG.info(e.toString());
     } catch (ServerAlreadyFailedException e) {
       LOG.debug("Skipping start of eslint-bridge server due to the failure during first analysis");
       LOG.debug("Skipping execution of eslint-based rules due to the problems with eslint-bridge server");

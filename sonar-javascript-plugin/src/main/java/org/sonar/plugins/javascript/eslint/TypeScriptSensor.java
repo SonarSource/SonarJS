@@ -134,6 +134,9 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   private void analyzeFilesWithTsConfig(List<InputFile> files, TsConfigFile tsConfigFile, ProgressReport progressReport) throws IOException {
     for (InputFile inputFile : files) {
+      if (context.isCancelled()) {
+        throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+      }
       if (eslintBridgeServer.isAlive()) {
         analyze(inputFile, tsConfigFile);
         progressReport.nextFile();
