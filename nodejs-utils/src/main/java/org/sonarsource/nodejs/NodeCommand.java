@@ -96,7 +96,7 @@ public class NodeCommand {
     return env;
   }
 
-  private List<String> buildCommand(String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename, List<String> args) {
+  private static List<String> buildCommand(String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename, List<String> args) {
     List<String> result = new ArrayList<>();
     result.add(nodeExecutable);
     result.addAll(nodeJsArgs);

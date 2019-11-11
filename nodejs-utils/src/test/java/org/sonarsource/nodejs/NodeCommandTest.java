@@ -29,7 +29,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -154,14 +153,9 @@ public class NodeCommandTest {
     assertThat(NodeCommandBuilderImpl.checkVersion("Invalid version", 6)).isFalse();
   }
 
-  @Ignore
   @Test
   public void test_max_old_space_size_setting() throws IOException {
     String request = "v8.getHeapStatistics()";
-    if (System.getProperty("os.name").startsWith("Mac")) {
-      // on Mac Node.js is launched with "sh" so we need to escape
-      request = "v8.getHeapStatistics\\(\\)";
-    }
     StringBuilder output = new StringBuilder();
     NodeCommand command = NodeCommand.builder()
       .maxOldSpaceSize(2048)
