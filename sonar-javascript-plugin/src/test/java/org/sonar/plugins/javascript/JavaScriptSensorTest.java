@@ -127,16 +127,6 @@ public class JavaScriptSensorTest {
   }
 
   @Test
-  public void should_contain_sensor_descriptor() {
-    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
-
-    createSensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("SonarJS");
-    assertThat(descriptor.languages()).containsOnly("js");
-    assertThat(descriptor.type()).isEqualTo(Type.MAIN);
-  }
-
-  @Test
   public void should_only_log_debug_if_a_parsing_error() {
     String relativePath = "cpd/parsingError.js";
     InputFile inputFile = inputFile(relativePath);
