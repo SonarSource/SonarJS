@@ -344,6 +344,10 @@ public class NodeCommandTest {
 
   @Test
   public void test_command_on_mac() throws Exception {
+    if (System.getProperty("os.name").toLowerCase().contains("win")) {
+      // we can't test this on Windows as we are setting permissions
+      return;
+    }
     when(mockProcessWrapper.isMac()).thenReturn(true);
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .script("script.js")
