@@ -62,6 +62,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.JUnitTempFolder;
+import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
@@ -105,6 +106,7 @@ public class TypeScriptSensorTest {
 
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     when(eslintBridgeServerMock.loadTsConfig(any())).thenAnswer(
       invocationOnMock -> {
         String tsConfigPath = (String) invocationOnMock.getArguments()[0];
@@ -397,6 +399,26 @@ public class TypeScriptSensorTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file.ts]: Parse error message");
+  }
+
+  @Test
+  public void stop_analysis_if_server_is_not_responding() throws Exception {
+    when(eslintBridgeServerMock.isAlive()).thenReturn(false);
+    TypeScriptSensor sensor = createSensor();
+    createInputFile(context);
+    sensor.execute(context);
+    final LogAndArguments logAndArguments = logTester.getLogs(LoggerLevel.ERROR).get(0);
+    assertThat(logAndArguments.getFormattedMsg()).isEqualTo("Failure during analysis, eslintBridgeServerMock command info");
+    assertThat(((IllegalStateException) logAndArguments.getArgs().get()[0]).getMessage()).isEqualTo("eslint-bridge server is not answering");
+  }
+
+  @Test
+  public void stop_analysis_if_cancelled() throws Exception {
+    TypeScriptSensor sensor = createSensor();
+    createInputFile(context);
+    context.setCancelled(true);
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
   }
 
   private TypeScriptSensor createSensor() {

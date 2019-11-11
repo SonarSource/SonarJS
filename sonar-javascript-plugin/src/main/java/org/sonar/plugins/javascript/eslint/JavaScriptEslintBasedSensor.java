@@ -38,6 +38,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptSensor;
@@ -86,6 +87,9 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       List<InputFile> inputFiles = getInputFiles();
       progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
       for (InputFile inputFile : inputFiles) {
+        if (context.isCancelled()) {
+          throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+        }
         if (eslintBridgeServer.isAlive()) {
           analyze(inputFile);
           progressReport.nextFile();

@@ -131,7 +131,7 @@ public class JavaScriptSensor {
       success = true;
     } catch (CancellationException e) {
       // do not propagate the exception
-      LOG.debug(e.toString());
+      LOG.info(e.toString());
     } finally {
       stopProgressReport(progressReport, success);
     }
