@@ -120,6 +120,17 @@ public class NodeCommandTest {
   }
 
   @Test
+  public void test_mac_default_executable_not_found() throws IOException {
+    when(mockProcessWrapper.isMac()).thenReturn(true);
+    thrown.expect(NodeCommandException.class);
+    thrown.expectMessage("Default Node.js executable for MacOS does not exist.");
+
+    NodeCommand.builder(mockProcessWrapper)
+      .pathResolver(p -> "/file/does/not/exist")
+      .build();
+  }
+
+  @Test
   public void test_min_version_positive() throws Exception {
     NodeCommand nodeCommand = NodeCommand.builder()
       .minNodeVersion(1)
