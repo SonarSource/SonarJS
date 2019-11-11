@@ -50,6 +50,7 @@
     "eslint-plugin-chai-friendly": "0.4.1",
     "eslint-plugin-sonarjs": "0.5.0",
     "express": "4.16.3",
+    "run-node": "1.0.0",
     "vue-eslint-parser": "6.0.4"
   },
   "bundledDependencies": [
@@ -63,7 +64,8 @@
     "eslint-plugin-chai-friendly",
     "eslint-plugin-sonarjs",
     "express",
-    "vue-eslint-parser"
+    "vue-eslint-parser",
+    "run-node"
   ],
   "prettier": {
     "printWidth": 100,

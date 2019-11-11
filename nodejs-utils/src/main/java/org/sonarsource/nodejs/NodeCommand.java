@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,26 +98,13 @@ public class NodeCommand {
 
   private List<String> buildCommand(String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename, List<String> args) {
     List<String> result = new ArrayList<>();
-    result.add(quote(nodeExecutable));
+    result.add(nodeExecutable);
     result.addAll(nodeJsArgs);
     if (scriptFilename != null) {
-      result.add(quote(scriptFilename));
+      result.add(scriptFilename);
     }
     result.addAll(args);
-    // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured
-    // in .bashrc or similar, thus we launch node via sh, which should load required configuration
-    if (processWrapper.isMac()) {
-      return Arrays.asList("/bin/sh", "-c", String.join(" ", result));
-    } else {
-      return Collections.unmodifiableList(result);
-    }
-  }
-
-  private String quote(String s) {
-    if (processWrapper.isMac()) {
-      return "'" + s + "'";
-    }
-    return s;
+    return result;
   }
 
   /**

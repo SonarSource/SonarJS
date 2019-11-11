@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.eslint;
+package org.sonarsource.nodejs;
 
-import java.io.IOException;
-import org.sonarsource.nodejs.BundlePathResolver;
+@FunctionalInterface
+public interface BundlePathResolver {
 
-interface Bundle extends BundlePathResolver {
+  String resolve(String relativePath);
 
-  void deploy() throws IOException;
-
-  String startServerScript();
 }

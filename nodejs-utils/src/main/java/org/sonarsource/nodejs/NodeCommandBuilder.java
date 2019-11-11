@@ -19,6 +19,7 @@
  */
 package org.sonarsource.nodejs;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import org.sonar.api.config.Configuration;
@@ -46,5 +47,7 @@ public interface NodeCommandBuilder {
 
   NodeCommandBuilder errorConsumer(Consumer<String> consumer);
 
-  NodeCommand build();
+  NodeCommandBuilder pathResolver(BundlePathResolver pathResolver);
+
+  NodeCommand build() throws IOException;
 }

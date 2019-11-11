@@ -78,7 +78,12 @@ public class BundleImpl implements Bundle {
 
   @Override
   public String startServerScript() {
-    return deployLocation.resolve(DEFAULT_STARTUP_SCRIPT).toAbsolutePath().toString();
+    return resolve(DEFAULT_STARTUP_SCRIPT);
+  }
+
+  @Override
+  public String resolve(String relativePath) {
+    return deployLocation.resolve(relativePath).toAbsolutePath().toString();
   }
 
   private static void extractFromClasspath(InputStream resource, Path targetPath) throws IOException {

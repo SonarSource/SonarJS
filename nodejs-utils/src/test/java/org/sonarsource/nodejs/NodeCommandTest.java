@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -83,6 +84,7 @@ public class NodeCommandTest {
   public void test() throws Exception {
     NodeCommand nodeCommand = NodeCommand.builder()
       .script(resourceScript(PATH_TO_SCRIPT))
+      .pathResolver(getPathResolver())
       .build();
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
@@ -97,6 +99,7 @@ public class NodeCommandTest {
       .script(resourceScript("files/error.js"))
       .outputConsumer(output::append)
       .errorConsumer(error::append)
+      .pathResolver(getPathResolver())
       .build();
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
@@ -106,12 +109,13 @@ public class NodeCommandTest {
   }
 
   @Test
-  public void test_min_version() {
+  public void test_min_version() throws IOException {
     thrown.expect(NodeCommandException.class);
     thrown.expectMessage("Only Node.js v99 or later is supported, got");
 
     NodeCommand.builder()
       .minNodeVersion(99)
+      .pathResolver(getPathResolver())
       .build();
   }
 
@@ -120,6 +124,7 @@ public class NodeCommandTest {
     NodeCommand nodeCommand = NodeCommand.builder()
       .minNodeVersion(1)
       .script(resourceScript(PATH_TO_SCRIPT))
+      .pathResolver(getPathResolver())
       .build();
 
     nodeCommand.start();
@@ -138,8 +143,9 @@ public class NodeCommandTest {
     assertThat(NodeCommandBuilderImpl.checkVersion("Invalid version", 6)).isFalse();
   }
 
+  @Ignore
   @Test
-  public void test_max_old_space_size_setting() {
+  public void test_max_old_space_size_setting() throws IOException {
     String request = "v8.getHeapStatistics()";
     if (System.getProperty("os.name").startsWith("Mac")) {
       // on Mac Node.js is launched with "sh" so we need to escape
@@ -150,6 +156,7 @@ public class NodeCommandTest {
       .maxOldSpaceSize(2048)
       .nodeJsArgs("-p", request)
       .outputConsumer(output::append)
+      .pathResolver(getPathResolver())
       .build();
     command.start();
     command.waitFor();
@@ -319,7 +326,7 @@ public class NodeCommandTest {
   }
 
   @Test
-  public void test_toString() {
+  public void test_toString() throws IOException {
     when(mockProcessWrapper.isMac()).thenReturn(false);
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .nodeJsArgs("-v")
@@ -335,10 +342,14 @@ public class NodeCommandTest {
     when(mockProcessWrapper.isMac()).thenReturn(true);
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .script("script.js")
+      .pathResolver(getPathResolver())
       .build();
     nodeCommand.start();
     verify(mockProcessWrapper).start(processStartArgument.capture(), any());
-    assertThat(processStartArgument.getValue()).containsExactly("/bin/sh", "-c", "'node' 'script.js'");
+     List<String> value = processStartArgument.getValue();
+     assertThat(value).hasSize(2);
+    assertThat(value.get(0)).endsWith("nodejs-utils/src/test/resources/package/node_modules/run-node/run-node");
+    assertThat(value.get(1)).isEqualTo("script.js");
   }
 
   @Test
@@ -377,6 +388,7 @@ public class NodeCommandTest {
     NodeCommand command = NodeCommand.builder()
       .addToNodePath(path)
       .script("script.js")
+      .pathResolver(getPathResolver())
       .build();
     command.start();
     assertThat(command.toString()).startsWith("{NODE_PATH=" + path + "}");
@@ -385,5 +397,10 @@ public class NodeCommandTest {
 
   private static String resourceScript(String script) throws URISyntaxException {
     return new File(NodeCommandTest.class.getResource("/" + script).toURI()).getAbsolutePath();
+  }
+
+  private static BundlePathResolver getPathResolver() {
+    File file = new File("src/test/resources");
+    return (p) -> new File(file.getAbsoluteFile(), p).getAbsolutePath();
   }
 }

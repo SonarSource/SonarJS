@@ -20,9 +20,13 @@
 package org.sonarsource.nodejs;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -40,7 +44,8 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private static final Logger LOG = Loggers.get(NodeCommandBuilderImpl.class);
 
-  private static final String NODE_EXECUTABLE_DEFAULT = "node";
+  public static final String NODE_EXECUTABLE_DEFAULT = "node";
+  private static final String NODE_EXECUTABLE_DEFAULT_MACOS = "package/node_modules/run-node/run-node";
 
   private static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
   private static final String NODE_EXECUTABLE_PROPERTY_TS = "sonar.typescript.node";
@@ -56,6 +61,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private Consumer<String> errorConsumer = LOG::error;
   private String scriptFilename;
   private List<Path> nodePath = new ArrayList<>();
+  private BundlePathResolver pathResolver;
 
   NodeCommandBuilderImpl(NodeCommand.ProcessWrapper processWrapper) {
     this.processWrapper = processWrapper;
@@ -118,6 +124,12 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return this;
   }
 
+  @Override
+  public NodeCommandBuilder pathResolver(BundlePathResolver pathResolver) {
+    this.pathResolver = pathResolver;
+    return this;
+  }
+
   /**
    * Retrieves node executable from sonar.node.executable property or using default if absent.
    * Then will check Node.js version by running {@code node -v}, then
@@ -127,7 +139,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
    * or if failed to run {@code node -v}
    */
   @Override
-  public NodeCommand build() throws NodeCommandException {
+  public NodeCommand build() throws NodeCommandException, IOException {
     String nodeExecutable = retrieveNodeExecutableFromConfig(configuration);
     checkNodeCompatibility(nodeExecutable);
 
@@ -189,7 +201,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return output.toString();
   }
 
-  private static String retrieveNodeExecutableFromConfig(@Nullable Configuration configuration) throws NodeCommandException {
+  private String retrieveNodeExecutableFromConfig(@Nullable Configuration configuration) throws NodeCommandException, IOException {
     if (configuration != null && (configuration.hasKey(NODE_EXECUTABLE_PROPERTY) || configuration.hasKey(NODE_EXECUTABLE_PROPERTY_TS))) {
       String nodeExecutable = "";
       String usedProperty = "";
@@ -216,7 +228,20 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
       }
     }
 
-    LOG.debug("Using default Node.js executable: '{}'.", NODE_EXECUTABLE_DEFAULT);
-    return NODE_EXECUTABLE_DEFAULT;
+    String defaultNode = NODE_EXECUTABLE_DEFAULT;
+    // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured
+    // in .bashrc or similar, thus we launch node via 'run-node', which should load required configuration
+    if (processWrapper.isMac()) {
+      defaultNode = pathResolver.resolve(NODE_EXECUTABLE_DEFAULT_MACOS);
+      File file = new File(defaultNode);
+      if (!file.exists()) {
+        LOG.error("Default Node.js executable for MacOS does not exist. Value '{}'. Consider setting Node.js location through property '{}'", defaultNode, NODE_EXECUTABLE_PROPERTY);
+        throw new NodeCommandException("Default Node.js executable for MacOS does not exist.");
+      } else {
+        Files.setPosixFilePermissions(file.toPath(), EnumSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ));
+      }
+    }
+    LOG.debug("Using default Node.js executable: '{}'.", defaultNode);
+    return defaultNode;
   }
 }
