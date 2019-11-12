@@ -27,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 import okhttp3.HttpUrl;
@@ -125,6 +124,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
           LOG.info(message);
         }
       })
+      .pathResolver(bundle)
       .minNodeVersion(8)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())

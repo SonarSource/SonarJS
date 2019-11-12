@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -375,6 +376,12 @@ public class EslintBridgeServerImplTest {
     @Override
     public String startServerScript() {
       return "src/test/resources/mock-eslint-bridge/" + startServerScript;
+    }
+
+    @Override
+    public String resolve(String relativePath) {
+      File file = new File("src/test/resources");
+      return new File(file.getAbsoluteFile(), relativePath).getAbsolutePath();
     }
   }
 }
