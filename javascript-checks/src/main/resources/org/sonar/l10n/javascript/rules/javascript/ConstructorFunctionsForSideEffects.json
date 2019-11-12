@@ -1,9 +1,6 @@
 {
   "title": "Objects should not be created to be dropped immediately without being used",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1848",
   "sqKey": "ConstructorFunctionsForSideEffects",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

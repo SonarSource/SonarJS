@@ -1,10 +1,6 @@
 {
   "title": "Collection and array contents should be used",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,5 +13,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4030",
   "sqKey": "S4030",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

@@ -1,9 +1,6 @@
 {
   "title": "The global \"this\" object should not be used",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-2990",
   "sqKey": "S2990",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

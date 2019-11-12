@@ -1,9 +1,6 @@
 {
   "title": "\"in\" should not be used with primitive types",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3785",
   "sqKey": "S3785",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All"
 }

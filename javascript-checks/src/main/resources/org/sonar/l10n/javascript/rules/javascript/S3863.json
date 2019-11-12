@@ -1,10 +1,6 @@
 {
   "title": "Imports from the same modules should be merged",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +12,9 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-3863",
   "sqKey": "S3863",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

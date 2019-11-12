@@ -1,9 +1,6 @@
 {
   "title": "Special identifiers should not be bound or assigned",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2137",
   "sqKey": "S2137",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

@@ -1,9 +1,6 @@
 {
   "title": "Cross-document messaging domains should be carefully restricted",
   "type": "SECURITY_HOTSPOT",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,6 +13,9 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2819",
   "sqKey": "S2819",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "OWASP": [

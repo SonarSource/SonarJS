@@ -1,9 +1,6 @@
 {
   "title": "Unused local variables and functions should be removed",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1481",
   "sqKey": "UnusedVariable",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All"
 }

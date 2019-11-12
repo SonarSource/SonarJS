@@ -1,9 +1,6 @@
 {
   "title": "Optional boolean parameters should have default value",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4798",
   "sqKey": "S4798",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "Main"
 }

@@ -1,10 +1,6 @@
 {
   "title": "\"catch\" clauses should do more than rethrow",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -19,5 +15,9 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-2737",
   "sqKey": "S2737",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main"
 }

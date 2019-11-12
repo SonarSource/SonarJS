@@ -1,9 +1,6 @@
 {
   "title": "Bitwise operators should not be used in boolean contexts",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1529",
   "sqKey": "BitwiseOperators",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

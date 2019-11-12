@@ -1,9 +1,6 @@
 {
   "title": "The names of model properties should not contain spaces",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-2508",
   "sqKey": "S2508",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

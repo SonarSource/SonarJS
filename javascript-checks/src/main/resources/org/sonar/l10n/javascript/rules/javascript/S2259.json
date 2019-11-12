@@ -1,9 +1,6 @@
 {
   "title": "Properties of variables with \"null\" or \"undefined\" values should not be accessed",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,6 +12,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2259",
   "sqKey": "S2259",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

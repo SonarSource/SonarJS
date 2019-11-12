@@ -1,9 +1,6 @@
 {
   "title": "The base should be provided to \"parseInt\"",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-2427",
   "sqKey": "S2427",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

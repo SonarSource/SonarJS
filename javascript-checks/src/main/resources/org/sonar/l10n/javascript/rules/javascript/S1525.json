@@ -1,10 +1,6 @@
 {
   "title": "Debugger statements should not be used",
   "type": "VULNERABILITY",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -18,6 +14,10 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1525",
   "sqKey": "S1525",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

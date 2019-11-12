@@ -1,10 +1,6 @@
 {
   "title": "Using command line arguments is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "tags": [
     "cwe",
@@ -14,6 +10,10 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4823",
   "sqKey": "S4823",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

@@ -1,9 +1,6 @@
 {
   "title": "Ternary operators should not be nested",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3358",
   "sqKey": "S3358",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All"
 }

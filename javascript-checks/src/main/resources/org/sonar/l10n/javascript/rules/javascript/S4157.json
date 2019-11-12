@@ -1,9 +1,6 @@
 {
   "title": "Default type parameters should be omitted",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4157",
   "sqKey": "S4157",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

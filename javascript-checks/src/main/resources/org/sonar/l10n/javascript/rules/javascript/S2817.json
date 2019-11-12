@@ -1,9 +1,6 @@
 {
   "title": "Web SQL databases should not be used",
   "type": "VULNERABILITY",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,6 +14,9 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-2817",
   "sqKey": "S2817",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "OWASP": [

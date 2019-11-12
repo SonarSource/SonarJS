@@ -1,10 +1,6 @@
 {
   "title": "Enabling Cross-Origin Resource Sharing is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "tags": [
     "cwe",
@@ -14,6 +10,10 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5122",
   "sqKey": "S5122",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

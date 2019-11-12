@@ -1,10 +1,6 @@
 {
   "title": "Files should not have too many lines of code",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +12,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-104",
   "sqKey": "S104",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

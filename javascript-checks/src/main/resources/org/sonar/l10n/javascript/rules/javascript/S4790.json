@@ -1,10 +1,6 @@
 {
   "title": "Hashing data is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "tags": [
     "cwe",
@@ -16,6 +12,10 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4790",
   "sqKey": "S4790",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

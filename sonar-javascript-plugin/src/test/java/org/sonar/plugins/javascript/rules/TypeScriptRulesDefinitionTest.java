@@ -70,7 +70,7 @@ public class TypeScriptRulesDefinitionTest {
       String key = ((org.sonar.check.Rule) ruleAnnotation).key();
 
       RuleJson ruleJson = getRuleJson(key);
-      assertThat(ruleJson.compatibleLanguages).isNotNull().isNotEmpty();
+      assertThat(ruleJson.compatibleLanguages).as("For rule " + key).isNotNull().isNotEmpty();
       List<String> expected = new ArrayList<>();
       if (isTypeScriptCheck) {
         expected.add("TYPESCRIPT");

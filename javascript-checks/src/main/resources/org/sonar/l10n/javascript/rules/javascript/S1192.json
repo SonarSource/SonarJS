@@ -1,10 +1,6 @@
 {
   "title": "String literals should not be duplicated",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",
@@ -18,5 +14,9 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1192",
   "sqKey": "S1192",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main"
 }

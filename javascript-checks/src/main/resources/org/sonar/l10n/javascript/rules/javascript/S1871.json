@@ -1,10 +1,6 @@
 {
   "title": "Two branches in a conditional structure should not have exactly the same implementation",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,5 +13,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1871",
   "sqKey": "S1871",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main"
 }

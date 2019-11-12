@@ -1,9 +1,6 @@
 {
   "title": "All code should be reachable",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,6 +13,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1763",
   "sqKey": "UnreachableCode",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All",
   "securityStandards": {
     "CWE": [

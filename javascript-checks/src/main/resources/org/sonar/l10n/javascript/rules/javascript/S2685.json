@@ -1,10 +1,6 @@
 {
   "title": "\"arguments.caller\" and \"arguments.callee\" should not be used",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +12,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2685",
   "sqKey": "S2685",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main"
 }

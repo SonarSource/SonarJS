@@ -1,9 +1,6 @@
 {
   "title": "Loops should not be infinite",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-2189",
   "sqKey": "S2189",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

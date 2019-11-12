@@ -1,10 +1,6 @@
 {
   "title": "Function parameters, caught exceptions and foreach variables' initial values should not be ignored",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +12,9 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1226",
   "sqKey": "S1226",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

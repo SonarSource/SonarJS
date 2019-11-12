@@ -2,9 +2,6 @@
   "title": "Selections should be stored",
   "type": "CODE_SMELL",
   "status": "deprecated",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "remediation": {
     "func": "Linear with offset",
     "linearDesc": "number of times selection is re-made.",
@@ -17,5 +14,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2762",
   "sqKey": "S2762",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

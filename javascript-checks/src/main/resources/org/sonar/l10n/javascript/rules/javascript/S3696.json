@@ -1,10 +1,6 @@
 {
   "title": "Literals should not be thrown",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,5 +13,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3696",
   "sqKey": "S3696",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

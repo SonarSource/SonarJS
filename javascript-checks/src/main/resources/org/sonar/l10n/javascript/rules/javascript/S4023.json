@@ -1,9 +1,6 @@
 {
   "title": "Interfaces should not be empty",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4023",
   "sqKey": "S4023",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "Main"
 }

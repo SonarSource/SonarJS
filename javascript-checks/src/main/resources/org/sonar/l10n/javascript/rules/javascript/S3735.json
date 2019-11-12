@@ -1,9 +1,6 @@
 {
   "title": "\"void\" should not be used",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3735",
   "sqKey": "S3735",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All"
 }

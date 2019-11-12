@@ -1,10 +1,6 @@
 {
   "title": "Function returns should not be invariant",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Linear",
@@ -17,5 +13,9 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-3516",
   "sqKey": "S3516",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main"
 }

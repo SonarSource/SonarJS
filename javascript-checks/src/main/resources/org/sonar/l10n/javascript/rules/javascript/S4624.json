@@ -1,10 +1,6 @@
 {
   "title": "Template literals should not be nested",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,5 +13,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4624",
   "sqKey": "S4624",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

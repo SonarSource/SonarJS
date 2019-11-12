@@ -1,9 +1,6 @@
 {
   "title": "\"indexOf\" checks should not be for positive numbers",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2692",
   "sqKey": "S2692",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All"
 }

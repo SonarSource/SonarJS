@@ -24,9 +24,9 @@ instead.</p>
   <li> Use the generated random values only once. </li>
   <li> You should not expose the generated random value. If you have to store it, make sure that the database or file is secure. </li>
 </ul>
-<h2>Questionable Code Example</h2>
+<h2>Sensitive Code Example</h2>
 <pre>
-const val = Math.random(); // Questionable
+const val = Math.random(); // Sensitive
 // Check if val is used in a security context.
 </pre>
 <h2>Compliant Solution</h2>

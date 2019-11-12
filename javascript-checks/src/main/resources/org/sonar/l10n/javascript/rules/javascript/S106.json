@@ -1,10 +1,6 @@
 {
   "title": "Standard outputs should not be used directly to log anything",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,5 +13,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-106",
   "sqKey": "S106",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main"
 }

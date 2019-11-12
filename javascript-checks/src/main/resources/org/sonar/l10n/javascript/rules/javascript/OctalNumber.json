@@ -1,9 +1,6 @@
 {
   "title": "Octal values should not be used",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1314",
   "sqKey": "OctalNumber",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All"
 }

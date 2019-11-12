@@ -1,9 +1,6 @@
 {
   "title": "Type guards should be used",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4322",
   "sqKey": "S4322",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

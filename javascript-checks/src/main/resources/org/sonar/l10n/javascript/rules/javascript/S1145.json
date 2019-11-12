@@ -1,9 +1,6 @@
 {
   "title": "Useless \"if(true) {...}\" and \"if(false){...}\" blocks should be removed",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,6 +12,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1145",
   "sqKey": "S1145",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All",
   "securityStandards": {
     "CWE": [

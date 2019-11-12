@@ -1,10 +1,6 @@
 {
   "title": "Errors should not be created without being thrown",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +12,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3984",
   "sqKey": "S3984",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

@@ -1,9 +1,6 @@
 {
-  "title": "Non-existent variables should not be referenced",
+  "title": "Variables should be defined before being used",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-3827",
   "sqKey": "S3827",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All"
 }

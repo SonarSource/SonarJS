@@ -1,9 +1,6 @@
 {
   "title": "\"switch\" statements should not contain non-case labels",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1219",
   "sqKey": "S1219",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All"
 }

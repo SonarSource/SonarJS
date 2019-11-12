@@ -1,9 +1,6 @@
 {
   "title": "\"in\" should not be used on arrays",
   "type": "BUG",
-  "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4619",
   "sqKey": "S4619",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

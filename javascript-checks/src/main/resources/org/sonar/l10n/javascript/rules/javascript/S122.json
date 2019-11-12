@@ -2,10 +2,6 @@
   "title": "Statements should be on separate lines",
   "type": "CODE_SMELL",
   "status": "ready",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "1min"
@@ -16,5 +12,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-122",
   "sqKey": "S122",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

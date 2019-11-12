@@ -1,10 +1,6 @@
 {
   "title": "Values should not be uselessly incremented",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +12,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2123",
   "sqKey": "S2123",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

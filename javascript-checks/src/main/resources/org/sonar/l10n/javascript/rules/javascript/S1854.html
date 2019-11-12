@@ -12,8 +12,8 @@ i = a + b;
 i += compute();
 </pre>
 <h2>Exceptions</h2>
-<p>This rule ignores initializations to -1, 0, 1, <code>null</code>, <code>undefined</code>, <code>true</code>, <code>false</code>, <code>""</code>,
-<code>[]</code> and <code>{}</code>. </p>
+<p>This rule ignores initializations to -1, 0, 1, <code>null</code>, <code>undefined</code>, [], {}, <code>true</code>, <code>false</code> and
+<code>""</code>. Variables that start with an underscore (e.g. '<code>_unused</code>') are ignored.</p>
 <p>This rule also ignores variables declared with object destructuring using rest syntax (used to exclude some properties from object):</p>
 <pre>
 let {a, b, ...rest} = obj; // 'a' and 'b' are ok

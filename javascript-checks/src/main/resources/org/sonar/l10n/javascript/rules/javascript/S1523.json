@@ -1,10 +1,6 @@
 {
   "title": "Dynamically executing code is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -12,12 +8,15 @@
   },
   "tags": [
     "cwe",
-    "owasp-a1",
-    "owasp-a7"
+    "owasp-a1"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1523",
   "sqKey": "S1523",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -25,7 +24,6 @@
       470
     ],
     "OWASP": [
-      "A7",
       "A1"
     ]
   }

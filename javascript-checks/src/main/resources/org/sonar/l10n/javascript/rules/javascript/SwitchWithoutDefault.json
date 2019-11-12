@@ -1,9 +1,6 @@
 {
   "title": "\"switch\" statements should have \"default\" clauses",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,6 +12,9 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-131",
   "sqKey": "SwitchWithoutDefault",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All",
   "securityStandards": {
     "CWE": [
