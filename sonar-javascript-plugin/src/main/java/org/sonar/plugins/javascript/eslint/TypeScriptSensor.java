@@ -83,7 +83,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguage(TypeScriptLanguage.KEY)
-      .name("ESLint-based TypeScript analysis")
+      .name("TypeScript analysis")
       .onlyOnFileType(Type.MAIN);
   }
 
