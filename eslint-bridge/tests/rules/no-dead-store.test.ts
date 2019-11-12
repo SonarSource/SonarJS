@@ -187,6 +187,18 @@ const valid = [
         }
         `,
   },
+  {
+    code: `
+    function f() {
+      let {a, ...rest} = foo();
+      bar(rest);
+
+      let b;
+      ({b, ...rest} = foo());
+      bar(rest);
+    }
+  `,
+  },
 ];
 
 const invalid = [
@@ -339,6 +351,22 @@ const invalid = [
       return (
        <Container attr={value}> </Container>
       )
+    }
+  `),
+  noncompliant(`
+    function f() {
+      let {a, b} = foo(); // Noncompliant
+      bar(a);
+
+      let {x, ...rest} = foo(); // Noncompliant
+      bar(x);
+    }
+  `),
+  noncompliant(`
+    function f() {
+      // 'b' is ignored but 'unused' is reported
+      let {unused, a: {b, ...rest}} = foo(); // Noncompliant
+      foo(rest);
     }
   `),
 ];
