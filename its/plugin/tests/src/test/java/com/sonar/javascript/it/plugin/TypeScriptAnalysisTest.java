@@ -190,4 +190,30 @@ public class TypeScriptAnalysisTest {
 
     assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).hasSize(1);
   }
+
+  @Test
+  public void should_exclude_from_extended_tsconfig() throws Exception {
+    File dir = TestUtils.projectDir("tsproject-extended");
+    TestUtils.npmInstall(dir);
+
+    String projectKey = "tsproject-extended";
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(dir)
+      .setDebugLogs(true);
+
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    BuildResult result = orchestrator.executeBuild(build);
+
+    List<Issue> issuesList = getIssues(projectKey);
+    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
+      tuple(2, "typescript:S3923", "tsproject-extended:dir/file.ts")
+    );
+
+    // Limitation of our analyzer, exclusions from extended tsconfig are for some reason are not considered
+    // in perfect world we should not even try to analyze this excluded file
+    assertThat(result.getLogsLines(l -> l.contains("Failed to analyze file [dir/file.excluded.ts]"))).hasSize(1);
+  }
 }
