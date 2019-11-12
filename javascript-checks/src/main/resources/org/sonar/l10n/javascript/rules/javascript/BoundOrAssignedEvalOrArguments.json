@@ -1,9 +1,6 @@
 {
   "title": "\"eval\" and \"arguments\" should not be bound or assigned",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1514",
   "sqKey": "BoundOrAssignedEvalOrArguments",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

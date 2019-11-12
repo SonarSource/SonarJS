@@ -1,9 +1,6 @@
 {
   "title": "Element type selectors should not be used with class selectors",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,5 +14,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2714",
   "sqKey": "S2714",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

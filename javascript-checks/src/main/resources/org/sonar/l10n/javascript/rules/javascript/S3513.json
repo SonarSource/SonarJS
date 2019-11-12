@@ -1,9 +1,6 @@
 {
   "title": "\"arguments\" should not be accessed directly",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +13,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3513",
   "sqKey": "S3513",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

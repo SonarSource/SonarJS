@@ -1,10 +1,6 @@
 {
-  "title": "Dead stores should be removed",
+  "title": "Unused assignments should be removed",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

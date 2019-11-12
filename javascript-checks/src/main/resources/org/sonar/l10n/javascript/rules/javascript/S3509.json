@@ -1,9 +1,6 @@
 {
   "title": "Default parameters should not cause side effects",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-3509",
   "sqKey": "S3509",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

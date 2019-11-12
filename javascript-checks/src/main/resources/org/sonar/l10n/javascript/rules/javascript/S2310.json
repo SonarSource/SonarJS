@@ -1,9 +1,6 @@
 {
   "title": "Loop counters should not be assigned to from within the loop body",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2310",
   "sqKey": "S2310",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

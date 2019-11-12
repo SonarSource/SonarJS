@@ -1,9 +1,6 @@
 {
   "title": "Results of \"in\" and \"instanceof\" should be negated rather than operands",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3812",
   "sqKey": "S3812",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All"
 }

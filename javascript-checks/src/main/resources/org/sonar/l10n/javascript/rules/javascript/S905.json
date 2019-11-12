@@ -1,10 +1,6 @@
 {
   "title": "Non-empty statements should change control flow or have at least one side-effect",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,6 +13,10 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-905",
   "sqKey": "S905",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

@@ -1,9 +1,6 @@
 {
   "title": "\"strict\" mode should be used with caution",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +13,8 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1539",
   "sqKey": "StrictMode",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

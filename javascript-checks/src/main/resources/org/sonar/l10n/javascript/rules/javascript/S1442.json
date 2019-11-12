@@ -1,9 +1,6 @@
 {
   "title": "\"alert(...)\" should not be used",
   "type": "VULNERABILITY",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,6 +14,9 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1442",
   "sqKey": "S1442",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

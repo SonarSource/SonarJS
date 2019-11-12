@@ -1,10 +1,6 @@
 {
   "title": "Formatting SQL queries is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -20,6 +16,10 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2077",
   "sqKey": "S2077",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

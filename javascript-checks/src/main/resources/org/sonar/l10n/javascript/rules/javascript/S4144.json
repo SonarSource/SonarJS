@@ -1,10 +1,6 @@
 {
   "title": "Functions should not have identical implementations",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -18,5 +14,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4144",
   "sqKey": "S4144",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

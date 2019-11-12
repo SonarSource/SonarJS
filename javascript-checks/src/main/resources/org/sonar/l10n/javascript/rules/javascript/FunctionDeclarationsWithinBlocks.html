@@ -1,11 +1,9 @@
-<p>While most script engines support function declarations within blocks, it is not part of ECMAScript 5 and below, and from browser to browser the
-implementations are inconsistent with each other. ECMAScript 5 and below only allow function declarations in the root statement list of a script or
-function. If you are targeting browsers that don't support ECMAScript 6, use a variable initialized with a function expression to define a function
-within a block :</p>
+<p>While most script engines support function declarations within blocks, from browser to browser, the implementations are inconsistent with each
+other.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (x) {
-  function foo() {}
+  function foo() {} //foo is hoisted in Chrome, Firefox and Safari, but not in Edge.
 }
 </pre>
 <h2>Compliant Solution</h2>

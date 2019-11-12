@@ -1,9 +1,6 @@
 {
   "title": "Conditionally executed blocks should be reachable",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,6 +14,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2583",
   "sqKey": "S2583",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "All",
   "securityStandards": {
     "CWE": [

@@ -1,9 +1,6 @@
 {
   "title": "\"future reserved words\" should not be used as identifiers",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +13,8 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1527",
   "sqKey": "FutureReservedWords",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

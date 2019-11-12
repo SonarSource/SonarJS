@@ -2,9 +2,6 @@
   "title": "Primitive types should be omitted from initialized or defaulted declarations",
   "type": "CODE_SMELL",
   "status": "ready",
-  "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "1min"
@@ -16,5 +13,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-3257",
   "sqKey": "S3257",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

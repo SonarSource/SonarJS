@@ -1,10 +1,6 @@
 {
   "title": "Empty collections should not be accessed or iterated",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +12,9 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4158",
   "sqKey": "S4158",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

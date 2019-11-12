@@ -1,9 +1,6 @@
 {
   "title": "Constructors should not be declared inside interfaces",
   "type": "BUG",
-  "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4124",
   "sqKey": "S4124",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

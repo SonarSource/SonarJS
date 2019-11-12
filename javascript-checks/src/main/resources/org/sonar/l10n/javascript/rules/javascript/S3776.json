@@ -1,10 +1,6 @@
 {
   "title": "Cognitive Complexity of functions should not be too high",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",
@@ -18,5 +14,9 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3776",
   "sqKey": "S3776",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

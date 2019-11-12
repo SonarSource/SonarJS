@@ -6,9 +6,6 @@
     "func": "Constant\/Issue",
     "constantCost": "15min"
   },
-  "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "tags": [
     "cwe",
     "obsolete"
@@ -16,6 +13,9 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1874",
   "sqKey": "S1874",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

@@ -2,9 +2,6 @@
   "title": "\"for in\" should not be used with iterables",
   "type": "CODE_SMELL",
   "status": "ready",
-  "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
@@ -15,5 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4139",
   "sqKey": "S4139",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

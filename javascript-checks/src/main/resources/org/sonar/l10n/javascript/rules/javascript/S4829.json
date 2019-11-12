@@ -1,10 +1,6 @@
 {
   "title": "Reading the Standard Input is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "tags": [
     "cwe"
@@ -12,6 +8,10 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4829",
   "sqKey": "S4829",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

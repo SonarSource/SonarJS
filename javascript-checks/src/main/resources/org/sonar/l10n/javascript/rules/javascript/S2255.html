@@ -27,10 +27,10 @@ const http = require('http');
 const https = require('https');
 
 http.createServer(function(req, res) {
-  res.setHeader('Set-Cookie', ['type=ninja', 'lang=js']); // Questionable
+  res.setHeader('Set-Cookie', ['type=ninja', 'lang=js']); // Sensitive
 });
 https.createServer(function(req, res) {
-  res.setHeader('Set-Cookie', ['type=ninja', 'lang=js']); // Questionable
+  res.setHeader('Set-Cookie', ['type=ninja', 'lang=js']); // Sensitive
 });
 </pre>
 <pre>
@@ -38,13 +38,13 @@ https.createServer(function(req, res) {
 const express = require('express');
 const app = express();
 app.use(function(req, res, next) {
-  res.cookie('name', 'John'); // Questionable
+  res.cookie('name', 'John'); // Sensitive
 });
 </pre>
 <pre>
 // === In browser ===
 // Set cookie
-document.cookie = "name=John"; // Questionable
+document.cookie = "name=John"; // Sensitive
 </pre>
 <h2>See</h2>
 <ul>

@@ -1,9 +1,6 @@
 {
   "title": "Default export names and file names should match",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,5 +14,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-3317",
   "sqKey": "S3317",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

@@ -1,9 +1,6 @@
 {
   "title": "Untrusted content should not be included",
   "type": "VULNERABILITY",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,6 +14,9 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2611",
   "sqKey": "S2611",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

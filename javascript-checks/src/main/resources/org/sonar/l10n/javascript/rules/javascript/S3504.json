@@ -1,10 +1,6 @@
 {
   "title": "Variables should be declared with \"let\" or \"const\"",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,5 +13,9 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3504",
   "sqKey": "S3504",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main"
 }

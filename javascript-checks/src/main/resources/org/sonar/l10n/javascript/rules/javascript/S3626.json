@@ -2,10 +2,6 @@
   "title": "Jump statements should not be redundant",
   "type": "CODE_SMELL",
   "status": "ready",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "1min"
@@ -17,5 +13,9 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-3626",
   "sqKey": "S3626",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

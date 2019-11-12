@@ -1,9 +1,6 @@
 {
   "title": "Local storage should not be used",
   "type": "VULNERABILITY",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",
@@ -14,9 +11,12 @@
   "tags": [
     "owasp-a3"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3271",
   "sqKey": "S3271",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "OWASP": [

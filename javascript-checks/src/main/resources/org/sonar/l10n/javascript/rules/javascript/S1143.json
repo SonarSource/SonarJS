@@ -1,10 +1,6 @@
 {
   "title": "Jump statements should not occur in \"finally\" blocks",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -17,6 +13,10 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1143",
   "sqKey": "S1143",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All",
   "securityStandards": {
     "CWE": [

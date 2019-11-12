@@ -1,9 +1,6 @@
 {
   "title": "Track comments matching a regular expression",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "tags": [
     
@@ -11,5 +8,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-124",
   "sqKey": "CommentRegularExpression",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

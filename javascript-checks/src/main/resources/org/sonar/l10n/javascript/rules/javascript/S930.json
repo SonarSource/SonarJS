@@ -1,9 +1,6 @@
 {
   "title": "Function calls should not pass extra arguments",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,6 +13,9 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-930",
   "sqKey": "S930",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [

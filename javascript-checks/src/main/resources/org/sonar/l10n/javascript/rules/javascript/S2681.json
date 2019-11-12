@@ -1,10 +1,6 @@
 {
   "title": "Multiline blocks should be enclosed in curly braces",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,6 +12,10 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2681",
   "sqKey": "S2681",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "All",
   "securityStandards": {
     "CWE": [

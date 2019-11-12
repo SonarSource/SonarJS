@@ -1,9 +1,6 @@
 {
   "title": "Shorthand promises should be used",
   "type": "CODE_SMELL",
-  "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "tags": [
     "proficiency"
@@ -11,5 +8,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4634",
   "sqKey": "S4634",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }

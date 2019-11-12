@@ -1,9 +1,6 @@
 {
   "title": "Generators should \"yield\" something",
   "type": "BUG",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -16,5 +13,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3531",
   "sqKey": "S3531",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ],
   "scope": "Main"
 }

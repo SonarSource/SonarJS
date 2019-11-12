@@ -1,9 +1,6 @@
 {
   "title": "\"undefined\" should not be passed as the value of optional parameters",
   "type": "CODE_SMELL",
-    "compatibleLanguages": [
-    "TYPESCRIPT"
-  ],
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -15,5 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4623",
   "sqKey": "S4623",
+  "compatibleLanguages": [
+    "TYPESCRIPT"
+  ],
   "scope": "All"
 }
