@@ -60,6 +60,7 @@ import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.JavaScriptSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -347,7 +348,13 @@ public class JavaScriptEslintBasedSensorTest {
   public void handle_missing_node() throws Exception {
     doThrow(new NodeCommandException("Exception Message", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
     AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
-    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, analysisWarnings);
+    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE),
+      new NoSonarFilter(),
+      fileLinesContextFactory,
+      eslintBridgeServerMock,
+      analysisWarnings,
+      mock(JavaScriptSensor.class));
+
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
     verify(analysisWarnings).addUnique("Eslint-based rules were not executed. Exception Message");
@@ -437,7 +444,7 @@ public class JavaScriptEslintBasedSensorTest {
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
-    assertThat(captor.getValue().fileContent).isEqualTo(content );
+    assertThat(captor.getValue().fileContent).isEqualTo(content);
   }
 
   @Test
@@ -463,6 +470,34 @@ public class JavaScriptEslintBasedSensorTest {
       .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
   }
 
+  @Test
+  public void should_run_old_frontend() throws Exception {
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
+      .setLanguage("js")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("0123;")
+      .build();
+    context.fileSystem().add(inputFile);
+
+    CheckFactory checkFactory = checkFactory("OctalNumber");
+    NoSonarFilter noSonarFilter = new NoSonarFilter();
+    JavaScriptSensor jsSensor = new JavaScriptSensor(checkFactory, context.fileSystem(), null, null);
+    JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServerMock, jsSensor);
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(1);
+    assertThat(context.allIssues()).extracting(i -> i.ruleKey().toString()).containsExactly("javascript:OctalNumber");
+  }
+
+  @Test
+  public void stop_analysis_if_cancelled() throws Exception {
+    JavaScriptEslintBasedSensor sensor = createSensor();
+    createInputFile(context);
+    context.setCancelled(true);
+    sensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
+  }
+
   private static CheckFactory checkFactory(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
@@ -483,6 +518,6 @@ public class JavaScriptEslintBasedSensorTest {
 
 
   private JavaScriptEslintBasedSensor createSensor() {
-    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError", "S1451"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock);
+    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError", "S1451"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, mock(JavaScriptSensor.class));
   }
 }

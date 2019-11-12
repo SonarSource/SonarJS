@@ -24,14 +24,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
-import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -52,6 +47,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.ParsingErrorCheck;
+import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
@@ -64,10 +60,8 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Metrics;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingError;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Rule;
-import org.sonarsource.analyzer.commons.ProgressReport;
 import org.sonarsource.nodejs.NodeCommandException;
 
-@DependedUpon("ESLINT_SENSOR")
 abstract class AbstractEslintSensor implements Sensor {
   private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);
 
@@ -82,14 +76,12 @@ abstract class AbstractEslintSensor implements Sensor {
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
 
-  protected ProgressReport progressReport =
-    new ProgressReport("Report about progress of ESLint-based rules", TimeUnit.SECONDS.toMillis(10));
   SensorContext context;
   private boolean failFast;
 
   AbstractEslintSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
-      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-      @Nullable AnalysisWarnings analysisWarnings) {
+                       FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
+                       @Nullable AnalysisWarnings analysisWarnings) {
     this.checks = checks;
     this.rules = checks.eslintBasedChecks().stream()
       .map(check -> new EslintBridgeServer.Rule(check.eslintKey(), check.configurations()))
@@ -112,11 +104,10 @@ abstract class AbstractEslintSensor implements Sensor {
     failFast = context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
     try {
       eslintBridgeServer.startServerLazily(context);
-      List<InputFile> inputFiles = getInputFiles();
-      startProgressReport(inputFiles);
-
-      analyzeFiles(inputFiles);
-      progressReport.stop();
+      analyzeFiles();
+    } catch (CancellationException e) {
+      // do not propagate the exception
+      LOG.info(e.toString());
     } catch (ServerAlreadyFailedException e) {
       LOG.debug("Skipping start of eslint-bridge server due to the failure during first analysis");
       LOG.debug("Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
@@ -134,12 +125,10 @@ abstract class AbstractEslintSensor implements Sensor {
       if (failFast) {
         throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
       }
-    } finally {
-      progressReport.cancel();
     }
   }
 
-  abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
+  abstract void analyzeFiles() throws IOException, InterruptedException;
 
   private void processParsingError(SensorContext sensorContext, InputFile inputFile, ParsingError parsingError) {
     Integer line = parsingError.line;
@@ -192,17 +181,6 @@ abstract class AbstractEslintSensor implements Sensor {
   protected boolean shouldSendFileContent(InputFile file) {
     return context.runtime().getProduct() == SonarProduct.SONARLINT
       || !StandardCharsets.UTF_8.equals(file.charset());
-  }
-
-  protected abstract List<InputFile> getInputFiles();
-
-
-  private void startProgressReport(Iterable<InputFile> inputFiles) {
-    Collection<String> files = StreamSupport.stream(inputFiles.spliterator(), false)
-      .map(InputFile::toString)
-      .collect(Collectors.toList());
-
-    progressReport.start(files);
   }
 
   protected void processResponse(InputFile file, AnalysisResponse response) {

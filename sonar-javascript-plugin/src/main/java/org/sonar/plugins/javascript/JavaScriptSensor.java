@@ -33,16 +33,14 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
@@ -64,13 +62,15 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEPRECATED_ESLINT_PROPERTY;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.ESLINT_REPORT_PATHS;
 
-// Required for No Sonar
-@DependsUpon("ESLINT_SENSOR")
-public class JavaScriptSensor implements Sensor {
+@ScannerSide
+@InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
+@SonarLintSide
+public class JavaScriptSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptSensor.class);
 
@@ -131,7 +131,7 @@ public class JavaScriptSensor implements Sensor {
       success = true;
     } catch (CancellationException e) {
       // do not propagate the exception
-      LOG.debug(e.toString());
+      LOG.info(e.toString());
     } finally {
       stopProgressReport(progressReport, success);
     }
@@ -250,15 +250,6 @@ public class JavaScriptSensor implements Sensor {
     return ruleKey;
   }
 
-  @Override
-  public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .onlyOnLanguage(JavaScriptLanguage.KEY)
-      .name("SonarJS")
-      .onlyOnFileType(Type.MAIN);
-  }
-
-  @Override
   public void execute(SensorContext context) {
     checkDeprecatedEslintProperty(context);
 

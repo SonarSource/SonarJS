@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
@@ -39,10 +40,12 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonarsource.analyzer.commons.ProgressReport;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static java.util.Collections.singletonList;
@@ -84,8 +87,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       .onlyOnFileType(Type.MAIN);
   }
 
-  @Override
-  protected List<InputFile> getInputFiles() {
+  private List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicate mainFilePredicate = filePredicate(fileSystem);
     return StreamSupport.stream(fileSystem.inputFiles(mainFilePredicate).spliterator(), false)
@@ -99,25 +101,42 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   @Override
-  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+  void analyzeFiles() throws IOException, InterruptedException {
+    boolean success = false;
+    ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
+    List<InputFile> inputFiles = getInputFiles();
     List<String> tsConfigs = tsConfigs();
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
-    for (Map.Entry<TsConfigFile, List<InputFile>> entry : filesByTsConfig.entrySet()) {
-      TsConfigFile tsConfigFile = entry.getKey();
-      List<InputFile> files = entry.getValue();
-      if (TsConfigFile.UNMATCHED_CONFIG.equals(tsConfigFile)) {
-        LOG.info("Skipping {} files with no tsconfig.json", files.size());
-        LOG.debug("Skipped files: " + files.stream().map(InputFile::toString).collect(Collectors.joining("\n")));
-        continue;
+    try {
+      progressReport.start(filesByTsConfig.values().stream().flatMap(List::stream).map(InputFile::toString).collect(Collectors.toList()));
+      for (Map.Entry<TsConfigFile, List<InputFile>> entry : filesByTsConfig.entrySet()) {
+        TsConfigFile tsConfigFile = entry.getKey();
+        List<InputFile> files = entry.getValue();
+        if (TsConfigFile.UNMATCHED_CONFIG.equals(tsConfigFile)) {
+          LOG.info("Skipping {} files with no tsconfig.json", files.size());
+          LOG.debug("Skipped files: " + files.stream().map(InputFile::toString).collect(Collectors.joining("\n")));
+          continue;
+        }
+        LOG.info("Analyzing {} files using tsconfig: {}", files.size(), tsConfigFile);
+        analyzeFilesWithTsConfig(files, tsConfigFile, progressReport);
+        eslintBridgeServer.newTsConfig();
       }
-      LOG.info("Analyzing {} files using tsconfig: {}", files.size(), tsConfigFile);
-      analyzeFilesWithTsConfig(files, tsConfigFile);
-      eslintBridgeServer.newTsConfig();
+      success = true;
+    } finally {
+      if (success) {
+        progressReport.stop();
+      } else {
+        progressReport.cancel();
+      }
+      progressReport.join();
     }
   }
 
-  private void analyzeFilesWithTsConfig(List<InputFile> files, TsConfigFile tsConfigFile) throws IOException {
+  private void analyzeFilesWithTsConfig(List<InputFile> files, TsConfigFile tsConfigFile, ProgressReport progressReport) throws IOException {
     for (InputFile inputFile : files) {
+      if (context.isCancelled()) {
+        throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+      }
       if (eslintBridgeServer.isAlive()) {
         analyze(inputFile, tsConfigFile);
         progressReport.nextFile();
