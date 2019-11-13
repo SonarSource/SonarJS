@@ -33,6 +33,8 @@ type CallLikeExpression =
   | TSESTree.NewExpression
   | TSESTree.AwaitExpression;
 
+let ts: any;
+
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
@@ -45,7 +47,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
-      const ts = require("typescript");
+      ts = require("typescript");
       return {
         TryStatement: (node: estree.Node) => {
           const tryStmt = node as TSESTree.TryStatement;
@@ -60,7 +62,7 @@ export const rule: Rule.RuleModule = {
               callLikeExpr => {
                 if (
                   callLikeExpr.type === "AwaitExpression" ||
-                  !hasThenMethod(callLikeExpr, services, ts)
+                  !hasThenMethod(callLikeExpr, services)
                 ) {
                   hasPotentiallyThrowingCalls = true;
                   return;
@@ -155,7 +157,7 @@ function checkForUselessCatch(
   }
 }
 
-function hasThenMethod(node: TSESTree.Node, services: RequiredParserServices, ts: any) {
+function hasThenMethod(node: TSESTree.Node, services: RequiredParserServices) {
   const mapped = services.esTreeNodeToTSNodeMap.get(node);
   const tp = services.program.getTypeChecker().getTypeAtLocation(mapped);
   const thenProperty = tp.getProperty("then");

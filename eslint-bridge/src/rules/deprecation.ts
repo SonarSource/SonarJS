@@ -29,6 +29,8 @@ import {
 import * as tsTypes from "typescript";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 
+let ts: any;
+
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
@@ -101,13 +103,13 @@ function getDeprecation(
       }
     }
   }
-  const ts = require("typescript");
-  let symbol = getSymbol(id, services, context, ts, tc);
+  ts = require("typescript");
+  const symbol = getSymbol(id, services, context, tc);
 
   if (!symbol) {
     return undefined;
   }
-  if (callExpression && isFunction(symbol, ts)) {
+  if (callExpression && isFunction(symbol)) {
     return undefined;
   }
 
@@ -118,7 +120,6 @@ function getSymbol(
   id: estree.Identifier,
   services: RequiredParserServices,
   context: Rule.RuleContext,
-  ts: any,
   tc: tsTypes.TypeChecker,
 ) {
   let symbol: tsTypes.Symbol | undefined;
@@ -129,8 +130,8 @@ function getSymbol(
   if (parent.kind === ts.SyntaxKind.BindingElement) {
     symbol = tc.getTypeAtLocation(parent.parent).getProperty(tsId.text);
   } else if (
-    (isPropertyAssignment(parent, ts) && parent.name === tsId) ||
-    (isShorthandPropertyAssignment(parent, ts) && parent.name === tsId)
+    (isPropertyAssignment(parent) && parent.name === tsId) ||
+    (isShorthandPropertyAssignment(parent) && parent.name === tsId)
   ) {
     try {
       symbol = tc.getPropertySymbolOfDestructuringAssignment(tsId);
@@ -189,7 +190,7 @@ function getJsDocDeprecation(tags: tsTypes.JSDocTagInfo[]) {
   return undefined;
 }
 
-function isFunction(symbol: tsTypes.Symbol, ts: any) {
+function isFunction(symbol: tsTypes.Symbol) {
   const { declarations } = symbol;
   if (declarations === undefined || declarations.length === 0) {
     return false;
@@ -205,13 +206,12 @@ function isFunction(symbol: tsTypes.Symbol, ts: any) {
   }
 }
 
-function isPropertyAssignment(node: tsTypes.Node, ts: any): node is tsTypes.PropertyAssignment {
+function isPropertyAssignment(node: tsTypes.Node): node is tsTypes.PropertyAssignment {
   return node.kind === ts.SyntaxKind.PropertyAssignment;
 }
 
 function isShorthandPropertyAssignment(
   node: tsTypes.Node,
-  ts: any,
 ): node is tsTypes.ShorthandPropertyAssignment {
   return node.kind === ts.SyntaxKind.ShorthandPropertyAssignment;
 }
@@ -221,5 +221,5 @@ function isShortHandProperty(parent: estree.Node | undefined): parent is estree.
 }
 
 class Deprecation {
-  reason: string = "";
+  reason = "";
 }

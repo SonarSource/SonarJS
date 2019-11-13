@@ -115,10 +115,10 @@ function toPrimaryLocation(node: estree.Node, context: Rule.RuleContext): IssueL
 
 function toSecondaryLocation(token: ComplexityToken): IssueLocation {
   return {
-    line: token.loc!.start.line,
-    column: token.loc!.start.column,
-    endLine: token.loc!.end.line,
-    endColumn: token.loc!.end.column,
+    line: token.loc.start.line,
+    column: token.loc.start.column,
+    endLine: token.loc.end.line,
+    endColumn: token.loc.end.column,
     message: "+1",
   };
 }
@@ -134,7 +134,7 @@ function computeCyclomaticComplexity(
 }
 
 interface ComplexityToken {
-  loc?: AST.SourceLocation | null;
+  loc: AST.SourceLocation;
 }
 
 class FunctionComplexityVisitor {

@@ -27,11 +27,13 @@ import {
 } from "../utils/isRequiredParserServices";
 import * as estree from "estree";
 
+let ts: any;
+
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
-      const ts = require("typescript");
+      ts = require("typescript");
       return {
         CallExpression: (node: estree.Node) => {
           const call = node as estree.CallExpression;
@@ -41,10 +43,7 @@ export const rule: Rule.RuleModule = {
           }
 
           const lastArgument = args[args.length - 1];
-          if (
-            isUndefined(lastArgument) &&
-            isOptionalParameter(args.length - 1, call, services, ts)
-          ) {
+          if (isUndefined(lastArgument) && isOptionalParameter(args.length - 1, call, services)) {
             context.report({
               message: `Remove this redundant "undefined".`,
               node: lastArgument,
@@ -65,14 +64,13 @@ function isOptionalParameter(
   paramIndex: number,
   node: estree.CallExpression,
   services: RequiredParserServices,
-  ts: any,
 ) {
   const signature = services.program
     .getTypeChecker()
     .getResolvedSignature(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
   if (signature) {
     const declaration = signature.declaration;
-    if (declaration && isFunctionLikeDeclaration(declaration, ts)) {
+    if (declaration && isFunctionLikeDeclaration(declaration)) {
       const { parameters } = declaration;
       const parameter = parameters[paramIndex];
       return parameter && ((parameter as any).initializer || (parameter as any).questionToken);
@@ -81,7 +79,7 @@ function isOptionalParameter(
   return false;
 }
 
-function isFunctionLikeDeclaration(declaration: any, ts: any) {
+function isFunctionLikeDeclaration(declaration: any) {
   return [
     ts.SyntaxKind.FunctionDeclaration,
     ts.SyntaxKind.FunctionExpression,
