@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -95,17 +94,13 @@ public class BundleImpl implements Bundle {
         if (!archive.canReadEntryData(entry)) {
           throw new IllegalStateException("Failed to extract bundle");
         }
-        File entryFile = entryPath(targetPath, entry).toFile();
+        Path entryFile = entryPath(targetPath, entry);
         if (entry.isDirectory()) {
-          if (!entryFile.isDirectory() && !entryFile.mkdirs()) {
-            throw new IOException("failed to create directory " + entryFile);
-          }
+          Files.createDirectories(entryFile);
         } else {
-          File parent = entryFile.getParentFile();
-          if (!parent.isDirectory() && !parent.mkdirs()) {
-            throw new IOException("failed to create directory " + parent);
-          }
-          try (OutputStream os = Files.newOutputStream(entryFile.toPath())) {
+          Path parent = entryFile.getParent();
+          Files.createDirectories(parent);
+          try (OutputStream os = Files.newOutputStream(entryFile)) {
             IOUtils.copy(archive, os);
           }
         }
