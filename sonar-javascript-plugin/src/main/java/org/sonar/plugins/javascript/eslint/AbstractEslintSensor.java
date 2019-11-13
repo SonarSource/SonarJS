@@ -274,9 +274,3 @@ abstract class AbstractEslintSensor implements Sensor {
   }
 }
 
-class MissingTypeScriptException extends RuntimeException {
-
-  public MissingTypeScriptException() {
-    super("Missing TypeScript dependency");
-  }
-}

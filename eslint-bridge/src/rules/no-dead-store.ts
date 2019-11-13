@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
         }
         checkIdentifierUsage(node as estree.Identifier);
       },
-      JSXIdentifier: (node: any) => {
+      JSXIdentifier: (node: unknown) => {
         checkIdentifierUsage(node as TSESTree.JSXIdentifier);
       },
       ObjectPattern: () => {
