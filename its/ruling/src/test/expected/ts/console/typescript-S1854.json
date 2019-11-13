@@ -5,9 +5,6 @@
 'console:src/components/ResizableBox.tsx':[
 27,
 27,
-52,
-53,
-53,
 ],
 'console:src/views/FunctionsView/FunctionLogs/FunctionLogs.tsx':[
 41,
@@ -173,8 +170,6 @@
 ],
 'console:src/views/models/FieldPopup/BaseSettings.tsx':[
 65,
-273,
-273,
 ],
 'console:src/views/models/FieldPopup/Constraints.tsx':[
 56,

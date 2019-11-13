@@ -310,7 +310,7 @@ public class JavaScriptEslintBasedSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     createSensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("ESLint-based JavaScript analysis");
+    assertThat(descriptor.name()).isEqualTo("JavaScript analysis");
     assertThat(descriptor.languages()).containsOnly("js");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
   }
@@ -357,7 +357,7 @@ public class JavaScriptEslintBasedSensorTest {
 
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
-    verify(analysisWarnings).addUnique("Eslint-based rules were not executed. Exception Message");
+    verify(analysisWarnings).addUnique("JavaScript and/or TypeScript rules were not executed. Exception Message");
   }
 
   @Test

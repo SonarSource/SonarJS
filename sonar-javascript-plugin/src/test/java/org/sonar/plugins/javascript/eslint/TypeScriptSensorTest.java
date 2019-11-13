@@ -59,6 +59,7 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.JUnitTempFolder;
@@ -96,6 +97,9 @@ public class TypeScriptSensorTest {
   private EslintBridgeServerImpl eslintBridgeServerMock;
 
   @Mock
+  private AnalysisWarnings analysisWarningsMock;
+
+  @Mock
   private FileLinesContextFactory fileLinesContextFactory;
 
   private SensorContextTester context;
@@ -129,7 +133,7 @@ public class TypeScriptSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     createSensor().describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("ESLint-based TypeScript analysis");
+    assertThat(descriptor.name()).isEqualTo("TypeScript analysis");
     assertThat(descriptor.languages()).containsOnly("ts");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
   }
@@ -304,6 +308,15 @@ public class TypeScriptSensorTest {
   }
 
   @Test
+  public void should_create_ui_warning_missing_typescript() throws Exception {
+    when(eslintBridgeServerMock.loadTsConfig(any())).thenThrow(new MissingTypeScriptException());
+    createInputFile(context, "dir/file1.ts");
+    createSensor().execute(context);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Missing TypeScript dependency");
+    verify(analysisWarningsMock).addUnique("JavaScript and/or TypeScript rules were not executed. Missing TypeScript dependency");
+  }
+
+  @Test
   public void should_abort_when_unsupported_typescript() throws Exception {
     AnalysisResponse parseError = new AnalysisResponse();
     parseError.parsingError = new EslintBridgeServer.ParsingError();
@@ -422,7 +435,13 @@ public class TypeScriptSensorTest {
   }
 
   private TypeScriptSensor createSensor() {
-    return new TypeScriptSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, tempFolder);
+    return new TypeScriptSensor(
+      checkFactory(ESLINT_BASED_RULE, "ParsingError"),
+      new NoSonarFilter(),
+      fileLinesContextFactory,
+      eslintBridgeServerMock,
+      analysisWarningsMock,
+      tempFolder);
   }
 
   private AnalysisResponse createResponse() {

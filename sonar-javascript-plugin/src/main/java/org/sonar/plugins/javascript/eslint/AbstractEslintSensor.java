@@ -112,10 +112,10 @@ abstract class AbstractEslintSensor implements Sensor {
       LOG.debug("Skipping start of eslint-bridge server due to the failure during first analysis");
       LOG.debug("Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
 
-    } catch (NodeCommandException e) {
+    } catch (NodeCommandException | MissingTypeScriptException e) {
       LOG.error(e.getMessage(), e);
       if (analysisWarnings != null) {
-        analysisWarnings.addUnique("Eslint-based rules were not executed. " + e.getMessage());
+        analysisWarnings.addUnique("JavaScript and/or TypeScript rules were not executed. " + e.getMessage());
       }
       if (failFast) {
         throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
