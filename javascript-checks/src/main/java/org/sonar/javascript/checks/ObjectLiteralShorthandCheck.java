@@ -19,8 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
@@ -31,16 +29,8 @@ import org.sonar.javascript.checks.annotations.TypeScriptRule;
 public class ObjectLiteralShorthandCheck extends EslintBasedCheck {
 
   @Override
-  public List<Object> configurations() {
-    return Arrays.asList("always", new Config());
-  }
-
-  @Override
   public String eslintKey() {
     return "object-shorthand";
   }
 
-  private static class Config {
-    boolean avoidQuotes = true;
-  }
 }

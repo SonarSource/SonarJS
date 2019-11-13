@@ -47,6 +47,9 @@
 'TypeScript:src/harness/typeWriter.ts':[
 71,
 ],
+'TypeScript:src/harness/unittests/moduleResolution.ts':[
+139,
+],
 'TypeScript:src/harness/unittests/services/colorization.ts':[
 33,
 38,

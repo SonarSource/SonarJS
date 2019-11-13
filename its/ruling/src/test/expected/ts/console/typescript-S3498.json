@@ -1,4 +1,7 @@
 {
+'console:src/components/PopupHeader.tsx':[
+122,
+],
 'console:src/utils/polyfils.ts':[
 108,
 118,
@@ -8,6 +11,12 @@
 ],
 'console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx':[
 433,
+],
+'console:src/views/PermissionsView/PermissionPopup/PermissionPopupHeader.tsx':[
+126,
+],
+'console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopupHeader.tsx':[
+122,
 ],
 'console:src/views/ProjectSettingsView/CreateRelationHeaderTab.tsx':[
 61,
@@ -40,6 +49,9 @@
 ],
 'console:src/views/Settings/Team/EmptyRow.tsx':[
 171,
+],
+'console:src/views/models/FieldPopup/FieldPopupHeader.tsx':[
+94,
 ],
 'console:src/views/models/utils.ts':[
 113,

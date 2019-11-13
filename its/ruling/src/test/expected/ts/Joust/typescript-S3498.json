@@ -15,6 +15,10 @@
 'Joust:ts/components/EventLog.tsx':[
 429,
 ],
+'Joust:ts/components/EventLogLine.tsx':[
+85,
+86,
+],
 'Joust:ts/components/GameWidget.tsx':[
 97,
 ],
