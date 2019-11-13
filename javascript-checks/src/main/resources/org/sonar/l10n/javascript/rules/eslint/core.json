@@ -425,12 +425,12 @@
   },
   {
     "key": "no-console",
-    "type": "BUG",
     "url": "https://eslint.org/docs/rules/no-console",
     "name": "Disallow the use of `console`"
   },
   {
     "key": "no-const-assign",
+    "type": "BUG",
     "url": "https://eslint.org/docs/rules/no-const-assign",
     "name": "Disallow reassigning `const` variables"
   },

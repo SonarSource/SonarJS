@@ -37,10 +37,12 @@ import CodePathSegment = Rule.CodePathSegment;
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const codePathStack: CodePathContext[] = [];
-    let liveVariablesMap = new Map<string, LiveVariables>();
+    const liveVariablesMap = new Map<string, LiveVariables>();
     const readVariables = new Set<Variable>();
     // map from Variable to CodePath ids where variable is used
     const variableUsages = new Map<Variable, Set<string>>();
+    const referencesUsedInDestructuring = new Set<ReferenceLike>();
+    const destructuringStack: DestructuringContext[] = [];
 
     return {
       ":matches(AssignmentExpression, VariableDeclarator[init])": (node: estree.Node) => {
@@ -55,8 +57,27 @@ export const rule: Rule.RuleModule = {
         }
         checkIdentifierUsage(node as estree.Identifier);
       },
-      JSXIdentifier: (node: any) => {
+      JSXIdentifier: (node: unknown) => {
         checkIdentifierUsage(node as TSESTree.JSXIdentifier);
+      },
+      ObjectPattern: () => {
+        destructuringStack.push(new DestructuringContext());
+      },
+      "ObjectPattern > Property > Identifier": (node: estree.Node) => {
+        const destructuring = peek(destructuringStack)!;
+        const { ref } = resolveReference(node as estree.Identifier);
+        if (ref) {
+          destructuring.references.push(ref);
+        }
+      },
+      "ObjectPattern > :matches(RestElement, ExperimentalRestProperty)": () => {
+        peek(destructuringStack).hasRest = true;
+      },
+      "ObjectPattern:exit": () => {
+        const destructuring = destructuringStack.pop();
+        if (destructuring && destructuring.hasRest) {
+          destructuring.references.forEach(ref => referencesUsedInDestructuring.add(ref));
+        }
       },
 
       "Program:exit": () => {
@@ -134,6 +155,7 @@ export const rule: Rule.RuleModule = {
         isLocalVar(variable) &&
         !isReferenceWithBasicValue(ref) &&
         !isDefaultParameter(ref) &&
+        !referencesUsedInDestructuring.has(ref) &&
         !variable.name.startsWith("_")
       );
     }
@@ -311,6 +333,11 @@ class CodePathContext {
   constructor(codePath: CodePath) {
     this.codePath = codePath;
   }
+}
+
+class DestructuringContext {
+  hasRest = false;
+  references: ReferenceLike[] = [];
 }
 
 type AssignmentLike = estree.AssignmentExpression | estree.VariableDeclarator;

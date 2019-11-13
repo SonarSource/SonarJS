@@ -78,7 +78,7 @@ function checkPlainText(expectedLines: string[], context: Rule.RuleContext) {
 function checkRegularExpression(searchPattern: RegExp, context: Rule.RuleContext) {
   const fileContent = context.getSourceCode().getText();
   const match = searchPattern.exec(fileContent);
-  if (!match || match.index != 0) {
+  if (!match || match.index !== 0) {
     addFileIssue(context);
   }
 }

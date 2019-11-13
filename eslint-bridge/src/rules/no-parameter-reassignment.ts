@@ -275,7 +275,7 @@ function computeNewContextInfo(
   context: Rule.RuleContext,
   node: estree.Node,
 ) {
-  let referencesByIdentifier = new Map<estree.Identifier, Scope.Reference>();
+  const referencesByIdentifier = new Map<estree.Identifier, Scope.Reference>();
   const variablesToCheck = new Set<string>(variableUsageContext.variablesToCheck);
   const variablesToCheckInCurrentScope = new Set<string>();
   context.getDeclaredVariables(node).forEach(variable => {

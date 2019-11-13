@@ -31,13 +31,15 @@ type ReturnedExpression = estree.Expression | undefined | null;
 
 const message = "Remove this return type or change it to a more specific.";
 
+let ts: any;
+
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
     if (isRequiredParserServices(services)) {
-      const ts = require("typescript");
-      let returnedExpressions: ReturnedExpression[][] = [];
+      ts = require("typescript");
+      const returnedExpressions: ReturnedExpression[][] = [];
       return {
         ReturnStatement(node: estree.Node) {
           if (returnedExpressions.length > 0) {
@@ -55,7 +57,7 @@ export const rule: Rule.RuleModule = {
             returnType &&
             returnType.typeAnnotation.type === "TSAnyKeyword" &&
             returnedExpressions.length > 0 &&
-            allReturnTypesEqual(returnedExpressions[returnedExpressions.length - 1], services, ts)
+            allReturnTypesEqual(returnedExpressions[returnedExpressions.length - 1], services)
           ) {
             context.report({
               message,
@@ -73,10 +75,9 @@ export const rule: Rule.RuleModule = {
 function allReturnTypesEqual(
   returns: ReturnedExpression[],
   services: RequiredParserServices,
-  ts: any,
 ): boolean {
   const firstReturnType = getTypeFromTreeNode(returns.pop(), services);
-  if (!!firstReturnType && !!isPrimitiveType(firstReturnType, ts)) {
+  if (!!firstReturnType && !!isPrimitiveType(firstReturnType)) {
     return returns.every(nextReturn => {
       const nextReturnType = getTypeFromTreeNode(nextReturn, services);
       return !!nextReturnType && nextReturnType.flags === firstReturnType.flags;
@@ -90,7 +91,7 @@ function getTypeFromTreeNode(node: ReturnedExpression, services: RequiredParserS
   return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
 }
 
-function isPrimitiveType({ flags }: any, ts: any) {
+function isPrimitiveType({ flags }: any) {
   return (
     flags & ts.TypeFlags.BooleanLike ||
     flags & ts.TypeFlags.NumberLike ||
