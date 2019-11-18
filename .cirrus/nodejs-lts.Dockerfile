@@ -1,4 +1,4 @@
-FROM gcr.io/language-team/base@sha256:80c92dd1e764e4d6f190abb98f77f69324d1d3881f87624166725d666a741860
+FROM gcr.io/language-team/base:latest
 
 USER root
 

@@ -56,7 +56,7 @@ build_task:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   build_script:
     - source cirrus-env BUILD
-    - regular_mvn_build_deploy_analyse
+    - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
 
@@ -69,7 +69,7 @@ build_win_task:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
   build_script:
-    - mvn.cmd test
+    - mvn.cmd -s /c/buildTools-docker/settings-public.xml test
   cleanup_before_cache_script: cleanup_maven_repository
 
 plugin_qa_task:
