@@ -1,9 +1,10 @@
 {
   "rules-metadata-path": "javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript",
   "languages": [
+    "TS",
     "JS"
   ],
-  "latest-update": "2019-11-12T10:20:44.939197Z",
+  "latest-update": "2019-11-19T10:40:05.746143Z",
   "options": {
     "no-language-in-filenames": true,
     "preserve-filenames": true
