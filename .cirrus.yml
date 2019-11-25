@@ -53,13 +53,11 @@ build_task:
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
   maven_cache:
-    folder: ~/.m2/repository
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   build_script:
     - source cirrus-env BUILD
-    - regular_mvn_build_deploy_analyse
-  cleanup_before_cache_script:
-    - find ~/.m2 -name resolver-status.properties -delete
-    - rm -rf "$HOME/.m2/repository/org/sonarsource/"
+    - regular_mvn_build_deploy_analyze
+  cleanup_before_cache_script: cleanup_maven_repository
 
 
 build_win_task:
@@ -67,8 +65,12 @@ build_win_task:
     - build
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
+  maven_cache:
+    #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
+    folder: ~/.m2/repository
   build_script:
-    - mvn.cmd test
+    - mvn.cmd -s /c/buildTools-docker/settings-public.xml test
+  cleanup_before_cache_script: cleanup_maven_repository
 
 plugin_qa_task:
   depends_on:
@@ -87,14 +89,12 @@ plugin_qa_task:
       - SQ_VERSION: LATEST_RELEASE[7.9]
       - SQ_VERSION: DOGFOOD
   maven_cache:
-    folder: ~/.m2/repository
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
-  cleanup_before_cache_script:
-    - find ~/.m2 -name resolver-status.properties -delete
-    - rm -rf "$HOME/.m2/repository/org/sonarsource/"
+  cleanup_before_cache_script: cleanup_maven_repository
 
 plugin_qa_nodejs12_task:
   depends_on:
@@ -110,14 +110,12 @@ plugin_qa_nodejs12_task:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE
   maven_cache:
-    folder: ~/.m2/repository
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
-  cleanup_before_cache_script:
-    - find ~/.m2 -name resolver-status.properties -delete
-    - rm -rf "$HOME/.m2/repository/org/sonarsource/"
+  cleanup_before_cache_script: cleanup_maven_repository
 
 plugin_qa_win_task:
   depends_on:
@@ -127,11 +125,14 @@ plugin_qa_win_task:
   env:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE[7.9]
+  maven_cache:
+    #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
+    folder: ~/.m2/repository
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
-
+  cleanup_before_cache_script: cleanup_maven_repository
 
 ruling_task:
   depends_on:
@@ -149,7 +150,7 @@ ruling_task:
       - RULING: JavaScriptRulingTest
       - RULING: TypeScriptRulingTest
   maven_cache:
-    folder: ~/.m2/repository
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   submodules_script:
     - git submodule update --init
   ruling_script:
@@ -157,8 +158,7 @@ ruling_task:
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
     - mvn verify -Dtest=${RULING} -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
-  cleanup_before_cache_script:
-    - rm -rf "$HOME/.m2/repository/org/sonarsource/"
+  cleanup_before_cache_script: cleanup_maven_repository
 
 
 promote_task:
@@ -181,9 +181,6 @@ promote_task:
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: org.sonarsource.javascript:sonar-javascript-plugin:jar
   maven_cache:
-    folder: ~/.m2/repository
-  script:
-    - source cirrus-env PROMOTE
-    - source set_maven_build_version $BUILD_NUMBER
-    - curl -s -H "Authorization: Bearer $GCF_ACCESS_TOKEN" "$PROMOTE_URL/$GITHUB_REPO/$GITHUB_BRANCH/$BUILD_NUMBER/$PULL_REQUEST"
-    - burgr-notify-promotion
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  script: cirrus_promote_maven
+  cleanup_before_cache_script: cleanup_maven_repository
