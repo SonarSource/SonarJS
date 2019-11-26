@@ -9,7 +9,7 @@
   "ruleSpecification": "RSPEC-124",
   "sqKey": "CommentRegularExpression",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

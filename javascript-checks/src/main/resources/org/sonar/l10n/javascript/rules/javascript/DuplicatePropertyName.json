@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1534",
   "sqKey": "DuplicatePropertyName",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

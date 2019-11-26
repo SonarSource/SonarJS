@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-1874",
   "sqKey": "S1874",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "TS"
   ],
   "scope": "Main",
   "securityStandards": {

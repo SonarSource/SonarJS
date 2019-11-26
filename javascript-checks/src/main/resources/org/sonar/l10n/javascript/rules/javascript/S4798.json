@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-4798",
   "sqKey": "S4798",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "TS"
   ],
   "scope": "Main"
 }

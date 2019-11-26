@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-126",
   "sqKey": "ElseIfWithoutElse",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "All"
 }

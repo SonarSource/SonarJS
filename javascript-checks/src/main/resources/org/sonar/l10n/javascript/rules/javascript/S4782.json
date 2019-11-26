@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-4782",
   "sqKey": "S4782",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "TS"
   ],
   "scope": "All"
 }

@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1535",
   "sqKey": "ForIn",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

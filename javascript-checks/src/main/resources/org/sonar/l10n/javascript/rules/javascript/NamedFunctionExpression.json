@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1517",
   "sqKey": "NamedFunctionExpression",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

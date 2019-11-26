@@ -1,24 +1,58 @@
-<p>Unnecessarily verbose declarations and initializations make it harder to read the code, and should be simplified. Specifically, primitive
-(<code>number</code>, <code>string</code>, <code>boolean</code> and others) types should be omitted from variable and parameter declaration when they
-can be easily inferred from the initialized or defaulted value.</p>
+<p>Unnecessarily verbose declarations and initializations make it harder to read the code, and should be simplified.</p>
+<p>Specifically the following should be omitted when they can be inferred:</p>
+<ul>
+  <li> array element type </li>
+  <li> array size </li>
+  <li> <code>new DelegateType</code> </li>
+  <li> <code>new Nullable&lt;Type&gt;</code> </li>
+  <li> object or collection initializers (<code>{}</code>) </li>
+  <li> type of lambda expression parameters </li>
+  <li> parameter declarations of anonymous methods when the parameters are not used. </li>
+</ul>
 <h2>Noncompliant Code Example</h2>
 <pre>
-const n: number = 1; // Noncompliant, "number" can be omitted
+var l = new List&lt;int&gt;() {}; // Noncompliant, {} can be removed
+var o = new object() {}; // Noncompliant, {} can be removed
 
-function foo(s: string = "") {} // Noncompliant, "string" can be omitted
+var ints = new int[] {1, 2, 3}; // Noncompliant, int can be omitted
+ints = new int[3] {1, 2, 3}; // Noncompliant, the size specification can be removed
 
-class Bar {
-  b: boolean = true;  // Noncompliant, "boolean" can be omitted
+int? i = new int?(5); // Noncompliant new int? could be omitted, it can be inferred from the declaration, and there's implicit conversion from T to T?
+var j = new int?(5);
+
+Func&lt;int, int&gt; f1 = (int i) =&gt; 1; //Noncompliant, can be simplified
+
+class Class
+{
+    private event EventHandler MyEvent;
+
+    public Class()
+    {
+        MyEvent += new EventHandler((a,b)=&gt;{ }); // Noncompliant, needlessly verbose
+    }
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-const n = 1;
+var l = new List&lt;int&gt;();
+var o = new object();
 
-function foo(s = "") {}
+var ints = new [] {1, 2, 3};
+ints = new [] {1, 2, 3};
 
-class Bar {
-  b = true;
+int? i = 5;
+var j = new int?(5);
+
+Func&lt;int, int&gt; f1 = (i) =&gt; 1;
+
+class Class
+{
+    private event EventHandler MyEvent;
+
+    public Class()
+    {
+        MyEvent += (a,b)=&gt;{ };
+    }
 }
 </pre>
 

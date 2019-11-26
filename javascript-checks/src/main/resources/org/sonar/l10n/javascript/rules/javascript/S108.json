@@ -13,8 +13,8 @@
   "ruleSpecification": "RSPEC-108",
   "sqKey": "S108",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JS",
+    "TS"
   ],
   "scope": "All"
 }

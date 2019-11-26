@@ -17,8 +17,8 @@
   "ruleSpecification": "RSPEC-2077",
   "sqKey": "S2077",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JS",
+    "TS"
   ],
   "scope": "Main",
   "securityStandards": {

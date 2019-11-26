@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-1539",
   "sqKey": "StrictMode",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

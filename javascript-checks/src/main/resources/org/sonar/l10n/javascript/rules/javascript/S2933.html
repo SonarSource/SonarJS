@@ -1,22 +1,25 @@
-<p><code>readonly</code> properties can only be assigned in a class constructor or at the point of declaration. If a class has a property that's not
-marked <code>readonly</code> but is only set in the constructor, it could cause confusion about the property's intended use. To avoid confusion, such
-properties should be marked <code>readonly</code> to make their intended use explicit, and to prevent future maintainers from inadvertently changing
-their use.</p>
+<p><code>readonly</code> fields can only be assigned in a class constructor. If a class has a field that's not marked <code>readonly</code> but is
+only set in the constructor, it could cause confusion about the field's intended use. To avoid confusion, such fields should be marked
+<code>readonly</code> to make their intended use explicit, and to prevent future maintainers from inadvertently changing their use.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-class Person {
-  private _birthYear: number;  // Noncompliant
-  constructor(birthYear: number) {
-    this._birthYear = birthYear;
+class Person
+{
+  int _birthYear;  // Noncompliant
+  Person(int birthYear)
+  {
+    _birthYear = birthYear;
   }
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-class Person {
-  private readonly _birthYear: number;
-  constructor(birthYear: number) {
-    this._birthYear = birthYear;
+class Person
+{
+  readonly int _birthYear;
+  Person(int birthYear)
+  {
+    _birthYear = birthYear;
   }
 }
 </pre>

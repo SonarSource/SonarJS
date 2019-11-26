@@ -9,7 +9,7 @@
   "ruleSpecification": "RSPEC-1135",
   "sqKey": "S1135",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "All",
   "securityStandards": {

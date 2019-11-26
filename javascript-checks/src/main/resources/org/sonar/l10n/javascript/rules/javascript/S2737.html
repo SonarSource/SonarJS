@@ -1,7 +1,6 @@
 <p>A <code>catch</code> clause that only rethrows the caught exception has the same effect as omitting the <code>catch</code> altogether and letting
 it bubble up automatically, but with more code and the additional detriment of leaving maintainers scratching their heads. </p>
 <p>Such clauses should either be eliminated or populated with the appropriate logic.</p>
-<p><em>Note that this rule requires Node.js to be available during analysis.</em></p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 try {

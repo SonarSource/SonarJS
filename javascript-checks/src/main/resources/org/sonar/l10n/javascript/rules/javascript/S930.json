@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-930",
   "sqKey": "S930",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main",
   "securityStandards": {

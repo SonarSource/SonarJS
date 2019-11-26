@@ -15,7 +15,7 @@
   "ruleSpecification": "RSPEC-2817",
   "sqKey": "S2817",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main",
   "securityStandards": {

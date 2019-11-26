@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1514",
   "sqKey": "BoundOrAssignedEvalOrArguments",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

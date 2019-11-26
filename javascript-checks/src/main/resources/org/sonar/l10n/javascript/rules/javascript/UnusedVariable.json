@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1481",
   "sqKey": "UnusedVariable",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "All"
 }

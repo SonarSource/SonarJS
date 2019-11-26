@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-128",
   "sqKey": "NonEmptyCaseWithoutBreak",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "All",
   "securityStandards": {

@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-909",
   "sqKey": "ContinueStatement",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

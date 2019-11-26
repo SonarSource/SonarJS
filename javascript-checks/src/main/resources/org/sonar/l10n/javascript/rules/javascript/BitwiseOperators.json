@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1529",
   "sqKey": "BitwiseOperators",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

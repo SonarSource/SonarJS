@@ -9,8 +9,8 @@
   "ruleSpecification": "RSPEC-4829",
   "sqKey": "S4829",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JS",
+    "TS"
   ],
   "scope": "Main",
   "securityStandards": {

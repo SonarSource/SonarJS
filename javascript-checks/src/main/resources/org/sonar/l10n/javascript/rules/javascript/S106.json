@@ -14,8 +14,8 @@
   "ruleSpecification": "RSPEC-106",
   "sqKey": "S106",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JS",
+    "TS"
   ],
   "scope": "Main"
 }

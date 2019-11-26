@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-139",
   "sqKey": "TrailingComment",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "All"
 }

@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-2428",
   "sqKey": "S2428",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

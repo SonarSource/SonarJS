@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1515",
   "sqKey": "FunctionDefinitionInsideLoop",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

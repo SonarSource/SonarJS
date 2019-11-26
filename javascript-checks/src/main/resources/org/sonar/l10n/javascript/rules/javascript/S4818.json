@@ -12,8 +12,8 @@
   "ruleSpecification": "RSPEC-4818",
   "sqKey": "S4818",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JS",
+    "TS"
   ],
   "scope": "Main",
   "securityStandards": {

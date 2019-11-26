@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-134",
   "sqKey": "NestedIfDepth",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "All"
 }

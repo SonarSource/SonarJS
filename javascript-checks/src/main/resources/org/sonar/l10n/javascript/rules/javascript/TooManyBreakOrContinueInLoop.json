@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-135",
   "sqKey": "TooManyBreakOrContinueInLoop",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "All"
 }

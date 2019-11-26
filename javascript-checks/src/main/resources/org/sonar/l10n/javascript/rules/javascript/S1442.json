@@ -15,7 +15,7 @@
   "ruleSpecification": "RSPEC-1442",
   "sqKey": "S1442",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main",
   "securityStandards": {

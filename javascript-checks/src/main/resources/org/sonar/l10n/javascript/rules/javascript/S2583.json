@@ -15,7 +15,7 @@
   "ruleSpecification": "RSPEC-2583",
   "sqKey": "S2583",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "All",
   "securityStandards": {

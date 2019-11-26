@@ -14,8 +14,8 @@
   "ruleSpecification": "RSPEC-1523",
   "sqKey": "S1523",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JS",
+    "TS"
   ],
   "scope": "Main",
   "securityStandards": {

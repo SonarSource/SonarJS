@@ -13,8 +13,8 @@
   "ruleSpecification": "RSPEC-4275",
   "sqKey": "S4275",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JS",
+    "TS"
   ],
   "scope": "All"
 }

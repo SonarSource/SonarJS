@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1532",
   "sqKey": "ConditionalComment",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

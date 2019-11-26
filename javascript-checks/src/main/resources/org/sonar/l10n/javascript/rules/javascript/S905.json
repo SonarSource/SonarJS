@@ -14,8 +14,8 @@
   "ruleSpecification": "RSPEC-905",
   "sqKey": "S905",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JS",
+    "TS"
   ],
   "scope": "Main",
   "securityStandards": {

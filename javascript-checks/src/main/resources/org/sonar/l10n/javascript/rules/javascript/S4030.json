@@ -14,8 +14,8 @@
   "ruleSpecification": "RSPEC-4030",
   "sqKey": "S4030",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JS",
+    "TS"
   ],
   "scope": "All"
 }

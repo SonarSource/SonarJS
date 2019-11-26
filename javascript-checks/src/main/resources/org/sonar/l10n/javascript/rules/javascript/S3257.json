@@ -1,5 +1,5 @@
 {
-  "title": "Primitive types should be omitted from initialized or defaulted declarations",
+  "title": "Declarations and initializations should be as concise as possible",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-3257",
   "sqKey": "S3257",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "TS"
   ],
   "scope": "All"
 }

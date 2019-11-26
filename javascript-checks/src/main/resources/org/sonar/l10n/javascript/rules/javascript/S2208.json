@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-2208",
   "sqKey": "S2208",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "All"
 }

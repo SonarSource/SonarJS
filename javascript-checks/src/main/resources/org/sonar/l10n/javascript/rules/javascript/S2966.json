@@ -1,5 +1,5 @@
 {
-  "title": "Non-null assertions should not be used",
+  "title": "Optionals should not be force-unwrapped",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-2966",
   "sqKey": "S2966",
   "compatibleLanguages": [
-    "TYPESCRIPT"
+    "TS"
   ],
   "scope": "Main"
 }

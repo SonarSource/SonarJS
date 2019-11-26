@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1848",
   "sqKey": "ConstructorFunctionsForSideEffects",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

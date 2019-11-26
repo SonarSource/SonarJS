@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-1537",
   "sqKey": "TrailingComma",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

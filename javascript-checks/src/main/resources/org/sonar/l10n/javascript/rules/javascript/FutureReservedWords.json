@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-1527",
   "sqKey": "FutureReservedWords",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

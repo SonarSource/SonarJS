@@ -15,8 +15,8 @@
   "ruleSpecification": "RSPEC-2255",
   "sqKey": "S2255",
   "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
+    "JS",
+    "TS"
   ],
   "scope": "Main",
   "securityStandards": {

@@ -14,7 +14,7 @@
   "ruleSpecification": "RSPEC-3499",
   "sqKey": "S3499",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }

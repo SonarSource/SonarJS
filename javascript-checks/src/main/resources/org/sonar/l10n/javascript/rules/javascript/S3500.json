@@ -13,7 +13,7 @@
   "ruleSpecification": "RSPEC-3500",
   "sqKey": "S3500",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JS"
   ],
   "scope": "Main"
 }
