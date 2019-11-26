@@ -73,10 +73,10 @@ public class TypeScriptRulesDefinitionTest {
       assertThat(ruleJson.compatibleLanguages).as("For rule " + key).isNotNull().isNotEmpty();
       List<String> expected = new ArrayList<>();
       if (isTypeScriptCheck) {
-        expected.add("TYPESCRIPT");
+        expected.add("TS");
       }
       if (isJavaScriptCheck) {
-        expected.add("JAVASCRIPT");
+        expected.add("JS");
       }
 
       assertThat(ruleJson.compatibleLanguages).containsAll(expected);
