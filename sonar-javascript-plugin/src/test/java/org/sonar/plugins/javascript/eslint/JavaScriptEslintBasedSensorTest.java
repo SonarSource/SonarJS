@@ -98,7 +98,7 @@ public class JavaScriptEslintBasedSensorTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = SensorContextTester.create(tempFolder.newDir());
 
@@ -113,7 +113,7 @@ public class JavaScriptEslintBasedSensorTest {
       "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
       "{\"line\":0,\"column\":1,\"ruleId\":\"file-header\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
       "]}");
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any())).thenReturn(responseIssues);
 
     JavaScriptEslintBasedSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -154,7 +154,7 @@ public class JavaScriptEslintBasedSensorTest {
 
   @Test
   public void should_report_secondary_issue_locations_from_eslint_based_rules() throws Exception {
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(response(
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any())).thenReturn(response(
       "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"cost\": 14," +
         "\"secondaryLocations\": [" +
@@ -189,7 +189,7 @@ public class JavaScriptEslintBasedSensorTest {
 
   @Test
   public void should_not_report_secondary_when_location_are_null() throws Exception {
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(response(
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any())).thenReturn(response(
       "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"secondaryLocations\": [" +
         "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
@@ -209,7 +209,7 @@ public class JavaScriptEslintBasedSensorTest {
 
   @Test
   public void should_report_cost_from_eslint_based_rules() throws Exception {
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(response(
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any())).thenReturn(response(
       "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
         "\"cost\": 42," + "\"secondaryLocations\": []}]}"));
 
@@ -235,7 +235,7 @@ public class JavaScriptEslintBasedSensorTest {
   @Test
   public void should_create_metrics_from_eslint_based_rules() throws Exception {
     AnalysisResponse responseMetrics = response("{ metrics: {\"ncloc\":[1, 2, 3],\"commentLines\":[4, 5, 6],\"nosonarLines\":[7, 8, 9],\"executableLines\":[10, 11, 12],\"functions\":1,\"statements\":2,\"classes\":3,\"complexity\":4,\"cognitiveComplexity\":5} }");
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any())).thenReturn(responseMetrics);
 
     JavaScriptEslintBasedSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -254,7 +254,7 @@ public class JavaScriptEslintBasedSensorTest {
   @Test
   public void should_create_highlights_from_eslint_based_rules() throws Exception {
     AnalysisResponse responseCpdTokens = response("{ highlights: [{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"textType\":\"KEYWORD\"},{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"textType\":\"CONSTANT\"}] }");
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseCpdTokens);
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any())).thenReturn(responseCpdTokens);
 
     JavaScriptEslintBasedSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -271,7 +271,7 @@ public class JavaScriptEslintBasedSensorTest {
   @Test
   public void should_create_cpd_from_eslint_based_rules() throws Exception {
     AnalysisResponse responseCpdTokens = response("{ cpdTokens: [{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"image\":\"LITERAL\"},{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"image\":\"if\"}] }");
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(responseCpdTokens);
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any())).thenReturn(responseCpdTokens);
 
     JavaScriptEslintBasedSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -296,7 +296,7 @@ public class JavaScriptEslintBasedSensorTest {
 
   @Test
   public void should_not_explode_if_no_response() throws Exception {
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenThrow(new IOException("error"));
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any())).thenThrow(new IOException("error"));
     JavaScriptEslintBasedSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
     sensor.execute(context);
@@ -328,7 +328,8 @@ public class JavaScriptEslintBasedSensorTest {
       new NoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
-      null);
+      null,
+      tempFolder);
 
     EslintBridgeServer.Rule[] rules = sensor.rules;
 
@@ -353,7 +354,8 @@ public class JavaScriptEslintBasedSensorTest {
       fileLinesContextFactory,
       eslintBridgeServerMock,
       analysisWarnings,
-      mock(JavaScriptSensor.class));
+      mock(JavaScriptSensor.class),
+      tempFolder);
 
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
@@ -383,7 +385,7 @@ public class JavaScriptEslintBasedSensorTest {
 
   @Test
   public void should_raise_a_parsing_error() throws IOException {
-    when(eslintBridgeServerMock.analyzeJavaScript(any()))
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
     createSensor().execute(context);
@@ -398,10 +400,10 @@ public class JavaScriptEslintBasedSensorTest {
 
   @Test
   public void should_not_create_parsing_issue_when_no_rule() throws IOException {
-    when(eslintBridgeServerMock.analyzeJavaScript(any()))
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
-    new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, null).execute(context);
+    new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, null, tempFolder).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(0);
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -415,7 +417,7 @@ public class JavaScriptEslintBasedSensorTest {
     createInputFile(ctx);
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
-    verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
+    verify(eslintBridgeServerMock).analyzeJavaScriptWithTypeScript(captor.capture());
     assertThat(captor.getValue().fileContent).isEqualTo("if (cond)\n" +
       "doFoo(); \n" +
       "else \n" +
@@ -425,7 +427,7 @@ public class JavaScriptEslintBasedSensorTest {
     ctx = SensorContextTester.create(tempFolder.newDir());
     createInputFile(ctx);
     createSensor().execute(ctx);
-    verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
+    verify(eslintBridgeServerMock).analyzeJavaScriptWithTypeScript(captor.capture());
     assertThat(captor.getValue().fileContent).isNull();
   }
 
@@ -443,13 +445,13 @@ public class JavaScriptEslintBasedSensorTest {
 
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
-    verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
+    verify(eslintBridgeServerMock).analyzeJavaScriptWithTypeScript(captor.capture());
     assertThat(captor.getValue().fileContent).isEqualTo(content);
   }
 
   @Test
   public void should_fail_fast() throws Exception {
-    when(eslintBridgeServerMock.analyzeJavaScript(any())).thenThrow(new IOException("error"));
+    when(eslintBridgeServerMock.analyzeJavaScriptWithTypeScript(any())).thenThrow(new IOException("error"));
     JavaScriptEslintBasedSensor sensor = createSensor();
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
@@ -482,7 +484,7 @@ public class JavaScriptEslintBasedSensorTest {
     CheckFactory checkFactory = checkFactory("OctalNumber");
     NoSonarFilter noSonarFilter = new NoSonarFilter();
     JavaScriptSensor jsSensor = new JavaScriptSensor(checkFactory, context.fileSystem(), null, null);
-    JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServerMock, jsSensor);
+    JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServerMock, jsSensor, tempFolder);
     sensor.execute(context);
 
     assertThat(context.allIssues()).hasSize(1);
@@ -518,6 +520,6 @@ public class JavaScriptEslintBasedSensorTest {
 
 
   private JavaScriptEslintBasedSensor createSensor() {
-    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError", "S1451"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, mock(JavaScriptSensor.class));
+    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError", "S1451"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, mock(JavaScriptSensor.class), tempFolder);
   }
 }

@@ -294,7 +294,7 @@ describe("should send error when failing", () => {
   let close;
 
   beforeEach(async () => {
-    server = await startServer(0, failAnalysis, failAnalysis);
+    server = await startServer(0, failAnalysis, failAnalysis, failAnalysis);
     close = promisify(server.close.bind(server));
   });
 

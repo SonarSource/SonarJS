@@ -30,10 +30,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.sonar.api.SonarProduct;
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -60,7 +62,7 @@ class TsConfigProvider {
     providers = Arrays.asList(
       new PropertyTsConfigProvider(),
       new LookupTsConfigProvider(),
-      new DefaultTsConfigProvider(folder));
+      new DefaultTsConfigProvider(folder, TypeScriptSensor::filePredicate));
   }
 
   List<String> tsconfigs(SensorContext context) throws IOException {
@@ -118,9 +120,11 @@ class TsConfigProvider {
   static class DefaultTsConfigProvider implements Provider {
 
     private final TempFolder folder;
+    private final Function<FileSystem, FilePredicate> filePredicateProvider;
 
-    DefaultTsConfigProvider(TempFolder folder) {
+    DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate) {
       this.folder = folder;
+      this.filePredicateProvider = filePredicate;
     }
 
     @Override
@@ -130,7 +134,7 @@ class TsConfigProvider {
         LOG.warn("Generating temporary tsconfig is not supported in SonarLint context.");
         return emptyList();
       }
-      Iterable<InputFile> inputFiles = context.fileSystem().inputFiles(TypeScriptSensor.filePredicate(context.fileSystem()));
+      Iterable<InputFile> inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
       TsConfig tsConfig = new TsConfig(inputFiles);
       File tsconfigFile = writeToJsonFile(tsConfig);
       LOG.info("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
@@ -153,4 +157,6 @@ class TsConfigProvider {
       }
     }
   }
+
+
 }

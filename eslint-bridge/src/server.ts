@@ -27,6 +27,7 @@ import {
   analyzeTypeScript,
   EMPTY_RESPONSE,
   AnalysisResponse,
+  analyzeJavaScriptWithTypeScript,
 } from "./analyzer";
 import { AddressInfo } from "net";
 import { unloadTypeScriptEslint, ParseExceptionCode } from "./parser";
@@ -35,7 +36,7 @@ import { getFilesForTsConfig } from "./tsconfig";
 const MAX_REQUEST_SIZE = "50mb";
 
 export function start(port = 0): Promise<Server> {
-  return startServer(port, analyzeJavaScript, analyzeTypeScript);
+  return startServer(port, analyzeJavaScript, analyzeTypeScript, analyzeJavaScriptWithTypeScript);
 }
 
 type AnalysisFunction = (input: AnalysisInput) => AnalysisResponse;
@@ -45,6 +46,7 @@ export function startServer(
   port = 0,
   analyzeJS: AnalysisFunction,
   analyzeTS: AnalysisFunction,
+  analyseJSWithTS: AnalysisFunction,
 ): Promise<Server> {
   return new Promise(resolve => {
     console.log("DEBUG starting eslint-bridge server at port", port);
@@ -54,6 +56,8 @@ export function startServer(
     app.use(bodyParser.json({ limit: MAX_REQUEST_SIZE }));
 
     app.post("/analyze-js", analyze(analyzeJS));
+
+    app.post("/analyze-js-with-ts", analyze(analyseJSWithTS));
 
     app.post("/analyze-ts", analyze(analyzeTS));
 

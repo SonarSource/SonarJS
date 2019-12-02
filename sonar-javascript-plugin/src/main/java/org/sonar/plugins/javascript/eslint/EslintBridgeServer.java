@@ -41,6 +41,8 @@ public interface EslintBridgeServer extends Startable {
 
   AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException;
 
+  AnalysisResponse analyzeJavaScriptWithTypeScript(AnalysisRequest request) throws IOException;
+
   void clean();
 
   String getCommandInfo();

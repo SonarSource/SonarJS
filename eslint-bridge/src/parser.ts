@@ -55,6 +55,27 @@ export type Parse = (
   tsConfigs?: string[],
 ) => SourceCode | ParsingError;
 
+export function parseJavaScriptSourceFileWithTypeScript(
+  fileContent: string,
+  filePath: string,
+  tsConfigs?: string[],
+): SourceCode | ParsingError {
+  try {
+    checkTypeScriptVersionCompatibility(require("typescript").version);
+    // we load the typescript parser dynamically, so we don't need typescript dependency when analyzing pure JS project
+    const tsParser = require("@typescript-eslint/parser");
+    const result = tsParser.parseForESLint(fileContent, {
+      ...PARSER_CONFIG_MODULE,
+      filePath: filePath,
+      project: tsConfigs,
+      loggerFn: console.log,
+    });
+    return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
+  } catch (exception) {
+    return parseJavaScriptSourceFile(fileContent);
+  }
+}
+
 export function parseJavaScriptSourceFile(fileContent: string): SourceCode | ParsingError {
   let parseFunctions = [espree.parse, babel.parse];
   if (fileContent.includes("@flow")) {

@@ -23,6 +23,7 @@ import {
   parseTypeScriptSourceFile,
   parseVueSourceFile,
   ParseExceptionCode,
+  parseJavaScriptSourceFileWithTypeScript,
 } from "./parser";
 import getHighlighting, { Highlight } from "./runner/highlighter";
 import getMetrics, { EMPTY_METRICS, Metrics } from "./runner/metrics";
@@ -113,6 +114,10 @@ export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
     input,
     input.filePath.endsWith(".vue") ? parseVueSourceFile : parseJavaScriptSourceFile,
   );
+}
+
+export function analyzeJavaScriptWithTypeScript(input: AnalysisInput): AnalysisResponse {
+  return analyze(input, parseJavaScriptSourceFileWithTypeScript);
 }
 
 export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {

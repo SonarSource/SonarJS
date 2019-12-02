@@ -176,13 +176,19 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-js"), request.filePath);
   }
-
+  
   @Override
   public AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-ts"), request.filePath);
   }
 
+  @Override
+  public AnalysisResponse analyzeJavaScriptWithTypeScript(AnalysisRequest request) throws IOException {
+    String json = GSON.toJson(request);
+    return response(request(json, "analyze-js-with-ts"), request.filePath);
+  }
+  
   private String request(String json, String endpoint) throws IOException {
     Request request = new Request.Builder()
       .url(url(endpoint))
@@ -329,4 +335,5 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       this.tsconfig = tsconfig;
     }
   }
+
 }

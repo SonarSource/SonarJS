@@ -34,6 +34,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -44,6 +45,7 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
@@ -51,21 +53,22 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
   private static final Profiler PROFILER = Profiler.create(LOG);
   private final JavaScriptSensor javaScriptSensor;
-
+  private final TempFolder tempFolder;
 
   /**
    * Required for SonarLint
    */
   public JavaScriptEslintBasedSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
-                                     FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer, JavaScriptSensor javaScriptSensor) {
-    this(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, javaScriptSensor);
+                                     FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer, JavaScriptSensor javaScriptSensor, TempFolder tempFolder) {
+    this(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, javaScriptSensor, tempFolder);
   }
 
   public JavaScriptEslintBasedSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
                                      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-                                     @Nullable AnalysisWarnings analysisWarnings, JavaScriptSensor javaScriptSensor) {
+                                     @Nullable AnalysisWarnings analysisWarnings, JavaScriptSensor javaScriptSensor, TempFolder tempFolder) {
     super(checks(checkFactory), noSonarFilter, fileLinesContextFactory, eslintBridgeServer, analysisWarnings);
     this.javaScriptSensor = javaScriptSensor;
+    this.tempFolder = tempFolder;
   }
 
   private static JavaScriptChecks checks(CheckFactory checkFactory) {
@@ -74,13 +77,15 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   @Override
   void analyzeFiles() throws IOException, InterruptedException {
-    runEslintAnalysis();
+    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptEslintBasedSensor::filePredicate);
+    List<String> tsConfigs = provider.tsconfigs(context);
+    runEslintAnalysis(tsConfigs);
     PROFILER.startInfo("Sensor SonarJS [javascript]");
     javaScriptSensor.execute(context);
     PROFILER.stopInfo();
   }
 
-  private void runEslintAnalysis() throws IOException, InterruptedException {
+  private void runEslintAnalysis(List<String> tsConfigs) throws IOException, InterruptedException {
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
     try {
@@ -91,7 +96,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
         if (eslintBridgeServer.isAlive()) {
-          analyze(inputFile);
+          analyze(inputFile, tsConfigs);
           progressReport.nextFile();
         } else {
           throw new IllegalStateException("eslint-bridge server is not answering");
@@ -108,16 +113,22 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     }
   }
 
-  private void analyze(InputFile file) throws IOException {
+  private void analyze(InputFile file, List<String> tsConfigs) throws IOException {
     try {
       String fileContent = shouldSendFileContent(file) ? file.contents() : null;
-      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), null);
-      AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
+      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), tsConfigs);
+      AnalysisResponse response = eslintBridgeServer.analyzeJavaScriptWithTypeScript(analysisRequest);
       processResponse(file, response);
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;
     }
+  }
+
+  static FilePredicate filePredicate(FileSystem fileSystem) {
+    return fileSystem.predicates().and(
+      fileSystem.predicates().hasType(Type.MAIN),
+      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
   }
 
   private List<InputFile> getInputFiles() {
