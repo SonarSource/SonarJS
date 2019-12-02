@@ -70,8 +70,11 @@ export function parseJavaScriptSourceFileWithTypeScript(
       project: tsConfigs,
       loggerFn: console.log,
     });
+    console.log(`Successfully parsed JS file ${filePath} with TS compiler`);
     return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
   } catch (exception) {
+    console.log(`Could not parse JS file ${filePath} with TS compiler. Error: ${exception}`);
+    console.log(`Falling back to JS parsers`);
     return parseJavaScriptSourceFile(fileContent);
   }
 }
