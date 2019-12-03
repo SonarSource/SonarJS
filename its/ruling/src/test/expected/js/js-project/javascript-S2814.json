@@ -169,6 +169,9 @@
 'js-project:ecmascript6/http/src/IResponse.js':[
 4,
 ],
+'js-project:ecmascript6/router/gulpfile.js':[
+82,
+],
 'js-project:ecmascript6/router/src/navigationPlan.js':[
 57,
 ],

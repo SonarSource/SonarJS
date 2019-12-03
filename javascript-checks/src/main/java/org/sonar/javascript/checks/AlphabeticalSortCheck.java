@@ -20,8 +20,10 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
+@JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S2871")
 public class AlphabeticalSortCheck extends EslintBasedCheck {
