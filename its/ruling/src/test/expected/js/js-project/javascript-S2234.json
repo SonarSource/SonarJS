@@ -2,5 +2,13 @@
 'js-project:ecmascript6/di.js/visualize/lib/d3.v3.js':[
 4653,
 4655,
+6934,
+],
+'js-project:google-closure-library/math/rangeset.js':[
+195,
+],
+'js-project:jest/packages/jest-diff/src/__tests__/diff.test.js':[
+546,
+549,
 ],
 }
