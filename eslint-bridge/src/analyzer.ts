@@ -117,7 +117,10 @@ export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
 }
 
 export function analyzeJavaScriptWithTypeScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(input, parseJavaScriptSourceFileWithTypeScript);
+  return analyze(
+    input,
+    input.filePath.endsWith(".vue") ? parseVueSourceFile : parseJavaScriptSourceFileWithTypeScript,
+  );
 }
 
 export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
