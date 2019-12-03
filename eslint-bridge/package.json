@@ -37,7 +37,6 @@
     "mkdirp": "^0.5.1",
     "prettier": "1.14.2",
     "ts-jest": "24.1.0"
-    
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "2.6.0",
@@ -66,7 +65,8 @@
     "eslint-plugin-sonarjs",
     "express",
     "vue-eslint-parser",
-    "run-node"
+    "run-node",
+    "typescript"
   ],
   "prettier": {
     "printWidth": 100,
