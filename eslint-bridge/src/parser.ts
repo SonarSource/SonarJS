@@ -73,8 +73,15 @@ export function parseJavaScriptSourceFileWithTypeScript(
     console.log(`Successfully parsed JS file ${filePath} with TS compiler`);
     return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
   } catch (exception) {
-    console.log(`Could not parse JS file ${filePath} with TS compiler. Error: ${exception}`);
+    console.log(
+      `Could not parse JS file ${filePath} with TS compiler at line ${
+        exception.lineNumber
+      }. Error: ${exception.message}`,
+    );
     console.log(`Falling back to JS parsers`);
+    if (fileContent.includes("@flow")) {
+      console.log(`Flow.js file`);
+    }
     return parseJavaScriptSourceFile(fileContent);
   }
 }
@@ -153,6 +160,7 @@ export function parseVueSourceFile(fileContent: string): SourceCode | ParsingErr
   for (const config of [PARSER_CONFIG_MODULE, PARSER_CONFIG_SCRIPT]) {
     try {
       const result = VueJS.parseForESLint(fileContent, config);
+      console.log("Vue.js file");
       return new SourceCode(fileContent, result.ast as any);
     } catch (exception) {
       exceptionToReport = exception;
