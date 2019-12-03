@@ -19,67 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
-import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1154")
-public class UselessStringOperationCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "%s is an immutable object; you must either store or return the result of the operation.";
+public class UselessStringOperationCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.of(Kind.EXPRESSION_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    Tree expression = ((ExpressionStatementTree) tree).expression();
-
-    if (expression.is(Kind.CALL_EXPRESSION)) {
-      ExpressionTree callee = ((CallExpressionTree) expression).callee();
-
-      if (callee.is(Kind.DOT_MEMBER_EXPRESSION)) {
-        DotMemberExpressionTree memberExpression = (DotMemberExpressionTree) callee;
-
-        if (memberExpression.object().types().containsOnly(Type.Kind.STRING)
-          && !isReplaceExclusion(memberExpression.property(), ((CallExpressionTree) expression).argumentClause())) {
-          addIssue(memberExpression.property(), String.format(MESSAGE, getVariable(memberExpression)));
-        }
-      }
-    }
-  }
-
-  private static boolean isReplaceExclusion(IdentifierTree property, ArgumentListTree arguments) {
-    if ("replace".equals(property.name()) && arguments.arguments().size() == 2) {
-      Tree secondArgument = arguments.arguments().get(1);
-      return !((ExpressionTree) secondArgument).types().containsOnly(Type.Kind.STRING);
-    }
-
-    return false;
-  }
-
-  private static String getVariable(MemberExpressionTree memberExpression) {
-    String variableName = CheckUtils.asString(memberExpression.object());
-    if (variableName.length() > 30) {
-      variableName = "String";
-    }
-    return variableName;
+  public String eslintKey() {
+    return "no-useless-operation";
   }
 
 }

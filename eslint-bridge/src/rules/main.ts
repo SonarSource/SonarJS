@@ -64,6 +64,7 @@ import { rule as noUnenclosedMultilineBlock } from "./no-unenclosed-multiline-bl
 import { rule as noUndefinedArgument } from "./no-undefined-argument";
 import { rule as noUnthrownError } from "./no-unthrown-error";
 import { rule as noUselessIntersection } from "./no-useless-intersection";
+import { rule as noUselessOperation } from "./no-useless-operation";
 import { rule as noReturnTypeAny } from "./no-return-type-any";
 import { rule as noVariableUsageBeforeDeclaration } from "./no-variable-usage-before-declaration";
 import { rule as osCommand } from "./os-command";
@@ -128,6 +129,7 @@ ruleModules["no-unenclosed-multiline-block"] = noUnenclosedMultilineBlock;
 ruleModules["no-unthrown-error"] = noUnthrownError;
 ruleModules["no-undefined-argument"] = noUndefinedArgument;
 ruleModules["no-useless-intersection"] = noUselessIntersection;
+ruleModules["no-useless-operation"] = noUselessOperation;
 ruleModules["no-return-type-any"] = noReturnTypeAny;
 ruleModules["no-variable-usage-before-declaration"] = noVariableUsageBeforeDeclaration;
 ruleModules["os-command"] = osCommand;
