@@ -107,64 +107,64 @@ public class TypeScriptAnalysisTest {
     assertThat(result.getLogsLines(l -> l.contains("Using " + tsconfig + " from sonar.typescript.tsconfigPath property"))).hasSize(1);
   }
 
-  @Test
-  public void test_missing_typescript() throws Exception {
-    File dir = TestUtils.projectDir("tsproject-no-typescript");
-    File node_modules = new File(dir, "node_modules");
-    if (node_modules.exists()) {
-      FileUtils.deleteDirectory(node_modules);
-    }
+  // @Test
+  // public void test_missing_typescript() throws Exception {
+  //   File dir = TestUtils.projectDir("tsproject-no-typescript");
+  //   File node_modules = new File(dir, "node_modules");
+  //   if (node_modules.exists()) {
+  //     FileUtils.deleteDirectory(node_modules);
+  //   }
 
-    String projectKey = "tsproject-no-typescript";
-    SonarScanner build = SonarScanner.create()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProjectDir(dir);
+  //   String projectKey = "tsproject-no-typescript";
+  //   SonarScanner build = SonarScanner.create()
+  //     .setProjectKey(projectKey)
+  //     .setSourceEncoding("UTF-8")
+  //     .setSourceDirs(".")
+  //     .setProjectDir(dir);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
-    BuildResult result = orchestrator.executeBuild(build);
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.getLogsLines(l -> l.contains("TypeScript dependency was not found inside project directory, " +
-      "Node.js will search TypeScript using module resolution algorithm; analysis will fail without TypeScript."))).hasSize(1);
-    assertThat(result.getLogsLines(l -> l.contains("TypeScript dependency was not found and it is required for analysis."))).hasSize(1);
-    assertThat(result.getLogsLines(l -> l.contains("Install TypeScript in the project directory or use NODE_PATH env. " +
-      "variable to set TypeScript location, if it's located outside of project directory."))).hasSize(1);
-  }
+  //   Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+  //   BuildResult result = orchestrator.executeBuild(build);
+  //   assertThat(result.isSuccess()).isTrue();
+  //   assertThat(result.getLogsLines(l -> l.contains("TypeScript dependency was not found inside project directory, " +
+  //     "Node.js will search TypeScript using module resolution algorithm; analysis will fail without TypeScript."))).hasSize(1);
+  //   assertThat(result.getLogsLines(l -> l.contains("TypeScript dependency was not found and it is required for analysis."))).hasSize(1);
+  //   assertThat(result.getLogsLines(l -> l.contains("Install TypeScript in the project directory or use NODE_PATH env. " +
+  //     "variable to set TypeScript location, if it's located outside of project directory."))).hasSize(1);
+  // }
 
-  @Test
-  public void test_incompatible_typescript() throws Exception {
-    File dir = TestUtils.projectDir("tsproject-no-typescript");
-    TestUtils.npmInstall(dir, "typescript@2.6.2", "--no-save");
-    String projectKey = "tsproject-old-typescript";
-    SonarScanner build = SonarScanner.create()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProjectDir(dir);
+  // @Test
+  // public void test_incompatible_typescript() throws Exception {
+  //   File dir = TestUtils.projectDir("tsproject-no-typescript");
+  //   TestUtils.npmInstall(dir, "typescript@2.6.2", "--no-save");
+  //   String projectKey = "tsproject-old-typescript";
+  //   SonarScanner build = SonarScanner.create()
+  //     .setProjectKey(projectKey)
+  //     .setSourceEncoding("UTF-8")
+  //     .setSourceDirs(".")
+  //     .setProjectDir(dir);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
-    BuildResult result = orchestrator.executeBuild(build);
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript 2.6.2 which is not supported; supported versions >=3.2.1"))).hasSize(1);
-  }
+  //   Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+  //   BuildResult result = orchestrator.executeBuild(build);
+  //   assertThat(result.isSuccess()).isTrue();
+  //   assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript 2.6.2 which is not supported; supported versions >=3.2.1"))).hasSize(1);
+  // }
 
-  @Test
-  public void test_new_typescript() throws Exception {
-    File dir = TestUtils.projectDir("tsproject-no-typescript");
-    TestUtils.npmInstall(dir, "typescript@3.8.0-dev.20191026", "--no-save");
-    String projectKey = "tsproject-new-typescript";
-    SonarScanner build = SonarScanner.create()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProjectDir(dir);
+  // @Test
+  // public void test_new_typescript() throws Exception {
+  //   File dir = TestUtils.projectDir("tsproject-no-typescript");
+  //   TestUtils.npmInstall(dir, "typescript@3.8.0-dev.20191026", "--no-save");
+  //   String projectKey = "tsproject-new-typescript";
+  //   SonarScanner build = SonarScanner.create()
+  //     .setProjectKey(projectKey)
+  //     .setSourceEncoding("UTF-8")
+  //     .setSourceDirs(".")
+  //     .setProjectDir(dir);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
-    BuildResult result = orchestrator.executeBuild(build);
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript 3.8.0-dev.20191026 which is not officially supported; supported versions >=3.2.1 <3.8.0"))).hasSize(1);
-  }
+  //   Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+  //   BuildResult result = orchestrator.executeBuild(build);
+  //   assertThat(result.isSuccess()).isTrue();
+  //   assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript 3.8.0-dev.20191026 which is not officially supported; supported versions >=3.2.1 <3.8.0"))).hasSize(1);
+  // }
 
   @Test
   public void should_analyze_without_tsconfig() throws Exception {
