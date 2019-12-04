@@ -152,6 +152,10 @@
 'js-project:ecmascript6/ecmascript6-today/1-let.js':[
 25,
 ],
+'js-project:ecmascript6/ecmascript6-today/2-const.js':[
+12,
+16,
+],
 'js-project:ecmascript6/ecmascript6-today/8-iterators.js':[
 23,
 36,
@@ -164,6 +168,9 @@
 ],
 'js-project:ecmascript6/http/src/IResponse.js':[
 4,
+],
+'js-project:ecmascript6/router/gulpfile.js':[
+82,
 ],
 'js-project:ecmascript6/router/src/navigationPlan.js':[
 57,
