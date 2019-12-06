@@ -20,7 +20,9 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -77,7 +79,10 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   @Override
   void analyzeFiles() throws IOException, InterruptedException {
-    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptEslintBasedSensor::filePredicate);
+    Map<String, Object> compilerOptions = new HashMap<>();
+    compilerOptions.put("allowJs", true);
+    compilerOptions.put("noImplicitAny", true);
+    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptEslintBasedSensor::filePredicate, compilerOptions);
     List<String> tsConfigs = provider.tsconfigs(context);
     runEslintAnalysis(tsConfigs);
     PROFILER.startInfo("Sensor SonarJS [javascript]");
