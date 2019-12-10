@@ -117,7 +117,7 @@ public class TsConfigProviderTest {
     List<String> tsconfigs = new TsConfigProvider(tempFolder).tsconfigs(ctx);
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = new String(Files.readAllBytes(Paths.get(tsconfigs.get(0))), StandardCharsets.UTF_8);
-    assertThat(tsconfig).isEqualTo("{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"]}");
+    assertThat(tsconfig).isEqualTo("{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"],\"compilerOptions\":{}}");
   }
 
   @Test
