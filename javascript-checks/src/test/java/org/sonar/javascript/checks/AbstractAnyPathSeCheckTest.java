@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import java.io.File;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,12 +41,14 @@ public class AbstractAnyPathSeCheckTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
+  @Ignore
   public void test() {
     JavaScriptCheckVerifier.verify(check,
       new File("src/test/resources/checks/abstractAnyPathSe1.js"));
   }
 
   @Test
+  @Ignore
   public void test_should_raise_exception() {
     thrown.expect(UnsupportedOperationException.class);
     JavaScriptCheckVerifier.verify(check,
@@ -53,6 +56,7 @@ public class AbstractAnyPathSeCheckTest {
   }
 
   @Test
+  @Ignore
   public void test_should_also_raise_exception() {
     thrown.expect(UnsupportedOperationException.class);
     JavaScriptCheckVerifier.verify(check,

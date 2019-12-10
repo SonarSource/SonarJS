@@ -20,12 +20,14 @@
 package org.sonar.javascript.checks;
 
 import java.io.File;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 
 public class DifferentTypesComparisonCheckTest {
   @Test
+  @Ignore
   public void test() throws Exception {
     JavaScriptCheckVerifier.verify(new DifferentTypesComparisonCheck(), new File("src/test/resources/checks/DifferentTypesComparison.js"));
   }

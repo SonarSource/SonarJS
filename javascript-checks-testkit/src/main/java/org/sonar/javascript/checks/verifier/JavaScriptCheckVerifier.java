@@ -127,7 +127,7 @@ public class JavaScriptCheckVerifier {
   public static Iterator<Issue> getActualIssues(JavaScriptCheck check, JavaScriptVisitorContext context) {
     JavaScriptCheck checkToRun = check;
     if (check instanceof SeCheck) {
-      checkToRun = new SeChecksDispatcher(ImmutableList.of((SeCheck) check));
+      checkToRun = new SeChecksDispatcher(new ArrayList<>());
     }
 
     List<Issue> issues = checkToRun.scanFile(context);

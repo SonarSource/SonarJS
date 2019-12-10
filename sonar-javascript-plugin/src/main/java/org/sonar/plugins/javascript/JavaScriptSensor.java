@@ -254,7 +254,7 @@ public class JavaScriptSensor {
     checkDeprecatedEslintProperty(context);
 
     List<TreeVisitor> treeVisitors = new ArrayList<>();
-    treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
+    treeVisitors.add(new SeChecksDispatcher(new ArrayList<>()));
     treeVisitors.addAll(checks.visitorChecks());
 
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate);
