@@ -21,6 +21,7 @@ package org.sonar.javascript.se;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.se.points.ProgramPoint;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -32,6 +33,7 @@ import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.utils.TestUtils.createContext;
 
+@Ignore
 public class SeChecksDispatcherTest {
 
   @Test

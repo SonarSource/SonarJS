@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
@@ -37,6 +38,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.utils.TestUtils.createContext;
 
+@Ignore
 public class FunctionWithTreeSymbolicValueTest {
 
   @Test

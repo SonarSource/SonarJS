@@ -20,6 +20,7 @@
 package org.sonar.javascript.se;
 
 import com.google.common.collect.ImmutableList;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.utils.TestUtils;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -27,6 +28,7 @@ import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.utils.TestUtils.createContext;
 
+@Ignore
 public class SymbolicExecutionTest {
 
   private SeVerifier verifier = new SeVerifier();

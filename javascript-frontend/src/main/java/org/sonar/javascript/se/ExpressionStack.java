@@ -279,13 +279,7 @@ public class ExpressionStack {
 
   private static void runNestedSymbolicExecution(Deque<SymbolicValue> newStack, ProgramStateConstraints constraints, List<SymbolicValue> argumentValues,
     FunctionTree functionTreeToExecute) {
-    Scope scopeToExecute = functionTreeToExecute.scope();
-    List<Constraint> argumentConstraints = argumentValues.stream().map(constraints::getConstraint).collect(Collectors.toList());
-    ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTreeToExecute.body());
-    SymbolicExecution symbolicExecution = new SymbolicExecution(scopeToExecute, cfg, ImmutableList.of(), functionTreeToExecute.asyncToken() != null);
-    ProgramState initialProgramState = initialProgramStateWithParameterConstraints(functionTreeToExecute, argumentConstraints);
-    symbolicExecution.visitCfg(initialProgramState);
-    newStack.push(new SymbolicValueWithConstraint(symbolicExecution.getReturnConstraint()));
+    newStack.push(new SymbolicValueWithConstraint(Constraint.UNDEFINED));
   }
 
   private static ProgramState initialProgramStateWithParameterConstraints(FunctionTree functionTree, List<Constraint> argumentConstraints) {
