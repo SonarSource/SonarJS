@@ -28,7 +28,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -121,10 +123,16 @@ class TsConfigProvider {
 
     private final TempFolder folder;
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
+    private final Map<String, Object> compilerOptions;
 
     DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate) {
+      this(folder, filePredicate, new HashMap<>());
+    }
+
+    DefaultTsConfigProvider(TempFolder folder, Function<FileSystem, FilePredicate> filePredicate, Map<String, Object> compilerOptions) {
       this.folder = folder;
       this.filePredicateProvider = filePredicate;
+      this.compilerOptions = compilerOptions;
     }
 
     @Override
@@ -135,7 +143,7 @@ class TsConfigProvider {
         return emptyList();
       }
       Iterable<InputFile> inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
-      TsConfig tsConfig = new TsConfig(inputFiles);
+      TsConfig tsConfig = new TsConfig(inputFiles, compilerOptions);
       File tsconfigFile = writeToJsonFile(tsConfig);
       LOG.info("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
       return singletonList(tsconfigFile.getAbsolutePath());
@@ -150,10 +158,12 @@ class TsConfigProvider {
 
     private static class TsConfig {
       List<String> files;
+      Map<String, Object> compilerOptions;
 
-      TsConfig(Iterable<InputFile> inputFiles) {
+      TsConfig(Iterable<InputFile> inputFiles, Map<String, Object> compilerOptions) {
         files = new ArrayList<>();
         inputFiles.forEach(f -> files.add(f.absolutePath()));
+        this.compilerOptions = compilerOptions;
       }
     }
   }
