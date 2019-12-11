@@ -32,7 +32,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.EslintBasedCheck;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -94,17 +93,6 @@ public class JavaScriptChecks {
     }
 
     return allVisitors;
-  }
-
-  public List<SeCheck> seChecks() {
-    List<SeCheck> checks = new ArrayList<>();
-    for (JavaScriptCheck check : all()) {
-      if (check instanceof SeCheck) {
-        checks.add((SeCheck) check);
-      }
-    }
-
-    return checks;
   }
 
   public List<TreeVisitor> visitorChecks() {

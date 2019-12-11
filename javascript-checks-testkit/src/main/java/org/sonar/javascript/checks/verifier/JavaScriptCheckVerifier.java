@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks.verifier;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import java.io.File;
 import java.util.ArrayList;
@@ -28,8 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.checks.verifier.TestIssue.Location;
-import org.sonar.javascript.se.SeCheck;
-import org.sonar.javascript.se.SeChecksDispatcher;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.visitors.Issue;
@@ -126,9 +123,6 @@ public class JavaScriptCheckVerifier {
 
   public static Iterator<Issue> getActualIssues(JavaScriptCheck check, JavaScriptVisitorContext context) {
     JavaScriptCheck checkToRun = check;
-    if (check instanceof SeCheck) {
-      checkToRun = new SeChecksDispatcher(new ArrayList<>());
-    }
 
     List<Issue> issues = checkToRun.scanFile(context);
     List<Issue> sortedIssues = Ordering.natural().onResultOf(new IssueToLine()).sortedCopy(issues);

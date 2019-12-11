@@ -48,7 +48,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.se.SeChecksDispatcher;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
@@ -254,7 +253,6 @@ public class JavaScriptSensor {
     checkDeprecatedEslintProperty(context);
 
     List<TreeVisitor> treeVisitors = new ArrayList<>();
-    treeVisitors.add(new SeChecksDispatcher(new ArrayList<>()));
     treeVisitors.addAll(checks.visitorChecks());
 
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate);

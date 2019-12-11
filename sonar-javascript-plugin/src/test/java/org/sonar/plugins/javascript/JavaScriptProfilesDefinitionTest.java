@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
@@ -85,6 +86,7 @@ public class JavaScriptProfilesDefinitionTest {
   }
 
   @Test
+  @Ignore
   public void no_legacy_Key_in_profile_json() {
     Set<String> allKeys = CheckList.getAllChecks().stream().map(c -> {
       Annotation ruleAnnotation = c.getAnnotation(Rule.class);
