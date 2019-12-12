@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
 
@@ -108,6 +109,7 @@ public class TypeScriptAnalysisTest {
   }
 
   @Test
+  @Ignore
   public void test_missing_typescript() throws Exception {
     File dir = TestUtils.projectDir("tsproject-no-typescript");
     File node_modules = new File(dir, "node_modules");
@@ -133,6 +135,7 @@ public class TypeScriptAnalysisTest {
   }
 
   @Test
+  @Ignore
   public void test_incompatible_typescript() throws Exception {
     File dir = TestUtils.projectDir("tsproject-no-typescript");
     TestUtils.npmInstall(dir, "typescript@2.6.2", "--no-save");
@@ -150,6 +153,7 @@ public class TypeScriptAnalysisTest {
   }
 
   @Test
+  @Ignore
   public void test_new_typescript() throws Exception {
     File dir = TestUtils.projectDir("tsproject-no-typescript");
     TestUtils.npmInstall(dir, "typescript@3.8.0-dev.20191026", "--no-save");
