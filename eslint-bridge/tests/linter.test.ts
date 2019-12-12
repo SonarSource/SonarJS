@@ -169,6 +169,6 @@ describe("#decodeSecondaryLocations", () => {
     const result = analyze(sourceCode, filePath, [
       { key: "no-unused-expressions", configurations: [] },
     ]).issues;
-    expect(result).toHaveLength(1);
+    expect(result).toHaveLength(2);
   });
 });
