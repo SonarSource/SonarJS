@@ -2,6 +2,9 @@
 'TypeScript:src/harness/unittests/services/preProcessFile.ts':[
 35,
 ],
+'TypeScript:src/harness/unittests/session.ts':[
+248,
+],
 'TypeScript:src/harness/unittests/tsserverProjectSystem.ts':[
 1842,
 1900,
