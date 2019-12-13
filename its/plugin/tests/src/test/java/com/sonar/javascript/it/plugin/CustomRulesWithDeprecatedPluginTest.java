@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Rules;
@@ -52,6 +53,7 @@ public class CustomRulesWithDeprecatedPluginTest {
     orchestrator.stop();
   }
 
+  @Ignore
   @Test
   public void should_have_issues() {
     List<Issues.Issue> issues = findIssues(DEPRECATED_CUSTOM_RULES + BASE_CHECK, orchestrator);
@@ -61,6 +63,7 @@ public class CustomRulesWithDeprecatedPluginTest {
     assertSubscriptionCheckIssues(issues);
   }
 
+  @Ignore
   @Test
   public void should_have_html_description_loaded() {
     List<Rules.Rule> rulesList = CustomRulesTest.findRule(DEPRECATED_CUSTOM_RULES + BASE_CHECK, orchestrator);

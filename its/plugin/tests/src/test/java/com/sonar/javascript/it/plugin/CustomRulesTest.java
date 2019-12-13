@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Rules;
@@ -59,6 +60,7 @@ public class CustomRulesTest {
     orchestrator.stop();
   }
 
+  @Ignore
   @Test
   public void should_have_issues() {
     List<Issues.Issue> issues = findIssues(CUSTOM_RULES + BASE_CHECK, orchestrator);
@@ -68,7 +70,7 @@ public class CustomRulesTest {
     assertSubscriptionCheckIssues(issues);
   }
 
-
+  @Ignore
   @Test
   public void should_have_html_description_loaded() {
     List<Rules.Rule> rulesList = findRule(CUSTOM_RULES + BASE_CHECK, orchestrator);
