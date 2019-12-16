@@ -19,142 +19,31 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1067")
-public class ExpressionComplexityCheck extends SubscriptionVisitorCheck {
+public class ExpressionComplexityCheck extends EslintBasedCheck {
 
   private static final int DEFAULT = 3;
-  private static final String MESSAGE = "Reduce the number of conditional operators (%s) used in the expression (maximum allowed %s).";
 
   @RuleProperty(description = "Maximum number of allowed conditional operators in an expression", defaultValue = "" + DEFAULT)
   public int max = DEFAULT;
 
-  private List<ExpressionComplexity> statementLevel = Lists.newArrayList();
-  private static final Kind[] SCOPES = {
-    Kind.FUNCTION_EXPRESSION,
-    Kind.GENERATOR_FUNCTION_EXPRESSION,
-    Kind.OBJECT_LITERAL,
-    Kind.CALL_EXPRESSION,
-    Kind.JSX_JAVASCRIPT_EXPRESSION
-  };
-
-  private static final Kind[] CONDITIONAL_EXPRS = {
-    Kind.CONDITIONAL_EXPRESSION,
-    Kind.CONDITIONAL_AND,
-    Kind.CONDITIONAL_OR
-  };
-
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.<Kind>builder()
-      .add(CONDITIONAL_EXPRS)
-      .add(SCOPES).build();
-  }
-
-  public static class ExpressionComplexity {
-    private int nestedLevel = 0;
-    private List<SyntaxToken> operators = new ArrayList<>();
-
-    public void addOperator(SyntaxToken operator) {
-      operators.add(operator);
-    }
-
-    public void incrementNestedExprLevel() {
-      nestedLevel++;
-    }
-
-    public void decrementNestedExprLevel() {
-      nestedLevel--;
-    }
-
-    public boolean isOnFirstExprLevel() {
-      return nestedLevel == 0;
-    }
-
-    public List<SyntaxToken> getComplexityOperators() {
-      return operators;
-    }
-
-    public void resetExpressionComplexityOperators() {
-      operators = new ArrayList<>();
-    }
+  public List<Object> configurations() {
+    return Collections.singletonList(max);
   }
 
   @Override
-  public void visitFile(Tree scriptTree) {
-    statementLevel.clear();
-    statementLevel.add(new ExpressionComplexity());
+  public String eslintKey() {
+    return "expression-complexity";
   }
-
-  @Override
-  public void visitNode(Tree tree) {
-    if (tree.is(CONDITIONAL_EXPRS)) {
-      Iterables.getLast(statementLevel).incrementNestedExprLevel();
-      Iterables.getLast(statementLevel).addOperator(getOperatorToken(tree));
-
-    } else if (tree.is(SCOPES)) {
-      statementLevel.add(new ExpressionComplexity());
-    }
-  }
-
-  private static SyntaxToken getOperatorToken(Tree tree) {
-    if (tree.is(Kind.CONDITIONAL_EXPRESSION)) {
-      return ((ConditionalExpressionTree) tree).queryToken();
-
-    } else if (tree.is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
-      return ((BinaryExpressionTree) tree).operatorToken();
-    }
-
-    throw new IllegalStateException("Cannot get operator for " + tree);
-  }
-
-  @Override
-  public void leaveNode(Tree tree) {
-    if (tree.is(CONDITIONAL_EXPRS)) {
-      ExpressionComplexity currentExpression = Iterables.getLast(statementLevel);
-      currentExpression.decrementNestedExprLevel();
-
-      if (currentExpression.isOnFirstExprLevel()) {
-        List<SyntaxToken> complexityOperators = currentExpression.getComplexityOperators();
-
-        if (complexityOperators.size() > max) {
-          addIssue(tree, complexityOperators);
-        }
-        currentExpression.resetExpressionComplexityOperators();
-      }
-
-    } else if (tree.is(SCOPES)) {
-      statementLevel.remove(statementLevel.size() - 1);
-    }
-  }
-
-  private void addIssue(Tree expression, List<SyntaxToken> complexityOperators) {
-    int complexity = complexityOperators.size();
-    String message = String.format(MESSAGE, complexity, max);
-
-    PreciseIssue issue = addIssue(expression, message);
-    for (SyntaxToken complexityOperator : complexityOperators) {
-      issue.secondary(complexityOperator, "+1");
-    }
-
-    issue.cost ((double) complexity - max);
-  }
-
 }
