@@ -7,9 +7,10 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-124",
-  "sqKey": "CommentRegularExpression",
+  "sqKey": "S124",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "Main"
 }

@@ -38,7 +38,7 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON);
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getJavaScriptChecks());
 
-    NewRule commentRegularExpression = repository.rule("CommentRegularExpression");
+    NewRule commentRegularExpression = repository.rule("S124");
     commentRegularExpression.setTemplate(true);
 
 
