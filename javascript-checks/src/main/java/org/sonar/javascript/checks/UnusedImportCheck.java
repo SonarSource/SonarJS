@@ -19,45 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ModuleTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1128")
-public class UnusedImportCheck extends DoubleDispatchVisitorCheck {
-
-  private static final Set<String> EXCLUDED_IMPORTS = ImmutableSet.of("React");
+public class UnusedImportCheck extends EslintBasedCheck {
 
   @Override
-  public void visitModule(ModuleTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    symbolModel.getSymbols(Symbol.Kind.IMPORT).forEach(this::checkImport);
-    super.visitModule(tree);
-  }
-
-  private void checkImport(Symbol s) {
-    if (EXCLUDED_IMPORTS.contains(s.name())) {
-      return;
-    }
-    List<Usage> declarations = s.usages().stream().filter(Usage::isDeclaration).collect(Collectors.toList());
-    if (s.usages().size() == 1 && declarations.size() == 1) {
-      IdentifierTree identifierTree = Iterables.getOnlyElement(declarations).identifierTree();
-      addIssue(identifierTree, String.format("Remove this unused import of '%s'.", identifierTree.name()));
-    }
-    if (declarations.size() > 1) {
-      declarations.stream().skip(1).forEach(u -> addIssue(u.identifierTree(),
-        String.format("'%s' is already imported; remove this redundant import.", u.identifierTree().name())));
-    }
+  public String eslintKey() {
+    return "unused-import";
   }
 }
