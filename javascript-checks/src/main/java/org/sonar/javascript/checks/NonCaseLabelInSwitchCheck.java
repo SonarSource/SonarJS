@@ -19,84 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1219")
-public class NonCaseLabelInSwitchCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Remove this misleading \"%s\" label.";
-  private Deque<Integer> stack = new ArrayDeque<>();
+public class NonCaseLabelInSwitchCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.<Kind>builder()
-      .add(Kind.LABELLED_STATEMENT, Kind.CASE_CLAUSE)
-      .add(
-        Kind.FUNCTION_EXPRESSION,
-        Kind.FUNCTION_DECLARATION,
-        Kind.GENERATOR_FUNCTION_EXPRESSION,
-        Kind.GENERATOR_DECLARATION)
-      .build();
+  public String eslintKey() {
+    return "no-case-label-in-switch";
   }
-
-  @Override
-  public void visitFile(Tree scriptTree) {
-    stack.clear();
-    stack.push(0);
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    if (tree.is(Kind.CASE_CLAUSE)) {
-      enterCase();
-
-    } else if (tree.is(Kind.LABELLED_STATEMENT)) {
-
-      if (inCase()) {
-        SyntaxToken label = ((LabelledStatementTree) tree).labelToken();
-        addIssue(label, String.format(MESSAGE, label.text()));
-      }
-
-    } else {
-      stack.push(0);
-    }
-  }
-
-
-  @Override
-  public void leaveNode(Tree tree) {
-    if (tree.is(Kind.CASE_CLAUSE)) {
-      leaveCase();
-
-    } else if (tree.is(Kind.LABELLED_STATEMENT)) {
-      // do nothing
-
-    } else {
-      stack.pop();
-    }
-  }
-
-  private void leaveCase() {
-    stack.push(stack.pop() - 1);
-  }
-
-  private boolean inCase() {
-    return stack.peek() > 0;
-  }
-
-  private void enterCase() {
-    stack.push(stack.pop() + 1);
-  }
-
 }

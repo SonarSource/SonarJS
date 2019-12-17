@@ -13,7 +13,8 @@
   "ruleSpecification": "RSPEC-1219",
   "sqKey": "S1219",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "All"
 }
