@@ -1,0 +1,15 @@
+{
+'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/models/issues.js':[
+52,
+],
+'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/main/main.js':[
+98,
+113,
+],
+'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/collections/issues.js':[
+52,
+],
+'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/models/issue.js':[
+80,
+],
+}

@@ -89,6 +89,7 @@ public class JavaScriptRulingTest {
       jsProject("angular.js", "src/ngLocale/**", "i18n/**"),
       jsProject("backbone"),
       jsProject("es5-shim"),
+      jsProject("javascript-test-sources"),
       jsProject("jquery"),
       jsProject("jshint", "dist/**", "tests/regression/**", "tests/test262/**"),
       jsProject("jStorage"),
@@ -100,7 +101,6 @@ public class JavaScriptRulingTest {
       jsProject("prototype", "dist/**", "vendor/**"),
       jsProject("qunit"),
       jsProject("sizzle", "external/**", "dist/**"),
-//      jsProject("src", "**/module_map.js", "google-closure-library/i18n/**"),
       jsProject("underscore", "test/vendor/**"),
     };
   }

@@ -1,0 +1,13 @@
+{
+'javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/index.js':[
+213,
+],
+'javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/spam-prevention.js':[
+119,
+],
+'javascript-test-sources:src/file-for-rules/FutureReservedWords.js':[
+3,
+4,
+5,
+],
+}
