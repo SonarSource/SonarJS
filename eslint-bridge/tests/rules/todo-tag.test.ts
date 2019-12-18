@@ -25,6 +25,9 @@ import { rule } from "../../src/rules/todo-tag";
 ruleTester.run("Track uses of TODO tags", rule, {
   valid: [
     {
+      code: `// Just a regular comment`,
+    },
+    {
       code: `
         // This is not aTODO comment
 
