@@ -1,0 +1,10 @@
+{
+'prototype:src/prototype/lang/object.js':[
+190,
+],
+'prototype:test/unit/static/js/mocha.js':[
+277,
+294,
+432,
+],
+}

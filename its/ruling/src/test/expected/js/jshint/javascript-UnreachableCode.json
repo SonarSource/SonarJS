@@ -1,0 +1,8 @@
+{
+'jshint:tests/unit/fixtures/gh1227.js':[
+14,
+],
+'jshint:tests/unit/fixtures/reserved.js':[
+1,
+],
+}

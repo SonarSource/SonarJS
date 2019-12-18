@@ -1,0 +1,11 @@
+{
+'backbone:test/vendor/jquery.js':[
+879,
+999,
+6525,
+],
+'backbone:test/vendor/qunit.js':[
+916,
+1415,
+],
+}

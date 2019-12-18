@@ -1,0 +1,12 @@
+{
+'qunit:bin/qunit.js':[
+10,
+],
+'qunit:src/test.js':[
+291,
+],
+'qunit:test/main/modules.js':[
+251,
+267,
+],
+}

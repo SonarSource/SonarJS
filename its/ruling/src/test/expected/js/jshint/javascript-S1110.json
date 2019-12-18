@@ -1,0 +1,8 @@
+{
+'jshint:tests/unit/fixtures/destparam.js':[
+5,
+],
+'jshint:tests/unit/fixtures/undef.js':[
+28,
+],
+}

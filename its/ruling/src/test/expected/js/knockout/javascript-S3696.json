@@ -1,0 +1,13 @@
+{
+'knockout:build/knockout-raw.js':[
+21,
+],
+'knockout:spec/defaultBindings/foreachBehaviors.js':[
+273,
+],
+'knockout:spec/lib/jasmine-1.2.0/jasmine.js':[
+2338,
+2343,
+2347,
+],
+}

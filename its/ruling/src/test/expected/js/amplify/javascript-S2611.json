@@ -1,0 +1,8 @@
+{
+'amplify:test-jquery-versions.js':[
+13,
+],
+'amplify:test/jquery.js':[
+19,
+],
+}

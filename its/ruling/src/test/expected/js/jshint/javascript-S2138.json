@@ -1,0 +1,8 @@
+{
+'jshint:src/jshint.js':[
+4932,
+],
+'jshint:tests/unit/core.js':[
+1752,
+],
+}

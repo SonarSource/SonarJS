@@ -1,0 +1,8 @@
+{
+'backbone:examples/backbone.localStorage.js':[
+91,
+],
+'backbone:karma.conf-sauce.js':[
+40,
+],
+}

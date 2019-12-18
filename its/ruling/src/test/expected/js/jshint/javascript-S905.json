@@ -1,0 +1,10 @@
+{
+'jshint:tests/unit/fixtures/nestedFunctions-locations.js':[
+1,
+],
+'jshint:tests/unit/fixtures/strict_incorrect.js':[
+4,
+28,
+53,
+],
+}

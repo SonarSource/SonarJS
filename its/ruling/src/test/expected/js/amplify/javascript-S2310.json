@@ -1,0 +1,11 @@
+{
+'amplify:lib/amplify.core.js':[
+116,
+],
+'amplify:lib/amplify.js':[
+116,
+],
+'amplify:src/core.js':[
+107,
+],
+}

@@ -1,0 +1,12 @@
+{
+'knockout:spec/lib/jasmine-1.2.0/jasmine.js':[
+895,
+1160,
+1891,
+],
+'knockout:src/binding/expressionRewriting.js':[
+69,
+75,
+79,
+],
+}

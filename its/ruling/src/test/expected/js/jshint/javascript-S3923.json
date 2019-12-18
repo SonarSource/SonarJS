@@ -1,0 +1,6 @@
+{
+'jshint:tests/unit/fixtures/max-cyclomatic-complexity-per-function.js':[
+17,
+67,
+],
+}

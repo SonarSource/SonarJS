@@ -1,0 +1,11 @@
+{
+'mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js':[
+136,
+],
+'mootools-core:Source/Browser/Browser.js':[
+211,
+],
+'mootools-core:Source/Core/Core.js':[
+380,
+],
+}

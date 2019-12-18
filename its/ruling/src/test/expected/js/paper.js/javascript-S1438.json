@@ -1,0 +1,16 @@
+{
+'paper.js:gulp/utils/options.js':[
+45,
+],
+'paper.js:test/helpers.js':[
+213,
+],
+'paper.js:test/tests/Color.js':[
+283,
+],
+'paper.js:test/tests/Path_Boolean.js':[
+882,
+936,
+939,
+],
+}

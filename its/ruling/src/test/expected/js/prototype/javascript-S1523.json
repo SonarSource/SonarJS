@@ -1,0 +1,16 @@
+{
+'prototype:src/prototype/ajax/request.js':[
+348,
+],
+'prototype:src/prototype/lang/string.js':[
+408,
+],
+'prototype:test/unit/tests/dom.test.js':[
+88,
+88,
+],
+'prototype:test/unit/tests/layout.test.js':[
+59,
+59,
+],
+}

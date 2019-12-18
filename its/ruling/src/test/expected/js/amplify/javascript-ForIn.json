@@ -1,0 +1,14 @@
+{
+'amplify:lib/amplify.js':[
+230,
+],
+'amplify:lib/amplify.store.js':[
+114,
+],
+'amplify:src/store.js':[
+105,
+],
+'amplify:test/store/unit.js':[
+311,
+],
+}
