@@ -11,7 +11,7 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1172",
-  "sqKey": "UnusedFunctionArgument",
+  "sqKey": "S1172",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
