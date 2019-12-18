@@ -19,16 +19,22 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExpressionComplexityCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new ExpressionComplexityCheck(), new File("src/test/resources/checks/expressionComplexity.js"));
-  }
+    ExpressionComplexityCheck check = new ExpressionComplexityCheck();
 
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[3]");
+
+    check.max = 10;
+    String configAsString = new Gson().toJson(check.configurations());
+    assertThat(configAsString).isEqualTo("[10]");
+  }
 }
