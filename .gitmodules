@@ -67,7 +67,4 @@
 	path = its/sources/underscore
 	url = https://github.com/SonarSource/underscore.git
 	ignore = untracked
-[submodule "its/sources/di.js"]
-	path = its/sources/di.js
-	url = https://github.com/SonarSource/di.js.git
-	ignore = untracked
+

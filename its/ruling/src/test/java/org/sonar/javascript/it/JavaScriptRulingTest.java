@@ -88,7 +88,6 @@ public class JavaScriptRulingTest {
       jsProject("amplify", "external/**"),
       jsProject("angular.js", "src/ngLocale/**", "i18n/**"),
       jsProject("backbone"),
-      jsProject("di.js", "visualize/lib/**"),
       jsProject("es5-shim"),
       jsProject("jquery"),
       jsProject("jshint", "dist/**", "tests/regression/**", "tests/test262/**"),
