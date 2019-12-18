@@ -11,9 +11,10 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-126",
-  "sqKey": "ElseIfWithoutElse",
+  "sqKey": "S126",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "All"
 }
