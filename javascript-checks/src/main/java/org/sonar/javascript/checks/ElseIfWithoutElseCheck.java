@@ -21,30 +21,17 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "ElseIfWithoutElse")
-public class ElseIfWithoutElseCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Add the missing \"else\" clause.";
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "ElseIfWithoutElse")
+@Rule(key = "S126")
+public class ElseIfWithoutElseCheck extends EslintBasedCheck {
 
   @Override
-  public void visitElseClause(ElseClauseTree tree) {
-    if (tree.statement().is(Kind.IF_STATEMENT)) {
-      IfStatementTreeImpl ifStmt = (IfStatementTreeImpl) tree.statement();
-
-      if (!ifStmt.hasElse()) {
-        addIssue(new PreciseIssue(this, new IssueLocation(tree.elseKeyword(), ifStmt.ifKeyword(), MESSAGE)));
-      }
-
-    }
-    super.visitElseClause(tree);
+  public String eslintKey() {
+    return "elseif-without-else";
   }
-
 }
