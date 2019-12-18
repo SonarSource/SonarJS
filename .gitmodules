@@ -1,6 +1,4 @@
-[submodule "its/sources"]
-	path = its/sources
-	url = https://github.com/SonarCommunity/javascript-test-sources.git
+
 [submodule "its/typescript-test-sources"]
 	path = its/typescript-test-sources
 	url = https://github.com/SonarSource/typescript-test-sources.git
