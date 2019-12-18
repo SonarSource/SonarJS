@@ -19,31 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1135")
-public class TodoTagPresenceCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Complete the task associated to this TODO comment.";
-  private static final String PATTERN = "TODO";
-
-  private final CommentContainsPatternChecker checker = new CommentContainsPatternChecker(this, PATTERN, MESSAGE);
+public class TodoTagPresenceCheck extends EslintBasedCheck {
 
   @Override
-  public void visitNode(Tree tree) {
-    checker.visitToken((SyntaxToken) tree);
+  public String eslintKey() {
+    return "todo-tag";
   }
 
-  @Override
-  public Set<Tree.Kind> nodesToVisit() {
-    return ImmutableSet.of(Tree.Kind.TOKEN);
-  }
 }
