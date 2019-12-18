@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-1134
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import { Rule } from "eslint";
+import { reportPatternInComment } from "./todo-tag";
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S1134")
-public class FixmeTagPresenceCheck extends EslintBasedCheck {
+const fixmeMessage = "Take the required action to fix the issue indicated by this comment.";
+const fixmePattern = "fixme";
 
-  @Override
-  public String eslintKey() {
-    return "fixme-tag";
-  }
-
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      "Program:exit": () => {
+        reportPatternInComment(context, fixmePattern, fixmeMessage);
+      },
+    };
+  },
+};
