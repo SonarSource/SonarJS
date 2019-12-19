@@ -22,8 +22,6 @@
 import { Rule } from "eslint";
 import * as estree from "estree";
 
-const ScopeLike = ["FunctionExpression", "FunctionDeclaration", "SwitchCase", "LabeledStatement"];
-
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const stack: number[] = [0];
@@ -37,10 +35,9 @@ export const rule: Rule.RuleModule = {
       return stack[stack.length - 1] > 0;
     }
     return {
-      "*": (node: estree.Node) => {
-        if (!isScopeLike(node)) {
-          return;
-        }
+      "FunctionExpression, FunctionDeclaration, SwitchCase, LabeledStatement": (
+        node: estree.Node,
+      ) => {
         if (node.type === "SwitchCase") {
           enterCase();
         } else if (node.type === "LabeledStatement") {
@@ -55,10 +52,9 @@ export const rule: Rule.RuleModule = {
           stack.push(0);
         }
       },
-      "*:exit": (node: estree.Node) => {
-        if (!isScopeLike(node)) {
-          return;
-        }
+      "FunctionExpression, FunctionDeclaration, SwitchCase, LabeledStatement :exit": (
+        node: estree.Node,
+      ) => {
         if (node.type === "SwitchCase") {
           leaveCase();
         } else if (node.type !== "LabeledStatement") {
@@ -68,7 +64,3 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function isScopeLike(node: estree.Node) {
-  return ScopeLike.includes(node.type);
-}
