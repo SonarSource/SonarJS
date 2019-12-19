@@ -19,34 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
-
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S100")
-public class FunctionNameCheck extends EslintBasedCheck {
-
-  public static final String DEFAULT = "^[_a-z][a-zA-Z0-9]*$";
-
-  @RuleProperty(
-    key = "format",
-    description = "Regular expression used to check the function names against.",
-    defaultValue = "" + DEFAULT)
-  public String format = DEFAULT;
-
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new FormatRuleProperty(format));
+class FormatRuleProperty {
+  String format;
+  FormatRuleProperty(String format) {
+    this.format = format;
   }
-
-  @Override
-  public String eslintKey() {
-    return "function-name";
-  }
-
 }

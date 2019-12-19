@@ -45,18 +45,11 @@ public class VariableNameCheck extends EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(format));
+    return Collections.singletonList(new FormatRuleProperty(format));
   }
 
   @Override
   public String eslintKey() {
     return "variable-name";
-  }
-
-  private static class Config {
-    String format;
-    Config(String format) {
-      this.format = format;
-    }
   }
 }
