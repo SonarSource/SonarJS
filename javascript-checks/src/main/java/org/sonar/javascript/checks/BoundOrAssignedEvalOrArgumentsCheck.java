@@ -19,44 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "BoundOrAssignedEvalOrArguments")
-public class BoundOrAssignedEvalOrArgumentsCheck extends AbstractSymbolNameCheck {
-
-
-  private static final String DECLARATION_MESSAGE = "Do not use \"%s\" to declare a %s - use another name.";
-  private static final String MODIFICATION_MESSAGE = "Remove the modification of \"%s\".";
+@TypeScriptRule
+@Rule(key = "S1514")
+@DeprecatedRuleKey(ruleKey = "BoundOrAssignedEvalOrArguments")
+public class BoundOrAssignedEvalOrArgumentsCheck extends EslintBasedCheck {
 
   @Override
-  List<String> illegalNames() {
-    return ImmutableList.of("eval", "arguments");
-  }
-
-  @Override
-  public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getIllegalSymbols()) {
-      if (symbol.is(Symbol.Kind.PARAMETER) || !symbol.external()) {
-        raiseIssuesOnDeclarations(symbol, String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
-      } else {
-        raiseIssuesOnWriteUsages(symbol);
-      }
-    }
-  }
-
-  private void raiseIssuesOnWriteUsages(Symbol symbol) {
-    for (Usage usage : symbol.usages()) {
-      if (!usage.kind().equals(Usage.Kind.READ)) {
-        addIssue(usage.identifierTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
-      }
-    }
+  public String eslintKey() {
+    return "eval-or-arguments-use";
   }
 
 }
