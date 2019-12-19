@@ -19,7 +19,11 @@
  */
 import { RuleTester } from "eslint";
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester({
+  parser: require.resolve("@typescript-eslint/parser"),
+  parserOptions: { ecmaVersion: 2018 },
+});
+
 import { rule } from "../../src/rules/no-unused-function-argument";
 
 ruleTester.run("Unused function parameters should be removed", rule, {
@@ -69,7 +73,7 @@ ruleTester.run("Unused function parameters should be removed", rule, {
     },
     {
       code: `class C {
-                set  value(value) {
+                set value(value) {
                     this.value = value; // OK
                 }
             }`,
@@ -89,6 +93,26 @@ ruleTester.run("Unused function parameters should be removed", rule, {
         get p(){
         }
       }`,
+    },
+    {
+      code: `class Foo {
+                constructor(private bar: string) {}
+            }`,
+    },
+    {
+      code: `abstract class A {
+              abstract doWork(param: number): void;
+            }
+            
+            class B extends A {
+              doWork(param: number): void {}
+
+              doSomething(p2: number) {}
+           }`,
+    },
+    {
+      code: `function fun(a) {           // OK, parameter of empty functions are not reported
+            }`,
     },
   ],
   invalid: [
@@ -136,6 +160,7 @@ ruleTester.run("Unused function parameters should be removed", rule, {
     },
     {
       code: `each(function fun(p1) {
+              console.log("p1");
             });`,
       errors: 1,
     },
@@ -169,7 +194,7 @@ ruleTester.run("Unused function parameters should be removed", rule, {
     {
       code: `function fun() {
               return {
-                fun(a) { }
+                fun(a) { console.log("a"); }
               }
             }`,
       errors: 1,

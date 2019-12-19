@@ -13,7 +13,6 @@
 2244,
 2340,
 4349,
-4381,
 4424,
 4515,
 4597,
@@ -33,19 +32,6 @@
 'p5.js:lib/addons/p5.sound.js':[
 279,
 9276,
-12034,
-12034,
-12034,
-12034,
-12036,
-12036,
-12036,
-12038,
-12040,
-12040,
-],
-'p5.js:src/core/main.js':[
-36,
 ],
 'p5.js:src/core/shim.js':[
 13,
@@ -55,6 +41,9 @@
 ],
 'p5.js:src/events/keyboard.js':[
 306,
+],
+'p5.js:src/image/loading_displaying.js':[
+93,
 ],
 'p5.js:src/io/p5.Table.js':[
 42,
@@ -69,7 +58,6 @@
 699,
 1456,
 1456,
-1460,
 ],
 'p5.js:tasks/release/release-bower.js':[
 37,
@@ -91,7 +79,6 @@
 1695,
 2018,
 3941,
-5827,
 ],
 'p5.js:test/manual-test-examples/addons/p5.sound/looper_simple/sketch.js':[
 47,
@@ -106,7 +93,6 @@
 'p5.js:test/reporter/simple.js':[
 20,
 24,
-28,
 ],
 'p5.js:test/unit/core/environment.js':[
 102,
