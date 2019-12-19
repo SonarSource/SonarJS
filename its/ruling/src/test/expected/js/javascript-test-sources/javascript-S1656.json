@@ -1,0 +1,11 @@
+{
+'javascript-test-sources:src/ecmascript6/http/src/IConnection.js':[
+10,
+],
+'javascript-test-sources:src/ecmascript6/http/src/IRequest.js':[
+10,
+],
+'javascript-test-sources:src/ecmascript6/http/src/IResponse.js':[
+10,
+],
+}

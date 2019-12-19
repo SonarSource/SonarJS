@@ -1,0 +1,16 @@
+{
+'jquery:src/manipulation/buildFragment.js':[
+26,
+],
+'jquery:src/selector.js':[
+1560,
+1566,
+],
+'jquery:test/data/jquery-1.9.1.js':[
+2599,
+6647,
+],
+'jquery:test/unit/core.js':[
+793,
+],
+}

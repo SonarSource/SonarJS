@@ -1,0 +1,14 @@
+{
+'javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_users_spec.js':[
+1,
+],
+'javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/import_spec.js':[
+1,
+],
+'javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
+1,
+],
+'javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js':[
+1,
+],
+}

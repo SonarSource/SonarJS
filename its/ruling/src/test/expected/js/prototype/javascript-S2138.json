@@ -1,0 +1,13 @@
+{
+'prototype:src/prototype/ajax/periodical_updater.js':[
+242,
+],
+'prototype:test/unit/static/js/mocha.js':[
+137,
+143,
+],
+'prototype:test/unit/tests/function.test.js':[
+115,
+151,
+],
+}

@@ -1,0 +1,17 @@
+{
+'amplify:lib/amplify.js':[
+570,
+575,
+588,
+],
+'amplify:lib/amplify.request.js':[
+164,
+169,
+182,
+],
+'amplify:src/request.js':[
+155,
+160,
+173,
+],
+}

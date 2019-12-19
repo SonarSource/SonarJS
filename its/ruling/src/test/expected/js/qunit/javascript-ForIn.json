@@ -1,0 +1,13 @@
+{
+'qunit:src/dump.js':[
+185,
+191,
+],
+'qunit:src/equiv.js':[
+262,
+284,
+],
+'qunit:test/main/modules.js':[
+110,
+],
+}

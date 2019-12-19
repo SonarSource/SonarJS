@@ -1,0 +1,8 @@
+{
+'jshint:src/jshint.js':[
+813,
+],
+'jshint:tests/unit/fixtures/protoiterator.js':[
+18,
+],
+}

@@ -1,0 +1,15 @@
+{
+'jquery:Gruntfile.js':[
+3,
+],
+'jquery:build/tasks/build.js':[
+9,
+],
+'jquery:src/ajax.js':[
+382,
+],
+'jquery:test/data/jquery-1.9.1.js':[
+4151,
+7945,
+],
+}

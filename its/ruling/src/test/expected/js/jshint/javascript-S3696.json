@@ -1,0 +1,9 @@
+{
+'jshint:tests/unit/fixtures/gh618.js':[
+4,
+14,
+],
+'jshint:tests/unit/fixtures/gh826.js':[
+35,
+],
+}

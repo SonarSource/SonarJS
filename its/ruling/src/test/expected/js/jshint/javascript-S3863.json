@@ -1,0 +1,11 @@
+{
+'jshint:tests/unit/fixtures/es6-import-export.js':[
+57,
+59,
+60,
+76,
+],
+'jshint:tests/unit/fixtures/latedef-esnext.js':[
+77,
+],
+}

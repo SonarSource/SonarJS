@@ -1,0 +1,8 @@
+{
+'jshint:src/messages.js':[
+49,
+],
+'jshint:tests/unit/parser.js':[
+645,
+],
+}

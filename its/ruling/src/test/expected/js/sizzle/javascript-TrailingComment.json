@@ -1,0 +1,17 @@
+{
+'sizzle:Gruntfile.js':[
+34,
+37,
+],
+'sizzle:speed/speed.js':[
+25,
+114,
+],
+'sizzle:test/karma/karma.conf.js':[
+16,
+],
+'sizzle:test/unit/selector.js':[
+227,
+247,
+],
+}

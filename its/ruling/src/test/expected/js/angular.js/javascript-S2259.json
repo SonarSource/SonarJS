@@ -1,0 +1,11 @@
+{
+'angular.js:benchmarks/select-ng-value-bp/app.js':[
+31,
+],
+'angular.js:src/ng/compile.js':[
+3247,
+],
+'angular.js:src/ngMessageFormat/messageFormatParser.js':[
+202,
+],
+}

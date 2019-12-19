@@ -37,6 +37,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -59,8 +61,8 @@ public class JavaScriptRulingTest {
   private static final Location TS_PLUGIN_LOCATION = MavenLocation.of("org.sonarsource.typescript", "sonar-typescript-plugin", "DEV");
 
   @ClassRule
-  public static Orchestrator orchestrator = Orchestrator.builderEnv()
-    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+  public static final Orchestrator orchestrator = Orchestrator.builderEnv()
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE[7.9]"))
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
     .addPlugin(TS_PLUGIN_LOCATION)
@@ -83,8 +85,30 @@ public class JavaScriptRulingTest {
   @Parameters(name = "{0}")
   public static Object[][] projects() {
     return new Object[][]{
-      {"js-project", "js", "../sources/src", Arrays.asList("**/*.ts", "**/.*", "**/module_map.js")},
+      jsProject("amplify", "external/**"),
+      jsProject("angular.js", "src/ngLocale/**", "i18n/**"),
+      jsProject("backbone"),
+      jsProject("es5-shim"),
+      jsProject("javascript-test-sources"),
+      jsProject("jquery"),
+      jsProject("jshint", "dist/**", "tests/regression/**", "tests/test262/**"),
+      jsProject("jStorage"),
+      jsProject("knockout"),
+      jsProject("mootools-core"),
+      jsProject("ocanvas", "build/**"),
+      jsProject("p5.js"),
+      jsProject("paper.js", "dist/**", "gulp/jsdoc/**", "packages/**"),
+      jsProject("prototype", "dist/**", "vendor/**"),
+      jsProject("qunit"),
+      jsProject("sizzle", "external/**", "dist/**"),
+      jsProject("underscore", "test/vendor/**"),
     };
+  }
+
+  private static Object[] jsProject(String project, String... exclusions) {
+    List<String> exclusionList = Stream.concat(Stream.of("**/.*", "**/*.ts"), Arrays.stream(exclusions))
+      .collect(Collectors.toList());
+    return new Object[]{project, "js", "../sources/" + project, exclusionList};
   }
 
   @BeforeClass
@@ -114,6 +138,11 @@ public class JavaScriptRulingTest {
       .restoreProfile(FileLocation.ofClasspath("/empty-ts-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"));
 
+    instantiateTemplateRule("js", "rules",
+      "CommentRegularExpression",
+      "CommentRegexTest",
+      "regularExpression=\"(?i).*TODO.*\";message=\"bad user\"");
+
     installTypeScript(FileLocation.of("../typescript-test-sources/src").getFile());
   }
 
@@ -127,14 +156,6 @@ public class JavaScriptRulingTest {
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
-
-    if (languageToAnalyze.equals("js")) {
-      instantiateTemplateRule(
-        projectKey,
-        "CommentRegularExpression",
-        "CommentRegexTest",
-        "regularExpression=\"(?i).*TODO.*\";message=\"bad user\"");
-    }
 
     SonarScanner build = SonarScanner.create(FileLocation.of(sources).getFile())
       .setProjectKey(projectKey)
@@ -173,7 +194,7 @@ public class JavaScriptRulingTest {
     return Files.isSameFile(dir.toPath(), Paths.get(userHome));
   }
 
-  private static void instantiateTemplateRule(String projectKey, String ruleTemplateKey, String instantiationKey, String params) {
+  private static void instantiateTemplateRule(String language, String qualityProfile, String ruleTemplateKey, String instantiationKey, String params) {
     SonarClient sonarClient = orchestrator.getServer().adminWsClient();
     sonarClient.post("/api/rules/create", ImmutableMap.<String, Object>builder()
       .put("name", instantiationKey)
@@ -185,16 +206,11 @@ public class JavaScriptRulingTest {
       .put("prevent_reactivation", "true")
       .put("params", "name=\"" + instantiationKey + "\";key=\"" + instantiationKey + "\";markdown_description=\"" + instantiationKey + "\";" + params)
       .build());
-    String post = sonarClient.get("api/qualityprofiles/search?projectKey=" + projectKey);
+    String post = sonarClient.get("api/qualityprofiles/search", "language", language, "qualityProfile", qualityProfile);
 
-    String profileKey = null;
-    Map profilesForProject = new Gson().fromJson(post, Map.class);
-    for (Map profileDescription : (List<Map>) profilesForProject.get("profiles")) {
-      if ("rules".equals(profileDescription.get("name"))) {
-        profileKey = (String) profileDescription.get("key");
-        break;
-      }
-    }
+    Map rulesProfile = new Gson().fromJson(post, Map.class);
+    String profileKey = ((List<Map>) rulesProfile.get("profiles")).stream()
+      .findFirst().map(profileDescription -> (String) profileDescription.get("key")).orElse(null);
 
     if (profileKey != null) {
       String response = sonarClient.post("api/qualityprofiles/activate_rule", ImmutableMap.of(
@@ -203,9 +219,8 @@ public class JavaScriptRulingTest {
         "severity", "INFO",
         "params", ""));
       LOG.warn(response);
-
     } else {
-      LOG.error("Could not retrieve profile key : Template rule " + ruleTemplateKey + " has not been activated");
+      throw new IllegalStateException("Could not retrieve profile key : Template rule " + ruleTemplateKey + " has not been activated");
     }
   }
 

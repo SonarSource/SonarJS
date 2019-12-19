@@ -1,0 +1,12 @@
+{
+'jshint:tests/unit/fixtures/boss.js':[
+28,
+63,
+],
+'jshint:tests/unit/fixtures/gh1802.js':[
+2,
+],
+'jshint:tests/unit/fixtures/trycatch.js':[
+12,
+],
+}

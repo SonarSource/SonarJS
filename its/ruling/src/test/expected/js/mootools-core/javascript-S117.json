@@ -1,0 +1,16 @@
+{
+'mootools-core:Grunt/plugins/karma/syn/lib/syn.js':[
+2976,
+],
+'mootools-core:Source/Element/Element.Delegation.js':[
+148,
+186,
+],
+'mootools-core:Specs/Element/Element.js':[
+2260,
+],
+'mootools-core:Specs/Utilities/JSON.js':[
+50,
+60,
+],
+}

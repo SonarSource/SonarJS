@@ -1,0 +1,9 @@
+{
+'jshint:src/lex.js':[
+2141,
+2147,
+],
+'jshint:tests/unit/fixtures/loopfunc.js':[
+42,
+],
+}

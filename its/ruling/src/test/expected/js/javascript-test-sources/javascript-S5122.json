@@ -1,0 +1,14 @@
+{
+'javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/auth.js':[
+121,
+127,
+],
+'javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/authentication_spec.js':[
+406,
+426,
+448,
+470,
+493,
+516,
+],
+}

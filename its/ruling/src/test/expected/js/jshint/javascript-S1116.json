@@ -1,0 +1,13 @@
+{
+'jshint:tests/unit/fixtures/gh-226.js':[
+3,
+12,
+16,
+17,
+20,
+21,
+],
+'jshint:tests/unit/fixtures/return.js':[
+39,
+],
+}

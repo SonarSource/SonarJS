@@ -1,0 +1,14 @@
+{
+'knockout:spec/components/customElementBehaviors.js':[
+447,
+],
+'knockout:spec/parseHtmlFragment.js':[
+71,
+],
+'knockout:src/components/customElements.js':[
+6,
+],
+'knockout:src/subscribables/dependentObservable.js':[
+453,
+],
+}
