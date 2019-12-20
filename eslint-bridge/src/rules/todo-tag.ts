@@ -22,39 +22,46 @@
 import { Rule } from "eslint";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 
-const message = 'Complete the task associated to this "TODO" comment.';
-
+const todoMessage = 'Complete the task associated to this "TODO" comment.';
 const todoPattern = "todo";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       "Program:exit": () => {
-        const sourceCode = context.getSourceCode();
-        (sourceCode.getAllComments() as TSESTree.Comment[]).forEach(comment => {
-          const rawText = comment.value.toLowerCase();
-
-          if (rawText.includes(todoPattern)) {
-            const lines = rawText.split(/\r\n?|\n/);
-
-            for (let i = 0; i < lines.length; i++) {
-              const index = lines[i].indexOf(todoPattern);
-              if (index >= 0 && !isLetterAround(lines[i], index)) {
-                context.report({
-                  message,
-                  loc: getPatternPosition(i, index, comment),
-                });
-              }
-            }
-          }
-        });
+        reportPatternInComment(context, todoPattern, todoMessage);
       },
     };
   },
 };
 
-function isLetterAround(line: string, start: number) {
-  const end = start + todoPattern.length;
+export function reportPatternInComment(
+  context: Rule.RuleContext,
+  pattern: string,
+  message: string,
+) {
+  const sourceCode = context.getSourceCode();
+  (sourceCode.getAllComments() as TSESTree.Comment[]).forEach(comment => {
+    const rawText = comment.value.toLowerCase();
+
+    if (rawText.includes(pattern)) {
+      const lines = rawText.split(/\r\n?|\n/);
+
+      for (let i = 0; i < lines.length; i++) {
+        const index = lines[i].indexOf(pattern);
+        if (index >= 0 && !isLetterAround(lines[i], index, pattern)) {
+          context.report({
+            message,
+            loc: getPatternPosition(i, index, comment, pattern),
+          });
+        }
+      }
+    }
+  });
+}
+
+function isLetterAround(line: string, start: number, pattern: string) {
+  const end = start + pattern.length;
 
   const pre = start > 0 && /[a-zA-Z]/.test(line.charAt(start - 1));
   const post = end < line.length - 1 && /[a-zA-Z]/.test(line.charAt(end));
@@ -62,13 +69,18 @@ function isLetterAround(line: string, start: number) {
   return pre || post;
 }
 
-function getPatternPosition(lineIdx: number, index: number, comment: TSESTree.Comment) {
+function getPatternPosition(
+  lineIdx: number,
+  index: number,
+  comment: TSESTree.Comment,
+  pattern: string,
+) {
   const line = comment.loc.start.line + lineIdx;
   const columnStart = lineIdx === 0 ? comment.loc.start.column + 2 : 0;
   const patternStart = columnStart + index;
 
   return {
     start: { line, column: patternStart },
-    end: { line, column: patternStart + todoPattern.length },
+    end: { line, column: patternStart + pattern.length },
   };
 }

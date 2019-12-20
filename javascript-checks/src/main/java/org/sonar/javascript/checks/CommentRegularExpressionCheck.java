@@ -19,23 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
-import java.util.regex.Pattern;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.LineIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "CommentRegularExpression")
-public class CommentRegularExpressionCheck extends SubscriptionVisitorCheck {
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "CommentRegularExpression")
+@Rule(key = "S124")
+public class CommentRegularExpressionCheck extends EslintBasedCheck {
 
   private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";
   private static final String DEFAULT_REGULAR_EXPRESSION = "";
@@ -44,46 +40,32 @@ public class CommentRegularExpressionCheck extends SubscriptionVisitorCheck {
     key = "regularExpression",
     description = "The regular expression",
     defaultValue = "" + DEFAULT_REGULAR_EXPRESSION)
-  private String regularExpression = DEFAULT_REGULAR_EXPRESSION;
+  public String regularExpression = DEFAULT_REGULAR_EXPRESSION;
 
   @RuleProperty(
     key = "message",
     description = "The issue message",
     defaultValue = "" + DEFAULT_MESSAGE)
-  private String message = DEFAULT_MESSAGE;
+  public String message = DEFAULT_MESSAGE;
 
-  private Pattern pattern = null;
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  public void setRegularExpression(String regularExpression) {
-    this.regularExpression = regularExpression;
+  @Override
+  public String eslintKey() {
+    return "comment-regex";
   }
 
   @Override
-  public void visitNode(Tree tree) {
-    if (pattern == null && !Strings.isNullOrEmpty(regularExpression)) {
-      try {
-        pattern = Pattern.compile(regularExpression, Pattern.DOTALL);
-      } catch (RuntimeException e) {
-        throw new IllegalArgumentException("Unable to compile regular expression: " + regularExpression, e);
-      }
-    }
+  public List<Object> configurations() {
+    return Collections.singletonList(new CommentRegularExpressionCheck.Config(regularExpression, message));
+  }
 
-    if (pattern != null) {
-      SyntaxToken token = (SyntaxToken) tree;
-      for (SyntaxTrivia trivia : token.trivias()) {
-        if (pattern.matcher(trivia.text()).matches()) {
-          addIssue(new LineIssue(this, trivia.line(), message));
-        }
-      }
+  private static class Config {
+    String regularExpression;
+    String message;
+
+    Config(String regularExpression, String message) {
+      this.regularExpression = regularExpression;
+      this.message = message;
     }
   }
 
-  @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.of(Kind.TOKEN);
-  }
 }

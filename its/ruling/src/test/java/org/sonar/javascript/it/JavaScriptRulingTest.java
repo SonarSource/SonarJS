@@ -124,7 +124,7 @@ public class JavaScriptRulingTest {
       // should be no issue only on files starting with a single-line comment
       .add("S1451", "headerFormat", "//.*")
       .add("S1451", "isRegularExpression", "true");
-    Set<String> excludedRules = Collections.singleton("CommentRegularExpression");
+    Set<String> excludedRules = Collections.singleton("S124");
     File jsProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "js", "javascript", jsRulesConfiguration, excludedRules);
     File tsProfile = ProfileGenerator.generateProfile(
       orchestrator.getServer().getUrl(),
@@ -139,9 +139,15 @@ public class JavaScriptRulingTest {
       .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"));
 
     instantiateTemplateRule("js", "rules",
-      "CommentRegularExpression",
+      "S124",
       "CommentRegexTest",
-      "regularExpression=\"(?i).*TODO.*\";message=\"bad user\"");
+      "regularExpression=\".*TODO.*\";message=\"bad user\"");
+
+
+    instantiateTemplateRule("ts", "rules",
+      "S124",
+      "CommentRegexTestTS",
+      "regularExpression=\".*TODO.*\";message=\"bad user\"");
 
     installTypeScript(FileLocation.of("../typescript-test-sources/src").getFile());
   }
@@ -196,12 +202,13 @@ public class JavaScriptRulingTest {
 
   private static void instantiateTemplateRule(String language, String qualityProfile, String ruleTemplateKey, String instantiationKey, String params) {
     SonarClient sonarClient = orchestrator.getServer().adminWsClient();
+    String keyPrefix = "ts".equals(language) ? "typescript:" : "javascript:";
     sonarClient.post("/api/rules/create", ImmutableMap.<String, Object>builder()
       .put("name", instantiationKey)
       .put("markdown_description", instantiationKey)
       .put("severity", "INFO")
       .put("status", "READY")
-      .put("template_key", "javascript:" + ruleTemplateKey)
+      .put("template_key", keyPrefix + ruleTemplateKey)
       .put("custom_key", instantiationKey)
       .put("prevent_reactivation", "true")
       .put("params", "name=\"" + instantiationKey + "\";key=\"" + instantiationKey + "\";markdown_description=\"" + instantiationKey + "\";" + params)
@@ -215,7 +222,7 @@ public class JavaScriptRulingTest {
     if (profileKey != null) {
       String response = sonarClient.post("api/qualityprofiles/activate_rule", ImmutableMap.of(
         "profile_key", profileKey,
-        "rule_key", "javascript:" + instantiationKey,
+        "rule_key", keyPrefix + instantiationKey,
         "severity", "INFO",
         "params", ""));
       LOG.warn(response);
