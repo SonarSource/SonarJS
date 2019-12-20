@@ -42,7 +42,7 @@ public class ClassNameCheck extends EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(format));
+    return Collections.singletonList(new FormatRuleProperty(format));
   }
 
   @Override
@@ -50,10 +50,4 @@ public class ClassNameCheck extends EslintBasedCheck {
     return "class-name";
   }
 
-  private static class Config {
-    String format;
-    Config(String format) {
-      this.format = format;
-    }
-  }
 }

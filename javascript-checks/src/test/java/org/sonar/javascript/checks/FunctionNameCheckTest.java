@@ -19,30 +19,26 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.gson.Gson;
 import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class FunctionNameCheckTest {
 
-  private FunctionNameCheck check = new FunctionNameCheck();
-
   @Test
-  public void testDefault() {
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/FunctionName.js"));
-  }
+  public void configurations() {
+    FunctionNameCheck check = new FunctionNameCheck();
 
-  @Test
-  public void testCustom() {
-    check.format = "^[A-Z][a-zA-Z0-9]*$";
+    // default configuration
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"format\":\"^[_a-z][a-zA-Z0-9]*$\"}]");
 
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FunctionName.js"))
-      .next().atLine(1).withMessage("Rename this 'doSomething' function to match the regular expression " + check.format)
-      .next().atLine(8)
-      .next().atLine(11)
-      .next().atLine(14)
-      .next().atLine(21)
-      .next().atLine(28)
-      .noMore();
+    // custom configuration
+    check.format = "^[a-zA-Z0-9]*$";
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"format\":\"^[a-zA-Z0-9]*$\"}]");
   }
 }

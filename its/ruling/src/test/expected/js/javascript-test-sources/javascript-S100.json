@@ -187,6 +187,11 @@
 'javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js':[
 399,
 ],
+'javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/MainSection.js':[
+7,
+8,
+9,
+],
 'javascript-test-sources:src/ecmascript6/redux/test/createStore.spec.js':[
 309,
 ],

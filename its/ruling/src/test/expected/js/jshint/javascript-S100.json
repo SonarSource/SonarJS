@@ -21,10 +21,6 @@
 'jshint:tests/unit/fixtures/default-arguments.js':[
 1,
 ],
-'jshint:tests/unit/fixtures/function-declaration.js':[
-1,
-7,
-],
 'jshint:tests/unit/fixtures/max-cyclomatic-complexity-per-function.js':[
 1,
 4,
@@ -46,8 +42,5 @@
 ],
 'jshint:tests/unit/fixtures/strict_violations.js':[
 5,
-],
-'jshint:tests/unit/fixtures/strings.js':[
-22,
 ],
 }
