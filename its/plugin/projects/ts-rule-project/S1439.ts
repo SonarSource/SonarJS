@@ -6,19 +6,16 @@ function compliant(x: number) {
     break label0;
   }
 
-  label1: switch (x) {
-    case 0:
-      label2: for (let i = 0; i < 3; i++) {
-        if (x % i == 1) {
-          break label1;
-        } else {
-          break label2;
-        }
-        return 3;
+  label1: do {
+    label2: for (let i = 0; i < 3; i++) {
+      if (x % i == 1) {
+        break label1;
+      } else {
+        break label2;
       }
-    default:
-      return 0;
-  }
+      return 3;
+    }
+  } while (true);
 }
 
 function nonCompliant(x: number) {

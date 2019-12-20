@@ -50,6 +50,11 @@
     </rule>
     <rule>
       <repositoryKey>typescript</repositoryKey>
+      <key>S1219</key>    <!-- no-case-label-in-switch -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
       <key>S4124</key>    <!-- no-misused-new -->
       <priority>INFO</priority>
     </rule>
