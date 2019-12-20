@@ -19,30 +19,27 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "StrictMode")
-public class StrictModeCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Use of JavaScript strict mode may result in unexpected behaviour in some browsers.";
+@TypeScriptRule
+@DeprecatedRuleKey(ruleKey = "StrictMode")
+@Rule(key = "S1539")
+public class StrictModeCheck extends EslintBasedCheck {
 
   @Override
-  public void visitExpressionStatement(ExpressionStatementTree tree) {
-    if (tree.expression().is(Kind.STRING_LITERAL)) {
-      String value = ((LiteralTree) tree.expression()).value();
+  public List<Object> configurations() {
+    return Collections.singletonList("never");
+  }
 
-      if ("\"use strict\"".equals(value) || "'use strict'".equals(value)) {
-        addIssue(tree, MESSAGE);
-      }
-    }
-
-    super.visitExpressionStatement(tree);
+  @Override
+  public String eslintKey() {
+    return "strict";
   }
 
 }

@@ -19,15 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StrictModeCheckTest {
 
   @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new StrictModeCheck(), new File("src/test/resources/checks/strictMode.js"));
+  public void configurations() {
+    String configAsString = new Gson().toJson(new StrictModeCheck().configurations());
+    assertThat(configAsString).isEqualTo("[\"never\"]");
   }
 
 }

@@ -12,9 +12,10 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1539",
-  "sqKey": "StrictMode",
+  "sqKey": "S1539",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "Main"
 }
