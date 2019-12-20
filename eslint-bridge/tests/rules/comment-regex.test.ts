@@ -25,7 +25,7 @@ import { rule } from "../../src/rules/comment-regex";
 const optionsWithouthMessage = [{ regularExpression: "[a-z]" }];
 const optionsWithMessage = [{ regularExpression: "[a-z]", message: "this is a message" }];
 
-ruleTester.run("Equality operators should not be used in for loop termination conditions", rule, {
+ruleTester.run("Track comments matching a regular expression", rule, {
   valid: [
     {
       code: `
