@@ -67,18 +67,33 @@ function reportBadUsage(
   buildMessage: (name: string) => string,
   context: Rule.RuleContext,
 ) {
-  if (!node) {
-    return;
-  } else if (node.type === "RestElement") {
-    reportBadUsage(node.argument, buildMessage, context);
-  } else if (node.type === "ObjectPattern") {
-    node.properties.forEach(prop => {
-      reportBadUsage(prop.value, buildMessage, context);
-    });
-  } else if (node.type === "Identifier" && illegalName.includes(node.name)) {
-    context.report({
-      message: buildMessage(node.name),
-      node: node,
-    });
+  if (node) {
+    switch (node.type) {
+      case "Identifier": {
+        if (illegalName.includes(node.name)) {
+          context.report({
+            message: buildMessage(node.name),
+            node: node,
+          });
+        }
+        break;
+      }
+      case "RestElement":
+        reportBadUsage(node.argument, buildMessage, context);
+        break;
+      case "ObjectPattern":
+        node.properties.forEach(prop => {
+          reportBadUsage(prop.value, buildMessage, context);
+        });
+        break;
+      case "ArrayPattern":
+        node.elements.forEach(elem => {
+          reportBadUsage(elem, buildMessage, context);
+        });
+        break;
+      case "AssignmentPattern":
+        reportBadUsage(node.left, buildMessage, context);
+        break;
+    }
   }
 }

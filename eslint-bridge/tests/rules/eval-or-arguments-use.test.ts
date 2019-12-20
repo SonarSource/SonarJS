@@ -153,5 +153,12 @@ ruleTester.run('"eval" and "arguments" should not be bound or assigned', rule, {
         `,
       errors: 4,
     },
+    {
+      code: `
+        function fun (eval = 1) { }
+        function foo([arguments, eval]) { }
+        `,
+      errors: 3,
+    },
   ],
 });
