@@ -37,6 +37,10 @@ public class TypeScriptRulesDefinition implements RulesDefinition {
 
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON);
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getTypeScriptChecks());
+
+    NewRule commentRegularExpression = repository.rule("S124");
+    commentRegularExpression.setTemplate(true);
+
     repository.done();
   }
 

@@ -60,7 +60,7 @@ public class TypeScriptRuleTest {
       orchestrator.getServer().getUrl(),
       "ts", "typescript",
       new ProfileGenerator.RulesConfiguration(),
-      Collections.emptySet());
+      Collections.singleton("S124"));
 
     File jsProfile = ProfileGenerator.generateProfile(
       orchestrator.getServer().getUrl(),

@@ -122,6 +122,7 @@ public class TypeScriptRulesDefinitionTest {
     assertThat(rule.name()).isEqualTo("All branches in a conditional structure should not have exactly the same implementation");
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(Type.CONSTANT_ISSUE);
     assertThat(rule.type()).isEqualTo(RuleType.BUG);
+    assertThat(repository.rule("S124").template()).isTrue();
   }
 
   private void assertAllRuleParametersHaveDescription(Repository repository) {

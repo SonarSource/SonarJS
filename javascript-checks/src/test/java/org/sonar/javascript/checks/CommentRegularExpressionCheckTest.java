@@ -19,33 +19,29 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommentRegularExpressionCheckTest {
 
-  private final CommentRegularExpressionCheck check = new CommentRegularExpressionCheck();
-  private final String dir = "src/test/resources/checks/CommentRegularExpressionCheck";
-
   @Test
-  public void test() {
-    check.setRegularExpression("(?i).*TODO.*");
-    check.setMessage("Avoid TODO");
+  public void test_configuration() {
+    CommentRegularExpressionCheck check = new CommentRegularExpressionCheck();
 
-    JavaScriptCheckVerifier.verify(check, new File(dir, "commentRegularExpression.js"));
-  }
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"regularExpression\":\"\",\"message\":\"The regular expression matches this comment.\"}]");
 
-  @Test
-  public void no_issue_with_empty_regular_expression() throws Exception {
-    check.setRegularExpression("");
-    JavaScriptCheckVerifier.verify(check, new File(dir, "commentRegularExpression_no_issue.js"));
-  }
+    check.message = "This is a message";
 
-  @Test(expected = IllegalArgumentException.class)
-  public void bad_regex() {
-    check.setRegularExpression("[abc");
-    JavaScriptCheckVerifier.verify(check, new File(dir, "commentRegularExpression.js"));
+    String configAsString = new Gson().toJson(check.configurations());
+    assertThat(configAsString).isEqualTo("[{\"regularExpression\":\"\",\"message\":\"This is a message\"}]");
+
+    check.regularExpression = "[a-z]";
+
+    String configAsString2 = new Gson().toJson(check.configurations());
+    assertThat(configAsString2).isEqualTo("[{\"regularExpression\":\"[a-z]\",\"message\":\"This is a message\"}]");
   }
 
 }
