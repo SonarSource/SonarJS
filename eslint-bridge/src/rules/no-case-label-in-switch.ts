@@ -35,31 +35,26 @@ export const rule: Rule.RuleModule = {
       return stack[stack.length - 1] > 0;
     }
     return {
-      "FunctionExpression, FunctionDeclaration, SwitchCase, LabeledStatement": (
-        node: estree.Node,
-      ) => {
-        if (node.type === "SwitchCase") {
-          enterCase();
-        } else if (node.type === "LabeledStatement") {
-          if (inCase()) {
-            const label = node.label;
-            context.report({
-              message: `Remove this misleading "${label.name}" label.`,
-              node: label,
-            });
-          }
-        } else {
-          stack.push(0);
+      SwitchCase: () => {
+        enterCase();
+      },
+      LabeledStatement: (node: estree.Node) => {
+        if (inCase()) {
+          const label = (node as estree.LabeledStatement).label;
+          context.report({
+            message: `Remove this misleading "${label.name}" label.`,
+            node: label,
+          });
         }
       },
-      "FunctionExpression, FunctionDeclaration, SwitchCase, LabeledStatement :exit": (
-        node: estree.Node,
-      ) => {
-        if (node.type === "SwitchCase") {
-          leaveCase();
-        } else if (node.type !== "LabeledStatement") {
-          stack.pop();
-        }
+      "FunctionExpression, FunctionDeclaration": () => {
+        stack.push(0);
+      },
+      "SwitchCase:exit": () => {
+        leaveCase();
+      },
+      "FunctionExpression, FunctionDeclaration :exit": () => {
+        stack.pop();
       },
     };
   },
