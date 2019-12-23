@@ -10,6 +10,11 @@
     </rule>
     <rule>
       <repositoryKey>typescript</repositoryKey>
+      <key>S1472</key>    <!-- call-argument-line -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
       <key>S2077</key>    <!-- SqlQueriesCheck -->
       <priority>INFO</priority>
     </rule>
