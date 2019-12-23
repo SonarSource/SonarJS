@@ -21,35 +21,15 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
-import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1472")
-public class FunctionCallArgumentsOnNewLineCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Make those call arguments start on line %s";
+public class FunctionCallArgumentsOnNewLineCheck extends EslintBasedCheck {
 
   @Override
-  public void visitCallExpression(CallExpressionTree tree) {
-    if (!isChainedCall(tree) && callExpressionWasLikelyIntended(tree.argumentClause())) {
-      int calleeLastLine = tree.callee().lastToken().endLine();
-      int argumentsFirstLine = tree.argumentClause().firstToken().line();
-
-      if (calleeLastLine != argumentsFirstLine) {
-        addIssue(tree.argumentClause(), String.format(MESSAGE, calleeLastLine));
-      }
-    }
-    super.visitCallExpression(tree);
-  }
-
-  public boolean isChainedCall(CallExpressionTree tree) {
-    return tree.callee().is(Kind.CALL_EXPRESSION);
-  }
-
-  public boolean callExpressionWasLikelyIntended(ArgumentListTree argumentListTree) {
-    return argumentListTree.arguments().size() == 1;
+  public String eslintKey() {
+    return "call-argument-line";
   }
 }
