@@ -37,8 +37,8 @@ export const rule: Rule.RuleModule = {
           const calleeLastLine = (parenthesis ? parenthesis : sourceCode.getLastToken(call.callee))!
             .loc.end.line;
           const { start } = sourceCode.getTokenAfter(call.callee)!.loc;
-          const { end } = sourceCode.getLastToken(call)!.loc;
           if (calleeLastLine !== start.line) {
+            const { end } = sourceCode.getLastToken(call)!.loc;
             context.report({
               message: `Make those call arguments start on line ${calleeLastLine}`,
               loc: { start, end },
