@@ -29,8 +29,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const unusedImports: estree.Identifier[] = [];
     const tsTypeIdentifiers: Set<string> = new Set();
-    const saveTypeIdentifier = (node: estree.Node) =>
-      tsTypeIdentifiers.add((node as estree.Identifier).name);
+    const saveTypeIdentifier = (node: estree.Identifier) => tsTypeIdentifiers.add(node.name);
     return {
       ImportDeclaration: (node: estree.Node) => {
         const variables = context.getDeclaredVariables(node);
@@ -43,15 +42,16 @@ export const rule: Rule.RuleModule = {
       "TSTypeReference > Identifier, TSClassImplements > Identifier, TSInterfaceHeritage > Identifier": (
         node: estree.Node,
       ) => {
-        saveTypeIdentifier(node);
+        saveTypeIdentifier(node as estree.Identifier);
       },
       "TSQualifiedName[left.type = 'Identifier']": (node: estree.Node) => {
-        saveTypeIdentifier(((node as any) as TSESTree.TSQualifiedName).left as estree.Node);
+        saveTypeIdentifier(((node as any) as TSESTree.TSQualifiedName).left as estree.Identifier);
       },
       "TSInterfaceHeritage > MemberExpression[object.type = 'Identifier'], TSClassImplements > MemberExpression[object.type = 'Identifier']": (
         node: estree.Node,
       ) => {
-        saveTypeIdentifier(((node as any) as TSESTree.MemberExpression).object as estree.Node);
+        saveTypeIdentifier(((node as any) as TSESTree.MemberExpression)
+          .object as estree.Identifier);
       },
       "Program:exit": () => {
         const jsxIdentifiers = context
