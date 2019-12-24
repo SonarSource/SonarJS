@@ -22,6 +22,7 @@ import { rule as argumentsOrder } from "./arguments-order";
 import { rule as boolParamDefault } from "./bool-param-default";
 import { rule as className } from "./class-name";
 import { rule as noUselessIncrement } from "./no-useless-increment";
+import { rule as callArgumentLine } from "./call-argument-line";
 import { rule as commentRegex } from "./comment-regex";
 import { rule as codeEval } from "./code-eval";
 import { rule as cookies } from "./cookies";
@@ -92,6 +93,7 @@ const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
 ruleModules["arguments-order"] = argumentsOrder;
 ruleModules["bool-param-default"] = boolParamDefault;
+ruleModules["call-argument-line"] = callArgumentLine;
 ruleModules["class-name"] = className;
 ruleModules["no-useless-increment"] = noUselessIncrement;
 ruleModules["comment-regex"] = commentRegex;
