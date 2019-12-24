@@ -56,9 +56,9 @@ export type Parse = (
 ) => SourceCode | ParsingError;
 
 export function parseJavaScriptSourceFile(fileContent: string): SourceCode | ParsingError {
-  let parseFunctions = [espree.parse, babel.parse];
+  let parseFunctions = [espree.parse, babel.parseForESLint];
   if (fileContent.includes("@flow")) {
-    parseFunctions = [babel.parse];
+    parseFunctions = [babel.parseForESLint];
   }
 
   let exceptionToReport: ParseException | null = null;
@@ -148,8 +148,12 @@ export function parse(
   fileContent: string,
 ): SourceCode | ParseException {
   try {
-    const ast = parse(fileContent, config);
-    return new SourceCode(fileContent, ast);
+    const result = parse(fileContent, config);
+    if (result.ast) {
+      return new SourceCode({ text: fileContent, ...result });
+    } else {
+      return new SourceCode(fileContent, result);
+    }
   } catch (exception) {
     return exception;
   }
