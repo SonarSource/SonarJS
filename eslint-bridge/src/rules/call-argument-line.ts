@@ -29,7 +29,13 @@ export const rule: Rule.RuleModule = {
         const call = node as estree.CallExpression;
         if (call.callee.type !== "CallExpression" && call.arguments.length === 1) {
           const sourceCode = context.getSourceCode();
-          const calleeLastLine = sourceCode.getLastToken(call.callee)!.loc.end.line;
+          const parenthesis = sourceCode.getLastTokenBetween(
+            call.callee,
+            call.arguments[0],
+            token => token.type === "Punctuator" && token.value === ")",
+          );
+          const calleeLastLine = (parenthesis ? parenthesis : sourceCode.getLastToken(call.callee))!
+            .loc.end.line;
           const { start } = sourceCode.getTokenAfter(call.callee)!.loc;
           const { end } = sourceCode.getLastToken(call)!.loc;
           if (calleeLastLine !== start.line) {

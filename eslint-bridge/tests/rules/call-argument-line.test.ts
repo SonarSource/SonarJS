@@ -47,6 +47,12 @@ ruleTester.run(`Function call arguments should not start on new lines`, rule, {
           (bar, baz, qux);
       `,
     },
+    {
+      code: `
+      (foo
+      )((bar));
+      `,
+    },
   ],
   invalid: [
     {
