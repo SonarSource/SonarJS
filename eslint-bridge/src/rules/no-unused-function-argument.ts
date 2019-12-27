@@ -67,7 +67,7 @@ function reportUnusedargument(
   }
 
   let i = parametersVariable.length - 1;
-  while (i >= 0 && parametersVariable[i].references.length === 0) {
+  while (i >= 0 && parametersVariable[i].references.every(ref => ref.init)) {
     context.report({
       message: `Remove the unused function parameter "${parametersVariable[i].name}".`,
       node: parametersVariable[i].identifiers[0],
