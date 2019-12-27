@@ -8,11 +8,6 @@
 18,
 26,
 ],
-'jshint:tests/unit/fixtures/es5.js':[
-58,
-59,
-59,
-],
 'jshint:tests/unit/fixtures/gh988.js':[
 14,
 16,
@@ -49,6 +44,13 @@
 ],
 'jshint:tests/unit/fixtures/scope-redef.js':[
 12,
+],
+'jshint:tests/unit/fixtures/shadow-inline.js':[
+6,
+16,
+26,
+36,
+46,
 ],
 'jshint:tests/unit/fixtures/unused.js':[
 6,

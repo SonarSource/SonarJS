@@ -56,6 +56,9 @@
 'p5.js:src/events/keyboard.js':[
 306,
 ],
+'p5.js:src/image/loading_displaying.js':[
+93,
+],
 'p5.js:src/io/p5.Table.js':[
 42,
 ],
