@@ -39,6 +39,13 @@ export const rule: Rule.RuleModule = {
     const falsyMap: Map<estree.Statement, Scope.Reference[]> = new Map();
 
     return {
+      IfStatement: (node: estree.Node) => {
+        const test = (node as estree.IfStatement).test;
+        if (test.type === "Literal" && typeof test.value === "boolean") {
+          report(test, undefined, context, test.value);
+        }
+      },
+
       ":statement": (node: estree.Node) => {
         const parent = getParent(context);
         if (parent && isIfStatement(parent)) {
@@ -195,28 +202,37 @@ function transformAndFilter(ids: estree.Identifier[], currentScope: Scope.Scope)
 }
 
 function report(
-  id: estree.Identifier,
-  ref: Scope.Reference,
+  id: estree.Node,
+  ref: Scope.Reference | undefined,
   context: Rule.RuleContext,
   truthy: boolean,
 ) {
-  const secLoc = ref.identifier.loc!;
   const value = truthy ? "truthy" : "falsy";
+
   const encodedMessage: EncodedMessage = {
     message: `This always evaluates to ${value}. Consider refactoring this code.`,
-    secondaryLocations: [
-      {
-        message: `Evaluated here to be ${value}`,
-        line: secLoc.start.line,
-        column: secLoc.start.column,
-        endLine: secLoc.end.line,
-        endColumn: secLoc.end.column,
-      },
-    ],
+    secondaryLocations: getSecondaryLocations(ref, value),
   };
 
   context.report({
     message: JSON.stringify(encodedMessage),
     node: id,
   });
+}
+
+function getSecondaryLocations(ref: Scope.Reference | undefined, truthy: string) {
+  if (ref) {
+    const secLoc = ref.identifier.loc!;
+    return [
+      {
+        message: `Evaluated here to be ${truthy}`,
+        line: secLoc.start.line,
+        column: secLoc.start.column,
+        endLine: secLoc.end.line,
+        endColumn: secLoc.end.column,
+      },
+    ];
+  } else {
+    return [];
+  }
 }
