@@ -31,19 +31,13 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       ":function": function(node: estree.Node) {
-        const func = node as FunctionNodeInterType;
-        const functionId = func.id;
-
-        if (func.body.body && func.body.body.length === 0) {
-          return;
-        }
+        const functionId = (node as FunctionNodeInterType).id;
 
         const parent = (node as TSESTree.Node).parent;
-
         if (
           parent &&
-          (parent.type === "MethodDefinition" ||
-            (parent.type === "Property" && (parent.kind === "get" || parent.kind === "set")))
+          parent.type === "Property" &&
+          (parent.kind === "get" || parent.kind === "set")
         ) {
           return;
         }

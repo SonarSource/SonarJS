@@ -21,11 +21,9 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@TypeScriptRule
 @Rule(key = "S1172")
 @DeprecatedRuleKey(ruleKey = "UnusedFunctionArgument")
 public class UnusedFunctionArgumentCheck extends EslintBasedCheck {

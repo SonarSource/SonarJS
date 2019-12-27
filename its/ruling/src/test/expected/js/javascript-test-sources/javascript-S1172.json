@@ -29,9 +29,15 @@
 13,
 ],
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/token.js':[
+20,
+20,
+20,
 26,
 26,
 26,
+],
+'javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/signup_test.js':[
+6,
 ],
 'javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/posts_spec.js':[
 723,
@@ -150,6 +156,9 @@
 ],
 'javascript-test-sources:src/ecmascript6/templating/test/lib/compiler/compiler.spec.js':[
 299,
+],
+'javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js':[
+72,
 ],
 'javascript-test-sources:src/ecmascript6/watchtower.js/test/watchgroup.spec.js':[
 43,
