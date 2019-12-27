@@ -77,6 +77,21 @@ ruleTester.run("no-gratuitous-expressions", rule, {
   invalid: [
     {
       code: `
+        if (true) {}
+        if (false) {}`,
+      errors: [
+        {
+          message: `{"message":"This always evaluates to truthy. Consider refactoring this code.","secondaryLocations":[]}`,
+          line: 2,
+        },
+        {
+          message: `{"message":"This always evaluates to falsy. Consider refactoring this code.","secondaryLocations":[]}`,
+          line: 3,
+        },
+      ],
+    },
+    {
+      code: `
       function bar(x: boolean, z) {
         if (x && z) {
           if (y && x) {} // "x" always true
