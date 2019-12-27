@@ -23,50 +23,55 @@ import { Rule } from "eslint";
 import * as estree from "estree";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 
-type FunctionNodeInterType = estree.FunctionDeclaration &
-  estree.FunctionExpression &
-  estree.ArrowFunctionExpression;
-
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      ":function": function(node: estree.Node) {
-        const functionId = (node as FunctionNodeInterType).id;
-
-        const parent = (node as TSESTree.Node).parent;
-        if (
-          parent &&
-          parent.type === "Property" &&
-          (parent.kind === "get" || parent.kind === "set")
-        ) {
-          return;
-        }
-
-        if (
-          context
-            .getScope()
-            .variables.some(
-              v => v.name === "arguments" && v.identifiers.length === 0 && v.references.length > 0,
-            )
-        ) {
-          return;
-        }
-
-        let parametersVariable = context.getDeclaredVariables(node);
-
-        if (functionId) {
-          parametersVariable = parametersVariable.filter(v => v.name !== functionId.name);
-        }
-
-        let i = parametersVariable.length - 1;
-        while (i >= 0 && parametersVariable[i].references.length === 0) {
-          context.report({
-            message: `Remove the unused function parameter "${parametersVariable[i].name}".`,
-            node: parametersVariable[i].identifiers[0],
-          });
-          i--;
-        }
+      "FunctionDeclaration, FunctionExpression": function(node: estree.Node) {
+        reportUnusedargument(
+          node,
+          (node as estree.FunctionDeclaration | estree.FunctionExpression).id,
+          context,
+        );
+      },
+      ArrowFunctionExpression: (node: estree.Node) => {
+        reportUnusedargument(node, undefined, context);
       },
     };
   },
 };
+
+function reportUnusedargument(
+  node: estree.Node,
+  functionId: estree.Identifier | undefined | null,
+  context: Rule.RuleContext,
+) {
+  const parent = (node as TSESTree.Node).parent;
+  if (parent && parent.type === "Property" && (parent.kind === "get" || parent.kind === "set")) {
+    return;
+  }
+
+  if (
+    context
+      .getScope()
+      .variables.some(
+        v => v.name === "arguments" && v.identifiers.length === 0 && v.references.length > 0,
+      )
+  ) {
+    return;
+  }
+
+  let parametersVariable = context.getDeclaredVariables(node);
+
+  if (functionId) {
+    parametersVariable = parametersVariable.filter(v => v.name !== functionId.name);
+  }
+
+  let i = parametersVariable.length - 1;
+  while (i >= 0 && parametersVariable[i].references.length === 0) {
+    context.report({
+      message: `Remove the unused function parameter "${parametersVariable[i].name}".`,
+      node: parametersVariable[i].identifiers[0],
+    });
+    i--;
+  }
+}
