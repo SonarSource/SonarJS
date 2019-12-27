@@ -19,7 +19,7 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1172
 
-import { Rule } from "eslint";
+import { Rule, Scope } from "eslint";
 import * as estree from "estree";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 
@@ -27,20 +27,20 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       "FunctionDeclaration, FunctionExpression": function(node: estree.Node) {
-        reportUnusedargument(
+        reportUnusedArgument(
           node,
           (node as estree.FunctionDeclaration | estree.FunctionExpression).id,
           context,
         );
       },
       ArrowFunctionExpression: (node: estree.Node) => {
-        reportUnusedargument(node, undefined, context);
+        reportUnusedArgument(node, undefined, context);
       },
     };
   },
 };
 
-function reportUnusedargument(
+function reportUnusedArgument(
   node: estree.Node,
   functionId: estree.Identifier | undefined | null,
   context: Rule.RuleContext,
@@ -67,11 +67,17 @@ function reportUnusedargument(
   }
 
   let i = parametersVariable.length - 1;
-  while (i >= 0 && parametersVariable[i].references.every(ref => ref.init)) {
+  while (i >= 0 && isUnusedVariable(parametersVariable[i])) {
     context.report({
       message: `Remove the unused function parameter "${parametersVariable[i].name}".`,
       node: parametersVariable[i].identifiers[0],
     });
     i--;
   }
+}
+
+function isUnusedVariable(variable: Scope.Variable) {
+  const refs = variable.references;
+  //Parameter with default value has one reference, but should still be considered as unused.
+  return refs.length === 0 || (refs.length === 1 && refs[0].init);
 }
