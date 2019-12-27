@@ -30,18 +30,13 @@ ruleTester.run("Unused function parameters should be removed", rule, {
             }`,
     },
     {
-      code: `function fun(a, b, c) {      // OK
+      code: `function fun(a, b, c) {      // OK, even if b is not used, the last argument is.
               a = 1;
               c = 1;
             }`,
     },
     {
-      code: `function fun(a) {           // OK
-              return {a};
-            }`,
-    },
-    {
-      code: `function fun(a, b) {         // OK
+      code: `function fun(a, b) {         // OK, arguments is used inside the function
               a = 1;
               o.call(arguments);
             }`,
@@ -54,49 +49,29 @@ ruleTester.run("Unused function parameters should be removed", rule, {
             }`,
     },
     {
-      code: `
-      each(function fun(a, b) {    // OK
-        b = 1;
-      });
-      
-      each(function fun(a) {       // OK
-        a = 1;
-      });
-      
-      each(function fun(a) {       // OK
-        return o.call(arguments);
-      });`,
+      code: `each(function fun(a) {       // OK
+              a = 1;
+            });`,
     },
     {
       code: `class C {
-                set  value(value) {
+                set value(value) {
                     this.value = value; // OK
                 }
             }`,
     },
     {
-      code: `class C {
-              set value(value) {
-                  this.value = value; // OK
+      code: `var a = {
+              set p(v){      // OK
               }
-          }`,
-    },
-    {
-      code: `
-      var a = {
-        set p(v){      // OK
-        },
-        get p(){
-        }
-      }`,
+            }`,
     },
   ],
   invalid: [
     {
       code: `function fun(a, b) {
                 a = 1;
-            }
-      `,
+            }`,
       errors: [
         {
           message: `Remove the unused function parameter "b".`,
@@ -110,8 +85,7 @@ ruleTester.run("Unused function parameters should be removed", rule, {
     {
       code: `function fun(a, ...ccc) {
               return a;
-            }
-      `,
+            }`,
       errors: [
         {
           message: `Remove the unused function parameter "ccc".`,
@@ -123,30 +97,23 @@ ruleTester.run("Unused function parameters should be removed", rule, {
       ],
     },
     {
-      code: `each(function fun(a, b, c) {
+      code: `function fun(p1) { }`,
+      errors: 1,
+    },
+    {
+      code: `function fun(a, b, c) {
               a = 1;
-            });`,
+            }`,
       errors: 2,
     },
     {
-      code: `each(function fun(a, b) {
-              a = 1;
-            });`,
-      errors: 1,
-    },
-    {
-      code: `each(function fun(p1) {
-            });`,
-      errors: 1,
-    },
-    {
-      code: `each(function fun(a, b, c) {
+      code: `function fun(a, b, c) {
              b = 1;
-           });`,
+           }`,
       errors: 1,
     },
     {
-      code: `each(function* fun(a, b) {
+      code: `each(function fun(a, b) {
               a = 1;
             });`,
       errors: 1,
@@ -158,13 +125,25 @@ ruleTester.run("Unused function parameters should be removed", rule, {
       errors: 1,
     },
     {
-      code: `function fun(a, b) {
-        a = 1;
-        function nested() {
-          o.call(arguments);
-        }
-      }`,
+      code: `function fun(a, b) { // Noncompliant, arguments is used in the nested function
+              a = 1;
+              function nested() {
+                o.call(arguments);
+              }
+            }`,
       errors: 1,
+    },
+    {
+      code: `function fun(a) {
+              function nested(a) {
+                a = 1;
+              }
+            }`,
+      errors: [
+        {
+          line: 1,
+        },
+      ],
     },
     {
       code: `function fun() {
@@ -174,7 +153,6 @@ ruleTester.run("Unused function parameters should be removed", rule, {
             }`,
       errors: 1,
     },
-
     {
       code: `var fun = function(
                   par1,

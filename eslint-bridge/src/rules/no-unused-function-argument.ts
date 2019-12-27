@@ -46,7 +46,7 @@ function reportUnusedargument(
   context: Rule.RuleContext,
 ) {
   const parent = (node as TSESTree.Node).parent;
-  if (parent && parent.type === "Property" && (parent.kind === "get" || parent.kind === "set")) {
+  if (parent && parent.type === "Property" && parent.kind === "set") {
     return;
   }
 
