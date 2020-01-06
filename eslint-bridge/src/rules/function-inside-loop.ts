@@ -27,6 +27,7 @@ import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/lo
 const message = "Define this function outside of a loop.";
 
 const loopLike = "WhileStatement,DoWhileStatement,ForStatement,ForOfStatement,ForInStatement";
+const functionLike = "FunctionDeclaration,FunctionExpression,ArrowFunctionExpression";
 
 const allowedCallbacks = [
   "replace",
@@ -52,7 +53,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      ":function": (node: estree.Node) => {
+      [functionLike]: (node: estree.Node) => {
         if (isInsideLoop()) {
           const mainLocation = getMainFunctionTokenLocation(
             node as estree.Function,
@@ -79,10 +80,7 @@ export const rule: Rule.RuleModule = {
       [loopLike]: (node: estree.Node) => {
         functionAndLoopScopes.push(node);
       },
-      ":function:exit": () => {
-        functionAndLoopScopes.pop();
-      },
-      [loopLike + ":exit"]: () => {
+      [functionLike + "," + loopLike + ":exit"]: () => {
         functionAndLoopScopes.pop();
       },
     };
