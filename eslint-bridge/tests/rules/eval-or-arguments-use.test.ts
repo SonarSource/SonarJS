@@ -162,3 +162,18 @@ ruleTester.run('"eval" and "arguments" should not be bound or assigned', rule, {
     },
   ],
 });
+
+const ruleTesterBabel = new RuleTester({
+  parser: require.resolve("babel-eslint"),
+});
+
+ruleTesterBabel.run('"eval" and "arguments" should not be bound or assigned', rule, {
+  valid: [
+    {
+      code: `// @flow
+            function f(argWithFunctionType: (user) => void) {}
+            `,
+    },
+  ],
+  invalid: [],
+});
