@@ -22,10 +22,6 @@
 import { Rule } from "eslint";
 import * as estree from "estree";
 
-type FunctionNodeInterType = estree.FunctionDeclaration &
-  estree.FunctionExpression &
-  estree.ArrowFunctionExpression;
-
 const illegalName = ["eval", "arguments"];
 
 const getDeclareMessage = (redeclareType: string) => (name: string) =>
@@ -37,12 +33,12 @@ const getModificationMessage = (functionName: string) =>
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      ":function": function(node: estree.Node) {
-        const func = node as FunctionNodeInterType;
-        reportBadUsage(func.id, getDeclareMessage("function"), context);
-        func.params.forEach(p => {
-          reportBadUsage(p, getDeclareMessage("parameter"), context);
-        });
+      "FunctionDeclaration, FunctionExpression": function(node: estree.Node) {
+        const func = node as estree.FunctionDeclaration | estree.FunctionExpression;
+        reportBadUsageOnFunction(func, func.id, context);
+      },
+      ArrowFunctionExpression: function(node: estree.Node) {
+        reportBadUsageOnFunction(node as estree.ArrowFunctionExpression, undefined, context);
       },
       VariableDeclaration(node: estree.Node) {
         (node as estree.VariableDeclaration).declarations.forEach(decl => {
@@ -61,6 +57,17 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function reportBadUsageOnFunction(
+  func: estree.Function,
+  id: estree.Node | null | undefined,
+  context: Rule.RuleContext,
+) {
+  reportBadUsage(id, getDeclareMessage("function"), context);
+  func.params.forEach(p => {
+    reportBadUsage(p, getDeclareMessage("parameter"), context);
+  });
+}
 
 function reportBadUsage(
   node: estree.Node | null | undefined,
