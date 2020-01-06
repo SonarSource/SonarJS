@@ -129,8 +129,8 @@ ruleTester.run('"eval" and "arguments" should not be bound or assigned', rule, {
         function fun(arguments, ...a) {}
         var f = function(eval) {}
         const arguments = eval;
-        `,
-      errors: 7,
+        var arrowFunction = (arguments) => {}`,
+      errors: 8,
     },
     {
       code: `
