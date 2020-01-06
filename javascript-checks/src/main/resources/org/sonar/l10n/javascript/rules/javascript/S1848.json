@@ -11,9 +11,10 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1848",
-  "sqKey": "ConstructorFunctionsForSideEffects",
+  "sqKey": "S1848",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "Main"
 }
