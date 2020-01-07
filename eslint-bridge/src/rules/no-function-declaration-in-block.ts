@@ -17,22 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-1530
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
+import { Rule } from "eslint";
+import * as estree from "estree";
+import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
 
-@JavaScriptRule
-@TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "FunctionDeclarationsWithinBlocks")
-@Rule(key = "S1530")
-public class FunctionDeclarationsWithinBlocksCheck extends EslintBasedCheck {
+const message = "Do not use function declarations within blocks.";
 
-  @Override
-  public String eslintKey() {
-    return "no-function-declaration-in-block";
-  }
-
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      ":not(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression) > BlockStatement > FunctionDeclaration": (
+        node: estree.Node,
+      ) => {
+        context.report({
+          message,
+          loc: getMainFunctionTokenLocation(
+            node as estree.FunctionDeclaration,
+            getParent(context),
+            context,
+          ),
+        });
+      },
+    };
+  },
+};

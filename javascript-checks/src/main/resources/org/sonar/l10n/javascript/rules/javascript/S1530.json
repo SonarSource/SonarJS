@@ -12,9 +12,10 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1530",
-  "sqKey": "FunctionDeclarationsWithinBlocks",
+  "sqKey": "S1530",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "Main"
 }
