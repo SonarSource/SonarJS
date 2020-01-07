@@ -3,6 +3,10 @@
   "languages": [
     "JS"
   ],
+  "languagesToCover": [
+    "JS",
+    "TS"
+  ],
   "latest-update": "2019-11-12T10:20:44.939197Z",
   "options": {
     "no-language-in-filenames": true,
