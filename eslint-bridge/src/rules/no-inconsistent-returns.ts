@@ -63,17 +63,9 @@ export const rule: Rule.RuleModule = {
       node: FunctionLikeDeclaration,
       functionContext?: FunctionContext,
     ) {
-      const mainLocation = getMainFunctionTokenLocation(
-        node as estree.Function,
-        getParent(context),
-        context,
-      );
-
       if (
         !functionContext ||
-        (!!node.returnType &&
-          declaredReturnTypeContainsVoidTypes(node.returnType.typeAnnotation)) ||
-        !mainLocation
+        (!!node.returnType && declaredReturnTypeContainsVoidTypes(node.returnType.typeAnnotation))
       ) {
         return;
       }
@@ -93,7 +85,7 @@ export const rule: Rule.RuleModule = {
 
         context.report({
           message,
-          loc: mainLocation,
+          loc: getMainFunctionTokenLocation(node as estree.Function, getParent(context), context),
         });
       }
     }

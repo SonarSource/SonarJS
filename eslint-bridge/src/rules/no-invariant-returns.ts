@@ -61,13 +61,7 @@ export const rule: Rule.RuleModule = {
       checkInvariantReturnStatements(node, functionContextStack[functionContextStack.length - 1]);
 
     function checkInvariantReturnStatements(node: estree.Node, functionContext?: FunctionContext) {
-      const mainLocation = getMainFunctionTokenLocation(
-        node as estree.Function,
-        getParent(context),
-        context,
-      );
-
-      if (!functionContext || !mainLocation || hasDifferentReturnTypes(functionContext)) {
+      if (!functionContext || hasDifferentReturnTypes(functionContext)) {
         return;
       }
 
@@ -81,9 +75,10 @@ export const rule: Rule.RuleModule = {
           undefined,
           returnedValues.length,
         );
+
         context.report({
           message,
-          loc: mainLocation,
+          loc: getMainFunctionTokenLocation(node as estree.Function, getParent(context), context),
         });
       }
     }

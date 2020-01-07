@@ -55,23 +55,20 @@ export const rule: Rule.RuleModule = {
     return {
       [functionLike]: (node: estree.Node) => {
         if (isInsideLoop()) {
-          const mainLocation = getMainFunctionTokenLocation(
-            node as estree.Function,
-            getParent(context),
-            context,
-          );
-
           const loopNode = peek(functionAndLoopScopes);
 
           if (
-            mainLocation &&
             !isIIEF(node, context) &&
             !isAllowedCallbacks(context) &&
             context.getScope().through.some(ref => !isSafe(ref, loopNode))
           ) {
             context.report({
               message,
-              loc: mainLocation,
+              loc: getMainFunctionTokenLocation(
+                node as estree.Function,
+                getParent(context),
+                context,
+              ),
             });
           }
         }
