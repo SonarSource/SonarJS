@@ -23,6 +23,8 @@ import { Rule, Scope } from "eslint";
 import * as estree from "estree";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
+import { findFirstMatchingLocalAncestor } from "./utils";
+import { TSESTree } from "@typescript-eslint/experimental-utils";
 
 const message = "Define this function outside of a loop.";
 
@@ -45,22 +47,18 @@ const allowedCallbacks = [
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    const functionAndLoopScopes: estree.Node[] = [];
-
-    function isInsideLoop() {
-      const scopesLength = functionAndLoopScopes.length;
-      return scopesLength > 0 && loopLike.includes(peek(functionAndLoopScopes).type);
+    function getLocalEnclosingLoop(node: estree.Node) {
+      return findFirstMatchingLocalAncestor(node as TSESTree.Node, n => loopLike.includes(n.type));
     }
 
     return {
       [functionLike]: (node: estree.Node) => {
-        if (isInsideLoop()) {
-          const loopNode = peek(functionAndLoopScopes);
-
+        const loopNode = getLocalEnclosingLoop(node);
+        if (loopNode) {
           if (
             !isIIEF(node, context) &&
             !isAllowedCallbacks(context) &&
-            context.getScope().through.some(ref => !isSafe(ref, loopNode))
+            context.getScope().through.some(ref => !isSafe(ref, loopNode as estree.Node))
           ) {
             context.report({
               message,
@@ -72,13 +70,6 @@ export const rule: Rule.RuleModule = {
             });
           }
         }
-        functionAndLoopScopes.push(node);
-      },
-      [loopLike]: (node: estree.Node) => {
-        functionAndLoopScopes.push(node);
-      },
-      [functionLike + "," + loopLike + ":exit"]: () => {
-        functionAndLoopScopes.pop();
       },
     };
   },
@@ -141,8 +132,4 @@ function hasConstValue(variable: Scope.Variable, loopNode: estree.Node): boolean
     }
   }
   return true;
-}
-
-function peek<T>(arr: Array<T>) {
-  return arr[arr.length - 1];
 }
