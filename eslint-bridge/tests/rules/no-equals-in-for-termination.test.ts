@@ -45,12 +45,6 @@ ruleTester.run("Equality operators should not be used in for loop termination co
         for ( cur = event.target; cur != this; cur = cur.parentNode || this ){ }
         `,
     },
-    {
-      code: `
-      for (var i=0; i!=10; i+=1){  // FN
-        i++ // changes to counter -> no exception
-      }`,
-    },
   ],
   invalid: [
     {
@@ -91,6 +85,13 @@ ruleTester.run("Equality operators should not be used in for loop termination co
         for (i = 0, k = 0; k != null; i++, k--){ } // Noncompliant, not a non trivial condition exception, updated counter is not in the condition
       `,
       errors: 8,
+    },
+    {
+      code: `
+      for (var i=0; i!=10; i+=1){
+        i++ // changes to counter -> no exception
+      }`,
+      errors: 1,
     },
   ],
 });

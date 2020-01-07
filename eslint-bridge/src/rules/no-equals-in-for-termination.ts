@@ -21,6 +21,7 @@
 
 import { Rule } from "eslint";
 import * as estree from "estree";
+import { getVariableFromName } from "./utils";
 
 const equalityOperator = ["!=", "=="];
 const plusMinusOperator = ["+=", "-="];
@@ -35,7 +36,7 @@ export const rule: Rule.RuleModule = {
         if (
           isEquality(condition) &&
           isUpdateIncDec(forStatement.update) &&
-          !isException(forStatement)
+          !isException(forStatement, context)
         ) {
           context.report({
             message: `Replace '${
@@ -80,8 +81,11 @@ function isIncDec(
   );
 }
 
-function isException(forStatement: estree.ForStatement) {
-  return isNontrivialConditionException(forStatement) || isTrivialIteratorException(forStatement);
+function isException(forStatement: estree.ForStatement, context: Rule.RuleContext) {
+  return (
+    isNontrivialConditionException(forStatement) ||
+    isTrivialIteratorException(forStatement, context)
+  );
 }
 
 function isNontrivialConditionException(forStatement: estree.ForStatement) {
@@ -126,15 +130,25 @@ function collectCounters(
   }
 }
 
-function isTrivialIteratorException(forStatement: estree.ForStatement) {
+function isTrivialIteratorException(forStatement: estree.ForStatement, context: Rule.RuleContext) {
+  const init = forStatement.init;
   const condition = forStatement.test;
-  if (isNotEqual(condition)) {
-    const update = forStatement.update;
-    const init = forStatement.init;
-    if (update && init) {
-      return checkForTrivialIteratorException(init, condition, update);
+  const update = forStatement.update;
+
+  if (init && condition && update && isNotEqual(condition)) {
+    const updatedByOne = checkForUpdateByOne(update, forStatement.body, context);
+
+    if (updatedByOne !== 0) {
+      const beginValue = getValue(init);
+      const endValue = getValue(condition);
+      return (
+        beginValue !== undefined &&
+        endValue !== undefined &&
+        updatedByOne === Math.sign(endValue - beginValue)
+      );
     }
   }
+
   return false;
 }
 
@@ -142,27 +156,12 @@ function isNotEqual(node: estree.Node | undefined | null): node is estree.Binary
   return !!(node && node.type === "BinaryExpression" && node.operator === "!=");
 }
 
-function checkForTrivialIteratorException(
-  init: estree.Node,
-  condition: estree.Expression,
+function checkForUpdateByOne(
   update: estree.Expression,
+  loopBody: estree.Node,
+  context: Rule.RuleContext,
 ) {
-  const updatedByOne = checkForUpdateByOne(update);
-
-  if (updatedByOne !== 0) {
-    const beginValue = getValue(init);
-    const endValue = getValue(condition);
-    return (
-      beginValue !== undefined &&
-      endValue !== undefined &&
-      updatedByOne === Math.sign(endValue - beginValue)
-    );
-  }
-  return false;
-}
-
-function checkForUpdateByOne(update: estree.Expression) {
-  if (update.type === "UpdateExpression" || isUpdateOnOneWithAssign(update)) {
+  if (isUpdateByOne(update, loopBody, context)) {
     if (update.operator === "++" || update.operator === "+=") {
       return +1;
     }
@@ -171,6 +170,32 @@ function checkForUpdateByOne(update: estree.Expression) {
     }
   }
   return 0;
+}
+
+function isUpdateByOne(
+  update: estree.Expression,
+  loopBody: estree.Node,
+  context: Rule.RuleContext,
+): update is estree.UpdateExpression | estree.AssignmentExpression {
+  return (
+    (update.type === "UpdateExpression" && !isUsedInsideBody(update.argument, loopBody, context)) ||
+    (isUpdateOnOneWithAssign(update) && !isUsedInsideBody(update.left, loopBody, context))
+  );
+}
+
+function isUsedInsideBody(id: estree.Node, loopBody: estree.Node, context: Rule.RuleContext) {
+  if (id.type === "Identifier") {
+    const variable = getVariableFromName(context, id.name);
+    const bodyRange = loopBody.range;
+    if (variable && bodyRange) {
+      return variable.references.some(ref => isInBody(ref.identifier, bodyRange));
+    }
+  }
+  return false;
+}
+
+function isInBody(id: estree.Identifier, bodyRange: [number, number]) {
+  return id && id.range && id.range[0] > bodyRange[0] && id.range[1] < bodyRange[1];
 }
 
 function getValue(node: estree.Node) {
