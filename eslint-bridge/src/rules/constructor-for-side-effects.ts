@@ -26,10 +26,9 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       "ExpressionStatement > NewExpression": (node: estree.Node) => {
+        const calleeText = context.getSourceCode().getText((node as estree.NewExpression).callee);
         context.report({
-          message: `Either remove this useless object instantiation of "${context
-            .getSourceCode()
-            .getText((node as estree.NewExpression).callee)}" or use it.`,
+          message: `Either remove this useless object instantiation of "${calleeText}" or use it.`,
           node,
         });
       },
