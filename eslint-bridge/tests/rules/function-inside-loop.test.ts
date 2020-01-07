@@ -152,8 +152,30 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
             return i;
           }).call(this);
         }
-      }
-      `,
+
+        for (var i = 0; i < 10; i++) {
+          funs[i] = (function() {            // FN, Noncompliant
+            return function() {               // OK
+              return i;
+            };
+          }(i));
+        }
+        
+        for (var i = 0; i < 10; i++) {
+            funs[i] = (function * () {       // FN, Noncompliant
+                return function() {           // OK
+                    return i;
+                };
+            }(i));
+        }
+      }`,
+    },
+    {
+      code: `
+      var timeout = 5000;
+      while (true) {
+        new Promise((resolve) => setTimeout(resolve, timeout))
+      }`,
     },
   ],
   invalid: [
@@ -171,22 +193,6 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
             funs[i] = () => {              // Noncompliant
               return i;
             };
-          }
-          
-          for (var i = 0; i < 10; i++) {
-            funs[i] = (function() {            // Noncompliant
-              return function() {               // OK
-                return i;
-              };
-            }(i));
-          }
-          
-          for (var i = 0; i < 10; i++) {
-              funs[i] = (function * () {       // Noncompliant
-                  return function() {           // OK
-                      return i;
-                  };
-              }(i));
           }
       `,
       errors: [
@@ -224,41 +230,33 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
             return notConst;
           };
         }
-      
       }
       `,
       errors: 2,
     },
     {
       code: `
-    function some_callbacks_not_ok() {
-      for (var i = 0; i < 13; i++) {
-        arr.unknown(function() {              // Noncompliant
-          return i;
-        });
-      }
-    }
-    `,
-      errors: 1,
+          function some_callbacks_not_ok() {
+            for (var i = 0; i < 13; i++) {
+              arr.unknown(function() {              // Noncompliant
+                return i;
+              });
+
+              replace("a", function() {         // Noncompliant
+                return i;
+              });
+            }
+          }
+          `,
+      errors: 2,
     },
-  ],
-});
-
-const ruleTesterTS = new RuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
-  parser: require.resolve("@typescript-eslint/parser"),
-});
-
-ruleTesterTS.run("Functions should not be defined inside loops", rule, {
-  valid: [
     {
       code: `
       while (true) {
-        new Promise((resolve) => setTimeout(resolve, 5000))
-        await ping()
-      }
-      `,
+        var timeout = 5000;
+        new Promise((resolve) => setTimeout(resolve, timeout)) // Noncompliant
+      }`,
+      errors: 1,
     },
   ],
-  invalid: [],
 });
