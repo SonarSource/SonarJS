@@ -17,22 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-1848
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
+import { Rule } from "eslint";
+import * as estree from "estree";
 
-@JavaScriptRule
-@TypeScriptRule
-@DeprecatedRuleKey(ruleKey = "ConstructorFunctionsForSideEffects")
-@Rule(key = "S1848")
-public class ConstructorFunctionsForSideEffectsCheck extends EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "constructor-for-side-effects";
-  }
-
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      "ExpressionStatement > NewExpression": (node: estree.Node) => {
+        const calleeText = context.getSourceCode().getText((node as estree.NewExpression).callee);
+        context.report({
+          message: `Either remove this useless object instantiation of "${calleeText}" or use it.`,
+          node,
+        });
+      },
+    };
+  },
+};
