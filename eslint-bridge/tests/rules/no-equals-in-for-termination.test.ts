@@ -27,23 +27,27 @@ ruleTester.run("Equality operators should not be used in for loop termination co
   valid: [
     {
       code: `
-        for (var i=0; i>10; i+=1){ } // Compliant, not an equality in condition
-        for (var i=0; i!=10; i*=1){ } // Compliant, not an inc/dec update
+      for (var i=0; i>10; i+=1){ } // Compliant, not an equality in condition
+      for (var i=0; i!=10; i*=1){ } // Compliant, not an inc/dec update
 
-        for (var i=0; i!=10; i++){ } // Compliant, trivial update operation increasing from 0 to 10
-        for (var i=10; i!=0; i--){ } // Compliant, trivial update operation decreasing from 10 to 0
-        for (var i=0; i!=10; i+=1){ } // Compliant, trivial update operation 
-        for (var i=10; i!=0; i-=1){ } // Compliant, trivial update operation 
-        var j = 20;
-        for (j=0; j!=10; j++){ } // Compliant, trivial update operation 
+      for (var i=0; i!=10; i++){ } // Compliant, trivial update operation increasing from 0 to 10
+      for (var i=10; i!=0; i--){ } // Compliant, trivial update operation decreasing from 10 to 0
+      for (var i=0; i!=10; i+=1){ } // Compliant, trivial update operation 
+      for (var i=10; i!=0; i-=1){ } // Compliant, trivial update operation 
 
-        //Compliant tests: non trivial condition exception
-        for (i = 0; checkSet[i] != null; i++){ }
-        for (i = 0, k = 0; j != null; i++, k--){ } // Non trivial, j is not updated
-        for (; checkSet[i] != null; i++ ){ }
-        for (i = 0; foo(i) == 42; i++){ }
-        for ( cur = event.target; cur != this; cur = cur.parentNode || this ){ }
-        `,
+      var j = 20;
+      for (j=0; j!=10; j++){ } // Compliant, trivial update operation 
+
+      //Compliant tests: non trivial condition exception
+      for (i = 0; checkSet[i] != null; i++){ }
+      for (i = 0, k = 0; j != null; i++, k--){ } // Non trivial, j is not updated
+      for (; checkSet[i] != null; i++ ){ }
+      for (i = 0; foo(i) == 42; i++){ }
+      for ( cur = event.target; cur != this; cur = cur.parentNode || this ){ }
+
+      for (var i=0;; i+=1){ } // Compliant, no condition
+      for (var i=0; i!=10;){ } // Compliant, no update
+      for (var i=0; i>=10;){ } // Compliant, no update`,
     },
   ],
   invalid: [
@@ -78,19 +82,25 @@ ruleTester.run("Equality operators should not be used in for loop termination co
         for (var i=0; i!=2; i+=2){ } // Noncompliant, not a trivial update
         for (var i=10; i!=0; i++){ } // Noncompliant, trivial update, but init is higher than stop and update is increasing
         for (var i=0; i!=10; i-=1){ } // Noncompliant, trivial update, but init is lower than stop and update is decreasing
+        for (var i="a"; i!=0; i-=1){ } // Noncompliant, trivial update operation with wrong init
 
         var j = 20;
         for (j=0; j!=10; j--){ } // Noncompliant, trivial update, but init is lower than stop
 
         for (i = 0, k = 0; k != null; i++, k--){ } // Noncompliant, not a non trivial condition exception, updated counter is not in the condition
       `,
-      errors: 8,
+      errors: 9,
     },
     {
       code: `
       for (var i=0; i!=10; i+=1){
         i++ // changes to counter -> no exception
-      }`,
+      }
+      
+      for (var i=0; iii!=10; iii+=1){
+        iii++ // changes to counter -> no exception
+      }
+      `,
       errors: 1,
     },
   ],

@@ -25,18 +25,29 @@ import { getVariableFromName } from "./utils";
 
 const equalityOperator = ["!=", "=="];
 const plusMinusOperator = ["+=", "-="];
-const equalityKind = ["!==", "===", ...equalityOperator];
+
+interface CompleteForStatement extends estree.BaseStatement {
+  type: "ForStatement";
+  init?: estree.VariableDeclaration | estree.Expression | null;
+  test: estree.Expression;
+  update: estree.Expression;
+  body: estree.Statement;
+}
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       ForStatement: (node: estree.Node) => {
         const forStatement = node as estree.ForStatement;
-        const condition = forStatement.test;
+        if (!forStatement.test || !forStatement.update) {
+          return;
+        }
+        const completeForStatement = node as CompleteForStatement;
+        const condition = completeForStatement.test;
         if (
           isEquality(condition) &&
-          isUpdateIncDec(forStatement.update) &&
-          !isException(forStatement, context)
+          isUpdateIncDec(completeForStatement.update) &&
+          !isException(completeForStatement, context)
         ) {
           context.report({
             message: `Replace '${
@@ -50,79 +61,51 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isEquality(
-  expression: estree.Expression | null | undefined,
-): expression is estree.BinaryExpression {
+function isEquality(expression: estree.Expression): expression is estree.BinaryExpression {
   return !!(
-    expression &&
-    expression.type === "BinaryExpression" &&
-    equalityOperator.includes(expression.operator)
+    expression.type === "BinaryExpression" && equalityOperator.includes(expression.operator)
   );
 }
 
-function isUpdateIncDec(expression: estree.Expression | null | undefined): boolean {
-  if (expression) {
-    if (isIncDec(expression) || expression.type === "UpdateExpression") {
-      return true;
-    } else if (expression.type === "SequenceExpression") {
-      return expression.expressions.every(isUpdateIncDec);
-    }
+function isUpdateIncDec(expression: estree.Expression): boolean {
+  if (isIncDec(expression) || expression.type === "UpdateExpression") {
+    return true;
+  } else if (expression.type === "SequenceExpression") {
+    return expression.expressions.every(isUpdateIncDec);
   }
   return false;
 }
 
-function isIncDec(
-  expression: estree.Expression | null | undefined,
-): expression is estree.AssignmentExpression {
+function isIncDec(expression: estree.Expression): expression is estree.AssignmentExpression {
   return !!(
-    expression &&
-    expression.type === "AssignmentExpression" &&
-    plusMinusOperator.includes(expression.operator)
+    expression.type === "AssignmentExpression" && plusMinusOperator.includes(expression.operator)
   );
 }
 
-function isException(forStatement: estree.ForStatement, context: Rule.RuleContext) {
+function isException(forStatement: CompleteForStatement, context: Rule.RuleContext) {
   return (
     isNontrivialConditionException(forStatement) ||
     isTrivialIteratorException(forStatement, context)
   );
 }
 
-function isNontrivialConditionException(forStatement: estree.ForStatement) {
-  const condition = forStatement.test;
-  const update = forStatement.update;
-  if (condition && update && isEqualityKind(condition)) {
-    var counters: Array<string> = [];
-    collectCounters(update, counters);
-    return condition.left.type !== "Identifier" || !counters.includes(condition.left.name);
-  }
-  return false;
+function isNontrivialConditionException(forStatement: CompleteForStatement) {
+  //If we reach this point, we know that test is an equality kind
+  const condition = forStatement.test as estree.BinaryExpression;
+  var counters: Array<string> = [];
+  collectCounters(forStatement.update, counters);
+  return condition.left.type !== "Identifier" || !counters.includes(condition.left.name);
 }
 
-function isEqualityKind(
-  expression?: estree.Expression | null,
-): expression is estree.BinaryExpression {
-  return !!(
-    expression &&
-    expression.type === "BinaryExpression" &&
-    equalityKind.includes(expression.operator)
-  );
-}
+function collectCounters(expression: estree.Expression, counters: Array<string>) {
+  let counter: estree.Node | null | undefined = undefined;
 
-function collectCounters(
-  expression: estree.Expression | null | undefined,
-  counters: Array<string>,
-) {
-  let counter: estree.Node | undefined = undefined;
-
-  if (expression) {
-    if (isIncDec(expression)) {
-      counter = expression.left;
-    } else if (expression.type === "UpdateExpression") {
-      counter = expression.argument;
-    } else if (expression.type === "SequenceExpression") {
-      expression.expressions.forEach(e => collectCounters(e, counters));
-    }
+  if (isIncDec(expression)) {
+    counter = expression.left;
+  } else if (expression.type === "UpdateExpression") {
+    counter = expression.argument;
+  } else if (expression.type === "SequenceExpression") {
+    expression.expressions.forEach(e => collectCounters(e, counters));
   }
 
   if (counter && counter.type === "Identifier") {
@@ -130,14 +113,12 @@ function collectCounters(
   }
 }
 
-function isTrivialIteratorException(forStatement: estree.ForStatement, context: Rule.RuleContext) {
+function isTrivialIteratorException(forStatement: CompleteForStatement, context: Rule.RuleContext) {
   const init = forStatement.init;
   const condition = forStatement.test;
-  const update = forStatement.update;
 
-  if (init && condition && update && isNotEqual(condition)) {
-    const updatedByOne = checkForUpdateByOne(update, forStatement.body, context);
-
+  if (init && isNotEqual(condition)) {
+    const updatedByOne = checkForUpdateByOne(forStatement.update, forStatement.body, context);
     if (updatedByOne !== 0) {
       const beginValue = getValue(init);
       const endValue = getValue(condition);
@@ -152,7 +133,7 @@ function isTrivialIteratorException(forStatement: estree.ForStatement, context: 
   return false;
 }
 
-function isNotEqual(node: estree.Node | undefined | null): node is estree.BinaryExpression {
+function isNotEqual(node: estree.Node): node is estree.BinaryExpression {
   return !!(node && node.type === "BinaryExpression" && node.operator === "!=");
 }
 
@@ -210,9 +191,9 @@ function getValue(node: estree.Node) {
   return undefined;
 }
 
-function getInteger(expression: estree.Expression | null | undefined) {
-  if (expression && expression.type === "Literal" && typeof expression.value === "number") {
-    return expression.value;
+function getInteger(node: estree.Node | undefined | null) {
+  if (node && node.type === "Literal" && typeof node.value === "number") {
+    return node.value;
   }
   return undefined;
 }
