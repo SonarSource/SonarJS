@@ -38,7 +38,6 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
           var nested = function() {
             return x;
           }
-      
           return nested;
         }
       }
@@ -47,6 +46,19 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
       funs[i] = function() { //OK, not in loop
         return i;
       };
+      `,
+    },
+    {
+      code: `
+      var x = 42;
+      for (var i = 0; i < 10; i++) {
+        funs[i] = function() {  // OK, x is at global scope
+          var nested = function() {
+            return x;
+          }
+          return nested;
+        }
+      }
       `,
     },
     {
@@ -152,22 +164,6 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
             return i;
           }).call(this);
         }
-
-        for (var i = 0; i < 10; i++) {
-          funs[i] = (function() {            // FN, Noncompliant
-            return function() {               // OK
-              return i;
-            };
-          }(i));
-        }
-        
-        for (var i = 0; i < 10; i++) {
-            funs[i] = (function * () {       // FN, Noncompliant
-                return function() {           // OK
-                    return i;
-                };
-            }(i));
-        }
       }`,
     },
     {
@@ -236,6 +232,20 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
     },
     {
       code: `
+      for (var i = 0; i < 10; i++) {
+        var x = 42;
+        funs[i] = function() {  // Noncompliant, x is in the loop scope
+          var nested = function() { // Noncompliant, also reported
+            return x;
+          }
+          return nested;
+        }
+      }
+      `,
+      errors: 2,
+    },
+    {
+      code: `
           function some_callbacks_not_ok() {
             for (var i = 0; i < 13; i++) {
               arr.unknown(function() {              // Noncompliant
@@ -257,6 +267,33 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         new Promise((resolve) => setTimeout(resolve, timeout)) // Noncompliant
       }`,
       errors: 1,
+    },
+
+    {
+      code: `   
+      for (var i = 0; i < 10; i++) {
+        funs[i] = (function() {         
+          return function() {               // Noncompliant
+            return i;
+          };
+        }(i));
+      }
+      
+      for (var i = 0; i < 10; i++) {
+          funs[i] = (function * () {       
+              return function() {           // Noncompliant
+                  return i;
+              };
+          }(i));
+      }`,
+      errors: [
+        {
+          line: 4,
+        },
+        {
+          line: 12,
+        },
+      ],
     },
   ],
 });

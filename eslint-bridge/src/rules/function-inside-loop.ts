@@ -23,7 +23,7 @@ import { Rule, Scope } from "eslint";
 import * as estree from "estree";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
-import { findFirstMatchingLocalAncestor } from "./utils";
+import { findFirstMatchingAncestor } from "./utils";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 
 const message = "Define this function outside of a loop.";
@@ -48,7 +48,7 @@ const allowedCallbacks = [
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     function getLocalEnclosingLoop(node: estree.Node) {
-      return findFirstMatchingLocalAncestor(node as TSESTree.Node, n => loopLike.includes(n.type));
+      return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type));
     }
 
     return {
@@ -122,6 +122,7 @@ function hasConstValue(variable: Scope.Variable, loopNode: estree.Node): boolean
 
     if (
       ref.init &&
+      ref.from.type === "block" &&
       ref.isWrite() &&
       loopNode.range &&
       refRange &&
