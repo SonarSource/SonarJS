@@ -38,6 +38,10 @@ ruleTester.run("Loop counter", rule, {
       for (i = 0; x.y.condition(i); i++) {}
       for (i = 0; x.y.condition[i]; i++) {}
       for (i = 0; x.y < 3; x = x.next) {}
+      for (i = 0; x < 3; {x} = obj) {}
+      for (i = 0; x < 3; {y: x} = obj) {}
+      for (i = 0; x < 3; {y: x = 42 } = obj) {}
+      for (i = 0; x < 3; [x] = obj) {}
       for (i = 0; i < 3; ) {}
       for (i = 0; ; i++) {}      
       `,
@@ -61,12 +65,17 @@ ruleTester.run("Loop counter", rule, {
     {
       code: `
       var i, j, k;
-      for (i = 0; i < 3; j+=1) {} // Noncompliant
-      for (i = 0; i < 3 && j < 4; k++) {} // Noncompliant
-      for (i = 0; condition(); i++) {} // Noncompliant
-      for (i = 0; x.y.condition(); z.y.update()) {} // Noncompliant
-      for (i = 0; this.i < 3; this.j++) {} //Noncompliant
-      for (i = 0; i < 3; j = -i) {} //Noncompliant`,
+      for (i = 0; i < 3; j+=1) {}
+      for (i = 0; i < 3 && j < 4; k++) {}
+      for (i = 0; condition(); i++) {}
+      for (i = 0; x.y.condition(); z.y.update()) {}
+      for (i = 0; this.i < 3; this.j++) {}
+      for (i = 0; i < 3; j = -i) {}
+      for (i = 0; i < 3; {x} = obj) {}
+      for (i = 0; i < 3; {y: x} = obj) {}
+      for (i = 0; i < 3; {y: x = 42 } = obj) {}
+      for (i = 0; i < 3; { x = 42 } = obj) {}
+      for (i = 0; i < 3; [x] = obj) {}`,
       errors: [
         {
           line: 3,
@@ -91,6 +100,26 @@ ruleTester.run("Loop counter", rule, {
         {
           line: 8,
           message: `This loop's stop condition tests "i" but the incrementer updates "j".`,
+        },
+        {
+          line: 9,
+          message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
+        },
+        {
+          line: 10,
+          message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
+        },
+        {
+          line: 11,
+          message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
+        },
+        {
+          line: 12,
+          message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
+        },
+        {
+          line: 13,
+          message: `This loop's stop condition tests "i" but the incrementer updates "x".`,
         },
       ],
     },

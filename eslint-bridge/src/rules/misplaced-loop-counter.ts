@@ -93,7 +93,11 @@ export const rule: Rule.RuleModule = {
       },
       AssignmentExpression: (node: estree.Node) => {
         if (isInsideUpdate(node)) {
-          peekFor().updatedExpressions.push((node as estree.AssignmentExpression).left);
+          const left = (node as estree.AssignmentExpression).left;
+          const assignedExpressions: estree.Node[] = [];
+          computeAssignedExpressions(left, assignedExpressions);
+          const { updatedExpressions } = peekFor();
+          assignedExpressions.forEach(ass => updatedExpressions.push(ass));
         }
       },
 
@@ -108,19 +112,6 @@ export const rule: Rule.RuleModule = {
         if (isInsideUpdate(node) && callee != null) {
           peekFor().updatedExpressions.push(callee);
         }
-
-        //         if (isInsideTest(node)) {
-        //           if (callee != null) {
-        //             peekFor().testedExpressions.push(callee);
-        //           }
-        //           //      IdentifierTree callee = callee(tree);
-        // //      if (callee != null) {
-        // //        checkForUpdate(callee);
-        // //      } else {
-        // //        logTestedExpression(tree.callee());
-        // //      }
-        // //      scan(tree.argumentClause());
-        //         }
       },
 
       Identifier: (node: estree.Node) => {
@@ -154,4 +145,23 @@ function getCallee(node: estree.CallExpression) {
     return callee;
   }
   return null;
+}
+
+function computeAssignedExpressions(node: estree.Node, assigned: estree.Node[]) {
+  switch (node.type) {
+    case "ArrayPattern":
+      node.elements.forEach(element => computeAssignedExpressions(element, assigned));
+      break;
+    case "ObjectPattern":
+      node.properties.forEach(property => computeAssignedExpressions(property, assigned));
+      break;
+    case "Property":
+      computeAssignedExpressions(node.value, assigned);
+      break;
+    case "AssignmentPattern":
+      computeAssignedExpressions(node.left, assigned);
+      break;
+    default:
+      assigned.push(node);
+  }
 }
