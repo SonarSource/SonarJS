@@ -58,7 +58,7 @@ export const rule: Rule.RuleModule = {
           if (
             !isIIEF(node, context) &&
             !isAllowedCallbacks(context) &&
-            context.getScope().through.some(ref => !isSafe(ref, loopNode as estree.Node))
+            context.getScope().through.some(ref => !isSafe(ref, loopNode as estree.Node, context))
           ) {
             context.report({
               message,
@@ -97,7 +97,7 @@ function isAllowedCallbacks(context: Rule.RuleContext) {
   return false;
 }
 
-function isSafe(ref: Scope.Reference, loopNode: estree.Node) {
+function isSafe(ref: Scope.Reference, loopNode: estree.Node, context: Rule.RuleContext) {
   const variable = ref.resolved;
   if (variable) {
     const definition = variable.defs[0];
@@ -105,32 +105,47 @@ function isSafe(ref: Scope.Reference, loopNode: estree.Node) {
     const kind = declaration && declaration.type === "VariableDeclaration" ? declaration.kind : "";
 
     if (kind !== "let") {
-      return hasConstValue(variable, loopNode);
+      return hasConstValue(variable, loopNode, context);
     }
   }
 
   return true;
 }
 
-function hasConstValue(variable: Scope.Variable, loopNode: estree.Node): boolean {
+function hasConstValue(
+  variable: Scope.Variable,
+  loopNode: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
   for (const ref of variable.references) {
-    if (!ref.init && ref.isWrite()) {
-      return false;
-    }
+    if (ref.isWrite()) {
+      if (ref.from.type === "block" && ref.from.block === (loopNode as any).body) {
+        return false;
+      }
 
-    const refRange = ref.identifier.range;
+      const refRange = ref.identifier.range;
+      const range = getRangeOfLoop(loopNode, context);
 
-    if (
-      ref.init &&
-      ref.from.type === "block" &&
-      ref.isWrite() &&
-      loopNode.range &&
-      refRange &&
-      refRange[0] > loopNode.range[0] &&
-      refRange[1] < loopNode.range[1]
-    ) {
-      return false;
+      if (refRange && range && refRange[0] > range[0] && refRange[1] < range[1]) {
+        return false;
+      }
     }
   }
   return true;
+}
+
+function getRangeOfLoop(loopNode: estree.Node, context: Rule.RuleContext) {
+  const body = (loopNode as any).body as estree.Node;
+  switch (loopNode.type) {
+    case "ForStatement":
+      return [
+        context.getSourceCode().getFirstToken(loopNode, token => token.value === ";")!.range[0],
+        body.range![0],
+      ];
+    case "WhileStatement":
+      return [
+        loopNode.range![0],
+        body.range![0],
+      ];
+  }
 }
