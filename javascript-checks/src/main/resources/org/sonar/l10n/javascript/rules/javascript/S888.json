@@ -14,7 +14,8 @@
   "ruleSpecification": "RSPEC-888",
   "sqKey": "S888",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "All",
   "securityStandards": {

@@ -43,8 +43,6 @@ export interface AdditionalRule {
 const linter = new Linter();
 linter.defineRules(sonarjsRules);
 linter.defineRules(internalRules);
-// core implementation of this rule raises FPs on chai framework
-linter.defineRule("no-unused-expressions", chaiFriendlyRules["no-unused-expressions"]);
 
 try {
   // we load "@typescript-eslint/eslint-plugin" dynamically as it requires TS and so we don't need typescript dependency when analysing pure JS project
@@ -53,6 +51,9 @@ try {
 } catch {
   // do nothing, "typescript" is not there
 }
+
+// core implementation of this rule raises FPs on chai framework
+linter.defineRule("no-unused-expressions", chaiFriendlyRules["no-unused-expressions"]);
 
 /**
  * 'additionalRules' - rules used for computing metrics (incl. highlighting) when it requires access to the rule context; resulting value is encoded in the message
