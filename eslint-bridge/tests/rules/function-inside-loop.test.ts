@@ -32,6 +32,14 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         }
       }
 
+      for (var i = 0; i < 13; i++) {}
+      funs[i] = function() { //OK, not in loop
+        return i;
+      };
+      `,
+    },
+    {
+      code: `
       for (var i = 0; i < 10; i++) {
         funs[i] = function() {  // OK, no variable from outer scope is used
           var x = 42;
@@ -42,14 +50,6 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         }
       }
 
-      for (var i = 0; i < 13; i++) {}
-      funs[i] = function() { //OK, not in loop
-        return i;
-      };
-      `,
-    },
-    {
-      code: `
       var x = 42;
       for (var i = 0; i < 10; i++) {
         funs[i] = function() {  // OK, x is at global scope
@@ -73,15 +73,13 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
     {
       code: `
       function value_written_once() {
-
         var constValue = 42;
         for (let i = 0; i < 13; i++) {
           funs[i] = function() {              // Ok, unchanged value is referenced
             return constValue;
           };
         }
-      }
-      `,
+      }`,
     },
     {
       code: `
@@ -171,13 +169,20 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
       var timeout = 5000;
       while (true) {
         new Promise((resolve) => setTimeout(resolve, timeout))
-      }`,
+      }
+      
+      for (var i = 0;; i++) {
+        funs[i] = function() {              // Noncompliant
+          return i;
+        };
+      }
+      `,
     },
   ],
   invalid: [
     {
       code: `
-          var funs = [];
+          var funs = [];     
 
           for (var i = 0; i < 13; i++) {
             funs[i] = function() {              // Noncompliant
@@ -185,12 +190,40 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
             };
           }
 
-          for (var i = 0; i < 13; i++) {
-            funs[i] = () => {              // Noncompliant
-              return i;
+          for (let j = 0; j < 13; j++) {
+            var y = i;
+            funs[i] = function() {              // Noncompliant
+              return y;
             };
           }
-      `,
+
+          var x;
+          while (x = foo()) {
+            funs[i] = function() {              // Noncompliant
+              return x;
+            };
+          }
+
+          do {
+            funs[i] = function() {              // Noncompliant
+              return x;
+            };
+          } while (x = foo())
+
+
+          const array1 = ['a', 'b', 'c'];
+          for (var element of array1) {
+            funs[i] = function() {              // Noncompliant
+              return element;
+            };
+          }
+
+          const object = {a: 1, b: 2, c: 3};
+          for (const property in object) {
+            funs[i] = function() {              // Noncompliant
+              return property;
+            };
+          }`,
       errors: [
         {
           message: `Define this function outside of a loop.`,
@@ -200,11 +233,35 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
           endColumn: 31,
         },
         {
-          message: `Define this function outside of a loop.`,
-          line: 11,
-          endLine: 11,
-          column: 26,
-          endColumn: 28,
+          line: 12,
+        },
+        {
+          line: 19,
+        },
+        {
+          line: 25,
+        },
+        {
+          line: 33,
+        },
+        {
+          line: 40,
+        },
+      ],
+    },
+    {
+      code: `
+          var funs = [];
+
+          for (var i = 0; i < 13; i++) {
+            funs[i] = () => {              // Noncompliant
+              return i;
+            };
+          }
+      `,
+      errors: [
+        {
+          line: 5,
         },
       ],
     },
@@ -268,11 +325,10 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
       }`,
       errors: 1,
     },
-
     {
       code: `   
       for (var i = 0; i < 10; i++) {
-        funs[i] = (function() {         
+        funs[i] = (function() {             
           return function() {               // Noncompliant
             return i;
           };

@@ -29,6 +29,12 @@ import { TSESTree } from "@typescript-eslint/experimental-utils";
 const message = "Define this function outside of a loop.";
 
 const loopLike = "WhileStatement,DoWhileStatement,ForStatement,ForOfStatement,ForInStatement";
+type LoopLike =
+  | estree.WhileStatement
+  | estree.DoWhileStatement
+  | estree.ForStatement
+  | estree.ForOfStatement
+  | estree.ForInStatement;
 const functionLike = "FunctionDeclaration,FunctionExpression,ArrowFunctionExpression";
 
 const allowedCallbacks = [
@@ -53,12 +59,12 @@ export const rule: Rule.RuleModule = {
 
     return {
       [functionLike]: (node: estree.Node) => {
-        const loopNode = getLocalEnclosingLoop(node);
+        const loopNode = getLocalEnclosingLoop(node) as LoopLike;
         if (loopNode) {
           if (
             !isIIEF(node, context) &&
             !isAllowedCallbacks(context) &&
-            context.getScope().through.some(ref => !isSafe(ref, loopNode as estree.Node, context))
+            context.getScope().through.some(ref => !isSafe(ref, loopNode))
           ) {
             context.report({
               message,
@@ -97,7 +103,7 @@ function isAllowedCallbacks(context: Rule.RuleContext) {
   return false;
 }
 
-function isSafe(ref: Scope.Reference, loopNode: estree.Node, context: Rule.RuleContext) {
+function isSafe(ref: Scope.Reference, loopNode: LoopLike) {
   const variable = ref.resolved;
   if (variable) {
     const definition = variable.defs[0];
@@ -105,28 +111,25 @@ function isSafe(ref: Scope.Reference, loopNode: estree.Node, context: Rule.RuleC
     const kind = declaration && declaration.type === "VariableDeclaration" ? declaration.kind : "";
 
     if (kind !== "let") {
-      return hasConstValue(variable, loopNode, context);
+      return hasConstValue(variable, loopNode);
     }
   }
 
   return true;
 }
 
-function hasConstValue(
-  variable: Scope.Variable,
-  loopNode: estree.Node,
-  context: Rule.RuleContext,
-): boolean {
+function hasConstValue(variable: Scope.Variable, loopNode: LoopLike): boolean {
   for (const ref of variable.references) {
     if (ref.isWrite()) {
-      if (ref.from.type === "block" && ref.from.block === (loopNode as any).body) {
+      //Check if write is in the scope of the loop
+      if (ref.from.type === "block" && ref.from.block === loopNode.body) {
         return false;
       }
 
       const refRange = ref.identifier.range;
-      const range = getRangeOfLoop(loopNode, context);
-
-      if (refRange && range && refRange[0] > range[0] && refRange[1] < range[1]) {
+      const range = getLoopTestRange(loopNode);
+      //Check if value change in the header of the loop
+      if (refRange && range && refRange[0] >= range[0] && refRange[1] <= range[1]) {
         return false;
       }
     }
@@ -134,18 +137,24 @@ function hasConstValue(
   return true;
 }
 
-function getRangeOfLoop(loopNode: estree.Node, context: Rule.RuleContext) {
-  const body = (loopNode as any).body as estree.Node;
-  switch (loopNode.type) {
-    case "ForStatement":
-      return [
-        context.getSourceCode().getFirstToken(loopNode, token => token.value === ";")!.range[0],
-        body.range![0],
-      ];
-    case "WhileStatement":
-      return [
-        loopNode.range![0],
-        body.range![0],
-      ];
+function getLoopTestRange(loopNode: LoopLike) {
+  const bodyRange = loopNode.body.range;
+  if (bodyRange) {
+    switch (loopNode.type) {
+      case "ForStatement":
+        if (loopNode.test && loopNode.test.range) {
+          return [loopNode.test.range[0], bodyRange[0]];
+        }
+        break;
+      case "WhileStatement":
+      case "DoWhileStatement":
+        return loopNode.test.range;
+      case "ForOfStatement":
+      case "ForInStatement":
+        const leftRange = loopNode.range;
+        if (leftRange) {
+          return [leftRange[0], bodyRange[0]];
+        }
+    }
   }
 }
