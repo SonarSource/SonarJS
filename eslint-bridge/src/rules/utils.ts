@@ -130,13 +130,7 @@ function getModuleNameFromRequire(node: estree.Node) {
 }
 
 function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
-  let scope: Scope.Scope | null = context.getScope();
-  let variable;
-  while (variable == null && scope != null) {
-    variable = scope.variables.find(value => value.name === name);
-    scope = scope.upper;
-  }
-
+  const variable = getVariableFromName(context, name);
   if (variable) {
     const writeReferences = variable.references.filter(reference => reference.isWrite());
     if (writeReferences.length === 1 && writeReferences[0].writeExpr) {
@@ -144,6 +138,16 @@ function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
     }
   }
   return undefined;
+}
+
+export function getVariableFromName(context: Rule.RuleContext, name: string) {
+  let scope: Scope.Scope | null = context.getScope();
+  let variable;
+  while (variable == null && scope != null) {
+    variable = scope.variables.find(value => value.name === name);
+    scope = scope.upper;
+  }
+  return variable;
 }
 
 export function isIdentifier(node: estree.Node, ...values: string[]): node is estree.Identifier {
