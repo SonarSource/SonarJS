@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-2208
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import { Rule } from "eslint";
+import * as estree from "estree";
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S2208")
-public class WildcardImportCheck extends EslintBasedCheck {
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    function report(node: estree.Node, xPort: string) {
+      context.report({
+        message: `Explicitly ${xPort} the specific member needed.`,
+        node,
+      });
+    }
 
-  @Override
-  public String eslintKey() {
-    return "no-wildcard-import";
-  }
-
-}
+    return {
+      ImportNamespaceSpecifier: (node: estree.Node) => report(node, "import"),
+      ExportAllDeclaration: (node: estree.Node) => report(node, "export"),
+    };
+  },
+};

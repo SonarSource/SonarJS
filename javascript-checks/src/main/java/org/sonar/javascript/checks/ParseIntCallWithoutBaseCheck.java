@@ -21,28 +21,16 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2427")
-public class ParseIntCallWithoutBaseCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Add the base to this \"parseInt\" call.";
+public class ParseIntCallWithoutBaseCheck extends EslintBasedCheck {
 
   @Override
-  public void visitCallExpression(CallExpressionTree tree) {
-    if (isParseIntCall(tree.callee()) && tree.argumentClause().arguments().size() == 1) {
-      addIssue(tree.callee(), MESSAGE);
-    }
-    super.visitCallExpression(tree);
-  }
-
-  private static boolean isParseIntCall(ExpressionTree callee) {
-    return callee.is(Kind.IDENTIFIER_REFERENCE) && "parseInt".equals(((IdentifierTree) callee).name());
+  public String eslintKey() {
+    return "radix";
   }
 
 }
