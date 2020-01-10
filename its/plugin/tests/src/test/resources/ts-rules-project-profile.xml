@@ -35,6 +35,11 @@
     </rule>
     <rule>
       <repositoryKey>typescript</repositoryKey>
+      <key>S2692</key>    <!-- index-of-compare-to-positive-number -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
       <key>S2757</key>    <!-- NonExistentAssignmentOperatorCheck -->
       <priority>INFO</priority>
     </rule>
