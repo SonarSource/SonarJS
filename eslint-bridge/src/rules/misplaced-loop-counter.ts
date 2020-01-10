@@ -55,9 +55,9 @@ export const rule: Rule.RuleModule = {
         const currentLoop = peekFor();
         const parentChain = context.getAncestors();
         parentChain.push(node);
-        const test = getChild(currentLoop.forLoop);
-        if (test) {
-          return parentChain.some(parentChainNode => test === parentChainNode);
+        const forLoopChild = getChild(currentLoop.forLoop);
+        if (forLoopChild) {
+          return parentChain.some(parentChainNode => forLoopChild === parentChainNode);
         }
       }
       return false;
@@ -76,13 +76,13 @@ export const rule: Rule.RuleModule = {
         if (forInfo.updatedExpressions.length === 0 || !forInfo.forLoop.test) {
           return;
         }
-        let isIntersection = forInfo.testedExpressions.some(testedExpr =>
+        const hasIntersection = forInfo.testedExpressions.some(testedExpr =>
           forInfo.updatedExpressions.some(updatedExpr =>
             areEquivalent(updatedExpr, testedExpr, context.getSourceCode()),
           ),
         );
 
-        if (!isIntersection) {
+        if (!hasIntersection) {
           context.report({
             loc: context.getSourceCode().getFirstToken(forInfo.forLoop)!.loc,
             message: `This loop's stop condition tests "${join(
@@ -91,7 +91,8 @@ export const rule: Rule.RuleModule = {
           });
         }
       },
-      AssignmentExpression: (node: estree.Node) => {
+
+      "ForStatement AssignmentExpression": (node: estree.Node) => {
         if (isInsideUpdate(node)) {
           const left = (node as estree.AssignmentExpression).left;
           const assignedExpressions: estree.Node[] = [];
@@ -101,20 +102,23 @@ export const rule: Rule.RuleModule = {
         }
       },
 
-      UpdateExpression: (node: estree.Node) => {
+      "ForStatement UpdateExpression": (node: estree.Node) => {
         if (isInsideUpdate(node)) {
           peekFor().updatedExpressions.push((node as estree.UpdateExpression).argument);
         }
       },
 
-      CallExpression: (node: estree.Node) => {
-        const callee = getCallee(node as estree.CallExpression);
-        if (isInsideUpdate(node) && callee != null) {
+      "ForStatement CallExpression": (node: estree.Node) => {
+        if (!isInsideUpdate(node)) {
+          return;
+        }
+        const callee = getCalleeObject(node as estree.CallExpression);
+        if (callee) {
           peekFor().updatedExpressions.push(callee);
         }
       },
 
-      Identifier: (node: estree.Node) => {
+      "ForStatement Identifier": (node: estree.Node) => {
         if (isInsideTest(node)) {
           const parent = getParent(context)!;
           if (parent.type !== "MemberExpression" || parent.computed || parent.object === node) {
@@ -123,7 +127,7 @@ export const rule: Rule.RuleModule = {
         }
       },
 
-      MemberExpression: (node: estree.Node) => {
+      "ForStatement MemberExpression": (node: estree.Node) => {
         if (
           isInsideTest(node) &&
           getParent(context)!.type !== "MemberExpression" &&
@@ -136,7 +140,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getCallee(node: estree.CallExpression) {
+function getCalleeObject(node: estree.CallExpression) {
   let callee = node.callee;
   while (callee.type === "MemberExpression") {
     callee = callee.object;
