@@ -17,20 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+import { RuleTester } from "eslint";
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
+import { rule } from "../../src/rules/index-of-compare-to-positive-number";
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S2692")
-public class IndexOfCompareToPositiveNumberCheck extends EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "index-of-compare-to-positive-number";
-  }
-
-}
+ruleTester.run(`"indexOf" checks should not be for positive numbers`, rule, {
+  valid: [
+    {
+      code: `a.indexOf("str", 1) > 0;`,
+    },
+    {
+      code: `a.indexOf("str") > -1;`,
+    },
+  ],
+  invalid: [
+    {
+      code: `a.indexOf("str") > 0;`,
+      errors: [
+        {
+          message:
+            "This check ignores index 0; consider using 'includes' method to make this check safe and explicit.",
+          line: 1,
+          endLine: 1,
+          column: 1,
+          endColumn: 21,
+        },
+      ],
+    },
+    {
+      code: `a.indexOf(a) > 0;`,
+      errors: 1,
+    },
+  ],
+});
