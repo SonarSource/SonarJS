@@ -286,6 +286,15 @@ describe("server", () => {
   }
 });
 
+describe("server close", () => {
+  it("should stop listening when closed", async () => {
+    const server = await start();
+    expect(server.listening).toBeTruthy();
+    await postToServer("", "/close", server);
+    expect(server.listening).toBeFalsy();
+  });
+});
+
 describe("should send error when failing", () => {
   const failAnalysis = () => {
     throw new Error("general error");

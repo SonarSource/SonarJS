@@ -271,6 +271,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public void clean() {
     if (nodeCommand != null) {
+      try {
+        request("", "close");
+      } catch (IOException e) {
+        LOG.warn("Failed to close server", e);
+      }
       nodeCommand.destroy();
       nodeCommand = null;
     }
