@@ -25,10 +25,6 @@
 277,
 279,
 ],
-'rxjs:spec/Observable-spec.ts':[
-345,
-363,
-],
 'rxjs:spec/Subscriber-spec.ts':[
 17,
 ],
@@ -88,11 +84,6 @@
 ],
 'rxjs:spec/observables/if-spec.ts':[
 33,
-],
-'rxjs:spec/observables/using-spec.ts':[
-66,
-69,
-90,
 ],
 'rxjs:spec/operators/audit-spec.ts':[
 231,
@@ -201,9 +192,6 @@
 ],
 'rxjs:spec/operators/min-spec.ts':[
 247,
-],
-'rxjs:spec/operators/partition-spec.ts':[
-101,
 ],
 'rxjs:spec/operators/reduce-spec.ts':[
 119,

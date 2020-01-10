@@ -49,7 +49,7 @@ public class EslintBasedRulesTest {
 
   @Test
   public void test_without_ts() {
-    testProject(TestUtils.projectDir("eslint_based_rules"));
+    testProject(TestUtils.projectDir("eslint_based_rules"), "eslint-based-rules-project");
   }
 
   @Test
@@ -58,12 +58,10 @@ public class EslintBasedRulesTest {
     // rules will also be available, causing potential conflicts.
     File projectDir = TestUtils.projectDir("eslint_based_rules_with_ts");
     TestUtils.npmInstall(projectDir);
-    testProject(projectDir);
+    testProject(projectDir, "eslint-based-rules-project-with-ts");
   }
 
-  public void testProject(File projectDir) {
-    String projectKey = "eslint-based-rules-project";
-
+  public void testProject(File projectDir, String projectKey) {
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
