@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-1514
+// https://jira.sonarsource.com/browse/RSPEC-2137
 
 import { Rule } from "eslint";
 import * as estree from "estree";
 
-const illegalName = ["eval", "arguments"];
+const illegalNames = ["eval", "arguments", "undefined", "NaN", "Infinity"];
 
 const getDeclareMessage = (redeclareType: string) => (name: string) =>
   `Do not use "${name}" to declare a ${redeclareType} - use another name.`;
@@ -77,7 +77,7 @@ function reportBadUsage(
   if (node) {
     switch (node.type) {
       case "Identifier": {
-        if (illegalName.includes(node.name)) {
+        if (illegalNames.includes(node.name)) {
           context.report({
             message: buildMessage(node.name),
             node: node,

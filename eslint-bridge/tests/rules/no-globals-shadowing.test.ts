@@ -27,9 +27,9 @@ const ruleTester = new RuleTester({
   },
 });
 
-import { rule } from "../../src/rules/eval-or-arguments-use";
+import { rule } from "../../src/rules/no-globals-shadowing";
 
-ruleTester.run('"eval" and "arguments" should not be bound or assigned', rule, {
+ruleTester.run("Special identifiers should not be bound or assigned", rule, {
   valid: [
     {
       code: `eval("");`,
@@ -120,6 +120,24 @@ ruleTester.run('"eval" and "arguments" should not be bound or assigned', rule, {
     },
     {
       code: `
+        NaN = 42;
+        Infinity = 42;
+        undefined = 42;
+        `,
+      errors: [
+        {
+          message: `Remove the modification of "NaN".`,
+        },
+        {
+          message: `Remove the modification of "Infinity".`,
+        },
+        {
+          message: `Remove the modification of "undefined".`,
+        },
+      ],
+    },
+    {
+      code: `
         function fun() {
             var c = (arguments = 0) == 0;
         }
@@ -160,6 +178,15 @@ ruleTester.run('"eval" and "arguments" should not be bound or assigned', rule, {
         `,
       errors: 3,
     },
+    {
+      code: `
+        function foo() { var NaN; } 
+        function foo() { var Infinity; }
+        function foo() { var undefined; }
+        
+        function foo(undefined) { var x = undefined; }`,
+      errors: 4,
+    },
   ],
 });
 
@@ -167,7 +194,7 @@ const ruleTesterBabel = new RuleTester({
   parser: require.resolve("babel-eslint"),
 });
 
-ruleTesterBabel.run('"eval" and "arguments" should not be bound or assigned', rule, {
+ruleTesterBabel.run("Special identifiers should not be bound or assigned", rule, {
   valid: [
     {
       code: `// @flow

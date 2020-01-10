@@ -71,7 +71,6 @@ public final class CheckList {
       BitwiseOperatorsCheck.class,
       BooleanEqualityComparisonCheck.class,
       BoolParamDefaultCheck.class,
-      BoundOrAssignedEvalOrArgumentsCheck.class,
       BuiltInObjectOverriddenCheck.class,
       CallabilityCheck.class,
       ClassNameCheck.class,

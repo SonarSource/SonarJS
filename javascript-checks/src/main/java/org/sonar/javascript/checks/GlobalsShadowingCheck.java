@@ -19,42 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2137")
-public class GlobalsShadowingCheck extends AbstractSymbolNameCheck {
-
-  private static final String DECLARATION_MESSAGE = "Do not use \"%s\" to declare a %s - use another name.";
-  private static final String MODIFICATION_MESSAGE = "Remove the modification of \"%s\".";
+public class GlobalsShadowingCheck extends EslintBasedCheck {
 
   @Override
-  List<String> illegalNames() {
-    return ImmutableList.of("eval", "arguments", "undefined", "NaN", "Infinity");
+  public String eslintKey() {
+    return "no-globals-shadowing";
   }
 
-  @Override
-  public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getIllegalSymbols()) {
-      if (!symbol.external()) {
-        raiseIssuesOnDeclarations(symbol, String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
-      } else {
-        raiseIssuesOnWriteUsages(symbol);
-      }
-    }
-  }
 
-  private void raiseIssuesOnWriteUsages(Symbol symbol) {
-    for (Usage usage : symbol.usages()) {
-      if (!usage.kind().equals(Usage.Kind.READ)) {
-        addIssue(usage.identifierTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
-      }
-    }
-  }
 }
