@@ -48,6 +48,7 @@ export function startServer(
 ): Promise<Server> {
   return new Promise(resolve => {
     console.log("DEBUG starting eslint-bridge server at port", port);
+    let server: Server;
     const app = express();
 
     // for parsing application/json requests
@@ -74,7 +75,14 @@ export function startServer(
 
     app.get("/status", (_: express.Request, resp: express.Response) => resp.send("OK!"));
 
-    const server = app.listen(port, () => {
+    app.post("/close", (_req: express.Request, resp: express.Response) => {
+      console.log("DEBUG eslint-bridge server will shutdown");
+      resp.end(() => {
+        server.close();
+      });
+    });
+
+    server = app.listen(port, () => {
       console.log(
         "DEBUG eslint-bridge server is running at port",
         (server.address() as AddressInfo).port,
