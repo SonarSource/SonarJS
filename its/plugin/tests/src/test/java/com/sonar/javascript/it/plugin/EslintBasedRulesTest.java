@@ -80,7 +80,7 @@ public class EslintBasedRulesTest {
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
     List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
-    assertThat(issuesList.get(0).getLine()).isEqualTo(5);
+    assertThat(issuesList.get(0).getLine()).isEqualTo(1);
   }
 
   @Test
