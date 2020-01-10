@@ -19,33 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Iterator;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3513")
-public class ArgumentsUsageCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Use the rest syntax to declare this function's arguments.";
+public class ArgumentsUsageCheck extends EslintBasedCheck {
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    for (Symbol argumentsSymbol : getContext().getSymbolModel().getSymbols("arguments")) {
-      if (argumentsSymbol.external() && !argumentsSymbol.usages().isEmpty()) {
-
-        Iterator<Usage> usageIterator = argumentsSymbol.usages().iterator();
-        PreciseIssue preciseIssue = addIssue(usageIterator.next().identifierTree(), MESSAGE);
-
-        while (usageIterator.hasNext()) {
-          preciseIssue.secondary(usageIterator.next().identifierTree());
-        }
-      }
-    }
+  public String eslintKey() {
+    return "arguments-usage";
   }
+
 }

@@ -1,0 +1,64 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2019 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+// https://jira.sonarsource.com/browse/RSPEC-3513
+
+import { Rule, Scope } from "eslint";
+import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { toEncodedMessage } from "./utils";
+
+const message = "Use the rest syntax to declare this function's arguments.";
+
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      "Program:exit": () => checkArgumentsUsageInScopeRecursively(context, context.getScope()),
+    };
+  },
+};
+
+function checkArgumentsUsageInScopeRecursively(
+  context: Rule.RuleContext,
+  scope: Scope.Scope,
+): void {
+  scope.variables
+    .filter(variable => variable.name === "arguments")
+    .forEach(variable => checkArgumentsVariableWithoutDefinition(context, variable));
+  scope.childScopes.forEach(child => checkArgumentsUsageInScopeRecursively(context, child));
+}
+
+function checkArgumentsVariableWithoutDefinition(
+  context: Rule.RuleContext,
+  variable: Scope.Variable,
+): void {
+  // if variable is a parameter, variable.defs contains one ParameterDefinition with a type: 'Parameter'
+  // if variable is a local variable, variable.defs contains one Definition with a type: 'Variable'
+  // but if variable is the function arguments, variable.defs is just empty without other hint
+  const isLocalVariableOrParameter = variable.defs.length > 0;
+  if (!isLocalVariableOrParameter && variable.references.length > 0) {
+    const firstReference = variable.references[0];
+    const secondaryLocations = variable.references
+      .slice(1)
+      .map(ref => ref.identifier) as TSESTree.Node[];
+    context.report({
+      node: firstReference.identifier,
+      message: toEncodedMessage(message, secondaryLocations),
+    });
+  }
+}
