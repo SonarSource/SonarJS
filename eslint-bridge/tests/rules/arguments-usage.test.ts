@@ -61,7 +61,7 @@ function foo1() {
   foo(arguments);  // Noncompliant
 }
 
-function foo2() {
+const foo2 = function() {
   foo(arguments);  // Noncompliant
   foo(arguments[1]);
 }

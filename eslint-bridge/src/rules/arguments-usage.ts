@@ -26,9 +26,21 @@ import { toEncodedMessage } from "./utils";
 const message = "Use the rest syntax to declare this function's arguments.";
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ["sonar-runtime"],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
     return {
-      "Program:exit": () => checkArgumentsUsageInScopeRecursively(context, context.getScope()),
+      // Ignore root scope containing global variables
+      "Program:exit": () =>
+        context
+          .getScope()
+          .childScopes.forEach(child => checkArgumentsUsageInScopeRecursively(context, child)),
     };
   },
 };
