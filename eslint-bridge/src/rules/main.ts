@@ -20,6 +20,7 @@
 import { Rule } from "eslint";
 import { rule as argumentsOrder } from "./arguments-order";
 import { rule as argumentsUsage } from "./arguments-usage";
+import { rule as arrowFunctionConvention } from "./arrow-function-convention";
 import { rule as boolParamDefault } from "./bool-param-default";
 import { rule as callArgumentLine } from "./call-argument-line";
 import { rule as className } from "./class-name";
@@ -107,6 +108,7 @@ const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
 ruleModules["arguments-order"] = argumentsOrder;
 ruleModules["arguments-usage"] = argumentsUsage;
+ruleModules["arrow-function-convention"] = arrowFunctionConvention;
 ruleModules["bool-param-default"] = boolParamDefault;
 ruleModules["call-argument-line"] = callArgumentLine;
 ruleModules["class-name"] = className;

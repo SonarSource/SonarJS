@@ -19,39 +19,27 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArrowFunctionConventionCheckTest {
 
-  private final ArrowFunctionConventionCheck check = new ArrowFunctionConventionCheck();
-  private final File file = new File("src/test/resources/checks/ArrowFunctionConvention.js");
-
   @Test
-  public void test_default() {
-    JavaScriptCheckVerifier.verify(check, file);
+  public void test_configuration() {
+    ArrowFunctionConventionCheck check = new ArrowFunctionConventionCheck();
+
+    String config = new Gson().toJson(check.configurations());
+    assertThat(config).isEqualTo("[{\"requireParameterParentheses\":false,\"requireBodyBraces\":false}]");
+
+    check.parameterParens = true;
+    config = new Gson().toJson(check.configurations());
+    assertThat(config).isEqualTo("[{\"requireParameterParentheses\":true,\"requireBodyBraces\":false}]");
+
+    check.bodyBraces = true;
+    config = new Gson().toJson(check.configurations());
+    assertThat(config).isEqualTo("[{\"requireParameterParentheses\":true,\"requireBodyBraces\":true}]");
   }
 
-  @Test
-  public void test_always_parentheses() throws Exception {
-    check.setParameterParens(true);
-
-    JavaScriptCheckVerifier.issues(check, file)
-      .next().atLine(7).withMessage("Add parentheses around the parameter of this arrow function.")
-      .next().atLine(14).withMessage("Remove curly braces and \"return\" from this arrow function body.")
-      .noMore();
-  }
-
-  @Test
-  public void test_always_curly_braces() throws Exception {
-    check.setBodyBraces(true);
-
-    JavaScriptCheckVerifier.issues(check, file)
-      .next().atLine(5).withMessage("Remove parentheses around the parameter of this arrow function.")
-      .next().atLine(16).withMessage("Add curly braces and \"return\" to this arrow function body.")
-      .next().atLine(17)
-      .next().atLine(18)
-      .noMore();
-  }
 }
