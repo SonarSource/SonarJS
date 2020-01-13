@@ -26,7 +26,14 @@ import { rule } from "../../src/rules/updated-loop-counter";
 ruleTester.run("Loop counter should not be updated inside loop", rule, {
   valid: [
     {
-      code: ``,
+      code: `
+      let fl = false;
+
+      for (; i < m && !fl; i++) {
+        fl = true;   // Compliant
+        m = 10;      // Compliant
+      }
+      `,
     },
   ],
   invalid: [
@@ -86,18 +93,12 @@ ruleTester.run("Loop counter should not be updated inside loop", rule, {
           x = 5;      // Noncompliant
         }
       `,
-      errors: [{ line: 5 }],
-    },
-    {
-      code: `
-      let fl = false;
-
-      for (; i < m && !fl; i++) {
-        fl = true;   // Compliant
-        m = 10;      // Compliant
-      }
-      `,
-      errors: [],
+      errors: [
+        {
+          line: 5,
+          message: `{"message":"Remove this assignment of \\"x\\".","secondaryLocations":[{"message":"Counter variable update","column":28,"line":4,"endColumn":29,"endLine":4}]}`,
+        },
+      ],
     },
     {
       code: `

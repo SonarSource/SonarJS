@@ -72,9 +72,7 @@ export const rule: Rule.RuleModule = {
           checkLoop(forLoop.update, collectCountersFor, node);
         }
       },
-      ":matches(ForInStatement > BlockStatement, ForOfStatement > BlockStatement)": (
-        node: estree.Node,
-      ) => {
+      "ForInStatement > BlockStatement, ForOfStatement > BlockStatement": (node: estree.Node) => {
         const { left } = getParent(context) as estree.ForOfStatement | estree.ForInStatement;
         checkLoop(left, collectCountersForX, node);
       },
