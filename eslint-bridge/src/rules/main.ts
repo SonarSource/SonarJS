@@ -19,6 +19,7 @@
  */
 import { Rule } from "eslint";
 import { rule as argumentsOrder } from "./arguments-order";
+import { rule as argumentsUsage } from "./arguments-usage";
 import { rule as boolParamDefault } from "./bool-param-default";
 import { rule as callArgumentLine } from "./call-argument-line";
 import { rule as className } from "./class-name";
@@ -103,6 +104,7 @@ import { rule as xpath } from "./xpath";
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
 ruleModules["arguments-order"] = argumentsOrder;
+ruleModules["arguments-usage"] = argumentsUsage;
 ruleModules["bool-param-default"] = boolParamDefault;
 ruleModules["call-argument-line"] = callArgumentLine;
 ruleModules["class-name"] = className;
