@@ -88,6 +88,11 @@ ruleTester.run("Class names and file names should match", rule, {
       filename: "index.js", //ignore index.js
     },
     {
+      code: `let myConst = 3.14;
+            export default myConst;`, //Not a const
+      filename: "nok_constant.js",
+    },
+    {
       code: `class MyClass {}
             export default MyClass;`,
       filename: "\\var\\www\\www.example.com\\MyClass.js",

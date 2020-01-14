@@ -53,7 +53,7 @@ export const rule: Rule.RuleModule = {
       },
       "Program:exit": () => {
         if (isOnlyExport && nameOfExported) {
-          const splittedFileName = context.getFilename().split(/[\\|\/]/);
+          const splittedFileName = context.getFilename().split(/[\\/]/);
           const fileName = splittedFileName[splittedFileName.length - 1].split(".")[0];
           if ("index" !== fileName && !sameName(nameOfExported, fileName)) {
             context.report({
