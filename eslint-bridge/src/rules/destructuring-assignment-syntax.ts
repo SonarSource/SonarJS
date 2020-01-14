@@ -24,7 +24,7 @@ import { TSESTree } from "@typescript-eslint/experimental-utils";
 import * as estree from "estree";
 import { toEncodedMessage, findFirstMatchingAncestor } from "./utils";
 
-const isAllowedIndexes = (idx: number) => idx >= 0 && idx <= 4;
+const isAllowedIndex = (idx: number) => idx >= 0 && idx <= 4;
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -64,11 +64,10 @@ export const rule: Rule.RuleModule = {
             const property = expression.property;
             if (property.type === "Identifier" && property.name === varName) {
               addDeclaration(declarationsByObject, expression.object, declaration);
-            }
-            if (
+            } else if (
               property.type === "Literal" &&
               typeof property.value === "number" &&
-              isAllowedIndexes(property.value)
+              isAllowedIndex(property.value)
             ) {
               addDeclaration(declarationsByObject, expression.object, declaration);
             }
