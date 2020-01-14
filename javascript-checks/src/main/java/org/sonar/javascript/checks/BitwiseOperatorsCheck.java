@@ -19,78 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.ConditionalTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "BitwiseOperators")
-public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Review this use of bitwise \"%s\" operator; conditional \"%<s%<s\" might have been intended.";
-
-  private SyntaxToken lonelyBitwiseAndOr = null;
-  private boolean fileContainsBitwiseOperations = false;
+public class BitwiseOperatorsCheck extends EslintBasedCheck {
 
   @Override
-  public void visitFile(Tree scriptTree) {
-    lonelyBitwiseAndOr = null;
-    fileContainsBitwiseOperations = false;
+  public String eslintKey() {
+    return "bitwise-operators";
   }
 
-  @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.<Tree.Kind>builder()
-      .add(Tree.Kind.BITWISE_AND)
-      .add(Tree.Kind.BITWISE_OR)
-      .add(Tree.Kind.BITWISE_XOR)
-      .add(Tree.Kind.BITWISE_COMPLEMENT)
-      .add(Tree.Kind.LEFT_SHIFT)
-      .add(Tree.Kind.RIGHT_SHIFT)
-      .add(Tree.Kind.UNSIGNED_RIGHT_SHIFT)
-      .add(Tree.Kind.AND_ASSIGNMENT)
-      .add(Tree.Kind.OR_ASSIGNMENT)
-      .add(Tree.Kind.XOR_ASSIGNMENT)
-      .add(Tree.Kind.LEFT_SHIFT_ASSIGNMENT)
-      .add(Tree.Kind.RIGHT_SHIFT_ASSIGNMENT)
-      .add(Tree.Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT)
-      .build();
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    if (lonelyBitwiseAndOr == null && tree.is(Kind.BITWISE_AND, Kind.BITWISE_OR) && !((BinaryExpressionTree) tree).rightOperand().is(Kind.NUMERIC_LITERAL)) {
-      lonelyBitwiseAndOr = ((BinaryExpressionTree) tree).operatorToken();
-
-    } else {
-      fileContainsBitwiseOperations = true;
-    }
-  }
-
-  @Override
-  public void leaveFile(Tree scriptTree) {
-    if (!fileContainsBitwiseOperations && lonelyBitwiseAndOr != null && insideCondition(lonelyBitwiseAndOr)) {
-      String message = String.format(MESSAGE, lonelyBitwiseAndOr.text());
-      addIssue(lonelyBitwiseAndOr, message);
-    }
-  }
-
-  private static boolean insideCondition(SyntaxToken token) {
-    Tree treeWithCondition = CheckUtils.getFirstAncestor(token, Kind.IF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT, Kind.FOR_STATEMENT, Kind.CONDITIONAL_EXPRESSION);
-
-    if (treeWithCondition == null) {
-      return false;
-    }
-
-    Tree condition = ((ConditionalTree) treeWithCondition).condition();
-    return condition != null && condition.isAncestorOf(token);
-  }
 }
