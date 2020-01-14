@@ -69,7 +69,8 @@ export const rule: Rule.RuleModule = {
 
 function sameName(nameOfExported: string, fileName: string) {
   const normalizedFileName = fileName.replace(/_/g, "").replace(/-/g, "");
-  return nameOfExported.toLowerCase() === normalizedFileName.toLowerCase();
+  const normalizedNameOfExported = nameOfExported.replace(/_/g, "").replace(/-/g, "");
+  return normalizedNameOfExported.toLowerCase() === normalizedFileName.toLowerCase();
 }
 
 function isConst(def: Scope.Definition) {

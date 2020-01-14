@@ -97,6 +97,11 @@ ruleTester.run("Class names and file names should match", rule, {
             export default MyClass;`,
       filename: "C:/www/JS/src/MyClass.js",
     },
+    {
+      code: `const MY_CONST = 3.14;
+            export default MY_CONST;`,
+      filename: "MY_CONST.js",
+    },
   ],
   invalid: [
     {
