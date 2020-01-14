@@ -11,9 +11,10 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-134",
-  "sqKey": "NestedIfDepth",
+  "sqKey": "S134",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "All"
 }

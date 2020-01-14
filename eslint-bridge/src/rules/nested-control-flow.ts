@@ -1,0 +1,108 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2019 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+// https://jira.sonarsource.com/browse/RSPEC-134
+
+import { Rule, AST } from "eslint";
+import * as estree from "estree";
+import { IssueLocation, EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
+
+export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      { type: "integer" },
+      {
+        // internal parameter for rules having secondary locations
+        enum: ["sonar-runtime"],
+      },
+    ],
+  },
+
+  create(context: Rule.RuleContext) {
+    const sourceCode = context.getSourceCode();
+    const [threshold] = context.options;
+    const nodeStack: AST.Token[] = [];
+    function push(n: AST.Token) {
+      nodeStack.push(n);
+    }
+    function pop() {
+      return nodeStack.pop();
+    }
+    function check(node: estree.Node) {
+      if (nodeStack.length === threshold) {
+        context.report({
+          message: encodeMessage(threshold, nodeStack.map(n => toSecondaryLocation(n))),
+          loc: node.loc!,
+        });
+      }
+    }
+    function isElseIf(node: estree.Node) {
+      const parent = last(context.getAncestors());
+      return (
+        node.type === "IfStatement" && parent.type === "IfStatement" && node === parent.alternate
+      );
+    }
+    const controlFlowNodes = [
+      "ForStatement",
+      "ForInStatement",
+      "ForOfStatement",
+      "WhileStatement",
+      "DoWhileStatement",
+      "IfStatement",
+      "TryStatement",
+      "SwitchStatement",
+    ].join(",");
+    return {
+      [`:matches(${controlFlowNodes})`]: (node: estree.Node) => {
+        if (!isElseIf(node)) {
+          check(node);
+          push(sourceCode.getFirstToken(node)!);
+        }
+      },
+      [`:matches(${controlFlowNodes}):exit`]: (node: estree.Node) => {
+        if (!isElseIf(node)) {
+          pop();
+        }
+      },
+    };
+  },
+};
+
+function encodeMessage(threshold: number, secondaryLocations: IssueLocation[]) {
+  const msg: EncodedMessage = {
+    message: `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`,
+    secondaryLocations,
+  };
+  return JSON.stringify(msg);
+}
+
+function toSecondaryLocation(token: AST.Token): IssueLocation {
+  const loc = token.loc;
+  return {
+    line: loc.start.line,
+    column: loc.start.column,
+    endLine: loc.end.line,
+    endColumn: loc.end.column,
+    message: "+1",
+  };
+}
+
+function last(arr: Array<any>) {
+  return arr[arr.length - 1];
+}
