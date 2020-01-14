@@ -19,6 +19,7 @@
  */
 import { Rule } from "eslint";
 import { rule as argumentsOrder } from "./arguments-order";
+import { rule as argumentsUsage } from "./arguments-usage";
 import { rule as boolParamDefault } from "./bool-param-default";
 import { rule as callArgumentLine } from "./call-argument-line";
 import { rule as className } from "./class-name";
@@ -95,6 +96,7 @@ import { rule as sqlQueries } from "./sql-queries";
 import { rule as standardInput } from "./standard-input";
 import { rule as todoTag } from "./todo-tag";
 import { rule as unusedImport } from "./unused-import";
+import { rule as updatedLoopCounter } from "./updated-loop-counter";
 import { rule as useTypeAlias } from "./use-type-alias";
 import { rule as variableName } from "./variable-name";
 import { rule as xpath } from "./xpath";
@@ -102,6 +104,7 @@ import { rule as xpath } from "./xpath";
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
 ruleModules["arguments-order"] = argumentsOrder;
+ruleModules["arguments-usage"] = argumentsUsage;
 ruleModules["bool-param-default"] = boolParamDefault;
 ruleModules["call-argument-line"] = callArgumentLine;
 ruleModules["class-name"] = className;
@@ -178,6 +181,7 @@ ruleModules["sql-queries"] = sqlQueries;
 ruleModules["standard-input"] = standardInput;
 ruleModules["todo-tag"] = todoTag;
 ruleModules["unused-import"] = unusedImport;
+ruleModules["updated-loop-counter"] = updatedLoopCounter;
 ruleModules["use-type-alias"] = useTypeAlias;
 ruleModules["variable-name"] = variableName;
 ruleModules["xpath"] = xpath;

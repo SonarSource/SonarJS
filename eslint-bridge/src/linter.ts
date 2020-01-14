@@ -47,6 +47,8 @@ linter.defineRules(internalRules);
 try {
   // we load "@typescript-eslint/eslint-plugin" dynamically as it requires TS and so we don't need typescript dependency when analysing pure JS project
   const typescriptEslintRules = require("@typescript-eslint/eslint-plugin").rules;
+  // TS implementation of no-throw-literal is not supporting JS code.
+  delete typescriptEslintRules["no-throw-literal"];
   linter.defineRules(typescriptEslintRules);
 } catch {
   // do nothing, "typescript" is not there
