@@ -37,6 +37,14 @@ export type FunctionNodeType =
   | estree.FunctionDeclaration
   | estree.FunctionExpression
   | estree.ArrowFunctionExpression;
+
+export type LoopLike =
+  | estree.WhileStatement
+  | estree.DoWhileStatement
+  | estree.ForStatement
+  | estree.ForOfStatement
+  | estree.ForInStatement;
+
 export const FUNCTION_NODES = [
   "FunctionDeclaration",
   "FunctionExpression",
