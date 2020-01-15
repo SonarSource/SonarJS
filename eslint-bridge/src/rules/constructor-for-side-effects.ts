@@ -24,14 +24,34 @@ import * as estree from "estree";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    const sourceCode = context.getSourceCode();
     return {
       "ExpressionStatement > NewExpression": (node: estree.Node) => {
-        const calleeText = context.getSourceCode().getText((node as estree.NewExpression).callee);
-        context.report({
-          message: `Either remove this useless object instantiation of "${calleeText}" or use it.`,
-          node,
-        });
+        const callee = (node as estree.NewExpression).callee;
+
+        if (callee.type === "Identifier" || callee.type === "MemberExpression") {
+          const calleeText = sourceCode.getText(callee);
+          const reportLocation = {
+            start: node.loc!.start,
+            end: callee.loc!.end,
+          };
+          reportIssue(reportLocation, ` of "${calleeText}"`, context);
+        } else {
+          const newToken = sourceCode.getFirstToken(node);
+          reportIssue(newToken!.loc, "", context);
+        }
       },
     };
   },
 };
+
+function reportIssue(
+  loc: { start: estree.Position; end: estree.Position },
+  objectText: string,
+  context: Rule.RuleContext,
+) {
+  context.report({
+    message: `Either remove this useless object instantiation${objectText} or use it.`,
+    loc,
+  });
+}
