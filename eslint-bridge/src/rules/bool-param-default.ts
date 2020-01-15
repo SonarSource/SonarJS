@@ -27,15 +27,12 @@ type FunctionLike =
   | TSESTree.FunctionDeclaration
   | TSESTree.FunctionExpression
   | TSESTree.ArrowFunctionExpression
-  | TSESTree.TSEmptyBodyFunctionExpression
-  | TSESTree.TSMethodSignature
-  | TSESTree.TSFunctionType
-  | TSESTree.TSConstructSignatureDeclaration;
+  | TSESTree.TSFunctionType;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSEmptyBodyFunctionExpression, TSMethodSignature, TSFunctionType, TSConstructSignatureDeclaration": (
+      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSFunctionType": (
         node: estree.Node,
       ) => {
         const functionLike = node as FunctionLike;

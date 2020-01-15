@@ -42,6 +42,19 @@ ruleTester.run("Optional boolean parameters should have default value", rule, {
     {
       code: `function f(b?: string) {}`,
     },
+    {
+      code: `abstract class A{
+                abstract foo(p?: boolean): number;
+            }`,
+    },
+    {
+      code: `function foo(b?: boolean);`,
+    },
+    {
+      code: `interface i {
+              m(b?: boolean): void;
+            }`,
+    },
   ],
   invalid: [
     {
@@ -72,40 +85,6 @@ ruleTester.run("Optional boolean parameters should have default value", rule, {
       code: `
       class c {
         m(b?: boolean): void {}
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      class c {
-        m(b?: boolean): void
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      interface i {
-        new(b?: boolean): void;
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      interface i {
-        m(b?: boolean): void;
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      interface i {
-        m: {
-          n: (b?: boolean): void;
-        }
       }
       `,
       errors: 1,

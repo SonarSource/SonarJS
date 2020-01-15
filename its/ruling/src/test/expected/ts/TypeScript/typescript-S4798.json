@@ -79,9 +79,6 @@
 ],
 'TypeScript:src/compiler/sys.ts':[
 7,
-22,
-28,
-94,
 225,
 456,
 ],
@@ -106,11 +103,6 @@
 318,
 340,
 ],
-'TypeScript:src/compiler/types.ts':[
-2395,
-2746,
-2751,
-],
 'TypeScript:src/compiler/utilities.ts':[
 261,
 2150,
@@ -131,9 +123,6 @@
 3727,
 3763,
 3771,
-],
-'TypeScript:src/harness/harness.ts':[
-46,
 ],
 'TypeScript:src/harness/harnessLanguageService.ts':[
 337,
@@ -183,15 +172,7 @@
 1495,
 ],
 'TypeScript:src/services/shims.ts':[
-262,
-263,
 1007,
 1014,
-],
-'TypeScript:src/services/types.ts':[
-9,
-11,
-246,
-265,
 ],
 }
