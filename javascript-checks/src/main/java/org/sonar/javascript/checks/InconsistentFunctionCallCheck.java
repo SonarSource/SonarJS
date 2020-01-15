@@ -21,10 +21,8 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
-@TypeScriptRule
 @Rule(key = "S3686")
 public class InconsistentFunctionCallCheck extends EslintBasedCheck {
 
