@@ -1,37 +1,33 @@
-<p>A variable that is declared at function scope, but only used inside a single block should be declared in that block, and variables that are
-declared inside a block but used outside of it (which is possible with a <code>var</code>-style declaration) should be declared outside the block.</p>
+<p>Variables that are declared inside a block but used outside of it (which is possible with a <code>var</code>-style declaration) should be declared
+outside the block.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 function doSomething(a, b) {
-  var i;  // Noncompliant; should be declared in if-block
   if (a &gt; b) {
-    i = a;
-    console.log(i);
-    var x = a - b;  // Noncompliant; should be declared outside if-block
+    var x = a - b;  // Noncompliant
   }
 
   if (a &gt; 4) {
    console.log(x);
   }
 
-  return a+b;
+  return a + b;
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
 function doSomething(a, b) {
-  var x = a - b;
+  var x;
 
   if (a &gt; b) {
-    var i = a;
-    console.log(i);
+     x = a - b;
   }
 
   if (a &gt; 4) {
    console.log(x);
   }
 
-  return a+b;
+  return a + b;
 }
 </pre>
 

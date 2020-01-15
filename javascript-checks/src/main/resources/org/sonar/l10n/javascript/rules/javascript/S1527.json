@@ -12,7 +12,7 @@
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1527",
-  "sqKey": "FutureReservedWords",
+  "sqKey": "S1527",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
