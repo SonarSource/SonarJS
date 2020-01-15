@@ -50,11 +50,6 @@
     </rule>
     <rule>
       <repositoryKey>typescript</repositoryKey>
-      <key>S3686</key>    <!-- InconsistentFunctionCallCheck -->
-      <priority>INFO</priority>
-    </rule>
-    <rule>
-      <repositoryKey>typescript</repositoryKey>
       <key>S3854</key>    <!-- useless cast -->
       <priority>INFO</priority>
     </rule>
