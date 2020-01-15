@@ -23,18 +23,13 @@ import { Rule, Scope } from "eslint";
 import * as estree from "estree";
 import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
 import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
-import { findFirstMatchingAncestor } from "./utils";
+import { findFirstMatchingAncestor, LoopLike } from "./utils";
 import { TSESTree } from "@typescript-eslint/experimental-utils";
 
 const message = "Define this function outside of a loop.";
 
 const loopLike = "WhileStatement,DoWhileStatement,ForStatement,ForOfStatement,ForInStatement";
-type LoopLike =
-  | estree.WhileStatement
-  | estree.DoWhileStatement
-  | estree.ForStatement
-  | estree.ForOfStatement
-  | estree.ForInStatement;
+
 const functionLike = "FunctionDeclaration,FunctionExpression,ArrowFunctionExpression";
 
 const allowedCallbacks = [
