@@ -19,48 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "FutureReservedWords")
-public class FutureReservedWordsCheck extends AbstractSymbolNameCheck {
-
-  private static final String MESSAGE = "Rename \"%s\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.";
-
-  private static final List<String> FUTURE_RESERVED_WORDS = ImmutableList.of(
-    "implements",
-    "interface",
-    "package",
-    "private",
-    "protected",
-    "public",
-    "enum",
-    "class",
-    "const",
-    "export",
-    "extends",
-    "import",
-    "super",
-    "let",
-    "static",
-    "yield",
-    "await"
-  );
+@Rule(key = "S1527")
+@DeprecatedRuleKey(ruleKey = "FutureReservedWords")
+public class FutureReservedWordsCheck extends EslintBasedCheck {
 
   @Override
-  List<String> illegalNames() {
-    return FUTURE_RESERVED_WORDS;
-  }
-
-  @Override
-  public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getIllegalSymbols()) {
-      raiseIssuesOnDeclarations(symbol, String.format(MESSAGE, symbol.name()));
-    }
+  public String eslintKey() {
+    return "future-reserved-words";
   }
 }
