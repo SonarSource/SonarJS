@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-1523
+// https://jira.sonarsource.com/browse/RSPEC-1527
 
 import { Rule, Scope } from "eslint";
-import * as estree from "estree";
-import { getVariableFromName } from "./utils";
 
 const futureReservedWords = [
   "implements",
@@ -45,25 +43,29 @@ const futureReservedWords = [
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    let reported: Scope.Variable[] = [];
+    function checkVariable(variable: Scope.Variable) {
+      if (variable.defs.length > 0) {
+        const def = variable.defs[0].name;
+        context.report({
+          node: def,
+          message: `Rename "${
+            variable.name
+          }" identifier to prevent potential conflicts with future evolutions of the JavaScript language.`,
+        });
+      }
+    }
+
+    function checkVariablesByScope(scope: Scope.Scope) {
+      scope.variables.filter(v => futureReservedWords.includes(v.name)).forEach(checkVariable);
+
+      scope.childScopes.forEach(childScope => {
+        checkVariablesByScope(childScope);
+      });
+    }
+
     return {
-      Program: (_node: estree.Node) => {
-        reported = [];
-      },
-      Identifier: (node: estree.Node) => {
-        const name = (node as estree.Identifier).name;
-        if (!futureReservedWords.includes(name)) {
-          return;
-        }
-        const variable = getVariableFromName(context, name);
-        if (variable && !reported.includes(variable) && variable.defs.length > 0) {
-          const def = variable.defs[0].name;
-          context.report({
-            node: def,
-            message: `Rename "${name}" identifier to prevent potential conflicts with future evolutions of the JavaScript language.`,
-          });
-          reported.push(variable);
-        }
+      "Program:exit": () => {
+        checkVariablesByScope(context.getScope());
       },
     };
   },

@@ -45,7 +45,9 @@ ruleTester.run("Future reserved words", rule, {
       var public = 42; // NOK
       function foo(static) {} // NOK
       var await; // NOK
-      function yield() {} // NOK
+      function yield() { // NOK
+        var extends; // NOK
+      }
       `,
       errors: [
         {
@@ -70,6 +72,9 @@ ruleTester.run("Future reserved words", rule, {
         },
         {
           line: 11,
+        },
+        {
+          line: 12,
         },
       ],
     },
