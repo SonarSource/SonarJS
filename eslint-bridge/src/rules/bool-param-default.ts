@@ -26,13 +26,12 @@ import { TSESTree } from "@typescript-eslint/experimental-utils";
 type FunctionLike =
   | TSESTree.FunctionDeclaration
   | TSESTree.FunctionExpression
-  | TSESTree.ArrowFunctionExpression
-  | TSESTree.TSFunctionType;
+  | TSESTree.ArrowFunctionExpression;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSFunctionType": (
+      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression": (
         node: estree.Node,
       ) => {
         const functionLike = node as FunctionLike;

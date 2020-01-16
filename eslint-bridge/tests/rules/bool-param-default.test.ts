@@ -55,6 +55,9 @@ ruleTester.run("Optional boolean parameters should have default value", rule, {
               m(b?: boolean): void;
             }`,
     },
+    {
+      code: `type Foo = (p?: boolean) => void; //A parameter initializer is only allowed in a function or constructor implementation`,
+    },
   ],
   invalid: [
     {
