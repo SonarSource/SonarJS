@@ -49,6 +49,7 @@ import { rule as indexOfCompareToPositiveNumber } from "./index-of-compare-to-po
 import { rule as labelPosition } from "./label-position";
 import { rule as maxUnionSize } from "./max-union-size";
 import { rule as misplacedLoopCounter } from "./misplaced-loop-counter";
+import { rule as nestedControlFlow } from "./nested-control-flow";
 import { rule as noAccessorFieldMismatch } from "./no-accessor-field-mismatch";
 import { rule as noAlphabeticalSort } from "./no-alphabetical-sort";
 import { rule as noArrayDelete } from "./no-array-delete";
@@ -140,6 +141,7 @@ ruleModules["inconsistent-function-call"] = inconsistentFunctionCall;
 ruleModules["index-of-compare-to-positive-number"] = indexOfCompareToPositiveNumber;
 ruleModules["label-position"] = labelPosition;
 ruleModules["max-union-size"] = maxUnionSize;
+ruleModules["nested-control-flow"] = nestedControlFlow;
 ruleModules["no-accessor-field-mismatch"] = noAccessorFieldMismatch;
 ruleModules["no-alphabetical-sort"] = noAlphabeticalSort;
 ruleModules["no-array-delete"] = noArrayDelete;

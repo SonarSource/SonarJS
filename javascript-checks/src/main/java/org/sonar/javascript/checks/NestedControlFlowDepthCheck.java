@@ -19,33 +19,21 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "NestedIfDepth")
-public class NestedControlFlowDepthCheck extends DoubleDispatchVisitorCheck {
+@TypeScriptRule
+@Rule(key = "S134")
+@DeprecatedRuleKey(ruleKey = "NestedIfDepth")
+public class NestedControlFlowDepthCheck extends EslintBasedCheck {
 
-  private static final String MESSAGE = "Refactor this code to not nest more than %s if/for/while/switch/try statements.";
   private static final int DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
-  private Deque<SyntaxToken> stack = new ArrayDeque<>();
 
   @RuleProperty(
     key = "maximumNestingLevel",
@@ -53,88 +41,13 @@ public class NestedControlFlowDepthCheck extends DoubleDispatchVisitorCheck {
     defaultValue = "" + DEFAULT_MAXIMUM_NESTING_LEVEL)
   public int maximumNestingLevel = DEFAULT_MAXIMUM_NESTING_LEVEL;
 
-  public int getMaximumNestingLevel() {
-    return maximumNestingLevel;
-  }
-
   @Override
-  public void visitScript(ScriptTree tree) {
-    stack.clear();
-    super.visitScript(tree);
+  public List<Object> configurations() {
+    return Collections.singletonList(maximumNestingLevel);
   }
-
   @Override
-  public void visitIfStatement(IfStatementTree tree) {
-    increaseAndCheckNestedLevel(tree.ifKeyword());
-    visitIf(tree);
-    decreaseNestedLevel();
-  }
-
-  @Override
-  public void visitForStatement(ForStatementTree tree) {
-    increaseAndCheckNestedLevel(tree.forKeyword());
-    super.visitForStatement(tree);
-    decreaseNestedLevel();
-  }
-
-  @Override
-  public void visitForObjectStatement(ForObjectStatementTree tree) {
-    increaseAndCheckNestedLevel(tree.forKeyword());
-    super.visitForObjectStatement(tree);
-    decreaseNestedLevel();
-  }
-
-  @Override
-  public void visitWhileStatement(WhileStatementTree tree) {
-    increaseAndCheckNestedLevel(tree.whileKeyword());
-    super.visitWhileStatement(tree);
-    decreaseNestedLevel();
-  }
-
-  @Override
-  public void visitDoWhileStatement(DoWhileStatementTree tree) {
-    increaseAndCheckNestedLevel(tree.doKeyword());
-    super.visitDoWhileStatement(tree);
-    decreaseNestedLevel();
-  }
-
-  @Override
-  public void visitSwitchStatement(SwitchStatementTree tree) {
-    increaseAndCheckNestedLevel(tree.switchKeyword());
-    super.visitSwitchStatement(tree);
-    decreaseNestedLevel();
-  }
-
-  @Override
-  public void visitTryStatement(TryStatementTree tree) {
-    increaseAndCheckNestedLevel(tree.tryKeyword());
-    super.visitTryStatement(tree);
-    decreaseNestedLevel();
-  }
-
-  private void increaseAndCheckNestedLevel(SyntaxToken token) {
-    if (stack.size() == getMaximumNestingLevel()) {
-      PreciseIssue issue = addIssue(token, String.format(MESSAGE, getMaximumNestingLevel()));
-      stack.forEach(t -> issue.secondary(t, "Nesting +1"));
-    }
-    stack.push(token);
-  }
-
-  private void decreaseNestedLevel() {
-    stack.pop();
-  }
-
-  private void visitIf(IfStatementTree tree) {
-    scan(tree.condition());
-    scan(tree.statement());
-
-    ElseClauseTree elseClauseTree = tree.elseClause();
-    if (tree.elseClause() != null && elseClauseTree.statement().is(Kind.IF_STATEMENT)) {
-      visitIf((IfStatementTreeImpl) tree.elseClause().statement());
-
-    } else {
-      scan(tree.elseClause());
-    }
+  public String eslintKey() {
+    return "nested-control-flow";
   }
 
 }

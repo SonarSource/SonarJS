@@ -19,26 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NestedControlFlowDepthCheckTest {
 
-  private NestedControlFlowDepthCheck check = new NestedControlFlowDepthCheck();
-
   @Test
-  public void testDefault() {
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/nestedControlFlowDepth.js"));
+  public void testConfig() {
+    NestedControlFlowDepthCheck check = new NestedControlFlowDepthCheck();
+    assertThat(check.configurations()).containsExactly(3);
+    check.maximumNestingLevel = 42;
+    assertThat(check.configurations()).containsExactly(42);
   }
-
-  @Test
-  public void testCustomDepth() {
-    check.maximumNestingLevel = 4;
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/nestedControlFlowDepth.js"))
-      .next().atLine(34).withMessage("Refactor this code to not nest more than 4 if/for/while/switch/try statements.")
-      .noMore();
-  }
-
 }
+
