@@ -38,21 +38,37 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
   invalid: [
     {
       code: `new MyConstructor();
-             new c.MyConstructor();`,
+             new c.MyConstructor(123);`,
       errors: [
         {
           message: `Either remove this useless object instantiation of "MyConstructor" or use it.`,
           line: 1,
           column: 1,
           endLine: 1,
-          endColumn: 20,
+          endColumn: 18,
         },
         {
           message: `Either remove this useless object instantiation of "c.MyConstructor" or use it.`,
           line: 2,
           column: 14,
           endLine: 2,
-          endColumn: 35,
+          endColumn: 33,
+        },
+      ],
+    },
+    {
+      code: `
+      new function() {
+        //...      
+        // A lot of code...
+      }`,
+      errors: [
+        {
+          message: `Either remove this useless object instantiation or use it.`,
+          line: 2,
+          column: 7,
+          endLine: 2,
+          endColumn: 10,
         },
       ],
     },

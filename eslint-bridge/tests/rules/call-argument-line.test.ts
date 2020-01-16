@@ -70,6 +70,20 @@ ruleTester.run(`Function call arguments should not start on new lines`, rule, {
       ],
     },
     {
+      code: `(function iieflike(factory){}
+      (function () {
+          //A lot of code...
+        }
+      ))`,
+      errors: [
+        {
+          message: `Make those call arguments start on line 1`,
+          line: 2,
+          column: 7,
+        },
+      ],
+    },
+    {
       code: `
       foo(bar)[baz]
         (qux);

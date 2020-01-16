@@ -38,14 +38,28 @@ export const rule: Rule.RuleModule = {
             .loc.end.line;
           const { start } = sourceCode.getTokenAfter(call.callee)!.loc;
           if (calleeLastLine !== start.line) {
+            const message = `Make those call arguments start on line ${calleeLastLine}`;
             const { end } = sourceCode.getLastToken(call)!.loc;
-            context.report({
-              message: `Make those call arguments start on line ${calleeLastLine}`,
-              loc: { start, end },
-            });
+            if (end.line !== start.line) {
+              //If arguments span multiple lines, we only report the first one
+              reportIssue(start, message, context);
+            } else {
+              reportIssue({ start, end }, message, context);
+            }
           }
         }
       },
     };
   },
 };
+
+function reportIssue(
+  loc: { start: estree.Position; end: estree.Position } | estree.Position,
+  message: string,
+  context: Rule.RuleContext,
+) {
+  context.report({
+    message,
+    loc,
+  });
+}
