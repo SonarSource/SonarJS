@@ -53,6 +53,8 @@ ruleTester.run("Optional boolean parameters should have default value", rule, {
     {
       code: `interface i {
               m(b?: boolean): void;
+              new (b?: boolean): void; // Construct signatures can not contain initializer
+              (b?: boolean): void; // Call signatures can not contain initializer
             }`,
     },
     {
