@@ -1,15 +1,12 @@
 {
   "title": "Conditionally executed blocks should be reachable",
   "type": "BUG",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "15min"
   },
   "tags": [
-    "cwe",
-    "unused",
-    "pitfall"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2583",
@@ -17,12 +14,5 @@
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "scope": "All",
-  "securityStandards": {
-    "CWE": [
-      489,
-      571,
-      570
-    ]
-  }
+  "scope": "All"
 }

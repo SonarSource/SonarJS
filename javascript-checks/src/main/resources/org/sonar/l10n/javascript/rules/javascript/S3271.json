@@ -1,7 +1,7 @@
 {
   "title": "Local storage should not be used",
   "type": "VULNERABILITY",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Linear with offset",
     "linearDesc": "per additional use of the api",
@@ -9,7 +9,7 @@
     "linearFactor": "5min"
   },
   "tags": [
-    "owasp-a3"
+    
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3271",
@@ -17,10 +17,5 @@
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "scope": "Main",
-  "securityStandards": {
-    "OWASP": [
-      "A3"
-    ]
-  }
+  "scope": "Main"
 }

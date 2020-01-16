@@ -1,15 +1,13 @@
 {
   "title": "Untrusted content should not be included",
   "type": "VULNERABILITY",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "15min"
   },
   "tags": [
-    "cwe",
-    "owasp-a1",
-    "sans-top25-risky"
+    
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2611",
@@ -17,13 +15,5 @@
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "scope": "Main",
-  "securityStandards": {
-    "CWE": [
-      829
-    ],
-    "OWASP": [
-      "A1"
-    ]
-  }
+  "scope": "Main"
 }
