@@ -83,6 +83,21 @@ ruleTester.run(
       ),
       invalid(
         `
+        if (true) {
+
+        } else if (true) {
+//             ^^                 
+          if (true) {
+//        ^^            
+              if (true) {
+//------------^^---       
+              }
+          }
+        }`,
+        2,
+      ),
+      invalid(
+        `
        for (var i = 0; i < 0; i++) { // level 1
 //     ^^^
           for (bar in MyArray) {     // level 2
@@ -153,5 +168,5 @@ function location(
   endColumn: number,
   message?: string,
 ): IssueLocation {
-  return { line, column, endLine, endColumn, message };
+  return { message, column, line, endColumn, endLine };
 }

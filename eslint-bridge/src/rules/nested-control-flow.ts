@@ -21,7 +21,7 @@
 
 import { Rule, AST } from "eslint";
 import * as estree from "estree";
-import { IssueLocation, EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
+import { toEncodedMessage } from "./utils";
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -47,7 +47,11 @@ export const rule: Rule.RuleModule = {
     function check(node: estree.Node) {
       if (nodeStack.length === threshold) {
         context.report({
-          message: encodeMessage(threshold, nodeStack.map(n => toSecondaryLocation(n))),
+          message: toEncodedMessage(
+            `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`,
+            nodeStack,
+            nodeStack.map(_n => "+1"),
+          ),
           loc: node.loc!,
         });
       }
@@ -69,13 +73,16 @@ export const rule: Rule.RuleModule = {
       "SwitchStatement",
     ].join(",");
     return {
-      [`:matches(${controlFlowNodes})`]: (node: estree.Node) => {
-        if (!isElseIf(node)) {
+      [controlFlowNodes]: (node: estree.Node) => {
+        if (isElseIf(node)) {
+          pop();
+          push(sourceCode.getFirstToken(node)!);
+        } else {
           check(node);
           push(sourceCode.getFirstToken(node)!);
         }
       },
-      [`:matches(${controlFlowNodes}):exit`]: (node: estree.Node) => {
+      [`${controlFlowNodes}:exit`]: (node: estree.Node) => {
         if (!isElseIf(node)) {
           pop();
         }
@@ -83,25 +90,6 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function encodeMessage(threshold: number, secondaryLocations: IssueLocation[]) {
-  const msg: EncodedMessage = {
-    message: `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`,
-    secondaryLocations,
-  };
-  return JSON.stringify(msg);
-}
-
-function toSecondaryLocation(token: AST.Token): IssueLocation {
-  const loc = token.loc;
-  return {
-    line: loc.start.line,
-    column: loc.start.column,
-    endLine: loc.end.line,
-    endColumn: loc.end.column,
-    message: "+1",
-  };
-}
 
 function last(arr: Array<any>) {
   return arr[arr.length - 1];
