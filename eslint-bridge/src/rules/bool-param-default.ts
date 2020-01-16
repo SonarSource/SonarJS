@@ -31,9 +31,7 @@ type FunctionLike =
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression": (
-        node: estree.Node,
-      ) => {
+      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression": (node: estree.Node) => {
         const functionLike = node as FunctionLike;
         for (const param of functionLike.params) {
           if (param.type === "Identifier" && isOptionalBoolean(param)) {
