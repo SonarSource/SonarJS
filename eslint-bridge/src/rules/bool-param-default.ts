@@ -26,18 +26,12 @@ import { TSESTree } from "@typescript-eslint/experimental-utils";
 type FunctionLike =
   | TSESTree.FunctionDeclaration
   | TSESTree.FunctionExpression
-  | TSESTree.ArrowFunctionExpression
-  | TSESTree.TSEmptyBodyFunctionExpression
-  | TSESTree.TSMethodSignature
-  | TSESTree.TSFunctionType
-  | TSESTree.TSConstructSignatureDeclaration;
+  | TSESTree.ArrowFunctionExpression;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSEmptyBodyFunctionExpression, TSMethodSignature, TSFunctionType, TSConstructSignatureDeclaration": (
-        node: estree.Node,
-      ) => {
+      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression": (node: estree.Node) => {
         const functionLike = node as FunctionLike;
         for (const param of functionLike.params) {
           if (param.type === "Identifier" && isOptionalBoolean(param)) {

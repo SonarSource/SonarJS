@@ -42,6 +42,24 @@ ruleTester.run("Optional boolean parameters should have default value", rule, {
     {
       code: `function f(b?: string) {}`,
     },
+    {
+      code: `abstract class A{
+                abstract foo(p?: boolean): number;
+            }`,
+    },
+    {
+      code: `function foo(b?: boolean);`,
+    },
+    {
+      code: `interface i {
+              m(b?: boolean): void;
+              new (b?: boolean): void; // Construct signatures can not contain initializer
+              (b?: boolean): void; // Call signatures can not contain initializer
+            }`,
+    },
+    {
+      code: `type Foo = (p?: boolean) => void; //A parameter initializer is only allowed in a function or constructor implementation`,
+    },
   ],
   invalid: [
     {
@@ -72,40 +90,6 @@ ruleTester.run("Optional boolean parameters should have default value", rule, {
       code: `
       class c {
         m(b?: boolean): void {}
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      class c {
-        m(b?: boolean): void
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      interface i {
-        new(b?: boolean): void;
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      interface i {
-        m(b?: boolean): void;
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      interface i {
-        m: {
-          n: (b?: boolean): void;
-        }
       }
       `,
       errors: 1,
