@@ -120,11 +120,11 @@ function invalid(code: string, threshold = THRESHOLD) {
   for (const [index, line] of lines.entries()) {
     let found: RegExpMatchArray | null;
 
-    const primary = /\/\/\s*(\-+\^+\-+)/;
+    const primary = /\/\/\s*(\-+(\^+)\-+)/;
     found = line.match(primary);
     if (found) {
-      const marker = found[1];
-      const column = line.indexOf(marker);
+      const marker = found[2];
+      const column = line.indexOf(marker) + 1; // Column is one-based in tests
       issue.primaryLocation = location(index, column, index, column + marker.length);
     }
 
@@ -149,7 +149,7 @@ function error(
 ) {
   return {
     message: encode(threshold, issue.secondaryLocations),
-    loc: issue.primaryLocation,
+    ...issue.primaryLocation,
   };
 }
 
@@ -168,5 +168,9 @@ function location(
   endColumn: number,
   message?: string,
 ): IssueLocation {
-  return { message, column, line, endColumn, endLine };
+  if (message) {
+    return { message, column, line, endColumn, endLine };
+  } else {
+    return { column, line, endColumn, endLine };
+  }
 }
