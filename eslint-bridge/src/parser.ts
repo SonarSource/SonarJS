@@ -120,8 +120,8 @@ export function checkTypeScriptVersionCompatibility(currentVersion: string) {
 }
 
 export function unloadTypeScriptEslint() {
-  const tsParser = require.resolve("@typescript-eslint/parser");
-  delete require.cache[tsParser];
+  const tsParser = require("@typescript-eslint/parser");
+  tsParser.clearCaches();
 }
 
 export function parseVueSourceFile(fileContent: string): SourceCode | ParsingError {
