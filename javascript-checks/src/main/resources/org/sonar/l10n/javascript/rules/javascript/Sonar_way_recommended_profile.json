@@ -41,6 +41,7 @@
     "S1442",
     "S1472",
     "S1479",
+    "S1481",
     "S1488",
     "S1515",
     "S1516",
@@ -175,7 +176,6 @@
     "S5122",
     "TrailingWhitespace",
     "UnreachableCode",
-    "UnusedVariable",
     "WithStatement"
   ]
 }

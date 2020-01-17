@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
