@@ -32,7 +32,7 @@ There are 2 built-in rule profiles for JavaScript: `Sonar way` (default) and `So
 
 ### Slow or unresponsive analysis
 
-On a big project it can happen that analyzer needs to allocate a lot of memory to analyze the project. This would manifest by analysis getting stuck and following stacktrace might appear in the logs
+On a big project it can happen that analyzer needs to allocate more memory to analyze the project. This would be manifested by analysis getting stuck and the following stacktrace might appear in the logs
 
 ```
 ERROR: Failed to get response while analyzing [file].ts
