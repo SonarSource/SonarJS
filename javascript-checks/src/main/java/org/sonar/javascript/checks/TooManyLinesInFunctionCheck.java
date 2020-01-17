@@ -41,21 +41,12 @@ public class TooManyLinesInFunctionCheck extends EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(max));
+    return Collections.singletonList(max);
   }
 
   @Override
   public String eslintKey() {
-    return "max-lines-per-function";
+    return "sonar-max-lines-per-function";
   }
 
-  private static class Config {
-    int max;
-    boolean skipBlankLines = true;
-    boolean skipComments = true;
-
-    Config(int max) {
-      this.max = max;
-    }
-  }
 }

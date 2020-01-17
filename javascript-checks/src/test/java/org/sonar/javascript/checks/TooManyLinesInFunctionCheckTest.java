@@ -31,11 +31,11 @@ public class TooManyLinesInFunctionCheckTest {
     TooManyLinesInFunctionCheck check = new TooManyLinesInFunctionCheck();
 
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[{\"max\":200,\"skipBlankLines\":true,\"skipComments\":true}]");
+    assertThat(defaultConfigAsString).isEqualTo("[200]");
 
     check.max = 42;
     String configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString).isEqualTo("[{\"max\":42,\"skipBlankLines\":true,\"skipComments\":true}]");
+    assertThat(configAsString).isEqualTo("[42]");
   }
 
 }
