@@ -97,12 +97,13 @@ public class CoverageSensor implements Sensor {
     }
 
     List<String> unresolvedPaths = parser.unresolvedPaths();
-
     if (!unresolvedPaths.isEmpty()) {
-      LOG.warn(
-        String.format(
-          "Could not resolve %d file paths in %s, first unresolved path: %s",
-          unresolvedPaths.size(), lcovFiles, unresolvedPaths.get(0)));
+      LOG.warn(String.format("Could not resolve %d file paths in %s", unresolvedPaths.size(), lcovFiles));
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Unresolved paths:\n" + String.join("\n", unresolvedPaths));
+      } else {
+        LOG.warn("First unresolved path: " + unresolvedPaths.get(0) + " (Run in DEBUG mode to get full list of unresolved paths)");
+      }
     }
 
     int inconsistenciesNumber = parser.inconsistenciesNumber();
