@@ -59,9 +59,6 @@ public class EslintBridgeServerImplTest {
   public LogTester logTester = new LogTester();
 
   @org.junit.Rule
-  public final ExpectedException thrown = ExpectedException.none();
-
-  @org.junit.Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
   private SensorContextTester context;
@@ -83,10 +80,9 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer("NOT_EXISTING.js");
     eslintBridgeServer.deploy();
 
-    thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("Node.js script to start eslint-bridge server doesn't exist:");
-
-    eslintBridgeServer.startServer(context);
+    assertThatThrownBy(() -> eslintBridgeServer.startServer(context))
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessageStartingWith("Node.js script to start eslint-bridge server doesn't exist:");
   }
 
   @Test
@@ -102,10 +98,9 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = new EslintBridgeServerImpl(new MapSettings().asConfig(), nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle);
     eslintBridgeServer.deploy();
 
-    thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("msg");
-
-    eslintBridgeServer.startServer(context);
+    assertThatThrownBy(() -> eslintBridgeServer.startServer(context))
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessage("msg");
   }
 
   @Test
@@ -154,10 +149,9 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer("throw.js");
     eslintBridgeServer.deploy();
 
-    thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)");
-
-    eslintBridgeServer.startServer(context);
+    assertThatThrownBy(() -> eslintBridgeServer.startServer(context))
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessage("Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)");
   }
 
   @Test
