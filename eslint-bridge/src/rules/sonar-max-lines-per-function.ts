@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-// Greatly inspired by https://github.com/eslint/eslint/blob/master/lib/rules/max-lines-per-function.js
+// Greatly inspired by https://github.com/eslint/eslint/blob/561b6d4726f3e77dd40ba0d340ca7f08429cd2eb/lib/rules/max-lines-per-function.js
+// We had to fork the implementation to control the reporting (issue location), in order to provide a better user experience.
 
 // https://jira.sonarsource.com/browse/RSPEC-138
 
