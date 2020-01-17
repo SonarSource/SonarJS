@@ -5,7 +5,7 @@
   <rules>
     <rule>
       <repositoryKey>typescript</repositoryKey>
-      <key>BitwiseOperators</key>    <!-- bitwise-operators -->
+      <key>S1529</key>    <!-- bitwise-operators -->
       <priority>INFO</priority>
     </rule>
     <rule>

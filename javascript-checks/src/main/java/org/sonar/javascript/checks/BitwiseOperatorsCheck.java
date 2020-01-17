@@ -22,10 +22,12 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@Rule(key = "BitwiseOperators")
+@DeprecatedRuleKey(ruleKey = "BitwiseOperators")
+@Rule(key = "S1529")
 public class BitwiseOperatorsCheck extends EslintBasedCheck {
 
   @Override

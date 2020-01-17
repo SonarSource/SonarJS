@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2019 SonarSource SA
+ * Copyright (C) 2011-2020 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,9 @@
 // https://jira.sonarsource.com/browse/RSPEC-1529
 
 import { Rule } from "eslint";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
 import * as estree from "estree";
 import * as tsTypes from "typescript";
+import { getTypeFromTreeNode } from "./utils";
 
 const BITWISE_AND_OR = ["&", "|"];
 const BITWISE_OPERATORS = [
@@ -105,8 +105,6 @@ type NumericTypeChecker = (node: estree.Node) => boolean;
 function getNumericTypeChecker(context: Rule.RuleContext): NumericTypeChecker {
   const services = context.parserServices;
   if (!!services && !!services.program && !!services.esTreeNodeToTSNodeMap) {
-    const nodeMap = services.esTreeNodeToTSNodeMap;
-    const checker: tsTypes.TypeChecker = services.program.getTypeChecker();
     const ts: typeof tsTypes = require("typescript");
 
     function isNumericType(type: tsTypes.Type): boolean {
@@ -116,8 +114,7 @@ function getNumericTypeChecker(context: Rule.RuleContext): NumericTypeChecker {
       );
     }
 
-    return (node: estree.Node) =>
-      isNumericType(checker.getTypeAtLocation(nodeMap.get(node as TSESTree.Node)));
+    return (node: estree.Node) => isNumericType(getTypeFromTreeNode(node, services));
   } else {
     const numericTypes = ["number", "bigint"];
     return (node: estree.Node) =>

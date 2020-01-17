@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2019 SonarSource SA
+ * Copyright (C) 2011-2020 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -28,8 +28,7 @@ const ruleTesterJs = new RuleTester({
   },
 });
 
-const ruleTesterTs = new RuleTesterTs();
-ruleTesterTs.expectNoIssuesWithoutTypeScript = false;
+const ruleTesterTs = new RuleTesterTs(false);
 
 ruleTesterJs.run(`JS: Bitwise operators should not be used in boolean contexts`, rule, {
   valid: [
@@ -149,6 +148,8 @@ if (a | 1) {
 function f(a: any, b: any) {
     if (a | b) {
     }
+    // '|' in joined types are ignored
+    const c: string | number = 2;
 }
 `,
       errors: [

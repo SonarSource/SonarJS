@@ -1,7 +1,6 @@
 {
   "name": "Sonar way",
   "ruleKeys": [
-    "BitwiseOperators",
     "DuplicateFunctionArgument",
     "DuplicatePropertyName",
     "NonEmptyCaseWithoutBreak",
@@ -29,6 +28,7 @@
     "S1523",
     "S1525",
     "S1527",
+    "S1529",
     "S1533",
     "S1656",
     "S1751",

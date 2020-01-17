@@ -35,8 +35,6 @@ const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-proj
  * It will also assert that no issues is raised when there are no type information.
  */
 class RuleTesterTs extends RuleTester {
-  expectNoIssuesWithoutTypeScript = true;
-
   ruleTesterNoTsConfig = new RuleTester({
     parser,
     parserOptions: {
@@ -49,7 +47,7 @@ class RuleTesterTs extends RuleTester {
     },
   });
 
-  constructor() {
+  constructor(public expectNoIssuesWithoutTypes = true) {
     super({
       parser,
       parserOptions,
@@ -64,7 +62,7 @@ class RuleTesterTs extends RuleTester {
       invalid?: RuleTester.InvalidTestCase[];
     },
   ): void {
-    if (this.expectNoIssuesWithoutTypeScript) {
+    if (this.expectNoIssuesWithoutTypes) {
       this.ruleTesterNoTsConfig.run(`${name}[noTsConfig]`, rule, {
         valid: tests.invalid,
         invalid: [],
