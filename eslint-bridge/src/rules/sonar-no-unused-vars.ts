@@ -26,31 +26,33 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let toIgnore: estree.Identifier[] = [];
 
+    function checkVariable(v: Scope.Variable) {
+      if (v.defs.length === 0) {
+        return;
+      }
+      const type = v.defs[0].type;
+      if (type !== "Variable" && type !== "FunctionName") {
+        return;
+      }
+      const defs = v.defs.map(def => def.name);
+      const unused = v.references.every(ref => defs.includes(ref.identifier));
+      if (unused && !toIgnore.includes(defs[0])) {
+        const message = getMessage(v.name, type === "FunctionName");
+        defs.forEach(def =>
+          context.report({
+            node: def,
+            message,
+          }),
+        );
+      }
+    }
+
     function checkScope(scope: Scope.Scope, parentScopeIsLocal: boolean) {
       const functionScope = scope.type === "function";
       const localScope = parentScopeIsLocal || functionScope;
 
       if (localScope && scope.type !== "function-expression-name") {
-        scope.variables.forEach(v => {
-          if (v.defs.length === 0) {
-            return;
-          }
-          const type = v.defs[0].type;
-          if (type !== "Variable" && type !== "FunctionName") {
-            return;
-          }
-          const defs = v.defs.map(def => def.name);
-          const unused = v.references.every(ref => defs.includes(ref.identifier));
-          if (unused && !toIgnore.includes(defs[0])) {
-            const message = getMessage(v.name, type === "FunctionName");
-            defs.forEach(def =>
-              context.report({
-                node: def,
-                message,
-              }),
-            );
-          }
-        });
+        scope.variables.forEach(checkVariable);
       }
 
       scope.childScopes.forEach(childScope => checkScope(childScope, localScope));
