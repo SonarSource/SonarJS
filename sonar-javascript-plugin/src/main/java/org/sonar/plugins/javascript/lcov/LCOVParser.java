@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -47,7 +49,8 @@ class LCOVParser {
 
   private final Map<InputFile, NewCoverage> coverageByFile;
   private final SensorContext context;
-  private final List<String> unresolvedPaths = new ArrayList<>();
+  // deduplicated list of unresolved paths (keep order of insertion)
+  private final Set<String> unresolvedPaths = new LinkedHashSet<>();
   private final FileLocator fileLocator;
   private int inconsistenciesCounter = 0;
 
@@ -76,7 +79,7 @@ class LCOVParser {
   }
 
   List<String> unresolvedPaths() {
-    return unresolvedPaths;
+    return new ArrayList<>(unresolvedPaths);
   }
 
   int inconsistenciesNumber() {

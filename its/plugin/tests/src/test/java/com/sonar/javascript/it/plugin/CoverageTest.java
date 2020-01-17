@@ -168,8 +168,8 @@ public class CoverageTest {
     // Check that a log is printed
     assertThat(result.getLogs())
       .containsPattern(Pattern.compile("Analysing .*coverage-wrong-file-name\\.lcov"))
-      .containsPattern(Pattern.compile("WARN.*Could not resolve 1 file paths in \\[.*coverage-wrong-file-name\\.lcov\\], "
-        + "first unresolved path: \\./wrong/fileName\\.js"));
+      .containsPattern(Pattern.compile("WARN.*Could not resolve 1 file paths in \\[.*coverage-wrong-file-name\\.lcov\\]"))
+      .containsPattern(Pattern.compile("DEBUG: Unresolved paths:\n\\./wrong/fileName\\.js"));
   }
 
   @Test

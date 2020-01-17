@@ -169,10 +169,26 @@ public class CoverageSensorTest {
   public void test_unresolved_path() {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "reports/report_with_unresolved_path.lcov");
     coverageSensor.execute(context);
-
-    // expected logged text: "Could not resolve 1 file paths in [...], first unresolved path: unresolved/file1.js"
     String fileName = File.separator + "reports" + File.separator + "report_with_unresolved_path.lcov";
-    assertThat(logTester.logs()).contains("Could not resolve 1 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "], first unresolved path: unresolved/file1.js");
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]")
+      .contains("First unresolved path: unresolved/file1.js (Run in DEBUG mode to get full list of unresolved paths)");
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .isEmpty();
+  }
+
+  @Test
+  public void test_unresolved_path_with_debug_log() {
+    logTester.setLevel(LoggerLevel.DEBUG);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "reports/report_with_unresolved_path.lcov");
+    coverageSensor.execute(context);
+    String fileName = File.separator + "reports" + File.separator + "report_with_unresolved_path.lcov";
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]");
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .contains("Unresolved paths:\n" +
+      "unresolved/file1.js\n" +
+      "unresolved/file2.js");
   }
 
   @Test
