@@ -47,7 +47,7 @@ class RuleTesterTs extends RuleTester {
     },
   });
 
-  constructor() {
+  constructor(public expectNoIssuesWithoutTypes = true) {
     super({
       parser,
       parserOptions,
@@ -62,10 +62,12 @@ class RuleTesterTs extends RuleTester {
       invalid?: RuleTester.InvalidTestCase[];
     },
   ): void {
-    this.ruleTesterNoTsConfig.run(`${name}[noTsConfig]`, rule, {
-      valid: tests.invalid,
-      invalid: [],
-    });
+    if (this.expectNoIssuesWithoutTypes) {
+      this.ruleTesterNoTsConfig.run(`${name}[noTsConfig]`, rule, {
+        valid: tests.invalid,
+        invalid: [],
+      });
+    }
 
     tests.valid.forEach(test => {
       if (!test.filename) {

@@ -11,9 +11,10 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1529",
-  "sqKey": "BitwiseOperators",
+  "sqKey": "S1529",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "Main"
 }

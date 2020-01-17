@@ -5,6 +5,11 @@
   <rules>
     <rule>
       <repositoryKey>typescript</repositoryKey>
+      <key>S1529</key>    <!-- bitwise-operators -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
       <key>S888</key>    <!-- EqualInForLoopTerminationCheck -->
       <priority>INFO</priority>
     </rule>
