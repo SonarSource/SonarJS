@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -188,10 +187,8 @@ public class CoverageSensorTest {
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(2);
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.NumberFormatException: For input string: \"1.\").");
-    // java.lang.StringIndexOutOfBoundsException may have different error message depending on JDK
-    Pattern errorMessagePattern = Pattern.compile("Problem during processing LCOV report: can't save DA data for line 4 of coverage report file [(java.lang.StringIndexOutOfBoundsException: String index out of range: -1).|(java.lang.StringIndexOutOfBoundsException: begin 0, end -1, length 1).]");
     String stringIndexOutOfBoundLogMessage = logTester.logs(LoggerLevel.DEBUG).get(1);
-    assertThat(stringIndexOutOfBoundLogMessage).containsPattern(errorMessagePattern);
+    assertThat(stringIndexOutOfBoundLogMessage).startsWith("Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException:");
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(logTester.logs(LoggerLevel.DEBUG).size() - 1)).startsWith("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: ");
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Found 3 inconsistencies in coverage report. Re-run analyse in debug mode to see details.");
   }
