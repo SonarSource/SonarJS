@@ -71,6 +71,21 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
+        <configuration>
+          <includes>
+            <include>src/**/*.ts</include>
+            <include>src/**/*.tsx</include>
+            <include>tests/**/*.ts</include>
+          </includes>
+          <excludes>
+            <exclude>tests/**/fixtures/**/*.ts</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
