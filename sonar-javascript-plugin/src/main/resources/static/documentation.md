@@ -28,6 +28,19 @@ There are 2 built-in rule profiles for JavaScript: `Sonar way` (default) and `So
 * `Sonar way` profile is activated by default. It defines a trimmed list of high-value/low-noise rules useful in almost any JS development context.
 * `Sonar way Recommended` contains all rules from `Sonar way`, plus more rules that mandate high code readability and long-term project evolution.
 
+## Troubleshooting
+
+### Slow or unresponsive analysis
+
+On a big project it can happen that analyzer needs to allocate a lot of memory to analyze the project. This would manifest by analysis getting stuck and following stacktrace might appear in the logs
+
+```
+ERROR: Failed to get response while analyzing [file].ts
+java.io.InterruptedIOException: timeout
+```   
+You can use `sonar.javascript.node.maxspace` property to allow the analyzer to use more memory. Set this property to `4096` or `8192` for big projects. This property should be set in `sonar-project.properties` file or on command line for scanner (with `-Dsonar.javascript.node.maxspace=4096`).
+
+
 <!-- sonarqube -->
 ## Custom rules
 [[warning]]
