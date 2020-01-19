@@ -196,15 +196,15 @@ ruleTester.run("Local variables should be used", rule, {
         var {a, b, c, ...interestingProps} = obj; // OK
         foo(interestingProps);
       
-        var {a1, b1, c1} = obj; // Noncompliant
-      //         ^^
+        var {a1, b1, c1} = obj; // Noncompliant, b1
+
         foo(a1, c1);
       
-        var {a2, b2, c2, ...interestingProps2} = obj; // Noncompliant
-      //                    ^^^^^^^^^^^^^^^^^
+        var {a2, b2, c2, ...interestingProps2} = obj; // Noncompliant, interestingProps2
+
       
-        var {a3, b: b3, c3, ...interestingProps3} = obj; // Noncompliant
-      //            ^^
+        var {a3, b: b3, c3, ...interestingProps3} = obj; // Noncompliant, b3
+
         foo(interestingProps3);
       
         var {} = obj;
@@ -213,16 +213,35 @@ ruleTester.run("Local variables should be used", rule, {
         {
           message: `Remove the declaration of the unused 'b1' variable.`,
           line: 6,
+          column: 18,
         },
         {
           message: `Remove the declaration of the unused 'interestingProps2' variable.`,
           line: 10,
+          column: 29,
         },
         {
           message: `Remove the declaration of the unused 'b3' variable.`,
           line: 13,
+          column: 21,
         },
       ],
+    },
+    {
+      code: `
+    const constUsed = "this is used";
+    let letUsed = "this is used";
+    var varUsed = "this is used";
+    if(constUsed && letUsed && varUsed) {
+      const constUsed = "unused"; // Noncompliant
+      let letUsed = "unused";     // Noncompliant
+      var varUsed = "used";
+
+      function unusedFunc() {     // Noncompliant
+
+      }
+    }`,
+      errors: [{ line: 6 }, { line: 7 }, { line: 10 }],
     },
   ],
 });

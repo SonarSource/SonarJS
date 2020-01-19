@@ -26,7 +26,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let toIgnore: estree.Identifier[] = [];
 
-    function checkVariable(v: Scope.Variable) {
+    function checkVariable(v: Scope.Variable, toCheck: "let-const-function" | "all") {
       if (v.defs.length === 0) {
         return;
       }
@@ -34,8 +34,16 @@ export const rule: Rule.RuleModule = {
       if (type !== "Variable" && type !== "FunctionName") {
         return;
       }
+      if (toCheck === "let-const-function") {
+        const def = v.defs[0];
+        if (def.parent && def.parent.type === "VariableDeclaration" && def.parent.kind === "var") {
+          return;
+        }
+      }
+
       const defs = v.defs.map(def => def.name);
       const unused = v.references.every(ref => defs.includes(ref.identifier));
+
       if (unused && !toIgnore.includes(defs[0])) {
         const message = getMessage(v.name, type === "FunctionName");
         defs.forEach(def =>
@@ -47,15 +55,22 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function checkScope(scope: Scope.Scope, parentScopeIsLocal: boolean) {
-      const functionScope = scope.type === "function";
-      const localScope = parentScopeIsLocal || functionScope;
-
-      if (localScope && scope.type !== "function-expression-name") {
-        scope.variables.forEach(checkVariable);
+    function checkScope(
+      scope: Scope.Scope,
+      checkedInParent: "nothing" | "let-const-function" | "all",
+    ) {
+      let toCheck = checkedInParent;
+      if (scope.type === "function") {
+        toCheck = "all";
+      } else if (checkedInParent === "nothing" && scope.type === "block") {
+        toCheck = "let-const-function";
       }
 
-      scope.childScopes.forEach(childScope => checkScope(childScope, localScope));
+      if (toCheck !== "nothing" && scope.type !== "function-expression-name") {
+        scope.variables.forEach(v => checkVariable(v, toCheck as "let-const-function" | "all"));
+      }
+
+      scope.childScopes.forEach(childScope => checkScope(childScope, toCheck));
     }
 
     return {
@@ -79,7 +94,7 @@ export const rule: Rule.RuleModule = {
       },
 
       "Program:exit": () => {
-        checkScope(context.getScope(), false);
+        checkScope(context.getScope(), "nothing");
         toIgnore = [];
       },
     };
