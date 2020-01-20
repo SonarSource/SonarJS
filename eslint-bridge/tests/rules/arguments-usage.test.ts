@@ -49,6 +49,13 @@ function foo_ok4() {
   console.log("hello!");
 }
 
+function foo_ok5(a) {
+  if (arguments.length !== 1) { // OK, enforcing the number of arguments is not accessing arguments
+    throw new Error('Require 1 and only 1 argument');
+  }
+  return a.join(', ');
+}
+
 var arguments = 1;  // OK, global
 foo(arguments);
 `,
