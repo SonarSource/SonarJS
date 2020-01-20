@@ -79,7 +79,7 @@ public class TypeScriptRulesDefinitionTest {
         expected.add("JAVASCRIPT");
       }
 
-      assertThat(ruleJson.compatibleLanguages).containsAll(expected);
+      assertThat(ruleJson.compatibleLanguages).as("Failed for  " + key).containsAll(expected);
     });
   }
 

@@ -43,9 +43,11 @@ import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "TooManyBreakOrContinueInLoop")
+@Rule(key = "S135")
+@DeprecatedRuleKey(ruleKey = "TooManyBreakOrContinueInLoop")
 public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.";

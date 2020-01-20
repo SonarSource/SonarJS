@@ -1,9 +1,6 @@
 {
   "name": "Sonar way",
   "ruleKeys": [
-    "DuplicateFunctionArgument",
-    "DuplicatePropertyName",
-    "OctalNumber",
     "S108",
     "S128",
     "S878",
@@ -19,6 +16,8 @@
     "S1219",
     "S1264",
     "S1301",
+    "S1314",
+    "S1321",
     "S1439",
     "S1472",
     "S1479",
@@ -29,7 +28,10 @@
     "S1527",
     "S1529",
     "S1533",
+    "S1534",
+    "S1536",
     "S1656",
+    "S1736",
     "S1751",
     "S1764",
     "S1788",
@@ -109,7 +111,5 @@
     "S4823",
     "S4829",
     "S5122",
-    "UnreachableCode",
-    "WithStatement"
   ]
 }

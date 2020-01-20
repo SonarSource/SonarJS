@@ -1,5 +1,5 @@
 {
-  "title": "Function argument names should be unique",
+  "title": "All code should be reachable",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -7,13 +7,19 @@
     "constantCost": "5min"
   },
   "tags": [
-    
+    "cwe",
+    "unused"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1536",
-  "sqKey": "DuplicateFunctionArgument",
+  "ruleSpecification": "RSPEC-1763",
+  "sqKey": "S1736",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "scope": "Main"
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      561
+    ]
+  }
 }

@@ -177,7 +177,7 @@ public class JavaScriptSensorTest {
     inputFile("file.js");
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "OctalNumber")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S1314")).build())
       .build();
     checkFactory = new CheckFactory(activeRules);
 
@@ -194,7 +194,10 @@ public class JavaScriptSensorTest {
     inputFile("file.js");
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "OctalNumber")).build())
+      .addRule(new NewActiveRule.Builder()
+        // octal number
+        .setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S1314"))
+        .build())
       .build();
 
     checkFactory = new CheckFactory(activeRules);
@@ -296,7 +299,7 @@ public class JavaScriptSensorTest {
 
   private void analyseFile(String relativePath) {
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "OctalNumber")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S1314")).build())
       .build();
     checkFactory = new CheckFactory(activeRules);
     context.setActiveRules(activeRules);

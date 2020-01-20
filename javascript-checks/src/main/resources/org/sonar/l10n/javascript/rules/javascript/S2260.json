@@ -11,7 +11,7 @@
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2260",
-  "sqKey": "ParsingError",
+  "sqKey": "S2260",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

@@ -23,9 +23,11 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "NamedFunctionExpression")
+@Rule(key = "S1517")
+@DeprecatedRuleKey(ruleKey = "NamedFunctionExpression")
 public class NamedFunctionExpressionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Make this function anonymous by removing its name: 'function() {...}'.";

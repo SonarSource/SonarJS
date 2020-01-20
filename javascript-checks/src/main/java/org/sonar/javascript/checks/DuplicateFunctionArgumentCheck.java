@@ -29,9 +29,11 @@ import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "DuplicateFunctionArgument")
+@Rule(key = "S1536")
+@DeprecatedRuleKey(ruleKey = "DuplicateFunctionArgument")
 public class DuplicateFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Rename the duplicated function parameter \"%s\".";
