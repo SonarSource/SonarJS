@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
             nodeStack,
             nodeStack.map(_n => "+1"),
           ),
-          loc: node.loc!,
+          loc: sourceCode.getFirstToken(node)!.loc,
         });
       }
     }
