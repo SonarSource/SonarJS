@@ -61,6 +61,7 @@ public class EslintReportSensorTest {
 
   @Test
   public void should_add_issues_from_report() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
     setEslintReport("eslint-report.json");
     eslintReportSensor.execute(context);
 
@@ -85,9 +86,14 @@ public class EslintReportSensorTest {
     assertThat(fourth.primaryLocation().inputComponent()).isEqualTo(tsInputFile);
     assertThat(tsInputFile.language()).isEqualTo("ts");
 
-
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("No input file found for notExist.js. No ESLint issues will be imported on this file.");
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Parse error issue from ESLint will not be imported, file " + parseErrorInputFile.uri());
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactlyInAnyOrder(
+      "Saving external ESLint issue { file:\"file.js\", id:use-isnan, message:\"Use the isNaN function to compare with NaN.\", line:2, offset:8, type: BUG, severity:MAJOR, remediation:5 }",
+      "Saving external ESLint issue { file:\"file.js\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
+      "Saving external ESLint issue { file:\"file.js\", id:indent, message:\"Expected indentation of 4 spaces but found 0.\", line:2, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
+      "Saving external ESLint issue { file:\"file-ts.ts\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }");
   }
 
   @Test

@@ -75,6 +75,7 @@ public class TslintReportSensorTest {
 
   @Test
   public void should_add_issues_from_report() {
+    logTester.setLevel(LoggerLevel.DEBUG);
     setTslintReport(TSLINT_REPORT_FILE_NAME);
     tslintReportSensor.execute(context);
 
@@ -91,6 +92,10 @@ public class TslintReportSensorTest {
     assertThat(first.severity()).isEqualTo(Severity.MAJOR);
     assertThat(first.primaryLocation().message()).isEqualTo("Missing semicolon");
     assertThat(first.primaryLocation().textRange().start().line()).isEqualTo(1);
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).containsExactlyInAnyOrder(
+      "Saving external TSLint issue { file:\"myFile.ts\", id:semicolon, message:\"Missing semicolon\", line:1, offset:0, type: CODE_SMELL }",
+      "Saving external TSLint issue { file:\"myFile.ts\", id:curly, message:\"misplaced opening brace\", line:3, offset:0, type: BUG }");
   }
 
   @Test

@@ -26,10 +26,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
@@ -62,7 +65,7 @@ public class EslintReportSensor extends AbstractExternalIssuesSensor {
         InputFile inputFile = getInputFile(context, fileWithMessages.filePath);
         if (inputFile != null) {
           for (EslintError eslintError : fileWithMessages.messages) {
-            saveEslintError(context, eslintError, inputFile);
+            saveEslintError(context, eslintError, inputFile, fileWithMessages.filePath);
           }
         }
       }
@@ -72,29 +75,37 @@ public class EslintReportSensor extends AbstractExternalIssuesSensor {
   }
 
 
-  private static void saveEslintError(SensorContext context, EslintError eslintError, InputFile inputFile) {
+  private static void saveEslintError(SensorContext context, EslintError eslintError, InputFile inputFile, String originalFilePath) {
     String eslintKey = eslintError.ruleId;
     if (eslintKey == null) {
       LOG.warn("Parse error issue from ESLint will not be imported, file " + inputFile.uri());
       return;
     }
 
+    TextRange location = getLocation(eslintError, inputFile);
+    TextPointer start = location.start();
+    ExternalRuleLoader ruleLoader = EslintRulesDefinition.loader(eslintKey);
+    RuleType ruleType = ruleLoader.ruleType(eslintKey);
+    Severity severity = ruleLoader.ruleSeverity(eslintKey);
+    Long effortInMinutes = ruleLoader.ruleConstantDebtMinutes(eslintKey);
+
+    LOG.debug("Saving external ESLint issue { file:\"{}\", id:{}, message:\"{}\", line:{}, offset:{}, type: {}, severity:{}, remediation:{} }",
+      originalFilePath, eslintKey, eslintError.message, start.line(), start.lineOffset(), ruleType, severity, effortInMinutes);
+
     NewExternalIssue newExternalIssue = context.newExternalIssue();
 
     NewIssueLocation primaryLocation = newExternalIssue.newLocation()
       .message(eslintError.message)
       .on(inputFile)
-      .at(getLocation(eslintError, inputFile));
-
-    ExternalRuleLoader ruleLoader = EslintRulesDefinition.loader(eslintKey);
+      .at(location);
 
     newExternalIssue
       .at(primaryLocation)
       .engineId(EslintRulesDefinition.REPOSITORY_KEY)
       .ruleId(eslintKey)
-      .type(ruleLoader.ruleType(eslintKey))
-      .severity(ruleLoader.ruleSeverity(eslintKey))
-      .remediationEffortMinutes(ruleLoader.ruleConstantDebtMinutes(eslintKey))
+      .type(ruleType)
+      .severity(severity)
+      .remediationEffortMinutes(effortInMinutes)
       .save();
   }
 

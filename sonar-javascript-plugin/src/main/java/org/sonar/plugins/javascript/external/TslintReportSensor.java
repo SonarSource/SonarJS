@@ -26,10 +26,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
@@ -70,18 +72,26 @@ public class TslintReportSensor extends AbstractExternalIssuesSensor {
     if (inputFile == null) {
       return;
     }
+
+    TextRange location = getLocation(tslintError, inputFile);
+    TextPointer start = location.start();
+    RuleType ruleType = TslintRulesDefinition.ruleType(tslintKey);
+
+    LOG.debug("Saving external TSLint issue { file:\"{}\", id:{}, message:\"{}\", line:{}, offset:{}, type: {} }",
+      tslintError.name, tslintKey, tslintError.failure, start.line(), start.lineOffset(), ruleType);
+
     NewExternalIssue newExternalIssue = context.newExternalIssue();
 
     NewIssueLocation primaryLocation = newExternalIssue.newLocation()
       .message(tslintError.failure)
       .on(inputFile)
-      .at(getLocation(tslintError, inputFile));
+      .at(location);
 
     newExternalIssue
       .at(primaryLocation)
       .engineId(TslintRulesDefinition.REPOSITORY_KEY)
       .ruleId(tslintKey)
-      .type(TslintRulesDefinition.ruleType(tslintKey))
+      .type(ruleType)
       .severity(DEFAULT_SEVERITY)
       .remediationEffortMinutes(DEFAULT_REMEDIATION_COST)
       .save();
