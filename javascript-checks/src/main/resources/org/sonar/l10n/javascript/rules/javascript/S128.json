@@ -12,9 +12,10 @@
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-128",
-  "sqKey": "NonEmptyCaseWithoutBreak",
+  "sqKey": "S128",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "All",
   "securityStandards": {

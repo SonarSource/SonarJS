@@ -3,9 +3,9 @@
   "ruleKeys": [
     "DuplicateFunctionArgument",
     "DuplicatePropertyName",
-    "NonEmptyCaseWithoutBreak",
     "OctalNumber",
     "S108",
+    "S128",
     "S878",
     "S888",
     "S905",
@@ -23,6 +23,7 @@
     "S1442",
     "S1472",
     "S1479",
+    "S1481",
     "S1515",
     "S1516",
     "S1523",
@@ -111,7 +112,6 @@
     "S4829",
     "S5122",
     "UnreachableCode",
-    "UnusedVariable",
     "WithStatement"
   ]
 }
