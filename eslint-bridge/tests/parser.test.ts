@@ -184,6 +184,10 @@ describe("parseTypeScriptSourceFile", () => {
     expect(console.log).toHaveBeenCalledWith(
       "WARN You are using version of TypeScript 3.8.5 which is not officially supported; supported versions >=3.2.1 <3.8.0",
     );
+    console.log = jest.fn();
+    checkTypeScriptVersionCompatibility("3.8.5");
+    // should log only once
+    expect(console.log).not.toHaveBeenCalled();
 
     jest.resetAllMocks();
   });

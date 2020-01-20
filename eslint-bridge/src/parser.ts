@@ -106,9 +106,12 @@ export function parseTypeScriptSourceFile(
   }
 }
 
+let reportedNewerTypeScriptVersion = false;
+
 // exported for testing
 export function checkTypeScriptVersionCompatibility(currentVersion: string) {
-  if (currentVersion >= TYPESCRIPT_MAXIMUM_VERSION) {
+  if (currentVersion >= TYPESCRIPT_MAXIMUM_VERSION && !reportedNewerTypeScriptVersion) {
+    reportedNewerTypeScriptVersion = true;
     console.log(
       `WARN You are using version of TypeScript ${currentVersion} which is not officially supported; supported versions >=${TYPESCRIPT_MINIMUM_VERSION} <${TYPESCRIPT_MAXIMUM_VERSION}`,
     );
