@@ -3,9 +3,9 @@
   "ruleKeys": [
     "DuplicateFunctionArgument",
     "DuplicatePropertyName",
-    "NonEmptyCaseWithoutBreak",
     "OctalNumber",
     "S108",
+    "S128",
     "S878",
     "S888",
     "S905",
