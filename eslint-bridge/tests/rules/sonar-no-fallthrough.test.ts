@@ -65,7 +65,7 @@ ruleTester.run("No fallthrough in switch statement", rule, {
               return;
             case 3: // OK
               throw new Error();
-            case 4: // Noncompliant {{End this switch case with an unconditional break, continue, return or throw statement.}}
+            case 4: // Noncompliant
               doSomething();
             case 5: // OK
               continue;
@@ -79,6 +79,9 @@ ruleTester.run("No fallthrough in switch statement", rule, {
           message:
             "End this switch case with an unconditional break, continue, return or throw statement.",
           line: 12,
+          column: 13,
+          endLine: 12,
+          endColumn: 17,
         },
       ],
     },

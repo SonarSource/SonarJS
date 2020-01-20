@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
           context.report({
             message:
               "End this switch case with an unconditional break, continue, return or throw statement.",
-            node,
+            loc: context.getSourceCode().getFirstToken(node)!.loc,
           });
         }
       },
