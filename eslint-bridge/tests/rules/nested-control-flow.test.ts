@@ -112,20 +112,19 @@ ruleTester.run(
 );
 
 function invalid(code: string, threshold = THRESHOLD) {
-  const issue = {
-    primaryLocation: {} as IssueLocation,
-    secondaryLocations: [] as IssueLocation[],
-  };
+  let primaryLocation: IssueLocation;
+  const secondaryLocations: IssueLocation[] = [];
   const lines = code.split("\n");
   for (const [index, line] of lines.entries()) {
     let found: RegExpMatchArray | null;
 
-    const primary = /\/\/\s*(\-+\^+\-+)/;
+    const primary = /\/\/\s*\-+(\^+)\-+/;
     found = line.match(primary);
     if (found) {
       const marker = found[1];
-      const column = line.indexOf(marker);
-      issue.primaryLocation = location(index, column, index, column + marker.length);
+      const column = line.indexOf(marker) + 1; // Column is one-based in tests
+      const msg = `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`;
+      primaryLocation = location(index, column, index, column + marker.length, msg);
     }
 
     const secondary = /\/\/\s*(\^+)/;
@@ -133,29 +132,23 @@ function invalid(code: string, threshold = THRESHOLD) {
     if (found) {
       const marker = found[1];
       const column = line.indexOf(marker);
-      issue.secondaryLocations.push(location(index, column, index, column + marker.length, "+1"));
+      secondaryLocations.push(location(index, column, index, column + marker.length, "+1"));
     }
   }
 
-  return { code, errors: [error(issue, threshold)], options: [threshold] };
+  return { code, errors: [error(primaryLocation, secondaryLocations)], options: [threshold] };
 }
 
-function error(
-  issue: {
-    primaryLocation: IssueLocation;
-    secondaryLocations: IssueLocation[];
-  },
-  threshold: number,
-) {
+function error(primaryLocation: IssueLocation, secondaryLocations: IssueLocation[]) {
   return {
-    message: encode(threshold, issue.secondaryLocations),
-    loc: issue.primaryLocation,
+    ...primaryLocation,
+    message: encode(primaryLocation.message, secondaryLocations),
   };
 }
 
-function encode(threshold: number, secondaryLocations: IssueLocation[]): string {
+function encode(message: string, secondaryLocations: IssueLocation[]): string {
   const encodedMessage: EncodedMessage = {
-    message: `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`,
+    message,
     secondaryLocations,
   };
   return JSON.stringify(encodedMessage);
@@ -166,7 +159,7 @@ function location(
   column: number,
   endLine: number,
   endColumn: number,
-  message?: string,
+  message: string,
 ): IssueLocation {
   return { message, column, line, endColumn, endLine };
 }
