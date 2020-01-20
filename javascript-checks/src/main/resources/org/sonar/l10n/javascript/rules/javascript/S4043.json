@@ -1,6 +1,6 @@
 {
   "title": "Array-mutating methods should not be used misleadingly",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

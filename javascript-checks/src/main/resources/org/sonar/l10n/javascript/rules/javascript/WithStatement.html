@@ -13,7 +13,7 @@ var foo = {
 }
 
 with (foo) {  // Noncompliant
-  y = 4;  // updates foo.x
+  y = 4;  // updates foo.y
   x = 3;  // does NOT add a foo.x property; updates x var in outer scope
 }
 print(foo.x + " " + x); // shows: undefined 3
