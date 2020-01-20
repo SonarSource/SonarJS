@@ -11,7 +11,7 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1481",
-  "sqKey": "UnusedVariable",
+  "sqKey": "S1481",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
