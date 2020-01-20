@@ -145,6 +145,15 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
           arr.sort(function() {              // OK
             return i;
           });
+
+          $.each(a, function() {              // OK
+            return i;
+          });
+
+          
+          a.b.each(a, () => {              // OK
+            return i;
+          });
         }
       }
       `,
