@@ -72,7 +72,12 @@ public class EslintBridgeServerImplTest {
 
   @After
   public void tearDown() throws Exception {
-    eslintBridgeServer.clean();
+    try {
+      eslintBridgeServer.clean();
+    } catch (Exception e) {
+      // ignore
+      e.printStackTrace();
+    }
   }
 
   @Test
