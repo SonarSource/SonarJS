@@ -44,6 +44,7 @@ const allowedCallbacks = [
   "reduce",
   "reduceRight",
   "sort",
+  "each",
 ];
 
 export const rule: Rule.RuleModule = {
