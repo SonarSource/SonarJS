@@ -7,9 +7,7 @@
     "constantCost": "5min"
   },
   "tags": [
-    "cwe",
-    "user-experience",
-    "owasp-a3"
+    
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1525",
@@ -18,13 +16,5 @@
     "JAVASCRIPT",
     "TYPESCRIPT"
   ],
-  "scope": "Main",
-  "securityStandards": {
-    "CWE": [
-      489
-    ],
-    "OWASP": [
-      "A3"
-    ]
-  }
+  "scope": "Main"
 }

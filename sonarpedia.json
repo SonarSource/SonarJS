@@ -3,11 +3,7 @@
   "languages": [
     "JS"
   ],
-  "languagesToCover": [
-    "JS",
-    "TS"
-  ],
-  "latest-update": "2019-11-12T10:20:44.939197Z",
+  "latest-update": "2020-01-20T11:17:16.984994Z",
   "options": {
     "no-language-in-filenames": true,
     "preserve-filenames": true

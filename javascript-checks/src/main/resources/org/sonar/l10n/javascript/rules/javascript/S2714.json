@@ -7,9 +7,7 @@
     "constantCost": "2min"
   },
   "tags": [
-    "performance",
-    "user-experience",
-    "jquery"
+    
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2714",

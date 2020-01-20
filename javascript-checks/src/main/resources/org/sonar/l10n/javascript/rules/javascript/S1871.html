@@ -38,7 +38,7 @@ else {
 <p>Blocks in an <code>if</code> chain that contain a single line of code are ignored, as are blocks in a <code>switch</code> statement that contain a
 single line of code with or without a following <code>break</code>.</p>
 <pre>
-if(a == 1) {
+if (a == 1) {
   doSomething();  //no issue, usually this is done on purpose to increase the readability
 } else if (a == 2) {
   doSomethingElse();
@@ -50,7 +50,7 @@ if(a == 1) {
 all branches have the same single line of code. In case of <code>if</code> chains with <code>else</code>-s, or of <code>switch</code>-es with default
 clauses, rule {rule:javascript:S3923} raises a bug. </p>
 <pre>
-if(a == 1) {
+if (a == 1) {
   doSomething();  //Noncompliant, this might have been done on purpose but probably not
 } else if (a == 2) {
   doSomething();

@@ -1,11 +1,12 @@
 {
-  "title": "Enabling Cross-Origin Resource Sharing is security-sensitive",
+  "title": "Permissive Cross-Origin Resource Sharing policy is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "tags": [
     "cwe",
     "owasp-a6",
-    "sans-top25-porous"
+    "sans-top25-porous",
+    "express.js"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5122",
