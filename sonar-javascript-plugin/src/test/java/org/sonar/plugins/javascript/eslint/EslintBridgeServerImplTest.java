@@ -355,6 +355,20 @@ public class EslintBridgeServerImplTest {
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("TypeScript dependency was not found and it is required for analysis.");
   }
 
+  @Test
+  public void log_error_when_timeout() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("timeout.js");
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+
+    assertThatThrownBy(() -> eslintBridgeServer.loadTsConfig("any.ts"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("eslint-bridge is unresponsive");
+    assertThat(logTester.logs(ERROR)).contains("eslint-bridge Node.js process is unresponsive. This is most likely " +
+      "caused by process running out of memory. Consider setting sonar.javascript.node.maxspace to higher value" +
+      " (e.g. 4096).");
+  }
+
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
     return new EslintBridgeServerImpl(new MapSettings().asConfig(), NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript));
   }

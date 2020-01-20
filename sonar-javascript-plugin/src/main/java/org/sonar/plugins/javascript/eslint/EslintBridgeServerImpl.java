@@ -194,12 +194,10 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       // in this case response.body() is never null (according to docs)
       return response.body().string();
     } catch (InterruptedIOException e) {
-      if ("timeout".equals(e.getMessage())) {
-        String msg = "eslint-bridge Node.js process is unresponsive. This is most likely caused by process running out of memory." +
-          " Consider setting sonar.javascript.node.maxspace to higher value (e.g. 4096).";
-        LOG.error(msg);
-      }
-      throw new IllegalStateException(e);
+      String msg = "eslint-bridge Node.js process is unresponsive. This is most likely caused by process running out of memory." +
+        " Consider setting sonar.javascript.node.maxspace to higher value (e.g. 4096).";
+      LOG.error(msg);
+      throw new IllegalStateException("eslint-bridge is unresponsive", e);
     }
   }
 
