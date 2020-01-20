@@ -59,9 +59,6 @@ public class EslintBridgeServerImplTest {
   public LogTester logTester = new LogTester();
 
   @org.junit.Rule
-  public final ExpectedException thrown = ExpectedException.none();
-
-  @org.junit.Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
   private SensorContextTester context;
@@ -75,7 +72,12 @@ public class EslintBridgeServerImplTest {
 
   @After
   public void tearDown() throws Exception {
-    eslintBridgeServer.clean();
+    try {
+      eslintBridgeServer.clean();
+    } catch (Exception e) {
+      // ignore
+      e.printStackTrace();
+    }
   }
 
   @Test
@@ -83,10 +85,9 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer("NOT_EXISTING.js");
     eslintBridgeServer.deploy();
 
-    thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("Node.js script to start eslint-bridge server doesn't exist:");
-
-    eslintBridgeServer.startServer(context);
+    assertThatThrownBy(() -> eslintBridgeServer.startServer(context))
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessageStartingWith("Node.js script to start eslint-bridge server doesn't exist:");
   }
 
   @Test
@@ -102,10 +103,9 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = new EslintBridgeServerImpl(new MapSettings().asConfig(), nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle);
     eslintBridgeServer.deploy();
 
-    thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("msg");
-
-    eslintBridgeServer.startServer(context);
+    assertThatThrownBy(() -> eslintBridgeServer.startServer(context))
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessage("msg");
   }
 
   @Test
@@ -154,10 +154,9 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer = createEslintBridgeServer("throw.js");
     eslintBridgeServer.deploy();
 
-    thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)");
-
-    eslintBridgeServer.startServer(context);
+    assertThatThrownBy(() -> eslintBridgeServer.startServer(context))
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessage("Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)");
   }
 
   @Test
@@ -354,6 +353,20 @@ public class EslintBridgeServerImplTest {
       .isInstanceOf(MissingTypeScriptException.class);
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("TypeScript dependency was not found and it is required for analysis.");
+  }
+
+  @Test
+  public void log_error_when_timeout() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("timeout.js");
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+
+    assertThatThrownBy(() -> eslintBridgeServer.loadTsConfig("any.ts"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("eslint-bridge is unresponsive");
+    assertThat(logTester.logs(ERROR)).contains("eslint-bridge Node.js process is unresponsive. This is most likely " +
+      "caused by process running out of memory. Consider setting sonar.javascript.node.maxspace to higher value" +
+      " (e.g. 4096).");
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
