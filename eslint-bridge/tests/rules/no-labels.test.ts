@@ -17,20 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+import { rule } from "../../src/rules/no-labels";
+import { RuleTester } from "eslint";
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
-
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S1119")
-public class LabelledStatementCheck extends EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "no-labels";
-  }
-
-}
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+ruleTester.run("Labels should not be used", rule, {
+  valid: [
+    {
+      code: `
+      let x = doSomething();
+      if (x <= 0) {
+        doSomethingElse();
+      }`,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+      myLabel: {
+        let x = doSomething();
+        if (x > 0) {
+          break myLabel;
+        }
+        doSomethingElse();
+      }
+`,
+      errors: [
+        {
+          message: `Refactor the code to remove this label and the need for it.`,
+          line: 2,
+          endLine: 2,
+          column: 7,
+          endColumn: 14,
+        },
+      ],
+    },
+  ],
+});

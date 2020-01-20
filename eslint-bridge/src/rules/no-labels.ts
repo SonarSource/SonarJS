@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-1119
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import { Rule } from "eslint";
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S1119")
-public class LabelledStatementCheck extends EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "no-labels";
-  }
-
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      LabeledStatement(node) {
+        const sourceCode = context.getSourceCode();
+        context.report({
+          message: "Refactor the code to remove this label and the need for it.",
+          loc: sourceCode.getFirstToken(node)!.loc,
+        });
+      },
+    };
+  },
+};
