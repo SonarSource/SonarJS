@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -192,6 +193,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     try (Response response = client.newCall(request).execute()) {
       // in this case response.body() is never null (according to docs)
       return response.body().string();
+    } catch (InterruptedIOException e) {
+      String msg = "eslint-bridge Node.js process is unresponsive. This is most likely caused by process running out of memory." +
+        " Consider setting sonar.javascript.node.maxspace to higher value (e.g. 4096).";
+      LOG.error(msg);
+      throw new IllegalStateException("eslint-bridge is unresponsive", e);
     }
   }
 
