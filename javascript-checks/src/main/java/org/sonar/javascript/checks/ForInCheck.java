@@ -29,9 +29,11 @@ import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "ForIn")
+@Rule(key = "S1535")
+@DeprecatedRuleKey(ruleKey = "ForIn")
 public class ForInCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Restrict what this loop acts on by testing each property.";

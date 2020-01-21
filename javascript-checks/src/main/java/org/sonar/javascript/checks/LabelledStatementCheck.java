@@ -21,20 +21,16 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.tree.KindSet;
-import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1119")
-public class LabelledStatementCheck extends DoubleDispatchVisitorCheck {
+public class LabelledStatementCheck extends EslintBasedCheck {
 
   @Override
-  public void visitLabelledStatement(LabelledStatementTree tree) {
-    if (!tree.statement().is(KindSet.LOOP_KINDS)) {
-      addIssue(tree.labelToken(), "Refactor the code to remove this label and the need for it.");
-    }
-    super.visitLabelledStatement(tree);
+  public String eslintKey() {
+    return "no-labels";
   }
 
 }

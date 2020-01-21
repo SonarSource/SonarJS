@@ -1,5 +1,5 @@
 {
-  "title": "\"for...in\" loops should filter properties before acting on them",
+  "title": "Property names should not be duplicated within a class or object literal ",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -7,11 +7,11 @@
     "constantCost": "5min"
   },
   "tags": [
-    
+    "pitfall"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1535",
-  "sqKey": "ForIn",
+  "ruleSpecification": "RSPEC-1534",
+  "sqKey": "S1534",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],

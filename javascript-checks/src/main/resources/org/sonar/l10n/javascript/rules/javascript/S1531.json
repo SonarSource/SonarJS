@@ -11,7 +11,7 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1531",
-  "sqKey": "HtmlComments",
+  "sqKey": "S1531",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],

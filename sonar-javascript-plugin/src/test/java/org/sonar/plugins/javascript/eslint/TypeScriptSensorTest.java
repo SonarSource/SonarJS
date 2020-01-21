@@ -436,7 +436,7 @@ public class TypeScriptSensorTest {
 
   private TypeScriptSensor createSensor() {
     return new TypeScriptSensor(
-      checkFactory(ESLINT_BASED_RULE, "ParsingError"),
+      checkFactory(ESLINT_BASED_RULE, "S2260"),
       new NoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,

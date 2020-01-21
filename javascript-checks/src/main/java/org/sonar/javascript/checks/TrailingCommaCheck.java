@@ -28,12 +28,14 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 /**
  * http://stackoverflow.com/questions/7246618/trailing-commas-in-javascript
  */
 @JavaScriptRule
-@Rule(key = "TrailingComma")
+@Rule(key = "S1537")
+@DeprecatedRuleKey(ruleKey = "TrailingComma")
 public class TrailingCommaCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this trailing comma.";

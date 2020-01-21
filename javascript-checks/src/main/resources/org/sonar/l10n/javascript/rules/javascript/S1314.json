@@ -11,7 +11,7 @@
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1314",
-  "sqKey": "OctalNumber",
+  "sqKey": "S1314",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],

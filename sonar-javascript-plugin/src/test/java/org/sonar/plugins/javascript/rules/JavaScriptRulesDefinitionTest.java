@@ -49,7 +49,7 @@ public class JavaScriptRulesDefinitionTest {
   @Test
   public void sonarlint() {
     RulesDefinition.Repository repository = buildRepository();
-    assertThat(repository.rule("ContinueStatement").activatedByDefault()).isFalse();
+    assertThat(repository.rule("S909").activatedByDefault()).isFalse();
     assertThat(repository.rule("S930").activatedByDefault()).isTrue();
   }
 
@@ -71,7 +71,7 @@ public class JavaScriptRulesDefinitionTest {
   }
 
   private void assertRuleProperties(Repository repository) {
-    Rule rule = repository.rule("ArrayAndObjectConstructors");
+    Rule rule = repository.rule("S1528");
     assertThat(rule).isNotNull();
     assertThat(rule.name()).isEqualTo("Array constructors should not be used");
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(Type.CONSTANT_ISSUE);

@@ -1,17 +1,17 @@
 {
-  "title": "\"continue\" should not be used",
+  "title": "Trailing commas should not be used",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "1h"
+    "constantCost": "1min"
   },
   "tags": [
-    "bad-practice"
+    "cross-browser"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-909",
-  "sqKey": "ContinueStatement",
+  "ruleSpecification": "RSPEC-1537",
+  "sqKey": "S1537",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],

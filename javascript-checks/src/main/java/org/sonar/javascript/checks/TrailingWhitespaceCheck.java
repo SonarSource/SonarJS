@@ -31,9 +31,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "TrailingWhitespace")
+@Rule(key = "S1131")
+@DeprecatedRuleKey(ruleKey = "TrailingWhitespace")
 public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove the useless trailing whitespaces at the end of this line.";

@@ -27,9 +27,11 @@ import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "SwitchWithoutDefault")
+@Rule(key = "S131")
+@DeprecatedRuleKey(ruleKey = "SwitchWithoutDefault")
 public class SwitchWithoutDefaultCheck extends DoubleDispatchVisitorCheck {
 
   private static final String ADD_DEFAULT_MESSAGE = "Add a \"default\" clause to this \"switch\" statement.";

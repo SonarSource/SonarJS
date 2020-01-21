@@ -12,7 +12,7 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-135",
-  "sqKey": "TooManyBreakOrContinueInLoop",
+  "sqKey": "S135",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],

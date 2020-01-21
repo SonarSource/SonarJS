@@ -23,10 +23,12 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.javascript.checks.annotations.TypeScriptRule;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@Rule(key = "ParsingError")
+@Rule(key = "S2260")
+@DeprecatedRuleKey(ruleKey = "ParsingError")
 public class ParsingErrorCheck extends DoubleDispatchVisitorCheck {
 
 }

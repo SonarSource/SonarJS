@@ -17,25 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-1119
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
+import { Rule } from "eslint";
 
-@JavaScriptRule
-@Rule(key = "S1321")
-@DeprecatedRuleKey(ruleKey = "WithStatement")
-public class WithStatementCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this use of \"with\".";
-
-  @Override
-  public void visitWithStatement(WithStatementTree tree) {
-    addIssue(tree.withKeyword(), MESSAGE);
-
-    super.visitWithStatement(tree);
-  }
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      LabeledStatement(node) {
+        const sourceCode = context.getSourceCode();
+        context.report({
+          message: "Refactor the code to remove this label and the need for it.",
+          loc: sourceCode.getFirstToken(node)!.loc,
+        });
+      },
+    };
+  },
+};

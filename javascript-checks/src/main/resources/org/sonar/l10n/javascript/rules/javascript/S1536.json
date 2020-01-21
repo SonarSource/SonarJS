@@ -1,19 +1,19 @@
 {
-  "title": "The ternary operator should not be used",
-  "type": "CODE_SMELL",
+  "title": "Function argument names should be unique",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "brain-overload"
+    
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-1774",
-  "sqKey": "ConditionalOperator",
+  "ruleSpecification": "RSPEC-1536",
+  "sqKey": "S1536",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "scope": "All"
+  "scope": "Main"
 }

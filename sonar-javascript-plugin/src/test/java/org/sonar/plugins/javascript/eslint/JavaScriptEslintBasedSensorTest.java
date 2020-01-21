@@ -479,14 +479,14 @@ public class JavaScriptEslintBasedSensorTest {
       .build();
     context.fileSystem().add(inputFile);
 
-    CheckFactory checkFactory = checkFactory("OctalNumber");
+    CheckFactory checkFactory = checkFactory("S1314");
     NoSonarFilter noSonarFilter = new NoSonarFilter();
     JavaScriptSensor jsSensor = new JavaScriptSensor(checkFactory, context.fileSystem(), null, null);
     JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServerMock, jsSensor);
     sensor.execute(context);
 
     assertThat(context.allIssues()).hasSize(1);
-    assertThat(context.allIssues()).extracting(i -> i.ruleKey().toString()).containsExactly("javascript:OctalNumber");
+    assertThat(context.allIssues()).extracting(i -> i.ruleKey().toString()).containsExactly("javascript:S1314");
   }
 
   @Test
@@ -518,6 +518,6 @@ public class JavaScriptEslintBasedSensorTest {
 
 
   private JavaScriptEslintBasedSensor createSensor() {
-    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "ParsingError", "S1451"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, mock(JavaScriptSensor.class));
+    return new JavaScriptEslintBasedSensor(checkFactory(ESLINT_BASED_RULE, "S2260", "S1451"), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, mock(JavaScriptSensor.class));
   }
 }
