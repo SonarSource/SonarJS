@@ -71,3 +71,4 @@
 [submodule "its/sources/javascript-test-sources"]
 	path = its/sources/javascript-test-sources
 	url = https://github.com/SonarSource/javascript-test-sources.git
+	ignore = untracked
