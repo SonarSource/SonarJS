@@ -11,7 +11,7 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-131",
-  "sqKey": "SwitchWithoutDefault",
+  "sqKey": "S131",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],

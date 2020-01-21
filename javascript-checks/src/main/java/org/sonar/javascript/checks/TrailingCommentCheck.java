@@ -29,9 +29,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "TrailingComment")
+@Rule(key = "S139")
+@DeprecatedRuleKey(ruleKey = "TrailingComment")
 public class TrailingCommentCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Move this trailing comment on the previous empty line.";

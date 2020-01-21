@@ -41,9 +41,11 @@ import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "UnreachableCode")
+@Rule(key = "S1736")
+@DeprecatedRuleKey(ruleKey = "UnreachableCode")
 public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this code after the \"%s\" statement.";

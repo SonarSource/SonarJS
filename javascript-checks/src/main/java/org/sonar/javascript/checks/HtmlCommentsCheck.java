@@ -27,9 +27,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "HtmlComments")
+@Rule(key = "S1531")
+@DeprecatedRuleKey(ruleKey = "HtmlComments")
 public class HtmlCommentsCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Replace this HTML-style comment by a standard comment";

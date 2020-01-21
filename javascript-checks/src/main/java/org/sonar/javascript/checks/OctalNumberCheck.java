@@ -24,9 +24,11 @@ import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "OctalNumber")
+@Rule(key = "S1314")
+@DeprecatedRuleKey(ruleKey = "OctalNumber")
 public class OctalNumberCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace the value of the octal number (%s) by its decimal equivalent (%s).";

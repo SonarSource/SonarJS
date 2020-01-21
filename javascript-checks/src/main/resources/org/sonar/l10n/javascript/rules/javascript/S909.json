@@ -1,17 +1,17 @@
 {
-  "title": "Lines should not end with trailing whitespaces",
+  "title": "\"continue\" should not be used",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "1min"
+    "constantCost": "1h"
   },
   "tags": [
-    "convention"
+    "bad-practice"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1131",
-  "sqKey": "TrailingWhitespace",
+  "ruleSpecification": "RSPEC-909",
+  "sqKey": "S909",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],

@@ -1,17 +1,17 @@
 {
-  "title": "\"with\" statements should not be used",
+  "title": "Named function expressions should not be used",
   "type": "BUG",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "30min"
+    "constantCost": "15min"
   },
   "tags": [
     
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1321",
-  "sqKey": "WithStatement",
+  "ruleSpecification": "RSPEC-1517",
+  "sqKey": "S1517",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],

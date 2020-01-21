@@ -1,19 +1,19 @@
 {
-  "title": "Comments should not be located at the end of lines of code",
+  "title": "Array constructors should not be used",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "1min"
+    "constantCost": "5min"
   },
   "tags": [
-    "convention"
+    "suspicious"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-139",
-  "sqKey": "TrailingComment",
+  "ruleSpecification": "RSPEC-1528",
+  "sqKey": "S1528",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "scope": "All"
+  "scope": "Main"
 }

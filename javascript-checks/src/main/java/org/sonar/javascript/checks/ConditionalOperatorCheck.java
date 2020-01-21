@@ -23,9 +23,11 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "ConditionalOperator")
+@Rule(key = "S1774")
+@DeprecatedRuleKey(ruleKey = "ConditionalOperator")
 public class ConditionalOperatorCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Convert this usage of the ternary operator to an \"if\"/\"else\" structure.";

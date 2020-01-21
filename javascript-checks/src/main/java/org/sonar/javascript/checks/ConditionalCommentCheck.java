@@ -27,9 +27,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "ConditionalComment")
+@Rule(key = "S1532")
+@DeprecatedRuleKey(ruleKey = "ConditionalComment")
 public class ConditionalCommentCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Refactor your code to avoid using Internet Explorer's conditional comments.";

@@ -26,9 +26,11 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "ArrayAndObjectConstructors")
+@Rule(key = "S1528")
+@DeprecatedRuleKey(ruleKey = "ArrayAndObjectConstructors")
 public class ArrayConstructorsCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use a literal instead of the Array constructor.";

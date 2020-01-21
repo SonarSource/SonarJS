@@ -23,9 +23,11 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "ContinueStatement")
+@Rule(key = "S909")
+@DeprecatedRuleKey(ruleKey = "ContinueStatement")
 public class ContinueStatementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this \"continue\" statement.";

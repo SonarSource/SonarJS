@@ -11,7 +11,7 @@
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1532",
-  "sqKey": "ConditionalComment",
+  "sqKey": "S1532",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],

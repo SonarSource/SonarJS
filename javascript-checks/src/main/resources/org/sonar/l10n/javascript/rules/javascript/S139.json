@@ -1,19 +1,19 @@
 {
-  "title": "Array constructors should not be used",
+  "title": "Comments should not be located at the end of lines of code",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "5min"
+    "constantCost": "1min"
   },
   "tags": [
-    "suspicious"
+    "convention"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1528",
-  "sqKey": "ArrayAndObjectConstructors",
+  "ruleSpecification": "RSPEC-139",
+  "sqKey": "S139",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ],
-  "scope": "Main"
+  "scope": "All"
 }

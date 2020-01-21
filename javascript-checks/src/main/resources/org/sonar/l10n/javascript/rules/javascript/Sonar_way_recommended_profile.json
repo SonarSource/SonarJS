@@ -1,10 +1,6 @@
 {
   "name": "Sonar way recommended",
   "ruleKeys": [
-    "ArrayAndObjectConstructors",
-    "DuplicateFunctionArgument",
-    "DuplicatePropertyName",
-    "OctalNumber",
     "S101",
     "S103",
     "S104",
@@ -28,6 +24,7 @@
     "S1125",
     "S1126",
     "S1128",
+    "S1131",
     "S1134",
     "S1135",
     "S1143",
@@ -36,6 +33,8 @@
     "S1226",
     "S1264",
     "S1301",
+    "S1314",
+    "S1321",
     "S1439",
     "S1440",
     "S1472",
@@ -47,9 +46,13 @@
     "S1523",
     "S1526",
     "S1527",
+    "S1528",
     "S1529",
     "S1533",
+    "S1534",
+    "S1536",
     "S1656",
+    "S1736",
     "S1751",
     "S1764",
     "S1788",
@@ -172,9 +175,6 @@
     "S4822",
     "S4823",
     "S4829",
-    "S5122",
-    "TrailingWhitespace",
-    "UnreachableCode",
-    "WithStatement"
+    "S5122"
   ]
 }

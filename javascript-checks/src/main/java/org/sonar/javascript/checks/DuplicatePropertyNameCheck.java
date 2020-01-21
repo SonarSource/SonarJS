@@ -41,9 +41,11 @@ import org.sonar.plugins.javascript.api.tree.flow.FlowPropertyDefinitionTree;
 import org.sonar.plugins.javascript.api.tree.flow.FlowSimplePropertyDefinitionKeyTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
-@Rule(key = "DuplicatePropertyName")
+@Rule(key = "S1534")
+@DeprecatedRuleKey(ruleKey = "DuplicatePropertyName")
 public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Rename or remove duplicate property name '%s'.";
