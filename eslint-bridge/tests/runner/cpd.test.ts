@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getCpdTokens, { CpdToken } from "../../src/runner/cpd";
-import { parseTypeScriptSourceFile } from "../../src/parser";
-import { join } from "path";
-import { SourceCode } from "eslint";
+import getCpdTokens, { CpdToken } from '../../src/runner/cpd';
+import { parseTypeScriptSourceFile } from '../../src/parser';
+import { join } from 'path';
+import { SourceCode } from 'eslint';
 
-it("should not skip any token", () => {
+it('should not skip any token', () => {
   const result = actual(
     `
     // comment
@@ -35,7 +35,7 @@ it("should not skip any token", () => {
   expect(result.length).toBe(4);
 });
 
-it("should skip comments", () => {
+it('should skip comments', () => {
   const result = actual(
     `a // comment1
   /*comment2*/
@@ -56,7 +56,7 @@ it("should skip comments", () => {
   expect(result.length).toBe(3);
 });
 
-it("should provide correct position", () => {
+it('should provide correct position', () => {
   const result = actual(
     ` foo
 bar
@@ -67,48 +67,48 @@ multiline string
   `,
   );
   expect(result.length).toBe(4);
-  expect(result).toContainEqual(token(1, 1, 1, 4, "foo"));
-  expect(result).toContainEqual(token(2, 0, 2, 3, "bar"));
-  expect(result).toContainEqual(token(3, 4, 3, 10, "foobar"));
-  expect(result).toContainEqual(token(4, 0, 6, 1, "LITERAL"));
+  expect(result).toContainEqual(token(1, 1, 1, 4, 'foo'));
+  expect(result).toContainEqual(token(2, 0, 2, 3, 'bar'));
+  expect(result).toContainEqual(token(3, 4, 3, 10, 'foobar'));
+  expect(result).toContainEqual(token(4, 0, 6, 1, 'LITERAL'));
 });
 
-it("should replace strings", () => {
-  expect(actual("'string'")[0].image).toBe("LITERAL");
-  expect(actual("`string`")[0].image).toBe("LITERAL");
-  expect(actual('"string"')[0].image).toBe("LITERAL");
-  expect(actual("42")[0].image).toBe("42");
-  expect(actual("true")[0].image).toBe("true");
+it('should replace strings', () => {
+  expect(actual("'string'")[0].image).toBe('LITERAL');
+  expect(actual('`string`')[0].image).toBe('LITERAL');
+  expect(actual('"string"')[0].image).toBe('LITERAL');
+  expect(actual('42')[0].image).toBe('42');
+  expect(actual('true')[0].image).toBe('true');
 });
 
-it("should process JSX syntax", () => {
-  const result = actual("<foo/>");
+it('should process JSX syntax', () => {
+  const result = actual('<foo/>');
   expect(result.length).toBe(4);
-  expect(result).toContainEqual(token(1, 0, 1, 1, "<"));
-  expect(result).toContainEqual(token(1, 1, 1, 4, "foo"));
-  expect(result).toContainEqual(token(1, 4, 1, 5, "/"));
-  expect(result).toContainEqual(token(1, 5, 1, 6, ">"));
+  expect(result).toContainEqual(token(1, 0, 1, 1, '<'));
+  expect(result).toContainEqual(token(1, 1, 1, 4, 'foo'));
+  expect(result).toContainEqual(token(1, 4, 1, 5, '/'));
+  expect(result).toContainEqual(token(1, 5, 1, 6, '>'));
 });
 
-it("should process JSX syntax with empty text elements", () => {
+it('should process JSX syntax with empty text elements', () => {
   const result = actual(`<foo>
       </foo>`);
   expect(result.length).toBe(7);
-  expect(result).toContainEqual(token(1, 0, 1, 1, "<"));
-  expect(result).toContainEqual(token(1, 1, 1, 4, "foo"));
-  expect(result).toContainEqual(token(1, 4, 1, 5, ">"));
-  expect(result).toContainEqual(token(2, 6, 2, 7, "<"));
+  expect(result).toContainEqual(token(1, 0, 1, 1, '<'));
+  expect(result).toContainEqual(token(1, 1, 1, 4, 'foo'));
+  expect(result).toContainEqual(token(1, 4, 1, 5, '>'));
+  expect(result).toContainEqual(token(2, 6, 2, 7, '<'));
 });
 
-it("should process JSX syntax with not empty text elements", () => {
+it('should process JSX syntax with not empty text elements', () => {
   const result = actual(`<foo> hello
     world </foo>`);
   expect(result.length).toBe(8);
-  expect(result).toContainEqual(token(1, 0, 1, 1, "<"));
-  expect(result).toContainEqual(token(1, 1, 1, 4, "foo"));
-  expect(result).toContainEqual(token(1, 4, 1, 5, ">"));
-  expect(result).toContainEqual(token(1, 5, 2, 10, " hello\n    world "));
-  expect(result).toContainEqual(token(2, 10, 2, 11, "<"));
+  expect(result).toContainEqual(token(1, 0, 1, 1, '<'));
+  expect(result).toContainEqual(token(1, 1, 1, 4, 'foo'));
+  expect(result).toContainEqual(token(1, 4, 1, 5, '>'));
+  expect(result).toContainEqual(token(1, 5, 2, 10, ' hello\n    world '));
+  expect(result).toContainEqual(token(2, 10, 2, 11, '<'));
 });
 
 function token(
@@ -130,8 +130,8 @@ function token(
 }
 
 function actual(code: string): CpdToken[] {
-  const fileUri = join(__dirname, "/../fixtures/tsx-project/sample.lint.tsx");
-  const tsConfig = join(__dirname, "/../fixtures/tsx-project/tsconfig.json");
+  const fileUri = join(__dirname, '/../fixtures/tsx-project/sample.lint.tsx');
+  const tsConfig = join(__dirname, '/../fixtures/tsx-project/tsconfig.json');
   const sourceCode = parseTypeScriptSourceFile(code, fileUri, [tsConfig]) as SourceCode;
   return getCpdTokens(sourceCode).cpdTokens;
 }

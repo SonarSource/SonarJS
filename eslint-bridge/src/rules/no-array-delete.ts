@@ -19,11 +19,11 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2870
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { isRequiredParserServices } from "../utils/isRequiredParserServices";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { isArray } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { isRequiredParserServices } from '../utils/isRequiredParserServices';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { isArray } from './utils';
 
 const ArrayDeleteExpression =
   "UnaryExpression[operator='delete'] > MemberExpression[computed=true]";

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/code-eval";
+import { rule } from '../../src/rules/code-eval';
 
-ruleTester.run("Dynamically executing code is security-sensitive", rule, {
+ruleTester.run('Dynamically executing code is security-sensitive', rule, {
   valid: [
     {
       code: `foo(x)`,
@@ -66,7 +66,7 @@ ruleTester.run("Dynamically executing code is security-sensitive", rule, {
       code: `eval(x);`,
       errors: [
         {
-          message: "Make sure that this dynamic injection or execution of code is safe.",
+          message: 'Make sure that this dynamic injection or execution of code is safe.',
           line: 1,
           endLine: 1,
           column: 1,

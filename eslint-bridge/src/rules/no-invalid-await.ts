@@ -19,16 +19,16 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4123
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { isRequiredParserServices } from "../utils/isRequiredParserServices";
-import { getTypeFromTreeNode } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { isRequiredParserServices } from '../utils/isRequiredParserServices';
+import { getTypeFromTreeNode } from './utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
-      const ts = require("typescript");
+      const ts = require('typescript');
       return {
         AwaitExpression: (node: estree.Node) => {
           const awaitedType = getTypeFromTreeNode(
@@ -53,7 +53,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function hasThenMethod(type: any, ts: any) {
-  const thenProperty = type.getProperty("then");
+  const thenProperty = type.getProperty('then');
   return Boolean(thenProperty && thenProperty.flags & ts.SymbolFlags.Method);
 }
 

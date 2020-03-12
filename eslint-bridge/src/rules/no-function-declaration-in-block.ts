@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1530
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
-const message = "Do not use function declarations within blocks.";
+const message = 'Do not use function declarations within blocks.';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      ":not(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression) > BlockStatement > FunctionDeclaration": (
+      ':not(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression) > BlockStatement > FunctionDeclaration': (
         node: estree.Node,
       ) => {
         context.report({

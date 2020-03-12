@@ -19,8 +19,8 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2208
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -32,8 +32,8 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      ImportNamespaceSpecifier: (node: estree.Node) => report(node, "import"),
-      ExportAllDeclaration: (node: estree.Node) => report(node, "export"),
+      ImportNamespaceSpecifier: (node: estree.Node) => report(node, 'import'),
+      ExportAllDeclaration: (node: estree.Node) => report(node, 'export'),
     };
   },
 };

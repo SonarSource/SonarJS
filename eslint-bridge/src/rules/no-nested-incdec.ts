@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-881
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-const MESSAGE_INC = "Extract this increment operation into a dedicated statement.";
-const MESSAGE_DEC = "Extract this decrement operation into a dedicated statement.";
+const MESSAGE_INC = 'Extract this increment operation into a dedicated statement.';
+const MESSAGE_DEC = 'Extract this decrement operation into a dedicated statement.';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     function reportUpdateExpression(node: estree.UpdateExpression) {
       context.report({
-        message: node.operator === "++" ? MESSAGE_INC : MESSAGE_DEC,
+        message: node.operator === '++' ? MESSAGE_INC : MESSAGE_DEC,
         node,
       });
     }
@@ -49,15 +49,15 @@ function isIgnored(node: estree.Node, ancestors: estree.Node[]): boolean {
 
   if (firstAncestor) {
     switch (firstAncestor.type) {
-      case "ExpressionStatement":
+      case 'ExpressionStatement':
         return true;
-      case "ForStatement":
+      case 'ForStatement':
         return firstAncestor.update === node;
-      case "SequenceExpression": {
+      case 'SequenceExpression': {
         const secondAncestor = ancestors.pop();
         return (
           secondAncestor !== undefined &&
-          secondAncestor.type === "ForStatement" &&
+          secondAncestor.type === 'ForStatement' &&
           secondAncestor.update === firstAncestor
         );
       }

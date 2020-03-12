@@ -19,21 +19,21 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4721
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 import {
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
   isIdentifier,
-} from "./utils";
+} from './utils';
 
-const EXEC_FUNCTIONS = ["exec", "execSync"];
+const EXEC_FUNCTIONS = ['exec', 'execSync'];
 
-const SPAWN_EXEC_FILE_FUNCTIONS = ["spawn", "spawnSync", "execFile", "execFileSync"];
+const SPAWN_EXEC_FILE_FUNCTIONS = ['spawn', 'spawnSync', 'execFile', 'execFileSync'];
 
-const CHILD_PROCESS_MODULE = "child_process";
+const CHILD_PROCESS_MODULE = 'child_process';
 
-const MESSAGE = "Make sure that executing this OS command is safe here.";
+const MESSAGE = 'Make sure that executing this OS command is safe here.';
 
 type Argument = estree.Expression | estree.SpreadElement;
 
@@ -50,12 +50,12 @@ function checkCallExpression(
   { callee, arguments: args }: estree.CallExpression,
   context: Rule.RuleContext,
 ) {
-  if (callee.type === "MemberExpression") {
-    if (callee.object.type === "Identifier") {
+  if (callee.type === 'MemberExpression') {
+    if (callee.object.type === 'Identifier') {
       const moduleName = getModuleNameOfIdentifier(callee.object, context);
       checkOSCommand(moduleName, callee.property, args, context);
     }
-  } else if (callee.type === "Identifier") {
+  } else if (callee.type === 'Identifier') {
     const moduleName = getModuleNameOfImportedIdentifier(callee, context);
     checkOSCommand(moduleName, callee, args, context);
   }
@@ -77,7 +77,7 @@ function checkOSCommand(
 
 function isQuestionable(expression: estree.Expression, [command, ...otherArguments]: Argument[]) {
   // if command is hardcoded => no issue
-  if (!command || command.type === "Literal") {
+  if (!command || command.type === 'Literal') {
     return false;
   }
   // for `spawn` and `execFile`, `shell` option must be set to `true`
@@ -90,10 +90,10 @@ function isQuestionable(expression: estree.Expression, [command, ...otherArgumen
 function containsShellOption(otherArguments: Argument[]) {
   return otherArguments.some(
     arg =>
-      arg.type === "ObjectExpression" &&
+      arg.type === 'ObjectExpression' &&
       arg.properties.some(
         ({ key, value }) =>
-          isIdentifier(key, "shell") && value.type === "Literal" && value.value === true,
+          isIdentifier(key, 'shell') && value.type === 'Literal' && value.value === true,
       ),
   );
 }

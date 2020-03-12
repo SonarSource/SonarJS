@@ -19,14 +19,14 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4787
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 import {
   isIdentifier,
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
   isMemberWithProperty,
-} from "./utils";
+} from './utils';
 
 export const getEncryptionRuleModule = (
   clientSideMethods: string[],
@@ -48,14 +48,14 @@ export const getEncryptionRuleModule = (
         // which can be retrieved by 'crypto.subtle' or 'window.crypto.subtle'
         const { object, property } = node as estree.MemberExpression;
         if (
-          isIdentifier(property, "subtle") &&
-          (isIdentifier(object, "crypto") || isMemberWithProperty(object, "crypto"))
+          isIdentifier(property, 'subtle') &&
+          (isIdentifier(object, 'crypto') || isMemberWithProperty(object, 'crypto'))
         ) {
           usingCryptoInFile = true;
         }
       },
 
-      "CallExpression:exit"(node: estree.Node) {
+      'CallExpression:exit'(node: estree.Node) {
         const { callee } = node as estree.CallExpression;
 
         if (usingCryptoInFile) {
@@ -81,15 +81,15 @@ function checkForServerSide(
   let moduleName: estree.Literal | undefined;
 
   if (
-    callee.type === "MemberExpression" &&
+    callee.type === 'MemberExpression' &&
     isMemberWithProperty(callee, ...serverSideMethods) &&
-    callee.object.type === "Identifier"
+    callee.object.type === 'Identifier'
   ) {
     moduleName = getModuleNameOfIdentifier(callee.object, context);
   } else if (isIdentifier(callee, ...serverSideMethods)) {
     moduleName = getModuleNameOfImportedIdentifier(callee, context);
   }
-  if (moduleName && moduleName.value === "crypto") {
+  if (moduleName && moduleName.value === 'crypto') {
     context.report({
       message,
       node: callee,
@@ -116,16 +116,16 @@ function checkForClientSide(
 
 const message = `Make sure that encrypting data is safe here.`;
 
-const clientSideEncryptMethods = ["encrypt", "decrypt"];
+const clientSideEncryptMethods = ['encrypt', 'decrypt'];
 const serverSideEncryptMethods = [
-  "createCipher",
-  "createCipheriv",
-  "createDecipher",
-  "createDecipheriv",
-  "publicEncrypt",
-  "publicDecrypt",
-  "privateEncrypt",
-  "privateDecrypt",
+  'createCipher',
+  'createCipheriv',
+  'createDecipher',
+  'createDecipheriv',
+  'publicEncrypt',
+  'publicDecrypt',
+  'privateEncrypt',
+  'privateDecrypt',
 ];
 
 export const rule: Rule.RuleModule = getEncryptionRuleModule(

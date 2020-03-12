@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 // @typescript-eslint/parser is required for the type assertion test at the end of this test file
-const tsParserPath = require.resolve("@typescript-eslint/parser");
+const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   parser: tsParserPath,
 });
-import { rule } from "../../src/rules/no-redundant-parentheses";
+import { rule } from '../../src/rules/no-redundant-parentheses';
 
-ruleTester.run("Redundant pairs of parentheses should be removed", rule, {
+ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
   valid: [
     {
       code: `var a = typeof (38);`,

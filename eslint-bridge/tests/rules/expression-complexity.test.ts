@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: "module", ecmaFeatures: { jsx: true } },
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
 });
-import { rule } from "../../src/rules/expression-complexity";
-import { IssueLocation, EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
+import { rule } from '../../src/rules/expression-complexity';
+import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
 const MAX = 3;
 
-ruleTester.run("Expressions should not be too complex", rule, {
+ruleTester.run('Expressions should not be too complex', rule, {
   valid: [
     {
       code: `let b = 1 || 2 || 3 || 4`,
@@ -138,7 +138,7 @@ function invalid(code: string, max = MAX) {
     primaryLocation: {} as IssueLocation,
     secondaryLocations: [] as IssueLocation[],
   };
-  const lines = code.split("\n");
+  const lines = code.split('\n');
   for (const [index, line] of lines.entries()) {
     let found: RegExpMatchArray | null;
 
@@ -149,10 +149,10 @@ function invalid(code: string, max = MAX) {
       const column = line.indexOf(marker);
       issue.primaryLocation = location(index, column, index, column + marker.length);
 
-      marker += " ";
+      marker += ' ';
       let secondaryStart = -1;
       for (let i = 0; i < marker.length; ++i) {
-        if (marker[i] === "^") {
+        if (marker[i] === '^') {
           if (secondaryStart === -1) {
             secondaryStart = i;
           }
@@ -160,7 +160,7 @@ function invalid(code: string, max = MAX) {
           if (secondaryStart !== -1) {
             issue.complexity += 1;
             issue.secondaryLocations.push(
-              location(index, column + secondaryStart, index, column + i, "+1"),
+              location(index, column + secondaryStart, index, column + i, '+1'),
             );
             secondaryStart = -1;
           }

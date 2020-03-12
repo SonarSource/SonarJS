@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4798
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 type FunctionLike =
   | TSESTree.FunctionDeclaration
@@ -31,10 +31,10 @@ type FunctionLike =
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression": (node: estree.Node) => {
+      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {
         const functionLike = node as FunctionLike;
         for (const param of functionLike.params) {
-          if (param.type === "Identifier" && isOptionalBoolean(param)) {
+          if (param.type === 'Identifier' && isOptionalBoolean(param)) {
             context.report({
               message: `Provide a default value for '${
                 param.name
@@ -59,7 +59,7 @@ function usesQuestionOptionalSyntax(node: TSESTree.Identifier): boolean {
   return (
     !!node.optional &&
     !!node.typeAnnotation &&
-    node.typeAnnotation.typeAnnotation.type === "TSBooleanKeyword"
+    node.typeAnnotation.typeAnnotation.type === 'TSBooleanKeyword'
   );
 }
 
@@ -67,12 +67,12 @@ function usesQuestionOptionalSyntax(node: TSESTree.Identifier): boolean {
  * Matches "boolean | undefined"
  */
 function usesUnionUndefinedOptionalSyntax(node: TSESTree.Identifier): boolean {
-  if (!!node.typeAnnotation && node.typeAnnotation.typeAnnotation.type === "TSUnionType") {
+  if (!!node.typeAnnotation && node.typeAnnotation.typeAnnotation.type === 'TSUnionType') {
     const types = node.typeAnnotation.typeAnnotation.types;
     return (
       types.length === 2 &&
-      types.some(tp => tp.type === "TSBooleanKeyword") &&
-      types.some(tp => tp.type === "TSUndefinedKeyword")
+      types.some(tp => tp.type === 'TSBooleanKeyword') &&
+      types.some(tp => tp.type === 'TSUndefinedKeyword')
     );
   }
   return false;

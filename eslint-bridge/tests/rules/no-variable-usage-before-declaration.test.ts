@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/no-variable-usage-before-declaration";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/no-variable-usage-before-declaration';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 

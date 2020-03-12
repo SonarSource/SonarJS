@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1121
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -31,7 +31,7 @@ export const rule: Rule.RuleModule = {
         const parent = parentOf(assignment, context.getAncestors());
         if (
           parent &&
-          parent.type !== "ExpressionStatement" &&
+          parent.type !== 'ExpressionStatement' &&
           !isArrowFunctionWithAssignmentBody(assignment, context)
         ) {
           raiseIssue(assignment, context);
@@ -57,10 +57,10 @@ function raiseIssue(node: estree.AssignmentExpression, context: Rule.RuleContext
 
 function parentOf(node: estree.Node, ancestors: estree.Node[]): estree.Node | undefined {
   const parent = ancestors.pop();
-  if (parent && (parent.type === "SequenceExpression" || parent.type === "AssignmentExpression")) {
+  if (parent && (parent.type === 'SequenceExpression' || parent.type === 'AssignmentExpression')) {
     return parentOf(parent, ancestors);
   }
-  if (parent && parent.type === "ForStatement" && parent.test !== node) {
+  if (parent && parent.type === 'ForStatement' && parent.test !== node) {
     return undefined;
   }
   return parent;
@@ -68,5 +68,5 @@ function parentOf(node: estree.Node, ancestors: estree.Node[]): estree.Node | un
 
 function isArrowFunctionWithAssignmentBody(node: estree.Node, context: Rule.RuleContext) {
   const parent = getParent(context);
-  return parent && parent.type === "ArrowFunctionExpression" && parent.body === node;
+  return parent && parent.type === 'ArrowFunctionExpression' && parent.body === node;
 }

@@ -20,9 +20,9 @@
 
 // https://jira.sonarsource.com/browse/RSPEC-128
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = {
         currentCodePath = currentCodePath!.upper;
       },
 
-      "SwitchCase:exit"(node: estree.Node) {
+      'SwitchCase:exit'(node: estree.Node) {
         const switchCase = node as estree.SwitchCase;
         const { cases } = getParent(context) as estree.SwitchStatement;
         if (
@@ -51,7 +51,7 @@ export const rule: Rule.RuleModule = {
         ) {
           context.report({
             message:
-              "End this switch case with an unconditional break, continue, return or throw statement.",
+              'End this switch case with an unconditional break, continue, return or throw statement.',
             loc: context.getSourceCode().getFirstToken(node)!.loc,
           });
         }

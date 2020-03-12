@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/sonar-no-fallthrough";
+import { rule } from '../../src/rules/sonar-no-fallthrough';
 
-ruleTester.run("No fallthrough in switch statement", rule, {
+ruleTester.run('No fallthrough in switch statement', rule, {
   valid: [
     {
       code: `
@@ -77,7 +77,7 @@ ruleTester.run("No fallthrough in switch statement", rule, {
       errors: [
         {
           message:
-            "End this switch case with an unconditional break, continue, return or throw statement.",
+            'End this switch case with an unconditional break, continue, return or throw statement.',
           line: 12,
           column: 13,
           endLine: 12,

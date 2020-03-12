@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/prefer-type-guard";
-import * as path from "path";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/prefer-type-guard';
+import * as path from 'path';
 
 const ruleTester = new RuleTester({
   parser: path.resolve(`${__dirname}/../../node_modules/@typescript-eslint/parser`),
@@ -27,7 +27,7 @@ const ruleTester = new RuleTester({
 });
 
 function invalid(code: string) {
-  const line = code.split("\n").findIndex(str => str.includes("// Noncompliant")) + 1;
+  const line = code.split('\n').findIndex(str => str.includes('// Noncompliant')) + 1;
   return {
     code: code,
     errors: [
@@ -40,7 +40,7 @@ function invalid(code: string) {
   };
 }
 
-ruleTester.run("Type guards should be used", rule, {
+ruleTester.run('Type guards should be used', rule, {
   valid: [
     {
       code: `function isFish(animal: Animal): animal is Fish {

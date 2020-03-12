@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTesterTs } from "../RuleTesterTs";
+import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTesterTs();
 
-import { rule } from "../../src/rules/no-misleading-array-reverse";
+import { rule } from '../../src/rules/no-misleading-array-reverse';
 
-ruleTester.run("Array-mutating methods should not be used misleadingly.", rule, {
+ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, {
   valid: [
     {
       code: `

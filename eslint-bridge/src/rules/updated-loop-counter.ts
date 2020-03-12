@@ -19,18 +19,18 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2310
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { getVariableFromName, resolveIdentifiers, toEncodedMessage } from "./utils";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { getVariableFromName, resolveIdentifiers, toEncodedMessage } from './utils';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -58,7 +58,7 @@ export const rule: Rule.RuleModule = {
             message: toEncodedMessage(
               `Remove this assignment of "${counter.name}".`,
               [counter as TSESTree.Node],
-              ["Counter variable update"],
+              ['Counter variable update'],
             ),
           });
         }
@@ -66,13 +66,13 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      "ForStatement > BlockStatement": (node: estree.Node) => {
+      'ForStatement > BlockStatement': (node: estree.Node) => {
         const forLoop = getParent(context) as estree.ForStatement;
         if (forLoop.update) {
           checkLoop(forLoop.update, collectCountersFor, node);
         }
       },
-      "ForInStatement > BlockStatement, ForOfStatement > BlockStatement": (node: estree.Node) => {
+      'ForInStatement > BlockStatement, ForOfStatement > BlockStatement': (node: estree.Node) => {
         const { left } = getParent(context) as estree.ForOfStatement | estree.ForInStatement;
         checkLoop(left, collectCountersForX, node);
       },
@@ -84,7 +84,7 @@ function collectCountersForX(
   updateExpression: estree.Pattern | estree.VariableDeclaration,
   counters: estree.Identifier[],
 ) {
-  if (updateExpression.type === "VariableDeclaration") {
+  if (updateExpression.type === 'VariableDeclaration') {
     updateExpression.declarations.forEach(decl => collectCountersForX(decl.id, counters));
   } else {
     resolveIdentifiers(updateExpression as TSESTree.Node, true).forEach(id => counters.push(id));
@@ -94,15 +94,15 @@ function collectCountersForX(
 function collectCountersFor(updateExpression: estree.Expression, counters: estree.Identifier[]) {
   let counter: estree.Node | null | undefined = undefined;
 
-  if (updateExpression.type === "AssignmentExpression") {
+  if (updateExpression.type === 'AssignmentExpression') {
     counter = updateExpression.left;
-  } else if (updateExpression.type === "UpdateExpression") {
+  } else if (updateExpression.type === 'UpdateExpression') {
     counter = updateExpression.argument;
-  } else if (updateExpression.type === "SequenceExpression") {
+  } else if (updateExpression.type === 'SequenceExpression') {
     updateExpression.expressions.forEach(e => collectCountersFor(e, counters));
   }
 
-  if (counter && counter.type === "Identifier") {
+  if (counter && counter.type === 'Identifier') {
     counters.push(counter);
   }
 }

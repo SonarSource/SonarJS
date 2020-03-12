@@ -19,27 +19,27 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4817
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 import {
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
   isMemberExpression,
   isMemberWithProperty,
-} from "./utils";
+} from './utils';
 
-const xpathModule = "xpath";
+const xpathModule = 'xpath';
 
-const message = "Make sure that executing this XPATH expression is safe.";
+const message = 'Make sure that executing this XPATH expression is safe.';
 
-const xpathEvalMethods = ["select", "select1", "evaluate"];
-const ieEvalMethods = ["selectNodes", "SelectSingleNode"];
+const xpathEvalMethods = ['select', 'select1', 'evaluate'];
+const ieEvalMethods = ['selectNodes', 'SelectSingleNode'];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       MemberExpression: (node: estree.Node) => {
-        if (isMemberExpression(node, "document", "evaluate")) {
+        if (isMemberExpression(node, 'document', 'evaluate')) {
           context.report({ message, node });
         }
       },
@@ -61,13 +61,13 @@ function checkCallExpression(
 
   // Document.evaluate
   if (
-    isMemberWithProperty(callee, "evaluate") &&
-    !isMemberExpression(callee, "document", "evaluate") &&
+    isMemberWithProperty(callee, 'evaluate') &&
+    !isMemberExpression(callee, 'document', 'evaluate') &&
     args.length >= 4
   ) {
     const resultTypeArgument = args[3];
     const argumentAsText = context.getSourceCode().getText(resultTypeArgument);
-    if (argumentAsText.includes("XPathResult")) {
+    if (argumentAsText.includes('XPathResult')) {
       context.report({ message, node: callee });
       return;
     }
@@ -79,7 +79,7 @@ function checkCallExpression(
     expression &&
     moduleName &&
     moduleName.value === xpathModule &&
-    expression.type === "Identifier" &&
+    expression.type === 'Identifier' &&
     xpathEvalMethods.includes(expression.name)
   ) {
     context.report({ message, node: callee });
@@ -89,11 +89,11 @@ function getModuleAndCalledMethod(callee: estree.Node, context: Rule.RuleContext
   let moduleName;
   let expression: estree.Expression | undefined;
 
-  if (callee.type === "MemberExpression" && callee.object.type === "Identifier") {
+  if (callee.type === 'MemberExpression' && callee.object.type === 'Identifier') {
     moduleName = getModuleNameOfIdentifier(callee.object, context);
     expression = callee.property;
   }
-  if (callee.type === "Identifier") {
+  if (callee.type === 'Identifier') {
     moduleName = getModuleNameOfImportedIdentifier(callee, context);
     expression = callee;
   }

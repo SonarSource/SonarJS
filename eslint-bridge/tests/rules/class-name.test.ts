@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/class-name";
-import * as path from "path";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/class-name';
+import * as path from 'path';
 
 const ruleTester = new RuleTester({
   parser: path.resolve(`${__dirname}/../../node_modules/@typescript-eslint/parser`),
   parserOptions: { ecmaVersion: 2018 },
 });
 
-const DEFAULT_FORMAT = "^[A-Z][a-zA-Z0-9]*$";
-const CUSTOM_FORMAT = "^[_A-Z][a-zA-Z0-9]*$";
+const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
+const CUSTOM_FORMAT = '^[_A-Z][a-zA-Z0-9]*$';
 
-ruleTester.run("Class and interface names should comply with a naming convention", rule, {
+ruleTester.run('Class and interface names should comply with a naming convention', rule, {
   valid: [
     {
       code: `

@@ -19,8 +19,8 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1219
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -47,13 +47,13 @@ export const rule: Rule.RuleModule = {
           });
         }
       },
-      "FunctionExpression, FunctionDeclaration": () => {
+      'FunctionExpression, FunctionDeclaration': () => {
         stack.push(0);
       },
-      "SwitchCase:exit": () => {
+      'SwitchCase:exit': () => {
         leaveCase();
       },
-      "FunctionExpression, FunctionDeclaration :exit": () => {
+      'FunctionExpression, FunctionDeclaration :exit': () => {
         stack.pop();
       },
     };

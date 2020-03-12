@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1854
 
-import { Rule, Scope } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule, Scope } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import {
   isLiteral,
   isObjectExpression,
   isIdentifier,
   isAssignmentExpression,
-} from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { isUnaryExpression, isArrayExpression } from "./utils";
-import { LiveVariables, lva, ReferenceLike } from "./lva";
+} from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { isUnaryExpression, isArrayExpression } from './utils';
+import { LiveVariables, lva, ReferenceLike } from './lva';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
@@ -45,10 +45,10 @@ export const rule: Rule.RuleModule = {
     const destructuringStack: DestructuringContext[] = [];
 
     return {
-      ":matches(AssignmentExpression, VariableDeclarator[init])": (node: estree.Node) => {
+      ':matches(AssignmentExpression, VariableDeclarator[init])': (node: estree.Node) => {
         pushAssignmentContext(node as AssignmentLike);
       },
-      ":matches(AssignmentExpression, VariableDeclarator[init]):exit": () => {
+      ':matches(AssignmentExpression, VariableDeclarator[init]):exit': () => {
         popAssignmentContext();
       },
       Identifier: (node: estree.Node) => {
@@ -63,24 +63,24 @@ export const rule: Rule.RuleModule = {
       ObjectPattern: () => {
         destructuringStack.push(new DestructuringContext());
       },
-      "ObjectPattern > Property > Identifier": (node: estree.Node) => {
+      'ObjectPattern > Property > Identifier': (node: estree.Node) => {
         const destructuring = peek(destructuringStack)!;
         const { ref } = resolveReference(node as estree.Identifier);
         if (ref) {
           destructuring.references.push(ref);
         }
       },
-      "ObjectPattern > :matches(RestElement, ExperimentalRestProperty)": () => {
+      'ObjectPattern > :matches(RestElement, ExperimentalRestProperty)': () => {
         peek(destructuringStack).hasRest = true;
       },
-      "ObjectPattern:exit": () => {
+      'ObjectPattern:exit': () => {
         const destructuring = destructuringStack.pop();
         if (destructuring && destructuring.hasRest) {
           destructuring.references.forEach(ref => referencesUsedInDestructuring.add(ref));
         }
       },
 
-      "Program:exit": () => {
+      'Program:exit': () => {
         lva(liveVariablesMap);
         liveVariablesMap.forEach(lva => {
           checkSegment(lva);
@@ -156,20 +156,20 @@ export const rule: Rule.RuleModule = {
         !isReferenceWithBasicValue(ref) &&
         !isDefaultParameter(ref) &&
         !referencesUsedInDestructuring.has(ref) &&
-        !variable.name.startsWith("_")
+        !variable.name.startsWith('_')
       );
     }
 
     function isEnumConstant() {
-      return (context.getAncestors() as TSESTree.Node[]).some(n => n.type === "TSEnumDeclaration");
+      return (context.getAncestors() as TSESTree.Node[]).some(n => n.type === 'TSEnumDeclaration');
     }
 
     function isDefaultParameter(ref: ReferenceLike) {
-      if (ref.identifier.type !== "Identifier") {
+      if (ref.identifier.type !== 'Identifier') {
         return false;
       }
       const parent = (ref.identifier as TSESTree.Identifier).parent;
-      return parent && parent.type === "AssignmentPattern";
+      return parent && parent.type === 'AssignmentPattern';
     }
 
     function isLocalVar(variable: Scope.Variable) {
@@ -181,8 +181,8 @@ export const rule: Rule.RuleModule = {
     function hasUpperFunctionScope(scope: Scope.Scope | null): boolean {
       return (
         !!scope &&
-        (scope.type === "function" ||
-          scope.type === "function-expression-name" ||
+        (scope.type === 'function' ||
+          scope.type === 'function-expression-name' ||
           hasUpperFunctionScope(scope.upper))
       );
     }
@@ -197,10 +197,10 @@ export const rule: Rule.RuleModule = {
 
     function isBasicValue(node: estree.Node): boolean {
       if (isLiteral(node)) {
-        return node.value === "" || [0, 1, null, true, false].includes(node.value as any);
+        return node.value === '' || [0, 1, null, true, false].includes(node.value as any);
       }
       if (isIdentifier(node)) {
-        return node.name === "undefined";
+        return node.name === 'undefined';
       }
       if (isUnaryExpression(node)) {
         return isBasicValue(node.argument);
@@ -223,7 +223,7 @@ export const rule: Rule.RuleModule = {
 
     function checkIdentifierUsage(node: estree.Identifier | TSESTree.JSXIdentifier) {
       const { ref, variable } =
-        node.type === "Identifier" ? resolveReference(node) : resolveJSXReference(node);
+        node.type === 'Identifier' ? resolveReference(node) : resolveJSXReference(node);
       if (ref) {
         processReference(ref);
         if (variable) {
@@ -245,7 +245,7 @@ export const rule: Rule.RuleModule = {
 
     function isJSXAttributeName(node: TSESTree.JSXIdentifier) {
       const parent = node.parent;
-      return parent && parent.type === "JSXAttribute" && parent.name === node;
+      return parent && parent.type === 'JSXAttribute' && parent.name === node;
     }
 
     function processReference(ref: ReferenceLike) {
@@ -374,7 +374,7 @@ class AssignmentContext {
       parent = parent.parent;
     }
     if (parent === null) {
-      throw new Error("failed to find assignment lhs/rhs");
+      throw new Error('failed to find assignment lhs/rhs');
     }
   }
 }

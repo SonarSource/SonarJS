@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-101
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 type ClassOrInterfaceDeclaration = TSESTree.ClassDeclaration | TSESTree.TSInterfaceDeclaration;
 
@@ -29,9 +29,9 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       ClassDeclaration: (node: estree.Node) =>
-        checkName(node as ClassOrInterfaceDeclaration, "class", context),
+        checkName(node as ClassOrInterfaceDeclaration, 'class', context),
       TSInterfaceDeclaration: (node: estree.Node) =>
-        checkName(node as ClassOrInterfaceDeclaration, "interface", context),
+        checkName(node as ClassOrInterfaceDeclaration, 'interface', context),
     };
   },
 };

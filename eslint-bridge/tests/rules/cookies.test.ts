@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/cookies";
+import { rule } from '../../src/rules/cookies';
 
-ruleTester.run("Writing cookies is security-sensitive", rule, {
+ruleTester.run('Writing cookies is security-sensitive', rule, {
   valid: [
     {
       code: `document.foo`,
@@ -66,7 +66,7 @@ ruleTester.run("Writing cookies is security-sensitive", rule, {
       code: `document.cookie = 42;`,
       errors: [
         {
-          message: "Make sure that cookie is written safely here.",
+          message: 'Make sure that cookie is written safely here.',
           line: 1,
           endLine: 1,
           column: 1,

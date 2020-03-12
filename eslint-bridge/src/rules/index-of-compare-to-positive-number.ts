@@ -19,8 +19,8 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2692
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
 const message =
   "This check ignores index 0; consider using 'includes' method to make this check safe and explicit.";
@@ -31,7 +31,7 @@ export const rule: Rule.RuleModule = {
       BinaryExpression(node: estree.Node) {
         const expression = node as estree.BinaryExpression;
         if (
-          expression.operator === ">" &&
+          expression.operator === '>' &&
           isZero(expression.right) &&
           isIndexOfCall(expression.left)
         ) {
@@ -43,15 +43,15 @@ export const rule: Rule.RuleModule = {
 };
 
 function isZero(node: estree.Expression): boolean {
-  return node.type === "Literal" && node.value === 0;
+  return node.type === 'Literal' && node.value === 0;
 }
 
 function isIndexOfCall(node: estree.Expression): boolean {
   return (
-    node.type === "CallExpression" &&
+    node.type === 'CallExpression' &&
     node.arguments.length === 1 &&
-    node.callee.type === "MemberExpression" &&
-    node.callee.property.type === "Identifier" &&
-    node.callee.property.name === "indexOf"
+    node.callee.type === 'MemberExpression' &&
+    node.callee.property.type === 'Identifier' &&
+    node.callee.property.name === 'indexOf'
   );
 }

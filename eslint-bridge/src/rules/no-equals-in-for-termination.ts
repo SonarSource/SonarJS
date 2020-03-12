@@ -19,15 +19,15 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-888
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { getVariableFromName } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { getVariableFromName } from './utils';
 
-const equalityOperator = ["!=", "=="];
-const plusMinusOperator = ["+=", "-="];
+const equalityOperator = ['!=', '=='];
+const plusMinusOperator = ['+=', '-='];
 
 interface CompleteForStatement extends estree.BaseStatement {
-  type: "ForStatement";
+  type: 'ForStatement';
   init?: estree.VariableDeclaration | estree.Expression | null;
   test: estree.Expression;
   update: estree.Expression;
@@ -63,14 +63,14 @@ export const rule: Rule.RuleModule = {
 
 function isEquality(expression: estree.Expression): expression is estree.BinaryExpression {
   return !!(
-    expression.type === "BinaryExpression" && equalityOperator.includes(expression.operator)
+    expression.type === 'BinaryExpression' && equalityOperator.includes(expression.operator)
   );
 }
 
 function isUpdateIncDec(expression: estree.Expression): boolean {
-  if (isIncDec(expression) || expression.type === "UpdateExpression") {
+  if (isIncDec(expression) || expression.type === 'UpdateExpression') {
     return true;
-  } else if (expression.type === "SequenceExpression") {
+  } else if (expression.type === 'SequenceExpression') {
     return expression.expressions.every(isUpdateIncDec);
   }
   return false;
@@ -78,7 +78,7 @@ function isUpdateIncDec(expression: estree.Expression): boolean {
 
 function isIncDec(expression: estree.Expression): expression is estree.AssignmentExpression {
   return !!(
-    expression.type === "AssignmentExpression" && plusMinusOperator.includes(expression.operator)
+    expression.type === 'AssignmentExpression' && plusMinusOperator.includes(expression.operator)
   );
 }
 
@@ -94,7 +94,7 @@ function isNontrivialConditionException(forStatement: CompleteForStatement) {
   const condition = forStatement.test as estree.BinaryExpression;
   var counters: Array<string> = [];
   collectCounters(forStatement.update, counters);
-  return condition.left.type !== "Identifier" || !counters.includes(condition.left.name);
+  return condition.left.type !== 'Identifier' || !counters.includes(condition.left.name);
 }
 
 function collectCounters(expression: estree.Expression, counters: Array<string>) {
@@ -102,13 +102,13 @@ function collectCounters(expression: estree.Expression, counters: Array<string>)
 
   if (isIncDec(expression)) {
     counter = expression.left;
-  } else if (expression.type === "UpdateExpression") {
+  } else if (expression.type === 'UpdateExpression') {
     counter = expression.argument;
-  } else if (expression.type === "SequenceExpression") {
+  } else if (expression.type === 'SequenceExpression') {
     expression.expressions.forEach(e => collectCounters(e, counters));
   }
 
-  if (counter && counter.type === "Identifier") {
+  if (counter && counter.type === 'Identifier') {
     counters.push(counter.name);
   }
 }
@@ -134,7 +134,7 @@ function isTrivialIteratorException(forStatement: CompleteForStatement, context:
 }
 
 function isNotEqual(node: estree.Node): node is estree.BinaryExpression {
-  return !!(node && node.type === "BinaryExpression" && node.operator === "!=");
+  return !!(node && node.type === 'BinaryExpression' && node.operator === '!=');
 }
 
 function checkForUpdateByOne(
@@ -143,10 +143,10 @@ function checkForUpdateByOne(
   context: Rule.RuleContext,
 ) {
   if (isUpdateByOne(update, loopBody, context)) {
-    if (update.operator === "++" || update.operator === "+=") {
+    if (update.operator === '++' || update.operator === '+=') {
       return +1;
     }
-    if (update.operator === "--" || update.operator === "-=") {
+    if (update.operator === '--' || update.operator === '-=') {
       return -1;
     }
   }
@@ -159,13 +159,13 @@ function isUpdateByOne(
   context: Rule.RuleContext,
 ): update is estree.UpdateExpression | estree.AssignmentExpression {
   return (
-    (update.type === "UpdateExpression" && !isUsedInsideBody(update.argument, loopBody, context)) ||
+    (update.type === 'UpdateExpression' && !isUsedInsideBody(update.argument, loopBody, context)) ||
     (isUpdateOnOneWithAssign(update) && !isUsedInsideBody(update.left, loopBody, context))
   );
 }
 
 function isUsedInsideBody(id: estree.Node, loopBody: estree.Node, context: Rule.RuleContext) {
-  if (id.type === "Identifier") {
+  if (id.type === 'Identifier') {
     const variable = getVariableFromName(context, id.name);
     const bodyRange = loopBody.range;
     if (variable && bodyRange) {
@@ -185,21 +185,21 @@ function getValue(node: estree.Node) {
   } else if (isOneVarDeclaration(node)) {
     const variable = node.declarations[0];
     return getInteger(variable.init);
-  } else if (node.type === "AssignmentExpression") {
+  } else if (node.type === 'AssignmentExpression') {
     return getInteger(node.right);
   }
   return undefined;
 }
 
 function getInteger(node: estree.Node | undefined | null) {
-  if (node && node.type === "Literal" && typeof node.value === "number") {
+  if (node && node.type === 'Literal' && typeof node.value === 'number') {
     return node.value;
   }
   return undefined;
 }
 
 function isOneVarDeclaration(node: estree.Node): node is estree.VariableDeclaration {
-  return node.type === "VariableDeclaration" && node.declarations.length === 1;
+  return node.type === 'VariableDeclaration' && node.declarations.length === 1;
 }
 
 function isUpdateOnOneWithAssign(
@@ -207,7 +207,7 @@ function isUpdateOnOneWithAssign(
 ): expression is estree.AssignmentExpression {
   if (isIncDec(expression)) {
     const right = expression.right;
-    return right.type === "Literal" && right.value === 1;
+    return right.type === 'Literal' && right.value === 1;
   }
   return false;
 }

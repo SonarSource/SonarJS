@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Server } from "http";
-import * as express from "express";
-import { RequestHandler } from "express";
-import * as bodyParser from "body-parser";
+import { Server } from 'http';
+import * as express from 'express';
+import { RequestHandler } from 'express';
+import * as bodyParser from 'body-parser';
 import {
   AnalysisInput,
   analyzeJavaScript,
   analyzeTypeScript,
   EMPTY_RESPONSE,
   AnalysisResponse,
-} from "./analyzer";
-import { AddressInfo } from "net";
-import { unloadTypeScriptEslint, ParseExceptionCode } from "./parser";
-import { getFilesForTsConfig } from "./tsconfig";
+} from './analyzer';
+import { AddressInfo } from 'net';
+import { unloadTypeScriptEslint, ParseExceptionCode } from './parser';
+import { getFilesForTsConfig } from './tsconfig';
 
-const MAX_REQUEST_SIZE = "50mb";
+const MAX_REQUEST_SIZE = '50mb';
 
 export function start(port = 0): Promise<Server> {
   return startServer(port, analyzeJavaScript, analyzeTypeScript);
@@ -47,23 +47,23 @@ export function startServer(
   analyzeTS: AnalysisFunction,
 ): Promise<Server> {
   return new Promise(resolve => {
-    console.log("DEBUG starting eslint-bridge server at port", port);
+    console.log('DEBUG starting eslint-bridge server at port', port);
     let server: Server;
     const app = express();
 
     // for parsing application/json requests
     app.use(bodyParser.json({ limit: MAX_REQUEST_SIZE }));
 
-    app.post("/analyze-js", analyze(analyzeJS));
+    app.post('/analyze-js', analyze(analyzeJS));
 
-    app.post("/analyze-ts", analyze(analyzeTS));
+    app.post('/analyze-ts', analyze(analyzeTS));
 
-    app.post("/new-tsconfig", (_request: express.Request, response: express.Response) => {
+    app.post('/new-tsconfig', (_request: express.Request, response: express.Response) => {
       unloadTypeScriptEslint();
-      response.send("OK!");
+      response.send('OK!');
     });
 
-    app.post("/tsconfig-files", (request: express.Request, response: express.Response) => {
+    app.post('/tsconfig-files', (request: express.Request, response: express.Response) => {
       try {
         const tsconfig = request.body.tsconfig;
         response.json(getFilesForTsConfig(tsconfig));
@@ -73,10 +73,10 @@ export function startServer(
       }
     });
 
-    app.get("/status", (_: express.Request, resp: express.Response) => resp.send("OK!"));
+    app.get('/status', (_: express.Request, resp: express.Response) => resp.send('OK!'));
 
-    app.post("/close", (_req: express.Request, resp: express.Response) => {
-      console.log("DEBUG eslint-bridge server will shutdown");
+    app.post('/close', (_req: express.Request, resp: express.Response) => {
+      console.log('DEBUG eslint-bridge server will shutdown');
       resp.end(() => {
         server.close();
       });
@@ -84,7 +84,7 @@ export function startServer(
 
     server = app.listen(port, () => {
       console.log(
-        "DEBUG eslint-bridge server is running at port",
+        'DEBUG eslint-bridge server is running at port',
         (server.address() as AddressInfo).port,
       );
       resolve(server);

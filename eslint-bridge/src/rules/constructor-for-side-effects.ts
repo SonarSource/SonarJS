@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1848
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const sourceCode = context.getSourceCode();
     return {
-      "ExpressionStatement > NewExpression": (node: estree.Node) => {
+      'ExpressionStatement > NewExpression': (node: estree.Node) => {
         const callee = (node as estree.NewExpression).callee;
 
-        if (callee.type === "Identifier" || callee.type === "MemberExpression") {
+        if (callee.type === 'Identifier' || callee.type === 'MemberExpression') {
           const calleeText = sourceCode.getText(callee);
           const reportLocation = {
             start: node.loc!.start,
@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
           reportIssue(reportLocation, ` of "${calleeText}"`, context);
         } else {
           const newToken = sourceCode.getFirstToken(node);
-          reportIssue(newToken!.loc, "", context);
+          reportIssue(newToken!.loc, '', context);
         }
       },
     };

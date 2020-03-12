@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import * as path from "path";
-import { rule } from "../../src/rules/arguments-order";
+import { RuleTester } from 'eslint';
+import * as path from 'path';
+import { rule } from '../../src/rules/arguments-order';
 
-const tsParserPath = require.resolve("@typescript-eslint/parser");
+const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
   parserOptions: {
     ecmaVersion: 2018,
-    sourceType: "module",
+    sourceType: 'module',
     project: path.resolve(`${__dirname}/../fixtures/rule-tester-project/tsconfig.json`),
   },
   parser: tsParserPath,
@@ -34,10 +34,10 @@ const placeHolderFilePath = path.resolve(`${__dirname}/../fixtures/rule-tester-p
 
 function invalid(code: string) {
   const errors: RuleTester.TestCaseError[] = [];
-  const lines = code.split("\n");
+  const lines = code.split('\n');
   for (let i = 1; i <= lines.length; i++) {
     const line = lines[i - 1];
-    if (line.includes("// Noncompliant")) {
+    if (line.includes('// Noncompliant')) {
       errors.push({
         line: i,
         endLine: i,
@@ -51,7 +51,7 @@ function invalid(code: string) {
   };
 }
 
-ruleTester.run("Parameters should be passed in the correct order", rule, {
+ruleTester.run('Parameters should be passed in the correct order', rule, {
   valid: [
     {
       filename: placeHolderFilePath,

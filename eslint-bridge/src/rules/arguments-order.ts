@@ -19,19 +19,19 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2234
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import {
   FunctionNodeType,
   isFunctionNode,
   getSignatureFromCallee,
   getTypeAsString,
   resolveIdentifiers,
-} from "./utils";
-import { isRequiredParserServices } from "../utils/isRequiredParserServices";
-import { EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
-import { isIdentifier } from "eslint-plugin-sonarjs/lib/utils/nodes";
+} from './utils';
+import { isRequiredParserServices } from '../utils/isRequiredParserServices';
+import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { isIdentifier } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 interface FunctionSignature {
   params: Array<string | undefined>;
@@ -43,7 +43,7 @@ export const rule: Rule.RuleModule = {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -90,7 +90,7 @@ export const rule: Rule.RuleModule = {
 
       if (isFunctionNode(node.callee)) {
         functionDeclaration = node.callee;
-      } else if (node.callee.type === "Identifier") {
+      } else if (node.callee.type === 'Identifier') {
         functionDeclaration = resolveFromFunctionReference(node.callee);
       }
 
@@ -124,7 +124,7 @@ export const rule: Rule.RuleModule = {
         reference.resolved &&
         reference.resolved.defs.length === 1 &&
         reference.resolved.defs[0] &&
-        reference.resolved.defs[0].type === "FunctionName"
+        reference.resolved.defs[0].type === 'FunctionName'
       ) {
         return reference.resolved.defs[0].node;
       }
@@ -210,7 +210,7 @@ function getSecondaryLocations(functionDeclaration: FunctionNodeType | undefined
     const { start, end } = getParametersClauseLocation(functionDeclaration.params);
     return [
       {
-        message: "Formal parameters",
+        message: 'Formal parameters',
         line: start.line,
         column: start.column,
         endLine: end.line,
@@ -229,12 +229,12 @@ function getParametersClauseLocation(parameters: Array<estree.Node>) {
 
 function normalizeType(typeAsString: string) {
   switch (typeAsString) {
-    case "String":
-      return "string";
-    case "Boolean":
-      return "boolean";
-    case "Number":
-      return "number";
+    case 'String':
+      return 'string';
+    case 'Boolean':
+      return 'boolean';
+    case 'Number':
+      return 'number';
     default:
       return typeAsString;
   }

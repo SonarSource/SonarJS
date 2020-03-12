@@ -19,32 +19,32 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1515
 
-import { Rule, Scope } from "eslint";
-import * as estree from "estree";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
-import { findFirstMatchingAncestor, LoopLike } from "./utils";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule, Scope } from 'eslint';
+import * as estree from 'estree';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { findFirstMatchingAncestor, LoopLike } from './utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
-const message = "Define this function outside of a loop.";
+const message = 'Define this function outside of a loop.';
 
-const loopLike = "WhileStatement,DoWhileStatement,ForStatement,ForOfStatement,ForInStatement";
+const loopLike = 'WhileStatement,DoWhileStatement,ForStatement,ForOfStatement,ForInStatement';
 
-const functionLike = "FunctionDeclaration,FunctionExpression,ArrowFunctionExpression";
+const functionLike = 'FunctionDeclaration,FunctionExpression,ArrowFunctionExpression';
 
 const allowedCallbacks = [
-  "replace",
-  "forEach",
-  "filter",
-  "map",
-  "find",
-  "findIndex",
-  "every",
-  "some",
-  "reduce",
-  "reduceRight",
-  "sort",
-  "each",
+  'replace',
+  'forEach',
+  'filter',
+  'map',
+  'find',
+  'findIndex',
+  'every',
+  'some',
+  'reduce',
+  'reduceRight',
+  'sort',
+  'each',
 ];
 
 export const rule: Rule.RuleModule = {
@@ -81,18 +81,18 @@ function isIIEF(node: estree.Node, context: Rule.RuleContext) {
   const parent = getParent(context);
   return (
     parent &&
-    ((parent.type === "CallExpression" && parent.callee === node) ||
-      (parent.type === "MemberExpression" && parent.object === node))
+    ((parent.type === 'CallExpression' && parent.callee === node) ||
+      (parent.type === 'MemberExpression' && parent.object === node))
   );
 }
 
 function isAllowedCallbacks(context: Rule.RuleContext) {
   const parent = getParent(context);
-  if (parent && parent.type === "CallExpression") {
+  if (parent && parent.type === 'CallExpression') {
     const callee = parent.callee;
-    if (callee.type === "MemberExpression") {
+    if (callee.type === 'MemberExpression') {
       return (
-        callee.property.type === "Identifier" && allowedCallbacks.includes(callee.property.name)
+        callee.property.type === 'Identifier' && allowedCallbacks.includes(callee.property.name)
       );
     }
   }
@@ -104,9 +104,9 @@ function isSafe(ref: Scope.Reference, loopNode: LoopLike) {
   if (variable) {
     const definition = variable.defs[0];
     const declaration = definition && definition.parent;
-    const kind = declaration && declaration.type === "VariableDeclaration" ? declaration.kind : "";
+    const kind = declaration && declaration.type === 'VariableDeclaration' ? declaration.kind : '';
 
-    if (kind !== "let") {
+    if (kind !== 'let') {
       return hasConstValue(variable, loopNode);
     }
   }
@@ -118,7 +118,7 @@ function hasConstValue(variable: Scope.Variable, loopNode: LoopLike): boolean {
   for (const ref of variable.references) {
     if (ref.isWrite()) {
       //Check if write is in the scope of the loop
-      if (ref.from.type === "block" && ref.from.block === loopNode.body) {
+      if (ref.from.type === 'block' && ref.from.block === loopNode.body) {
         return false;
       }
 
@@ -137,16 +137,16 @@ function getLoopTestRange(loopNode: LoopLike) {
   const bodyRange = loopNode.body.range;
   if (bodyRange) {
     switch (loopNode.type) {
-      case "ForStatement":
+      case 'ForStatement':
         if (loopNode.test && loopNode.test.range) {
           return [loopNode.test.range[0], bodyRange[0]];
         }
         break;
-      case "WhileStatement":
-      case "DoWhileStatement":
+      case 'WhileStatement':
+      case 'DoWhileStatement':
         return loopNode.test.range;
-      case "ForOfStatement":
-      case "ForInStatement":
+      case 'ForOfStatement':
+      case 'ForInStatement':
         const leftRange = loopNode.range;
         if (leftRange) {
           return [leftRange[0], bodyRange[0]];

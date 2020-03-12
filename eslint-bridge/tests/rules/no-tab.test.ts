@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/no-tab";
+import { rule } from '../../src/rules/no-tab';
 
-ruleTester.run("Tabulation characters should not be used", rule, {
+ruleTester.run('Tabulation characters should not be used', rule, {
   valid: [
     {
       code: ` foo`,
@@ -36,7 +36,7 @@ ruleTester.run("Tabulation characters should not be used", rule, {
       code: `\t`,
       errors: [
         {
-          message: "Replace all tab characters in this file by sequences of white-spaces.",
+          message: 'Replace all tab characters in this file by sequences of white-spaces.',
           line: 1,
           column: 1,
         },
@@ -46,7 +46,7 @@ ruleTester.run("Tabulation characters should not be used", rule, {
       code: `foo(\tx);\n\t`,
       errors: [
         {
-          message: "Replace all tab characters in this file by sequences of white-spaces.",
+          message: 'Replace all tab characters in this file by sequences of white-spaces.',
           line: 1,
           column: 1,
         },
@@ -56,7 +56,7 @@ ruleTester.run("Tabulation characters should not be used", rule, {
       code: `foo(x)\n\t`,
       errors: [
         {
-          message: "Replace all tab characters in this file by sequences of white-spaces.",
+          message: 'Replace all tab characters in this file by sequences of white-spaces.',
           line: 2,
           column: 1,
         },

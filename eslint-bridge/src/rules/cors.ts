@@ -19,15 +19,15 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-5122
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { getModuleNameOfIdentifier, isRequireModule } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { getModuleNameOfIdentifier, isRequireModule } from './utils';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
 
-const CORS_HEADER_PREFIX = "Access-Control-";
+const CORS_HEADER_PREFIX = 'Access-Control-';
 
-const EXPRESS_MODULE = "express";
+const EXPRESS_MODULE = 'express';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -62,9 +62,9 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (usingExpressFramework && callee.type === "Identifier") {
+        if (usingExpressFramework && callee.type === 'Identifier') {
           const moduleName = getModuleNameOfIdentifier(callee, context);
-          if (moduleName && moduleName.value === "cors") {
+          if (moduleName && moduleName.value === 'cors') {
             context.report({
               message: MESSAGE,
               node,

@@ -19,12 +19,12 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3801
 
-import { AST, Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { toEncodedMessage } from "./utils";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
+import { AST, Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { toEncodedMessage } from './utils';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -106,14 +106,14 @@ export const rule: Rule.RuleModule = {
       const secondaryLocationsHolder = functionContext.returnStatements.slice() as TSESTree.Node[];
       const secondaryLocationMessages: string[] = functionContext.returnStatements.map(
         returnStatement =>
-          returnStatement.argument ? "Return with value" : "Return without value",
+          returnStatement.argument ? 'Return with value' : 'Return without value',
       );
 
       if (functionContext.containsImplicitReturn) {
-        const closeCurlyBraceToken = sourceCode.getLastToken(node, token => token.value === "}");
+        const closeCurlyBraceToken = sourceCode.getLastToken(node, token => token.value === '}');
         if (!!closeCurlyBraceToken) {
           secondaryLocationsHolder.push(closeCurlyBraceToken as TSESTree.Node);
-          secondaryLocationMessages.push("Implicit return without value");
+          secondaryLocationMessages.push('Implicit return without value');
         }
       }
 
@@ -145,9 +145,9 @@ export const rule: Rule.RuleModule = {
           currentContext.returnStatements.push(returnStatement);
         }
       },
-      "FunctionDeclaration:exit": checkOnFunctionExit,
-      "FunctionExpression:exit": checkOnFunctionExit,
-      "ArrowFunctionExpression:exit": checkOnFunctionExit,
+      'FunctionDeclaration:exit': checkOnFunctionExit,
+      'FunctionExpression:exit': checkOnFunctionExit,
+      'ArrowFunctionExpression:exit': checkOnFunctionExit,
     };
   },
 };
@@ -162,13 +162,13 @@ function hasInconsistentReturns(functionContext: FunctionContext) {
 function declaredReturnTypeContainsVoidTypes(returnTypeNode: TSESTree.TypeNode): boolean {
   return (
     isVoidType(returnTypeNode) ||
-    (returnTypeNode.type === "TSUnionType" &&
+    (returnTypeNode.type === 'TSUnionType' &&
       returnTypeNode.types.some(declaredReturnTypeContainsVoidTypes)) ||
-    (returnTypeNode.type === "TSParenthesizedType" &&
+    (returnTypeNode.type === 'TSParenthesizedType' &&
       declaredReturnTypeContainsVoidTypes(returnTypeNode.typeAnnotation))
   );
 }
 
 function isVoidType(typeNode: TSESTree.TypeNode) {
-  return typeNode.type === "TSUndefinedKeyword" || typeNode.type === "TSVoidKeyword";
+  return typeNode.type === 'TSUndefinedKeyword' || typeNode.type === 'TSVoidKeyword';
 }

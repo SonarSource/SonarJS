@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3686
 
-import { Rule, Scope } from "eslint";
-import * as estree from "estree";
-import { getVariableFromName, toEncodedMessage } from "./utils";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule, Scope } from 'eslint';
+import * as estree from 'estree';
+import { getVariableFromName, toEncodedMessage } from './utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
           usedInNew,
           usedInCall,
           hasIssue,
-          "out",
+          'out',
           context,
         );
       },
@@ -56,7 +56,7 @@ export const rule: Rule.RuleModule = {
           usedInCall,
           usedInNew,
           hasIssue,
-          "",
+          '',
           context,
         );
       },
@@ -93,7 +93,7 @@ function checkExpression(
 }
 
 function getVariable(node: estree.SimpleCallExpression, context: Rule.RuleContext) {
-  if (node.callee.type === "Identifier") {
+  if (node.callee.type === 'Identifier') {
     return getVariableFromName(context, node.callee.name);
   }
   return undefined;

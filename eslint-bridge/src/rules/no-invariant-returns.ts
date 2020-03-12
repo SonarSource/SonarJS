@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3516
 
-import { Rule, Scope } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule, Scope } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import {
   findFirstMatchingAncestor,
   FUNCTION_NODES,
   isElementWrite,
   toEncodedMessage,
-} from "./utils";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
+} from './utils';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -49,7 +49,7 @@ export const rule: Rule.RuleModule = {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -103,9 +103,9 @@ export const rule: Rule.RuleModule = {
           currentContext.returnStatements.push(returnStatement);
         }
       },
-      "FunctionDeclaration:exit": checkOnFunctionExit,
-      "FunctionExpression:exit": checkOnFunctionExit,
-      "ArrowFunctionExpression:exit": checkOnFunctionExit,
+      'FunctionDeclaration:exit': checkOnFunctionExit,
+      'FunctionExpression:exit': checkOnFunctionExit,
+      'ArrowFunctionExpression:exit': checkOnFunctionExit,
     };
   },
 };
@@ -133,7 +133,7 @@ function areAllSameValue(returnedValues: estree.Node[], scope: Scope.Scope) {
     return returnedValues
       .slice(1)
       .every(returnedValue => getLiteralValue(returnedValue, scope) === firstValue);
-  } else if (firstReturnedValue.type === "Identifier") {
+  } else if (firstReturnedValue.type === 'Identifier') {
     const singleWriteVariable = getSingleWriteDefinition(firstReturnedValue.name, scope);
     if (singleWriteVariable) {
       const readReferenceIdentifiers = singleWriteVariable.variable.references
@@ -156,7 +156,7 @@ function getSingleWriteDefinition(
     const references = variable.references.slice(1);
     if (!references.some(ref => ref.isWrite() || isPossibleObjectUpdate(ref))) {
       let initExpression = null;
-      if (variable.defs.length === 1 && variable.defs[0].type === "Variable") {
+      if (variable.defs.length === 1 && variable.defs[0].type === 'Variable') {
         initExpression = variable.defs[0].node.init;
       }
       return { variable, initExpression };
@@ -168,28 +168,28 @@ function getSingleWriteDefinition(
 function isPossibleObjectUpdate(ref: Scope.Reference) {
   const expressionStatement = findFirstMatchingAncestor(
     ref.identifier as TSESTree.Node,
-    n => n.type === "ExpressionStatement" || FUNCTION_NODES.includes(n.type),
+    n => n.type === 'ExpressionStatement' || FUNCTION_NODES.includes(n.type),
   ) as estree.Node | undefined;
 
   // To avoid FP, we consider method calls as write operations, since we do not know whether they will
   // update the object state or not.
   return (
     expressionStatement &&
-    expressionStatement.type === "ExpressionStatement" &&
+    expressionStatement.type === 'ExpressionStatement' &&
     (isElementWrite(expressionStatement, ref) ||
-      expressionStatement.expression.type === "CallExpression")
+      expressionStatement.expression.type === 'CallExpression')
   );
 }
 
 function getLiteralValue(returnedValue: estree.Node, scope: Scope.Scope): LiteralValue | undefined {
-  if (returnedValue.type === "Literal") {
+  if (returnedValue.type === 'Literal') {
     return returnedValue.value;
-  } else if (returnedValue.type === "UnaryExpression") {
+  } else if (returnedValue.type === 'UnaryExpression') {
     const innerReturnedValue = getLiteralValue(returnedValue.argument, scope);
     return innerReturnedValue !== undefined
       ? evaluateUnaryLiteralExpression(returnedValue.operator, innerReturnedValue)
       : undefined;
-  } else if (returnedValue.type === "Identifier") {
+  } else if (returnedValue.type === 'Identifier') {
     const singleWriteVariable = getSingleWriteDefinition(returnedValue.name, scope);
     if (singleWriteVariable && singleWriteVariable.initExpression) {
       return getLiteralValue(singleWriteVariable.initExpression, scope);
@@ -200,15 +200,15 @@ function getLiteralValue(returnedValue: estree.Node, scope: Scope.Scope): Litera
 
 function evaluateUnaryLiteralExpression(operator: string, innerReturnedValue: LiteralValue) {
   switch (operator) {
-    case "-":
+    case '-':
       return -Number(innerReturnedValue);
-    case "+":
+    case '+':
       return Number(innerReturnedValue);
-    case "~":
+    case '~':
       return ~Number(innerReturnedValue);
-    case "!":
+    case '!':
       return !Boolean(innerReturnedValue);
-    case "typeof":
+    case 'typeof':
       return typeof innerReturnedValue;
     default:
       return undefined;

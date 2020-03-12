@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, Scope } from "eslint";
+import { Rule, Scope } from 'eslint';
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/typescript-estree";
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/typescript-estree';
 
 export function lva(liveVariablesMap: Map<string, LiveVariables>) {
   const worklist = Array.from(liveVariablesMap.values(), lva => lva.segment);

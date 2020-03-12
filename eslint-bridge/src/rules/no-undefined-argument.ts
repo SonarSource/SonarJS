@@ -19,13 +19,13 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4623
 
-import { Rule } from "eslint";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import {
   isRequiredParserServices,
   RequiredParserServices,
-} from "../utils/isRequiredParserServices";
-import * as estree from "estree";
+} from '../utils/isRequiredParserServices';
+import * as estree from 'estree';
 
 let ts: any;
 
@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
-      ts = require("typescript");
+      ts = require('typescript');
       return {
         CallExpression: (node: estree.Node) => {
           const call = node as estree.CallExpression;
@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function isUndefined(node: estree.Node) {
-  return node.type === "Identifier" && node.name === "undefined";
+  return node.type === 'Identifier' && node.name === 'undefined';
 }
 
 function isOptionalParameter(

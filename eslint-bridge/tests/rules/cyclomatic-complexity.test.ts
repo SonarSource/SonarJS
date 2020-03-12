@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
-import { rule } from "../../src/rules/cyclomatic-complexity";
-import { IssueLocation, EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+import { rule } from '../../src/rules/cyclomatic-complexity';
+import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
 const THRESHOLD = 2;
 
-ruleTester.run("Functions should not be too complex", rule, {
+ruleTester.run('Functions should not be too complex', rule, {
   valid: [
     {
       code: `
@@ -384,7 +384,7 @@ function invalid(code: string, threshold = THRESHOLD) {
     primaryLocation: {} as IssueLocation,
     secondaryLocations: [] as IssueLocation[],
   };
-  const lines = code.split("\n");
+  const lines = code.split('\n');
   for (const [index, line] of lines.entries()) {
     let found: RegExpMatchArray | null;
 
@@ -402,7 +402,7 @@ function invalid(code: string, threshold = THRESHOLD) {
       const marker = found[1];
       const column = line.indexOf(marker);
       issue.complexity += 1;
-      issue.secondaryLocations.push(location(index, column, index, column + marker.length, "+1"));
+      issue.secondaryLocations.push(location(index, column, index, column + marker.length, '+1'));
     }
   }
 

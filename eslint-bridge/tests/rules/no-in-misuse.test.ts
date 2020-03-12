@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTesterTs } from "../RuleTesterTs";
+import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTesterTs();
 
-import { rule } from "../../src/rules/no-in-misuse";
+import { rule } from '../../src/rules/no-in-misuse';
 
 ruleTester.run('"in" should not be used on arrays"', rule, {
   valid: [

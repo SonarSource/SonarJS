@@ -19,26 +19,26 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4335
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { isRequiredParserServices } from "../utils/isRequiredParserServices";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { isRequiredParserServices } from '../utils/isRequiredParserServices';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
-      const ts = require("typescript");
+      const ts = require('typescript');
       return {
         TSIntersectionType: (node: estree.Node) => {
           const intersection = (node as unknown) as TSESTree.TSIntersectionType;
           const anyOrNever = intersection.types.find(typeNode =>
-            ["TSAnyKeyword", "TSNeverKeyword"].includes(typeNode.type),
+            ['TSAnyKeyword', 'TSNeverKeyword'].includes(typeNode.type),
           );
           if (anyOrNever) {
             context.report({
               message: `Simplify this intersection as it always has type "${
-                anyOrNever.type === "TSAnyKeyword" ? "any" : "never"
+                anyOrNever.type === 'TSAnyKeyword' ? 'any' : 'never'
               }".`,
               node,
             });
@@ -49,7 +49,7 @@ export const rule: Rule.RuleModule = {
                 .getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(typeNode));
               if (isTypeWithoutMembers(tp, ts)) {
                 context.report({
-                  message: "Remove this type without members or change this type intersection.",
+                  message: 'Remove this type without members or change this type intersection.',
                   node: typeNode as estree.Node,
                 });
               }

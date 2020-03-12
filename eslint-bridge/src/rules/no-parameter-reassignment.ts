@@ -19,13 +19,13 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1226
 
-import { AST, Rule, Scope } from "eslint";
-import * as estree from "estree";
-import { FUNCTION_NODES, resolveIdentifiers } from "./utils";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { AST, Rule, Scope } from 'eslint';
+import * as estree from 'estree';
+import { FUNCTION_NODES, resolveIdentifiers } from './utils';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
-type ContextType = "catch" | "function" | "foreach" | "global";
+type ContextType = 'catch' | 'function' | 'foreach' | 'global';
 
 interface ReassignmentContext {
   type: ContextType;
@@ -39,7 +39,7 @@ interface ReassignmentContext {
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let variableUsageContext: ReassignmentContext = {
-      type: "global",
+      type: 'global',
       variablesToCheckInCurrentScope: new Set<string>(),
       variablesToCheck: new Set<string>(),
       variablesRead: new Set<string>(),
@@ -74,7 +74,7 @@ export const rule: Rule.RuleModule = {
           raiseIssue(currentReference);
         }
         markAsRead(variableUsageContext, variableName);
-      } else if (variableName === "arguments") {
+      } else if (variableName === 'arguments') {
         markAllFunctionArgumentsAsRead(variableUsageContext);
       }
     }
@@ -86,7 +86,7 @@ export const rule: Rule.RuleModule = {
           .getSourceCode()
           .getFirstToken(
             writeExpr,
-            token => token.value === variableName || token.value === "arguments",
+            token => token.value === variableName || token.value === 'arguments',
           )
       );
     }
@@ -110,7 +110,7 @@ export const rule: Rule.RuleModule = {
     return {
       onCodePathStart(_codePath: Rule.CodePath, node: estree.Node) {
         const currentScope = context.getScope();
-        if (currentScope && currentScope.type === "function") {
+        if (currentScope && currentScope.type === 'function') {
           const {
             referencesByIdentifier,
             variablesToCheck,
@@ -123,7 +123,7 @@ export const rule: Rule.RuleModule = {
           }
 
           variableUsageContext = {
-            type: "function",
+            type: 'function',
             parentContext: variableUsageContext,
             variablesToCheck,
             referencesByIdentifier,
@@ -135,7 +135,7 @@ export const rule: Rule.RuleModule = {
           };
         } else {
           variableUsageContext = {
-            type: "global",
+            type: 'global',
             parentContext: variableUsageContext,
             variablesToCheckInCurrentScope: new Set<string>(),
             variablesToCheck: new Set<string>(),
@@ -176,7 +176,7 @@ export const rule: Rule.RuleModule = {
           });
 
         variableUsageContext = {
-          type: "foreach",
+          type: 'foreach',
           parentContext: variableUsageContext,
           variablesToCheckInCurrentScope,
           variablesToCheck,
@@ -189,7 +189,7 @@ export const rule: Rule.RuleModule = {
       },
 
       onCodePathSegmentStart(_segment: Rule.CodePathSegment, node: estree.Node) {
-        if (node.type !== "CatchClause") {
+        if (node.type !== 'CatchClause') {
           return;
         }
 
@@ -200,7 +200,7 @@ export const rule: Rule.RuleModule = {
         } = computeNewContextInfo(variableUsageContext, context, node);
 
         variableUsageContext = {
-          type: "catch",
+          type: 'catch',
           parentContext: variableUsageContext,
           variablesToCheckInCurrentScope,
           variablesToCheck,
@@ -213,28 +213,28 @@ export const rule: Rule.RuleModule = {
       },
 
       onCodePathEnd: popContext,
-      "ForInStatement:exit": popContext,
-      "ForOfStatement:exit": popContext,
-      "CatchClause:exit": popContext,
-      "*:function > BlockStatement Identifier": (node: estree.Node) =>
-        checkIdentifierUsage(node as estree.Identifier, "function"),
-      "ForInStatement > *:statement Identifier": (node: estree.Node) =>
-        checkIdentifierUsage(node as estree.Identifier, "foreach"),
-      "ForOfStatement > *:statement Identifier": (node: estree.Node) =>
-        checkIdentifierUsage(node as estree.Identifier, "foreach"),
-      "CatchClause > BlockStatement Identifier": (node: estree.Node) =>
-        checkIdentifierUsage(node as estree.Identifier, "catch"),
+      'ForInStatement:exit': popContext,
+      'ForOfStatement:exit': popContext,
+      'CatchClause:exit': popContext,
+      '*:function > BlockStatement Identifier': (node: estree.Node) =>
+        checkIdentifierUsage(node as estree.Identifier, 'function'),
+      'ForInStatement > *:statement Identifier': (node: estree.Node) =>
+        checkIdentifierUsage(node as estree.Identifier, 'foreach'),
+      'ForOfStatement > *:statement Identifier': (node: estree.Node) =>
+        checkIdentifierUsage(node as estree.Identifier, 'foreach'),
+      'CatchClause > BlockStatement Identifier': (node: estree.Node) =>
+        checkIdentifierUsage(node as estree.Identifier, 'catch'),
     };
   },
 };
 
 function isInsideTopLevelIfStatement(context: Rule.RuleContext) {
-  const ifStatementParent = context.getAncestors().find(node => node.type === "IfStatement") as
+  const ifStatementParent = context.getAncestors().find(node => node.type === 'IfStatement') as
     | TSESTree.IfStatement
     | undefined;
   if (ifStatementParent) {
     return (
-      hasParentOfType(ifStatementParent.parent, ["BlockStatement"]) &&
+      hasParentOfType(ifStatementParent.parent, ['BlockStatement']) &&
       hasParentOfType(ifStatementParent.parent.parent, FUNCTION_NODES)
     );
   }
@@ -264,9 +264,9 @@ function isForEachLoopStart(
   parent?: estree.Node,
 ): parent is estree.ForInStatement | estree.ForOfStatement {
   return (
-    node.type === "BlockStatement" &&
+    node.type === 'BlockStatement' &&
     !!parent &&
-    (parent.type === "ForInStatement" || parent.type === "ForOfStatement")
+    (parent.type === 'ForInStatement' || parent.type === 'ForOfStatement')
   );
 }
 
@@ -297,7 +297,7 @@ function markAsRead(context: ReassignmentContext, variableName: string) {
 
 function markAllFunctionArgumentsAsRead(variableUsageContext: ReassignmentContext) {
   let functionContext: ReassignmentContext | undefined = variableUsageContext;
-  while (functionContext && functionContext.type !== "function") {
+  while (functionContext && functionContext.type !== 'function') {
     functionContext = functionContext.parentContext;
   }
 

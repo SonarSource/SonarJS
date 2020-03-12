@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/inconsistent-function-call";
+import { rule } from '../../src/rules/inconsistent-function-call';
 
 ruleTester.run('Functions should not be called both with and without "new"', rule, {
   valid: [

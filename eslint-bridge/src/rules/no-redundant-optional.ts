@@ -19,18 +19,18 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4782
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { toEncodedMessage } from "./utils";
-import { isRequiredParserServices } from "../utils/isRequiredParserServices";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { toEncodedMessage } from './utils';
+import { isRequiredParserServices } from '../utils/isRequiredParserServices';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
         | TSESTree.TSPropertySignature;
       const optionalToken = context
         .getSourceCode()
-        .getFirstToken(node, token => token.value === "?");
+        .getFirstToken(node, token => token.value === '?');
       if (!tsNode.optional || !optionalToken) {
         return;
       }
@@ -66,7 +66,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      "ClassProperty, TSPropertySignature": (node: estree.Node) => checkProperty(node),
+      'ClassProperty, TSPropertySignature': (node: estree.Node) => checkProperty(node),
     };
   },
 };
@@ -79,11 +79,11 @@ function getUndefinedTypeAnnotation(tsTypeAnnotation?: TSESTree.TSTypeAnnotation
 }
 
 function getUndefinedTypeNode(typeNode: TSESTree.TypeNode): TSESTree.TypeNode | undefined {
-  if (typeNode.type === "TSUndefinedKeyword") {
+  if (typeNode.type === 'TSUndefinedKeyword') {
     return typeNode;
-  } else if (typeNode.type === "TSUnionType") {
+  } else if (typeNode.type === 'TSUnionType') {
     return typeNode.types.find(innerTypeNode => getUndefinedTypeNode(innerTypeNode));
-  } else if (typeNode.type === "TSParenthesizedType") {
+  } else if (typeNode.type === 'TSParenthesizedType') {
     return getUndefinedTypeNode(typeNode.typeAnnotation);
   }
   return undefined;

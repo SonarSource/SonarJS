@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTesterTs } from "../RuleTesterTs";
-import { rule } from "../../src/rules/no-useless-intersection";
+import { RuleTesterTs } from '../RuleTesterTs';
+import { rule } from '../../src/rules/no-useless-intersection';
 
 const ruleTester = new RuleTesterTs();
 ruleTester.run(
@@ -47,7 +47,7 @@ ruleTester.run(
         code: `function withNull(x: number & null) {}`,
         errors: [
           {
-            message: "Remove this type without members or change this type intersection.",
+            message: 'Remove this type without members or change this type intersection.',
             line: 1,
             column: 31,
             endLine: 1,

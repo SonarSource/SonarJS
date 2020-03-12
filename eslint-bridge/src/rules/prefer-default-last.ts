@@ -19,8 +19,8 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4524
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
 const message = 'Move this "default" clause to the end of this "switch" statement.';
 

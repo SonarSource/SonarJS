@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1533
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-const WRAPPER_TYPES = ["Boolean", "Number", "String"];
+const WRAPPER_TYPES = ['Boolean', 'Number', 'String'];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {
         const constructor = (node as estree.NewExpression).callee;
-        if (constructor.type === "Identifier" && WRAPPER_TYPES.includes(constructor.name)) {
+        if (constructor.type === 'Identifier' && WRAPPER_TYPES.includes(constructor.name)) {
           context.report({
             message: `Remove this use of "${constructor.name}" constructor.`,
             node,

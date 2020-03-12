@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4818
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { getModuleNameOfIdentifier, getModuleNameOfImportedIdentifier } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { getModuleNameOfIdentifier, getModuleNameOfImportedIdentifier } from './utils';
 
-const NET_MODULE = "net";
+const NET_MODULE = 'net';
 
-const MESSAGE = "Make sure that sockets are used safely here.";
+const MESSAGE = 'Make sure that sockets are used safely here.';
 
-const SOCKET_CREATION_FUNCTIONS = new Set(["createConnection", "connect"]);
+const SOCKET_CREATION_FUNCTIONS = new Set(['createConnection', 'connect']);
 
-const SOCKET_CONSTRUCTOR = "Socket";
+const SOCKET_CONSTRUCTOR = 'Socket';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -45,17 +45,17 @@ export const rule: Rule.RuleModule = {
 function checkCallExpression({ callee, type }: estree.CallExpression, context: Rule.RuleContext) {
   let moduleName;
   let expression: estree.Expression | undefined;
-  if (callee.type === "MemberExpression" && callee.object.type === "Identifier") {
+  if (callee.type === 'MemberExpression' && callee.object.type === 'Identifier') {
     moduleName = getModuleNameOfIdentifier(callee.object, context);
     expression = callee.property;
   }
 
-  if (callee.type === "Identifier") {
+  if (callee.type === 'Identifier') {
     moduleName = getModuleNameOfImportedIdentifier(callee, context);
     expression = callee;
   }
 
-  if (expression && isQuestionable(expression, type === "NewExpression", moduleName)) {
+  if (expression && isQuestionable(expression, type === 'NewExpression', moduleName)) {
     context.report({ message: MESSAGE, node: callee });
   }
 }
@@ -65,7 +65,7 @@ function isQuestionable(
   isConstructor: boolean,
   moduleName?: estree.Literal,
 ) {
-  if (!moduleName || moduleName.value !== NET_MODULE || expression.type !== "Identifier") {
+  if (!moduleName || moduleName.value !== NET_MODULE || expression.type !== 'Identifier') {
     return false;
   }
 

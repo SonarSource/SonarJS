@@ -19,10 +19,10 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1994
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { areEquivalent } from "eslint-plugin-sonarjs/lib/utils/equivalence";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 class ForInfo {
   updatedExpressions: estree.Node[] = [];
@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
     const forLoopStack: ForInfo[] = [];
 
     function join(expressions: estree.Node[]) {
-      return expressions.map(expr => context.getSourceCode().getText(expr)).join(", ");
+      return expressions.map(expr => context.getSourceCode().getText(expr)).join(', ');
     }
 
     function isInsideUpdate(node: estree.Node) {
@@ -71,7 +71,7 @@ export const rule: Rule.RuleModule = {
       ForStatement: (node: estree.Node) => {
         forLoopStack.push(new ForInfo(node as estree.ForStatement));
       },
-      "ForStatement:exit": () => {
+      'ForStatement:exit': () => {
         const forInfo = forLoopStack.pop()!;
         if (forInfo.updatedExpressions.length === 0 || !forInfo.forLoop.test) {
           return;
@@ -92,7 +92,7 @@ export const rule: Rule.RuleModule = {
         }
       },
 
-      "ForStatement AssignmentExpression": (node: estree.Node) => {
+      'ForStatement AssignmentExpression': (node: estree.Node) => {
         if (isInsideUpdate(node)) {
           const left = (node as estree.AssignmentExpression).left;
           const assignedExpressions: estree.Node[] = [];
@@ -102,13 +102,13 @@ export const rule: Rule.RuleModule = {
         }
       },
 
-      "ForStatement UpdateExpression": (node: estree.Node) => {
+      'ForStatement UpdateExpression': (node: estree.Node) => {
         if (isInsideUpdate(node)) {
           peekFor().updatedExpressions.push((node as estree.UpdateExpression).argument);
         }
       },
 
-      "ForStatement CallExpression": (node: estree.Node) => {
+      'ForStatement CallExpression': (node: estree.Node) => {
         if (!isInsideUpdate(node)) {
           return;
         }
@@ -118,20 +118,20 @@ export const rule: Rule.RuleModule = {
         }
       },
 
-      "ForStatement Identifier": (node: estree.Node) => {
+      'ForStatement Identifier': (node: estree.Node) => {
         if (isInsideTest(node)) {
           const parent = getParent(context)!;
-          if (parent.type !== "MemberExpression" || parent.computed || parent.object === node) {
+          if (parent.type !== 'MemberExpression' || parent.computed || parent.object === node) {
             peekFor().testedExpressions.push(node);
           }
         }
       },
 
-      "ForStatement MemberExpression": (node: estree.Node) => {
+      'ForStatement MemberExpression': (node: estree.Node) => {
         if (
           isInsideTest(node) &&
-          getParent(context)!.type !== "MemberExpression" &&
-          getParent(context)!.type !== "CallExpression"
+          getParent(context)!.type !== 'MemberExpression' &&
+          getParent(context)!.type !== 'CallExpression'
         ) {
           peekFor().testedExpressions.push(node);
         }
@@ -142,10 +142,10 @@ export const rule: Rule.RuleModule = {
 
 function getCalleeObject(node: estree.CallExpression) {
   let callee = node.callee;
-  while (callee.type === "MemberExpression") {
+  while (callee.type === 'MemberExpression') {
     callee = callee.object;
   }
-  if (callee.type === "Identifier" && callee !== node.callee) {
+  if (callee.type === 'Identifier' && callee !== node.callee) {
     return callee;
   }
   return null;
@@ -153,16 +153,16 @@ function getCalleeObject(node: estree.CallExpression) {
 
 function computeAssignedExpressions(node: estree.Node, assigned: estree.Node[]) {
   switch (node.type) {
-    case "ArrayPattern":
+    case 'ArrayPattern':
       node.elements.forEach(element => computeAssignedExpressions(element, assigned));
       break;
-    case "ObjectPattern":
+    case 'ObjectPattern':
       node.properties.forEach(property => computeAssignedExpressions(property, assigned));
       break;
-    case "Property":
+    case 'Property':
       computeAssignedExpressions(node.value, assigned);
       break;
-    case "AssignmentPattern":
+    case 'AssignmentPattern':
       computeAssignedExpressions(node.left, assigned);
       break;
     default:

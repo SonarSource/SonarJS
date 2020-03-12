@@ -19,13 +19,13 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4790
 
-import { Rule } from "eslint";
-import { getEncryptionRuleModule } from "./encryption";
+import { Rule } from 'eslint';
+import { getEncryptionRuleModule } from './encryption';
 
 const message = `Make sure that hashing data is safe here.`;
 
-const clientSideHashMethod = ["digest"];
-const serverSideHashMethods = ["createHash", "scrypt", "scryptSync"];
+const clientSideHashMethod = ['digest'];
+const serverSideHashMethods = ['createHash', 'scrypt', 'scryptSync'];
 
 export const rule: Rule.RuleModule = getEncryptionRuleModule(
   clientSideHashMethod,

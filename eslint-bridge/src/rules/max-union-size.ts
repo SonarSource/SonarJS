@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4622
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -41,5 +41,5 @@ export const rule: Rule.RuleModule = {
 };
 
 function isFromTypeStatement(node: TSESTree.TSUnionType): boolean {
-  return node.parent !== undefined && node.parent.type === "TSTypeAliasDeclaration";
+  return node.parent !== undefined && node.parent.type === 'TSTypeAliasDeclaration';
 }

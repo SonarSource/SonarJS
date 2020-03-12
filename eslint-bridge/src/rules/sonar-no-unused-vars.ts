@@ -19,24 +19,24 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1481
 
-import { Rule, Scope } from "eslint";
-import * as estree from "estree";
+import { Rule, Scope } from 'eslint';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let toIgnore: estree.Identifier[] = [];
 
-    function checkVariable(v: Scope.Variable, toCheck: "let-const-function" | "all") {
+    function checkVariable(v: Scope.Variable, toCheck: 'let-const-function' | 'all') {
       if (v.defs.length === 0) {
         return;
       }
       const type = v.defs[0].type;
-      if (type !== "Variable" && type !== "FunctionName") {
+      if (type !== 'Variable' && type !== 'FunctionName') {
         return;
       }
-      if (toCheck === "let-const-function") {
+      if (toCheck === 'let-const-function') {
         const def = v.defs[0];
-        if (def.parent && def.parent.type === "VariableDeclaration" && def.parent.kind === "var") {
+        if (def.parent && def.parent.type === 'VariableDeclaration' && def.parent.kind === 'var') {
           return;
         }
       }
@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
       const unused = v.references.every(ref => defs.includes(ref.identifier));
 
       if (unused && !toIgnore.includes(defs[0])) {
-        const message = getMessage(v.name, type === "FunctionName");
+        const message = getMessage(v.name, type === 'FunctionName');
         defs.forEach(def =>
           context.report({
             node: def,
@@ -57,17 +57,17 @@ export const rule: Rule.RuleModule = {
 
     function checkScope(
       scope: Scope.Scope,
-      checkedInParent: "nothing" | "let-const-function" | "all",
+      checkedInParent: 'nothing' | 'let-const-function' | 'all',
     ) {
       let toCheck = checkedInParent;
-      if (scope.type === "function") {
-        toCheck = "all";
-      } else if (checkedInParent === "nothing" && scope.type === "block") {
-        toCheck = "let-const-function";
+      if (scope.type === 'function') {
+        toCheck = 'all';
+      } else if (checkedInParent === 'nothing' && scope.type === 'block') {
+        toCheck = 'let-const-function';
       }
 
-      if (toCheck !== "nothing" && scope.type !== "function-expression-name") {
-        scope.variables.forEach(v => checkVariable(v, toCheck as "let-const-function" | "all"));
+      if (toCheck !== 'nothing' && scope.type !== 'function-expression-name') {
+        scope.variables.forEach(v => checkVariable(v, toCheck as 'let-const-function' | 'all'));
       }
 
       scope.childScopes.forEach(childScope => checkScope(childScope, toCheck));
@@ -76,7 +76,7 @@ export const rule: Rule.RuleModule = {
     return {
       ObjectPattern: (node: estree.Node) => {
         const elements = (node as estree.ObjectPattern).properties;
-        const hasRest = elements.some(element => (element as any).type === "RestElement");
+        const hasRest = elements.some(element => (element as any).type === 'RestElement');
 
         if (!hasRest) {
           return;
@@ -84,17 +84,17 @@ export const rule: Rule.RuleModule = {
 
         elements.forEach(element => {
           if (
-            element.type === "Property" &&
+            element.type === 'Property' &&
             element.shorthand &&
-            element.value.type === "Identifier"
+            element.value.type === 'Identifier'
           ) {
             toIgnore.push(element.value);
           }
         });
       },
 
-      "Program:exit": () => {
-        checkScope(context.getScope(), "nothing");
+      'Program:exit': () => {
+        checkScope(context.getScope(), 'nothing');
         toIgnore = [];
       },
     };

@@ -19,20 +19,20 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-124
 
-import { Rule } from "eslint";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
-        type: "object",
+        type: 'object',
         properties: {
           regularExpression: {
-            type: "string",
+            type: 'string',
           },
           message: {
-            type: "string",
+            type: 'string',
           },
         },
         additionalProperties: false,
@@ -43,10 +43,10 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const options = context.options[0] || {};
     const pattern = options.regularExpression ? new RegExp(options.regularExpression) : undefined;
-    const message = options.message || "The regular expression matches this comment.";
+    const message = options.message || 'The regular expression matches this comment.';
 
     return {
-      "Program:exit": () => {
+      'Program:exit': () => {
         (context.getSourceCode().getAllComments() as TSESTree.Comment[]).forEach(comment => {
           const rawTextTrimmed = comment.value.trim();
           if (pattern && pattern.test(rawTextTrimmed)) {

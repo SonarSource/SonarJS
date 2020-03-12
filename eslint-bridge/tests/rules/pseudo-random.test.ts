@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/pseudo-random";
+import { rule } from '../../src/rules/pseudo-random';
 
-ruleTester.run("Using pseudorandom number generators (PRNGs) is security-sensitive", rule, {
+ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensitive', rule, {
   valid: [
     {
       code: `foo(x)`,
@@ -42,7 +42,7 @@ ruleTester.run("Using pseudorandom number generators (PRNGs) is security-sensiti
       code: `let x = Math.random();`,
       errors: [
         {
-          message: "Make sure that using this pseudorandom number generator is safe here.",
+          message: 'Make sure that using this pseudorandom number generator is safe here.',
           line: 1,
           endLine: 1,
           column: 9,

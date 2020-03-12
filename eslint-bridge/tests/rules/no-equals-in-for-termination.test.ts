@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
-import { rule } from "../../src/rules/no-equals-in-for-termination";
+import { rule } from '../../src/rules/no-equals-in-for-termination';
 
-ruleTester.run("Equality operators should not be used in for loop termination conditions", rule, {
+ruleTester.run('Equality operators should not be used in for loop termination conditions', rule, {
   valid: [
     {
       code: `

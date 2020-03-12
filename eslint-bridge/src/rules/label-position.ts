@@ -19,8 +19,8 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1439
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -42,14 +42,14 @@ function checkLabeledStatement(node: estree.LabeledStatement, context: Rule.Rule
 
 function isLoopStatement(node: estree.Node) {
   return (
-    node.type === "WhileStatement" ||
-    node.type === "DoWhileStatement" ||
-    node.type === "ForStatement" ||
-    node.type === "ForOfStatement" ||
-    node.type === "ForInStatement"
+    node.type === 'WhileStatement' ||
+    node.type === 'DoWhileStatement' ||
+    node.type === 'ForStatement' ||
+    node.type === 'ForOfStatement' ||
+    node.type === 'ForInStatement'
   );
 }
 
 function isSwitchStatement(node: estree.Node) {
-  return node.type === "SwitchStatement";
+  return node.type === 'SwitchStatement';
 }

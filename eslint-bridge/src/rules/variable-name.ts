@@ -19,10 +19,10 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-117
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { resolveIdentifiers } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { resolveIdentifiers } from './utils';
 
 interface FunctionLike {
   declare?: boolean;
@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = {
     return {
       VariableDeclaration: (node: estree.Node) =>
         checkVariable(node as TSESTree.VariableDeclaration, context),
-      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSDeclareFunction, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression": (
+      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSDeclareFunction, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression': (
         node: estree.Node,
       ) => checkFunction(node as FunctionLike, context),
       ClassProperty: (node: estree.Node) =>
@@ -50,7 +50,7 @@ function checkVariable(decl: TSESTree.VariableDeclaration, context: Rule.RuleCon
   }
   decl.declarations.forEach(declaration =>
     resolveIdentifiers(declaration.id).forEach(id =>
-      raiseOnInvalidIdentifier(id, "local variable", context),
+      raiseOnInvalidIdentifier(id, 'local variable', context),
     ),
   );
 }
@@ -60,20 +60,20 @@ function checkFunction(func: FunctionLike, context: Rule.RuleContext) {
     return;
   }
   func.params.forEach(param =>
-    resolveIdentifiers(param).forEach(id => raiseOnInvalidIdentifier(id, "parameter", context)),
+    resolveIdentifiers(param).forEach(id => raiseOnInvalidIdentifier(id, 'parameter', context)),
   );
 }
 
 function checkProperty(prop: TSESTree.ClassProperty, context: Rule.RuleContext) {
-  if (prop.key.type === "Identifier") {
-    raiseOnInvalidIdentifier(prop.key, "property", context);
+  if (prop.key.type === 'Identifier') {
+    raiseOnInvalidIdentifier(prop.key, 'property', context);
   }
 }
 
 function checkCatch(catchh: TSESTree.CatchClause, context: Rule.RuleContext) {
   if (catchh.param) {
     resolveIdentifiers(catchh.param).forEach(id =>
-      raiseOnInvalidIdentifier(id, "parameter", context),
+      raiseOnInvalidIdentifier(id, 'parameter', context),
     );
   }
 }

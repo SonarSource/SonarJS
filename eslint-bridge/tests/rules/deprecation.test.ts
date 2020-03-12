@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from "../../src/rules/deprecation";
-import { RuleTesterTs } from "../RuleTesterTs";
-import { RuleTester } from "eslint";
+import { rule } from '../../src/rules/deprecation';
+import { RuleTesterTs } from '../RuleTesterTs';
+import { RuleTester } from 'eslint';
 
 function invalid(code: string) {
   const errors: RuleTester.TestCaseError[] = [];
-  const lines = code.split("\n");
+  const lines = code.split('\n');
   for (let i = 1; i <= lines.length; i++) {
     const line = lines[i - 1];
-    if (line.includes("// Noncompliant") && !line.trim().startsWith("//")) {
+    if (line.includes('// Noncompliant') && !line.trim().startsWith('//')) {
       const issue = {
         line: i,
         endLine: i,
       };
       errors.push(issue);
-      if (line.includes("x2")) {
+      if (line.includes('x2')) {
         errors.push(issue);
       }
     }
@@ -44,7 +44,7 @@ function invalid(code: string) {
 }
 
 const ruleTester = new RuleTesterTs();
-ruleTester.run("should report usages of deprecated", rule, {
+ruleTester.run('should report usages of deprecated', rule, {
   valid: [],
   invalid: [
     {
@@ -185,7 +185,7 @@ ruleTester.run("should report usages of deprecated", rule, {
   }
   
   foo\`\`;
-  foo\`${"foo"}\`;
+  foo\`${'foo'}\`;
   foo\`${42}\`;
   foo\`${[1, 2, 3]}\`; // FN Noncompliant, for some reason not resolved properly `),
 

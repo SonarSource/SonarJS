@@ -28,14 +28,14 @@ import {
   checkTypeScriptVersionCompatibility,
   ParseExceptionCode,
   parseExceptionCodeOf,
-} from "../src/parser";
-import * as espree from "espree";
-import { SourceCode } from "eslint";
-import { ParsingError } from "../src/analyzer";
-import visit from "../src/utils/visitor";
-import * as path from "path";
+} from '../src/parser';
+import * as espree from 'espree';
+import { SourceCode } from 'eslint';
+import { ParsingError } from '../src/analyzer';
+import visit from '../src/utils/visitor';
+import * as path from 'path';
 
-describe("parseJavaScriptSourceFile", () => {
+describe('parseJavaScriptSourceFile', () => {
   beforeEach(() => {
     console.error = jest.fn();
   });
@@ -44,18 +44,18 @@ describe("parseJavaScriptSourceFile", () => {
     jest.resetAllMocks();
   });
 
-  it("should parse jsx", () => {
-    expectToParse("const foo = <div>bar</div>;");
+  it('should parse jsx', () => {
+    expectToParse('const foo = <div>bar</div>;');
   });
 
-  it("should parse flow when with @flow", () => {
+  it('should parse flow when with @flow', () => {
     expectToParse("/* @flow */ const foo: string = 'hello';");
-    expectToParse("/* @flow */ var eval = 42");
+    expectToParse('/* @flow */ var eval = 42');
     // even without @flow annotation
     expectToParse("const foo: string = 'hello';");
   });
 
-  it("should parse as script (non-strict mode)", () => {
+  it('should parse as script (non-strict mode)', () => {
     expectToParseInNonStrictMode(`var eval = 42`, `Binding eval in strict mode`);
     expectToParseInNonStrictMode(`eval = 42`, `Assigning to eval in strict mode`);
     expectToParseInNonStrictMode(
@@ -71,7 +71,7 @@ describe("parseJavaScriptSourceFile", () => {
     expectToParseInNonStrictMode(`delete x`, `Deleting local variable in strict mode`);
   });
 
-  it("should parse recent javascript syntax", () => {
+  it('should parse recent javascript syntax', () => {
     // ES2018
     expectToParse(
       `const obj = {foo: 1, bar: 2, baz: 3};
@@ -96,7 +96,7 @@ import { ParseExceptionCode } from '../src/parser';
     );
   });
 
-  it("should parse next javascript syntax", () => {
+  it('should parse next javascript syntax', () => {
     let sourceCode;
     // ES2019
     sourceCode = parseJavaScriptSourceFile(`try {} catch {}`);
@@ -117,15 +117,15 @@ import { ParseExceptionCode } from '../src/parser';
     );
   });
 
-  it("should return ParsingError when parse errors", () => {
-    expectToNotParse("if()", "Unexpected token )");
-    expectToNotParse("/* @flow */ if()", "Unexpected token (1:15)");
+  it('should return ParsingError when parse errors', () => {
+    expectToNotParse('if()', 'Unexpected token )');
+    expectToNotParse('/* @flow */ if()', 'Unexpected token (1:15)');
   });
 });
 
-describe("parseTypeScriptSourceFile", () => {
-  it("should parse typescript syntax", () => {
-    const file = __dirname + "/fixtures/ts-project/sample.lint.ts";
+describe('parseTypeScriptSourceFile', () => {
+  it('should parse typescript syntax', () => {
+    const file = __dirname + '/fixtures/ts-project/sample.lint.ts';
     const sourceCode = parseTypeScriptSourceFile(
       `if (b == 0) { // Noncompliant  
         doOneMoreThing();
@@ -134,7 +134,7 @@ describe("parseTypeScriptSourceFile", () => {
       }
     `,
       file,
-      [__dirname + "/fixtures/ts-project/tsconfig.json"],
+      [__dirname + '/fixtures/ts-project/tsconfig.json'],
     ) as SourceCode;
     expect(sourceCode.ast).toBeDefined();
     expect(sourceCode.parserServices.program).toBeDefined();
@@ -142,8 +142,8 @@ describe("parseTypeScriptSourceFile", () => {
     expect(program.getTypeChecker()).toBeDefined();
   });
 
-  it("should log parse error with typescript", () => {
-    const file = __dirname + "/fixtures/ts-project/sample.error.lint.ts";
+  it('should log parse error with typescript', () => {
+    const file = __dirname + '/fixtures/ts-project/sample.error.lint.ts';
     const parsingError = parseTypeScriptSourceFile(`if (b == 0) {`, file, []) as ParsingError;
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(1);
@@ -151,10 +151,10 @@ describe("parseTypeScriptSourceFile", () => {
     expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
   });
 
-  it("should return ParsingError with undefined line when file is not part of typescript project", () => {
-    const file = path.join(path.basename(__dirname), "/fixtures/ts-project/excluded.ts");
+  it('should return ParsingError with undefined line when file is not part of typescript project', () => {
+    const file = path.join(path.basename(__dirname), '/fixtures/ts-project/excluded.ts');
     const parsingError = parseTypeScriptSourceFile(`if (b == 0) {}`, file, [
-      __dirname + "/fixtures/ts-project/tsconfig.json",
+      __dirname + '/fixtures/ts-project/tsconfig.json',
     ]) as ParsingError;
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toBeUndefined();
@@ -163,48 +163,48 @@ describe("parseTypeScriptSourceFile", () => {
     );
   });
 
-  it("should throw a parsing exception with TypeScript version below minimum expected", () => {
+  it('should throw a parsing exception with TypeScript version below minimum expected', () => {
     let parsingException = undefined;
     try {
-      checkTypeScriptVersionCompatibility("1.2.3");
+      checkTypeScriptVersionCompatibility('1.2.3');
     } catch (exception) {
       parsingException = exception;
     }
     expect(parsingException).toBeDefined;
     expect(parsingException).toEqual({
       message:
-        "You are using version of TypeScript 1.2.3 which is not supported; supported versions >=3.2.1",
+        'You are using version of TypeScript 1.2.3 which is not supported; supported versions >=3.2.1',
     });
   });
 
-  it("should log a warning with TypeScript version above maximum expected", () => {
+  it('should log a warning with TypeScript version above maximum expected', () => {
     console.log = jest.fn();
 
-    checkTypeScriptVersionCompatibility("3.8.5");
+    checkTypeScriptVersionCompatibility('3.8.5');
     expect(console.log).toHaveBeenCalledWith(
-      "WARN You are using version of TypeScript 3.8.5 which is not officially supported; supported versions >=3.2.1 <3.8.0",
+      'WARN You are using version of TypeScript 3.8.5 which is not officially supported; supported versions >=3.2.1 <3.8.0',
     );
     console.log = jest.fn();
-    checkTypeScriptVersionCompatibility("3.8.5");
+    checkTypeScriptVersionCompatibility('3.8.5');
     // should log only once
     expect(console.log).not.toHaveBeenCalled();
 
     jest.resetAllMocks();
   });
 
-  it("should return correct parsing exception code from exception message", () => {
+  it('should return correct parsing exception code from exception message', () => {
     expect(parseExceptionCodeOf("Cannot find module 'typescript'")).toEqual(
       ParseExceptionCode.MissingTypeScript,
     );
-    expect(parseExceptionCodeOf("You are using version of TypeScript")).toEqual(
+    expect(parseExceptionCodeOf('You are using version of TypeScript')).toEqual(
       ParseExceptionCode.UnsupportedTypeScript,
     );
-    expect(parseExceptionCodeOf("Unexpected token )")).toEqual(ParseExceptionCode.Parsing);
+    expect(parseExceptionCodeOf('Unexpected token )')).toEqual(ParseExceptionCode.Parsing);
   });
 });
 
-describe("parseVueSourceFile", () => {
-  it("should parse Vue.js syntax", () => {
+describe('parseVueSourceFile', () => {
+  it('should parse Vue.js syntax', () => {
     const code = `
       module.exports = {
         data: function () {
@@ -234,14 +234,14 @@ describe("parseVueSourceFile", () => {
     expect(actual).toEqual(expected);
   });
 
-  it("should log parse error with Vue.js", () => {
+  it('should log parse error with Vue.js', () => {
     const parsingError = parseVueSourceFile(`
     <script>
     module.exports = {
     </script>`) as ParsingError;
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(4);
-    expect(parsingError.message).toEqual("Unexpected token");
+    expect(parsingError.message).toEqual('Unexpected token');
     expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
   });
 });

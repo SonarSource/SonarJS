@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/process-argv";
+import { rule } from '../../src/rules/process-argv';
 
-ruleTester.run("Using command line arguments is security-sensitive", rule, {
+ruleTester.run('Using command line arguments is security-sensitive', rule, {
   valid: [
     {
       code: `foo.bar`,
@@ -42,7 +42,7 @@ ruleTester.run("Using command line arguments is security-sensitive", rule, {
       code: `let x = process.argv;`,
       errors: [
         {
-          message: "Make sure that command line arguments are used safely here.",
+          message: 'Make sure that command line arguments are used safely here.',
           line: 1,
           endLine: 1,
           column: 9,

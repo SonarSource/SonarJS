@@ -19,15 +19,15 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4784
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { isMemberWithProperty, isIdentifier } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { isMemberWithProperty, isIdentifier } from './utils';
 
-const stringMethods = ["match", "search", "split"];
+const stringMethods = ['match', 'search', 'split'];
 const minPatternLength = 3;
-const specialChars = ["+", "*", "{"];
+const specialChars = ['+', '*', '{'];
 
-const message = "Make sure that using a regular expression is safe here.";
+const message = 'Make sure that using a regular expression is safe here.';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -54,7 +54,7 @@ export const rule: Rule.RuleModule = {
 
       NewExpression(node: estree.Node) {
         const { callee, arguments: args } = node as estree.NewExpression;
-        if (isIdentifier(callee, "RegExp")) {
+        if (isIdentifier(callee, 'RegExp')) {
           checkFirstArgument(args, context);
         }
       },
@@ -66,8 +66,8 @@ function checkFirstArgument(args: estree.Node[], context: Rule.RuleContext) {
   const firstArg = args[0];
   if (
     firstArg &&
-    firstArg.type === "Literal" &&
-    typeof firstArg.value === "string" &&
+    firstArg.type === 'Literal' &&
+    typeof firstArg.value === 'string' &&
     isUnsafeRegexLiteral(firstArg.value)
   ) {
     context.report({

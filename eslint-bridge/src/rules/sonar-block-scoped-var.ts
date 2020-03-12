@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2392
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { toEncodedMessage } from "./utils";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { toEncodedMessage } from './utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -52,20 +52,20 @@ export const rule: Rule.RuleModule = {
       },
 
       BlockStatement: enterScope,
-      "BlockStatement:exit": exitScope,
+      'BlockStatement:exit': exitScope,
       ForStatement: enterScope,
-      "ForStatement:exit": exitScope,
+      'ForStatement:exit': exitScope,
       ForInStatement: enterScope,
-      "ForInStatement:exit": exitScope,
+      'ForInStatement:exit': exitScope,
       ForOfStatement: enterScope,
-      "ForOfStatement:exit": exitScope,
+      'ForOfStatement:exit': exitScope,
       SwitchStatement: enterScope,
-      "SwitchStatement:exit": exitScope,
+      'SwitchStatement:exit': exitScope,
 
       VariableDeclaration: (node: estree.Node) => {
         const varDeclaration = node as estree.VariableDeclaration;
 
-        if (varDeclaration.kind !== "var") {
+        if (varDeclaration.kind !== 'var') {
           return;
         }
 

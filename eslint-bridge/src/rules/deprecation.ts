@@ -19,15 +19,15 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1874
 
-import { Rule } from "eslint";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import * as estree from 'estree';
 import {
   isRequiredParserServices,
   RequiredParserServices,
-} from "../utils/isRequiredParserServices";
-import * as tsTypes from "typescript";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+} from '../utils/isRequiredParserServices';
+import * as tsTypes from 'typescript';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 let ts: any;
 
@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
         }
 
         const id = node as estree.Identifier;
-        const insideImportExport = context.getAncestors().some(anc => anc.type.includes("Import"));
+        const insideImportExport = context.getAncestors().some(anc => anc.type.includes('Import'));
         if (insideImportExport || isDeclaration(id, context)) {
           return;
         }
@@ -75,12 +75,12 @@ function isDeclaration(id: estree.Identifier, context: Rule.RuleContext) {
   }
 
   const declarationTypes = [
-    "ClassProperty",
-    "TSPropertySignature",
-    "TSDeclareFunction",
-    "FunctionDeclaration",
-    "MethodDefinition",
-    "TSMethodSignature",
+    'ClassProperty',
+    'TSPropertySignature',
+    'TSDeclareFunction',
+    'FunctionDeclaration',
+    'MethodDefinition',
+    'TSMethodSignature',
   ];
   return parent && declarationTypes.includes(parent.type);
 }
@@ -103,7 +103,7 @@ function getDeprecation(
       }
     }
   }
-  ts = require("typescript");
+  ts = require('typescript');
   const symbol = getSymbol(id, services, context, tc);
 
   if (!symbol) {
@@ -157,7 +157,7 @@ function getCallExpression(
   let callee = id;
   let parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined;
 
-  if (parent && parent.type === "MemberExpression" && parent.property === id) {
+  if (parent && parent.type === 'MemberExpression' && parent.property === id) {
     callee = parent;
     parent = ancestors.length > 1 ? ancestors[ancestors.length - 2] : undefined;
   }
@@ -172,9 +172,9 @@ function isCallExpression(
   callee: estree.Node,
 ): node is estree.CallExpression | estree.TaggedTemplateExpression {
   if (node) {
-    if (node.type === "NewExpression" || node.type === "CallExpression") {
+    if (node.type === 'NewExpression' || node.type === 'CallExpression') {
       return node.callee === callee;
-    } else if (node.type === "TaggedTemplateExpression") {
+    } else if (node.type === 'TaggedTemplateExpression') {
       return node.tag === callee;
     }
   }
@@ -183,7 +183,7 @@ function isCallExpression(
 
 function getJsDocDeprecation(tags: tsTypes.JSDocTagInfo[]) {
   for (const tag of tags) {
-    if (tag.name === "deprecated") {
+    if (tag.name === 'deprecated') {
       return tag.text ? { reason: tag.text } : new Deprecation();
     }
   }
@@ -217,9 +217,9 @@ function isShorthandPropertyAssignment(
 }
 
 function isShortHandProperty(parent: estree.Node | undefined): parent is estree.Property {
-  return !!parent && parent.type === "Property" && parent.shorthand;
+  return !!parent && parent.type === 'Property' && parent.shorthand;
 }
 
 class Deprecation {
-  reason = "";
+  reason = '';
 }

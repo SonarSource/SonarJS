@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
-import { rule } from "../../src/rules/cors";
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+import { rule } from '../../src/rules/cors';
 
-ruleTester.run("Enabling Cross-Origin Resource Sharing is security-sensitive", rule, {
+ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', rule, {
   valid: [
     {
       code: `import * as express from 'foo'; app.use(cors());`,
@@ -39,7 +39,7 @@ ruleTester.run("Enabling Cross-Origin Resource Sharing is security-sensitive", r
       code: `res.writeHead(200, { 'Access-Control-Allow-Origin': '*' });`,
       errors: [
         {
-          message: "Make sure that enabling CORS is safe here.",
+          message: 'Make sure that enabling CORS is safe here.',
           line: 1,
           endLine: 1,
           column: 22,
@@ -54,7 +54,7 @@ ruleTester.run("Enabling Cross-Origin Resource Sharing is security-sensitive", r
         app.use(cors());`,
       errors: [
         {
-          message: "Make sure that enabling CORS is safe here.",
+          message: 'Make sure that enabling CORS is safe here.',
           line: 4,
           endLine: 4,
           column: 17,

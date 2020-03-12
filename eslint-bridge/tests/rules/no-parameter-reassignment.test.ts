@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-import { rule } from "../../src/rules/no-parameter-reassignment";
+import { rule } from '../../src/rules/no-parameter-reassignment';
 
-const tsParserPath = require.resolve("@typescript-eslint/parser");
+const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   parser: tsParserPath,
 });
 
 const NON_COMPLIANT_REGEX = /\/\/\sNoncompliant\s{{(\w+)}}/;
 function invalidTest(code: string) {
-  const errors = code.split("\n").reduce(
+  const errors = code.split('\n').reduce(
     (accumulator, currentLine, index) => {
       const res = NON_COMPLIANT_REGEX.exec(currentLine);
       if (res && res[1]) {

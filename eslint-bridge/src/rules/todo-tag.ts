@@ -19,16 +19,16 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1135
 
-import { Rule } from "eslint";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 const todoMessage = 'Complete the task associated to this "TODO" comment.';
-const todoPattern = "todo";
+const todoPattern = 'todo';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "Program:exit": () => {
+      'Program:exit': () => {
         reportPatternInComment(context, todoPattern, todoMessage);
       },
     };

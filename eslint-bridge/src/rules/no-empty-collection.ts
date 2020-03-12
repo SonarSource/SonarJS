@@ -19,54 +19,54 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4158
 
-import { Rule, Scope } from "eslint";
-import { isIdentifier, findFirstMatchingAncestor, isReferenceTo, ancestorsChain } from "./utils";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import * as estree from "estree";
-import { collectionConstructor } from "../utils/collections";
+import { Rule, Scope } from 'eslint';
+import { isIdentifier, findFirstMatchingAncestor, isReferenceTo, ancestorsChain } from './utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import * as estree from 'estree';
+import { collectionConstructor } from '../utils/collections';
 
 // Methods that mutate the collection but can't add elements
 const nonAdditiveMutatorMethods = [
   // array methods
-  "copyWithin",
-  "pop",
-  "reverse",
-  "shift",
-  "sort",
+  'copyWithin',
+  'pop',
+  'reverse',
+  'shift',
+  'sort',
   // map, set methods
-  "clear",
-  "delete",
+  'clear',
+  'delete',
 ];
 const accessorMethods = [
   // array methods
-  "concat",
-  "flat",
-  "flatMap",
-  "includes",
-  "indexOf",
-  "join",
-  "lastIndexOf",
-  "slice",
-  "toSource",
-  "toString",
-  "toLocaleString",
+  'concat',
+  'flat',
+  'flatMap',
+  'includes',
+  'indexOf',
+  'join',
+  'lastIndexOf',
+  'slice',
+  'toSource',
+  'toString',
+  'toLocaleString',
   // map, set methods
-  "get",
-  "has",
+  'get',
+  'has',
 ];
 const iterationMethods = [
-  "entries",
-  "every",
-  "filter",
-  "find",
-  "findIndex",
-  "forEach",
-  "keys",
-  "map",
-  "reduce",
-  "reduceRight",
-  "some",
-  "values",
+  'entries',
+  'every',
+  'filter',
+  'find',
+  'findIndex',
+  'forEach',
+  'keys',
+  'map',
+  'reduce',
+  'reduceRight',
+  'some',
+  'values',
 ];
 
 const strictlyReadingMethods = new Set([
@@ -78,7 +78,7 @@ const strictlyReadingMethods = new Set([
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "Program:exit": function() {
+      'Program:exit': function() {
         reportEmptyCollectionsUsage(context.getScope(), context);
       },
     };
@@ -86,7 +86,7 @@ export const rule: Rule.RuleModule = {
 };
 
 export function reportEmptyCollectionsUsage(scope: Scope.Scope, context: Rule.RuleContext) {
-  if (scope.type !== "global") {
+  if (scope.type !== 'global') {
     scope.variables.forEach(v => {
       reportEmptyCollectionUsage(v, context);
     });
@@ -131,17 +131,17 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
 function isReferenceAssigningEmptyCollection(ref: Scope.Reference) {
   const declOrExprStmt = findFirstMatchingAncestor(
     ref.identifier as TSESTree.Node,
-    n => n.type === "VariableDeclarator" || n.type === "ExpressionStatement",
+    n => n.type === 'VariableDeclarator' || n.type === 'ExpressionStatement',
   ) as estree.Node;
   if (declOrExprStmt) {
-    if (declOrExprStmt.type === "VariableDeclarator" && declOrExprStmt.init) {
+    if (declOrExprStmt.type === 'VariableDeclarator' && declOrExprStmt.init) {
       return isEmptyCollectionType(declOrExprStmt.init);
     }
 
-    if (declOrExprStmt.type === "ExpressionStatement") {
+    if (declOrExprStmt.type === 'ExpressionStatement') {
       const expression = declOrExprStmt.expression;
       return (
-        expression.type === "AssignmentExpression" &&
+        expression.type === 'AssignmentExpression' &&
         isReferenceTo(ref, expression.left) &&
         isEmptyCollectionType(expression.right)
       );
@@ -151,9 +151,9 @@ function isReferenceAssigningEmptyCollection(ref: Scope.Reference) {
 }
 
 function isEmptyCollectionType(node: estree.Node) {
-  if (node && node.type === "ArrayExpression") {
+  if (node && node.type === 'ArrayExpression') {
     return node.elements.length === 0;
-  } else if (node && (node.type === "CallExpression" || node.type === "NewExpression")) {
+  } else if (node && (node.type === 'CallExpression' || node.type === 'NewExpression')) {
     return isIdentifier(node.callee, ...collectionConstructor) && node.arguments.length === 0;
   }
   return false;
@@ -165,9 +165,9 @@ function isReadCollectionPattern(ref: Scope.Reference) {
 
 function isStrictlyReadingMethodCall(usage: Scope.Reference) {
   const parent = (usage.identifier as TSESTree.Node).parent;
-  if (parent && parent.type === "MemberExpression") {
+  if (parent && parent.type === 'MemberExpression') {
     const memberExpressionParent = parent.parent;
-    if (memberExpressionParent && memberExpressionParent.type === "CallExpression") {
+    if (memberExpressionParent && memberExpressionParent.type === 'CallExpression') {
       return isIdentifier(parent.property as estree.Node, ...strictlyReadingMethods);
     }
   }
@@ -177,7 +177,7 @@ function isStrictlyReadingMethodCall(usage: Scope.Reference) {
 function isForIterationPattern(ref: Scope.Reference) {
   const forInOrOfStatement = findFirstMatchingAncestor(
     ref.identifier as TSESTree.Node,
-    n => n.type === "ForOfStatement" || n.type === "ForInStatement",
+    n => n.type === 'ForOfStatement' || n.type === 'ForInStatement',
   ) as TSESTree.ForOfStatement | TSESTree.ForInStatement;
 
   return forInOrOfStatement && forInOrOfStatement.right === ref.identifier;
@@ -186,15 +186,15 @@ function isForIterationPattern(ref: Scope.Reference) {
 function isElementRead(ref: Scope.Reference) {
   const parent = (ref.identifier as TSESTree.Node).parent;
 
-  return parent && parent.type === "MemberExpression" && parent.computed && !isElementWrite(parent);
+  return parent && parent.type === 'MemberExpression' && parent.computed && !isElementWrite(parent);
 }
 
 function isElementWrite(memberExpression: TSESTree.MemberExpression) {
   const ancestors = ancestorsChain(memberExpression, new Set());
   const assignment = ancestors.find(
-    n => n.type === "AssignmentExpression",
+    n => n.type === 'AssignmentExpression',
   ) as TSESTree.AssignmentExpression;
-  if (assignment && assignment.operator === "=") {
+  if (assignment && assignment.operator === '=') {
     return [memberExpression, ...ancestors].includes(assignment.left);
   }
   return false;

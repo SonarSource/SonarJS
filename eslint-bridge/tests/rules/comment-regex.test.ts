@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/comment-regex";
+import { rule } from '../../src/rules/comment-regex';
 
-const optionsWithouthMessage = [{ regularExpression: "[a-z]" }];
-const optionsWithMessage = [{ regularExpression: "[a-z]", message: "this is a message" }];
+const optionsWithouthMessage = [{ regularExpression: '[a-z]' }];
+const optionsWithMessage = [{ regularExpression: '[a-z]', message: 'this is a message' }];
 
-ruleTester.run("Track comments matching a regular expression", rule, {
+ruleTester.run('Track comments matching a regular expression', rule, {
   valid: [
     {
       code: `
@@ -51,7 +51,7 @@ ruleTester.run("Track comments matching a regular expression", rule, {
       options: optionsWithMessage,
       errors: [
         {
-          message: "this is a message",
+          message: 'this is a message',
           line: 1,
           endLine: 1,
           column: 1,
@@ -64,7 +64,7 @@ ruleTester.run("Track comments matching a regular expression", rule, {
       options: optionsWithouthMessage,
       errors: [
         {
-          message: "The regular expression matches this comment.",
+          message: 'The regular expression matches this comment.',
           line: 1,
           endLine: 1,
           column: 1,

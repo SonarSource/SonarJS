@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/variable-name";
-import * as path from "path";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/variable-name';
+import * as path from 'path';
 
 const ruleTester = new RuleTester({
   parser: path.resolve(`${__dirname}/../../node_modules/@typescript-eslint/parser`),
   parserOptions: { ecmaVersion: 2018 },
 });
 
-const DEFAULT_FORMAT = "^[_$A-Za-z][$A-Za-z0-9]*$|^[_$A-Z][_$A-Z0-9]+$";
-const CUSTOM_FORMAT = "^[a-z][a-z0-9]+$";
+const DEFAULT_FORMAT = '^[_$A-Za-z][$A-Za-z0-9]*$|^[_$A-Z][_$A-Z0-9]+$';
+const CUSTOM_FORMAT = '^[a-z][a-z0-9]+$';
 
 ruleTester.run(
-  "Local variable and function parameter names should comply with a naming convention",
+  'Local variable and function parameter names should comply with a naming convention',
   rule,
   {
     valid: [
@@ -108,27 +108,27 @@ ruleTester.run(
         const bar_bar = 5;`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          error("foo_foo", "local variable", DEFAULT_FORMAT),
-          error("bar_bar", "local variable", DEFAULT_FORMAT),
+          error('foo_foo', 'local variable', DEFAULT_FORMAT),
+          error('bar_bar', 'local variable', DEFAULT_FORMAT),
         ],
       },
       {
         code: `let [ foo_foo, [ bar_bar, [ baz_baz, ...qux_qux ] ] ] = arr;`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          error("foo_foo", "local variable", DEFAULT_FORMAT),
-          error("bar_bar", "local variable", DEFAULT_FORMAT),
-          error("baz_baz", "local variable", DEFAULT_FORMAT),
-          error("qux_qux", "local variable", DEFAULT_FORMAT),
+          error('foo_foo', 'local variable', DEFAULT_FORMAT),
+          error('bar_bar', 'local variable', DEFAULT_FORMAT),
+          error('baz_baz', 'local variable', DEFAULT_FORMAT),
+          error('qux_qux', 'local variable', DEFAULT_FORMAT),
         ],
       },
       {
         code: `let { foo, bar: bar_bar, baz: { qux: { quux: quux_quux }, ...corge_corge } } = obj;`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          error("bar_bar", "local variable", DEFAULT_FORMAT),
-          error("quux_quux", "local variable", DEFAULT_FORMAT),
-          error("corge_corge", "local variable", DEFAULT_FORMAT),
+          error('bar_bar', 'local variable', DEFAULT_FORMAT),
+          error('quux_quux', 'local variable', DEFAULT_FORMAT),
+          error('corge_corge', 'local variable', DEFAULT_FORMAT),
         ],
       },
       {
@@ -138,9 +138,9 @@ ruleTester.run(
         try {} catch ({ foo: foo_bar3 }) {}`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          error("foo_bar1", "parameter", DEFAULT_FORMAT),
-          error("foo_bar2", "parameter", DEFAULT_FORMAT),
-          error("foo_bar3", "parameter", DEFAULT_FORMAT),
+          error('foo_bar1', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar2', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar3', 'parameter', DEFAULT_FORMAT),
         ],
       },
       {
@@ -154,15 +154,15 @@ ruleTester.run(
         let f = function (foo_bar10: number) {};`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          error("foo_bar1", "parameter", DEFAULT_FORMAT),
-          error("foo_bar2", "parameter", DEFAULT_FORMAT),
-          error("foo_bar3", "parameter", DEFAULT_FORMAT),
-          error("foo_bar4", "parameter", DEFAULT_FORMAT),
-          error("foo_bar5", "parameter", DEFAULT_FORMAT),
-          error("foo_bar6", "parameter", DEFAULT_FORMAT),
-          error("foo_bar7", "parameter", DEFAULT_FORMAT),
-          error("foo_bar9", "parameter", DEFAULT_FORMAT),
-          error("foo_bar10", "parameter", DEFAULT_FORMAT),
+          error('foo_bar1', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar2', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar3', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar4', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar5', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar6', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar7', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar9', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar10', 'parameter', DEFAULT_FORMAT),
         ],
       },
       {
@@ -173,8 +173,8 @@ ruleTester.run(
         }`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          error("foo_bar1", "parameter", DEFAULT_FORMAT),
-          error("foo_bar2", "parameter", DEFAULT_FORMAT),
+          error('foo_bar1', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar2', 'parameter', DEFAULT_FORMAT),
         ],
       },
       {
@@ -188,17 +188,17 @@ ruleTester.run(
         }`,
         options: [{ format: DEFAULT_FORMAT }],
         errors: [
-          error("foo_bar1", "property", DEFAULT_FORMAT),
-          error("foo_bar2", "parameter", DEFAULT_FORMAT),
-          error("foo_bar3", "parameter", DEFAULT_FORMAT),
-          error("foo_bar4", "parameter", DEFAULT_FORMAT),
-          error("foo_bar5", "parameter", DEFAULT_FORMAT),
+          error('foo_bar1', 'property', DEFAULT_FORMAT),
+          error('foo_bar2', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar3', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar4', 'parameter', DEFAULT_FORMAT),
+          error('foo_bar5', 'parameter', DEFAULT_FORMAT),
         ],
       },
       {
         code: `let custom_format`,
         options: [{ format: CUSTOM_FORMAT }],
-        errors: [error("custom_format", "local variable", CUSTOM_FORMAT)],
+        errors: [error('custom_format', 'local variable', CUSTOM_FORMAT)],
       },
     ],
   },

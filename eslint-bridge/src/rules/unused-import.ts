@@ -19,11 +19,11 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1128
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
-const EXCLUDED_IMPORTS = ["React"];
+const EXCLUDED_IMPORTS = ['React'];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
           }
         }
       },
-      "TSTypeReference > Identifier, TSClassImplements > Identifier, TSInterfaceHeritage > Identifier": (
+      'TSTypeReference > Identifier, TSClassImplements > Identifier, TSInterfaceHeritage > Identifier': (
         node: estree.Node,
       ) => {
         saveTypeIdentifier(node as estree.Identifier);
@@ -53,10 +53,10 @@ export const rule: Rule.RuleModule = {
         saveTypeIdentifier(((node as any) as TSESTree.MemberExpression)
           .object as estree.Identifier);
       },
-      "Program:exit": () => {
+      'Program:exit': () => {
         const jsxIdentifiers = context
           .getSourceCode()
-          .ast.tokens.filter(token => token.type === "JSXIdentifier")
+          .ast.tokens.filter(token => token.type === 'JSXIdentifier')
           .map(token => token.value);
         unusedImports
           .filter(

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTesterTs } from "../RuleTesterTs";
+import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTesterTs();
 
-import { rule } from "../../src/rules/no-redundant-optional";
+import { rule } from '../../src/rules/no-redundant-optional';
 
 ruleTester.run(
   `Optional property declarations should not use both '?' and 'undefined' syntax`,

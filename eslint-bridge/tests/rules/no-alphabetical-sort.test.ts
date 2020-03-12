@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTesterTs } from "../RuleTesterTs";
-import { rule } from "../../src/rules/no-alphabetical-sort";
+import { RuleTesterTs } from '../RuleTesterTs';
+import { rule } from '../../src/rules/no-alphabetical-sort';
 
 const ruleTester = new RuleTesterTs();
 ruleTester.run(`A compare function should be provided when using "Array.prototype.sort()"`, rule, {

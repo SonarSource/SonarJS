@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as fs from "fs";
-import * as path from "path";
-import { ParseExceptionCode } from "./parser";
+import * as fs from 'fs';
+import * as path from 'path';
+import { ParseExceptionCode } from './parser';
 
 export function getFilesForTsConfig(
   tsConfig: string,
 ): { files: string[] } | { error: string; errorCode?: ParseExceptionCode } {
   let ts;
   try {
-    ts = require("typescript");
+    ts = require('typescript');
   } catch (e) {
     return { error: e.message, errorCode: ParseExceptionCode.MissingTypeScript };
   }

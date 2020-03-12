@@ -20,8 +20,8 @@
 // https://jira.sonarsource.com/browse/RSPEC-1523
 // SQ key 'eval'
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -35,9 +35,9 @@ export const rule: Rule.RuleModule = {
 };
 
 function checkCallExpression(node: estree.CallExpression, context: Rule.RuleContext) {
-  if (node.callee.type === "Identifier") {
+  if (node.callee.type === 'Identifier') {
     const { name } = node.callee;
-    if ((name === "eval" || name === "Function") && hasAtLeastOneVariableArgument(node.arguments)) {
+    if ((name === 'eval' || name === 'Function') && hasAtLeastOneVariableArgument(node.arguments)) {
       context.report({
         message: `Make sure that this dynamic injection or execution of code is safe.`,
         node: node.callee,
@@ -51,11 +51,11 @@ function hasAtLeastOneVariableArgument(args: Array<estree.Node>) {
 }
 
 function isLiteral(node: estree.Node) {
-  if (node.type === "Literal") {
+  if (node.type === 'Literal') {
     return true;
   }
 
-  if (node.type === "TemplateLiteral") {
+  if (node.type === 'TemplateLiteral') {
     return node.expressions.length === 0;
   }
 

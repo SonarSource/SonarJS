@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as fs from "fs";
-import * as path from "path";
-import * as metrics from "../../src/runner/metrics";
-import { parseTypeScriptSourceFile } from "../../src/parser";
-import { SourceCode } from "eslint";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as metrics from '../../src/runner/metrics';
+import { parseTypeScriptSourceFile } from '../../src/parser';
+import { SourceCode } from 'eslint';
 
-it("should return lines of code", () => {
+it('should return lines of code', () => {
   const sourceCode = parseTS(
     `/*
       * header
@@ -43,7 +43,7 @@ it("should return lines of code", () => {
   expect(metrics.findLinesOfCode(sourceCode)).toEqual([4, 6, 7, 8, 9, 11]);
 });
 
-it("should return comment lines with header ignoring and no header comment", () => {
+it('should return comment lines with header ignoring and no header comment', () => {
   expect(
     comments(
       `x; // NoSonar foo
@@ -64,7 +64,7 @@ it("should return comment lines with header ignoring and no header comment", () 
   ).toEqual([5, 6]);
 });
 
-it("should return comment lines with header ignoring and block header comment", () => {
+it('should return comment lines with header ignoring and block header comment', () => {
   expect(
     comments(
       `/* header */
@@ -77,7 +77,7 @@ it("should return comment lines with header ignoring and block header comment", 
   ).toEqual([3, 4, 5]);
 });
 
-it("should return comment lines with header ignoring and special block header comment", () => {
+it('should return comment lines with header ignoring and special block header comment', () => {
   expect(
     comments(
       `/** header */
@@ -90,7 +90,7 @@ it("should return comment lines with header ignoring and special block header co
   ).toEqual([3, 4, 5]);
 });
 
-it("should return comment lines with header ignoring and line header comment", () => {
+it('should return comment lines with header ignoring and line header comment', () => {
   expect(
     comments(
       `// header
@@ -103,7 +103,7 @@ it("should return comment lines with header ignoring and line header comment", (
   ).toEqual([3, 4, 5]);
 });
 
-it("should return comment lines without header ignoring and block header comment", () => {
+it('should return comment lines without header ignoring and block header comment', () => {
   expect(
     comments(
       `/* header */
@@ -116,7 +116,7 @@ it("should return comment lines without header ignoring and block header comment
   ).toEqual([1, 3, 4, 5]);
 });
 
-it("should return comment lines without header ignoring and no header comment", () => {
+it('should return comment lines without header ignoring and no header comment', () => {
   expect(
     comments(
       `x;
@@ -128,7 +128,7 @@ it("should return comment lines without header ignoring and no header comment", 
   ).toEqual([2, 3, 4]);
 });
 
-it("should return NOSONAR lines", () => {
+it('should return NOSONAR lines', () => {
   const sourceCode = parseTS(
     `x; // NoSonar foo
      y; /* NOSONAR */
@@ -139,17 +139,17 @@ it("should return NOSONAR lines", () => {
   expect(metrics.findCommentLines(sourceCode, true).nosonarLines).toEqual([1, 2, 3]);
 });
 
-it("should return executable lines", () => {
+it('should return executable lines', () => {
   // executable lines simply have trailling comments in the fixture file
   const sourceCode = parseTS(
-    fs.readFileSync(path.join(__dirname, "./fixtures/executableLines.lint.ts"), "utf-8"),
+    fs.readFileSync(path.join(__dirname, './fixtures/executableLines.lint.ts'), 'utf-8'),
   );
   expect(metrics.findExecutableLines(sourceCode)).toEqual(
     metrics.findCommentLines(sourceCode, true).commentLines,
   );
 });
 
-it("should count functions", () => {
+it('should count functions', () => {
   const sourceCode = parseTS(
     `class A {
        foo() { // 1
@@ -167,7 +167,7 @@ it("should count functions", () => {
   expect(metrics.countFunctions(sourceCode)).toEqual(6);
 });
 
-it("should count statements", () => {
+it('should count statements', () => {
   const sourceCode = parseTS(
     `let x = 42; // 1
     ; // 2
@@ -186,7 +186,7 @@ it("should count statements", () => {
   expect(metrics.countStatements(sourceCode)).toEqual(10);
 });
 
-it("should count classes", () => {
+it('should count classes', () => {
   const sourceCode = parseTS(
     `class A { // 1
       foo() {
@@ -197,7 +197,7 @@ it("should count classes", () => {
   expect(metrics.countClasses(sourceCode)).toEqual(2);
 });
 
-it("should compute cyclomatic complexity", () => {
+it('should compute cyclomatic complexity', () => {
   expect(cyclomaticComplexity(`1 && 2;`)).toEqual(1);
   expect(cyclomaticComplexity(`function foo() { 1 || 2; }`)).toEqual(2);
   expect(cyclomaticComplexity(`while (true) { foo(); }`)).toEqual(1);
@@ -216,9 +216,9 @@ function comments(code: string, ignoreHeader: boolean): number[] {
 }
 
 function parseTS(code: string) {
-  const sourceCode = parseTypeScriptSourceFile(code, "foo.ts", []);
+  const sourceCode = parseTypeScriptSourceFile(code, 'foo.ts', []);
   if (!(sourceCode instanceof SourceCode)) {
-    throw new Error("Failed to parse " + sourceCode);
+    throw new Error('Failed to parse ' + sourceCode);
   }
   return sourceCode;
 }

@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4324
 
-import { Rule } from "eslint";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import {
   isRequiredParserServices,
   RequiredParserServices,
-} from "../utils/isRequiredParserServices";
-import * as estree from "estree";
+} from '../utils/isRequiredParserServices';
+import * as estree from 'estree';
 
 type ReturnedExpression = estree.Expression | undefined | null;
 
-const message = "Remove this return type or change it to a more specific.";
+const message = 'Remove this return type or change it to a more specific.';
 
 let ts: any;
 
@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
     const services = context.parserServices;
 
     if (isRequiredParserServices(services)) {
-      ts = require("typescript");
+      ts = require('typescript');
       const returnedExpressions: ReturnedExpression[][] = [];
       return {
         ReturnStatement(node: estree.Node) {
@@ -51,11 +51,11 @@ export const rule: Rule.RuleModule = {
         FunctionDeclaration: function() {
           returnedExpressions.push([]);
         },
-        "FunctionDeclaration:exit": function(node: estree.Node) {
+        'FunctionDeclaration:exit': function(node: estree.Node) {
           const returnType = (node as TSESTree.FunctionDeclaration).returnType;
           if (
             returnType &&
-            returnType.typeAnnotation.type === "TSAnyKeyword" &&
+            returnType.typeAnnotation.type === 'TSAnyKeyword' &&
             returnedExpressions.length > 0 &&
             allReturnTypesEqual(returnedExpressions[returnedExpressions.length - 1], services)
           ) {

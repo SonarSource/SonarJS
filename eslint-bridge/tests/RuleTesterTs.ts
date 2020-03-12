@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester, Rule } from "eslint";
-import * as path from "path";
+import { RuleTester, Rule } from 'eslint';
+import * as path from 'path';
 
 const parser = path.resolve(`${__dirname}/../node_modules/@typescript-eslint/parser`);
 
 const parserOptions = {
   ecmaVersion: 2018,
-  sourceType: "module",
+  sourceType: 'module',
   project: path.resolve(`${__dirname}/fixtures/rule-tester-project/tsconfig.json`),
 };
 
@@ -39,7 +39,7 @@ class RuleTesterTs extends RuleTester {
     parser,
     parserOptions: {
       ecmaVersion: 2018,
-      sourceType: "module",
+      sourceType: 'module',
       ecmaFeatures: {
         jsx: true,
         globalReturn: true,

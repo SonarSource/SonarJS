@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/no-unused-function-argument";
+import { rule } from '../../src/rules/no-unused-function-argument';
 
-ruleTester.run("Unused function parameters should be removed", rule, {
+ruleTester.run('Unused function parameters should be removed', rule, {
   valid: [
     {
       code: `function fun(a) {           // OK

@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/function-name";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/function-name';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
+  parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018 },
 });
 
-const DEFAULT_FORMAT = "^[_a-z][a-zA-Z0-9]*$";
-const ALLOW_UPPERCASE = "^[A-Z][a-zA-Z0-9]*$";
+const DEFAULT_FORMAT = '^[_a-z][a-zA-Z0-9]*$';
+const ALLOW_UPPERCASE = '^[A-Z][a-zA-Z0-9]*$';
 
-ruleTester.run("Function names should comply with a naming convention", rule, {
+ruleTester.run('Function names should comply with a naming convention', rule, {
   valid: [
     {
       code: `

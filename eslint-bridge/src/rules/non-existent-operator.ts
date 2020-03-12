@@ -19,15 +19,15 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2757
 
-import { AST, Rule } from "eslint";
-import * as estree from "estree";
+import { AST, Rule } from 'eslint';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       AssignmentExpression(node: estree.Node) {
         const assignmentExpression = node as estree.AssignmentExpression;
-        if (assignmentExpression.operator === "=") {
+        if (assignmentExpression.operator === '=') {
           checkOperator(context, assignmentExpression.right);
         }
       },
@@ -42,13 +42,13 @@ export const rule: Rule.RuleModule = {
 function checkOperator(context: Rule.RuleContext, unaryNode?: estree.Expression | null) {
   if (
     unaryNode &&
-    unaryNode.type === "UnaryExpression" &&
+    unaryNode.type === 'UnaryExpression' &&
     isUnaryOperatorOfInterest(unaryNode.operator)
   ) {
     const sourceCode = context.getSourceCode();
     const assignmentOperatorToken = sourceCode.getTokenBefore(
       unaryNode,
-      token => token.value === "=",
+      token => token.value === '=',
     );
     const unaryOperatorToken = sourceCode.getFirstToken(unaryNode);
     const expressionFirstToken = sourceCode.getFirstToken(unaryNode.argument);
@@ -69,7 +69,7 @@ function checkOperator(context: Rule.RuleContext, unaryNode?: estree.Expression 
 }
 
 function isUnaryOperatorOfInterest(operator: estree.UnaryOperator): boolean {
-  return operator === "-" || operator === "+" || operator === "!";
+  return operator === '-' || operator === '+' || operator === '!';
 }
 
 function areAdjacent(first: AST.Token, second: AST.Token): boolean {
