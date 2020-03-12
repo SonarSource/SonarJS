@@ -34,33 +34,33 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
-    if (isRequiredParserServices(services)) {
-      const ts = require('typescript');
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
+    const ts = require('typescript');
 
-      return {
-        CallExpression(node: estree.Node) {
-          const callee = (node as estree.CallExpression).callee;
-          if (callee.type === 'MemberExpression') {
-            const propertyText = context.getSourceCode().getText(callee.property);
-            if (isArrayMutatingCall(callee, services, propertyText)) {
-              const mutatedArray = callee.object;
+    return {
+      CallExpression(node: estree.Node) {
+        const callee = (node as estree.CallExpression).callee;
+        if (callee.type === 'MemberExpression') {
+          const propertyText = context.getSourceCode().getText(callee.property);
+          if (isArrayMutatingCall(callee, services, propertyText)) {
+            const mutatedArray = callee.object;
 
-              if (
-                isIdentifierOrPropertyAccessExpression(mutatedArray, services, ts) &&
-                !isInSelfAssignment(mutatedArray, node) &&
-                isForbiddenOperation(node)
-              ) {
-                context.report({
-                  message: formatMessage(propertyText),
-                  node,
-                });
-              }
+            if (
+              isIdentifierOrPropertyAccessExpression(mutatedArray, services, ts) &&
+              !isInSelfAssignment(mutatedArray, node) &&
+              isForbiddenOperation(node)
+            ) {
+              context.report({
+                message: formatMessage(propertyText),
+                node,
+              });
             }
           }
-        },
-      };
-    }
-    return {};
+        }
+      },
+    };
   },
 };
 

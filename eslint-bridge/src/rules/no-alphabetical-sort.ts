@@ -31,29 +31,29 @@ import { sortLike } from './utils';
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-    if (isRequiredParserServices(services)) {
-      const ts = require('typescript');
-      return {
-        CallExpression: (node: estree.Node) => {
-          const call = node as TSESTree.CallExpression;
-          const callee = call.callee;
-          if (call.arguments.length === 0 && callee.type === 'MemberExpression') {
-            const { object, property } = callee;
-            const text = context.getSourceCode().getText(property as estree.Node);
-            if (sortLike.includes(text)) {
-              const arrayElementType = arrayElementTypeOf(object, services, ts);
-              if (arrayElementType && arrayElementType.kind === ts.SyntaxKind.NumberKeyword) {
-                context.report({
-                  message: 'Provide a compare function to avoid sorting elements alphabetically.',
-                  node: property as estree.Node,
-                });
-              }
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
+    const ts = require('typescript');
+    return {
+      CallExpression: (node: estree.Node) => {
+        const call = node as TSESTree.CallExpression;
+        const callee = call.callee;
+        if (call.arguments.length === 0 && callee.type === 'MemberExpression') {
+          const { object, property } = callee;
+          const text = context.getSourceCode().getText(property as estree.Node);
+          if (sortLike.includes(text)) {
+            const arrayElementType = arrayElementTypeOf(object, services, ts);
+            if (arrayElementType && arrayElementType.kind === ts.SyntaxKind.NumberKeyword) {
+              context.report({
+                message: 'Provide a compare function to avoid sorting elements alphabetically.',
+                node: property as estree.Node,
+              });
             }
           }
-        },
-      };
-    }
-    return {};
+        }
+      },
+    };
   },
 };
 

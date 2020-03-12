@@ -48,26 +48,27 @@ function getPromiseExecutor(node: estree.NewExpression, context: Rule.RuleContex
 }
 
 function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.RuleContext) {
-  if (isFunctionNode(executor)) {
-    const { params, body } = executor;
-    const [resolveParameterDeclaration, rejectParameterDeclaration] = params;
+  if (!isFunctionNode(executor)) {
+    return;
+  }
+  const { params, body } = executor;
+  const [resolveParameterDeclaration, rejectParameterDeclaration] = params;
 
-    const resolveParameterName = getParameterName(resolveParameterDeclaration);
-    const rejectParameterName = getParameterName(rejectParameterDeclaration);
+  const resolveParameterName = getParameterName(resolveParameterDeclaration);
+  const rejectParameterName = getParameterName(rejectParameterDeclaration);
 
-    const bodyExpression = getOnlyBodyExpression(body);
-    if (bodyExpression && bodyExpression.type === 'CallExpression') {
-      const { callee, arguments: args } = bodyExpression;
-      if (callee.type === 'Identifier') {
-        const action = getPromiseAction(callee.name, resolveParameterName, rejectParameterName);
-        if (action && args.length === 1) {
-          context.report({
-            message: `Replace this trivial promise with "Promise.${action}(${context
-              .getSourceCode()
-              .getText(args[0])})".`,
-            node,
-          });
-        }
+  const bodyExpression = getOnlyBodyExpression(body);
+  if (bodyExpression && bodyExpression.type === 'CallExpression') {
+    const { callee, arguments: args } = bodyExpression;
+    if (callee.type === 'Identifier') {
+      const action = getPromiseAction(callee.name, resolveParameterName, rejectParameterName);
+      if (action && args.length === 1) {
+        context.report({
+          message: `Replace this trivial promise with "Promise.${action}(${context
+            .getSourceCode()
+            .getText(args[0])})".`,
+          node,
+        });
       }
     }
   }

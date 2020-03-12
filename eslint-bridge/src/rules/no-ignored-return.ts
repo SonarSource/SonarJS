@@ -180,35 +180,35 @@ const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-    if (isRequiredParserServices(services)) {
-      return {
-        CallExpression: (node: estree.Node) => {
-          const call = node as estree.CallExpression;
-          const callee = call.callee;
-          if (callee.type === 'MemberExpression') {
-            const parent = getParent(context);
-            if (parent && parent.type === 'ExpressionStatement') {
-              const methodName = context.getSourceCode().getText(callee.property);
-              const objectType = services.program
-                .getTypeChecker()
-                .getTypeAtLocation(
-                  services.esTreeNodeToTSNodeMap.get(callee.object as TSESTree.Node),
-                );
-              if (
-                !hasSideEffect(methodName, objectType, services) &&
-                !isReplaceWithCallback(methodName, call.arguments)
-              ) {
-                context.report({
-                  message: message(methodName),
-                  node,
-                });
-              }
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
+    return {
+      CallExpression: (node: estree.Node) => {
+        const call = node as estree.CallExpression;
+        const callee = call.callee;
+        if (callee.type === 'MemberExpression') {
+          const parent = getParent(context);
+          if (parent && parent.type === 'ExpressionStatement') {
+            const methodName = context.getSourceCode().getText(callee.property);
+            const objectType = services.program
+              .getTypeChecker()
+              .getTypeAtLocation(
+                services.esTreeNodeToTSNodeMap.get(callee.object as TSESTree.Node),
+              );
+            if (
+              !hasSideEffect(methodName, objectType, services) &&
+              !isReplaceWithCallback(methodName, call.arguments)
+            ) {
+              context.report({
+                message: message(methodName),
+                node,
+              });
             }
           }
-        },
-      };
-    }
-    return {};
+        }
+      },
+    };
   },
 };
 
