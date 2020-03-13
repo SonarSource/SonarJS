@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const collectionConstructor = ["Array", "Map", "Set", "WeakSet", "WeakMap"];
+export const collectionConstructor = ['Array', 'Map', 'Set', 'WeakSet', 'WeakMap'];
 
 export const writingMethods = [
   // array methods
-  "copyWithin",
-  "fill",
-  "pop",
-  "push",
-  "reverse",
-  "set",
-  "shift",
-  "sort",
-  "splice",
-  "unshift",
+  'copyWithin',
+  'fill',
+  'pop',
+  'push',
+  'reverse',
+  'set',
+  'shift',
+  'sort',
+  'splice',
+  'unshift',
   // map, set methods
-  "add",
-  "clear",
-  "delete",
+  'add',
+  'clear',
+  'delete',
 ];

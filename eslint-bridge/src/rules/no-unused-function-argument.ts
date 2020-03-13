@@ -19,14 +19,14 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1172
 
-import { Rule, Scope } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule, Scope } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "FunctionDeclaration, FunctionExpression": function(node: estree.Node) {
+      'FunctionDeclaration, FunctionExpression': function(node: estree.Node) {
         reportUnusedArgument(
           node,
           (node as estree.FunctionDeclaration | estree.FunctionExpression).id,
@@ -46,7 +46,7 @@ function reportUnusedArgument(
   context: Rule.RuleContext,
 ) {
   const parent = (node as TSESTree.Node).parent;
-  if (parent && parent.type === "Property" && parent.kind === "set") {
+  if (parent && parent.type === 'Property' && parent.kind === 'set') {
     return;
   }
 
@@ -54,7 +54,7 @@ function reportUnusedArgument(
     context
       .getScope()
       .variables.some(
-        v => v.name === "arguments" && v.identifiers.length === 0 && v.references.length > 0,
+        v => v.name === 'arguments' && v.identifiers.length === 0 && v.references.length > 0,
       )
   ) {
     return;

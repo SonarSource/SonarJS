@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
+  parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018 },
 });
-import { rule } from "../../src/rules/arrow-function-convention";
+import { rule } from '../../src/rules/arrow-function-convention';
 
-ruleTester.run("Braces and parentheses should be used consistently with arrow functions", rule, {
+ruleTester.run('Braces and parentheses should be used consistently with arrow functions', rule, {
   valid: [
     {
       code: `// valid mandatory parentheses 
@@ -103,7 +103,7 @@ var foo = a => { foo(); }  // Noncompliant
       options: [{ requireParameterParentheses: true, requireBodyBraces: false }],
       errors: [
         {
-          message: "Add parentheses around the parameter of this arrow function.",
+          message: 'Add parentheses around the parameter of this arrow function.',
           line: 2,
           endLine: 2,
           column: 11,
@@ -118,7 +118,7 @@ var foo = (a) => { foo(); /* comment */ } // Noncompliant
       options: [{ requireParameterParentheses: false, requireBodyBraces: false }],
       errors: [
         {
-          message: "Remove parentheses around the parameter of this arrow function.",
+          message: 'Remove parentheses around the parameter of this arrow function.',
           line: 2,
           endLine: 2,
           column: 12,

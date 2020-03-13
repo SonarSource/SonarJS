@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-100
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
 
     function checkName(id: TSESTree.Node | null) {
       const [{ format }] = context.options;
-      if (id && id.type === "Identifier" && !id.name.match(format)) {
+      if (id && id.type === 'Identifier' && !id.name.match(format)) {
         context.report({
           message: `Rename this '${id.name}' function to match the regular expression '${format}'.`,
           node: id,
@@ -59,5 +59,5 @@ export const rule: Rule.RuleModule = {
 };
 
 function isFunctionExpression(node: TSESTree.Node | null) {
-  return node && (node.type === "FunctionExpression" || node.type === "ArrowFunctionExpression");
+  return node && (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression');
 }

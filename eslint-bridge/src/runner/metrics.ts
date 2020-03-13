@@ -17,69 +17,69 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from "eslint";
-import * as estree from "estree";
-import visit from "../utils/visitor";
+import { SourceCode } from 'eslint';
+import * as estree from 'estree';
+import visit from '../utils/visitor';
 
 const EXECUTABLE_NODES = [
-  "ExpressionStatement",
-  "IfStatement",
-  "LabeledStatement",
-  "BreakStatement",
-  "ContinueStatement",
-  "WithStatement",
-  "SwitchStatement",
-  "ReturnStatement",
-  "ThrowStatement",
-  "TryStatement",
-  "WhileStatement",
-  "DoWhileStatement",
-  "ForStatement",
-  "ForInStatement",
-  "DebuggerStatement",
-  "VariableDeclaration",
-  "ForOfStatement",
+  'ExpressionStatement',
+  'IfStatement',
+  'LabeledStatement',
+  'BreakStatement',
+  'ContinueStatement',
+  'WithStatement',
+  'SwitchStatement',
+  'ReturnStatement',
+  'ThrowStatement',
+  'TryStatement',
+  'WhileStatement',
+  'DoWhileStatement',
+  'ForStatement',
+  'ForInStatement',
+  'DebuggerStatement',
+  'VariableDeclaration',
+  'ForOfStatement',
 ];
 
 const STATEMENT_NODES = [
-  "VariableDeclaration",
-  "EmptyStatement",
-  "ExpressionStatement",
-  "IfStatement",
-  "DoWhileStatement",
-  "WhileStatement",
-  "ForInStatement",
-  "ForOfStatement",
-  "ForStatement",
-  "ContinueStatement",
-  "BreakStatement",
-  "ReturnStatement",
-  "WithStatement",
-  "SwitchStatement",
-  "ThrowStatement",
-  "TryStatement",
-  "DebuggerStatement",
+  'VariableDeclaration',
+  'EmptyStatement',
+  'ExpressionStatement',
+  'IfStatement',
+  'DoWhileStatement',
+  'WhileStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'ForStatement',
+  'ContinueStatement',
+  'BreakStatement',
+  'ReturnStatement',
+  'WithStatement',
+  'SwitchStatement',
+  'ThrowStatement',
+  'TryStatement',
+  'DebuggerStatement',
 ];
 
 const LOOP_NODES = [
-  "ForStatement",
-  "ForInStatement",
-  "ForOfStatement",
-  "WhileStatement",
-  "DoWhileStatement",
+  'ForStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'WhileStatement',
+  'DoWhileStatement',
 ];
 
-const CONDITIONAL_NODES = ["IfStatement", "ConditionalExpression", "SwitchCase"];
+const CONDITIONAL_NODES = ['IfStatement', 'ConditionalExpression', 'SwitchCase'];
 
-const FUNCTION_NODES = ["FunctionDeclaration", "FunctionExpression", "ArrowFunctionExpression"];
+const FUNCTION_NODES = ['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'];
 
-const CLASS_NODES = ["ClassDeclaration", "ClassExpression"];
+const CLASS_NODES = ['ClassDeclaration', 'ClassExpression'];
 
 const COMPLEXITY_NODES = [
   ...CONDITIONAL_NODES,
   ...FUNCTION_NODES,
   ...LOOP_NODES,
-  "LogicalExpression",
+  'LogicalExpression',
 ];
 
 export default function getMetrics(
@@ -150,10 +150,10 @@ export function findCommentLines(
 
   for (const comment of comments) {
     if (comment.loc) {
-      const commentValue = comment.value.startsWith("*")
+      const commentValue = comment.value.startsWith('*')
         ? comment.value.substring(1).trim()
         : comment.value.trim();
-      if (commentValue.toUpperCase().startsWith("NOSONAR")) {
+      if (commentValue.toUpperCase().startsWith('NOSONAR')) {
         addLines(comment.loc.start.line, comment.loc.end.line, nosonarLines);
       } else if (commentValue.length > 0) {
         addLines(comment.loc.start.line, comment.loc.end.line, commentLines);

@@ -19,12 +19,12 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3524
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
-const MESSAGE_ADD_PARAMETER = "Add parentheses around the parameter of this arrow function.";
-const MESSAGE_REMOVE_PARAMETER = "Remove parentheses around the parameter of this arrow function.";
+const MESSAGE_ADD_PARAMETER = 'Add parentheses around the parameter of this arrow function.';
+const MESSAGE_REMOVE_PARAMETER = 'Remove parentheses around the parameter of this arrow function.';
 const MESSAGE_ADD_BODY = 'Add curly braces and "return" to this arrow function body.';
 const MESSAGE_REMOVE_BODY = 'Remove curly braces and "return" from this arrow function body.';
 
@@ -32,13 +32,13 @@ export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
-        type: "object",
+        type: 'object',
         properties: {
           requireParameterParentheses: {
-            type: "boolean",
+            type: 'boolean',
           },
           requireBodyBraces: {
-            type: "boolean",
+            type: 'boolean',
           },
         },
         additionalProperties: false,
@@ -71,7 +71,7 @@ function checkParameters(
   }
   const firstParameter = arrowFunction.params[0];
   const firstToken = context.getSourceCode().getFirstToken(arrowFunction);
-  const hasParameterParentheses = firstToken && firstToken.value === "(";
+  const hasParameterParentheses = firstToken && firstToken.value === '(';
 
   if (requireParameterParentheses && !hasParameterParentheses) {
     context.report({ node: firstParameter, message: MESSAGE_ADD_PARAMETER });
@@ -83,7 +83,7 @@ function checkParameters(
       arrowFunctionComments.filter(comment => !arrowFunctionBodyComments.includes(comment)).length >
       0;
     if (
-      firstParameter.type === "Identifier" &&
+      firstParameter.type === 'Identifier' &&
       !hasArrowFunctionParamsComments &&
       !(firstParameter as TSESTree.Identifier).typeAnnotation &&
       !(arrowFunction as TSESTree.ArrowFunctionExpression).returnType
@@ -98,7 +98,7 @@ function checkBody(
   requireBodyBraces: boolean,
   arrowFunction: estree.ArrowFunctionExpression,
 ) {
-  const hasBodyBraces = arrowFunction.body.type === "BlockStatement";
+  const hasBodyBraces = arrowFunction.body.type === 'BlockStatement';
   if (requireBodyBraces && !hasBodyBraces) {
     context.report({ node: arrowFunction.body, message: MESSAGE_ADD_BODY });
   } else if (!requireBodyBraces && hasBodyBraces) {
@@ -113,10 +113,10 @@ function checkBody(
 }
 
 function isRemovableReturn(statement: estree.Statement) {
-  if (statement.type === "ReturnStatement") {
+  if (statement.type === 'ReturnStatement') {
     const returnStatement = statement;
     const returnExpression = returnStatement.argument;
-    if (returnExpression && returnExpression.type !== "ObjectExpression") {
+    if (returnExpression && returnExpression.type !== 'ObjectExpression') {
       const location = returnExpression.loc;
       return location && location.start.line === location.end.line;
     }

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from "../../src/rules/no-ignored-return";
-import { RuleTesterTs } from "../RuleTesterTs";
+import { rule } from '../../src/rules/no-ignored-return';
+import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTesterTs();
-ruleTester.run("Return values from functions without side effects should not be ignored", rule, {
+ruleTester.run('Return values from functions without side effects should not be ignored', rule, {
   valid: [
     {
       code: `

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, Scope, AST } from "eslint";
-import * as estree from "estree";
-import { Location } from "./location";
+import { Rule, Scope, AST } from 'eslint';
+import * as estree from 'estree';
+import { Location } from './location';
 
-export const symbolHighlightingRuleId = "internal-symbol-highlighting";
+export const symbolHighlightingRuleId = 'internal-symbol-highlighting';
 
 /**
  * Using rule as we need to access declared variables which are available only with RuleContext
@@ -34,10 +34,10 @@ export const rule: Rule.RuleModule = {
         // clear "variables" for each file
         variables = new Set();
       },
-      "*": (node: estree.Node) => {
+      '*': (node: estree.Node) => {
         context.getDeclaredVariables(node).forEach(v => variables.add(v));
       },
-      "Program:exit": (node: estree.Node) => {
+      'Program:exit': (node: estree.Node) => {
         const result: HighlightedSymbol[] = [];
         variables.forEach(v => {
           // if variable is initialized during declaration it is part of references as well
@@ -55,11 +55,11 @@ export const rule: Rule.RuleModule = {
 
         const openCurlyBracesStack: AST.Token[] = [];
         context.getSourceCode().ast.tokens.forEach(token => {
-          if (token.type === "Punctuator") {
-            if (token.value === "{") {
+          if (token.type === 'Punctuator') {
+            if (token.value === '{') {
               openCurlyBracesStack.push(token);
             }
-            if (token.value === "}") {
+            if (token.value === '}') {
               const highlightedSymbol: HighlightedSymbol = {
                 declaration: location(openCurlyBracesStack.pop()!.loc),
                 references: [location(token.loc)],

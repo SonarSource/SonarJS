@@ -19,13 +19,13 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4275
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { toEncodedMessage } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { toEncodedMessage } from './utils';
 
 interface AccessorInfo {
-  type: "getter" | "setter";
+  type: 'getter' | 'setter';
   name: string;
 }
 
@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -49,7 +49,7 @@ export const rule: Rule.RuleModule = {
 
     function checkAccessor(accessor: TSESTree.Property | TSESTree.MethodDefinition) {
       const accessorIsPublic =
-        accessor.type !== "MethodDefinition" || accessor.accessibility === "public";
+        accessor.type !== 'MethodDefinition' || accessor.accessibility === 'public';
       const accessorInfo = getAccessorInfo(accessor);
       const statements = getFunctionBody(accessor.value);
       if (!accessorInfo || !accessorIsPublic || !statements || statements.length > 1) {
@@ -70,7 +70,7 @@ export const rule: Rule.RuleModule = {
           accessorInfo.type
         } so that it actually refers to the property '${fieldToRefer.name}'.`;
         const secondaryLocations = [fieldToRefer.node];
-        const secondaryMessages = ["Property which should be referred."];
+        const secondaryMessages = ['Property which should be referred.'];
 
         context.report({
           message: toEncodedMessage(primaryMessage, secondaryLocations, secondaryMessages),
@@ -88,8 +88,8 @@ export const rule: Rule.RuleModule = {
         const fields = getFieldMap(
           classBody.body,
           classElement =>
-            (classElement.type === "ClassProperty" ||
-              classElement.type === "TSAbstractClassProperty") &&
+            (classElement.type === 'ClassProperty' ||
+              classElement.type === 'TSAbstractClassProperty') &&
             !classElement.static
               ? classElement.key
               : null,
@@ -105,7 +105,7 @@ export const rule: Rule.RuleModule = {
         );
         currentFieldsStack.push(currentFields);
       },
-      ":matches(ClassBody, ObjectExpression):exit": () => {
+      ':matches(ClassBody, ObjectExpression):exit': () => {
         currentFieldsStack.pop();
       },
     };
@@ -121,34 +121,34 @@ function getAccessorInfo(
   }
 
   name = name.toLowerCase();
-  if (accessor.kind === "get") {
-    return { type: "getter", name };
-  } else if (accessor.kind === "set") {
-    return { type: "setter", name };
+  if (accessor.kind === 'get') {
+    return { type: 'getter', name };
+  } else if (accessor.kind === 'set') {
+    return { type: 'setter', name };
   } else {
     return setterOrGetter(name, accessor.value);
   }
 }
 
 function getName(key: TSESTree.Node) {
-  if (key.type === "Literal") {
+  if (key.type === 'Literal') {
     return String(key.value);
-  } else if (key.type === "Identifier") {
+  } else if (key.type === 'Identifier') {
     return key.name;
   }
   return null;
 }
 
 function setterOrGetter(name: string, functionExpression: TSESTree.Node): AccessorInfo | null {
-  if (functionExpression.type !== "FunctionExpression") {
+  if (functionExpression.type !== 'FunctionExpression') {
     return null;
   }
 
-  if (name.startsWith("set") && functionExpression.params.length === 1) {
-    return { type: "setter", name: name.substring(3) };
+  if (name.startsWith('set') && functionExpression.params.length === 1) {
+    return { type: 'setter', name: name.substring(3) };
   }
-  if (name.startsWith("get") && functionExpression.params.length === 0) {
-    return { type: "getter", name: name.substring(3) };
+  if (name.startsWith('get') && functionExpression.params.length === 0) {
+    return { type: 'getter', name: name.substring(3) };
   }
 
   return null;
@@ -175,7 +175,7 @@ function getFieldMap<T extends TSESTree.Node>(
 }
 
 function isValidObjectField(prop: TSESTree.Node): prop is TSESTree.Property {
-  return prop.type === "Property" && !prop.method && prop.kind === "init";
+  return prop.type === 'Property' && !prop.method && prop.kind === 'init';
 }
 
 function fieldsDeclaredInConstructorParameters(containingClass: TSESTree.ClassBody) {
@@ -184,7 +184,7 @@ function fieldsDeclaredInConstructorParameters(containingClass: TSESTree.ClassBo
     const fieldsFromConstructor = new Map<string, Field>();
     for (const parameter of constr.params) {
       if (
-        parameter.type === "TSParameterProperty" &&
+        parameter.type === 'TSParameterProperty' &&
         (parameter.accessibility || parameter.readonly)
       ) {
         const parameterName = getName(parameter.parameter);
@@ -206,7 +206,7 @@ function getConstructorOf(
   containingClass: TSESTree.ClassBody,
 ): TSESTree.FunctionExpression | TSESTree.TSEmptyBodyFunctionExpression | undefined {
   for (const classElement of containingClass.body) {
-    if (classElement.type === "MethodDefinition" && getName(classElement.key) === "constructor") {
+    if (classElement.type === 'MethodDefinition' && getName(classElement.key) === 'constructor') {
       return classElement.value;
     }
   }
@@ -224,7 +224,7 @@ function findMatchingFields(currentFields: Map<string, Field>, name: string) {
 }
 
 function getFunctionBody(node: TSESTree.Node) {
-  if (node.type !== "FunctionExpression" || !node.body) {
+  if (node.type !== 'FunctionExpression' || !node.body) {
     return null;
   }
   return node.body.body;
@@ -233,8 +233,8 @@ function getFunctionBody(node: TSESTree.Node) {
 function getPropertyName(expression: TSESTree.Expression | null) {
   if (
     expression &&
-    expression.type === "MemberExpression" &&
-    expression.object.type === "ThisExpression"
+    expression.type === 'MemberExpression' &&
+    expression.object.type === 'ThisExpression'
   ) {
     return getName(expression.property);
   }
@@ -242,14 +242,14 @@ function getPropertyName(expression: TSESTree.Expression | null) {
 }
 
 function getFieldUsedInsideSimpleBody(statement: TSESTree.Statement, accessorInfo: AccessorInfo) {
-  if (accessorInfo.type === "setter") {
+  if (accessorInfo.type === 'setter') {
     if (
-      statement.type === "ExpressionStatement" &&
-      statement.expression.type === "AssignmentExpression"
+      statement.type === 'ExpressionStatement' &&
+      statement.expression.type === 'AssignmentExpression'
     ) {
       return getPropertyName(statement.expression.left);
     }
-  } else if (statement.type === "ReturnStatement") {
+  } else if (statement.type === 'ReturnStatement') {
     return getPropertyName(statement.argument);
   }
   return null;

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/max-union-size";
-import * as path from "path";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/max-union-size';
+import * as path from 'path';
 
 const ruleTester = new RuleTester({
   parser: path.resolve(`${__dirname}/../../node_modules/@typescript-eslint/parser`),
@@ -29,7 +29,7 @@ const ruleTester = new RuleTester({
 const DEFAULT_THRESHOLD = 3;
 const CUSTOM_THRESHOLD = 4;
 
-ruleTester.run("Union types should not have too many elements", rule, {
+ruleTester.run('Union types should not have too many elements', rule, {
   valid: [
     {
       code: `let smallUnionType: number | boolean | string;`,

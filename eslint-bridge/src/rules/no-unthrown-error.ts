@@ -19,20 +19,20 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3984
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-const message = "Throw this error or remove this useless statement.";
+const message = 'Throw this error or remove this useless statement.';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     function looksLikeAnError(expression: estree.Expression | estree.Super): boolean {
       const text = context.getSourceCode().getText(expression);
-      return text.endsWith("Error") || text.endsWith("Exception");
+      return text.endsWith('Error') || text.endsWith('Exception');
     }
 
     return {
-      "ExpressionStatement > NewExpression": function(node: estree.Node) {
+      'ExpressionStatement > NewExpression': function(node: estree.Node) {
         const expression = (node as estree.NewExpression).callee;
         if (looksLikeAnError(expression)) {
           context.report({

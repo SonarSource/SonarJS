@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3973
 
-import { Rule, AST } from "eslint";
-import * as estree from "estree";
-import { LoopLike, toEncodedMessage } from "./utils";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { Rule, AST } from 'eslint';
+import * as estree from 'estree';
+import { LoopLike, toEncodedMessage } from './utils';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = {
       IfStatement: (node: estree.Node) => {
         const ifStatement = node as estree.IfStatement;
         const parent = getParent(context);
-        if (parent && parent.type !== "IfStatement") {
+        if (parent && parent.type !== 'IfStatement') {
           const firstToken = sourceCode.getFirstToken(node);
           checkIndentation(firstToken, ifStatement.consequent, context);
         }
@@ -48,10 +48,10 @@ export const rule: Rule.RuleModule = {
         if (ifStatement.alternate) {
           const elseToken = sourceCode.getTokenBefore(
             ifStatement.alternate,
-            token => token.type === "Keyword" && token.value === "else",
+            token => token.type === 'Keyword' && token.value === 'else',
           );
           const alternate = ifStatement.alternate;
-          if (alternate.type === "IfStatement") {
+          if (alternate.type === 'IfStatement') {
             //case with "else if", we have to check the consequent of the next if
             checkIndentation(elseToken, alternate.consequent, context);
           } else {
@@ -59,7 +59,7 @@ export const rule: Rule.RuleModule = {
           }
         }
       },
-      "WhileStatement, ForStatement, ForInStatement, ForOfStatement": (node: estree.Node) => {
+      'WhileStatement, ForStatement, ForInStatement, ForOfStatement': (node: estree.Node) => {
         const firstToken = sourceCode.getFirstToken(node);
         checkIndentation(firstToken, (node as LoopLike).body, context);
       },
@@ -72,7 +72,7 @@ function checkIndentation(
   statement: estree.Statement,
   context: Rule.RuleContext,
 ) {
-  if (firstToken && statement.type !== "BlockStatement") {
+  if (firstToken && statement.type !== 'BlockStatement') {
     const firstStatementToken = context.getSourceCode().getFirstToken(statement);
     if (
       firstStatementToken &&

@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/use-type-alias";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/use-type-alias';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
+  parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018 },
 });
 
-ruleTester.run("Type aliases should be used", rule, {
+ruleTester.run('Type aliases should be used', rule, {
   valid: [
     {
       code: `type MyType = string | null | number;`,

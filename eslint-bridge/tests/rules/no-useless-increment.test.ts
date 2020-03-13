@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/no-useless-increment";
+import { rule } from '../../src/rules/no-useless-increment';
 
-ruleTester.run("Values should not be uselessly incremented", rule, {
+ruleTester.run('Values should not be uselessly incremented', rule, {
   valid: [
     {
       code: `i = j++;`,
@@ -57,7 +57,7 @@ ruleTester.run("Values should not be uselessly incremented", rule, {
       code: `i = i++;`,
       errors: [
         {
-          message: "Remove this increment or correct the code not to waste it.",
+          message: 'Remove this increment or correct the code not to waste it.',
           line: 1,
           endLine: 1,
           column: 5,
@@ -69,7 +69,7 @@ ruleTester.run("Values should not be uselessly incremented", rule, {
       code: `i = i--; `,
       errors: [
         {
-          message: "Remove this decrement or correct the code not to waste it.",
+          message: 'Remove this decrement or correct the code not to waste it.',
         },
       ],
     },
@@ -80,7 +80,7 @@ ruleTester.run("Values should not be uselessly incremented", rule, {
             }`,
       errors: [
         {
-          message: "Remove this increment or correct the code not to waste it.",
+          message: 'Remove this increment or correct the code not to waste it.',
         },
       ],
     },

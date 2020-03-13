@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester, Rule } from "eslint";
-import * as path from "path";
+import { RuleTester, Rule } from 'eslint';
+import * as path from 'path';
 
 interface TestCases {
   valid: RuleTester.ValidTestCase[];
@@ -27,7 +27,7 @@ interface TestCases {
 
 const parserOptions = {
   ecmaVersion: 2018,
-  sourceType: "module",
+  sourceType: 'module',
 };
 
 export default class Ruler {
@@ -36,7 +36,7 @@ export default class Ruler {
   });
 
   private readonly ruleTesterTs = new RuleTester({
-    parser: require.resolve("@typescript-eslint/parser"),
+    parser: require.resolve('@typescript-eslint/parser'),
     parserOptions: {
       ...parserOptions,
       project: path.resolve(`${__dirname}/fixtures/rule-tester-project/tsconfig.json`),
@@ -48,6 +48,6 @@ export default class Ruler {
     tests.ts.valid.forEach(testCase => (testCase.filename = filename));
     tests.ts.invalid.forEach(testCase => (testCase.filename = filename));
     this.ruleTesterJs.run(`${name}\n   javascript`, rule, tests.js);
-    this.ruleTesterTs.run(" typescript", rule, tests.ts);
+    this.ruleTesterTs.run(' typescript', rule, tests.ts);
   }
 }

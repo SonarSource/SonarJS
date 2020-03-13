@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { join } from "path";
-import { analyzeTypeScript } from "../../src/analyzer";
-import { HighlightedSymbol } from "../../src/runner/symbol-highlighter";
-import { Location } from "../../src/runner/location";
+import { join } from 'path';
+import { analyzeTypeScript } from '../../src/analyzer';
+import { HighlightedSymbol } from '../../src/runner/symbol-highlighter';
+import { Location } from '../../src/runner/location';
 
-it("should highlight variable references", () => {
+it('should highlight variable references', () => {
   const result = actual(
     `let x = 32;
 foo(x);
@@ -38,7 +38,7 @@ x = 42;
   expect(result[0].references[2]).toEqual(location(4, 0, 4, 1));
 });
 
-it("should highlight parameter references", () => {
+it('should highlight parameter references', () => {
   const result = actual(`function foo(p: number) { return p; }`);
   expect(result).toHaveLength(3);
   expect(result[0].declaration).toEqual(location(1, 9, 1, 12));
@@ -49,26 +49,26 @@ it("should highlight parameter references", () => {
   expect(result[1].references[0]).toEqual(location(1, 33, 1, 34));
 });
 
-it("should highlight variable declared with type", () => {
+it('should highlight variable declared with type', () => {
   const result = actual(`let x: number = 42;`);
   expect(result).toHaveLength(1);
   expect(result[0].declaration).toEqual(location(1, 4, 1, 13));
   expect(result[0].references).toHaveLength(0);
 });
 
-it("should highlight unused variable", () => {
+it('should highlight unused variable', () => {
   const result = actual(`let x;`);
   expect(result).toHaveLength(1);
   expect(result[0].declaration).toEqual(location(1, 4, 1, 5));
   expect(result[0].references).toHaveLength(0);
 });
 
-it("should not highlight variable without declaration", () => {
+it('should not highlight variable without declaration', () => {
   const result = actual(`foo(x);`);
   expect(result).toHaveLength(0);
 });
 
-it("should highlight imported symbol", () => {
+it('should highlight imported symbol', () => {
   const result = actual(`import { x } from "hello"; \nx();`);
   expect(result).toHaveLength(2);
   expect(result[0].declaration).toEqual(location(1, 9, 1, 10));
@@ -76,7 +76,7 @@ it("should highlight imported symbol", () => {
   expect(result[0].references[0]).toEqual(location(2, 0, 2, 1));
 });
 
-it("should highlight curly brackets", () => {
+it('should highlight curly brackets', () => {
   const result = actual(`
 (function () {
   if (true) {
@@ -107,8 +107,8 @@ function location(startLine: number, startCol: number, endLine: number, endCol: 
 }
 
 function actual(code: string): HighlightedSymbol[] {
-  const filePath = join(__dirname, "/../fixtures/ts-project/sample.lint.ts");
-  const tsConfig = join(__dirname, "/../fixtures/ts-project/tsconfig.json");
+  const filePath = join(__dirname, '/../fixtures/ts-project/sample.lint.ts');
+  const tsConfig = join(__dirname, '/../fixtures/ts-project/tsconfig.json');
   const result = analyzeTypeScript({
     filePath,
     fileContent: code,

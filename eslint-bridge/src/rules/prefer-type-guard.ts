@@ -19,11 +19,11 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4322
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionExpression;
 
@@ -46,7 +46,7 @@ function checkFunctionLikeDeclaration(
 ) {
   if (
     functionDeclaration.returnType &&
-    functionDeclaration.returnType.typeAnnotation.type === "TSTypePredicate"
+    functionDeclaration.returnType.typeAnnotation.type === 'TSTypePredicate'
   ) {
     return;
   }
@@ -76,7 +76,7 @@ function getReturnedExpression(
 ): TSESTree.Expression | undefined | null {
   if (block && block.body.length === 1) {
     const statement = block.body[0];
-    if (statement.type === "ReturnStatement") {
+    if (statement.type === 'ReturnStatement') {
       return statement.argument;
     }
   }
@@ -87,8 +87,8 @@ function isInequalityBinaryExpression(
   returnExpression: TSESTree.Expression,
 ): returnExpression is TSESTree.BinaryExpression {
   return (
-    returnExpression.type === "BinaryExpression" &&
-    (returnExpression.operator === "!==" || returnExpression.operator === "!=")
+    returnExpression.type === 'BinaryExpression' &&
+    (returnExpression.operator === '!==' || returnExpression.operator === '!=')
   );
 }
 
@@ -99,9 +99,9 @@ function checkCastedType(
 ) {
   const sourceCode = context.getSourceCode();
   const castedType = getCastTupleFromMemberExpression(expression);
-  if (castedType && (castedType[1] as TSESTree.Node).type !== "TSAnyKeyword") {
+  if (castedType && (castedType[1] as TSESTree.Node).type !== 'TSAnyKeyword') {
     const nOfParam = node.params.length;
-    if (nOfParam === 1 || (nOfParam === 0 && castedType[0].type === "ThisExpression")) {
+    if (nOfParam === 1 || (nOfParam === 0 && castedType[0].type === 'ThisExpression')) {
       const castedExpressionText = sourceCode.getText(castedType[0]);
       const castedTypeText = sourceCode.getText(castedType[1]);
       context.report({
@@ -115,9 +115,9 @@ function checkCastedType(
 function getCastTupleFromMemberExpression(
   node: TSESTree.Expression,
 ): [estree.Node, estree.Node] | undefined {
-  if (node.type === "MemberExpression") {
+  if (node.type === 'MemberExpression') {
     const object = node.object as TSESTree.Node;
-    if (object.type === "TSAsExpression" || object.type === "TSTypeAssertion") {
+    if (object.type === 'TSAsExpression' || object.type === 'TSTypeAssertion') {
       return [object.expression as estree.Node, object.typeAnnotation as estree.Node];
     }
   }
@@ -125,17 +125,17 @@ function getCastTupleFromMemberExpression(
 }
 
 function isNegation(node: TSESTree.Expression): node is TSESTree.UnaryExpression {
-  return node.type === "UnaryExpression" && node.prefix && node.operator === "!";
+  return node.type === 'UnaryExpression' && node.prefix && node.operator === '!';
 }
 
 function isUndefined(node: TSESTree.Expression) {
-  return node.type === "Identifier" && node.name === "undefined";
+  return node.type === 'Identifier' && node.name === 'undefined';
 }
 
 function isBooleanCall(node: TSESTree.Expression): node is TSESTree.CallExpression {
-  if (node.type === "CallExpression") {
+  if (node.type === 'CallExpression') {
     const callee = node.callee;
-    return node.arguments.length === 1 && callee.type === "Identifier" && callee.name === "Boolean";
+    return node.arguments.length === 1 && callee.type === 'Identifier' && callee.name === 'Boolean';
   }
   return false;
 }

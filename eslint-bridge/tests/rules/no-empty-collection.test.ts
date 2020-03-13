@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
-import { rule } from "../../src/rules/no-empty-collection";
+import { rule } from '../../src/rules/no-empty-collection';
 
-ruleTester.run("Empty collections should not be accessed or iterated", rule, {
+ruleTester.run('Empty collections should not be accessed or iterated', rule, {
   valid: [
     {
       code: `function okForNotEmptyInit() {

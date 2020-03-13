@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 3, sourceType: "script" } });
-import { rule } from "../../src/rules/future-reserved-words";
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 3, sourceType: 'script' } });
+import { rule } from '../../src/rules/future-reserved-words';
 
-ruleTester.run("Future reserved words", rule, {
+ruleTester.run('Future reserved words', rule, {
   valid: [
     {
       code: `

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/no-unenclosed-multiline-block";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/no-unenclosed-multiline-block';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 
-ruleTester.run("Multiline blocks should be enclosed in curly braces", rule, {
+ruleTester.run('Multiline blocks should be enclosed in curly braces', rule, {
   valid: [
     {
       code: `

@@ -19,20 +19,20 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1472
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
-        if (call.callee.type !== "CallExpression" && call.arguments.length === 1) {
+        if (call.callee.type !== 'CallExpression' && call.arguments.length === 1) {
           const sourceCode = context.getSourceCode();
           const parenthesis = sourceCode.getLastTokenBetween(
             call.callee,
             call.arguments[0],
-            token => token.type === "Punctuator" && token.value === ")",
+            token => token.type === 'Punctuator' && token.value === ')',
           );
           const calleeLastLine = (parenthesis ? parenthesis : sourceCode.getLastToken(call.callee))!
             .loc.end.line;

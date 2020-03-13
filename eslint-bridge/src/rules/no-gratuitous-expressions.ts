@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2589
 
-import { Rule, Scope } from "eslint";
-import * as estree from "estree";
-import { isIdentifier, getParent, isIfStatement } from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
+import { Rule, Scope } from 'eslint';
+import * as estree from 'estree';
+import { isIdentifier, getParent, isIfStatement } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -41,12 +41,12 @@ export const rule: Rule.RuleModule = {
     return {
       IfStatement: (node: estree.Node) => {
         const test = (node as estree.IfStatement).test;
-        if (test.type === "Literal" && typeof test.value === "boolean") {
+        if (test.type === 'Literal' && typeof test.value === 'boolean') {
           report(test, undefined, context, test.value);
         }
       },
 
-      ":statement": (node: estree.Node) => {
+      ':statement': (node: estree.Node) => {
         const parent = getParent(context);
         if (parent && isIfStatement(parent)) {
           // we visit 'consequent' and 'alternate' and not if-statement directly in order to get scope for 'consequent'
@@ -62,7 +62,7 @@ export const rule: Rule.RuleModule = {
         }
       },
 
-      ":statement:exit": (node: estree.Node) => {
+      ':statement:exit': (node: estree.Node) => {
         const stmt = node as estree.Statement;
         truthyMap.delete(stmt);
         falsyMap.delete(stmt);
@@ -136,7 +136,7 @@ function collectKnownIdentifiers(expression: estree.Expression) {
 }
 
 function isLogicalAnd(expression: estree.Node): expression is estree.LogicalExpression {
-  return expression.type === "LogicalExpression" && expression.operator === "&&";
+  return expression.type === 'LogicalExpression' && expression.operator === '&&';
 }
 
 function isLogicalOrLhs(
@@ -144,14 +144,14 @@ function isLogicalOrLhs(
   expression: estree.Node,
 ): expression is estree.LogicalExpression {
   return (
-    expression.type === "LogicalExpression" &&
-    expression.operator === "||" &&
+    expression.type === 'LogicalExpression' &&
+    expression.operator === '||' &&
     expression.left === id
   );
 }
 
 function isLogicalNegation(expression: estree.Node): expression is estree.UnaryExpression {
-  return expression.type === "UnaryExpression" && expression.operator === "!";
+  return expression.type === 'UnaryExpression' && expression.operator === '!';
 }
 
 function isDefined<T>(x: T | undefined | null): x is T {
@@ -167,7 +167,7 @@ function getSymbol(id: estree.Identifier, scope: Scope.Scope) {
 }
 
 function getFunctionScope(scope: Scope.Scope): Scope.Scope | null {
-  if (scope.type === "function") {
+  if (scope.type === 'function') {
     return scope;
   } else if (!scope.upper) {
     return null;
@@ -207,7 +207,7 @@ function report(
   context: Rule.RuleContext,
   truthy: boolean,
 ) {
-  const value = truthy ? "truthy" : "falsy";
+  const value = truthy ? 'truthy' : 'falsy';
 
   const encodedMessage: EncodedMessage = {
     message: `This always evaluates to ${value}. Consider refactoring this code.`,

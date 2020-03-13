@@ -19,15 +19,15 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4823
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { isMemberExpression } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { isMemberExpression } from './utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       MemberExpression(node: estree.Node) {
-        if (isMemberExpression(node, "process", "argv")) {
+        if (isMemberExpression(node, 'process', 'argv')) {
           context.report({
             message: `Make sure that command line arguments are used safely here.`,
             node,

@@ -19,19 +19,20 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3514
 
-import { Rule } from "eslint";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import * as estree from "estree";
-import { toEncodedMessage, findFirstMatchingAncestor } from "./utils";
+import { Rule } from 'eslint';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import * as estree from 'estree';
+import { toEncodedMessage, findFirstMatchingAncestor } from './utils';
 
-const isAllowedIndex = (idx: number) => idx >= 0 && idx <= 4;
+const MAX_INDEX = 4;
+const isAllowedIndex = (idx: number) => idx >= 0 && idx <= MAX_INDEX;
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -41,7 +42,7 @@ export const rule: Rule.RuleModule = {
       const declarationsByObject: Map<string, estree.VariableDeclarator[]> = new Map();
 
       for (const statement of statements) {
-        if (statement.type === "VariableDeclaration") {
+        if (statement.type === 'VariableDeclaration') {
           visitDeclarations(declarationsByObject, statement.declarations);
         } else {
           checkDeclarationsBlock(declarationsByObject);
@@ -57,20 +58,21 @@ export const rule: Rule.RuleModule = {
     ) {
       for (const declaration of declarations) {
         const id = declaration.id;
-        if (declaration.init && id.type === "Identifier") {
+        if (declaration.init && id.type === 'Identifier') {
           const varName = id.name;
           const expression = declaration.init;
-          if (expression.type === "MemberExpression") {
-            const property = expression.property;
-            if (property.type === "Identifier" && property.name === varName) {
-              addDeclaration(declarationsByObject, expression.object, declaration);
-            } else if (
-              property.type === "Literal" &&
-              typeof property.value === "number" &&
-              isAllowedIndex(property.value)
-            ) {
-              addDeclaration(declarationsByObject, expression.object, declaration);
-            }
+          if (expression.type !== 'MemberExpression') {
+            continue;
+          }
+          const property = expression.property;
+          if (property.type === 'Identifier' && property.name === varName) {
+            addDeclaration(declarationsByObject, expression.object, declaration);
+          } else if (
+            property.type === 'Literal' &&
+            typeof property.value === 'number' &&
+            isAllowedIndex(property.value)
+          ) {
+            addDeclaration(declarationsByObject, expression.object, declaration);
           }
         }
       }
@@ -127,7 +129,7 @@ export const rule: Rule.RuleModule = {
 function getKind(declarator: estree.VariableDeclarator) {
   const declaration = findFirstMatchingAncestor(
     declarator as TSESTree.Node,
-    n => n.type === "VariableDeclaration",
+    n => n.type === 'VariableDeclaration',
   ) as estree.VariableDeclaration | undefined;
   return declaration && declaration.kind;
 }

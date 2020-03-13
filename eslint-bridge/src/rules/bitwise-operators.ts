@@ -19,26 +19,26 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1529
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import * as tsTypes from "typescript";
-import { getTypeFromTreeNode } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import * as tsTypes from 'typescript';
+import { getTypeFromTreeNode } from './utils';
 
-const BITWISE_AND_OR = ["&", "|"];
+const BITWISE_AND_OR = ['&', '|'];
 const BITWISE_OPERATORS = [
-  "&",
-  "|",
-  "^",
-  "~",
-  "<<",
-  ">>",
-  ">>>",
-  "&=",
-  "|=",
-  "^=",
-  "<<=",
-  ">>=",
-  ">>>=",
+  '&',
+  '|',
+  '^',
+  '~',
+  '<<',
+  '>>',
+  '>>>',
+  '&=',
+  '|=',
+  '^=',
+  '<<=',
+  '>>=',
+  '>>>=',
 ];
 
 export const rule: Rule.RuleModule = {
@@ -62,7 +62,7 @@ export const rule: Rule.RuleModule = {
           fileContainsSeveralBitwiseOperations = true;
         }
       },
-      "Program:exit": function() {
+      'Program:exit': function() {
         if (
           !fileContainsSeveralBitwiseOperations &&
           lonelyBitwiseAndOr &&
@@ -87,11 +87,11 @@ function insideCondition(node: estree.Node, ancestors: estree.Node[]) {
   for (let i = ancestors.length - 1; i >= 0; i--) {
     const parent = ancestors[i];
     if (
-      parent.type === "IfStatement" ||
-      parent.type === "ForStatement" ||
-      parent.type === "WhileStatement" ||
-      parent.type === "DoWhileStatement" ||
-      parent.type === "ConditionalExpression"
+      parent.type === 'IfStatement' ||
+      parent.type === 'ForStatement' ||
+      parent.type === 'WhileStatement' ||
+      parent.type === 'DoWhileStatement' ||
+      parent.type === 'ConditionalExpression'
     ) {
       return parent.test === child;
     }
@@ -105,7 +105,7 @@ type NumericTypeChecker = (node: estree.Node) => boolean;
 function getNumericTypeChecker(context: Rule.RuleContext): NumericTypeChecker {
   const services = context.parserServices;
   if (!!services && !!services.program && !!services.esTreeNodeToTSNodeMap) {
-    const ts: typeof tsTypes = require("typescript");
+    const ts: typeof tsTypes = require('typescript');
 
     function isNumericType(type: tsTypes.Type): boolean {
       return (
@@ -116,8 +116,8 @@ function getNumericTypeChecker(context: Rule.RuleContext): NumericTypeChecker {
 
     return (node: estree.Node) => isNumericType(getTypeFromTreeNode(node, services));
   } else {
-    const numericTypes = ["number", "bigint"];
+    const numericTypes = ['number', 'bigint'];
     return (node: estree.Node) =>
-      node.type === "Literal" ? numericTypes.includes(typeof node.value) : false;
+      node.type === 'Literal' ? numericTypes.includes(typeof node.value) : false;
   }
 }

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTesterTs } from "../RuleTesterTs";
-import { rule } from "../../src/rules/no-invalid-await";
+import { RuleTesterTs } from '../RuleTesterTs';
+import { rule } from '../../src/rules/no-invalid-await';
 
 const ruleTester = new RuleTesterTs();
-ruleTester.run("await should only be used with promises.", rule, {
+ruleTester.run('await should only be used with promises.', rule, {
   valid: [
     {
       code: `

@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3513
 
-import { Rule, Scope } from "eslint";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { toEncodedMessage } from "./utils";
+import { Rule, Scope } from 'eslint';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { toEncodedMessage } from './utils';
 
 const message = "Use the rest syntax to declare this function's arguments.";
 
@@ -30,14 +30,14 @@ export const rule: Rule.RuleModule = {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
   create(context: Rule.RuleContext) {
     return {
       // Ignore root scope containing global variables
-      "Program:exit": () =>
+      'Program:exit': () =>
         context
           .getScope()
           .childScopes.forEach(child => checkArgumentsUsageInScopeRecursively(context, child)),
@@ -50,7 +50,7 @@ function checkArgumentsUsageInScopeRecursively(
   scope: Scope.Scope,
 ): void {
   scope.variables
-    .filter(variable => variable.name === "arguments")
+    .filter(variable => variable.name === 'arguments')
     .forEach(variable => checkArgumentsVariableWithoutDefinition(context, variable));
   scope.childScopes.forEach(child => checkArgumentsUsageInScopeRecursively(context, child));
 }

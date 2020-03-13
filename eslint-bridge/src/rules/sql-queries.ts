@@ -19,13 +19,13 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2077
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { isMemberWithProperty, isRequireModule } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { isMemberWithProperty, isRequireModule } from './utils';
 
 const message = `Make sure that executing SQL queries is safe here.`;
 
-const dbModules = ["pg", "mysql", "mysql2", "sequelize"];
+const dbModules = ['pg', 'mysql', 'mysql2', 'sequelize'];
 
 type Argument = estree.Expression | estree.SpreadElement;
 
@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
 
         if (
           isDbModuleImported &&
-          isMemberWithProperty(callee, "query") &&
+          isMemberWithProperty(callee, 'query') &&
           isQuestionable(args[0])
         ) {
           context.report({
@@ -81,7 +81,7 @@ function isQuestionable(sqlQuery: Argument | undefined) {
     return isVariableConcat(sqlQuery);
   }
   return (
-    sqlQuery.type === "CallExpression" && isMemberWithProperty(sqlQuery.callee, "concat", "replace")
+    sqlQuery.type === 'CallExpression' && isMemberWithProperty(sqlQuery.callee, 'concat', 'replace')
   );
 }
 
@@ -97,17 +97,17 @@ function isVariableConcat(node: estree.BinaryExpression): boolean {
 }
 
 function isTemplateWithVar(node: estree.Node) {
-  return node.type === "TemplateLiteral" && node.expressions.length !== 0;
+  return node.type === 'TemplateLiteral' && node.expressions.length !== 0;
 }
 
 function isTemplateWithoutVar(node: estree.Node) {
-  return node.type === "TemplateLiteral" && node.expressions.length === 0;
+  return node.type === 'TemplateLiteral' && node.expressions.length === 0;
 }
 
 function isConcatenation(node: estree.Node): node is estree.BinaryExpression {
-  return node.type === "BinaryExpression" && node.operator === "+";
+  return node.type === 'BinaryExpression' && node.operator === '+';
 }
 
 function isHardcodedLiteral(node: estree.Node) {
-  return node.type === "Literal" || isTemplateWithoutVar(node);
+  return node.type === 'Literal' || isTemplateWithoutVar(node);
 }

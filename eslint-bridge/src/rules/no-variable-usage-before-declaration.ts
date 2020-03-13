@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1526
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { toEncodedMessage } from "./utils";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { toEncodedMessage } from './utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
               message: toEncodedMessage(
                 `Move the declaration of \"${declaration.name}\" before this usage.`,
                 [declaration as TSESTree.Node],
-                ["Declaration"],
+                ['Declaration'],
               ),
               node: misused[0],
             });

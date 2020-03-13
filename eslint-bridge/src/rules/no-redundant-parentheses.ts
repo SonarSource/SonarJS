@@ -19,10 +19,10 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1110
 
-import { AST, Rule, SourceCode } from "eslint";
-import * as estree from "estree";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { toEncodedMessage } from "./utils";
+import { AST, Rule, SourceCode } from 'eslint';
+import * as estree from 'estree';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { toEncodedMessage } from './utils';
 
 interface ParenthesesPair {
   openingParenthesis: AST.Token;
@@ -34,13 +34,13 @@ export const rule: Rule.RuleModule = {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
   create(context: Rule.RuleContext) {
     return {
-      "*": function(node: estree.Node) {
+      '*': function(node: estree.Node) {
         checkRedundantParentheses(context.getSourceCode(), node, context);
       },
     };
@@ -80,7 +80,7 @@ function getParenthesesPairsAround(
   const tokenBefore = sourceCode.getTokenBefore(start);
   const tokenAfter = sourceCode.getTokenAfter(end);
 
-  if (!!tokenBefore && !!tokenAfter && tokenBefore.value === "(" && tokenAfter.value === ")") {
+  if (!!tokenBefore && !!tokenAfter && tokenBefore.value === '(' && tokenAfter.value === ')') {
     return [
       { openingParenthesis: tokenBefore, closingParenthesis: tokenAfter },
       ...getParenthesesPairsAround(sourceCode, tokenBefore, tokenAfter),
@@ -92,13 +92,13 @@ function getParenthesesPairsAround(
 
 function isInParentNodeParentheses(node: estree.Node, parent: estree.Node): boolean {
   const nodeIsInConditionOfParent =
-    (parent.type === "IfStatement" ||
-      parent.type === "WhileStatement" ||
-      parent.type === "DoWhileStatement") &&
+    (parent.type === 'IfStatement' ||
+      parent.type === 'WhileStatement' ||
+      parent.type === 'DoWhileStatement') &&
     parent.test === node;
 
   const nodeIsArgumentOfCallExpression =
-    (parent.type === "CallExpression" || parent.type === "NewExpression") &&
+    (parent.type === 'CallExpression' || parent.type === 'NewExpression') &&
     parent.arguments.includes(node as estree.Expression);
 
   return nodeIsInConditionOfParent || nodeIsArgumentOfCallExpression;

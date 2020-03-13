@@ -19,18 +19,18 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1067
 
-import { Rule, AST } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { toEncodedMessage } from "./utils";
+import { Rule, AST } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { toEncodedMessage } from './utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
-      { type: "integer" },
+      { type: 'integer' },
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
     const [max] = context.options;
     const statementLevel: ExpressionComplexity[] = [new ExpressionComplexity()];
     return {
-      "*": (node: estree.Node) => {
+      '*': (node: estree.Node) => {
         const tree = node as TSESTree.Node;
         if (isConditionalLike(tree)) {
           const expr = statementLevel[statementLevel.length - 1];
@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
           statementLevel.push(new ExpressionComplexity());
         }
       },
-      "*:exit": (node: estree.Node) => {
+      '*:exit': (node: estree.Node) => {
         const tree = node as TSESTree.Node;
         if (isConditionalLike(tree)) {
           const expr = statementLevel[statementLevel.length - 1];
@@ -99,30 +99,30 @@ class ExpressionComplexity {
 
 function isScopeLike(node: TSESTree.Node) {
   return (
-    node.type === "FunctionExpression" ||
-    (node.type === "FunctionDeclaration" && node.generator) ||
-    node.type === "ObjectExpression" ||
-    node.type === "CallExpression" ||
-    node.type === "JSXElement"
+    node.type === 'FunctionExpression' ||
+    (node.type === 'FunctionDeclaration' && node.generator) ||
+    node.type === 'ObjectExpression' ||
+    node.type === 'CallExpression' ||
+    node.type === 'JSXElement'
   );
 }
 
 function isConditionalLike(node: TSESTree.Node) {
-  return node.type === "ConditionalExpression" || node.type === "LogicalExpression";
+  return node.type === 'ConditionalExpression' || node.type === 'LogicalExpression';
 }
 
 function getOperatorToken(node: TSESTree.Node, context: Rule.RuleContext) {
   const sourceCode = context.getSourceCode();
-  if (node.type === "ConditionalExpression") {
+  if (node.type === 'ConditionalExpression') {
     return sourceCode.getTokenAfter(
       node.test as estree.Node,
-      token => token.type === "Punctuator" && token.value === "?",
+      token => token.type === 'Punctuator' && token.value === '?',
     )!;
   } else {
     const expr = node as estree.LogicalExpression;
     return sourceCode.getTokenAfter(
       expr.left,
-      token => token.type === "Punctuator" && token.value === expr.operator,
+      token => token.type === 'Punctuator' && token.value === expr.operator,
     )!;
   }
 }
@@ -136,7 +136,7 @@ function reportIssue(
   const complexity = operators.length;
   const message = `Reduce the number of conditional operators (${complexity}) used in the expression (maximum allowed ${max}).`;
   const secondaryLocationsHolder = operators;
-  const secondaryMessages = Array(complexity).fill("+1");
+  const secondaryMessages = Array(complexity).fill('+1');
   const cost = complexity - max;
   context.report({
     node: node as estree.Node,

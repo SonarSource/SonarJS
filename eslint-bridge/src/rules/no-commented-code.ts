@@ -19,13 +19,13 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-125
 
-import { Rule, SourceCode } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { parseJavaScriptSourceFile } from "../parser";
-import { ParsingError } from "../analyzer";
+import { Rule, SourceCode } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { parseJavaScriptSourceFile } from '../parser';
+import { ParsingError } from '../analyzer';
 
-const EXCLUDED_STATEMENTS = ["BreakStatement", "LabeledStatement", "ContinueStatement"];
+const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
 interface GroupComment {
   value: string;
@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
       const groupedComments: GroupComment[] = [];
       let currentGroup: TSESTree.Comment[] = [];
       for (const comment of comments) {
-        if (comment.type === "Block") {
+        if (comment.type === 'Block') {
           groupedComments.push({ value: comment.value, nodes: [comment] });
         } else if (
           currentGroup.length === 0 ||
@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
           currentGroup.push(comment);
         } else {
           groupedComments.push({
-            value: currentGroup.map(lineComment => lineComment.value).join("\n"),
+            value: currentGroup.map(lineComment => lineComment.value).join('\n'),
             nodes: currentGroup,
           });
           currentGroup = [comment];
@@ -56,7 +56,7 @@ export const rule: Rule.RuleModule = {
 
       if (currentGroup.length > 0) {
         groupedComments.push({
-          value: currentGroup.map(lineComment => lineComment.value).join("\n"),
+          value: currentGroup.map(lineComment => lineComment.value).join('\n'),
           nodes: currentGroup,
         });
       }
@@ -74,15 +74,15 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      "Program:exit": () => {
+      'Program:exit': () => {
         const groupedComments = getGroupedComments(
           context.getSourceCode().getAllComments() as TSESTree.Comment[],
         );
         groupedComments.forEach(groupComment => {
           const rawTextTrimmed = groupComment.value.trim();
-          if (rawTextTrimmed !== "}" && containsCode(injectMissingBraces(rawTextTrimmed))) {
+          if (rawTextTrimmed !== '}' && containsCode(injectMissingBraces(rawTextTrimmed))) {
             context.report({
-              message: "Remove this commented out code.",
+              message: 'Remove this commented out code.',
               loc: getCommentLocation(groupComment.nodes),
             });
           }
@@ -93,14 +93,14 @@ export const rule: Rule.RuleModule = {
 };
 
 function isExpressionExclusion(statement: estree.Node, code: SourceCode) {
-  if (statement.type === "ExpressionStatement") {
+  if (statement.type === 'ExpressionStatement') {
     const expression = statement.expression;
     if (
-      expression.type === "Identifier" ||
-      expression.type === "SequenceExpression" ||
+      expression.type === 'Identifier' ||
+      expression.type === 'SequenceExpression' ||
       isUnaryPlusOrMinus(expression) ||
       isExcludedLiteral(expression) ||
-      !code.getLastToken(statement, token => token.value === ";")
+      !code.getLastToken(statement, token => token.value === ';')
     ) {
       return true;
     }
@@ -137,14 +137,14 @@ function injectMissingBraces(value: string) {
     return (
       value +
       Array(missingBraces)
-        .fill("}")
-        .join("")
+        .fill('}')
+        .join('')
     );
   } else if (missingBraces < 0) {
     return (
       Array(-missingBraces)
-        .fill("{")
-        .join("") + value
+        .fill('{')
+        .join('') + value
     );
   } else {
     return value;
@@ -163,22 +163,22 @@ function isSourceCode(parseResult: SourceCode | ParsingError): parseResult is So
 }
 
 function isReturnThrowExclusion(statement: estree.Node) {
-  if (statement.type === "ReturnStatement" || statement.type === "ThrowStatement") {
-    return statement.argument == null || statement.argument.type === "Identifier";
+  if (statement.type === 'ReturnStatement' || statement.type === 'ThrowStatement') {
+    return statement.argument == null || statement.argument.type === 'Identifier';
   }
   return false;
 }
 
 function isUnaryPlusOrMinus(expression: estree.Expression) {
   return (
-    expression.type === "UnaryExpression" &&
-    (expression.operator === "+" || expression.operator === "-")
+    expression.type === 'UnaryExpression' &&
+    (expression.operator === '+' || expression.operator === '-')
   );
 }
 
 function isExcludedLiteral(expression: estree.Expression) {
-  if (expression.type === "Literal") {
-    return typeof expression.value === "string" || typeof expression.value === "number";
+  if (expression.type === 'Literal') {
+    return typeof expression.value === 'string' || typeof expression.value === 'number';
   }
   return false;
 }

@@ -22,14 +22,14 @@
 
 // https://jira.sonarsource.com/browse/RSPEC-138
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { getMainFunctionTokenLocation } from "eslint-plugin-sonarjs/lib/utils/locations";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const rule: Rule.RuleModule = {
   meta: {
-    schema: [{ type: "integer" }],
+    schema: [{ type: 'integer' }],
   },
   create(context: Rule.RuleContext) {
     const [threshold] = context.options;
@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = {
     const commentLineNumbers = getCommentLineNumbers(sourceCode.getAllComments());
 
     return {
-      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression": (node: estree.Node) => {
+      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {
         const parent = getParent(context);
 
         if (!node.loc || isIIFE(node, parent as estree.Node)) {
@@ -108,9 +108,9 @@ function isFullLineComment(line: string, lineNumber: number, comment: estree.Com
 
 function isIIFE(node: estree.Node, parent: estree.Node) {
   return (
-    node.type === "FunctionExpression" &&
+    node.type === 'FunctionExpression' &&
     parent &&
-    parent.type === "CallExpression" &&
+    parent.type === 'CallExpression' &&
     parent.callee === node
   );
 }

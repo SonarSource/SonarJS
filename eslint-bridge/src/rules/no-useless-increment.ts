@@ -19,13 +19,13 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2123
 
-import { Rule, Scope } from "eslint";
-import * as estree from "estree";
+import { Rule, Scope } from 'eslint';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     function reportUpdateExpression(updateExpression: estree.UpdateExpression) {
-      const updateOperator = updateExpression.operator === "++" ? "inc" : "dec";
+      const updateOperator = updateExpression.operator === '++' ? 'inc' : 'dec';
       context.report({
         message: `Remove this ${updateOperator}rement or correct the code not to waste it.`,
         node: updateExpression,
@@ -33,12 +33,12 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      "ReturnStatement > UpdateExpression": function(node: estree.Node) {
+      'ReturnStatement > UpdateExpression': function(node: estree.Node) {
         const updateExpression = node as estree.UpdateExpression;
         const argument = updateExpression.argument;
         if (
           !updateExpression.prefix &&
-          argument.type === "Identifier" &&
+          argument.type === 'Identifier' &&
           isLocalIdentifier(argument, context.getScope())
         ) {
           reportUpdateExpression(updateExpression);
@@ -47,11 +47,11 @@ export const rule: Rule.RuleModule = {
       AssignmentExpression(node: estree.Node) {
         const assignment = node as estree.AssignmentExpression;
         const rhs = assignment.right;
-        if (rhs.type === "UpdateExpression" && !rhs.prefix) {
+        if (rhs.type === 'UpdateExpression' && !rhs.prefix) {
           const lhs = assignment.left;
           if (
-            lhs.type === "Identifier" &&
-            rhs.argument.type === "Identifier" &&
+            lhs.type === 'Identifier' &&
+            rhs.argument.type === 'Identifier' &&
             rhs.argument.name === lhs.name
           ) {
             reportUpdateExpression(rhs);

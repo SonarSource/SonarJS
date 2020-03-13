@@ -22,17 +22,17 @@ import {
   analyzeTypeScript,
   getCognitiveComplexity,
   getHighlightedSymbols,
-} from "../src/analyzer";
-import { join } from "path";
-import * as fs from "fs";
+} from '../src/analyzer';
+import { join } from 'path';
+import * as fs from 'fs';
 
 const noOneIterationIssue = {
   line: 3,
   column: 2,
   endLine: 3,
   endColumn: 5,
-  message: "Refactor this loop to do more than one iteration.",
-  ruleId: "no-one-iteration-loop",
+  message: 'Refactor this loop to do more than one iteration.',
+  ruleId: 'no-one-iteration-loop',
   secondaryLocations: [],
 };
 
@@ -41,8 +41,8 @@ const noDuplicateStringIssue = {
   column: 6,
   endLine: 7,
   endColumn: 20,
-  message: "Define a constant instead of duplicating this literal 2 times.",
-  ruleId: "no-duplicate-string",
+  message: 'Define a constant instead of duplicating this literal 2 times.',
+  ruleId: 'no-duplicate-string',
   secondaryLocations: [],
 };
 const noUnnecessaryTypeAssertionIssue = {
@@ -50,22 +50,22 @@ const noUnnecessaryTypeAssertionIssue = {
   column: 11,
   endLine: 1,
   endColumn: 22,
-  message: "This assertion is unnecessary since it does not change the type of the expression.",
-  ruleId: "no-unnecessary-type-assertion",
+  message: 'This assertion is unnecessary since it does not change the type of the expression.',
+  ruleId: 'no-unnecessary-type-assertion',
   secondaryLocations: [],
 };
 
-describe("#analyzeJavaScript", () => {
-  const filePath = join(__dirname, "./fixtures/js-project/sample.lint.js");
-  const codeToTest = fs.readFileSync(filePath, { encoding: "utf8" });
+describe('#analyzeJavaScript', () => {
+  const filePath = join(__dirname, './fixtures/js-project/sample.lint.js');
+  const codeToTest = fs.readFileSync(filePath, { encoding: 'utf8' });
 
-  it("should report issue running eslint", () => {
+  it('should report issue running eslint', () => {
     const { issues } = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
       rules: [
-        { key: "no-one-iteration-loop", configurations: [] },
-        { key: "no-duplicate-string", configurations: ["2"] },
+        { key: 'no-one-iteration-loop', configurations: [] },
+        { key: 'no-duplicate-string', configurations: ['2'] },
       ],
     });
     expect(issues).toHaveLength(2);
@@ -73,49 +73,49 @@ describe("#analyzeJavaScript", () => {
     expect(issues).toContainEqual(noDuplicateStringIssue);
   });
 
-  it("should not report issue when not receiving corresponding rule-key", () => {
+  it('should not report issue when not receiving corresponding rule-key', () => {
     const { issues } = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
-      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
     });
     expect(issues).toHaveLength(0);
   });
 
-  it("should report syntax highlights", () => {
+  it('should report syntax highlights', () => {
     const highlights = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
-      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
     }).highlights;
     expect(highlights).toHaveLength(10);
   });
 
-  it("should report cpd tokens", () => {
+  it('should report cpd tokens', () => {
     const cpdTokens = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
-      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
     }).cpdTokens;
     expect(cpdTokens).toHaveLength(42);
   });
 
-  it("should return empty list when parse error", () => {
+  it('should return empty list when parse error', () => {
     const { issues } = analyzeJavaScript({
       filePath,
       fileContent: `if()`,
-      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
     });
     expect(issues).toHaveLength(0);
   });
 
-  it("should analyze shebang file", () => {
+  it('should analyze shebang file', () => {
     const { issues } = analyzeJavaScript({
-      filePath: join(__dirname, "fixtures/js-project/shebang.lint.js"),
+      filePath: join(__dirname, 'fixtures/js-project/shebang.lint.js'),
       fileContent: undefined,
       rules: [
-        { key: "no-one-iteration-loop", configurations: [] },
-        { key: "no-duplicate-string", configurations: ["2"] },
+        { key: 'no-one-iteration-loop', configurations: [] },
+        { key: 'no-duplicate-string', configurations: ['2'] },
       ],
     });
     expect(issues).toHaveLength(2);
@@ -123,22 +123,22 @@ describe("#analyzeJavaScript", () => {
     expect(issues).toContainEqual(noDuplicateStringIssue);
   });
 
-  it("should analyze Vue.js file", () => {
-    const filePath = join(__dirname, "./fixtures/vue-project/sample.lint.vue");
-    const fileContent = fs.readFileSync(filePath, { encoding: "utf8" });
+  it('should analyze Vue.js file', () => {
+    const filePath = join(__dirname, './fixtures/vue-project/sample.lint.vue');
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
     const { issues } = analyzeJavaScript({
       filePath: filePath,
       fileContent: fileContent,
       rules: [
-        { key: "no-one-iteration-loop", configurations: [] },
-        { key: "no-duplicate-string", configurations: ["2"] },
+        { key: 'no-one-iteration-loop', configurations: [] },
+        { key: 'no-duplicate-string', configurations: ['2'] },
       ],
     });
     expect(issues).toHaveLength(2);
   });
 
-  it("should handle BOM", () => {
-    const filePath = join(__dirname, "./fixtures/js-project/fileWithBom.lint.js");
+  it('should handle BOM', () => {
+    const filePath = join(__dirname, './fixtures/js-project/fileWithBom.lint.js');
 
     const cpdTokens = analyzeJavaScript({
       filePath,
@@ -155,18 +155,18 @@ describe("#analyzeJavaScript", () => {
   });
 });
 
-describe("#analyzeTypeScript", () => {
-  const filePath = join(__dirname, "./fixtures/ts-project/sample.lint.ts");
-  const tsConfig = join(__dirname, "./fixtures/ts-project/tsconfig.json");
-  const codeToTest = fs.readFileSync(filePath, { encoding: "utf8" });
+describe('#analyzeTypeScript', () => {
+  const filePath = join(__dirname, './fixtures/ts-project/sample.lint.ts');
+  const tsConfig = join(__dirname, './fixtures/ts-project/tsconfig.json');
+  const codeToTest = fs.readFileSync(filePath, { encoding: 'utf8' });
 
-  it("should report issue running eslint", () => {
+  it('should report issue running eslint', () => {
     const { issues } = analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
       rules: [
-        { key: "no-one-iteration-loop", configurations: [] },
-        { key: "no-duplicate-string", configurations: ["2"] },
+        { key: 'no-one-iteration-loop', configurations: [] },
+        { key: 'no-duplicate-string', configurations: ['2'] },
       ],
       tsConfigs: [tsConfig],
     });
@@ -175,24 +175,24 @@ describe("#analyzeTypeScript", () => {
     expect(issues).toContainEqual(noDuplicateStringIssue);
   });
 
-  it("should report issue using type-checker", () => {
+  it('should report issue using type-checker', () => {
     const { issues } = analyzeTypeScript({
       filePath: filePath,
       fileContent: `let x = 4; x as number;`,
-      rules: [{ key: "no-unnecessary-type-assertion", configurations: [] }],
+      rules: [{ key: 'no-unnecessary-type-assertion', configurations: [] }],
       tsConfigs: [tsConfig],
     });
     expect(issues).toHaveLength(1);
     expect(issues).toContainEqual(noUnnecessaryTypeAssertionIssue);
   });
 
-  it("should read file content from fs when not provided", () => {
+  it('should read file content from fs when not provided', () => {
     const { issues } = analyzeTypeScript({
       filePath: filePath,
       fileContent: undefined,
       rules: [
-        { key: "no-one-iteration-loop", configurations: [] },
-        { key: "no-duplicate-string", configurations: ["2"] },
+        { key: 'no-one-iteration-loop', configurations: [] },
+        { key: 'no-duplicate-string', configurations: ['2'] },
       ],
       tsConfigs: [tsConfig],
     });
@@ -201,26 +201,26 @@ describe("#analyzeTypeScript", () => {
     expect(issues).toContainEqual(noDuplicateStringIssue);
   });
 
-  it("should normalize provided path", () => {
+  it('should normalize provided path', () => {
     let result = analyzeTypeScript({
-      filePath: __dirname + "/./fixtures/ts-project/sample.lint.ts",
-      fileContent: "true ? 42 : 42",
-      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      filePath: __dirname + '/./fixtures/ts-project/sample.lint.ts',
+      fileContent: 'true ? 42 : 42',
+      rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
       tsConfigs: [tsConfig],
     });
     expect(result.issues).toHaveLength(1);
 
     result = analyzeTypeScript({
-      filePath: __dirname + "/././fixtures/ts-project/sample.lint.ts",
-      fileContent: "true ? 42 : 24",
-      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      filePath: __dirname + '/././fixtures/ts-project/sample.lint.ts',
+      fileContent: 'true ? 42 : 24',
+      rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
       tsConfigs: [tsConfig],
     });
     // fileContent doesn't have the issue anymore, without path normalization we receive the AST from the first request
     expect(result.issues).toHaveLength(0);
   });
 
-  it("should report syntax highlights", () => {
+  it('should report syntax highlights', () => {
     const highlights = analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
@@ -230,7 +230,7 @@ describe("#analyzeTypeScript", () => {
     expect(highlights).toHaveLength(10);
   });
 
-  it("should report symbol highlighting", () => {
+  it('should report symbol highlighting', () => {
     const highlightedSymbols = analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
@@ -240,7 +240,7 @@ describe("#analyzeTypeScript", () => {
     expect(highlightedSymbols).toHaveLength(3);
   });
 
-  it("should report cpd tokens", () => {
+  it('should report cpd tokens', () => {
     const cpdTokens = analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
@@ -250,7 +250,7 @@ describe("#analyzeTypeScript", () => {
     expect(cpdTokens).toHaveLength(42);
   });
 
-  it("should report cognitive complexity", () => {
+  it('should report cognitive complexity', () => {
     const cognitiveComplexity = analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
@@ -260,7 +260,7 @@ describe("#analyzeTypeScript", () => {
     expect(cognitiveComplexity).toEqual(1);
   });
 
-  it("should not report issue when not receiving corresponding rule-key", () => {
+  it('should not report issue when not receiving corresponding rule-key', () => {
     const { issues } = analyzeTypeScript({
       filePath: filePath,
       fileContent: codeToTest,
@@ -270,43 +270,43 @@ describe("#analyzeTypeScript", () => {
     expect(issues).toHaveLength(0);
   });
 
-  it("should return empty issues list when parse error", () => {
+  it('should return empty issues list when parse error', () => {
     const { issues, parsingError } = analyzeTypeScript({
       filePath: filePath,
       fileContent: `if()`,
-      rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+      rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
       tsConfigs: [],
     });
     expect(issues).toHaveLength(0);
     expect(parsingError.line).toBe(1);
-    expect(parsingError.message).toBe("Expression expected.");
+    expect(parsingError.message).toBe('Expression expected.');
   });
 
-  it("should return empty list with highlighted symbols when issue is not found", () => {
+  it('should return empty list with highlighted symbols when issue is not found', () => {
     console.log = jest.fn();
     expect(getHighlightedSymbols([])).toHaveLength(0);
     expect(console.log).toHaveBeenCalledWith(
-      "DEBUG Failed to retrieve symbol highlighting from analysis results",
+      'DEBUG Failed to retrieve symbol highlighting from analysis results',
     );
     jest.resetAllMocks();
   });
 
-  it("should return 0 for cognitive complexity when issue is not found", () => {
+  it('should return 0 for cognitive complexity when issue is not found', () => {
     console.log = jest.fn();
     expect(getCognitiveComplexity([])).toEqual(0);
     expect(console.log).toHaveBeenCalledWith(
-      "DEBUG Failed to retrieve cognitive complexity metric from analysis results",
+      'DEBUG Failed to retrieve cognitive complexity metric from analysis results',
     );
     jest.resetAllMocks();
   });
 
-  it("should return 0 for cognitive complexity when message is not numeric", () => {
+  it('should return 0 for cognitive complexity when message is not numeric', () => {
     console.log = jest.fn();
     expect(
       getCognitiveComplexity([
         {
-          ruleId: "internal-cognitive-complexity",
-          message: "nan",
+          ruleId: 'internal-cognitive-complexity',
+          message: 'nan',
           column: 0,
           line: 0,
           secondaryLocations: [],
@@ -314,7 +314,7 @@ describe("#analyzeTypeScript", () => {
       ]),
     ).toEqual(0);
     expect(console.log).toHaveBeenCalledWith(
-      "DEBUG Failed to retrieve cognitive complexity metric from analysis results",
+      'DEBUG Failed to retrieve cognitive complexity metric from analysis results',
     );
     jest.resetAllMocks();
   });

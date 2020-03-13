@@ -19,7 +19,7 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1119
 
-import { Rule } from "eslint";
+import { Rule } from 'eslint';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -27,7 +27,7 @@ export const rule: Rule.RuleModule = {
       LabeledStatement(node) {
         const sourceCode = context.getSourceCode();
         context.report({
-          message: "Refactor the code to remove this label and the need for it.",
+          message: 'Refactor the code to remove this label and the need for it.',
           loc: sourceCode.getFirstToken(node)!.loc,
         });
       },

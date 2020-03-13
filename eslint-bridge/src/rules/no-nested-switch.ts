@@ -19,18 +19,18 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1821
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
 const message = 'Refactor the code to eliminate this nested "switch".';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "SwitchStatement SwitchStatement": function(node: estree.Node) {
+      'SwitchStatement SwitchStatement': function(node: estree.Node) {
         const switchToken = context
           .getSourceCode()
-          .getFirstToken(node, token => token.value === "switch");
+          .getFirstToken(node, token => token.value === 'switch');
         context.report({
           message,
           loc: switchToken!.loc,

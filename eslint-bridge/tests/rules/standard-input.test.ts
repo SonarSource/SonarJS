@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/standard-input";
+import { rule } from '../../src/rules/standard-input';
 
-ruleTester.run("Reading the Standard Input is security-sensitive", rule, {
+ruleTester.run('Reading the Standard Input is security-sensitive', rule, {
   valid: [
     {
       code: `foo.bar`,
@@ -42,7 +42,7 @@ ruleTester.run("Reading the Standard Input is security-sensitive", rule, {
       code: `let x = process.stdin;`,
       errors: [
         {
-          message: "Make sure that reading the standard input is safe here.",
+          message: 'Make sure that reading the standard input is safe here.',
           line: 1,
           endLine: 1,
           column: 9,

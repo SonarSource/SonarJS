@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTesterTs } from "../RuleTesterTs";
+import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTesterTs();
 
-import { rule } from "../../src/rules/no-return-type-any";
+import { rule } from '../../src/rules/no-return-type-any';
 
-ruleTester.run("Primitive return types should be used.", rule, {
+ruleTester.run('Primitive return types should be used.', rule, {
   valid: [
     {
       code: `function foo() {return 1;}`,
@@ -112,7 +112,7 @@ ruleTester.run("Primitive return types should be used.", rule, {
       code: `function returnNumericLiteral(): any {return 1;}`,
       errors: [
         {
-          message: "Remove this return type or change it to a more specific.",
+          message: 'Remove this return type or change it to a more specific.',
           line: 1,
           endLine: 1,
           column: 32,

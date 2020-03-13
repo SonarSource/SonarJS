@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from "../../src/rules/no-array-delete";
-import { RuleTesterTs } from "../RuleTesterTs";
+import { rule } from '../../src/rules/no-array-delete';
+import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTesterTs();
-ruleTester.run("[ts] delete should not be used on arrays", rule, {
+ruleTester.run('[ts] delete should not be used on arrays', rule, {
   valid: [
     {
       code: `

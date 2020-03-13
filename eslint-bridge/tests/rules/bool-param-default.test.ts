@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from "../../src/rules/bool-param-default";
-import { RuleTester } from "eslint";
+import { rule } from '../../src/rules/bool-param-default';
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
+  parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018 },
 });
 
-ruleTester.run("Optional boolean parameters should have default value", rule, {
+ruleTester.run('Optional boolean parameters should have default value', rule, {
   valid: [
     {
       code: `function f(b: boolean = false) {}`,

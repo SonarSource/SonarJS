@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-126
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -32,11 +32,11 @@ export const rule: Rule.RuleModule = {
           const sourceCode = context.getSourceCode();
           const elseKeyword = sourceCode.getTokenBefore(
             node,
-            token => token.type === "Keyword" && token.value === "else",
+            token => token.type === 'Keyword' && token.value === 'else',
           );
           const ifKeyword = sourceCode.getFirstToken(
             node,
-            token => token.type === "Keyword" && token.value === "if",
+            token => token.type === 'Keyword' && token.value === 'if',
           );
           context.report({
             message: `Add the missing "else" clause.`,
@@ -53,5 +53,5 @@ export const rule: Rule.RuleModule = {
 
 function isElseIf(node: estree.IfStatement, context: Rule.RuleContext) {
   const parent = getParent(context);
-  return parent && parent.type === "IfStatement" && parent.alternate === node;
+  return parent && parent.type === 'IfStatement' && parent.alternate === node;
 }

@@ -19,14 +19,14 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4822
 
-import { Rule, SourceCode } from "eslint";
-import * as estree from "estree";
+import { Rule, SourceCode } from 'eslint';
+import * as estree from 'estree';
 import {
   isRequiredParserServices,
   RequiredParserServices,
-} from "../utils/isRequiredParserServices";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { toEncodedMessage } from "./utils";
+} from '../utils/isRequiredParserServices';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { toEncodedMessage } from './utils';
 
 type CallLikeExpression =
   | TSESTree.CallExpression
@@ -40,57 +40,58 @@ export const rule: Rule.RuleModule = {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
-      ts = require("typescript");
+      ts = require('typescript');
       return {
-        TryStatement: (node: estree.Node) => {
-          const tryStmt = node as TSESTree.TryStatement;
-          if (tryStmt.handler) {
-            // without '.catch()'
-            const openPromises: TSESTree.Node[] = [];
-            // with '.catch()'
-            const capturedPromises: TSESTree.Node[] = [];
-
-            let hasPotentiallyThrowingCalls = false;
-            CallLikeExpressionVisitor.getCallExpressions(tryStmt.block, context).forEach(
-              callLikeExpr => {
-                if (
-                  callLikeExpr.type === "AwaitExpression" ||
-                  !hasThenMethod(callLikeExpr, services)
-                ) {
-                  hasPotentiallyThrowingCalls = true;
-                  return;
-                }
-
-                if (
-                  (callLikeExpr.parent && callLikeExpr.parent.type === "AwaitExpression") ||
-                  isThened(callLikeExpr) ||
-                  isCatch(callLikeExpr)
-                ) {
-                  return;
-                }
-
-                (isCaught(callLikeExpr) ? capturedPromises : openPromises).push(callLikeExpr);
-              },
-            );
-
-            if (!hasPotentiallyThrowingCalls) {
-              checkForWrongCatch(tryStmt, openPromises, context);
-              checkForUselessCatch(tryStmt, openPromises, capturedPromises, context);
-            }
-          }
-        },
+        TryStatement: (node: estree.Node) =>
+          visitTryStatement(node as TSESTree.TryStatement, context, services),
       };
     }
     return {};
   },
 };
+
+function visitTryStatement(
+  tryStmt: TSESTree.TryStatement,
+  context: Rule.RuleContext,
+  services: any,
+) {
+  if (tryStmt.handler) {
+    // without '.catch()'
+    const openPromises: TSESTree.Node[] = [];
+    // with '.catch()'
+    const capturedPromises: TSESTree.Node[] = [];
+
+    let hasPotentiallyThrowingCalls = false;
+    CallLikeExpressionVisitor.getCallExpressions(tryStmt.block, context).forEach(callLikeExpr => {
+      if (callLikeExpr.type === 'AwaitExpression' || !hasThenMethod(callLikeExpr, services)) {
+        hasPotentiallyThrowingCalls = true;
+        return;
+      }
+
+      if (
+        (callLikeExpr.parent && callLikeExpr.parent.type === 'AwaitExpression') ||
+        isThened(callLikeExpr) ||
+        isCatch(callLikeExpr)
+      ) {
+        return;
+      }
+
+      (isCaught(callLikeExpr) ? capturedPromises : openPromises).push(callLikeExpr);
+    });
+
+    if (!hasPotentiallyThrowingCalls) {
+      checkForWrongCatch(tryStmt, openPromises, context);
+      checkForUselessCatch(tryStmt, openPromises, capturedPromises, context);
+    }
+  }
+}
 
 class CallLikeExpressionVisitor {
   private readonly callLikeExpressions: CallLikeExpression[] = [];
@@ -104,14 +105,14 @@ class CallLikeExpressionVisitor {
   private visit(root: TSESTree.Node, context: Rule.RuleContext) {
     const visitNode = (node: TSESTree.Node) => {
       switch (node.type) {
-        case "AwaitExpression":
-        case "CallExpression":
-        case "NewExpression":
+        case 'AwaitExpression':
+        case 'CallExpression':
+        case 'NewExpression':
           this.callLikeExpressions.push(node);
           break;
-        case "FunctionDeclaration":
-        case "FunctionExpression":
-        case "ArrowFunctionExpression":
+        case 'FunctionDeclaration':
+        case 'FunctionExpression':
+        case 'ArrowFunctionExpression':
           return;
       }
       childrenOf(node, context.getSourceCode().visitorKeys).forEach(visitNode);
@@ -126,11 +127,11 @@ function checkForWrongCatch(
   context: Rule.RuleContext,
 ) {
   if (openPromises.length > 0) {
-    const ending = openPromises.length > 1 ? "s" : "";
+    const ending = openPromises.length > 1 ? 's' : '';
     const message = `Consider using 'await' for the promise${ending} inside this 'try' or replace it with 'Promise.prototype.catch(...)' usage${ending}.`;
     const token = context.getSourceCode().getFirstToken(tryStmt as estree.Node);
     context.report({
-      message: toEncodedMessage(message, openPromises, Array(openPromises.length).fill("Promise")),
+      message: toEncodedMessage(message, openPromises, Array(openPromises.length).fill('Promise')),
       loc: token!.loc,
     });
   }
@@ -143,14 +144,14 @@ function checkForUselessCatch(
   context: Rule.RuleContext,
 ) {
   if (openPromises.length === 0 && capturedPromises.length > 0) {
-    const ending = capturedPromises.length > 1 ? "s" : "";
+    const ending = capturedPromises.length > 1 ? 's' : '';
     const message = `Consider removing this 'try' statement as promise${ending} rejection is already captured by '.catch()' method.`;
     const token = context.getSourceCode().getFirstToken(tryStmt as estree.Node);
     context.report({
       message: toEncodedMessage(
         message,
         capturedPromises,
-        Array(capturedPromises.length).fill("Caught promise"),
+        Array(capturedPromises.length).fill('Caught promise'),
       ),
       loc: token!.loc,
     });
@@ -160,34 +161,34 @@ function checkForUselessCatch(
 function hasThenMethod(node: TSESTree.Node, services: RequiredParserServices) {
   const mapped = services.esTreeNodeToTSNodeMap.get(node);
   const tp = services.program.getTypeChecker().getTypeAtLocation(mapped);
-  const thenProperty = tp.getProperty("then");
+  const thenProperty = tp.getProperty('then');
   return Boolean(thenProperty && thenProperty.flags & ts.SymbolFlags.Method);
 }
 
 function isThened(callExpr: CallLikeExpression) {
   return (
     callExpr.parent &&
-    callExpr.parent.type === "MemberExpression" &&
-    callExpr.parent.property.type === "Identifier" &&
-    callExpr.parent.property.name === "then"
+    callExpr.parent.type === 'MemberExpression' &&
+    callExpr.parent.property.type === 'Identifier' &&
+    callExpr.parent.property.name === 'then'
   );
 }
 
 function isCaught(callExpr: CallLikeExpression) {
   return (
     callExpr.parent &&
-    callExpr.parent.type === "MemberExpression" &&
-    callExpr.parent.property.type === "Identifier" &&
-    callExpr.parent.property.name === "catch"
+    callExpr.parent.type === 'MemberExpression' &&
+    callExpr.parent.property.type === 'Identifier' &&
+    callExpr.parent.property.name === 'catch'
   );
 }
 
 function isCatch(callExpr: CallLikeExpression) {
   return (
-    callExpr.type === "CallExpression" &&
-    callExpr.callee.type === "MemberExpression" &&
-    callExpr.callee.property.type === "Identifier" &&
-    callExpr.callee.property.name === "catch"
+    callExpr.type === 'CallExpression' &&
+    callExpr.callee.type === 'MemberExpression' &&
+    callExpr.callee.property.type === 'Identifier' &&
+    callExpr.callee.property.name === 'catch'
   );
 }
 

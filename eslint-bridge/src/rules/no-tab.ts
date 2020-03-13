@@ -19,18 +19,18 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-105
 
-import { Rule } from "eslint";
+import { Rule } from 'eslint';
 
-const message = "Replace all tab characters in this file by sequences of white-spaces.";
+const message = 'Replace all tab characters in this file by sequences of white-spaces.';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "Program:exit": function() {
+      'Program:exit': function() {
         const firstTab = context
           .getSourceCode()
           .lines.map((content, line) => ({ content, line }))
-          .find(t => t.content.includes("\t"));
+          .find(t => t.content.includes('\t'));
 
         if (firstTab !== undefined) {
           context.report({

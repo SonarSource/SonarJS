@@ -19,13 +19,13 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4328
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import * as builtins from "builtin-modules";
-import * as path from "path";
-import * as fs from "fs";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import * as builtins from 'builtin-modules';
+import * as path from 'path';
+import * as fs from 'fs';
 
-const DefinitelyTyped = "@types/";
+const DefinitelyTyped = '@types/';
 
 /**
  * Cache for each dirname the dependencies of the nearest package.json.
@@ -40,12 +40,12 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
         if (
-          call.callee.type === "Identifier" &&
-          call.callee.name === "require" &&
+          call.callee.type === 'Identifier' &&
+          call.callee.name === 'require' &&
           call.arguments.length === 1
         ) {
           const [argument] = call.arguments;
-          if (argument.type === "Literal") {
+          if (argument.type === 'Literal') {
             const requireToken = call.callee;
             raiseOnImplicitImport(argument, requireToken.loc!, dependencies, whitelist, context);
           }
@@ -68,11 +68,11 @@ function raiseOnImplicitImport(
   context: Rule.RuleContext,
 ) {
   const moduleName = module.value;
-  if (typeof moduleName !== "string") {
+  if (typeof moduleName !== 'string') {
     return;
   }
 
-  const ts = require("typescript");
+  const ts = require('typescript');
   if (ts.isExternalModuleNameRelative(moduleName)) {
     return;
   }
@@ -84,7 +84,7 @@ function raiseOnImplicitImport(
     !dependencies.has(packageName)
   ) {
     context.report({
-      message: "Either remove this import or add it as a dependency.",
+      message: 'Either remove this import or add it as a dependency.',
       loc,
     });
   }
@@ -95,8 +95,8 @@ function getPackageName(name: string) {
     - scoped `@namespace/foo/bar` -> package `@namespace/foo`
     - scope `foo/bar` -> package `foo`
   */
-  const parts = name.split("/");
-  if (!name.startsWith("@")) {
+  const parts = name.split('/');
+  if (!name.startsWith('@')) {
     return parts[0];
   } else {
     return `${parts[0]}/${parts[1]}`;
@@ -116,7 +116,7 @@ function getDependencies(fileName: string) {
   if (packageJsonPath !== undefined) {
     try {
       // remove BOM from file content before parsing
-      const content = JSON.parse(fs.readFileSync(packageJsonPath, "utf8").replace(/^\uFEFF/, ""));
+      const content = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8').replace(/^\uFEFF/, ''));
       if (content.dependencies !== undefined) {
         addDependencies(result, content.dependencies);
       }
@@ -141,7 +141,7 @@ function addDependencies(result: Set<string>, dependencies: any) {
 }
 
 function findPackageJson(current: string): string | undefined {
-  const fileName = path.join(current, "package.json");
+  const fileName = path.join(current, 'package.json');
   if (fs.existsSync(fileName)) {
     return fileName;
   }

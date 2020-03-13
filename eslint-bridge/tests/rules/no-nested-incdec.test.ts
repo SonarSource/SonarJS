@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/no-nested-incdec";
+import { rule } from '../../src/rules/no-nested-incdec';
 
-ruleTester.run("Nested increment (++) and decrement (--) operators should not be used", rule, {
+ruleTester.run('Nested increment (++) and decrement (--) operators should not be used', rule, {
   valid: [
     {
       code: `i++;`,
@@ -51,14 +51,14 @@ ruleTester.run("Nested increment (++) and decrement (--) operators should not be
       code: `for (i++, j-- ; i < 10; i++) {}`,
       errors: [
         {
-          message: "Extract this increment operation into a dedicated statement.",
+          message: 'Extract this increment operation into a dedicated statement.',
           line: 1,
           column: 6,
           endLine: 1,
           endColumn: 9,
         },
         {
-          message: "Extract this decrement operation into a dedicated statement.",
+          message: 'Extract this decrement operation into a dedicated statement.',
           line: 1,
           column: 11,
           endLine: 1,
@@ -70,7 +70,7 @@ ruleTester.run("Nested increment (++) and decrement (--) operators should not be
       code: `foo[i--]++;`,
       errors: [
         {
-          message: "Extract this decrement operation into a dedicated statement.",
+          message: 'Extract this decrement operation into a dedicated statement.',
           line: 1,
           column: 5,
           endLine: 1,

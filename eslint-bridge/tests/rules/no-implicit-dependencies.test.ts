@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/no-implicit-dependencies";
-import * as path from "path";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/no-implicit-dependencies';
+import * as path from 'path';
 
-const filename = path.join(__dirname, "../fixtures/package-json-project/file.js");
+const filename = path.join(__dirname, '../fixtures/package-json-project/file.js');
 const options = [];
 
 const ruleTester = new RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
-ruleTester.run("Dependencies should be explicit", rule, {
+ruleTester.run('Dependencies should be explicit', rule, {
   valid: [
     {
       code: `import * as fs from "fs";`,
@@ -64,12 +64,12 @@ ruleTester.run("Dependencies should be explicit", rule, {
     {
       code: `import "whitelist";`,
       filename,
-      options: ["whitelist"],
+      options: ['whitelist'],
     },
     {
       code: `import "@whitelist/dependency";`,
       filename,
-      options: ["@whitelist/dependency"],
+      options: ['@whitelist/dependency'],
     },
     {
       code: `import "./relative";`,
@@ -94,7 +94,7 @@ ruleTester.run("Dependencies should be explicit", rule, {
     },
     {
       code: `import "dependency";`,
-      filename: path.join(__dirname, "../fixtures/bom-package-json-project/file.js"),
+      filename: path.join(__dirname, '../fixtures/bom-package-json-project/file.js'),
       options,
     },
   ],
@@ -105,7 +105,7 @@ ruleTester.run("Dependencies should be explicit", rule, {
       options,
       errors: [
         {
-          message: "Either remove this import or add it as a dependency.",
+          message: 'Either remove this import or add it as a dependency.',
           line: 1,
           endLine: 1,
           column: 1,
@@ -119,7 +119,7 @@ ruleTester.run("Dependencies should be explicit", rule, {
       options,
       errors: [
         {
-          message: "Either remove this import or add it as a dependency.",
+          message: 'Either remove this import or add it as a dependency.',
           line: 1,
           endLine: 1,
           column: 11,
@@ -135,19 +135,19 @@ ruleTester.run("Dependencies should be explicit", rule, {
     },
     {
       code: `import "foo";`,
-      filename: path.join(__dirname, "../fixtures/empty-package-json-project/file.js"),
+      filename: path.join(__dirname, '../fixtures/empty-package-json-project/file.js'),
       options,
       errors: 1,
     },
     {
       code: `import "foo";`,
-      filename: path.join(__dirname, "../fixtures/package-json-project/dir/subdir/file.js"),
+      filename: path.join(__dirname, '../fixtures/package-json-project/dir/subdir/file.js'),
       options,
       errors: 1,
     },
     {
       code: `import "foo";`,
-      filename: "/",
+      filename: '/',
       options,
       errors: 1,
     },

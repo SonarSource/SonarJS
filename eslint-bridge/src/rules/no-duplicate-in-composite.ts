@@ -19,24 +19,24 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4621
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { toEncodedMessage } from "./utils";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { toEncodedMessage } from './utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
 
   create(context: Rule.RuleContext) {
     return {
-      "TSUnionType, TSIntersectionType": function(node: estree.Node) {
+      'TSUnionType, TSIntersectionType': function(node: estree.Node) {
         const sourceCode = context.getSourceCode();
         const compositeType = (node as unknown) as
           | TSESTree.TSUnionType

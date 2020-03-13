@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
-import { rule } from "../../src/rules/hashing";
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+import { rule } from '../../src/rules/hashing';
 
-ruleTester.run("Hashing data is security-sensitive: client side", rule, {
+ruleTester.run('Hashing data is security-sensitive: client side', rule, {
   valid: [
     {
       // no call
@@ -42,7 +42,7 @@ ruleTester.run("Hashing data is security-sensitive: client side", rule, {
       code: `crypto.subtle.digest("SHA-256", buffer);`,
       errors: [
         {
-          message: "Make sure that hashing data is safe here.",
+          message: 'Make sure that hashing data is safe here.',
           line: 1,
           endLine: 1,
           column: 1,
@@ -65,7 +65,7 @@ ruleTester.run("Hashing data is security-sensitive: client side", rule, {
   ],
 });
 
-ruleTester.run("Hashing data is security-sensitive: server side", rule, {
+ruleTester.run('Hashing data is security-sensitive: server side', rule, {
   valid: [
     {
       code: `const crypto = require('foo'); crypto.digest();`,
@@ -94,7 +94,7 @@ ruleTester.run("Hashing data is security-sensitive: server side", rule, {
       code: `const crypto = require('crypto'); crypto.createHash();`,
       errors: [
         {
-          message: "Make sure that hashing data is safe here.",
+          message: 'Make sure that hashing data is safe here.',
           line: 1,
           endLine: 1,
           column: 35,

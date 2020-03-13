@@ -19,16 +19,16 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2681
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 const NestingStatementLike = [
-  "IfStatement",
-  "ForStatement",
-  "ForInStatement",
-  "ForOfStatement",
-  "WhileStatement",
+  'IfStatement',
+  'ForStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'WhileStatement',
 ];
 
 type Statement = estree.Statement | estree.ModuleDeclaration;
@@ -82,7 +82,7 @@ function chain(statements: Statement[]): ChainedStatements[] {
 }
 
 function extractLastBody(statement: NestingStatement) {
-  if (statement.type === "IfStatement") {
+  if (statement.type === 'IfStatement') {
     if (statement.alternate) {
       return statement.alternate;
     } else {
@@ -171,7 +171,7 @@ class ChainedStatements {
   }
 
   public areUnenclosed(): boolean {
-    return this.prev.type !== "BlockStatement";
+    return this.prev.type !== 'BlockStatement';
   }
 
   public areAdjacent(): boolean {
@@ -192,11 +192,11 @@ class ChainedStatements {
   }
 
   public includedStatementQualifier(): string {
-    return this.topStatement.type === "IfStatement" ? "conditionally" : "in a loop";
+    return this.topStatement.type === 'IfStatement' ? 'conditionally' : 'in a loop';
   }
 
   public excludedStatementsQualifier(): string {
-    return this.topStatement.type === "IfStatement" ? "unconditionally" : "only once";
+    return this.topStatement.type === 'IfStatement' ? 'unconditionally' : 'only once';
   }
 
   private prevIsIndented(): boolean {

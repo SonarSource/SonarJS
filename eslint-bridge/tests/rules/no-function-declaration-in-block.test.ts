@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
-import { rule } from "../../src/rules/no-function-declaration-in-block";
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+import { rule } from '../../src/rules/no-function-declaration-in-block';
 
 ruleTester.run(`Function declarations should not be made within blocks`, rule, {
   valid: [
@@ -72,8 +72,8 @@ ruleTester.run(`Function declarations should not be made within blocks`, rule, {
 });
 
 const ruleTesterTS = new RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
 ruleTesterTS.run(`Function declarations should not be made within blocks`, rule, {

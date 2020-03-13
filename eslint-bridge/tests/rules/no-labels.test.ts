@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from "../../src/rules/no-labels";
-import { RuleTester } from "eslint";
+import { rule } from '../../src/rules/no-labels';
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run("Labels should not be used", rule, {
+ruleTester.run('Labels should not be used', rule, {
   valid: [
     {
       code: `

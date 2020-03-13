@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3499
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { toEncodedMessage } from "./utils";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { toEncodedMessage } from './utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -67,7 +67,7 @@ export const rule: Rule.RuleModule = {
       ObjectExpression(node: estree.Node) {
         const objectExpression = node as estree.ObjectExpression;
         const objectExpressionProperties = objectExpression.properties;
-        if (objectExpressionProperties.some(p => p.type !== "Property")) {
+        if (objectExpressionProperties.some(p => p.type !== 'Property')) {
           return;
         }
         const isShorthandPropertyList = objectExpressionProperties.map(p => p.shorthand);
@@ -88,12 +88,12 @@ export const rule: Rule.RuleModule = {
             objectExpression,
             numberOfShorthandAtBeginning,
             propertiesNumber,
-            "the beginning",
+            'the beginning',
           );
         } else if (!allAtEnd && numberOfShorthandAtEnd > numberOfShorthandAtBeginning) {
-          raiseIssue(objectExpression, 0, propertiesNumber - numberOfShorthandAtEnd, "the end");
+          raiseIssue(objectExpression, 0, propertiesNumber - numberOfShorthandAtEnd, 'the end');
         } else if (!allAtBeginning && !allAtEnd) {
-          raiseIssue(objectExpression, 0, propertiesNumber, "either the beginning or end");
+          raiseIssue(objectExpression, 0, propertiesNumber, 'either the beginning or end');
         }
       },
     };

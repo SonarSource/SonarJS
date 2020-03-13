@@ -19,10 +19,10 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4619
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { isRequiredParserServices } from "../utils/isRequiredParserServices";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { isRequiredParserServices } from '../utils/isRequiredParserServices';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 const message = 'Use "indexOf" or "includes" (available from ES2016) instead.';
 
@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = {
         const typ = checker.getTypeAtLocation(
           services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node),
         );
-        return typ.symbol && typ.symbol.name === "Array";
+        return typ.symbol && typ.symbol.name === 'Array';
       }
 
       return {

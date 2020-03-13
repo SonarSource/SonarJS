@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as espree from "espree";
-import * as babel from "babel-eslint";
-import { Linter, SourceCode } from "eslint";
-import { ParsingError } from "./analyzer";
-import * as VueJS from "vue-eslint-parser";
+import * as espree from 'espree';
+import * as babel from 'babel-eslint';
+import { Linter, SourceCode } from 'eslint';
+import { ParsingError } from './analyzer';
+import * as VueJS from 'vue-eslint-parser';
 
 // this value is taken from typescript-estree
 // still we might consider extending this range
 // if everything which we need is working on older/newer versions
-const TYPESCRIPT_MINIMUM_VERSION = "3.2.1";
-const TYPESCRIPT_MAXIMUM_VERSION = "3.8.0";
+const TYPESCRIPT_MINIMUM_VERSION = '3.2.1';
+const TYPESCRIPT_MAXIMUM_VERSION = '3.8.0';
 
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,
@@ -35,7 +35,7 @@ export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   loc: true,
   range: true,
   ecmaVersion: 2018,
-  sourceType: "module",
+  sourceType: 'module',
   codeFrame: false,
   ecmaFeatures: {
     jsx: true,
@@ -46,7 +46,7 @@ export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
 // 'script' source type forces not strict
 export const PARSER_CONFIG_SCRIPT: Linter.ParserOptions = {
   ...PARSER_CONFIG_MODULE,
-  sourceType: "script",
+  sourceType: 'script',
 };
 
 export type Parse = (
@@ -57,7 +57,7 @@ export type Parse = (
 
 export function parseJavaScriptSourceFile(fileContent: string): SourceCode | ParsingError {
   let parseFunctions = [espree.parse, babel.parseForESLint];
-  if (fileContent.includes("@flow")) {
+  if (fileContent.includes('@flow')) {
     parseFunctions = [babel.parseForESLint];
   }
 
@@ -87,9 +87,9 @@ export function parseTypeScriptSourceFile(
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   try {
-    checkTypeScriptVersionCompatibility(require("typescript").version);
+    checkTypeScriptVersionCompatibility(require('typescript').version);
     // we load the typescript parser dynamically, so we don't need typescript dependency when analyzing pure JS project
-    const tsParser = require("@typescript-eslint/parser");
+    const tsParser = require('@typescript-eslint/parser');
     const result = tsParser.parseForESLint(fileContent, {
       ...PARSER_CONFIG_MODULE,
       filePath: filePath,
@@ -123,7 +123,7 @@ export function checkTypeScriptVersionCompatibility(currentVersion: string) {
 }
 
 export function unloadTypeScriptEslint() {
-  const tsParser = require("@typescript-eslint/parser");
+  const tsParser = require('@typescript-eslint/parser');
   tsParser.clearCaches();
 }
 
@@ -169,17 +169,17 @@ export type ParseException = {
 };
 
 export enum ParseExceptionCode {
-  Parsing = "PARSING",
-  MissingTypeScript = "MISSING_TYPESCRIPT",
-  UnsupportedTypeScript = "UNSUPPORTED_TYPESCRIPT",
-  GeneralError = "GENERAL_ERROR",
+  Parsing = 'PARSING',
+  MissingTypeScript = 'MISSING_TYPESCRIPT',
+  UnsupportedTypeScript = 'UNSUPPORTED_TYPESCRIPT',
+  GeneralError = 'GENERAL_ERROR',
 }
 
 // exported for testing
 export function parseExceptionCodeOf(exceptionMsg: string): ParseExceptionCode {
   if (exceptionMsg.startsWith("Cannot find module 'typescript'")) {
     return ParseExceptionCode.MissingTypeScript;
-  } else if (exceptionMsg.startsWith("You are using version of TypeScript")) {
+  } else if (exceptionMsg.startsWith('You are using version of TypeScript')) {
     return ParseExceptionCode.UnsupportedTypeScript;
   } else {
     return ParseExceptionCode.Parsing;

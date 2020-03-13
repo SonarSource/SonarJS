@@ -19,16 +19,16 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1134
 
-import { Rule } from "eslint";
-import { reportPatternInComment } from "./todo-tag";
+import { Rule } from 'eslint';
+import { reportPatternInComment } from './todo-tag';
 
-const fixmeMessage = "Take the required action to fix the issue indicated by this comment.";
-const fixmePattern = "fixme";
+const fixmeMessage = 'Take the required action to fix the issue indicated by this comment.';
+const fixmePattern = 'fixme';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "Program:exit": () => {
+      'Program:exit': () => {
         reportPatternInComment(context, fixmePattern, fixmeMessage);
       },
     };

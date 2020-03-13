@@ -19,17 +19,17 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-134
 
-import { Rule, AST } from "eslint";
-import * as estree from "estree";
-import { toEncodedMessage } from "./utils";
+import { Rule, AST } from 'eslint';
+import * as estree from 'estree';
+import { toEncodedMessage } from './utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
-      { type: "integer" },
+      { type: 'integer' },
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
           message: toEncodedMessage(
             `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`,
             nodeStack,
-            nodeStack.map(_n => "+1"),
+            nodeStack.map(_n => '+1'),
           ),
           loc: sourceCode.getFirstToken(node)!.loc,
         });
@@ -59,19 +59,19 @@ export const rule: Rule.RuleModule = {
     function isElseIf(node: estree.Node) {
       const parent = last(context.getAncestors());
       return (
-        node.type === "IfStatement" && parent.type === "IfStatement" && node === parent.alternate
+        node.type === 'IfStatement' && parent.type === 'IfStatement' && node === parent.alternate
       );
     }
     const controlFlowNodes = [
-      "ForStatement",
-      "ForInStatement",
-      "ForOfStatement",
-      "WhileStatement",
-      "DoWhileStatement",
-      "IfStatement",
-      "TryStatement",
-      "SwitchStatement",
-    ].join(",");
+      'ForStatement',
+      'ForInStatement',
+      'ForOfStatement',
+      'WhileStatement',
+      'DoWhileStatement',
+      'IfStatement',
+      'TryStatement',
+      'SwitchStatement',
+    ].join(',');
     return {
       [controlFlowNodes]: (node: estree.Node) => {
         if (isElseIf(node)) {

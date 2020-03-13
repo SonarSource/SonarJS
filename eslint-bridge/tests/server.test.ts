@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { start, startServer } from "../src/server";
-import * as http from "http";
-import { Server } from "http";
-import { promisify } from "util";
-import { join } from "path";
-import { AddressInfo } from "net";
+import { start, startServer } from '../src/server';
+import * as http from 'http';
+import { Server } from 'http';
+import { promisify } from 'util';
+import { join } from 'path';
+import { AddressInfo } from 'net';
 
 const expectedResponse = {
   issues: [
@@ -33,7 +33,7 @@ const expectedResponse = {
       line: 1,
       message:
         "Remove this conditional structure or edit its code blocks so that they're not all the same.",
-      ruleId: "no-all-duplicated-branches",
+      ruleId: 'no-all-duplicated-branches',
       secondaryLocations: [],
     },
   ],
@@ -46,7 +46,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 2,
       },
-      textType: "KEYWORD",
+      textType: 'KEYWORD',
     },
     {
       location: {
@@ -55,7 +55,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 12,
       },
-      textType: "CONSTANT",
+      textType: 'CONSTANT',
     },
     {
       location: {
@@ -64,7 +64,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 18,
       },
-      textType: "KEYWORD",
+      textType: 'KEYWORD',
     },
     {
       location: {
@@ -73,7 +73,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 21,
       },
-      textType: "CONSTANT",
+      textType: 'CONSTANT',
     },
   ],
   metrics: {
@@ -95,7 +95,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 2,
       },
-      image: "if",
+      image: 'if',
     },
     {
       location: {
@@ -104,7 +104,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 4,
       },
-      image: "(",
+      image: '(',
     },
     {
       location: {
@@ -113,7 +113,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 8,
       },
-      image: "true",
+      image: 'true',
     },
     {
       location: {
@@ -122,7 +122,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 9,
       },
-      image: ")",
+      image: ')',
     },
     {
       location: {
@@ -131,7 +131,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 12,
       },
-      image: "42",
+      image: '42',
     },
     {
       location: {
@@ -140,7 +140,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 13,
       },
-      image: ";",
+      image: ';',
     },
     {
       location: {
@@ -149,7 +149,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 18,
       },
-      image: "else",
+      image: 'else',
     },
     {
       location: {
@@ -158,7 +158,7 @@ const expectedResponse = {
         endLine: 1,
         endCol: 21,
       },
-      image: "42",
+      image: '42',
     },
     {
       location: {
@@ -167,12 +167,12 @@ const expectedResponse = {
         endLine: 1,
         endCol: 22,
       },
-      image: ";",
+      image: ';',
     },
   ],
 };
 
-describe("server", () => {
+describe('server', () => {
   let server: Server;
   let close;
 
@@ -185,27 +185,27 @@ describe("server", () => {
     await close();
   });
 
-  it("should respond to JavaScript analysis request", async () => {
+  it('should respond to JavaScript analysis request', async () => {
     expect.assertions(2);
     expect(server.listening).toEqual(true);
 
     const response = await post(
       JSON.stringify({
-        filePath: "dir/file.js",
-        fileContent: "if (true) 42; else 42;",
-        rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+        filePath: 'dir/file.js',
+        fileContent: 'if (true) 42; else 42;',
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
       }),
-      "/analyze-js",
+      '/analyze-js',
     );
 
     expect(JSON.parse(response)).toEqual(expectedResponse);
   });
 
   it(
-    "should respond to TypeScript analysis request",
+    'should respond to TypeScript analysis request',
     async () => {
-      const filePath = join(__dirname, "./fixtures/ts-project/sample.lint.ts");
-      const tsConfig = join(__dirname, "./fixtures/ts-project/tsconfig.json");
+      const filePath = join(__dirname, './fixtures/ts-project/sample.lint.ts');
+      const tsConfig = join(__dirname, './fixtures/ts-project/tsconfig.json');
 
       expect.assertions(2);
       expect(server.listening).toEqual(true);
@@ -213,12 +213,12 @@ describe("server", () => {
       const response = await post(
         JSON.stringify({
           filePath,
-          fileContent: "if (true) 42; else 42;",
-          rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+          fileContent: 'if (true) 42; else 42;',
+          rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
           ignoreHeaderComments: true,
           tsConfigs: [tsConfig],
         }),
-        "/analyze-ts",
+        '/analyze-ts',
       );
 
       expect(JSON.parse(response)).toEqual(expectedResponse);
@@ -226,22 +226,22 @@ describe("server", () => {
     10_000,
   );
 
-  it("should respond OK! when started", done => {
+  it('should respond OK! when started', done => {
     expect(server.listening).toEqual(true);
     const req = http.request(
       {
-        host: "localhost",
+        host: 'localhost',
         port: (<AddressInfo>server.address()).port,
-        path: "/status",
-        method: "GET",
+        path: '/status',
+        method: 'GET',
       },
       res => {
-        let data = "";
-        res.on("data", chunk => {
+        let data = '';
+        res.on('data', chunk => {
           data += chunk;
         });
-        res.on("end", () => {
-          expect(data).toEqual("OK!");
+        res.on('end', () => {
+          expect(data).toEqual('OK!');
           done();
         });
       },
@@ -249,36 +249,36 @@ describe("server", () => {
     req.end();
   });
 
-  it("should unload ts module", async () => {
-    const response = await post("", "/new-tsconfig");
-    expect(response).toEqual("OK!");
+  it('should unload ts module', async () => {
+    const response = await post('', '/new-tsconfig');
+    expect(response).toEqual('OK!');
     // note there is no easy way to test that module was unloaded, because jest is modifying require calls for tests
     // see https://github.com/facebook/jest/issues/6725
   });
 
-  it("should return list of files for tsconfig", async () => {
-    const tsconfig = join(__dirname, "./fixtures/ts-project/tsconfig.json");
-    const response = JSON.parse(await post(JSON.stringify({ tsconfig }), "/tsconfig-files")) as {
+  it('should return list of files for tsconfig', async () => {
+    const tsconfig = join(__dirname, './fixtures/ts-project/tsconfig.json');
+    const response = JSON.parse(await post(JSON.stringify({ tsconfig }), '/tsconfig-files')) as {
       files: string[];
     };
     expect(response.files).toHaveLength(2);
-    expect(response.files[0].endsWith("sample.error.lint.ts")).toBeTruthy();
-    expect(response.files[1].endsWith("sample.lint.ts")).toBeTruthy();
+    expect(response.files[0].endsWith('sample.error.lint.ts')).toBeTruthy();
+    expect(response.files[1].endsWith('sample.lint.ts')).toBeTruthy();
   });
 
-  it("should return empty list of files for invalid tsconfig", async () => {
-    const tsconfig = join(__dirname, "./fixtures/invalid-tsconfig.json");
-    const response = JSON.parse(await post(JSON.stringify({ tsconfig }), "/tsconfig-files"));
+  it('should return empty list of files for invalid tsconfig', async () => {
+    const tsconfig = join(__dirname, './fixtures/invalid-tsconfig.json');
+    const response = JSON.parse(await post(JSON.stringify({ tsconfig }), '/tsconfig-files'));
     expect(response.error).toBeDefined();
     expect(response.files).toBeUndefined();
   });
 
-  it("should return empty list of files for invalid request", async () => {
-    const tsconfig = join(__dirname, "./fixtures/tsconfig.json");
+  it('should return empty list of files for invalid request', async () => {
+    const tsconfig = join(__dirname, './fixtures/tsconfig.json');
     const response = JSON.parse(
-      await post(JSON.stringify({ tsconfig42: tsconfig }), "/tsconfig-files"),
+      await post(JSON.stringify({ tsconfig42: tsconfig }), '/tsconfig-files'),
     );
-    expect(response.error.startsWith("Debug Failure")).toBeTruthy();
+    expect(response.error.startsWith('Debug Failure')).toBeTruthy();
   });
 
   function post(data, endpoint) {
@@ -286,18 +286,18 @@ describe("server", () => {
   }
 });
 
-describe("server close", () => {
-  it("should stop listening when closed", async () => {
+describe('server close', () => {
+  it('should stop listening when closed', async () => {
     const server = await start();
     expect(server.listening).toBeTruthy();
-    await postToServer("", "/close", server);
+    await postToServer('', '/close', server);
     expect(server.listening).toBeFalsy();
   });
 });
 
-describe("should send error when failing", () => {
+describe('should send error when failing', () => {
   const failAnalysis = () => {
-    throw new Error("general error");
+    throw new Error('general error');
   };
   let server: Server;
   let close;
@@ -311,58 +311,58 @@ describe("should send error when failing", () => {
     await close();
   });
 
-  it("should not fail JS analysis", async () => {
+  it('should not fail JS analysis', async () => {
     const response = await postToServer(
       JSON.stringify({
-        filePath: "dir/file.js",
-        fileContent: "if (true) 42; else 42;",
-        rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+        filePath: 'dir/file.js',
+        fileContent: 'if (true) 42; else 42;',
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
       }),
-      "/analyze-js",
+      '/analyze-js',
       server,
     );
-    expect(JSON.parse(response).parsingError.message).toEqual("general error");
-    expect(JSON.parse(response).parsingError.code).toEqual("GENERAL_ERROR");
+    expect(JSON.parse(response).parsingError.message).toEqual('general error');
+    expect(JSON.parse(response).parsingError.code).toEqual('GENERAL_ERROR');
   });
 
-  it("should not fail TS analysis", async () => {
+  it('should not fail TS analysis', async () => {
     const response = await postToServer(
       JSON.stringify({
-        filePath: "dir/file.js",
-        fileContent: "if (true) 42; else 42;",
-        rules: [{ key: "no-all-duplicated-branches", configurations: [] }],
+        filePath: 'dir/file.js',
+        fileContent: 'if (true) 42; else 42;',
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
       }),
-      "/analyze-ts",
+      '/analyze-ts',
       server,
     );
-    expect(JSON.parse(response).parsingError.message).toEqual("general error");
-    expect(JSON.parse(response).parsingError.code).toEqual("GENERAL_ERROR");
+    expect(JSON.parse(response).parsingError.message).toEqual('general error');
+    expect(JSON.parse(response).parsingError.code).toEqual('GENERAL_ERROR');
   });
 });
 
 function postToServer(data, endpoint, server: Server): Promise<string> {
   const options = {
-    host: "localhost",
+    host: 'localhost',
     port: (<AddressInfo>server.address()).port,
     path: endpoint,
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
   };
 
   return new Promise((resolve, reject) => {
-    let response = "";
+    let response = '';
 
     const req = http.request(options, res => {
-      res.on("data", chunk => {
+      res.on('data', chunk => {
         response += chunk;
       });
 
-      res.on("end", () => resolve(response));
+      res.on('end', () => resolve(response));
     });
 
-    req.on("error", reject);
+    req.on('error', reject);
 
     req.write(data);
     req.end();

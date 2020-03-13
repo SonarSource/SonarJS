@@ -19,8 +19,8 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3616
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function getTextFromNode(node: estree.Node) {
-      if (node.type === "Literal") {
+      if (node.type === 'Literal') {
         return node.value;
       } else {
         return context.getSourceCode().getText(node);
@@ -42,11 +42,11 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      "SwitchCase > SequenceExpression": function(node: estree.Node) {
+      'SwitchCase > SequenceExpression': function(node: estree.Node) {
         const expressions = (node as estree.SequenceExpression).expressions;
         reportIssue(node, expressions[expressions.length - 1], expressions.length);
       },
-      "SwitchCase > LogicalExpression": function(node: estree.Node) {
+      'SwitchCase > LogicalExpression': function(node: estree.Node) {
         const firstElemAndNesting = getFirstElementAndNestingLevel(
           node as estree.LogicalExpression,
           0,
@@ -63,8 +63,8 @@ function getFirstElementAndNestingLevel(
   logicalExpression: estree.LogicalExpression,
   currentLvl: number,
 ): [estree.Node, number] | undefined {
-  if (logicalExpression.operator === "||") {
-    if (logicalExpression.left.type === "LogicalExpression") {
+  if (logicalExpression.operator === '||') {
+    if (logicalExpression.left.type === 'LogicalExpression') {
       return getFirstElementAndNestingLevel(logicalExpression.left, currentLvl + 1);
     } else {
       return [logicalExpression.left, currentLvl + 1];

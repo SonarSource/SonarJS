@@ -17,37 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AST, SourceCode } from "eslint";
-import * as ESTree from "estree";
-import { Location } from "./location";
+import { AST, SourceCode } from 'eslint';
+import * as ESTree from 'estree';
+import { Location } from './location';
 
 export default function getHighlighting(sourceCode: SourceCode) {
   const highlights: Highlight[] = [];
   for (const token of sourceCode.ast.tokens) {
     switch (token.type as any) {
-      case "Keyword":
-        highlight(token, "KEYWORD", highlights);
+      case 'Keyword':
+        highlight(token, 'KEYWORD', highlights);
         break;
-      case "String":
-      case "Template":
-        highlight(token, "STRING", highlights);
+      case 'String':
+      case 'Template':
+        highlight(token, 'STRING', highlights);
         break;
-      case "Numeric":
-        highlight(token, "CONSTANT", highlights);
+      case 'Numeric':
+        highlight(token, 'CONSTANT', highlights);
         break;
     }
   }
   for (const comment of sourceCode.ast.comments) {
-    if (comment.type === "Block" && comment.value.startsWith("*")) {
-      highlight(comment, "STRUCTURED_COMMENT", highlights);
+    if (comment.type === 'Block' && comment.value.startsWith('*')) {
+      highlight(comment, 'STRUCTURED_COMMENT', highlights);
     } else {
-      highlight(comment, "COMMENT", highlights);
+      highlight(comment, 'COMMENT', highlights);
     }
   }
   return { highlights };
 }
 
-export type SonarTypeOfText = "CONSTANT" | "COMMENT" | "STRUCTURED_COMMENT" | "KEYWORD" | "STRING";
+export type SonarTypeOfText = 'CONSTANT' | 'COMMENT' | 'STRUCTURED_COMMENT' | 'KEYWORD' | 'STRING';
 
 export interface Highlight {
   location: Location;

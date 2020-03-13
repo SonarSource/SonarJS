@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { RuleTesterTs } from "../RuleTesterTs";
-import { rule } from "../../src/rules/bitwise-operators";
+import { RuleTester } from 'eslint';
+import { RuleTesterTs } from '../RuleTesterTs';
+import { rule } from '../../src/rules/bitwise-operators';
 
 const ruleTesterJs = new RuleTester({
   parserOptions: {
     ecmaVersion: 2018,
-    sourceType: "module",
+    sourceType: 'module',
   },
 });
 

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/arguments-order";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/arguments-order';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 
-ruleTester.run("Parameters should be passed in the correct order", rule, {
+ruleTester.run('Parameters should be passed in the correct order', rule, {
   valid: [
     {
       code: `

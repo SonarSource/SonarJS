@@ -19,10 +19,10 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2068
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-const MESSAGE = "Review this potentially hardcoded credential.";
+const MESSAGE = 'Review this potentially hardcoded credential.';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -83,5 +83,5 @@ function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: es
 }
 
 function isStringLiteral(node: estree.Node): node is estree.Literal {
-  return node.type === "Literal" && typeof node.value === "string";
+  return node.type === 'Literal' && typeof node.value === 'string';
 }

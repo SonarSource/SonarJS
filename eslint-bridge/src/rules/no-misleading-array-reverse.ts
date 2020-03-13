@@ -19,48 +19,48 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4043
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 import {
   isRequiredParserServices,
   RequiredParserServices,
-} from "../utils/isRequiredParserServices";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { isArray, getSymbolAtLocation, findFirstMatchingLocalAncestor, sortLike } from "./utils";
+} from '../utils/isRequiredParserServices';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { isArray, getSymbolAtLocation, findFirstMatchingLocalAncestor, sortLike } from './utils';
 
-const arrayMutatingMethods = ["reverse", "'reverse'", '"reverse"', ...sortLike];
+const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
-    if (isRequiredParserServices(services)) {
-      const ts = require("typescript");
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
+    const ts = require('typescript');
 
-      return {
-        CallExpression(node: estree.Node) {
-          const callee = (node as estree.CallExpression).callee;
-          if (callee.type === "MemberExpression") {
-            const propertyText = context.getSourceCode().getText(callee.property);
-            if (isArrayMutatingCall(callee, services, propertyText)) {
-              const mutatedArray = callee.object;
+    return {
+      CallExpression(node: estree.Node) {
+        const callee = (node as estree.CallExpression).callee;
+        if (callee.type === 'MemberExpression') {
+          const propertyText = context.getSourceCode().getText(callee.property);
+          if (isArrayMutatingCall(callee, services, propertyText)) {
+            const mutatedArray = callee.object;
 
-              if (
-                isIdentifierOrPropertyAccessExpression(mutatedArray, services, ts) &&
-                !isInSelfAssignment(mutatedArray, node) &&
-                isForbiddenOperation(node)
-              ) {
-                context.report({
-                  message: formatMessage(propertyText),
-                  node,
-                });
-              }
+            if (
+              isIdentifierOrPropertyAccessExpression(mutatedArray, services, ts) &&
+              !isInSelfAssignment(mutatedArray, node) &&
+              isForbiddenOperation(node)
+            ) {
+              context.report({
+                message: formatMessage(propertyText),
+                node,
+              });
             }
           }
-        },
-      };
-    }
-    return {};
+        }
+      },
+    };
   },
 };
 
@@ -88,8 +88,8 @@ function isIdentifierOrPropertyAccessExpression(
   ts: any,
 ): boolean {
   return (
-    node.type === "Identifier" ||
-    (node.type === "MemberExpression" && !isGetAccessor(node.property, services, ts))
+    node.type === 'Identifier' ||
+    (node.type === 'MemberExpression' && !isGetAccessor(node.property, services, ts))
   );
 }
 
@@ -108,10 +108,10 @@ function isInSelfAssignment(mutatedArray: estree.Node, node?: estree.Node): bool
   return (
     // check assignment
     parent !== undefined &&
-    parent.type === "AssignmentExpression" &&
-    parent.operator === "=" &&
-    parent.left.type === "Identifier" &&
-    mutatedArray.type === "Identifier" &&
+    parent.type === 'AssignmentExpression' &&
+    parent.operator === '=' &&
+    parent.left.type === 'Identifier' &&
+    mutatedArray.type === 'Identifier' &&
     parent.left.name === mutatedArray.name
   );
 }
@@ -120,8 +120,8 @@ function isForbiddenOperation(node: estree.Node) {
   const parent = (node as TSESTree.Node).parent;
   return (
     parent &&
-    parent.type !== "ExpressionStatement" &&
-    findFirstMatchingLocalAncestor(node as TSESTree.Node, n => n.type === "ReturnStatement") ===
+    parent.type !== 'ExpressionStatement' &&
+    findFirstMatchingLocalAncestor(node as TSESTree.Node, n => n.type === 'ReturnStatement') ===
       undefined
   );
 }

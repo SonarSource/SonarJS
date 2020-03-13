@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getFilesForTsConfig } from "../src/tsconfig";
-import { ParseExceptionCode } from "../src/parser";
+import { getFilesForTsConfig } from '../src/tsconfig';
+import { ParseExceptionCode } from '../src/parser';
 
-describe("tsconfig", () => {
-  it("should return error when typescript is missing", () => {
-    jest.mock("typescript", () => {
+describe('tsconfig', () => {
+  it('should return error when typescript is missing', () => {
+    jest.mock('typescript', () => {
       throw new Error("Missing module 'typescript'");
     });
-    const config = getFilesForTsConfig("tsconfig.json");
+    const config = getFilesForTsConfig('tsconfig.json');
     expect(config).toEqual({
       error: "Missing module 'typescript'",
       errorCode: ParseExceptionCode.MissingTypeScript,

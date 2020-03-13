@@ -19,10 +19,10 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2137
 
-import { Rule } from "eslint";
-import * as estree from "estree";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-const illegalNames = ["eval", "arguments", "undefined", "NaN", "Infinity"];
+const illegalNames = ['eval', 'arguments', 'undefined', 'NaN', 'Infinity'];
 
 const getDeclareMessage = (redeclareType: string) => (name: string) =>
   `Do not use "${name}" to declare a ${redeclareType} - use another name.`;
@@ -33,7 +33,7 @@ const getModificationMessage = (functionName: string) =>
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "FunctionDeclaration, FunctionExpression": function(node: estree.Node) {
+      'FunctionDeclaration, FunctionExpression': function(node: estree.Node) {
         const func = node as estree.FunctionDeclaration | estree.FunctionExpression;
         reportBadUsageOnFunction(func, func.id, context);
       },
@@ -42,7 +42,7 @@ export const rule: Rule.RuleModule = {
       },
       VariableDeclaration(node: estree.Node) {
         (node as estree.VariableDeclaration).declarations.forEach(decl => {
-          reportBadUsage(decl.id, getDeclareMessage("variable"), context);
+          reportBadUsage(decl.id, getDeclareMessage('variable'), context);
         });
       },
       UpdateExpression(node: estree.Node) {
@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
         reportBadUsage((node as estree.AssignmentExpression).left, getModificationMessage, context);
       },
       CatchClause(node: estree.Node) {
-        reportBadUsage((node as estree.CatchClause).param, getDeclareMessage("variable"), context);
+        reportBadUsage((node as estree.CatchClause).param, getDeclareMessage('variable'), context);
       },
     };
   },
@@ -63,9 +63,9 @@ function reportBadUsageOnFunction(
   id: estree.Node | null | undefined,
   context: Rule.RuleContext,
 ) {
-  reportBadUsage(id, getDeclareMessage("function"), context);
+  reportBadUsage(id, getDeclareMessage('function'), context);
   func.params.forEach(p => {
-    reportBadUsage(p, getDeclareMessage("parameter"), context);
+    reportBadUsage(p, getDeclareMessage('parameter'), context);
   });
 }
 
@@ -76,7 +76,7 @@ function reportBadUsage(
 ) {
   if (node) {
     switch (node.type) {
-      case "Identifier": {
+      case 'Identifier': {
         if (illegalNames.includes(node.name)) {
           context.report({
             message: buildMessage(node.name),
@@ -85,20 +85,20 @@ function reportBadUsage(
         }
         break;
       }
-      case "RestElement":
+      case 'RestElement':
         reportBadUsage(node.argument, buildMessage, context);
         break;
-      case "ObjectPattern":
+      case 'ObjectPattern':
         node.properties.forEach(prop => {
           reportBadUsage(prop.value, buildMessage, context);
         });
         break;
-      case "ArrayPattern":
+      case 'ArrayPattern':
         node.elements.forEach(elem => {
           reportBadUsage(elem, buildMessage, context);
         });
         break;
-      case "AssignmentPattern":
+      case 'AssignmentPattern':
         reportBadUsage(node.left, buildMessage, context);
         break;
     }

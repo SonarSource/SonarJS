@@ -19,16 +19,16 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2245
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { isMemberExpression } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { isMemberExpression } from './utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.Node) {
         const { callee } = node as estree.CallExpression;
-        if (isMemberExpression(callee, "Math", "random")) {
+        if (isMemberExpression(callee, 'Math', 'random')) {
           context.report({
             message: `Make sure that using this pseudorandom number generator is safe here.`,
             node,

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/no-unthrown-error";
+import { rule } from '../../src/rules/no-unthrown-error';
 
-ruleTester.run("Exception should not be created without being thrown", rule, {
+ruleTester.run('Exception should not be created without being thrown', rule, {
   valid: [
     {
       code: `foo(new Error());`,
@@ -42,7 +42,7 @@ ruleTester.run("Exception should not be created without being thrown", rule, {
       code: `new Error();`,
       errors: [
         {
-          message: "Throw this error or remove this useless statement.",
+          message: 'Throw this error or remove this useless statement.',
           line: 1,
           column: 1,
           endLine: 1,

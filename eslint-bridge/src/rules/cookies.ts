@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2255
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { isIdentifier } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { isIdentifier } from './utils';
 
 const message = `Make sure that cookie is written safely here.`;
 
@@ -36,16 +36,16 @@ export const rule: Rule.RuleModule = {
       },
 
       Literal(node: estree.Node) {
-        if ((node as estree.Literal).value === "express") {
+        if ((node as estree.Literal).value === 'express') {
           usingExpressFramework = true;
         }
       },
 
       AssignmentExpression(node: estree.Node) {
         const { left } = node as estree.AssignmentExpression;
-        if (left.type === "MemberExpression") {
+        if (left.type === 'MemberExpression') {
           const { object, property } = left;
-          if (isIdentifier(object, "document") && isIdentifier(property, "cookie")) {
+          if (isIdentifier(object, 'document') && isIdentifier(property, 'cookie')) {
             context.report({
               message,
               node: left,
@@ -57,9 +57,9 @@ export const rule: Rule.RuleModule = {
       CallExpression(node: estree.Node) {
         const { callee, arguments: args } = node as estree.CallExpression;
         if (
-          callee.type === "MemberExpression" &&
+          callee.type === 'MemberExpression' &&
           usingExpressFramework &&
-          isIdentifier(callee.property, "cookie", "cookies")
+          isIdentifier(callee.property, 'cookie', 'cookies')
         ) {
           context.report({
             message,
@@ -68,9 +68,9 @@ export const rule: Rule.RuleModule = {
         }
 
         if (
-          callee.type === "MemberExpression" &&
-          isIdentifier(callee.property, "setHeader") &&
-          isLiteral(args[0], "Set-Cookie")
+          callee.type === 'MemberExpression' &&
+          isIdentifier(callee.property, 'setHeader') &&
+          isLiteral(args[0], 'Set-Cookie')
         ) {
           context.report({
             message,
@@ -83,5 +83,5 @@ export const rule: Rule.RuleModule = {
 };
 
 function isLiteral(node: estree.Node | undefined, value: string) {
-  return node && node.type === "Literal" && node.value === value;
+  return node && node.type === 'Literal' && node.value === value;
 }

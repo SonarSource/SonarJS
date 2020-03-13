@@ -19,24 +19,24 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1541
 
-import { Rule, AST } from "eslint";
-import * as estree from "estree";
+import { Rule, AST } from 'eslint';
+import * as estree from 'estree';
 import {
   EncodedMessage,
   IssueLocation,
   getMainFunctionTokenLocation,
-} from "eslint-plugin-sonarjs/lib/utils/locations";
-import { childrenOf } from "../utils/visitor";
-import { getParent } from "eslint-plugin-sonarjs/lib/utils/nodes";
-import { FunctionNodeType, isFunctionNode } from "./utils";
+} from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { childrenOf } from '../utils/visitor';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { FunctionNodeType, isFunctionNode } from './utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
-      { type: "integer" },
+      { type: 'integer' },
       {
         // internal parameter for rules having secondary locations
-        enum: ["sonar-runtime"],
+        enum: ['sonar-runtime'],
       },
     ],
   },
@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
         functionsDefiningModule = [];
         functionsImmediatelyInvoked = [];
       },
-      "Program:exit": () => {
+      'Program:exit': () => {
         functionsWithParent.forEach((parent, func) => {
           if (
             !functionsDefiningModule.includes(func) &&
@@ -62,7 +62,7 @@ export const rule: Rule.RuleModule = {
           }
         });
       },
-      "FunctionDeclaration, FunctionExpression, ArrowFunctionExpression": (node: estree.Node) =>
+      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) =>
         functionsWithParent.set(node, getParent(context)),
       "CallExpression[callee.type='Identifier'][callee.name='define'] FunctionExpression": (
         node: estree.Node,
@@ -119,7 +119,7 @@ function toSecondaryLocation(token: ComplexityToken): IssueLocation {
     column: token.loc.start.column,
     endLine: token.loc.end.line,
     endColumn: token.loc.end.column,
-    message: "+1",
+    message: '+1',
   };
 }
 
@@ -158,30 +158,30 @@ class FunctionComplexityVisitor {
         }
       } else {
         switch (node.type) {
-          case "ConditionalExpression":
+          case 'ConditionalExpression':
             token = this.context
               .getSourceCode()
-              .getFirstTokenBetween(node.test, node.consequent, token => token.value === "?");
+              .getFirstTokenBetween(node.test, node.consequent, token => token.value === '?');
             break;
-          case "SwitchCase":
+          case 'SwitchCase':
             // ignore default case
             if (!node.test) {
               break;
             }
-          case "IfStatement":
-          case "ForStatement":
-          case "ForInStatement":
-          case "ForOfStatement":
-          case "WhileStatement":
-          case "DoWhileStatement":
+          case 'IfStatement':
+          case 'ForStatement':
+          case 'ForInStatement':
+          case 'ForOfStatement':
+          case 'WhileStatement':
+          case 'DoWhileStatement':
             token = this.context.getSourceCode().getFirstToken(node);
             break;
-          case "LogicalExpression":
+          case 'LogicalExpression':
             token = this.context
               .getSourceCode()
               .getTokenAfter(
                 node.left,
-                token => ["||", "&&"].includes(token.value) && token.type === "Punctuator",
+                token => ['||', '&&'].includes(token.value) && token.type === 'Punctuator',
               );
             break;
         }

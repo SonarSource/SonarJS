@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from "estree";
-import { SourceCode } from "eslint";
+import * as estree from 'estree';
+import { SourceCode } from 'eslint';
 
 export default function visit(sourceCode: SourceCode, callback: (node: estree.Node) => void): void {
   const stack: estree.Node[] = [sourceCode.ast];

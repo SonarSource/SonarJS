@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
-import { rule } from "../../src/rules/os-command";
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+import { rule } from '../../src/rules/os-command';
 
-ruleTester.run("Executing OS commands is security-sensitive", rule, {
+ruleTester.run('Executing OS commands is security-sensitive', rule, {
   valid: [
     {
       code: `
@@ -69,7 +69,7 @@ ruleTester.run("Executing OS commands is security-sensitive", rule, {
         `,
       errors: [
         {
-          message: "Make sure that executing this OS command is safe here.",
+          message: 'Make sure that executing this OS command is safe here.',
           line: 3,
           endLine: 3,
           column: 12,

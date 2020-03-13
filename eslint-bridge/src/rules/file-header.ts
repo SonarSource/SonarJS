@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1451
 
-import { Rule } from "eslint";
+import { Rule } from 'eslint';
 
-const message = "Add or update the header of this file.";
+const message = 'Add or update the header of this file.';
 
 let cached: {
   headerFormat: string;
@@ -41,7 +41,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      "Program:exit": function() {
+      'Program:exit': function() {
         if (cached.isRegularExpression) {
           checkRegularExpression(cached.searchPattern!, context);
         } else {
@@ -105,7 +105,7 @@ function updateCache(options: any[]) {
 
     if (isRegularExpression) {
       try {
-        cached.searchPattern = new RegExp(headerFormat, "s");
+        cached.searchPattern = new RegExp(headerFormat, 's');
         cached.failedToCompile = false;
       } catch (e) {
         console.error(`Failed to compile regular expression for rule S1451 (${e.message})`);

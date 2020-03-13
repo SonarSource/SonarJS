@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
-import { rule } from "../../src/rules/sql-queries";
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+import { rule } from '../../src/rules/sql-queries';
 
-ruleTester.run("Formatting SQL queries is security-sensitive", rule, {
+ruleTester.run('Formatting SQL queries is security-sensitive', rule, {
   valid: [
     {
       code: `
@@ -133,7 +133,7 @@ ruleTester.run("Formatting SQL queries is security-sensitive", rule, {
       conn.query('SELECT * FROM users WHERE id = ' + userId, (err, res) => {});`,
       errors: [
         {
-          message: "Make sure that executing SQL queries is safe here.",
+          message: 'Make sure that executing SQL queries is safe here.',
           line: 3,
           endLine: 3,
           column: 7,

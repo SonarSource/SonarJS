@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/no-primitive-wrappers";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/no-primitive-wrappers';
 
-const tsParserPath = require.resolve("@typescript-eslint/parser");
+const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018 },
   parser: tsParserPath,
 });
 
-ruleTester.run("Wrapper objects should not be used for primitive types", rule, {
+ruleTester.run('Wrapper objects should not be used for primitive types', rule, {
   valid: [
     {
       code: `

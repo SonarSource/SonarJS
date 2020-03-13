@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from "../../src/rules/no-commented-code";
+import { rule } from '../../src/rules/no-commented-code';
 
-ruleTester.run("Sections of code should not be commented out", rule, {
+ruleTester.run('Sections of code should not be commented out', rule, {
   valid: [
     {
       code: `
@@ -127,7 +127,7 @@ ruleTester.run("Sections of code should not be commented out", rule, {
       code: `// if (something) {}`,
       errors: [
         {
-          message: "Remove this commented out code.",
+          message: 'Remove this commented out code.',
           line: 1,
           endLine: 1,
           column: 1,
@@ -143,7 +143,7 @@ ruleTester.run("Sections of code should not be commented out", rule, {
         // });`,
       errors: [
         {
-          message: "Remove this commented out code.",
+          message: 'Remove this commented out code.',
           line: 2,
           column: 9,
           endLine: 5,
@@ -160,7 +160,7 @@ ruleTester.run("Sections of code should not be commented out", rule, {
          */`,
       errors: [
         {
-          message: "Remove this commented out code.",
+          message: 'Remove this commented out code.',
           line: 2,
           column: 9,
           endLine: 6,

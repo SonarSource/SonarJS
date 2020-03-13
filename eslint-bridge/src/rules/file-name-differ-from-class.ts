@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3317
 
-import { Rule, Scope } from "eslint";
-import * as estree from "estree";
-import { getVariableFromName } from "./utils";
+import { Rule, Scope } from 'eslint';
+import * as estree from 'estree';
+import { getVariableFromName } from './utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -31,31 +31,31 @@ export const rule: Rule.RuleModule = {
     return {
       ExportDefaultDeclaration: (node: estree.Node) => {
         const declaration = (node as estree.ExportDefaultDeclaration).declaration;
-        if (declaration.type === "Identifier") {
+        if (declaration.type === 'Identifier') {
           const variable = getVariableFromName(context, declaration.name);
           if (variable && variable.defs.length === 1) {
             const def = variable.defs[0];
-            if (def.type === "ClassName" || def.type === "FunctionName" || isConst(def)) {
+            if (def.type === 'ClassName' || def.type === 'FunctionName' || isConst(def)) {
               nameOfExported = declaration.name;
             }
           }
         } else if (
-          declaration.type === "ClassDeclaration" ||
-          declaration.type === "FunctionDeclaration"
+          declaration.type === 'ClassDeclaration' ||
+          declaration.type === 'FunctionDeclaration'
         ) {
           if (declaration.id) {
             nameOfExported = declaration.id.name;
           }
         }
       },
-      "ExportAllDeclaration, ExportNamedDeclaration": () => {
+      'ExportAllDeclaration, ExportNamedDeclaration': () => {
         isOnlyExport = false;
       },
-      "Program:exit": () => {
+      'Program:exit': () => {
         if (isOnlyExport && nameOfExported) {
           const splittedFileName = context.getFilename().split(/[\\/]/);
-          const fileName = splittedFileName[splittedFileName.length - 1].split(".")[0];
-          if ("index" !== fileName && !sameName(nameOfExported, fileName)) {
+          const fileName = splittedFileName[splittedFileName.length - 1].split('.')[0];
+          if ('index' !== fileName && !sameName(nameOfExported, fileName)) {
             context.report({
               message: `Rename this file to "${nameOfExported}"`,
               loc: { line: 0, column: 0 },
@@ -68,11 +68,11 @@ export const rule: Rule.RuleModule = {
 };
 
 function sameName(nameOfExported: string, fileName: string) {
-  const normalizedFileName = fileName.replace(/_/g, "").replace(/-/g, "");
-  const normalizedNameOfExported = nameOfExported.replace(/_/g, "").replace(/-/g, "");
+  const normalizedFileName = fileName.replace(/_/g, '').replace(/-/g, '');
+  const normalizedNameOfExported = nameOfExported.replace(/_/g, '').replace(/-/g, '');
   return normalizedNameOfExported.toLowerCase() === normalizedFileName.toLowerCase();
 }
 
 function isConst(def: Scope.Definition) {
-  return def.type === "Variable" && def.parent && def.parent.kind === "const";
+  return def.type === 'Variable' && def.parent && def.parent.kind === 'const';
 }

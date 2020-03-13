@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from "../../src/rules/no-accessor-field-mismatch";
-import { RuleTester } from "eslint";
+import { rule } from '../../src/rules/no-accessor-field-mismatch';
+import { RuleTester } from 'eslint';
 
-const tsParserPath = require.resolve("@typescript-eslint/parser");
+const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   parser: tsParserPath,
 });
 
 function invalid(code: string) {
   const errors: RuleTester.TestCaseError[] = [];
-  const lines = code.split("\n");
+  const lines = code.split('\n');
   for (let i = 1; i <= lines.length; i++) {
     const line = lines[i - 1];
-    if (line.includes("// Noncompliant")) {
+    if (line.includes('// Noncompliant')) {
       errors.push({
         line: i,
         endLine: i,
@@ -44,7 +44,7 @@ function invalid(code: string) {
   };
 }
 
-ruleTester.run("Getters and setters should access the expected fields", rule, {
+ruleTester.run('Getters and setters should access the expected fields', rule, {
   valid: [
     {
       code: `

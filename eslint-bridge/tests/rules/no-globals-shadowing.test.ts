@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({
   parserOptions: {
     ecmaVersion: 2018,
     ecmaFeatures: { impliedStrict: false },
-    sourceType: "script",
+    sourceType: 'script',
   },
 });
 
-import { rule } from "../../src/rules/no-globals-shadowing";
+import { rule } from '../../src/rules/no-globals-shadowing';
 
-ruleTester.run("Special identifiers should not be bound or assigned", rule, {
+ruleTester.run('Special identifiers should not be bound or assigned', rule, {
   valid: [
     {
       code: `eval("");`,
@@ -191,10 +191,10 @@ ruleTester.run("Special identifiers should not be bound or assigned", rule, {
 });
 
 const ruleTesterBabel = new RuleTester({
-  parser: require.resolve("babel-eslint"),
+  parser: require.resolve('babel-eslint'),
 });
 
-ruleTesterBabel.run("Special identifiers should not be bound or assigned", rule, {
+ruleTesterBabel.run('Special identifiers should not be bound or assigned', rule, {
   valid: [
     {
       code: `// @flow

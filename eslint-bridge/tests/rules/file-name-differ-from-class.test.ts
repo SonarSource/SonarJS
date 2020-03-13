@@ -17,95 +17,95 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
-import { rule } from "../../src/rules/file-name-differ-from-class";
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+import { rule } from '../../src/rules/file-name-differ-from-class';
 
-ruleTester.run("Class names and file names should match", rule, {
+ruleTester.run('Class names and file names should match', rule, {
   valid: [
     {
       code: `class MyClass {}
             export default MyClass;`,
-      filename: "MyClass.js",
+      filename: 'MyClass.js',
     },
     {
       code: `class MyClass {}
             export default MySuperClass;`,
-      filename: "my-super-class.js",
+      filename: 'my-super-class.js',
     },
     {
       code: `class MyClass {}
             export default MyClass;`,
-      filename: "my_class.js",
+      filename: 'my_class.js',
     },
     {
       code: `class MyClass1 {}
             export default MyClass1;`,
-      filename: "myclass1.js",
+      filename: 'myclass1.js',
     },
     {
       code: `function MyFunction() {}
             export default MyFunction;`,
-      filename: "MyFunction.js",
+      filename: 'MyFunction.js',
     },
     {
       code: `const myConst = 3.14
             export default myConst;`,
-      filename: "myConst.js",
+      filename: 'myConst.js',
     },
     {
       code: `class MyClass {}
             export default MyClass;
             export function foo() {}`,
-      filename: "ok_several_exports.js",
+      filename: 'ok_several_exports.js',
     },
     {
       code: `export default class {}`,
-      filename: "ok_anonymous_class.js",
+      filename: 'ok_anonymous_class.js',
     },
     {
       code: `export default 42;`,
-      filename: "ok_anonymous_constant.js",
+      filename: 'ok_anonymous_constant.js',
     },
     {
       code: `export default function () {}`,
-      filename: "ok_anonymous_function.js",
+      filename: 'ok_anonymous_function.js',
     },
     {
       code: `const pi = 3.14;
             export default pi * 42;`,
-      filename: "ok_expression.js",
+      filename: 'ok_expression.js',
     },
     {
       code: `class MyClass {}
             export default MyClass;`,
-      filename: "MyClass.dev.js", //ignore postfix
+      filename: 'MyClass.dev.js', //ignore postfix
     },
     {
       code: `const myConst = 3.14;
             export default myConst;`,
-      filename: "index.js", //ignore index.js
+      filename: 'index.js', //ignore index.js
     },
     {
       code: `let myConst = 3.14;
             export default myConst;`, //Not a const
-      filename: "nok_constant.js",
+      filename: 'nok_constant.js',
     },
     {
       code: `class MyClass {}
             export default MyClass;`,
-      filename: "\\var\\www\\www.example.com\\MyClass.js",
+      filename: '\\var\\www\\www.example.com\\MyClass.js',
     },
     {
       code: `class MyClass {}
             export default MyClass;`,
-      filename: "C:/www/JS/src/MyClass.js",
+      filename: 'C:/www/JS/src/MyClass.js',
     },
     {
       code: `const MY_CONST = 3.14;
             export default MY_CONST;`,
-      filename: "MY_CONST.js",
+      filename: 'MY_CONST.js',
     },
   ],
   invalid: [
@@ -113,7 +113,7 @@ ruleTester.run("Class names and file names should match", rule, {
       code: `foo();
               function myFunc () {}
               export default myFunc;`,
-      filename: "nok_function_export.js",
+      filename: 'nok_function_export.js',
       errors: [
         {
           message: 'Rename this file to "myFunc"',
@@ -125,7 +125,7 @@ ruleTester.run("Class names and file names should match", rule, {
     {
       code: `class MyClass {}
             export default MyClass;`,
-      filename: "nok_identifier.js",
+      filename: 'nok_identifier.js',
       errors: [
         {
           message: 'Rename this file to "MyClass"',
@@ -135,7 +135,7 @@ ruleTester.run("Class names and file names should match", rule, {
 
     {
       code: `export default class MyClass {}`,
-      filename: "nok_class_declaration.js",
+      filename: 'nok_class_declaration.js',
       errors: [
         {
           message: 'Rename this file to "MyClass"',
@@ -145,7 +145,7 @@ ruleTester.run("Class names and file names should match", rule, {
 
     {
       code: `export default function MyFunction() {};`,
-      filename: "nok_MyFunction.js",
+      filename: 'nok_MyFunction.js',
       errors: [
         {
           message: 'Rename this file to "MyFunction"',
@@ -155,7 +155,7 @@ ruleTester.run("Class names and file names should match", rule, {
     {
       code: `const myConst = 3.14;
             export default myConst;`,
-      filename: "nok_constant.js",
+      filename: 'nok_constant.js',
       errors: [
         {
           message: 'Rename this file to "myConst"',
@@ -165,7 +165,7 @@ ruleTester.run("Class names and file names should match", rule, {
     {
       code: `const myConst = 3.14;
             export default myConst;`,
-      filename: "no_extension",
+      filename: 'no_extension',
       errors: [
         {
           message: 'Rename this file to "myConst"',

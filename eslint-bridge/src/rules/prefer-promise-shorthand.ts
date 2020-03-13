@@ -19,9 +19,9 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4634
 
-import { Rule } from "eslint";
-import * as estree from "estree";
-import { isFunctionNode } from "./utils";
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { isFunctionNode } from './utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -38,8 +38,8 @@ export const rule: Rule.RuleModule = {
 
 function getPromiseExecutor(node: estree.NewExpression, context: Rule.RuleContext) {
   if (
-    node.callee.type === "Identifier" &&
-    context.getSourceCode().getText(node.callee) === "Promise" &&
+    node.callee.type === 'Identifier' &&
+    context.getSourceCode().getText(node.callee) === 'Promise' &&
     node.arguments.length === 1
   ) {
     return node.arguments[0];
@@ -48,26 +48,27 @@ function getPromiseExecutor(node: estree.NewExpression, context: Rule.RuleContex
 }
 
 function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.RuleContext) {
-  if (isFunctionNode(executor)) {
-    const { params, body } = executor;
-    const [resolveParameterDeclaration, rejectParameterDeclaration] = params;
+  if (!isFunctionNode(executor)) {
+    return;
+  }
+  const { params, body } = executor;
+  const [resolveParameterDeclaration, rejectParameterDeclaration] = params;
 
-    const resolveParameterName = getParameterName(resolveParameterDeclaration);
-    const rejectParameterName = getParameterName(rejectParameterDeclaration);
+  const resolveParameterName = getParameterName(resolveParameterDeclaration);
+  const rejectParameterName = getParameterName(rejectParameterDeclaration);
 
-    const bodyExpression = getOnlyBodyExpression(body);
-    if (bodyExpression && bodyExpression.type === "CallExpression") {
-      const { callee, arguments: args } = bodyExpression;
-      if (callee.type === "Identifier") {
-        const action = getPromiseAction(callee.name, resolveParameterName, rejectParameterName);
-        if (action && args.length === 1) {
-          context.report({
-            message: `Replace this trivial promise with "Promise.${action}(${context
-              .getSourceCode()
-              .getText(args[0])})".`,
-            node,
-          });
-        }
+  const bodyExpression = getOnlyBodyExpression(body);
+  if (bodyExpression && bodyExpression.type === 'CallExpression') {
+    const { callee, arguments: args } = bodyExpression;
+    if (callee.type === 'Identifier') {
+      const action = getPromiseAction(callee.name, resolveParameterName, rejectParameterName);
+      if (action && args.length === 1) {
+        context.report({
+          message: `Replace this trivial promise with "Promise.${action}(${context
+            .getSourceCode()
+            .getText(args[0])})".`,
+          node,
+        });
       }
     }
   }
@@ -75,10 +76,10 @@ function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.R
 
 function getOnlyBodyExpression(node: estree.Node) {
   let bodyExpression: estree.Node | undefined;
-  if (node.type === "BlockStatement") {
+  if (node.type === 'BlockStatement') {
     if (node.body.length === 1) {
       const statement = node.body[0];
-      if (statement.type === "ExpressionStatement") {
+      if (statement.type === 'ExpressionStatement') {
         bodyExpression = statement.expression;
       }
     }
@@ -95,14 +96,14 @@ function getPromiseAction(
 ) {
   switch (callee) {
     case resolveParameterName:
-      return "resolve";
+      return 'resolve';
     case rejectParameterName:
-      return "reject";
+      return 'reject';
     default:
       return undefined;
   }
 }
 
 function getParameterName(node: estree.Node | undefined) {
-  return node && node.type === "Identifier" ? node.name : undefined;
+  return node && node.type === 'Identifier' ? node.name : undefined;
 }

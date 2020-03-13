@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
-import { rule } from "../../src/rules/unused-import";
+import { RuleTester } from 'eslint';
+import { rule } from '../../src/rules/unused-import';
 
 const ruleTesterJS = new RuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
-  parser: require.resolve("babel-eslint"),
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  parser: require.resolve('babel-eslint'),
 });
 
-ruleTesterJS.run("Unnecessary imports should be removed", rule, {
+ruleTesterJS.run('Unnecessary imports should be removed', rule, {
   valid: [
     {
       code: `
@@ -120,11 +120,11 @@ ruleTesterJS.run("Unnecessary imports should be removed", rule, {
 });
 
 const ruleTesterTS = new RuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
-  parser: require.resolve("@typescript-eslint/parser"),
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  parser: require.resolve('@typescript-eslint/parser'),
 });
 
-ruleTesterTS.run("Unnecessary imports should be removed", rule, {
+ruleTesterTS.run('Unnecessary imports should be removed', rule, {
   valid: [
     {
       code: `

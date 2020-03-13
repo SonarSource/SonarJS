@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const tsParserPath = require.resolve("@typescript-eslint/parser");
+const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   parser: tsParserPath,
 });
-import { rule } from "../../src/rules/no-duplicate-in-composite";
+import { rule } from '../../src/rules/no-duplicate-in-composite';
 
 ruleTester.run(
-  "Union and intersection types should not be defined with duplicated elements",
+  'Union and intersection types should not be defined with duplicated elements',
   rule,
   {
     valid: [

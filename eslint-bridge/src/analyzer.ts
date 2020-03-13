@@ -23,21 +23,21 @@ import {
   parseTypeScriptSourceFile,
   parseVueSourceFile,
   ParseExceptionCode,
-} from "./parser";
-import getHighlighting, { Highlight } from "./runner/highlighter";
-import getMetrics, { EMPTY_METRICS, Metrics } from "./runner/metrics";
-import getCpdTokens, { CpdToken } from "./runner/cpd";
-import * as linter from "./linter";
-import { SourceCode } from "eslint";
+} from './parser';
+import getHighlighting, { Highlight } from './runner/highlighter';
+import getMetrics, { EMPTY_METRICS, Metrics } from './runner/metrics';
+import getCpdTokens, { CpdToken } from './runner/cpd';
+import * as linter from './linter';
+import { SourceCode } from 'eslint';
 import {
   HighlightedSymbol,
   rule as symbolHighlightingRule,
   symbolHighlightingRuleId,
-} from "./runner/symbol-highlighter";
-import * as fs from "fs";
-import { rules as sonarjsRules } from "eslint-plugin-sonarjs";
+} from './runner/symbol-highlighter';
+import * as fs from 'fs';
+import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
 
-const COGNITIVE_COMPLEXITY_RULE_ID = "internal-cognitive-complexity";
+const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -55,8 +55,8 @@ export const SYMBOL_HIGHLIGHTING_RULE: linter.AdditionalRule = {
 
 export const COGNITIVE_COMPLEXITY_RULE: linter.AdditionalRule = {
   ruleId: COGNITIVE_COMPLEXITY_RULE_ID,
-  ruleModule: sonarjsRules["cognitive-complexity"],
-  ruleConfig: ["metric"],
+  ruleModule: sonarjsRules['cognitive-complexity'],
+  ruleConfig: ['metric'],
 };
 
 export interface AnalysisInput {
@@ -111,7 +111,7 @@ export interface IssueLocation {
 export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
   return analyze(
     input,
-    input.filePath.endsWith(".vue") ? parseVueSourceFile : parseJavaScriptSourceFile,
+    input.filePath.endsWith('.vue') ? parseVueSourceFile : parseJavaScriptSourceFile,
   );
 }
 
@@ -120,7 +120,7 @@ export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
 }
 
 function getFileContent(filePath: string) {
-  const fileContent = fs.readFileSync(filePath, { encoding: "utf8" });
+  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
   return stripBom(fileContent);
 }
 
@@ -170,7 +170,7 @@ export function getHighlightedSymbols(issues: Issue[]) {
   if (issue) {
     return JSON.parse(issue.message);
   } else {
-    console.log("DEBUG Failed to retrieve symbol highlighting from analysis results");
+    console.log('DEBUG Failed to retrieve symbol highlighting from analysis results');
     return [];
   }
 }
@@ -181,7 +181,7 @@ export function getCognitiveComplexity(issues: Issue[]) {
   if (issue && !isNaN(Number(issue.message))) {
     return Number(issue.message);
   } else {
-    console.log("DEBUG Failed to retrieve cognitive complexity metric from analysis results");
+    console.log('DEBUG Failed to retrieve cognitive complexity metric from analysis results');
     return 0;
   }
 }

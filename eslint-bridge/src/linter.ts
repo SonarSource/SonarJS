@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules as sonarjsRules } from "eslint-plugin-sonarjs";
-import { rules as chaiFriendlyRules } from "eslint-plugin-chai-friendly";
-import { rules as internalRules } from "./rules/main";
-import { Linter, SourceCode, Rule as ESLintRule } from "eslint";
-import { Rule, Issue, IssueLocation } from "./analyzer";
+import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
+import { rules as chaiFriendlyRules } from 'eslint-plugin-chai-friendly';
+import { rules as internalRules } from './rules/main';
+import { Linter, SourceCode, Rule as ESLintRule } from 'eslint';
+import { Rule, Issue, IssueLocation } from './analyzer';
 
 /**
  * In order to overcome ESLint limitation regarding issue reporting,
@@ -46,16 +46,16 @@ linter.defineRules(internalRules);
 
 try {
   // we load "@typescript-eslint/eslint-plugin" dynamically as it requires TS and so we don't need typescript dependency when analysing pure JS project
-  const typescriptEslintRules = require("@typescript-eslint/eslint-plugin").rules;
+  const typescriptEslintRules = require('@typescript-eslint/eslint-plugin').rules;
   // TS implementation of no-throw-literal is not supporting JS code.
-  delete typescriptEslintRules["no-throw-literal"];
+  delete typescriptEslintRules['no-throw-literal'];
   linter.defineRules(typescriptEslintRules);
 } catch {
   // do nothing, "typescript" is not there
 }
 
 // core implementation of this rule raises FPs on chai framework
-linter.defineRule("no-unused-expressions", chaiFriendlyRules["no-unused-expressions"]);
+linter.defineRule('no-unused-expressions', chaiFriendlyRules['no-unused-expressions']);
 
 /**
  * 'additionalRules' - rules used for computing metrics (incl. highlighting) when it requires access to the rule context; resulting value is encoded in the message
@@ -132,16 +132,16 @@ function createLinterConfig(
 ) {
   const ruleConfig: Linter.Config = {
     rules: {},
-    parserOptions: { sourceType: "module", ecmaVersion: 2018 },
+    parserOptions: { sourceType: 'module', ecmaVersion: 2018 },
   };
   inputRules.forEach(inputRule => {
     const ruleModule = linter.getRules().get(inputRule.key);
-    ruleConfig.rules![inputRule.key] = ["error", ...getRuleConfig(ruleModule, inputRule)];
+    ruleConfig.rules![inputRule.key] = ['error', ...getRuleConfig(ruleModule, inputRule)];
   });
 
   additionalRules.forEach(
     additionalRule =>
-      (ruleConfig.rules![additionalRule.ruleId] = ["error", ...additionalRule.ruleConfig]),
+      (ruleConfig.rules![additionalRule.ruleId] = ['error', ...additionalRule.ruleConfig]),
   );
   return ruleConfig;
 }
@@ -155,7 +155,7 @@ function createLinterConfig(
 export function getRuleConfig(ruleModule: ESLintRule.RuleModule | undefined, inputRule: Rule) {
   const options = inputRule.configurations;
   if (hasSonarRuntimeOption(ruleModule, inputRule.key)) {
-    return options.concat("sonar-runtime");
+    return options.concat('sonar-runtime');
   }
   return options;
 }
@@ -170,7 +170,7 @@ function hasSonarRuntimeOption(ruleModule: ESLintRule.RuleModule | undefined, ru
   }
   const { schema } = ruleModule.meta;
   const props = Array.isArray(schema) ? schema : [schema];
-  return props.some(option => !!option.enum && option.enum.includes("sonar-runtime"));
+  return props.some(option => !!option.enum && option.enum.includes('sonar-runtime'));
 }
 
 function normalizeIssueLocation(issue: Issue) {

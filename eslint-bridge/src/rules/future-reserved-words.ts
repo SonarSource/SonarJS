@@ -19,26 +19,26 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1527
 
-import { Rule, Scope } from "eslint";
+import { Rule, Scope } from 'eslint';
 
 const futureReservedWords = [
-  "implements",
-  "interface",
-  "package",
-  "private",
-  "protected",
-  "public",
-  "enum",
-  "class",
-  "const",
-  "export",
-  "extends",
-  "import",
-  "super",
-  "let",
-  "static",
-  "yield",
-  "await",
+  'implements',
+  'interface',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'enum',
+  'class',
+  'const',
+  'export',
+  'extends',
+  'import',
+  'super',
+  'let',
+  'static',
+  'yield',
+  'await',
 ];
 
 export const rule: Rule.RuleModule = {
@@ -64,7 +64,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      "Program:exit": () => {
+      'Program:exit': () => {
         checkVariablesByScope(context.getScope());
       },
     };

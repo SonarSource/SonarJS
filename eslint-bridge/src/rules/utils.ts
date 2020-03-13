@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AST, Rule, Scope } from "eslint";
-import * as estree from "estree";
-import { EncodedMessage } from "eslint-plugin-sonarjs/lib/utils/locations";
-import { IssueLocation } from "../analyzer";
-import { TSESTree } from "@typescript-eslint/experimental-utils";
-import { RequiredParserServices } from "../utils/isRequiredParserServices";
+import { AST, Rule, Scope } from 'eslint';
+import * as estree from 'estree';
+import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { IssueLocation } from '../analyzer';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { RequiredParserServices } from '../utils/isRequiredParserServices';
 
 export const functionLike = new Set([
-  "FunctionDeclaration",
-  "FunctionExpression",
-  "ArrowFunctionExpression",
-  "MethodDefinition",
+  'FunctionDeclaration',
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+  'MethodDefinition',
 ]);
 
-export const sortLike = ["sort", '"sort"', "'sort'"];
+export const sortLike = ['sort', '"sort"', "'sort'"];
 
 export type FunctionNodeType =
   | estree.FunctionDeclaration
@@ -46,9 +46,9 @@ export type LoopLike =
   | estree.ForInStatement;
 
 export const FUNCTION_NODES = [
-  "FunctionDeclaration",
-  "FunctionExpression",
-  "ArrowFunctionExpression",
+  'FunctionDeclaration',
+  'FunctionExpression',
+  'ArrowFunctionExpression',
 ];
 
 /**
@@ -88,7 +88,7 @@ export function getModuleNameOfImportedIdentifier(
   // check if importing using `import { f } from 'module_name'`
   const importedDeclaration = getImportDeclarations(context).find(({ specifiers }) =>
     specifiers.some(
-      spec => spec.type === "ImportSpecifier" && spec.imported.name === identifier.name,
+      spec => spec.type === 'ImportSpecifier' && spec.imported.name === identifier.name,
     ),
   );
   if (importedDeclaration) {
@@ -98,7 +98,7 @@ export function getModuleNameOfImportedIdentifier(
   const writeExpression = getUniqueWriteUsage(context, identifier.name);
   if (
     writeExpression &&
-    writeExpression.type === "MemberExpression" &&
+    writeExpression.type === 'MemberExpression' &&
     isIdentifier(writeExpression.property, identifier.name)
   ) {
     return getModuleNameFromRequire(writeExpression.object);
@@ -108,10 +108,10 @@ export function getModuleNameOfImportedIdentifier(
 }
 
 function getImportDeclarations(context: Rule.RuleContext) {
-  const program = context.getAncestors().find(node => node.type === "Program") as estree.Program;
-  if (program.sourceType === "module") {
+  const program = context.getAncestors().find(node => node.type === 'Program') as estree.Program;
+  if (program.sourceType === 'module') {
     return program.body.filter(
-      node => node.type === "ImportDeclaration",
+      node => node.type === 'ImportDeclaration',
     ) as estree.ImportDeclaration[];
   }
   return [];
@@ -119,18 +119,18 @@ function getImportDeclarations(context: Rule.RuleContext) {
 
 function isNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
   return importDeclaration.specifiers.some(
-    ({ type, local }) => type === "ImportNamespaceSpecifier" && local.name === name,
+    ({ type, local }) => type === 'ImportNamespaceSpecifier' && local.name === name,
   );
 }
 
 function getModuleNameFromRequire(node: estree.Node) {
   if (
-    node.type === "CallExpression" &&
-    isIdentifier(node.callee, "require") &&
+    node.type === 'CallExpression' &&
+    isIdentifier(node.callee, 'require') &&
     node.arguments.length === 1
   ) {
     const moduleName = node.arguments[0];
-    if (moduleName.type === "Literal") {
+    if (moduleName.type === 'Literal') {
       return moduleName;
     }
   }
@@ -159,11 +159,11 @@ export function getVariableFromName(context: Rule.RuleContext, name: string) {
 }
 
 export function isIdentifier(node: estree.Node, ...values: string[]): node is estree.Identifier {
-  return node.type === "Identifier" && values.some(value => value === node.name);
+  return node.type === 'Identifier' && values.some(value => value === node.name);
 }
 
 export function isMemberWithProperty(node: estree.Node, ...values: string[]) {
-  return node.type === "MemberExpression" && isIdentifier(node.property, ...values);
+  return node.type === 'MemberExpression' && isIdentifier(node.property, ...values);
 }
 
 export function isMemberExpression(
@@ -171,7 +171,7 @@ export function isMemberExpression(
   objectValue: string,
   ...propertyValue: string[]
 ) {
-  if (node.type === "MemberExpression") {
+  if (node.type === 'MemberExpression') {
     const { object, property } = node;
     if (isIdentifier(object, objectValue) && isIdentifier(property, ...propertyValue)) {
       return true;
@@ -182,17 +182,17 @@ export function isMemberExpression(
 }
 
 export function isUnaryExpression(node: estree.Node | undefined): node is estree.UnaryExpression {
-  return node !== undefined && node.type === "UnaryExpression";
+  return node !== undefined && node.type === 'UnaryExpression';
 }
 
 export function isArrayExpression(node: estree.Node | undefined): node is estree.ArrayExpression {
-  return node !== undefined && node.type === "ArrayExpression";
+  return node !== undefined && node.type === 'ArrayExpression';
 }
 
 export function isRequireModule(node: estree.CallExpression, ...moduleNames: string[]) {
-  if (isIdentifier(node.callee, "require") && node.arguments.length === 1) {
+  if (isIdentifier(node.callee, 'require') && node.arguments.length === 1) {
     const argument = node.arguments[0];
-    if (argument.type === "Literal") {
+    if (argument.type === 'Literal') {
       return moduleNames.includes(String(argument.value));
     }
   }
@@ -272,7 +272,7 @@ export function ancestorsChain(node: TSESTree.Node, boundaryTypes: Set<string>) 
  *  myObj.prop1 += 3;
  */
 export function isElementWrite(statement: estree.ExpressionStatement, ref: Scope.Reference) {
-  if (statement.expression.type === "AssignmentExpression") {
+  if (statement.expression.type === 'AssignmentExpression') {
     const assignmentExpression = statement.expression;
     const lhs = assignmentExpression.left;
     return isMemberExpressionReference(lhs, ref);
@@ -282,13 +282,13 @@ export function isElementWrite(statement: estree.ExpressionStatement, ref: Scope
 
 function isMemberExpressionReference(lhs: estree.Node, ref: Scope.Reference): boolean {
   return (
-    lhs.type === "MemberExpression" &&
+    lhs.type === 'MemberExpression' &&
     (isReferenceTo(ref, lhs.object) || isMemberExpressionReference(lhs.object, ref))
   );
 }
 
 export function isReferenceTo(ref: Scope.Reference, node: estree.Node) {
-  return node.type === "Identifier" && node === ref.identifier;
+  return node.type === 'Identifier' && node === ref.identifier;
 }
 
 export function resolveIdentifiers(
@@ -309,27 +309,27 @@ function resolveIdentifiersAcc(
     return;
   }
   switch (node.type) {
-    case "Identifier":
+    case 'Identifier':
       identifiers.push(node);
       break;
-    case "ObjectPattern":
+    case 'ObjectPattern':
       node.properties.forEach(prop => resolveIdentifiersAcc(prop, identifiers, acceptShorthand));
       break;
-    case "ArrayPattern":
+    case 'ArrayPattern':
       node.elements.forEach(elem => resolveIdentifiersAcc(elem, identifiers, acceptShorthand));
       break;
-    case "Property":
+    case 'Property':
       if (acceptShorthand || !node.shorthand) {
         resolveIdentifiersAcc(node.value, identifiers, acceptShorthand);
       }
       break;
-    case "RestElement":
+    case 'RestElement':
       resolveIdentifiersAcc(node.argument, identifiers, acceptShorthand);
       break;
-    case "AssignmentPattern":
+    case 'AssignmentPattern':
       resolveIdentifiersAcc(node.left, identifiers, acceptShorthand);
       break;
-    case "TSParameterProperty":
+    case 'TSParameterProperty':
       resolveIdentifiersAcc(node.parameter, identifiers, acceptShorthand);
       break;
   }
@@ -337,7 +337,7 @@ function resolveIdentifiersAcc(
 
 export function isArray(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);
-  return type.symbol && type.symbol.name === "Array";
+  return type.symbol && type.symbol.name === 'Array';
 }
 
 export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {

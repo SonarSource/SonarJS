@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from "../../src/rules/no-dead-store";
-import { RuleTester } from "eslint";
-import { RuleTesterTs } from "../RuleTesterTs";
+import { rule } from '../../src/rules/no-dead-store';
+import { RuleTester } from 'eslint';
+import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTester({
   // we use babel to parse JSX syntax
-  parser: require.resolve("babel-eslint"),
-  parserOptions: { ecmaVersion: 2018, sourceType: "module" },
+  parser: require.resolve('babel-eslint'),
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
 const valid = [
@@ -371,11 +371,11 @@ const invalid = [
   `),
 ];
 
-ruleTester.run("Dead stores should be removed", rule, { valid, invalid });
+ruleTester.run('Dead stores should be removed', rule, { valid, invalid });
 
 const ruleTesterTs = new RuleTesterTs();
 
-ruleTesterTs.run("Dead stores should be removed[TS]", rule, {
+ruleTesterTs.run('Dead stores should be removed[TS]', rule, {
   valid: [
     {
       code: `
@@ -419,8 +419,8 @@ ruleTesterTs.run("Dead stores should be removed[TS]", rule, {
 
 function noncompliant(code: string) {
   const nonCompliantLines: number[] = [];
-  code.split("\n").forEach((line, idx) => {
-    if (line.includes("// Noncompliant")) {
+  code.split('\n').forEach((line, idx) => {
+    if (line.includes('// Noncompliant')) {
       nonCompliantLines.push(idx + 1);
     }
   });

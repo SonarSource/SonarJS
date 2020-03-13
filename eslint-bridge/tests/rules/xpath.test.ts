@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from "eslint";
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: "module" } });
-import { rule } from "../../src/rules/xpath";
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+import { rule } from '../../src/rules/xpath';
 
-ruleTester.run("Executing XPath expressions is security-sensitive", rule, {
+ruleTester.run('Executing XPath expressions is security-sensitive', rule, {
   valid: [
     {
       code: `
@@ -64,7 +64,7 @@ ruleTester.run("Executing XPath expressions is security-sensitive", rule, {
         xpath.select(expr);`,
       errors: [
         {
-          message: "Make sure that executing this XPATH expression is safe.",
+          message: 'Make sure that executing this XPATH expression is safe.',
           line: 3,
           endLine: 3,
           column: 9,
@@ -100,7 +100,7 @@ ruleTester.run("Executing XPath expressions is security-sensitive", rule, {
       code: `a.selectNodes(expr)`,
       errors: [
         {
-          message: "Make sure that executing this XPATH expression is safe.",
+          message: 'Make sure that executing this XPATH expression is safe.',
           line: 1,
           endLine: 1,
           column: 1,
