@@ -46,51 +46,52 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-    if (!isRequiredParserServices(services)) {
-      return {};
+    if (isRequiredParserServices(services)) {
+      ts = require('typescript');
+      return {
+        TryStatement: (node: estree.Node) =>
+          visitTryStatement(node as TSESTree.TryStatement, context, services),
+      };
     }
-    ts = require('typescript');
-    return {
-      TryStatement: (node: estree.Node) => {
-        const tryStmt = node as TSESTree.TryStatement;
-        if (tryStmt.handler) {
-          // without '.catch()'
-          const openPromises: TSESTree.Node[] = [];
-          // with '.catch()'
-          const capturedPromises: TSESTree.Node[] = [];
-
-          let hasPotentiallyThrowingCalls = false;
-          CallLikeExpressionVisitor.getCallExpressions(tryStmt.block, context).forEach(
-            callLikeExpr => {
-              if (
-                callLikeExpr.type === 'AwaitExpression' ||
-                !hasThenMethod(callLikeExpr, services)
-              ) {
-                hasPotentiallyThrowingCalls = true;
-                return;
-              }
-
-              if (
-                (callLikeExpr.parent && callLikeExpr.parent.type === 'AwaitExpression') ||
-                isThened(callLikeExpr) ||
-                isCatch(callLikeExpr)
-              ) {
-                return;
-              }
-
-              (isCaught(callLikeExpr) ? capturedPromises : openPromises).push(callLikeExpr);
-            },
-          );
-
-          if (!hasPotentiallyThrowingCalls) {
-            checkForWrongCatch(tryStmt, openPromises, context);
-            checkForUselessCatch(tryStmt, openPromises, capturedPromises, context);
-          }
-        }
-      },
-    };
+    return {};
   },
 };
+
+function visitTryStatement(
+  tryStmt: TSESTree.TryStatement,
+  context: Rule.RuleContext,
+  services: any,
+) {
+  if (tryStmt.handler) {
+    // without '.catch()'
+    const openPromises: TSESTree.Node[] = [];
+    // with '.catch()'
+    const capturedPromises: TSESTree.Node[] = [];
+
+    let hasPotentiallyThrowingCalls = false;
+    CallLikeExpressionVisitor.getCallExpressions(tryStmt.block, context).forEach(callLikeExpr => {
+      if (callLikeExpr.type === 'AwaitExpression' || !hasThenMethod(callLikeExpr, services)) {
+        hasPotentiallyThrowingCalls = true;
+        return;
+      }
+
+      if (
+        (callLikeExpr.parent && callLikeExpr.parent.type === 'AwaitExpression') ||
+        isThened(callLikeExpr) ||
+        isCatch(callLikeExpr)
+      ) {
+        return;
+      }
+
+      (isCaught(callLikeExpr) ? capturedPromises : openPromises).push(callLikeExpr);
+    });
+
+    if (!hasPotentiallyThrowingCalls) {
+      checkForWrongCatch(tryStmt, openPromises, context);
+      checkForUselessCatch(tryStmt, openPromises, capturedPromises, context);
+    }
+  }
+}
 
 class CallLikeExpressionVisitor {
   private readonly callLikeExpressions: CallLikeExpression[] = [];
