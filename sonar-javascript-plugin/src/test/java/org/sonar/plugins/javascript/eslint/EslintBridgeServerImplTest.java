@@ -265,6 +265,25 @@ public class EslintBridgeServerImplTest {
   }
 
   @Test
+  public void should_prefer_direct_typescript_from_filesystem() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    Path baseDir = tempFolder.newDir().toPath();
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    DefaultInputFile tsFile = TestInputFileBuilder.create("", "foo.ts").setLanguage("ts").build();
+    ctx.fileSystem().add(tsFile);
+    Path tsDir = baseDir.resolve("dir/node_modules/typescript");
+    Files.createDirectories(tsDir);
+    Path earlyNestedTsDir = baseDir.resolve("dir/node_modules/a-mydependency/node_modules/typescript");
+    Files.createDirectories(earlyNestedTsDir);
+    Path lateNestedTsDir = baseDir.resolve("dir/node_modules/z-mydependency/node_modules/typescript");
+    Files.createDirectories(lateNestedTsDir);
+    eslintBridgeServer.startServer(ctx);
+    assertThat(eslintBridgeServer.getCommandInfo())
+      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + baseDir.resolve("dir/node_modules") + "}");
+  }
+
+  @Test
   public void should_not_search_typescript_when_no_ts_file() throws Exception {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();

@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
 import okhttp3.HttpUrl;
@@ -328,7 +329,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     try (Stream<Path> files = Files.walk(baseDir.toPath())) {
       return files
         .filter(p -> p.toFile().isDirectory() && p.endsWith("node_modules/typescript"))
-        .findFirst()
+        .min(Comparator.comparing(Path::getNameCount))
         .map(Path::getParent);
     }
   }
