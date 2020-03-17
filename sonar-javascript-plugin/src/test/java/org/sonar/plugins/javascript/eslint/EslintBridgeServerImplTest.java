@@ -31,6 +31,8 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -275,6 +277,19 @@ public class EslintBridgeServerImplTest {
     Files.createDirectories(tsDir);
     eslintBridgeServer.startServer(ctx);
     assertThat(eslintBridgeServer.getCommandInfo()).doesNotContain("NODE_PATH");
+  }
+
+  @Test
+  public void should_still_search_typescript_when_no_ts_file_in_sonarlint() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    Path baseDir = tempFolder.newDir().toPath();
+    SensorContextTester ctx = SensorContextTester.create(baseDir)
+      .setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    Path tsDir = baseDir.resolve("dir/node_modules/typescript");
+    Files.createDirectories(tsDir);
+    eslintBridgeServer.startServer(ctx);
+    assertThat(eslintBridgeServer.getCommandInfo()).contains("NODE_PATH");
   }
 
   @Test

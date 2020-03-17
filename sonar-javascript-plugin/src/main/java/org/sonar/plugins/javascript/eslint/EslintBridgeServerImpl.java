@@ -36,6 +36,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
@@ -135,7 +136,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
 
-    if (shouldDetectTypeScript(context.fileSystem())) {
+    if (shouldDetectTypeScript(context)) {
       Optional<Path> typeScriptLocation = getTypeScriptLocation(context.fileSystem().baseDir());
       if (typeScriptLocation.isPresent()) {
         LOG.info("Using TypeScript at: '{}'", typeScriptLocation.get());
@@ -148,8 +149,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     nodeCommand = nodeCommandBuilder.build();
   }
 
-  private static boolean shouldDetectTypeScript(FileSystem fileSystem) {
-    return fileSystem.hasFiles(TypeScriptSensor.filePredicate(fileSystem));
+  private static boolean shouldDetectTypeScript(SensorContext context) {
+    return context.runtime().getProduct() == SonarProduct.SONARLINT ||
+      context.fileSystem().hasFiles(TypeScriptSensor.filePredicate(context.fileSystem()));
   }
 
   @Override
