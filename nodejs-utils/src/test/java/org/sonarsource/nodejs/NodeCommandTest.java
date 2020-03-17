@@ -392,7 +392,7 @@ public class NodeCommandTest {
   }
 
   @Test
-  public void test_processwrapper() throws Exception {
+  public void should_append_explicit_node_path_to_environment() throws Exception {
     Path path = Paths.get("/dir/typescript");
     NodeCommand command = NodeCommand.builder()
       .addToNodePath(path)
@@ -400,7 +400,9 @@ public class NodeCommandTest {
       .pathResolver(getPathResolver())
       .build();
     command.start();
-    assertThat(command.toString()).startsWith("{NODE_PATH=" + path + "}");
+    assertThat(command.toString())
+      .startsWith("{NODE_PATH=")
+      .contains(path + "}");
     command.destroy();
   }
 

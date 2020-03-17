@@ -26,7 +26,6 @@ import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -246,7 +245,8 @@ public class EslintBridgeServerImplTest {
     ctx.fileSystem().add(tsFile);
     eslintBridgeServer.startServer(ctx);
     assertThat(eslintBridgeServer.getCommandInfo())
-      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + path.toAbsolutePath() + "}");
+      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=")
+      .contains(path.toAbsolutePath() + "}");
   }
 
   @Test
@@ -261,7 +261,8 @@ public class EslintBridgeServerImplTest {
     Files.createDirectories(tsDir);
     eslintBridgeServer.startServer(ctx);
     assertThat(eslintBridgeServer.getCommandInfo())
-      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=" + baseDir.resolve("dir/node_modules") + "}");
+      .startsWith("Node.js command to start eslint-bridge was: {NODE_PATH=")
+      .contains(baseDir.resolve("dir/node_modules") + "}");
   }
 
   @Test
