@@ -1,0 +1,42 @@
+name: sonar-release
+# This workflow is triggered when publishing a new github release
+on:
+  release:
+    types:
+      - published
+
+env:
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+jobs:
+  sonar_release:
+    runs-on: ubuntu-latest
+    name: Start release process
+    steps:
+      - name: Checkout release action
+        uses: actions/checkout@v2
+        with:
+          repository: SonarSource/gh-action_LT_release
+
+      - name: LT release
+        id: lt_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        # Put your action repo here
+        uses: SonarSource/gh-action_LT_release@master
+
+      - name: Check outputs
+        if: always()
+        run: |
+          echo "${{ steps.lt_release.outputs.releasability }}"
+          echo "${{ steps.lt_release.outputs.release }}"
+      #slack notifications
+      - name: Notify success on Slack
+        uses: Ilshidur/action-slack@2.0.0
+        with:
+          args: "Release successful for {{ GITHUB_REPOSITORY }} by {{ GITHUB_ACTOR }}"
+      - name: Notify failures on Slack
+        uses: Ilshidur/action-slack@2.0.0
+        if: failure()
+        with:
+          args: "Release failed, see the logs at https://github.com/{{ GITHUB_REPOSITORY }}/actions by {{ GITHUB_ACTOR }}"
