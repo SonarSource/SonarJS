@@ -38,6 +38,11 @@ public class JavaScriptFileImpl implements JavaScriptFile {
   }
 
   @Override
+  public String toString() {
+    return inputFile.toString();
+  }
+
+  @Override
   public String contents() throws IOException {
     return inputFile.contents();
   }

@@ -36,4 +36,10 @@ public interface JavaScriptFile {
    * You should not assume it is a file:// URI.
    */
   URI uri();
+
+  /**
+   * Return a string to identify this file (suitable for logs).
+   */
+  @Override
+  String toString();
 }
