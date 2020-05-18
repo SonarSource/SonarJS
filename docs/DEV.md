@@ -17,7 +17,7 @@ mvn clean install
 To run integration tests, you will need to create a properties file like the one shown below, and set its location in an environment variable named `ORCHESTRATOR_CONFIG_URL`.
 ```
 # version of SonarQube server
-sonar.runtimeVersion=6.5
+sonar.runtimeVersion=8.3
 
 orchestrator.updateCenterUrl=http://update.sonarsource.org/update-center-dev.properties
 ```
@@ -39,12 +39,7 @@ cd its/ruling
 mvn clean install
 ```
 
-This test gives you the opportunity to examine the issues created by each rule and make sure they're what you expect. You can inspect new/lost issues checking web-pages mentioned in the logs at the end of analysis:
-```
-INFO  - HTML Issues Report generated: /path/to/project/sonar-javascript/its/sources/src/.sonar/issues-report/issues-report.html
-INFO  - Light HTML Issues Report generated: /path/to/project/sonar-javascript/its/sources/src/.sonar/issues-report/issues-report-light.html
-```
-If everything looks good to you, you can copy the file with the actual issues located at
+This test gives you the opportunity to examine the issues created by each rule and make sure they're what you expect. You can inspect new/lost issues checking SonarQube UI (use DEBUG mode and put a breakpoint on assertion) at the end of analysis. If everything looks good to you, you can copy the file with the actual issues located at
 ```
 sonar-javascript/its/ruling/target/actual/
 ``` 
