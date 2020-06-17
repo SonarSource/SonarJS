@@ -49,6 +49,7 @@
     "eslint": "5.16.0",
     "eslint-plugin-chai-friendly": "0.5.0",
     "eslint-plugin-sonarjs": "0.5.0",
+    "espree": "5.0.1",
     "express": "4.16.3",
     "run-node": "1.0.0",
     "vue-eslint-parser": "6.0.4"
