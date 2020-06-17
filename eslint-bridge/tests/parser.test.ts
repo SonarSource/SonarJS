@@ -26,6 +26,7 @@ import {
   parseTypeScriptSourceFile,
   parseVueSourceFile,
   checkTypeScriptVersionCompatibility,
+  resetReportedNewerTypeScriptVersion,
   ParseExceptionCode,
   parseExceptionCodeOf,
 } from '../src/parser';
@@ -179,7 +180,7 @@ describe('parseTypeScriptSourceFile', () => {
 
   it('should log a warning with TypeScript version above maximum expected', () => {
     console.log = jest.fn();
-
+    resetReportedNewerTypeScriptVersion();
     checkTypeScriptVersionCompatibility('3.8.5');
     expect(console.log).toHaveBeenCalledWith(
       'WARN You are using version of TypeScript 3.8.5 which is not officially supported; supported versions >=3.2.1 <3.8.0',
