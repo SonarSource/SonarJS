@@ -37,7 +37,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sonar.api.SonarProduct;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
