@@ -23,6 +23,7 @@ import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { IssueLocation } from '../analyzer';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { RequiredParserServices } from '../utils/isRequiredParserServices';
+import * as tsTypes from 'typescript';
 
 export const functionLike = new Set([
   'FunctionDeclaration',
@@ -316,7 +317,9 @@ function resolveIdentifiersAcc(
       node.properties.forEach(prop => resolveIdentifiersAcc(prop, identifiers, acceptShorthand));
       break;
     case 'ArrayPattern':
-      node.elements.forEach(elem => resolveIdentifiersAcc(elem, identifiers, acceptShorthand));
+      node.elements.forEach(
+        elem => elem && resolveIdentifiersAcc(elem, identifiers, acceptShorthand),
+      );
       break;
     case 'Property':
       if (acceptShorthand || !node.shorthand) {
@@ -357,7 +360,9 @@ export function getSymbolAtLocation(node: estree.Node, services: RequiredParserS
 
 export function getSignatureFromCallee(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
-  return checker.getResolvedSignature(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+  return checker.getResolvedSignature(services.esTreeNodeToTSNodeMap.get(
+    node as TSESTree.Node,
+  ) as tsTypes.CallLikeExpression);
 }
 
 export function isFunctionNode(node: estree.Node): node is FunctionNodeType {
