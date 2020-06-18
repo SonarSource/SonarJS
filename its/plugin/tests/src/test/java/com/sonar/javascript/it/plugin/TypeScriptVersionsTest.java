@@ -54,7 +54,8 @@ public class TypeScriptVersionsTest {
     return new Object[][]{
       {"2.9.2", false},
       {"3.1.6", false},
-      {"3.2.4", true},
+      // minimal supported version
+      {"3.2.1", true},
       {"3.6.3", true},
     };
   }
