@@ -81,18 +81,26 @@ export function parseJavaScriptSourceFile(fileContent: string): SourceCode | Par
   };
 }
 
+let typescriptVersionLogged = false;
+
 export function parseTypeScriptSourceFile(
   fileContent: string,
   filePath: string,
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   try {
-    checkTypeScriptVersionCompatibility(require('typescript').version);
+    const typescriptRuntimeVersion = require('typescript').version;
+    if (!typescriptVersionLogged) {
+      console.log(`Version of TypeScript used during analysis: ${typescriptRuntimeVersion}`);
+      typescriptVersionLogged = true;
+    }
+
+    checkTypeScriptVersionCompatibility(typescriptRuntimeVersion);
     // we load the typescript parser dynamically, so we don't need typescript dependency when analyzing pure JS project
     const tsParser = require('@typescript-eslint/parser');
     const result = tsParser.parseForESLint(fileContent, {
       ...PARSER_CONFIG_MODULE,
-      filePath: filePath,
+      filePath,
       project: tsConfigs,
       loggerFn: console.log,
     });
