@@ -34,6 +34,15 @@ var foo = (a /*some comment*/) => { foo(); }
 var foo = (a, b) => { foo(); }
 var foo = () => { foo(); }
 var foo = (a = 1) => { foo(); }
+var foo = async (x) => x
+var foo = <T>(x: T) => x
+var foo = async <T>(x: T) => x
+var foo = async (x1: number, x2: number = 42) => (x1 + x2)
+var foo = (...xs) => xs
+var foo = async (...xs) => xs
+var foo = async /**/ (y) => y
+var foo = async (/**/ y) => y
+var foo = async (y /**/) => y
 `,
       options: [{ requireParameterParentheses: true, requireBodyBraces: false }],
     },
@@ -47,6 +56,7 @@ var foo = (a :string): boolean => { foo(); }
 var foo = (a, b) => { foo(); }
 var foo = () => { foo(); }
 var foo = (a = 1) => { foo(); }
+var bar = someFunctionTakingCallback(err => { console.log(err); })
 
 // array
 foo = ([a, b]) => { return a + b; };
@@ -59,6 +69,9 @@ foo = ({a: [x, y]}) => { return x + y; };
 // object in array
 foo = ([{a}]) => { return a; };
 foo = ([{a, b: y}]) => { return a + y; };
+foo = async x => { return x; }
+foo = <T>(x) => { return x; }
+foo = async <T>(x) => { return x; } // valid, parens cannot be ommitted
 `,
       options: [{ requireParameterParentheses: false, requireBodyBraces: true }],
     },
@@ -94,11 +107,16 @@ var foo = (a, b) => {   // OK, ignore multiline return
 `,
       options: [{ requireParameterParentheses: true, requireBodyBraces: false }],
     },
+    {
+      code: `x => x // parameter as the very first token`,
+      options: [{ requireParameterParentheses: false, requireBodyBraces: false }],
+    },
   ],
   invalid: [
     {
       code: `// invalid mandatory parentheses 
 var foo = a => { foo(); }  // Noncompliant
+var foo = async x => x
 `,
       options: [{ requireParameterParentheses: true, requireBodyBraces: false }],
       errors: [
@@ -109,11 +127,19 @@ var foo = a => { foo(); }  // Noncompliant
           column: 11,
           endColumn: 12,
         },
+        {
+          message: 'Add parentheses around the parameter of this arrow function.',
+          line: 3,
+          endLine: 3,
+          column: 17,
+          endColumn: 18,
+        },
       ],
     },
     {
       code: `// invalid optional parentheses 
 var foo = (a) => { foo(); /* comment */ } // Noncompliant
+var foo = async (x) => x
 `,
       options: [{ requireParameterParentheses: false, requireBodyBraces: false }],
       errors: [
@@ -123,6 +149,13 @@ var foo = (a) => { foo(); /* comment */ } // Noncompliant
           endLine: 2,
           column: 12,
           endColumn: 13,
+        },
+        {
+          message: 'Remove parentheses around the parameter of this arrow function.',
+          line: 3,
+          endLine: 3,
+          column: 18,
+          endColumn: 19,
         },
       ],
     },

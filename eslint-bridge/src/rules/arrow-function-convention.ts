@@ -65,17 +65,25 @@ function checkParameters(
   requireParameterParentheses: boolean,
   arrowFunction: estree.ArrowFunctionExpression,
 ) {
-  const parameters = arrowFunction.params;
-  if (parameters.length !== 1) {
+  if (arrowFunction.params.length !== 1) {
     return;
   }
   const firstParameter = arrowFunction.params[0];
-  const firstToken = context.getSourceCode().getFirstToken(arrowFunction);
-  const hasParameterParentheses = firstToken && firstToken.value === '(';
+  const firstTokenOffset = arrowFunction.async ? 1 : 0;
+  const firstGenericsOrParamlListToken = context
+    .getSourceCode()
+    .getFirstToken(arrowFunction, firstTokenOffset);
+  const lastParamListToken = context.getSourceCode().getTokenAfter(firstParameter);
+  const hasGenerics =
+    firstGenericsOrParamlListToken && firstGenericsOrParamlListToken.value === '<';
+  // Looking at the closing parenthesis after the parameter to avoid problems with cases like
+  // `functionTakingCallbacks(x => {...})` where the opening parenthesis before `x` isn't part
+  // of the function literal
+  const hasParameterParentheses = lastParamListToken && lastParamListToken.value === ')';
 
   if (requireParameterParentheses && !hasParameterParentheses) {
     context.report({ node: firstParameter, message: MESSAGE_ADD_PARAMETER });
-  } else if (!requireParameterParentheses && hasParameterParentheses) {
+  } else if (!requireParameterParentheses && !hasGenerics && hasParameterParentheses) {
     const arrowFunctionComments = context.getSourceCode().getCommentsInside(arrowFunction);
     const arrowFunctionBodyComments = context.getSourceCode().getCommentsInside(arrowFunction.body);
     // parameters comments inside parentheses are not available, so use the following subtraction:
