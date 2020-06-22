@@ -8,6 +8,9 @@
 'jshint:tests/unit/fixtures/const.js':[
 21,
 ],
+'jshint:tests/unit/fixtures/destparam.js':[
+5,
+],
 'jshint:tests/unit/fixtures/emptystmt.js':[
 1,
 ],

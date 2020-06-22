@@ -52,9 +52,13 @@ public class TypeScriptVersionsTest {
   @Parameters(name = "{0}")
   public static Object[][] versions() {
     return new Object[][]{
+      // some NOT supported version
       {"2.9.2", false},
+      // maximum NOT supported version
       {"3.1.6", false},
-      {"3.2.4", true},
+      // minimal supported version
+      {"3.2.1", true},
+      // some supported version
       {"3.6.3", true},
     };
   }

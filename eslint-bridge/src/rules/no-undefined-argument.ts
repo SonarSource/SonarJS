@@ -26,6 +26,7 @@ import {
   RequiredParserServices,
 } from '../utils/isRequiredParserServices';
 import * as estree from 'estree';
+import * as tsTypes from 'typescript';
 
 let ts: any;
 
@@ -67,7 +68,9 @@ function isOptionalParameter(
 ) {
   const signature = services.program
     .getTypeChecker()
-    .getResolvedSignature(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+    .getResolvedSignature(services.esTreeNodeToTSNodeMap.get(
+      node as TSESTree.Node,
+    ) as tsTypes.CallLikeExpression);
   if (signature) {
     const declaration = signature.declaration;
     if (declaration && isFunctionLikeDeclaration(declaration)) {
