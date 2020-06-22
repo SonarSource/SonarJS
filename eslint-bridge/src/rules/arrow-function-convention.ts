@@ -65,17 +65,23 @@ function checkParameters(
   requireParameterParentheses: boolean,
   arrowFunction: estree.ArrowFunctionExpression,
 ) {
-  const parameters = arrowFunction.params;
-  if (parameters.length !== 1) {
+  if (arrowFunction.params.length !== 1) {
     return;
   }
-  const firstParameter = arrowFunction.params[0];
-  const firstToken = context.getSourceCode().getFirstToken(arrowFunction);
-  const hasParameterParentheses = firstToken && firstToken.value === '(';
+  const parameter = arrowFunction.params[0];
+  // Looking at the closing parenthesis after the parameter to avoid problems with cases like
+  // `functionTakingCallbacks(x => {...})` where the opening parenthesis before `x` isn't part
+  // of the function literal
+  const tokenAfterParameter = context.getSourceCode().getTokenAfter(parameter);
+  const hasParameterParentheses = tokenAfterParameter && tokenAfterParameter.value === ')';
 
   if (requireParameterParentheses && !hasParameterParentheses) {
-    context.report({ node: firstParameter, message: MESSAGE_ADD_PARAMETER });
-  } else if (!requireParameterParentheses && hasParameterParentheses) {
+    context.report({ node: parameter, message: MESSAGE_ADD_PARAMETER });
+  } else if (
+    !requireParameterParentheses &&
+    !hasGeneric(context, arrowFunction) &&
+    hasParameterParentheses
+  ) {
     const arrowFunctionComments = context.getSourceCode().getCommentsInside(arrowFunction);
     const arrowFunctionBodyComments = context.getSourceCode().getCommentsInside(arrowFunction.body);
     // parameters comments inside parentheses are not available, so use the following subtraction:
@@ -83,14 +89,20 @@ function checkParameters(
       arrowFunctionComments.filter(comment => !arrowFunctionBodyComments.includes(comment)).length >
       0;
     if (
-      firstParameter.type === 'Identifier' &&
+      parameter.type === 'Identifier' &&
       !hasArrowFunctionParamsComments &&
-      !(firstParameter as TSESTree.Identifier).typeAnnotation &&
+      !(parameter as TSESTree.Identifier).typeAnnotation &&
       !(arrowFunction as TSESTree.ArrowFunctionExpression).returnType
     ) {
-      context.report({ node: firstParameter, message: MESSAGE_REMOVE_PARAMETER });
+      context.report({ node: parameter, message: MESSAGE_REMOVE_PARAMETER });
     }
   }
+}
+
+function hasGeneric(context: Rule.RuleContext, arrowFunction: estree.ArrowFunctionExpression) {
+  const offset = arrowFunction.async ? 1 : 0;
+  const firstTokenIgnoreAsync = context.getSourceCode().getFirstToken(arrowFunction, offset);
+  return firstTokenIgnoreAsync && firstTokenIgnoreAsync.value === '<';
 }
 
 function checkBody(
