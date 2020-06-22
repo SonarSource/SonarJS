@@ -35,6 +35,7 @@ import { SourceCode } from 'eslint';
 import { ParsingError } from '../src/analyzer';
 import visit from '../src/utils/visitor';
 import * as path from 'path';
+import * as ts from 'typescript';
 
 describe('parseJavaScriptSourceFile', () => {
   beforeEach(() => {
@@ -125,6 +126,19 @@ import { ParseExceptionCode } from '../src/parser';
 });
 
 describe('parseTypeScriptSourceFile', () => {
+  beforeEach(() => {
+    console.log = jest.fn();
+  });
+
+  it('should log typescript version once', () => {
+    parseTypeScriptSourceFile('', 'foo.ts');
+    parseTypeScriptSourceFile('', 'foo.ts');
+    expect(console.log).toHaveBeenCalledTimes(1);
+    expect(console.log).toHaveBeenCalledWith(
+      `Version of TypeScript used during analysis: ${ts.version}`,
+    );
+  });
+
   it('should parse typescript syntax', () => {
     const file = __dirname + '/fixtures/ts-project/sample.lint.ts';
     const sourceCode = parseTypeScriptSourceFile(
