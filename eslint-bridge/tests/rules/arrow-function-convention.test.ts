@@ -34,11 +34,15 @@ var foo = (a /*some comment*/) => { foo(); }
 var foo = (a, b) => { foo(); }
 var foo = () => { foo(); }
 var foo = (a = 1) => { foo(); }
+var foo = (...xs) => xs
+
+// tokens before parameter clause
 var foo = async (x) => x
+var foo = async (x:string) => x
+var foo = <T>(x) => x
 var foo = <T>(x: T) => x
 var foo = async <T>(x: T) => x
 var foo = async (x1: number, x2: number = 42) => (x1 + x2)
-var foo = (...xs) => xs
 var foo = async (...xs) => xs
 var foo = async /**/ (y) => y
 var foo = async (/**/ y) => y
@@ -69,9 +73,14 @@ foo = ({a: [x, y]}) => { return x + y; };
 // object in array
 foo = ([{a}]) => { return a; };
 foo = ([{a, b: y}]) => { return a + y; };
+
+// tokens before parameter clause
 foo = async x => { return x; }
+foo = async (x, y) => { return x; }
+// parens cannot be omitted when generic clause is present
 foo = <T>(x) => { return x; }
-foo = async <T>(x) => { return x; } // valid, parens cannot be ommitted
+foo = async <T>(x) => { return x; }
+foo = async <T>(x, y) => { return x; }
 `,
       options: [{ requireParameterParentheses: false, requireBodyBraces: true }],
     },
