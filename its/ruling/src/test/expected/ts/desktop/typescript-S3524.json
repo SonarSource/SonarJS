@@ -42,6 +42,9 @@
 'desktop:app/src/main-process/menu/build-default-menu.ts':[
 143,
 ],
+'desktop:app/src/shared-process/communication.ts':[
+57,
+],
 'desktop:app/src/shared-process/index.ts':[
 57,
 95,
