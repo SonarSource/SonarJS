@@ -133,10 +133,9 @@ describe('parseTypeScriptSourceFile', () => {
   it('should log typescript version once', () => {
     parseTypeScriptSourceFile('', 'foo.ts');
     parseTypeScriptSourceFile('', 'foo.ts');
-    expect(console.log).toHaveBeenCalledTimes(1);
-    expect(console.log).toHaveBeenCalledWith(
-      `Version of TypeScript used during analysis: ${ts.version}`,
-    );
+    const callsToLogger = (console.log as jest.Mock).mock.calls;
+    const message = `Version of TypeScript used during analysis: ${ts.version}`;
+    expect(callsToLogger.filter(args => args[0] === message)).toHaveLength(1);
   });
 
   it('should parse typescript syntax', () => {
