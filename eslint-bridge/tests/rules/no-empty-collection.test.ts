@@ -29,6 +29,50 @@ import { rule } from '../../src/rules/no-empty-collection';
 ruleTester.run('Empty collections should not be accessed or iterated', rule, {
   valid: [
     {
+      code: `
+      function foo(arr: any[]) {
+        array.indexOf('x');
+        array = [];
+        array.indexOf('x');
+      }
+      `,
+    },
+    {
+      code: `
+      function foo(arr: any[]) {
+        array.indexOf('x');
+        var array = [];
+        array.indexOf('x');
+      }
+      `,
+    },
+    {
+      code: `
+      function foo() {
+        let array = [];
+        f();
+        array.indexOf('x');
+      
+        function f() {
+          array = h();
+        }
+      }
+      `,
+    },
+    {
+      code: `
+      function foo() {
+        let array = [];
+        f();
+        array.indexOf('x');
+      
+        function f() {
+          array[1] = 42;
+        }
+      }
+      `,
+    },
+    {
       code: `function okForNotEmptyInit() {
               const nonEmptyArray = [1, 2, 3];
               foo(nonEmptyArray[2]); // OK

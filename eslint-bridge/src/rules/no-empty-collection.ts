@@ -102,21 +102,37 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
     return;
   }
 
+  if (variable.defs.find(def => def.type === "Parameter")) {
+    return;
+  }
+
   const usedReferences = [];
   let isEmptyCollection = false;
+
+  // const writeRef = variable.references.filter(ref => {
+  //   if (ref.isWriteOnly()) {
+  //     return true;
+  //   } else if (isReadCollectionPattern(ref)) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // });
 
   for (const ref of variable.references) {
     if (ref.isWriteOnly()) {
       isEmptyCollection = isReferenceAssigningEmptyCollection(ref);
-    } else {
-      if (isReadCollectionPattern(ref)) {
-        if (isEmptyCollection) {
-          usedReferences.push(ref);
-        }
-      } else {
-        // One references is a write
+      if (!isEmptyCollection) {
+        // One references is a write to non empty array
         return;
       }
+    } else if (isReadCollectionPattern(ref)) {
+      if (isEmptyCollection) {
+        usedReferences.push(ref);
+      }
+    } else {
+      // One references is a write
+      return;
     }
   }
 
