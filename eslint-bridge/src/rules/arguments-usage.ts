@@ -63,14 +63,23 @@ function checkArgumentsVariableWithoutDefinition(
   // if variable is a local variable, variable.defs contains one Definition with a type: 'Variable'
   // but if variable is the function arguments, variable.defs is just empty without other hint
   const isLocalVariableOrParameter = variable.defs.length > 0;
-  if (!isLocalVariableOrParameter && variable.references.length > 0) {
-    const firstReference = variable.references[0];
-    const secondaryLocations = variable.references
-      .slice(1)
-      .map(ref => ref.identifier) as TSESTree.Node[];
+  const references = variable.references.filter(ref => !isFollowedByLengthProperty(ref));
+  if (!isLocalVariableOrParameter && references.length > 0) {
+    const firstReference = references[0];
+    const secondaryLocations = references.slice(1).map(ref => ref.identifier) as TSESTree.Node[];
     context.report({
       node: firstReference.identifier,
       message: toEncodedMessage(message, secondaryLocations),
     });
   }
+}
+
+function isFollowedByLengthProperty(reference: Scope.Reference): boolean {
+  const parent = (reference.identifier as TSESTree.Node).parent;
+  return (
+    !!parent &&
+    parent.type === 'MemberExpression' &&
+    parent.property.type === 'Identifier' &&
+    parent.property.name === 'length'
+  );
 }

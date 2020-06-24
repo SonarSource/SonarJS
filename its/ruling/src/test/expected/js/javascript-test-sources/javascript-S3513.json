@@ -243,7 +243,7 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/ghost-paths.js':[
 35,
 39,
-43,
+44,
 ],
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/link-component.js':[
 7,
@@ -253,7 +253,7 @@
 19,
 ],
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/api/utils.js':[
-46,
+47,
 ],
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/proxy.js':[
 34,
@@ -279,9 +279,6 @@
 ],
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/errors/index.js':[
 95,
-],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/index.js':[
-45,
 ],
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/models/app.js':[
 12,
@@ -338,7 +335,7 @@
 508,
 ],
 'javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js':[
-6,
+7,
 15,
 ],
 'javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/trackingEvents.es6.js':[
@@ -366,7 +363,7 @@
 1351,
 1361,
 1398,
-1405,
+1406,
 1488,
 1515,
 1560,
@@ -789,9 +786,6 @@
 326,
 331,
 ],
-'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/inputs.js':[
-102,
-],
 'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/translate.js':[
 6,
 15,
@@ -828,11 +822,8 @@
 18,
 ],
 'javascript-test-sources:src/ecmascript6/templating/src/lib/load_barrier.js':[
-58,
+59,
 75,
-],
-'javascript-test-sources:src/ecmascript6/watchtower.js/src/dirty_checking.js':[
-1034,
 ],
 'javascript-test-sources:src/file-for-rules/boundOrAssignedEvalOrArguments.js':[
 9,

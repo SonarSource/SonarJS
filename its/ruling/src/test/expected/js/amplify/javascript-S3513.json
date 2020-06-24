@@ -1,13 +1,9 @@
 {
 'amplify:lib/amplify.core.js':[
 21,
-48,
-98,
 ],
 'amplify:lib/amplify.js':[
 21,
-48,
-98,
 433,
 748,
 768,
@@ -21,8 +17,6 @@
 ],
 'amplify:src/core.js':[
 12,
-39,
-89,
 ],
 'amplify:src/request.js':[
 18,
