@@ -63,7 +63,7 @@ function checkArgumentsVariableWithoutDefinition(
   // if variable is a local variable, variable.defs contains one Definition with a type: 'Variable'
   // but if variable is the function arguments, variable.defs is just empty without other hint
   const isLocalVariableOrParameter = variable.defs.length > 0;
-  const references = variable.references.filter(isNotFollowedByLengthProperty);
+  const references = variable.references.filter(ref => !isFollowedByLengthProperty(ref));
   if (!isLocalVariableOrParameter && references.length > 0) {
     const firstReference = references[0];
     const secondaryLocations = references.slice(1).map(ref => ref.identifier) as TSESTree.Node[];
@@ -74,12 +74,12 @@ function checkArgumentsVariableWithoutDefinition(
   }
 }
 
-function isNotFollowedByLengthProperty(reference: Scope.Reference): boolean {
+function isFollowedByLengthProperty(reference: Scope.Reference): boolean {
   const parent = (reference.identifier as TSESTree.Node).parent;
   return (
-    !parent ||
-    parent.type !== "MemberExpression" ||
-    parent.property.type !== "Identifier" ||
-    parent.property.name !== "length"
+    !!parent &&
+    parent.type === 'MemberExpression' &&
+    parent.property.type === 'Identifier' &&
+    parent.property.name === 'length'
   );
 }
