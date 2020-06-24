@@ -113,7 +113,7 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
 
   for (const ref of variable.references) {
     if (ref.isWriteOnly()) {
-      let isEmptyAssignment = isReferenceAssigningEmptyCollection(ref);
+      const isEmptyAssignment = isReferenceAssigningEmptyCollection(ref);
       if (!isEmptyAssignment) {
         // At least one usage of the collection is nonempty.
         // We ignore the order of usages, and therefore consider all reads to be safe.
