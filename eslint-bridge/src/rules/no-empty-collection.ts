@@ -102,30 +102,42 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
     return;
   }
 
+  if (variable.defs.some(d => d.type === 'Parameter' || d.type === 'ImportBinding')) {
+    // Bound value initialized elsewhere, could be non-empty.
+    return;
+  }
+
+  // All reading usages that are meaningful only if the accessed collection can be nonempty.
   const usedReferences = [];
-  let isEmptyCollection = false;
+  let emptyAssignmentExists = false;
 
   for (const ref of variable.references) {
     if (ref.isWriteOnly()) {
-      isEmptyCollection = isReferenceAssigningEmptyCollection(ref);
-    } else {
-      if (isReadCollectionPattern(ref)) {
-        if (isEmptyCollection) {
-          usedReferences.push(ref);
-        }
-      } else {
-        // One references is a write
+      let isEmptyAssignment = isReferenceAssigningEmptyCollection(ref);
+      if (!isEmptyAssignment) {
+        // At least one usage of the collection is nonempty.
+        // We ignore the order of usages, and therefore consider all reads to be safe.
         return;
+      } else {
+        emptyAssignmentExists = true;
       }
+    } else if (isReadCollectionPattern(ref)) {
+      usedReferences.push(ref);
+    } else {
+      // Some not explicitly handled construct that might make the collection non-empty.
+      return;
     }
   }
 
-  usedReferences.forEach(ref => {
-    context.report({
-      message: `Review this usage of "${ref.identifier.name}" as it can only be empty here.`,
-      node: ref.identifier,
+  if (emptyAssignmentExists) {
+    // All assignments are empty, and there exists at least one such assignment.
+    usedReferences.forEach(ref => {
+      context.report({
+        message: `Review this usage of "${ref.identifier.name}" as it can only be empty here.`,
+        node: ref.identifier,
+      });
     });
-  });
+  }
 }
 
 function isReferenceAssigningEmptyCollection(ref: Scope.Reference) {
@@ -159,6 +171,10 @@ function isEmptyCollectionType(node: estree.Node) {
   return false;
 }
 
+/**
+ * Checks whether this usage would be invalid if the collection turns out
+ * to be always empty.
+ */
 function isReadCollectionPattern(ref: Scope.Reference) {
   return isStrictlyReadingMethodCall(ref) || isForIterationPattern(ref) || isElementRead(ref);
 }
@@ -185,7 +201,6 @@ function isForIterationPattern(ref: Scope.Reference) {
 
 function isElementRead(ref: Scope.Reference) {
   const parent = (ref.identifier as TSESTree.Node).parent;
-
   return parent && parent.type === 'MemberExpression' && parent.computed && !isElementWrite(parent);
 }
 
