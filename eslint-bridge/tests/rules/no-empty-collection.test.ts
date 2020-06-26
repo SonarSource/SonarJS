@@ -182,7 +182,7 @@ ruleTester.run('Empty collections should not be accessed or iterated', rule, {
       }`,
     },
     {
-      code: `function overridingInInnerFunction() {
+      code: `function overwritingCollectionInInnerFunction() {
         let a = [];
         innerFunction();
         a.indexOf('x');
@@ -194,27 +194,28 @@ ruleTester.run('Empty collections should not be accessed or iterated', rule, {
     },
     {
       code: `
-      function parametersAreIgnoreUnlessReAsigned(parameterArray: number[]) {
+      // Since issue-1974, order of occurrences is ignored, and parameters
+      // are considered potentially nonempty, thus all reading occurrences
+      // are considered meaningful.
+      function parametersAreIgnored(parameterArray: number[]) {
         foo(parameterArray[1]);
         parameterArray = [];
-        foo(parameterArray[1]); // FN, traded for FP in issue-1974
+        foo(parameterArray[1]); // FN introduced with issue-1974 to avoid FPs.
       }`,
+    },
+    {
+      code: `
+      // Analogous to parametersAreIgnored
+      import {c} from nonemptyCollections;
+      c = [];
+      console.log(c[0]); // FN introduced with issue-1974 to avoid FPs
+      `,
     },
     {
       code: `
       function argumentsAreNonempty() {
         console.log(arguments[0]);
       }`,
-    },
-    {
-      code: `
-      function minErr() {
-        return function() {
-          var ErrorConstructor = Error;
-          throw new ErrorConstructor(arguments[1] + arguments[0]);
-        };
-      }
-      `,
     },
   ],
   invalid: [

@@ -107,31 +107,29 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
     return;
   }
 
-  // All reading usages that are meaningful only if the accessed collection can be nonempty.
-  const usedReferences = [];
+  const readingUsages = [];
   let emptyAssignmentExists = false;
 
   for (const ref of variable.references) {
     if (ref.isWriteOnly()) {
-      const isEmptyAssignment = isReferenceAssigningEmptyCollection(ref);
-      if (!isEmptyAssignment) {
+      if (isReferenceAssigningEmptyCollection(ref)) {
+        emptyAssignmentExists = true;
+      } else {
         // At least one usage of the collection is nonempty.
         // We ignore the order of usages, and therefore consider all reads to be safe.
         return;
-      } else {
-        emptyAssignmentExists = true;
       }
-    } else if (isReadCollectionPattern(ref)) {
-      usedReferences.push(ref);
+    } else if (isReadingCollectionUsage(ref)) {
+      readingUsages.push(ref);
     } else {
-      // Some not explicitly handled construct that might make the collection non-empty.
+      // some unknown operation on the collection.
+      // To avoid any FPs, we assume that it could make the collection non-empty.
       return;
     }
   }
 
   if (emptyAssignmentExists) {
-    // All assignments are empty, and there exists at least one such assignment.
-    usedReferences.forEach(ref => {
+    readingUsages.forEach(ref => {
       context.report({
         message: `Review this usage of "${ref.identifier.name}" as it can only be empty here.`,
         node: ref.identifier,
@@ -171,11 +169,7 @@ function isEmptyCollectionType(node: estree.Node) {
   return false;
 }
 
-/**
- * Checks whether this usage would be invalid if the collection turns out
- * to be always empty.
- */
-function isReadCollectionPattern(ref: Scope.Reference) {
+function isReadingCollectionUsage(ref: Scope.Reference) {
   return isStrictlyReadingMethodCall(ref) || isForIterationPattern(ref) || isElementRead(ref);
 }
 
