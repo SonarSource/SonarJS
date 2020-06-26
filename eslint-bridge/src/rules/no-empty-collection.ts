@@ -115,8 +115,8 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
       if (isReferenceAssigningEmptyCollection(ref)) {
         hasAssignmentOfEmptyCollection = true;
       } else {
-        // At least one usage of the collection is nonempty.
-        // We ignore the order of usages, and therefore consider all reads to be safe.
+        // There is at least one operation that might make the collection non-empty.
+        // We ignore the order of usages, and consider all reads to be safe.
         return;
       }
     } else if (isReadingCollectionUsage(ref)) {
