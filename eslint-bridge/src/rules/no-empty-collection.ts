@@ -108,12 +108,12 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
   }
 
   const readingUsages = [];
-  let assignmentOfEmptyCollectionExists = false;
+  let hasAssignmentOfEmptyCollection = false;
 
   for (const ref of variable.references) {
     if (ref.isWriteOnly()) {
       if (isReferenceAssigningEmptyCollection(ref)) {
-        assignmentOfEmptyCollectionExists = true;
+        hasAssignmentOfEmptyCollection = true;
       } else {
         // At least one usage of the collection is nonempty.
         // We ignore the order of usages, and therefore consider all reads to be safe.
@@ -128,7 +128,7 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
     }
   }
 
-  if (assignmentOfEmptyCollectionExists) {
+  if (hasAssignmentOfEmptyCollection) {
     readingUsages.forEach(ref => {
       context.report({
         message: `Review this usage of "${ref.identifier.name}" as it can only be empty here.`,
