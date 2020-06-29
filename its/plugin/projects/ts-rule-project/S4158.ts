@@ -70,7 +70,7 @@ foo(IMPORTED_ARRAY[1]); // OK
 function parametersAreIgnore(parameterArray: number[]) {
   foo(parameterArray[1]);
   parameterArray = [];
-  foo(parameterArray[1]); // Noncompliant
+  foo(parameterArray[1]); // FN
 }
 
 class MyClass {

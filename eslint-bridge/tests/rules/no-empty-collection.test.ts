@@ -34,15 +34,17 @@ ruleTester.run('Empty collections should not be accessed or iterated', rule, {
               foo(nonEmptyArray[2]); // OK
               nonEmptyArray.forEach(item => console.log()); // OK
               for (const _ of nonEmptyArray) { console.log(); } // OK
-            }
-            
-            function okLatelyWritten() {
+            }`,
+    },
+    {
+      code: `function okLatelyWritten() {
               const okLatelyWritten: number[] = [];
               okLatelyWritten.push(1);
               okLatelyWritten.forEach(item => console.log()); // OK
-            }
-            
-            function testCollectionContructors(){
+            }`,
+    },
+    {
+      code: `function testCollectionContructors(){
               const notEmptyarrayConstructor = new Array(1, 2, 3);
               notEmptyarrayConstructor.forEach(item => console.log()); // Ok
             }`,
@@ -168,6 +170,53 @@ ruleTester.run('Empty collections should not be accessed or iterated', rule, {
       code: `import { IMPORTED_ARRAY } from "./dep";
             foo(IMPORTED_ARRAY[1]); // OK`,
     },
+    {
+      code: `function indexWriteInInnerFunction() {
+        let a = [];
+        innerFunction();
+        a.indexOf('x');
+      
+        function innerFunction() {
+          a[0] = 42;
+        }
+      }`,
+    },
+    {
+      code: `function overwritingCollectionInInnerFunction() {
+        let a = [];
+        innerFunction();
+        a.indexOf('x');
+      
+        function innerFunction() {
+          a = unknownFunction();
+        }
+      }`,
+    },
+    {
+      code: `
+      // Since issue-1974, order of occurrences is ignored, and parameters
+      // are considered potentially nonempty, thus all reading occurrences
+      // are considered meaningful.
+      function parametersAreIgnored(parameterArray: number[]) {
+        foo(parameterArray[1]);
+        parameterArray = [];
+        foo(parameterArray[1]); // FN introduced with issue-1974 to avoid FPs.
+      }`,
+    },
+    {
+      code: `
+      // Analogous to parametersAreIgnored
+      import {c} from nonemptyCollections;
+      c = [];
+      console.log(c[0]); // FN introduced with issue-1974 to avoid FPs
+      `,
+    },
+    {
+      code: `
+      function argumentsAreNonempty() {
+        console.log(arguments[0]);
+      }`,
+    },
   ],
   invalid: [
     {
@@ -205,14 +254,6 @@ ruleTester.run('Empty collections should not be accessed or iterated', rule, {
               console.log(array[2]);
             }`,
       errors: 4,
-    },
-    {
-      code: `function parametersAreIgnoreUnlessReAsigned(parameterArray: number[]) {
-              foo(parameterArray[1]);
-              parameterArray = [];
-              foo(parameterArray[1]);
-            }`,
-      errors: 1,
     },
     {
       code: `const array : number[] = [];

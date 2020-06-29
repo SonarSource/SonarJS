@@ -102,30 +102,40 @@ function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.Rule
     return;
   }
 
-  const usedReferences = [];
-  let isEmptyCollection = false;
+  if (variable.defs.some(d => d.type === 'Parameter' || d.type === 'ImportBinding')) {
+    // Bound value initialized elsewhere, could be non-empty.
+    return;
+  }
+
+  const readingUsages = [];
+  let hasAssignmentOfEmptyCollection = false;
 
   for (const ref of variable.references) {
     if (ref.isWriteOnly()) {
-      isEmptyCollection = isReferenceAssigningEmptyCollection(ref);
-    } else {
-      if (isReadCollectionPattern(ref)) {
-        if (isEmptyCollection) {
-          usedReferences.push(ref);
-        }
+      if (isReferenceAssigningEmptyCollection(ref)) {
+        hasAssignmentOfEmptyCollection = true;
       } else {
-        // One references is a write
+        // There is at least one operation that might make the collection non-empty.
+        // We ignore the order of usages, and consider all reads to be safe.
         return;
       }
+    } else if (isReadingCollectionUsage(ref)) {
+      readingUsages.push(ref);
+    } else {
+      // some unknown operation on the collection.
+      // To avoid any FPs, we assume that it could make the collection non-empty.
+      return;
     }
   }
 
-  usedReferences.forEach(ref => {
-    context.report({
-      message: `Review this usage of "${ref.identifier.name}" as it can only be empty here.`,
-      node: ref.identifier,
+  if (hasAssignmentOfEmptyCollection) {
+    readingUsages.forEach(ref => {
+      context.report({
+        message: `Review this usage of "${ref.identifier.name}" as it can only be empty here.`,
+        node: ref.identifier,
+      });
     });
-  });
+  }
 }
 
 function isReferenceAssigningEmptyCollection(ref: Scope.Reference) {
@@ -159,7 +169,7 @@ function isEmptyCollectionType(node: estree.Node) {
   return false;
 }
 
-function isReadCollectionPattern(ref: Scope.Reference) {
+function isReadingCollectionUsage(ref: Scope.Reference) {
   return isStrictlyReadingMethodCall(ref) || isForIterationPattern(ref) || isElementRead(ref);
 }
 
@@ -185,7 +195,6 @@ function isForIterationPattern(ref: Scope.Reference) {
 
 function isElementRead(ref: Scope.Reference) {
   const parent = (ref.identifier as TSESTree.Node).parent;
-
   return parent && parent.type === 'MemberExpression' && parent.computed && !isElementWrite(parent);
 }
 
