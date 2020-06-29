@@ -1,5 +1,5 @@
 ---
-title: JavaScript
+title: JavaScript / TypeScript
 key: javascript
 ---
 
@@ -10,22 +10,33 @@ key: javascript
 
 ## Prerequisites
 
-In order to analyze JavaScript code, you need to have Node.js >= 8 installed on the machine running the scan. If standard `node` is not available, you have to set property `sonar.nodejs.executable` to an absolute path to Node.js executable.
+In order to analyze JavaScript or TypeScript code, you need to have Node.js >= 8 installed on the machine running the scan. If standard `node` is not available, you have to set property `sonar.nodejs.executable` to an absolute path to Node.js executable.
+
+### TypeScript
+
+For TypeScript analysis also make sure to have [TypeScript](https://www.npmjs.com/package/typescript) as a project dependency or dev dependency. If it's not the case, add it:
+```
+cd <your-project-folder>
+npm install -D typescript
+```
+If you can't have TypeScript as a project dependency you can set your `NODE_PATH` variable to point to your globally installed TypeScript (but this is generally discouraged by the Node.js documentation).
+
  
 ## Language-Specific Properties
 
-Discover and update the JavaScript-specific properties in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > JavaScript](/#sonarqube-admin#/admin/settings?category=javascript)**
+Discover and update the JavaScript-specific properties in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > JavaScript](/#sonarqube-admin#/admin/settings?category=javascript)**. For TypeScript **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > TypeScript](/#sonarqube-admin#/admin/settings?category=typescript)**
 
 ## Supported Frameworks and Versions
 * ECMAScript 5 / ECMAScript 2015 (ECMAScript 6) / ECMAScript 2016-2017-2018
+* TypeScript >=3.2.1 <3.8.0. If it's not possible to upgrade version of TypeScript used by the project, consider installing supported TypeScript version just for the time of analysis.
 * React JSX
 * Vue.js
 * Flow
 
 ## Rule Profiles
 
-There are 2 built-in rule profiles for JavaScript: `Sonar way` (default) and `Sonar way Recommended`.
-* `Sonar way` profile is activated by default. It defines a trimmed list of high-value/low-noise rules useful in almost any JS development context.
+There are 2 built-in rule profiles for each JavaScript and TypeScript: `Sonar way` (default) and `Sonar way Recommended`.
+* `Sonar way` profile is activated by default. It defines a trimmed list of high-value/low-noise rules useful in almost any JS / TS development context.
 * `Sonar way Recommended` contains all rules from `Sonar way`, plus more rules that mandate high code readability and long-term project evolution.
 
 ## Troubleshooting
@@ -128,7 +139,7 @@ To test the rule you can use `JavaScriptCheckVerifier#verify()` or `JavaScriptCh
 ## Related Pages
 
 * [Test Coverage & Execution](/analysis/coverage/) (LCOV format)
-* [Importing External Issues](/analysis/external-issues/) (ESLint)
+* [Importing External Issues](/analysis/external-issues/) (ESLint, TSLint)
 * [SonarJS Plugin for ESLint](https://github.com/SonarSource/eslint-plugin-sonarjs)
 <!-- sonarqube -->
 * [Adding Coding Rules](/extend/adding-coding-rules/)
