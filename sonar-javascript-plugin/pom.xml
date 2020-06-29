@@ -103,7 +103,6 @@
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>
           <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
-          <requirePlugins>typescript:2.1.0</requirePlugins>
         </configuration>
       </plugin>
 

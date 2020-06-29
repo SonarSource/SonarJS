@@ -72,13 +72,10 @@ public final class Tests {
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
-  static final Location TS_PLUGIN_LOCATION = MavenLocation.of("org.sonarsource.typescript", "sonar-typescript-plugin", "DEV");
-
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
-    .addPlugin(TS_PLUGIN_LOCATION)
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-ts-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
