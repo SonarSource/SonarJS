@@ -2,6 +2,7 @@
   "compilerOptions": { 
     "baseUrl": "./",
     "paths": {
+      "is/this/*/even/valid": ["coverage/only"],
       "*": ["*", "generated/*"]
     },
     "rootDir": "./",

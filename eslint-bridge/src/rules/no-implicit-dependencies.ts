@@ -53,13 +53,9 @@ export const rule: Rule.RuleModule = {
           const [argument] = call.arguments;
           if (argument.type === 'Literal') {
             const requireToken = call.callee;
-            const location = requireToken && requireToken.loc;
-            if (!location) {
-              return;
-            }
             raiseOnImplicitImport(
               argument,
-              location,
+              requireToken.loc!,
               dependencies,
               whitelist,
               aliasedPathsMappings,
@@ -71,13 +67,9 @@ export const rule: Rule.RuleModule = {
       ImportDeclaration: (node: estree.Node) => {
         const module = (node as estree.ImportDeclaration).source;
         const importToken = context.getSourceCode().getFirstToken(node);
-        const location = importToken && importToken.loc;
-        if (!location) {
-          return;
-        }
         raiseOnImplicitImport(
           module,
-          location,
+          importToken!.loc,
           dependencies,
           whitelist,
           aliasedPathsMappings,
