@@ -94,9 +94,8 @@ export const rule: Rule.RuleModule = {
     function raiseIssue(reference: Scope.Reference) {
       const locationHolder = getPreciseLocationHolder(reference);
       context.report({
-        message: `Introduce a new variable or use its initial value before reassigning "${
-          reference.identifier.name
-        }".`,
+        message: `Introduce a new variable or use its initial value ` +
+          `before reassigning "${reference.identifier.name}".`,
         ...locationHolder,
       });
     }

@@ -35,9 +35,8 @@ function invalidTest(code: string) {
       if (res && res[1]) {
         const currentLine = index + 1;
         accumulator.push({
-          message: `Introduce a new variable or use its initial value before reassigning "${
-            res[1]
-          }".`,
+          message: `Introduce a new variable or use its initial value ` +
+           `before reassigning "${res[1]}".`,
           line: currentLine,
           endLine: currentLine,
         });

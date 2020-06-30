@@ -66,9 +66,8 @@ export const rule: Rule.RuleModule = {
           !isUsingAccessorFieldInBody(statements[0], accessorInfo, matchingFields))
       ) {
         const fieldToRefer = matchingFields[0];
-        const primaryMessage = `Refactor this ${
-          accessorInfo.type
-        } so that it actually refers to the property '${fieldToRefer.name}'.`;
+        const primaryMessage = `Refactor this ${accessorInfo.type} ` +
+          `so that it actually refers to the property '${fieldToRefer.name}'.`;
         const secondaryLocations = [fieldToRefer.node];
         const secondaryMessages = ['Property which should be referred.'];
 

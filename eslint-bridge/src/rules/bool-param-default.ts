@@ -36,9 +36,9 @@ export const rule: Rule.RuleModule = {
         for (const param of functionLike.params) {
           if (param.type === 'Identifier' && isOptionalBoolean(param)) {
             context.report({
-              message: `Provide a default value for '${
-                param.name
-              }' so that the logic of the function is more evident when this parameter is missing. Consider defining another function if providing default value is not possible.`,
+              message: `Provide a default value for '${param.name}' so that ` +
+                `the logic of the function is more evident when this parameter is missing. ` +
+                `Consider defining another function if providing default value is not possible.`,
               node: param as estree.Node,
             });
           }
