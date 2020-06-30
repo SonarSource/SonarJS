@@ -153,3 +153,131 @@ ruleTester.run('Dependencies should be explicit', rule, {
     },
   ],
 });
+
+// Refer to
+// https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/parser/README.md#configuration
+// especially for the description of `tsconfigRootDir` + `project` and the `createDefaultProgram`-option.
+const ruleTesterForPathMappings = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    tsconfigRootDir: './tests/fixtures/ts-project-with-path-aliases',
+    project: './tsconfig.json',
+    createDefaultProgram: true,
+  },
+});
+
+const filenameForFileWithPathMappings = path.join(
+  __dirname,
+  '../fixtures/ts-project-with-path-aliases/file.ts',
+);
+
+ruleTesterForPathMappings.run('Path aliases should be exempt.', rule, {
+  valid: [
+    {
+      code: `import { f } from '$core/services/configuration.service';`,
+      filename: filenameForFileWithPathMappings,
+    },
+    {
+      code: `import { f } from '@core/services/configuration.service';`,
+      filename: filenameForFileWithPathMappings,
+    },
+    {
+      code: `import { f } from 'core/services/configuration.service';`,
+      filename: filenameForFileWithPathMappings,
+    },
+    {
+      code: `import { f } from 'foo/bar/services/configuration.service';`,
+      filename: filenameForFileWithPathMappings,
+    },
+    {
+      code: `import { f } from 'concrete';`,
+      filename: filenameForFileWithPathMappings,
+    },
+    {
+      code: `let f = require("foo/bar/services/configuration.service").f;`,
+      filename: filenameForFileWithPathMappings,
+      options,
+    },
+  ],
+  invalid: [
+    {
+      code: `import { f } from '$invalid/services/configuration.service';`,
+      filename: filenameForFileWithPathMappings,
+      errors: 1,
+    },
+    {
+      code: `import { f } from '@invalid/services/configuration.service';`,
+      filename: filenameForFileWithPathMappings,
+      errors: 1,
+    },
+    {
+      code: `import { f } from 'invalid/services/configuration.service';`,
+      filename: filenameForFileWithPathMappings,
+      errors: 1,
+    },
+    {
+      code: `import { f } from 'nonexistent';`,
+      filename: filenameForFileWithPathMappings,
+      errors: 1,
+    },
+    {
+      code: `import "foo";`,
+      filename: filenameForFileWithPathMappings,
+      options,
+      errors: 1,
+    },
+    {
+      code: `import "foo/baz/something";`,
+      filename: filenameForFileWithPathMappings,
+      options,
+      errors: 1,
+    },
+    {
+      code: `let f = require("this/doesnt/exist").f;`,
+      filename: filenameForFileWithPathMappings,
+      options,
+      errors: 1,
+    },
+  ],
+});
+
+const ruleTesterForWildcardExample = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    tsconfigRootDir: './tests/fixtures/ts-project-with-wildcard-path-alias',
+    project: './tsconfig.json',
+    createDefaultProgram: true,
+  },
+});
+
+const filenameWildcardExample = path.join(
+  __dirname,
+  '../fixtures/ts-project-with-wildcard-path-alias/file.ts',
+);
+
+ruleTesterForWildcardExample.run(
+  'Avoid FPs for projects with an unconstrained wildcard mapping',
+  rule,
+  {
+    valid: [
+      {
+        code: `import { f } from '$core/services/configuration.service';`,
+        filename: filenameWildcardExample,
+      },
+      {
+        code: `import { f } from 'concretegenerated';`,
+        filename: filenameWildcardExample,
+      },
+      {
+        code: `let f = require("this/might/be/generated").f;`,
+        filename,
+        options,
+      },
+    ],
+    invalid: [],
+  },
+);

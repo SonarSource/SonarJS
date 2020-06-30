@@ -24,6 +24,7 @@ import * as estree from 'estree';
 import * as builtins from 'builtin-modules';
 import * as path from 'path';
 import * as fs from 'fs';
+import { RequiredParserServices } from '../utils/isRequiredParserServices';
 
 const DefinitelyTyped = '@types/';
 
@@ -36,6 +37,11 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const whitelist = context.options;
     const dependencies = getDependencies(context.getFilename());
+    const aliasedPathsMappings = extractPathMappings(context.parserServices);
+    if (aliasedPathsMappings === 'skip') {
+      // deactivates this rule altogether.
+      return {};
+    }
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
@@ -47,14 +53,28 @@ export const rule: Rule.RuleModule = {
           const [argument] = call.arguments;
           if (argument.type === 'Literal') {
             const requireToken = call.callee;
-            raiseOnImplicitImport(argument, requireToken.loc!, dependencies, whitelist, context);
+            raiseOnImplicitImport(
+              argument,
+              requireToken.loc!,
+              dependencies,
+              whitelist,
+              aliasedPathsMappings,
+              context,
+            );
           }
         }
       },
       ImportDeclaration: (node: estree.Node) => {
         const module = (node as estree.ImportDeclaration).source;
         const importToken = context.getSourceCode().getFirstToken(node);
-        raiseOnImplicitImport(module, importToken!.loc, dependencies, whitelist, context);
+        raiseOnImplicitImport(
+          module,
+          importToken!.loc,
+          dependencies,
+          whitelist,
+          aliasedPathsMappings,
+          context,
+        );
       },
     };
   },
@@ -65,6 +85,7 @@ function raiseOnImplicitImport(
   loc: estree.SourceLocation,
   dependencies: Set<string>,
   whitelist: string[],
+  aliasedPathsMappings: PathMapping[],
   context: Rule.RuleContext,
 ) {
   const moduleName = module.value;
@@ -74,6 +95,10 @@ function raiseOnImplicitImport(
 
   const ts = require('typescript');
   if (ts.isExternalModuleNameRelative(moduleName)) {
+    return;
+  }
+
+  if (aliasedPathsMappings.some(mapping => mapping.isApplicableTo(moduleName))) {
     return;
   }
 
@@ -153,4 +178,49 @@ function findPackageJson(current: string): string | undefined {
     return findPackageJson(current);
   }
   return undefined;
+}
+
+interface PathMapping {
+  isApplicableTo(name: string): boolean;
+}
+
+/** A path mapping that matches exactly one name. */
+class PathMappingExact implements PathMapping {
+  constructor(private readonly value: string) {}
+  isApplicableTo(name: string): boolean {
+    return name === this.value;
+  }
+}
+
+/** A path mapping that matches all names starting with a prefix. */
+class PathMappingPrefix implements PathMapping {
+  constructor(private readonly prefix: string) {}
+  isApplicableTo(name: string): boolean {
+    return name.startsWith(this.prefix);
+  }
+}
+
+function extractPathMappings(parserServices: RequiredParserServices): PathMapping[] | 'skip' {
+  const program = parserServices.program;
+  let pathMappings: PathMapping[] = [];
+  if (program) {
+    const paths = program.getCompilerOptions().paths;
+    if (paths) {
+      for (let path in paths) {
+        if (path === '*') {
+          // All paths can be mapped, possibly into a directory with completely synthetic code.
+          // Skip the entire check to avoid false positives.
+          return 'skip';
+        } else if (path.endsWith('/*')) {
+          pathMappings.push(new PathMappingPrefix(path.substring(0, path.length - 1)));
+        } else if (path.indexOf('*') < 0) {
+          pathMappings.push(new PathMappingExact(path));
+        } else {
+          // Intentionally left blank.
+          // A pattern contains a wildcard, but does not end with it.
+        }
+      }
+    }
+  }
+  return pathMappings;
 }

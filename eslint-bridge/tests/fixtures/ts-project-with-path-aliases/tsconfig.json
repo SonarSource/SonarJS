@@ -1,0 +1,20 @@
+{
+  "compilerOptions": { 
+    "baseUrl": "./",
+    "paths": {
+      "$core/*": ["src/app/core/*"],
+      "@core/*": ["src/app/core/*"],
+      "core/*": ["src/app/core/*"],
+      "foo/bar/*": ["src/app/core/*"],
+      "concrete": ["src/app/core/concrete"]
+    },
+    "rootDir": "./",
+    "lib": ["es2015"],
+    "module": "commonjs",
+    "outDir": "dist",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2015"
+  },
+  "include": [ "src", "./" ]
+}
