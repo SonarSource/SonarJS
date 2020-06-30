@@ -53,9 +53,13 @@ export const rule: Rule.RuleModule = {
           const [argument] = call.arguments;
           if (argument.type === 'Literal') {
             const requireToken = call.callee;
+            const location = requireToken && requireToken.loc;
+            if (!location) {
+              return;
+            }
             raiseOnImplicitImport(
               argument,
-              requireToken.loc!,
+              location,
               dependencies,
               whitelist,
               aliasedPathsMappings,
@@ -67,9 +71,13 @@ export const rule: Rule.RuleModule = {
       ImportDeclaration: (node: estree.Node) => {
         const module = (node as estree.ImportDeclaration).source;
         const importToken = context.getSourceCode().getFirstToken(node);
+        const location = importToken && importToken.loc;
+        if (!location) {
+          return;
+        }
         raiseOnImplicitImport(
           module,
-          importToken!.loc,
+          location,
           dependencies,
           whitelist,
           aliasedPathsMappings,
@@ -201,25 +209,20 @@ class PathMappingPrefix implements PathMapping {
 }
 
 function extractPathMappings(parserServices: RequiredParserServices): PathMapping[] | 'skip' {
-  const program = parserServices.program;
-  let pathMappings: PathMapping[] = [];
-  if (program) {
-    const paths = program.getCompilerOptions().paths;
-    if (paths) {
-      for (let path in paths) {
-        if (path === '*') {
-          // All paths can be mapped, possibly into a directory with completely synthetic code.
-          // Skip the entire check to avoid false positives.
-          return 'skip';
-        } else if (path.endsWith('/*')) {
-          pathMappings.push(new PathMappingPrefix(path.substring(0, path.length - 1)));
-        } else if (path.indexOf('*') < 0) {
-          pathMappings.push(new PathMappingExact(path));
-        } else {
-          // Intentionally left blank.
-          // A pattern contains a wildcard, but does not end with it.
-        }
-      }
+  const paths = parserServices.program?.getCompilerOptions()?.paths || [];
+  const pathMappings: PathMapping[] = [];
+  for (const p in paths) {
+    if (p === '*') {
+      // All paths can be mapped, possibly into a directory with completely synthetic code.
+      // Skip the entire check to avoid false positives.
+      return 'skip';
+    } else if (p.endsWith('/*')) {
+      pathMappings.push(new PathMappingPrefix(p.substring(0, p.length - 1)));
+    } else if (p.indexOf('*') < 0) {
+      pathMappings.push(new PathMappingExact(p));
+    } else {
+      // Intentionally left blank.
+      // A pattern contains a wildcard, but does not end with it.
     }
   }
   return pathMappings;
