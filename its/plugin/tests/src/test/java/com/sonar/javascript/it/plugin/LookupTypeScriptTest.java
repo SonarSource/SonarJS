@@ -41,8 +41,6 @@ public class LookupTypeScriptTest {
   @BeforeClass
   public static void startServer() throws Exception {
     orchestrator.resetData();
-
-    TestUtils.npmInstall(new File(PROJECT_DIR, "tsproject"));
   }
 
   @Test

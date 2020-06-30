@@ -71,8 +71,6 @@ public class TypeScriptRuleTest {
       .restoreProfile(FileLocation.of(tsProfile))
       .restoreProfile(FileLocation.ofClasspath("/ts-rules-project-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"));
-
-    TestUtils.npmInstall(PROJECT_DIR);
   }
 
   @AfterClass

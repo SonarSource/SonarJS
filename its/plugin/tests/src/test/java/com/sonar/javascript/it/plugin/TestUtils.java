@@ -27,14 +27,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SystemUtils;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
-
-import static java.lang.String.format;
 
 public class TestUtils {
 
@@ -116,25 +110,6 @@ public class TestUtils {
       }
 
     };
-  }
-
-  static void npmInstall(File dir, String... params) throws IOException, InterruptedException {
-    if (isUserHome(dir)) {
-      throw new IllegalStateException("Attempt to install in user home " + Arrays.toString(params));
-    }
-    String npm = SystemUtils.IS_OS_WINDOWS ? "npm.cmd" : "npm";
-    String[] cmd = Stream.concat(Stream.of(npm, "install"), Arrays.stream(params)).toArray(String[]::new);
-    ProcessBuilder pb = new ProcessBuilder(cmd).inheritIO().directory(dir);
-    Process process = pb.start();
-    int returnValue = process.waitFor();
-    if (returnValue != 0) {
-      throw new IllegalStateException(format("Failed to run npm install. '%s' returned %d.'", pb.command(), returnValue));
-    }
-  }
-
-  private static boolean isUserHome(File dir) throws IOException {
-    String userHome = System.getProperty("user.home");
-    return Files.isSameFile(dir.toPath(), Paths.get(userHome));
   }
 }
 

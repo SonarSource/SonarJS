@@ -24,7 +24,6 @@ import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.locator.Location;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +46,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.System2;
 import org.sonar.wsclient.SonarClient;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
@@ -145,8 +143,6 @@ public class JavaScriptRulingTest {
       "S124",
       "CommentRegexTestTS",
       "regularExpression=\".*TODO.*\";message=\"bad user\";flags=\"i\"");
-
-    installTypeScript(FileLocation.of("../typescript-test-sources/src").getFile());
   }
 
   @Test
@@ -177,24 +173,6 @@ public class JavaScriptRulingTest {
     orchestrator.executeBuild(build);
 
     assertThat(new String(Files.readAllBytes(Paths.get("target/differences")), StandardCharsets.UTF_8)).isEmpty();
-  }
-
-  private static void installTypeScript(File projectDir) throws IOException, InterruptedException {
-    if (!projectDir.exists() || !projectDir.isDirectory() || isUserHome(projectDir)) {
-      throw new IllegalStateException(projectDir.getAbsolutePath() + " is not valid directory");
-    }
-    String npm = System2.INSTANCE.isOsWindows() ? "npm.cmd" : "npm";
-    String[] cmd = {npm, "install", "typescript@3.5.3"};
-    Process process = Runtime.getRuntime().exec(cmd, null, projectDir);
-    int returnValue = process.waitFor();
-    if (returnValue != 0) {
-      throw new IllegalStateException("Failed to install TypeScript");
-    }
-  }
-
-  private static boolean isUserHome(File dir) throws IOException {
-    String userHome = System.getProperty("user.home");
-    return Files.isSameFile(dir.toPath(), Paths.get(userHome));
   }
 
   private static void instantiateTemplateRule(String language, String qualityProfile, String ruleTemplateKey, String instantiationKey, String params) {

@@ -24,21 +24,14 @@ import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.Optional;
-import java.util.stream.Stream;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -47,7 +40,6 @@ import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
 
@@ -55,9 +47,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
   private static final Profiler PROFILER = Profiler.createIfDebug(LOG);
-
-  // SonarLint should pass in this property an absolute path to the directory containing TypeScript dependency
-  private static final String TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY = "sonar.typescript.internal.typescriptLocation";
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 60;
   // internal property to set "--max-old-space-size" for Node process running this server
@@ -71,17 +60,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private int port;
   private NodeCommand nodeCommand;
   private boolean failedToStart;
-  private Configuration configuration;
 
   // Used by pico container for dependency injection
   @SuppressWarnings("unused")
-  public EslintBridgeServerImpl(Configuration configuration, NodeCommandBuilder nodeCommandBuilder, Bundle bundle) {
-    this(configuration, nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle);
+  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle) {
+    this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle);
   }
 
-  EslintBridgeServerImpl(Configuration configuration, NodeCommandBuilder nodeCommandBuilder, int timeoutSeconds,
+  EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, int timeoutSeconds,
                          Bundle bundle) {
-    this.configuration = configuration;
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
@@ -95,7 +82,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     bundle.deploy();
   }
 
-  void startServer(SensorContext context) throws IOException, NodeCommandException {
+  void startServer(SensorContext context) throws IOException {
     PROFILER.startDebug("Starting server");
     port = findOpenPort();
 
@@ -136,26 +123,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
 
-    if (shouldDetectTypeScript(context)) {
-      Optional<Path> typeScriptLocation = getTypeScriptLocation(context.fileSystem().baseDir());
-      if (typeScriptLocation.isPresent()) {
-        LOG.info("Using TypeScript at: '{}'", typeScriptLocation.get());
-        nodeCommandBuilder.addToNodePath(typeScriptLocation.get().toAbsolutePath());
-      } else {
-        LOG.info("TypeScript dependency was not found inside project directory, Node.js will search TypeScript using " +
-          "module resolution algorithm; analysis will fail without TypeScript.");
-      }
-    }
     nodeCommand = nodeCommandBuilder.build();
   }
 
-  private static boolean shouldDetectTypeScript(SensorContext context) {
-    return context.runtime().getProduct() == SonarProduct.SONARLINT ||
-      context.fileSystem().hasFiles(TypeScriptSensor.filePredicate(context.fileSystem()));
-  }
-
   @Override
-  public void startServerLazily(SensorContext context) throws IOException, ServerAlreadyFailedException, NodeCommandException {
+  public void startServerLazily(SensorContext context) throws IOException {
     // required for SonarLint context to avoid restarting already failed server
     if (failedToStart) {
       throw new ServerAlreadyFailedException();
@@ -325,23 +297,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .port(port)
       .addPathSegment(endpoint)
       .build();
-  }
-
-  private Optional<Path> getTypeScriptLocation(File baseDir) throws IOException {
-    // we have to use global Configuration and not SensorContext#config to lookup typescript set from vscode extension
-    // see https://jira.sonarsource.com/browse/SLCORE-250
-    Optional<String> typeScriptLocationProperty = configuration.get(TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY);
-    if (typeScriptLocationProperty.isPresent()) {
-      LOG.debug("TypeScript location set via property {}={}", TYPESCRIPT_DEPENDENCY_LOCATION_PROPERTY, typeScriptLocationProperty.get());
-      return Optional.of(Paths.get(typeScriptLocationProperty.get()));
-    }
-    LOG.debug("Looking for TypeScript recursively in {}", baseDir.getAbsolutePath());
-    try (Stream<Path> files = Files.walk(baseDir.toPath())) {
-      return files
-        .filter(p -> p.toFile().isDirectory() && p.endsWith("node_modules/typescript"))
-        .findFirst()
-        .map(Path::getParent);
-    }
   }
 
   static class TsConfigRequest {

@@ -11,16 +11,6 @@ key: javascript
 ## Prerequisites
 
 In order to analyze JavaScript or TypeScript code, you need to have Node.js >= 8 installed on the machine running the scan. If standard `node` is not available, you have to set property `sonar.nodejs.executable` to an absolute path to Node.js executable.
-
-### TypeScript
-
-For TypeScript analysis also make sure to have [TypeScript](https://www.npmjs.com/package/typescript) as a project dependency or dev dependency. If it's not the case, add it:
-```
-cd <your-project-folder>
-npm install -D typescript
-```
-If you can't have TypeScript as a project dependency you can set your `NODE_PATH` variable to point to your globally installed TypeScript (but this is generally discouraged by the Node.js documentation).
-
  
 ## Language-Specific Properties
 
@@ -28,7 +18,7 @@ Discover and update the JavaScript / TypeScript properties in: **<!-- sonarcloud
 
 ## Supported Frameworks and Versions
 * ECMAScript 5 / ECMAScript 2015 (ECMAScript 6) / ECMAScript 2016-2017-2018
-* TypeScript >=3.3.1 <4.0.0. If it's not possible to upgrade version of TypeScript used by the project, consider installing supported TypeScript version just for the time of analysis.
+* TypeScript 3
 * React JSX
 * Vue.js
 * Flow
