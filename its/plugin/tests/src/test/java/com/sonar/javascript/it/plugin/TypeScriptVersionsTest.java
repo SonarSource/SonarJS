@@ -58,7 +58,7 @@ public class TypeScriptVersionsTest {
       {"3.1.6", false},
       // minimal supported version
       {"3.2.1", true},
-;      // some supported version
+      // some supported version
       {"3.6.3", true},
     };
   }
