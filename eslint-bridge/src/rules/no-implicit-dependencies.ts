@@ -209,7 +209,8 @@ class PathMappingPrefix implements PathMapping {
 }
 
 function extractPathMappings(parserServices: RequiredParserServices): PathMapping[] | 'skip' {
-  const paths = parserServices.program?.getCompilerOptions()?.paths || [];
+  const compilerOptions = parserServices.program && parserServices.program.getCompilerOptions();
+  const paths = (compilerOptions && compilerOptions.paths) || [];
   const pathMappings: PathMapping[] = [];
   for (const p in paths) {
     if (p === '*') {
