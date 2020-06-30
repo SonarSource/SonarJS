@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
 
   create(context: Rule.RuleContext) {
     return {
-      'TSUnionType, TSIntersectionType': function(node: estree.Node) {
+      'TSUnionType, TSIntersectionType': function (node: estree.Node) {
         const sourceCode = context.getSourceCode();
         const compositeType = (node as unknown) as
           | TSESTree.TSUnionType

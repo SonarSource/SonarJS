@@ -50,7 +50,8 @@ export const rule: Rule.RuleModule = {
           !isException(completeForStatement, context)
         ) {
           context.report({
-            message: `Replace '${condition.operator}' operator with ` +
+            message:
+              `Replace '${condition.operator}' operator with ` +
               `one of '<=', '>=', '<', or '>' comparison operators.`,
             node: condition,
           });

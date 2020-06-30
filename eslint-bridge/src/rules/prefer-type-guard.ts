@@ -30,7 +30,7 @@ type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionE
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      "MethodDefinition[kind='method'] FunctionExpression": function(node: estree.Node) {
+      "MethodDefinition[kind='method'] FunctionExpression": function (node: estree.Node) {
         checkFunctionLikeDeclaration(node as FunctionLikeDeclaration, context);
       },
       FunctionDeclaration(node: estree.Node) {

@@ -50,8 +50,9 @@ export const rule: Rule.RuleModule = {
       "TSInterfaceHeritage > MemberExpression[object.type = 'Identifier'], TSClassImplements > MemberExpression[object.type = 'Identifier']": (
         node: estree.Node,
       ) => {
-        saveTypeIdentifier(((node as any) as TSESTree.MemberExpression)
-          .object as estree.Identifier);
+        saveTypeIdentifier(
+          ((node as any) as TSESTree.MemberExpression).object as estree.Identifier,
+        );
       },
       'Program:exit': () => {
         const jsxIdentifiers = context

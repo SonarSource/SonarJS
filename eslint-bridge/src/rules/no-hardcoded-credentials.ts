@@ -59,12 +59,7 @@ function checkAssignment(
     initializer &&
     isStringLiteral(initializer) &&
     (initializer.value as string).length > 0 &&
-    patterns.some(pattern =>
-      context
-        .getSourceCode()
-        .getText(variable)
-        .includes(pattern),
-    )
+    patterns.some(pattern => context.getSourceCode().getText(variable).includes(pattern))
   ) {
     context.report({
       message: MESSAGE,

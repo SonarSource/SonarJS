@@ -78,7 +78,7 @@ const strictlyReadingMethods = new Set([
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      'Program:exit': function() {
+      'Program:exit': function () {
         reportEmptyCollectionsUsage(context.getScope(), context);
       },
     };

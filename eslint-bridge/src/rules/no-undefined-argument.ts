@@ -68,9 +68,9 @@ function isOptionalParameter(
 ) {
   const signature = services.program
     .getTypeChecker()
-    .getResolvedSignature(services.esTreeNodeToTSNodeMap.get(
-      node as TSESTree.Node,
-    ) as tsTypes.CallLikeExpression);
+    .getResolvedSignature(
+      services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as tsTypes.CallLikeExpression,
+    );
   if (signature) {
     const declaration = signature.declaration;
     if (declaration && isFunctionLikeDeclaration(declaration)) {

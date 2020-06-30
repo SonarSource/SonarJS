@@ -48,7 +48,8 @@ export const rule: Rule.RuleModule = {
         const def = variable.defs[0].name;
         context.report({
           node: def,
-          message: `Rename "${variable.name}" identifier to prevent potential conflicts ` +
+          message:
+            `Rename "${variable.name}" identifier to prevent potential conflicts ` +
             `with future evolutions of the JavaScript language.`,
         });
       }

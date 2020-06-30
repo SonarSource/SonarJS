@@ -41,7 +41,7 @@ export const rule: Rule.RuleModule = {
       }
 
       return {
-        "BinaryExpression[operator='in']": function(node: estree.Node) {
+        "BinaryExpression[operator='in']": function (node: estree.Node) {
           if (isArray((node as estree.BinaryExpression).right)) {
             context.report({
               message,

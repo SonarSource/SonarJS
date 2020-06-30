@@ -360,9 +360,9 @@ export function getSymbolAtLocation(node: estree.Node, services: RequiredParserS
 
 export function getSignatureFromCallee(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
-  return checker.getResolvedSignature(services.esTreeNodeToTSNodeMap.get(
-    node as TSESTree.Node,
-  ) as tsTypes.CallLikeExpression);
+  return checker.getResolvedSignature(
+    services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as tsTypes.CallLikeExpression,
+  );
 }
 
 export function isFunctionNode(node: estree.Node): node is FunctionNodeType {

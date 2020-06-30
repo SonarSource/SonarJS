@@ -33,11 +33,11 @@ const getModificationMessage = (functionName: string) =>
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      'FunctionDeclaration, FunctionExpression': function(node: estree.Node) {
+      'FunctionDeclaration, FunctionExpression': function (node: estree.Node) {
         const func = node as estree.FunctionDeclaration | estree.FunctionExpression;
         reportBadUsageOnFunction(func, func.id, context);
       },
-      ArrowFunctionExpression: function(node: estree.Node) {
+      ArrowFunctionExpression: function (node: estree.Node) {
         reportBadUsageOnFunction(node as estree.ArrowFunctionExpression, undefined, context);
       },
       VariableDeclaration(node: estree.Node) {

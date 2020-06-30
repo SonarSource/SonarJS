@@ -66,7 +66,8 @@ export const rule: Rule.RuleModule = {
           !isUsingAccessorFieldInBody(statements[0], accessorInfo, matchingFields))
       ) {
         const fieldToRefer = matchingFields[0];
-        const primaryMessage = `Refactor this ${accessorInfo.type} ` +
+        const primaryMessage =
+          `Refactor this ${accessorInfo.type} ` +
           `so that it actually refers to the property '${fieldToRefer.name}'.`;
         const secondaryLocations = [fieldToRefer.node];
         const secondaryMessages = ['Property which should be referred.'];
@@ -84,23 +85,20 @@ export const rule: Rule.RuleModule = {
 
       ClassBody: (node: estree.Node) => {
         const classBody = node as TSESTree.ClassBody;
-        const fields = getFieldMap(
-          classBody.body,
-          classElement =>
-            (classElement.type === 'ClassProperty' ||
-              classElement.type === 'TSAbstractClassProperty') &&
-            !classElement.static
-              ? classElement.key
-              : null,
+        const fields = getFieldMap(classBody.body, classElement =>
+          (classElement.type === 'ClassProperty' ||
+            classElement.type === 'TSAbstractClassProperty') &&
+          !classElement.static
+            ? classElement.key
+            : null,
         );
         const fieldsFromConstructor = fieldsDeclaredInConstructorParameters(classBody);
         const allFields = new Map([...fields, ...fieldsFromConstructor]);
         currentFieldsStack.push(allFields);
       },
       ObjectExpression: (node: estree.Node) => {
-        const currentFields = getFieldMap(
-          (node as TSESTree.ObjectExpression).properties,
-          prop => (isValidObjectField(prop) ? prop.key : null),
+        const currentFields = getFieldMap((node as TSESTree.ObjectExpression).properties, prop =>
+          isValidObjectField(prop) ? prop.key : null,
         );
         currentFieldsStack.push(currentFields);
       },

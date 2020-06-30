@@ -27,7 +27,7 @@ const message = 'Refactor this code to not use nested template literals.';
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      'TemplateLiteral TemplateLiteral': function(node: estree.Node) {
+      'TemplateLiteral TemplateLiteral': function (node: estree.Node) {
         context.report({
           message,
           node,

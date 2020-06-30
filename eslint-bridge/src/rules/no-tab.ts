@@ -26,7 +26,7 @@ const message = 'Replace all tab characters in this file by sequences of white-s
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      'Program:exit': function() {
+      'Program:exit': function () {
         const firstTab = context
           .getSourceCode()
           .lines.map((content, line) => ({ content, line }))
