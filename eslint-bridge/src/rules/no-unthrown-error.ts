@@ -32,7 +32,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      'ExpressionStatement > NewExpression': function(node: estree.Node) {
+      'ExpressionStatement > NewExpression': function (node: estree.Node) {
         const expression = (node as estree.NewExpression).callee;
         if (looksLikeAnError(expression)) {
           context.report({

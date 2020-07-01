@@ -201,30 +201,26 @@ describe('server', () => {
     expect(JSON.parse(response)).toEqual(expectedResponse);
   });
 
-  it(
-    'should respond to TypeScript analysis request',
-    async () => {
-      const filePath = join(__dirname, './fixtures/ts-project/sample.lint.ts');
-      const tsConfig = join(__dirname, './fixtures/ts-project/tsconfig.json');
+  it('should respond to TypeScript analysis request', async () => {
+    const filePath = join(__dirname, './fixtures/ts-project/sample.lint.ts');
+    const tsConfig = join(__dirname, './fixtures/ts-project/tsconfig.json');
 
-      expect.assertions(2);
-      expect(server.listening).toEqual(true);
+    expect.assertions(2);
+    expect(server.listening).toEqual(true);
 
-      const response = await post(
-        JSON.stringify({
-          filePath,
-          fileContent: 'if (true) 42; else 42;',
-          rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
-          ignoreHeaderComments: true,
-          tsConfigs: [tsConfig],
-        }),
-        '/analyze-ts',
-      );
+    const response = await post(
+      JSON.stringify({
+        filePath,
+        fileContent: 'if (true) 42; else 42;',
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
+        ignoreHeaderComments: true,
+        tsConfigs: [tsConfig],
+      }),
+      '/analyze-ts',
+    );
 
-      expect(JSON.parse(response)).toEqual(expectedResponse);
-    },
-    10_000,
-  );
+    expect(JSON.parse(response)).toEqual(expectedResponse);
+  }, 10_000);
 
   it('should respond OK! when started', done => {
     expect(server.listening).toEqual(true);

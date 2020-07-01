@@ -35,7 +35,7 @@
     "jest": "24.9.0",
     "jest-sonar-reporter": "1.3.0",
     "mkdirp": "^0.5.1",
-    "prettier": "1.14.2",
+    "prettier": "2.0.5",
     "ts-jest": "24.1.0",
     "typescript": "3.9.5"
   },
@@ -71,7 +71,9 @@
   "prettier": {
     "printWidth": 100,
     "trailingComma": "all",
-    "singleQuote": true
+    "singleQuote": true,
+    "arrowParens": "avoid",
+    "endOfLine": "lf"
   },
   "files": [
     "lib/",

@@ -42,11 +42,11 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      'SwitchCase > SequenceExpression': function(node: estree.Node) {
+      'SwitchCase > SequenceExpression': function (node: estree.Node) {
         const expressions = (node as estree.SequenceExpression).expressions;
         reportIssue(node, expressions[expressions.length - 1], expressions.length);
       },
-      'SwitchCase > LogicalExpression': function(node: estree.Node) {
+      'SwitchCase > LogicalExpression': function (node: estree.Node) {
         const firstElemAndNesting = getFirstElementAndNestingLevel(
           node as estree.LogicalExpression,
           0,

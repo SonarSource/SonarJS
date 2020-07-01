@@ -59,8 +59,8 @@ export const rule: Rule.RuleModule = {
       }
 
       const { params: functionParameters, declaration: functionDeclaration } = resolvedFunction;
-      const argumentNames = functionCall.arguments.map(
-        arg => (isIdentifier(arg) ? arg.name : undefined),
+      const argumentNames = functionCall.arguments.map(arg =>
+        isIdentifier(arg) ? arg.name : undefined,
       );
 
       for (let argumentIndex = 0; argumentIndex < argumentNames.length; argumentIndex++) {

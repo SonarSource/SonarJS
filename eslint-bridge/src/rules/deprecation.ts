@@ -124,9 +124,9 @@ function getSymbol(
 ) {
   let symbol: tsTypes.Symbol | undefined;
   const tsId = services.esTreeNodeToTSNodeMap.get(id as TSESTree.Node) as tsTypes.Identifier;
-  const parent = services.esTreeNodeToTSNodeMap.get(getParent(
-    context,
-  ) as TSESTree.Node) as tsTypes.Node;
+  const parent = services.esTreeNodeToTSNodeMap.get(
+    getParent(context) as TSESTree.Node,
+  ) as tsTypes.Node;
   if (parent.kind === ts.SyntaxKind.BindingElement) {
     symbol = tc.getTypeAtLocation(parent.parent).getProperty(tsId.text);
   } else if (

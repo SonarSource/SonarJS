@@ -76,9 +76,9 @@ function checkExpression(
   if (variable && variable.defs.length !== 0) {
     const otherTypeUsage = otherTypeUsageMap.get(variable);
     if (otherTypeUsage && otherTypeUsage.loc && !hasIssue.includes(variable)) {
-      const message = `Correct the use of this function; on line ${
-        otherTypeUsage.loc.start.line
-      } it was called with${tail} "new".`;
+      const message =
+        `Correct the use of this function; ` +
+        `on line ${otherTypeUsage.loc.start.line} it was called with${tail} "new".`;
 
       context.report({
         node: callExpression.callee,

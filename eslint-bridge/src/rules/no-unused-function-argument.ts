@@ -26,7 +26,7 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      'FunctionDeclaration, FunctionExpression': function(node: estree.Node) {
+      'FunctionDeclaration, FunctionExpression': function (node: estree.Node) {
         reportUnusedArgument(
           node,
           (node as estree.FunctionDeclaration | estree.FunctionExpression).id,

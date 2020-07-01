@@ -176,21 +176,23 @@ function getFunctionScope(scope: Scope.Scope): Scope.Scope | null {
 }
 
 function mightBeWritten(symbol: Scope.Variable, currentScope: Scope.Scope) {
-  return symbol.references.filter(ref => ref.isWrite()).find(ref => {
-    const refScope = ref.from;
+  return symbol.references
+    .filter(ref => ref.isWrite())
+    .find(ref => {
+      const refScope = ref.from;
 
-    let cur: Scope.Scope | null = refScope;
-    while (cur) {
-      if (cur === currentScope) {
-        return true;
+      let cur: Scope.Scope | null = refScope;
+      while (cur) {
+        if (cur === currentScope) {
+          return true;
+        }
+        cur = cur.upper;
       }
-      cur = cur.upper;
-    }
 
-    const currentFunc = getFunctionScope(currentScope);
-    const refFunc = getFunctionScope(refScope);
-    return refFunc !== currentFunc;
-  });
+      const currentFunc = getFunctionScope(currentScope);
+      const refFunc = getFunctionScope(refScope);
+      return refFunc !== currentFunc;
+    });
 }
 
 function transformAndFilter(ids: estree.Identifier[], currentScope: Scope.Scope) {

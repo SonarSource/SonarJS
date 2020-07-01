@@ -90,9 +90,8 @@ export const rule: Rule.RuleModule = {
             context.report({
               node: definition.name,
               message: toEncodedMessage(
-                `Consider moving declaration of '${
-                  variable.name
-                }' as it is referenced outside current binding context.`,
+                `Consider moving declaration of '${variable.name}' ` +
+                  `as it is referenced outside current binding context.`,
                 referencesOutside as TSESTree.Node[],
               ),
             });

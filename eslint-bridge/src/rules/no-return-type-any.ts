@@ -48,10 +48,10 @@ export const rule: Rule.RuleModule = {
             );
           }
         },
-        FunctionDeclaration: function() {
+        FunctionDeclaration: function () {
           returnedExpressions.push([]);
         },
-        'FunctionDeclaration:exit': function(node: estree.Node) {
+        'FunctionDeclaration:exit': function (node: estree.Node) {
           const returnType = (node as TSESTree.FunctionDeclaration).returnType;
           if (
             returnType &&

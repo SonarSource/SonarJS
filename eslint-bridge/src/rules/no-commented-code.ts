@@ -134,18 +134,9 @@ function injectMissingBraces(value: string) {
   const closeCurlyBraceNum = (value.match(/}/g) || []).length;
   const missingBraces = openCurlyBraceNum - closeCurlyBraceNum;
   if (missingBraces > 0) {
-    return (
-      value +
-      Array(missingBraces)
-        .fill('}')
-        .join('')
-    );
+    return value + Array(missingBraces).fill('}').join('');
   } else if (missingBraces < 0) {
-    return (
-      Array(-missingBraces)
-        .fill('{')
-        .join('') + value
-    );
+    return Array(-missingBraces).fill('{').join('') + value;
   } else {
     return value;
   }

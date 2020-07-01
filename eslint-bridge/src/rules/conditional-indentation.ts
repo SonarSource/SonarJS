@@ -78,9 +78,9 @@ function checkIndentation(
       firstStatementToken &&
       firstToken.loc.start.column >= firstStatementToken.loc.start.column
     ) {
-      const message = `Use curly braces or indentation to denote the code conditionally executed by this "${
-        firstToken.value
-      }".`;
+      const message =
+        `Use curly braces or indentation to denote the code conditionally ` +
+        `executed by this "${firstToken.value}".`;
       context.report({
         message: toEncodedMessage(message, [firstStatementToken]),
         loc: firstToken.loc,
