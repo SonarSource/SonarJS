@@ -22,12 +22,14 @@ package org.sonar.javascript.checks.utils;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.javascript.checks.verifier.TestUtils;
@@ -36,8 +38,11 @@ import org.sonar.javascript.visitors.JavaScriptFileImpl;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.javascript.checks.utils.CheckUtils.readLines;
 
 public class CheckUtilsTest {
@@ -46,6 +51,9 @@ public class CheckUtilsTest {
 
   @Rule
   public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Rule
+  public ExpectedException exceptionRule = ExpectedException.none();
 
   @Test
   public void testAsString() throws Exception {
@@ -73,5 +81,16 @@ public class CheckUtilsTest {
 
     DefaultInputFile testInputFile = TestUtils.createTestInputFile(temporaryFolder.getRoot(), tmp.getName(), StandardCharsets.UTF_8);
     assertThat(readLines(new JavaScriptFileImpl(testInputFile))).isEqualTo(lines);
+  }
+
+  @Test
+  public void testReadLinesThrows() throws IOException {
+    exceptionRule.expect(IllegalStateException.class);
+    exceptionRule.expectMessage("Unable to read file fileUri");
+
+    JavaScriptFile file = mock(JavaScriptFile.class);
+    when(file.uri()).thenReturn(URI.create("fileUri"));
+    when(file.contents()).thenThrow(IOException.class);
+    readLines(file);
   }
 }
