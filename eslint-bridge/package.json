@@ -73,7 +73,7 @@
     "trailingComma": "all",
     "singleQuote": true,
     "arrowParens": "avoid",
-    "endOfLine": "auto"
+    "endOfLine": "lf"
   },
   "files": [
     "lib/",
