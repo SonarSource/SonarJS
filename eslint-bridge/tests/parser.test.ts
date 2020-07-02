@@ -260,6 +260,24 @@ describe('parseVueSourceFile', () => {
   });
 });
 
+describe('parse import expression', () => {
+  it('should parse js with import expression', () => {
+    const sourceCode = parseJavaScriptSourceFile(`import('moduleName');`) as SourceCode;
+    // see https://github.com/babel/babel-eslint/issues/837
+    expect(sourceCode.visitorKeys['ImportExpression']).toBeUndefined();
+  });
+
+  it('should parse Vue.js with import expression', () => {
+    const sourceCode = parseVueSourceFile(`
+    <script>
+    import("moduleName");
+    </script>`) as SourceCode;
+    expect(sourceCode).toBeDefined();
+    expect(sourceCode).toBeInstanceOf(SourceCode);
+    expect(sourceCode.visitorKeys['ImportExpression']).toBeDefined();
+  });
+});
+
 function expectToParse(code: string) {
   const sourceCode = parseJavaScriptSourceFile(code) as SourceCode;
   expect(sourceCode).toBeDefined();
