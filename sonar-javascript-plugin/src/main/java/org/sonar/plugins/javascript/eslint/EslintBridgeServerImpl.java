@@ -271,7 +271,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
         throw new MissingTypeScriptException();
       }
     }
-    return new TsConfigFile(filename, tsConfigResponse.files == null ? emptyList() : tsConfigResponse.files);
+    TsConfigFile tsConfigFile = new TsConfigFile(filename, tsConfigResponse.files == null ? emptyList() : tsConfigResponse.files);
+    LOG.info(tsConfigFile.filename + " " + tsConfigFile.files.toString());
+    return tsConfigFile;
   }
 
 

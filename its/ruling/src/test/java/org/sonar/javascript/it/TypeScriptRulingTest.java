@@ -36,19 +36,19 @@ public class TypeScriptRulingTest extends JavaScriptRulingTest {
   @Parameters(name = "{0}")
   public static Object[][] projects() {
     return new Object[][]{
-      tsProject("ag-grid"),
-      tsProject("ant-design"),
-      tsProject("console"),
+//      tsProject("ag-grid"),
+//      tsProject("ant-design"),
+//      tsProject("console"),
       tsProject("desktop"),
-      tsProject("emission"),
-      tsProject("fireface"),
-      tsProject("ionic2-auth"),
-      tsProject("Joust"),
-      tsProject("postgraphql"),
-      tsProject("prettier-vscode"),
-      tsProject("rxjs"),
-      tsProject("searchkit"),
-      tsProject("TypeScript"),
+//      tsProject("emission"),
+//      tsProject("fireface"),
+//      tsProject("ionic2-auth"),
+//      tsProject("Joust"),
+//      tsProject("postgraphql"),
+//      tsProject("prettier-vscode"),
+//      tsProject("rxjs"),
+//      tsProject("searchkit"),
+//      tsProject("TypeScript"),
     };
   }
 
