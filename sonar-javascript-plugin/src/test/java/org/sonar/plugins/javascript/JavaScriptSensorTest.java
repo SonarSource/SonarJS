@@ -45,7 +45,6 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.rule.RuleKey;
@@ -252,12 +251,12 @@ public class JavaScriptSensorTest {
   public void should_log_deprecation_warning() throws Exception {
     JavaScriptSensor sensor = new JavaScriptSensor(checkFactory, context.fileSystem(), CUSTOM_RULES, CUSTOM_RULE_REPOSITORIES);
     sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("SonarJS custom rules usage is deprecated. Consider using ESlint custom rules instead");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("JavaScript analyzer custom rules are deprecated. Consider using ESlint custom rules instead");
 
     logTester.clear();
     sensor = new JavaScriptSensor(checkFactory, context.fileSystem(), null, CUSTOM_RULE_REPOSITORIES);
     sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("SonarJS custom rules usage is deprecated. Consider using ESlint custom rules instead");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("JavaScript analyzer custom rules are deprecated. Consider using ESlint custom rules instead");
   }
 
   @Test

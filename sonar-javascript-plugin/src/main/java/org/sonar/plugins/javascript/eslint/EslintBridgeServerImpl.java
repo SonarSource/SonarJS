@@ -162,7 +162,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
     try {
       if (isAlive()) {
-        LOG.debug("SonarJS eslint-bridge server is up, no need to start.");
+        LOG.debug("eslint-bridge server is up, no need to start.");
         return;
       }
       deploy();

@@ -214,7 +214,7 @@ public class CoverageSensorTest {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     coverageSensor.describe(descriptor);
-    assertThat(descriptor.name()).isEqualTo("SonarJS Coverage");
+    assertThat(descriptor.name()).isEqualTo("JavaScript/TypeScript Coverage");
     assertThat(descriptor.languages()).contains("js", "ts");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
     assertThat(descriptor.configurationPredicate().test(new MapSettings().setProperty("sonar.javascript.lcov.reportPaths", "foo").asConfig())).isTrue();
