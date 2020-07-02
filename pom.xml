@@ -15,7 +15,7 @@
   <packaging>pom</packaging>
 
   <name>SonarJS</name>
-  <description>SonarQube JavaScript Analyzer</description>
+  <description>SonarQube JavaScript/TypeScript Analyzer</description>
   <inceptionYear>2011</inceptionYear>
   <organization>
     <name>SonarSource and Eriks Nukis</name>
@@ -27,19 +27,6 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-
-  <developers>
-    <developer>
-      <id>inverno</id>
-      <name>Carlo Bottiglieri</name>
-      <organization>SonarSource</organization>
-    </developer>
-    <developer>
-      <id>vilchik-elena</id>
-      <name>Elena Vilchik</name>
-      <organization>SonarSource</organization>
-    </developer>
-  </developers>
 
   <modules>
     <module>javascript-frontend</module>
@@ -57,13 +44,8 @@
     <tag>HEAD</tag>
   </scm>
   <issueManagement>
-    <system>JIRA</system>
     <url>https://github.com/SonarSource/sonar-javascript/issues</url>
   </issueManagement>
-  <ciManagement>
-    <system>Travis</system>
-    <url>https://travis-ci.org/SonarSource/sonar-javascript</url>
-  </ciManagement>
 
   <properties>
     <!--  this is necessary because of drop of modules  -->

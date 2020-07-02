@@ -50,7 +50,7 @@ public class CoverageSensor implements Sensor {
     descriptor
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
       .onlyWhenConfiguration(conf -> conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) || conf.hasKey(JavaScriptPlugin.TS_LCOV_REPORT_PATHS))
-      .name("SonarJS Coverage")
+      .name("JavaScript/TypeScript Coverage")
       .onlyOnFileType(Type.MAIN);
   }
 

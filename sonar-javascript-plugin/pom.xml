@@ -98,7 +98,7 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <configuration>
           <!-- This value shows up in the SonarQube GUI -->
-          <pluginName>SonarJS</pluginName>
+          <pluginName>JavaScript/TypeScript Code Quality and Security</pluginName>
           <pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</pluginClass>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>

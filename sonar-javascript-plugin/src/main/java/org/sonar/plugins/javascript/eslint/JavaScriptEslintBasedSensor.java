@@ -75,7 +75,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   @Override
   void analyzeFiles() throws IOException, InterruptedException {
     runEslintAnalysis();
-    PROFILER.startInfo("Sensor SonarJS [javascript]");
+    PROFILER.startInfo("Java-based frontend sensor [javascript]");
     javaScriptSensor.execute(context);
     PROFILER.stopInfo();
   }

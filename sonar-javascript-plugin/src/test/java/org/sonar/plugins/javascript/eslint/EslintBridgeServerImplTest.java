@@ -196,7 +196,7 @@ public class EslintBridgeServerImplTest {
 
   @Test
   public void test_lazy_start() throws Exception {
-    String alreadyStarted = "SonarJS eslint-bridge server is up, no need to start.";
+    String alreadyStarted = "eslint-bridge server is up, no need to start.";
     String starting = "Starting Node.js process to start eslint-bridge server at port";
     eslintBridgeServer = createEslintBridgeServer("startServer.js");
     eslintBridgeServer.startServerLazily(context);

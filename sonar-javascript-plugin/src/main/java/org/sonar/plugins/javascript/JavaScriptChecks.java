@@ -68,7 +68,7 @@ public class JavaScriptChecks {
                                           @Nullable CustomRuleRepository[] customRuleRepositories) {
 
     if (customRulesDefinitions != null || customRuleRepositories != null) {
-      LOG.warn("SonarJS custom rules usage is deprecated. Consider using ESlint custom rules instead");
+      LOG.warn("JavaScript analyzer custom rules are deprecated. Consider using ESlint custom rules instead");
     }
 
     if (customRulesDefinitions != null) {
