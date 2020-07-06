@@ -26,9 +26,8 @@ const ruleTester = new RuleTester({
 });
 
 /**
- * Checks that the decorated rule that does not do anything extra
- * on intercepted `report` invocations behaves in the same way as
- * the original rule.
+ * Checks that a decorated rule behaves exactly as the original
+ * if we do not modify the `report` invocations.
  */
 function runWithInterceptReportDecorator(
   name: string,
@@ -45,9 +44,6 @@ function runWithInterceptReportDecorator(
     tests,
   );
 }
-
-// Selection of rules that all together make essential use of all
-// methods of the rule context.
 
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
 import { rule as noParameterReassignment } from '../../src/rules/no-parameter-reassignment';

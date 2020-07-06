@@ -21,20 +21,18 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../utils/decorators';
 
-/**
- * Takes a standard rule for no-unused-expressions,
- * modifies it so it does not report expression statements that look like chai
- * assertions.
- */
+/** Deactivates `no-unused-expressions`-rule for Chai assertions. */
 export function ignoreChaiAssertions(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, reportNonChai);
+  return interceptReport(rule, reportExemptingChaiAssertions);
 }
 
 /**
- * Invokes `context.report(reportDescriptor)` only on nodes that don't look
- * like chai assertions.
+ * Invokes `context.report(reportDescriptor)` only on nodes that don't look like chai assertions.
  */
-function reportNonChai(context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor): void {
+function reportExemptingChaiAssertions(
+  context: Rule.RuleContext,
+  reportDescriptor: Rule.ReportDescriptor,
+): void {
   if ('node' in reportDescriptor) {
     const n: estree.Node = reportDescriptor['node'];
     const expr = (n as estree.ExpressionStatement).expression;
@@ -65,8 +63,7 @@ function containsValidChaiShould(node: estree.Node, isSubexpr = false): boolean 
     return containsValidChaiShould(node.callee, true);
   } else if (node.type === 'MemberExpression') {
     if (node.property && node.property.type === 'Identifier' && node.property.name === 'should') {
-      // Returning `isSubexpr` instead of `true` in order to
-      // exclude statements like `x.should` at the top level.
+      // Expressions like `x.should` are valid only as subexpressions, but not on top level
       return isSubexpr;
     } else {
       return containsValidChaiShould(node.object, true);

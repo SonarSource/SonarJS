@@ -24,8 +24,7 @@ import * as estree from 'estree';
 /**
  * Modifies the behavior of `context.report(descriptor)` for a given rule.
  *
- * For example, allows to use a standard eslint rule, but also perform
- * additional library/framework-specific checks before reporting an issue.
+ * Useful for performing additional checks before reporting an issue.
  *
  * @param rule the original rule
  * @param onReport replacement for `context.report(descr)`

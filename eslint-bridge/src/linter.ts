@@ -58,7 +58,6 @@ try {
   console.log(typescriptEslintRules);
   linter.defineRules(typescriptEslintRules);
 
-  // Decorate the no-unused-expressions rule with additional chai-specific conditions
   const noUnusedExpressionsRule = typescriptEslintRules[NO_UNUSED_EXPRESSIONS];
   if (noUnusedExpressionsRule) {
     linter.defineRule(NO_UNUSED_EXPRESSIONS, ignoreChaiAssertions(noUnusedExpressionsRule));
