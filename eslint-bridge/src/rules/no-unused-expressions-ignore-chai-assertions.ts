@@ -60,7 +60,7 @@ function containsChaiExpect(node: estree.Node): boolean {
 }
 
 /** Checks whether an expression contains a member access of shape `obj.should.sth`. */
-function containsValidChaiShould(node: estree.Node, isSubexpr: boolean = false): boolean {
+function containsValidChaiShould(node: estree.Node, isSubexpr = false): boolean {
   if (node.type === 'CallExpression') {
     return containsValidChaiShould(node.callee, true);
   } else if (node.type === 'MemberExpression') {

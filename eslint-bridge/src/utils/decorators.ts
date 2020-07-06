@@ -37,7 +37,7 @@ export function interceptReport(
 ): Rule.RuleModule {
   return {
     meta: rule.meta,
-    create: function (originalContext: Rule.RuleContext) {
+    create(originalContext: Rule.RuleContext) {
       const interceptingContext: Rule.RuleContext = {
         id: originalContext.id,
         options: originalContext.options,

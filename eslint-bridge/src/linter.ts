@@ -47,6 +47,9 @@ linter.defineRules(internalRules);
 
 const NO_UNUSED_EXPRESSIONS = 'no-unused-expressions';
 
+// core implementation of this rule raises FPs on chai framework
+linter.defineRule(NO_UNUSED_EXPRESSIONS, chaiFriendlyRules[NO_UNUSED_EXPRESSIONS]);
+
 try {
   // we load "@typescript-eslint/eslint-plugin" dynamically as it requires TS and so we don't need typescript dependency when analysing pure JS project
   const typescriptEslintRules = require('@typescript-eslint/eslint-plugin').rules;
@@ -61,10 +64,7 @@ try {
     linter.defineRule(NO_UNUSED_EXPRESSIONS, ignoreChaiAssertions(noUnusedExpressionsRule));
   }
 } catch {
-  // "typescript" is not there, modify some rules not overridden by typescript-specific ones.
-
-  // core implementation of this rule raises FPs on chai framework
-  linter.defineRule(NO_UNUSED_EXPRESSIONS, chaiFriendlyRules[NO_UNUSED_EXPRESSIONS]);
+  // do nothing, "typescript" is not there
 }
 
 /**
