@@ -47,8 +47,7 @@ ruleTester.run('Disallow unused expressions', rule, {
         doSomething(usingArgs);
         obj.doSth();
         obj.doSth(args);
-        new A();
-        
+        new A();        
       `,
     },
     {

@@ -107,7 +107,7 @@ public class TypeScriptAnalysisTest {
     assertThat(result.getLogsLines(l -> l.contains("Using " + tsconfig + " from sonar.typescript.tsconfigPath property"))).hasSize(1);
   }
 
-  // @Test
+  @Test
   public void test_missing_typescript() throws Exception {
     File dir = TestUtils.projectDir("tsproject-no-typescript");
     File node_modules = new File(dir, "node_modules");
