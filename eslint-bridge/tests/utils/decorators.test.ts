@@ -25,11 +25,7 @@ const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018 },
 });
 
-/**
- * Checks that a decorated rule behaves exactly as the original
- * if we do not modify the `report` invocations.
- */
-function runWithInterceptReportDecorator(
+function assertThatInterceptReportDecoratorForwardsCalls(
   name: string,
   rule: Rule.RuleModule,
   tests: {
@@ -47,16 +43,24 @@ function runWithInterceptReportDecorator(
 
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
 import { rule as noParameterReassignment } from '../../src/rules/no-parameter-reassignment';
-runWithInterceptReportDecorator('No parameter reassignment', noParameterReassignment, {
-  valid: [{ code: 'function foo(p) { const q = 42; }' }],
-  invalid: [{ code: 'function foo(p) { p = 42; }', errors: 1 }],
-});
+assertThatInterceptReportDecoratorForwardsCalls(
+  'No parameter reassignment',
+  noParameterReassignment,
+  {
+    valid: [{ code: 'function foo(p) { const q = 42; }' }],
+    invalid: [{ code: 'function foo(p) { p = 42; }', errors: 1 }],
+  },
+);
 
 // Covers `getFilename`
 import { rule as noImplicitDependencies } from '../../src/rules/no-implicit-dependencies';
 import * as path from 'path';
 const filename = path.join(__dirname, '../fixtures/package-json-project/file.js');
-runWithInterceptReportDecorator('Dependencies should be explicit', noImplicitDependencies, {
-  valid: [{ code: `const fs = require("fs");`, filename }],
-  invalid: [{ code: `import "foo/bar";`, filename, errors: 1 }],
-});
+assertThatInterceptReportDecoratorForwardsCalls(
+  'Dependencies should be explicit',
+  noImplicitDependencies,
+  {
+    valid: [{ code: `const fs = require("fs");`, filename }],
+    invalid: [{ code: `import "foo/bar";`, filename, errors: 1 }],
+  },
+);

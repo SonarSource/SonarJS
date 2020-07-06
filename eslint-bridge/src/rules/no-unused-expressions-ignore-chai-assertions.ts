@@ -21,14 +21,10 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../utils/decorators';
 
-/** Deactivates `no-unused-expressions`-rule for Chai assertions. */
 export function ignoreChaiAssertions(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, reportExemptingChaiAssertions);
 }
 
-/**
- * Invokes `context.report(reportDescriptor)` only on nodes that don't look like chai assertions.
- */
 function reportExemptingChaiAssertions(
   context: Rule.RuleContext,
   reportDescriptor: Rule.ReportDescriptor,
@@ -43,7 +39,6 @@ function reportExemptingChaiAssertions(
   }
 }
 
-/** Checks whether an expression contains a call of shape `expect(...)`. */
 function containsChaiExpect(node: estree.Node): boolean {
   if (node.type === 'CallExpression') {
     if (node.callee.type === 'Identifier' && node.callee.name === 'expect') {
@@ -57,13 +52,12 @@ function containsChaiExpect(node: estree.Node): boolean {
   return false;
 }
 
-/** Checks whether an expression contains a member access of shape `obj.should.sth`. */
 function containsValidChaiShould(node: estree.Node, isSubexpr = false): boolean {
   if (node.type === 'CallExpression') {
     return containsValidChaiShould(node.callee, true);
   } else if (node.type === 'MemberExpression') {
     if (node.property && node.property.type === 'Identifier' && node.property.name === 'should') {
-      // Expressions like `x.should` are valid only as subexpressions, but not on top level
+      // Expressions like `x.should` are valid only as subexpressions, not on top level
       return isSubexpr;
     } else {
       return containsValidChaiShould(node.object, true);
