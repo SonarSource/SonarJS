@@ -60,12 +60,3 @@ runWithInterceptReportDecorator('Dependencies should be explicit', noImplicitDep
   valid: [{ code: `const fs = require("fs");`, filename }],
   invalid: [{ code: `import "foo/bar";`, filename, errors: 1 }],
 });
-
-// Covers `markVariableAsUsed`
-import { Linter } from 'eslint';
-const linter = new Linter();
-const noUnusedVars = linter.getRules().get('no-unused-vars');
-runWithInterceptReportDecorator('No unused vars', noUnusedVars, {
-  valid: [{ code: `var x = 42; console.log(x);` }],
-  invalid: [{ code: `var x = 42;`, filename, errors: 1 }],
-});
