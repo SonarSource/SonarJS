@@ -21,7 +21,11 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
@@ -36,23 +40,54 @@ public class EslintReportTest {
   @ClassRule
   public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
-  private static final String PROJECT_KEY = "SonarJS-eslint-report-test";
+  private static final String PROJECT_KEY_PREFIX = "SonarJS-eslint-report-test";
+  private static final File PROJECT_DIR = TestUtils.projectDir("eslint_report");
 
   @Test
-  public void should_save_issues_from_external_report() {
+  public void should_save_issues_from_external_report_with_relative_paths() {
+    String projectKey = PROJECT_KEY_PREFIX + "-relative";
+
     SonarScanner build = Tests.createScanner()
-      .setProjectDir(TestUtils.projectDir("eslint_report"))
-      .setProjectKey(PROJECT_KEY)
-      .setProjectName(PROJECT_KEY)
+      .setProjectDir(PROJECT_DIR)
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs("src");
 
-    setEmptyProfile(PROJECT_KEY);
+    setEmptyProfile(projectKey);
     build.setProperty("sonar.eslint.reportPaths", "report.json");
     orchestrator.executeBuild(build);
 
-    List<Issue> jsIssuesList = getIssues(PROJECT_KEY + ":src/file.js");
-    List<Issue> tsIssuesList = getIssues(PROJECT_KEY + ":src/file.ts");
+    assertIssues(projectKey);
+  }
+
+  @Test
+  public void should_save_issues_from_external_report_with_absolute_paths() throws IOException {
+    String projectKey = PROJECT_KEY_PREFIX + "-absolute";
+    SonarScanner build = Tests.createScanner()
+      .setProjectDir(PROJECT_DIR)
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
+      .setProjectVersion("1.0")
+      .setSourceDirs("src");
+
+    setEmptyProfile(projectKey);
+
+    File reportWithRelativePaths = new File(PROJECT_DIR, "report.json");
+    File reportWithAbsolutePaths = new File(PROJECT_DIR, "report_absolute_paths.json");
+    createReportWithAbsolutePaths(reportWithRelativePaths, reportWithAbsolutePaths);
+
+    build.setProperty("sonar.eslint.reportPaths", reportWithAbsolutePaths.getAbsolutePath());
+    orchestrator.executeBuild(build);
+
+    assertIssues(projectKey);
+
+    Files.delete(reportWithAbsolutePaths.toPath());
+  }
+
+  private void assertIssues(String projectKey) {
+    List<Issue> jsIssuesList = getIssues(projectKey + ":src/file.js");
+    List<Issue> tsIssuesList = getIssues(projectKey + ":src/file.ts");
 
     assertThat(jsIssuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
       tuple(1, "external_eslint_repo:no-unused-vars"),
@@ -60,7 +95,7 @@ public class EslintReportTest {
       tuple(3, "external_eslint_repo:semi"),
       tuple(5, "external_eslint_repo:semi"),
       tuple(7, "external_eslint_repo:no-extra-semi")
-      );
+    );
 
     assertThat(tsIssuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
       tuple(1, "external_eslint_repo:no-unused-vars"),
@@ -69,6 +104,26 @@ public class EslintReportTest {
       tuple(5, "external_eslint_repo:semi"),
       tuple(7, "external_eslint_repo:no-extra-semi")
     );
+  }
+
+  private void createReportWithAbsolutePaths(File reportWithRelativePaths, File reportWithAbsolutePaths) throws IOException {
+    List<String> reportContent = Files.readAllLines(reportWithRelativePaths.toPath());
+    String prefix = "\"filePath\": \"";
+    List<String> transformed = reportContent.stream().map(s -> {
+      if (s.contains(prefix)) {
+        File file = new File(PROJECT_DIR, "src/file." + (s.contains(".js") ? "js" : "ts"));
+        String absolutePath = file.getAbsolutePath();
+        if (System.getProperty("os.name").startsWith("Windows")) {
+          // try to "break" file resolution (see https://github.com/SonarSource/SonarJS/issues/1985) by low-casing drive letter
+          absolutePath = absolutePath.substring(0, 1).toLowerCase() + absolutePath.substring(1);
+          absolutePath = absolutePath.replace("\\", "\\\\");
+        }
+        return prefix + absolutePath + "\",";
+      } else {
+        return s;
+      }
+    }).collect(Collectors.toList());
+    Files.write(reportWithAbsolutePaths.toPath(), transformed);
   }
 
 }
