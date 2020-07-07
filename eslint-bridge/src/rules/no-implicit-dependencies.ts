@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
     const whitelist = context.options;
     const dependencies = getDependencies(context.getFilename());
     const aliasedPathsMappingPatterns = extractPathMappingPatterns(context.parserServices);
-    if (aliasedPathsMappingPatterns === 'skip') {
+    if (aliasedPathsMappingPatterns === 'matchAll') {
       // deactivates this rule altogether.
       return {};
     }
@@ -206,14 +206,13 @@ const PATH_MAPPING_ASTERISK_PATTERN = /^([^*]*)\*([^*]*)$/; // matches any strin
 
 function extractPathMappingPatterns(
   parserServices: RequiredParserServices,
-): PathMappingPattern[] | 'skip' {
+): PathMappingPattern[] | 'matchAll' {
   const compilerOptions = parserServices.program && parserServices.program.getCompilerOptions();
   const paths = (compilerOptions && compilerOptions.paths) || [];
   const pathMappingPatterns: PathMappingPattern[] = [];
   for (const p in paths) {
     if (p === '*') {
-      // Can match any path; Skip the entire check to avoid false positives.
-      return 'skip';
+      return 'matchAll';
     } else {
       let m = p.match(PATH_MAPPING_ASTERISK_PATTERN);
       if (m) {
