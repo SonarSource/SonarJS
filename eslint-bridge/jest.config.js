@@ -6,7 +6,7 @@ module.exports = {
     }
   },
   moduleFileExtensions: ["js", "ts", "json"],
-  modulePathIgnorePatterns: ["<rootDir>/tests/fixtures/bom-package-json-project/package.json"],
+  modulePathIgnorePatterns: ["<rootDir>/tests/fixtures/no-implicit-dependencies/bom-package-json-project/package.json"],
   testResultsProcessor: "jest-sonar-reporter",
   transform: {
     "^.+\\.ts$": "ts-jest"
