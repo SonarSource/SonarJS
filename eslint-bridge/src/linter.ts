@@ -55,7 +55,6 @@ try {
   const typescriptEslintRules = require('@typescript-eslint/eslint-plugin').rules;
   // TS implementation of no-throw-literal is not supporting JS code.
   delete typescriptEslintRules['no-throw-literal'];
-  console.log(typescriptEslintRules);
   linter.defineRules(typescriptEslintRules);
 
   const noUnusedExpressionsRule = typescriptEslintRules[NO_UNUSED_EXPRESSIONS];
