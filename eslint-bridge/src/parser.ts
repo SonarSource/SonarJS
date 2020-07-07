@@ -142,7 +142,9 @@ export function unloadTypeScriptEslint() {
 
 export function parseVueSourceFile(fileContent: string): SourceCode | ParsingError {
   let exceptionToReport: ParseException | null = null;
-  for (const config of [PARSER_CONFIG_MODULE, PARSER_CONFIG_SCRIPT]) {
+  // setting parser to be able to parse more code (by default `espree` is used by vue parser)
+  const vueModuleConfig = { ...PARSER_CONFIG_MODULE, parser: 'babel-eslint' };
+  for (const config of [vueModuleConfig, PARSER_CONFIG_SCRIPT]) {
     try {
       const result = VueJS.parseForESLint(fileContent, config);
       return new SourceCode(fileContent, result.ast as any);
