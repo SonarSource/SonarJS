@@ -203,7 +203,8 @@ class PathMappingSingleAsteriskPattern implements PathMappingPattern {
 }
 
 const PATH_MAPPING_ASTERISK_PATTERN = /^([^*]*)\*([^*]*)$/; // matches any string with single asterisk '*'
-
+const PATH_MAPPING_ASTERISK_PATTERN_PREFIX_IDX = 1;
+const PATH_MAPPING_ASTERISK_PATTERN_SUFFIX_IDX = 2;
 function extractPathMappingPatterns(
   parserServices: RequiredParserServices,
 ): PathMappingPattern[] | 'matchAll' {
@@ -214,11 +215,12 @@ function extractPathMappingPatterns(
     if (p === '*') {
       return 'matchAll';
     } else {
-      let m = p.match(PATH_MAPPING_ASTERISK_PATTERN);
+      const m = p.match(PATH_MAPPING_ASTERISK_PATTERN);
       if (m) {
-        const prefix = m[1];
-        const suffix = m[2];
-        pathMappingPatterns.push(new PathMappingSingleAsteriskPattern(prefix, suffix));
+        pathMappingPatterns.push(new PathMappingSingleAsteriskPattern(
+          m[PATH_MAPPING_ASTERISK_PATTERN_PREFIX_IDX],
+          m[PATH_MAPPING_ASTERISK_PATTERN_SUFFIX_IDX]
+        ));
       } else if (!p.includes('*')) {
         pathMappingPatterns.push(new PathMappingNoAsteriskPattern(p));
       } else {
