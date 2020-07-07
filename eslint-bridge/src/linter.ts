@@ -19,6 +19,7 @@
  */
 import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
 import { rules as chaiFriendlyRules } from 'eslint-plugin-chai-friendly';
+import { ignoreChaiAssertions } from './rules/no-unused-expressions-ignore-chai-assertions';
 import { rules as internalRules } from './rules/main';
 import { Linter, SourceCode, Rule as ESLintRule } from 'eslint';
 import { Rule, Issue, IssueLocation } from './analyzer';
@@ -44,18 +45,25 @@ const linter = new Linter();
 linter.defineRules(sonarjsRules);
 linter.defineRules(internalRules);
 
+const NO_UNUSED_EXPRESSIONS = 'no-unused-expressions';
+
+// core implementation of this rule raises FPs on chai framework
+linter.defineRule(NO_UNUSED_EXPRESSIONS, chaiFriendlyRules[NO_UNUSED_EXPRESSIONS]);
+
 try {
   // we load "@typescript-eslint/eslint-plugin" dynamically as it requires TS and so we don't need typescript dependency when analysing pure JS project
   const typescriptEslintRules = require('@typescript-eslint/eslint-plugin').rules;
   // TS implementation of no-throw-literal is not supporting JS code.
   delete typescriptEslintRules['no-throw-literal'];
   linter.defineRules(typescriptEslintRules);
+
+  const noUnusedExpressionsRule = typescriptEslintRules[NO_UNUSED_EXPRESSIONS];
+  if (noUnusedExpressionsRule) {
+    linter.defineRule(NO_UNUSED_EXPRESSIONS, ignoreChaiAssertions(noUnusedExpressionsRule));
+  }
 } catch {
   // do nothing, "typescript" is not there
 }
-
-// core implementation of this rule raises FPs on chai framework
-linter.defineRule('no-unused-expressions', chaiFriendlyRules['no-unused-expressions']);
 
 /**
  * 'additionalRules' - rules used for computing metrics (incl. highlighting) when it requires access to the rule context; resulting value is encoded in the message
