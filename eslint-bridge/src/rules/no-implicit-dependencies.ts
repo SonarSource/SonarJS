@@ -217,10 +217,12 @@ function extractPathMappingPatterns(
     } else {
       const m = p.match(PATH_MAPPING_ASTERISK_PATTERN);
       if (m) {
-        pathMappingPatterns.push(new PathMappingSingleAsteriskPattern(
-          m[PATH_MAPPING_ASTERISK_PATTERN_PREFIX_IDX],
-          m[PATH_MAPPING_ASTERISK_PATTERN_SUFFIX_IDX]
-        ));
+        pathMappingPatterns.push(
+          new PathMappingSingleAsteriskPattern(
+            m[PATH_MAPPING_ASTERISK_PATTERN_PREFIX_IDX],
+            m[PATH_MAPPING_ASTERISK_PATTERN_SUFFIX_IDX],
+          ),
+        );
       } else if (!p.includes('*')) {
         pathMappingPatterns.push(new PathMappingNoAsteriskPattern(p));
       } else {
