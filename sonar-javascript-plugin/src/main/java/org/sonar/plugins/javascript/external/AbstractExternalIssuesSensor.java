@@ -56,7 +56,7 @@ abstract class AbstractExternalIssuesSensor implements Sensor {
 
   InputFile getInputFile(SensorContext context, String fileName) {
     FilePredicates predicates = context.fileSystem().predicates();
-    InputFile inputFile = context.fileSystem().inputFile(predicates.or(predicates.hasRelativePath(fileName), predicates.hasAbsolutePath(fileName)));
+    InputFile inputFile = context.fileSystem().inputFile(predicates.hasPath(fileName));
     if (inputFile == null) {
       LOG.warn("No input file found for {}. No {} issues will be imported on this file.", fileName, linterName());
       return null;
