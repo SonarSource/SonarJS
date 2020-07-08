@@ -18,14 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester, Rule } from 'eslint';
-import { ignoreChaiAssertions } from '../../src/rules/no-unused-expressions-ignore-chai-assertions';
+import {
+  decorateTypescriptEslint,
+  decorateChaiFriendly,
+} from '../../src/rules/no-unused-expressions-decorator';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018 },
 });
 
-const rule: Rule.RuleModule = ignoreChaiAssertions(
+const rule: Rule.RuleModule = decorateTypescriptEslint(
   require('@typescript-eslint/eslint-plugin').rules!['no-unused-expressions'],
 );
 
@@ -125,3 +128,44 @@ ruleTester.run('Disallow unused expressions', rule, {
     },
   ],
 });
+
+import { rules as chaiFriendlyRules } from 'eslint-plugin-chai-friendly';
+
+for (let { parser, languageSpecificRule } of [
+  {
+    parser: '@typescript-eslint/parser',
+    languageSpecificRule: decorateTypescriptEslint(
+      require('@typescript-eslint/eslint-plugin').rules!['no-unused-expressions'],
+    ),
+  },
+  {
+    parser: 'babel-eslint',
+    languageSpecificRule: decorateChaiFriendly(chaiFriendlyRules['no-unused-expressions']),
+  },
+]) {
+  const tester = new RuleTester({
+    parser: require.resolve(parser),
+    parserOptions: { ecmaVersion: 2018 },
+  });
+
+  tester.run(`Disallow unused expressions - negations & IIFE (${parser})`, languageSpecificRule, {
+    valid: [
+      {
+        code: `
+          iife.with.unaryNegation().should.be.exempt;
+          !function(){ console.log("side effect!"); }();
+        `,
+      },
+    ],
+    invalid: [
+      {
+        code: `
+          all(other).useless.negations.should.not.be.exempt;
+          !foo().bar();
+          !!function(){}();
+        `,
+        errors: 2,
+      },
+    ],
+  });
+}
