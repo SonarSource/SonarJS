@@ -22,10 +22,6 @@
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
-// Rough upper bound for number of possible distinct flags: there are
-// only `g/i/m/u/s/y`, 8 should be enough even for typos and accidental duplicates.
-const MAX_DISTINCT_FLAGS = 8;
-
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
@@ -49,17 +45,10 @@ export const rule: Rule.RuleModule = {
 
   create(context: Rule.RuleContext) {
     const options = context.options[0] || {};
-    // filters duplicates, ensures only valid flags are interpreted
-    const flags = (options.flags || '')
-      .slice(0, MAX_DISTINCT_FLAGS)
-      .split('')
-      .filter(
-        (chr: string, idx: number, arr: string[]) =>
-          arr.indexOf(chr) === idx && 'gimusy'.includes(chr),
-      )
-      .join('');
+    const flags = options.flags || '';
+    const cleanedFlags = 'gimusy'.split('').filter(c => flags.includes(c)).join('');
     const pattern = options.regularExpression
-      ? new RegExp(options.regularExpression, flags)
+      ? new RegExp(options.regularExpression, cleanedFlags)
       : undefined;
     const message = options.message || 'The regular expression matches this comment.';
 

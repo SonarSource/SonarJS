@@ -98,5 +98,32 @@ ruleTester.run('Track comments matching a regular expression', rule, {
         },
       ],
     },
+    {
+      code: `// start\uD83D\uDE00aBcDend; This requires both unicode and case insensitivity.`,
+      options: [{ regularExpression: 'start.{1}ABCDend', message: 'flags-ui', flags: 'ui' }],
+      errors: [
+        {
+          message: 'flags-ui',
+          line: 1,
+          endLine: 1,
+          column: 1,
+          endColumn: 70,
+        },
+      ],
+    },
+    {
+      code: `// The flag option is quite robust against invalid inputs: TEST.`,
+      options: [{
+        regularExpression: 'test', message: 'flags-invalid-(?i)', flags: '(?i)' }],
+      errors: [
+        {
+          message: 'flags-invalid-(?i)',
+          line: 1,
+          endLine: 1,
+          column: 1,
+          endColumn: 65,
+        },
+      ],
+    },
   ],
 });

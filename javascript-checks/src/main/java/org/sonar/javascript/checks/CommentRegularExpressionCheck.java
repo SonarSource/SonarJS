@@ -39,7 +39,7 @@ public class CommentRegularExpressionCheck extends EslintBasedCheck {
 
   @RuleProperty(
     key = "regularExpression",
-    description = "The regular expression (ECMAScript flavor)",
+    description = "The regular expression (JavaScript flavor)",
     defaultValue = DEFAULT_REGULAR_EXPRESSION)
   public String regularExpression = DEFAULT_REGULAR_EXPRESSION;
 
@@ -51,7 +51,7 @@ public class CommentRegularExpressionCheck extends EslintBasedCheck {
 
   @RuleProperty(
     key = "flags",
-    description = "modifier flags (combination of 'g', 'i', 'm', 'u', 's', 'y')",
+    description = "Regular expression modifier flags",
     defaultValue = DEFAULT_FLAGS)
   public String flags = DEFAULT_FLAGS;
 
