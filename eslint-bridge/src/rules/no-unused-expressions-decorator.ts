@@ -21,22 +21,37 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../utils/decorators';
 
-export function ignoreChaiAssertions(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, reportExemptingChaiAssertions);
+export function decorateTypescriptEslint(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(
+    rule,
+    reportExempting(
+      expr => isNegatedIife(expr) || containsChaiExpect(expr) || containsValidChaiShould(expr),
+    ),
+  );
 }
 
-function reportExemptingChaiAssertions(
-  context: Rule.RuleContext,
-  reportDescriptor: Rule.ReportDescriptor,
-): void {
-  if ('node' in reportDescriptor) {
-    const n: estree.Node = reportDescriptor['node'];
-    const expr = (n as estree.ExpressionStatement).expression;
-    const isExempt = containsChaiExpect(expr) || containsValidChaiShould(expr);
-    if (!isExempt) {
-      context.report(reportDescriptor);
+export function decorateChaiFriendly(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, reportExempting(isNegatedIife));
+}
+
+function reportExempting(
+  exemptionCondition: (expr: estree.Expression) => boolean,
+): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
+  return (context, reportDescriptor) => {
+    let expressionStatementNode: estree.ExpressionStatement | null = null;
+    if ('node' in reportDescriptor) {
+      expressionStatementNode = reportDescriptor['node'] as estree.ExpressionStatement;
+    } else if ('type' in reportDescriptor && reportDescriptor['type'] === 'ExpressionStatement') {
+      expressionStatementNode = reportDescriptor as estree.ExpressionStatement;
     }
-  }
+
+    if (expressionStatementNode) {
+      const expr = expressionStatementNode.expression;
+      if (!exemptionCondition(expr)) {
+        context.report(reportDescriptor);
+      }
+    }
+  };
 }
 
 function containsChaiExpect(node: estree.Node): boolean {
@@ -64,4 +79,15 @@ function containsValidChaiShould(node: estree.Node, isSubexpr = false): boolean 
     }
   }
   return false;
+}
+
+function isNegatedIife(node: estree.Node): boolean {
+  return node.type === 'UnaryExpression' && node.operator === '!' && isIife(node.argument);
+}
+
+function isIife(node: estree.Node): boolean {
+  return (
+    node.type === 'CallExpression' &&
+    (node.callee.type === 'FunctionExpression' || node.callee.type === 'ArrowFunctionExpression')
+  );
 }

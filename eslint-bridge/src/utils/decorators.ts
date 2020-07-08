@@ -69,8 +69,22 @@ export function interceptReport(
           return originalContext.markVariableAsUsed(name);
         },
 
-        report(descriptor: Rule.ReportDescriptor): void {
-          onReport(originalContext, descriptor);
+        report(...args: any[]): void {
+          let descr: Rule.ReportDescriptor | undefined = undefined;
+          if (args.length == 1) {
+            descr = args[0] as Rule.ReportDescriptor;
+          } else if (args.length == 2 && typeof args[1] === 'string') {
+            // not declared in the `.d.ts`, but used in practice by rules written in JS
+            descr = {
+              node: args[0] as estree.Node,
+              message: args[1],
+            };
+          }
+          if (descr) {
+            onReport(originalContext, descr);
+          } else {
+            console.warn('Unexpected arguments passed to `report`: ', args);
+          }
         },
       };
       return rule.create(interceptingContext);
