@@ -126,14 +126,6 @@ ruleTester.run('Disallow unused expressions', rule, {
         },
       ],
     },
-    {
-      code: `
-        // unused operator expressions
-        !foo().bar();
-        !!function(){}();
-      `,
-      errors: 2,
-    },
   ],
 });
 
@@ -156,7 +148,7 @@ for (let { parser, languageSpecificRule } of [
     parserOptions: { ecmaVersion: 2018 },
   });
 
-  tester.run(`Disallow unused expressions (${parser})`, languageSpecificRule, {
+  tester.run(`Disallow unused expressions - negations & IIFE (${parser})`, languageSpecificRule, {
     valid: [
       {
         code: `
