@@ -5,6 +5,9 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/adapters/user.js':[
 9,
 ],
+'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-profile-image.js':[
+119,
+],
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/modals/invite-new-user.js':[
 45,
 54,
@@ -155,6 +158,9 @@
 ],
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/user-generator.js':[
 41,
+],
+'javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/xmlrpc.js':[
+10,
 ],
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/errors/index.js':[
 28,
@@ -318,6 +324,7 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/index.js':[
 393,
 399,
+430,
 506,
 ],
 'javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js':[
@@ -334,6 +341,9 @@
 ],
 'javascript-test-sources:src/ecmascript6/http/test/matchers.js':[
 12,
+],
+'javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/reducers/todos.spec.js':[
+198,
 ],
 'javascript-test-sources:src/ecmascript6/router/src/navigationPlan.js':[
 27,

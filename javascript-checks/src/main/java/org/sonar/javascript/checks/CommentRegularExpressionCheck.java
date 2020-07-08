@@ -39,7 +39,7 @@ public class CommentRegularExpressionCheck extends EslintBasedCheck {
 
   @RuleProperty(
     key = "regularExpression",
-    description = "The regular expression (JavaScript flavor)",
+    description = "The regular expression (JavaScript syntax)",
     defaultValue = DEFAULT_REGULAR_EXPRESSION)
   public String regularExpression = DEFAULT_REGULAR_EXPRESSION;
 

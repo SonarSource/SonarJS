@@ -4,9 +4,15 @@
 314,
 325,
 ],
+'es5-shim:tests/lib/jasmine-html.js':[
+113,
+],
 'es5-shim:tests/lib/jasmine.js':[
+90,
 485,
 587,
+1187,
+1192,
 ],
 'es5-shim:tests/spec/s-date.js':[
 180,
