@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaScriptPluginTest {
 
-  private static final int BASE_EXTENSIONS = 21;
+  private static final int BASE_EXTENSIONS = 20;
   private static final int JS_ADDITIONAL_EXTENSIONS = 4;
   private static final int TS_ADDITIONAL_EXTENSIONS = 3;
 
@@ -48,13 +48,7 @@ public class JavaScriptPluginTest {
 
   @Test
   public void should_contain_right_properties_number() throws Exception {
-    assertThat(properties()).hasSize(11);
-  }
-
-  @Test
-  public void should_have_default_for_exclusions() throws Exception {
-    assertThat(properties().stream().filter(prop -> JavaScriptPlugin.JS_EXCLUSIONS_KEY.equals(prop.key())).findFirst()
-      .get().defaultValue()).isEqualToIgnoringCase("**/node_modules/**,**/bower_components/**");
+    assertThat(properties()).hasSize(10);
   }
 
   @Test

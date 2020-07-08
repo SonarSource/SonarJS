@@ -27,20 +27,36 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.minify.MinificationAssessor;
 
-public class JavaScriptExclusionsFileFilter implements InputFileFilter {
+import static java.util.Arrays.stream;
+import static java.util.stream.Stream.concat;
 
-  private final Configuration configuration;
+public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   private static final Logger LOG = Loggers.get(JavaScriptExclusionsFileFilter.class);
 
+  private static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[]{"**/node_modules/**", "**/bower_components/**"};
+  private final WildcardPattern[] excludedPatterns;
+
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
-    this.configuration = configuration;
+    if (!isExclusionOverridden(configuration)) {
+      excludedPatterns = WildcardPattern.create(EXCLUSIONS_DEFAULT_VALUE);
+    } else {
+      WildcardPattern[] jsExcludedPatterns = WildcardPattern.create(configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY));
+      WildcardPattern[] tsExcludedPatterns = WildcardPattern.create(configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY));
+      excludedPatterns = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns)).toArray(WildcardPattern[]::new);
+    }
+  }
+
+  private boolean isExclusionOverridden(Configuration configuration) {
+    return configuration.get(JavaScriptPlugin.JS_EXCLUSIONS_KEY).isPresent()
+      || configuration.get(JavaScriptPlugin.TS_EXCLUSIONS_KEY).isPresent();
   }
 
   @Override
   public boolean accept(InputFile inputFile) {
-    if (isExcludedWithProperty(inputFile, JavaScriptPlugin.JS_EXCLUSIONS_KEY)
-      || isExcludedWithProperty(inputFile, JavaScriptPlugin.TS_EXCLUSIONS_KEY)) {
+    String relativePath = inputFile.uri().toString();
+    if (WildcardPattern.match(excludedPatterns, relativePath)) {
+      LOG.debug("File {} was excluded by {} or {}", inputFile, JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.TS_EXCLUSIONS_KEY);
       return false;
     }
 
@@ -53,9 +69,4 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
     return true;
   }
 
-  private boolean isExcludedWithProperty(InputFile inputFile, String property) {
-    String[] excludedPatterns = this.configuration.getStringArray(property);
-    String relativePath = inputFile.uri().toString();
-    return WildcardPattern.match(WildcardPattern.create(excludedPatterns), relativePath);
-  }
 }
