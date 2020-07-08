@@ -21,11 +21,14 @@ import { RuleTester } from 'eslint';
 import { rule } from '../../src/rules/no-implicit-dependencies';
 import * as path from 'path';
 
-const filename = path.join(__dirname, '../fixtures/package-json-project/file.js');
+const filename = path.join(
+  __dirname,
+  '../fixtures/no-implicit-dependencies/package-json-project/file.js',
+);
 const options = [];
-
+const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
+  parser: tsParserPath,
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
@@ -94,7 +97,10 @@ ruleTester.run('Dependencies should be explicit', rule, {
     },
     {
       code: `import "dependency";`,
-      filename: path.join(__dirname, '../fixtures/bom-package-json-project/file.js'),
+      filename: path.join(
+        __dirname,
+        '../fixtures/no-implicit-dependencies/bom-package-json-project/file.js',
+      ),
       options,
     },
   ],
@@ -135,13 +141,19 @@ ruleTester.run('Dependencies should be explicit', rule, {
     },
     {
       code: `import "foo";`,
-      filename: path.join(__dirname, '../fixtures/empty-package-json-project/file.js'),
+      filename: path.join(
+        __dirname,
+        '../fixtures/no-implicit-dependencies/empty-package-json-project/file.js',
+      ),
       options,
       errors: 1,
     },
     {
       code: `import "foo";`,
-      filename: path.join(__dirname, '../fixtures/package-json-project/dir/subdir/file.js'),
+      filename: path.join(
+        __dirname,
+        '../fixtures/no-implicit-dependencies/package-json-project/dir/subdir/file.js',
+      ),
       options,
       errors: 1,
     },
@@ -153,3 +165,89 @@ ruleTester.run('Dependencies should be explicit', rule, {
     },
   ],
 });
+
+const ruleTesterForPathMappings = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    tsconfigRootDir: './tests/fixtures/no-implicit-dependencies/ts-project-with-path-aliases',
+    project: './tsconfig.json',
+  },
+});
+
+const filenameForFileWithPathMappings = path.join(
+  __dirname,
+  '../fixtures/no-implicit-dependencies/ts-project-with-path-aliases/file.ts',
+);
+
+ruleTesterForPathMappings.run('Path aliases should be exempt', rule, {
+  valid: [
+    {
+      code: `
+        import { f as f1 } from '$b/c/d.e';
+        import { f as f2 } from '@b/c/d.e';
+        import { f as f3 } from 'b/c/d.e';
+        import { f as f4 } from 'foo/bar/c/d.e';
+        import { f as f5 } from 'concrete';
+        let f6 = require("foo/bar/c/d.e").f;
+        import { f as f7 } from 'p/refixc/d.esuffi/x';
+        import { f as f8 } from 'yoda/c/d.e/path';
+        import { f as f9 } from 'dependency-in-package-json';
+      `,
+      filename: filenameForFileWithPathMappings,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+        import { f as f1 } from '$invalid/c/d.e';
+        import { f as f2 } from '@invalid/c/d.e';
+        import { f as f3 } from 'invalid/c/d.e';
+        import { f as f4 } from 'nonexistent';
+        import "foo";
+        import "foo/baz/something";
+        require("this/doesnt/exist").f;
+        import { f as f8 } from 'p/refixc/d.e/suffi/x2';
+        import { f as f9 } from 'yoda/c/d.e/paths';
+        import { f as fA } from 'dependency-not-in-package-json';
+      `,
+      filename: filenameForFileWithPathMappings,
+      errors: 10,
+    },
+  ],
+});
+
+const ruleTesterForCatchAllExample = new RuleTester({
+  parser: tsParserPath,
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    tsconfigRootDir:
+      './tests/fixtures/no-implicit-dependencies/ts-project-with-catch-all-path-alias',
+    project: './tsconfig.json',
+  },
+});
+
+const filenameCatchAllExample = path.join(
+  __dirname,
+  '../fixtures/no-implicit-dependencies/ts-project-with-catch-all-path-alias/file.ts',
+);
+
+ruleTesterForCatchAllExample.run(
+  'Do not report when a path mapping with "*"-pattern is used',
+  rule,
+  {
+    valid: [
+      {
+        code: `
+          import { f } from '$b/c/d.e';
+          import { f } from 'concretegenerated';
+          let f = require("this/might/be/generated").f;
+        `,
+        filename: filenameCatchAllExample,
+      },
+    ],
+    invalid: [],
+  },
+);

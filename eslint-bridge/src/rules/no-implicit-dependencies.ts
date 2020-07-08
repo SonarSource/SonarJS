@@ -24,6 +24,7 @@ import * as estree from 'estree';
 import * as builtins from 'builtin-modules';
 import * as path from 'path';
 import * as fs from 'fs';
+import { RequiredParserServices } from '../utils/isRequiredParserServices';
 
 const DefinitelyTyped = '@types/';
 
@@ -36,6 +37,11 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const whitelist = context.options;
     const dependencies = getDependencies(context.getFilename());
+    const aliasedPathsMappingPatterns = extractPathMappingPatterns(context.parserServices);
+    if (aliasedPathsMappingPatterns === 'matchAll') {
+      // deactivates this rule altogether.
+      return {};
+    }
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
@@ -47,14 +53,28 @@ export const rule: Rule.RuleModule = {
           const [argument] = call.arguments;
           if (argument.type === 'Literal') {
             const requireToken = call.callee;
-            raiseOnImplicitImport(argument, requireToken.loc!, dependencies, whitelist, context);
+            raiseOnImplicitImport(
+              argument,
+              requireToken.loc!,
+              dependencies,
+              whitelist,
+              aliasedPathsMappingPatterns,
+              context,
+            );
           }
         }
       },
       ImportDeclaration: (node: estree.Node) => {
         const module = (node as estree.ImportDeclaration).source;
         const importToken = context.getSourceCode().getFirstToken(node);
-        raiseOnImplicitImport(module, importToken!.loc, dependencies, whitelist, context);
+        raiseOnImplicitImport(
+          module,
+          importToken!.loc,
+          dependencies,
+          whitelist,
+          aliasedPathsMappingPatterns,
+          context,
+        );
       },
     };
   },
@@ -65,6 +85,7 @@ function raiseOnImplicitImport(
   loc: estree.SourceLocation,
   dependencies: Set<string>,
   whitelist: string[],
+  aliasedPathsMappingPatterns: PathMappingPattern[],
   context: Rule.RuleContext,
 ) {
   const moduleName = module.value;
@@ -74,6 +95,10 @@ function raiseOnImplicitImport(
 
   const ts = require('typescript');
   if (ts.isExternalModuleNameRelative(moduleName)) {
+    return;
+  }
+
+  if (aliasedPathsMappingPatterns.some(pattern => pattern.isApplicableTo(moduleName))) {
     return;
   }
 
@@ -153,4 +178,57 @@ function findPackageJson(current: string): string | undefined {
     return findPackageJson(current);
   }
   return undefined;
+}
+
+/**
+ * The matching pattern part of a path mapping specified
+ * in `paths` in `tsconfig.json`.
+ */
+interface PathMappingPattern {
+  isApplicableTo(name: string): boolean;
+}
+
+class PathMappingNoAsteriskPattern implements PathMappingPattern {
+  constructor(private readonly value: string) {}
+  isApplicableTo(name: string): boolean {
+    return name === this.value;
+  }
+}
+
+class PathMappingSingleAsteriskPattern implements PathMappingPattern {
+  constructor(private readonly prefix: string, private readonly suffix: string) {}
+  isApplicableTo(name: string): boolean {
+    return name.startsWith(this.prefix) && name.endsWith(this.suffix);
+  }
+}
+
+const PATH_MAPPING_ASTERISK_PATTERN = /^([^*]*)\*([^*]*)$/; // matches any string with single asterisk '*'
+const PATH_MAPPING_ASTERISK_PATTERN_PREFIX_IDX = 1;
+const PATH_MAPPING_ASTERISK_PATTERN_SUFFIX_IDX = 2;
+function extractPathMappingPatterns(
+  parserServices: RequiredParserServices,
+): PathMappingPattern[] | 'matchAll' {
+  const compilerOptions = parserServices.program && parserServices.program.getCompilerOptions();
+  const paths = (compilerOptions && compilerOptions.paths) || [];
+  const pathMappingPatterns: PathMappingPattern[] = [];
+  for (const p in paths) {
+    if (p === '*') {
+      return 'matchAll';
+    } else {
+      const m = p.match(PATH_MAPPING_ASTERISK_PATTERN);
+      if (m) {
+        pathMappingPatterns.push(
+          new PathMappingSingleAsteriskPattern(
+            m[PATH_MAPPING_ASTERISK_PATTERN_PREFIX_IDX],
+            m[PATH_MAPPING_ASTERISK_PATTERN_SUFFIX_IDX],
+          ),
+        );
+      } else if (!p.includes('*')) {
+        pathMappingPatterns.push(new PathMappingNoAsteriskPattern(p));
+      } else {
+        // This case should not occur: `tsc` emits error if there is more than one asterisk
+      }
+    }
+  }
+  return pathMappingPatterns;
 }

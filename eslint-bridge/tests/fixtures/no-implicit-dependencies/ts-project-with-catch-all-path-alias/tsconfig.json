@@ -1,0 +1,10 @@
+{
+  "compilerOptions": { 
+    "baseUrl": "./",
+    "paths": {
+      "*": ["*", "generated/*"]
+    },
+    "outDir": "dist",
+  },
+  "include": ["./*.ts"]
+}
