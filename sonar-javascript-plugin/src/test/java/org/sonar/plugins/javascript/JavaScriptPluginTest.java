@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaScriptPluginTest {
 
-  private static final int BASE_EXTENSIONS = 22;
+  private static final int BASE_EXTENSIONS = 21;
   private static final int JS_ADDITIONAL_EXTENSIONS = 4;
   private static final int TS_ADDITIONAL_EXTENSIONS = 3;
 
@@ -48,7 +48,7 @@ public class JavaScriptPluginTest {
 
   @Test
   public void should_contain_right_properties_number() throws Exception {
-    assertThat(properties()).hasSize(12);
+    assertThat(properties()).hasSize(11);
   }
 
   @Test
@@ -65,7 +65,7 @@ public class JavaScriptPluginTest {
       if (propertyDefinition.key().endsWith("lint.reportPaths")) {
         assertThat(propertyDefinition.category()).isEqualTo("External Analyzers");
       } else {
-        assertThat(propertyDefinition.category()).isIn("JavaScript", "TypeScript");
+        assertThat(propertyDefinition.category()).isEqualTo("JavaScript / TypeScript");
       }
     }
   }

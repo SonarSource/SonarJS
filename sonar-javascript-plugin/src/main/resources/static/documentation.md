@@ -24,7 +24,7 @@ If you can't have TypeScript as a project dependency you can set your `NODE_PATH
  
 ## Language-Specific Properties
 
-Discover and update the JavaScript-specific properties in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > JavaScript](/#sonarqube-admin#/admin/settings?category=javascript)**. For TypeScript **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > TypeScript](/#sonarqube-admin#/admin/settings?category=typescript)**
+Discover and update the JavaScript / TypeScript properties in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > JavaScript / TypeScript](/#sonarqube-admin#/admin/settings?category=javascript)**.
 
 ## Supported Frameworks and Versions
 * ECMAScript 5 / ECMAScript 2015 (ECMAScript 6) / ECMAScript 2016-2017-2018

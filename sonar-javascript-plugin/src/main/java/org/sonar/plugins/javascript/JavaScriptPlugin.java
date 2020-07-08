@@ -47,8 +47,7 @@ public class JavaScriptPlugin implements Plugin {
   private static final String GENERAL = "General";
   private static final String TEST_AND_COVERAGE = "Tests and Coverage";
   private static final String LIBRARIES = "Libraries";
-  private static final String JAVASCRIPT_CATEGORY = "JavaScript";
-  private static final String TYPESCRIPT_CATEGORY = "TypeScript";
+  private static final String JAVASCRIPT_CATEGORY = "JavaScript / TypeScript";
 
   // Global JavaScript constants
 
@@ -81,10 +80,8 @@ public class JavaScriptPlugin implements Plugin {
   public static final String DEPRECATED_ESLINT_PROPERTY = "sonar.typescript.eslint.reportPaths";
 
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
-  private static final String FILE_SUFFIXES_NAME = "File Suffixes";
 
   public static final String TS_LCOV_REPORT_PATHS = "sonar.typescript.lcov.reportPaths";
-  public static final String TS_LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
 
   public static final String TSCONFIG_PATH = "sonar.typescript.tsconfigPath";
 
@@ -115,12 +112,30 @@ public class JavaScriptPlugin implements Plugin {
 
       PropertyDefinition.builder(JavaScriptLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE)
-        .name(FILE_SUFFIXES_NAME)
+        .name("JavaScript File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
         .category(JAVASCRIPT_CATEGORY)
         .multiValues(true)
         .onQualifiers(Qualifiers.PROJECT)
+        .build(),
+
+      PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
+        .defaultValue(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE)
+        .name("TypeScript File Suffixes")
+        .description(FILE_SUFFIXES_DESCRIPTION)
+        .subCategory(GENERAL)
+        .category(JAVASCRIPT_CATEGORY)
+        .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
+        .build(),
+
+      PropertyDefinition.builder(TSCONFIG_PATH)
+        .name("TypeScript tsconfig.json location")
+        .description("Path (relative to project base or absolute) to the tsconfig JSON file")
+        .onQualifiers(Qualifiers.PROJECT)
+        .subCategory(GENERAL)
+        .category(JAVASCRIPT_CATEGORY)
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
@@ -166,8 +181,8 @@ public class JavaScriptPlugin implements Plugin {
 
       PropertyDefinition.builder(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
         .defaultValue(JS_EXCLUSIONS_DEFAULT_VALUE)
-        .name("JavaScript Exclusions")
-        .description("List of file path patterns to be excluded from analysis of JavaScript files.")
+        .name("Default Exclusions")
+        .description("List of file path patterns to be excluded from analysis of JavaScript and TypeScript files.")
         .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .multiValues(true)
@@ -191,43 +206,10 @@ public class JavaScriptPlugin implements Plugin {
           .build());
     }
 
-    addTypeScriptExtensions(context);
-  }
-
-  private static void addTypeScriptExtensions(Context context) {
     context.addExtensions(
       TypeScriptSensor.class,
       TypeScriptLanguage.class,
-      TypeScriptRulesDefinition.class,
-
-      PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
-        .defaultValue(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE)
-        .name(FILE_SUFFIXES_NAME)
-        .description(FILE_SUFFIXES_DESCRIPTION)
-        .subCategory(GENERAL)
-        .category(TYPESCRIPT_CATEGORY)
-        .onQualifiers(Qualifiers.PROJECT)
-        .multiValues(true)
-        .build(),
-
-      PropertyDefinition.builder(TS_LCOV_REPORT_PATHS)
-        .defaultValue(TS_LCOV_REPORT_PATHS_DEFAULT_VALUE)
-        .name("LCOV Files")
-        .description("DEPRECATED - Use " + LCOV_REPORT_PATHS + " instead. \n" +
-          "Paths (absolute or relative) to the files with LCOV data.")
-        .onQualifiers(Qualifiers.PROJECT)
-        .subCategory(TEST_AND_COVERAGE)
-        .category(TYPESCRIPT_CATEGORY)
-        .multiValues(true)
-        .build(),
-
-      PropertyDefinition.builder(TSCONFIG_PATH)
-        .name("tsconfig.json location")
-        .description("Path (relative to project base or absolute) to the tsconfig JSON file")
-        .onQualifiers(Qualifiers.PROJECT)
-        .subCategory(GENERAL)
-        .category(TYPESCRIPT_CATEGORY)
-        .build()
+      TypeScriptRulesDefinition.class
     );
 
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
@@ -245,4 +227,5 @@ public class JavaScriptPlugin implements Plugin {
           .build());
     }
   }
+
 }
