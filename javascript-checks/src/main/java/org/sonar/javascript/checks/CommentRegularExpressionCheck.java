@@ -39,14 +39,14 @@ public class CommentRegularExpressionCheck extends EslintBasedCheck {
 
   @RuleProperty(
     key = "regularExpression",
-    description = "The regular expression",
-    defaultValue = "" + DEFAULT_REGULAR_EXPRESSION)
+    description = "The regular expression (ECMAScript flavor)",
+    defaultValue = DEFAULT_REGULAR_EXPRESSION)
   public String regularExpression = DEFAULT_REGULAR_EXPRESSION;
 
   @RuleProperty(
     key = "message",
     description = "The issue message",
-    defaultValue = "" + DEFAULT_MESSAGE)
+    defaultValue = DEFAULT_MESSAGE)
   public String message = DEFAULT_MESSAGE;
 
   @RuleProperty(
