@@ -31,17 +31,28 @@ public class CommentRegularExpressionCheckTest {
     CommentRegularExpressionCheck check = new CommentRegularExpressionCheck();
 
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[{\"regularExpression\":\"\",\"message\":\"The regular expression matches this comment.\"}]");
+    assertThat(defaultConfigAsString).isEqualTo(
+      "[{\"regularExpression\":\"\",\"message\":\"The regular expression matches this comment.\",\"flags\":\"\"}]"
+    );
 
     check.message = "This is a message";
 
     String configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString).isEqualTo("[{\"regularExpression\":\"\",\"message\":\"This is a message\"}]");
+    assertThat(configAsString).isEqualTo(
+      "[{\"regularExpression\":\"\",\"message\":\"This is a message\",\"flags\":\"\"}]"
+    );
 
     check.regularExpression = "[a-z]";
 
     String configAsString2 = new Gson().toJson(check.configurations());
-    assertThat(configAsString2).isEqualTo("[{\"regularExpression\":\"[a-z]\",\"message\":\"This is a message\"}]");
+    assertThat(configAsString2).isEqualTo(
+      "[{\"regularExpression\":\"[a-z]\",\"message\":\"This is a message\",\"flags\":\"\"}]"
+    );
+
+    check.flags = "iu";
+    assertThat(new Gson().toJson(check.configurations())).isEqualTo(
+      "[{\"regularExpression\":\"[a-z]\",\"message\":\"This is a message\",\"flags\":\"iu\"}]"
+    );
   }
 
 }
