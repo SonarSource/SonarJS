@@ -35,6 +35,7 @@ public class CommentRegularExpressionCheck extends EslintBasedCheck {
 
   private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";
   private static final String DEFAULT_REGULAR_EXPRESSION = "";
+  private static final String DEFAULT_FLAGS = "";
 
   @RuleProperty(
     key = "regularExpression",
@@ -48,6 +49,12 @@ public class CommentRegularExpressionCheck extends EslintBasedCheck {
     defaultValue = "" + DEFAULT_MESSAGE)
   public String message = DEFAULT_MESSAGE;
 
+  @RuleProperty(
+    key = "flags",
+    description = "modifier flags (combination of 'g', 'i', 'm', 'u', 's', 'y')",
+    defaultValue = DEFAULT_FLAGS)
+  public String flags = DEFAULT_FLAGS;
+
   @Override
   public String eslintKey() {
     return "comment-regex";
@@ -55,16 +62,18 @@ public class CommentRegularExpressionCheck extends EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new CommentRegularExpressionCheck.Config(regularExpression, message));
+    return Collections.singletonList(new CommentRegularExpressionCheck.Config(regularExpression, message, flags));
   }
 
   private static class Config {
     String regularExpression;
     String message;
+    String flags;
 
-    Config(String regularExpression, String message) {
+    Config(String regularExpression, String message, String flags) {
       this.regularExpression = regularExpression;
       this.message = message;
+      this.flags = flags;
     }
   }
 
