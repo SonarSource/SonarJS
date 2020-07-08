@@ -38,15 +38,9 @@ function reportExempting(
   exemptionCondition: (expr: estree.Expression) => boolean,
 ): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
   return (context, reportDescriptor) => {
-    let expressionStatementNode: estree.ExpressionStatement | null = null;
     if ('node' in reportDescriptor) {
-      expressionStatementNode = reportDescriptor['node'] as estree.ExpressionStatement;
-    } else if ('type' in reportDescriptor && reportDescriptor['type'] === 'ExpressionStatement') {
-      expressionStatementNode = reportDescriptor as estree.ExpressionStatement;
-    }
-
-    if (expressionStatementNode) {
-      const expr = expressionStatementNode.expression;
+      const n: estree.Node = reportDescriptor['node'];
+      const expr = (n as estree.ExpressionStatement).expression;
       if (!exemptionCondition(expr)) {
         context.report(reportDescriptor);
       }

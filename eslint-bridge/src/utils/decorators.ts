@@ -21,6 +21,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 
+const NUM_ARGS_NODE_MESSAGE = 2;
+
 /**
  * Modifies the behavior of `context.report(descriptor)` for a given rule.
  *
@@ -71,9 +73,9 @@ export function interceptReport(
 
         report(...args: any[]): void {
           let descr: Rule.ReportDescriptor | undefined = undefined;
-          if (args.length == 1) {
+          if (args.length === 1) {
             descr = args[0] as Rule.ReportDescriptor;
-          } else if (args.length == 2 && typeof args[1] === 'string') {
+          } else if (args.length === NUM_ARGS_NODE_MESSAGE && typeof args[1] === 'string') {
             // not declared in the `.d.ts`, but used in practice by rules written in JS
             descr = {
               node: args[0] as estree.Node,
@@ -82,8 +84,6 @@ export function interceptReport(
           }
           if (descr) {
             onReport(originalContext, descr);
-          } else {
-            console.warn('Unexpected arguments passed to `report`: ', args);
           }
         },
       };
