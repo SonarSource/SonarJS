@@ -113,8 +113,13 @@ ruleTester.run('Track comments matching a regular expression', rule, {
     },
     {
       code: `// The flag option is quite robust against invalid inputs: TEST.`,
-      options: [{
-        regularExpression: 'test', message: 'flags-invalid-(?i)', flags: '(?i)' }],
+      options: [
+        {
+          regularExpression: 'test',
+          message: 'flags-invalid-(?i)',
+          flags: '(?i)',
+        },
+      ],
       errors: [
         {
           message: 'flags-invalid-(?i)',
