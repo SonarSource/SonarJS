@@ -1,41 +1,20 @@
-<p>Browsers <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage">allow message exchanges</a> between Window objects of
-different origins. </p>
-<p>Because any window can send / receive messages from other window it is important to verify the sender's / receiver's identity:</p>
-<p>- When sending message with postMessage method, the identity's receiver should be defined (the wildcard keyword (<code>*</code>) should not be
-used).</p>
-<p>- When receiving message with message event, the sender's identity should be verified using the origin and possibly source properties.</p>
+<p>HTML5 adds the ability to send messages to documents served from other domains. According to the specification:</p>
+<blockquote>
+  Authors should not use the wildcard keyword (
+  <code>*</code>) in the
+  <code>targetOrigin</code> argument in messages that contain any confidential information, as otherwise there is no way to guarantee that the message
+  is only delivered to the recipient to which it was intended.
+</blockquote>
+<p>To mitigate the risk of sending sensitive information to a document served from a hostile or unknown domain, this rule raises an issue each time
+<code>Window.postMessage</code> is used.</p>
 <h2>Noncompliant Code Example</h2>
-<p>When sending message:</p>
 <pre>
-var iframe = document.getElementById("testiframe");
-iframe.contentWindow.postMessage("secret", "*"); // Noncompliant: * is used
-</pre>
-<p>When receiving message:</p>
-<pre>
-window.addEventListener("message", function(event) { // Noncompliant: no checks are done on the origin property.
-      console.log(event.data);
- });
-</pre>
-<h2>Compliant Solution</h2>
-<p>When sending message:</p>
-<pre>
-var iframe = document.getElementById("testsecureiframe");
-iframe.contentWindow.postMessage("hello", "https://secure.example.com"); // Compliant
-</pre>
-<p>When receiving message:</p>
-<pre>
-window.addEventListener("message", function(event) {
-
-  if (event.origin !== "http://example.org") // Compliant
-    return;
-
-  console.log(event.data)
-});
+var myWindow = document.getElementById('myIFrame').contentWindow;
+myWindow.postMessage(message, "*"); // Noncompliant; how do you know what you loaded in 'myIFrame' is still there?
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://www.owasp.org/index.php/Top_10_2010-A3-Broken_Authentication_and_Session_Management">OWASP Top 10 2017 Category A3</a> -
-  Broken Authentication and Session Management </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage">developer.mozilla.org</a> - postMessage API </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A7-Cross-Site_Scripting_(XSS)">OWASP Top 10 2017 Category A7</a> - Cross-Site Scripting
+  (XSS) </li>
 </ul>
 

@@ -1,30 +1,53 @@
-<p>Cryptographic hash algorithms such as <code>MD2</code>, <code>MD4</code>, <code>MD5</code>, <code>MD6</code>, <code>HAVAL-128</code>,
-<code>HMAC-MD5</code>, <code>DSA</code> (which uses <code>SHA-1</code>), <code>RIPEMD</code>, <code>RIPEMD-128</code>, <code>RIPEMD-160</code>,
-<code>HMACRIPEMD160</code> and <code>SHA-1</code> are no longer considered secure, because it is too easy to create hash collisions with them (little
-computational effort is enough to find two or more different inputs that produces the same hash).</p>
-<h2>Ask Yourself Whether</h2>
-<p>The hashed value is used in a security context like:</p>
+<p>Hashing data is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
-  <li> User-password storage. </li>
-  <li> Security token generation (used to confirm e-mail when registering on a website, reset password, etc ...). </li>
-  <li> To compute some message integrity. </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-9233">CVE-2018-9233</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-5097">CVE-2013-5097</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1051">CVE-2007-1051</a> </li>
 </ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
+<p>Cryptographic hash functions are used to uniquely identify information without storing their original form. When not done properly, an attacker can
+steal the original information by guessing it (ex: with a <a href="https://en.wikipedia.org/wiki/Rainbow_table">rainbow table</a>), or replace the
+original data with another one having the same hash.</p>
+<p>This rule flags code that initiates hashing.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> the hashed value is used in a security context. </li>
+  <li> the hashing algorithm you are using is known to have vulnerabilities. </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Salt_(cryptography)">salts</a> are not automatically generated and applied by the hashing function.
+  </li>
+  <li> any generated salts are cryptographically weak or not credential-specific. </li>
+</ul>
+<p>You are at risk if you answered yes to the first question and any of the following ones.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Safer alternatives, such as <code>SHA-256</code>, <code>SHA-512</code>, <code>SHA-3</code> or <code>bcrypt</code> are recommended, and for password
-hashing, it's even better to use algorithms that not compute too "quickly", like <code>bcrypt</code> instead of <code>SHA-256</code>, because it slows
-brute force and dictionary based attacks.</p>
+<ul>
+  <li> for security related purposes, use only hashing algorithms which are <a
+  href="https://www.owasp.org/index.php/Password_Storage_Cheat_Sheet">currently known to be strong</a>. Avoid using algorithms like MD5 and SHA1
+  completely in security contexts. </li>
+  <li> do not define your own hashing- or salt algorithms as they will most probably have flaws. </li>
+  <li> do not use algorithms that compute too quickly, like SHA256, as it must remain beyond modern hardware capabilities to perform brute force and
+  dictionary based attacks. </li>
+  <li> use a hashing algorithm that generate its own salts as part of the hashing. If you generate your own salts, make sure that a cryptographically
+  strong salt algorithm is used, that generated salts are credential-specific, and finally, that the salt is applied correctly before the hashing.
+  </li>
+  <li> save both the salt and the hashed value in the relevant database record; during future validation operations, the salt and hash can then be
+  retrieved from the database. The hash is recalculated with the stored salt and the value being validated, and the result compared to the stored
+  hash. </li>
+  <li> the strength of hashing algorithms often decreases over time as hardware capabilities increase. Check regularly that the algorithms you are
+  using are still considered secure. If needed, rehash your data using a stronger algorithm. </li>
+</ul>
 <h2>Sensitive Code Example</h2>
 <pre>
+// === Server side ===
 const crypto = require("crypto");
 
-const hash = crypto.createHash('sha1'); // Sensitive
+const hash = crypto.createHash('sha1'); // Sensitive regardless of algorithm used
+
+crypto.scrypt(secret, salt, keylen, (err, derivedKey) =&gt; {}); // Sensitive
+const derivedKey = crypto.scryptSync(secret, salt, keylen); // Sensitive
 </pre>
-<h2>Compliant Solution</h2>
 <pre>
-const crypto = require("crypto");
-
-const hash = crypto.createHash('sha256'); // Compliant
+// === Client side ===
+crypto.subtle.digest("SHA-256", buffer) // Sensitive regardless of algorithm used
+  .then(function (hash) {});
 </pre>
 <h2>See</h2>
 <ul>
@@ -32,9 +55,10 @@ const hash = crypto.createHash('sha256'); // Compliant
   </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/327.html">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/916.html">MITRE, CWE-916</a> - Use of Password Hash With Insufficient Computational Effort
   </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/759.html">MITRE, CWE-759</a> - Use of a One-Way Hash without a Salt </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/760.html">MITRE, CWE-760</a> - Use of a One-Way Hash with a Predictable Salt </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>
 

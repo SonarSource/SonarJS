@@ -1,15 +1,14 @@
 {
-  "title": "Origins should be verified during cross-origin communications",
-  "type": "VULNERABILITY",
+  "title": "Cross-document messaging domains should be carefully restricted",
+  "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "10min"
   },
   "tags": [
-    "cwe",
     "html5",
-    "owasp-a3"
+    "owasp-a7"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2819",
@@ -19,11 +18,8 @@
   ],
   "scope": "Main",
   "securityStandards": {
-    "CWE": [
-      345
-    ],
     "OWASP": [
-      "A3"
+      "A7"
     ]
   }
 }

@@ -1,9 +1,12 @@
 {
   "title": "Using Sockets is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "status": "deprecated",
+  "status": "ready",
   "tags": [
-    
+    "cwe",
+    "sans-top25-risky",
+    "sans-top25-porous",
+    "owasp-a3"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4818",
@@ -12,5 +15,15 @@
     "JAVASCRIPT",
     "TYPESCRIPT"
   ],
-  "scope": "Main"
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      20,
+      200,
+      400
+    ],
+    "OWASP": [
+      "A3"
+    ]
+  }
 }

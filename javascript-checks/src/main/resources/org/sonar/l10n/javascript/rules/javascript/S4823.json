@@ -1,9 +1,11 @@
 {
   "title": "Using command line arguments is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "status": "deprecated",
+  "status": "ready",
   "tags": [
-    
+    "cwe",
+    "owasp-a1",
+    "sans-top25-insecure"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4823",
@@ -12,5 +14,14 @@
     "JAVASCRIPT",
     "TYPESCRIPT"
   ],
-  "scope": "Main"
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      88,
+      214
+    ],
+    "OWASP": [
+      "A1"
+    ]
+  }
 }
