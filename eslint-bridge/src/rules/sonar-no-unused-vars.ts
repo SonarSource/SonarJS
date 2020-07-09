@@ -25,6 +25,7 @@ import * as estree from 'estree';
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let toIgnore: estree.Identifier[] = [];
+    let jsxComponentsToIgnore: string[] = [];
 
     function checkVariable(v: Scope.Variable, toCheck: 'let-const-function' | 'all') {
       if (v.defs.length === 0) {
@@ -44,7 +45,7 @@ export const rule: Rule.RuleModule = {
       const defs = v.defs.map(def => def.name);
       const unused = v.references.every(ref => defs.includes(ref.identifier));
 
-      if (unused && !toIgnore.includes(defs[0])) {
+      if (unused && !toIgnore.includes(defs[0]) && !jsxComponentsToIgnore.includes(v.name)) {
         const message = getMessage(v.name, type === 'FunctionName');
         defs.forEach(def =>
           context.report({
@@ -93,9 +94,15 @@ export const rule: Rule.RuleModule = {
         });
       },
 
+      JSXIdentifier: (node: estree.Node) => {
+        // using 'any' as standard typings for AST don't provide types for JSX
+        jsxComponentsToIgnore.push((node as any).name);
+      },
+
       'Program:exit': () => {
         checkScope(context.getScope(), 'nothing');
         toIgnore = [];
+        jsxComponentsToIgnore = [];
       },
     };
   },
