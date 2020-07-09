@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-
-const ruleTester = new RuleTester({ parserOptions: { sourceType: 'module', ecmaVersion: 2018 } });
 import { rule } from '../../src/rules/sonar-no-unused-vars';
+
+const ruleTester = new RuleTester({
+  parserOptions: { sourceType: 'module', ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
+});
 
 ruleTester.run('Local variables should be used', rule, {
   valid: [
@@ -242,6 +244,25 @@ ruleTester.run('Local variables should be used', rule, {
       }
     }`,
       errors: [{ line: 6 }, { line: 7 }, { line: 10 }],
+    },
+    {
+      code: `
+      function used_in_jsx(icon) {
+        const UsedIcon   = icon;
+        const UnusedIcon = icon; // Noncompliant
+        const lowerCased = icon;
+        const tagContent = "content"
+        const tagAttribute = "attribute";
+
+        // even if React requires user-defined components to start from capital letter
+        // let's test name starting from lower-cased letter
+        <lowerCased />;
+        return <UsedIcon someAttr={tagAttribute}>{tagContent}</UsedIcon>;
+      }
+      `,
+      errors: [
+        { line: 4, message: `Remove the declaration of the unused \'UnusedIcon\' variable.` },
+      ],
     },
   ],
 });
