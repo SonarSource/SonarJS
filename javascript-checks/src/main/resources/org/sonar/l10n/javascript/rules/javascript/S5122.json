@@ -1,5 +1,5 @@
 {
-  "title": "Permissive Cross-Origin Resource Sharing policy is security-sensitive",
+  "title": "Having a permissive Cross-Origin Resource Sharing policy is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "tags": [

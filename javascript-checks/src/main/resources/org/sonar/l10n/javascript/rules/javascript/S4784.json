@@ -4,7 +4,8 @@
   "status": "ready",
   "tags": [
     "cwe",
-    "owasp-a1"
+    "owasp-a1",
+    "regex"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4784",

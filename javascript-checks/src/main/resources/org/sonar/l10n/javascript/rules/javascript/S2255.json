@@ -1,15 +1,13 @@
 {
   "title": "Writing cookies is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "cwe",
-    "sans-top25-porous",
-    "owasp-a3"
+    
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-2255",
@@ -18,16 +16,5 @@
     "JAVASCRIPT",
     "TYPESCRIPT"
   ],
-  "scope": "Main",
-  "securityStandards": {
-    "CWE": [
-      315,
-      312,
-      565,
-      807
-    ],
-    "OWASP": [
-      "A3"
-    ]
-  }
+  "scope": "Main"
 }

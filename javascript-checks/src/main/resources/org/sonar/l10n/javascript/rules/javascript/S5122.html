@@ -1,4 +1,4 @@
-<p>Permissive Cross-Origin Resource Sharing (CORS) policy is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+<p>Having a permissive Cross-Origin Resource Sharing policy is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-0269">CVE-2018-0269</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-14460">CVE-2017-14460</a> </li>
@@ -15,7 +15,7 @@ href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS</a>, that act
   <li> You access control policy is dynamically defined by a user-controlled input like <a
   href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Origin"><code>origin</code></a> header. </li>
 </ul>
-<p>You are at risk if you answered yes to any of those questions.</p>
+<p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
   <li> The <code>Access-Control-Allow-Origin</code> header should be set only for a trusted origin and for specific resources. </li>
@@ -30,14 +30,19 @@ const srv = http.createServer((req, res) =&gt; {
 });
 srv.listen(3000);
 </pre>
-<p><a href="https://expressjs.com/">Express.js</a> framework with <a href="https://github.com/expressjs/cors">cors middleware</a>:</p>
+<p><a href="https://www.npmjs.com/package/express">Express.js</a> framework with <a href="https://www.npmjs.com/package/cors">cors middleware</a>:</p>
 <pre>
-const app = express();
+const cors = require('cors');
 
-app.use((req, res, next) =&gt; {
-    res.header('Access-Control-Allow-Origin', '*'); // Sensitive
-    next();
-});
+let app1 = express();
+app1.use(cors()); // Sensitive: by default origin is set to *
+
+let corsOptions = {
+  origin: '*' // Sensitive
+};
+
+let app2 = express();
+app2.use(cors(corsOptions));
 </pre>
 <h2>Compliant Solution</h2>
 <p><a href="https://nodejs.org/api/http.html">nodejs http</a> built-in module:</p>
@@ -49,14 +54,16 @@ const srv = http.createServer((req, res) =&gt; {
 });
 srv.listen(3000);
 </pre>
-<p><a href="https://expressjs.com/">Express.js</a> framework with <a href="https://github.com/expressjs/cors">cors middleware</a>:</p>
+<p><a href="https://www.npmjs.com/package/express">Express.js</a> framework with <a href="https://www.npmjs.com/package/cors">cors middleware</a>:</p>
 <pre>
-const app = express();
+const cors = require('cors');
 
-app.use((req, res, next) =&gt; {
-    res.header('Access-Control-Allow-Origin', 'trustedwebsite.com'); // Compliant
-    next();
-});
+let corsOptions = {
+  origin: 'trustedwebsite.com' // Compliant
+};
+
+let app = express();
+app.use(cors(corsOptions));
 </pre>
 <h2>See</h2>
 <ul>

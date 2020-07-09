@@ -1,56 +1,32 @@
-<p>OS commands are security-sensitive. For example, their use has led in the past to the following vulnerabilities:</p>
-<ul>
-  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-12465">CVE-2018-12465</a> </li>
-  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-7187">CVE-2018-7187</a> </li>
-</ul>
-<p>Applications that execute operating system commands or execute commands that interact with the underlying system should neutralize any
-externally-provided input used to construct those commands. Failure to do so could allow an attacker to execute unexpected or dangerous commands,
-potentially leading to loss of confidentiality, integrity or availability.</p>
-<p> </p>
-<p>This rule flags code that specifies the name of the command to run. The goal is to guide security code reviews.</p>
+<p>Arbitrary OS command injection vulnerabilities are more likely when a shell is spawned rather than a new process, indeed shell meta-chars can be
+used (when parameters are user-controlled for instance) to inject OS commands.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> the executed command is constructed by input that is externally-influenced, for example, user input (attacker). (*) </li>
-  <li> the command execution is not restricted to the right users. (*) </li>
-  <li> the application can be redesigned to not rely on external input to execute the command. </li>
+  <li> OS command name or parameters are user-controlled. </li>
 </ul>
-<p>(*) You are at risk if you answered yes to any of those questions.</p>
+<p>There is a risk if you answered yes to any of this questions.</p>
 <p> </p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Restrict the control given to the user over the executed command:</p>
-<ul>
-  <li> make the executed command part of a whitelist and reject all commands not part of this list. </li>
-  <li> sanitize the user input. </li>
-</ul>
-<p> </p>
-<p>Restrict which users can have access to the command:</p>
-<ul>
-  <li> use a firewall to protect the process running the code, and to protect the network from the command. </li>
-  <li> authenticate the user and allow only some users to run the command. </li>
-</ul>
-<p>Reduce the damage the command can do:</p>
-<ul>
-  <li> execute the code in a sandbox environment that enforces strict boundaries between the operating system and the process. For example: a "jail".
-  </li>
-  <li> refuse to run the command if the process has too many privileges. For example: forbid running the code as "root". </li>
-</ul>
-<p> </p>
+<p>Use functions that don't spawn a shell.</p>
 <h2>Sensitive Code Example</h2>
 <pre>
 const cp = require('child_process');
 
-// The following method calls are sensitive. Validate the parameter string.
-cp.exec(str);
-cp.execSync(str);
+// A shell will be spawn in these following cases:
+cp.exec(str); // Sensitive
+cp.execSync(str); // Sensitive
 
-// The following method calls are sensitive if the shell parameter is set to true.
-cp.spawn(str, { shell: true });
-cp.spawnSync(str, { shell: true });
-cp.execFile(str, { shell: true });
-cp.execFileSync(str, { shell: true });
+cp.spawn(str, { shell: true }); // Sensitive
+cp.spawnSync(str, { shell: true }); // Sensitive
+cp.execFile(str, { shell: true }); // Sensitive
+cp.execFileSync(str, { shell: true }); // Sensitive
 </pre>
-<h2>Exceptions</h2>
-<p>No issue will be raised if the string being passed is fully hard-coded.</p>
+<h2>Compliant Solution</h2>
+<pre>
+const cp = require('child_process');
+
+cp.execFile("/usr/bin/file.exe", { shell: false }); // Compliant (note that by default with execFile method, shell property is set to false)
+</pre>
 <h2>See</h2>
 <ul>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A1-Injection">OWASP Top 10 2017 Category A1</a> - Injection </li>

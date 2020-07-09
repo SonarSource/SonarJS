@@ -1,5 +1,5 @@
 {
-  "title": "Executing OS commands is security-sensitive",
+  "title": "Using shell interpreter when executing OS commands is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
@@ -11,7 +11,7 @@
     "owasp-a1",
     "sans-top25-insecure"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4721",
   "sqKey": "S4721",
   "compatibleLanguages": [

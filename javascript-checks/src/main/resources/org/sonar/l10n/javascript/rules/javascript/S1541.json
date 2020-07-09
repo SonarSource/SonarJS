@@ -1,5 +1,5 @@
 {
-  "title": "Functions should not be too complex",
+  "title": "Cyclomatic Complexity of functions should not be too high",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

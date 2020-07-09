@@ -26,7 +26,7 @@ SQL injections. The goal is to guide security code reviews and to prevent a comm
   <li> the SQL query is built using string formatting technics, such as concatenating variables. </li>
   <li> some of the values are coming from an untrusted source and are not sanitized. </li>
 </ul>
-<p>You may be at risk if you answered yes to this question.</p>
+<p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
   <li> Avoid building queries manually using formatting technics. If you do it anyway, do not include user input in this building process. </li>
