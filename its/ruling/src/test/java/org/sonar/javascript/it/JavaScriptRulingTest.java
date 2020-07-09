@@ -138,13 +138,13 @@ public class JavaScriptRulingTest {
     instantiateTemplateRule("js", "rules",
       "S124",
       "CommentRegexTest",
-      "regularExpression=\".*TODO.*\";message=\"bad user\"");
+      "regularExpression=\".*TODO.*\";message=\"bad user\";flags=\"i\"");
 
 
     instantiateTemplateRule("ts", "rules",
       "S124",
       "CommentRegexTestTS",
-      "regularExpression=\".*TODO.*\";message=\"bad user\"");
+      "regularExpression=\".*TODO.*\";message=\"bad user\";flags=\"i\"");
 
     installTypeScript(FileLocation.of("../typescript-test-sources/src").getFile());
   }

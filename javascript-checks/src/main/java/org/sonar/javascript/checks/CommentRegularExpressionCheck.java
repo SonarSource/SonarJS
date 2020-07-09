@@ -35,18 +35,25 @@ public class CommentRegularExpressionCheck extends EslintBasedCheck {
 
   private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";
   private static final String DEFAULT_REGULAR_EXPRESSION = "";
+  private static final String DEFAULT_FLAGS = "";
 
   @RuleProperty(
     key = "regularExpression",
-    description = "The regular expression",
-    defaultValue = "" + DEFAULT_REGULAR_EXPRESSION)
+    description = "The regular expression (JavaScript syntax)",
+    defaultValue = DEFAULT_REGULAR_EXPRESSION)
   public String regularExpression = DEFAULT_REGULAR_EXPRESSION;
 
   @RuleProperty(
     key = "message",
     description = "The issue message",
-    defaultValue = "" + DEFAULT_MESSAGE)
+    defaultValue = DEFAULT_MESSAGE)
   public String message = DEFAULT_MESSAGE;
+
+  @RuleProperty(
+    key = "flags",
+    description = "Regular expression modifier flags",
+    defaultValue = DEFAULT_FLAGS)
+  public String flags = DEFAULT_FLAGS;
 
   @Override
   public String eslintKey() {
@@ -55,16 +62,18 @@ public class CommentRegularExpressionCheck extends EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new CommentRegularExpressionCheck.Config(regularExpression, message));
+    return Collections.singletonList(new CommentRegularExpressionCheck.Config(regularExpression, message, flags));
   }
 
   private static class Config {
     String regularExpression;
     String message;
+    String flags;
 
-    Config(String regularExpression, String message) {
+    Config(String regularExpression, String message, String flags) {
       this.regularExpression = regularExpression;
       this.message = message;
+      this.flags = flags;
     }
   }
 

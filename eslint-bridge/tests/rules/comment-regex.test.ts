@@ -72,5 +72,63 @@ ruleTester.run('Track comments matching a regular expression', rule, {
         },
       ],
     },
+    {
+      code: `// Hello, World! This will not work for case-sensitive lowercase.`,
+      options: [{ regularExpression: 'world', message: 'flag-i', flags: 'i' }],
+      errors: [
+        {
+          message: 'flag-i',
+          line: 1,
+          endLine: 1,
+          column: 1,
+          endColumn: 66,
+        },
+      ],
+    },
+    {
+      code: `// start\uD83D\uDE00\uD83D\uDE00end; This will not work without unicode flag`,
+      options: [{ regularExpression: 'start.{2}end', message: 'flag-u', flags: 'u' }],
+      errors: [
+        {
+          message: 'flag-u',
+          line: 1,
+          endLine: 1,
+          column: 1,
+          endColumn: 57,
+        },
+      ],
+    },
+    {
+      code: `// start\uD83D\uDE00aBcDend; This requires both unicode and case insensitivity.`,
+      options: [{ regularExpression: 'start.{1}ABCDend', message: 'flags-ui', flags: 'ui' }],
+      errors: [
+        {
+          message: 'flags-ui',
+          line: 1,
+          endLine: 1,
+          column: 1,
+          endColumn: 70,
+        },
+      ],
+    },
+    {
+      code: `// The flag option is quite robust against invalid inputs: TEST.`,
+      options: [
+        {
+          regularExpression: 'test',
+          message: 'flags-invalid-(?i)',
+          flags: '(?i)',
+        },
+      ],
+      errors: [
+        {
+          message: 'flags-invalid-(?i)',
+          line: 1,
+          endLine: 1,
+          column: 1,
+          endColumn: 65,
+        },
+      ],
+    },
   ],
 });

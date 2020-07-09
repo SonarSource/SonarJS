@@ -10,4 +10,11 @@
 'mootools-core:Source/Slick/Slick.Finder.js':[
 339,
 ],
+'mootools-core:Specs/Core/Core.js':[
+610,
+989,
+],
+'mootools-core:Specs/Utilities/DOMReady.js':[
+9,
+],
 }

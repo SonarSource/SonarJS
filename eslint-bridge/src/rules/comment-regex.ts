@@ -34,6 +34,9 @@ export const rule: Rule.RuleModule = {
           message: {
             type: 'string',
           },
+          flags: {
+            type: 'string',
+          },
         },
         additionalProperties: false,
       },
@@ -42,7 +45,14 @@ export const rule: Rule.RuleModule = {
 
   create(context: Rule.RuleContext) {
     const options = context.options[0] || {};
-    const pattern = options.regularExpression ? new RegExp(options.regularExpression) : undefined;
+    const flags = options.flags || '';
+    const cleanedFlags = 'gimusy'
+      .split('')
+      .filter(c => flags.includes(c))
+      .join('');
+    const pattern = options.regularExpression
+      ? new RegExp(options.regularExpression, cleanedFlags)
+      : undefined;
     const message = options.message || 'The regular expression matches this comment.';
 
     return {
