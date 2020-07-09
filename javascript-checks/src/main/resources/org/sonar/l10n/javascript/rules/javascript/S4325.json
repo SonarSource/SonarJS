@@ -1,5 +1,5 @@
 {
-  "title": "Redundant casts and not-null assertions should be avoided",
+  "title": "Redundant casts and non-null assertions should be avoided",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
