@@ -52,6 +52,11 @@ java.io.InterruptedIOException: timeout
 You can use `sonar.javascript.node.maxspace` property to allow the analyzer to use more memory. Set this property to `4096` or `8192` for big projects. This property should be set in `sonar-project.properties` file or on command line for scanner (with `-Dsonar.javascript.node.maxspace=4096`).
 
 
+### Default exclusions
+
+By default, analyzer will exclude files from dependencies in `node_modules` and `bower_components`. If for some reason analysis of files in these directories
+is desired, it can be configured by setting `sonar.javascript.exclusions` property to empty value, i.e. `sonar.javascript.exclusions=""`, or to comma separated list of paths to be excluded. This property will exclude the files also for other languages, similar to `sonar.exclusions` property, however `sonar.exclusions` property should be preferred to configure general exclusions for the project.
+
 <!-- sonarqube -->
 ## Custom rules
 [[warning]]

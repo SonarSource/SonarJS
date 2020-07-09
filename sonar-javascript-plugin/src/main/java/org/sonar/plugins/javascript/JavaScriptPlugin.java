@@ -70,7 +70,6 @@ public class JavaScriptPlugin implements Plugin {
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
   public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
-  public static final String JS_EXCLUSIONS_DEFAULT_VALUE = "**/node_modules/**,**/bower_components/**";
   public static final String TS_EXCLUSIONS_KEY = "sonar.typescript.exclusions";
 
   public static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
@@ -177,16 +176,6 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(JavaScriptPlugin.GLOBALS_DEFAULT_VALUE)
         .name("Global variables")
         .description("List of global variables.")
-        .onQualifiers(Qualifiers.PROJECT)
-        .subCategory(GENERAL)
-        .multiValues(true)
-        .category(JS_TS_CATEGORY)
-        .build(),
-
-      PropertyDefinition.builder(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
-        .defaultValue(JS_EXCLUSIONS_DEFAULT_VALUE)
-        .name("Default Exclusions")
-        .description("List of file path patterns to be excluded from analysis of JavaScript and TypeScript files.")
         .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .multiValues(true)
