@@ -22,6 +22,7 @@ import {
   analyzeTypeScript,
   getCognitiveComplexity,
   getHighlightedSymbols,
+  initLinter,
 } from '../src/analyzer';
 import { join } from 'path';
 import * as fs from 'fs';
@@ -67,6 +68,20 @@ describe('#analyzeJavaScript', () => {
         { key: 'no-one-iteration-loop', configurations: [] },
         { key: 'no-duplicate-string', configurations: ['2'] },
       ],
+    });
+    expect(issues).toHaveLength(2);
+    expect(issues).toContainEqual(noOneIterationIssue);
+    expect(issues).toContainEqual(noDuplicateStringIssue);
+  });
+
+  it('should report issue using initLinter', () => {
+    initLinter([
+      { key: 'no-one-iteration-loop', configurations: [] },
+      { key: 'no-duplicate-string', configurations: ['2'] },
+    ]);
+    const { issues } = analyzeJavaScript({
+      filePath,
+      fileContent: codeToTest,
     });
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noOneIterationIssue);
@@ -168,6 +183,21 @@ describe('#analyzeTypeScript', () => {
         { key: 'no-one-iteration-loop', configurations: [] },
         { key: 'no-duplicate-string', configurations: ['2'] },
       ],
+      tsConfigs: [tsConfig],
+    });
+    expect(issues).toHaveLength(2);
+    expect(issues).toContainEqual(noOneIterationIssue);
+    expect(issues).toContainEqual(noDuplicateStringIssue);
+  });
+
+  it('should report issue using initLinter', () => {
+    initLinter([
+      { key: 'no-one-iteration-loop', configurations: [] },
+      { key: 'no-duplicate-string', configurations: ['2'] },
+    ]);
+    const { issues } = analyzeTypeScript({
+      filePath: filePath,
+      fileContent: codeToTest,
       tsConfigs: [tsConfig],
     });
     expect(issues).toHaveLength(2);
