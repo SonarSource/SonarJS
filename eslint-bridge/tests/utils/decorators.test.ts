@@ -20,11 +20,6 @@
 import { Rule, RuleTester } from 'eslint';
 import { interceptReport } from '../../src/utils/decorators';
 
-const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { ecmaVersion: 2018 },
-});
-
 function assertThatInterceptReportDecoratorForwardsCalls(
   name: string,
   rule: Rule.RuleModule,
@@ -33,6 +28,11 @@ function assertThatInterceptReportDecoratorForwardsCalls(
     invalid?: RuleTester.InvalidTestCase[];
   },
 ) {
+  const ruleTester = new RuleTester({
+    parser: require.resolve('@typescript-eslint/parser'),
+    parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  });
+
   ruleTester.run(name + ' (without decorator)', rule, tests);
   ruleTester.run(
     name + ' (with decorator)',

@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
+import { RuleTesterTs } from '../RuleTesterTs';
 import { rule } from '../../src/rules/no-unenclosed-multiline-block';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterTs = new RuleTesterTs(false);
 
 ruleTester.run('Multiline blocks should be enclosed in curly braces', rule, {
   valid: [
@@ -181,6 +183,23 @@ ruleTester.run('Multiline blocks should be enclosed in curly braces', rule, {
       `,
       errors: 1,
     },
+  ],
+});
+
+ruleTesterTs.run('TS: Multiline blocks should be enclosed in curly braces', rule, {
+  valid: [
+    {
+      code: `
+      namespace A {
+        if (condition) {
+          action1();
+          action2();
+        }
+      }
+      `,
+    },
+  ],
+  invalid: [
     {
       code: `
       namespace A {

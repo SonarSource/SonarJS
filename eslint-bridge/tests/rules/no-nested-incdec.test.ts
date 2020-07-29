@@ -127,11 +127,11 @@ ruleTester.run('Nested increment (++) and decrement (--) operators should not be
       errors: 1,
     },
     {
-      code: `() => return i++;`,
+      code: `() => { return i++; }`,
       errors: 1,
     },
     {
-      code: `() => throw i++;`,
+      code: `() => { throw i++; }`,
       errors: 1,
     },
     {

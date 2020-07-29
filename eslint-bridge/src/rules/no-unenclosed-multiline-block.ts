@@ -46,6 +46,8 @@ export const rule: Rule.RuleModule = {
       Program: (node: estree.Node) => checkStatements((node as estree.Program).body, context),
       BlockStatement: (node: estree.Node) =>
         checkStatements((node as estree.BlockStatement).body, context),
+      TSModuleBlock: (node: estree.Node) =>
+        checkStatements(((node as unknown) as TSESTree.TSModuleBlock).body as Statement[], context),
     };
   },
 };
@@ -145,7 +147,7 @@ function raiseInlineAndIndentedIssue(
   });
 }
 
-function isNestingStatement(node: estree.Node): node is NestingStatement {
+function isNestingStatement(node: estree.Node | TSESTree.Node): node is NestingStatement {
   return NestingStatementLike.includes(node.type);
 }
 

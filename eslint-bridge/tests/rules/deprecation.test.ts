@@ -45,7 +45,23 @@ function invalid(code: string) {
 
 const ruleTester = new RuleTesterTs();
 ruleTester.run('should report usages of deprecated', rule, {
-  valid: [],
+  valid: [
+    {
+      code: `
+  function foo(strings: TemplateStringsArray, ...values: string[]): string;
+  function foo(strings: TemplateStringsArray, ...values: number[]): string;
+  /** @deprecated */
+  function foo(strings: TemplateStringsArray, ...values: any[]): string;
+  function foo(strings: TemplateStringsArray, ...values: any[]): string {
+    return "result";
+  }
+
+  foo\`\`;
+  foo\`${'foo'}\`;
+  foo\`${42}\`;
+  foo\`${[1, 2, 3]}\`; // FN Noncompliant, for some reason not resolved properly `,
+    },
+  ],
   invalid: [
     {
       code: `
@@ -174,20 +190,6 @@ ruleTester.run('should report usages of deprecated', rule, {
   /** @deprecated */
   let deprecatedCallSignature2: () => void;
   deprecatedCallSignature2(); // Noncompliant`),
-
-    invalid(`
-  function foo(strings: TemplateStringsArray, ...values: string[]): string;
-  function foo(strings: TemplateStringsArray, ...values: number[]): string;
-  /** @deprecated */
-  function foo(strings: TemplateStringsArray, ...values: any[]): string;
-  function foo(strings: TemplateStringsArray, ...values: any[]): string {
-    return "result";
-  }
-  
-  foo\`\`;
-  foo\`${'foo'}\`;
-  foo\`${42}\`;
-  foo\`${[1, 2, 3]}\`; // FN Noncompliant, for some reason not resolved properly `),
 
     invalid(`
   import * as allDeprecations from './deprecations';
