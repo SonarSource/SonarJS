@@ -8,4 +8,11 @@
 'javascript-test-sources:src/ecmascript6/http/src/IResponse.js':[
 10,
 ],
+'javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
+1806,
+2281,
+2728,
+2866,
+2870,
+],
 }
