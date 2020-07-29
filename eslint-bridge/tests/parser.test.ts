@@ -187,19 +187,19 @@ describe('parseTypeScriptSourceFile', () => {
     expect(parsingException).toBeDefined;
     expect(parsingException).toEqual({
       message:
-        'You are using version of TypeScript 1.2.3 which is not supported; supported versions >=3.2.1',
+        'You are using version of TypeScript 1.2.3 which is not supported; supported versions >=3.3.1',
     });
   });
 
   it('should log a warning with TypeScript version above maximum expected', () => {
     console.log = jest.fn();
     resetReportedNewerTypeScriptVersion();
-    checkTypeScriptVersionCompatibility('3.8.5');
+    checkTypeScriptVersionCompatibility('5.0.0');
     expect(console.log).toHaveBeenCalledWith(
-      'WARN You are using version of TypeScript 3.8.5 which is not officially supported; supported versions >=3.2.1 <3.8.0',
+      'WARN You are using version of TypeScript 5.0.0 which is not officially supported; supported versions >=3.3.1 <3.10.0',
     );
     console.log = jest.fn();
-    checkTypeScriptVersionCompatibility('3.8.5');
+    checkTypeScriptVersionCompatibility('5.0.0');
     // should log only once
     expect(console.log).not.toHaveBeenCalled();
 
