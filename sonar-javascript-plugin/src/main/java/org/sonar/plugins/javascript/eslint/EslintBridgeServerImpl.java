@@ -174,6 +174,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
+  public void initLinter(Rule[] rules) throws IOException {
+    String request = GSON.toJson(rules);
+    String response = request(request, "init");
+    if (!"OK!".equals(response)) {
+      throw new IllegalStateException("Failed to initialize linter");
+    }
+  }
+
+  @Override
   public AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-js"), request.filePath);
