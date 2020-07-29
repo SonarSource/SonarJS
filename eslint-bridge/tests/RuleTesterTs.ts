@@ -62,13 +62,6 @@ class RuleTesterTs extends RuleTester {
       invalid?: RuleTester.InvalidTestCase[];
     },
   ): void {
-    if (this.expectNoIssuesWithoutTypes) {
-      this.ruleTesterNoTsConfig.run(`${name}[noTsConfig]`, rule, {
-        valid: tests.invalid,
-        invalid: [],
-      });
-    }
-
     tests.valid.forEach(test => {
       if (!test.filename) {
         test.filename = placeHolderFilePath;

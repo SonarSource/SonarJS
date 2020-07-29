@@ -37,7 +37,8 @@ export function interceptReport(
   onReport: (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void,
 ): Rule.RuleModule {
   return {
-    meta: rule.meta,
+    // meta should be defined only when it's defined on original rule, otherwise RuleTester will fail
+    ...(!!rule.meta && { meta: rule.meta }),
     create(originalContext: Rule.RuleContext) {
       const interceptingContext: Rule.RuleContext = {
         id: originalContext.id,

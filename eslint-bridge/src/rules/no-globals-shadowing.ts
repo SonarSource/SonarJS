@@ -90,7 +90,7 @@ function reportBadUsage(
         break;
       case 'ObjectPattern':
         node.properties.forEach(prop => {
-          reportBadUsage(prop.value, buildMessage, context);
+          reportBadUsage((prop as estree.AssignmentProperty).value, buildMessage, context);
         });
         break;
       case 'ArrayPattern':

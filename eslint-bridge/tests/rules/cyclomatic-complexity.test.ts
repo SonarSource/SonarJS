@@ -180,7 +180,7 @@ ruleTester.run('Functions should not be too complex', rule, {
   invalid: [
     invalid(`
     function ko() {
-  //---------^^--
+          //P^^
       if (x) {}
     //^^
       else if (y) {}
@@ -190,7 +190,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     `),
     invalid(`
     function ko() {
-  //---------^^--
+          //P^^
       if (x) {}
     //^^
       else if (y) {}
@@ -203,7 +203,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     `),
     invalid(`
     function * ko() {
-  //-----------^^--
+            //P^^
       if (x) {}
     //^^
       else if (y) {}
@@ -212,7 +212,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     `),
     invalid(`
     function * ko() {
-  //-----------^^-- 
+            //P^^ 
       if (x) {
     //^^
       if (y) {}
@@ -222,7 +222,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     `),
     invalid(`
     function ko(x) {
-  //---------^^---
+          //P^^
       switch (x) {
         case 0:
       //^^^^
@@ -240,7 +240,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     `),
     invalid(`
     function ko() {
-  //---------^^--
+          //P^^
       a = true && false;
              //^^
       c = true || false;
@@ -250,7 +250,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     invalid(`
     function nesting() {
       function nested() {
-    //---------^^^^^^--
+            //P^^^^^^
         if (x) {
       //^^
         } else if (y) {
@@ -263,7 +263,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     function nesting1() {
       function nesting2() {
         function nested() {
-      //---------^^^^^^--
+              //P^^^^^^
           if (x) {}
         //^^
           else if (y) {}
@@ -275,7 +275,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     invalid(`
     class C {
       ko() {
-    //^^--
+   //P^^
         if (x) {}
       //^^
         else if (y) {}
@@ -290,7 +290,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     class D {
       nesting() {
         function nested() {
-      //---------^^^^^^--
+              //P^^^^^^
           while (x < y) {
         //^^^^^
             return x || y;
@@ -304,7 +304,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     function ko() {
       return {
         get x() {
-          //^--
+         //P^
           try {}
           catch(err) {}
           finally {}
@@ -324,7 +324,7 @@ ruleTester.run('Functions should not be too complex', rule, {
       throw "error";
       return {
         get x() {
-          //^--
+         //P^
           for (i=0; i<2; i++){};
         //^^^
           if (b) {}
@@ -340,7 +340,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     export function toCreateModule() {}
 
     function complexFunction() {
-  //---------^^^^^^^^^^^^^^^-- 
+  //P        ^^^^^^^^^^^^^^^ 
       if (42) {};
     //^^
       while (42) {};
@@ -388,7 +388,7 @@ function invalid(code: string, threshold = THRESHOLD) {
   for (const [index, line] of lines.entries()) {
     let found: RegExpMatchArray | null;
 
-    const primary = /\/\/\s*(\-+\^+\-+)/;
+    const primary = /\/\/P\s*(\^+)/;
     found = line.match(primary);
     if (found) {
       const marker = found[1];
@@ -417,9 +417,13 @@ function error(
   },
   threshold: number,
 ) {
+  const { line, column, endLine, endColumn } = issue.primaryLocation;
   return {
     message: encode(issue.complexity, threshold, issue.secondaryLocations),
-    loc: issue.primaryLocation,
+    line,
+    column: column + 1,
+    endColumn: endColumn + 1,
+    endLine,
   };
 }
 

@@ -85,7 +85,7 @@ function raiseOnUnauthorizedComplexity(
   if (complexity > threshold) {
     context.report({
       message: toEncodedMessage(complexity, threshold, tokens),
-      loc: toPrimaryLocation(node, context),
+      loc: getMainFunctionTokenLocation(node, parent, context),
     });
   }
 }
@@ -101,16 +101,6 @@ function toEncodedMessage(
     secondaryLocations: tokens.map(toSecondaryLocation),
   };
   return JSON.stringify(encodedMessage);
-}
-
-function toPrimaryLocation(node: estree.Node, context: Rule.RuleContext): IssueLocation {
-  const func = node as FunctionNodeType;
-  return {
-    line: func.loc!.start.line,
-    column: func.loc!.start.column,
-    endLine: context.getSourceCode().getTokenBefore(func.body)!.loc.end.line,
-    endColumn: context.getSourceCode().getTokenBefore(func.body)!.loc.end.column,
-  };
 }
 
 function toSecondaryLocation(token: ComplexityToken): IssueLocation {

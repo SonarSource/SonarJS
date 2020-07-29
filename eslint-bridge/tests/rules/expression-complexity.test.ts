@@ -180,9 +180,13 @@ function error(
   },
   max: number,
 ) {
+  const { line, column, endColumn, endLine } = issue.primaryLocation;
   return {
     message: encode(issue.complexity, max, issue.secondaryLocations),
-    loc: issue.primaryLocation,
+    line,
+    column: column + 1,
+    endColumn: endColumn + 1,
+    endLine,
   };
 }
 
