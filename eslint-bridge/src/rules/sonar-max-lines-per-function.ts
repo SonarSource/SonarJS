@@ -47,24 +47,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        let lineCount = 0;
-
-        for (let i = node.loc.start.line - 1; i < node.loc.end.line; ++i) {
-          const line = lines[i];
-
-          if (
-            commentLineNumbers.has(i + 1) &&
-            isFullLineComment(line, i + 1, commentLineNumbers.get(i + 1))
-          ) {
-            continue;
-          }
-
-          if (line.match(/^\s*$/u)) {
-            continue;
-          }
-
-          lineCount++;
-        }
+        const lineCount = getLocsNumber(node.loc, lines, commentLineNumbers);
 
         if (lineCount > threshold) {
           context.report({
@@ -77,7 +60,31 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getCommentLineNumbers(comments: estree.Comment[]) {
+export function getLocsNumber(
+  loc: estree.SourceLocation,
+  lines: string[],
+  commentLineNumbers: Map<number, estree.Comment>,
+) {
+  let lineCount = 0;
+
+  for (let i = loc.start.line - 1; i < loc.end.line; ++i) {
+    const line = lines[i];
+    const comment = commentLineNumbers.get(i + 1);
+    if (comment && isFullLineComment(line, i + 1, comment)) {
+      continue;
+    }
+
+    if (line.match(/^\s*$/u)) {
+      continue;
+    }
+
+    lineCount++;
+  }
+
+  return lineCount;
+}
+
+export function getCommentLineNumbers(comments: estree.Comment[]): Map<number, estree.Comment> {
   const map = new Map();
 
   comments.forEach(comment => {
