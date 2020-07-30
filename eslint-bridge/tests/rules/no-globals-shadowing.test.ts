@@ -187,6 +187,12 @@ ruleTester.run('Special identifiers should not be bound or assigned', rule, {
         function foo(undefined) { var x = undefined; }`,
       errors: 4,
     },
+    {
+      code: `
+      const {obj, ...eval} = foo();
+    `,
+      errors: 1,
+    },
   ],
 });
 

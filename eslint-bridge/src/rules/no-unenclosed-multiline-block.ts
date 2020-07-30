@@ -147,7 +147,7 @@ function raiseInlineAndIndentedIssue(
   });
 }
 
-function isNestingStatement(node: estree.Node | TSESTree.Node): node is NestingStatement {
+function isNestingStatement(node: estree.Node): node is NestingStatement {
   return NestingStatementLike.includes(node.type);
 }
 

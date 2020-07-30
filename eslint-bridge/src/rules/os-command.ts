@@ -91,7 +91,7 @@ function containsShellOption(otherArguments: Argument[]) {
   return otherArguments.some(
     arg =>
       arg.type === 'ObjectExpression' &&
-      (arg.properties as estree.Property[]).some(
+      (arg.properties.filter(v => v.type === 'Property') as estree.Property[]).some(
         ({ key, value }) =>
           isIdentifier(key, 'shell') && value.type === 'Literal' && value.value === true,
       ),

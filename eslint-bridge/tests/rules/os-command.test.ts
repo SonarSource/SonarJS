@@ -60,6 +60,11 @@ ruleTester.run('Executing OS commands is security-sensitive', rule, {
       const exec = require('child_process').fork;
       exec('echo child_process.exec ' + process.argv[2] + ' >> output.txt');`,
     },
+    {
+      code: `
+        import * as cp from 'child_process';
+        cp.spawn('echo child_process.exec ' + process.argv[2] + ' >> output.txt', { ...x });`,
+    },
   ],
   invalid: [
     {

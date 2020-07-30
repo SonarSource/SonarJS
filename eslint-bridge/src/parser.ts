@@ -28,7 +28,7 @@ import * as semver from 'semver';
 // still we might consider extending this range
 // if everything which we need is working on older/newer versions
 const TYPESCRIPT_MINIMUM_VERSION = '3.3.1';
-const TYPESCRIPT_MAXIMUM_VERSION = '3.10.0';
+const TYPESCRIPT_MAXIMUM_VERSION = '4.0.0';
 
 export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   tokens: true,

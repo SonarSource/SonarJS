@@ -164,7 +164,7 @@ public class TypeScriptAnalysisTest {
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
     assertThat(result.isSuccess()).isTrue();
-    assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript " + tsVersion + " which is not officially supported; supported versions >=3.3.1 <3.10.0"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript " + tsVersion + " which is not officially supported; supported versions >=3.3.1 <4.0.0"))).hasSize(1);
   }
 
   @Test

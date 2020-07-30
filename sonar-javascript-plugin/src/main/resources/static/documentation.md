@@ -28,7 +28,7 @@ Discover and update the JavaScript / TypeScript properties in: **<!-- sonarcloud
 
 ## Supported Frameworks and Versions
 * ECMAScript 5 / ECMAScript 2015 (ECMAScript 6) / ECMAScript 2016-2017-2018
-* TypeScript >=3.2.1 <3.8.0. If it's not possible to upgrade version of TypeScript used by the project, consider installing supported TypeScript version just for the time of analysis.
+* TypeScript >=3.3.1 <4.0.0. If it's not possible to upgrade version of TypeScript used by the project, consider installing supported TypeScript version just for the time of analysis.
 * React JSX
 * Vue.js
 * Flow

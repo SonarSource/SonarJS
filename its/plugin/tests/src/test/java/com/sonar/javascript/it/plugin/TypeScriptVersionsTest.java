@@ -69,7 +69,6 @@ public class TypeScriptVersionsTest {
 
     String projectKey = "tsproject-test-ts-version-" + tsVersion;
     SonarScanner build = SonarScanner.create()
-      .setDebugLogs(true)
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
