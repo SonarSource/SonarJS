@@ -13,7 +13,7 @@ const requestHandler = (request, response) => {
     response.end('OK!');
   } else if (request.url === '/tsconfig-files') {
     response.end("{files: ['abs/path/file1', 'abs/path/file2', 'abs/path/file3']}");
-  } else if (request.url === '/init') {
+  } else if (request.url === '/init-linter') {
     let data = '';
     request.on('data', chunk => data += chunk);
     request.on('end', () => console.log(data));
