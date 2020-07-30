@@ -177,7 +177,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   @Override
   public void initLinter(Rule[] rules) throws IOException {
     String request = GSON.toJson(rules);
-    String response = request(request, "init");
+    String response = request(request, "init-linter");
     if (!"OK!".equals(response)) {
       throw new IllegalStateException("Failed to initialize linter");
     }

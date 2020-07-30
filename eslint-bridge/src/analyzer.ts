@@ -62,7 +62,6 @@ export const COGNITIVE_COMPLEXITY_RULE: AdditionalRule = {
 export interface AnalysisInput {
   filePath: string;
   fileContent: string | undefined;
-  rules?: Rule[];
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
 }
@@ -142,8 +141,8 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
   if (!fileContent) {
     fileContent = getFileContent(input.filePath);
   }
-  if (input.rules) {
-    initLinter(input.rules);
+  if (!linter) {
+    throw new Error('Linter is undefined. Did you call /init-linter?');
   }
   const result = parse(fileContent, input.filePath, input.tsConfigs);
   if (result instanceof SourceCode) {
