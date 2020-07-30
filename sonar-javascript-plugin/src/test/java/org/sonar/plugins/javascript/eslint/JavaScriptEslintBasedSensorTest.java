@@ -71,6 +71,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -119,7 +120,7 @@ public class JavaScriptEslintBasedSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
-
+    verify(eslintBridgeServerMock, times(1)).initLinter(any());
     assertThat(context.allIssues()).hasSize(3);
 
     Iterator<Issue> issues = context.allIssues().iterator();

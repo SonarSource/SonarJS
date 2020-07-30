@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -130,6 +131,18 @@ public class EslintBridgeServerImplTest {
       .build();
     AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, true, null);
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
+  }
+
+  @Test
+  public void test_init() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+
+    EslintBridgeServer.Rule[] rules = { new EslintBridgeServer.Rule("key", singletonList("config")) };
+    eslintBridgeServer.initLinter(rules);
+    eslintBridgeServer.stop();
+    assertThat(logTester.logs()).contains("[{\"key\":\"key\",\"configurations\":[\"config\"]}]");
   }
 
   @Test
