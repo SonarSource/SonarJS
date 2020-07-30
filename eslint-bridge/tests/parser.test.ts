@@ -196,7 +196,7 @@ describe('parseTypeScriptSourceFile', () => {
     resetReportedNewerTypeScriptVersion();
     checkTypeScriptVersionCompatibility('5.0.0');
     expect(console.log).toHaveBeenCalledWith(
-      'WARN You are using version of TypeScript 5.0.0 which is not officially supported; supported versions >=3.3.1 <4.0.0',
+      'WARN You are using version of TypeScript 5.0.0 which is not officially supported; supported versions >=3.3.1 <3.10.0',
     );
     console.log = jest.fn();
     checkTypeScriptVersionCompatibility('5.0.0');
