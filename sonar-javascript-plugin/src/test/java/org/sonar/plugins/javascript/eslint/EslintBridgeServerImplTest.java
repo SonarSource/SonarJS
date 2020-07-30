@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -37,7 +38,6 @@ import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Rule;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -129,8 +129,20 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, new Rule[0], true, null);
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, true, null);
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
+  }
+
+  @Test
+  public void test_init() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context);
+
+    EslintBridgeServer.Rule[] rules = { new EslintBridgeServer.Rule("key", singletonList("config")) };
+    eslintBridgeServer.initLinter(rules);
+    eslintBridgeServer.stop();
+    assertThat(logTester.logs()).contains("[{\"key\":\"key\",\"configurations\":[\"config\"]}]");
   }
 
   @Test
@@ -145,7 +157,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, new Rule[0], true,
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, true,
       singletonList(tsConfig.absolutePath()));
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
@@ -229,7 +241,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, new Rule[0], true, null);
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, true, null);
     assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request)).isInstanceOf(IllegalStateException.class);
     assertThat(context.allIssues()).isEmpty();
   }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getRuleConfig, decodeSonarRuntimeIssue, analyze } from '../src/linter';
+import { getRuleConfig, decodeSonarRuntimeIssue, LinterWrapper } from '../src/linter';
 import { Rule, SourceCode } from 'eslint';
 import { SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE } from '../src/analyzer';
 import { parseJavaScriptSourceFile } from '../src/parser';
@@ -129,7 +129,8 @@ describe('#decodeSecondaryLocations', () => {
 
   it('should compute symbol highlighting when additional rule', () => {
     const sourceCode = parseJavaScriptSourceFile('let x = 42;') as SourceCode;
-    const result = analyze(sourceCode, filePath, [], SYMBOL_HIGHLIGHTING_RULE).issues;
+    const linter = new LinterWrapper([], SYMBOL_HIGHLIGHTING_RULE);
+    const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(1);
     expect(result[0].ruleId).toEqual(SYMBOL_HIGHLIGHTING_RULE.ruleId);
     expect(result[0].message).toEqual(
@@ -139,7 +140,8 @@ describe('#decodeSecondaryLocations', () => {
 
   it('should not compute symbol highlighting when no additional rule', () => {
     const sourceCode = parseJavaScriptSourceFile('let x = 42;') as SourceCode;
-    const result = analyze(sourceCode, filePath, []).issues;
+    const linter = new LinterWrapper([]);
+    const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(0);
   });
 
@@ -147,7 +149,8 @@ describe('#decodeSecondaryLocations', () => {
     const sourceCode = parseJavaScriptSourceFile(`
     /*eslint max-params: ["error", 1]*/
     function foo(a, b){}`) as SourceCode;
-    const result = analyze(sourceCode, filePath, []).issues;
+    const linter = new LinterWrapper([]);
+    const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(0);
   });
 
@@ -155,7 +158,8 @@ describe('#decodeSecondaryLocations', () => {
     const sourceCode = parseJavaScriptSourceFile(
       'if (true) if (true) if (true) return;',
     ) as SourceCode;
-    const result = analyze(sourceCode, filePath, [], COGNITIVE_COMPLEXITY_RULE).issues;
+    const linter = new LinterWrapper([], COGNITIVE_COMPLEXITY_RULE);
+    const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(1);
     expect(result[0].ruleId).toEqual(COGNITIVE_COMPLEXITY_RULE.ruleId);
     expect(result[0].message).toEqual('6');
@@ -166,9 +170,8 @@ describe('#decodeSecondaryLocations', () => {
       `expect(true).to.be.true;
        42;`, // we report only here
     ) as SourceCode;
-    const result = analyze(sourceCode, filePath, [
-      { key: 'no-unused-expressions', configurations: [] },
-    ]).issues;
+    const linter = new LinterWrapper([{ key: 'no-unused-expressions', configurations: [] }]);
+    const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(1);
   });
 });

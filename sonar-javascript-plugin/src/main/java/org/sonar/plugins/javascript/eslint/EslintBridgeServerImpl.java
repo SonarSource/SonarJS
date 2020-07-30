@@ -47,6 +47,7 @@ import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
 
@@ -170,6 +171,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     } catch (NodeCommandException e) {
       failedToStart = true;
       throw e;
+    }
+  }
+
+  @Override
+  public void initLinter(Rule[] rules) throws IOException {
+    String request = GSON.toJson(rules);
+    String response = request(request, "init-linter");
+    if (!"OK!".equals(response)) {
+      throw new IllegalStateException("Failed to initialize linter");
     }
   }
 

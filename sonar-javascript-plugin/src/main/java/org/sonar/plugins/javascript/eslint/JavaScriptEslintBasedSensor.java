@@ -86,6 +86,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     try {
       List<InputFile> inputFiles = getInputFiles();
       progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
+      eslintBridgeServer.initLinter(rules);
       for (InputFile inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
@@ -111,7 +112,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private void analyze(InputFile file) throws IOException {
     try {
       String fileContent = shouldSendFileContent(file) ? file.contents() : null;
-      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, rules, ignoreHeaderComments(), null);
+      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, ignoreHeaderComments(), null);
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
       processResponse(file, response);
     } catch (IOException e) {

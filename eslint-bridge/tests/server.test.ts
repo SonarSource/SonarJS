@@ -189,11 +189,14 @@ describe('server', () => {
     expect.assertions(2);
     expect(server.listening).toEqual(true);
 
+    await post(
+      JSON.stringify([{ key: 'no-all-duplicated-branches', configurations: [] }]),
+      '/init-linter',
+    );
     const response = await post(
       JSON.stringify({
         filePath: 'dir/file.js',
         fileContent: 'if (true) 42; else 42;',
-        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
       }),
       '/analyze-js',
     );
@@ -208,11 +211,14 @@ describe('server', () => {
     expect.assertions(2);
     expect(server.listening).toEqual(true);
 
+    await post(
+      JSON.stringify([{ key: 'no-all-duplicated-branches', configurations: [] }]),
+      '/init-linter',
+    );
     const response = await post(
       JSON.stringify({
         filePath,
         fileContent: 'if (true) 42; else 42;',
-        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
         ignoreHeaderComments: true,
         tsConfigs: [tsConfig],
       }),

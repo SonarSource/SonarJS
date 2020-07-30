@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { analyzeTypeScript } from '../../src/analyzer';
+import { analyzeTypeScript, initLinter } from '../../src/analyzer';
 import { HighlightedSymbol } from '../../src/runner/symbol-highlighter';
 import { Location } from '../../src/runner/location';
 
@@ -109,10 +109,10 @@ function location(startLine: number, startCol: number, endLine: number, endCol: 
 function actual(code: string): HighlightedSymbol[] {
   const filePath = join(__dirname, '/../fixtures/ts-project/sample.lint.ts');
   const tsConfig = join(__dirname, '/../fixtures/ts-project/tsconfig.json');
+  initLinter([]);
   const result = analyzeTypeScript({
     filePath,
     fileContent: code,
-    rules: [],
     tsConfigs: [tsConfig],
   });
 

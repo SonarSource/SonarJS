@@ -27,6 +27,8 @@ import {
   analyzeTypeScript,
   EMPTY_RESPONSE,
   AnalysisResponse,
+  initLinter,
+  Rule,
 } from './analyzer';
 import { AddressInfo } from 'net';
 import { unloadTypeScriptEslint, ParseExceptionCode } from './parser';
@@ -53,6 +55,11 @@ export function startServer(
 
     // for parsing application/json requests
     app.use(bodyParser.json({ limit: MAX_REQUEST_SIZE }));
+
+    app.post('/init-linter', (req, resp) => {
+      initLinter(req.body as Rule[]);
+      resp.send('OK!');
+    });
 
     app.post('/analyze-js', analyze(analyzeJS));
 

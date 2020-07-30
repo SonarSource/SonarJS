@@ -27,7 +27,6 @@ import {
 import getHighlighting, { Highlight } from './runner/highlighter';
 import getMetrics, { EMPTY_METRICS, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
-import * as linter from './linter';
 import { SourceCode } from 'eslint';
 import {
   HighlightedSymbol,
@@ -36,6 +35,7 @@ import {
 } from './runner/symbol-highlighter';
 import * as fs from 'fs';
 import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
+import { LinterWrapper, AdditionalRule } from './linter';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
@@ -47,13 +47,13 @@ export const EMPTY_RESPONSE: AnalysisResponse = {
   cpdTokens: [],
 };
 
-export const SYMBOL_HIGHLIGHTING_RULE: linter.AdditionalRule = {
+export const SYMBOL_HIGHLIGHTING_RULE: AdditionalRule = {
   ruleId: symbolHighlightingRuleId,
   ruleModule: symbolHighlightingRule,
   ruleConfig: [],
 };
 
-export const COGNITIVE_COMPLEXITY_RULE: linter.AdditionalRule = {
+export const COGNITIVE_COMPLEXITY_RULE: AdditionalRule = {
   ruleId: COGNITIVE_COMPLEXITY_RULE_ID,
   ruleModule: sonarjsRules['cognitive-complexity'],
   ruleConfig: ['metric'],
@@ -62,7 +62,6 @@ export const COGNITIVE_COMPLEXITY_RULE: linter.AdditionalRule = {
 export interface AnalysisInput {
   filePath: string;
   fileContent: string | undefined;
-  rules: Rule[];
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
 }
@@ -131,10 +130,19 @@ function stripBom(s: string) {
   return s;
 }
 
+let linter: LinterWrapper;
+
+export function initLinter(rules: Rule[]) {
+  linter = new LinterWrapper(rules, SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE);
+}
+
 function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
   let fileContent = input.fileContent;
   if (!fileContent) {
     fileContent = getFileContent(input.filePath);
+  }
+  if (!linter) {
+    throw new Error('Linter is undefined. Did you call /init-linter?');
   }
   const result = parse(fileContent, input.filePath, input.tsConfigs);
   if (result instanceof SourceCode) {
@@ -148,13 +156,7 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
 }
 
 function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
-  const issues = linter.analyze(
-    sourceCode,
-    input.filePath,
-    input.rules,
-    SYMBOL_HIGHLIGHTING_RULE,
-    COGNITIVE_COMPLEXITY_RULE,
-  ).issues;
+  const issues = linter.analyze(sourceCode, input.filePath).issues;
   return {
     issues,
     highlightedSymbols: getHighlightedSymbols(issues),

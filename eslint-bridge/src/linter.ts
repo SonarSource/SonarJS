@@ -44,61 +44,86 @@ export interface AdditionalRule {
   ruleConfig: any[];
 }
 
-const linter = new Linter();
-linter.defineRules(sonarjsRules);
-linter.defineRules(internalRules);
+export class LinterWrapper {
+  linter: Linter;
+  linterConfig: Linter.Config;
+  rules: Map<string, ESLintRule.RuleModule>;
 
-const NO_UNUSED_EXPRESSIONS = 'no-unused-expressions';
+  /**
+   * 'additionalRules' - rules used for computing metrics (incl. highlighting) when it requires access to the rule context; resulting value is encoded in the message
+   */
+  constructor(rules: Rule[], ...additionalRules: AdditionalRule[]) {
+    this.linter = new Linter();
+    this.linter.defineRules(sonarjsRules);
+    this.linter.defineRules(internalRules);
 
-// core implementation of this rule raises FPs on chai framework
-linter.defineRule(
-  NO_UNUSED_EXPRESSIONS,
-  decorateChaiFriendly(chaiFriendlyRules[NO_UNUSED_EXPRESSIONS]),
-);
+    const NO_UNUSED_EXPRESSIONS = 'no-unused-expressions';
 
-try {
-  // we load "@typescript-eslint/eslint-plugin" dynamically as it requires TS and so we don't need typescript dependency when analysing pure JS project
-  const typescriptEslintRules = require('@typescript-eslint/eslint-plugin').rules;
-  // TS implementation of no-throw-literal is not supporting JS code.
-  delete typescriptEslintRules['no-throw-literal'];
-  linter.defineRules(typescriptEslintRules);
+    // core implementation of this rule raises FPs on chai framework
+    this.linter.defineRule(
+      NO_UNUSED_EXPRESSIONS,
+      decorateChaiFriendly(chaiFriendlyRules[NO_UNUSED_EXPRESSIONS]),
+    );
 
-  const noUnusedExpressionsRule = typescriptEslintRules[NO_UNUSED_EXPRESSIONS];
-  if (noUnusedExpressionsRule) {
-    linter.defineRule(NO_UNUSED_EXPRESSIONS, decorateTypescriptEslint(noUnusedExpressionsRule));
-  }
-} catch {
-  // do nothing, "typescript" is not there
-}
+    try {
+      // we load "@typescript-eslint/eslint-plugin" dynamically as it requires TS and so we don't need typescript dependency when analysing pure JS project
+      const typescriptEslintRules = require('@typescript-eslint/eslint-plugin').rules;
+      // TS implementation of no-throw-literal is not supporting JS code.
+      delete typescriptEslintRules['no-throw-literal'];
+      this.linter.defineRules(typescriptEslintRules);
 
-/**
- * 'additionalRules' - rules used for computing metrics (incl. highlighting) when it requires access to the rule context; resulting value is encoded in the message
- */
-export function analyze(
-  sourceCode: SourceCode,
-  filePath: string,
-  inputRules: Rule[],
-  ...additionalRules: AdditionalRule[]
-) {
-  additionalRules.forEach(additionalRule =>
-    linter.defineRule(additionalRule.ruleId, additionalRule.ruleModule),
-  );
-
-  const issues = linter
-    .verify(sourceCode, createLinterConfig(inputRules, additionalRules), {
-      filename: filePath,
-      allowInlineConfig: false,
-    })
-    .map(removeIrrelevantProperties)
-    .map(issue => {
-      if (!issue) {
-        return null;
+      const noUnusedExpressionsRule = typescriptEslintRules[NO_UNUSED_EXPRESSIONS];
+      if (noUnusedExpressionsRule) {
+        this.linter.defineRule(
+          NO_UNUSED_EXPRESSIONS,
+          decorateTypescriptEslint(noUnusedExpressionsRule),
+        );
       }
-      return decodeSonarRuntimeIssue(linter.getRules().get(issue.ruleId), issue);
-    })
-    .filter((issue): issue is Issue => issue !== null)
-    .map(normalizeIssueLocation);
-  return { issues };
+    } catch {
+      // do nothing, "typescript" is not there
+    }
+    additionalRules.forEach(additionalRule =>
+      this.linter.defineRule(additionalRule.ruleId, additionalRule.ruleModule),
+    );
+
+    this.rules = this.linter.getRules();
+    this.linterConfig = this.createLinterConfig(rules, additionalRules);
+  }
+
+  createLinterConfig(inputRules: Rule[], additionalRules: AdditionalRule[]) {
+    const ruleConfig: Linter.Config = {
+      rules: {},
+      parserOptions: { sourceType: 'module', ecmaVersion: 2018 },
+    };
+    inputRules.forEach(inputRule => {
+      const ruleModule = this.rules.get(inputRule.key);
+      ruleConfig.rules![inputRule.key] = ['error', ...getRuleConfig(ruleModule, inputRule)];
+    });
+
+    additionalRules.forEach(
+      additionalRule =>
+        (ruleConfig.rules![additionalRule.ruleId] = ['error', ...additionalRule.ruleConfig]),
+    );
+    return ruleConfig;
+  }
+
+  analyze(sourceCode: SourceCode, filePath: string) {
+    const issues = this.linter
+      .verify(sourceCode, this.linterConfig, {
+        filename: filePath,
+        allowInlineConfig: false,
+      })
+      .map(removeIrrelevantProperties)
+      .map(issue => {
+        if (!issue) {
+          return null;
+        }
+        return decodeSonarRuntimeIssue(this.rules.get(issue.ruleId), issue);
+      })
+      .filter((issue): issue is Issue => issue !== null)
+      .map(normalizeIssueLocation);
+    return { issues };
+  }
 }
 
 // exported for testing
@@ -138,26 +163,6 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
     message: eslintIssue.message,
     secondaryLocations: [],
   };
-}
-
-function createLinterConfig(
-  inputRules: Rule[],
-  additionalRules: { ruleId: string; ruleModule: ESLintRule.RuleModule; ruleConfig: any[] }[],
-) {
-  const ruleConfig: Linter.Config = {
-    rules: {},
-    parserOptions: { sourceType: 'module', ecmaVersion: 2018 },
-  };
-  inputRules.forEach(inputRule => {
-    const ruleModule = linter.getRules().get(inputRule.key);
-    ruleConfig.rules![inputRule.key] = ['error', ...getRuleConfig(ruleModule, inputRule)];
-  });
-
-  additionalRules.forEach(
-    additionalRule =>
-      (ruleConfig.rules![additionalRule.ruleId] = ['error', ...additionalRule.ruleConfig]),
-  );
-  return ruleConfig;
 }
 
 /**
