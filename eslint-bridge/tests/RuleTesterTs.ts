@@ -35,18 +35,6 @@ const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-proj
  * It will also assert that no issues is raised when there are no type information.
  */
 class RuleTesterTs extends RuleTester {
-  ruleTesterNoTsConfig = new RuleTester({
-    parser,
-    parserOptions: {
-      ecmaVersion: 2018,
-      sourceType: 'module',
-      ecmaFeatures: {
-        jsx: true,
-        globalReturn: true,
-      },
-    },
-  });
-
   constructor(public expectNoIssuesWithoutTypes = true) {
     super({
       parser,
@@ -62,16 +50,14 @@ class RuleTesterTs extends RuleTester {
       invalid?: RuleTester.InvalidTestCase[];
     },
   ): void {
-    tests.valid.forEach(test => {
+    const setFilename = test => {
       if (!test.filename) {
         test.filename = placeHolderFilePath;
       }
-    });
-    tests.invalid.forEach(test => {
-      if (!test.filename) {
-        test.filename = placeHolderFilePath;
-      }
-    });
+    };
+
+    tests.valid.forEach(setFilename);
+    tests.invalid.forEach(setFilename);
 
     super.run(name, rule, tests);
   }
