@@ -101,7 +101,7 @@ ruleTester.run('Unused function parameters should be removed', rule, {
       errors: 1,
     },
     {
-      code: `function(num, num2=1, num3=2) {
+      code: `var f = function(num, num2=1, num3=2) {
               return num === num2;
               }`,
       errors: 1,

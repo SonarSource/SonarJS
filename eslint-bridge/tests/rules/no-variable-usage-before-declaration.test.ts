@@ -119,7 +119,7 @@ ruleTester.run(`Variables declared with "var" should be declared before they are
     },
     {
       code: `
-      let fun => () {
+      let fun = () => {
         print(x);
       }
       var x;

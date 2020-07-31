@@ -64,7 +64,7 @@ ruleTester.run('Only "while", "do", "for" and "switch" statements should be labe
       ],
     },
     {
-      code: `invalidLabel: let x = 0;`,
+      code: `invalidLabel: var x = 0;`,
       errors: 1,
     },
   ],

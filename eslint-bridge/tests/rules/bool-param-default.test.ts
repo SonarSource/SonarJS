@@ -83,7 +83,7 @@ ruleTester.run('Optional boolean parameters should have default value', rule, {
       errors: 1,
     },
     {
-      code: `let f = (b?: boolean) b;`,
+      code: `let f = (b?: boolean) => b;`,
       errors: 1,
     },
     {

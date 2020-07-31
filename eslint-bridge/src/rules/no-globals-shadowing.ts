@@ -90,7 +90,11 @@ function reportBadUsage(
         break;
       case 'ObjectPattern':
         node.properties.forEach(prop => {
-          reportBadUsage(prop.value, buildMessage, context);
+          if (prop.type === 'Property') {
+            reportBadUsage(prop.value, buildMessage, context);
+          } else {
+            reportBadUsage(prop.argument, buildMessage, context);
+          }
         });
         break;
       case 'ArrayPattern':

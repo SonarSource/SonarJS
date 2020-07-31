@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
               if (isTypeWithoutMembers(tp, ts)) {
                 context.report({
                   message: 'Remove this type without members or change this type intersection.',
-                  node: typeNode as estree.Node,
+                  node: (typeNode as unknown) as estree.Node,
                 });
               }
             });

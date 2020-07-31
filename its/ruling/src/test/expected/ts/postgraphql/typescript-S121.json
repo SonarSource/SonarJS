@@ -123,6 +123,8 @@
 ],
 'postgraphql:src/interface/type/switchType.ts':[
 40,
+41,
+43,
 48,
 ],
 'postgraphql:src/postgraphql/cli.ts':[
