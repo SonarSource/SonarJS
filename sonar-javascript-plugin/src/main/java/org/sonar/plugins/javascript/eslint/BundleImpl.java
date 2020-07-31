@@ -109,7 +109,7 @@ public class BundleImpl implements Bundle {
   }
 
   private static Path entryPath(Path targetPath, ArchiveEntry entry) {
-    Path entryPath = targetPath.resolve(entry.getName());
+    Path entryPath = targetPath.resolve(entry.getName()).normalize();
     if (!entryPath.startsWith(targetPath)) {
       throw new IllegalStateException("Archive entry " + entry.getName() + " is not within " + targetPath);
     }
