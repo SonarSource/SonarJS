@@ -41,22 +41,12 @@ public class TooManyLinesInFileCheck extends EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config(maximum));
+    return Collections.singletonList(maximum);
   }
 
   @Override
   public String eslintKey() {
-    return "max-lines";
-  }
-
-  private static class Config {
-    int max;
-    boolean skipBlankLines = true;
-    boolean skipComments = true;
-
-    Config(int max) {
-      this.max = max;
-    }
+    return "sonar-max-lines";
   }
 
 }

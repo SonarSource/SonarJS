@@ -17,25 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+import { RuleTester } from 'eslint';
 
-import com.google.gson.Gson;
-import org.junit.Test;
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+import { rule } from '../../src/rules/sonar-max-lines';
 
-import static org.assertj.core.api.Assertions.assertThat;
+ruleTester.run('Too many lines in file', rule, {
+  valid: [
+    {
+      code: `a;
+             b;
+             c;`,
+      options: [3],
+    },
+    {
+      code: `a;
 
-public class TooManyLinesInFileCheckTest {
+             b;
+             // comment
+             c;`,
+      options: [3],
+    },
+  ],
+  invalid: [
+    {
+      code: `a;
+      b;
 
-  @Test
-  public void test_configuration() {
-    TooManyLinesInFileCheck check = new TooManyLinesInFileCheck();
-
-    String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[1000]");
-
-    check.maximum = 42;
-    String configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString).isEqualTo("[42]");
-  }
-
-}
+      c;
+      // comment
+      d;`,
+      options: [3],
+      errors: [
+        {
+          message: `This file has 4 lines, which is greater than 3 authorized. Split it into smaller files.`,
+          line: 0,
+          column: 1,
+        },
+      ],
+    },
+  ],
+});
