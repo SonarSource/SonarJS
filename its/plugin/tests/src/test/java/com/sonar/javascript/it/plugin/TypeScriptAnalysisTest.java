@@ -25,7 +25,6 @@ import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -45,8 +44,6 @@ public class TypeScriptAnalysisTest {
   @BeforeClass
   public static void startServer() throws Exception {
     orchestrator.resetData();
-
-    TestUtils.npmInstall(PROJECT_DIR);
   }
 
   @Test
@@ -108,69 +105,8 @@ public class TypeScriptAnalysisTest {
   }
 
   @Test
-  public void test_missing_typescript() throws Exception {
-    File dir = TestUtils.projectDir("tsproject-no-typescript");
-    File node_modules = new File(dir, "node_modules");
-    if (node_modules.exists()) {
-      FileUtils.deleteDirectory(node_modules);
-    }
-
-    String projectKey = "tsproject-no-typescript";
-    SonarScanner build = SonarScanner.create()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProjectDir(dir);
-
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
-    BuildResult result = orchestrator.executeBuild(build);
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.getLogsLines(l -> l.contains("TypeScript dependency was not found inside project directory, " +
-      "Node.js will search TypeScript using module resolution algorithm; analysis will fail without TypeScript."))).hasSize(1);
-    assertThat(result.getLogsLines(l -> l.contains("TypeScript dependency was not found and it is required for analysis."))).hasSize(1);
-    assertThat(result.getLogsLines(l -> l.contains("Install TypeScript in the project directory or use NODE_PATH env. " +
-      "variable to set TypeScript location, if it's located outside of project directory."))).hasSize(1);
-  }
-
-  @Test
-  public void test_incompatible_typescript() throws Exception {
-    File dir = TestUtils.projectDir("tsproject-no-typescript");
-    TestUtils.npmInstall(dir, "typescript@2.6.2", "--no-save");
-    String projectKey = "tsproject-old-typescript";
-    SonarScanner build = SonarScanner.create()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProjectDir(dir);
-
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
-    BuildResult result = orchestrator.executeBuild(build);
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript 2.6.2 which is not supported; supported versions >=3.3.1"))).hasSize(1);
-  }
-
-  @Test
-  public void test_new_typescript() throws Exception {
-    File dir = TestUtils.projectDir("tsproject-no-typescript");
-    String tsVersion = "4.0.0-beta";
-    TestUtils.npmInstall(dir, "typescript@" + tsVersion, "--no-save");
-    String projectKey = "tsproject-new-typescript";
-    SonarScanner build = SonarScanner.create()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProjectDir(dir);
-
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
-    BuildResult result = orchestrator.executeBuild(build);
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.getLogsLines(l -> l.contains("You are using version of TypeScript " + tsVersion + " which is not officially supported; supported versions >=3.3.1 <3.10.0"))).hasSize(1);
-  }
-
-  @Test
   public void should_analyze_without_tsconfig() throws Exception {
     File dir = TestUtils.projectDir("missing-tsconfig");
-    TestUtils.npmInstall(dir);
 
     String projectKey = "missing-tsconfig";
     SonarScanner build = SonarScanner.create()
@@ -179,7 +115,6 @@ public class TypeScriptAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(dir)
       .setDebugLogs(true);
-
 
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
@@ -195,7 +130,6 @@ public class TypeScriptAnalysisTest {
   @Test
   public void should_exclude_from_extended_tsconfig() throws Exception {
     File dir = TestUtils.projectDir("tsproject-extended");
-    TestUtils.npmInstall(dir);
 
     String projectKey = "tsproject-extended";
     SonarScanner build = SonarScanner.create()

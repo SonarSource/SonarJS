@@ -57,7 +57,6 @@ public class MultiTsconfigTest {
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "ts", "eslint-based-rules-profile");
 
-    TestUtils.npmInstall(PROJECT_DIR);
     orchestrator.executeBuild(build);
 
     assertThat(getIssues(PROJECT)).extracting(Issue::getLine, Issue::getComponent).containsExactlyInAnyOrder(

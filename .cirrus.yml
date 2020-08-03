@@ -159,6 +159,9 @@ ruling_task:
     - cd its/ruling
     - mvn verify -Dtest=${RULING} -Dsonar.runtimeVersion=LATEST_RELEASE[7.9] -Dmaven.test.redirectTestOutputToFile=false -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
+  on_failure:
+    diff_artifacts:
+      path: "**/target/actual/**/*"
 
 
 promote_task:

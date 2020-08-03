@@ -19,15 +19,12 @@
  */
 package org.sonarsource.nodejs;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.SystemUtils;
@@ -52,17 +49,15 @@ public class NodeCommand {
   final Consumer<String> errorConsumer;
   private final StreamConsumer streamConsumer;
   private final ProcessWrapper processWrapper;
-  private final List<Path> nodePath;
   private Process process;
   private final List<String> command;
 
-  NodeCommand(ProcessWrapper processWrapper, String nodeExecutable, List<Path> nodePath, List<String> nodeJsArgs, @Nullable String scriptFilename,
+  NodeCommand(ProcessWrapper processWrapper, String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename,
               List<String> args,
               Consumer<String> outputConsumer,
               Consumer<String> errorConsumer) {
     this.processWrapper = processWrapper;
     this.command = buildCommand(nodeExecutable, nodeJsArgs, scriptFilename, args);
-    this.nodePath = nodePath;
     this.outputConsumer = outputConsumer;
     this.errorConsumer = errorConsumer;
     this.streamConsumer = new StreamConsumer();
@@ -76,24 +71,12 @@ public class NodeCommand {
   public void start() {
     try {
       LOG.debug("Launching command {}", toString());
-      process = processWrapper.start(command, envWithNodePath());
+      process = processWrapper.start(command, new HashMap<>());
       streamConsumer.consumeStream(process.getInputStream(), outputConsumer);
       streamConsumer.consumeStream(process.getErrorStream(), errorConsumer);
     } catch (IOException e) {
       throw new NodeCommandException("Error when running: '" + toString() + "'. Is Node.js available during analysis?", e);
     }
-  }
-
-  private Map<String, String> envWithNodePath() {
-    Map<String, String> env = new HashMap<>();
-    if (nodePath.isEmpty()) {
-      return env;
-    }
-    String nodePathString = nodePath.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator));
-    String currentNodePath = processWrapper.getenv("NODE_PATH");
-    String newNodePath = currentNodePath == null ? nodePathString : (currentNodePath + File.pathSeparator + nodePathString);
-    env.put("NODE_PATH", newNodePath);
-    return env;
   }
 
   private static List<String> buildCommand(String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename, List<String> args) {
@@ -135,12 +118,7 @@ public class NodeCommand {
 
   @Override
   public String toString() {
-    String commandString = String.join(" ", command);
-    Map<String, String> env = envWithNodePath();
-    if (env.isEmpty()) {
-      return commandString;
-    }
-    return env + " " + commandString;
+    return String.join(" ", command);
   }
 
   public static NodeCommandBuilder builder() {

@@ -5,6 +5,11 @@
 1856,
 1856,
 ],
+'ag-grid:src/ts/headerRendering/horizontalDragService.ts':[
+75,
+83,
+118,
+],
 'ag-grid:src/ts/rendering/cellEditors/largeTextCellEditor.ts':[
 52,
 52,

@@ -57,7 +57,6 @@ public class EslintBasedRulesTest {
     // When project contains both JS and TS, ts dependency will be available, therefore @typescript-eslint/eslint-plugin
     // rules will also be available, causing potential conflicts.
     File projectDir = TestUtils.projectDir("eslint_based_rules_with_ts");
-    TestUtils.npmInstall(projectDir);
     testProject(projectDir, "eslint-based-rules-project-with-ts");
   }
 

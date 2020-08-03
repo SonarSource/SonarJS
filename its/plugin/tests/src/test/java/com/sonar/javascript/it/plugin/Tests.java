@@ -22,8 +22,6 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.locator.Location;
-import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -50,7 +48,6 @@ import static java.util.Collections.singletonList;
 //  TypeScriptRuleTest.class,
   EslintBasedRulesTest.class,
   EslintReportTest.class,
-  LookupTypeScriptTest.class,
   MetricsTest.class,
   MinifiedFilesTest.class,
   MultiTsconfigTest.class,
@@ -61,7 +58,6 @@ import static java.util.Collections.singletonList;
   SonarLintTestCustomNodeJS.class,
   TslintExternalReportTest.class,
   TypeScriptAnalysisTest.class,
-  TypeScriptVersionsTest.class,
   VueAnalysisTest.class
 })
 public final class Tests {

@@ -22,9 +22,7 @@ package com.sonar.javascript.it.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -99,18 +97,10 @@ public class SonarLintTest {
 
   @Test
   public void should_analyze_typescript() throws Exception {
-    // emulate typescript installation provided by vscode
-    File typescriptInstall = temp.newFolder();
-    TestUtils.npmInstall(typescriptInstall, "typescript");
-    HashMap<String, String> properties = new HashMap<>();
-    Path tsNodeModules = typescriptInstall.toPath().resolve("node_modules").toAbsolutePath();
-    properties.put("sonar.typescript.internal.typescriptLocation", tsNodeModules.toString());
-
     StandaloneGlobalConfiguration sonarLintConfig = StandaloneGlobalConfiguration.builder()
       .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
       .setSonarLintUserHome(temp.newFolder().toPath())
       .setLogOutput((formattedMessage, level) -> logs.add(formattedMessage))
-      .setExtraProperties(properties)
       .build();
     StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
 
@@ -130,23 +120,14 @@ public class SonarLintTest {
     // we need to stop the engine to make sure that sonarlint will not concurrently modify logs collection
     sonarlintEngine.stop();
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("typescript:S3923");
-    assertThat(logs).contains("Using TypeScript at: '" + tsNodeModules + "'");
   }
 
   @Test
   public void should_not_analyze_ts_project_without_config() throws Exception {
-    // emulate typescript installation provided by vscode
-    File typescriptInstall = temp.newFolder();
-    TestUtils.npmInstall(typescriptInstall, "typescript");
-    HashMap<String, String> properties = new HashMap<>();
-    Path tsNodeModules = typescriptInstall.toPath().resolve("node_modules").toAbsolutePath();
-    properties.put("sonar.typescript.internal.typescriptLocation", tsNodeModules.toString());
-
     StandaloneGlobalConfiguration sonarLintConfig = StandaloneGlobalConfiguration.builder()
       .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
       .setSonarLintUserHome(temp.newFolder().toPath())
       .setLogOutput((formattedMessage, level) -> logs.add(formattedMessage))
-      .setExtraProperties(properties)
       .build();
     StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
 
