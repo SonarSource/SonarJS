@@ -27,7 +27,7 @@ const ruleTester = new RuleTester({
   },
 });
 
-import { rule } from '../../src/rules/no-globals-shadowing';
+import { rule } from 'rules/no-globals-shadowing';
 
 ruleTester.run('Special identifiers should not be bound or assigned', rule, {
   valid: [

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTesterTs } from '../RuleTesterTs';
-import { rule } from '../../src/rules/no-try-promise';
+import { rule } from 'rules/no-try-promise';
 
 const ruleTester = new RuleTesterTs();
 ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {

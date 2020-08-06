@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, RuleTester } from 'eslint';
-import { interceptReport } from '../../src/utils/decorators';
+import { interceptReport } from 'utils/decorators';
 
 function assertThatInterceptReportDecoratorForwardsCalls(
   name: string,
@@ -42,7 +42,7 @@ function assertThatInterceptReportDecoratorForwardsCalls(
 }
 
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
-import { rule as noParameterReassignment } from '../../src/rules/no-parameter-reassignment';
+import { rule as noParameterReassignment } from 'rules/no-parameter-reassignment';
 assertThatInterceptReportDecoratorForwardsCalls(
   'No parameter reassignment',
   noParameterReassignment,
@@ -53,7 +53,7 @@ assertThatInterceptReportDecoratorForwardsCalls(
 );
 
 // Covers `getFilename`
-import { rule as noImplicitDependencies } from '../../src/rules/no-implicit-dependencies';
+import { rule as noImplicitDependencies } from 'rules/no-implicit-dependencies';
 import * as path from 'path';
 const filename = path.join(__dirname, '../fixtures/package-json-project/file.js');
 assertThatInterceptReportDecoratorForwardsCalls(

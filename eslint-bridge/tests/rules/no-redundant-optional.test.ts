@@ -21,7 +21,7 @@ import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTesterTs();
 
-import { rule } from '../../src/rules/no-redundant-optional';
+import { rule } from 'rules/no-redundant-optional';
 
 ruleTester.run(
   `Optional property declarations should not use both '?' and 'undefined' syntax`,

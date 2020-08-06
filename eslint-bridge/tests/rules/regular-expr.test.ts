@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/regular-expr';
+import { rule } from 'rules/regular-expr';
 
 const message = 'Make sure that using a regular expression is safe here.';
 

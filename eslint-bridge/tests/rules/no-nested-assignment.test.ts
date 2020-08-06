@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/no-nested-assignment';
+import { rule } from 'rules/no-nested-assignment';
 
 ruleTester.run('Assignments should not be made from within sub-expressions', rule, {
   valid: [

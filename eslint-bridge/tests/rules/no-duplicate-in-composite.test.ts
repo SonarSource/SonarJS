@@ -24,7 +24,7 @@ const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   parser: tsParserPath,
 });
-import { rule } from '../../src/rules/no-duplicate-in-composite';
+import { rule } from 'rules/no-duplicate-in-composite';
 
 ruleTester.run(
   'Union and intersection types should not be defined with duplicated elements',

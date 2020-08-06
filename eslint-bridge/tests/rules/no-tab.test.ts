@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/no-tab';
+import { rule } from 'rules/no-tab';
 
 ruleTester.run('Tabulation characters should not be used', rule, {
   valid: [

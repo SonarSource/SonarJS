@@ -22,7 +22,7 @@ import { RuleTester } from 'eslint';
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
 });
-import { rule } from '../../src/rules/expression-complexity';
+import { rule } from 'rules/expression-complexity';
 import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
 const MAX = 3;

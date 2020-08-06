@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/function-inside-loop';
+import { rule } from 'rules/function-inside-loop';
 
 ruleTester.run(`Functions should not be defined inside loops`, rule, {
   valid: [

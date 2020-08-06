@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/shorthand-property-grouping';
+import { rule } from 'rules/shorthand-property-grouping';
 
 ruleTester.run(
   'Shorthand object properties should be grouped at the beginning or end of an object declaration',

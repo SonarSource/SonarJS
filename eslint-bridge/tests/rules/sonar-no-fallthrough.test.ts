@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/sonar-no-fallthrough';
+import { rule } from 'rules/sonar-no-fallthrough';
 
 ruleTester.run('No fallthrough in switch statement', rule, {
   valid: [

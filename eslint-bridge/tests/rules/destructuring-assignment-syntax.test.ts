@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/destructuring-assignment-syntax';
+import { rule } from 'rules/destructuring-assignment-syntax';
 
 ruleTester.run('Destructuring syntax should be used for assignments', rule, {
   valid: [

@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/os-command';
+import { rule } from 'rules/os-command';
 
 ruleTester.run('Executing OS commands is security-sensitive', rule, {
   valid: [

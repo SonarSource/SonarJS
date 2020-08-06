@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTesterTs } from '../RuleTesterTs';
-import { rule } from '../../src/rules/no-invalid-await';
+import { rule } from 'rules/no-invalid-await';
 
 const ruleTester = new RuleTesterTs();
 ruleTester.run('await should only be used with promises.', rule, {

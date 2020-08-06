@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/no-unused-function-argument';
+import { rule } from 'rules/no-unused-function-argument';
 
 ruleTester.run('Unused function parameters should be removed', rule, {
   valid: [

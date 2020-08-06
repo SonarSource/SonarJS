@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { RuleTesterTs } from '../RuleTesterTs';
-import { rule } from '../../src/rules/bitwise-operators';
+import { rule } from 'rules/bitwise-operators';
 
 const ruleTesterJs = new RuleTester({
   parserOptions: {

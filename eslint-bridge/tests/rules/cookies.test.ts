@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/cookies';
+import { rule } from 'rules/cookies';
 
 ruleTester.run('Writing cookies is security-sensitive', rule, {
   valid: [

@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/hashing';
+import { rule } from 'rules/hashing';
 
 ruleTester.run('Hashing data is security-sensitive: client side', rule, {
   valid: [

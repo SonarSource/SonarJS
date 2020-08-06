@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/elseif-without-else';
+import { rule } from 'rules/elseif-without-else';
 
 ruleTester.run(`"if ... else if" constructs should end with "else" clauses`, rule, {
   valid: [

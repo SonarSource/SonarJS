@@ -21,7 +21,7 @@ import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
-import { rule } from '../../src/rules/updated-loop-counter';
+import { rule } from 'rules/updated-loop-counter';
 
 ruleTester.run('Loop counter should not be updated inside loop', rule, {
   valid: [

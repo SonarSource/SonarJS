@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/cors';
+import { rule } from 'rules/cors';
 
 ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', rule, {
   valid: [

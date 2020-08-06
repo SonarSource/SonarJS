@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/no-function-declaration-in-block';
+import { rule } from 'rules/no-function-declaration-in-block';
 
 ruleTester.run(`Function declarations should not be made within blocks`, rule, {
   valid: [

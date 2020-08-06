@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 3, sourceType: 'script' } });
-import { rule } from '../../src/rules/future-reserved-words';
+import { rule } from 'rules/future-reserved-words';
 
 ruleTester.run('Future reserved words', rule, {
   valid: [

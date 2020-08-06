@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/nested-control-flow';
+import { rule } from 'rules/nested-control-flow';
 import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
 const THRESHOLD = 3;

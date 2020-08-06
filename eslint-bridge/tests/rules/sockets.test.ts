@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/sockets';
+import { rule } from 'rules/sockets';
 
 ruleTester.run('Handling files is security-sensitive', rule, {
   valid: [

@@ -24,7 +24,7 @@ const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
-import { rule } from '../../src/rules/no-empty-collection';
+import { rule } from 'rules/no-empty-collection';
 
 ruleTester.run('Empty collections should not be accessed or iterated', rule, {
   valid: [

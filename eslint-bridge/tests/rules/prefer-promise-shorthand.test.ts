@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from '../../src/rules/prefer-promise-shorthand';
+import { rule } from 'rules/prefer-promise-shorthand';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),

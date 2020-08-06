@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/no-commented-code';
+import { rule } from 'rules/no-commented-code';
 
 ruleTester.run('Sections of code should not be commented out', rule, {
   valid: [

@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/non-existent-operator';
+import { rule } from 'rules/non-existent-operator';
 
 ruleTester.run("JavaScript: Non-existent operators '=+', '=-' and '=!' should not be used", rule, {
   valid: [

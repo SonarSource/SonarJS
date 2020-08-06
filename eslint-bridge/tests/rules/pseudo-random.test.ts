@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/pseudo-random';
+import { rule } from 'rules/pseudo-random';
 
 ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensitive', rule, {
   valid: [

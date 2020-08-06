@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/no-nested-incdec';
+import { rule } from 'rules/no-nested-incdec';
 
 ruleTester.run('Nested increment (++) and decrement (--) operators should not be used', rule, {
   valid: [

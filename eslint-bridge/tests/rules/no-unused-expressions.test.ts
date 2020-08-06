@@ -21,7 +21,7 @@ import { RuleTester, Rule } from 'eslint';
 import {
   decorateTypescriptEslint,
   decorateChaiFriendly,
-} from '../../src/rules/no-unused-expressions-decorator';
+} from 'rules/no-unused-expressions-decorator';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),

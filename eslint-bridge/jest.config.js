@@ -1,15 +1,18 @@
 module.exports = {
-  collectCoverageFrom: ["src/**/*.ts"],
+  collectCoverageFrom: ['src/**/*.ts'],
   globals: {
-    "ts-jest": {
-      tsConfig: "tests/tsconfig.json"
-    }
+    'ts-jest': {
+      tsConfig: 'tests/tsconfig.json',
+    },
   },
-  moduleFileExtensions: ["js", "ts", "json"],
-  modulePathIgnorePatterns: ["<rootDir>/tests/fixtures/no-implicit-dependencies/bom-package-json-project/package.json"],
-  testResultsProcessor: "jest-sonar-reporter",
+  moduleFileExtensions: ['js', 'ts', 'json'],
+  moduleDirectories: ['node_modules', '<rootDir>/src'],
+  modulePathIgnorePatterns: [
+    '<rootDir>/tests/fixtures/no-implicit-dependencies/bom-package-json-project/package.json',
+  ],
+  testResultsProcessor: 'jest-sonar-reporter',
   transform: {
-    "^.+\\.ts$": "ts-jest"
+    '^.+\\.ts$': 'ts-jest',
   },
-  testMatch: ["<rootDir>/tests/**/*.test.ts"]
+  testMatch: ['<rootDir>/tests/**/*.test.ts'],
 };

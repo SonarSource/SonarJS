@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/no-unthrown-error';
+import { rule } from 'rules/no-unthrown-error';
 
 ruleTester.run('Exception should not be created without being thrown', rule, {
   valid: [
