@@ -19,10 +19,40 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from 'rules/cors';
+import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
-const EXPECTED_MESSAGE = 'Make sure that enabling CORS is safe here.';
+const ruleTesterTs = new RuleTesterTs();
+
+ruleTesterTs.run('CORS', rule, {
+  valid: [],
+  invalid: [
+    {
+      code: ` export function writeToServerSync(url: string, action: string, contents?: string): XHRResponse {
+                    const xhr = new XMLHttpRequest();
+                    try {
+                        const actionMsg = "?action=" + action;
+                        xhr.open("POST", url + actionMsg, /*async*/ false);
+                        xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+                        xhr.send(contents);
+                    }
+                    catch (e) {
+                        
+                        return { status: 500, responseText: undefined };
+                    }
+
+                    return waitForXHR(xhr);
+                }`,
+      errors: 1,
+    },
+  ],
+});
+
+const EXPECTED_MESSAGE = JSON.stringify({
+  message: 'Make sure that enabling CORS is safe here.',
+  secondaryLocations: [],
+});
 
 ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', rule, {
   valid: [
@@ -178,7 +208,7 @@ ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', r
       errors: [
         {
           message: JSON.stringify({
-            message: EXPECTED_MESSAGE,
+            message: 'Make sure that enabling CORS is safe here.',
             secondaryLocations: [{ column: 19, line: 8, endColumn: 30, endLine: 8 }],
           }),
           line: 5,

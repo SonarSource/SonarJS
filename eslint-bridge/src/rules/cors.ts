@@ -51,6 +51,11 @@ export const rule: Rule.RuleModule = {
     let corsCallArguments: estree.Identifier[] = [];
     const sensitiveCorsOptions = new Map<string, estree.Property>();
 
+    function report(node: estree.Node, ...secondaryLocations: estree.Node[]) {
+      const message = toEncodedMessage(MESSAGE, secondaryLocations);
+      context.report({ message, node });
+    }
+
     return {
       Program() {
         // init flag for each file
@@ -60,11 +65,7 @@ export const rule: Rule.RuleModule = {
       'Program:exit'() {
         corsCallArguments
           .filter(arg => sensitiveCorsOptions.has(arg.name))
-          .forEach(arg => {
-            const secondaryLocations = [arg];
-            const message = toEncodedMessage(MESSAGE, secondaryLocations);
-            context.report({ message, node: sensitiveCorsOptions.get(arg.name)! });
-          });
+          .forEach(arg => report(sensitiveCorsOptions.get(arg.name)!, arg));
         corsCallArguments = [];
         sensitiveCorsOptions.clear();
       },
@@ -97,10 +98,7 @@ export const rule: Rule.RuleModule = {
           const moduleName = getModuleNameOfIdentifier(callee, context);
           if (moduleName?.value === 'cors') {
             if (call.arguments.length === 0 || isSensitiveCorsOptions(call.arguments[0])) {
-              context.report({
-                message: MESSAGE,
-                node,
-              });
+              report(node);
             }
             if (call.arguments[0]?.type === 'Identifier') {
               corsCallArguments.push(call.arguments[0]);
@@ -109,7 +107,7 @@ export const rule: Rule.RuleModule = {
         }
 
         if (isSettingCorsHeader(call)) {
-          context.report({ message: MESSAGE, node: call.callee });
+          report(call.callee);
         }
       },
 
@@ -117,9 +115,7 @@ export const rule: Rule.RuleModule = {
         const objExpr = node as estree.ObjectExpression;
         objExpr.properties
           .filter(p => p.type === 'Property' && isCorsHeader(p.key) && isAnyDomain(p.value))
-          .forEach(p => {
-            context.report({ message: MESSAGE, node: p });
-          });
+          .forEach(p => report(p));
       },
     };
   },
