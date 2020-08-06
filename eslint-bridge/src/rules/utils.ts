@@ -138,7 +138,7 @@ function getModuleNameFromRequire(node: estree.Node) {
   return undefined;
 }
 
-function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
+export function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
   const variable = getVariableFromName(context, name);
   if (variable) {
     const writeReferences = variable.references.filter(reference => reference.isWrite());

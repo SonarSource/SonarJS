@@ -130,6 +130,7 @@ public final class CheckList {
       ExpressionComplexityCheck.class,
       FileHeaderCheck.class,
       FileNameDiffersFromClassCheck.class,
+      FileUploadsCheck.class,
       FixmeTagPresenceCheck.class,
       ForHidingWhileCheck.class,
       ForInCheck.class,
