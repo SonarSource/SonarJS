@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from '../../src/rules/class-name';
+import { rule } from 'rules/class-name';
 import * as path from 'path';
 
 const ruleTester = new RuleTester({

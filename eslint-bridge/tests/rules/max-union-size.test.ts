@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from '../../src/rules/max-union-size';
+import { rule } from 'rules/max-union-size';
 import * as path from 'path';
 
 const ruleTester = new RuleTester({

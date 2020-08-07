@@ -21,7 +21,7 @@ import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
-import { rule } from '../../src/rules/no-equals-in-for-termination';
+import { rule } from 'rules/no-equals-in-for-termination';
 
 ruleTester.run('Equality operators should not be used in for loop termination conditions', rule, {
   valid: [

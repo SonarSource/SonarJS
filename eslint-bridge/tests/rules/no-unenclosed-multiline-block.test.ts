@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { RuleTesterTs } from '../RuleTesterTs';
-import { rule } from '../../src/rules/no-unenclosed-multiline-block';
+import { rule } from 'rules/no-unenclosed-multiline-block';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 const ruleTesterTs = new RuleTesterTs(false);

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getCpdTokens, { CpdToken } from '../../src/runner/cpd';
-import { parseTypeScriptSourceFile } from '../../src/parser';
+import getCpdTokens, { CpdToken } from 'runner/cpd';
+import { parseTypeScriptSourceFile } from 'parser';
 import { join } from 'path';
 import { SourceCode } from 'eslint';
 

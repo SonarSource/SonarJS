@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/no-nested-switch';
+import { rule } from 'rules/no-nested-switch';
 
 ruleTester.run('switch statements should not be nested', rule, {
   valid: [

@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/inconsistent-function-call';
+import { rule } from 'rules/inconsistent-function-call';
 
 ruleTester.run('Functions should not be called both with and without "new"', rule, {
   valid: [

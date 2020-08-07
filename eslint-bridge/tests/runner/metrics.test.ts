@@ -19,8 +19,8 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import * as metrics from '../../src/runner/metrics';
-import { parseTypeScriptSourceFile } from '../../src/parser';
+import * as metrics from 'runner/metrics';
+import { parseTypeScriptSourceFile } from 'parser';
 import { SourceCode } from 'eslint';
 
 it('should return lines of code', () => {

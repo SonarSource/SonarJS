@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/xpath';
+import { rule } from 'rules/xpath';
 
 ruleTester.run('Executing XPath expressions is security-sensitive', rule, {
   valid: [

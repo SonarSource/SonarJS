@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/label-position';
+import { rule } from 'rules/label-position';
 
 ruleTester.run('Only "while", "do", "for" and "switch" statements should be labelled', rule, {
   valid: [

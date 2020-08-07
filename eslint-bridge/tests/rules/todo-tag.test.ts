@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/todo-tag';
+import { rule } from 'rules/todo-tag';
 
 ruleTester.run('Track uses of TODO tags', rule, {
   valid: [

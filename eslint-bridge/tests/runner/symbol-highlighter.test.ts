@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { analyzeTypeScript, initLinter } from '../../src/analyzer';
-import { HighlightedSymbol } from '../../src/runner/symbol-highlighter';
-import { Location } from '../../src/runner/location';
+import { analyzeTypeScript, initLinter } from 'analyzer';
+import { HighlightedSymbol } from 'runner/symbol-highlighter';
+import { Location } from 'runner/location';
 
 it('should highlight variable references', () => {
   const result = actual(

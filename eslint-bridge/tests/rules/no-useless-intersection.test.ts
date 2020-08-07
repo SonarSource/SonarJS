@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTesterTs } from '../RuleTesterTs';
-import { rule } from '../../src/rules/no-useless-intersection';
+import { rule } from 'rules/no-useless-intersection';
 
 const ruleTester = new RuleTesterTs();
 ruleTester.run(

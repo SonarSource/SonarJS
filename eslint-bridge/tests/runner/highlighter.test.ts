@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getHighlighting, { Highlight, SonarTypeOfText } from '../../src/runner/highlighter';
-import { parseTypeScriptSourceFile } from '../../src/parser';
+import getHighlighting, { Highlight, SonarTypeOfText } from 'runner/highlighter';
+import { parseTypeScriptSourceFile } from 'parser';
 import { join } from 'path';
 import { SourceCode } from 'eslint';
 

@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/fixme-tag';
+import { rule } from 'rules/fixme-tag';
 
 ruleTester.run('Track uses of FIXME tags', rule, {
   valid: [

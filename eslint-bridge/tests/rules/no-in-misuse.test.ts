@@ -21,7 +21,7 @@ import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTesterTs();
 
-import { rule } from '../../src/rules/no-in-misuse';
+import { rule } from 'rules/no-in-misuse';
 
 ruleTester.run('"in" should not be used on arrays"', rule, {
   valid: [

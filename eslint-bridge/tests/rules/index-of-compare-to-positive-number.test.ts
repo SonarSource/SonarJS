@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/index-of-compare-to-positive-number';
+import { rule } from 'rules/index-of-compare-to-positive-number';
 
 ruleTester.run(`"indexOf" checks should not be for positive numbers`, rule, {
   valid: [

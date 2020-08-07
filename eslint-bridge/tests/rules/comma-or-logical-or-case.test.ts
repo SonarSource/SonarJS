@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/comma-or-logical-or-case';
+import { rule } from 'rules/comma-or-logical-or-case';
 
 ruleTester.run('Comma and logical OR operators should not be used in switch cases', rule, {
   valid: [

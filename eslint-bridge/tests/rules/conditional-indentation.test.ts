@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/conditional-indentation';
+import { rule } from 'rules/conditional-indentation';
 
 ruleTester.run(`A conditionally executed single line should be denoted by indentation`, rule, {
   valid: [

@@ -25,7 +25,7 @@ const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   parser: tsParserPath,
 });
-import { rule } from '../../src/rules/no-redundant-parentheses';
+import { rule } from 'rules/no-redundant-parentheses';
 
 ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
   valid: [

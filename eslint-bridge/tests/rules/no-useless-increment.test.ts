@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/no-useless-increment';
+import { rule } from 'rules/no-useless-increment';
 
 ruleTester.run('Values should not be uselessly incremented', rule, {
   valid: [

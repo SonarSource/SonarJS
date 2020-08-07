@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/file-name-differ-from-class';
+import { rule } from 'rules/file-name-differ-from-class';
 
 ruleTester.run('Class names and file names should match', rule, {
   valid: [

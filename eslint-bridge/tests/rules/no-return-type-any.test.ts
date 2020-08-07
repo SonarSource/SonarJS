@@ -21,7 +21,7 @@ import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTesterTs();
 
-import { rule } from '../../src/rules/no-return-type-any';
+import { rule } from 'rules/no-return-type-any';
 
 ruleTester.run('Primitive return types should be used.', rule, {
   valid: [

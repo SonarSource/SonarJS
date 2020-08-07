@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/constructor-for-side-effects';
+import { rule } from 'rules/constructor-for-side-effects';
 
 ruleTester.run(`Objects should not be created to be dropped immediately without being used`, rule, {
   valid: [

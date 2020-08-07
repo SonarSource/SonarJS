@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/sonar-max-lines-per-function';
+import { rule } from 'rules/sonar-max-lines-per-function';
 
 ruleTester.run('Too many lines in functions', rule, {
   valid: [

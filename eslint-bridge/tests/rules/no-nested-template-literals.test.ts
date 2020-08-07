@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/no-nested-template-literals';
+import { rule } from 'rules/no-nested-template-literals';
 
 ruleTester.run('Template literals should not be nested', rule, {
   valid: [

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from '../../src/rules/sonar-no-unused-vars';
+import { rule } from 'rules/sonar-no-unused-vars';
 
 const ruleTester = new RuleTester({
   parserOptions: { sourceType: 'module', ecmaVersion: 2018, ecmaFeatures: { jsx: true } },

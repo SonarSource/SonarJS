@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/comment-regex';
+import { rule } from 'rules/comment-regex';
 
 const optionsWithouthMessage = [{ regularExpression: '[a-z]' }];
 const optionsWithMessage = [{ regularExpression: '[a-z]', message: 'this is a message' }];

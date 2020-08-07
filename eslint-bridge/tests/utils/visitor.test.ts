@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import visit from '../../src/utils/visitor';
-import { parseTypeScriptSourceFile } from '../../src/parser';
+import visit from 'utils/visitor';
+import { parseTypeScriptSourceFile } from 'parser';
 import { SourceCode } from 'eslint';
 
 it('should visit a node and its children', () => {

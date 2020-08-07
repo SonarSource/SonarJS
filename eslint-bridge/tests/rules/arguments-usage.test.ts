@@ -27,7 +27,7 @@ const ruleTester = new RuleTester({
   },
 });
 
-import { rule } from '../../src/rules/arguments-usage';
+import { rule } from 'rules/arguments-usage';
 
 ruleTester.run(`"arguments" should not be accessed directly`, rule, {
   valid: [

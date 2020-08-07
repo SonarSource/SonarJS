@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/call-argument-line';
+import { rule } from 'rules/call-argument-line';
 
 ruleTester.run(`Function call arguments should not start on new lines`, rule, {
   valid: [

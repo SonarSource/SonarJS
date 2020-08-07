@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/sql-queries';
+import { rule } from 'rules/sql-queries';
 
 ruleTester.run('Formatting SQL queries is security-sensitive', rule, {
   valid: [

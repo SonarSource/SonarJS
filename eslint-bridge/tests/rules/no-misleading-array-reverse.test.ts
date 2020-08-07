@@ -21,7 +21,7 @@ import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTester = new RuleTesterTs();
 
-import { rule } from '../../src/rules/no-misleading-array-reverse';
+import { rule } from 'rules/no-misleading-array-reverse';
 
 ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, {
   valid: [

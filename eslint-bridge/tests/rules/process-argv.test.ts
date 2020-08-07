@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/process-argv';
+import { rule } from 'rules/process-argv';
 
 ruleTester.run('Using command line arguments is security-sensitive', rule, {
   valid: [

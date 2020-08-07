@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/no-case-label-in-switch';
+import { rule } from 'rules/no-case-label-in-switch';
 
 ruleTester.run(`"switch" statements should not contain non-case labels`, rule, {
   valid: [

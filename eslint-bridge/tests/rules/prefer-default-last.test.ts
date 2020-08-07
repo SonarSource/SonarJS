@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/prefer-default-last';
+import { rule } from 'rules/prefer-default-last';
 
 ruleTester.run('"default" clauses should be last', rule, {
   valid: [

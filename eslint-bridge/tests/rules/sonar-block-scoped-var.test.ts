@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from '../../src/rules/sonar-block-scoped-var';
+import { rule } from 'rules/sonar-block-scoped-var';
 
 ruleTester.run('Variables should be used in the blocks where they are declared', rule, {
   valid: [
