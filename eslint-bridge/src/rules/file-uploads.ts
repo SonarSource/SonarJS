@@ -26,11 +26,16 @@ import {
   getModuleNameOfImportedIdentifier,
   getUniqueWriteUsage,
   getVariableFromName,
+  toEncodedMessage,
 } from './utils';
 
 const FORMIDABLE_MODULE = 'formidable';
 const KEEP_EXTENSIONS = 'keepExtensions';
 const UPLOAD_DIR = 'uploadDir';
+
+const MULTER_MODULE = 'multer';
+const STORAGE_OPTION = 'storage';
+const DESTINATION_OPTION = 'destination';
 
 const formidableObjects: Map<
   Scope.Variable,
@@ -38,16 +43,29 @@ const formidableObjects: Map<
 > = new Map();
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ['sonar-runtime'],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
     return {
-      NewExpression: (node: estree.Node) =>
-        checkCallExpression(node as estree.NewExpression, context),
-      CallExpression: (node: estree.Node) =>
-        checkCallExpression(node as estree.CallExpression, context),
-      AssignmentExpression: (node: estree.Node) =>
-        visitAssignment(node as estree.AssignmentExpression, context),
-      Program: () => formidableObjects.clear(),
-      'Program:exit': () => {
+      NewExpression(node: estree.Node) {
+        checkCallExpression(node as estree.NewExpression, context);
+      },
+      CallExpression(node: estree.Node) {
+        checkCallExpression(node as estree.CallExpression, context);
+      },
+      AssignmentExpression(node: estree.Node) {
+        visitAssignment(node as estree.AssignmentExpression, context);
+      },
+      Program() {
+        formidableObjects.clear();
+      },
+      'Program:exit'() {
         formidableObjects.forEach(value =>
           report(value.uploadDirSet, value.keepExtensions, value.callExpression, context),
         );
@@ -66,29 +84,112 @@ function checkCallExpression(callExpression: estree.CallExpression, context: Rul
   const moduleName =
     getModuleNameOfImportedIdentifier(callee, context) ||
     getModuleNameOfIdentifier(callee, context);
+
   if (moduleName?.value === FORMIDABLE_MODULE) {
-    if (callExpression.arguments.length === 0) {
-      checkOptionsSetAfter(callExpression, context);
-      return;
-    }
+    checkFormidable(callExpression, context);
+  }
 
-    let [options] = callExpression.arguments;
+  if (moduleName?.value === MULTER_MODULE) {
+    checkMulter(callExpression, context);
+  }
+}
 
-    if (options.type === 'Identifier') {
-      const usage = getUniqueWriteUsage(context, options.name);
-      if (usage && usage.type === 'ObjectExpression') {
-        options = usage;
+function checkFormidable(callExpression: estree.CallExpression, context: Rule.RuleContext) {
+  if (callExpression.arguments.length === 0) {
+    checkOptionsSetAfter(callExpression, context);
+    return;
+  }
+
+  const options = getValueOfExpression<estree.ObjectExpression>(
+    callExpression.arguments[0],
+    'ObjectExpression',
+    context,
+  );
+  if (options) {
+    report(
+      !!getValue(options, UPLOAD_DIR),
+      keepExtensionsValue(getValue(options, KEEP_EXTENSIONS)),
+      callExpression,
+      context,
+    );
+  }
+}
+
+function checkMulter(callExpression: estree.CallExpression, context: Rule.RuleContext) {
+  if (callExpression.arguments.length === 0) {
+    return;
+  }
+  const multerOptions = getValueOfExpression<estree.ObjectExpression>(
+    callExpression.arguments[0],
+    'ObjectExpression',
+    context,
+  );
+
+  if (!multerOptions) {
+    return;
+  }
+
+  const storagePropertyValue = getValue(multerOptions, STORAGE_OPTION);
+  if (storagePropertyValue) {
+    const storageValue = getValueOfExpression<estree.CallExpression>(
+      storagePropertyValue,
+      'CallExpression',
+      context,
+    );
+
+    if (storageValue) {
+      const diskStorageCallee = getDiskStorageCalleeIfUnsafeStorage(storageValue, context);
+      if (diskStorageCallee) {
+        report(false, false, callExpression, context, {
+          node: diskStorageCallee,
+          message: 'no destination specified',
+        });
       }
     }
+  }
+}
 
-    if (options.type === 'ObjectExpression') {
-      report(
-        !!getValue(options, UPLOAD_DIR),
-        keepExtensionsValue(getValue(options, KEEP_EXTENSIONS)),
-        callExpression,
-        context,
-      );
+function getDiskStorageCalleeIfUnsafeStorage(
+  storageCreation: estree.CallExpression,
+  context: Rule.RuleContext,
+) {
+  const { arguments: args, callee } = storageCreation;
+  if (args.length > 0 && isMemberWithProperty(callee, 'diskStorage')) {
+    const storageOptions = getValueOfExpression<estree.ObjectExpression>(
+      args[0],
+      'ObjectExpression',
+      context,
+    );
+    if (storageOptions && !getValue(storageOptions, DESTINATION_OPTION)) {
+      return callee;
     }
+  }
+
+  return false;
+}
+
+function isMemberWithProperty(expr: estree.Node, property: string) {
+  return (
+    expr.type === 'MemberExpression' &&
+    expr.property.type === 'Identifier' &&
+    expr.property.name === property
+  );
+}
+
+function getValueOfExpression<T>(
+  expr: estree.Node,
+  type: string,
+  context: Rule.RuleContext,
+): T | undefined {
+  if (expr.type === 'Identifier') {
+    const usage = getUniqueWriteUsage(context, expr.name);
+    if (usage && usage.type === type) {
+      return (usage as any) as T;
+    }
+  }
+
+  if (expr.type === type) {
+    return (expr as any) as T;
   }
 }
 
@@ -163,6 +264,7 @@ function report(
   keepExtensions: boolean,
   callExpression: estree.CallExpression,
   context: Rule.RuleContext,
+  secondaryLocation?: { node: estree.Node; message: string },
 ) {
   let message;
 
@@ -175,6 +277,15 @@ function report(
   }
 
   if (message) {
-    context.report({ message, node: callExpression });
+    if (secondaryLocation) {
+      message = toEncodedMessage(message, [secondaryLocation.node], [secondaryLocation.message]);
+    } else {
+      message = toEncodedMessage(message, []);
+    }
+
+    context.report({
+      message,
+      node: callExpression.callee,
+    });
   }
 }

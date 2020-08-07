@@ -203,7 +203,7 @@ export function isRequireModule(node: estree.CallExpression, ...moduleNames: str
 
 export function toEncodedMessage(
   message: string,
-  secondaryLocationsHolder: Array<AST.Token | TSESTree.Node>,
+  secondaryLocationsHolder: Array<AST.Token | TSESTree.Node | estree.Node>,
   secondaryMessages?: string[],
   cost?: number,
 ): string {
@@ -221,9 +221,12 @@ export function toEncodedMessage(
 }
 
 function toSecondaryLocation(
-  locationHolder: AST.Token | TSESTree.Node,
+  locationHolder: AST.Token | TSESTree.Node | estree.Node,
   message?: string,
 ): IssueLocation {
+  if (!locationHolder.loc) {
+    throw new Error('Invalid secondary location');
+  }
   return {
     message,
     column: locationHolder.loc.start.column,
