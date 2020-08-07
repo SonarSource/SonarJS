@@ -1,0 +1,68 @@
+<p>These minimum restrictions should be applied when handling file uploads:</p>
+<p>- the file upload folder to restrict untrusted files to a specific folder.</p>
+<p>- the file extension of the uploaded file to prevent remote code execution.</p>
+<p>Also the size of the uploaded file should be limited to prevent denial of service attacks. This requirement is covered by the rule S5693.</p>
+<h2>Noncompliant Code Example</h2>
+<p><a href="https://www.npmjs.com/package/formidable">formidable</a> module:</p>
+<pre>
+const Formidable = require('formidable');
+
+const form = new Formidable(); // Noncompliant, this form is not safe
+form.uploadDir = ""; // because upload dir is not defined (by default os temp dir: /var/tmp or /tmp)
+form.keepExtensions = true; // and file extensions are kept
+</pre>
+<p><a href="https://www.npmjs.com/package/multer">multer</a> (Express.js middleware) module:</p>
+<pre>
+const multer = require('multer');
+
+let diskStorage = multer.diskStorage({ // Noncompliant: no destination specified
+  filename: (req, file, cb) =&gt; {
+    const buf = crypto.randomBytes(20);
+    cb(null, buf.toString('hex'))
+  }
+});
+
+// This upload is not safe as no destination specified, /var/tmp or /tmp will be used
+let diskupload = multer({
+  storage: diskStorage,
+});
+</pre>
+<h2>Compliant Solution</h2>
+<p><a href="https://www.npmjs.com/package/formidable">formidable</a> module:</p>
+<pre>
+const Formidable = require('formidable');
+
+const form = new Formidable(); // Compliant
+form.uploadDir = "./uploads/";
+form.keepExtensions = false;
+</pre>
+<p><a href="https://www.npmjs.com/package/multer">multer</a> (Express.js middleware) module:</p>
+<pre>
+const multer = require('multer');
+
+let diskStorage = multer.diskStorage({  // Compliant
+  filename: (req, file, cb) =&gt; {
+    const buf = crypto.randomBytes(20);
+    cb(null, buf.toString('hex'))
+  },
+  destination: (req, file, cb) =&gt; {
+    cb(null, './uploads/')
+  }
+});
+
+let diskupload = multer({
+  storage: diskStorage,
+});
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="http://cwe.mitre.org/data/definitions/434">CWE-434</a> - Unrestricted Upload of File with Dangerous Type </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/400.html">CWE-400</a> - Uncontrolled Resource Consumption </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10_2010-A4-Insecure_Direct_Object_References">OWASP Top 10 2017 Category A4</a> - Insecure Direct
+  Object References </li>
+  <li> <a href="https://www.owasp.org/index.php/Unrestricted_File_Upload">OWASP Unrestricted File Upload</a> - Unrestricted File Upload </li>
+  <li> <a href="https://wiki.sei.cmu.edu/confluence/display/java/IDS56-J.+Prevent+arbitrary+file+upload">CERT, IDS56-J.</a> - Prevent arbitrary file
+  upload </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat1">SANS Top 25</a> - Insecure Interaction Between Components </li>
+</ul>
+
