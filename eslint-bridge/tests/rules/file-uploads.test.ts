@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/file-uploads';
+import { rule } from 'rules/file-uploads';
 
 function encodedMessage(
   message: string,

@@ -54,27 +54,27 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {
-        checkCallExpression(node as estree.NewExpression, context);
+        checkCallExpression(context, node as estree.NewExpression);
       },
       CallExpression(node: estree.Node) {
-        checkCallExpression(node as estree.CallExpression, context);
+        checkCallExpression(context, node as estree.CallExpression);
       },
       AssignmentExpression(node: estree.Node) {
-        visitAssignment(node as estree.AssignmentExpression, context);
+        visitAssignment(context, node as estree.AssignmentExpression);
       },
       Program() {
         formidableObjects.clear();
       },
       'Program:exit'() {
         formidableObjects.forEach(value =>
-          report(value.uploadDirSet, value.keepExtensions, value.callExpression, context),
+          report(context, value.uploadDirSet, value.keepExtensions, value.callExpression),
         );
       },
     };
   },
 };
 
-function checkCallExpression(callExpression: estree.CallExpression, context: Rule.RuleContext) {
+function checkCallExpression(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   const { callee } = callExpression;
 
   if (callee.type !== 'Identifier') {
@@ -86,43 +86,43 @@ function checkCallExpression(callExpression: estree.CallExpression, context: Rul
     getModuleNameOfIdentifier(callee, context);
 
   if (moduleName?.value === FORMIDABLE_MODULE) {
-    checkFormidable(callExpression, context);
+    checkFormidable(context, callExpression);
   }
 
   if (moduleName?.value === MULTER_MODULE) {
-    checkMulter(callExpression, context);
+    checkMulter(context, callExpression);
   }
 }
 
-function checkFormidable(callExpression: estree.CallExpression, context: Rule.RuleContext) {
+function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   if (callExpression.arguments.length === 0) {
-    checkOptionsSetAfter(callExpression, context);
+    checkOptionsSetAfter(context, callExpression);
     return;
   }
 
   const options = getValueOfExpression<estree.ObjectExpression>(
+    context,
     callExpression.arguments[0],
     'ObjectExpression',
-    context,
   );
   if (options) {
     report(
+      context,
       !!getValue(options, UPLOAD_DIR),
       keepExtensionsValue(getValue(options, KEEP_EXTENSIONS)),
       callExpression,
-      context,
     );
   }
 }
 
-function checkMulter(callExpression: estree.CallExpression, context: Rule.RuleContext) {
+function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   if (callExpression.arguments.length === 0) {
     return;
   }
   const multerOptions = getValueOfExpression<estree.ObjectExpression>(
+    context,
     callExpression.arguments[0],
     'ObjectExpression',
-    context,
   );
 
   if (!multerOptions) {
@@ -132,15 +132,15 @@ function checkMulter(callExpression: estree.CallExpression, context: Rule.RuleCo
   const storagePropertyValue = getValue(multerOptions, STORAGE_OPTION);
   if (storagePropertyValue) {
     const storageValue = getValueOfExpression<estree.CallExpression>(
+      context,
       storagePropertyValue,
       'CallExpression',
-      context,
     );
 
     if (storageValue) {
-      const diskStorageCallee = getDiskStorageCalleeIfUnsafeStorage(storageValue, context);
+      const diskStorageCallee = getDiskStorageCalleeIfUnsafeStorage(context, storageValue);
       if (diskStorageCallee) {
-        report(false, false, callExpression, context, {
+        report(context, false, false, callExpression, {
           node: diskStorageCallee,
           message: 'no destination specified',
         });
@@ -150,15 +150,15 @@ function checkMulter(callExpression: estree.CallExpression, context: Rule.RuleCo
 }
 
 function getDiskStorageCalleeIfUnsafeStorage(
-  storageCreation: estree.CallExpression,
   context: Rule.RuleContext,
+  storageCreation: estree.CallExpression,
 ) {
   const { arguments: args, callee } = storageCreation;
   if (args.length > 0 && isMemberWithProperty(callee, 'diskStorage')) {
     const storageOptions = getValueOfExpression<estree.ObjectExpression>(
+      context,
       args[0],
       'ObjectExpression',
-      context,
     );
     if (storageOptions && !getValue(storageOptions, DESTINATION_OPTION)) {
       return callee;
@@ -177,9 +177,9 @@ function isMemberWithProperty(expr: estree.Node, property: string) {
 }
 
 function getValueOfExpression<T>(
+  context: Rule.RuleContext,
   expr: estree.Node,
   type: string,
-  context: Rule.RuleContext,
 ): T | undefined {
   if (expr.type === 'Identifier') {
     const usage = getUniqueWriteUsage(context, expr.name);
@@ -193,7 +193,7 @@ function getValueOfExpression<T>(
   }
 }
 
-function checkOptionsSetAfter(callExpression: estree.CallExpression, context: Rule.RuleContext) {
+function checkOptionsSetAfter(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   const parent = context.getAncestors()[context.getAncestors().length - 1];
   let formIdentifier: estree.Identifier | undefined;
   if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
@@ -237,7 +237,7 @@ function getValue(options: estree.ObjectExpression, key: string) {
   }
 }
 
-function visitAssignment(assignment: estree.AssignmentExpression, context: Rule.RuleContext) {
+function visitAssignment(context: Rule.RuleContext, assignment: estree.AssignmentExpression) {
   if (assignment.left.type !== 'MemberExpression') {
     return;
   }
@@ -260,10 +260,10 @@ function visitAssignment(assignment: estree.AssignmentExpression, context: Rule.
 }
 
 function report(
+  context: Rule.RuleContext,
   uploadDirSet: boolean,
   keepExtensions: boolean,
   callExpression: estree.CallExpression,
-  context: Rule.RuleContext,
   secondaryLocation?: { node: estree.Node; message: string },
 ) {
   let message;
