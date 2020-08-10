@@ -20,7 +20,29 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from '../../src/rules/file-uploads';
+import { rule } from 'rules/file-uploads';
+
+function encodedMessage(
+  message: string,
+  secondary?: { line: number; column: number; endColumn: number; endLine: number },
+) {
+  let secondaryLocations = [];
+  if (secondary) {
+    secondaryLocations = [
+      {
+        message: 'no destination specified',
+        column: secondary.column,
+        line: secondary.line,
+        endColumn: secondary.endColumn,
+        endLine: secondary.endLine,
+      },
+    ];
+  }
+  return JSON.stringify({
+    message,
+    secondaryLocations,
+  });
+}
 
 ruleTester.run('File uploads should be restricted', rule, {
   valid: [
@@ -28,6 +50,12 @@ ruleTester.run('File uploads should be restricted', rule, {
       code: `
       const formidable = require('formidable');
       const form = formidable(options);
+        `,
+    },
+    {
+      code: `
+      const multer = require('multer');
+      const upload = multer();
         `,
     },
   ],
@@ -76,10 +104,15 @@ ruleTester.run('File uploads should be restricted', rule, {
       const form7 = formidable({ keepExtensions: 0, uploadDir: './uploads/' });  // OK
         `,
       errors: [
-        { message: 'Restrict the extension of uploaded files.', line: 5 },
-        { message: 'Restrict the extension and folder destination of uploaded files.', line: 6 },
-        { message: 'Restrict folder destination of uploaded files.', line: 7 },
-        { message: 'Restrict folder destination of uploaded files.', line: 8 },
+        { message: encodedMessage('Restrict the extension of uploaded files.'), line: 5 },
+        {
+          message: encodedMessage(
+            'Restrict the extension and folder destination of uploaded files.',
+          ),
+          line: 6,
+        },
+        { message: encodedMessage('Restrict folder destination of uploaded files.'), line: 7 },
+        { message: encodedMessage('Restrict folder destination of uploaded files.'), line: 8 },
       ],
     },
     {
@@ -102,8 +135,8 @@ ruleTester.run('File uploads should be restricted', rule, {
       const form4 = formidable(optionsNotObject); // OK
         `,
       errors: [
-        { message: 'Restrict the extension of uploaded files.', line: 11 },
-        { message: 'Restrict the extension of uploaded files.', line: 14 },
+        { message: encodedMessage('Restrict the extension of uploaded files.'), line: 11 },
+        { message: encodedMessage('Restrict the extension of uploaded files.'), line: 14 },
       ],
     },
     {
@@ -132,9 +165,14 @@ ruleTester.run('File uploads should be restricted', rule, {
       foo(formidable()); // OK
         `,
       errors: [
-        { message: 'Restrict folder destination of uploaded files.', line: 3 },
-        { message: 'Restrict the extension of uploaded files.', line: 5 },
-        { message: 'Restrict the extension and folder destination of uploaded files.', line: 17 },
+        { message: encodedMessage('Restrict folder destination of uploaded files.'), line: 3 },
+        { message: encodedMessage('Restrict the extension of uploaded files.'), line: 5 },
+        {
+          message: encodedMessage(
+            'Restrict the extension and folder destination of uploaded files.',
+          ),
+          line: 17,
+        },
       ],
     },
     {
@@ -151,7 +189,84 @@ ruleTester.run('File uploads should be restricted', rule, {
         form.uploadDir = './uploads/';
       }
         `,
-      errors: [{ message: 'Restrict folder destination of uploaded files.', line: 5 }],
+      errors: [
+        {
+          message: encodedMessage('Restrict folder destination of uploaded files.'),
+          line: 5,
+          column: 22,
+          endLine: 5,
+          endColumn: 32,
+        },
+      ],
+    },
+    {
+      code: `
+      const multer = require('multer');
+
+      multer({});
+      multer({ dest: 'uploads/' });
+      multer({ fileFilter: myFileFilter });
+      multer({ dest: 'uploads/', fileFilter: myFileFilter });
+
+      const myStorageOk = multer.diskStorage({ destination: 'uploads/', filename: filenameFunc });
+      multer({ storage: myStorageOk });
+      const myStorageNok = multer.diskStorage({ filename: filenameFunc });
+      multer({ storage: myStorageNok }); // Noncompliant
+      multer({ storage: unknownStorage });
+        `,
+      errors: [{ line: 12, endLine: 12, column: 7, endColumn: 13 }],
+    },
+    {
+      code: `
+      import * as multer from 'multer';
+      const storage = multer.diskStorage({ filename: filenameFunc });
+      multer({ storage }); // Noncompliant
+      multer({ storage: multer.diskStorage({ filename: filenameFunc }) }); // Noncompliant
+      const options = { storage };
+      multer(options); // Noncompliant
+      const storageOptions = { filename: filenameFunc };
+      multer({ storage: multer.diskStorage(storageOptions) }); // Noncompliant
+      multer({ storage: foo.bar(storageOptions) });
+      multer({ storage: multer.diskStorage() }); 
+      `,
+      errors: [
+        {
+          message: encodedMessage('Restrict folder destination of uploaded files.', {
+            line: 3,
+            endLine: 3,
+            column: 22,
+            endColumn: 40,
+          }),
+          line: 4,
+        },
+        {
+          message: encodedMessage('Restrict folder destination of uploaded files.', {
+            line: 5,
+            endLine: 5,
+            column: 24,
+            endColumn: 42,
+          }),
+          line: 5,
+        },
+        {
+          message: encodedMessage('Restrict folder destination of uploaded files.', {
+            line: 3,
+            endLine: 3,
+            column: 22,
+            endColumn: 40,
+          }),
+          line: 7,
+        },
+        {
+          message: encodedMessage('Restrict folder destination of uploaded files.', {
+            line: 9,
+            endLine: 9,
+            column: 24,
+            endColumn: 42,
+          }),
+          line: 9,
+        },
+      ],
     },
   ],
 });
