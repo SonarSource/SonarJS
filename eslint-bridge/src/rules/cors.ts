@@ -85,8 +85,8 @@ export const rule: Rule.RuleModule = {
 
       ObjectExpression(node: estree.Node) {
         const objProperty = getObjectExpressionProperty(node, CORS_HEADER);
-        if (isAnyDomain(objProperty?.value)) {
-          report(objProperty!);
+        if (objProperty && isAnyDomain(objProperty.value)) {
+          report(objProperty);
         }
       },
     };
@@ -97,7 +97,7 @@ function isCorsHeader(node: estree.Node) {
   return isLiteral(node) && node.value === CORS_HEADER;
 }
 
-function isAnyDomain(node: estree.Node | undefined) {
+function isAnyDomain(node: estree.Node) {
   return isLiteral(node) && node.value === '*';
 }
 
@@ -121,7 +121,7 @@ function getSensitiveCorsProperty(
   node: estree.Node | undefined | null,
 ): estree.Property | undefined {
   const originProperty = getObjectExpressionProperty(node, 'origin');
-  if (isAnyDomain(originProperty?.value)) {
+  if (originProperty && isAnyDomain(originProperty.value)) {
     return originProperty;
   }
   return undefined;
