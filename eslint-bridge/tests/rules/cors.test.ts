@@ -18,9 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
+import { rule } from 'rules/cors';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from 'rules/cors';
+
+const EXPECTED_MESSAGE = 'Make sure that enabling CORS is safe here.';
+
+const EXPECTED_MESSAGE_WITHOUT_SECONDARY_LOC = JSON.stringify({
+  message: EXPECTED_MESSAGE,
+  secondaryLocations: [],
+});
 
 ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', rule, {
   valid: [
@@ -33,17 +40,43 @@ ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', r
     {
       code: `res.writeHead(200, { 'Content-Type': 'text/html' });`,
     },
+    {
+      code: `
+      const srv2 = http.createServer((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', 'http://mytrustedorigin');
+      });
+      `,
+    },
+    {
+      code: `
+        res.header('Access-Control-Allow-Origin', 'http://localhost');
+        res.set('Access-Control-Max-Age', '86500');
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+        res.append('Access-Control-Allow-Credentials', 'true');
+        `,
+    },
+    {
+      code: `
+      const express = require('express');
+      const cors = require('cors');
+      app.use(cors({
+        origin: 'http://localhost', // Compliant
+        optionsSuccessStatus: 200
+      }));
+      app.use(cors(foo()));
+      `,
+    },
   ],
   invalid: [
     {
       code: `res.writeHead(200, { 'Access-Control-Allow-Origin': '*' });`,
       errors: [
         {
-          message: 'Make sure that enabling CORS is safe here.',
+          message: EXPECTED_MESSAGE_WITHOUT_SECONDARY_LOC,
           line: 1,
           endLine: 1,
           column: 22,
-          endColumn: 51,
+          endColumn: 56,
         },
       ],
     },
@@ -54,7 +87,7 @@ ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', r
         app.use(cors());`,
       errors: [
         {
-          message: 'Make sure that enabling CORS is safe here.',
+          message: EXPECTED_MESSAGE_WITHOUT_SECONDARY_LOC,
           line: 4,
           endLine: 4,
           column: 17,
@@ -62,27 +95,144 @@ ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', r
         },
       ],
     },
-
-    {
-      code: `
-        const express = require('express');
-        const cors = require('cors');
-        res.header('Access-Control-Allow-Origin', 'http://localhost');
-        //         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        res.set('Access-Control-Max-Age', '86500');
-        //      ^^^^^^^^^^^^^^^^^^^^^^^^
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-        //         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        res.append('Access-Control-Allow-Credentials', 'true');
-        //         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^`,
-      errors: 4,
-    },
     {
       code: `
         const express = require('express');
         const cors = require('cors');
         app.use(cors());`,
       errors: 1,
+    },
+    {
+      code: `
+        res.setHeader('Access-Control-Allow-Origin', '*' ); // Sensitive
+    `,
+      errors: [
+        {
+          message: EXPECTED_MESSAGE_WITHOUT_SECONDARY_LOC,
+          line: 2,
+          endLine: 2,
+          column: 9,
+          endColumn: 59,
+        },
+      ],
+    },
+    {
+      code: `
+        res.header('Access-Control-Allow-Origin', '*' ); // Sensitive
+    `,
+      errors: 1,
+    },
+    {
+      code: `
+        res.set('Access-Control-Allow-Origin', '*' ); // Sensitive
+    `,
+      errors: 1,
+    },
+    {
+      code: `
+        res.set({
+          'Content-Type': 'text/plain',
+          'Content-Length': '123',
+          'Access-Control-Allow-Origin': '*'
+        });
+        const headers = {
+          'Content-Type': 'text/plain',
+          'Content-Length': '123',
+          'Access-Control-Allow-Origin': 'http://localhost',
+          'Access-Control-Allow-Origin': '*'
+        };
+      `,
+      errors: [
+        {
+          message: EXPECTED_MESSAGE_WITHOUT_SECONDARY_LOC,
+          line: 5,
+          endLine: 5,
+          column: 11,
+          endColumn: 45,
+        },
+        {
+          message: EXPECTED_MESSAGE_WITHOUT_SECONDARY_LOC,
+          line: 11,
+          endLine: 11,
+          column: 11,
+          endColumn: 45,
+        },
+      ],
+    },
+    {
+      code: `
+      const express = require('express');
+      const cors = require('cors');
+      app.use(cors({
+        origin: '*', // Sensitive
+        optionsSuccessStatus: 200
+      }));
+      `,
+      errors: [
+        {
+          message: EXPECTED_MESSAGE_WITHOUT_SECONDARY_LOC,
+          line: 5,
+          endLine: 5,
+          column: 9,
+          endColumn: 20,
+        },
+      ],
+    },
+    {
+      code: `
+      const express = require('express');
+      const cors = require('cors');
+      let corsOptions = {
+        origin: '*', // Sensitive
+        optionsSuccessStatus: 200
+      };
+      app.use(cors(corsOptions));
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: EXPECTED_MESSAGE,
+            secondaryLocations: [{ column: 19, line: 8, endColumn: 30, endLine: 8 }],
+          }),
+          line: 5,
+          endLine: 5,
+          column: 9,
+          endColumn: 20,
+        },
+      ],
+    },
+    {
+      code: `
+      const express = require('express');
+      const cors = require('cors');
+      function foo() {
+        let corsOptions = {
+          origin: 'http://localhost:1234',
+          optionsSuccessStatus: 200
+        };
+        app.use(cors(corsOptions));
+      }
+      
+      function bar() {
+        let corsOptions = {
+          origin: '*', // Sensitive
+          optionsSuccessStatus: 200
+        };
+        app.use(cors(corsOptions));
+      }
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: EXPECTED_MESSAGE,
+            secondaryLocations: [{ column: 21, line: 17, endColumn: 32, endLine: 17 }],
+          }),
+          line: 14,
+          endLine: 14,
+          column: 11,
+          endColumn: 22,
+        },
+      ],
     },
   ],
 });

@@ -21,57 +21,112 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleNameOfIdentifier, isRequireModule } from './utils';
+import {
+  getModuleNameOfIdentifier,
+  isIdentifier,
+  toEncodedMessage,
+  getUniqueWriteUsage,
+} from './utils';
+import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
 
-const CORS_HEADER_PREFIX = 'Access-Control-';
-
-const EXPRESS_MODULE = 'express';
+const CORS_HEADER = 'Access-Control-Allow-Origin';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ['sonar-runtime'],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
-    let usingExpressFramework = false;
+    function report(node: estree.Node, ...secondaryLocations: estree.Node[]) {
+      const message = toEncodedMessage(MESSAGE, secondaryLocations);
+      context.report({ message, node });
+    }
+
+    function isCorsCall(callee: estree.Node) {
+      return (
+        callee.type === 'Identifier' && getModuleNameOfIdentifier(callee, context)?.value === 'cors'
+      );
+    }
 
     return {
-      Program() {
-        // init flag for each file
-        usingExpressFramework = false;
-      },
-
-      ImportDeclaration(node: estree.Node) {
-        const { source } = node as estree.ImportDeclaration;
-        if (source.value === EXPRESS_MODULE) {
-          usingExpressFramework = true;
-        }
-      },
-
-      Literal(node: estree.Node) {
-        const { value } = node as estree.Literal;
-        if (String(value).includes(CORS_HEADER_PREFIX)) {
-          context.report({ message: MESSAGE, node });
-        }
-      },
-
       CallExpression(node: estree.Node) {
         const call = node as estree.CallExpression;
         const { callee } = call;
 
-        if (isRequireModule(call, EXPRESS_MODULE)) {
-          usingExpressFramework = true;
-          return;
+        if (isCorsCall(callee)) {
+          if (call.arguments.length === 0) {
+            report(call);
+            return;
+          }
+          const [arg] = call.arguments;
+          let sensitiveCorsProperty = getSensitiveCorsProperty(arg);
+          if (sensitiveCorsProperty) {
+            report(sensitiveCorsProperty);
+          }
+          if (arg?.type === 'Identifier') {
+            const usage = getUniqueWriteUsage(context, arg.name);
+            sensitiveCorsProperty = getSensitiveCorsProperty(usage);
+            if (sensitiveCorsProperty) {
+              report(sensitiveCorsProperty, arg);
+            }
+          }
         }
 
-        if (usingExpressFramework && callee.type === 'Identifier') {
-          const moduleName = getModuleNameOfIdentifier(callee, context);
-          if (moduleName && moduleName.value === 'cors') {
-            context.report({
-              message: MESSAGE,
-              node,
-            });
-          }
+        if (isSettingCorsHeader(call)) {
+          report(call);
+        }
+      },
+
+      ObjectExpression(node: estree.Node) {
+        const objProperty = getObjectExpressionProperty(node, CORS_HEADER);
+        if (objProperty && isAnyDomain(objProperty.value)) {
+          report(objProperty);
         }
       },
     };
   },
 };
+
+function isCorsHeader(node: estree.Node) {
+  return isLiteral(node) && node.value === CORS_HEADER;
+}
+
+function isAnyDomain(node: estree.Node) {
+  return isLiteral(node) && node.value === '*';
+}
+
+function getObjectExpressionProperty(
+  node: estree.Node | undefined | null,
+  propertyKey: string,
+): estree.Property | undefined {
+  if (node?.type === 'ObjectExpression') {
+    const properties = node.properties.filter(
+      p =>
+        p.type === 'Property' &&
+        (isIdentifier(p.key, propertyKey) || (isLiteral(p.key) && p.key.value === propertyKey)),
+    ) as estree.Property[];
+    // if property is duplicated, we return the last defined
+    return properties[properties.length - 1];
+  }
+  return undefined;
+}
+
+function getSensitiveCorsProperty(
+  node: estree.Node | undefined | null,
+): estree.Property | undefined {
+  const originProperty = getObjectExpressionProperty(node, 'origin');
+  if (originProperty && isAnyDomain(originProperty.value)) {
+    return originProperty;
+  }
+  return undefined;
+}
+
+function isSettingCorsHeader(call: estree.CallExpression) {
+  return isCorsHeader(call.arguments[0]) && isAnyDomain(call.arguments[1]);
+}
