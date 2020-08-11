@@ -1,7 +1,7 @@
 {
   "title": "\"alert(...)\" should not be used",
   "type": "VULNERABILITY",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "10min"

@@ -1,0 +1,12 @@
+{
+'console:src/main.tsx':[
+55,
+],
+'console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopup.tsx':[
+143,
+148,
+],
+'console:src/views/account/ResetPasswordView/ResetPasswordView.tsx':[
+45,
+],
+}
