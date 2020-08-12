@@ -1,0 +1,31 @@
+{
+  "title": "Disabling CSRF protections is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "sans-top25-insecure",
+    "owasp-a6",
+    "express.js"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4502",
+  "sqKey": "S4502",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      352
+    ],
+    "OWASP": [
+      "A6"
+    ]
+  }
+}

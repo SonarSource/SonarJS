@@ -24,6 +24,7 @@ import { IssueLocation } from '../analyzer';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { RequiredParserServices } from '../utils/isRequiredParserServices';
 import * as tsTypes from 'typescript';
+import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const functionLike = new Set([
   'FunctionDeclaration',
@@ -124,7 +125,7 @@ function isNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, name:
   );
 }
 
-function getModuleNameFromRequire(node: estree.Node) {
+export function getModuleNameFromRequire(node: estree.Node) {
   if (
     node.type === 'CallExpression' &&
     isIdentifier(node.callee, 'require') &&
@@ -370,4 +371,20 @@ export function getSignatureFromCallee(node: estree.Node, services: RequiredPars
 
 export function isFunctionNode(node: estree.Node): node is FunctionNodeType {
   return FUNCTION_NODES.includes(node.type);
+}
+
+export function getObjectExpressionProperty(
+  node: estree.Node | undefined | null,
+  propertyKey: string,
+): estree.Property | undefined {
+  if (node?.type === 'ObjectExpression') {
+    const properties = node.properties.filter(
+      p =>
+        p.type === 'Property' &&
+        (isIdentifier(p.key, propertyKey) || (isLiteral(p.key) && p.key.value === propertyKey)),
+    ) as estree.Property[];
+    // if property is duplicated, we return the last defined
+    return properties[properties.length - 1];
+  }
+  return undefined;
 }
