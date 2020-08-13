@@ -1,0 +1,33 @@
+{
+  "title": "Delivering code in production with debug features activated is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "cwe",
+    "error-handling",
+    "user-experience",
+    "express.js",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-4507",
+  "sqKey": "S4507",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      489,
+      215
+    ],
+    "OWASP": [
+      "A3"
+    ]
+  }
+}

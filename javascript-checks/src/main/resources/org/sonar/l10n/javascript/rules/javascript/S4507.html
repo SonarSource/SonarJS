@@ -1,0 +1,61 @@
+<p>Delivering code in production with debug features activated is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+<ul>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1999007">CVE-2018-1999007</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-5306">CVE-2015-5306</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2006">CVE-2013-2006</a> </li>
+</ul>
+<p>An application's debug features enable developers to find bugs more easily and thus facilitate also the work of attackers. It often gives access to
+detailed information on both the system running the application and users. </p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> the code or configuration enabling the application debug features is deployed on production servers. </li>
+  <li> the application runs by default with debug features activated. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>Do not enable debug features on production servers.</p>
+<h2>Sensitive Code Example</h2>
+<p>The <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger">debugger statement</a> should be removed in
+production:</p>
+<pre>
+for (i = 1; i&lt;5; i++) {
+  // Print i to the Output window.
+  Debug.write("loop index is " + i);
+  // Wait for user to resume.
+  debugger; // Sensitive
+}
+</pre>
+<p><code>alert()</code>, <code>confirm()</code> and <code>prompt()</code> instructions should be removed in production:</p>
+<pre>
+if(unexpectedCondition) {
+  alert("Unexpected Condition");  // Sensitive
+}
+</pre>
+<p><a href="https://www.npmjs.com/package/errorhandler">errorhandler Express.js middleware</a> should not be used in production:</p>
+<pre>
+const express = require('express');
+const errorhandler = require('errorhandler');
+
+let app = express();
+app.use(errorhandler()); // Sensitive
+</pre>
+<h2>Compliant Solution</h2>
+<p><a href="https://www.npmjs.com/package/errorhandler">errorhandler Express.js middleware</a> used only in development mode:</p>
+<pre>
+const express = require('express');
+const errorhandler = require('errorhandler');
+
+let app = express();
+
+if (process.env.NODE_ENV === 'development') {  // Compliant
+  app.use(errorhandler());  // Compliant
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
+  </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/489.html">MITRE, CWE-489</a> - Leftover Debug Code </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/215.html">MITRE, CWE-215</a> - Information Exposure Through Debug Information </li>
+</ul>
+
