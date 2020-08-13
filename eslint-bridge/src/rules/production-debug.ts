@@ -21,7 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleNameOfIdentifier, getUniqueWriteUsage, getVariableFromName } from './utils';
+import {
+  getModuleNameOfIdentifier,
+  getUniqueWriteUsage,
+  getVariableFromName,
+  isIdentifier,
+} from './utils';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
 const message =
@@ -75,10 +80,9 @@ function checkErrorHandlerMiddleware(
   const { callee, arguments: args } = callExpression;
   if (
     callee.type === 'MemberExpression' &&
-    callee.property.type === 'Identifier' &&
-    callee.property.name === 'use' &&
+    isIdentifier(callee.property, 'use') &&
     args.length > 0 &&
-    !conditional(context)
+    !isInsideConditional(context)
   ) {
     let middleware: estree.Node | undefined = args[0];
     if (middleware.type === 'Identifier') {
@@ -101,7 +105,7 @@ function checkErrorHandlerMiddleware(
   }
 }
 
-function conditional(context: Rule.RuleContext) {
+function isInsideConditional(context: Rule.RuleContext) {
   const ancestors = context.getAncestors();
-  return !!ancestors.find(ancestor => ancestor.type === 'IfStatement');
+  return ancestors.some(ancestor => ancestor.type === 'IfStatement');
 }
