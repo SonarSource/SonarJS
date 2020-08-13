@@ -24,7 +24,7 @@ const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceTy
 
 const EXPECTED_MESSAGE_DISABLING = 'Make sure disabling CSRF protection is safe here.';
 
-ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', rule, {
+ruleTester.run('Disabling CSRF protections is security-sensitive', rule, {
   valid: [
     {
       code: `
@@ -35,7 +35,7 @@ ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', r
         
         app.post('/process', parseForm, function (req, res) { // OK, uses global config
           res.send('data is being processed')
-        }) 
+        });
       `,
     },
     {
@@ -44,6 +44,13 @@ ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', r
       var csrf = require('csurf');
       var csrfProtection = csrf({ cookie: { httpOnly: true, secure:true}, ignoreMethods: [] });
       var csrfProtection2 = csrf({ cookie: { httpOnly: true, secure:true}, ignoreMethods: bar() });
+      `,
+    },
+    {
+      code: `
+      app.post('/process', function (req, res) { // ok as 'csurf' is not imported
+        res.send('data is being processed');
+      });
       `,
     },
   ],
@@ -92,6 +99,23 @@ ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', r
       errors: [
         {
           line: 3,
+          endLine: 3,
+          column: 9,
+          endColumn: 17,
+          message: encodedMessage('Make sure not using CSRF protection is safe here.'),
+        },
+      ],
+    },
+    {
+      code: `
+        import * as csrf from 'csurf';
+        app.post('/process', function (req, res) {
+          res.send('data is being processed');
+        });
+      `,
+      errors: [
+        {
+          line: 3,
         },
       ],
     },
@@ -106,7 +130,6 @@ function encodedMessage(
   if (secondary) {
     secondaryLocations = [
       {
-        // message: 'no destination specified',
         column: secondary.column,
         line: secondary.line,
         endColumn: secondary.endColumn,

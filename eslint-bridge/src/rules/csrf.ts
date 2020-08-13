@@ -23,7 +23,6 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   isIdentifier,
-  getModuleNameOfImportedIdentifier,
   getModuleNameOfIdentifier,
   toEncodedMessage,
   getUniqueWriteUsage,
@@ -46,7 +45,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     let globalCsrfProtection = false;
-    let usesCsrfMiddleware = false;
+    let importedCsrfMiddleware = false;
 
     function checkIgnoredMethods(node: estree.Property) {
       if (node.value.type === 'ArrayExpression') {
@@ -71,7 +70,7 @@ export const rule: Rule.RuleModule = {
 
       if (node && node.type === 'CallExpression' && node.callee.type === 'Identifier') {
         const module = getModuleNameOfIdentifier(node.callee, context);
-        return module && module.value === 'csurf';
+        return module?.value === CSURF_MODULE;
       }
       return false;
     }
@@ -79,27 +78,27 @@ export const rule: Rule.RuleModule = {
     function checkCallExpression(callExpression: estree.CallExpression) {
       const { callee } = callExpression;
 
+      // require('csurf')
       const requiredModule = getModuleNameFromRequire(callExpression);
       if (requiredModule?.value === CSURF_MODULE) {
-        usesCsrfMiddleware = true;
+        importedCsrfMiddleware = true;
       }
 
+      // csurf(...)
       if (callee.type === 'Identifier') {
-        const moduleName =
-          getModuleNameOfImportedIdentifier(callee, context) ||
-          getModuleNameOfIdentifier(callee, context);
+        const moduleName = getModuleNameOfIdentifier(callee, context);
 
         if (moduleName?.value === CSURF_MODULE) {
-          const [arg] = callExpression.arguments;
-          const ignoredMethods = getObjectExpressionProperty(arg, 'ignoreMethods');
+          const [args] = callExpression.arguments;
+          const ignoredMethods = getObjectExpressionProperty(args, 'ignoreMethods');
           if (ignoredMethods) {
             checkIgnoredMethods(ignoredMethods);
           }
         }
       }
 
+      // app.use(csurf(...))
       if (callee.type === 'MemberExpression') {
-        // detect call app.use(csurf(...))
         if (
           isIdentifier(callee.property, 'use') &&
           isCsurfMiddleware(callExpression.arguments[0])
@@ -109,7 +108,7 @@ export const rule: Rule.RuleModule = {
         if (
           isIdentifier(callee.property, 'post', 'put', 'delete', 'patch') &&
           !globalCsrfProtection &&
-          usesCsrfMiddleware &&
+          importedCsrfMiddleware &&
           !callExpression.arguments.some(arg => isCsurfMiddleware(arg))
         ) {
           context.report({
@@ -126,6 +125,11 @@ export const rule: Rule.RuleModule = {
       },
       CallExpression(node: estree.Node) {
         checkCallExpression(node as estree.CallExpression);
+      },
+      ImportDeclaration(node: estree.Node) {
+        if ((node as estree.ImportDeclaration).source.value === CSURF_MODULE) {
+          importedCsrfMiddleware = true;
+        }
       },
     };
   },
