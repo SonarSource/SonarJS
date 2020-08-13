@@ -1,0 +1,38 @@
+<p>Hidden files are created automatically by many tools to save user-preferences, well-known examples are <code>.profile</code>, <code>.bashrc</code>,
+<code>.bash_history</code> or .<code>git</code>. To simplify the view these files are not displayed by default using operating system commands like
+<code>ls</code>.</p>
+<p>Outside of the user environment, hidden files are sensitive because they are used to store privacy-related information or even hard-coded
+secrets.</p>
+<h2>Ask Yourself Whether</h2>
+<p> * Hidden files may have been inadvertently uploaded to the static server's public directory and it accepts requests to hidden files.</p>
+<p> * There is no business use cases linked to serve files in <code>.name</code> format but the server is not configured to reject requests to this
+type of files. </p>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p> * Disable the serving of hidden files.</p>
+<h2>Sensitive Code Example</h2>
+<p><a href="https://www.npmjs.com/package/serve-static">Express.js serve-static</a> middleware:</p>
+<pre>
+let serveStatic = require("serve-static");
+let app = express();
+let serveStaticMiddleware = serveStatic('public', { 'index': false, 'dotfiles': 'allow'});   // Sensitive
+app.use(serveStaticMiddleware);
+</pre>
+<h2>Compliant Solution</h2>
+<p><a href="https://www.npmjs.com/package/serve-static">Express.js serve-static</a> middleware:</p>
+<pre>
+let serveStatic = require("serve-static");
+let app = express();
+let serveStaticMiddleware = serveStatic('public', { 'index': false, 'dotfiles': 'ignore'});   // Compliant: ignore or deny are recommended values
+let serveStaticDefault = serveStatic('public', { 'index': false});   // Compliant: by default, "dotfiles" (file or directory that begins with a dot) are not served (with the exception that files within a directory that begins with a dot are not ignored), see serve-static module documentation
+app.use(serveStaticMiddleware);
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://github.com/mtojek/go-url-fuzzer">github.com/mtojek/go-url-fuzzer</a> - Discover hidden files and directories on a web server.
+  </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Web Top 10 2017 Category A6</a> - Security
+  Misconfiguration. </li>
+</ul>
+<p> * <a href="https://cwe.mitre.org/data/definitions/538.html">CWE-538</a> - File and Directory Information Exposure</p>
+

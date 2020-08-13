@@ -1,0 +1,30 @@
+{
+  "title": "Statically serving hidden files is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a6",
+    "express.js"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5691",
+  "sqKey": "S5691",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      538
+    ],
+    "OWASP": [
+      "A6"
+    ]
+  }
+}

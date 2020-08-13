@@ -149,6 +149,7 @@ public final class CheckList {
       GlobalThisCheck.class,
       HardcodedCredentialsCheck.class,
       HashingCheck.class,
+      HiddenFilesCheck.class,
       HtmlCommentsCheck.class,
       IdChildrenSelectorCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
