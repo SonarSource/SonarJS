@@ -96,6 +96,7 @@ public final class CheckList {
       CookiesCheck.class,
       CorsCheck.class,
       CounterUpdatedInLoopCheck.class,
+      CsrfCheck.class,
       CyclomaticComplexityJavaScriptCheck.class,
       CyclomaticComplexityTypeScriptCheck.class,
       DeadStoreCheck.class,

@@ -23,9 +23,9 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   getModuleNameOfIdentifier,
-  isIdentifier,
   toEncodedMessage,
   getUniqueWriteUsage,
+  getObjectExpressionProperty,
 } from './utils';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
@@ -99,22 +99,6 @@ function isCorsHeader(node: estree.Node) {
 
 function isAnyDomain(node: estree.Node) {
   return isLiteral(node) && node.value === '*';
-}
-
-function getObjectExpressionProperty(
-  node: estree.Node | undefined | null,
-  propertyKey: string,
-): estree.Property | undefined {
-  if (node?.type === 'ObjectExpression') {
-    const properties = node.properties.filter(
-      p =>
-        p.type === 'Property' &&
-        (isIdentifier(p.key, propertyKey) || (isLiteral(p.key) && p.key.value === propertyKey)),
-    ) as estree.Property[];
-    // if property is duplicated, we return the last defined
-    return properties[properties.length - 1];
-  }
-  return undefined;
 }
 
 function getSensitiveCorsProperty(

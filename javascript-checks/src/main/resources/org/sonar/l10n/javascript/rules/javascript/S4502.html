@@ -1,0 +1,64 @@
+<p>CSRF vulnerabilities occur when attackers can trick a user to perform sensitive authenticated operations on a web application without his
+consent.</p>
+<pre>
+&lt;body onload="document.forms[0].submit()"&gt;
+&lt;form&gt;
+&lt;form action="http://mybank.com/account/transfer_money" method="POST"&gt;
+    &lt;input type="hidden" name="accountNo" value="attacker_account_123456"/&gt;
+    &lt;input type="hidden" name="amount" value="10000"/&gt;
+    &lt;input type="submit" value="Steal money"/&gt;
+&lt;/form&gt;
+</pre>
+<p>If an user visits the attacker's website which contains the above malicious code, his bank account will be debited without his consent and
+notice.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> There exist sensitive operations on the web application that can be performed when the user is authenticated. </li>
+  <li> The state / resources of the web application could be modified by doing HTTP POST or HTTP DELETE requests for example. </li>
+  <li> The web application is not only a public API designed to be requested by external websites. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Protection against CSRF attacks is strongly recommended:
+    <ul>
+      <li> to be activated by default for all <a href="https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Safe_methods">unsafe HTTP
+      methods</a>. </li>
+      <li> implemented, for example, with an unguessable CSRF token </li>
+    </ul> </li>
+  <li> Of course all sensitive operations should not be performed with <a
+  href="https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Safe_methods">safe HTTP</a> methods like <code>GET</code> which are designed to be
+  used only for information retrieval. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<p><a href="https://www.npmjs.com/package/csurf">Express.js CSURF middleware</a> protection is not found on an unsafe HTTP method like POST
+method:</p>
+<pre>
+let csrf = require('csurf');
+let express = require('express');
+
+let csrfProtection = csrf({ cookie: true });
+
+let app = express();
+
+// Sensitive: this operation doesn't look like protected by CSURF middleware (csrfProtection is not used)
+app.post('/money_transfer', parseForm, function (req, res) {
+  res.send('Money transferred');
+});
+</pre>
+<p>Protection provided by <a href="https://www.npmjs.com/package/csurf">Express.js CSURF middleware</a> is globally disabled on unsafe methods:</p>
+<pre>
+let csrf = require('csurf');
+let express = require('express');
+
+app.use(csrf({ cookie: true, ignoreMethods: ["POST", "GET"] })); // Sensitive as POST is unsafe method
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://cwe.mitre.org/data/definitions/352.html">MITRE, CWE-352</a> - Cross-Site Request Forgery (CSRF) </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
+  Misconfiguration </li>
+  <li> <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29">OWASP: Cross-Site Request Forgery</a> </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat1">SANS Top 25</a> - Insecure Interaction Between Components </li>
+</ul>
+
