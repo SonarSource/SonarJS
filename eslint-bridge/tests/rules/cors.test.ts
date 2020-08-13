@@ -66,6 +66,12 @@ ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', r
       app.use(cors(foo()));
       `,
     },
+    {
+      code: `
+      const express = require('express');
+      app.use(require('cors')({ origin: 'http://localhost' })); // Compliant
+      `,
+    },
   ],
   invalid: [
     {
@@ -92,6 +98,37 @@ ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', r
           endLine: 4,
           column: 17,
           endColumn: 23,
+        },
+      ],
+    },
+    {
+      code: ` // with default import aliases
+        import express from 'express';
+        import cors from 'cors';
+        app.use(cors());`,
+      errors: [
+        {
+          message: EXPECTED_MESSAGE_WITHOUT_SECONDARY_LOC,
+          line: 4,
+          endLine: 4,
+          column: 17,
+          endColumn: 23,
+        },
+      ],
+    },
+    {
+      code: `
+        // renaming imported module as something else shouldn't matter.
+        import * as express from 'express';
+        import * as c from 'cors';
+        app.use(c());`,
+      errors: [
+        {
+          message: EXPECTED_MESSAGE_WITHOUT_SECONDARY_LOC,
+          line: 5,
+          endLine: 5,
+          column: 17,
+          endColumn: 20,
         },
       ],
     },
@@ -233,6 +270,14 @@ ruleTester.run('Enabling Cross-Origin Resource Sharing is security-sensitive', r
           endColumn: 22,
         },
       ],
+    },
+    {
+      code: `
+      // inlined require('cors') invocation
+      const express = require('express');
+      app.use(require('cors')({ origin: '*' })); // Sensitive
+      `,
+      errors: 1,
     },
   ],
 });

@@ -22,11 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  getModuleNameOfIdentifier,
+  getModuleNameOfNode,
   toEncodedMessage,
   getUniqueWriteUsage,
   getObjectExpressionProperty,
 } from './utils';
+
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
@@ -49,9 +50,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function isCorsCall(callee: estree.Node) {
-      return (
-        callee.type === 'Identifier' && getModuleNameOfIdentifier(callee, context)?.value === 'cors'
-      );
+      return getModuleNameOfNode(callee, context)?.value === 'cors';
     }
 
     return {
