@@ -1,0 +1,31 @@
+{
+  "title": "Allowing requests with excessive content length is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a6",
+    "express.js"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5693",
+  "sqKey": "S5693",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      400,
+      770
+    ],
+    "OWASP": [
+      "A6"
+    ]
+  }
+}
