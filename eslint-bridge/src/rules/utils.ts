@@ -61,11 +61,11 @@ export const FUNCTION_NODES = [
 export function getModuleNameOfIdentifier(
   identifier: estree.Identifier,
   context: Rule.RuleContext,
-) {
+): estree.Literal | undefined {
   const { name } = identifier;
   // check if importing using `import * as X from 'module_name'`
-  const importDeclaration = getImportDeclarations(context).find(importDecl =>
-    isNamespaceSpecifier(importDecl, name),
+  const importDeclaration = getImportDeclarations(context).find(
+    importDecl => isNamespaceSpecifier(importDecl, name) || isDefaultSpecifier(importDecl, name),
   );
   if (importDeclaration) {
     return importDeclaration.source;
@@ -76,6 +76,31 @@ export function getModuleNameOfIdentifier(
     return getModuleNameFromRequire(writeExpression);
   }
   return undefined;
+}
+
+/**
+ * Returns the module name of a module-valued expression in following three cases:
+ *
+ *  1. If the node `n` is a `require('m')` call;
+ *  2. If the node `n` is an identifier `i` bound by an import, as in `import i from 'm'`;
+ *  3. If the node `n` is an identifier `i`, and there is a single assignment with a `require`
+ *     on the right hand side, i.e. `var i = require('m')`;
+ *
+ * then, in all three cases, the returned value will be the name of the module `'m'`.
+ *
+ * @param node the expression that is expected to evaluate to a module
+ * @param context the rule context
+ * @return name of the module or `undefined`.
+ */
+export function getModuleNameOfNode(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): estree.Literal | undefined {
+  if (node.type === 'Identifier') {
+    return getModuleNameOfIdentifier(node, context);
+  } else {
+    return getModuleNameFromRequire(node);
+  }
 }
 
 /**
@@ -125,7 +150,13 @@ function isNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, name:
   );
 }
 
-export function getModuleNameFromRequire(node: estree.Node) {
+function isDefaultSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
+  return importDeclaration.specifiers.some(
+    ({ type, local }) => type === 'ImportDefaultSpecifier' && local.name === name,
+  );
+}
+
+export function getModuleNameFromRequire(node: estree.Node): estree.Literal | undefined {
   if (
     node.type === 'CallExpression' &&
     isIdentifier(node.callee, 'require') &&
