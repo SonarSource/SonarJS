@@ -110,13 +110,54 @@ public class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile("file.min.js"))).isFalse();
   }
 
+  @Test
+  public void should_exclude_huge_files() {
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
+    final long K = 1000L;
+    long[] sizes = { 10, 100, 2 * K, 10 * K, 100 * K, 500 * K, 550 * K, 2000 * K, 5000 * K };
 
-  private DefaultInputFile inputFile(String file) {
+    // Check that our test has not become degenerate after adjusting the threshold
+    assertThat(sizes[sizes.length - 1])
+      .withFailMessage("All example sizes are below threshold, the test must be adjusted.")
+      .isGreaterThan(SizeAssessor.SIZE_THRESHOLD_BYTES);
+
+    for (long size: sizes) {
+      String content = syntheticJsFileContent(size);
+      assertThat(filter.accept(inputFile("name.js", content)))
+        .withFailMessage("Wrong result for size " + size)
+        .isEqualTo(size <= SizeAssessor.SIZE_THRESHOLD_BYTES);
+    }
+  }
+
+  /**
+   * Generates a synthetic file with exported constants `N1`, `N2`, ... mapped to integers `1`, `2` ... in every line.
+   * The size of the synthetic file is small as possible while being at least `approxSizeBytes`.
+   *
+   * @param approxSizeBytes approximate size of the file.
+   */
+  private String syntheticJsFileContent(long approxSizeBytes) {
+    long counter = 0;
+    StringBuilder bldr = new StringBuilder();
+    long totalSize = 0;
+    while (totalSize < approxSizeBytes) {
+      String line = "export const N" + counter + " = " + counter + ";\n";
+      totalSize += line.length();
+      bldr.append(line);
+      counter++;
+    }
+    return bldr.toString();
+  }
+
+  private DefaultInputFile inputFile(String file, String content) {
     return new TestInputFileBuilder("test","test_node_modules/" + file)
       .setLanguage(language(file))
-      .setContents("foo();")
+      .setContents(content)
       .setCharset(StandardCharsets.UTF_8)
       .build();
+  }
+
+  private DefaultInputFile inputFile(String file) {
+    return inputFile(file, "foo();");
   }
 
   private static String language(String filename) {
