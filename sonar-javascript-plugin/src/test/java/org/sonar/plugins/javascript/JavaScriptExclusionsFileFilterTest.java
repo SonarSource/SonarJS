@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript;
 
+import java.nio.charset.StandardCharsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -114,6 +115,7 @@ public class JavaScriptExclusionsFileFilterTest {
     return new TestInputFileBuilder("test","test_node_modules/" + file)
       .setLanguage(language(file))
       .setContents("foo();")
+      .setCharset(StandardCharsets.UTF_8)
       .build();
   }
 

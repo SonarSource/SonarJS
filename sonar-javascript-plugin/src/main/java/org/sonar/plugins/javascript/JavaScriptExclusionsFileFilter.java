@@ -54,6 +54,7 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   @Override
   public boolean accept(InputFile inputFile) {
+
     String relativePath = inputFile.uri().toString();
     if (WildcardPattern.match(excludedPatterns, relativePath)) {
       LOG.debug("File {} was excluded by {} or {}", inputFile, JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.TS_EXCLUSIONS_KEY);
