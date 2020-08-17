@@ -27,7 +27,7 @@ public class SizeAssessor {
 
   private SizeAssessor() {}
 
-  public static final long SIZE_THRESHOLD_BYTES = 1000_000L; // 1MB
+  public static final long SIZE_THRESHOLD_BYTES = 5000_000L; // 5MB
 
   public static boolean hasExcessiveSize(InputFile file) {
     return hasExcessiveSize(file::inputStream);
