@@ -114,7 +114,7 @@ public class JavaScriptExclusionsFileFilterTest {
   public void should_exclude_huge_files() {
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
     final long K = 1000L;
-    long[] sizes = { 10, 100, 2 * K, 10 * K, 100 * K, 500 * K, 550 * K, 2000 * K, 5000 * K };
+    long[] sizes = { 10, 10 * K, 500 * K, 4000 * K, (long)(SizeAssessor.SIZE_THRESHOLD_BYTES * 1.5) };
 
     // Check that our test has not become degenerate after adjusting the threshold
     assertThat(sizes[sizes.length - 1])
@@ -125,7 +125,7 @@ public class JavaScriptExclusionsFileFilterTest {
       String content = syntheticJsFileContent(size);
       assertThat(filter.accept(inputFile("name.js", content)))
         .withFailMessage("Wrong result for size " + size)
-        .isEqualTo(size <= SizeAssessor.SIZE_THRESHOLD_BYTES);
+        .isEqualTo(size < SizeAssessor.SIZE_THRESHOLD_BYTES);
     }
   }
 
