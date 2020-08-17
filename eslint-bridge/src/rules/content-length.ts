@@ -24,9 +24,10 @@ import * as estree from 'estree';
 import {
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
-  getUniqueWriteUsage,
-  getVariableFromName,
+  getValueOfExpression,
+  getLhsVariable,
 } from './utils';
+import { getVariablePropertyFromAssignment } from './file-uploads';
 
 const FORMIDABLE_MODULE = 'formidable';
 const MAX_FILE_SIZE = 'maxFileSize';
@@ -85,7 +86,14 @@ function checkCallExpression(context: Rule.RuleContext, callExpression: estree.C
 
 function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   if (callExpression.arguments.length === 0) {
-    checkOptionsSetAfter(context, callExpression);
+    // options will be set later through member assignment
+    const formVariable = getLhsVariable(context);
+    if (formVariable) {
+      formidableObjects.set(formVariable, {
+        maxFileSize: FORMIDABLE_DEFAULT_SIZE,
+        nodeToReport: callExpression,
+      });
+    }
     return;
   }
 
@@ -96,7 +104,7 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
   );
   if (options) {
     const property = getProperty(options, MAX_FILE_SIZE);
-    checkSizeProperty(context, callExpression, property, FORMIDABLE_DEFAULT_SIZE);
+    checkSize(context, callExpression, property, FORMIDABLE_DEFAULT_SIZE);
   }
 }
 
@@ -118,7 +126,7 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
   const limitsPropertyValue = getProperty(multerOptions, LIMITS_OPTION)?.value;
   if (limitsPropertyValue && limitsPropertyValue.type === 'ObjectExpression') {
     const fileSizeProperty = getProperty(limitsPropertyValue, FILE_SIZE_OPTION);
-    checkSizeProperty(context, callExpression, fileSizeProperty);
+    checkSize(context, callExpression, fileSizeProperty);
   }
 
   if (!limitsPropertyValue) {
@@ -126,55 +134,19 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
   }
 }
 
-function checkSizeProperty(
+function checkSize(
   context: Rule.RuleContext,
   callExpr: estree.CallExpression,
   property?: estree.Property,
   defaultLimit?: number,
 ) {
   if (property) {
-    const maxFileSizeValue = getLiteralNumericValue(context, property?.value);
+    const maxFileSizeValue = getLiteralNumericValue(context, property.value);
     if (maxFileSizeValue) {
       report(context, property, maxFileSizeValue);
     }
   } else {
     report(context, callExpr, defaultLimit);
-  }
-}
-
-function getValueOfExpression<T>(
-  context: Rule.RuleContext,
-  expr: estree.Node,
-  type: string,
-): T | undefined {
-  if (expr.type === 'Identifier') {
-    const usage = getUniqueWriteUsage(context, expr.name);
-    if (usage && usage.type === type) {
-      return (usage as any) as T;
-    }
-  }
-
-  if (expr.type === type) {
-    return (expr as any) as T;
-  }
-}
-
-function checkOptionsSetAfter(context: Rule.RuleContext, callExpression: estree.CallExpression) {
-  const parent = context.getAncestors()[context.getAncestors().length - 1];
-  let formIdentifier: estree.Identifier | undefined;
-  if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
-    formIdentifier = parent.id;
-  } else if (parent.type === 'AssignmentExpression' && parent.left.type === 'Identifier') {
-    formIdentifier = parent.left;
-  }
-  if (formIdentifier) {
-    const formVariable = getVariableFromName(context, formIdentifier.name);
-    if (formVariable) {
-      formidableObjects.set(formVariable, {
-        maxFileSize: FORMIDABLE_DEFAULT_SIZE,
-        nodeToReport: callExpression,
-      });
-    }
   }
 }
 
@@ -191,32 +163,26 @@ function getProperty(options: estree.ObjectExpression, key: string) {
 }
 
 function visitAssignment(context: Rule.RuleContext, assignment: estree.AssignmentExpression) {
-  if (assignment.left.type !== 'MemberExpression') {
+  const variableProperty = getVariablePropertyFromAssignment(context, assignment);
+  if (!variableProperty) {
     return;
   }
 
-  const memberExpr = assignment.left;
-  if (memberExpr.object.type === 'Identifier' && memberExpr.property.type === 'Identifier') {
-    const variable = getVariableFromName(context, memberExpr.object.name);
+  const { objectVariable, property } = variableProperty;
 
-    if (variable && formidableObjects.has(variable) && memberExpr.property.name === MAX_FILE_SIZE) {
-      const formOptions = formidableObjects.get(variable)!;
-      const rhsValue = getLiteralNumericValue(context, assignment.right);
-      if (rhsValue !== undefined) {
-        formOptions.maxFileSize = rhsValue;
-        formOptions.nodeToReport = assignment;
-      } else {
-        formidableObjects.delete(variable);
-      }
+  if (formidableObjects.has(objectVariable) && property === MAX_FILE_SIZE) {
+    const formOptions = formidableObjects.get(objectVariable)!;
+    const rhsValue = getLiteralNumericValue(context, assignment.right);
+    if (rhsValue !== undefined) {
+      formOptions.maxFileSize = rhsValue;
+      formOptions.nodeToReport = assignment;
+    } else {
+      formidableObjects.delete(objectVariable);
     }
   }
 }
 
-function getLiteralNumericValue(context: Rule.RuleContext, node?: estree.Node): number | undefined {
-  if (!node) {
-    return undefined;
-  }
-
+function getLiteralNumericValue(context: Rule.RuleContext, node: estree.Node): number | undefined {
   const literal = getValueOfExpression<estree.Literal>(context, node, 'Literal');
   if (literal && typeof literal.value === 'number') {
     return literal.value;

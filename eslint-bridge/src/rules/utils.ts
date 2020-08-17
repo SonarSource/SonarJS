@@ -181,6 +181,41 @@ export function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
   return undefined;
 }
 
+export function getValueOfExpression<T>(
+  context: Rule.RuleContext,
+  expr: estree.Node,
+  type: string,
+): T | undefined {
+  if (expr.type === 'Identifier') {
+    const usage = getUniqueWriteUsage(context, expr.name);
+    if (usage && usage.type === type) {
+      return (usage as any) as T;
+    }
+  }
+
+  if (expr.type === type) {
+    return (expr as any) as T;
+  }
+}
+
+/**
+ * for `x = 42` or `let x = 42` when visiting '42' returns 'x' variable
+ */
+export function getLhsVariable(context: Rule.RuleContext): Scope.Variable | undefined {
+  const parent = context.getAncestors()[context.getAncestors().length - 1];
+  let formIdentifier: estree.Identifier | undefined;
+  if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+    formIdentifier = parent.id;
+  } else if (parent.type === 'AssignmentExpression' && parent.left.type === 'Identifier') {
+    formIdentifier = parent.left;
+  }
+  if (formIdentifier) {
+    return getVariableFromName(context, formIdentifier.name);
+  }
+
+  return undefined;
+}
+
 export function getVariableFromName(context: Rule.RuleContext, name: string) {
   let scope: Scope.Scope | null = context.getScope();
   let variable;

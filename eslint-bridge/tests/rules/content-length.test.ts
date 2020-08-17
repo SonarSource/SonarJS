@@ -92,6 +92,9 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       const form2 = formidable();
       const size = 42000000;
       form2.maxFileSize = size; // Noncompliant
+      
+      const form3 = formidable();
+      form3.maxFileSize = unknown; // OK
         `,
       errors: [
         {

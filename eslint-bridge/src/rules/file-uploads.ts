@@ -24,9 +24,10 @@ import * as estree from 'estree';
 import {
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
-  getUniqueWriteUsage,
   getVariableFromName,
+  getValueOfExpression,
   toEncodedMessage,
+  getLhsVariable,
 } from './utils';
 
 const FORMIDABLE_MODULE = 'formidable';
@@ -96,7 +97,14 @@ function checkCallExpression(context: Rule.RuleContext, callExpression: estree.C
 
 function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   if (callExpression.arguments.length === 0) {
-    checkOptionsSetAfter(context, callExpression);
+    const formVariable = getLhsVariable(context);
+    if (formVariable) {
+      formidableObjects.set(formVariable, {
+        uploadDirSet: false,
+        keepExtensions: false,
+        callExpression,
+      });
+    }
     return;
   }
 
@@ -176,43 +184,6 @@ function isMemberWithProperty(expr: estree.Node, property: string) {
   );
 }
 
-function getValueOfExpression<T>(
-  context: Rule.RuleContext,
-  expr: estree.Node,
-  type: string,
-): T | undefined {
-  if (expr.type === 'Identifier') {
-    const usage = getUniqueWriteUsage(context, expr.name);
-    if (usage && usage.type === type) {
-      return (usage as any) as T;
-    }
-  }
-
-  if (expr.type === type) {
-    return (expr as any) as T;
-  }
-}
-
-function checkOptionsSetAfter(context: Rule.RuleContext, callExpression: estree.CallExpression) {
-  const parent = context.getAncestors()[context.getAncestors().length - 1];
-  let formIdentifier: estree.Identifier | undefined;
-  if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
-    formIdentifier = parent.id;
-  } else if (parent.type === 'AssignmentExpression' && parent.left.type === 'Identifier') {
-    formIdentifier = parent.left;
-  }
-  if (formIdentifier) {
-    const formVariable = getVariableFromName(context, formIdentifier.name);
-    if (formVariable) {
-      formidableObjects.set(formVariable, {
-        uploadDirSet: false,
-        keepExtensions: false,
-        callExpression,
-      });
-    }
-  }
-}
-
 function keepExtensionsValue(extensionValue?: estree.Node): boolean {
   if (
     extensionValue &&
@@ -238,25 +209,45 @@ function getValue(options: estree.ObjectExpression, key: string) {
 }
 
 function visitAssignment(context: Rule.RuleContext, assignment: estree.AssignmentExpression) {
-  if (assignment.left.type !== 'MemberExpression') {
+  const variableProperty = getVariablePropertyFromAssignment(context, assignment);
+  if (!variableProperty) {
     return;
+  }
+
+  const { objectVariable, property } = variableProperty;
+
+  if (formidableObjects.has(objectVariable)) {
+    const formOptions = formidableObjects.get(objectVariable)!;
+    if (property === UPLOAD_DIR) {
+      formOptions.uploadDirSet = true;
+    }
+
+    if (property === KEEP_EXTENSIONS) {
+      formOptions.keepExtensions = keepExtensionsValue(assignment.right);
+    }
+  }
+}
+
+/**
+ * for `x.foo = 42` returns 'x' variable and 'foo' property string
+ */
+export function getVariablePropertyFromAssignment(
+  context: Rule.RuleContext,
+  assignment: estree.AssignmentExpression,
+): { objectVariable: Scope.Variable; property: string } | undefined {
+  if (assignment.left.type !== 'MemberExpression') {
+    return undefined;
   }
 
   const memberExpr = assignment.left;
   if (memberExpr.object.type === 'Identifier' && memberExpr.property.type === 'Identifier') {
-    const variable = getVariableFromName(context, memberExpr.object.name);
-
-    if (variable && formidableObjects.has(variable)) {
-      const formOptions = formidableObjects.get(variable)!;
-      if (memberExpr.property.name === UPLOAD_DIR) {
-        formOptions.uploadDirSet = true;
-      }
-
-      if (memberExpr.property.name === KEEP_EXTENSIONS) {
-        formOptions.keepExtensions = keepExtensionsValue(assignment.right);
-      }
+    const objectVariable = getVariableFromName(context, memberExpr.object.name);
+    if (objectVariable) {
+      return { objectVariable, property: memberExpr.property.name };
     }
   }
+
+  return undefined;
 }
 
 function report(
