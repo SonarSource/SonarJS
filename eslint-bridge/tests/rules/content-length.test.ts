@@ -35,9 +35,16 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
     {
       code: `
       const multer = require('multer');
-      const upload = multer();
+      const upload = multer(options);
         `,
       options,
+    },
+    {
+      code: `
+      import { formidable } from 'formidable';
+      const form = formidable({}); // Ok, default is used which is less than parameter
+      `,
+      options: [250_000_000, 2_000_000],
     },
   ],
   invalid: [
@@ -138,6 +145,22 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
           line: 8,
         },
       ],
+      options,
+    },
+    {
+      code: `
+      import * as multer from 'multer';
+      multer({ limits: { fileSize: 42000000 } }); // Noncompliant
+
+      const options = { limits: { fileSize: 42000000 } };  // Noncompliant
+      multer(options);
+
+      // the default value is no limit
+      multer();            // Noncompliant
+      multer({ storage }); // Noncompliant
+      multer({ limits: {} }); // Noncompliant
+      `,
+      errors: [{ line: 3 }, { line: 5 }, { line: 9 }, { line: 10 }, { line: 11 }],
       options,
     },
   ],

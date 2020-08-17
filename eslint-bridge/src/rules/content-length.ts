@@ -33,8 +33,8 @@ const MAX_FILE_SIZE = 'maxFileSize';
 const FORMIDABLE_DEFAULT_SIZE = 200 * 1024 * 1024;
 
 const MULTER_MODULE = 'multer';
-const STORAGE_OPTION = 'storage';
-const DESTINATION_OPTION = 'destination';
+const LIMITS_OPTION = 'limits';
+const FILE_SIZE_OPTION = 'fileSize';
 
 const formidableObjects: Map<
   Scope.Variable,
@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
         formidableObjects.clear();
       },
       'Program:exit'() {
-        formidableObjects.forEach(value => report(context, value.maxFileSize, value.nodeToReport));
+        formidableObjects.forEach(value => report(context, value.nodeToReport, value.maxFileSize));
       },
     };
   },
@@ -96,18 +96,13 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
   );
   if (options) {
     const property = getProperty(options, MAX_FILE_SIZE);
-    const maxFileSizeValue = getLiteralNumericValue(context, property?.value);
-    if (maxFileSizeValue) {
-      report(context, maxFileSizeValue, property!);
-    }
-    if (!property) {
-      report(context, FORMIDABLE_DEFAULT_SIZE, callExpression);
-    }
+    checkSizeProperty(context, callExpression, property, FORMIDABLE_DEFAULT_SIZE);
   }
 }
 
 function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   if (callExpression.arguments.length === 0) {
+    report(context, callExpression.callee);
     return;
   }
   const multerOptions = getValueOfExpression<estree.ObjectExpression>(
@@ -120,51 +115,31 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
     return;
   }
 
-  const storagePropertyValue = getProperty(multerOptions, STORAGE_OPTION)?.value;
-  if (storagePropertyValue) {
-    const storageValue = getValueOfExpression<estree.CallExpression>(
-      context,
-      storagePropertyValue,
-      'CallExpression',
-    );
+  const limitsPropertyValue = getProperty(multerOptions, LIMITS_OPTION)?.value;
+  if (limitsPropertyValue && limitsPropertyValue.type === 'ObjectExpression') {
+    const fileSizeProperty = getProperty(limitsPropertyValue, FILE_SIZE_OPTION);
+    checkSizeProperty(context, callExpression, fileSizeProperty);
+  }
 
-    if (storageValue) {
-      const diskStorageCallee = getDiskStorageCalleeIfUnsafeStorage(context, storageValue);
-      if (diskStorageCallee) {
-        // report(context, false, false, callExpression, {
-        //   node: diskStorageCallee,
-        //   message: 'no destination specified',
-        // });
-      }
-    }
+  if (!limitsPropertyValue) {
+    report(context, callExpression.callee);
   }
 }
 
-function getDiskStorageCalleeIfUnsafeStorage(
+function checkSizeProperty(
   context: Rule.RuleContext,
-  storageCreation: estree.CallExpression,
+  callExpr: estree.CallExpression,
+  property?: estree.Property,
+  defaultLimit?: number,
 ) {
-  const { arguments: args, callee } = storageCreation;
-  if (args.length > 0 && isMemberWithProperty(callee, 'diskStorage')) {
-    const storageOptions = getValueOfExpression<estree.ObjectExpression>(
-      context,
-      args[0],
-      'ObjectExpression',
-    );
-    if (storageOptions && !getProperty(storageOptions, DESTINATION_OPTION)) {
-      return callee;
+  if (property) {
+    const maxFileSizeValue = getLiteralNumericValue(context, property?.value);
+    if (maxFileSizeValue) {
+      report(context, property, maxFileSizeValue);
     }
+  } else {
+    report(context, callExpr, defaultLimit);
   }
-
-  return false;
-}
-
-function isMemberWithProperty(expr: estree.Node, property: string) {
-  return (
-    expr.type === 'MemberExpression' &&
-    expr.property.type === 'Identifier' &&
-    expr.property.name === property
-  );
 }
 
 function getValueOfExpression<T>(
@@ -249,9 +224,9 @@ function getLiteralNumericValue(context: Rule.RuleContext, node?: estree.Node): 
   return undefined;
 }
 
-function report(context: Rule.RuleContext, size: number, nodeToReport: estree.Node) {
+function report(context: Rule.RuleContext, nodeToReport: estree.Node, size?: number) {
   const [fileUploadSizeLimit] = context.options;
-  if (size > fileUploadSizeLimit) {
+  if (!size || size > fileUploadSizeLimit) {
     context.report({
       message: 'Make sure the content length limit is safe here.',
       node: nodeToReport,
