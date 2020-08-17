@@ -60,7 +60,6 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       const form3 = formidableAlias(); // Noncompliant
       const form4 = new IncomingForm(); // Noncompliant
       const form5 = new Formidable(); // Noncompliant
-      const form6 = new Formidable.Foo(); // OK
         `,
       errors: 5,
       options,
@@ -165,6 +164,73 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       `,
       errors: [{ line: 3 }, { line: 5 }, { line: 9 }, { line: 10 }, { line: 11 }],
       options,
+    },
+    {
+      code: `
+      import { json } from 'body-parser';
+      import * as bodyParser from 'body-parser';
+      bodyParser.json({ limits: 4000000}); // Noncompliant
+      json({ limits: 4000000}); // Noncompliant, second option parameter is used
+      json({ limits: 42000000}); // Noncompliant
+      json({ limits: 2000000}); // 2mb is ok
+      json(); // ok, default 100kb
+      `,
+      errors: [
+        {
+          line: 4,
+        },
+        {
+          line: 5,
+          endLine: 5,
+          column: 14,
+          endColumn: 29,
+        },
+        {
+          line: 6,
+        },
+      ],
+      options,
+    },
+    {
+      code: `
+      import * as bodyParser from 'body-parser'
+
+      bodyParser.text({ limits: '4mb'}); // Noncompliant, second option parameter is used
+      bodyParser.raw({ limits: '42mb'}); // Noncompliant
+      bodyParser.urlencoded({ limits: '2mb'}); // Noncompliant 2mb > 2_000_000 bytes
+      bodyParser.urlencoded({ limits: '1mb'}); // 1mb is ok
+      bodyParser.urlencoded({ limits: 'invalid'});
+      `,
+      errors: [
+        {
+          line: 4,
+        },
+        {
+          line: 5,
+        },
+        {
+          line: 6,
+        },
+      ],
+      options,
+    },
+    {
+      code: `
+      const bodyParser = require('body-parser');
+
+      bodyParser.json(); // Noncompliant, default 100kb
+      bodyParser.json({ notLimits: 10}); // Noncompliant
+      bodyParser.json(unknown);
+      `,
+      errors: [
+        {
+          line: 4,
+        },
+        {
+          line: 5,
+        },
+      ],
+      options: [0, 1000],
     },
   ],
 });

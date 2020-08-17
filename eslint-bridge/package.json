@@ -40,12 +40,14 @@
     "ts-jest": "24.1.0"
   },
   "dependencies": {
+    "@types/bytes": "3.1.0",
     "@typescript-eslint/eslint-plugin": "3.7.1",
     "@typescript-eslint/experimental-utils": "3.7.1",
     "@typescript-eslint/parser": "3.7.1",
     "babel-eslint": "10.1.0",
     "body-parser": "1.18.3",
     "builtin-modules": "3.1.0",
+    "bytes": "3.1.0",
     "eslint": "7.5.0",
     "eslint-plugin-chai-friendly": "0.5.0",
     "eslint-plugin-sonarjs": "0.5.0",
@@ -53,8 +55,8 @@
     "express": "4.16.3",
     "run-node": "1.0.0",
     "semver": "7.3.2",
-    "vue-eslint-parser": "7.1.0",
-    "typescript": "3.9.5"
+    "typescript": "3.9.5",
+    "vue-eslint-parser": "7.1.0"
   },
   "bundledDependencies": [
     "@typescript-eslint/eslint-plugin",
@@ -71,7 +73,8 @@
     "run-node",
     "semver",
     "vue-eslint-parser",
-    "typescript"
+    "typescript",
+    "bytes"
   ],
   "prettier": {
     "printWidth": 100,
