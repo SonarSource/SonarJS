@@ -30,10 +30,20 @@ public class SizeAssessor {
   public static final long SIZE_THRESHOLD_BYTES = 1000_000L; // 1MB
 
   public static boolean hasExcessiveSize(InputFile file) {
-    try (InputStream inputStream = file.inputStream()) {
+    return hasExcessiveSize(file::inputStream);
+  }
+
+  @FunctionalInterface
+  interface SupplierThrowing<A, E extends Exception> {
+    A get() throws E;
+  }
+
+  static boolean hasExcessiveSize(SupplierThrowing<InputStream, IOException> inputStreamSupplier) {
+    try (InputStream inputStream = inputStreamSupplier.get()) {
       return canSkipAtLeast(inputStream, SIZE_THRESHOLD_BYTES);
     } catch (IOException ioe) {
-      return true; // It's not too large, but if it's broken, it's just as bad; skip
+      // Size is not too large, but for whatever reason we cannot read the file; skip
+      return true;
     }
   }
 
@@ -61,7 +71,8 @@ public class SizeAssessor {
           throw new IOException("Too many iterations without progress; Exit.");
         }
       } else {
-        noProgressSince = 0; // skipped > 0, we're making progress, reset `noProgressSince`-counter.
+        // skipped > 0, we're making progress, reset `noProgressSince`-counter.
+        noProgressSince = 0;
       }
       toSkip -= skipped;
     }
