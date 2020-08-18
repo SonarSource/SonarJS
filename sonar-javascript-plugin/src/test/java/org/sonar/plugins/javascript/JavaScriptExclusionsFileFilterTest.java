@@ -112,20 +112,23 @@ public class JavaScriptExclusionsFileFilterTest {
 
   @Test
   public void should_exclude_huge_files() {
-    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
+    MapSettings mapSettings = new MapSettings();
+    final int MAX_SIZE_SETTING = 128;
+    mapSettings.setProperty("sonar.javascript.maxFileSize", "" + MAX_SIZE_SETTING);
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(mapSettings.asConfig());
     final long K = 1000L;
-    long[] sizes = { 10, 10 * K, 500 * K, 4000 * K, (long)(SizeAssessor.SIZE_THRESHOLD_BYTES * 1.5) };
+    long[] sizes = { 10, 10 * K, 100 * K, 150 * K, 200 * K };
 
     // Check that our test has not become degenerate after adjusting the threshold
     assertThat(sizes[sizes.length - 1])
       .withFailMessage("All example sizes are below threshold, the test must be adjusted.")
-      .isGreaterThan(SizeAssessor.SIZE_THRESHOLD_BYTES);
+      .isGreaterThan(MAX_SIZE_SETTING);
 
     for (long size: sizes) {
       String content = syntheticJsFileContent(size);
       assertThat(filter.accept(inputFile("name.js", content)))
         .withFailMessage("Wrong result for size " + size)
-        .isEqualTo(size < SizeAssessor.SIZE_THRESHOLD_BYTES);
+        .isEqualTo(size < MAX_SIZE_SETTING);
     }
   }
 

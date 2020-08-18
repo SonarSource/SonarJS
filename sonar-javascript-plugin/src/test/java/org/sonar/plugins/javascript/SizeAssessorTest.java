@@ -35,6 +35,6 @@ public class SizeAssessorTest {
           return 0;
         }
       };
-    assertThat(SizeAssessor.hasExcessiveSize(brokenStreamSupplier)).isTrue();
+    assertThat(SizeAssessor.hasExcessiveSize(brokenStreamSupplier, 123)).isTrue();
   }
 }

@@ -27,10 +27,8 @@ public class SizeAssessor {
 
   private SizeAssessor() {}
 
-  public static final long SIZE_THRESHOLD_BYTES = 5000_000L; // 5MB
-
-  public static boolean hasExcessiveSize(InputFile file) {
-    return hasExcessiveSize(file::inputStream);
+  public static boolean hasExcessiveSize(InputFile file, Long maxFileSizeKb) {
+    return hasExcessiveSize(file::inputStream, maxFileSizeKb);
   }
 
   @FunctionalInterface
@@ -38,9 +36,12 @@ public class SizeAssessor {
     A get() throws E;
   }
 
-  static boolean hasExcessiveSize(SupplierThrowing<InputStream, IOException> inputStreamSupplier) {
+  static boolean hasExcessiveSize(
+    SupplierThrowing<InputStream, IOException> inputStreamSupplier,
+    long maxFileSizeKb
+  ) {
     try (InputStream inputStream = inputStreamSupplier.get()) {
-      return canSkipAtLeast(inputStream, SIZE_THRESHOLD_BYTES);
+      return canSkipAtLeast(inputStream, maxFileSizeKb);
     } catch (IOException ioe) {
       // Size is not too large, but for whatever reason we cannot read the file; skip
       return true;
@@ -60,7 +61,6 @@ public class SizeAssessor {
     long toSkip = numBytes;
     int noProgressSince = 0;
     while (toSkip > 0) {
-      // Avoid `InputStream.skip` because of the bizarrely vague specification.
       long skipped = is.read(BUFFER, 0, BUFFER_SIZE);
       if (skipped < 0) {
         // EOF

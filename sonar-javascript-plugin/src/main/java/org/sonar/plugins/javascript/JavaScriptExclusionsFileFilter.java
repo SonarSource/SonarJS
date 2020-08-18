@@ -36,6 +36,8 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   private static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[]{"**/node_modules/**", "**/bower_components/**"};
   private final WildcardPattern[] excludedPatterns;
+  private static final long DEFAULT_MAX_FILE_SIZE = 1000;
+  private long maxFileSizeKb = DEFAULT_MAX_FILE_SIZE;
 
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
     if (!isExclusionOverridden(configuration)) {
@@ -45,6 +47,24 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
       WildcardPattern[] tsExcludedPatterns = WildcardPattern.create(configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY));
       excludedPatterns = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns)).toArray(WildcardPattern[]::new);
     }
+    configuration.get(JavaScriptPlugin.MAX_FILE_SIZE).ifPresent(str -> {
+      try {
+        maxFileSizeKb = Long.parseLong(str);
+        if (maxFileSizeKb <= 0) {
+          LOG.error(
+            "Maximum file size not strictly positive: " + maxFileSizeKb +
+            ", falling back to " + DEFAULT_MAX_FILE_SIZE
+          );
+          maxFileSizeKb = DEFAULT_MAX_FILE_SIZE;
+        }
+      } catch (NumberFormatException nfe) {
+        LOG.error(
+          "Maximum file size not an integer: \"" + str + "\", " +
+          "falling back to " + DEFAULT_MAX_FILE_SIZE
+        );
+        maxFileSizeKb = DEFAULT_MAX_FILE_SIZE;
+      }
+    });
   }
 
   private boolean isExclusionOverridden(Configuration configuration) {
@@ -55,7 +75,7 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
   @Override
   public boolean accept(InputFile inputFile) {
 
-    if (SizeAssessor.hasExcessiveSize(inputFile)) {
+    if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb)) {
       LOG.debug("File {} was excluded because of excessive size", inputFile);
       return false;
     }
