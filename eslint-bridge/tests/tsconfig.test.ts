@@ -17,18 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getFilesForTsConfig } from '../src/tsconfig';
-import { ParseExceptionCode } from '../src/parser';
+import { getFilesForTsConfig } from 'tsconfig';
+import * as ts from 'typescript';
+import { ParseExceptionCode } from 'parser';
 
 describe('tsconfig', () => {
-  it('should return error when typescript is missing', () => {
-    jest.mock('typescript', () => {
-      throw new Error("Missing module 'typescript'");
+  const defaultParseConfigHost: ts.ParseConfigHost = {
+    useCaseSensitiveFileNames: true,
+    readDirectory: ts.sys.readDirectory,
+    fileExists: ts.sys.fileExists,
+    readFile: ts.sys.readFile,
+  };
+
+  it('should return files from tsconfig', () => {
+    const readFile = _path => `
+    {
+      "files": ["/foo/file.ts"]
+    }
+    `;
+    const result = getFilesForTsConfig('tsconfig.json', { ...defaultParseConfigHost, readFile });
+    expect(result).toEqual({
+      files: ['/foo/file.ts'],
     });
-    const config = getFilesForTsConfig('tsconfig.json');
-    expect(config).toEqual({
-      error: "Missing module 'typescript'",
-      errorCode: ParseExceptionCode.MissingTypeScript,
+  });
+
+  it('should report errors from tsconfig', () => {
+    const readFile = _path => `
+    {
+      "files": []
+    }
+    `;
+    const result = getFilesForTsConfig('tsconfig.json', { ...defaultParseConfigHost, readFile });
+    expect(result).toEqual({
+      error: "The 'files' list in config file 'tsconfig.json' is empty.",
+      errorCode: ParseExceptionCode.GeneralError,
     });
   });
 });
