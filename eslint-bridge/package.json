@@ -55,8 +55,8 @@
     "express": "4.16.3",
     "run-node": "1.0.0",
     "semver": "7.3.2",
-    "typescript": "3.9.5",
-    "vue-eslint-parser": "7.1.0"
+    "vue-eslint-parser": "7.1.0",
+    "typescript": "3.9.5"
   },
   "bundledDependencies": [
     "@typescript-eslint/eslint-plugin",
