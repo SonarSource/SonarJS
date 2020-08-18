@@ -24,6 +24,7 @@
     "node": ">=6"
   },
   "devDependencies": {
+    "@types/bytes": "3.1.0",
     "@types/eslint": "7.2.0",
     "@types/eslint-scope": "3.7.0",
     "@types/esprima": "4.0.2",
@@ -46,6 +47,7 @@
     "babel-eslint": "10.1.0",
     "body-parser": "1.18.3",
     "builtin-modules": "3.1.0",
+    "bytes": "3.1.0",
     "eslint": "7.5.0",
     "eslint-plugin-chai-friendly": "0.5.0",
     "eslint-plugin-sonarjs": "0.5.0",
@@ -63,6 +65,7 @@
     "babel-eslint",
     "body-parser",
     "builtin-modules",
+    "bytes",
     "eslint",
     "eslint-plugin-chai-friendly",
     "eslint-plugin-sonarjs",

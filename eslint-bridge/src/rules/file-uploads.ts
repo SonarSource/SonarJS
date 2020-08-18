@@ -24,9 +24,11 @@ import * as estree from 'estree';
 import {
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
-  getUniqueWriteUsage,
   getVariableFromName,
+  getValueOfExpression,
   toEncodedMessage,
+  getLhsVariable,
+  getObjectExpressionProperty,
 } from './utils';
 
 const FORMIDABLE_MODULE = 'formidable';
@@ -96,7 +98,14 @@ function checkCallExpression(context: Rule.RuleContext, callExpression: estree.C
 
 function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   if (callExpression.arguments.length === 0) {
-    checkOptionsSetAfter(context, callExpression);
+    const formVariable = getLhsVariable(context);
+    if (formVariable) {
+      formidableObjects.set(formVariable, {
+        uploadDirSet: false,
+        keepExtensions: false,
+        callExpression,
+      });
+    }
     return;
   }
 
@@ -108,8 +117,8 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
   if (options) {
     report(
       context,
-      !!getValue(options, UPLOAD_DIR),
-      keepExtensionsValue(getValue(options, KEEP_EXTENSIONS)),
+      !!getObjectExpressionProperty(options, UPLOAD_DIR),
+      keepExtensionsValue(getObjectExpressionProperty(options, KEEP_EXTENSIONS)?.value),
       callExpression,
     );
   }
@@ -129,7 +138,7 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
     return;
   }
 
-  const storagePropertyValue = getValue(multerOptions, STORAGE_OPTION);
+  const storagePropertyValue = getObjectExpressionProperty(multerOptions, STORAGE_OPTION)?.value;
   if (storagePropertyValue) {
     const storageValue = getValueOfExpression<estree.CallExpression>(
       context,
@@ -160,7 +169,7 @@ function getDiskStorageCalleeIfUnsafeStorage(
       args[0],
       'ObjectExpression',
     );
-    if (storageOptions && !getValue(storageOptions, DESTINATION_OPTION)) {
+    if (storageOptions && !getObjectExpressionProperty(storageOptions, DESTINATION_OPTION)) {
       return callee;
     }
   }
@@ -176,43 +185,6 @@ function isMemberWithProperty(expr: estree.Node, property: string) {
   );
 }
 
-function getValueOfExpression<T>(
-  context: Rule.RuleContext,
-  expr: estree.Node,
-  type: string,
-): T | undefined {
-  if (expr.type === 'Identifier') {
-    const usage = getUniqueWriteUsage(context, expr.name);
-    if (usage && usage.type === type) {
-      return (usage as any) as T;
-    }
-  }
-
-  if (expr.type === type) {
-    return (expr as any) as T;
-  }
-}
-
-function checkOptionsSetAfter(context: Rule.RuleContext, callExpression: estree.CallExpression) {
-  const parent = context.getAncestors()[context.getAncestors().length - 1];
-  let formIdentifier: estree.Identifier | undefined;
-  if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
-    formIdentifier = parent.id;
-  } else if (parent.type === 'AssignmentExpression' && parent.left.type === 'Identifier') {
-    formIdentifier = parent.left;
-  }
-  if (formIdentifier) {
-    const formVariable = getVariableFromName(context, formIdentifier.name);
-    if (formVariable) {
-      formidableObjects.set(formVariable, {
-        uploadDirSet: false,
-        keepExtensions: false,
-        callExpression,
-      });
-    }
-  }
-}
-
 function keepExtensionsValue(extensionValue?: estree.Node): boolean {
   if (
     extensionValue &&
@@ -225,38 +197,46 @@ function keepExtensionsValue(extensionValue?: estree.Node): boolean {
   return false;
 }
 
-function getValue(options: estree.ObjectExpression, key: string) {
-  const property = options.properties
-    .filter(prop => prop.type === 'Property')
-    .map(prop => prop as estree.Property)
-    .find(prop => prop.key.type === 'Identifier' && prop.key.name === key);
-  if (!property) {
-    return undefined;
-  } else {
-    return property.value;
+function visitAssignment(context: Rule.RuleContext, assignment: estree.AssignmentExpression) {
+  const variableProperty = getVariablePropertyFromAssignment(context, assignment);
+  if (!variableProperty) {
+    return;
+  }
+
+  const { objectVariable, property } = variableProperty;
+
+  if (formidableObjects.has(objectVariable)) {
+    const formOptions = formidableObjects.get(objectVariable)!;
+    if (property === UPLOAD_DIR) {
+      formOptions.uploadDirSet = true;
+    }
+
+    if (property === KEEP_EXTENSIONS) {
+      formOptions.keepExtensions = keepExtensionsValue(assignment.right);
+    }
   }
 }
 
-function visitAssignment(context: Rule.RuleContext, assignment: estree.AssignmentExpression) {
+/**
+ * for `x.foo = 42` returns 'x' variable and 'foo' property string
+ */
+export function getVariablePropertyFromAssignment(
+  context: Rule.RuleContext,
+  assignment: estree.AssignmentExpression,
+): { objectVariable: Scope.Variable; property: string } | undefined {
   if (assignment.left.type !== 'MemberExpression') {
-    return;
+    return undefined;
   }
 
   const memberExpr = assignment.left;
   if (memberExpr.object.type === 'Identifier' && memberExpr.property.type === 'Identifier') {
-    const variable = getVariableFromName(context, memberExpr.object.name);
-
-    if (variable && formidableObjects.has(variable)) {
-      const formOptions = formidableObjects.get(variable)!;
-      if (memberExpr.property.name === UPLOAD_DIR) {
-        formOptions.uploadDirSet = true;
-      }
-
-      if (memberExpr.property.name === KEEP_EXTENSIONS) {
-        formOptions.keepExtensions = keepExtensionsValue(assignment.right);
-      }
+    const objectVariable = getVariableFromName(context, memberExpr.object.name);
+    if (objectVariable) {
+      return { objectVariable, property: memberExpr.property.name };
     }
   }
+
+  return undefined;
 }
 
 function report(
