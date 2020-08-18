@@ -36,8 +36,9 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   private static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[]{"**/node_modules/**", "**/bower_components/**"};
   private final WildcardPattern[] excludedPatterns;
-  private static final long DEFAULT_MAX_FILE_SIZE = 1000;
-  private long maxFileSizeKb = DEFAULT_MAX_FILE_SIZE;
+  private static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
+  /** Note that in user-facing option handling the units are kilobytes, not bytes. */
+  private long maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
 
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
     if (!isExclusionOverridden(configuration)) {
@@ -47,7 +48,7 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
       WildcardPattern[] tsExcludedPatterns = WildcardPattern.create(configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY));
       excludedPatterns = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns)).toArray(WildcardPattern[]::new);
     }
-    configuration.get(JavaScriptPlugin.MAX_FILE_SIZE).ifPresent(str -> {
+    configuration.get(JavaScriptPlugin.PROPERTY_KEY_MAX_FILE_SIZE).ifPresent(str -> {
       try {
         maxFileSizeKb = Long.parseLong(str);
         if (maxFileSizeKb <= 0) {
@@ -67,7 +68,7 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
   @Override
   public boolean accept(InputFile inputFile) {
 
-    if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb)) {
+    if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
       LOG.debug("File {} was excluded because of excessive size", inputFile);
       return false;
     }
@@ -88,8 +89,8 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
   }
 
   final void fallbackToDefaultMaxFileSize(String reasonErrorMessage) {
-    LOG.error(reasonErrorMessage + ", falling back to " + DEFAULT_MAX_FILE_SIZE + ".");
-    maxFileSizeKb = DEFAULT_MAX_FILE_SIZE;
+    LOG.error(reasonErrorMessage + ", falling back to " + DEFAULT_MAX_FILE_SIZE_KB + ".");
+    maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
   }
 
 }

@@ -27,8 +27,12 @@ public class SizeAssessor {
 
   private SizeAssessor() {}
 
-  public static boolean hasExcessiveSize(InputFile file, Long maxFileSizeKb) {
-    return hasExcessiveSize(file::inputStream, maxFileSizeKb);
+  /**
+   * Note that this method accepts size in <em>bytes</em>, to keep it consistent with conventions in
+   * <code>InputStream</code> or <code>IOUtils</code>.
+   */
+  public static boolean hasExcessiveSize(InputFile file, Long maxFileSizeBytes) {
+    return hasExcessiveSize(file::inputStream, maxFileSizeBytes);
   }
 
   @FunctionalInterface

@@ -84,7 +84,7 @@ public class JavaScriptPlugin implements Plugin {
   public static final String TS_LCOV_REPORT_PATHS = "sonar.typescript.lcov.reportPaths";
 
   public static final String TSCONFIG_PATH = "sonar.typescript.tsconfigPath";
-  public static final String MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
+  public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
 
   @Override
   public void define(Context context) {
@@ -142,7 +142,7 @@ public class JavaScriptPlugin implements Plugin {
         .category(JS_TS_CATEGORY)
         .build(),
 
-      PropertyDefinition.builder(MAX_FILE_SIZE)
+      PropertyDefinition.builder(PROPERTY_KEY_MAX_FILE_SIZE)
         .name("Maximum size of analyzed files")
         .description(
           "Threshold for the maximum size of analyzed files (in kilobytes). " +
