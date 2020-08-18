@@ -28,6 +28,7 @@ import {
   getValueOfExpression,
   toEncodedMessage,
   getLhsVariable,
+  getObjectExpressionProperty,
 } from './utils';
 
 const FORMIDABLE_MODULE = 'formidable';
@@ -116,8 +117,8 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
   if (options) {
     report(
       context,
-      !!getValue(options, UPLOAD_DIR),
-      keepExtensionsValue(getValue(options, KEEP_EXTENSIONS)),
+      !!getObjectExpressionProperty(options, UPLOAD_DIR),
+      keepExtensionsValue(getObjectExpressionProperty(options, KEEP_EXTENSIONS)?.value),
       callExpression,
     );
   }
@@ -137,7 +138,7 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
     return;
   }
 
-  const storagePropertyValue = getValue(multerOptions, STORAGE_OPTION);
+  const storagePropertyValue = getObjectExpressionProperty(multerOptions, STORAGE_OPTION)?.value;
   if (storagePropertyValue) {
     const storageValue = getValueOfExpression<estree.CallExpression>(
       context,
@@ -168,7 +169,7 @@ function getDiskStorageCalleeIfUnsafeStorage(
       args[0],
       'ObjectExpression',
     );
-    if (storageOptions && !getValue(storageOptions, DESTINATION_OPTION)) {
+    if (storageOptions && !getObjectExpressionProperty(storageOptions, DESTINATION_OPTION)) {
       return callee;
     }
   }
@@ -194,18 +195,6 @@ function keepExtensionsValue(extensionValue?: estree.Node): boolean {
   }
 
   return false;
-}
-
-function getValue(options: estree.ObjectExpression, key: string) {
-  const property = options.properties
-    .filter(prop => prop.type === 'Property')
-    .map(prop => prop as estree.Property)
-    .find(prop => prop.key.type === 'Identifier' && prop.key.name === key);
-  if (!property) {
-    return undefined;
-  } else {
-    return property.value;
-  }
 }
 
 function visitAssignment(context: Rule.RuleContext, assignment: estree.AssignmentExpression) {

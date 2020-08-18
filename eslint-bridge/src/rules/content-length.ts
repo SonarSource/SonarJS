@@ -26,6 +26,7 @@ import {
   getModuleNameOfImportedIdentifier,
   getValueOfExpression,
   getLhsVariable,
+  getObjectExpressionProperty,
 } from './utils';
 import { parse } from 'bytes';
 import { getVariablePropertyFromAssignment } from './file-uploads';
@@ -119,7 +120,7 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
     'ObjectExpression',
   );
   if (options) {
-    const property = getProperty(options, MAX_FILE_SIZE);
+    const property = getObjectExpressionProperty(options, MAX_FILE_SIZE);
     checkSize(context, callExpression, property, FORMIDABLE_DEFAULT_SIZE);
   }
 }
@@ -139,9 +140,9 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
     return;
   }
 
-  const limitsPropertyValue = getProperty(multerOptions, LIMITS_OPTION)?.value;
+  const limitsPropertyValue = getObjectExpressionProperty(multerOptions, LIMITS_OPTION)?.value;
   if (limitsPropertyValue && limitsPropertyValue.type === 'ObjectExpression') {
-    const fileSizeProperty = getProperty(limitsPropertyValue, FILE_SIZE_OPTION);
+    const fileSizeProperty = getObjectExpressionProperty(limitsPropertyValue, FILE_SIZE_OPTION);
     checkSize(context, callExpression, fileSizeProperty);
   }
 
@@ -165,7 +166,7 @@ function checkBodyParser(context: Rule.RuleContext, callExpression: estree.CallE
     return;
   }
 
-  const limitsProperty = getProperty(options, LIMITS_OPTION);
+  const limitsProperty = getObjectExpressionProperty(options, LIMITS_OPTION);
   checkSize(context, callExpression, limitsProperty, BODY_PARSER_DEFAULT_SIZE, true);
 }
 
@@ -183,18 +184,6 @@ function checkSize(
     }
   } else {
     report(context, callExpr, defaultLimit, useStandardSizeLimit);
-  }
-}
-
-function getProperty(options: estree.ObjectExpression, key: string) {
-  const property = options.properties
-    .filter(prop => prop.type === 'Property')
-    .map(prop => prop as estree.Property)
-    .find(prop => prop.key.type === 'Identifier' && prop.key.name === key);
-  if (!property) {
-    return undefined;
-  } else {
-    return property;
   }
 }
 
