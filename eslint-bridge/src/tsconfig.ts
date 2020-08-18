@@ -17,31 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as fs from 'fs';
 import * as path from 'path';
 import { ParseExceptionCode } from './parser';
+import * as ts from 'typescript';
 
 export function getFilesForTsConfig(
   tsConfig: string,
-): { files: string[] } | { error: string; errorCode?: ParseExceptionCode } {
-  let ts;
-  try {
-    ts = require('typescript');
-  } catch (e) {
-    return { error: e.message, errorCode: ParseExceptionCode.MissingTypeScript };
-  }
-
-  const parseConfigHost = {
-    fileExists: fs.existsSync,
-    readDirectory: ts.sys.readDirectory,
+  parseConfigHost: ts.ParseConfigHost = {
     useCaseSensitiveFileNames: true,
-  };
-
-  const config = ts.readConfigFile(tsConfig, ts.sys.readFile);
+    readDirectory: ts.sys.readDirectory,
+    fileExists: ts.sys.fileExists,
+    readFile: ts.sys.readFile,
+  },
+): { files: string[] } | { error: string; errorCode?: ParseExceptionCode } {
+  const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
   if (config.error !== undefined) {
     console.error(`Failed to parse tsconfig: ${tsConfig} (${config.error.messageText})`);
-    return { error: config.error };
+    return { error: diagnosticToString(config.error) };
   }
 
   const parsed = ts.parseJsonConfigFileContent(
@@ -53,5 +46,21 @@ export function getFilesForTsConfig(
     },
   );
 
+  if (parsed.errors.length > 0) {
+    let error = '';
+    parsed.errors.forEach(d => {
+      error += diagnosticToString(d);
+    });
+    return { error, errorCode: ParseExceptionCode.GeneralError };
+  }
+
   return { files: parsed.fileNames };
+}
+
+function diagnosticToString(diagnostic: ts.Diagnostic): string {
+  if (typeof diagnostic.messageText === 'string') {
+    return diagnostic.messageText;
+  } else {
+    return diagnostic.messageText.messageText;
+  }
 }
