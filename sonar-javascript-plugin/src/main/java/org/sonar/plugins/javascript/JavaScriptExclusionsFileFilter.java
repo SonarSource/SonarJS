@@ -51,18 +51,10 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
       try {
         maxFileSizeKb = Long.parseLong(str);
         if (maxFileSizeKb <= 0) {
-          LOG.error(
-            "Maximum file size not strictly positive: " + maxFileSizeKb +
-            ", falling back to " + DEFAULT_MAX_FILE_SIZE
-          );
-          maxFileSizeKb = DEFAULT_MAX_FILE_SIZE;
+          fallbackToDefaultMaxFileSize("Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: " + maxFileSizeKb);
         }
       } catch (NumberFormatException nfe) {
-        LOG.error(
-          "Maximum file size not an integer: \"" + str + "\", " +
-          "falling back to " + DEFAULT_MAX_FILE_SIZE
-        );
-        maxFileSizeKb = DEFAULT_MAX_FILE_SIZE;
+        fallbackToDefaultMaxFileSize("Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"" + str + "\"");
       }
     });
   }
@@ -93,6 +85,11 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
     }
 
     return true;
+  }
+
+  final void fallbackToDefaultMaxFileSize(String reasonErrorMessage) {
+    LOG.error(reasonErrorMessage + ", falling back to " + DEFAULT_MAX_FILE_SIZE + ".");
+    maxFileSizeKb = DEFAULT_MAX_FILE_SIZE;
   }
 
 }

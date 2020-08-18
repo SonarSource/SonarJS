@@ -132,6 +132,22 @@ public class JavaScriptExclusionsFileFilterTest {
     }
   }
 
+  @Test
+  public void should_log_negative_max_size() throws Exception {
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty("sonar.javascript.maxFileSize", "-42");
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(mapSettings.asConfig());
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: -42, falling back to 1000.");
+  }
+
+  @Test
+  public void should_log_non_integer_max_size() throws Exception {
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty("sonar.javascript.maxFileSize", "huge");
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(mapSettings.asConfig());
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"huge\", falling back to 1000.");
+  }
+
   /**
    * Generates a synthetic file with exported constants `N1`, `N2`, ... mapped to integers `1`, `2` ... in every line.
    * The size of the synthetic file is small as possible while being at least `approxSizeBytes`.
