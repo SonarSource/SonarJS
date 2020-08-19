@@ -54,13 +54,16 @@ export const FUNCTION_NODES = [
 ];
 
 /**
- * Returns the module name, when an identifier represents a namespace for that module.
+ * Returns the module name, when an identifier either represents a namespace for that module,
+ * or is an alias for the default exported value.
+ *
  * Returns undefined otherwise.
- * example: Given `import * as X from 'module_name'`, `getModuleNameOfIdentifier(X)` returns `module_name`
+ * example: Given `import * as X from 'module_name'`, `getModuleNameOfIdentifier(X)`
+ * returns `module_name`.
  */
 export function getModuleNameOfIdentifier(
-  identifier: estree.Identifier,
   context: Rule.RuleContext,
+  identifier: estree.Identifier,
 ): estree.Literal | undefined {
   const { name } = identifier;
   // check if importing using `import * as X from 'module_name'`
@@ -79,25 +82,26 @@ export function getModuleNameOfIdentifier(
 }
 
 /**
- * Returns the module name of a module-valued expression in following three cases:
+ * Returns the module name of either a directly `require`d or referenced module in
+ * the following cases:
  *
- *  1. If the node `n` is a `require('m')` call;
- *  2. If the node `n` is an identifier `i` bound by an import, as in `import i from 'm'`;
- *  3. If the node `n` is an identifier `i`, and there is a single assignment with a `require`
+ *  1. If `node` is a `require('m')` call;
+ *  2. If `node` is an identifier `i` bound by an import, as in `import i from 'm'`;
+ *  3. If `node` is an identifier `i`, and there is a single assignment with a `require`
  *     on the right hand side, i.e. `var i = require('m')`;
  *
  * then, in all three cases, the returned value will be the name of the module `'m'`.
  *
  * @param node the expression that is expected to evaluate to a module
  * @param context the rule context
- * @return name of the module or `undefined`.
+ * @return literal with the name of the module or `undefined`.
  */
 export function getModuleNameOfNode(
-  node: estree.Node,
   context: Rule.RuleContext,
+  node: estree.Node,
 ): estree.Literal | undefined {
   if (node.type === 'Identifier') {
-    return getModuleNameOfIdentifier(node, context);
+    return getModuleNameOfIdentifier(context, node);
   } else {
     return getModuleNameFromRequire(node);
   }
@@ -109,8 +113,8 @@ export function getModuleNameOfNode(
  * example: Given `import { f } from 'module_name'`, `getModuleNameOfImportedIdentifier(f)` returns `module_name`
  */
 export function getModuleNameOfImportedIdentifier(
-  identifier: estree.Identifier,
   context: Rule.RuleContext,
+  identifier: estree.Identifier,
 ) {
   // check if importing using `import { f } from 'module_name'`
   const importedDeclaration = getImportDeclarations(context).find(({ specifiers }) =>
@@ -179,6 +183,17 @@ export function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
     }
   }
   return undefined;
+}
+
+export function getUniqueWriteUsageOrNode(
+  context: Rule.RuleContext,
+  node: estree.Node,
+): estree.Node {
+  if (node.type === 'Identifier') {
+    return getUniqueWriteUsage(context, node.name) || node;
+  } else {
+    return node;
+  }
 }
 
 export function getValueOfExpression<T>(

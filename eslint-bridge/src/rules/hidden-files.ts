@@ -41,7 +41,7 @@ export const rule: Rule.RuleModule = {
         }
 
         // serveStatic(...)
-        const module = getModuleNameOfIdentifier(callee, context);
+        const module = getModuleNameOfIdentifier(context, callee);
         if (module?.value === SERVE_STATIC && args.length > 1) {
           let options: estree.Node | undefined = args[1];
           if (options.type === 'Identifier') {

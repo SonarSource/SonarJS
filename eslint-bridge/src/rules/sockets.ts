@@ -46,12 +46,12 @@ function checkCallExpression({ callee, type }: estree.CallExpression, context: R
   let moduleName;
   let expression: estree.Expression | undefined;
   if (callee.type === 'MemberExpression' && callee.object.type === 'Identifier') {
-    moduleName = getModuleNameOfIdentifier(callee.object, context);
+    moduleName = getModuleNameOfIdentifier(context, callee.object);
     expression = callee.property;
   }
 
   if (callee.type === 'Identifier') {
-    moduleName = getModuleNameOfImportedIdentifier(callee, context);
+    moduleName = getModuleNameOfImportedIdentifier(context, callee);
     expression = callee;
   }
 

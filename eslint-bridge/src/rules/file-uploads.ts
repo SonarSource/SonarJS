@@ -84,8 +84,8 @@ function checkCallExpression(context: Rule.RuleContext, callExpression: estree.C
   }
 
   const moduleName =
-    getModuleNameOfImportedIdentifier(callee, context) ||
-    getModuleNameOfIdentifier(callee, context);
+    getModuleNameOfImportedIdentifier(context, callee) ||
+    getModuleNameOfIdentifier(context, callee);
 
   if (moduleName?.value === FORMIDABLE_MODULE) {
     checkFormidable(context, callExpression);

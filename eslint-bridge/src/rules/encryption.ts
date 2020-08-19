@@ -85,9 +85,9 @@ function checkForServerSide(
     isMemberWithProperty(callee, ...serverSideMethods) &&
     callee.object.type === 'Identifier'
   ) {
-    moduleName = getModuleNameOfIdentifier(callee.object, context);
+    moduleName = getModuleNameOfIdentifier(context, callee.object);
   } else if (isIdentifier(callee, ...serverSideMethods)) {
-    moduleName = getModuleNameOfImportedIdentifier(callee, context);
+    moduleName = getModuleNameOfImportedIdentifier(context, callee);
   }
   if (moduleName && moduleName.value === 'crypto') {
     context.report({

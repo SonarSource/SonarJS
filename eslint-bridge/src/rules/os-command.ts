@@ -52,11 +52,11 @@ function checkCallExpression(
 ) {
   if (callee.type === 'MemberExpression') {
     if (callee.object.type === 'Identifier') {
-      const moduleName = getModuleNameOfIdentifier(callee.object, context);
+      const moduleName = getModuleNameOfIdentifier(context, callee.object);
       checkOSCommand(moduleName, callee.property, args, context);
     }
   } else if (callee.type === 'Identifier') {
-    const moduleName = getModuleNameOfImportedIdentifier(callee, context);
+    const moduleName = getModuleNameOfImportedIdentifier(context, callee);
     checkOSCommand(moduleName, callee, args, context);
   }
 }
