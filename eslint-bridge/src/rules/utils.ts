@@ -241,6 +241,38 @@ export function getVariableFromName(context: Rule.RuleContext, name: string) {
   return variable;
 }
 
+/**
+ * Takes array of arguments. Keeps following variable definitions
+ * and unpacking arrays as long as possible. Returns flattened
+ * array with all collected nodes.
+ *
+ * A usage example should clarify why this might be useful.
+ * According to ExpressJs `app.use` spec, the arguments can be:
+ *
+ * - A middleware function.
+ * - A series of middleware functions (separated by commas).
+ * - An array of middleware functions.
+ * - A combination of all of the above.
+ *
+ * This means that methods like `app.use` accept variable arguments,
+ * but also arrays, or combinations thereof. This methods helps
+ * to flatten out such complicated composed argument lists.
+ */
+export function flattenArgs(context: Rule.RuleContext, args: estree.Node[]): estree.Node[] {
+  // Invokes `getUniqueWriteUsageOrNode` at most once, from then on
+  // only flattens arrays.
+  function recHelper(nodePossiblyIdentifier: estree.Node): estree.Node[] {
+    const n = getUniqueWriteUsageOrNode(context, nodePossiblyIdentifier);
+    if (n.type === 'ArrayExpression') {
+      return flatMap(n.elements, recHelper);
+    } else {
+      return [n];
+    }
+  }
+
+  return flatMap(args, recHelper);
+}
+
 export function isIdentifier(node: estree.Node, ...values: string[]): node is estree.Identifier {
   return node.type === 'Identifier' && values.some(value => value === node.name);
 }
@@ -468,4 +500,12 @@ export function getObjectExpressionProperty(
     return properties[properties.length - 1];
   }
   return undefined;
+}
+
+export function flatMap<A, B>(xs: A[], f: (e: A) => B[]): B[] {
+  const acc: B[] = [];
+  for (const x of xs) {
+    acc.push(...f(x));
+  }
+  return acc;
 }

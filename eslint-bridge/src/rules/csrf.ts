@@ -28,6 +28,7 @@ import {
   getUniqueWriteUsage,
   getModuleNameFromRequire,
   getObjectExpressionProperty,
+  flattenArgs,
 } from './utils';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
@@ -101,7 +102,7 @@ export const rule: Rule.RuleModule = {
       if (callee.type === 'MemberExpression') {
         if (
           isIdentifier(callee.property, 'use') &&
-          isCsurfMiddleware(callExpression.arguments[0])
+          flattenArgs(context, callExpression.arguments).find(isCsurfMiddleware)
         ) {
           globalCsrfProtection = true;
         }

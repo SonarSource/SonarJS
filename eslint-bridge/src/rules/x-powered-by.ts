@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleNameOfNode, getUniqueWriteUsageOrNode, isIdentifier } from './utils';
+import { getModuleNameOfNode, isIdentifier, flattenArgs } from './utils';
 
 const HELMET = 'helmet';
 const EXPRESS = 'express';
@@ -98,49 +98,10 @@ function isUsingMiddleware(
   middlewareNodePredicate: (n: estree.Node) => boolean,
 ): boolean {
   if (isMethodInvocation(callExpression, app.name, 'use', 1)) {
-    const flattenedArgs = flattenAppUseArguments(context, callExpression.arguments);
+    const flattenedArgs = flattenArgs(context, callExpression.arguments);
     return Boolean(flattenedArgs.find(middlewareNodePredicate));
   }
   return false;
-}
-
-/**
- * According to `app.use` spec, the arguments can be:
- *
- * - A middleware function.
- * - A series of middleware functions (separated by commas).
- * - An array of middleware functions.
- * - A combination of all of the above.
- *
- * This method attempts to flatten out such an argument list as much as
- * possible, following variables and unpacking arrays, where appropriate.
- *
- * It returns the flattened list with all middlewares.
- */
-function flattenAppUseArguments(
-  context: Rule.RuleContext,
-  appUseArguments: estree.Node[],
-): estree.Node[] {
-  // Invokes `getUniqueWriteUsageOrNode` at most once, from then on
-  // only flattens arrays.
-  function recHelper(nodePossiblyIdentifier: estree.Node): estree.Node[] {
-    const n = getUniqueWriteUsageOrNode(context, nodePossiblyIdentifier);
-    if (n.type === 'ArrayExpression') {
-      return flatMap(n.elements, recHelper);
-    } else {
-      return [n];
-    }
-  }
-
-  return flatMap(appUseArguments, recHelper);
-}
-
-function flatMap<A, B>(xs: A[], f: (e: A) => B[]): B[] {
-  const acc: B[] = [];
-  for (const x of xs) {
-    acc.push(...f(x));
-  }
-  return acc;
 }
 
 /**
