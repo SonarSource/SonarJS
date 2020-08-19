@@ -1,0 +1,30 @@
+{
+  "title": "Recovering fingerprints from web application technologies should not be possible",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a6",
+    "express.js"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-5689",
+  "sqKey": "S5689",
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      200
+    ],
+    "OWASP": [
+      "A6"
+    ]
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

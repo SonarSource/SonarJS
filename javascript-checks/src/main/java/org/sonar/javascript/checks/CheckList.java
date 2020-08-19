@@ -150,6 +150,7 @@ public final class CheckList {
       GlobalThisCheck.class,
       HardcodedCredentialsCheck.class,
       HashingCheck.class,
+      XPoweredByCheck.class,
       HiddenFilesCheck.class,
       HtmlCommentsCheck.class,
       IdChildrenSelectorCheck.class,
