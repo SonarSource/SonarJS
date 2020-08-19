@@ -137,7 +137,7 @@ public class JavaScriptExclusionsFileFilterTest {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty("sonar.javascript.maxFileSize", "-42");
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(mapSettings.asConfig());
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: -42, falling back to 1000.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: -42, falling back to 1000.");
   }
 
   @Test
@@ -145,7 +145,7 @@ public class JavaScriptExclusionsFileFilterTest {
     MapSettings mapSettings = new MapSettings();
     mapSettings.setProperty("sonar.javascript.maxFileSize", "huge");
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(mapSettings.asConfig());
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"huge\", falling back to 1000.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"huge\", falling back to 1000.");
   }
 
   /**

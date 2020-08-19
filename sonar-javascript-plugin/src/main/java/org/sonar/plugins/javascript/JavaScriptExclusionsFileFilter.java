@@ -89,7 +89,7 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
   }
 
   final void fallbackToDefaultMaxFileSize(String reasonErrorMessage) {
-    LOG.error(reasonErrorMessage + ", falling back to " + DEFAULT_MAX_FILE_SIZE_KB + ".");
+    LOG.warn(reasonErrorMessage + ", falling back to " + DEFAULT_MAX_FILE_SIZE_KB + ".");
     maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
   }
 
