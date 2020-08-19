@@ -93,8 +93,8 @@ ruleTester.run(
           {
             message,
             line: 6,
-            column: 9,
-            endColumn: 33,
+            column: 18,
+            endColumn: 32,
           },
         ],
       },
@@ -113,9 +113,27 @@ ruleTester.run(
         errors: [
           {
             message,
-            line: 4,
-            column: 9,
-            endColumn: 26,
+            line: 3,
+            column: 25,
+            endColumn: 39,
+          },
+        ],
+      },
+      {
+        code: `
+        const errorhandler = require('errorhandler');
+        const middlewares = [
+          helmet(),
+          errorhandler()
+        ];
+        app2.use(sth, middlewares, sthElse); // Noncompliant  
+        `,
+        errors: [
+          {
+            message,
+            line: 5,
+            column: 11,
+            endColumn: 25,
           },
         ],
       },

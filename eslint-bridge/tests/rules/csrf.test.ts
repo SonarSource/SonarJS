@@ -53,6 +53,22 @@ ruleTester.run('Disabling CSRF protections is security-sensitive', rule, {
       });
       `,
     },
+    {
+      code: `
+        var app = express();
+        var csrf = require('csurf');
+        var csrfProtection = csrf({ cookie: { httpOnly: true, secure:true }})
+        const security = [
+          csrfProtection,
+          require('protection-from-porcupines-falling-from-a-poorly-maintained-helicopter')()
+        ];
+        app.use(somethingElse, security);
+        
+        app.post('/process', parseForm, function (req, res) { // OK, uses global config
+          res.send('data is being processed')
+        });
+      `,
+    },
   ],
   invalid: [
     {
