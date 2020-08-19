@@ -36,6 +36,9 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   private static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[]{"**/node_modules/**", "**/bower_components/**"};
   private final WildcardPattern[] excludedPatterns;
+  private static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
+  /** Note that in user-facing option handling the units are kilobytes, not bytes. */
+  private long maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
 
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
     if (!isExclusionOverridden(configuration)) {
@@ -45,6 +48,16 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
       WildcardPattern[] tsExcludedPatterns = WildcardPattern.create(configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY));
       excludedPatterns = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns)).toArray(WildcardPattern[]::new);
     }
+    configuration.get(JavaScriptPlugin.PROPERTY_KEY_MAX_FILE_SIZE).ifPresent(str -> {
+      try {
+        maxFileSizeKb = Long.parseLong(str);
+        if (maxFileSizeKb <= 0) {
+          fallbackToDefaultMaxFileSize("Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: " + maxFileSizeKb);
+        }
+      } catch (NumberFormatException nfe) {
+        fallbackToDefaultMaxFileSize("Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"" + str + "\"");
+      }
+    });
   }
 
   private boolean isExclusionOverridden(Configuration configuration) {
@@ -54,6 +67,12 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   @Override
   public boolean accept(InputFile inputFile) {
+
+    if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
+      LOG.debug("File {} was excluded because of excessive size", inputFile);
+      return false;
+    }
+
     String relativePath = inputFile.uri().toString();
     if (WildcardPattern.match(excludedPatterns, relativePath)) {
       LOG.debug("File {} was excluded by {} or {}", inputFile, JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.TS_EXCLUSIONS_KEY);
@@ -67,6 +86,11 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
     }
 
     return true;
+  }
+
+  final void fallbackToDefaultMaxFileSize(String reasonErrorMessage) {
+    LOG.warn(reasonErrorMessage + ", falling back to " + DEFAULT_MAX_FILE_SIZE_KB + ".");
+    maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
   }
 
 }
