@@ -69,7 +69,7 @@ export const rule: Rule.RuleModule = {
       }
 
       if (node && node.type === 'CallExpression' && node.callee.type === 'Identifier') {
-        const module = getModuleNameOfIdentifier(node.callee, context);
+        const module = getModuleNameOfIdentifier(context, node.callee);
         return module?.value === CSURF_MODULE;
       }
       return false;
@@ -86,7 +86,7 @@ export const rule: Rule.RuleModule = {
 
       // csurf(...)
       if (callee.type === 'Identifier') {
-        const moduleName = getModuleNameOfIdentifier(callee, context);
+        const moduleName = getModuleNameOfIdentifier(context, callee);
 
         if (moduleName?.value === CSURF_MODULE) {
           const [args] = callExpression.arguments;

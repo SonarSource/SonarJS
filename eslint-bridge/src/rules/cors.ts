@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function isCorsCall(callee: estree.Node) {
-      return getModuleNameOfNode(callee, context)?.value === 'cors';
+      return getModuleNameOfNode(context, callee)?.value === 'cors';
     }
 
     return {

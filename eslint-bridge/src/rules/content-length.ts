@@ -81,8 +81,8 @@ function checkCallExpression(context: Rule.RuleContext, callExpression: estree.C
   }
 
   const moduleName =
-    getModuleNameOfImportedIdentifier(identifierFromModule, context) ||
-    getModuleNameOfIdentifier(identifierFromModule, context);
+    getModuleNameOfImportedIdentifier(context, identifierFromModule) ||
+    getModuleNameOfIdentifier(context, identifierFromModule);
 
   if (!moduleName) {
     return;

@@ -94,7 +94,7 @@ function checkErrorHandlerMiddleware(
       middleware.type === 'CallExpression' &&
       middleware.callee.type === 'Identifier'
     ) {
-      const module = getModuleNameOfIdentifier(middleware.callee, context);
+      const module = getModuleNameOfIdentifier(context, middleware.callee);
       if (module?.value === ERRORHANDLER_MODULE) {
         context.report({
           node: callExpression,
