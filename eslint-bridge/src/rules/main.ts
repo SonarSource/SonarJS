@@ -119,6 +119,7 @@ import { rule as updatedLoopCounter } from './updated-loop-counter';
 import { rule as useTypeAlias } from './use-type-alias';
 import { rule as variableName } from './variable-name';
 import { rule as xpath } from './xpath';
+import { rule as xPoweredBy } from './x-powered-by';
 
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
@@ -223,5 +224,6 @@ ruleModules['updated-loop-counter'] = updatedLoopCounter;
 ruleModules['use-type-alias'] = useTypeAlias;
 ruleModules['variable-name'] = variableName;
 ruleModules['xpath'] = xpath;
+ruleModules['x-powered-by'] = xPoweredBy;
 
 export { ruleModules as rules };
