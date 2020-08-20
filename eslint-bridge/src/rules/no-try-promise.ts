@@ -27,13 +27,12 @@ import {
 } from '../utils/isRequiredParserServices';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { toEncodedMessage } from './utils';
+import * as ts from 'typescript';
 
 type CallLikeExpression =
   | TSESTree.CallExpression
   | TSESTree.NewExpression
   | TSESTree.AwaitExpression;
-
-let ts: any;
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -47,7 +46,6 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
-      ts = require('typescript');
       return {
         TryStatement: (node: estree.Node) =>
           visitTryStatement(node as TSESTree.TryStatement, context, services),
