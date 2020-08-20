@@ -24,6 +24,7 @@ import * as estree from 'estree';
 import * as builtins from 'builtin-modules';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as ts from 'typescript';
 import { RequiredParserServices } from '../utils/isRequiredParserServices';
 
 const DefinitelyTyped = '@types/';
@@ -93,7 +94,6 @@ function raiseOnImplicitImport(
     return;
   }
 
-  const ts = require('typescript');
   if (ts.isExternalModuleNameRelative(moduleName)) {
     return;
   }
