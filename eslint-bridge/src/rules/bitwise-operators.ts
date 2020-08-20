@@ -105,17 +105,17 @@ type NumericTypeChecker = (node: estree.Node) => boolean;
 function getNumericTypeChecker(context: Rule.RuleContext): NumericTypeChecker {
   const services = context.parserServices;
   if (!!services && !!services.program && !!services.esTreeNodeToTSNodeMap) {
-    function isNumericType(type: ts.Type): boolean {
-      return (
-        (type.getFlags() & (ts.TypeFlags.NumberLike | ts.TypeFlags.BigIntLike)) !== 0 ||
-        (type.isUnionOrIntersection() && !!type.types.find(isNumericType))
-      );
-    }
-
     return (node: estree.Node) => isNumericType(getTypeFromTreeNode(node, services));
   } else {
     const numericTypes = ['number', 'bigint'];
     return (node: estree.Node) =>
       node.type === 'Literal' ? numericTypes.includes(typeof node.value) : false;
+  }
+
+  function isNumericType(type: ts.Type): boolean {
+    return (
+      (type.getFlags() & (ts.TypeFlags.NumberLike | ts.TypeFlags.BigIntLike)) !== 0 ||
+      (type.isUnionOrIntersection() && !!type.types.find(isNumericType))
+    );
   }
 }
