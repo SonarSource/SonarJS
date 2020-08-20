@@ -27,6 +27,7 @@ import {
 } from '../utils/isRequiredParserServices';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { sortLike } from './utils';
+import * as ts from 'typescript';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -34,7 +35,6 @@ export const rule: Rule.RuleModule = {
     if (!isRequiredParserServices(services)) {
       return {};
     }
-    const ts = require('typescript');
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as TSESTree.CallExpression;
@@ -43,7 +43,7 @@ export const rule: Rule.RuleModule = {
           const { object, property } = callee;
           const text = context.getSourceCode().getText(property as estree.Node);
           if (sortLike.includes(text)) {
-            const arrayElementType = arrayElementTypeOf(object, services, ts);
+            const arrayElementType = arrayElementTypeOf(object, services);
             if (arrayElementType && arrayElementType.kind === ts.SyntaxKind.NumberKeyword) {
               context.report({
                 message: 'Provide a compare function to avoid sorting elements alphabetically.',
@@ -57,11 +57,11 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function arrayElementTypeOf(node: TSESTree.Node, services: RequiredParserServices, ts: any) {
+function arrayElementTypeOf(node: TSESTree.Node, services: RequiredParserServices) {
   const { typeToTypeNode, getTypeAtLocation } = services.program.getTypeChecker();
   const typeNode = typeToTypeNode(getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node)));
-  if (typeNode && typeNode.kind === ts.SyntaxKind.ArrayType) {
-    return (typeNode as any).elementType;
+  if (typeNode && ts.isArrayTypeNode(typeNode)) {
+    return typeNode.elementType;
   }
   return undefined;
 }
