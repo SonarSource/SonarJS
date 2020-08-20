@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.time.Duration;
+import java.util.List;
+import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -240,7 +242,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     } catch (JsonSyntaxException e) {
       LOG.error("Failed to parse response when requesting files for tsconfig: " + tsconfigAbsolutePath + ": \n-----\n" + result + "\n-----\n");
     }
-    return new TsConfigResponse(emptyList(), result, null);
+    return new TsConfigResponse(emptyList(), emptyList(), result, null);
   }
 
   @Override
@@ -248,12 +250,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     EslintBridgeServer.TsConfigResponse tsConfigResponse = tsConfigFiles(filename);
     if (tsConfigResponse.error != null) {
       LOG.error(tsConfigResponse.error);
-      if (tsConfigResponse.errorCode == EslintBridgeServer.ParsingErrorCode.MISSING_TYPESCRIPT) {
-        AbstractEslintSensor.logMissingTypescript();
-        throw new MissingTypeScriptException();
-      }
     }
-    return new TsConfigFile(filename, tsConfigResponse.files == null ? emptyList() : tsConfigResponse.files);
+    return new TsConfigFile(filename, emptyListIfNull(tsConfigResponse.files), emptyListIfNull(tsConfigResponse.projectReferences));
+  }
+
+  private static <T> List<T> emptyListIfNull(@Nullable List<T> list) {
+    return list == null ? emptyList() : list;
   }
 
 

@@ -20,9 +20,14 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -168,9 +173,20 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   private List<TsConfigFile> loadTsConfigs(List<String> tsConfigPaths) {
-    return tsConfigPaths.stream()
-      .map(eslintBridgeServer::loadTsConfig)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+    List<TsConfigFile> tsConfigFiles = new ArrayList<>();
+    Deque<String> workList = new ArrayDeque<>(tsConfigPaths);
+    Set<String> processed = new HashSet<>();
+    while (!workList.isEmpty()) {
+      String path = workList.pop();
+      if (processed.add(path)) {
+        TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig(path);
+        tsConfigFiles.add(tsConfigFile);
+        if (!tsConfigFile.projectReferences.isEmpty()) {
+          LOG.debug("Adding referenced project's tsconfigs {}", tsConfigFile.projectReferences);
+        }
+        workList.addAll(tsConfigFile.projectReferences);
+      }
+    }
+    return tsConfigFiles;
   }
 }

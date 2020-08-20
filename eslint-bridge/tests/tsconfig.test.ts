@@ -20,6 +20,7 @@
 import { getFilesForTsConfig } from 'tsconfig';
 import * as ts from 'typescript';
 import { ParseExceptionCode } from 'parser';
+import * as path from 'path';
 
 describe('tsconfig', () => {
   const defaultParseConfigHost: ts.ParseConfigHost = {
@@ -38,6 +39,7 @@ describe('tsconfig', () => {
     const result = getFilesForTsConfig('tsconfig.json', { ...defaultParseConfigHost, readFile });
     expect(result).toEqual({
       files: ['/foo/file.ts'],
+      projectReferences: [],
     });
   });
 
@@ -51,6 +53,21 @@ describe('tsconfig', () => {
     expect(result).toEqual({
       error: "The 'files' list in config file 'tsconfig.json' is empty.",
       errorCode: ParseExceptionCode.GeneralError,
+    });
+  });
+
+  it('should return projectReferences', () => {
+    const readFile = _path => `
+    {
+      "files": [],
+      "references": [{ "path": "foo" }]
+    }
+    `;
+    const result = getFilesForTsConfig('tsconfig.json', { ...defaultParseConfigHost, readFile });
+    const cwd = process.cwd().split(path.sep).join(path.posix.sep);
+    expect(result).toEqual({
+      files: [],
+      projectReferences: [`${cwd}/foo`],
     });
   });
 });

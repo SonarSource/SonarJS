@@ -1,0 +1,10 @@
+{
+  "files": [
+    "file.ts"
+  ],
+  "references": [
+    {
+      "path": "tsconfig.app2.json"
+    }
+  ]
+}

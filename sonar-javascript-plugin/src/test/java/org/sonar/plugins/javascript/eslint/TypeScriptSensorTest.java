@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,11 +72,14 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -118,7 +122,7 @@ public class TypeScriptSensorTest {
         List<String> files = StreamSupport.stream(context.fileSystem().inputFiles(predicates.hasLanguage("ts")).spliterator(), false)
           .map(file -> file.absolutePath())
           .collect(Collectors.toList());
-        return new TsConfigFile(tsConfigPath, files);
+        return new TsConfigFile(tsConfigPath, files, emptyList());
       });
 
 
@@ -253,7 +257,7 @@ public class TypeScriptSensorTest {
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     DefaultInputFile file = createInputFile(ctx);
     Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
-    when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(new TsConfigFile("tsconfig.json", singletonList(file.absolutePath())));
+    when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(new TsConfigFile("tsconfig.json", singletonList(file.absolutePath()), emptyList()));
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
@@ -282,7 +286,7 @@ public class TypeScriptSensorTest {
       .build();
     ctx.fileSystem().add(inputFile);
     Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
-    when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(new TsConfigFile("tsconfig.json", singletonList(inputFile.absolutePath())));
+    when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(new TsConfigFile("tsconfig.json", singletonList(inputFile.absolutePath()), emptyList()));
 
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
@@ -347,13 +351,13 @@ public class TypeScriptSensorTest {
 
     String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
     when(eslintBridgeServerMock.loadTsConfig(tsconfig1))
-      .thenReturn(new TsConfigFile(tsconfig1, singletonList(file1.absolutePath())));
+      .thenReturn(new TsConfigFile(tsconfig1, singletonList(file1.absolutePath()), emptyList()));
     String tsconfig2 = absolutePath(baseDir, "dir2/tsconfig.json");
     when(eslintBridgeServerMock.loadTsConfig(tsconfig2))
-      .thenReturn(new TsConfigFile(tsconfig2, singletonList(file2.absolutePath())));
+      .thenReturn(new TsConfigFile(tsconfig2, singletonList(file2.absolutePath()), emptyList()));
     String tsconfig3 = absolutePath(baseDir, "dir3/tsconfig.json");
     when(eslintBridgeServerMock.loadTsConfig(tsconfig3))
-      .thenReturn(new TsConfigFile(tsconfig3, singletonList(file3.absolutePath())));
+      .thenReturn(new TsConfigFile(tsconfig3, singletonList(file3.absolutePath()), emptyList()));
 
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(context);
@@ -364,6 +368,34 @@ public class TypeScriptSensorTest {
       file3.absolutePath()
     );
     verify(eslintBridgeServerMock, times(3)).newTsConfig();
+  }
+
+  @Test
+  public void should_resolve_project_references_from_tsconfig() throws Exception {
+    Path baseDir = Paths.get("src/test/resources/solution-tsconfig");
+    SensorContextTester context = SensorContextTester.create(baseDir);
+    DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/file.ts");
+
+    String tsconfig = absolutePath(baseDir, "tsconfig.json");
+    String appTsConfig = "src/tsconfig.app.json";
+    String appTsConfig2 = "src/tsconfig.app2.json";
+
+    // we intentionally create cycle between appTsConfig and appTsConfig2
+    when(eslintBridgeServerMock.loadTsConfig(anyString()))
+      .thenReturn(
+        new TsConfigFile(tsconfig, emptyList(), singletonList(appTsConfig)),
+        new TsConfigFile(appTsConfig, singletonList(file1.absolutePath()), singletonList(appTsConfig2)),
+        new TsConfigFile(appTsConfig2, singletonList(file1.absolutePath()), singletonList(appTsConfig))
+      );
+
+    ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
+    createSensor().execute(context);
+
+    verify(eslintBridgeServerMock, times(3)).loadTsConfig(anyString());
+    verify(eslintBridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
+    assertThat(captor.getAllValues()).extracting(req -> req.filePath).containsExactlyInAnyOrder(
+      file1.absolutePath()
+    );
   }
 
   private String absolutePath(Path baseDir, String relativePath) {

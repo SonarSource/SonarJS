@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,9 +45,9 @@ public class TsConfigFileTest {
     List<InputFile> inputFiles = files.stream().map(f -> TestInputFileBuilder.create("foo", f).build()).collect(Collectors.toList());
 
     List<TsConfigFile> tsConfigFiles = Arrays.asList(
-      new TsConfigFile("dir1/tsconfig.json", singletonList("foo/dir1/file1.ts")),
-      new TsConfigFile("dir2/tsconfig.json", singletonList("foo/dir2/file2.ts")),
-      new TsConfigFile("dir3/tsconfig.json", singletonList("foo/dir3/file3.ts"))
+      new TsConfigFile("dir1/tsconfig.json", singletonList("foo/dir1/file1.ts"), emptyList()),
+      new TsConfigFile("dir2/tsconfig.json", singletonList("foo/dir2/file2.ts"), emptyList()),
+      new TsConfigFile("dir3/tsconfig.json", singletonList("foo/dir3/file3.ts"), emptyList())
     );
 
     Map<TsConfigFile, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(tsConfigFiles, inputFiles);
@@ -59,7 +60,7 @@ public class TsConfigFileTest {
 
   @Test
   public void failsToLoad() {
-    List<TsConfigFile> tsConfigFiles = singletonList(new TsConfigFile("tsconfig/path", emptyList()));
+    List<TsConfigFile> tsConfigFiles = singletonList(new TsConfigFile("tsconfig/path", emptyList(), emptyList()));
     Map<TsConfigFile, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(tsConfigFiles, emptyList());
     assertThat(result).isEmpty();
   }

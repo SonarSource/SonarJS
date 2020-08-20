@@ -159,11 +159,13 @@ public interface EslintBridgeServer extends Startable {
 
   class TsConfigResponse {
     final List<String> files;
+    final List<String> projectReferences;
     final String error;
     final ParsingErrorCode errorCode;
 
-    TsConfigResponse(List<String> files, @Nullable String error, @Nullable ParsingErrorCode errorCode) {
+    TsConfigResponse(List<String> files, List<String> projectReferences, @Nullable String error, @Nullable ParsingErrorCode errorCode) {
       this.files = files;
+      this.projectReferences = projectReferences;
       this.error = error;
       this.errorCode = errorCode;
     }

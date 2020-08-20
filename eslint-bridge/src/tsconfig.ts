@@ -29,7 +29,9 @@ export function getFilesForTsConfig(
     fileExists: ts.sys.fileExists,
     readFile: ts.sys.readFile,
   },
-): { files: string[] } | { error: string; errorCode?: ParseExceptionCode } {
+):
+  | { files: string[]; projectReferences: string[] }
+  | { error: string; errorCode?: ParseExceptionCode } {
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
   if (config.error !== undefined) {
@@ -54,7 +56,11 @@ export function getFilesForTsConfig(
     return { error, errorCode: ParseExceptionCode.GeneralError };
   }
 
-  return { files: parsed.fileNames };
+  const projectReferences = parsed.projectReferences
+    ? parsed.projectReferences.map(p => p.path)
+    : [];
+
+  return { files: parsed.fileNames, projectReferences };
 }
 
 function diagnosticToString(diagnostic: ts.Diagnostic): string {
