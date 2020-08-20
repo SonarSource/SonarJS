@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -306,17 +305,6 @@ public class EslintBridgeServerImplTest {
     TsConfigFile tsConfigFile = eslintBridgeServer.loadTsConfig("path/to/tsconfig.json");
     assertThat(tsConfigFile.files).isEmpty();
     assertThat(logTester.logs(ERROR)).contains("Other error");
-  }
-
-  @Test
-  public void missing_typescript() throws Exception {
-    eslintBridgeServer = createEslintBridgeServer("missingTs.js");
-    eslintBridgeServer.deploy();
-    eslintBridgeServer.startServer(context);
-    assertThatThrownBy(() -> eslintBridgeServer.loadTsConfig("tsconfig.json"))
-      .isInstanceOf(MissingTypeScriptException.class);
-
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("TypeScript dependency was not found and it is required for analysis.");
   }
 
   @Test

@@ -29,17 +29,21 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static java.util.Collections.emptyList;
+
 class TsConfigFile implements Predicate<InputFile> {
   private static final Logger LOG = Loggers.get(TsConfigFile.class);
 
-  static final TsConfigFile UNMATCHED_CONFIG = new TsConfigFile("NO_CONFIG", Collections.emptyList());
+  static final TsConfigFile UNMATCHED_CONFIG = new TsConfigFile("NO_CONFIG", emptyList(), emptyList());
 
   final String filename;
   final List<String> files;
+  final List<String> projectReferences;
 
-  TsConfigFile(String filename, List<String> files) {
+  TsConfigFile(String filename, List<String> files, List<String> projectReferences) {
     this.filename = filename;
     this.files = files;
+    this.projectReferences = projectReferences;
   }
 
   @Override
