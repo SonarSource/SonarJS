@@ -27,18 +27,16 @@ import {
 } from '../utils/isRequiredParserServices';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isArray, getSymbolAtLocation, findFirstMatchingLocalAncestor, sortLike } from './utils';
+import * as ts from 'typescript';
 
 const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-
     if (!isRequiredParserServices(services)) {
       return {};
     }
-    const ts = require('typescript');
-
     return {
       CallExpression(node: estree.Node) {
         const callee = (node as estree.CallExpression).callee;
@@ -48,7 +46,7 @@ export const rule: Rule.RuleModule = {
             const mutatedArray = callee.object;
 
             if (
-              isIdentifierOrPropertyAccessExpression(mutatedArray, services, ts) &&
+              isIdentifierOrPropertyAccessExpression(mutatedArray, services) &&
               !isInSelfAssignment(mutatedArray, node) &&
               isForbiddenOperation(node)
             ) {
@@ -85,15 +83,14 @@ function isArrayMutatingCall(
 function isIdentifierOrPropertyAccessExpression(
   node: estree.Node,
   services: RequiredParserServices,
-  ts: any,
 ): boolean {
   return (
     node.type === 'Identifier' ||
-    (node.type === 'MemberExpression' && !isGetAccessor(node.property, services, ts))
+    (node.type === 'MemberExpression' && !isGetAccessor(node.property, services))
   );
 }
 
-function isGetAccessor(node: estree.Node, services: RequiredParserServices, ts: any): boolean {
+function isGetAccessor(node: estree.Node, services: RequiredParserServices): boolean {
   const symbol = getSymbolAtLocation(node, services);
   const declarations = symbol && symbol.declarations;
   return (
