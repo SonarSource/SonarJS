@@ -26,10 +26,8 @@ import {
   isRequiredParserServices,
   RequiredParserServices,
 } from '../utils/isRequiredParserServices';
-import * as tsTypes from 'typescript';
+import * as ts from 'typescript';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-
-let ts: any;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -95,7 +93,7 @@ function getDeprecation(
 
   if (callExpression) {
     const tsCallExpression = services.esTreeNodeToTSNodeMap.get(callExpression as TSESTree.Node);
-    const signature = tc.getResolvedSignature(tsCallExpression as tsTypes.CallLikeExpression);
+    const signature = tc.getResolvedSignature(tsCallExpression as ts.CallLikeExpression);
     if (signature) {
       const deprecation = getJsDocDeprecation(signature.getJsDocTags());
       if (deprecation) {
@@ -103,7 +101,6 @@ function getDeprecation(
       }
     }
   }
-  ts = require('typescript');
   const symbol = getSymbol(id, services, context, tc);
 
   if (!symbol) {
@@ -120,13 +117,11 @@ function getSymbol(
   id: estree.Identifier,
   services: RequiredParserServices,
   context: Rule.RuleContext,
-  tc: tsTypes.TypeChecker,
+  tc: ts.TypeChecker,
 ) {
-  let symbol: tsTypes.Symbol | undefined;
-  const tsId = services.esTreeNodeToTSNodeMap.get(id as TSESTree.Node) as tsTypes.Identifier;
-  const parent = services.esTreeNodeToTSNodeMap.get(
-    getParent(context) as TSESTree.Node,
-  ) as tsTypes.Node;
+  let symbol: ts.Symbol | undefined;
+  const tsId = services.esTreeNodeToTSNodeMap.get(id as TSESTree.Node) as ts.Identifier;
+  const parent = services.esTreeNodeToTSNodeMap.get(getParent(context) as TSESTree.Node) as ts.Node;
   if (parent.kind === ts.SyntaxKind.BindingElement) {
     symbol = tc.getTypeAtLocation(parent.parent).getProperty(tsId.text);
   } else if (
@@ -181,7 +176,7 @@ function isCallExpression(
   return false;
 }
 
-function getJsDocDeprecation(tags: tsTypes.JSDocTagInfo[]) {
+function getJsDocDeprecation(tags: ts.JSDocTagInfo[]) {
   for (const tag of tags) {
     if (tag.name === 'deprecated') {
       return tag.text ? { reason: tag.text } : new Deprecation();
@@ -190,7 +185,7 @@ function getJsDocDeprecation(tags: tsTypes.JSDocTagInfo[]) {
   return undefined;
 }
 
-function isFunction(symbol: tsTypes.Symbol) {
+function isFunction(symbol: ts.Symbol) {
   const { declarations } = symbol;
   if (declarations === undefined || declarations.length === 0) {
     return false;
@@ -206,13 +201,11 @@ function isFunction(symbol: tsTypes.Symbol) {
   }
 }
 
-function isPropertyAssignment(node: tsTypes.Node): node is tsTypes.PropertyAssignment {
+function isPropertyAssignment(node: ts.Node): node is ts.PropertyAssignment {
   return node.kind === ts.SyntaxKind.PropertyAssignment;
 }
 
-function isShorthandPropertyAssignment(
-  node: tsTypes.Node,
-): node is tsTypes.ShorthandPropertyAssignment {
+function isShorthandPropertyAssignment(node: ts.Node): node is ts.ShorthandPropertyAssignment {
   return node.kind === ts.SyntaxKind.ShorthandPropertyAssignment;
 }
 
