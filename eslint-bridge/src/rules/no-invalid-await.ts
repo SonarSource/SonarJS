@@ -23,23 +23,19 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
 import { getTypeFromTreeNode } from './utils';
+import * as ts from 'typescript';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
-      const ts = require('typescript');
       return {
         AwaitExpression: (node: estree.Node) => {
           const awaitedType = getTypeFromTreeNode(
             (node as estree.AwaitExpression).argument,
             services,
           );
-          if (
-            !hasThenMethod(awaitedType, ts) &&
-            !isAny(awaitedType, ts) &&
-            !isUnion(awaitedType, ts)
-          ) {
+          if (!hasThenMethod(awaitedType) && !isAny(awaitedType) && !isUnion(awaitedType)) {
             context.report({
               message: "Refactor this redundant 'await' on a non-promise.",
               node,
@@ -52,15 +48,15 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function hasThenMethod(type: any, ts: any) {
+function hasThenMethod(type: ts.Type) {
   const thenProperty = type.getProperty('then');
   return Boolean(thenProperty && thenProperty.flags & ts.SymbolFlags.Method);
 }
 
-function isAny(type: any, ts: any) {
+function isAny(type: ts.Type) {
   return Boolean(type.flags & ts.TypeFlags.Any);
 }
 
-function isUnion(type: any, ts: any) {
+function isUnion(type: ts.Type) {
   return Boolean(type.flags & ts.TypeFlags.Union);
 }
