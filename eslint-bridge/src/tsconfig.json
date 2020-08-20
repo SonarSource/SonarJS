@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2018",
     "module": "commonjs",
-    "lib": ["dom", "es2017"],
+    "lib": ["es2018"],
     "declaration": true,
     "outDir": "../lib",
     "strict": true,
@@ -11,6 +11,9 @@
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
     "composite": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "typeRoots": [
       "../node_modules/@types",
       "../typings"

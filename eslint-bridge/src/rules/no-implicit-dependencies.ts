@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import * as builtins from 'builtin-modules';
+import builtins from 'builtin-modules';
 import * as path from 'path';
 import * as fs from 'fs';
 import { RequiredParserServices } from '../utils/isRequiredParserServices';
