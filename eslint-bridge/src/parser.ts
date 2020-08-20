@@ -24,6 +24,7 @@ import { ParsingError } from './analyzer';
 import * as VueJS from 'vue-eslint-parser';
 import * as semver from 'semver';
 import { version as typescriptRuntimeVersion } from 'typescript';
+import * as tsParser from '@typescript-eslint/parser';
 
 // this value is taken from typescript-estree
 // still we might consider extending this range
@@ -99,14 +100,16 @@ export function parseTypeScriptSourceFile(
 
     checkTypeScriptVersionCompatibility(typescriptRuntimeVersion);
     // we load the typescript parser dynamically, so we don't need typescript dependency when analyzing pure JS project
-    const tsParser = require('@typescript-eslint/parser');
     const result = tsParser.parseForESLint(fileContent, {
       ...PARSER_CONFIG_MODULE,
       filePath,
       project: tsConfigs,
-      loggerFn: console.log,
     });
-    return new SourceCode({ ...result, parserServices: result.services, text: fileContent });
+    return new SourceCode(({
+      ...result,
+      parserServices: result.services,
+      text: fileContent,
+    } as unknown) as SourceCode.Config);
   } catch (exception) {
     return {
       line: exception.lineNumber,
@@ -138,7 +141,6 @@ export function checkTypeScriptVersionCompatibility(currentVersion: string) {
 }
 
 export function unloadTypeScriptEslint() {
-  const tsParser = require('@typescript-eslint/parser');
   tsParser.clearCaches();
 }
 
