@@ -26,15 +26,12 @@ import {
   RequiredParserServices,
 } from '../utils/isRequiredParserServices';
 import * as estree from 'estree';
-import * as tsTypes from 'typescript';
-
-let ts: any;
+import * as ts from 'typescript';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
-      ts = require('typescript');
       return {
         CallExpression: (node: estree.Node) => {
           const call = node as estree.CallExpression;
@@ -69,20 +66,22 @@ function isOptionalParameter(
   const signature = services.program
     .getTypeChecker()
     .getResolvedSignature(
-      services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as tsTypes.CallLikeExpression,
+      services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as ts.CallLikeExpression,
     );
   if (signature) {
     const declaration = signature.declaration;
     if (declaration && isFunctionLikeDeclaration(declaration)) {
       const { parameters } = declaration;
       const parameter = parameters[paramIndex];
-      return parameter && ((parameter as any).initializer || (parameter as any).questionToken);
+      return parameter && (parameter.initializer || parameter.questionToken);
     }
   }
   return false;
 }
 
-function isFunctionLikeDeclaration(declaration: any) {
+function isFunctionLikeDeclaration(
+  declaration: ts.Declaration,
+): declaration is ts.FunctionLikeDeclarationBase {
   return [
     ts.SyntaxKind.FunctionDeclaration,
     ts.SyntaxKind.FunctionExpression,
