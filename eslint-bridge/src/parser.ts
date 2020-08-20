@@ -23,6 +23,7 @@ import { Linter, SourceCode } from 'eslint';
 import { ParsingError } from './analyzer';
 import * as VueJS from 'vue-eslint-parser';
 import * as semver from 'semver';
+import { version as typescriptRuntimeVersion } from 'typescript';
 
 // this value is taken from typescript-estree
 // still we might consider extending this range
@@ -91,7 +92,7 @@ export function parseTypeScriptSourceFile(
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   try {
-    const typescriptRuntimeVersion = require('typescript').version;
+    ;
     if (!typescriptVersionLogged) {
       console.log(`Version of TypeScript used during analysis: ${typescriptRuntimeVersion}`);
       typescriptVersionLogged = true;
