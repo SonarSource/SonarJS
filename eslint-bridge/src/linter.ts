@@ -26,6 +26,7 @@ import {
 import { rules as internalRules } from './rules/main';
 import { Linter, SourceCode, Rule as ESLintRule } from 'eslint';
 import { Rule, Issue, IssueLocation } from './analyzer';
+import { rules as typescriptEslintRules } from '@typescript-eslint/eslint-plugin';
 
 /**
  * In order to overcome ESLint limitation regarding issue reporting,
@@ -65,23 +66,18 @@ export class LinterWrapper {
       decorateChaiFriendly(chaiFriendlyRules[NO_UNUSED_EXPRESSIONS]),
     );
 
-    try {
-      // we load "@typescript-eslint/eslint-plugin" dynamically as it requires TS and so we don't need typescript dependency when analysing pure JS project
-      const typescriptEslintRules = require('@typescript-eslint/eslint-plugin').rules;
-      // TS implementation of no-throw-literal is not supporting JS code.
-      delete typescriptEslintRules['no-throw-literal'];
-      this.linter.defineRules(typescriptEslintRules);
+    // TS implementation of no-throw-literal is not supporting JS code.
+    delete typescriptEslintRules['no-throw-literal'];
+    this.linter.defineRules(typescriptEslintRules);
 
-      const noUnusedExpressionsRule = typescriptEslintRules[NO_UNUSED_EXPRESSIONS];
-      if (noUnusedExpressionsRule) {
-        this.linter.defineRule(
-          NO_UNUSED_EXPRESSIONS,
-          decorateTypescriptEslint(noUnusedExpressionsRule),
-        );
-      }
-    } catch {
-      // do nothing, "typescript" is not there
+    const noUnusedExpressionsRule = typescriptEslintRules[NO_UNUSED_EXPRESSIONS];
+    if (noUnusedExpressionsRule) {
+      this.linter.defineRule(
+        NO_UNUSED_EXPRESSIONS,
+        decorateTypescriptEslint(noUnusedExpressionsRule),
+      );
     }
+
     additionalRules.forEach(additionalRule =>
       this.linter.defineRule(additionalRule.ruleId, additionalRule.ruleModule),
     );

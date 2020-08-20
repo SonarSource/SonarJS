@@ -26,19 +26,17 @@ import {
   RequiredParserServices,
 } from '../utils/isRequiredParserServices';
 import * as estree from 'estree';
+import * as ts from 'typescript';
 
 type ReturnedExpression = estree.Expression | undefined | null;
 
 const message = 'Remove this return type or change it to a more specific.';
-
-let ts: any;
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
     if (isRequiredParserServices(services)) {
-      ts = require('typescript');
       const returnedExpressions: ReturnedExpression[][] = [];
       return {
         ReturnStatement(node: estree.Node) {
@@ -91,7 +89,7 @@ function getTypeFromTreeNode(node: ReturnedExpression, services: RequiredParserS
   return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
 }
 
-function isPrimitiveType({ flags }: any) {
+function isPrimitiveType({ flags }: ts.Type) {
   return (
     flags & ts.TypeFlags.BooleanLike ||
     flags & ts.TypeFlags.NumberLike ||

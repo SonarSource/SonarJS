@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import * as ts from 'typescript';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
 
@@ -28,7 +29,6 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (isRequiredParserServices(services)) {
-      const ts = require('typescript');
       return {
         TSIntersectionType: (node: estree.Node) => {
           const intersection = (node as unknown) as TSESTree.TSIntersectionType;
@@ -44,10 +44,10 @@ export const rule: Rule.RuleModule = {
             });
           } else {
             intersection.types.forEach(typeNode => {
-              const tp = services.program
+              const tp: ts.Type = services.program
                 .getTypeChecker()
                 .getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(typeNode));
-              if (isTypeWithoutMembers(tp, ts)) {
+              if (isTypeWithoutMembers(tp)) {
                 context.report({
                   message: 'Remove this type without members or change this type intersection.',
                   node: (typeNode as unknown) as estree.Node,
@@ -62,11 +62,11 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isTypeWithoutMembers(tp: any, ts: any): boolean {
-  return isNullLike(tp, ts) || (isEmptyInterface(tp) && isStandaloneInterface(tp.symbol, ts));
+function isTypeWithoutMembers(tp: ts.Type): boolean {
+  return isNullLike(tp) || (isEmptyInterface(tp) && isStandaloneInterface(tp.symbol));
 }
 
-function isNullLike(tp: any, ts: any): boolean {
+function isNullLike(tp: ts.Type): boolean {
   return (
     Boolean(tp.flags & ts.TypeFlags.Null) ||
     Boolean(tp.flags & ts.TypeFlags.Undefined) ||
@@ -74,23 +74,25 @@ function isNullLike(tp: any, ts: any): boolean {
   );
 }
 
-function isEmptyInterface(tp: any): boolean {
-  return tp.symbol && tp.symbol.members && tp.symbol.members.size === 0;
+function isEmptyInterface(tp: ts.Type): boolean {
+  return Boolean(tp.symbol && tp.symbol.members && tp.symbol.members.size === 0);
 }
 
-function isStandaloneInterface({ declarations }: any, ts: any) {
+function isStandaloneInterface({ declarations }: ts.Symbol) {
   // there is no declarations for `{}`
   // otherwise check that none of declarations has a heritage clause (`extends X` or `implements X`)
   return (
     !declarations ||
-    (declarations as any[]).every(declaration => {
+    declarations.every(declaration => {
       return (
-        isInterfaceDeclaration(declaration, ts) && (declaration.heritageClauses || []).length === 0
+        isInterfaceDeclaration(declaration) && (declaration.heritageClauses || []).length === 0
       );
     })
   );
 }
 
-function isInterfaceDeclaration(declaration: any, ts: any): boolean {
+function isInterfaceDeclaration(
+  declaration: ts.Declaration,
+): declaration is ts.InterfaceDeclaration {
   return declaration.kind === ts.SyntaxKind.InterfaceDeclaration;
 }
