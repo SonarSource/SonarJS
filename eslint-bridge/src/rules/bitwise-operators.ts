@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import * as tsTypes from 'typescript';
+import * as ts from 'typescript';
 import { getTypeFromTreeNode } from './utils';
 
 const BITWISE_AND_OR = ['&', '|'];
@@ -105,9 +105,7 @@ type NumericTypeChecker = (node: estree.Node) => boolean;
 function getNumericTypeChecker(context: Rule.RuleContext): NumericTypeChecker {
   const services = context.parserServices;
   if (!!services && !!services.program && !!services.esTreeNodeToTSNodeMap) {
-    const ts: typeof tsTypes = require('typescript');
-
-    function isNumericType(type: tsTypes.Type): boolean {
+    function isNumericType(type: ts.Type): boolean {
       return (
         (type.getFlags() & (ts.TypeFlags.NumberLike | ts.TypeFlags.BigIntLike)) !== 0 ||
         (type.isUnionOrIntersection() && !!type.types.find(isNumericType))
