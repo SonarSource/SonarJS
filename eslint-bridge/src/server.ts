@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Server } from 'http';
-import * as express from 'express';
+import express from 'express';
 import { RequestHandler } from 'express';
 import * as bodyParser from 'body-parser';
 import {
