@@ -92,7 +92,6 @@ export function parseTypeScriptSourceFile(
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   try {
-    ;
     if (!typescriptVersionLogged) {
       console.log(`Version of TypeScript used during analysis: ${typescriptRuntimeVersion}`);
       typescriptVersionLogged = true;
