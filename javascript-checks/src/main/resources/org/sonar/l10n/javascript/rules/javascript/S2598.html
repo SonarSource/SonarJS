@@ -1,6 +1,8 @@
 <p>These minimum restrictions should be applied when handling file uploads:</p>
-<p>- the file upload folder to restrict untrusted files to a specific folder.</p>
-<p>- the file extension of the uploaded file to prevent remote code execution.</p>
+<ul>
+  <li> the file upload folder to restrict untrusted files to a specific folder. </li>
+  <li> the file extension of the uploaded file to prevent remote code execution. </li>
+</ul>
 <p>Also the size of the uploaded file should be limited to prevent denial of service attacks. This requirement is covered by the rule S5693.</p>
 <h2>Noncompliant Code Example</h2>
 <p><a href="https://www.npmjs.com/package/formidable">formidable</a> module:</p>
