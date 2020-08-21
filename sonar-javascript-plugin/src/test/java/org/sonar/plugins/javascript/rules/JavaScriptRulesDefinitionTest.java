@@ -28,6 +28,7 @@ import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +36,7 @@ public class JavaScriptRulesDefinitionTest {
 
   @Test
   public void test() {
-    RulesDefinition.Repository repository = buildRepository();
+    RulesDefinition.Repository repository = TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition());
 
     assertThat(repository.name()).isEqualTo("SonarAnalyzer");
     assertThat(repository.language()).isEqualTo("js");
@@ -48,17 +49,9 @@ public class JavaScriptRulesDefinitionTest {
 
   @Test
   public void sonarlint() {
-    RulesDefinition.Repository repository = buildRepository();
+    RulesDefinition.Repository repository = TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition());
     assertThat(repository.rule("S909").activatedByDefault()).isFalse();
     assertThat(repository.rule("S930").activatedByDefault()).isTrue();
-  }
-
-  private RulesDefinition.Repository buildRepository() {
-    JavaScriptRulesDefinition rulesDefinition = new JavaScriptRulesDefinition();
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    rulesDefinition.define(context);
-    RulesDefinition.Repository repository = context.repository("javascript");
-    return repository;
   }
 
   private void assertParameterProperties(Repository repository) {

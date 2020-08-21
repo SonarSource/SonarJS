@@ -24,6 +24,8 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
 
 public class TestUtils {
   public static DefaultInputFile createInputFile(SensorContextTester sensorContext, String content, String relativePath) {
@@ -37,5 +39,11 @@ public class TestUtils {
 
     sensorContext.fileSystem().add(testInputFile);
     return testInputFile;
+  }
+
+  public static RulesDefinition.Repository buildRepository(String repositoryKey, RulesDefinition rulesDefinition) {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+    return context.repository(repositoryKey);
   }
 }
