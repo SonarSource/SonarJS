@@ -29,11 +29,11 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ public class TypeScriptRulesDefinitionTest {
 
   @Test
   public void test() {
-    Repository repository = buildRepository();
+    Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition());
 
     assertThat(repository.name()).isEqualTo("SonarAnalyzer");
     assertThat(repository.language()).isEqualTo("ts");
@@ -55,7 +55,7 @@ public class TypeScriptRulesDefinitionTest {
 
   @Test
   public void sonarlint() {
-    Repository repository = buildRepository();
+    Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition());
     assertThat(repository.rule("S3923").activatedByDefault()).isTrue();
   }
 
@@ -106,14 +106,6 @@ public class TypeScriptRulesDefinitionTest {
   private static class RuleJson {
     List<String> compatibleLanguages;
     String sqKey;
-  }
-
-  private Repository buildRepository() {
-    TypeScriptRulesDefinition rulesDefinition = new TypeScriptRulesDefinition();
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    rulesDefinition.define(context);
-    Repository repository = context.repository("typescript");
-    return repository;
   }
 
   private void assertRuleProperties(Repository repository) {

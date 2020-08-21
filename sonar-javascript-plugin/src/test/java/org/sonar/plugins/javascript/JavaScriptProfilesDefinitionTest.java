@@ -20,14 +20,19 @@
 package org.sonar.plugins.javascript;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
+import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +40,18 @@ import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WA
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_RECOMMENDED_JSON;
 
 public class JavaScriptProfilesDefinitionTest {
-  private BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+  private final BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+  private final Set<String> deprecatedJsRules =
+    TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition()).rules().stream()
+      .filter(r -> r.status() == RuleStatus.DEPRECATED)
+      .map(RulesDefinition.Rule::key)
+      .collect(Collectors.toSet());
+
+  private final Set<String> deprecatedTsRules =
+    TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition()).rules().stream()
+      .filter(r -> r.status() == RuleStatus.DEPRECATED)
+      .map(RulesDefinition.Rule::key)
+      .collect(Collectors.toSet());
 
   @Before
   public void setUp() {
@@ -50,6 +66,15 @@ public class JavaScriptProfilesDefinitionTest {
     assertThat(profile.name()).isEqualTo(JavaScriptProfilesDefinition.SONAR_WAY);
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.JS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(50);
+
+    assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
+  }
+
+  private List<String> deprecatedRulesInProfile(BuiltInQualityProfile profile, Set<String> deprecatedRuleKeys) {
+    return profile.rules().stream()
+      .map(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .filter(deprecatedRuleKeys::contains)
+      .collect(Collectors.toList());
   }
 
   @Test
@@ -60,6 +85,8 @@ public class JavaScriptProfilesDefinitionTest {
     assertThat(profile.name()).isEqualTo("Sonar way Recommended");
     assertThat(profile.rules()).extracting("repoKey").containsOnly("common-js", CheckList.JS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(110);
+
+    assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
   }
 
   @Test
@@ -71,6 +98,8 @@ public class JavaScriptProfilesDefinitionTest {
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.TS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(0);
     assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S5122");
+
+    assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
   }
 
   @Test
@@ -82,6 +111,8 @@ public class JavaScriptProfilesDefinitionTest {
     assertThat(profile.rules()).extracting("repoKey").containsOnly("common-ts", CheckList.TS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(1);
     assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S5122");
+
+    assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
   }
 
   @Test
