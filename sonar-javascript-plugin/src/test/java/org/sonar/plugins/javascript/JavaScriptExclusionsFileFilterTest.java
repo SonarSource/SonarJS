@@ -207,9 +207,19 @@ public class JavaScriptExclusionsFileFilterTest {
     return inputFile(file, "foo();");
   }
 
+  /** A very rough approximation of the file-ending -> language key mapping. */
   private static String language(String filename) {
     String[] parts = filename.split("\\.");
-    return parts[parts.length - 1];
+    String ending = parts[parts.length - 1];
+    if (JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE.contains(ending)) {
+      return JavaScriptLanguage.KEY;
+    } else if (TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE.contains(ending)) {
+      return TypeScriptLanguage.KEY;
+    } else if ("java".contains(ending)) {
+      return ending;
+    } else {
+      throw new IllegalArgumentException("Unknown file ending: " + ending);
+    }
   }
 
 }
