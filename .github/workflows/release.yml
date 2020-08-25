@@ -7,27 +7,36 @@ on:
 
 env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  PYTHONUNBUFFERED: 1
 
 jobs:
   sonar_release:
     runs-on: ubuntu-latest
     name: Start release process
     steps:
-      - name: Checkout release action
-        uses: actions/checkout@v2
-        with:
-          repository: SonarSource/gh-action_LT_release
-
       - name: LT release
         id: lt_release
         with:
           distribute: true
+          publish_to_binaries: true
           attach_artifacts_to_github_release: true
           run_rules_cov: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_TOKEN: ${{ secrets.BINTRAY_TOKEN }}
+          BURGRX_USER: ${{ secrets.BURGRX_USER }}
+          BURGRX_PASSWORD: ${{ secrets.BURGRX_PASSWORD }}
+          CENTRAL_USER: ${{ secrets.CENTRAL_USER }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          CIRRUS_TOKEN: ${{ secrets.CIRRUS_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          PATH_PREFIX: ${{ secrets.BINARIES_PATH_PREFIX }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          RELEASE_SSH_USER: ${{ secrets.RELEASE_SSH_USER }}
+          RELEASE_SSH_KEY: ${{ secrets.RELEASE_SSH_KEY }}
         # Put your action repo here
-        uses: SonarSource/gh-action_LT_release@master
+        uses: SonarSource/gh-action_LT_release@v2
 
       - name: Check outputs
         if: always()
