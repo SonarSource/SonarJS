@@ -137,7 +137,7 @@ public class JavaScriptExclusionsFileFilterTest {
       // Input files in other languages should not be affected by size check (note `.java`-ending).
       assertThat(filter.accept(inputFile("name.java", syntheticJavaFileContent(size, "Foo"))))
         .withFailMessage("Wrong result for size " + size)
-        .isEqualTo(true);
+        .isTrue();
     }
   }
 
