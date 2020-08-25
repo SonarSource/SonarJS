@@ -99,7 +99,6 @@ export function parseTypeScriptSourceFile(
     }
 
     checkTypeScriptVersionCompatibility(typescriptRuntimeVersion);
-    // we load the typescript parser dynamically, so we don't need typescript dependency when analyzing pure JS project
     const result = tsParser.parseForESLint(fileContent, {
       ...PARSER_CONFIG_MODULE,
       filePath,
