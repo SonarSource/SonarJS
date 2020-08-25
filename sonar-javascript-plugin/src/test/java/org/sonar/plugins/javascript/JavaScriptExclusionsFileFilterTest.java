@@ -207,7 +207,7 @@ public class JavaScriptExclusionsFileFilterTest {
     return inputFile(file, "foo();");
   }
 
-  /** A very rough approximation of the file-ending -> language key mapping. */
+  /** Attempts to infer the language key from the file ending. */
   private static String language(String filename) {
     String[] parts = filename.split("\\.");
     String ending = parts[parts.length - 1];
