@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.config.Configuration;
@@ -39,6 +41,7 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
   private static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
   /** Note that in user-facing option handling the units are kilobytes, not bytes. */
   private long maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
+  private final Set<String> jsTsSuffixes = new HashSet<>();
 
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
     if (!isExclusionOverridden(configuration)) {
@@ -58,6 +61,15 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
         fallbackToDefaultMaxFileSize("Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"" + str + "\"");
       }
     });
+    String allJsTsSuffixesStr =
+      configuration.get(JavaScriptLanguage.FILE_SUFFIXES_KEY).orElse(JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE) + "," +
+      configuration.get(TypeScriptLanguage.FILE_SUFFIXES_KEY).orElse(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE);
+    for (String jsTsSuffix: allJsTsSuffixesStr.split(",")) {
+      String trimmedSuffix = jsTsSuffix.trim().replaceAll("\\.", "");
+      if (!trimmedSuffix.isEmpty()) {
+        jsTsSuffixes.add(trimmedSuffix);
+      }
+    }
   }
 
   private boolean isExclusionOverridden(Configuration configuration) {
@@ -68,7 +80,9 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
   @Override
   public boolean accept(InputFile inputFile) {
 
-    if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
+    // Checking whether `JavaScriptLanguage.KEY.equals(inputFile.language())` is insufficient: for `.jsx`-files,
+    // the `inputFile.language()` returns `"jsx"`.
+    if (jsTsSuffixes.contains(inputFile.language()) && SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
       LOG.debug("File {} was excluded because of excessive size", inputFile);
       return false;
     }

@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript;
 
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -115,6 +116,8 @@ public class JavaScriptExclusionsFileFilterTest {
     MapSettings mapSettings = new MapSettings();
     final int MAX_SIZE_SETTING = 128;
     mapSettings.setProperty("sonar.javascript.maxFileSize", "" + MAX_SIZE_SETTING);
+    mapSettings.setProperty(JavaScriptLanguage.FILE_SUFFIXES_KEY, JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE);
+    mapSettings.setProperty(TypeScriptLanguage.FILE_SUFFIXES_KEY, TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE);
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(mapSettings.asConfig());
     final long K = 1000L;
     long[] sizes = { 10, 10 * K, 100 * K, 150 * K, 200 * K, 800 * K, 2000 * K };
@@ -125,10 +128,16 @@ public class JavaScriptExclusionsFileFilterTest {
       .isGreaterThan(MAX_SIZE_SETTING);
 
     for (long size: sizes) {
-      String content = syntheticJsFileContent(size);
-      assertThat(filter.accept(inputFile("name.js", content)))
+      for (String ending : new String[]{"js", "jsx", "ts", "tsx"}) {
+        assertThat(filter.accept(inputFile("name." + ending, syntheticJsFileContent(size))))
+          .withFailMessage("Wrong result for size " + size + " for file with ending " + ending)
+          .isEqualTo(size < MAX_SIZE_SETTING * K);
+      }
+
+      // Input files in other languages should not be affected by size check (note `.java`-ending).
+      assertThat(filter.accept(inputFile("name.java", syntheticJavaFileContent(size, "Foo"))))
         .withFailMessage("Wrong result for size " + size)
-        .isEqualTo(size < MAX_SIZE_SETTING * K);
+        .isEqualTo(true);
     }
   }
 
@@ -154,17 +163,36 @@ public class JavaScriptExclusionsFileFilterTest {
    *
    * @param approxSizeBytes approximate size of the file.
    */
-  private String syntheticJsFileContent(long approxSizeBytes) {
+  private String syntheticFileContent(
+    long approxSizeBytes,
+    String prefix,
+    Function<Long, String> statementForIdx,
+    String suffix
+  ) {
     long counter = 0;
-    StringBuilder bldr = new StringBuilder();
+    StringBuilder bldr = new StringBuilder(prefix);
     long totalSize = 0;
     while (totalSize < approxSizeBytes) {
-      String line = "export const N" + counter + " = " + counter + ";\n";
+      String line = statementForIdx.apply(counter);
       totalSize += line.length();
       bldr.append(line);
       counter++;
     }
+    bldr.append(suffix);
     return bldr.toString();
+  }
+
+  private String syntheticJsFileContent(long approxSizeBytes) {
+    return syntheticFileContent(approxSizeBytes, "", idx -> "export const N" + idx + " = " + idx + ";\n", "");
+  }
+
+  private String syntheticJavaFileContent(long approxSizeBytes, String className) {
+    return syntheticFileContent(
+      approxSizeBytes,
+      "public class " + className + " {",
+      idx -> "public static final int N" + idx + " = " + idx + ";",
+      "}\n"
+    );
   }
 
   private DefaultInputFile inputFile(String file, String content) {
