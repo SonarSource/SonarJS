@@ -65,11 +65,9 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
       configuration.get(JavaScriptLanguage.FILE_SUFFIXES_KEY).orElse(JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE) + "," +
       configuration.get(TypeScriptLanguage.FILE_SUFFIXES_KEY).orElse(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE);
     for (String jsTsSuffix: allJsTsSuffixesStr.split(",")) {
-      String trimmedSuffix = jsTsSuffix.trim().replace(".", "");
-      if (!trimmedSuffix.isEmpty()) {
-        jsTsSuffixes.add(trimmedSuffix);
-      }
+      jsTsSuffixes.add(jsTsSuffix.trim().replace(".", ""));
     }
+    jsTsSuffixes.remove("");
   }
 
   private boolean isExclusionOverridden(Configuration configuration) {
