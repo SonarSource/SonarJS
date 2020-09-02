@@ -2,4 +2,9 @@
 'javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js':[
 333,
 ],
+'javascript-test-sources:src/file-for-rules/S1534.js':[
+3,
+5,
+6,
+],
 }
