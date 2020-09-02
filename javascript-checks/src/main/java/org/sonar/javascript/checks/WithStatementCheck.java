@@ -21,21 +21,15 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @Rule(key = "S1321")
 @DeprecatedRuleKey(ruleKey = "WithStatement")
-public class WithStatementCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this use of \"with\".";
+public class WithStatementCheck extends EslintBasedCheck {
 
   @Override
-  public void visitWithStatement(WithStatementTree tree) {
-    addIssue(tree.withKeyword(), MESSAGE);
-
-    super.visitWithStatement(tree);
+  public String eslintKey() {
+    return "no-with";
   }
 }
