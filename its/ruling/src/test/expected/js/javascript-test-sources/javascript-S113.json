@@ -140,4 +140,7 @@
 'javascript-test-sources:src/file-for-rules/S1534.js':[
 7,
 ],
+'javascript-test-sources:src/file-for-rules/S3500.js':[
+2,
+],
 }
