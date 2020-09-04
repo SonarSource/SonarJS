@@ -1,0 +1,15 @@
+{
+'desktop:app/src/ui/add-repository/add-existing-repository.tsx':[
+38,
+39,
+],
+'desktop:app/src/ui/branches/branch.tsx':[
+23,
+],
+'desktop:app/src/ui/changes/changes-list.tsx':[
+63,
+],
+'desktop:app/src/ui/lib/authentication-form.tsx':[
+105,
+],
+}
