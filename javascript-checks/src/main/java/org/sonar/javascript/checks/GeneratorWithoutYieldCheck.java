@@ -19,87 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3531")
-public class GeneratorWithoutYieldCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Add a \"yield\" statement to this generator.";
-
-  private Deque<Boolean> hasYieldStack = new ArrayDeque<>();
+public class GeneratorWithoutYieldCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.of(
-      Kind.GENERATOR_DECLARATION,
-      Kind.GENERATOR_METHOD,
-      Kind.GENERATOR_FUNCTION_EXPRESSION,
-
-      Kind.YIELD_EXPRESSION);
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    if (tree.is(Kind.YIELD_EXPRESSION)) {
-      if (hasYieldStack.isEmpty()) {
-        /* Guard clause to protect against misplaced yields */
-        return;
-      }
-      hasYieldStack.removeLast();
-      hasYieldStack.addLast(true);
-    } else {
-      hasYieldStack.addLast(false);
-    }
-  }
-
-  @Override
-  public void leaveNode(Tree tree) {
-    if (!tree.is(Kind.YIELD_EXPRESSION)) {
-      boolean hasYield = hasYieldStack.removeLast();
-      if (!hasYield) {
-        addIssue(new PreciseIssue(this, getPrimaryLocation(tree)));
-      }
-    }
-  }
-
-  private static IssueLocation getPrimaryLocation(Tree tree) {
-    Tree firstTree;
-    Tree lastTree;
-
-    if (tree.is(Kind.GENERATOR_DECLARATION)) {
-      FunctionDeclarationTree functionDeclarationTree = (FunctionDeclarationTree) tree;
-      firstTree = functionDeclarationTree.functionKeyword();
-      lastTree = functionDeclarationTree.name();
-
-    } else if (tree.is(Kind.GENERATOR_METHOD)) {
-      MethodDeclarationTree methodDeclarationTree = (MethodDeclarationTree) tree;
-      firstTree = methodDeclarationTree.starToken();
-      lastTree = methodDeclarationTree.name();
-
-    } else {
-      FunctionExpressionTree functionExpressionTree = (FunctionExpressionTree) tree;
-      firstTree = functionExpressionTree.functionKeyword();
-      if (functionExpressionTree.name() != null) {
-        lastTree = functionExpressionTree.name();
-      } else {
-        lastTree = functionExpressionTree.starToken();
-      }
-    }
-
-    return new IssueLocation(firstTree, lastTree, MESSAGE);
+  public String eslintKey() {
+    return "generator-without-yield";
   }
 }

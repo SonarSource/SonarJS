@@ -14,7 +14,8 @@
   "ruleSpecification": "RSPEC-3531",
   "sqKey": "S3531",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "Main"
 }
