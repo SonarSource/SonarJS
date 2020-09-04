@@ -72,7 +72,7 @@ class ForLoopIncrement {
   static findInLoopUpdate(forStatement: estree.ForStatement) {
     let result = null;
     const expression = forStatement.update;
-    if (expression === null || expression === undefined) {
+    if (!expression) {
       return null;
     }
     if (expression.type === 'UpdateExpression') {

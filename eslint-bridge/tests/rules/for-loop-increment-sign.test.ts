@@ -18,11 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
+import { RuleTesterTs } from '../RuleTesterTs';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterTs = new RuleTesterTs(false);
 import { rule } from 'rules/for-loop-increment-sign';
 
-ruleTester.run('Loop increment should move in the right direction', rule, {
+const testCases = {
   valid: [
     {
       code: `
@@ -159,6 +161,7 @@ ruleTester.run('Loop increment should move in the right direction', rule, {
     {
       code: `
             for (i = 0; i < 5; i--) {}
+            //          ^^^^^> ^^^
             `,
       errors: [
         {
@@ -173,6 +176,7 @@ ruleTester.run('Loop increment should move in the right direction', rule, {
     {
       code: `
             for (let i = x; i > y; i++) {}
+            //              ^^^^^> ^^^
             `,
       errors: [
         {
@@ -269,4 +273,7 @@ ruleTester.run('Loop increment should move in the right direction', rule, {
       errors: 1,
     },
   ],
-});
+};
+
+ruleTesterJs.run('Loop increment should move in the right direction JavaScript', rule, testCases);
+ruleTesterTs.run('Loop increment should move in the right direction TypeScript', rule, testCases);
