@@ -28,18 +28,12 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const yieldStack: number[] = [];
 
-    function enterFunction(functionNde: estree.Node) {
-      functionNde = functionNde as estree.FunctionExpression | estree.FunctionDeclaration;
-      if (functionNde.generator) {
-        yieldStack.push(0);
-      }
+    function enterFunction() {
+      yieldStack.push(0);
     }
 
     function exitFunction(node: estree.Node) {
       const functionNode = node as estree.FunctionExpression | estree.FunctionDeclaration;
-      if (!functionNode.generator) {
-        return;
-      }
       const countYield = yieldStack.pop();
       if (countYield === 0 && functionNode.body.body.length > 0) {
         context.report({
@@ -50,10 +44,8 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      FunctionDeclaration: enterFunction,
-      'FunctionDeclaration:exit': exitFunction,
-      FunctionExpression: enterFunction,
-      'FunctionExpression:exit': exitFunction,
+      ':function[generator=true]': enterFunction,
+      ':function[generator=true]:exit': exitFunction,
       YieldExpression() {
         if (yieldStack.length > 0) {
           yieldStack[yieldStack.length - 1] += 1;
