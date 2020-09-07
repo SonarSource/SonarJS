@@ -674,4 +674,8 @@
 'javascript-test-sources:src/file-for-rules/S2251.js':[
 2,
 ],
+'javascript-test-sources:src/file-for-rules/S3812.js':[
+1,
+1,
+],
 }
