@@ -28,7 +28,7 @@ public class UpdatedConstVariableCheck extends EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-const-assign";
+    return "updated-const-var";
   }
 }
 

@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-import { rule } from 'rules/no-const-assign';
+import { rule } from 'rules/updated-const-var';
 
 ruleTester.run('Attempts should not be made to update "const" variables', rule, {
   valid: [],
