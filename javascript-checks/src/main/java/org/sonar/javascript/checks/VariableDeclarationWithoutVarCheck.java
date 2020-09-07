@@ -30,29 +30,9 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @JavaScriptRule
 @Rule(key = "S2703")
-public class VariableDeclarationWithoutVarCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Add the \"let\", \"const\" or \"var\" keyword to this declaration of \"%s\" to make it explicit.";
-
-  private static final Set<String> EXCLUDED_NAMES = ImmutableSet.of("exports", "module");
-
+public class VariableDeclarationWithoutVarCheck extends EslintBasedCheck {
   @Override
-  public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getContext().getSymbolModel().getSymbols()) {
-      if (symbol.isVariable() && !symbol.external() && !EXCLUDED_NAMES.contains(symbol.name())) {
-        visitSymbol(symbol);
-      }
-    }
-  }
-
-  private void visitSymbol(Symbol symbol) {
-    for (Usage usage : symbol.usages()) {
-      if (usage.isDeclaration()) {
-        return;
-      }
-    }
-    if (!symbol.usages().isEmpty()) {
-      addIssue(symbol.usages().iterator().next().identifierTree(), String.format(MESSAGE, symbol.name()));
-    }
+  public String eslintKey() {
+    return "no-implicit-global";
   }
 }
