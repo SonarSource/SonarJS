@@ -26,20 +26,20 @@ import { flatMap } from './utils';
 const message = (variable: string) =>
   `Add the "let", "const" or "var" keyword to this declaration of "${variable}" to make it explicit.`;
 
-const excludedNames = flatMap(Object.values(globalsByLibraries), globals => globals);
+const excludedNames = new Set(flatMap(Object.values(globalsByLibraries), globals => globals));
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       'Program:exit'() {
         const globalScope = context.getScope();
-        const alreadyReported: string[] = [];
+        const alreadyReported: Set<string> = new Set();
         globalScope.through
           .filter(ref => ref.isWrite())
           .forEach(ref => {
             const name = ref.identifier.name;
-            if (!alreadyReported.includes(name) && !excludedNames.includes(name)) {
-              alreadyReported.push(name);
+            if (!alreadyReported.has(name) && !excludedNames.has(name)) {
+              alreadyReported.add(name);
               context.report({
                 message: message(name),
                 node: ref.identifier,

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-// copied from javascript-frontend/src/main/resources/org/sonar/javascript/tree/symbols/globals.json , which should be deleted once the frontend migration is over
+// copied from javascript-frontend/src/main/resources/org/sonar/javascript/tree/symbols/globals.json ,
+// which should be deleted once the frontend migration is over
 export const globalsByLibraries = {
   builtin: [
     'Array',
