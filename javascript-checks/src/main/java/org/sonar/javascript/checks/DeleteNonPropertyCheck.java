@@ -19,58 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Optional;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3001")
-public class DeleteNonPropertyCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this \"delete\" operator or pass an object property to it.";
+public class DeleteNonPropertyCheck extends EslintBasedCheck {
 
   @Override
-  public void visitUnaryExpression(UnaryExpressionTree tree) {
-    ExpressionTree argument = CheckUtils.removeParenthesis(tree.expression());
-    if (tree.is(Tree.Kind.DELETE) && !isMemberAccess(argument) && !isGlobalProperty(argument)) {
-      addIssue(tree, MESSAGE);
-    }
-
-    super.visitUnaryExpression(tree);
-  }
-
-  /**
-   * Return true for variables declared without var
-   */
-  private static boolean isGlobalProperty(ExpressionTree expression) {
-    if (expression.is(Kind.IDENTIFIER_REFERENCE)) {
-
-      Optional<Symbol> symbol = ((IdentifierTree) expression).symbol();
-      if (symbol.isPresent()) {
-
-        for (Usage usage : symbol.get().usages()) {
-          if (usage.isDeclaration()) {
-            return false;
-          }
-        }
-        return true;
-
-      }
-    }
-
-    return false;
-  }
-
-  private static boolean isMemberAccess(ExpressionTree tree) {
-    return tree.is(Kind.DOT_MEMBER_EXPRESSION, Kind.BRACKET_MEMBER_EXPRESSION);
+  public String eslintKey() {
+    return "no-delete-var";
   }
 }
