@@ -21,29 +21,18 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1528")
 @DeprecatedRuleKey(ruleKey = "ArrayAndObjectConstructors")
-public class ArrayConstructorsCheck extends DoubleDispatchVisitorCheck {
+public class ArrayConstructorsCheck extends EslintBasedCheck {
 
-  private static final String MESSAGE = "Use a literal instead of the Array constructor.";
 
   @Override
-  public void visitNewExpression(NewExpressionTree tree) {
-    ExpressionTree expression = tree.expression();
-    if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-      String constructorName = ((IdentifierTree) expression).name();
-      if ("Array".equals(constructorName)) {
-        addIssue(tree, MESSAGE);
-      }
-    }
-    super.visitNewExpression(tree);
+  public String eslintKey() {
+    return "array-constructor";
   }
 }
