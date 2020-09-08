@@ -29,6 +29,7 @@ import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
+import org.sonar.plugins.javascript.eslint.RulesBundles;
 import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
@@ -90,7 +91,6 @@ public class JavaScriptPlugin implements Plugin {
   public void define(Context context) {
     context.addExtensions(
       JavaScriptLanguage.class,
-      JavaScriptSensor.class,
       JavaScriptExclusionsFileFilter.class,
       JavaScriptRulesDefinition.class,
       JavaScriptProfilesDefinition.class,
@@ -100,7 +100,10 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptEslintBasedSensor.class,
       TypeScriptSensor.class,
       TypeScriptLanguage.class,
-      TypeScriptRulesDefinition.class
+      TypeScriptRulesDefinition.class,
+      RulesBundles.class,
+      JavaScriptChecks.class,
+      TypeScriptChecks.class
     );
 
     context.addExtensions(

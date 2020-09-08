@@ -23,6 +23,11 @@
       <key>subscription</key>
       <priority>MAJOR</priority>
     </rule>
+    <rule>
+      <repositoryKey>eslint-custom-rules</repositoryKey>
+      <key>sqKey</key>
+      <priority>MAJOR</priority>
+    </rule>
   </rules>
 </profile>
 

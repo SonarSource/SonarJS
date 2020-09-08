@@ -27,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,6 +67,8 @@ import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.TypeScriptChecks;
+import org.sonar.plugins.javascript.api.RulesBundle;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
@@ -79,7 +80,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -468,12 +468,12 @@ public class TypeScriptSensorTest {
 
   private TypeScriptSensor createSensor() {
     return new TypeScriptSensor(
-      checkFactory(ESLINT_BASED_RULE, "S2260"),
+      checks(ESLINT_BASED_RULE, "S2260"),
       new NoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
       analysisWarningsMock,
-      tempFolder);
+      tempFolder, new RulesBundles(new RulesBundle[]{}, tempFolder));
   }
 
   private AnalysisResponse createResponse() {
@@ -549,11 +549,11 @@ public class TypeScriptSensorTest {
     context.fileSystem().add(inputFile);
   }
 
-  private static CheckFactory checkFactory(String... ruleKeys) {
+  private static TypeScriptChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
       builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.TS_REPOSITORY_KEY, ruleKey)).build());
     }
-    return new CheckFactory(builder.build());
+    return new TypeScriptChecks(new CheckFactory(builder.build()));
   }
 }

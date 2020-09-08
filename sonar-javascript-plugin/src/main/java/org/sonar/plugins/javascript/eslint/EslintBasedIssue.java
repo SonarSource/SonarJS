@@ -24,7 +24,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.AbstractChecks;
 
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.Issue;
 import static org.sonar.plugins.javascript.eslint.EslintBridgeServer.IssueLocation;
@@ -37,7 +37,7 @@ class EslintBasedIssue {
     this.issue = issue;
   }
 
-  void saveIssue(SensorContext context, InputFile file, JavaScriptChecks checks) {
+  void saveIssue(SensorContext context, InputFile file, AbstractChecks checks) {
     NewIssue newIssue = context.newIssue();
     NewIssueLocation location = newIssue.newLocation()
       .message(issue.message)

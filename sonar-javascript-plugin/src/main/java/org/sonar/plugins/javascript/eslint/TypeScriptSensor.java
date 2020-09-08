@@ -26,7 +26,6 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -36,7 +35,6 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -44,9 +42,8 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.TypeScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
@@ -63,25 +60,25 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   /**
    * Required for SonarLint
    */
-  public TypeScriptSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
+  public TypeScriptSensor(TypeScriptChecks typeScriptChecks, NoSonarFilter noSonarFilter,
                           FileLinesContextFactory fileLinesContextFactory,
                           EslintBridgeServer eslintBridgeServer,
-                          TempFolder tempFolder) {
-    this(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, tempFolder);
+                          TempFolder tempFolder, RulesBundles rulesBundles) {
+    this(typeScriptChecks, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, tempFolder, rulesBundles);
   }
 
-  public TypeScriptSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
+  public TypeScriptSensor(TypeScriptChecks typeScriptChecks, NoSonarFilter noSonarFilter,
                           FileLinesContextFactory fileLinesContextFactory,
                           EslintBridgeServer eslintBridgeServer,
                           @Nullable AnalysisWarnings analysisWarnings,
-                          TempFolder tempFolder) {
-    super(checks(checkFactory), noSonarFilter, fileLinesContextFactory, eslintBridgeServer, analysisWarnings);
+                          TempFolder tempFolder, RulesBundles rulesBundles) {
+    super(typeScriptChecks,
+      noSonarFilter,
+      fileLinesContextFactory,
+      eslintBridgeServer,
+      analysisWarnings,
+      rulesBundles);
     this.tempFolder = tempFolder;
-  }
-
-  private static JavaScriptChecks checks(CheckFactory checkFactory) {
-    return JavaScriptChecks.createJavaScriptChecks(checkFactory)
-      .addChecks(CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
   }
 
   @Override

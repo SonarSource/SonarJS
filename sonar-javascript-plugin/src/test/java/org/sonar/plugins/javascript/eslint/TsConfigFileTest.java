@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

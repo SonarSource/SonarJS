@@ -24,8 +24,10 @@ import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -84,7 +86,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     bundle.deploy();
   }
 
-  void startServer(SensorContext context) throws IOException {
+  void startServer(SensorContext context, List<Path> deployedBundles) throws IOException {
     PROFILER.startDebug("Starting server");
     port = findOpenPort();
 
@@ -93,7 +95,8 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       throw new NodeCommandException("Node.js script to start eslint-bridge server doesn't exist: " + scriptFile.getAbsolutePath());
     }
 
-    initNodeCommand(context, scriptFile);
+    String bundles = deployedBundles.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator));
+    initNodeCommand(context, scriptFile, bundles);
 
     LOG.debug("Starting Node.js process to start eslint-bridge server at port " + port);
     nodeCommand.start();
@@ -104,7 +107,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     PROFILER.stopDebug();
   }
 
-  private void initNodeCommand(SensorContext context, File scriptFile) throws IOException {
+  private void initNodeCommand(SensorContext context, File scriptFile, String bundles) throws IOException {
     nodeCommandBuilder
       .outputConsumer(message -> {
         if (message.startsWith("DEBUG")) {
@@ -119,7 +122,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .minNodeVersion(10)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port));
+      .scriptArgs(String.valueOf(port), bundles);
 
     context.config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
@@ -129,7 +132,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void startServerLazily(SensorContext context) throws IOException {
+  public void startServerLazily(SensorContext context, List<Path> deployedBundles) throws IOException {
     // required for SonarLint context to avoid restarting already failed server
     if (failedToStart) {
       throw new ServerAlreadyFailedException();
@@ -141,7 +144,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
         return;
       }
       deploy();
-      startServer(context);
+      startServer(context, deployedBundles);
     } catch (NodeCommandException e) {
       failedToStart = true;
       throw e;

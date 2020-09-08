@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { start, startServer } from '../src/server';
+import { start, startServer } from 'server';
 import * as http from 'http';
-import { Server } from 'http';
 import { promisify } from 'util';
 import { join } from 'path';
 import { AddressInfo } from 'net';
@@ -173,7 +172,7 @@ const expectedResponse = {
 };
 
 describe('server', () => {
-  let server: Server;
+  let server: http.Server;
   let close;
 
   beforeEach(async () => {
@@ -288,6 +287,40 @@ describe('server', () => {
   }
 });
 
+describe('support custom rules', () => {
+  it('should load custom rule bundles', async () => {
+    const server: http.Server = await start(0, ['custom-rule-bundle']);
+    expect.assertions(2);
+    expect(server.listening).toEqual(true);
+
+    await postToServer(
+      JSON.stringify([{ key: 'customrule', configurations: [] }]),
+      '/init-linter',
+      server,
+    );
+    const response = await postToServer(
+      JSON.stringify({
+        filePath: 'dir/file.js',
+        fileContent: 'foo()',
+      }),
+      '/analyze-js',
+      server,
+    );
+
+    expect(JSON.parse(response).issues).toEqual([
+      {
+        column: 0,
+        endColumn: 3,
+        endLine: 1,
+        line: 1,
+        message: 'call',
+        ruleId: 'customrule',
+        secondaryLocations: [],
+      },
+    ]);
+  });
+});
+
 describe('server close', () => {
   it('should stop listening when closed', async () => {
     const server = await start();
@@ -301,7 +334,7 @@ describe('should send error when failing', () => {
   const failAnalysis = () => {
     throw new Error('general error');
   };
-  let server: Server;
+  let server: http.Server;
   let close;
 
   beforeEach(async () => {
@@ -342,7 +375,7 @@ describe('should send error when failing', () => {
   });
 });
 
-function postToServer(data, endpoint, server: Server): Promise<string> {
+function postToServer(data, endpoint, server: http.Server): Promise<string> {
   const options = {
     host: 'localhost',
     port: (<AddressInfo>server.address()).port,

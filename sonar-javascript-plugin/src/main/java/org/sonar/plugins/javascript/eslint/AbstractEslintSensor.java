@@ -23,7 +23,9 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
@@ -47,8 +49,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.ParsingErrorCheck;
+import org.sonar.plugins.javascript.AbstractChecks;
 import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CpdToken;
@@ -71,7 +73,8 @@ abstract class AbstractEslintSensor implements Sensor {
   private final AnalysisWarnings analysisWarnings;
   @VisibleForTesting
   final Rule[] rules;
-  final JavaScriptChecks checks;
+  final AbstractChecks checks;
+  private final RulesBundles rulesBundles;
 
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
@@ -79,9 +82,9 @@ abstract class AbstractEslintSensor implements Sensor {
   SensorContext context;
   private boolean failFast;
 
-  AbstractEslintSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
+  AbstractEslintSensor(AbstractChecks checks, NoSonarFilter noSonarFilter,
                        FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-                       @Nullable AnalysisWarnings analysisWarnings) {
+                       @Nullable AnalysisWarnings analysisWarnings, RulesBundles rulesBundles) {
     this.checks = checks;
     this.rules = checks.eslintBasedChecks().stream()
       .map(check -> new EslintBridgeServer.Rule(check.eslintKey(), check.configurations()))
@@ -96,6 +99,7 @@ abstract class AbstractEslintSensor implements Sensor {
       .filter(check -> check instanceof ParsingErrorCheck)
       .findFirst()
       .map(checks::ruleKeyFor).orElse(null);
+    this.rulesBundles = rulesBundles;
   }
 
   @Override
@@ -103,7 +107,7 @@ abstract class AbstractEslintSensor implements Sensor {
     this.context = context;
     failFast = context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
     try {
-      eslintBridgeServer.startServerLazily(context);
+      startBridge(context);
       analyzeFiles();
     } catch (CancellationException e) {
       // do not propagate the exception
@@ -126,6 +130,11 @@ abstract class AbstractEslintSensor implements Sensor {
         throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
       }
     }
+  }
+
+  private void startBridge(SensorContext context) throws IOException {
+    List<Path> deployedBundles = rulesBundles.deploy();
+    eslintBridgeServer.startServerLazily(context, deployedBundles);
   }
 
   abstract void analyzeFiles() throws IOException, InterruptedException;
@@ -200,6 +209,7 @@ abstract class AbstractEslintSensor implements Sensor {
 
   private void saveIssues(InputFile file, Issue[] issues) {
     for (Issue issue : issues) {
+      LOG.debug("Saving issue for rule {} on line {}", issue.ruleId, issue.line);
       new EslintBasedIssue(issue).saveIssue(context, file, checks);
     }
   }

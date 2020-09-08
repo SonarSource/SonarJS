@@ -45,6 +45,7 @@ public class CustomRulesWithDeprecatedPluginTest {
   @BeforeClass
   public static void before() {
     orchestrator = initOrchestrator(DEPRECATED_CUSTOM_RULES_ARTIFACT_ID);
+    CustomRulesTest.runBuild(orchestrator);
   }
 
   @AfterClass

@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaScriptPluginTest {
 
-  private static final int BASE_EXTENSIONS = 21;
+  private static final int BASE_EXTENSIONS = 23;
   private static final int JS_ADDITIONAL_EXTENSIONS = 4;
   private static final int TS_ADDITIONAL_EXTENSIONS = 3;
 
