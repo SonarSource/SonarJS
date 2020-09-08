@@ -19,45 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
 @JavaScriptRule
 @Rule(key = "S3500")
-public class UpdatedConstVariableCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Correct this attempt to modify \"%s\" or use \"let\" in its declaration.";
+public class UpdatedConstVariableCheck extends EslintBasedCheck {
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    for (Symbol constSymbol : getContext().getSymbolModel().getSymbols(Kind.CONST_VARIABLE)) {
-
-      Usage declaration = null;
-      List<Usage> writeUsages = new ArrayList<>();
-
-      for (Usage usage : constSymbol.usages()) {
-        if (declaration == null && usage.isDeclaration() && usage.isWrite()) {
-          declaration = usage;
-        } else if (usage.isWrite()) {
-          writeUsages.add(usage);
-        }
-      }
-
-      if (declaration != null) {
-        for (Usage writeUsage : writeUsages) {
-          PreciseIssue preciseIssue = addIssue(writeUsage.identifierTree(), String.format(MESSAGE, constSymbol.name()));
-          preciseIssue.secondary(declaration.identifierTree(), "Const declaration");
-        }
-      }
-
-    }
+  public String eslintKey() {
+    return "updated-const-var";
   }
 }
+
