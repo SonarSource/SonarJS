@@ -20,11 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S1126")
-public class ReturnOfBooleanExpressionCheck extends EslintBasedCheck {
+public class ReturnOfBooleanExpressionCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {

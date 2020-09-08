@@ -26,7 +26,7 @@ import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.javascript.tree.KindSet;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;

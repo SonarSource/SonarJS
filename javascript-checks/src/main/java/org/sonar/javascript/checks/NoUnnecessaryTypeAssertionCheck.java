@@ -20,11 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S4325")
-public class NoUnnecessaryTypeAssertionCheck extends EslintBasedCheck {
+public class NoUnnecessaryTypeAssertionCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {

@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 
 @JavaScriptRule

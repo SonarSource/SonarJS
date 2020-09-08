@@ -24,7 +24,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;

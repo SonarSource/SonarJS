@@ -23,15 +23,16 @@ import java.util.Collections;
 import java.util.List;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "MissingNewlineAtEndOfFile")
 @Rule(key = "S113")
-public class MissingNewlineAtEndOfFileCheck extends EslintBasedCheck {
+public class MissingNewlineAtEndOfFileCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {

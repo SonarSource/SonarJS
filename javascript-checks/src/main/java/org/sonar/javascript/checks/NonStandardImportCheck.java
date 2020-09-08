@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.tree.SeparatedList;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;

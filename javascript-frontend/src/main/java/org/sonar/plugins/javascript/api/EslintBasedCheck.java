@@ -17,46 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.plugins.javascript.api;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-public abstract class EslintBasedCheck implements JavaScriptCheck {
+public interface EslintBasedCheck extends JavaScriptCheck {
 
-  private static final IllegalStateException EXCEPTION = new IllegalStateException("No issue should be created for EslintBasedCheck");
+  String eslintKey();
 
-  public abstract String eslintKey();
-
-  public List<Object> configurations() {
+  default List<Object> configurations() {
     return Collections.emptyList();
   }
 
   @Override
-  public List<Issue> scanFile(TreeVisitorContext context) {
-    return new ArrayList<>();
+  default List<Issue> scanFile(TreeVisitorContext context) {
+    return Collections.emptyList();
   }
 
   @Override
-  public LineIssue addLineIssue(Tree tree, String message) {
-    throw EXCEPTION;
+  default LineIssue addLineIssue(Tree tree, String message) {
+    throw new IllegalStateException("No issue should be created for EslintBasedCheck");
   }
 
   @Override
-  public PreciseIssue addIssue(Tree tree, String message) {
-    throw EXCEPTION;
+  default PreciseIssue addIssue(Tree tree, String message) {
+    throw new IllegalStateException("No issue should be created for EslintBasedCheck");
   }
 
   @Override
-  public <T extends Issue> T addIssue(T issue) {
-    throw EXCEPTION;
+  default  <T extends Issue> T addIssue(T issue) {
+    throw new IllegalStateException("No issue should be created for EslintBasedCheck");
   }
 
 }
