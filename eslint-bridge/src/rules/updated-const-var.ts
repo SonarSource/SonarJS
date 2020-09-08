@@ -24,6 +24,14 @@ import * as estree from 'estree';
 import { toEncodedMessage } from './utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ['sonar-runtime'],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
     return {
       'VariableDeclaration[kind="const"]': (node: estree.Node) => {
