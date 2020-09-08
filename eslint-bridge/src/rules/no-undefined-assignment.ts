@@ -17,17 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-2138
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-public class UndefinedAssignmentCheckTest {
-
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new UndefinedAssignmentCheck(), new File("src/test/resources/checks/undefinedAssignment.js"));
-  }
-
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    function raiseOnUndefined(node: estree.Node) {
+      if (node.type === 'Identifier' && node.name === 'undefined') {
+        context.report({
+          message: 'Use null instead.',
+          node,
+        });
+      }
+    }
+    return {
+      VariableDeclarator: (node: estree.Node) => {
+        const { init } = node as estree.VariableDeclarator;
+        if (init) {
+          raiseOnUndefined(init);
+        }
+      },
+      AssignmentExpression: (node: estree.Node) => {
+        const { right } = node as estree.AssignmentExpression;
+        raiseOnUndefined(right);
+      },
+    };
+  },
+};
