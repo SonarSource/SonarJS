@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefinition {
@@ -82,9 +83,9 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     newProfile.done();
   }
 
-  private static Set<String> ruleKeys(List<Class> checks) {
+  private static Set<String> ruleKeys(List<Class<? extends JavaScriptCheck>> checks) {
     return checks.stream()
-      .map(c -> ((Rule) c.getAnnotation(Rule.class)).key())
+      .map(c -> c.getAnnotation(Rule.class).key())
       .collect(Collectors.toSet());
   }
 }

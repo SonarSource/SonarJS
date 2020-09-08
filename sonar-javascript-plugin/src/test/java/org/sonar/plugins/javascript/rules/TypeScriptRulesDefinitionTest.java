@@ -34,6 +34,7 @@ import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,8 +62,8 @@ public class TypeScriptRulesDefinitionTest {
 
   @Test
   public void compatibleLanguagesInJson() {
-    List<Class> typeScriptChecks = CheckList.getTypeScriptChecks();
-    List<Class> javaScriptChecks = CheckList.getJavaScriptChecks();
+    List<Class<? extends JavaScriptCheck>> typeScriptChecks = CheckList.getTypeScriptChecks();
+    List<Class<? extends JavaScriptCheck>> javaScriptChecks = CheckList.getJavaScriptChecks();
     CheckList.getAllChecks().forEach(c -> {
       boolean isTypeScriptCheck = typeScriptChecks.contains(c);
       boolean isJavaScriptCheck = javaScriptChecks.contains(c);

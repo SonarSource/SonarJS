@@ -103,7 +103,7 @@ public class JavaScriptSensorTest {
       }
 
       @Override
-      public List<Class> checkClasses() {
+      public List<Class<? extends JavaScriptCheck>> checkClasses() {
         return ImmutableList.of(CustomRuleWithRuleRepository.class);
       }
     }

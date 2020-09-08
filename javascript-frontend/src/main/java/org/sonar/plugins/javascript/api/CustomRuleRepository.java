@@ -41,7 +41,8 @@ public interface CustomRuleRepository {
 
   /**
    * List of the custom rules classes.
+   * @return
    */
-  List<Class> checkClasses();
+  List<Class<? extends JavaScriptCheck>> checkClasses();
 
 }

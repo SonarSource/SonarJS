@@ -32,6 +32,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinitionAnnotationLoader;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.samples.javascript.checks.BaseTreeVisitorCheck;
 import org.sonar.samples.javascript.checks.SubscriptionBaseVisitorCheck;
 
@@ -44,7 +45,7 @@ public class TestCustomRuleRepository implements RulesDefinition, CustomRuleRepo
     RulesDefinition.NewRepository repository = context.createRepository(REPOSITORY_KEY, "js")
       .setName("Custom Repository");
 
-    List<Class> checkClasses = checkClasses();
+    List<Class<? extends JavaScriptCheck>> checkClasses = checkClasses();
     Map<String, String> remediation = new HashMap<>();
     remediation.put("subscription", "10min");
     remediation.put("base", "5min");
@@ -65,7 +66,7 @@ public class TestCustomRuleRepository implements RulesDefinition, CustomRuleRepo
   }
 
   @Override
-  public List<Class> checkClasses() {
+  public List<Class<? extends JavaScriptCheck>> checkClasses() {
     return Arrays.asList(BaseTreeVisitorCheck.class, SubscriptionBaseVisitorCheck.class);
   }
 
