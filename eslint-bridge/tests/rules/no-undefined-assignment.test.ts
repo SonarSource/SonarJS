@@ -17,19 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+import { rule } from 'rules/no-undefined-assignment';
+import { RuleTester } from 'eslint';
+import { RuleTesterTs } from '../RuleTesterTs';
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+const tests = {
+  valid: [
+    {
+      code: `var a;`,
+    },
+    {
+      code: `undefined = 1;`,
+    },
+  ],
+  invalid: [
+    {
+      code: `var a = undefined;`,
+      errors: [
+        {
+          message: `Use null instead.`,
+          line: 1,
+          endLine: 1,
+          column: 9,
+          endColumn: 18,
+        },
+      ],
+    },
+    {
+      code: `a = undefined;`,
+      errors: 1,
+    },
+  ],
+};
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S2138")
-public class UndefinedAssignmentCheck extends EslintBasedCheck {
+const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterTs = new RuleTesterTs(false);
 
-  @Override
-  public String eslintKey() {
-    return "no-undefined-assignment";
-  }
-}
+ruleTesterJs.run('"undefined" should not be assigned [js]', rule, tests);
+ruleTesterTs.run('"undefined" should not be assigned [ts]', rule, tests);

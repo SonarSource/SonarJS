@@ -1,4 +1,7 @@
 {
+'qunit:src/assert.js':[
+346,
+],
 'qunit:src/module.js':[
 53,
 ],
