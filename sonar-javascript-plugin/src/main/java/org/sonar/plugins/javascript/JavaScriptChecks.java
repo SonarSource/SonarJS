@@ -56,7 +56,7 @@ public class JavaScriptChecks {
     return new JavaScriptChecks(checkFactory);
   }
 
-  public JavaScriptChecks addChecks(String repositoryKey, Iterable<Class> checkClass) {
+  public JavaScriptChecks addChecks(String repositoryKey, Iterable<Class<? extends JavaScriptCheck>> checkClass) {
     checksByRepository.add(checkFactory
       .<JavaScriptCheck>create(repositoryKey)
       .addAnnotatedChecks(checkClass));

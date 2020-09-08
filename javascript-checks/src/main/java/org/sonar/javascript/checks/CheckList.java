@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
@@ -36,23 +37,23 @@ public final class CheckList {
   private CheckList() {
   }
 
-  public static List<Class> getTypeScriptChecks() {
+  public static List<Class<? extends JavaScriptCheck>> getTypeScriptChecks() {
     return filterChecksByAnnotation(TypeScriptRule.class);
   }
 
-  public static List<Class> getJavaScriptChecks() {
+  public static List<Class<? extends JavaScriptCheck>> getJavaScriptChecks() {
     return filterChecksByAnnotation(JavaScriptRule.class);
   }
 
-  private static List<Class> filterChecksByAnnotation(Class<? extends Annotation> annotation) {
-    List<Class> allChecks = getAllChecks();
+  private static List<Class<? extends JavaScriptCheck>> filterChecksByAnnotation(Class<? extends Annotation> annotation) {
+    List<Class<? extends JavaScriptCheck>> allChecks = getAllChecks();
     return allChecks.stream()
       .filter(c -> c.isAnnotationPresent(annotation))
       .collect(Collectors.toList());
   }
 
-  public static List<Class> getAllChecks() {
-    return ImmutableList.<Class>of(
+  public static List<Class<? extends JavaScriptCheck>> getAllChecks() {
+    return ImmutableList.of(
       AdjacentOverloadSignaturesCheck.class,
       AlertUseCheck.class,
       AlphabeticalSortCheck.class,

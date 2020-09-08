@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.rules;
 
+import java.util.Collections;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
@@ -36,7 +37,7 @@ public class TypeScriptRulesDefinition implements RulesDefinition {
       .setName(CheckList.REPOSITORY_NAME);
 
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, JavaScriptProfilesDefinition.SONAR_WAY_JSON);
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getTypeScriptChecks());
+    ruleMetadataLoader.addRulesByAnnotatedClass(repository, Collections.unmodifiableList(CheckList.getTypeScriptChecks()));
 
     NewRule commentRegularExpression = repository.rule("S124");
     commentRegularExpression.setTemplate(true);

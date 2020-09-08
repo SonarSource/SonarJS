@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.Lists;
 import java.io.File;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,9 +57,9 @@ public class CheckListTest {
    */
   @Test
   public void test() {
-    List<Class> checks = CheckList.getAllChecks();
+    List<Class<? extends JavaScriptCheck>> checks = CheckList.getAllChecks();
 
-    for (Class cls : checks) {
+    for (Class<? extends JavaScriptCheck> cls : checks) {
       if (!cls.getSimpleName().equals("ParsingErrorCheck") && !isEslintBasedCheck(cls)) {
         String testName = '/' + cls.getName().replace('.', '/') + "Test.class";
         assertThat(getClass().getResource(testName))
@@ -67,7 +69,7 @@ public class CheckListTest {
     }
 
     List<String> keys = Lists.newArrayList();
-    List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", checks);
+    List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", Collections.unmodifiableList(checks));
     for (Rule rule : rules) {
       keys.add(rule.getKey());
       assertThat(getClass().getResource("/org/sonar/l10n/javascript/rules/javascript/" + rule.getKey() + ".html"))
@@ -96,10 +98,10 @@ public class CheckListTest {
 
   @Test
   public void test_eslint_key() throws IllegalAccessException, InstantiationException {
-    List<Class> checks = CheckList.getAllChecks();
+    List<Class<? extends JavaScriptCheck>> checks = CheckList.getAllChecks();
     List<String> keys = Lists.newArrayList();
 
-    for (Class cls : checks) {
+    for (Class<? extends JavaScriptCheck> cls : checks) {
       if (isEslintBasedCheck(cls)) {
         EslintBasedCheck eslintBasedCheck = (EslintBasedCheck) cls.newInstance();
         keys.add(eslintBasedCheck.eslintKey());
@@ -115,7 +117,7 @@ public class CheckListTest {
 
   @Test
   public void testTypeScriptChecks() {
-    List<Class> typeScriptChecks = CheckList.getTypeScriptChecks();
+    List<Class<? extends JavaScriptCheck>> typeScriptChecks = CheckList.getTypeScriptChecks();
     assertThat(typeScriptChecks).isNotEmpty();
     assertThat(typeScriptChecks).isNotEqualTo(CheckList.getAllChecks());
     typeScriptChecks.removeIf(c -> c == ParsingErrorCheck.class);
@@ -124,21 +126,21 @@ public class CheckListTest {
 
   @Test
   public void testJavaScriptChecks() {
-    List<Class> javaScriptChecks = CheckList.getJavaScriptChecks();
+    List<Class<? extends JavaScriptCheck>> javaScriptChecks = CheckList.getJavaScriptChecks();
     assertThat(javaScriptChecks).isNotEmpty();
     assertThat(javaScriptChecks).isNotEqualTo(CheckList.getAllChecks());
   }
 
   @Test
   public void testEveryCheckBelongsToLanguage() {
-    Set<Class> allChecks = new HashSet<>(CheckList.getAllChecks());
-    Set<Class> tsAndJsChecks = new HashSet<>(CheckList.getTypeScriptChecks());
+    Set<Class<? extends JavaScriptCheck>> allChecks = new HashSet<>(CheckList.getAllChecks());
+    Set<Class<? extends JavaScriptCheck>> tsAndJsChecks = new HashSet<>(CheckList.getTypeScriptChecks());
     tsAndJsChecks.addAll(CheckList.getJavaScriptChecks());
 
     assertThat(allChecks).isEqualTo(tsAndJsChecks);
   }
 
-  private boolean isEslintBasedCheck(Class cls) {
+  private boolean isEslintBasedCheck(Class<? extends JavaScriptCheck> cls) {
     try {
       cls.getMethod("eslintKey");
       return true;
