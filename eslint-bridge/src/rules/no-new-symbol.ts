@@ -51,7 +51,7 @@ export const rule: Rule.RuleModule = {
             .getSourceCode()
             .getFirstToken(node, token => token.value === 'new')!;
           context.report({
-            message: toEncodedMessage(`Remove this "new" operator.`, [node]),
+            message: toEncodedMessage(`Remove this "new" operator.`, [callee]),
             loc: newToken.loc,
           });
         }

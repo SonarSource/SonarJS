@@ -81,7 +81,7 @@ ruleTester.run('"Symbol" should not be used as a constructor', rule, {
       errors: [
         {
           message:
-            '{"message":"Remove this \\"new\\" operator.","secondaryLocations":[{"column":10,"line":3,"endColumn":27,"endLine":3}]}',
+            '{"message":"Remove this \\"new\\" operator.","secondaryLocations":[{"column":14,"line":3,"endColumn":20,"endLine":3}]}',
           line: 3,
           endLine: 3,
           column: 11,
