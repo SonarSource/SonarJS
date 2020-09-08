@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.points.MemberProgramPoint;

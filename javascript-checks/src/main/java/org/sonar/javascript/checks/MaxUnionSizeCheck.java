@@ -23,11 +23,12 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S4622")
-public class MaxUnionSizeCheck extends EslintBasedCheck {
+public class MaxUnionSizeCheck implements EslintBasedCheck {
 
   private static final int DEFAULT_THRESHOLD = 3;
 

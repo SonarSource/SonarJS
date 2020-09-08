@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks.annotations;
+package org.sonar.plugins.javascript.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -26,5 +26,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface TypeScriptRule {
+public @interface JavaScriptRule {
 }

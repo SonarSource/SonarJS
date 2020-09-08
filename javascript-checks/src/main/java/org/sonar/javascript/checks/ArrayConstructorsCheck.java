@@ -20,15 +20,16 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S1528")
 @DeprecatedRuleKey(ruleKey = "ArrayAndObjectConstructors")
-public class ArrayConstructorsCheck extends EslintBasedCheck {
+public class ArrayConstructorsCheck implements EslintBasedCheck {
 
 
   @Override

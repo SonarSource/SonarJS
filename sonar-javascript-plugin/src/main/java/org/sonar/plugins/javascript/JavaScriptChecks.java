@@ -31,7 +31,7 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.javascript.checks.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;

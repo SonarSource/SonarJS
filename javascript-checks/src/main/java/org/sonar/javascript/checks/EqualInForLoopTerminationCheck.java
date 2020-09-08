@@ -21,13 +21,14 @@ package org.sonar.javascript.checks;
 
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S888")
-public class EqualInForLoopTerminationCheck extends EslintBasedCheck {
+public class EqualInForLoopTerminationCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {

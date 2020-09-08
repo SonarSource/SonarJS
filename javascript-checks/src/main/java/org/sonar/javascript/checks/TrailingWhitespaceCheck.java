@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.lexer.JavaScriptLexer;
 import org.sonar.plugins.javascript.api.tree.Tree;

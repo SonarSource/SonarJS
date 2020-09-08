@@ -20,15 +20,16 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "ElseIfWithoutElse")
 @Rule(key = "S126")
-public class ElseIfWithoutElseCheck extends EslintBasedCheck {
+public class ElseIfWithoutElseCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {

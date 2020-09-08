@@ -20,15 +20,16 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S1438")
 @DeprecatedRuleKey(ruleKey = "Semicolon")
-public class SemicolonCheck extends EslintBasedCheck {
+public class SemicolonCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {

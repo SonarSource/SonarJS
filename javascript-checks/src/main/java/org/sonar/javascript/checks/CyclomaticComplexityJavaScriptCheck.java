@@ -24,7 +24,8 @@ import java.util.List;
 
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 // This rule is duplicated for TypeScript because both rules actually map to the
@@ -33,7 +34,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @JavaScriptRule
 @DeprecatedRuleKey(ruleKey = "FunctionComplexity")
 @Rule(key = "S1541")
-public class CyclomaticComplexityJavaScriptCheck extends EslintBasedCheck {
+public class CyclomaticComplexityJavaScriptCheck implements EslintBasedCheck {
 
   private static final int DEFAULT_THRESHOLD = 10;
 

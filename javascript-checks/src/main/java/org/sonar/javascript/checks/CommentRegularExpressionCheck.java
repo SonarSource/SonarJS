@@ -23,15 +23,16 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "CommentRegularExpression")
 @Rule(key = "S124")
-public class CommentRegularExpressionCheck extends EslintBasedCheck {
+public class CommentRegularExpressionCheck implements EslintBasedCheck {
 
   private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";
   private static final String DEFAULT_REGULAR_EXPRESSION = "";

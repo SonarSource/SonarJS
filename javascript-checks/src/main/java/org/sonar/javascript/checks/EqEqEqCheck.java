@@ -22,15 +22,16 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "EqEqEq")
 @Rule(key = "S1440")
-public class EqEqEqCheck extends EslintBasedCheck {
+public class EqEqEqCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {

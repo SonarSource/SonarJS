@@ -28,6 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +39,7 @@ public class CheckListTest {
    */
   @Test
   public void count() {
-    int count = -1; // to not count EslintBasedCheck
+    int count = 0;
     List<File> files = (List<File>) FileUtils.listFiles(new File("src/main/java/org/sonar/javascript/checks/"), new String[]{"java"}, false);
     for (File file : files) {
       String name = file.getName();

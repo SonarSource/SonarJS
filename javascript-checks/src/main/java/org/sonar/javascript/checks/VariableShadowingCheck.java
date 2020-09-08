@@ -22,8 +22,9 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
@@ -31,7 +32,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 // deprecated key in TS
 @DeprecatedRuleKey(ruleKey = "S1524")
 @Rule(key = "S1117")
-public class VariableShadowingCheck extends EslintBasedCheck {
+public class VariableShadowingCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {

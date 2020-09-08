@@ -20,15 +20,16 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "LabelPlacement")
 @Rule(key = "S1439")
-public class LabelPlacementCheck extends EslintBasedCheck {
+public class LabelPlacementCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {

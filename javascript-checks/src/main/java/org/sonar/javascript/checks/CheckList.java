@@ -23,8 +23,8 @@ import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 public final class CheckList {
 
