@@ -19,35 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-
-import static org.sonar.plugins.javascript.api.tree.Tree.Kind.INSTANCE_OF;
-import static org.sonar.plugins.javascript.api.tree.Tree.Kind.LOGICAL_COMPLEMENT;
-import static org.sonar.plugins.javascript.api.tree.Tree.Kind.RELATIONAL_IN;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3812")
-public class InstanceofInMisuseCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Add parentheses to perform \"%s\" operator before logical NOT operator.";
+public class InstanceofInMisuseCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.of(INSTANCE_OF, RELATIONAL_IN);
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    BinaryExpressionTree expression = (BinaryExpressionTree) tree;
-    if (expression.leftOperand().is(LOGICAL_COMPLEMENT)) {
-      addIssue(tree, String.format(MESSAGE, expression.operatorToken().text()));
-    }
+  public String eslintKey() {
+    return "no-unsafe-negation";
   }
 }
