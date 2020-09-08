@@ -23,9 +23,12 @@ import java.nio.charset.StandardCharsets;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
 
 public class TestUtils {
   public static DefaultInputFile createInputFile(SensorContextTester sensorContext, String content, String relativePath) {
@@ -45,5 +48,13 @@ public class TestUtils {
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     return context.repository(repositoryKey);
+  }
+
+  static CheckFactory checkFactory(String repositoryKey, String... ruleKeys) {
+    ActiveRulesBuilder builder = new ActiveRulesBuilder();
+    for (String ruleKey : ruleKeys) {
+      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(repositoryKey, ruleKey)).build());
+    }
+    return new CheckFactory(builder.build());
   }
 }

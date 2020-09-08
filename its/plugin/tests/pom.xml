@@ -69,6 +69,7 @@
             <include>**/CustomRulesTest.java</include>
             <include>**/CustomRulesWithDeprecatedPluginTest.java</include>
             <include>**/TypeScriptRuleTest.java</include>
+            <include>**/EslintCustomRulesTest.java</include>
           </includes>
         </configuration>
       </plugin>

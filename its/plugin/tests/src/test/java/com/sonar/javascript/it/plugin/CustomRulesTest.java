@@ -20,6 +20,7 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
@@ -51,6 +52,7 @@ public class CustomRulesTest {
   @BeforeClass
   public static void before() {
     orchestrator = initOrchestrator(CUSTOM_RULES_ARTIFACT_ID);
+    runBuild(orchestrator);
   }
 
   @AfterClass
@@ -87,17 +89,20 @@ public class CustomRulesTest {
       .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
       .build();
     orchestrator.start();
+    return orchestrator;
+  }
 
+  static BuildResult runBuild(Orchestrator orchestrator) {
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("custom_rules"))
       .setProjectKey("custom-rules")
       .setProjectName("Custom Rules")
       .setProjectVersion("1.0")
+      .setDebugLogs(true)
       .setSourceDirs("src");
     orchestrator.getServer().provisionProject("custom-rules", "Custom Rules");
     orchestrator.getServer().associateProjectToQualityProfile("custom-rules", "js", "javascript-custom-rules-profile");
-    orchestrator.executeBuild(build);
-    return orchestrator;
+    return orchestrator.executeBuild(build);
   }
 
   static void assertBaseCheck(List<Issues.Issue> issues) {

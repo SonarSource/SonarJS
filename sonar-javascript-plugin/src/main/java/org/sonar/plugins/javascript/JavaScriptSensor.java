@@ -31,27 +31,20 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.SeChecksDispatcher;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
-import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
-import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -62,56 +55,20 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonarsource.analyzer.commons.ProgressReport;
-import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.plugins.javascript.JavaScriptPlugin.DEPRECATED_ESLINT_PROPERTY;
 import static org.sonar.plugins.javascript.JavaScriptPlugin.ESLINT_REPORT_PATHS;
 
-@ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
-@SonarLintSide
 public class JavaScriptSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptSensor.class);
 
-  private final JavaScriptChecks checks;
-  private final FileSystem fileSystem;
-  private final FilePredicate mainFilePredicate;
+  private final AbstractChecks checks;
   private final ActionParser<Tree> parser;
   private final ActionParser<Tree> vueParser;
 
-  public JavaScriptSensor(
-    CheckFactory checkFactory, FileSystem fileSystem) {
-    this(checkFactory, fileSystem, null, null);
-  }
-
-  /**
-   *  This constructor is necessary for Pico container to correctly instantiate sensor with custom rules loaded via {@link CustomJavaScriptRulesDefinition}
-   *  See plugin integration tests
-   */
-  public JavaScriptSensor(
-    CheckFactory checkFactory, FileSystem fileSystem, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
-    this(checkFactory, fileSystem, customRulesDefinition, null);
-  }
-
-  /**
-   *  This constructor is necessary for Pico container to correctly instantiate sensor with custom rules loaded via {@link CustomRuleRepository}
-   *  See plugin integration tests
-   */
-  public JavaScriptSensor(
-    CheckFactory checkFactory, FileSystem fileSystem, @Nullable CustomRuleRepository[] customRuleRepositories) {
-    this(checkFactory, fileSystem, null, customRuleRepositories);
-  }
-
-  public JavaScriptSensor(
-    CheckFactory checkFactory, FileSystem fileSystem, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition, @Nullable CustomRuleRepository[] customRuleRepositories) {
-    this.checks = JavaScriptChecks.createJavaScriptChecks(checkFactory)
-      .addChecks(CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks())
-      .addCustomChecks(customRulesDefinition, customRuleRepositories);
-    this.fileSystem = fileSystem;
-    this.mainFilePredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasType(InputFile.Type.MAIN),
-      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
+  public JavaScriptSensor(AbstractChecks checks) {
+    this.checks = checks;
     this.parser = JavaScriptParserBuilder.createParser();
     this.vueParser = JavaScriptParserBuilder.createVueParser();
   }
@@ -257,7 +214,7 @@ public class JavaScriptSensor {
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
     treeVisitors.addAll(checks.visitorChecks());
 
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(mainFilePredicate);
+    Iterable<InputFile> inputFiles = getInputFiles(context);
     Collection<String> files = StreamSupport.stream(inputFiles.spliterator(), false)
       .map(InputFile::toString)
       .collect(Collectors.toList());
@@ -266,6 +223,15 @@ public class JavaScriptSensor {
     progressReport.start(files);
 
     analyseFiles(context, treeVisitors, inputFiles, progressReport);
+  }
+
+  private static Iterable<InputFile> getInputFiles(SensorContext context) {
+    FileSystem fs = context.fileSystem();
+    FilePredicate filePredicate = fs.predicates().and(
+      fs.predicates().hasType(InputFile.Type.MAIN),
+      fs.predicates().hasLanguage(JavaScriptLanguage.KEY));
+
+    return fs.inputFiles(filePredicate);
   }
 
   /**

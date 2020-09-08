@@ -29,6 +29,7 @@ import {
   AnalysisResponse,
   initLinter,
   Rule,
+  loadCustomRuleBundle,
 } from './analyzer';
 import { AddressInfo } from 'net';
 import { unloadTypeScriptEslint, ParseExceptionCode } from './parser';
@@ -36,8 +37,8 @@ import { getFilesForTsConfig } from './tsconfig';
 
 const MAX_REQUEST_SIZE = '50mb';
 
-export function start(port = 0): Promise<Server> {
-  return startServer(port, analyzeJavaScript, analyzeTypeScript);
+export function start(port = 0, additionalRuleBundles: string[] = []): Promise<Server> {
+  return startServer(port, analyzeJavaScript, analyzeTypeScript, additionalRuleBundles);
 }
 
 type AnalysisFunction = (input: AnalysisInput) => AnalysisResponse;
@@ -47,7 +48,9 @@ export function startServer(
   port = 0,
   analyzeJS: AnalysisFunction,
   analyzeTS: AnalysisFunction,
+  additionalRuleBundles: string[] = [],
 ): Promise<Server> {
+  loadAdditionalRuleBundles(additionalRuleBundles);
   return new Promise(resolve => {
     console.log('DEBUG starting eslint-bridge server at port', port);
     let server: Server;
@@ -116,4 +119,11 @@ function analyze(analysisFunction: AnalysisFunction): RequestHandler {
       });
     }
   };
+}
+
+function loadAdditionalRuleBundles(additionalRuleBundles: string[]) {
+  for (const bundle of additionalRuleBundles) {
+    const ruleIds = loadCustomRuleBundle(bundle);
+    console.log(`DEBUG Loaded rules ${ruleIds} from ${bundle}`);
+  }
 }

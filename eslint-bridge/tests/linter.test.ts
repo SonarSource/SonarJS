@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getRuleConfig, decodeSonarRuntimeIssue, LinterWrapper } from '../src/linter';
+import { getRuleConfig, decodeSonarRuntimeIssue, LinterWrapper } from 'linter';
 import { Rule, SourceCode } from 'eslint';
-import { SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE } from '../src/analyzer';
-import { parseJavaScriptSourceFile } from '../src/parser';
+import { SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE } from 'analyzer';
+import { parseJavaScriptSourceFile } from 'parser';
 
 const ruleUsingSecondaryLocations = {
   meta: { schema: { enum: ['sonar-runtime'] } },
@@ -129,7 +129,7 @@ describe('#decodeSecondaryLocations', () => {
 
   it('should compute symbol highlighting when additional rule', () => {
     const sourceCode = parseJavaScriptSourceFile('let x = 42;') as SourceCode;
-    const linter = new LinterWrapper([], SYMBOL_HIGHLIGHTING_RULE);
+    const linter = new LinterWrapper([], [SYMBOL_HIGHLIGHTING_RULE]);
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(1);
     expect(result[0].ruleId).toEqual(SYMBOL_HIGHLIGHTING_RULE.ruleId);
@@ -158,7 +158,7 @@ describe('#decodeSecondaryLocations', () => {
     const sourceCode = parseJavaScriptSourceFile(
       'if (true) if (true) if (true) return;',
     ) as SourceCode;
-    const linter = new LinterWrapper([], COGNITIVE_COMPLEXITY_RULE);
+    const linter = new LinterWrapper([], [COGNITIVE_COMPLEXITY_RULE]);
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(1);
     expect(result[0].ruleId).toEqual(COGNITIVE_COMPLEXITY_RULE.ruleId);

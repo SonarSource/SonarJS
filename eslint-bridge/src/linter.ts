@@ -43,6 +43,8 @@ export interface AdditionalRule {
   ruleId: string;
   ruleModule: ESLintRule.RuleModule;
   ruleConfig: any[];
+  // should this rule be always activated regardless quality profile? used for highlighting and metrics
+  activateAutomatically?: boolean;
 }
 
 export class LinterWrapper {
@@ -52,8 +54,9 @@ export class LinterWrapper {
 
   /**
    * 'additionalRules' - rules used for computing metrics (incl. highlighting) when it requires access to the rule context; resulting value is encoded in the message
+   * and custom rules provided by additional rule bundles
    */
-  constructor(rules: Rule[], ...additionalRules: AdditionalRule[]) {
+  constructor(rules: Rule[], additionalRules: AdditionalRule[] = []) {
     this.linter = new Linter();
     this.linter.defineRules(sonarjsRules);
     this.linter.defineRules(internalRules);
@@ -96,10 +99,12 @@ export class LinterWrapper {
       ruleConfig.rules![inputRule.key] = ['error', ...getRuleConfig(ruleModule, inputRule)];
     });
 
-    additionalRules.forEach(
-      additionalRule =>
-        (ruleConfig.rules![additionalRule.ruleId] = ['error', ...additionalRule.ruleConfig]),
-    );
+    additionalRules
+      .filter(rule => rule.activateAutomatically)
+      .forEach(
+        additionalRule =>
+          (ruleConfig.rules![additionalRule.ruleId] = ['error', ...additionalRule.ruleConfig]),
+      );
     return ruleConfig;
   }
 

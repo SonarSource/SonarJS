@@ -20,9 +20,6 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
-import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.javascript.checks.CheckList;
 
@@ -32,19 +29,10 @@ public class JavaScriptChecksTest {
 
   @Test
   public void should_detect_unknown_rule_key() throws Exception {
-    JavaScriptChecks checks = JavaScriptChecks.createJavaScriptChecks(checkFactory("S3923"))
-      .addChecks(CheckList.JS_REPOSITORY_KEY, CheckList.getAllChecks());
+    JavaScriptChecks checks = new JavaScriptChecks(TestUtils.checkFactory(CheckList.JS_REPOSITORY_KEY, "S3923"));
 
     assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches")).isEqualTo(RuleKey.of("javascript", "S3923"));
     assertThat(checks.ruleKeyByEslintKey("unknown-rule-key")).isNull();
-  }
-
-  private static CheckFactory checkFactory(String... ruleKeys) {
-    ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    for (String ruleKey : ruleKeys) {
-      builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, ruleKey)).build());
-    }
-    return new CheckFactory(builder.build());
   }
 
 }

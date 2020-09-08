@@ -19,6 +19,8 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class ExpectedIssues {
 

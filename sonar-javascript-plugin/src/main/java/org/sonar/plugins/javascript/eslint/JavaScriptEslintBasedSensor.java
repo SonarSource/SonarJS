@@ -29,7 +29,6 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -37,7 +36,6 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
@@ -50,33 +48,34 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
   private static final Profiler PROFILER = Profiler.create(LOG);
-  private final JavaScriptSensor javaScriptSensor;
 
 
   /**
    * Required for SonarLint
    */
-  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
-                                     FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer, JavaScriptSensor javaScriptSensor) {
-    this(checkFactory, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, javaScriptSensor);
+  public JavaScriptEslintBasedSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
+                                     FileLinesContextFactory fileLinesContextFactory,
+                                     EslintBridgeServer eslintBridgeServer,
+                                     RulesBundles rulesBundles) {
+    this(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, rulesBundles);
   }
 
-  public JavaScriptEslintBasedSensor(CheckFactory checkFactory, NoSonarFilter noSonarFilter,
+  public JavaScriptEslintBasedSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
                                      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-                                     @Nullable AnalysisWarnings analysisWarnings, JavaScriptSensor javaScriptSensor) {
-    super(checks(checkFactory), noSonarFilter, fileLinesContextFactory, eslintBridgeServer, analysisWarnings);
-    this.javaScriptSensor = javaScriptSensor;
-  }
-
-  private static JavaScriptChecks checks(CheckFactory checkFactory) {
-    return JavaScriptChecks.createJavaScriptChecks(checkFactory).addChecks(CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks());
+                                     @Nullable AnalysisWarnings analysisWarnings, RulesBundles rulesBundles) {
+    super(checks,
+      noSonarFilter,
+      fileLinesContextFactory,
+      eslintBridgeServer,
+      analysisWarnings,
+      rulesBundles);
   }
 
   @Override
   void analyzeFiles() throws IOException, InterruptedException {
     runEslintAnalysis();
     PROFILER.startInfo("Java-based frontend sensor [javascript]");
-    javaScriptSensor.execute(context);
+    new JavaScriptSensor(checks).execute(context);
     PROFILER.stopInfo();
   }
 

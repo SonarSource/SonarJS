@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -109,20 +110,25 @@ public class JavaScriptSensorTest {
     }
   };
 
-  private File baseDir = new File("src/test/resources");
+  private final File baseDir = new File("src/test/resources");
   private final ProgressReport progressReport = mock(ProgressReport.class);
-  private SensorContextTester context = SensorContextTester.create(baseDir);
+  private final SensorContextTester context = SensorContextTester.create(baseDir);
 
   private JavaScriptSensor createSensor() {
-    return new JavaScriptSensor(checkFactory, context.fileSystem());
+   return new JavaScriptSensor(new JavaScriptChecks(checkFactory));
   }
 
   private JavaScriptSensor createSensorWithCustomRules() {
-    return new JavaScriptSensor(checkFactory, context.fileSystem(), CUSTOM_RULES);
+    return new JavaScriptSensor(new JavaScriptChecks(checkFactory, CUSTOM_RULES));
   }
 
   private JavaScriptSensor createSensorWithCustomRuleRepository() {
-    return new JavaScriptSensor(checkFactory, context.fileSystem(), CUSTOM_RULE_REPOSITORIES);
+    return new JavaScriptSensor(new JavaScriptChecks(checkFactory, CUSTOM_RULE_REPOSITORIES));
+  }
+
+  private JavaScriptSensor createSensor(@Nullable CustomJavaScriptRulesDefinition[] customRules, @Nullable CustomRuleRepository[] customRuleRepositories) {
+    return new JavaScriptSensor(
+      new JavaScriptChecks(checkFactory, customRules, customRuleRepositories));
   }
 
   @Test
@@ -249,14 +255,14 @@ public class JavaScriptSensorTest {
 
   @Test
   public void should_log_deprecation_warning() throws Exception {
-    JavaScriptSensor sensor = new JavaScriptSensor(checkFactory, context.fileSystem(), CUSTOM_RULES, CUSTOM_RULE_REPOSITORIES);
+    JavaScriptSensor sensor = createSensor(CUSTOM_RULES, null);
     sensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("JavaScript analyzer custom rules are deprecated. Consider using ESlint custom rules instead");
 
     logTester.clear();
-    sensor = new JavaScriptSensor(checkFactory, context.fileSystem(), null, CUSTOM_RULE_REPOSITORIES);
+    sensor = createSensor(null, CUSTOM_RULE_REPOSITORIES);
     sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("JavaScript analyzer custom rules are deprecated. Consider using ESlint custom rules instead");
+    assertThat(logTester.logs(LoggerLevel.WARN)).doesNotContain("JavaScript analyzer custom rules are deprecated. Consider using ESlint custom rules instead");
   }
 
   @Test

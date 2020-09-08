@@ -1,8 +1,8 @@
 /** BaseTreeVisitor **/
-var Person = function(first, last, middle) {
-    this.first = first;
-    this.middle = middle;
-    this.last = last;
+var Person = function (first, last, middle) {
+  this.first = first;
+  this.middle = middle;
+  this.last = last;
 };
 
 /** SubscriptionBaseVisitor **/
@@ -15,6 +15,7 @@ for (props in myArray) {
 /**
  * SubscriptionBaseVisitorCheck2
  */
-while (i > 10) {
+while (i > 10) {}
 
-}
+// eslint based custom rule reports on CallExpression
+foo();

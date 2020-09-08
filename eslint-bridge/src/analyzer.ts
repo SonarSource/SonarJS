@@ -51,12 +51,14 @@ export const SYMBOL_HIGHLIGHTING_RULE: AdditionalRule = {
   ruleId: symbolHighlightingRuleId,
   ruleModule: symbolHighlightingRule,
   ruleConfig: [],
+  activateAutomatically: true,
 };
 
 export const COGNITIVE_COMPLEXITY_RULE: AdditionalRule = {
   ruleId: COGNITIVE_COMPLEXITY_RULE_ID,
   ruleModule: sonarjsRules['cognitive-complexity'],
   ruleConfig: ['metric'],
+  activateAutomatically: true,
 };
 
 export interface AnalysisInput {
@@ -131,9 +133,21 @@ function stripBom(s: string) {
 }
 
 let linter: LinterWrapper;
+const customRules: AdditionalRule[] = [];
 
 export function initLinter(rules: Rule[]) {
-  linter = new LinterWrapper(rules, SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE);
+  console.log(`DEBUG initializing linter with ${rules}`);
+  linter = new LinterWrapper(rules, [
+    SYMBOL_HIGHLIGHTING_RULE,
+    COGNITIVE_COMPLEXITY_RULE,
+    ...customRules,
+  ]);
+}
+
+export function loadCustomRuleBundle(bundlePath: string): string[] {
+  const bundle = require(bundlePath);
+  customRules.push(...bundle.rules);
+  return bundle.rules.map((r: AdditionalRule) => r.ruleId);
 }
 
 function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {

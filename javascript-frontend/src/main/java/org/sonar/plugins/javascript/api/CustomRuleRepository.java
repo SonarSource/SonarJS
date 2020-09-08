@@ -20,14 +20,14 @@
 package org.sonar.plugins.javascript.api;
 
 import java.util.List;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * This interface should be implemented by custom rules plugins to register their rules with SonarJS
  *
  * @deprecated since 6.0. Consider using ESlint custom rules with external issue import instead.
- * 
+ *
  */
 @ScannerSide
 @SonarLintSide

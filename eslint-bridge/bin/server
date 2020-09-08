@@ -1,4 +1,11 @@
 #!/usr/bin/env node
 
 const server = require("../lib/server");
-server.start(process.argv[2]);
+const path = require('path');
+
+let additionalRules = [];
+if (process.argv[3]) {
+  additionalRules = process.argv[3].split(path.delimiter);
+}
+
+server.start(process.argv[2], additionalRules);

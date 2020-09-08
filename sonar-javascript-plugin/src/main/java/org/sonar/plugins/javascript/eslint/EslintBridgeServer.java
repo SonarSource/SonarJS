@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
@@ -35,7 +36,7 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 @SonarLintSide(lifespan = MULTIPLE_ANALYSES)
 public interface EslintBridgeServer extends Startable {
 
-  void startServerLazily(SensorContext context) throws IOException;
+  void startServerLazily(SensorContext context, List<Path> deployedBundles) throws IOException;
 
   void initLinter(Rule[] rules) throws IOException;
 
@@ -75,6 +76,11 @@ public interface EslintBridgeServer extends Startable {
     Rule(String key, List<Object> configurations) {
       this.key = key;
       this.configurations = configurations;
+    }
+
+    @Override
+    public String toString() {
+      return key;
     }
   }
 
