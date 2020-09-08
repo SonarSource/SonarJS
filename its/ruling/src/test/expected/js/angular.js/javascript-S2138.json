@@ -43,6 +43,9 @@
 'angular.js:src/ng/q.js':[
 351,
 ],
+'angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js':[
+115,
+],
 'angular.js:src/ngMessageFormat/messageFormatSelector.js':[
 54,
 ],
