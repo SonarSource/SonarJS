@@ -17,17 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-2990
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-public class GlobalThisCheckTest {
-
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new GlobalThisCheck(), new File("src/test/resources/checks/GlobalThis.js"));
-  }
-
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      'MemberExpression[object.type="ThisExpression"]'(node: estree.Node) {
+        const memberExpression = node as estree.MemberExpression;
+        const scopeType = context.getScope().variableScope.type;
+        const isInsideClass = context
+          .getAncestors()
+          .some(
+            ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
+          );
+        if ((scopeType === 'global' || scopeType === 'module') && !isInsideClass) {
+          context.report({
+            message: `Remove the use of "this".`,
+            node: memberExpression.object,
+          });
+        }
+      },
+    };
+  },
+};
