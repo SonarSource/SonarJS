@@ -20,6 +20,7 @@
 import { Rule } from 'eslint';
 import { rule as argumentsOrder } from './arguments-order';
 import { rule as argumentsUsage } from './arguments-usage';
+import { rule as arrayConstructor } from './array-constructor';
 import { rule as arrowFunctionConvention } from './arrow-function-convention';
 import { rule as bitwiseOperators } from './bitwise-operators';
 import { rule as boolParamDefault } from './bool-param-default';
@@ -133,6 +134,7 @@ const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
 ruleModules['arguments-order'] = argumentsOrder;
 ruleModules['arguments-usage'] = argumentsUsage;
+ruleModules['array-constructor'] = arrayConstructor;
 ruleModules['arrow-function-convention'] = arrowFunctionConvention;
 ruleModules['bitwise-operators'] = bitwiseOperators;
 ruleModules['bool-param-default'] = boolParamDefault;
