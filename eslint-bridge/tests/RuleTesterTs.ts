@@ -28,6 +28,10 @@ const parserOptions = {
   project: path.resolve(`${__dirname}/fixtures/rule-tester-project/tsconfig.json`),
 };
 
+const env = {
+  es6: true,
+};
+
 const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-project/file.tsx`);
 
 /**
@@ -37,6 +41,7 @@ const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-proj
 class RuleTesterTs extends RuleTester {
   constructor(public expectNoIssuesWithoutTypes = true) {
     super({
+      env,
       parser,
       parserOptions,
     });
