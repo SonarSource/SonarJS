@@ -17,16 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+import { RuleTester } from 'eslint';
+import { rule } from 'rules/void-use';
+import { RuleTesterTs } from '../RuleTesterTs';
+const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterTs = new RuleTesterTs(false);
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
-
-public class VoidUseCheckTest {
-
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new VoidUseCheck(), new File("src/test/resources/checks/VoidUse.js"));
-  }
-}
+const testCases = {
+  valid: [
+    {
+      code: `
+            (function() {
+            })()
+            `,
+    },
+    {
+      code: `
+            void 0;
+            `,
+    },
+    {
+      code: `
+            void (0);
+            `,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+            void function() {
+            }()
+            `,
+      errors: 1,
+    },
+    {
+      code: `
+            foo(void 42);
+            `,
+      errors: 1,
+    },
+  ],
+};
+ruleTesterJs.run('"void" should not be used JS', rule, testCases);
+ruleTesterTs.run('"void" should not be used TS', rule, testCases);

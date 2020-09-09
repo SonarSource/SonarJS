@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-3735
 
-import org.sonar.check.Rule;
-import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.annotations.TypeScriptRule;
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S3735")
-public class VoidUseCheck extends EslintBasedCheck {
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    function checkNode(node: estree.Node) {
+      const unaryExpression: estree.UnaryExpression = node as estree.UnaryExpression;
+      if (unaryExpression.argument.type === 'Literal' && 0 === unaryExpression.argument.value) {
+        return;
+      }
+      context.report({ node, message: 'Use "null" instead.' });
+    }
 
-  @Override
-  public String eslintKey() {
-    return "void-use";
-  }
-}
+    return {
+      'UnaryExpression[operator="void"]': checkNode,
+    };
+  },
+};
