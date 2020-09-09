@@ -20,35 +20,19 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1314")
 @DeprecatedRuleKey(ruleKey = "OctalNumber")
-public class OctalNumberCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Replace the value of the octal number (%s) by its decimal equivalent (%s).";
+public class OctalNumberCheck implements EslintBasedCheck {
 
   @Override
-  public void visitLiteral(LiteralTree tree) {
-    if (tree.is(Tree.Kind.NUMERIC_LITERAL)) {
-      String value = tree.value();
-      if (value.length() > 1 && value.startsWith("0")) {
-        int newValue;
-        try {
-          newValue = Integer.parseInt(value, 8);
-        } catch (NumberFormatException e) {
-          return;
-        }
-        if (newValue > 9) {
-          addIssue(tree, String.format(MESSAGE, value, newValue));
-        }
-      }
-    }
+  public String eslintKey() {
+    return "no-octal";
   }
-
 }
