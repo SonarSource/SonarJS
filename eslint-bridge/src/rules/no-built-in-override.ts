@@ -19,60 +19,16 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2424
 
+import { globalsByLibraries } from '../utils/globals';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-
-const BUILT_IN_OBJECTS = [
-  'Object',
-  'Function',
-  'Boolean',
-  'Symbol',
-  'Error',
-  'EvalError',
-  'InternalError',
-  'RangeError',
-  'ReferenceError',
-  'SyntaxError',
-  'TypeError',
-  'URIError',
-  'Number',
-  'Math',
-  'Date',
-  'String',
-  'RegExp',
-  'Array',
-  'Int8Array',
-  'Uint8Array',
-  'Uint8ClampedArray',
-  'Int16Array',
-  'Unit16Array',
-  'Int32Array',
-  'Uint32Array',
-  'Float32Array',
-  'Float64Array',
-  'Map',
-  'Set',
-  'WeakMap',
-  'WeakSet',
-  'ArrayBuffer',
-  'DataView',
-  'JSON',
-  'Promise',
-  'Reflect',
-  'Proxy',
-  'Intl',
-  'Generator',
-  'Iterator',
-  'ParallelArray',
-  'StopIteration',
-];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const overriden: Set<estree.Identifier> = new Set();
 
     function isBuiltIn(variable: Scope.Variable) {
-      return BUILT_IN_OBJECTS.includes(variable.name);
+      return globalsByLibraries.builtin.includes(variable.name);
     }
 
     function checkVariable(variable: Scope.Variable) {
