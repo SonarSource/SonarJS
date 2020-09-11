@@ -1,0 +1,30 @@
+{
+  "title": "XML parsers should not be vulnerable to XXE attacks",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a4"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2755",
+  "sqKey": "S2755",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      611,
+      827
+    ],
+    "OWASP": [
+      "A4"
+    ]
+  }
+}
