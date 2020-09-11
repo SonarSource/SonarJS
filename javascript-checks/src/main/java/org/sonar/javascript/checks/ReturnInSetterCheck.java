@@ -21,38 +21,13 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @JavaScriptRule
 @Rule(key = "S2432")
-public class ReturnInSetterCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Consider removing this return statement; it will be ignored.";
-
-  private final DoubleDispatchVisitorCheck forbiddenReturnVisitor = new ForbiddenReturnVisitor();
+public class ReturnInSetterCheck extends EslintBasedCheck {
 
   @Override
-  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
-    if (tree.is(Tree.Kind.SET_METHOD)) {
-      tree.body().accept(forbiddenReturnVisitor);
-    }
-    super.visitAccessorMethodDeclaration(tree);
+  public String eslintKey() {
+    return "no-setter-return";
   }
-
-  private class ForbiddenReturnVisitor extends DoubleDispatchVisitorCheck {
-
-    @Override
-    public void visitReturnStatement(ReturnStatementTree tree) {
-      if (tree.expression() != null) {
-        ReturnInSetterCheck check = ReturnInSetterCheck.this;
-        check.addIssue(tree, MESSAGE);
-      }
-      super.visitReturnStatement(tree);
-    }
-
-  }
-
 }
