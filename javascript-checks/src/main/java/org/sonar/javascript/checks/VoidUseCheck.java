@@ -19,39 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.annotations.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.javascript.checks.annotations.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3735")
-public class VoidUseCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Remove \"void\" operator";
+public class VoidUseCheck extends EslintBasedCheck {
 
   @Override
-  public Set<Kind> nodesToVisit() {
-    return ImmutableSet.of(Kind.VOID);
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    UnaryExpressionTree voidExpression = (UnaryExpressionTree) tree;
-    ExpressionTree operand = CheckUtils.removeParenthesis(voidExpression.expression());
-    if (!isZero(operand)) {
-      addIssue(voidExpression.operatorToken(), MESSAGE);
-    }
-  }
-
-  private static boolean isZero(ExpressionTree expression) {
-    return expression.is(Kind.NUMERIC_LITERAL) && "0".equals(((LiteralTree) expression).value());
+  public String eslintKey() {
+    return "void-use";
   }
 }

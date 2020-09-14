@@ -17,16 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-3735
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-public class VoidUseCheckTest {
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    function checkNode(node: estree.Node) {
+      const unaryExpression: estree.UnaryExpression = node as estree.UnaryExpression;
+      if (unaryExpression.argument.type === 'Literal' && 0 === unaryExpression.argument.value) {
+        return;
+      }
+      const operatorToken = context.getSourceCode().getTokenBefore(unaryExpression.argument);
+      context.report({
+        loc: operatorToken!.loc, // cannot be null due to previous checks
+        message: 'Remove this use of the "void" operator.',
+      });
+    }
 
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new VoidUseCheck(), new File("src/test/resources/checks/VoidUse.js"));
-  }
-}
+    return {
+      'UnaryExpression[operator="void"]': checkNode,
+    };
+  },
+};

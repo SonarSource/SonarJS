@@ -128,6 +128,7 @@ import { rule as updatedConstVar } from './updated-const-var';
 import { rule as updatedLoopCounter } from './updated-loop-counter';
 import { rule as useTypeAlias } from './use-type-alias';
 import { rule as variableName } from './variable-name';
+import { rule as voidUse } from './void-use';
 import { rule as xpath } from './xpath';
 import { rule as xPoweredBy } from './x-powered-by';
 
@@ -243,6 +244,7 @@ ruleModules['updated-const-var'] = updatedConstVar;
 ruleModules['updated-loop-counter'] = updatedLoopCounter;
 ruleModules['use-type-alias'] = useTypeAlias;
 ruleModules['variable-name'] = variableName;
+ruleModules['void-use'] = voidUse;
 ruleModules['xpath'] = xpath;
 ruleModules['x-powered-by'] = xPoweredBy;
 
