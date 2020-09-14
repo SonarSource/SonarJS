@@ -93,6 +93,7 @@ export class LinterWrapper {
     const ruleConfig: Linter.Config = {
       rules: {},
       parserOptions: { sourceType: 'module', ecmaVersion: 2018 },
+      env: { es6: true },
     };
     inputRules.forEach(inputRule => {
       const ruleModule = this.rules.get(inputRule.key);

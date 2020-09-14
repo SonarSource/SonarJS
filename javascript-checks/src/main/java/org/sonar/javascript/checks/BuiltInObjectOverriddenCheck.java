@@ -19,95 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.symbols.Usage.Kind;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2424")
-public class BuiltInObjectOverriddenCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this override of \"%s\".";
-
-  private static final Set<Usage.Kind> ILLEGAL_USAGE_KINDS = EnumSet.of(
-    Kind.DECLARATION,
-    Kind.DECLARATION_WRITE,
-    Kind.LEXICAL_DECLARATION,
-    Kind.WRITE,
-    Kind.READ_WRITE);
-
-  private static final List<String> BUILD_IN_OBJECTS = ImmutableList.of(
-    "Object",
-    "Function",
-    "Boolean",
-    "Symbol",
-    "Error",
-    "EvalError",
-    "InternalError",
-    "RangeError",
-    "ReferenceError",
-    "SyntaxError",
-    "TypeError",
-    "URIError",
-    "Number",
-    "Math",
-    "Date",
-    "String",
-    "RegExp",
-    "Array",
-    "Int8Array",
-    "Uint8Array",
-    "Uint8ClampedArray",
-    "Int16Array",
-    "Unit16Array",
-    "Int32Array",
-    "Uint32Array",
-    "Float32Array",
-    "Float64Array",
-    "Map",
-    "Set",
-    "WeakMap",
-    "WeakSet",
-    "ArrayBuffer",
-    "DataView",
-    "JSON",
-    "Promise",
-    "Reflect",
-    "Proxy",
-    "Intl",
-    "Generator",
-    "Iterator",
-    "ParallelArray",
-    "StopIteration"
-  );
+public class BuiltInObjectOverriddenCheck implements EslintBasedCheck {
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    for (String name : BUILD_IN_OBJECTS) {
-      for (Symbol symbol : symbolModel.getSymbols(name)) {
-        checkSymbol(symbol);
-      }
-    }
-
+  public String eslintKey() {
+    return "no-built-in-override";
   }
-
-  private void checkSymbol(Symbol symbol) {
-    for (Usage usage : symbol.usages()) {
-      if (ILLEGAL_USAGE_KINDS.contains(usage.kind())) {
-        addIssue(usage.identifierTree(), String.format(MESSAGE, symbol.name()));
-        return;
-      }
-    }
-  }
-
 }

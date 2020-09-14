@@ -1,5 +1,12 @@
 {
 'backbone:test/vendor/qunit.js':[
 16,
+46,
+],
+'backbone:test/vendor/underscore.js':[
+24,
+25,
+911,
+1429,
 ],
 }
