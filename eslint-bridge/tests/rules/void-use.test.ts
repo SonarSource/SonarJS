@@ -48,13 +48,29 @@ const testCases = {
             void function() {
             }()
             `,
-      errors: 1,
+      errors: [
+        {
+          message: `Remove this use of the \"void\" operator.`,
+          line: 2,
+          endLine: 2,
+          column: 13,
+          endColumn: 17,
+        },
+      ],
     },
     {
       code: `
             foo(void 42);
             `,
-      errors: 1,
+      errors: [
+        {
+          message: `Remove this use of the \"void\" operator.`,
+          line: 2,
+          endLine: 2,
+          column: 17,
+          endColumn: 21,
+        },
+      ],
     },
   ],
 };

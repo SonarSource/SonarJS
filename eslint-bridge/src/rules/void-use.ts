@@ -29,7 +29,11 @@ export const rule: Rule.RuleModule = {
       if (unaryExpression.argument.type === 'Literal' && 0 === unaryExpression.argument.value) {
         return;
       }
-      context.report({ node, message: 'Use "null" instead.' });
+      const operatorToken = context.getSourceCode().getTokenBefore(unaryExpression.argument);
+      context.report({
+        loc: operatorToken!.loc, // cannot be null due to previous checks
+        message: 'Remove this use of the "void" operator.',
+      });
     }
 
     return {
