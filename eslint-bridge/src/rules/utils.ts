@@ -155,8 +155,7 @@ export function getRequireCalls(context: Rule.RuleContext) {
     variable.defs.forEach(def => {
       if (
         def.type === 'Variable' &&
-        def.node.init &&
-        def.node.init.type === 'CallExpression' &&
+        def.node.init?.type === 'CallExpression' &&
         def.node.init.callee.type === 'Identifier' &&
         def.node.init.callee.name === 'require' &&
         def.node.init.arguments.length === 1
