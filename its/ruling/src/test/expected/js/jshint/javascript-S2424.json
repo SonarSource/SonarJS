@@ -1,4 +1,7 @@
 {
+'jshint:src/lex.js':[
+1152,
+],
 'jshint:tests/unit/fixtures/nativeobject.js':[
 22,
 27,

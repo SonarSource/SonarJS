@@ -1,8 +1,16 @@
 {
 'mootools-core:Source/Core/Core.js':[
+49,
+52,
+60,
 78,
+199,
+],
+'mootools-core:Source/Slick/Slick.Finder.js':[
+14,
 ],
 'mootools-core:Source/Utilities/JSON.js':[
 23,
+34,
 ],
 }
