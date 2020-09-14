@@ -1,9 +1,4 @@
 {
-'jshint:tests/unit/fixtures/es5.js':[
-61,
-66,
-71,
-],
 'jshint:tests/unit/fixtures/exported.js':[
 7,
 ],
