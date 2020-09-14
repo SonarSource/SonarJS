@@ -40,12 +40,14 @@ export const rule: Rule.RuleModule = {
       }
     }
 
+    function checkScope(scope: Scope.Scope) {
+      scope.variables.forEach(checkVariable);
+      scope.childScopes.forEach(checkScope);
+    }
+
     return {
-      '*': (node: estree.Node) => {
-        const variables = [];
-        variables.push(...context.getDeclaredVariables(node));
-        variables.push(...context.getScope().variables);
-        variables.forEach(checkVariable);
+      Program: () => {
+        checkScope(context.getScope());
       },
       'Program:exit': () => {
         overriden.forEach(node =>
