@@ -56,6 +56,7 @@ export const rule: Rule.RuleModule = {
             node,
           }),
         );
+        overriden.clear();
       },
     };
   },
