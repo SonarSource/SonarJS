@@ -5,8 +5,17 @@
 54,
 63,
 ],
+'jshint:tests/unit/fixtures/nativeobject.js':[
+3,
+17,
+23,
+28,
+],
 'jshint:tests/unit/fixtures/protoiterator.js':[
 14,
 27,
+],
+'jshint:tests/unit/module-api.js':[
+59,
 ],
 }
