@@ -19,48 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.EnumSet;
-import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @JavaScriptRule
 @Rule(key = "S3798")
-public class DeclarationInGlobalScopeCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Define this declaration in a local scope or bind explicitly the property to the global object.";
-
-  private static Set<Kind> kindsNotToBeChecked = EnumSet.of(
-    Kind.CONST_VARIABLE,
-    Kind.LET_VARIABLE,
-    Kind.CLASS,
-    Kind.IMPORT,
-    Kind.FLOW_TYPE,
-    Kind.FLOW_GENERIC_TYPE
-  );
+public class DeclarationInGlobalScopeCheck implements EslintBasedCheck {
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getContext().getSymbolModel().getSymbols()) {
-      if (symbol.scope().isGlobal() && !kindsNotToBeChecked.contains(symbol.kind()) && !symbol.external()) {
-        checkSymbol(symbol);
-      }
-    }
+  public String eslintKey() {
+    return "no-global-declaration";
   }
-
-  private void checkSymbol(Symbol symbol) {
-    for (Usage usage : symbol.usages()) {
-      if (usage.isDeclaration()) {
-        addIssue(usage.identifierTree(), MESSAGE);
-        // we raise at most one issue per symbol
-        return;
-      }
-    }
-  }
-
 }
