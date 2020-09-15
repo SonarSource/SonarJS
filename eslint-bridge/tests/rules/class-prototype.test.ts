@@ -32,7 +32,7 @@ ruleTesterJs.run('Class methods should be used instead of "prototype" assignment
     {
       code: `
           function Bar() {}
-          Foo.prototype.property = Bar; // FP - we need type information`,
+          Foo.prototype.property = Bar; // FN - we need type information`,
     },
     {
       code: `Foo.prototype = function () {};`,
