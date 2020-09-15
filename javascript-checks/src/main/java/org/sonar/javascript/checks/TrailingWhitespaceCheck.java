@@ -19,45 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.lexer.JavaScriptLexer;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.visitors.JavaScriptFile;
-import org.sonar.plugins.javascript.api.visitors.LineIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1131")
 @DeprecatedRuleKey(ruleKey = "TrailingWhitespace")
-public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
-
-  private static final String MESSAGE = "Remove the useless trailing whitespaces at the end of this line.";
+public class TrailingWhitespaceCheck implements EslintBasedCheck {
 
   @Override
-  public Set<Tree.Kind> nodesToVisit() {
-    return Collections.emptySet();
+  public String eslintKey() {
+    return "no-trailing-spaces";
   }
-
-  @Override
-  public void visitFile(Tree scriptTree) {
-    JavaScriptFile javaScriptFile = getContext().getJavaScriptFile();
-    List<String> lines = CheckUtils.readLines(javaScriptFile);
-
-    for (int i = 0; i < lines.size(); i++) {
-      String line = lines.get(i);
-
-      if (line.length() > 0 && Pattern.matches("[" + JavaScriptLexer.WHITESPACE + "]", line.subSequence(line.length() - 1, line.length()))) {
-        addIssue(new LineIssue(this, i + 1, MESSAGE));
-      }
-    }
-
-  }
-
 }
