@@ -20,33 +20,17 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3525")
-public class ClassPrototypeCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Declare a \"%s\" class and move this declaration of \"%s\" into it.";
+public class ClassPrototypeCheck implements EslintBasedCheck {
 
   @Override
-  public void visitAssignmentExpression(AssignmentExpressionTree tree) {
-    if (tree.variable().is(Kind.DOT_MEMBER_EXPRESSION) && tree.expression().types().containsOnlyAndUnique(Type.Kind.FUNCTION)) {
-      DotMemberExpressionTree lhs = (DotMemberExpressionTree) tree.variable();
-
-      if (lhs.object().is(Kind.DOT_MEMBER_EXPRESSION)) {
-        DotMemberExpressionTree prototype = (DotMemberExpressionTree) lhs.object();
-
-        if ("prototype".equals(prototype.property().name()) && prototype.object().is(Kind.IDENTIFIER_REFERENCE) && prototype.object().types().contains(Type.Kind.FUNCTION)) {
-          addIssue(lhs, String.format(MESSAGE, ((IdentifierTree) prototype.object()).name(), lhs.property().name()));
-        }
-      }
-    }
-    super.visitAssignmentExpression(tree);
+  public String eslintKey() {
+    return "class-prototype";
   }
 }

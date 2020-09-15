@@ -2,10 +2,15 @@
 'backbone:backbone.js':[
 359,
 375,
+1246,
 1251,
 ],
 'backbone:test/events.js':[
 437,
+],
+'backbone:test/vendor/json2.js':[
+175,
+188,
 ],
 'backbone:test/vendor/qunit.js':[
 2225,
@@ -25,6 +30,9 @@
 3137,
 ],
 'backbone:test/vendor/underscore.js':[
+1493,
+1507,
+1518,
 1524,
 1532,
 ],

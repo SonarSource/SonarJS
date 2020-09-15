@@ -1,6 +1,6 @@
 {
-'prototype:src/prototype/lang/class.js':[
-69,
+'prototype:test/unit/phantomjs/core-extensions.js':[
+16,
 ],
 'prototype:test/unit/phantomjs/mocha-phantomjs.js':[
 40,
@@ -20,7 +20,6 @@
 219,
 ],
 'prototype:test/unit/static/js/assertions.js':[
-157,
 160,
 ],
 'prototype:test/unit/static/js/mocha.js':[
@@ -40,7 +39,6 @@
 723,
 736,
 748,
-792,
 803,
 1373,
 1386,
@@ -59,10 +57,6 @@
 1581,
 1594,
 1980,
-2224,
-2969,
-3040,
-3180,
 3253,
 3268,
 3292,
@@ -72,11 +66,6 @@
 3386,
 3397,
 3420,
-3441,
-3535,
-3630,
-3851,
-3961,
 3972,
 3989,
 4005,
@@ -84,7 +73,6 @@
 4026,
 4041,
 4059,
-4208,
 4221,
 4238,
 4258,
@@ -102,7 +90,6 @@
 4564,
 4601,
 4629,
-4756,
 4766,
 4784,
 4800,
@@ -116,10 +103,8 @@
 4947,
 4962,
 4978,
-5023,
 ],
 'prototype:test/unit/static/js/proclaim.js':[
-300,
 302,
 311,
 ],

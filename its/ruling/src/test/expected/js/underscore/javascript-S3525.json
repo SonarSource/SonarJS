@@ -1,4 +1,7 @@
 {
+'underscore:test/collections.js':[
+518,
+],
 'underscore:test/functions.js':[
 74,
 ],
@@ -6,6 +9,9 @@
 100,
 ],
 'underscore:underscore.js':[
+1636,
+1651,
+1662,
 1668,
 1676,
 ],
