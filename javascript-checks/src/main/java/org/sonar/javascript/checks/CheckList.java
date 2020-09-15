@@ -204,7 +204,6 @@ public final class CheckList {
       NoNestedSwitchCheck.class,
       NoMagicNumbersCheck.class,
       NoRedundantJumpCheck.class,
-      NoRequireImportsCheck.class,
       NoThisAliasCheck.class,
       NonCaseLabelInSwitchCheck.class,
       NonEmptyCaseWithoutBreakCheck.class,

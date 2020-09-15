@@ -25,6 +25,7 @@
 ],
 'paper.js:examples/Node.js/Tadpoles.js':[
 4,
+5,
 ],
 'paper.js:gulp/tasks/build.js':[
 13,
@@ -100,6 +101,7 @@
 'paper.js:gulp/utils/options.js':[
 13,
 16,
+17,
 ],
 'paper.js:gulpfile.js':[
 13,

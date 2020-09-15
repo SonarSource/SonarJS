@@ -19,64 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.SeparatedList;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
+@TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S3533")
-public class NonStandardImportCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Use a standard \"import\" statement instead of \"%s(...)\".";
-
-  private static final Set<String> AMD_IMPORT_FUNCTIONS = ImmutableSet.of("require", "define");
-  private static final String COMMON_JS_IMPORT_FUNCTION = "require";
+public class NonStandardImportCheck implements EslintBasedCheck {
 
   @Override
-  public void visitCallExpression(CallExpressionTree tree) {
-    if (tree.callee().is(Kind.IDENTIFIER_REFERENCE)) {
-      IdentifierTree callee = (IdentifierTree) tree.callee();
-
-      if (callee.scope().isGlobal()) {
-        String name = callee.name();
-        SeparatedList<ExpressionTree> parameters = tree.argumentClause().arguments();
-
-        if (isAmdImport(name, parameters) || isCommonJsImport(name, parameters)) {
-          addIssue(tree.callee(), String.format(MESSAGE, name));
-        }
-      }
-    }
+  public String eslintKey() {
+    return "no-require-or-define";
   }
 
-  private static boolean isAmdImport(String callee, SeparatedList<ExpressionTree> parameters) {
-    if (AMD_IMPORT_FUNCTIONS.contains(callee)) {
-      if (parameters.size() == 3) {
-        return firstIsStringLiteral(parameters) && lastIsFunction(parameters);
-
-      } else if (parameters.size() == 2) {
-        return lastIsFunction(parameters);
-      }
-    }
-    return false;
-  }
-
-  private static boolean lastIsFunction(SeparatedList<ExpressionTree> parameters) {
-    return (parameters.get(parameters.size() - 1)).types().contains(Type.Kind.FUNCTION);
-  }
-
-  private static boolean isCommonJsImport(String callee, SeparatedList<ExpressionTree> parameters) {
-    return COMMON_JS_IMPORT_FUNCTION.equals(callee) && parameters.size() == 1 && firstIsStringLiteral(parameters);
-  }
-
-  private static boolean firstIsStringLiteral(SeparatedList<ExpressionTree> parameters) {
-    return parameters.get(0).is(Kind.STRING_LITERAL);
-  }
 }

@@ -1,17 +1,5 @@
 {
-'emission:src/lib/components/artwork_grids/artwork.tsx':[
-69,
-],
-'emission:src/lib/components/buttons/navigation_button.tsx':[
-24,
-],
 'emission:src/lib/components/home/artwork_rails/artwork_rail.tsx':[
 28,
-],
-'emission:src/lib/components/home/search_bar.tsx':[
-25,
-],
-'emission:src/lib/relay/config.tsx':[
-33,
 ],
 }
