@@ -256,7 +256,6 @@ public final class CheckList {
       ReturnOfBooleanExpressionCheck.class,
       ReturnValueNotIgnoredCheck.class,
       SameLineConditionalCheck.class,
-      SameModuleImportsCheck.class,
       SelectionTestedWithoutLengthCheck.class,
       SelfAssignmentCheck.class,
       SemicolonCheck.class,
