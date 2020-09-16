@@ -41,7 +41,7 @@ only_sonarsource_qa: &ONLY_SONARSOURCE_QA
 
 build_task:
   gke_container:
-    dockerfile: .cirrus/nodejs-lts.Dockerfile
+    dockerfile: .cirrus/nodejs-12.Dockerfile
     <<: *CONTAINER_DEFINITION
     cpu: 6
     memory: 8G
@@ -77,7 +77,7 @@ plugin_qa_task:
     - build
   <<: *ONLY_SONARSOURCE_QA
   gke_container:
-    dockerfile: .cirrus/nodejs-lts.Dockerfile
+    dockerfile: .cirrus/nodejs-12.Dockerfile
     <<: *CONTAINER_DEFINITION
     cpu: 3
     memory: 8G
@@ -96,12 +96,15 @@ plugin_qa_task:
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
   cleanup_before_cache_script: cleanup_maven_repository
 
-plugin_qa_nodejs12_task:
+plugin_qa_nodejs_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
   gke_container:
-    dockerfile: .cirrus/nodejs-12.Dockerfile
+    matrix:
+      - dockerfile: .cirrus/nodejs-8.Dockerfile
+      - dockerfile: .cirrus/nodejs-10.Dockerfile
+      - dockerfile: .cirrus/nodejs-12.Dockerfile
     <<: *CONTAINER_DEFINITION
     cpu: 3
     memory: 8G
@@ -124,7 +127,7 @@ plugin_qa_win_task:
   <<: *ONLY_SONARSOURCE_QA
   env:
     SONARSOURCE_QA: true
-    SQ_VERSION: LATEST_RELEASE[7.9]
+    SQ_VERSION: LATEST_RELEASE
   maven_cache:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
@@ -139,7 +142,7 @@ ruling_task:
     - build
   <<: *ONLY_SONARSOURCE_QA
   gke_container:
-    dockerfile: .cirrus/nodejs-lts.Dockerfile
+    dockerfile: .cirrus/nodejs-12.Dockerfile
     <<: *CONTAINER_DEFINITION
     cpu: 4
     memory: 12G
@@ -169,11 +172,11 @@ promote_task:
     - build_win
     - plugin_qa
     - plugin_qa_win
-    - plugin_qa_nodejs12
+    - plugin_qa_nodejs
     - ruling
   <<: *ONLY_SONARSOURCE_QA
   gke_container:
-    dockerfile: .cirrus/nodejs-lts.Dockerfile
+    dockerfile: .cirrus/nodejs-12.Dockerfile
     <<: *CONTAINER_DEFINITION
     cpu: 1
     memory: 1G
