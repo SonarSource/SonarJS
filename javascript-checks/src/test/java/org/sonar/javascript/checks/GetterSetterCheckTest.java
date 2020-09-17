@@ -19,14 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetterSetterCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new GetterSetterCheck(), new File("src/test/resources/checks/GetterSetter.js"));
+    String configAsString = new Gson().toJson(new GetterSetterCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"getWithoutSet\":true}]");
   }
 }
