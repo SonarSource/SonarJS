@@ -14,7 +14,8 @@
   "ruleSpecification": "RSPEC-135",
   "sqKey": "S135",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "All"
 }
