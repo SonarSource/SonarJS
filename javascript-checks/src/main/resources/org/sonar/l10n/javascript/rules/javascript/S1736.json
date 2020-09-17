@@ -14,7 +14,8 @@
   "ruleSpecification": "RSPEC-1763",
   "sqKey": "S1736",
   "compatibleLanguages": [
-    "JAVASCRIPT"
+    "JAVASCRIPT",
+    "TYPESCRIPT"
   ],
   "scope": "All",
   "securityStandards": {
