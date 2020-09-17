@@ -1,0 +1,14 @@
+{
+'emission:src/lib/components/home/artist_rails/artist_rail.tsx':[
+163,
+],
+'emission:src/lib/containers/artist.tsx':[
+86,
+],
+'emission:src/lib/containers/gene.tsx':[
+115,
+],
+'emission:src/lib/containers/home.tsx':[
+103,
+],
+}
