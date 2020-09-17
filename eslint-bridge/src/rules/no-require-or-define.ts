@@ -61,7 +61,8 @@ function isAmdImport(
   if (callExpression.arguments.length !== 2 && callExpression.arguments.length !== 3) {
     return false;
   }
+  const lastArgumentType = callExpression.arguments[callExpression.arguments.length - 1].type;
   return (
-    callExpression.arguments[callExpression.arguments.length - 1].type === 'FunctionExpression'
+    lastArgumentType === 'FunctionExpression' || lastArgumentType === 'ArrowFunctionExpression'
   );
 }

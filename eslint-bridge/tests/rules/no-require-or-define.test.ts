@@ -128,6 +128,12 @@ const testCases = {
     },
     {
       code: `
+            define("ModuleName", [], (a) => {return a});
+            `,
+      errors: 1,
+    },
+    {
+      code: `
             const circle = require('./circle.js');
             `,
       errors: 1,
