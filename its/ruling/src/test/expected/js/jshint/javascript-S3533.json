@@ -11,6 +11,7 @@
 'jshint:scripts/remove-dev-dependencies.js':[
 13,
 14,
+16,
 ],
 'jshint:src/cli.js':[
 3,
@@ -76,6 +77,8 @@
 5,
 6,
 8,
+9,
+12,
 ],
 'jshint:tests/helpers/fixture.js':[
 5,
