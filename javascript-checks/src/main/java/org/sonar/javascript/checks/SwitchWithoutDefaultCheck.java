@@ -19,44 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Iterables;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S131")
 @DeprecatedRuleKey(ruleKey = "SwitchWithoutDefault")
-public class SwitchWithoutDefaultCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String ADD_DEFAULT_MESSAGE = "Add a \"default\" clause to this \"switch\" statement.";
-  private static final String MOVE_DEFAULT_MESSAGE = "Move this \"default\" clause to the end of this \"switch\" statement.";
+public class SwitchWithoutDefaultCheck implements EslintBasedCheck {
 
   @Override
-  public void visitSwitchStatement(SwitchStatementTree tree) {
-    DefaultClauseTree defaultClause = getDefaultClause(tree);
-    if (defaultClause == null) {
-      addIssue(tree.switchKeyword(), ADD_DEFAULT_MESSAGE);
-
-    } else if (!Iterables.getLast(tree.cases()).is(Kind.DEFAULT_CLAUSE)) {
-      addIssue(defaultClause.keyword(), MOVE_DEFAULT_MESSAGE);
-    }
-    super.visitSwitchStatement(tree);
+  public String eslintKey() {
+    return "switch-without-default";
   }
-
-  private static DefaultClauseTree getDefaultClause(SwitchStatementTree switchStmt) {
-    for (SwitchClauseTree clause : switchStmt.cases()) {
-
-      if (clause.is(Kind.DEFAULT_CLAUSE)) {
-        return (DefaultClauseTree) clause;
-      }
-    }
-    return null;
-  }
-
 }
