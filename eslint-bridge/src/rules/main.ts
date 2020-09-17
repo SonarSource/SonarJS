@@ -125,6 +125,7 @@ import { rule as sonarMaxLinesPerFunction } from './sonar-max-lines-per-function
 import { rule as sonarMaxLines } from './sonar-max-lines';
 import { rule as sqlQueries } from './sql-queries';
 import { rule as standardInput } from './standard-input';
+import { rule as switchWithoutDefault } from './switch-without-default';
 import { rule as todoTag } from './todo-tag';
 import { rule as unusedImport } from './unused-import';
 import { rule as updatedConstVar } from './updated-const-var';
@@ -245,6 +246,7 @@ ruleModules['sonar-max-lines-per-function'] = sonarMaxLinesPerFunction;
 ruleModules['sonar-max-lines'] = sonarMaxLines;
 ruleModules['sql-queries'] = sqlQueries;
 ruleModules['standard-input'] = standardInput;
+ruleModules['switch-without-default'] = switchWithoutDefault;
 ruleModules['todo-tag'] = todoTag;
 ruleModules['unused-import'] = unusedImport;
 ruleModules['updated-const-var'] = updatedConstVar;
