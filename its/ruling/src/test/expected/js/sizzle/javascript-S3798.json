@@ -5,10 +5,11 @@
 'sizzle:tasks/ensure_ascii.js':[
 3,
 ],
+'sizzle:test/data/testingPseudos.js':[
+2,
+],
 'sizzle:test/data/testinit.js':[
-26,
 44,
-67,
 72,
 102,
 ],
@@ -16,6 +17,6 @@
 3,
 ],
 'sizzle:test/unit/utilities.js':[
-3,
+347,
 ],
 }

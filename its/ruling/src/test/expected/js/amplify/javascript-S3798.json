@@ -2,8 +2,17 @@
 'amplify:lib/amplify-vsdoc.js':[
 12,
 ],
+'amplify:lib/amplify.js':[
+513,
+],
+'amplify:lib/amplify.request.js':[
+107,
+],
 'amplify:src/amplify-vsdoc.js':[
 3,
+],
+'amplify:src/request.js':[
+98,
 ],
 'amplify:test-jquery-versions.js':[
 2,
@@ -15,7 +24,6 @@
 11,
 12,
 13,
-15,
 ],
 'amplify:test-server.js':[
 2,
@@ -40,7 +48,6 @@
 'amplify:test/request/routes/echoraw-route.js':[
 2,
 4,
-6,
 ],
 'amplify:test/request/routes/headers-route.js':[
 2,
@@ -54,9 +61,11 @@
 'amplify:test/request/routes/jsonp-route.js':[
 2,
 3,
-6,
 ],
 'amplify:test/store/routes/index.js':[
 2,
+],
+'amplify:test/store/unit.js':[
+30,
 ],
 }
