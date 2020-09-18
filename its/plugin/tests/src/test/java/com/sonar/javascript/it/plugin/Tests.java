@@ -46,6 +46,7 @@ import static java.util.Collections.singletonList;
 //  CustomRulesTest.class,
 //  CustomRulesWithDeprecatedPluginTest.class,
 //  TypeScriptRuleTest.class,
+//  EslintCustomRulesTest.class,
   EslintBasedRulesTest.class,
   EslintReportTest.class,
   MetricsTest.class,

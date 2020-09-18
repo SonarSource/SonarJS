@@ -23,9 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
@@ -74,7 +72,6 @@ abstract class AbstractEslintSensor implements Sensor {
   @VisibleForTesting
   final Rule[] rules;
   final AbstractChecks checks;
-  private final RulesBundles rulesBundles;
 
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
@@ -84,7 +81,7 @@ abstract class AbstractEslintSensor implements Sensor {
 
   AbstractEslintSensor(AbstractChecks checks, NoSonarFilter noSonarFilter,
                        FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-                       @Nullable AnalysisWarnings analysisWarnings, RulesBundles rulesBundles) {
+                       @Nullable AnalysisWarnings analysisWarnings) {
     this.checks = checks;
     this.rules = checks.eslintBasedChecks().stream()
       .map(check -> new EslintBridgeServer.Rule(check.eslintKey(), check.configurations()))
@@ -99,7 +96,11 @@ abstract class AbstractEslintSensor implements Sensor {
       .filter(check -> check instanceof ParsingErrorCheck)
       .findFirst()
       .map(checks::ruleKeyFor).orElse(null);
-    this.rulesBundles = rulesBundles;
+  }
+
+  @VisibleForTesting
+  AnalysisWarnings getAnalysisWarnings() {
+    return analysisWarnings;
   }
 
   @Override
@@ -133,8 +134,7 @@ abstract class AbstractEslintSensor implements Sensor {
   }
 
   private void startBridge(SensorContext context) throws IOException {
-    List<Path> deployedBundles = rulesBundles.deploy();
-    eslintBridgeServer.startServerLazily(context, deployedBundles);
+    eslintBridgeServer.startServerLazily(context);
   }
 
   abstract void analyzeFiles() throws IOException, InterruptedException;
