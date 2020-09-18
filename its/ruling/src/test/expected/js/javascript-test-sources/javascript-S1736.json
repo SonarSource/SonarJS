@@ -1,6 +1,5 @@
 {
-'javascript-test-sources:src/ecmascript6/http/test/mocks/Xhr.js':[
-80,
-94,
+'javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/histogram.js':[
+38,
 ],
 }
