@@ -63,21 +63,21 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, NoSonarFilter noSonarFilter,
                           FileLinesContextFactory fileLinesContextFactory,
                           EslintBridgeServer eslintBridgeServer,
-                          TempFolder tempFolder, RulesBundles rulesBundles) {
-    this(typeScriptChecks, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, tempFolder, rulesBundles);
+                          TempFolder tempFolder) {
+    this(typeScriptChecks, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, tempFolder);
   }
 
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, NoSonarFilter noSonarFilter,
                           FileLinesContextFactory fileLinesContextFactory,
                           EslintBridgeServer eslintBridgeServer,
                           @Nullable AnalysisWarnings analysisWarnings,
-                          TempFolder tempFolder, RulesBundles rulesBundles) {
+                          TempFolder tempFolder) {
     super(typeScriptChecks,
       noSonarFilter,
       fileLinesContextFactory,
       eslintBridgeServer,
-      analysisWarnings,
-      rulesBundles);
+      analysisWarnings
+    );
     this.tempFolder = tempFolder;
   }
 

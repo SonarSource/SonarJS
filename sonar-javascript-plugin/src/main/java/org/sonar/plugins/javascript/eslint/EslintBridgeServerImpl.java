@@ -64,15 +64,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private int port;
   private NodeCommand nodeCommand;
   private boolean failedToStart;
+  private RulesBundles rulesBundles;
 
   // Used by pico container for dependency injection
-  @SuppressWarnings("unused")
-  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle) {
-    this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle);
+  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles) {
+    this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle, rulesBundles);
   }
 
   EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, int timeoutSeconds,
-                         Bundle bundle) {
+                         Bundle bundle, RulesBundles rulesBundles) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
@@ -80,6 +80,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .callTimeout(Duration.ofSeconds(timeoutSeconds))
       .readTimeout(Duration.ofSeconds(timeoutSeconds))
       .build();
+    this.rulesBundles = rulesBundles;
+  }
+
+  int getTimeoutSeconds() {
+    return timeoutSeconds;
   }
 
   void deploy() throws IOException {
@@ -132,7 +137,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   @Override
-  public void startServerLazily(SensorContext context, List<Path> deployedBundles) throws IOException {
+  public void startServerLazily(SensorContext context) throws IOException {
     // required for SonarLint context to avoid restarting already failed server
     if (failedToStart) {
       throw new ServerAlreadyFailedException();
@@ -144,6 +149,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
         return;
       }
       deploy();
+      List<Path> deployedBundles = rulesBundles.deploy();
       startServer(context, deployedBundles);
     } catch (NodeCommandException e) {
       failedToStart = true;

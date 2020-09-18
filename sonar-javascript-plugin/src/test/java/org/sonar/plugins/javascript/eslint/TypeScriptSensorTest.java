@@ -68,7 +68,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TypeScriptChecks;
-import org.sonar.plugins.javascript.api.RulesBundle;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
@@ -466,6 +465,17 @@ public class TypeScriptSensorTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
   }
 
+  @Test
+  public void test_sonarlint_constructor() {
+    TypeScriptSensor typeScriptSensor = new TypeScriptSensor(
+      checks(ESLINT_BASED_RULE, "S2260"),
+      new NoSonarFilter(),
+      fileLinesContextFactory,
+      eslintBridgeServerMock,
+      tempFolder);
+    assertThat(typeScriptSensor.getAnalysisWarnings()).isNull();
+  }
+
   private TypeScriptSensor createSensor() {
     return new TypeScriptSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
@@ -473,7 +483,7 @@ public class TypeScriptSensorTest {
       fileLinesContextFactory,
       eslintBridgeServerMock,
       analysisWarningsMock,
-      tempFolder, new RulesBundles(new RulesBundle[]{}, tempFolder));
+      tempFolder);
   }
 
   private AnalysisResponse createResponse() {

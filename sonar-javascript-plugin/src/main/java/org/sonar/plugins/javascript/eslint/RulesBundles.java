@@ -36,7 +36,7 @@ import org.sonar.plugins.javascript.api.RulesBundle;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
-@SonarLintSide
+@SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
 public class RulesBundles {
 
   private static final Logger LOG = Loggers.get(RulesBundles.class);

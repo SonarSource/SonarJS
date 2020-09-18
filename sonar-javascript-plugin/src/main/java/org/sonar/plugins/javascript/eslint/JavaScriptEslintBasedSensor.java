@@ -55,20 +55,19 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
    */
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
                                      FileLinesContextFactory fileLinesContextFactory,
-                                     EslintBridgeServer eslintBridgeServer,
-                                     RulesBundles rulesBundles) {
-    this(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, rulesBundles);
+                                     EslintBridgeServer eslintBridgeServer) {
+    this(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null);
   }
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
                                      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-                                     @Nullable AnalysisWarnings analysisWarnings, RulesBundles rulesBundles) {
+                                     @Nullable AnalysisWarnings analysisWarnings) {
     super(checks,
       noSonarFilter,
       fileLinesContextFactory,
       eslintBridgeServer,
-      analysisWarnings,
-      rulesBundles);
+      analysisWarnings
+    );
   }
 
   @Override
