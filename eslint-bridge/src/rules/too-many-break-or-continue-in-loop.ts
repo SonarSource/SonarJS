@@ -77,10 +77,6 @@ export const rule: Rule.RuleModule = {
         const continueStatement = node as estree.ContinueStatement;
         increateNumberOfJumpsInScopes(continueStatement, continueStatement.label?.name);
       },
-      FunctionExpression: enterScope,
-      'FunctionExpression:exit': leaveScope,
-      FunctionDeclaration: enterScope,
-      'FunctionDeclaration:exit': leaveScope,
       SwitchStatement: enterScope,
       'SwitchStatement:exit': leaveScope,
       ForStatement: enterScope,
