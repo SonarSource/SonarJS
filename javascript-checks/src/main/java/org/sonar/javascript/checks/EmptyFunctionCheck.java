@@ -20,60 +20,17 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1186")
-public class EmptyFunctionCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Add a nested comment explaining why this function is empty or complete the implementation.";
+public class EmptyFunctionCheck implements EslintBasedCheck {
 
   @Override
-  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    checkFunction(tree, tree.name());
-    super.visitFunctionDeclaration(tree);
+  public String eslintKey() {
+    return "no-empty-function";
   }
-
-  @Override
-  public void visitFunctionExpression(FunctionExpressionTree tree) {
-    checkFunction(tree, tree.functionKeyword());
-    super.visitFunctionExpression(tree);
-  }
-
-  @Override
-  public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    checkFunction(tree, tree.name());
-    super.visitMethodDeclaration(tree);
-  }
-
-  @Override
-  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
-    checkFunction(tree, tree.name());
-    super.visitAccessorMethodDeclaration(tree);
-  }
-
-  @Override
-  public void visitArrowFunction(ArrowFunctionTree tree) {
-    checkFunction(tree, tree.body());
-    super.visitArrowFunction(tree);
-  }
-
-  private void checkFunction(FunctionTree tree, Tree issueLocationTree) {
-    if (tree.body() instanceof BlockTree) {
-      BlockTree body = (BlockTree) tree.body();
-      if (body.statements().isEmpty() && body.closeCurlyBraceToken().trivias().isEmpty()) {
-        addIssue(issueLocationTree, MESSAGE);
-      }
-    }
-  }
-
 }
