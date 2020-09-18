@@ -4,12 +4,9 @@
 312,
 ],
 'es5-shim:es5-shim.js':[
-80,
 178,
 201,
 211,
-1001,
-1347,
 1497,
 1498,
 1499,
@@ -31,7 +28,6 @@
 1837,
 1838,
 1884,
-2024,
 ],
 'es5-shim:tests/lib/jasmine-html.js':[
 113,
@@ -45,7 +41,6 @@
 1182,
 ],
 'es5-shim:tests/spec/s-date.js':[
-11,
 123,
 124,
 125,
@@ -107,14 +102,10 @@
 495,
 500,
 ],
-'es5-shim:tests/spec/s-error.js':[
-8,
-],
 'es5-shim:tests/spec/s-number.js':[
 20,
 ],
 'es5-shim:tests/spec/s-object.js':[
-8,
 325,
 ],
 }

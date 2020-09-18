@@ -19,63 +19,44 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
-import java.util.regex.Pattern;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S139")
 @DeprecatedRuleKey(ruleKey = "TrailingComment")
-public class TrailingCommentCheck extends SubscriptionVisitorCheck {
+public class TrailingCommentCheck implements EslintBasedCheck {
 
-  private static final String MESSAGE = "Move this trailing comment on the previous empty line.";
-
-  private static final String DEFAULT_LEGAL_COMMENT_PATTERN = "^//\\s*+[^\\s]++$";
-
+  private static final String DEFAULT_LEGAL_COMMENT_PATTERN = "^\\s*[^\\s]+$";
   @RuleProperty(
-    key = "legalCommentPattern",
-    description = "Pattern for text of trailing comments that are allowed.",
-    defaultValue = DEFAULT_LEGAL_COMMENT_PATTERN)
+    key = "pattern",
+    description = "Pattern (JavaScript syntax) for text of trailing comments that are allowed.",
+    defaultValue = DEFAULT_LEGAL_COMMENT_PATTERN
+  )
   private String legalCommentPattern = DEFAULT_LEGAL_COMMENT_PATTERN;
 
-  private Pattern pattern;
-  private int previousTokenLine;
-
   @Override
-  public Set<Tree.Kind> nodesToVisit() {
-    return ImmutableSet.of(Tree.Kind.TOKEN);
+  public String eslintKey() {
+    return "line-comment-position";
   }
 
   @Override
-  public void visitFile(Tree tree) {
-    previousTokenLine = -1;
-    pattern = Pattern.compile(legalCommentPattern);
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config(legalCommentPattern));
   }
 
-  @Override
-  public void visitNode(Tree tree) {
-    SyntaxToken token = (SyntaxToken) tree;
-    for (SyntaxTrivia trivia : token.trivias()) {
-      if (trivia.line() == previousTokenLine) {
-        String comment = trivia.text();
-        if (comment.startsWith("//") && !pattern.matcher(comment).matches()) {
-          addIssue(trivia, MESSAGE);
-        }
-      }
+  private static class Config {
+    String ignorePattern;
+
+    Config(String ignorePattern) {
+      this.ignorePattern = ignorePattern;
     }
-    previousTokenLine = token.line();
   }
-
-  public void setLegalCommentPattern(String pattern) {
-    this.legalCommentPattern = pattern;
-  }
-
 }

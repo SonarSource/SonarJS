@@ -19,27 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrailingCommentCheckTest {
-
-  TrailingCommentCheck check = new TrailingCommentCheck();
-
   @Test
-  public void defaults() {
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/trailingComment.js"));
+  public void configurations() {
+    TrailingCommentCheck check = new TrailingCommentCheck();
+
+    // default configuration
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"ignorePattern\":\"^\\\\s*[^\\\\s]+$\"}]");
   }
-
-  @Test
-  public void test() {
-    check.setLegalCommentPattern("");
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/trailingComment.js"))
-      .next().atLine(2).withMessage("Move this trailing comment on the previous empty line.")
-      .next().atLine(9)
-      .noMore();
-  }
-
 }
