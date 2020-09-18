@@ -20,21 +20,20 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S909")
 @DeprecatedRuleKey(ruleKey = "ContinueStatement")
-public class ContinueStatementCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Remove this \"continue\" statement.";
+public class ContinueStatementCheck implements EslintBasedCheck {
 
   @Override
-  public void visitContinueStatement(ContinueStatementTree tree) {
-    addIssue(tree, MESSAGE);
+  public String eslintKey() {
+    return "no-continue";
   }
-
 }
