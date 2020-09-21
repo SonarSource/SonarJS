@@ -106,7 +106,7 @@ function isSafe(ref: Scope.Reference, loopNode: LoopLike) {
     const declaration = definition && definition.parent;
     const kind = declaration && declaration.type === 'VariableDeclaration' ? declaration.kind : '';
 
-    if (kind !== 'let') {
+    if (kind !== 'let' && kind !== 'const') {
       return hasConstValue(variable, loopNode);
     }
   }
