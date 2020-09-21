@@ -19,10 +19,9 @@
  */
 package org.sonar.javascript.it;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
@@ -34,10 +33,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -46,7 +45,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.wsclient.SonarClient;
+import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.qualityprofiles.ActivateRuleRequest;
+import org.sonarqube.ws.client.qualityprofiles.SearchRequest;
+import org.sonarqube.ws.client.rules.CreateRequest;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -177,34 +182,46 @@ public class JavaScriptRulingTest {
   }
 
   private static void instantiateTemplateRule(String language, String qualityProfile, String ruleTemplateKey, String instantiationKey, String params) {
-    SonarClient sonarClient = orchestrator.getServer().adminWsClient();
     String keyPrefix = "ts".equals(language) ? "typescript:" : "javascript:";
-    sonarClient.post("/api/rules/create", ImmutableMap.<String, Object>builder()
-      .put("name", instantiationKey)
-      .put("markdown_description", instantiationKey)
-      .put("severity", "INFO")
-      .put("status", "READY")
-      .put("template_key", keyPrefix + ruleTemplateKey)
-      .put("custom_key", instantiationKey)
-      .put("prevent_reactivation", "true")
-      .put("params", "name=\"" + instantiationKey + "\";key=\"" + instantiationKey + "\";markdown_description=\"" + instantiationKey + "\";" + params)
-      .build());
-    String post = sonarClient.get("api/qualityprofiles/search", "language", language, "qualityProfile", qualityProfile);
+    newAdminWsClient(orchestrator)
+      .rules()
+      .create(new CreateRequest()
+        .setName(instantiationKey)
+        .setMarkdownDescription(instantiationKey)
+        .setSeverity("INFO")
+        .setStatus("READY")
+        .setTemplateKey(keyPrefix + ruleTemplateKey)
+        .setCustomKey(instantiationKey)
+        .setPreventReactivation("true")
+        .setParams(Arrays.asList(("name=\"" + instantiationKey + "\";key=\"" + instantiationKey + "\";markdown_description=\"" + instantiationKey + "\";" + params).split(";", 0))));
 
-    Map rulesProfile = new Gson().fromJson(post, Map.class);
-    String profileKey = ((List<Map>) rulesProfile.get("profiles")).stream()
-      .findFirst().map(profileDescription -> (String) profileDescription.get("key")).orElse(null);
 
-    if (profileKey != null) {
-      String response = sonarClient.post("api/qualityprofiles/activate_rule", ImmutableMap.of(
-        "profile_key", profileKey,
-        "rule_key", keyPrefix + instantiationKey,
-        "severity", "INFO",
-        "params", ""));
-      LOG.warn(response);
+    String profileKey = newAdminWsClient(orchestrator).qualityprofiles()
+      .search(new SearchRequest().setLanguage(language))
+      .getProfilesList().stream()
+      .filter(qp -> qualityProfile.equals(qp.getName()))
+      .map(Qualityprofiles.SearchWsResponse.QualityProfile::getKey)
+      .findFirst()
+      .orElse(null);
+
+    if (!StringUtils.isEmpty(profileKey)) {
+      newAdminWsClient(orchestrator).qualityprofiles()
+        .activateRule(new ActivateRuleRequest()
+        .setKey(profileKey)
+        .setRule(keyPrefix + instantiationKey)
+        .setSeverity("INFO")
+        .setParams(Collections.emptyList()));
+      LOG.warn(String.format("Successfully activated template rule '%s'", keyPrefix + instantiationKey));
     } else {
       throw new IllegalStateException("Could not retrieve profile key : Template rule " + ruleTemplateKey + " has not been activated");
     }
+  }
+
+  static WsClient newAdminWsClient(Orchestrator orchestrator) {
+    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+      .credentials(Server.ADMIN_LOGIN, Server.ADMIN_PASSWORD)
+      .url(orchestrator.getServer().getUrl())
+      .build());
   }
 
 }
