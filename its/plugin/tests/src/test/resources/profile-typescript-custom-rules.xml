@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>ts-custom-rules-profile</name>
+  <language>ts</language>
+  <rules>
+    <rule>
+      <repositoryKey>eslint-custom-rules</repositoryKey>
+      <key>sqKey</key>
+      <priority>MAJOR</priority>
+    </rule>
+    <rule>
+      <repositoryKey>ts-custom-rules</repositoryKey>
+      <key>tsRuleKey</key>
+      <priority>MAJOR</priority>
+    </rule>
+  </rules>
+</profile>
+

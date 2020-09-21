@@ -86,6 +86,7 @@ public class CustomRulesTest {
       .addPlugin(FileLocation.byWildcardMavenFilename(
         new File("../plugins/" + customRulesArtifactId + "/target"), customRulesArtifactId + "-*.jar"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-typescript-custom-rules.xml"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
       .build();
     orchestrator.start();
@@ -102,6 +103,7 @@ public class CustomRulesTest {
       .setSourceDirs("src");
     orchestrator.getServer().provisionProject("custom-rules", "Custom Rules");
     orchestrator.getServer().associateProjectToQualityProfile("custom-rules", "js", "javascript-custom-rules-profile");
+    orchestrator.getServer().associateProjectToQualityProfile("custom-rules", "ts", "ts-custom-rules-profile");
     return orchestrator.executeBuild(build);
   }
 

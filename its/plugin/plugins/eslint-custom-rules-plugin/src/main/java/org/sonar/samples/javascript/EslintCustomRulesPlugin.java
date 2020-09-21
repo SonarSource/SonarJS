@@ -26,6 +26,6 @@ public class EslintCustomRulesPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
-    context.addExtensions(EslintRulesBundle.class, CustomRulesDefinition.class, RuleRepository.class);
+    context.addExtensions(EslintRulesBundle.class, CustomRulesDefinition.class, RuleRepository.class, TsRepository.class);
   }
 }

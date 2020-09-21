@@ -42,4 +42,21 @@ exports.rules = [
     },
     ruleConfig: [],
   },
+  {
+    ruleId: "tsrule",
+    ruleModule: {
+      create(context) {
+        return {
+          CallExpression(node) {
+            console.log("ts rule detected call expression");
+            context.report({
+              node: node.callee,
+              message: "tsrule call",
+            });
+          },
+        };
+      },
+    },
+    ruleConfig: [],
+  },
 ];

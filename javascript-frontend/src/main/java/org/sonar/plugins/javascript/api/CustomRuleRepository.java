@@ -19,7 +19,9 @@
  */
 package org.sonar.plugins.javascript.api;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -27,12 +29,19 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * This interface should be implemented by custom rules plugins to register their rules with SonarJS
  *
  * @deprecated since 6.0. Consider using ESlint custom rules with external issue import instead.
- *
  */
 @ScannerSide
 @SonarLintSide
 @Deprecated
 public interface CustomRuleRepository {
+
+  enum Language {
+    JAVASCRIPT, TYPESCRIPT
+  }
+
+  default Set<Language> languages() {
+    return EnumSet.of(Language.JAVASCRIPT);
+  }
 
   /**
    * Key of the custom rule repository.
@@ -41,6 +50,7 @@ public interface CustomRuleRepository {
 
   /**
    * List of the custom rules classes.
+   *
    * @return
    */
   List<Class<? extends JavaScriptCheck>> checkClasses();
