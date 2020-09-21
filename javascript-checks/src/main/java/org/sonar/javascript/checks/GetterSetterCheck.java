@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
@@ -32,17 +33,21 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2376")
 public class GetterSetterCheck implements EslintBasedCheck {
 
+  private static final boolean DEFAULT_GET_WITHOUT_SET = false;
+
+  @RuleProperty(
+    key = "getWithoutSet",
+    description = "s",
+    defaultValue = "" + DEFAULT_GET_WITHOUT_SET)
+  boolean getWithoutSet = DEFAULT_GET_WITHOUT_SET;
+
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config());
+    return Collections.singletonList(getWithoutSet);
   }
 
   @Override
   public String eslintKey() {
     return "accessor-pairs";
-  }
-
-  private static class Config {
-    boolean getWithoutSet = true;
   }
 }

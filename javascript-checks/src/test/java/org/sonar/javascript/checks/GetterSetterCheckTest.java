@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.gson.Gson;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,8 +26,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GetterSetterCheckTest {
 
   @Test
-  public void test() {
-    String configAsString = new Gson().toJson(new GetterSetterCheck().configurations());
-    assertThat(configAsString).isEqualTo("[{\"getWithoutSet\":true}]");
+  public void configutestrations() {
+    GetterSetterCheck check = new GetterSetterCheck();
+    // default configuration
+    assertThat(check.configurations()).containsExactly(false);
+    // custom configuration
+    check.getWithoutSet = true;
+    assertThat(check.configurations()).containsExactly(true);
   }
 }
