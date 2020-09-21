@@ -40,7 +40,7 @@ public class TrailingCommentCheck implements EslintBasedCheck {
     description = "Pattern (JavaScript syntax) for text of trailing comments that are allowed.",
     defaultValue = DEFAULT_LEGAL_COMMENT_PATTERN
   )
-  private String legalCommentPattern = DEFAULT_LEGAL_COMMENT_PATTERN;
+  String legalCommentPattern = DEFAULT_LEGAL_COMMENT_PATTERN;
 
   @Override
   public String eslintKey() {

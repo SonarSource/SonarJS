@@ -32,5 +32,10 @@ public class TrailingCommentCheckTest {
     // default configuration
     String defaultConfigAsString = new Gson().toJson(check.configurations());
     assertThat(defaultConfigAsString).isEqualTo("[{\"ignorePattern\":\"^\\\\s*[^\\\\s]+$\"}]");
+
+    // custom configuration
+    check.legalCommentPattern = "^[ignored]*$";
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"ignorePattern\":\"^[ignored]*$\"}]");
   }
 }
