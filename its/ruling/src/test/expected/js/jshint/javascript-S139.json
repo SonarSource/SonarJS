@@ -84,9 +84,6 @@
 1194,
 2002,
 ],
-'jshint:tests/unit/fixtures/const.js':[
-48,
-],
 'jshint:tests/unit/fixtures/default-arguments.js':[
 11,
 12,
@@ -99,11 +96,6 @@
 ],
 'jshint:tests/unit/fixtures/eqeqeq.js':[
 8,
-],
-'jshint:tests/unit/fixtures/gh870.js':[
-4,
-8,
-9,
 ],
 'jshint:tests/unit/fixtures/identifiers.js':[
 8,
@@ -131,10 +123,6 @@
 32,
 33,
 ],
-'jshint:tests/unit/fixtures/nestedFunctions.js':[
-68,
-69,
-],
 'jshint:tests/unit/fixtures/peek-over-directives.js':[
 18,
 21,
@@ -148,12 +136,6 @@
 73,
 80,
 86,
-],
-'jshint:tests/unit/fixtures/redef-es6.js':[
-353,
-],
-'jshint:tests/unit/fixtures/strings.js':[
-26,
 ],
 'jshint:tests/unit/fixtures/undef.js':[
 1,

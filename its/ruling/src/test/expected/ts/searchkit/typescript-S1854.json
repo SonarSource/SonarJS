@@ -2,11 +2,11 @@
 'searchkit:src/__test__/core/AccessorManagerSpec.ts':[
 164,
 ],
-'searchkit:src/__test__/core/query/ImmutableQuerySpec.ts':[
-88,
-],
 'searchkit:src/__test__/core/SearchkitManagerSpec.ts':[
 94,
+],
+'searchkit:src/__test__/core/query/ImmutableQuerySpec.ts':[
+88,
 ],
 'searchkit:src/components/search/filters/input-filter/InputFilter.tsx':[
 95,
@@ -55,5 +55,5 @@
 51,
 51,
 51,
-]
+],
 }

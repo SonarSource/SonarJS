@@ -4,5 +4,5 @@
 ],
 'postgraphql:src/postgres/introspection/introspectDatabase.ts':[
 33,
-]
+],
 }
