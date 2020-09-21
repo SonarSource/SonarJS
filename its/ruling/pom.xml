@@ -29,6 +29,12 @@
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
       <artifactId>sonar-orchestrator</artifactId>
+      <version>${sonar-orchestrator.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-ws</artifactId>
+      <version>7.9.1</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.gson</groupId>
