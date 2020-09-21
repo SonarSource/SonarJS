@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2020 SonarSource SA
+ * Copyright (C) 2011-2020 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,31 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.samples.javascript;
+package org.sonar.plugins.javascript.api;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
-import org.sonar.plugins.javascript.api.CustomRuleRepository;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.junit.Test;
 
-public class RuleRepository implements CustomRuleRepository {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public static final String REPOSITORY_KEY = "eslint-custom-rules";
 
-  @Override
-  public Set<CustomRuleRepository.Language> languages() {
-    return EnumSet.of(Language.JAVASCRIPT, Language.TYPESCRIPT);
+public class CustomRuleRepositoryTest {
+
+  @Test
+  public void test() {
+    MyRepository repo = new MyRepository();
+    assertThat(repo.languages()).containsExactly(CustomRuleRepository.Language.JAVASCRIPT);
   }
 
-  @Override
-  public String repositoryKey() {
-    return REPOSITORY_KEY;
+  static class MyRepository implements CustomRuleRepository {
+
+    @Override
+    public String repositoryKey() {
+      return "key";
+    }
+
+    @Override
+    public List<Class<? extends JavaScriptCheck>> checkClasses() {
+      return Collections.singletonList(Check.class);
+    }
   }
 
-  @Override
-  public List<Class<? extends JavaScriptCheck>> checkClasses() {
-    return Collections.singletonList(CustomRule.class);
+  static class Check implements EslintBasedCheck {
+
+    @Override
+    public String eslintKey() {
+      return "rulekey";
+    }
   }
+
 }

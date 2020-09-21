@@ -22,11 +22,14 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import java.io.File;
+import java.io.File;
 import java.util.List;
+import org.assertj.core.groups.Tuple;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.Issue;
 
 import static com.sonar.javascript.it.plugin.CustomRulesTest.initOrchestrator;
 import static com.sonar.javascript.it.plugin.CustomRulesTest.runBuild;
@@ -52,14 +55,22 @@ public class EslintCustomRulesTest {
   public void test() {
     BuildResult buildResult = runBuild(orchestrator);
     assertThat(buildResult.getLogsLines(l -> l.matches(".*INFO: Deploying custom rules bundle jar:file:.*/custom-eslint-based-rules-1\\.0\\.0\\.tgz to .*"))).hasSize(1);
-    List<Issues.Issue> issues = CustomRulesTest.findIssues("eslint-custom-rules:sqKey", orchestrator);
-    assertThat(issues).hasSize(1);
-    Issues.Issue issue = issues.get(0);
-    assertThat(issue.getRule()).isEqualTo("eslint-custom-rules:sqKey");
-    assertThat(issue.getLine()).isEqualTo(21);
-    assertThat(issue.getMessage()).isEqualTo("call");
-    Issues.Location secondaryLocation = issue.getFlows(0).getLocations(0);
+    List<Issue> issues = CustomRulesTest.findIssues("eslint-custom-rules:sqKey", orchestrator);
+    assertThat(issues).hasSize(2);
+    assertThat(issues).extracting(Issue::getRule, Issue::getComponent, Issue::getLine, Issue::getMessage)
+      .containsExactlyInAnyOrder(
+        new Tuple("eslint-custom-rules:sqKey", "custom-rules:src/dir/Person.js", 21, "call"),
+        new Tuple("eslint-custom-rules:sqKey", "custom-rules:src/dir/file.ts", 4, "call")
+      );
+    Issues.Location secondaryLocation = issues.get(0).getFlows(0).getLocations(0);
     assertThat(secondaryLocation.getMsg()).isEqualTo(new File(TestUtils.projectDir("custom_rules"), ".scannerwork").getAbsolutePath());
+
+    issues = CustomRulesTest.findIssues("ts-custom-rules:tsRuleKey", orchestrator);
+    assertThat(issues).extracting(Issue::getRule, Issue::getComponent, Issue::getLine, Issue::getMessage)
+      .containsExactlyInAnyOrder(
+        new Tuple("ts-custom-rules:tsRuleKey", "custom-rules:src/dir/file.ts", 4, "tsrule call")
+      );
+
   }
 
 }

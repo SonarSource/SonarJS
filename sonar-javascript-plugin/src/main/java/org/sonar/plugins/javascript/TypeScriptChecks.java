@@ -58,7 +58,7 @@ public class TypeScriptChecks extends AbstractChecks {
   public TypeScriptChecks(CheckFactory checkFactory, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinitions,
                           @Nullable CustomRuleRepository[] customRuleRepositories) {
     super(checkFactory, customRulesDefinitions, customRuleRepositories);
-    addChecks(CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
+    addChecks(CustomRuleRepository.Language.TYPESCRIPT, CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
   }
 
 }

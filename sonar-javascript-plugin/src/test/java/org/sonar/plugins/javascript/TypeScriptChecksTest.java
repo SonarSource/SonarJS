@@ -20,7 +20,9 @@
 package org.sonar.plugins.javascript;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Rule;
@@ -45,15 +47,35 @@ public class TypeScriptChecksTest {
 
   @Test
   public void should_add_custom_checks() {
-    TypeScriptChecks checks = new TypeScriptChecks(checkFactory("repo", "customcheck"), new CustomRuleRepository[]{ new RuleRepository()});
+    TypeScriptChecks checks = new TypeScriptChecks(checkFactory("repo", "customcheck"),
+      new CustomRuleRepository[]{new TsRepository(), new JsRepository()});
+    assertThat(checks.eslintBasedChecks()).hasSize(1);
     assertThat(checks.ruleKeyByEslintKey("key")).isEqualTo(RuleKey.parse("repo:customcheck"));
   }
 
-  public static class RuleRepository implements CustomRuleRepository {
+  public static class TsRepository implements CustomRuleRepository {
+
+    @Override
+    public Set<Language> languages() {
+      return EnumSet.of(Language.TYPESCRIPT);
+    }
 
     @Override
     public String repositoryKey() {
       return "repo";
+    }
+
+    @Override
+    public List<Class<? extends JavaScriptCheck>> checkClasses() {
+      return Collections.singletonList(CustomTsCheck.class);
+    }
+  }
+
+  public static class JsRepository implements CustomRuleRepository {
+
+    @Override
+    public String repositoryKey() {
+      return "js-repo";
     }
 
     @Override

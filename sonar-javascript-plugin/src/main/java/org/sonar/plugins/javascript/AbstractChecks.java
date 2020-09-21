@@ -51,9 +51,9 @@ public class AbstractChecks {
     this.customRuleRepositories = customRuleRepositories;
   }
 
-  protected void addChecks(String repositoryKey, Iterable<Class<? extends JavaScriptCheck>> checkClass) {
+  protected void addChecks(CustomRuleRepository.Language language, String repositoryKey, Iterable<Class<? extends JavaScriptCheck>> checkClass) {
     doAddChecks(repositoryKey, checkClass);
-    addCustomChecks();
+    addCustomChecks(language);
   }
 
   private void doAddChecks(String repositoryKey, Iterable<Class<? extends JavaScriptCheck>> checkClass) {
@@ -62,7 +62,7 @@ public class AbstractChecks {
       .addAnnotatedChecks(checkClass));
   }
 
-  private void addCustomChecks() {
+  private void addCustomChecks(CustomRuleRepository.Language language) {
 
     if (customRulesDefinitions != null) {
       LOG.warn("JavaScript analyzer custom rules are deprecated. Consider using ESlint custom rules instead");
@@ -75,9 +75,12 @@ public class AbstractChecks {
 
     if (customRuleRepositories != null) {
       for (CustomRuleRepository repo : customRuleRepositories) {
-        LOG.debug("Adding rules for repository '{}' {} from {}", repo.repositoryKey(), repo.checkClasses(),
-          repo.getClass().getCanonicalName());
-        doAddChecks(repo.repositoryKey(), repo.checkClasses());
+        if (repo.languages().contains(language)) {
+          LOG.debug("Adding rules for repository '{}', language: {}, {} from {}", repo.repositoryKey(), language,
+            repo.checkClasses(),
+            repo.getClass().getCanonicalName());
+          doAddChecks(repo.repositoryKey(), repo.checkClasses());
+        }
       }
     }
 

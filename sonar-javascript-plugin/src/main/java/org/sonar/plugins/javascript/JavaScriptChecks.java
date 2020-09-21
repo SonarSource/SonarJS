@@ -58,7 +58,7 @@ public class JavaScriptChecks extends AbstractChecks {
   public JavaScriptChecks(CheckFactory checkFactory, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinitions,
                           @Nullable CustomRuleRepository[] customRuleRepositories) {
     super(checkFactory, customRulesDefinitions, customRuleRepositories);
-    addChecks(CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks());
+    addChecks(CustomRuleRepository.Language.JAVASCRIPT, CheckList.JS_REPOSITORY_KEY, CheckList.getJavaScriptChecks());
   }
 
 }

@@ -19,24 +19,18 @@
  */
 package org.sonar.samples.javascript;
 
-import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-public class CustomRulesDefinition implements RulesDefinition {
+@TypeScriptRule
+@Rule(key = TsRule.RULE_KEY)
+public class TsRule implements EslintBasedCheck {
+
+  public static final String RULE_KEY = "tsRuleKey";
 
   @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(RuleRepository.REPOSITORY_KEY, "js")
-      .setName("ESLint Custom Rules");
-    repository.createRule(CustomRule.RULE_KEY)
-      .setName("ESLint Custom Rule")
-      .setHtmlDescription("Description");
-    repository.done();
-
-    NewRepository tsRepository = context.createRepository(TsRepository.REPOSITORY_KEY, "ts")
-      .setName("TypeScript Custom Rules");
-    tsRepository.createRule(TsRule.RULE_KEY)
-      .setName("TypeScript Custom Rule")
-      .setHtmlDescription("Description");
-    tsRepository.done();
+  public String eslintKey() {
+    return "tsrule";
   }
 }

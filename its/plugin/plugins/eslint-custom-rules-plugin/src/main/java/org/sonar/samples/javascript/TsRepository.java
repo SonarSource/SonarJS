@@ -19,24 +19,32 @@
  */
 package org.sonar.samples.javascript;
 
-import org.sonar.api.server.rule.RulesDefinition;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import org.sonar.plugins.javascript.api.CustomRuleRepository;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
-public class CustomRulesDefinition implements RulesDefinition {
+/**
+ * This repository will register rule only for TypeScript. We reuse same rule implementation
+ */
+public class TsRepository implements CustomRuleRepository {
+
+  public static final String REPOSITORY_KEY = "ts-custom-rules";
 
   @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(RuleRepository.REPOSITORY_KEY, "js")
-      .setName("ESLint Custom Rules");
-    repository.createRule(CustomRule.RULE_KEY)
-      .setName("ESLint Custom Rule")
-      .setHtmlDescription("Description");
-    repository.done();
+  public Set<Language> languages() {
+    return EnumSet.of(Language.TYPESCRIPT);
+  }
 
-    NewRepository tsRepository = context.createRepository(TsRepository.REPOSITORY_KEY, "ts")
-      .setName("TypeScript Custom Rules");
-    tsRepository.createRule(TsRule.RULE_KEY)
-      .setName("TypeScript Custom Rule")
-      .setHtmlDescription("Description");
-    tsRepository.done();
+  @Override
+  public String repositoryKey() {
+    return REPOSITORY_KEY;
+  }
+
+  @Override
+  public List<Class<? extends JavaScriptCheck>> checkClasses() {
+    return Collections.singletonList(TsRule.class);
   }
 }
