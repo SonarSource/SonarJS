@@ -25,8 +25,10 @@ import java.io.File;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.ws.client.issues.SearchRequest;
 
+import static com.sonar.javascript.it.plugin.CustomRulesTest.newWsClient;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NoSonarTest {
@@ -54,8 +56,9 @@ public class NoSonarTest {
 
   @Test
   public void test() {
-    assertThat(orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create().componentRoots("nosonar-project").severities("INFO").rules("javascript:S1116")).list())
-      .hasSize(1);
+    SearchRequest request = new SearchRequest();
+    request.setComponentKeys(singletonList("nosonar-project")).setSeverities(singletonList("INFO")).setRules(singletonList("javascript:S1116"));
+    assertThat(newWsClient(orchestrator).issues().search(request).getIssuesList()).hasSize(1);
   }
 
 }
