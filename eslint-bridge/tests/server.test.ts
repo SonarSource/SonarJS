@@ -289,7 +289,7 @@ describe('server', () => {
 
 describe('support custom rules', () => {
   it('should load custom rule bundles', async () => {
-    const server: http.Server = await start(0, ['custom-rule-bundle']);
+    const server: http.Server = await start(0, '127.0.0.1', ['custom-rule-bundle']);
     expect.assertions(2);
     expect(server.listening).toEqual(true);
 
@@ -338,7 +338,7 @@ describe('should send error when failing', () => {
   let close;
 
   beforeEach(async () => {
-    server = await startServer(0, failAnalysis, failAnalysis);
+    server = await startServer(0, '127.0.0.1', failAnalysis, failAnalysis);
     close = promisify(server.close.bind(server));
   });
 

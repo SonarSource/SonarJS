@@ -5,6 +5,7 @@
 * This script expects following arguments
 *
 * port - port number on which server should listen
+* host - host address on which server should listen
 * additionalRules - ; or : delimited paths to additional rule bundles
 * workDir - working directory from SonarQube API
 */
@@ -14,12 +15,13 @@ const path = require('path');
 const context = require('../lib/context');
 
 const port = process.argv[2];
-const workDir = process.argv[3];
+const host = process.argv[3];
+const workDir = process.argv[4];
 
 let additionalRules = [];
-if (process.argv[4]) {
-  additionalRules = process.argv[4].split(path.delimiter);
+if (process.argv[5]) {
+  additionalRules = process.argv[5].split(path.delimiter);
 }
 
 context.setContext({ workDir });
-server.start(port, additionalRules);
+server.start(port, host, additionalRules);

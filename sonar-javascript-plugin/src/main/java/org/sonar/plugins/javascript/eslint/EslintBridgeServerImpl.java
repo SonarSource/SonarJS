@@ -24,6 +24,7 @@ import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.net.InetAddress;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
@@ -127,7 +128,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .minNodeVersion(10)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port), workDir.getAbsolutePath(), bundles);
+      .scriptArgs(String.valueOf(port), InetAddress.getLoopbackAddress().getHostAddress(), workDir.getAbsolutePath(), bundles);
 
     context.config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
