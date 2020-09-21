@@ -27,6 +27,7 @@ import { rules as internalRules } from './rules/main';
 import { Linter, SourceCode, Rule as ESLintRule } from 'eslint';
 import { Rule, Issue, IssueLocation } from './analyzer';
 import { rules as typescriptEslintRules } from '@typescript-eslint/eslint-plugin';
+import { getContext } from './context';
 
 /**
  * In order to overcome ESLint limitation regarding issue reporting,
@@ -171,27 +172,47 @@ function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | nu
  * 'sonar-runtime' is the option used by eslint-plugin-sonarjs rules to distinguish
  *  when they are executed in a sonar* context or in eslint
  *
+ *  'sonar-context' is the option to distinguish rules which require context as part of their options
+ *
  * exported for testing
  */
 export function getRuleConfig(ruleModule: ESLintRule.RuleModule | undefined, inputRule: Rule) {
-  const options = inputRule.configurations;
+  const options = [...inputRule.configurations];
   if (hasSonarRuntimeOption(ruleModule, inputRule.key)) {
-    return options.concat('sonar-runtime');
+    options.push('sonar-runtime');
+  }
+  if (hasSonarContextOption(ruleModule, inputRule.key)) {
+    options.push(getContext());
   }
   return options;
 }
 
-function hasSonarRuntimeOption(ruleModule: ESLintRule.RuleModule | undefined, ruleId: string) {
+function hasSonarRuntimeOption(
+  ruleModule: ESLintRule.RuleModule | undefined,
+  ruleId: string,
+): boolean {
+  const schema = getRuleSchema(ruleModule, ruleId);
+  return !!schema && schema.some(option => !!option.enum && option.enum.includes('sonar-runtime'));
+}
+
+function hasSonarContextOption(
+  ruleModule: ESLintRule.RuleModule | undefined,
+  ruleId: string,
+): boolean {
+  const schema = getRuleSchema(ruleModule, ruleId);
+  return !!schema && schema.some(option => option.title === 'sonar-context');
+}
+
+function getRuleSchema(ruleModule: ESLintRule.RuleModule | undefined, ruleId: string) {
   if (!ruleModule) {
     console.log(`DEBUG ruleModule not found for rule ${ruleId}`);
-    return false;
+    return undefined;
   }
   if (!ruleModule.meta || !ruleModule.meta.schema) {
-    return false;
+    return undefined;
   }
   const { schema } = ruleModule.meta;
-  const props = Array.isArray(schema) ? schema : [schema];
-  return props.some(option => !!option.enum && option.enum.includes('sonar-runtime'));
+  return Array.isArray(schema) ? schema : [schema];
 }
 
 function normalizeIssueLocation(issue: Issue) {
