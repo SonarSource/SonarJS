@@ -19,14 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetterSetterCheckTest {
 
   @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new GetterSetterCheck(), new File("src/test/resources/checks/GetterSetter.js"));
+  public void configutestrations() {
+    GetterSetterCheck check = new GetterSetterCheck();
+    // default configuration
+    assertThat(check.configurations()).containsExactly(false);
+    // custom configuration
+    check.getWithoutSet = true;
+    assertThat(check.configurations()).containsExactly(true);
   }
 }

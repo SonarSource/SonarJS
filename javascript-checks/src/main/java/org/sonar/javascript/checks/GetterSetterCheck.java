@@ -19,76 +19,35 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.ClassTree;
-import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2376")
-public class GetterSetterCheck extends DoubleDispatchVisitorCheck {
+public class GetterSetterCheck implements EslintBasedCheck {
 
-  private static final String MESSAGE = "Provide a %s matching this %s for '%s'.";
+  private static final boolean DEFAULT_GET_WITHOUT_SET = false;
+
+  @RuleProperty(
+    key = "getWithoutSet",
+    description = "Reports on getters without setters.",
+    defaultValue = "" + DEFAULT_GET_WITHOUT_SET)
+  boolean getWithoutSet = DEFAULT_GET_WITHOUT_SET;
 
   @Override
-  public void visitObjectLiteral(ObjectLiteralTree tree) {
-    checkProperties(tree.properties());
-
-    super.visitObjectLiteral(tree);
+  public List<Object> configurations() {
+    return Collections.singletonList(getWithoutSet);
   }
 
   @Override
-  public void visitClass(ClassTree tree) {
-    checkProperties(tree.elements());
-
-    super.visitClass(tree);
-  }
-
-  private void checkProperties(List<Tree> properties) {
-    Map<String, AccessorMethodDeclarationTree> getters = accessors(Kind.GET_METHOD, properties);
-    Map<String, AccessorMethodDeclarationTree> setters = accessors(Kind.SET_METHOD, properties);
-
-    Set<String> getterNames = getters.keySet();
-    Set<String> setterNames = setters.keySet();
-    SetView<String> onlyGetters = Sets.difference(getterNames, setterNames);
-    SetView<String> onlySetters = Sets.difference(setterNames, getterNames);
-
-    for (String getterName : onlyGetters) {
-      raiseIssue(getters.get(getterName), String.format(MESSAGE, "setter", "getter", getterName));
-    }
-    for (String setterName : onlySetters) {
-      raiseIssue(setters.get(setterName), String.format(MESSAGE, "getter", "setter", setterName));
-    }
-  }
-
-  private void raiseIssue(AccessorMethodDeclarationTree tree, String message) {
-    addIssue(new PreciseIssue(this, new IssueLocation(tree, tree.name(), message)));
-  }
-
-  private static Map<String, AccessorMethodDeclarationTree> accessors(Kind kind, List<Tree> properties) {
-    return properties.stream()
-      .filter(property -> property.is(kind))
-      .collect(Collectors.toMap(
-        property -> getName((AccessorMethodDeclarationTree) property),
-        tree -> (AccessorMethodDeclarationTree) tree,
-        // for duplication
-        (property1, property2) -> property1));
-  }
-
-  private static String getName(AccessorMethodDeclarationTree tree) {
-    return CheckUtils.asString(tree.name());
+  public String eslintKey() {
+    return "accessor-pairs";
   }
 }
