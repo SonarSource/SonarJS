@@ -37,7 +37,7 @@ public class GetterSetterCheck implements EslintBasedCheck {
 
   @RuleProperty(
     key = "getWithoutSet",
-    description = "Allows getters without setters.",
+    description = "Reports on getters without setters.",
     defaultValue = "" + DEFAULT_GET_WITHOUT_SET)
   boolean getWithoutSet = DEFAULT_GET_WITHOUT_SET;
 
