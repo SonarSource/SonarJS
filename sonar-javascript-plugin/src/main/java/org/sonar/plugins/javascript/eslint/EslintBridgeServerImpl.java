@@ -101,7 +101,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
 
     String bundles = deployedBundles.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator));
-    initNodeCommand(context, scriptFile, bundles);
+    initNodeCommand(context, scriptFile, context.fileSystem().workDir(), bundles);
 
     LOG.debug("Starting Node.js process to start eslint-bridge server at port " + port);
     nodeCommand.start();
@@ -112,7 +112,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     PROFILER.stopDebug();
   }
 
-  private void initNodeCommand(SensorContext context, File scriptFile, String bundles) throws IOException {
+  private void initNodeCommand(SensorContext context, File scriptFile, File workDir, String bundles) throws IOException {
     nodeCommandBuilder
       .outputConsumer(message -> {
         if (message.startsWith("DEBUG")) {
@@ -127,7 +127,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .minNodeVersion(10)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port), bundles);
+      .scriptArgs(String.valueOf(port), workDir.getAbsolutePath(), bundles);
 
     context.config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)

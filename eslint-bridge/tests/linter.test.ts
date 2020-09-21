@@ -21,9 +21,51 @@ import { getRuleConfig, decodeSonarRuntimeIssue, LinterWrapper } from 'linter';
 import { Rule, SourceCode } from 'eslint';
 import { SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE } from 'analyzer';
 import { parseJavaScriptSourceFile } from 'parser';
+import { setContext } from 'context';
 
 const ruleUsingSecondaryLocations = {
   meta: { schema: { enum: ['sonar-runtime'] } },
+  create(_context: Rule.RuleContext) {
+    return {};
+  },
+};
+
+const ruleUsingContext = {
+  meta: {
+    schema: [
+      {
+        title: 'sonar-context',
+        type: 'object',
+        properties: {
+          workDir: {
+            type: 'string',
+          },
+        },
+      },
+    ],
+  },
+  create(_context: Rule.RuleContext) {
+    return {};
+  },
+};
+
+const ruleUsingContextAndSecondaryLocations = {
+  meta: {
+    schema: [
+      {
+        enum: ['sonar-runtime'],
+      },
+      {
+        title: 'sonar-context',
+        type: 'object',
+        properties: {
+          workDir: {
+            type: 'string',
+          },
+        },
+      },
+    ],
+  },
   create(_context: Rule.RuleContext) {
     return {};
   },
@@ -73,6 +115,24 @@ describe('#getRuleConfig', () => {
     );
     expect(config).toEqual([]);
     jest.resetAllMocks();
+  });
+
+  it('should provide context when there is sonar-context in schema', () => {
+    setContext({ workDir: '/tmp/workdir' });
+    const config = getRuleConfig(ruleUsingContext, {
+      key: 'ruleUsingContext',
+      configurations: [],
+    });
+    expect(config).toEqual([{ workDir: '/tmp/workdir' }]);
+  });
+
+  it('should provide context and set sonar-runtime when there is sonar-context and sonar-runtime in schema', () => {
+    setContext({ workDir: '/tmp/workdir' });
+    const config = getRuleConfig(ruleUsingContextAndSecondaryLocations, {
+      key: 'ruleUsingContextAndSecondaryLocations',
+      configurations: ['config'],
+    });
+    expect(config).toEqual(['config', 'sonar-runtime', { workDir: '/tmp/workdir' }]);
   });
 });
 

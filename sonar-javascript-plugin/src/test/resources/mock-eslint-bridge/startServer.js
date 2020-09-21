@@ -1,14 +1,10 @@
 #!/usr/bin/env node
 
-/**
- * Note that any edits in this file have to be repackaged to the mock-eslint-bundle.tar.xz to be effective for tests
- */
-
 const http = require("http");
 const port = process.argv[2];
 
 
-console.log(`additional rules: [${process.argv[3]}]`);
+console.log(`additional rules: [${process.argv[4]}]`);
 
 const requestHandler = (request, response) => {
   let data = "";

@@ -21,6 +21,7 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
+import java.io.File;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -57,6 +58,8 @@ public class EslintCustomRulesTest {
     assertThat(issue.getRule()).isEqualTo("eslint-custom-rules:sqKey");
     assertThat(issue.getLine()).isEqualTo(21);
     assertThat(issue.getMessage()).isEqualTo("call");
+    Issues.Location secondaryLocation = issue.getFlows(0).getLocations(0);
+    assertThat(secondaryLocation.getMsg()).isEqualTo(new File(TestUtils.projectDir("custom_rules"), ".scannerwork").getAbsolutePath());
   }
 
 }
