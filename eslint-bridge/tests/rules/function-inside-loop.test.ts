@@ -187,6 +187,16 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
       }
       `,
     },
+    {
+      code: `
+      const object = {a: 1, b: 2, c: 3};
+      for (const property in object) {
+        funs[i] = function() {              // OK
+              return property;
+        };
+      }
+            `,
+    },
   ],
   invalid: [
     {
@@ -226,13 +236,7 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
               return element;
             };
           }
-
-          const object = {a: 1, b: 2, c: 3};
-          for (const property in object) {
-            funs[i] = function() {              // Noncompliant
-              return property;
-            };
-          }`,
+          `,
       errors: [
         {
           message: `Define this function outside of a loop.`,
@@ -252,9 +256,6 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         },
         {
           line: 33,
-        },
-        {
-          line: 40,
         },
       ],
     },
