@@ -1,7 +1,4 @@
 {
-'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
-412,
-],
 'p5.js:lib/addons/p5.sound.js':[
 77,
 999,
@@ -40,9 +37,6 @@
 12357,
 12748,
 12874,
-],
-'p5.js:test/js/sinon.js':[
-672,
 ],
 'p5.js:test/manual-test-examples/addons/p5.sound/amplitude_analysis/sketch.js':[
 88,
