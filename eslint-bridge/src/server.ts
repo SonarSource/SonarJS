@@ -42,17 +42,17 @@ export function start(
   host = '127.0.0.1',
   additionalRuleBundles: string[] = [],
 ): Promise<Server> {
-  return startServer(port, host, analyzeJavaScript, analyzeTypeScript, additionalRuleBundles);
+  return startServer(analyzeJavaScript, analyzeTypeScript, port, host, additionalRuleBundles);
 }
 
 type AnalysisFunction = (input: AnalysisInput) => AnalysisResponse;
 
 // exported for test
 export function startServer(
-  port = 0,
-  host = '127.0.0.1',
   analyzeJS: AnalysisFunction,
   analyzeTS: AnalysisFunction,
+  port = 0,
+  host = '127.0.0.1',
   additionalRuleBundles: string[] = [],
 ): Promise<Server> {
   loadAdditionalRuleBundles(additionalRuleBundles);
