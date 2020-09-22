@@ -1,13 +1,9 @@
 {
-'fireface:src/app-header/app-header.component.ts':[
-20,
-],
 'fireface:src/common/avatar.service.ts':[
 47,
 61,
 ],
 'fireface:src/storage/storage.component.ts':[
-83,
 107,
 119,
 ],
