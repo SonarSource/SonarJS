@@ -67,6 +67,11 @@ ruleTesterJS.run('Unnecessary imports should be removed', rule, {
       function f(param: a) {}
       `,
     },
+    {
+      code: `
+      /** @jsx jsx */
+      import { jsx } from '@emotion/core'`,
+    },
   ],
   invalid: [
     {

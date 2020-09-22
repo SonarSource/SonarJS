@@ -27,14 +27,26 @@ const EXCLUDED_IMPORTS = ['React'];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    const isJsxPragmaSet =
+      context
+        .getSourceCode()
+        .getAllComments()
+        .findIndex(comment => comment.value.includes('@jsx jsx')) > -1;
     const unusedImports: estree.Identifier[] = [];
     const tsTypeIdentifiers: Set<string> = new Set();
     const saveTypeIdentifier = (node: estree.Identifier) => tsTypeIdentifiers.add(node.name);
     return {
       ImportDeclaration: (node: estree.Node) => {
+        const { source } = node as estree.ImportDeclaration;
         const variables = context.getDeclaredVariables(node);
         for (const variable of variables) {
-          if (!EXCLUDED_IMPORTS.includes(variable.name) && variable.references.length === 0) {
+          if (
+            !EXCLUDED_IMPORTS.includes(variable.name) &&
+            variable.references.length === 0 &&
+            variable.name !== 'jsx' &&
+            source.value !== '@emotion/core' &&
+            !isJsxPragmaSet
+          ) {
             unusedImports.push(variable.identifiers[0]);
           }
         }
