@@ -26,6 +26,51 @@ ruleTester.run('No fallthrough in switch statement', rule, {
   valid: [
     {
       code: `
+        switch (x) {
+          case 0:
+            process.exit(1);
+          default:
+            doSomething();
+        }
+            `,
+    },
+    {
+      code: `
+        switch (x) {
+          case 0:
+            if (foo()) {
+              hello();
+              process.exit(1);
+            } else {
+              there();
+              process.exit(1);
+            }
+          default:
+            doSomething();
+        }
+            `,
+    },
+    {
+      code: `
+        switch (x) {
+          case 0:
+            if (foo()) {
+              hello();
+              process.exit(1);
+            } else {
+              there();
+              process.exit(1);
+            }
+            if (bar()) {
+              console.log("unreachable");
+            }
+          default:
+            doSomething();
+        }
+            `,
+    },
+    {
+      code: `
         switch (param) {}
 
         // with not executable clause
@@ -217,6 +262,33 @@ ruleTester.run('No fallthrough in switch statement', rule, {
         }
       `,
       errors: [{ line: 35 }],
+    },
+    {
+      code: `
+        switch (x) {
+          case 0:
+            if (foo()) {
+              process.exit(1);
+            }
+          default:
+            doSomething();
+        }
+            `,
+      errors: [{ line: 3 }],
+    },
+    {
+      code: `
+        switch (x) {
+          case 0:
+            if (foo()) {
+              process.exit(1);
+            }
+            doSomething();
+          default:
+            doSomething();
+        }
+            `,
+      errors: [{ line: 3 }],
     },
   ],
 });
