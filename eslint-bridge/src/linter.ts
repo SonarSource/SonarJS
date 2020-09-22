@@ -21,7 +21,7 @@ import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
 import { rules as chaiFriendlyRules } from 'eslint-plugin-chai-friendly';
 import {
   decorateTypescriptEslint,
-  decorateChaiFriendly,
+  decorateJavascriptEslint,
 } from './rules/no-unused-expressions-decorator';
 import { rules as internalRules } from './rules/main';
 import { Linter, SourceCode, Rule as ESLintRule } from 'eslint';
@@ -67,7 +67,7 @@ export class LinterWrapper {
     // core implementation of this rule raises FPs on chai framework
     this.linter.defineRule(
       NO_UNUSED_EXPRESSIONS,
-      decorateChaiFriendly(chaiFriendlyRules[NO_UNUSED_EXPRESSIONS]),
+      decorateJavascriptEslint(chaiFriendlyRules[NO_UNUSED_EXPRESSIONS]),
     );
 
     // TS implementation of no-throw-literal is not supporting JS code.

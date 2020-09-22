@@ -25,13 +25,20 @@ export function decorateTypescriptEslint(rule: Rule.RuleModule): Rule.RuleModule
   return interceptReport(
     rule,
     reportExempting(
-      expr => isNegatedIife(expr) || containsChaiExpect(expr) || containsValidChaiShould(expr),
+      expr =>
+        isNegatedIife(expr) ||
+        containsChaiExpect(expr) ||
+        containsValidChaiShould(expr) ||
+        isSequenceWithSideEffects(expr),
     ),
   );
 }
 
-export function decorateChaiFriendly(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, reportExempting(isNegatedIife));
+export function decorateJavascriptEslint(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(
+    rule,
+    reportExempting(expr => isNegatedIife(expr) || isSequenceWithSideEffects(expr)),
+  );
 }
 
 function reportExempting(
@@ -83,5 +90,12 @@ function isIife(node: estree.Node): boolean {
   return (
     node.type === 'CallExpression' &&
     (node.callee.type === 'FunctionExpression' || node.callee.type === 'ArrowFunctionExpression')
+  );
+}
+
+function isSequenceWithSideEffects(node: estree.Node): boolean {
+  return (
+    node.type === 'SequenceExpression' &&
+    node.expressions[node.expressions.length - 1].type === 'AssignmentExpression'
   );
 }

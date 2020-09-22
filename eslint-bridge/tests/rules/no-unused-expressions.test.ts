@@ -20,7 +20,7 @@
 import { RuleTester, Rule } from 'eslint';
 import {
   decorateTypescriptEslint,
-  decorateChaiFriendly,
+  decorateJavascriptEslint,
 } from 'rules/no-unused-expressions-decorator';
 
 const ruleTester = new RuleTester({
@@ -140,7 +140,7 @@ for (let { parser, languageSpecificRule } of [
   },
   {
     parser: 'babel-eslint',
-    languageSpecificRule: decorateChaiFriendly(chaiFriendlyRules['no-unused-expressions']),
+    languageSpecificRule: decorateJavascriptEslint(chaiFriendlyRules['no-unused-expressions']),
   },
 ]) {
   const tester = new RuleTester({
@@ -165,6 +165,25 @@ for (let { parser, languageSpecificRule } of [
           !!function(){}();
         `,
         errors: 2,
+      },
+    ],
+  });
+
+  tester.run(`Disallow unused expressions - sequences (${parser})`, languageSpecificRule, {
+    valid: [
+      {
+        code: `
+          let a, b, c;
+          a = 1, b = 2, c = 3;`,
+      },
+    ],
+    invalid: [
+      {
+        code: `
+          let a, b, c;
+          a = 1, b, c;
+        `,
+        errors: 1,
       },
     ],
   });
