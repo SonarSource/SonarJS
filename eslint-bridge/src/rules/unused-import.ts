@@ -19,7 +19,7 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1128
 
-import { Rule } from 'eslint';
+import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
@@ -35,18 +35,24 @@ export const rule: Rule.RuleModule = {
     const unusedImports: estree.Identifier[] = [];
     const tsTypeIdentifiers: Set<string> = new Set();
     const saveTypeIdentifier = (node: estree.Identifier) => tsTypeIdentifiers.add(node.name);
+
+    function isExcluded(variable: Scope.Variable) {
+      return EXCLUDED_IMPORTS.includes(variable.name);
+    }
+
+    function isUnused(variable: Scope.Variable) {
+      return variable.references.length === 0;
+    }
+
+    function isImplicitJsx(variable: Scope.Variable) {
+      return variable.name === 'jsx' && isJsxPragmaSet;
+    }
+
     return {
       ImportDeclaration: (node: estree.Node) => {
-        const { source } = node as estree.ImportDeclaration;
         const variables = context.getDeclaredVariables(node);
         for (const variable of variables) {
-          if (
-            !EXCLUDED_IMPORTS.includes(variable.name) &&
-            variable.references.length === 0 &&
-            variable.name !== 'jsx' &&
-            source.value !== '@emotion/core' &&
-            !isJsxPragmaSet
-          ) {
+          if (!isExcluded(variable) && !isImplicitJsx(variable) && isUnused(variable)) {
             unusedImports.push(variable.identifiers[0]);
           }
         }
