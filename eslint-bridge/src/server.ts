@@ -34,17 +34,18 @@ import { getFilesForTsConfig } from './tsconfig';
 
 const MAX_REQUEST_SIZE = '50mb';
 
-export function start(port = 0): Promise<Server> {
-  return startServer(port, analyzeJavaScript, analyzeTypeScript);
+export function start(port = 0, host = '127.0.0.1'): Promise<Server> {
+  return startServer(analyzeJavaScript, analyzeTypeScript, port, host);
 }
 
 type AnalysisFunction = (input: AnalysisInput) => AnalysisResponse;
 
 // exported for test
 export function startServer(
-  port = 0,
   analyzeJS: AnalysisFunction,
   analyzeTS: AnalysisFunction,
+  port = 0,
+  host = '127.0.0.1',
 ): Promise<Server> {
   return new Promise(resolve => {
     console.log('DEBUG starting eslint-bridge server at port', port);
@@ -82,7 +83,7 @@ export function startServer(
       });
     });
 
-    server = app.listen(port, () => {
+    server = app.listen(port, host, () => {
       console.log(
         'DEBUG eslint-bridge server is running at port',
         (server.address() as AddressInfo).port,

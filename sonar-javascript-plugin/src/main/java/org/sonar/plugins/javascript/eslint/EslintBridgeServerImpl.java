@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.file.Files;
+import java.net.InetAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -37,7 +38,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sonar.api.SonarProduct;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
@@ -130,7 +130,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .minNodeVersion(8)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port));
+      .scriptArgs(String.valueOf(port), InetAddress.getLoopbackAddress().getHostAddress());
 
     context.config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
