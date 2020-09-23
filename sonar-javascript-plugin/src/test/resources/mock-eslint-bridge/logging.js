@@ -2,6 +2,7 @@
 
 const http = require('http')
 const port = process.argv[2]
+const host = process.argv[3]
 
 console.log(`DEBUG testing debug log`)
 console.log(`WARN testing warn log`)
@@ -13,6 +14,6 @@ const server = http.createServer((req, res) => {
   res.end('OK!');
 })
 
-server.listen(port, () => {
-  console.log(`server is listening on ${port}`)
+server.listen(port, host, () => {
+  console.log(`server is listening on ${host} ${port}`);
 })

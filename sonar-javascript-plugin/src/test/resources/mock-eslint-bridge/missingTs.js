@@ -2,6 +2,7 @@
 
 const http = require("http");
 const port = process.argv[2];
+const host = process.argv[3];
 
 const requestHandler = (request, response) => {
   if (request.url === "/status") {
@@ -17,10 +18,10 @@ const requestHandler = (request, response) => {
 
 const server = http.createServer(requestHandler);
 
-server.listen(port, err => {
+server.listen(port, host, err => {
   if (err) {
     return console.log("something bad happened", err);
   }
 
-  console.log(`server is listening on ${port}`);
+  console.log(`server is listening on ${host} ${port}`);
 });
