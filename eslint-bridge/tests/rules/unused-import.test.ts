@@ -72,6 +72,11 @@ ruleTesterJS.run('Unnecessary imports should be removed', rule, {
       /** @jsx jsx */
       import { jsx } from '@emotion/core'`,
     },
+    {
+      code: `
+      /** @jsx jsx */
+      import { jsx } from 'any'`,
+    },
   ],
   invalid: [
     {
@@ -119,6 +124,10 @@ ruleTesterJS.run('Unnecessary imports should be removed', rule, {
     },
     {
       code: `import React, { Component } from 'react';`,
+      errors: 1,
+    },
+    {
+      code: `import { jsx } from '@emotion/core'`,
       errors: 1,
     },
   ],
