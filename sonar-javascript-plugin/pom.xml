@@ -103,6 +103,7 @@
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>
           <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
+          <nodeJsMinVersion>8.0.0</nodeJsMinVersion>
         </configuration>
       </plugin>
 

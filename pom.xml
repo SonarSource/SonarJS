@@ -55,6 +55,8 @@
     <license.title>SonarQube JavaScript Plugin</license.title>
     <sonarQubeMinVersion>7.9</sonarQubeMinVersion>
 
+    <!-- override sonar-packaging plugin version from parent -->
+    <version.sonar-packaging.plugin>1.20.0.405</version.sonar-packaging.plugin>
     <assertj.version>3.16.1</assertj.version>
     <commons-io.version>2.5</commons-io.version>
     <commons-lang.version>2.6</commons-lang.version>
