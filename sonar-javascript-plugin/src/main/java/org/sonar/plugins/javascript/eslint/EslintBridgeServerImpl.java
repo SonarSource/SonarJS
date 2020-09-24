@@ -57,6 +57,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final Gson GSON = new Gson();
+  private static final int MIN_NODE_VERSION = 8;
 
   private final OkHttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
@@ -65,15 +66,20 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private int port;
   private NodeCommand nodeCommand;
   private boolean failedToStart;
-  private RulesBundles rulesBundles;
+  private final RulesBundles rulesBundles;
+  private final NodeDeprecationWarning deprecationWarning;
 
   // Used by pico container for dependency injection
-  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles) {
-    this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle, rulesBundles);
+  public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles,
+                                NodeDeprecationWarning deprecationWarning) {
+    this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle, rulesBundles, deprecationWarning);
   }
 
-  EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, int timeoutSeconds,
-                         Bundle bundle, RulesBundles rulesBundles) {
+  EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder,
+                         int timeoutSeconds,
+                         Bundle bundle,
+                         RulesBundles rulesBundles,
+                         NodeDeprecationWarning deprecationWarning) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
@@ -82,6 +88,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .readTimeout(Duration.ofSeconds(timeoutSeconds))
       .build();
     this.rulesBundles = rulesBundles;
+    this.deprecationWarning = deprecationWarning;
   }
 
   int getTimeoutSeconds() {
@@ -111,7 +118,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
     }
     PROFILER.stopDebug();
+    deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
   }
+
 
   private void initNodeCommand(SensorContext context, File scriptFile, File workDir, String bundles) throws IOException {
     nodeCommandBuilder
@@ -125,7 +134,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
         }
       })
       .pathResolver(bundle)
-      .minNodeVersion(8)
+      .minNodeVersion(MIN_NODE_VERSION)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
       .scriptArgs(String.valueOf(port), InetAddress.getLoopbackAddress().getHostAddress(), workDir.getAbsolutePath(), bundles);

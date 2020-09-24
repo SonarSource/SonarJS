@@ -49,15 +49,17 @@ public class NodeCommand {
   final Consumer<String> errorConsumer;
   private final StreamConsumer streamConsumer;
   private final ProcessWrapper processWrapper;
+  private final int actualNodeVersion;
   private Process process;
   private final List<String> command;
 
-  NodeCommand(ProcessWrapper processWrapper, String nodeExecutable, List<String> nodeJsArgs, @Nullable String scriptFilename,
+  NodeCommand(ProcessWrapper processWrapper, String nodeExecutable, int actualNodeVersion, List<String> nodeJsArgs, @Nullable String scriptFilename,
               List<String> args,
               Consumer<String> outputConsumer,
               Consumer<String> errorConsumer) {
     this.processWrapper = processWrapper;
     this.command = buildCommand(nodeExecutable, nodeJsArgs, scriptFilename, args);
+    this.actualNodeVersion = actualNodeVersion;
     this.outputConsumer = outputConsumer;
     this.errorConsumer = errorConsumer;
     this.streamConsumer = new StreamConsumer();
@@ -119,6 +121,10 @@ public class NodeCommand {
   @Override
   public String toString() {
     return String.join(" ", command);
+  }
+
+  public int getActualNodeVersion() {
+    return actualNodeVersion;
   }
 
   public static NodeCommandBuilder builder() {
