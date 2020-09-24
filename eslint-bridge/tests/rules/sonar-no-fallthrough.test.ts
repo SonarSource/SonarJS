@@ -96,6 +96,19 @@ ruleTester.run('No fallthrough in switch statement', rule, {
         }
       `,
     },
+    {
+      code: `
+      switch ( x ) {
+        case 0:
+          while ( isTrue() ) {
+            doSomething();
+          }
+          /* falls through */
+        default:
+          console.log("hello");
+      }
+            `,
+    },
   ],
   invalid: [
     {
@@ -289,6 +302,52 @@ ruleTester.run('No fallthrough in switch statement', rule, {
         }
             `,
       errors: [{ line: 3 }],
+    },
+    {
+      code: `
+        process.exit(1);
+        switch (x) {
+          case 0:
+            doSomething();
+          default:
+            doSomethingElse();
+        }
+            `,
+      errors: [{ line: 4 }],
+    },
+    {
+      code: `
+      switch (x) {
+        case 0:
+          doSomething();
+          ForEachRecord(target, function(options) {
+              doSomethingElse();
+          });
+          break;
+        case 1:
+          doSomething();
+        default:
+          doSomethingElse();
+      }
+      
+            `,
+      errors: [{ line: 9 }],
+    },
+    {
+      code: `
+        function doSomething() {
+            doSmth();
+        }
+        switch (x) {
+            case 0:
+                doSomething();
+            case 1:
+                doSomething();
+            default:
+                doSomethingElse();
+        }
+            `,
+      errors: [{ line: 6 }, { line: 8 }],
     },
   ],
 });

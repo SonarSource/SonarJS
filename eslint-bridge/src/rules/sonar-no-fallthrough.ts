@@ -28,27 +28,30 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let currentCodePath: Rule.CodePath | null = null;
     let currentCodeSegment: Rule.CodePathSegment | null = null;
+    let enteringSwitchCase = false;
     const segmentsWithExit: Set<string> = new Set();
-    const initialSegmentsBySwitchCase: Map<estree.SwitchCase, Rule.CodePathSegment> = new Map();
-    const segmentsInSwitchCase: Map<estree.Node, Set<string>> = new Map();
+    const initialSegmentBySwitchCase: Map<estree.SwitchCase, Rule.CodePathSegment> = new Map();
+    const switchCaseStack: estree.SwitchCase[] = [];
 
     function noComment(node: estree.Node) {
       return context.getSourceCode().getCommentsAfter(node).length === 0;
     }
 
-    function allSegmentsReachProcessExitCall(
+    function isAfterProcessExitCall(
       segment: Rule.CodePathSegment,
-      segmentsToConsider: Set<string>,
-    ): boolean {
+      initialSegment: Rule.CodePathSegment,
+    ) {
       const stack = [];
+      const visitedSegments: Set<string> = new Set();
       stack.push(segment);
       while (stack.length !== 0) {
         const current = stack.pop()!;
+        visitedSegments.add(current.id);
         if (!segmentsWithExit.has(current.id)) {
-          if (current.nextSegments.length === 0 || !segmentsToConsider.has(current.id)) {
+          if (current === initialSegment) {
             return false;
           }
-          current.nextSegments.forEach(n => stack.push(n));
+          current.prevSegments.filter(p => !visitedSegments.has(p.id)).forEach(p => stack.push(p));
         }
       }
       return true;
@@ -58,21 +61,17 @@ export const rule: Rule.RuleModule = {
       onCodePathStart(codePath: Rule.CodePath) {
         currentCodePath = codePath;
       },
-      onCodePathSegmentStart(segment: Rule.CodePathSegment, node: estree.Node) {
+      onCodePathEnd() {
+        currentCodePath = currentCodePath!.upper;
+      },
+      onCodePathSegmentStart(segment: Rule.CodePathSegment) {
         currentCodeSegment = segment;
-        let switchCase = null;
-        if (node.type === 'SwitchCase') {
-          switchCase = node;
-        } else {
-          switchCase = context.getAncestors().find(parent => parent.type === 'SwitchCase');
-        }
-        if (!!switchCase) {
-          const segmentsInCase = segmentsInSwitchCase.get(switchCase);
-          if (!!segmentsInCase) {
-            segmentsInCase.add(segment.id);
-          } else {
-            segmentsInSwitchCase.set(switchCase, new Set([currentCodeSegment.id]));
-          }
+        if (enteringSwitchCase) {
+          initialSegmentBySwitchCase.set(
+            switchCaseStack.pop() as estree.SwitchCase,
+            currentCodeSegment,
+          );
+          enteringSwitchCase = false;
         }
       },
       CallExpression(node: estree.Node) {
@@ -82,24 +81,21 @@ export const rule: Rule.RuleModule = {
         }
       },
       SwitchCase(node: estree.Node) {
-        initialSegmentsBySwitchCase.set(node as estree.SwitchCase, currentCodeSegment!);
+        enteringSwitchCase = true;
+        switchCaseStack.push(node as estree.SwitchCase);
       },
       'SwitchCase:exit'(node: estree.Node) {
         const switchCase = node as estree.SwitchCase;
-        const initialSegment: Rule.CodePathSegment = initialSegmentsBySwitchCase.get(switchCase)!;
-        const segmentsToConsider = segmentsInSwitchCase.get(switchCase);
-        let allPathsCallExit = false;
-        if (!!segmentsToConsider && segmentsWithExit.size !== 0) {
-          segmentsToConsider.add(initialSegment.id);
-          allPathsCallExit = allSegmentsReachProcessExitCall(initialSegment, segmentsToConsider);
-        }
+        const initialSegment: Rule.CodePathSegment = initialSegmentBySwitchCase.get(switchCase)!;
+        const isReachable = currentCodePath!.currentSegments.some(
+          s => s.reachable && !isAfterProcessExitCall(s, initialSegment),
+        );
         const { cases } = getParent(context) as estree.SwitchStatement;
         if (
-          currentCodePath!.currentSegments.some(s => s.reachable) &&
+          isReachable &&
           switchCase.consequent.length > 0 &&
           cases[cases.length - 1] !== node &&
-          noComment(switchCase) &&
-          !allPathsCallExit
+          noComment(switchCase)
         ) {
           context.report({
             message:
