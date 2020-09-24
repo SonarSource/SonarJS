@@ -28,6 +28,7 @@ import { Linter, SourceCode, Rule as ESLintRule } from 'eslint';
 import { Rule, Issue, IssueLocation } from './analyzer';
 import { rules as typescriptEslintRules } from '@typescript-eslint/eslint-plugin';
 import { getContext } from './context';
+import { decoratePreferTemplate } from './rules/prefer-template-decorator';
 
 /**
  * In order to overcome ESLint limitation regarding issue reporting,
@@ -68,6 +69,13 @@ export class LinterWrapper {
     this.linter.defineRule(
       NO_UNUSED_EXPRESSIONS,
       decorateJavascriptEslint(chaiFriendlyRules[NO_UNUSED_EXPRESSIONS]),
+    );
+
+    // core implementation of this rule raises issues on binary expressions with string literal operand(s)
+    const PREFER_TEMPLATE = 'prefer-template';
+    this.linter.defineRule(
+      PREFER_TEMPLATE,
+      decoratePreferTemplate(this.linter.getRules().get(PREFER_TEMPLATE)!),
     );
 
     // TS implementation of no-throw-literal is not supporting JS code.
