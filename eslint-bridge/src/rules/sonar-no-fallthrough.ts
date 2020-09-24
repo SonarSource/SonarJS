@@ -28,8 +28,8 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let currentCodePath: Rule.CodePath | null = null;
     let currentCodeSegment: Rule.CodePathSegment | null = null;
-    const segmentsWithExit = new Set();
-    const initialSegmentsBySwitchCase = new Map();
+    const segmentsWithExit: Set<string> = new Set();
+    const initialSegmentsBySwitchCase: Map<estree.SwitchCase, Rule.CodePathSegment> = new Map();
     const segmentsInSwitchCase: Map<estree.Node, Set<string>> = new Map();
 
     function noComment(node: estree.Node) {
@@ -58,9 +58,6 @@ export const rule: Rule.RuleModule = {
       onCodePathStart(codePath: Rule.CodePath) {
         currentCodePath = codePath;
       },
-      onCodePathEnd() {
-        currentCodePath = currentCodePath!.upper;
-      },
       onCodePathSegmentStart(segment: Rule.CodePathSegment, node: estree.Node) {
         currentCodeSegment = segment;
         let switchCase = null;
@@ -80,22 +77,16 @@ export const rule: Rule.RuleModule = {
       },
       CallExpression(node: estree.Node) {
         const callExpr = node as estree.CallExpression;
-        if (
-          callExpr.callee.type === 'MemberExpression' &&
-          callExpr.callee.object.type === 'Identifier' &&
-          callExpr.callee.object.name === 'process' &&
-          callExpr.callee.property.type === 'Identifier' &&
-          callExpr.callee.property.name === 'exit'
-        ) {
+        if (isProcessExitCall(callExpr)) {
           segmentsWithExit.add(currentCodeSegment!.id);
         }
       },
       SwitchCase(node: estree.Node) {
-        initialSegmentsBySwitchCase.set(node, currentCodeSegment);
+        initialSegmentsBySwitchCase.set(node as estree.SwitchCase, currentCodeSegment!);
       },
       'SwitchCase:exit'(node: estree.Node) {
-        const initialSegment: Rule.CodePathSegment = initialSegmentsBySwitchCase.get(node);
         const switchCase = node as estree.SwitchCase;
+        const initialSegment: Rule.CodePathSegment = initialSegmentsBySwitchCase.get(switchCase)!;
         const segmentsToConsider = segmentsInSwitchCase.get(switchCase);
         let allPathsCallExit = false;
         if (!!segmentsToConsider && segmentsWithExit.size !== 0) {
@@ -120,3 +111,13 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isProcessExitCall(callExpr: estree.CallExpression) {
+  return (
+    callExpr.callee.type === 'MemberExpression' &&
+    callExpr.callee.object.type === 'Identifier' &&
+    callExpr.callee.object.name === 'process' &&
+    callExpr.callee.property.type === 'Identifier' &&
+    callExpr.callee.property.name === 'exit'
+  );
+}
