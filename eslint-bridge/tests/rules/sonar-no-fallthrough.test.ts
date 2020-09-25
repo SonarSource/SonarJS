@@ -26,6 +26,51 @@ ruleTester.run('No fallthrough in switch statement', rule, {
   valid: [
     {
       code: `
+        switch (x) {
+          case 0:
+            process.exit(1);
+          default:
+            doSomething();
+        }
+            `,
+    },
+    {
+      code: `
+        switch (x) {
+          case 0:
+            if (foo()) {
+              hello();
+              process.exit(1);
+            } else {
+              there();
+              process.exit(1);
+            }
+          default:
+            doSomething();
+        }
+            `,
+    },
+    {
+      code: `
+        switch (x) {
+          case 0:
+            if (foo()) {
+              hello();
+              process.exit(1);
+            } else {
+              there();
+              process.exit(1);
+            }
+            if (bar()) {
+              console.log("unreachable");
+            }
+          default:
+            doSomething();
+        }
+            `,
+    },
+    {
+      code: `
         switch (param) {}
 
         // with not executable clause
@@ -50,6 +95,19 @@ ruleTester.run('No fallthrough in switch statement', rule, {
             break;
         }
       `,
+    },
+    {
+      code: `
+      switch ( x ) {
+        case 0:
+          while ( isTrue() ) {
+            doSomething();
+          }
+          /* falls through */
+        default:
+          console.log("hello");
+      }
+            `,
     },
   ],
   invalid: [
@@ -217,6 +275,79 @@ ruleTester.run('No fallthrough in switch statement', rule, {
         }
       `,
       errors: [{ line: 35 }],
+    },
+    {
+      code: `
+        switch (x) {
+          case 0:
+            if (foo()) {
+              process.exit(1);
+            }
+          default:
+            doSomething();
+        }
+            `,
+      errors: [{ line: 3 }],
+    },
+    {
+      code: `
+        switch (x) {
+          case 0:
+            if (foo()) {
+              process.exit(1);
+            }
+            doSomething();
+          default:
+            doSomething();
+        }
+            `,
+      errors: [{ line: 3 }],
+    },
+    {
+      code: `
+        process.exit(1);
+        switch (x) {
+          case 0:
+            doSomething();
+          default:
+            doSomethingElse();
+        }
+            `,
+      errors: [{ line: 4 }],
+    },
+    {
+      code: `
+      switch (x) {
+        case 0:
+          doSomething();
+          ForEachRecord(target, function(options) {
+              doSomethingElse();
+          });
+          break;
+        case 1:
+          doSomething();
+        default:
+          doSomethingElse();
+      }
+      
+            `,
+      errors: [{ line: 9 }],
+    },
+    {
+      code: `
+        function doSomething() {
+            doSmth();
+        }
+        switch (x) {
+            case 0:
+                doSomething();
+            case 1:
+                doSomething();
+            default:
+                doSomethingElse();
+        }
+            `,
+      errors: [{ line: 6 }, { line: 8 }],
     },
   ],
 });
