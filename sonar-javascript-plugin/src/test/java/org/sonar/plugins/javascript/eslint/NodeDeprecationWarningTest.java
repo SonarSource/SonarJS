@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NodeDeprecationWarningTest {
 
-  private static final String MSG = "You are using Node.js version {}, which reached end-of-life. Support for this version will be dropped in future release, please upgrade Node.js to more recent version.";
+  private static final String MSG = "You are using Node.js version 8, which reached end-of-life. Support for this version will be dropped in future release, please upgrade Node.js to more recent version.";
 
   @Rule
   public final LogTester logTester = new LogTester();
