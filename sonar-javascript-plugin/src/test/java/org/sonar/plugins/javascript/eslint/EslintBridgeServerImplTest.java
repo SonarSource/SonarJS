@@ -27,10 +27,15 @@ import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.plugins.javascript.api.RulesBundle;
@@ -65,6 +70,8 @@ public class EslintBridgeServerImplTest {
   private final TestBundle testBundle = new TestBundle(START_SERVER_SCRIPT);
 
   private final RulesBundles emptyRulesBundles = new RulesBundles(new RulesBundle[] {}, tempFolder);
+  private final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(8, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+  private final NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime);
 
   @Before
   public void setUp() throws Exception {
@@ -102,7 +109,7 @@ public class EslintBridgeServerImplTest {
       }
     });
 
-    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle, emptyRulesBundles);
+    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle, emptyRulesBundles, deprecationWarning);
     eslintBridgeServer.deploy();
 
     assertThatThrownBy(() -> eslintBridgeServer.startServer(context, emptyList()))
@@ -346,12 +353,12 @@ public class EslintBridgeServerImplTest {
 
   @Test
   public void should_use_default_timeout() {
-    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class));
+    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class), deprecationWarning);
     assertThat(eslintBridgeServer.getTimeoutSeconds()).isEqualTo(60);
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript), emptyRulesBundles);
+    return new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript), emptyRulesBundles, deprecationWarning);
   }
 
   static class TestBundle implements Bundle {

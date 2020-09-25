@@ -24,8 +24,10 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -141,13 +143,13 @@ public class NodeCommandTest {
 
   @Test
   public void test_version_check() {
-    assertThat(NodeCommandBuilderImpl.checkVersion("v5.1.1", 6)).isFalse();
-    assertThat(NodeCommandBuilderImpl.checkVersion("v10.8.0", 6)).isTrue();
-    assertThat(NodeCommandBuilderImpl.checkVersion("v10.8.0+123", 6)).isTrue();
+    assertThat(NodeCommandBuilderImpl.nodeMajorVersion("v5.1.1")).isEqualTo(5);
+    assertThat(NodeCommandBuilderImpl.nodeMajorVersion("v10.8.0")).isEqualTo(10);
+    assertThat(NodeCommandBuilderImpl.nodeMajorVersion("v10.8.0+123")).isEqualTo(10);
 
-    thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("Failed to parse Node.js version, got 'Invalid version'");
-    assertThat(NodeCommandBuilderImpl.checkVersion("Invalid version", 6)).isFalse();
+    assertThatThrownBy(() -> NodeCommandBuilderImpl.nodeMajorVersion("Invalid version"))
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessage("Failed to parse Node.js version, got 'Invalid version'");
   }
 
   @Test
@@ -352,8 +354,8 @@ public class NodeCommandTest {
       .build();
     nodeCommand.start();
     verify(mockProcessWrapper).start(processStartArgument.capture(), any());
-     List<String> value = processStartArgument.getValue();
-     assertThat(value).hasSize(2);
+    List<String> value = processStartArgument.getValue();
+    assertThat(value).hasSize(2);
     assertThat(value.get(0)).endsWith("nodejs-utils/src/test/resources/package/node_modules/run-node/run-node");
     assertThat(value.get(1)).isEqualTo("script.js");
   }
@@ -366,6 +368,14 @@ public class NodeCommandTest {
       .build();
 
     assertThatThrownBy(nodeCommand::start).isInstanceOf(NodeCommandException.class);
+  }
+
+  @Test
+  public void test_actual_node_version() throws Exception {
+    Consumer<String> noop = s -> {};
+    NodeCommand nodeCommand = new NodeCommand(mockProcessWrapper, "node", 12, Collections.emptyList(), null,
+      Collections.emptyList(), noop, noop);
+    assertThat(nodeCommand.getActualNodeVersion()).isEqualTo(12);
   }
 
   private static String resourceScript(String script) throws URISyntaxException {

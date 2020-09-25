@@ -60,6 +60,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private Consumer<String> errorConsumer = LOG::error;
   private String scriptFilename;
   private BundlePathResolver pathResolver;
+  private int actualNodeVersion;
 
   NodeCommandBuilderImpl(NodeCommand.ProcessWrapper processWrapper) {
     this.processWrapper = processWrapper;
@@ -141,6 +142,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return new NodeCommand(
       processWrapper,
       nodeExecutable,
+      actualNodeVersion,
       nodeJsArgs,
       scriptFilename,
       args,
@@ -154,33 +156,28 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     }
     LOG.debug("Checking Node.js version");
 
-    String actualVersion = getVersion(nodeExecutable);
-    boolean isCompatible = checkVersion(actualVersion, minNodeVersion);
-    if (!isCompatible) {
-      throw new NodeCommandException(String.format("Only Node.js v%s or later is supported, got %s.", minNodeVersion, actualVersion));
+    String versionString = getVersion(nodeExecutable);
+    actualNodeVersion = nodeMajorVersion(versionString);
+    if (actualNodeVersion < minNodeVersion) {
+      throw new NodeCommandException(String.format("Only Node.js v%s or later is supported, got %s.", minNodeVersion, actualNodeVersion));
     }
 
-    LOG.debug("Using Node.js {}.", actualVersion);
+    LOG.debug("Using Node.js {}.", versionString);
   }
 
   @VisibleForTesting
-  static boolean checkVersion(String actualVersion, int requiredVersion) throws NodeCommandException {
-    Matcher versionMatcher = NODEJS_VERSION_PATTERN.matcher(actualVersion);
+  static int nodeMajorVersion(String versionString) throws NodeCommandException {
+    Matcher versionMatcher = NODEJS_VERSION_PATTERN.matcher(versionString);
     if (versionMatcher.lookingAt()) {
-      int major = Integer.parseInt(versionMatcher.group(1));
-      if (major < requiredVersion) {
-        return false;
-      }
+      return Integer.parseInt(versionMatcher.group(1));
     } else {
-      throw new NodeCommandException("Failed to parse Node.js version, got '" + actualVersion + "'");
+      throw new NodeCommandException("Failed to parse Node.js version, got '" + versionString + "'");
     }
-
-    return true;
   }
 
   private String getVersion(String nodeExecutable) throws NodeCommandException {
     StringBuilder output = new StringBuilder();
-    NodeCommand nodeCommand = new NodeCommand(processWrapper, nodeExecutable, singletonList("-v"), null, emptyList(), output::append, LOG::error);
+    NodeCommand nodeCommand = new NodeCommand(processWrapper, nodeExecutable, actualNodeVersion, singletonList("-v"), null, emptyList(), output::append, LOG::error);
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     if (exitValue != 0) {
