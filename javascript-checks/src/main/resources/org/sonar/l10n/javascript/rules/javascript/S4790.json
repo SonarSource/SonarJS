@@ -1,5 +1,5 @@
 {
-  "title": "Hashing data is security-sensitive",
+  "title": "Using weak hashing algorithms is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "tags": [
@@ -19,11 +19,9 @@
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      759,
-      760,
       916,
-      328,
-      327
+      327,
+      328
     ],
     "OWASP": [
       "A3",

@@ -53,6 +53,27 @@ let express = require('express');
 
 app.use(csrf({ cookie: true, ignoreMethods: ["POST", "GET"] })); // Sensitive as POST is unsafe method
 </pre>
+<h2>Compliant Solution</h2>
+<p><a href="https://www.npmjs.com/package/csurf">Express.js CSURF middleware</a> protection is used on unsafe methods:</p>
+<pre>
+let csrf = require('csurf');
+let express = require('express');
+
+let csrfProtection = csrf({ cookie:  true });
+
+let app = express();
+
+app.post('/money_transfer', parseForm, csrfProtection, function (req, res) { // Compliant
+  res.send('Money transferred')
+});
+</pre>
+<p>Protection provided by <a href="https://www.npmjs.com/package/csurf">Express.js CSURF middleware</a> is enabled on unsafe methods:</p>
+<pre>
+let csrf = require('csurf');
+let express = require('express');
+
+app.use(csrf({ cookie: true, ignoreMethods: ["GET"] })); // Compliant
+</pre>
 <h2>See</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/352.html">MITRE, CWE-352</a> - Cross-Site Request Forgery (CSRF) </li>

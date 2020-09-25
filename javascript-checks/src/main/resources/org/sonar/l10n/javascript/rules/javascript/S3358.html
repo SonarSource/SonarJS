@@ -4,17 +4,17 @@ scratching their heads and cursing.</p>
 <p>Instead, err on the side of clarity, and use another line to express the nested operation as a separate statement.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-function getTitle(p) {
-  return p.gender == "male" ? "Mr. " : p.isMarried() ? "Mrs. " : "Miss ";  // Noncompliant
+function getReadableStatus(job) {
+  return job.isRunning() ? "Running" : job.hasErrors() ? "Failed" : "Succeeded ";  // Noncompliant
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-function getTitle(p) {
-  if (p.gender == "male") {
-    return "Mr. ";
+function getReadableStatus(job) {
+  if (job.isRunning()) {
+    return "Running";
   }
-  return p.isMarried() ? "Mrs. " : "Miss ";
+  return job.hasErrors() ? "Failed" : "Succeeded";
 }
 </pre>
 
