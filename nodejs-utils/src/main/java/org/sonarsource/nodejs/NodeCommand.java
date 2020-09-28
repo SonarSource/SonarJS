@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -110,14 +111,6 @@ public class NodeCommand {
     }
   }
 
-  /**
-   * Destroy external process
-   */
-  public void destroy() {
-    processWrapper.destroy(process);
-    streamConsumer.shutdownNow();
-  }
-
   @Override
   public String toString() {
     return String.join(" ", command);
@@ -161,7 +154,14 @@ public class NodeCommand {
 
     @Override
     public int waitFor(Process process) throws InterruptedException {
-      return process.waitFor();
+      boolean success = process.waitFor(1, TimeUnit.MINUTES);
+      if (success) {
+        return process.exitValue();
+      } else {
+        LOG.error("Node process did not stop in a timely fashion");
+        process.destroyForcibly();
+        return -1;
+      }
     }
 
     @Override

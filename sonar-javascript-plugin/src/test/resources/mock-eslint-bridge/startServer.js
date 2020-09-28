@@ -21,6 +21,9 @@ const requestHandler = (request, response) => {
     response.end("OK!");
   } else if (request.url === "/load-rule-bundles") {
     response.end("OK!");
+  } else if (request.url === "/close") {
+    response.end();
+    server.close();
   } else {
     response.end("{ issues: [] }");
   }
