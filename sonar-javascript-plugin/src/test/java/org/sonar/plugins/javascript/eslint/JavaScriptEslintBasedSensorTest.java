@@ -328,7 +328,9 @@ public class JavaScriptEslintBasedSensorTest {
       new JavaScriptChecks(checkFactory),
       new NoSonarFilter(),
       fileLinesContextFactory,
-      eslintBridgeServerMock
+      eslintBridgeServerMock,
+      null,
+      tempFolder
     );
 
     EslintBridgeServer.Rule[] rules = sensor.rules;
@@ -353,7 +355,8 @@ public class JavaScriptEslintBasedSensorTest {
       new NoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
-      analysisWarnings
+      analysisWarnings,
+      tempFolder
     );
 
     javaScriptEslintBasedSensor.execute(context);
@@ -402,7 +405,7 @@ public class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
-    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock).execute(context);
+    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, null, tempFolder).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(0);
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -482,7 +485,7 @@ public class JavaScriptEslintBasedSensorTest {
 
     JavaScriptChecks checks = checks("S1314");
     NoSonarFilter noSonarFilter = new NoSonarFilter();
-    JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServerMock);
+    JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServerMock, null, tempFolder);
     sensor.execute(context);
 
     assertThat(context.allIssues()).hasSize(1);
@@ -519,7 +522,7 @@ public class JavaScriptEslintBasedSensorTest {
 
   private JavaScriptEslintBasedSensor createSensor() {
     return new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE, "S2260", "S1451"), new NoSonarFilter(), fileLinesContextFactory,
-      eslintBridgeServerMock
+      eslintBridgeServerMock, null, tempFolder
     );
   }
 }
