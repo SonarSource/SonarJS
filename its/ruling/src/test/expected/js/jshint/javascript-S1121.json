@@ -63,6 +63,9 @@
 'jshint:tests/unit/fixtures/return.js':[
 3,
 ],
+'jshint:tests/unit/fixtures/with.js':[
+13,
+],
 'jshint:tests/unit/module-api.js':[
 60,
 ],

@@ -8,4 +8,7 @@
 'jshint:tests/unit/fixtures/gh826.js':[
 3,
 ],
+'jshint:tests/unit/fixtures/nestedFunctions.js':[
+3,
+],
 }

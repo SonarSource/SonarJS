@@ -8,8 +8,13 @@
 721,
 781,
 ],
+'knockout:spec/lib/jasmine-1.2.0/jasmine.js':[
+1162,
+],
 'knockout:spec/lib/json2.js':[
 175,
+186,
+187,
 188,
 ],
 'knockout:src/binding/bindingAttributeSyntax.js':[

@@ -1,7 +1,13 @@
 {
+'mootools-core:Source/Class/Class.js':[
+34,
+],
 'mootools-core:Source/Core/Core.js':[
 80,
 96,
+],
+'mootools-core:Source/Element/Element.js':[
+48,
 ],
 'mootools-core:Source/Types/String.js':[
 87,

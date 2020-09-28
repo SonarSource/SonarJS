@@ -1,0 +1,6 @@
+{
+'jshint:tests/unit/fixtures/reserved.js':[
+5,
+10,
+],
+}

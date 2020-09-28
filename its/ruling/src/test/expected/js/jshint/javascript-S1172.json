@@ -8,6 +8,11 @@
 18,
 26,
 ],
+'jshint:tests/unit/fixtures/es5.js':[
+58,
+59,
+59,
+],
 'jshint:tests/unit/fixtures/gh988.js':[
 14,
 16,
@@ -41,6 +46,11 @@
 16,
 16,
 16,
+],
+'jshint:tests/unit/fixtures/redef-es6.js':[
+342,
+342,
+342,
 ],
 'jshint:tests/unit/fixtures/scope-redef.js':[
 12,

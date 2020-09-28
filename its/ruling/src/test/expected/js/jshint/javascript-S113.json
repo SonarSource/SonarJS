@@ -8,11 +8,17 @@
 'jshint:tests/unit/fixtures/class-declaration.js':[
 18,
 ],
+'jshint:tests/unit/fixtures/const.js':[
+71,
+],
 'jshint:tests/unit/fixtures/curly.js':[
 12,
 ],
 'jshint:tests/unit/fixtures/curly2.js':[
 15,
+],
+'jshint:tests/unit/fixtures/emptystmt.js':[
+23,
 ],
 'jshint:tests/unit/fixtures/eqeqeq.js':[
 10,
@@ -68,6 +74,9 @@
 'jshint:tests/unit/fixtures/quotes4.js':[
 2,
 ],
+'jshint:tests/unit/fixtures/redef-es6.js':[
+367,
+],
 'jshint:tests/unit/fixtures/redef.js':[
 20,
 ],
@@ -94,5 +103,8 @@
 ],
 'jshint:tests/unit/fixtures/undefstrict.js':[
 6,
+],
+'jshint:tests/unit/fixtures/with.js':[
+16,
 ],
 }

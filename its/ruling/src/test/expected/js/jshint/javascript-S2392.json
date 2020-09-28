@@ -19,6 +19,9 @@
 'jshint:tests/unit/fixtures/boss.js':[
 7,
 ],
+'jshint:tests/unit/fixtures/emptystmt.js':[
+14,
+],
 'jshint:tests/unit/fixtures/forin.js':[
 1,
 55,
@@ -35,6 +38,14 @@
 ],
 'jshint:tests/unit/fixtures/loopfunc.js':[
 7,
+],
+'jshint:tests/unit/fixtures/redef-es6.js':[
+14,
+24,
+145,
+168,
+178,
+299,
 ],
 'jshint:tests/unit/fixtures/redef.js':[
 3,

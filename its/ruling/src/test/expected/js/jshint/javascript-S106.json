@@ -29,6 +29,9 @@
 206,
 211,
 ],
+'jshint:tests/unit/fixtures/const.js':[
+11,
+],
 'jshint:tests/unit/fixtures/gh-334.js':[
 5,
 ],
