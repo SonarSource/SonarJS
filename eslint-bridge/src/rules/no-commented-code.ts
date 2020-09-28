@@ -80,7 +80,10 @@ export const rule: Rule.RuleModule = {
         );
         groupedComments.forEach(groupComment => {
           const rawTextTrimmed = groupComment.value.trim();
-          if (rawTextTrimmed !== '}' && containsCode(injectMissingBraces(rawTextTrimmed))) {
+          if (
+            rawTextTrimmed !== '}' &&
+            containsCode(injectMissingBraces(rawTextTrimmed), context.getFilename())
+          ) {
             context.report({
               message: 'Remove this commented out code.',
               loc: getCommentLocation(groupComment.nodes),
@@ -120,8 +123,8 @@ function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
   return false;
 }
 
-function containsCode(value: string) {
-  const parseResult = parseJavaScriptSourceFile(value);
+function containsCode(value: string, filename: string) {
+  const parseResult = parseJavaScriptSourceFile(value, filename);
   return (
     isSourceCode(parseResult) &&
     parseResult.ast.body.length > 0 &&

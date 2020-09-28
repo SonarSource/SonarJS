@@ -36,10 +36,26 @@ import { ParsingError } from '../src/analyzer';
 import visit from '../src/utils/visitor';
 import * as path from 'path';
 import * as ts from 'typescript';
+import * as fs from 'fs';
+
+describe('TypeScript version', () => {
+  beforeEach(() => {
+    console.log = jest.fn();
+  });
+
+  it('should log typescript version once', () => {
+    parseTypeScriptSourceFile('', 'foo.ts');
+    parseTypeScriptSourceFile('', 'foo.ts');
+    const callsToLogger = (console.log as jest.Mock).mock.calls;
+    const message = `Version of TypeScript used during analysis: ${ts.version}`;
+    expect(callsToLogger.filter(args => args[0] === message)).toHaveLength(1);
+  });
+});
 
 describe('parseJavaScriptSourceFile', () => {
   beforeEach(() => {
     console.error = jest.fn();
+    console.log = jest.fn();
   });
 
   afterEach(() => {
@@ -101,7 +117,7 @@ import { ParseExceptionCode } from '../src/parser';
   it('should parse next javascript syntax', () => {
     let sourceCode;
     // ES2019
-    sourceCode = parseJavaScriptSourceFile(`try {} catch {}`);
+    sourceCode = parseJavaScriptSourceFile(`try {} catch {}`, `foo.js`);
     expect(sourceCode.ast.body.length).toBeGreaterThan(0);
     // next
     // class fields
@@ -109,13 +125,12 @@ import { ParseExceptionCode } from '../src/parser';
        static a = 1; 
        b = 2 
     }`);
-    // private fields are not supported
-    expectToNotParse(
+    // private fields are parsable with TypeScript compiler
+    expectToParse(
       `class A { static #x = 2
         #privateMethod() { this.#privateField = 42; }
         #privateField = 42
         set #x(value) {}  }`,
-      "Unexpected character '#'",
     );
   });
 
@@ -123,19 +138,29 @@ import { ParseExceptionCode } from '../src/parser';
     expectToNotParse('if()', 'Unexpected token )');
     expectToNotParse('/* @flow */ if()', 'Unexpected token (1:15)');
   });
+
+  it('should parse JavaScript syntax with TypeScript compiler', () => {
+    const dirPath = __dirname + '/fixtures/js-project';
+    const filePath = dirPath + '/sample.lint.js';
+    const tsConfig = dirPath + '/tsconfig.json';
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
+    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.parserServices.program).toBeDefined();
+    expect(sourceCode.parserServices.program.getTypeChecker()).toBeDefined();
+  });
+
+  it(`should log error on TypeScript compiler's parsing failure`, () => {
+    parseJavaScriptSourceFile('if (true) {', 'foo.js');
+    const callsToLogger = (console.log as jest.Mock).mock.calls;
+    const message = `Failed to parse foo.js with TypeScript compiler: '}' expected.`;
+    expect(callsToLogger.filter(args => args[0] === message)).toHaveLength(1);
+  });
 });
 
 describe('parseTypeScriptSourceFile', () => {
   beforeEach(() => {
     console.log = jest.fn();
-  });
-
-  it('should log typescript version once', () => {
-    parseTypeScriptSourceFile('', 'foo.ts');
-    parseTypeScriptSourceFile('', 'foo.ts');
-    const callsToLogger = (console.log as jest.Mock).mock.calls;
-    const message = `Version of TypeScript used during analysis: ${ts.version}`;
-    expect(callsToLogger.filter(args => args[0] === message)).toHaveLength(1);
   });
 
   it('should parse typescript syntax', () => {
@@ -228,7 +253,7 @@ describe('parseVueSourceFile', () => {
         }
       }`;
 
-    const parsedJS = parseJavaScriptSourceFile(code) as SourceCode;
+    const parsedJS = parseJavaScriptSourceFile(code, 'foo.js') as SourceCode;
     const parsedVueJS = parseVueSourceFile(`
       <template>
         <p>{{foo}}</p>
@@ -262,9 +287,8 @@ describe('parseVueSourceFile', () => {
 
 describe('parse import expression', () => {
   it('should parse js with import expression', () => {
-    const sourceCode = parseJavaScriptSourceFile(`import('moduleName');`) as SourceCode;
-    // see https://github.com/babel/babel-eslint/issues/837
-    expect(sourceCode.visitorKeys['ImportExpression']).toBeUndefined();
+    const sourceCode = parseJavaScriptSourceFile(`import('moduleName');`, `foo.js`) as SourceCode;
+    expect(sourceCode.visitorKeys['ImportExpression']).toBeDefined();
   });
 
   it('should parse Vue.js with import expression', () => {
@@ -279,14 +303,14 @@ describe('parse import expression', () => {
 });
 
 function expectToParse(code: string) {
-  const sourceCode = parseJavaScriptSourceFile(code) as SourceCode;
+  const sourceCode = parseJavaScriptSourceFile(code, 'foo.js') as SourceCode;
   expect(sourceCode).toBeDefined();
   expect(sourceCode.ast.body.length).toBeGreaterThan(0);
   expect(console.error).toBeCalledTimes(0);
 }
 
 function expectToNotParse(code: string, message: string) {
-  const parsingError = parseJavaScriptSourceFile(code) as ParsingError;
+  const parsingError = parseJavaScriptSourceFile(code, 'foo.js') as ParsingError;
   expect(parsingError).toBeDefined();
   expect(parsingError.line).toEqual(1);
   expect(parsingError.message).toEqual(message);

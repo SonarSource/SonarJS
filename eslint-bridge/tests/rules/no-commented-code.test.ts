@@ -115,10 +115,6 @@ ruleTester.run('Sections of code should not be commented out', rule, {
         */
       
         // }
-        
-        // // The following fails to parse as new parser raise an error because the break is not expected there
-        //     if (something) {}
-        //     break;
         `,
     },
   ],

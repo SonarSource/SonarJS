@@ -188,7 +188,7 @@ describe('#decodeSecondaryLocations', () => {
   });
 
   it('should compute symbol highlighting when additional rule', () => {
-    const sourceCode = parseJavaScriptSourceFile('let x = 42;') as SourceCode;
+    const sourceCode = parseJavaScriptSourceFile('let x = 42;', `foo.js`) as SourceCode;
     const linter = new LinterWrapper([], [SYMBOL_HIGHLIGHTING_RULE]);
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(1);
@@ -199,16 +199,19 @@ describe('#decodeSecondaryLocations', () => {
   });
 
   it('should not compute symbol highlighting when no additional rule', () => {
-    const sourceCode = parseJavaScriptSourceFile('let x = 42;') as SourceCode;
+    const sourceCode = parseJavaScriptSourceFile('let x = 42;', `foo.js`) as SourceCode;
     const linter = new LinterWrapper([]);
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(0);
   });
 
   it('should not take into account config from comments', () => {
-    const sourceCode = parseJavaScriptSourceFile(`
+    const sourceCode = parseJavaScriptSourceFile(
+      `
     /*eslint max-params: ["error", 1]*/
-    function foo(a, b){}`) as SourceCode;
+    function foo(a, b){}`,
+      `foo.js`,
+    ) as SourceCode;
     const linter = new LinterWrapper([]);
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(0);
@@ -217,6 +220,7 @@ describe('#decodeSecondaryLocations', () => {
   it('should compute cognitive complexity when additional rule', () => {
     const sourceCode = parseJavaScriptSourceFile(
       'if (true) if (true) if (true) return;',
+      `foo.js`,
     ) as SourceCode;
     const linter = new LinterWrapper([], [COGNITIVE_COMPLEXITY_RULE]);
     const result = linter.analyze(sourceCode, filePath).issues;
@@ -228,7 +232,8 @@ describe('#decodeSecondaryLocations', () => {
   it('should not report unused expressions when chai lib is used', () => {
     const sourceCode = parseJavaScriptSourceFile(
       `expect(true).to.be.true;
-       42;`, // we report only here
+       42;`,
+      `foo.js`, // we report only here
     ) as SourceCode;
     const linter = new LinterWrapper([{ key: 'no-unused-expressions', configurations: [] }]);
     const result = linter.analyze(sourceCode, filePath).issues;

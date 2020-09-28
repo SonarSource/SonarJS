@@ -79,6 +79,7 @@ public final class Tests {
     .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/ts-eslint-based-rules.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
     .build();
 
   private Tests() {
