@@ -77,15 +77,17 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   @Override
   void analyzeFiles() throws IOException, InterruptedException {
-    runEslintAnalysis(provideTsConfig());
+    runEslintAnalysis(provideDefaultTsConfig());
     PROFILER.startInfo("Java-based frontend sensor [javascript]");
     new JavaScriptSensor(checks).execute(context);
     PROFILER.stopInfo();
   }
 
-  private List<String> provideTsConfig() throws IOException {
+  private List<String> provideDefaultTsConfig() throws IOException {
     Map<String, Object> compilerOptions = new HashMap<>();
+    // to support parsing of JavaScript-specific syntax
     compilerOptions.put("allowJs", true);
+    // to make TypeScript compiler "better infer types"
     compilerOptions.put("noImplicitAny", true);
     DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptEslintBasedSensor::filePredicate, compilerOptions);
     return provider.tsconfigs(context);
