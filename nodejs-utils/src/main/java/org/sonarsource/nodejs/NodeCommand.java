@@ -55,9 +55,9 @@ public class NodeCommand {
   private final List<String> command;
 
   NodeCommand(ProcessWrapper processWrapper, String nodeExecutable, int actualNodeVersion, List<String> nodeJsArgs, @Nullable String scriptFilename,
-              List<String> args,
-              Consumer<String> outputConsumer,
-              Consumer<String> errorConsumer) {
+    List<String> args,
+    Consumer<String> outputConsumer,
+    Consumer<String> errorConsumer) {
     this.processWrapper = processWrapper;
     this.command = buildCommand(nodeExecutable, nodeJsArgs, scriptFilename, args);
     this.actualNodeVersion = actualNodeVersion;
@@ -99,7 +99,15 @@ public class NodeCommand {
    */
   public int waitFor() {
     try {
-      int exitValue = processWrapper.waitFor(process);
+      int exitValue;
+      boolean success = processWrapper.waitFor(process, 1, TimeUnit.MINUTES);
+      if (success) {
+        exitValue = processWrapper.exitValue(process);
+      } else {
+        LOG.error("Node process did not stop in a timely fashion");
+        processWrapper.destroyForcibly(process);
+        exitValue = -1;
+      }
       streamConsumer.await();
       return exitValue;
     } catch (InterruptedException e) {
@@ -131,16 +139,18 @@ public class NodeCommand {
   interface ProcessWrapper {
     Process start(List<String> commandLine, Map<String, String> env) throws IOException;
 
-    int waitFor(Process process) throws InterruptedException;
+    boolean waitFor(Process process, long timeout, TimeUnit unit) throws InterruptedException;
 
     void interrupt();
 
-    void destroy(Process process);
+    void destroyForcibly(Process process);
 
     boolean isMac();
 
     @CheckForNull
     String getenv(String name);
+
+    int exitValue(Process process);
   }
 
   private static class ProcessWrapperImpl implements ProcessWrapper {
@@ -153,15 +163,8 @@ public class NodeCommand {
     }
 
     @Override
-    public int waitFor(Process process) throws InterruptedException {
-      boolean success = process.waitFor(1, TimeUnit.MINUTES);
-      if (success) {
-        return process.exitValue();
-      } else {
-        LOG.error("Node process did not stop in a timely fashion");
-        process.destroyForcibly();
-        return -1;
-      }
+    public boolean waitFor(Process process, long timeout, TimeUnit unit) throws InterruptedException {
+      return process.waitFor(timeout, unit);
     }
 
     @Override
@@ -170,8 +173,8 @@ public class NodeCommand {
     }
 
     @Override
-    public void destroy(Process process) {
-      process.destroy();
+    public void destroyForcibly(Process process) {
+      process.destroyForcibly();
     }
 
     @Override
@@ -183,6 +186,11 @@ public class NodeCommand {
     @CheckForNull
     public String getenv(String name) {
       return System.getenv(name);
+    }
+
+    @Override
+    public int exitValue(Process process) {
+      return process.exitValue();
     }
   }
 }

@@ -71,15 +71,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   // Used by pico container for dependency injection
   public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles,
-                                NodeDeprecationWarning deprecationWarning) {
+    NodeDeprecationWarning deprecationWarning) {
     this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle, rulesBundles, deprecationWarning);
   }
 
   EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder,
-                         int timeoutSeconds,
-                         Bundle bundle,
-                         RulesBundles rulesBundles,
-                         NodeDeprecationWarning deprecationWarning) {
+    int timeoutSeconds,
+    Bundle bundle,
+    RulesBundles rulesBundles,
+    NodeDeprecationWarning deprecationWarning) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
