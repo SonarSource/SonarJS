@@ -46,7 +46,6 @@ import org.sonarsource.nodejs.NodeCommandException;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
-import static org.sonar.plugins.javascript.eslint.NetUtils.waitServerToStart;
 
 public class EslintBridgeServerImpl implements EslintBridgeServer {
 
@@ -63,6 +62,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private final NodeCommandBuilder nodeCommandBuilder;
   private final int timeoutSeconds;
   private final Bundle bundle;
+  private final String hostAddress;
   private int port;
   private NodeCommand nodeCommand;
   private boolean failedToStart;
@@ -89,6 +89,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .build();
     this.rulesBundles = rulesBundles;
     this.deprecationWarning = deprecationWarning;
+    this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
   }
 
   int getTimeoutSeconds() {
@@ -114,11 +115,28 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     LOG.debug("Starting Node.js process to start eslint-bridge server at port " + port);
     nodeCommand.start();
 
-    if (!waitServerToStart("localhost", port, timeoutSeconds * 1000)) {
+    if (!waitServerToStart(timeoutSeconds * 1000)) {
       throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
     }
     PROFILER.stopDebug();
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
+  }
+
+  boolean waitServerToStart(int timeoutMs) {
+    int sleepStep = 100;
+    long start = System.currentTimeMillis();
+    try {
+      Thread.sleep(sleepStep);
+      while (!isAlive()) {
+        if (System.currentTimeMillis() - start > timeoutMs) {
+          return false;
+        }
+        Thread.sleep(sleepStep);
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    return true;
   }
 
   private void initNodeCommand(SensorContext context, File scriptFile, File workDir, String bundles) throws IOException {
@@ -136,7 +154,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .minNodeVersion(MIN_NODE_VERSION)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port), InetAddress.getLoopbackAddress().getHostAddress(), workDir.getAbsolutePath(), bundles);
+      .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), bundles);
 
     context.config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
@@ -311,7 +329,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     HttpUrl.Builder builder = new HttpUrl.Builder();
     return builder
       .scheme("http")
-      .host("localhost")
+      .host(hostAddress)
       .port(port)
       .addPathSegment(endpoint)
       .build();

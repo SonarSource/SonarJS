@@ -24,6 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +50,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 import static org.sonar.api.utils.log.LoggerLevel.ERROR;
@@ -82,7 +85,9 @@ public class EslintBridgeServerImplTest {
   @After
   public void tearDown() throws Exception {
     try {
-      eslintBridgeServer.clean();
+      if (eslintBridgeServer != null) {
+        eslintBridgeServer.clean();
+      }
     } catch (Exception e) {
       // ignore
       e.printStackTrace();
@@ -355,6 +360,23 @@ public class EslintBridgeServerImplTest {
   public void should_use_default_timeout() {
     eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class), deprecationWarning);
     assertThat(eslintBridgeServer.getTimeoutSeconds()).isEqualTo(60);
+  }
+
+  @Test
+  public void waitServerToStart_can_be_interrupted() throws InterruptedException {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    // try to connect to a port that does not exists
+    Thread worker = new Thread(() -> eslintBridgeServer.waitServerToStart(1000));
+    worker.start();
+    Awaitility.setDefaultTimeout(1, TimeUnit.SECONDS);
+    // wait for the worker thread to start and to be blocked on Thread.sleep(20);
+    await().until(() -> worker.getState() == Thread.State.TIMED_WAITING);
+
+    long start = System.currentTimeMillis();
+    worker.interrupt();
+    worker.join();
+    long timeToInterrupt = System.currentTimeMillis() - start;
+    assertThat(timeToInterrupt).isLessThan(20);
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
