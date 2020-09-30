@@ -71,15 +71,15 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   // Used by pico container for dependency injection
   public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles,
-                                NodeDeprecationWarning deprecationWarning) {
+    NodeDeprecationWarning deprecationWarning) {
     this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle, rulesBundles, deprecationWarning);
   }
 
   EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder,
-                         int timeoutSeconds,
-                         Bundle bundle,
-                         RulesBundles rulesBundles,
-                         NodeDeprecationWarning deprecationWarning) {
+    int timeoutSeconds,
+    Bundle bundle,
+    RulesBundles rulesBundles,
+    NodeDeprecationWarning deprecationWarning) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
@@ -120,7 +120,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     PROFILER.stopDebug();
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
   }
-
 
   private void initNodeCommand(SensorContext context, File scriptFile, File workDir, String bundles) throws IOException {
     nodeCommandBuilder
@@ -215,7 +214,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
   }
 
-
   public boolean isAlive() {
     if (nodeCommand == null) {
       return false;
@@ -277,7 +275,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     return list == null ? emptyList() : list;
   }
 
-
   @Override
   public void clean() {
     if (nodeCommand != null) {
@@ -286,7 +283,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       } catch (IOException e) {
         LOG.warn("Failed to close server", e);
       }
-      nodeCommand.destroy();
+      nodeCommand.waitFor();
       nodeCommand = null;
     }
   }

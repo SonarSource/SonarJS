@@ -9,9 +9,14 @@ console.log(`WARN testing warn log`)
 console.log(`testing info log`)
 
 const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('OK!');
+  if (request.url === "/close") {
+    response.end();
+    server.close();
+  } else {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('OK!');
+  }
 })
 
 server.listen(port, host, () => {

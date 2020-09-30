@@ -8,6 +8,9 @@ const requestHandler = (request, response) => {
   if (request.url === "/status") {
     response.writeHead(200, { "Content-Type": "text/plain" });
     response.end("OK!");
+  } else if (request.url === "/close") {
+    response.end();
+    server.close();
   } else {
     response.end(`{
       error: "Other error"      

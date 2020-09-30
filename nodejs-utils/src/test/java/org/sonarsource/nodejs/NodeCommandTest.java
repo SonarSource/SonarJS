@@ -19,7 +19,6 @@
  */
 package org.sonarsource.nodejs;
 
-
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -70,7 +70,6 @@ public class NodeCommandTest {
 
   @Mock
   private NodeCommand.ProcessWrapper mockProcessWrapper;
-
 
   @Before
   public void setUp() throws Exception {
@@ -291,7 +290,7 @@ public class NodeCommandTest {
 
   @Test
   public void test_interrupted_waitFor() throws Exception {
-    when(mockProcessWrapper.waitFor(any())).thenThrow(new InterruptedException());
+    when(mockProcessWrapper.waitFor(any(), anyLong(), any())).thenThrow(new InterruptedException());
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .script(resourceScript(PATH_TO_SCRIPT))
       .build();
@@ -300,6 +299,19 @@ public class NodeCommandTest {
     verify(mockProcessWrapper).interrupt();
     assertThat(logTester.logs()).contains("Interrupted while waiting for process to terminate.");
     assertThat(exitValue).isEqualTo(1);
+  }
+
+  @Test
+  public void test_timeout_waitFor() throws Exception {
+    when(mockProcessWrapper.waitFor(any(), anyLong(), any())).thenReturn(false);
+    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+      .script(resourceScript(PATH_TO_SCRIPT))
+      .build();
+    nodeCommand.start();
+    int exitValue = nodeCommand.waitFor();
+    verify(mockProcessWrapper).destroyForcibly(any());
+    assertThat(logTester.logs()).contains("Node process did not stop in a timely fashion");
+    assertThat(exitValue).isEqualTo(-1);
   }
 
   @Test
@@ -320,7 +332,8 @@ public class NodeCommandTest {
 
   @Test
   public void test_failed_get_version() throws Exception {
-    when(mockProcessWrapper.waitFor(any())).thenReturn(1);
+    when(mockProcessWrapper.waitFor(any(), anyLong(), any())).thenReturn(true);
+    when(mockProcessWrapper.exitValue(any())).thenReturn(1);
     NodeCommandBuilder commandBuilder = NodeCommand.builder(mockProcessWrapper)
       .minNodeVersion(8)
       .script(resourceScript(PATH_TO_SCRIPT));
@@ -372,7 +385,8 @@ public class NodeCommandTest {
 
   @Test
   public void test_actual_node_version() throws Exception {
-    Consumer<String> noop = s -> {};
+    Consumer<String> noop = s -> {
+    };
     NodeCommand nodeCommand = new NodeCommand(mockProcessWrapper, "node", 12, Collections.emptyList(), null,
       Collections.emptyList(), noop, noop);
     assertThat(nodeCommand.getActualNodeVersion()).isEqualTo(12);
