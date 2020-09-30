@@ -1,0 +1,26 @@
+{
+  "title": "JWT should be signed and verified with strong cipher algorithms",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "privacy",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-5659",
+  "sqKey": "S5659",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      347
+    ],
+    "OWASP": [
+      "A3"
+    ]
+  }
+}

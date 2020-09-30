@@ -163,6 +163,7 @@ public final class CheckList {
       InconsistentFunctionCallCheck.class,
       IncrementDecrementInSubExpressionCheck.class,
       IndexOfCompareToPositiveNumberCheck.class,
+      InsecureJwtTokenCheck.class,
       IgnoredReturnCheck.class,
       InOperatorTypeErrorCheck.class,
       InstanceofInMisuseCheck.class,
