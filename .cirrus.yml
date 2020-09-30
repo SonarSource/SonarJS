@@ -82,7 +82,7 @@ plugin_qa_task:
     cpu: 3
     memory: 8G
   env:
-    CIRRUS_CLONE_DEPTH: 1
+    CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
     matrix:
       - SQ_VERSION: LATEST_RELEASE
@@ -109,7 +109,7 @@ plugin_qa_nodejs_task:
     cpu: 3
     memory: 8G
   env:
-    CIRRUS_CLONE_DEPTH: 1
+    CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE
   maven_cache:
@@ -149,7 +149,7 @@ ruling_task:
     cpu: 4
     memory: 12G
   env:
-    CIRRUS_CLONE_DEPTH: 1
+    CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
     matrix:
       - RULING: JavaScriptRulingTest
