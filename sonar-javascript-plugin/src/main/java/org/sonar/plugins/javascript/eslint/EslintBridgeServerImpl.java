@@ -115,11 +115,28 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     LOG.debug("Starting Node.js process to start eslint-bridge server at port " + port);
     nodeCommand.start();
 
-    if (!isAlive()) {
+    if (!waitServerToStart(timeoutSeconds * 1000)) {
       throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
     }
     PROFILER.stopDebug();
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
+  }
+
+  private boolean waitServerToStart(int timeoutMs) {
+    int sleepStep = 100;
+    long start = System.currentTimeMillis();
+    try {
+      Thread.sleep(sleepStep);
+      while (!isAlive()) {
+        if (System.currentTimeMillis() - start > timeoutMs) {
+          return false;
+        }
+        Thread.sleep(sleepStep);
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    return true;
   }
 
   private void initNodeCommand(SensorContext context, File scriptFile, File workDir, String bundles) throws IOException {
