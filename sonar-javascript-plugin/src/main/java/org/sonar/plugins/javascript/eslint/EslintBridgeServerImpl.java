@@ -122,7 +122,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
   }
 
-  private boolean waitServerToStart(int timeoutMs) {
+  boolean waitServerToStart(int timeoutMs) {
     int sleepStep = 100;
     long start = System.currentTimeMillis();
     try {
