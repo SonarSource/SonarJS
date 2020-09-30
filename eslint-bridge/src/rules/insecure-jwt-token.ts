@@ -25,6 +25,7 @@ import {
   getModuleNameOfNode,
   getObjectExpressionProperty,
   getValueOfExpression,
+  isIdentifier,
   toEncodedMessage,
 } from './utils';
 
@@ -38,6 +39,10 @@ export const rule: Rule.RuleModule = {
     ],
   },
   create(context: Rule.RuleContext) {
+    const SIGN_MESSAGE = 'Use only strong cipher algorithms when signing this JWT.';
+    const VERIFY_MESSAGE =
+      'Use only strong cipher algorithms when verifying the signature of this JWT.';
+
     function checkCallToSign(
       callExpression: estree.CallExpression,
       thirdArgumentValue: estree.ObjectExpression,
@@ -47,20 +52,18 @@ export const rule: Rule.RuleModule = {
       if (!algorithmProperty) {
         return;
       }
-      const algorithmValue =
-        algorithmProperty.value.type === 'Literal'
-          ? algorithmProperty.value
-          : (getValueOfExpression(context, algorithmProperty.value, 'Literal') as estree.Literal);
+      const algorithmValue = getValueOfExpression<estree.Literal>(
+        context,
+        algorithmProperty.value,
+        'Literal',
+      );
       if (algorithmValue?.value === 'none') {
         if (algorithmValue !== algorithmProperty.value) {
           secondaryLocations.push(algorithmValue);
         }
         context.report({
           node: callExpression.callee,
-          message: toEncodedMessage(
-            'Use only strong cipher algorithms when signing this JWT.',
-            secondaryLocations,
-          ),
+          message: toEncodedMessage(SIGN_MESSAGE, secondaryLocations),
         });
       }
     }
@@ -74,30 +77,21 @@ export const rule: Rule.RuleModule = {
       if (!algorithmsProperty) {
         context.report({
           node: callExpression.callee,
-          message: toEncodedMessage(
-            'Use only strong cipher algorithms when verifying the signature of this JWT.',
-            secondaryLocations,
-          ),
+          message: toEncodedMessage(VERIFY_MESSAGE, secondaryLocations),
         });
         return;
       }
-      const algorithmsValue =
-        algorithmsProperty.value.type === 'ArrayExpression'
-          ? algorithmsProperty.value
-          : (getValueOfExpression(
-              context,
-              algorithmsProperty.value,
-              'ArrayExpression',
-            ) as estree.ArrayExpression);
+      const algorithmsValue = getValueOfExpression<estree.ArrayExpression>(
+        context,
+        algorithmsProperty.value,
+        'ArrayExpression',
+      );
       if (!algorithmsValue) {
         return;
       }
       const algorithmsContainNone = algorithmsValue.elements.some(e => {
-        const value =
-          e.type === 'Literal'
-            ? e.value
-            : (getValueOfExpression(context, e, 'Literal') as estree.Literal)?.value;
-        return value === 'none';
+        const value = getValueOfExpression<estree.Literal>(context, e, 'Literal');
+        return value?.value === 'none';
       });
       if (algorithmsContainNone) {
         if (algorithmsProperty.value !== algorithmsValue) {
@@ -105,10 +99,7 @@ export const rule: Rule.RuleModule = {
         }
         context.report({
           node: callExpression.callee,
-          message: toEncodedMessage(
-            'Use only strong cipher algorithms when verifying the signature of this JWT.',
-            secondaryLocations,
-          ),
+          message: toEncodedMessage(VERIFY_MESSAGE, secondaryLocations),
         });
       }
     }
@@ -123,21 +114,18 @@ export const rule: Rule.RuleModule = {
           if (moduleName?.value !== 'jsonwebtoken') {
             return;
           }
-          const isCallToSign = isPropertyNamed(callee, 'sign');
-          const isCallToVerify = isPropertyNamed(callee, 'verify');
+          const isCallToSign = isIdentifier(callee.property, 'sign');
+          const isCallToVerify = isIdentifier(callee.property, 'verify');
           if (callExpression.arguments.length < 3) {
             // algorithm(s) property is contained in third argument of "sign" and "verify" calls
             return;
           }
           const thirdArgument = callExpression.arguments[2];
-          const thirdArgumentValue =
-            thirdArgument.type === 'ObjectExpression'
-              ? thirdArgument
-              : (getValueOfExpression(
-                  context,
-                  thirdArgument,
-                  'ObjectExpression',
-                ) as estree.ObjectExpression);
+          const thirdArgumentValue = getValueOfExpression<estree.ObjectExpression>(
+            context,
+            thirdArgument,
+            'ObjectExpression',
+          );
           if (!thirdArgumentValue) {
             return;
           }
@@ -156,7 +144,3 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function isPropertyNamed(memberExpression: estree.MemberExpression, name: string) {
-  return memberExpression.property.type === 'Identifier' && memberExpression.property.name === name;
-}
