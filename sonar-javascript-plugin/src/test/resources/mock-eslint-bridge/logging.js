@@ -9,8 +9,8 @@ console.log(`WARN testing warn log`)
 console.log(`testing info log`)
 
 const server = http.createServer((req, res) => {
-  if (request.url === "/close") {
-    response.end();
+  if (req.url === "/close") {
+    res.end();
     server.close();
   } else {
     res.statusCode = 200;
