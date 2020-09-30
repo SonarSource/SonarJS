@@ -102,4 +102,23 @@ public class EslintBasedRulesTest {
     assertThat(issuesList.get(0).getLine()).isEqualTo(5);
   }
 
+  @Test
+  public void test_js_with_ts_eslint_parser() {
+    String projectKey = "js-with-ts-eslint-key";
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(TestUtils.projectDir("js-with-ts-eslint-project"));
+
+    Tests.setProfile(projectKey, "js-with-ts-eslint-profile", "js");
+
+    orchestrator.executeBuild(build);
+
+    SearchRequest request = new SearchRequest();
+    request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3525"));
+    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    assertThat(issuesList).hasSize(1);
+    assertThat(issuesList.get(0).getLine()).isEqualTo(2);
+  }
 }

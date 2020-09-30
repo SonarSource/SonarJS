@@ -276,6 +276,13 @@
 'jshint:tests/unit/fixtures/nativeobject.js':[
 14,
 ],
+'jshint:tests/unit/fixtures/nestedFunctions.js':[
+34,
+35,
+36,
+37,
+38,
+],
 'jshint:tests/unit/parser.js':[
 7925,
 7934,

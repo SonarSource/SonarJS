@@ -124,6 +124,13 @@
 'angular.js:test/ng/directive/ngRepeatSpec.js':[
 604,
 ],
+'angular.js:test/ng/filter/filterSpec.js':[
+306,
+341,
+],
+'angular.js:test/ng/logSpec.js':[
+172,
+],
 'angular.js:test/ng/parseSpec.js':[
 2271,
 2284,

@@ -98,6 +98,9 @@
 'jshint:tests/unit/fixtures/latedefundef.js':[
 16,
 ],
+'jshint:tests/unit/fixtures/reserved.js':[
+8,
+],
 'jshint:tests/unit/fixtures/strict_incorrect.js':[
 9,
 ],
@@ -116,6 +119,9 @@
 ],
 'jshint:tests/unit/fixtures/undefstrict.js':[
 2,
+],
+'jshint:tests/unit/fixtures/with.js':[
+10,
 ],
 'jshint:tests/unit/module-api.js':[
 12,

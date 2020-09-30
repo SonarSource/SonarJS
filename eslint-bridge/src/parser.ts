@@ -59,7 +59,17 @@ export type Parse = (
   tsConfigs?: string[],
 ) => SourceCode | ParsingError;
 
-export function parseJavaScriptSourceFile(fileContent: string): SourceCode | ParsingError {
+export function parseJavaScriptSourceFile(
+  fileContent: string,
+  filePath: string,
+  tsConfigs?: string[],
+): SourceCode | ParsingError {
+  const parsed = parseTypeScriptSourceFile(fileContent, filePath, tsConfigs);
+  if (parsed instanceof SourceCode) {
+    return parsed;
+  }
+  console.log(`Failed to parse ${filePath} with TypeScript compiler: ${parsed.message}`);
+
   let parseFunctions = [espree.parse, babel.parseForESLint];
   if (fileContent.includes('@flow')) {
     parseFunctions = [babel.parseForESLint];

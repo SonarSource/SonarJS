@@ -1,6 +1,13 @@
 {
+'jshint:tests/unit/fixtures/emptystmt.js':[
+6,
+],
 'jshint:tests/unit/fixtures/nestedFunctions-locations.js':[
 1,
+],
+'jshint:tests/unit/fixtures/nestedFunctions.js':[
+48,
+50,
 ],
 'jshint:tests/unit/fixtures/strict_incorrect.js':[
 4,

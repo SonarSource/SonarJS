@@ -13,6 +13,9 @@
 'jshint:tests/unit/core.js':[
 871,
 ],
+'jshint:tests/unit/fixtures/es6-import-export.js':[
+67,
+],
 'jshint:tests/unit/fixtures/gh668.js':[
 2,
 ],
@@ -33,6 +36,15 @@
 34,
 38,
 42,
+],
+'jshint:tests/unit/fixtures/nestedFunctions.js':[
+30,
+52,
+],
+'jshint:tests/unit/fixtures/redef-es6.js':[
+348,
+349,
+350,
 ],
 'jshint:tests/unit/fixtures/strict_violations.js':[
 4,

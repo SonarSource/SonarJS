@@ -14,6 +14,9 @@
 'jshint:tests/unit/fixtures/asi.js':[
 9,
 ],
+'jshint:tests/unit/fixtures/emptystmt.js':[
+22,
+],
 'jshint:tests/unit/fixtures/forin.js':[
 9,
 33,

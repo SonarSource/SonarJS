@@ -100,6 +100,11 @@
 7,
 10,
 ],
+'jshint:tests/unit/fixtures/emptystmt.js':[
+4,
+12,
+14,
+],
 'jshint:tests/unit/fixtures/eqeqeq.js':[
 2,
 5,

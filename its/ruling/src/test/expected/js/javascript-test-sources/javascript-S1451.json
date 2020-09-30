@@ -1967,6 +1967,9 @@
 'javascript-test-sources:src/ecmascript6/ecmascript6-today/10-modules/js/main.js':[
 0,
 ],
+'javascript-test-sources:src/ecmascript6/ecmascript6-today/2-const.js':[
+0,
+],
 'javascript-test-sources:src/ecmascript6/ecmascript6-today/4-default-params.js':[
 0,
 ],
@@ -2184,6 +2187,9 @@
 0,
 ],
 'javascript-test-sources:src/ecmascript6/reddit-mobile/test/helpers/buildProps.es6.js':[
+0,
+],
+'javascript-test-sources:src/ecmascript6/reddit-mobile/test/helpers/components.es6.js':[
 0,
 ],
 'javascript-test-sources:src/ecmascript6/reddit-mobile/test/index.js':[
