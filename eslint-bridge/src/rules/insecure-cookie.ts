@@ -33,48 +33,30 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const MESSAGE = 'Make sure creating this cookie without the "secure" flag is safe.';
     function checkCookieSession(callExpression: estree.CallExpression) {
-      if (callExpression.arguments.length === 0) {
-        return;
-      }
-      const firstArgument = callExpression.arguments[0];
-      const objectExpression = getValueOfExpression<estree.ObjectExpression>(
-        context,
-        firstArgument,
-        'ObjectExpression',
-      );
-      if (!objectExpression) {
-        return;
-      }
-      const secureProperty = getObjectExpressionProperty(objectExpression, 'secure');
-      if (!secureProperty) {
-        return;
-      }
-      const securePropertyValue = getValueOfExpression<estree.Literal>(
-        context,
-        secureProperty.value,
-        'Literal',
-      );
-      if (securePropertyValue?.value === false) {
-        const secondaryLocations: estree.Node[] = [securePropertyValue];
-        if (firstArgument !== objectExpression) {
-          secondaryLocations.push(objectExpression);
-        }
-        context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(MESSAGE, secondaryLocations),
-        });
-      }
+      // Sensitive argument is first for cookie session
+      checkSensitiveCookieArgument(callExpression, 0);
     }
 
-    // Common method to check csurf and expression-session libraries, as both set cookies in a similar way
-    function checkCsurfAndExpressSession(callExpression: estree.CallExpression, isCsurf: boolean) {
-      if (callExpression.arguments.length === 0) {
+    function checkCookiesMethodCall(callExpression: estree.CallExpression) {
+      if (!isIdentifier((callExpression.callee as estree.MemberExpression).property, 'set')) {
         return;
       }
-      const firstArgument = callExpression.arguments[0];
+      // Sensitive argument is third for "cookies.set" calls
+      checkSensitiveCookieArgument(callExpression, 2);
+    }
+
+    // Optionally returns cookie property if its value cannot be checked as an object expression
+    function checkSensitiveObjectArgument(
+      callExpression: estree.CallExpression,
+      argumentIndex: number,
+    ): estree.Property | undefined {
+      if (callExpression.arguments.length < argumentIndex + 1) {
+        return;
+      }
+      const sensitiveArgument = callExpression.arguments[argumentIndex];
       const objectExpression = getValueOfExpression<estree.ObjectExpression>(
         context,
-        firstArgument,
+        sensitiveArgument,
         'ObjectExpression',
       );
       if (!objectExpression) {
@@ -92,11 +74,19 @@ export const rule: Rule.RuleModule = {
       if (cookiePropertyValue) {
         checkSecureFlagOnCookieExpression(
           cookiePropertyValue,
-          firstArgument,
+          sensitiveArgument,
           objectExpression,
           callExpression,
         );
-      } else if (isCsurf) {
+        return;
+      }
+      return cookieProperty;
+    }
+
+    function checkCsurf(callExpression: estree.CallExpression) {
+      // Sensitive argument is first for csurf
+      const cookieProperty = checkSensitiveObjectArgument(callExpression, 0);
+      if (cookieProperty) {
         // csurf cookie property can be passed as a boolean literal, in which case "secure" is not enabled by default
         const cookiePropertyLiteral = getValueOfExpression<estree.Literal>(
           context,
@@ -112,42 +102,33 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function checkCookiesMethodCall(callExpression: estree.CallExpression) {
-      if (!isIdentifier((callExpression.callee as estree.MemberExpression).property, 'set')) {
+    function checkExpressSession(callExpression: estree.CallExpression) {
+      // Sensitive argument is first for express-session
+      checkSensitiveObjectArgument(callExpression, 0);
+    }
+
+    function checkSensitiveCookieArgument(
+      callExpression: estree.CallExpression,
+      sensitiveArgumentIndex: number,
+    ) {
+      if (callExpression.arguments.length < sensitiveArgumentIndex + 1) {
         return;
       }
-      if (callExpression.arguments.length < 3) {
-        // Sensitive argument is third argument for "cookies.set" calls
-        return;
-      }
-      const thirdArgument = callExpression.arguments[2];
+      const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
       const cookieObjectExpression = getValueOfExpression<estree.ObjectExpression>(
         context,
-        thirdArgument,
+        sensitiveArgument,
         'ObjectExpression',
       );
       if (!cookieObjectExpression) {
         return;
       }
-      const secureProperty = getObjectExpressionProperty(cookieObjectExpression, 'secure');
-      if (!secureProperty) {
-        return;
-      }
-      const securePropertyValue = getValueOfExpression<estree.Literal>(
-        context,
-        secureProperty.value,
-        'Literal',
+      checkSecureFlagOnCookieExpression(
+        cookieObjectExpression,
+        sensitiveArgument,
+        cookieObjectExpression,
+        callExpression,
       );
-      if (securePropertyValue?.value === false) {
-        const secondaryLocations: estree.Node[] = [securePropertyValue];
-        if (thirdArgument !== cookieObjectExpression) {
-          secondaryLocations.push(cookieObjectExpression);
-        }
-        context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(MESSAGE, secondaryLocations),
-        });
-      }
     }
 
     function checkSecureFlagOnCookieExpression(
@@ -179,26 +160,26 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
-        const moduleName = getModuleNameOfNode(context, callExpression.callee);
+        const { callee } = callExpression;
+        const moduleName = getModuleNameOfNode(context, callee);
         if (moduleName?.value === 'cookie-session') {
           checkCookieSession(callExpression);
           return;
         }
         if (moduleName?.value === 'csurf') {
-          checkCsurfAndExpressSession(callExpression, true);
+          checkCsurf(callExpression);
           return;
         }
         if (moduleName?.value === 'express-session') {
-          checkCsurfAndExpressSession(callExpression, false);
+          checkExpressSession(callExpression);
           return;
         }
-        const callee = callExpression.callee;
         if (callee.type === 'MemberExpression') {
-          const objectValue = getValueOfExpression(
+          const objectValue = getValueOfExpression<estree.NewExpression>(
             context,
             callee.object,
             'NewExpression',
-          ) as estree.NewExpression;
+          );
           if (objectValue) {
             const module = getModuleNameOfNode(context, objectValue.callee);
             if (module?.value === 'cookies') {
