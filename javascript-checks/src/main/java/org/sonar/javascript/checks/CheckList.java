@@ -106,7 +106,6 @@ public final class CheckList {
       DeclarationInGlobalScopeCheck.class,
       DefaultParameterSideEffectCheck.class,
       DefaultParametersNotLastCheck.class,
-      DeleteArrayElementCheck.class,
       DeleteNonPropertyCheck.class,
       DeprecatedJQueryAPICheck.class,
       DeprecationCheck.class,
