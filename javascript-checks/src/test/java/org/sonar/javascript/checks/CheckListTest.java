@@ -86,7 +86,6 @@ public class CheckListTest {
     keys.remove("S3402");
     keys.remove("S3533");
     keys.remove("S3863");
-    keys.remove("S2870");
     keys.remove("S2201");
     keys.remove("S4043");
     
