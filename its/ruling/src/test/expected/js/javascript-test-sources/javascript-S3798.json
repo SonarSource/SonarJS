@@ -3856,6 +3856,9 @@
 'javascript-test-sources:src/file-for-rules/S2688.js':[
 3,
 ],
+'javascript-test-sources:src/file-for-rules/S4123.js':[
+1,
+],
 'javascript-test-sources:src/file-for-rules/boundOrAssignedEvalOrArguments.js':[
 2,
 8,
