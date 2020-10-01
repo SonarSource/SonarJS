@@ -1,0 +1,15 @@
+{
+  "title": "Flex",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "tags": [
+    
+  ],
+  "ruleSpecification": "RSPEC-3300",
+  "sqKey": "S3300",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main"
+}
