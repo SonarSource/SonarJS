@@ -68,7 +68,7 @@ export function parseJavaScriptSourceFile(
   if (parsed instanceof SourceCode) {
     return parsed;
   }
-  console.log(`Failed to parse ${filePath} with TypeScript compiler: ${parsed.message}`);
+  console.log(`DEBUG Failed to parse ${filePath} with TypeScript compiler: ${parsed.message}`);
 
   let parseFunctions = [espree.parse, babel.parseForESLint];
   if (fileContent.includes('@flow')) {
