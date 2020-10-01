@@ -95,6 +95,7 @@ public final class CheckList {
       ConstructorFunctionsForSideEffectsCheck.class,
       ConstructorSuperCheck.class,
       ContinueStatementCheck.class,
+      CookieNoHttpOnlyCheck.class,
       CookiesCheck.class,
       CorsCheck.class,
       CounterUpdatedInLoopCheck.class,
