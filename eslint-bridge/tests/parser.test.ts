@@ -153,7 +153,7 @@ import { ParseExceptionCode } from '../src/parser';
   it(`should log error on TypeScript compiler's parsing failure`, () => {
     parseJavaScriptSourceFile('if (true) {', 'foo.js');
     const callsToLogger = (console.log as jest.Mock).mock.calls;
-    const message = `Failed to parse foo.js with TypeScript compiler: '}' expected.`;
+    const message = `DEBUG Failed to parse foo.js with TypeScript compiler: '}' expected.`;
     expect(callsToLogger.filter(args => args[0] === message)).toHaveLength(1);
   });
 });
