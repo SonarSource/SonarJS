@@ -17,8 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-2092
-
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { CookieFlagCheck } from './cookie-flag-check';
@@ -35,7 +33,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) =>
-        new CookieFlagCheck(context, 'secure').checkCookiesFromCallExpression(node),
+        new CookieFlagCheck(context, 'httpOnly').checkCookiesFromCallExpression(node),
     };
   },
 };

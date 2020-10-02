@@ -17,25 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-2092
+package org.sonar.javascript.checks;
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { CookieFlagCheck } from './cookie-flag-check';
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-export const rule: Rule.RuleModule = {
-  meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: ['sonar-runtime'],
-      },
-    ],
-  },
-  create(context: Rule.RuleContext) {
-    return {
-      CallExpression: (node: estree.Node) =>
-        new CookieFlagCheck(context, 'secure').checkCookiesFromCallExpression(node),
-    };
-  },
-};
+@JavaScriptRule
+@TypeScriptRule
+@Rule(key = "S3330")
+public class CookieNoHttpOnlyCheck implements EslintBasedCheck {
+  @Override
+  public String eslintKey() {
+    return "cookie-no-httponly";
+  }
+}
