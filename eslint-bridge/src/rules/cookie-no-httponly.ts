@@ -19,13 +19,21 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { AbstractCookieFlagCheck } from './abstract-cookie-flag-check';
+import { CookieFlagCheck } from './cookie-flag-check';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ['sonar-runtime'],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) =>
-        new AbstractCookieFlagCheck(context, 'httpOnly').checkCookiesFromCallExpression(node),
+        new CookieFlagCheck(context, 'httpOnly').checkCookiesFromCallExpression(node),
     };
   },
 };

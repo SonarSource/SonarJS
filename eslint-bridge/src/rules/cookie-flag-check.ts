@@ -27,14 +27,10 @@ import {
   toEncodedMessage,
 } from './utils';
 
-export class AbstractCookieFlagCheck {
-  context: Rule.RuleContext;
-  flag: string;
+export class CookieFlagCheck {
   issueMessage: string;
 
-  constructor(context: Rule.RuleContext, flag: string) {
-    this.context = context;
-    this.flag = flag;
+  constructor(readonly context: Rule.RuleContext, readonly flag: 'httpOnly' | 'secure') {
     this.issueMessage = `Make sure creating this cookie without the "${flag}" flag is safe.`;
   }
 
