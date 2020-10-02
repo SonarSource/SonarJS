@@ -246,7 +246,6 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       // in this case response.body() is never null (according to docs)
       return "OK!".equals(body);
     } catch (IOException e) {
-      LOG.error("Error requesting server status. Server is probably dead.", e);
       return false;
     }
   }
