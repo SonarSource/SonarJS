@@ -65,7 +65,6 @@ public final class CheckList {
       ArithmeticOperationReturningNanCheck.class,
       ArrayConstructorsCheck.class,
       ArrayCallbackWithoutReturnCheck.class,
-      ArrayMutatingOperationCheck.class,
       ArrowFunctionConventionCheck.class,
       AssociativeArraysCheck.class,
       BackboneChangedIsUsedCheck.class,

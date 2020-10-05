@@ -205,5 +205,13 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
             }`,
       errors: 1,
     },
+    {
+      code: `
+        function foo() {
+          let a = [];
+          return a.length > 0 && a.reverse();
+        }`,
+      errors: 1,
+    },
   ],
 });
