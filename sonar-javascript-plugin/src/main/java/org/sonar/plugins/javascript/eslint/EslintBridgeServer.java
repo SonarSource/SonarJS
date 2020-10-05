@@ -102,6 +102,7 @@ public interface EslintBridgeServer extends Startable {
     PARSING,
     MISSING_TYPESCRIPT,
     UNSUPPORTED_TYPESCRIPT,
+    FAILING_TYPESCRIPT,
     GENERAL_ERROR
   }
 

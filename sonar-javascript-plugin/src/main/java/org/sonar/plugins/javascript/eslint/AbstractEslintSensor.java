@@ -145,6 +145,8 @@ abstract class AbstractEslintSensor implements Sensor {
 
     if (line != null) {
       LOG.error("Failed to parse file [{}] at line {}: {}", inputFile.toString(), line, message);
+    } else if (parsingError.code == ParsingErrorCode.FAILING_TYPESCRIPT) {
+      LOG.error("Failed to analyze file [{}] from TypeScript: {}", inputFile.toString(), message);
     } else {
       if (parsingError.code == ParsingErrorCode.MISSING_TYPESCRIPT) {
         // effectively this is dead code, because missing typescript should be detected at the time we load tsconfig file

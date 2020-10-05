@@ -239,6 +239,9 @@ describe('parseTypeScriptSourceFile', () => {
       ParseExceptionCode.UnsupportedTypeScript,
     );
     expect(parseExceptionCodeOf('Unexpected token )')).toEqual(ParseExceptionCode.Parsing);
+    expect(parseExceptionCodeOf('Debug Failure. False expression')).toEqual(
+      ParseExceptionCode.FailingTypeScript,
+    );
   });
 });
 

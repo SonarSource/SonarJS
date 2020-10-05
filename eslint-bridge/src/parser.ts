@@ -200,6 +200,7 @@ export enum ParseExceptionCode {
   Parsing = 'PARSING',
   MissingTypeScript = 'MISSING_TYPESCRIPT',
   UnsupportedTypeScript = 'UNSUPPORTED_TYPESCRIPT',
+  FailingTypeScript = 'FAILING_TYPESCRIPT',
   GeneralError = 'GENERAL_ERROR',
 }
 
@@ -209,6 +210,8 @@ export function parseExceptionCodeOf(exceptionMsg: string): ParseExceptionCode {
     return ParseExceptionCode.MissingTypeScript;
   } else if (exceptionMsg.startsWith('You are using version of TypeScript')) {
     return ParseExceptionCode.UnsupportedTypeScript;
+  } else if (exceptionMsg.startsWith('Debug Failure')) {
+    return ParseExceptionCode.FailingTypeScript;
   } else {
     return ParseExceptionCode.Parsing;
   }
