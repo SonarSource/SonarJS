@@ -26,7 +26,7 @@ import {
   RequiredParserServices,
 } from '../utils/isRequiredParserServices';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isArray, getSymbolAtLocation, findFirstMatchingLocalAncestor, sortLike } from './utils';
+import { isArray, getSymbolAtLocation, sortLike, localAncestorsChain } from './utils';
 import * as ts from 'typescript';
 
 const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
@@ -114,11 +114,25 @@ function isInSelfAssignment(mutatedArray: estree.Node, node?: estree.Node): bool
 }
 
 function isForbiddenOperation(node: estree.Node) {
+  return !isStandaloneExpression(node) && !isReturnedExpression(node);
+}
+
+function isStandaloneExpression(node: estree.Node) {
   const parent = (node as TSESTree.Node).parent;
+  return parent?.type === 'ExpressionStatement';
+}
+
+function isReturnedExpression(node: estree.Node) {
+  const ancestors = localAncestorsChain(node as TSESTree.Node);
+  const returnIdx = ancestors.findIndex(ancestor => ancestor.type === 'ReturnStatement');
   return (
-    parent &&
-    parent.type !== 'ExpressionStatement' &&
-    findFirstMatchingLocalAncestor(node as TSESTree.Node, n => n.type === 'ReturnStatement') ===
-      undefined
+    returnIdx > -1 &&
+    ancestors
+      .slice(0, returnIdx)
+      .every(ancestor =>
+        ['ArrayExpression', 'ObjectExpression', 'ConditionalExpression', 'SpreadElement'].includes(
+          ancestor.type,
+        ),
+      )
   );
 }
