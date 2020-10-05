@@ -6,7 +6,6 @@ on:
       - published
 
 env:
-  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   PYTHONUNBUFFERED: 1
 
 jobs:
@@ -21,6 +20,7 @@ jobs:
           publish_to_binaries: true
           attach_artifacts_to_github_release: true
           run_rules_cov: true
+          slack_channel: lang-js-ts 
         env:
           ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
           BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
@@ -44,13 +44,4 @@ jobs:
         run: |
           echo "${{ steps.lt_release.outputs.releasability }}"
           echo "${{ steps.lt_release.outputs.release }}"
-      #slack notifications
-      - name: Notify success on Slack
-        uses: Ilshidur/action-slack@2.0.0
-        with:
-          args: "Release successful for {{ GITHUB_REPOSITORY }} by {{ GITHUB_ACTOR }}"
-      - name: Notify failures on Slack
-        uses: Ilshidur/action-slack@2.0.0
-        if: failure()
-        with:
-          args: "Release failed, see the logs at https://github.com/{{ GITHUB_REPOSITORY }}/actions by {{ GITHUB_ACTOR }}"
+      
