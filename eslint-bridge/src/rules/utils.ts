@@ -217,9 +217,12 @@ export function getUniqueWriteUsageOrNode(
 
 export function getValueOfExpression<T>(
   context: Rule.RuleContext,
-  expr: estree.Node,
+  expr: estree.Node | undefined,
   type: string,
 ): T | undefined {
+  if (!expr) {
+    return undefined;
+  }
   if (expr.type === 'Identifier') {
     const usage = getUniqueWriteUsage(context, expr.name);
     if (usage && usage.type === type) {

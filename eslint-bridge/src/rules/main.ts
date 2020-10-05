@@ -111,6 +111,7 @@ import { rule as noUnusedFunctionArgument } from './no-unused-function-argument'
 import { rule as noUselessIncrement } from './no-useless-increment';
 import { rule as noUselessIntersection } from './no-useless-intersection';
 import { rule as noVariableUsageBeforeDeclaration } from './no-variable-usage-before-declaration';
+import { rule as noWeakCrypto } from './no-weak-crypto';
 import { rule as noWildcardImport } from './no-wildcard-import';
 import { rule as nonExistentOperator } from './non-existent-operator';
 import { rule as osCommand } from './os-command';
@@ -239,6 +240,7 @@ ruleModules['no-useless-increment'] = noUselessIncrement;
 ruleModules['no-useless-intersection'] = noUselessIntersection;
 ruleModules['no-variable-usage-before-declaration'] = noVariableUsageBeforeDeclaration;
 ruleModules['no-wildcard-import'] = noWildcardImport;
+ruleModules['no-weak-crypto'] = noWeakCrypto;
 ruleModules['non-existent-operator'] = nonExistentOperator;
 ruleModules['os-command'] = osCommand;
 ruleModules['prefer-default-last'] = preferDefaultLast;
