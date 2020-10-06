@@ -1,0 +1,30 @@
+{
+  "title": "Encryption algorithms should be used with secure mode and padding scheme",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "privacy",
+    "owasp-a6",
+    "sans-top25-porous",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-5542",
+  "sqKey": "S5542",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      327,
+      780
+    ],
+    "OWASP": [
+      "A6",
+      "A3"
+    ]
+  }
+}

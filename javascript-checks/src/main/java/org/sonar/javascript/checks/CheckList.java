@@ -124,6 +124,7 @@ public final class CheckList {
       EmptyFunctionCheck.class,
       EmptyStatementCheck.class,
       EncryptionCheck.class,
+      EncryptionSecureModeCheck.class,
       EqEqEqCheck.class,
       EqualInForLoopTerminationCheck.class,
       ErrorWithoutThrowCheck.class,
