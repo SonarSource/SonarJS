@@ -27,11 +27,11 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S4426")
-public class NoWeakCryptoCheck implements EslintBasedCheck {
+public class NoWeakKeysCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-weak-crypto";
+    return "no-weak-keys";
   }
 }
 

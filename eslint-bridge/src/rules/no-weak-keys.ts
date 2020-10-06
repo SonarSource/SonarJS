@@ -91,7 +91,7 @@ export const rule: Rule.RuleModule = {
       if (namedCurveProperty && namedCurve && WEAK_CURVES.includes(namedCurve)) {
         context.report({
           node: namedCurveProperty,
-          message: `${namedCurve} doesn't provide enough security. Use stronger curve.`,
+          message: `${namedCurve} doesn't provide enough security. Use a stronger curve.`,
         });
       }
     }

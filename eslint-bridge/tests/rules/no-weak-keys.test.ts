@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'rules/no-weak-crypto';
+import { rule } from 'rules/no-weak-keys';
 
 const ruleTesterJS = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
@@ -184,7 +184,7 @@ ruleTesterJS.run('Cryptographic keys should be robust', rule, {
       `,
       errors: [
         {
-          message: `secp112r2 doesn't provide enough security. Use stronger curve.`,
+          message: `secp112r2 doesn't provide enough security. Use a stronger curve.`,
           line: 4,
           endLine: 4,
           column: 11,
