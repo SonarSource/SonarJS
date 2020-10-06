@@ -19,48 +19,43 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleNameOfNode, getValueOfExpression } from './utils';
+import { getValueOfExpression, isIdentifier } from './utils';
+
+const aliases: string[] = [
+  'AES128',
+  'AES192',
+  'AES256',
+  'BF',
+  'blowfish',
+  'CAMELLIA128',
+  'CAMELLIA192',
+  'CAMELLIA256',
+  'CAST',
+  'DES',
+  'DES-EDE',
+  'DES-EDE3',
+  'DES3',
+  'DESX',
+  'RC2',
+  'RC2-40',
+  'RC2-64',
+  'RC2-128',
+  'SEED',
+];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    const aliases: string[] = [
-      'AES128',
-      'AES192',
-      'AES256',
-      'BF',
-      'blowfish',
-      'CAMELLIA128',
-      'CAMELLIA192',
-      'CAMELLIA256',
-      'CAST',
-      'DES',
-      'DES-EDE',
-      'DES-EDE3',
-      'DES3',
-      'DESX',
-      'RC2',
-      'RC2-40',
-      'RC2-64',
-      'RC2-128',
-      'SEED',
-    ];
     const patterns: RegExp[] = [new RegExp('CBC', 'i'), new RegExp('ECB', 'i')];
     aliases.forEach(alias => patterns.push(new RegExp(`^${alias}$`, 'i')));
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         const { callee } = callExpression;
-        if (callee.type !== 'MemberExpression') {
-          return;
-        }
-        const moduleName = getModuleNameOfNode(context, callee.object);
-        if (moduleName?.value !== 'crypto') {
-          return;
-        }
-        if (callee.property.type !== 'Identifier' || callee.property.name !== 'createCipheriv') {
-          return;
-        }
-        if (callExpression.arguments.length === 0) {
+        if (
+          callee.type !== 'MemberExpression' ||
+          !isIdentifier(callee.property, 'createCipheriv') ||
+          callExpression.arguments.length === 0
+        ) {
           return;
         }
         const sensitiveArgument = callExpression.arguments[0];
