@@ -524,6 +524,43 @@ export function getObjectExpressionProperty(
   return undefined;
 }
 
+export function getPropertyWithValue(
+  objectExpression: estree.ObjectExpression,
+  context: Rule.RuleContext,
+  propertyName: string,
+  propertyValue: string | number | boolean | RegExp,
+) {
+  const unsafeProperty = getObjectExpressionProperty(objectExpression, propertyName);
+  if (unsafeProperty) {
+    const unsafePropertyValue = getValueOfExpression<estree.Literal>(
+      context,
+      unsafeProperty.value,
+      'Literal',
+    );
+    if (unsafePropertyValue?.value === propertyValue) {
+      return unsafeProperty;
+    }
+  }
+  return undefined;
+}
+
+export function isCallToFQN(
+  context: Rule.RuleContext,
+  callExpression: estree.CallExpression,
+  moduleName: string,
+  functionName: string,
+) {
+  const { callee } = callExpression;
+  if (callee.type !== 'MemberExpression') {
+    return false;
+  }
+  const module = getModuleNameOfNode(context, callee.object);
+  return (
+    module?.value === moduleName &&
+    isIdentifier((callExpression.callee as estree.MemberExpression).property, functionName)
+  );
+}
+
 export function flatMap<A, B>(xs: A[], f: (e: A) => B[]): B[] {
   const acc: B[] = [];
   for (const x of xs) {
