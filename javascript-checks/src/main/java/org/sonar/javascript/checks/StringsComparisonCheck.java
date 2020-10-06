@@ -20,63 +20,17 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.ProgramState;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3003")
-public class StringsComparisonCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
-
-  private static final String MESSAGE = "Convert operands of this use of \"%s\" to number type.";
-
-  private static final Kind[] RELATIVE_OPERATIONS = {
-    Kind.LESS_THAN,
-    Kind.LESS_THAN_OR_EQUAL_TO,
-    Kind.GREATER_THAN,
-    Kind.GREATER_THAN_OR_EQUAL_TO
-  };
+public class StringsComparisonCheck implements EslintBasedCheck {
 
   @Override
-  BinaryExpressionTree getTree(Tree element) {
-    if (element.is(RELATIVE_OPERATIONS)) {
-      return (BinaryExpressionTree) element;
-    }
-    return null;
-  }
-
-  @Override
-  boolean isProblem(BinaryExpressionTree tree, ProgramState currentState) {
-    Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
-    Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
-
-    return rightConstraint.isStricterOrEqualTo(Constraint.ANY_STRING) && leftConstraint.isStricterOrEqualTo(Constraint.ANY_STRING);
-  }
-
-  @Override
-  void raiseIssue(BinaryExpressionTree tree) {
-    if (!hasOneSymbolLiteralOperand(tree)) {
-      String message = String.format(MESSAGE, tree.operatorToken().text());
-
-      addIssue(tree.operatorToken(), message)
-        .secondary(tree.leftOperand())
-        .secondary(tree.rightOperand());
-    }
-  }
-
-  private static boolean hasOneSymbolLiteralOperand(BinaryExpressionTree expression) {
-    LiteralTree literal =  null;
-    if (expression.leftOperand().is(Kind.STRING_LITERAL)) {
-      literal = (LiteralTree) expression.leftOperand();
-
-    } else if (expression.rightOperand().is(Kind.STRING_LITERAL)) {
-      literal = (LiteralTree) expression.rightOperand();
-    }
-
-    return literal != null && literal.value().length() == 3;
+  public String eslintKey() {
+    return "strings-comparison";
   }
 }

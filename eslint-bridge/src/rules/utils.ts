@@ -479,6 +479,10 @@ export function isArray(node: estree.Node, services: RequiredParserServices) {
   return type.symbol && type.symbol.name === 'Array';
 }
 
+export function isString(node: estree.Node, services: RequiredParserServices) {
+  return getTypeAsString(node, services) === 'string';
+}
+
 export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
