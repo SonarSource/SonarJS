@@ -168,6 +168,21 @@ describe('#analyzeJavaScript', () => {
       expect(e.message).toBe('Linter is undefined. Did you call /init-linter?');
     }
   });
+
+  it('should report exception from TypeScript compiler as parsing error', () => {
+    const filePath = join(__dirname, './fixtures/failing-typescript/sample.lint.js');
+    const tsConfig = join(__dirname, './fixtures/failing-typescript/tsconfig.json');
+    const codeToTest = fs.readFileSync(filePath, { encoding: 'utf8' });
+
+    initLinter([{ key: 'arguments-order', configurations: [] }]);
+    const { parsingError } = analyzeJavaScript({
+      filePath: filePath,
+      fileContent: codeToTest,
+      tsConfigs: [tsConfig],
+    });
+    expect(parsingError).toBeDefined();
+    expect(parsingError.message).toContain('Debug Failure');
+  });
 });
 
 describe('#analyzeTypeScript', () => {

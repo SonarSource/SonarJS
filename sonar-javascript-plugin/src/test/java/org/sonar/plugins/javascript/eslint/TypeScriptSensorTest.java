@@ -311,6 +311,20 @@ public class TypeScriptSensorTest {
   }
 
   @Test
+  public void should_log_when_failing_typescript() throws Exception {
+    AnalysisResponse parseError = new AnalysisResponse();
+    parseError.parsingError = new EslintBridgeServer.ParsingError();
+    parseError.parsingError.message = "Debug Failure. False expression.";
+    parseError.parsingError.code = ParsingErrorCode.FAILING_TYPESCRIPT;
+    when(eslintBridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
+    createInputFile(context, "dir/file1.ts");
+    createInputFile(context, "dir/file2.ts");
+    createSensor().execute(context);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file1.ts] from TypeScript: Debug Failure. False expression.");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failed to analyze file [dir/file2.ts] from TypeScript: Debug Failure. False expression.");
+  }
+
+  @Test
   public void should_create_ui_warning_missing_typescript() throws Exception {
     when(eslintBridgeServerMock.loadTsConfig(any())).thenThrow(new MissingTypeScriptException());
     createInputFile(context, "dir/file1.ts");

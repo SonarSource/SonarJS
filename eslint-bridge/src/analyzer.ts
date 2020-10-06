@@ -170,9 +170,21 @@ function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
 }
 
 function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
-  const issues = linter.analyze(sourceCode, input.filePath).issues;
+  let issues: Issue[] = [];
+  let parsingError: ParsingError | undefined = undefined;
+  try {
+    issues = linter.analyze(sourceCode, input.filePath).issues;
+  } catch (e) {
+    // turns exceptions from TypeScript compiler into "parsing" errors
+    if (e.stack.indexOf('typescript.js:') > -1) {
+      parsingError = { message: e.message, code: ParseExceptionCode.FailingTypeScript };
+    } else {
+      throw e;
+    }
+  }
   return {
     issues,
+    parsingError,
     highlightedSymbols: getHighlightedSymbols(issues),
     highlights: getHighlighting(sourceCode).highlights,
     metrics: getMetrics(sourceCode, !!input.ignoreHeaderComments, getCognitiveComplexity(issues)),
