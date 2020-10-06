@@ -112,6 +112,7 @@ import { rule as noUnusedFunctionArgument } from './no-unused-function-argument'
 import { rule as noUselessIncrement } from './no-useless-increment';
 import { rule as noUselessIntersection } from './no-useless-intersection';
 import { rule as noVariableUsageBeforeDeclaration } from './no-variable-usage-before-declaration';
+import { rule as noWeakCipher } from './no-weak-cipher';
 import { rule as noWeakKeys } from './no-weak-keys';
 import { rule as noWildcardImport } from './no-wildcard-import';
 import { rule as nonExistentOperator } from './non-existent-operator';
@@ -244,6 +245,7 @@ ruleModules['no-unused-function-argument'] = noUnusedFunctionArgument;
 ruleModules['no-useless-increment'] = noUselessIncrement;
 ruleModules['no-useless-intersection'] = noUselessIntersection;
 ruleModules['no-variable-usage-before-declaration'] = noVariableUsageBeforeDeclaration;
+ruleModules['no-weak-cipher'] = noWeakCipher;
 ruleModules['no-wildcard-import'] = noWildcardImport;
 ruleModules['no-weak-keys'] = noWeakKeys;
 ruleModules['non-existent-operator'] = nonExistentOperator;
