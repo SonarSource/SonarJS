@@ -224,6 +224,7 @@ public final class CheckList {
       NoReturnTypeAnyCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
       NoUselessCatchCheck.class,
+      NoWeakKeysCheck.class,
       NullDereferenceCheck.class,
       NullDereferenceInConditionalCheck.class,
       ObjectLiteralShorthandCheck.class,
