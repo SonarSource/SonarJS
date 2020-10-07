@@ -19,28 +19,24 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NewOperatorMisuseCheckTest {
 
-  private NewOperatorMisuseCheck check = new NewOperatorMisuseCheck();
-
   @Test
-  public void default_without_jsdoc() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/newOperatorMisuse.js"))
-      .next().atLine(36)
-      .next().atLine(38)
-      .next().atLine(39)
-      .next().atLine(44)
-      .next().atLine(45)
-      .noMore();
-  }
+  public void config() {
+    NewOperatorMisuseCheck check = new NewOperatorMisuseCheck();
 
-  @Test
-  public void custom_with_jsdoc() {
+    // default configuration
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"considerJSDoc\":false}]");
+
+    // custom configuration
     check.considerJSDoc = true;
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/newOperatorMisuse.js"));
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"considerJSDoc\":true}]");
   }
 }
