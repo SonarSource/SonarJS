@@ -18,10 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from 'rules/strings-comparison';
+import { RuleTester } from 'eslint';
 import { RuleTesterTs } from '../RuleTesterTs';
 
-const ruleTester = new RuleTesterTs();
-ruleTester.run(`Comparison operators should not be used with strings`, rule, {
+const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+ruleTesterJs.run('Comparison operators should not be used with strings [js]', rule, {
+  valid: [
+    {
+      code: `
+      let str1 = 'hello', str2 = 'world';
+      str1 < str2; // not reported without type information`,
+    },
+  ],
+  invalid: [],
+});
+
+const ruleTesterTs = new RuleTesterTs();
+ruleTesterTs.run(`Comparison operators should not be used with strings [ts]`, rule, {
   valid: [
     {
       code: `
