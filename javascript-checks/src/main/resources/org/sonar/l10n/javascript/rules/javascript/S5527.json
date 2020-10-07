@@ -1,0 +1,34 @@
+{
+  "title": "Server hostnames should be verified during SSL\/TLS connections",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "privacy",
+    "owasp-a6",
+    "ssl",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-5527",
+  "sqKey": "S5527",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      297,
+      295
+    ],
+    "OWASP": [
+      "A3",
+      "A6"
+    ]
+  }
+}

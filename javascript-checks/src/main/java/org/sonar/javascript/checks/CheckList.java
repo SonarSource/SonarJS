@@ -300,6 +300,7 @@ public final class CheckList {
       UnusedFunctionArgumentCheck.class,
       UnusedImportCheck.class,
       UnusedVariableCheck.class,
+      UnverifiedHostnameCheck.class,
       UpdatedConstVariableCheck.class,
       UselessExpressionStatementCheck.class,
       UselessIncrementCheck.class,
