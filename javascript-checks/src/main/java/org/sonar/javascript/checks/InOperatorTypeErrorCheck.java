@@ -20,32 +20,15 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.points.ProgramPoint;
-import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 
 @JavaScriptRule
 @Rule(key = "S3785")
-public class InOperatorTypeErrorCheck extends AbstractAnyPathSeCheck {
-
-  private static final String MESSAGE = "TypeError can be thrown as this operand might have primitive type.";
+public class InOperatorTypeErrorCheck implements EslintBasedCheck {
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
-    if (element.is(Kind.RELATIONAL_IN)) {
-      SymbolicValue rightOperandValue = currentState.peekStack();
-      Constraint rightOperandConstraint = currentState.getConstraint(rightOperandValue);
-      if (rightOperandConstraint.isIncompatibleWith(Constraint.OBJECT)) {
-        BinaryExpressionTree inOperation = (BinaryExpressionTree) element;
-        addUniqueIssue(inOperation.rightOperand(), MESSAGE, new IssueLocation(inOperation.operatorToken()));
-      }
-    }
+  public String eslintKey() {
+    return "in-operator-type-error";
   }
-
 }
