@@ -1,5 +1,9 @@
 {
 'backbone:test/vendor/jquery.js':[
-9058,
+5030,
+5993,
+],
+'backbone:test/vendor/underscore.js':[
+218,
 ],
 }

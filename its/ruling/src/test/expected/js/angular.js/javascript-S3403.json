@@ -1,4 +1,12 @@
 {
+'angular.js:src/ng/directive/ngModel.js':[
+714,
+],
+'angular.js:src/ng/rootScope.js':[
+274,
+783,
+1028,
+],
 'angular.js:test/ng/parseSpec.js':[
 1902,
 1902,
