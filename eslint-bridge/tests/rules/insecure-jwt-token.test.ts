@@ -111,8 +111,17 @@ const testCases = {
             `,
       errors: [
         {
-          message:
-            '{"message":"Use only strong cipher algorithms when signing this JWT.","secondaryLocations":[{"column":48,"line":3,"endColumn":69,"endLine":3}]}',
+          message: JSON.stringify({
+            message: 'Use only strong cipher algorithms when signing this JWT.',
+            secondaryLocations: [
+              {
+                column: 48,
+                line: 3,
+                endColumn: 69,
+                endLine: 3,
+              },
+            ],
+          }),
           line: 3,
           endLine: 3,
           column: 19,
@@ -128,8 +137,23 @@ const testCases = {
             `,
       errors: [
         {
-          message:
-            '{"message":"Use only strong cipher algorithms when signing this JWT.","secondaryLocations":[{"column":22,"line":3,"endColumn":43,"endLine":3},{"column":48,"line":4,"endColumn":55,"endLine":4}]}',
+          message: JSON.stringify({
+            message: 'Use only strong cipher algorithms when signing this JWT.',
+            secondaryLocations: [
+              {
+                column: 22,
+                line: 3,
+                endColumn: 43,
+                endLine: 3,
+              },
+              {
+                column: 48,
+                line: 4,
+                endColumn: 55,
+                endLine: 4,
+              },
+            ],
+          }),
           line: 4,
           endLine: 4,
           column: 19,
@@ -145,8 +169,23 @@ const testCases = {
             `,
       errors: [
         {
-          message:
-            '{"message":"Use only strong cipher algorithms when signing this JWT.","secondaryLocations":[{"column":48,"line":4,"endColumn":67,"endLine":4},{"column":19,"line":3,"endColumn":25,"endLine":3}]}',
+          message: JSON.stringify({
+            message: 'Use only strong cipher algorithms when signing this JWT.',
+            secondaryLocations: [
+              {
+                column: 48,
+                line: 4,
+                endColumn: 67,
+                endLine: 4,
+              },
+              {
+                column: 19,
+                line: 3,
+                endColumn: 25,
+                endLine: 3,
+              },
+            ],
+          }),
           line: 4,
           endLine: 4,
           column: 19,
@@ -163,8 +202,29 @@ const testCases = {
             `,
       errors: [
         {
-          message:
-            '{"message":"Use only strong cipher algorithms when signing this JWT.","secondaryLocations":[{"column":22,"line":4,"endColumn":41,"endLine":4},{"column":48,"line":5,"endColumn":55,"endLine":5},{"column":19,"line":3,"endColumn":25,"endLine":3}]}',
+          message: JSON.stringify({
+            message: 'Use only strong cipher algorithms when signing this JWT.',
+            secondaryLocations: [
+              {
+                column: 22,
+                line: 4,
+                endColumn: 41,
+                endLine: 4,
+              },
+              {
+                column: 48,
+                line: 5,
+                endColumn: 55,
+                endLine: 5,
+              },
+              {
+                column: 19,
+                line: 3,
+                endColumn: 25,
+                endLine: 3,
+              },
+            ],
+          }),
           line: 5,
           endLine: 5,
           column: 19,
@@ -178,8 +238,17 @@ const testCases = {
             `,
       errors: [
         {
-          message:
-            '{"message":"Use only strong cipher algorithms when signing this JWT.","secondaryLocations":[{"column":68,"line":2,"endColumn":89,"endLine":2}]}',
+          message: JSON.stringify({
+            message: 'Use only strong cipher algorithms when signing this JWT.',
+            secondaryLocations: [
+              {
+                column: 68,
+                line: 2,
+                endColumn: 89,
+                endLine: 2,
+              },
+            ],
+          }),
           line: 2,
           endLine: 2,
           column: 19,
@@ -202,8 +271,23 @@ const testCases = {
             `,
       errors: [
         {
-          message:
-            '{"message":"Use only strong cipher algorithms when verifying the signature of this JWT.","secondaryLocations":[{"column":35,"line":4,"endColumn":72,"endLine":4},{"column":25,"line":3,"endColumn":42,"endLine":3}]}',
+          message: JSON.stringify({
+            message: 'Use only strong cipher algorithms when verifying the signature of this JWT.',
+            secondaryLocations: [
+              {
+                column: 35,
+                line: 4,
+                endColumn: 72,
+                endLine: 4,
+              },
+              {
+                column: 25,
+                line: 3,
+                endColumn: 42,
+                endLine: 3,
+              },
+            ],
+          }),
           line: 4,
           endLine: 4,
           column: 7,
@@ -218,8 +302,17 @@ const testCases = {
             `,
       errors: [
         {
-          message:
-            '{"message":"Use only strong cipher algorithms when verifying the signature of this JWT.","secondaryLocations":[{"column":35,"line":3,"endColumn":60,"endLine":3}]}',
+          message: JSON.stringify({
+            message: 'Use only strong cipher algorithms when verifying the signature of this JWT.',
+            secondaryLocations: [
+              {
+                column: 35,
+                line: 3,
+                endColumn: 60,
+                endLine: 3,
+              },
+            ],
+          }),
           line: 3,
           endLine: 3,
           column: 7,
@@ -243,8 +336,17 @@ const testCases = {
             `,
       errors: [
         {
-          message:
-            '{"message":"Use only strong cipher algorithms when verifying the signature of this JWT.","secondaryLocations":[{"column":35,"line":4,"endColumn":89,"endLine":4}]}',
+          message: JSON.stringify({
+            message: 'Use only strong cipher algorithms when verifying the signature of this JWT.',
+            secondaryLocations: [
+              {
+                column: 35,
+                line: 4,
+                endColumn: 89,
+                endLine: 4,
+              },
+            ],
+          }),
           line: 4,
           endLine: 4,
           column: 7,
