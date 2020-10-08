@@ -31,35 +31,36 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
-    if (isRequiredParserServices(services)) {
-      const checker = services.program.getTypeChecker();
-
-      function isArray(node: estree.Node) {
-        const typ = checker.getTypeAtLocation(
-          services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node),
-        );
-        return typ.symbol && typ.symbol.name === 'Array';
-      }
-
-      function isString(node: estree.Node) {
-        const typ = checker.getTypeAtLocation(
-          services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node),
-        );
-        return (typ.getFlags() & ts.TypeFlags.StringLike) !== 0;
-      }
-
-      return {
-        'AssignmentExpression[left.type="MemberExpression"]': function (node: estree.Node) {
-          const memberExpr = (node as estree.AssignmentExpression).left as estree.MemberExpression;
-          if (isString(memberExpr.property) && isArray(memberExpr.object)) {
-            context.report({
-              message,
-              node,
-            });
-          }
-        },
-      };
+    if (!isRequiredParserServices(services)) {
+      return {};
     }
-    return {};
+
+    const checker = services.program.getTypeChecker();
+
+    function isArray(node: estree.Node) {
+      const typ = checker.getTypeAtLocation(
+        services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node),
+      );
+      return typ.symbol && typ.symbol.name === 'Array';
+    }
+
+    function isString(node: estree.Node) {
+      const typ = checker.getTypeAtLocation(
+        services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node),
+      );
+      return (typ.getFlags() & ts.TypeFlags.StringLike) !== 0;
+    }
+
+    return {
+      'AssignmentExpression[left.type="MemberExpression"]'(node: estree.Node) {
+        const memberExpr = (node as estree.AssignmentExpression).left as estree.MemberExpression;
+        if (isString(memberExpr.property) && isArray(memberExpr.object)) {
+          context.report({
+            message,
+            node,
+          });
+        }
+      },
+    };
   },
 };
