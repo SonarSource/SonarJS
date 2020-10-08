@@ -20,31 +20,16 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.symbols.Type.Kind;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3579")
-public class AssociativeArraysCheck extends DoubleDispatchVisitorCheck {
-  private static final String MESSAGE = "Make \"%s\" an object if it must have named properties; otherwise, use a numeric index here.";
-
+public class AssociativeArraysCheck implements EslintBasedCheck {
   @Override
-  public void visitAssignmentExpression(AssignmentExpressionTree tree) {
-    if (tree.variable().is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
-      BracketMemberExpressionTree memberExpression = (BracketMemberExpressionTree) tree.variable();
-      if (memberExpression.object().types().containsOnly(Kind.ARRAY)) {
-        ExpressionTree arrayIndex = memberExpression.property();
-        if (arrayIndex.types().containsOnly(Kind.STRING)) {
-          addIssue(arrayIndex, String.format(MESSAGE, CheckUtils.asString(memberExpression.object())));
-        }
-      }
-    }
-    super.visitAssignmentExpression(tree);
+  public String eslintKey() {
+    return "no-associative-arrays";
   }
 }
