@@ -53,7 +53,7 @@ export class CookieFlagCheck {
     if (cookieProperty) {
       // csurf cookie property can be passed as a boolean literal,
       // in which case neither "secure" nor "httponly" are enabled by default
-      const cookiePropertyLiteral = getValueOfExpression<estree.Literal>(
+      const cookiePropertyLiteral = getValueOfExpression(
         this.context,
         cookieProperty.value,
         'Literal',
@@ -80,7 +80,7 @@ export class CookieFlagCheck {
       return;
     }
     const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
-    const cookieObjectExpression = getValueOfExpression<estree.ObjectExpression>(
+    const cookieObjectExpression = getValueOfExpression(
       this.context,
       sensitiveArgument,
       'ObjectExpression',
@@ -104,11 +104,7 @@ export class CookieFlagCheck {
       return;
     }
     const firstArgument = callExpression.arguments[argumentIndex];
-    const objectExpression = getValueOfExpression<estree.ObjectExpression>(
-      this.context,
-      firstArgument,
-      'ObjectExpression',
-    );
+    const objectExpression = getValueOfExpression(this.context, firstArgument, 'ObjectExpression');
     if (!objectExpression) {
       return;
     }
@@ -116,7 +112,7 @@ export class CookieFlagCheck {
     if (!cookieProperty) {
       return;
     }
-    const cookiePropertyValue = getValueOfExpression<estree.ObjectExpression>(
+    const cookiePropertyValue = getValueOfExpression(
       this.context,
       cookieProperty.value,
       'ObjectExpression',
@@ -141,11 +137,7 @@ export class CookieFlagCheck {
   ) {
     const flagProperty = getObjectExpressionProperty(cookiePropertyValue, this.flag);
     if (flagProperty) {
-      const flagPropertyValue = getValueOfExpression<estree.Literal>(
-        this.context,
-        flagProperty.value,
-        'Literal',
-      );
+      const flagPropertyValue = getValueOfExpression(this.context, flagProperty.value, 'Literal');
       if (flagPropertyValue?.value === false) {
         const secondaryLocations: estree.Node[] = [flagPropertyValue];
         if (firstArgument !== objectExpression) {
@@ -176,11 +168,7 @@ export class CookieFlagCheck {
       return;
     }
     if (callee.type === 'MemberExpression') {
-      const objectValue = getValueOfExpression<estree.NewExpression>(
-        this.context,
-        callee.object,
-        'NewExpression',
-      );
+      const objectValue = getValueOfExpression(this.context, callee.object, 'NewExpression');
       if (objectValue) {
         const module = getModuleNameOfNode(this.context, objectValue.callee);
         if (module?.value === 'cookies') {

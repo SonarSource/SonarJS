@@ -35,11 +35,7 @@ export const rule: Rule.RuleModule = {
       }
       const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
       const secondaryLocations: estree.Node[] = [];
-      const argumentValue = getValueOfExpression<estree.ObjectExpression>(
-        context,
-        sensitiveArgument,
-        'ObjectExpression',
-      );
+      const argumentValue = getValueOfExpression(context, sensitiveArgument, 'ObjectExpression');
       if (!argumentValue) {
         return;
       }

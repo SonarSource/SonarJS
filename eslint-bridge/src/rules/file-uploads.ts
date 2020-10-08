@@ -109,11 +109,7 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
     return;
   }
 
-  const options = getValueOfExpression<estree.ObjectExpression>(
-    context,
-    callExpression.arguments[0],
-    'ObjectExpression',
-  );
+  const options = getValueOfExpression(context, callExpression.arguments[0], 'ObjectExpression');
   if (options) {
     report(
       context,
@@ -128,7 +124,7 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
   if (callExpression.arguments.length === 0) {
     return;
   }
-  const multerOptions = getValueOfExpression<estree.ObjectExpression>(
+  const multerOptions = getValueOfExpression(
     context,
     callExpression.arguments[0],
     'ObjectExpression',
@@ -140,11 +136,7 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
 
   const storagePropertyValue = getObjectExpressionProperty(multerOptions, STORAGE_OPTION)?.value;
   if (storagePropertyValue) {
-    const storageValue = getValueOfExpression<estree.CallExpression>(
-      context,
-      storagePropertyValue,
-      'CallExpression',
-    );
+    const storageValue = getValueOfExpression(context, storagePropertyValue, 'CallExpression');
 
     if (storageValue) {
       const diskStorageCallee = getDiskStorageCalleeIfUnsafeStorage(context, storageValue);
@@ -164,11 +156,7 @@ function getDiskStorageCalleeIfUnsafeStorage(
 ) {
   const { arguments: args, callee } = storageCreation;
   if (args.length > 0 && isMemberWithProperty(callee, 'diskStorage')) {
-    const storageOptions = getValueOfExpression<estree.ObjectExpression>(
-      context,
-      args[0],
-      'ObjectExpression',
-    );
+    const storageOptions = getValueOfExpression(context, args[0], 'ObjectExpression');
     if (storageOptions && !getObjectExpressionProperty(storageOptions, DESTINATION_OPTION)) {
       return callee;
     }

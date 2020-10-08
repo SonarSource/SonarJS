@@ -114,11 +114,7 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
     return;
   }
 
-  const options = getValueOfExpression<estree.ObjectExpression>(
-    context,
-    callExpression.arguments[0],
-    'ObjectExpression',
-  );
+  const options = getValueOfExpression(context, callExpression.arguments[0], 'ObjectExpression');
   if (options) {
     const property = getObjectExpressionProperty(options, MAX_FILE_SIZE);
     checkSize(context, callExpression, property, FORMIDABLE_DEFAULT_SIZE);
@@ -130,7 +126,7 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
     report(context, callExpression.callee);
     return;
   }
-  const multerOptions = getValueOfExpression<estree.ObjectExpression>(
+  const multerOptions = getValueOfExpression(
     context,
     callExpression.arguments[0],
     'ObjectExpression',
@@ -156,11 +152,7 @@ function checkBodyParser(context: Rule.RuleContext, callExpression: estree.CallE
     checkSize(context, callExpression, undefined, BODY_PARSER_DEFAULT_SIZE, true);
     return;
   }
-  const options = getValueOfExpression<estree.ObjectExpression>(
-    context,
-    callExpression.arguments[0],
-    'ObjectExpression',
-  );
+  const options = getValueOfExpression(context, callExpression.arguments[0], 'ObjectExpression');
 
   if (!options) {
     return;
@@ -208,7 +200,7 @@ function visitAssignment(context: Rule.RuleContext, assignment: estree.Assignmen
 }
 
 function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | undefined {
-  const literal = getValueOfExpression<estree.Literal>(context, node, 'Literal');
+  const literal = getValueOfExpression(context, node, 'Literal');
   if (literal) {
     if (typeof literal.value === 'number') {
       return literal.value;
