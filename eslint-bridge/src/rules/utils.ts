@@ -529,8 +529,8 @@ export function getObjectExpressionProperty(
 }
 
 export function getPropertyWithValue(
-  objectExpression: estree.ObjectExpression,
   context: Rule.RuleContext,
+  objectExpression: estree.ObjectExpression,
   propertyName: string,
   propertyValue: string | number | boolean | RegExp,
 ) {

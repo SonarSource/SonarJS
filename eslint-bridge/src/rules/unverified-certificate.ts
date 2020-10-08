@@ -47,8 +47,8 @@ export const rule: Rule.RuleModule = {
         secondaryLocations.push(argumentValue);
       }
       const unsafeRejectUnauthorizedConfiguration = getPropertyWithValue(
-        argumentValue,
         context,
+        argumentValue,
         'rejectUnauthorized',
         false,
       );

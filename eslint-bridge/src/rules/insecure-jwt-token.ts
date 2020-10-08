@@ -49,8 +49,8 @@ export const rule: Rule.RuleModule = {
       secondaryLocations: estree.Node[],
     ) {
       const unsafeAlgorithmProperty = getPropertyWithValue(
-        thirdArgumentValue,
         context,
+        thirdArgumentValue,
         'algorithm',
         'none',
       );
