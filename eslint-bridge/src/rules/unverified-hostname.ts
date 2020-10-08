@@ -23,10 +23,10 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { childrenOf } from '../utils/visitor';
 import {
-  getModuleNameOfNode,
   getObjectExpressionProperty,
+  getPropertyWithValue,
   getValueOfExpression,
-  isIdentifier,
+  isCallToFQN,
   toEncodedMessage,
 } from './utils';
 
@@ -62,20 +62,15 @@ export const rule: Rule.RuleModule = {
       if (sensitiveArgument !== argumentValue) {
         secondaryLocations.push(argumentValue);
       }
-      const rejectUnauthorizedProperty = getObjectExpressionProperty(
+      const unsafeRejectUnauthorizedConfiguration = getPropertyWithValue(
         argumentValue,
+        context,
         'rejectUnauthorized',
+        false,
       );
-      if (rejectUnauthorizedProperty) {
-        const rejectUnauthorizedValue = getValueOfExpression<estree.Literal>(
-          context,
-          rejectUnauthorizedProperty.value,
-          'Literal',
-        );
-        if (rejectUnauthorizedValue?.value === false) {
-          secondaryLocations.push(rejectUnauthorizedProperty);
-          shouldReport = true;
-        }
+      if (unsafeRejectUnauthorizedConfiguration) {
+        secondaryLocations.push(unsafeRejectUnauthorizedConfiguration);
+        shouldReport = true;
       }
       const checkServerIdentityProperty = getObjectExpressionProperty(
         argumentValue,
@@ -134,27 +129,14 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
-        const { callee } = callExpression;
-        if (callee.type === 'MemberExpression') {
-          const module = getModuleNameOfNode(context, callee.object);
-          if (
-            module?.value === 'https' &&
-            isIdentifier((callExpression.callee as estree.MemberExpression).property, 'request')
-          ) {
-            checkSensitiveArgument(callExpression, 0);
-          }
-          if (
-            module?.value === 'request' &&
-            isIdentifier((callExpression.callee as estree.MemberExpression).property, 'get')
-          ) {
-            checkSensitiveArgument(callExpression, 0);
-          }
-          if (
-            module?.value === 'tls' &&
-            isIdentifier((callExpression.callee as estree.MemberExpression).property, 'connect')
-          ) {
-            checkSensitiveArgument(callExpression, 2);
-          }
+        if (isCallToFQN(context, callExpression, 'https', 'request')) {
+          checkSensitiveArgument(callExpression, 0);
+        }
+        if (isCallToFQN(context, callExpression, 'request', 'get')) {
+          checkSensitiveArgument(callExpression, 0);
+        }
+        if (isCallToFQN(context, callExpression, 'tls', 'connect')) {
+          checkSensitiveArgument(callExpression, 2);
         }
       },
     };

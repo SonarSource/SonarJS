@@ -1,0 +1,33 @@
+{
+  "title": "Server certificates should be verified during SSL\/TLS connections",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "privacy",
+    "owasp-a6",
+    "ssl",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4830",
+  "sqKey": "S4830",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      295
+    ],
+    "OWASP": [
+      "A6",
+      "A3"
+    ]
+  }
+}

@@ -19,10 +19,8 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from 'rules/unverified-hostname';
-import { RuleTesterTs } from '../RuleTesterTs';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-const ruleTesterTs = new RuleTesterTs(false);
 
 const testCasesHttps = {
   valid: [
@@ -196,8 +194,23 @@ const testCasesHttps = {
           endLine: 20,
           column: 17,
           endColumn: 30,
-          message:
-            '{"message":"Enable server hostname verification on this SSL/TLS connection.","secondaryLocations":[{"column":20,"line":5,"endColumn":7,"endLine":18},{"column":8,"line":11,"endColumn":33,"endLine":11}]}',
+          message: JSON.stringify({
+            message: 'Enable server hostname verification on this SSL/TLS connection.',
+            secondaryLocations: [
+              {
+                column: 20,
+                line: 5,
+                endColumn: 7,
+                endLine: 18,
+              },
+              {
+                column: 8,
+                line: 11,
+                endColumn: 33,
+                endLine: 11,
+              },
+            ],
+          }),
         },
       ],
     },
@@ -225,8 +238,23 @@ const testCasesHttps = {
           endLine: 14,
           column: 17,
           endColumn: 30,
-          message:
-            '{"message":"Enable server hostname verification on this SSL/TLS connection.","secondaryLocations":[{"column":20,"line":5,"endColumn":7,"endLine":12},{"column":8,"line":11,"endColumn":42,"endLine":11}]}',
+          message: JSON.stringify({
+            message: 'Enable server hostname verification on this SSL/TLS connection.',
+            secondaryLocations: [
+              {
+                column: 20,
+                line: 5,
+                endColumn: 7,
+                endLine: 12,
+              },
+              {
+                column: 8,
+                line: 11,
+                endColumn: 42,
+                endLine: 11,
+              },
+            ],
+          }),
         },
       ],
     },
@@ -332,8 +360,17 @@ const testCasesRequest = {
           endLine: 4,
           column: 20,
           endColumn: 31,
-          message:
-            '{"message":"Enable server hostname verification on this SSL/TLS connection.","secondaryLocations":[{"column":8,"line":7,"endColumn":33,"endLine":7}]}',
+          message: JSON.stringify({
+            message: 'Enable server hostname verification on this SSL/TLS connection.',
+            secondaryLocations: [
+              {
+                column: 8,
+                line: 7,
+                endColumn: 33,
+                endLine: 7,
+              },
+            ],
+          }),
         },
       ],
     },
@@ -459,30 +496,15 @@ ruleTesterJs.run(
   rule,
   testCasesHttps,
 );
-ruleTesterTs.run(
-  '[TS-https] Server hostnames should be verified during SSL/TLS connections',
-  rule,
-  testCasesHttps,
-);
 
 ruleTesterJs.run(
   '[JS-request] Server hostnames should be verified during SSL/TLS connections',
   rule,
   testCasesRequest,
 );
-ruleTesterTs.run(
-  '[TS-request] Server hostnames should be verified during SSL/TLS connections',
-  rule,
-  testCasesRequest,
-);
 
 ruleTesterJs.run(
   '[JS-tls] Server hostnames should be verified during SSL/TLS connections',
-  rule,
-  testCasesTls,
-);
-ruleTesterTs.run(
-  '[TS-tls] Server hostnames should be verified during SSL/TLS connections',
   rule,
   testCasesTls,
 );
