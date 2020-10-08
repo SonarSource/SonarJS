@@ -22,10 +22,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  getModuleNameOfNode,
   getObjectExpressionProperty,
+  getPropertyWithValue,
   getValueOfExpression,
-  isIdentifier,
+  isCallToFQN,
   toEncodedMessage,
 } from './utils';
 
@@ -48,18 +48,20 @@ export const rule: Rule.RuleModule = {
       thirdArgumentValue: estree.ObjectExpression,
       secondaryLocations: estree.Node[],
     ) {
-      const algorithmProperty = getObjectExpressionProperty(thirdArgumentValue, 'algorithm');
-      if (!algorithmProperty) {
-        return;
-      }
-      const algorithmValue = getValueOfExpression<estree.Literal>(
+      const unsafeAlgorithmProperty = getPropertyWithValue(
+        thirdArgumentValue,
         context,
-        algorithmProperty.value,
-        'Literal',
+        'algorithm',
+        'none',
       );
-      if (algorithmValue?.value === 'none') {
-        if (algorithmValue !== algorithmProperty.value) {
-          secondaryLocations.push(algorithmValue);
+      if (unsafeAlgorithmProperty) {
+        const unsafeAlgorithmValue = getValueOfExpression<estree.Literal>(
+          context,
+          unsafeAlgorithmProperty.value,
+          'Literal',
+        )!;
+        if (unsafeAlgorithmValue !== unsafeAlgorithmProperty.value) {
+          secondaryLocations.push(unsafeAlgorithmValue);
         }
         context.report({
           node: callExpression.callee,
@@ -107,38 +109,33 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression: estree.CallExpression = node as estree.CallExpression;
-        const callee = callExpression.callee;
-        if (callee.type === 'MemberExpression') {
-          const object = callee.object;
-          const moduleName = getModuleNameOfNode(context, object);
-          if (moduleName?.value !== 'jsonwebtoken') {
-            return;
-          }
-          const isCallToSign = isIdentifier(callee.property, 'sign');
-          const isCallToVerify = isIdentifier(callee.property, 'verify');
-          if (callExpression.arguments.length < 3) {
-            // algorithm(s) property is contained in third argument of "sign" and "verify" calls
-            return;
-          }
-          const thirdArgument = callExpression.arguments[2];
-          const thirdArgumentValue = getValueOfExpression<estree.ObjectExpression>(
-            context,
-            thirdArgument,
-            'ObjectExpression',
-          );
-          if (!thirdArgumentValue) {
-            return;
-          }
-          const secondaryLocations: estree.Node[] = [thirdArgumentValue];
-          if (thirdArgumentValue !== thirdArgument) {
-            secondaryLocations.push(thirdArgument);
-          }
-          if (isCallToSign) {
-            checkCallToSign(callExpression, thirdArgumentValue, secondaryLocations);
-          }
-          if (isCallToVerify) {
-            checkCallToVerify(callExpression, thirdArgumentValue, secondaryLocations);
-          }
+        const isCallToSign = isCallToFQN(context, callExpression, 'jsonwebtoken', 'sign');
+        const isCallToVerify = isCallToFQN(context, callExpression, 'jsonwebtoken', 'verify');
+        if (!isCallToSign && !isCallToVerify) {
+          return;
+        }
+        if (callExpression.arguments.length < 3) {
+          // algorithm(s) property is contained in third argument of "sign" and "verify" calls
+          return;
+        }
+        const thirdArgument = callExpression.arguments[2];
+        const thirdArgumentValue = getValueOfExpression<estree.ObjectExpression>(
+          context,
+          thirdArgument,
+          'ObjectExpression',
+        );
+        if (!thirdArgumentValue) {
+          return;
+        }
+        const secondaryLocations: estree.Node[] = [thirdArgumentValue];
+        if (thirdArgumentValue !== thirdArgument) {
+          secondaryLocations.push(thirdArgument);
+        }
+        if (isCallToSign) {
+          checkCallToSign(callExpression, thirdArgumentValue, secondaryLocations);
+        }
+        if (isCallToVerify) {
+          checkCallToVerify(callExpression, thirdArgumentValue, secondaryLocations);
         }
       },
     };
