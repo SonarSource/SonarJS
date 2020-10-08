@@ -51,11 +51,7 @@ export const rule: Rule.RuleModule = {
       const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
       const secondaryLocations: estree.Node[] = [];
       let shouldReport = false;
-      const argumentValue = getValueOfExpression<estree.ObjectExpression>(
-        context,
-        sensitiveArgument,
-        'ObjectExpression',
-      );
+      const argumentValue = getValueOfExpression(context, sensitiveArgument, 'ObjectExpression');
       if (!argumentValue) {
         return;
       }
@@ -94,13 +90,14 @@ export const rule: Rule.RuleModule = {
     function shouldReportOnCheckServerIdentityCallBack(
       checkServerIdentityProperty: estree.Property,
     ) {
-      let baseFunction = getValueOfExpression<estree.BaseFunction>(
+      let baseFunction: estree.BaseFunction | undefined;
+      baseFunction = getValueOfExpression(
         context,
         checkServerIdentityProperty.value,
         'FunctionExpression',
       );
       if (!baseFunction) {
-        baseFunction = getValueOfExpression<estree.BaseFunction>(
+        baseFunction = getValueOfExpression(
           context,
           checkServerIdentityProperty.value,
           'ArrowFunctionExpression',
@@ -115,8 +112,7 @@ export const rule: Rule.RuleModule = {
           returnStatements.length === 0 ||
           returnStatements.every(r => {
             return (
-              !r.argument ||
-              getValueOfExpression<estree.Literal>(context, r.argument, 'Literal')?.value === true
+              !r.argument || getValueOfExpression(context, r.argument, 'Literal')?.value === true
             );
           })
         ) {

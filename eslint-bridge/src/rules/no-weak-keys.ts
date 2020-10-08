@@ -55,7 +55,7 @@ const WEAK_CURVES = [
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     function getNumericValue(node: estree.Node | undefined) {
-      const literal = getValueOfExpression<estree.Literal>(context, node, 'Literal');
+      const literal = getValueOfExpression(context, node, 'Literal');
       if (literal && typeof literal.value === 'number') {
         return literal.value;
       }
@@ -83,7 +83,7 @@ export const rule: Rule.RuleModule = {
 
     function checkEcCurve(options: estree.Node) {
       const namedCurveProperty = getObjectExpressionProperty(options, 'namedCurve');
-      const namedCurve = getValueOfExpression<estree.Literal>(
+      const namedCurve = getValueOfExpression(
         context,
         namedCurveProperty?.value,
         'Literal',
@@ -108,16 +108,11 @@ export const rule: Rule.RuleModule = {
             return;
           }
           const [algorithmArg, options] = callExpression.arguments;
-          const optionsArg = getValueOfExpression<estree.ObjectExpression>(
-            context,
-            options,
-            'ObjectExpression',
-          );
+          const optionsArg = getValueOfExpression(context, options, 'ObjectExpression');
           if (!optionsArg) {
             return;
           }
-          const algorithm = getValueOfExpression<estree.Literal>(context, algorithmArg, 'Literal')
-            ?.value;
+          const algorithm = getValueOfExpression(context, algorithmArg, 'Literal')?.value;
           if (algorithm === 'rsa' || algorithm === 'dsa') {
             checkRsaAndDsaOptions(algorithm, optionsArg);
           } else if (algorithm === 'ec') {

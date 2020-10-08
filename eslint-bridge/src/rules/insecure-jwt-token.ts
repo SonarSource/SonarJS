@@ -55,12 +55,12 @@ export const rule: Rule.RuleModule = {
         'none',
       );
       if (unsafeAlgorithmProperty) {
-        const unsafeAlgorithmValue = getValueOfExpression<estree.Literal>(
+        const unsafeAlgorithmValue = getValueOfExpression(
           context,
           unsafeAlgorithmProperty.value,
           'Literal',
-        )!;
-        if (unsafeAlgorithmValue !== unsafeAlgorithmProperty.value) {
+        );
+        if (unsafeAlgorithmValue && unsafeAlgorithmValue !== unsafeAlgorithmProperty.value) {
           secondaryLocations.push(unsafeAlgorithmValue);
         }
         context.report({
@@ -83,7 +83,7 @@ export const rule: Rule.RuleModule = {
         });
         return;
       }
-      const algorithmsValue = getValueOfExpression<estree.ArrayExpression>(
+      const algorithmsValue = getValueOfExpression(
         context,
         algorithmsProperty.value,
         'ArrayExpression',
@@ -92,7 +92,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
       const algorithmsContainNone = algorithmsValue.elements.some(e => {
-        const value = getValueOfExpression<estree.Literal>(context, e, 'Literal');
+        const value = getValueOfExpression(context, e, 'Literal');
         return value?.value === 'none';
       });
       if (algorithmsContainNone) {
@@ -119,11 +119,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const thirdArgument = callExpression.arguments[2];
-        const thirdArgumentValue = getValueOfExpression<estree.ObjectExpression>(
-          context,
-          thirdArgument,
-          'ObjectExpression',
-        );
+        const thirdArgumentValue = getValueOfExpression(context, thirdArgument, 'ObjectExpression');
         if (!thirdArgumentValue) {
           return;
         }

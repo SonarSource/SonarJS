@@ -215,24 +215,30 @@ export function getUniqueWriteUsageOrNode(
   }
 }
 
-export function getValueOfExpression<T>(
+// see https://stackoverflow.com/questions/64262105/narrowing-return-value-of-function-based-on-argument
+type RefineNodeType<N extends estree.Node, T extends estree.Node['type']> = N extends { type: T }
+  ? N
+  : never;
+
+export function getValueOfExpression<T extends estree.Node['type']>(
   context: Rule.RuleContext,
   expr: estree.Node | undefined,
-  type: string,
-): T | undefined {
+  type: T,
+) {
   if (!expr) {
     return undefined;
   }
   if (expr.type === 'Identifier') {
     const usage = getUniqueWriteUsage(context, expr.name);
     if (usage && usage.type === type) {
-      return (usage as any) as T;
+      return usage as RefineNodeType<estree.Node, T>;
     }
   }
 
   if (expr.type === type) {
-    return (expr as any) as T;
+    return expr as RefineNodeType<estree.Node, T>;
   }
+  return undefined;
 }
 
 /**
@@ -532,15 +538,11 @@ export function getPropertyWithValue(
   context: Rule.RuleContext,
   objectExpression: estree.ObjectExpression,
   propertyName: string,
-  propertyValue: string | number | boolean | RegExp,
+  propertyValue: estree.Literal['value'],
 ) {
   const unsafeProperty = getObjectExpressionProperty(objectExpression, propertyName);
   if (unsafeProperty) {
-    const unsafePropertyValue = getValueOfExpression<estree.Literal>(
-      context,
-      unsafeProperty.value,
-      'Literal',
-    );
+    const unsafePropertyValue = getValueOfExpression(context, unsafeProperty.value, 'Literal');
     if (unsafePropertyValue?.value === propertyValue) {
       return unsafeProperty;
     }

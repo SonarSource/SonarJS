@@ -54,11 +54,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const sensitiveArgument = callExpression.arguments[0];
-        const sensitiveArgumentValue = getValueOfExpression<estree.Literal>(
-          context,
-          sensitiveArgument,
-          'Literal',
-        );
+        const sensitiveArgumentValue = getValueOfExpression(context, sensitiveArgument, 'Literal');
         if (!sensitiveArgumentValue) {
           return;
         }
