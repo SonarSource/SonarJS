@@ -555,10 +555,7 @@ export function isCallToFQN(
     return false;
   }
   const module = getModuleNameOfNode(context, callee.object);
-  return (
-    module?.value === moduleName &&
-    isIdentifier((callExpression.callee as estree.MemberExpression).property, functionName)
-  );
+  return module?.value === moduleName && isIdentifier(callee.property, functionName);
 }
 
 export function flatMap<A, B>(xs: A[], f: (e: A) => B[]): B[] {
