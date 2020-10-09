@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-4619
+// https://jira.sonarsource.com/browse/RSPEC-3579
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
-import * as ts from 'typescript';
+import { isArray, isString } from './utils';
 
 const message = `Make it an object if it must have named properties; otherwise, use a numeric index here.`;
 
@@ -35,26 +34,11 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
-    const checker = services.program.getTypeChecker();
-
-    function isArray(node: estree.Node) {
-      const typ = checker.getTypeAtLocation(
-        services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node),
-      );
-      return typ.symbol && typ.symbol.name === 'Array';
-    }
-
-    function isString(node: estree.Node) {
-      const typ = checker.getTypeAtLocation(
-        services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node),
-      );
-      return (typ.getFlags() & ts.TypeFlags.StringLike) !== 0;
-    }
-
     return {
       'AssignmentExpression[left.type="MemberExpression"]'(node: estree.Node) {
-        const memberExpr = (node as estree.AssignmentExpression).left as estree.MemberExpression;
-        if (isString(memberExpr.property) && isArray(memberExpr.object)) {
+        const { property, object } = (node as estree.AssignmentExpression)
+          .left as estree.MemberExpression;
+        if (isString(property, services) && isArray(object, services)) {
           context.report({
             message,
             node,
