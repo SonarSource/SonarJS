@@ -315,6 +315,7 @@ public final class CheckList {
       VariableNameCheck.class,
       VariableShadowingCheck.class,
       VoidUseCheck.class,
+      WeakSslCheck.class,
       WebSQLDatabaseCheck.class,
       WildcardImportCheck.class,
       WithStatementCheck.class,
