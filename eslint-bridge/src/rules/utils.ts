@@ -489,7 +489,9 @@ export function isArray(node: estree.Node, services: RequiredParserServices) {
 }
 
 export function isString(node: estree.Node, services: RequiredParserServices) {
-  return getTypeAsString(node, services) === 'string';
+  const checker = services.program.getTypeChecker();
+  const typ = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+  return (typ.getFlags() & tsTypes.TypeFlags.StringLike) !== 0;
 }
 
 export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
