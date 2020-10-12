@@ -85,9 +85,9 @@ public class JavaScriptRulingTest {
   @Parameters(name = "{0}")
   public static Object[][] projects() {
     return new Object[][]{
-      jsProject("amplify", "external/**"),
+      //jsProject("amplify", "external/**"),
       jsProject("angular.js", "src/ngLocale/**", "i18n/**"),
-      jsProject("backbone"),
+      /*jsProject("backbone"),
       jsProject("es5-shim"),
       jsProject("javascript-test-sources"),
       jsProject("jquery"),
@@ -101,7 +101,7 @@ public class JavaScriptRulingTest {
       jsProject("prototype", "dist/**", "vendor/**"),
       jsProject("qunit"),
       jsProject("sizzle", "external/**", "dist/**"),
-      jsProject("underscore", "test/vendor/**"),
+      jsProject("underscore", "test/vendor/**"),*/
     };
   }
 
