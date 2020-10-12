@@ -20,38 +20,17 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2819")
-public class PostMessageCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String POST_MESSAGE = "postMessage";
-  private static final String MESSAGE = "Make sure this cross-domain message is being sent to the intended domain.";
+public class PostMessageCheck implements EslintBasedCheck {
 
   @Override
-  public void visitCallExpression(CallExpressionTree tree) {
-    if (tree.callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
-      DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
-      boolean isWindow = callee.object().types().contains(Type.Kind.WINDOW) || hasWindowLikeName(callee.object());
-      if (isWindow && CheckUtils.asString(callee.property()).equals(POST_MESSAGE)) {
-        addIssue(callee.property(), MESSAGE);
-      }
-    }
-
-    super.visitCallExpression(tree);
+  public String eslintKey() {
+    return "post-message";
   }
-
-  private static boolean hasWindowLikeName(ExpressionTree tree) {
-    String str = CheckUtils.asString(tree);
-    return str.contains("window") || str.contains("Window");
-  }
-
 }
