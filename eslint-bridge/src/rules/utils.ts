@@ -215,11 +215,6 @@ export function getUniqueWriteUsageOrNode(
   }
 }
 
-// see https://stackoverflow.com/questions/64262105/narrowing-return-value-of-function-based-on-argument
-type RefineNodeType<N extends estree.Node, T extends estree.Node['type']> = N extends { type: T }
-  ? N
-  : never;
-
 export function getValueOfExpression<T extends estree.Node['type']>(
   context: Rule.RuleContext,
   expr: estree.Node | undefined,
@@ -230,15 +225,23 @@ export function getValueOfExpression<T extends estree.Node['type']>(
   }
   if (expr.type === 'Identifier') {
     const usage = getUniqueWriteUsage(context, expr.name);
-    if (usage && usage.type === type) {
-      return usage as RefineNodeType<estree.Node, T>;
+    if (usage && isNodeType(usage, type)) {
+      return usage;
     }
   }
 
-  if (expr.type === type) {
-    return expr as RefineNodeType<estree.Node, T>;
+  if (isNodeType(expr, type)) {
+    return expr;
   }
   return undefined;
+}
+
+// see https://stackoverflow.com/questions/64262105/narrowing-return-value-of-function-based-on-argument
+function isNodeType<T extends estree.Node['type']>(
+  node: estree.Node,
+  type: T,
+): node is Extract<estree.Node, { type: T }> {
+  return node.type === type;
 }
 
 /**
