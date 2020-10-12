@@ -84,7 +84,6 @@ public class CheckListTest {
     // these rules have different implementation for TS and JS
     keys.remove("S3854");
     keys.remove("S3402");
-    keys.remove("S3533");
     keys.remove("S3863");
 
     // this rule has the same implementation for TS and JS, but defines a different rule property

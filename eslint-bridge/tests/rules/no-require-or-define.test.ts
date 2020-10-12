@@ -17,14 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
 import { RuleTesterTs } from '../RuleTesterTs';
+import { RuleTester } from 'eslint';
 import { rule } from 'rules/no-require-or-define';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-const ruleTesterTs = new RuleTesterTs(false);
+ruleTesterJs.run('No require or define import [js]', rule, {
+  valid: [
+    {
+      code: `const circle = require('./circle.js'); // not reported without type information`,
+    },
+  ],
+  invalid: [],
+});
 
-const testCases = {
+const ruleTesterTs = new RuleTesterTs(false);
+ruleTesterTs.run('No require or define import [ts]', rule, {
   valid: [
     {
       code: `
@@ -82,6 +90,11 @@ const testCases = {
             unknown.define("hello", function()  {
               // ...
             }); // OK, unknown object
+            `,
+    },
+    {
+      code: `
+            require(1);  // not string argument
             `,
     },
   ],
@@ -144,19 +157,5 @@ const testCases = {
             `,
       errors: 1,
     },
-    {
-      code: `
-            require(1);  // FP, not string argument (requires type inference)
-            `,
-      errors: 1,
-    },
   ],
-};
-
-ruleTesterJs.run('No require or define import JS', rule, testCases);
-testCases.valid.push({
-  code: `
-        import pluralize = require('pluralize');
-        `,
 });
-ruleTesterTs.run('No require or define import TS', rule, testCases);

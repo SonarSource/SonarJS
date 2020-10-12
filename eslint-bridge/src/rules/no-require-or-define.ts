@@ -20,9 +20,18 @@
 // https://jira.sonarsource.com/browse/RSPEC-3533
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import {
+  isRequiredParserServices,
+  RequiredParserServices,
+} from '../utils/isRequiredParserServices';
+import { isFunction, isString } from './utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    const services = context.parserServices;
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
     return {
       'CallExpression[callee.type="Identifier"]': (node: estree.Node) => {
         if (context.getScope().type !== 'module' && context.getScope().type !== 'global') {
@@ -31,8 +40,8 @@ export const rule: Rule.RuleModule = {
         const callExpression = node as estree.CallExpression;
         const identifier = callExpression.callee as estree.Identifier;
         if (
-          isAmdImport(callExpression, identifier) ||
-          isCommonJsImport(callExpression, identifier)
+          isAmdImport(callExpression, identifier, services) ||
+          isCommonJsImport(callExpression, identifier, services)
         ) {
           context.report({
             node: identifier,
@@ -47,13 +56,19 @@ export const rule: Rule.RuleModule = {
 function isCommonJsImport(
   callExpression: estree.CallExpression,
   identifier: estree.Identifier,
+  services: RequiredParserServices,
 ): boolean {
-  return callExpression.arguments.length === 1 && identifier.name === 'require';
+  return (
+    callExpression.arguments.length === 1 &&
+    isString(callExpression.arguments[0], services) &&
+    identifier.name === 'require'
+  );
 }
 
 function isAmdImport(
   callExpression: estree.CallExpression,
   identifier: estree.Identifier,
+  services: RequiredParserServices,
 ): boolean {
   if (identifier.name !== 'require' && identifier.name !== 'define') {
     return false;
@@ -61,8 +76,5 @@ function isAmdImport(
   if (callExpression.arguments.length !== 2 && callExpression.arguments.length !== 3) {
     return false;
   }
-  const lastArgumentType = callExpression.arguments[callExpression.arguments.length - 1].type;
-  return (
-    lastArgumentType === 'FunctionExpression' || lastArgumentType === 'ArrowFunctionExpression'
-  );
+  return isFunction(callExpression.arguments[callExpression.arguments.length - 1], services);
 }

@@ -11,7 +11,6 @@
 'jshint:scripts/remove-dev-dependencies.js':[
 13,
 14,
-16,
 ],
 'jshint:src/cli.js':[
 3,
