@@ -17,11 +17,12 @@ const context = require('../lib/context');
 const port = process.argv[2];
 const host = process.argv[3];
 const workDir = process.argv[4];
+const shouldUseTypescriptParserForJS = process.argv[5] === 'true';
 
 let additionalRules = [];
-if (process.argv[5]) {
-  additionalRules = process.argv[5].split(path.delimiter);
+if (process.argv[6]) {
+  additionalRules = process.argv[6].split(path.delimiter);
 }
 
-context.setContext({ workDir });
+context.setContext({ workDir, shouldUseTypescriptParserForJS });
 server.start(port, host, additionalRules);

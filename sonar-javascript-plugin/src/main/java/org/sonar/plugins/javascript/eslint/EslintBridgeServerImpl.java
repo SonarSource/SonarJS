@@ -55,6 +55,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private static final int DEFAULT_TIMEOUT_SECONDS = 60;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
+  private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
   private static final Gson GSON = new Gson();
   private static final int MIN_NODE_VERSION = 8;
 
@@ -140,6 +141,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   private void initNodeCommand(SensorContext context, File scriptFile, File workDir, String bundles) throws IOException {
+    Boolean allowTsParserJsFiles = context.config().getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
     nodeCommandBuilder
       .outputConsumer(message -> {
         if (message.startsWith("DEBUG")) {
@@ -154,7 +156,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       .minNodeVersion(MIN_NODE_VERSION)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
-      .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), bundles);
+      .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), String.valueOf(allowTsParserJsFiles), bundles);
 
     context.config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
