@@ -147,6 +147,15 @@ ruleTesterTs.run('No require or define import [ts]', rule, {
     },
     {
       code: `
+            function foo(){
+              // ...
+            }
+            define("ModuleName", [], foo);
+            `,
+      errors: 1,
+    },
+    {
+      code: `
             const circle = require('./circle.js');
             `,
       errors: 1,
