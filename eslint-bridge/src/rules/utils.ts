@@ -497,6 +497,12 @@ export function isString(node: estree.Node, services: RequiredParserServices) {
   return (typ.getFlags() & tsTypes.TypeFlags.StringLike) !== 0;
 }
 
+export function isFunction(node: estree.Node, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+  return type.symbol && (type.symbol.flags & tsTypes.SymbolFlags.Function) !== 0;
+}
+
 export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));

@@ -17,14 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
 import { RuleTesterTs } from '../RuleTesterTs';
+import { RuleTester } from 'eslint';
 import { rule } from 'rules/no-require-or-define';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-const ruleTesterTs = new RuleTesterTs(false);
+ruleTesterJs.run('No require or define import [js]', rule, {
+  valid: [
+    {
+      code: `const circle = require('./circle.js'); // not reported without type information`,
+    },
+  ],
+  invalid: [],
+});
 
-const testCases = {
+const ruleTesterTs = new RuleTesterTs(false);
+ruleTesterTs.run('No require or define import [ts]', rule, {
   valid: [
     {
       code: `
@@ -84,6 +92,11 @@ const testCases = {
             }); // OK, unknown object
             `,
     },
+    {
+      code: `
+            require(1);  // not string argument
+            `,
+    },
   ],
   invalid: [
     {
@@ -134,6 +147,15 @@ const testCases = {
     },
     {
       code: `
+            function foo(){
+              // ...
+            }
+            define("ModuleName", [], foo);
+            `,
+      errors: 1,
+    },
+    {
+      code: `
             const circle = require('./circle.js');
             `,
       errors: 1,
@@ -146,17 +168,10 @@ const testCases = {
     },
     {
       code: `
-            require(1);  // FP, not string argument (requires type inference)
+            let str = './squire.js';
+            const square = require(str);
             `,
       errors: 1,
     },
   ],
-};
-
-ruleTesterJs.run('No require or define import JS', rule, testCases);
-testCases.valid.push({
-  code: `
-        import pluralize = require('pluralize');
-        `,
 });
-ruleTesterTs.run('No require or define import TS', rule, testCases);
