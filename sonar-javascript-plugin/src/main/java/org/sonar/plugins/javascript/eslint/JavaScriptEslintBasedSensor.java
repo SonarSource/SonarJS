@@ -58,42 +58,37 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
    * Required for SonarLint
    */
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
-                                     FileLinesContextFactory fileLinesContextFactory,
-                                     EslintBridgeServer eslintBridgeServer, TempFolder folder) {
+      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer, TempFolder folder) {
     this(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, folder);
   }
 
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
-                                     FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-                                     @Nullable AnalysisWarnings analysisWarnings, TempFolder folder) {
-    super(checks,
-      noSonarFilter,
-      fileLinesContextFactory,
-      eslintBridgeServer,
-      analysisWarnings
-    );
+      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
+      @Nullable AnalysisWarnings analysisWarnings, TempFolder folder) {
+    super(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, analysisWarnings);
     this.tempFolder = folder;
   }
 
   @Override
   void analyzeFiles() throws IOException, InterruptedException {
-    runEslintAnalysis(provideDefaultTsConfig());
+    runEslintAnalysis();
     PROFILER.startInfo("Java-based frontend sensor [javascript]");
     new JavaScriptSensor(checks).execute(context);
     PROFILER.stopInfo();
   }
 
-  private List<String> provideDefaultTsConfig() throws IOException {
+  private List<String> provideDefaultTsConfig(InputFile file) throws IOException {
     Map<String, Object> compilerOptions = new HashMap<>();
     // to support parsing of JavaScript-specific syntax
     compilerOptions.put("allowJs", true);
     // to make TypeScript compiler "better infer types"
     compilerOptions.put("noImplicitAny", true);
-    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptEslintBasedSensor::filePredicate, compilerOptions);
+    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder,
+        fs ->  fs.predicates().and(filePredicate(fs), fs.predicates().hasAbsolutePath(file.absolutePath())), compilerOptions);
     return provider.tsconfigs(context);
   }
 
-  private void runEslintAnalysis(List<String> tsConfigs) throws IOException, InterruptedException {
+  private void runEslintAnalysis() throws IOException, InterruptedException {
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
     try {
@@ -105,7 +100,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
         if (eslintBridgeServer.isAlive()) {
-          analyze(inputFile, tsConfigs);
+          analyze(inputFile);
           progressReport.nextFile();
         } else {
           throw new IllegalStateException("eslint-bridge server is not answering");
@@ -122,12 +117,14 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     }
   }
 
-  private void analyze(InputFile file, List<String> tsConfigs) throws IOException {
+  private void analyze(InputFile file) throws IOException {
     try {
+      List<String> tsConfigs = provideDefaultTsConfig(file);
       String fileContent = shouldSendFileContent(file) ? file.contents() : null;
       AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, ignoreHeaderComments(), tsConfigs);
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
       processResponse(file, response);
+      eslintBridgeServer.newTsConfig();
     } catch (IOException e) {
       LOG.error("Failed to get response while analyzing " + file.uri(), e);
       throw e;
