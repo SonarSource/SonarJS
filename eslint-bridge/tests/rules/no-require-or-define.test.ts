@@ -166,5 +166,12 @@ ruleTesterTs.run('No require or define import [ts]', rule, {
             `,
       errors: 1,
     },
+    {
+      code: `
+            let str = './squire.js';
+            const square = require(str);
+            `,
+      errors: 1,
+    },
   ],
 });
