@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { getTypeAsString } from './utils';
+import { getTypeAsString, isIdentifier } from './utils';
 
 const MESSAGE = 'Convert this use of a Web SQL database to another technology.';
 const OPEN_DATABASE = 'openDatabase';
@@ -37,17 +37,13 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         const { callee } = callExpression;
-        if (callee.type === 'Identifier' && callee.name === OPEN_DATABASE) {
+        if (isIdentifier(callee, OPEN_DATABASE)) {
           context.report({ node: callee, message: MESSAGE });
         }
-        if (callee.type !== 'MemberExpression') {
+        if (callee.type !== 'MemberExpression' || !isIdentifier(callee.property, OPEN_DATABASE)) {
           return;
         }
-        const { object, property } = callee;
-        if (property.type !== 'Identifier' || property.name !== OPEN_DATABASE) {
-          return;
-        }
-        const typeName = getTypeAsString(object, services);
+        const typeName = getTypeAsString(callee.object, services);
         if (typeName.match(/window/i) || typeName.match(/globalThis/i)) {
           context.report({ node: callee, message: MESSAGE });
         }
