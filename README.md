@@ -17,9 +17,7 @@ This SonarSource project is a [static code analyser](https://en.wikipedia.org/wi
 * Import of ESLint and TSLint issues
 
 # Documentation
-You can find documentation here:
-* [for JavaScript](https://docs.sonarqube.org/latest/analysis/languages/javascript/)
-* [for TypeScript](https://docs.sonarqube.org/latest/analysis/languages/typescript/)
+You can find [documentation here](https://docs.sonarqube.org/latest/analysis/languages/javascript/)
 
 # <a name="support"></a>Have question or feedback?
 ### SonarSource Community Forum
