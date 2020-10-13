@@ -20,43 +20,17 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.javascript.tree.symbols.type.ObjectType.WebApiType;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2817")
-public class WebSQLDatabaseCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Convert this use of a Web SQL database to another technology";
-
-  private static final String OPEN_DATABASE = "openDatabase";
+public class WebSQLDatabaseCheck implements EslintBasedCheck {
 
   @Override
-  public void visitCallExpression(CallExpressionTree tree) {
-    ExpressionTree callee = tree.callee();
-
-    if (isOpenDatabase(callee)) {
-      addIssue(tree.callee(), MESSAGE);
-
-    } else if (callee.is(Kind.DOT_MEMBER_EXPRESSION)) {
-      MemberExpressionTree memberExpr = (MemberExpressionTree) callee;
-      boolean isWindowObject = memberExpr.object().types().contains(WebApiType.WINDOW) || memberExpr.object().is(Kind.THIS);
-
-      if (isWindowObject && isOpenDatabase(memberExpr.property())) {
-        addIssue(memberExpr.property(), MESSAGE);
-      }
-    }
-
-    super.visitCallExpression(tree);
-  }
-
-  private static boolean isOpenDatabase(ExpressionTree callee) {
-    return callee.is(Kind.IDENTIFIER_REFERENCE, Kind.PROPERTY_IDENTIFIER) && ((IdentifierTree) callee).name().equals(OPEN_DATABASE);
+  public String eslintKey() {
+    return "web-sql-database";
   }
 }
