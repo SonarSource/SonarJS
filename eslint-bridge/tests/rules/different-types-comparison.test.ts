@@ -122,7 +122,23 @@ ruleTesterTs.run(`Strict equality operators should not be used with dissimilar t
         str === num;`,
       errors: [
         {
-          message: `{\"message\":\"Remove this \\\"===\\\" check; it will always be false. Did you mean to use \\\"==\\\"?\",\"secondaryLocations\":[{\"column\":8,\"line\":3,\"endColumn\":11,\"endLine\":3},{\"column\":16,\"line\":3,\"endColumn\":19,\"endLine\":3}]}`,
+          message: JSON.stringify({
+            message: `Remove this "===" check; it will always be false. Did you mean to use "=="?`,
+            secondaryLocations: [
+              {
+                column: 8,
+                line: 3,
+                endColumn: 11,
+                endLine: 3,
+              },
+              {
+                column: 16,
+                line: 3,
+                endColumn: 19,
+                endLine: 3,
+              },
+            ],
+          }),
           line: 3,
           column: 13,
           endLine: 3,
