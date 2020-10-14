@@ -40,6 +40,10 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
+    function isSameSymbol(s: ts.Type, t: ts.Type) {
+      return s.symbol && t.symbol && s.symbol.name === t.symbol.name;
+    }
+
     function isSubType(s: ts.Type, t: ts.Type): boolean {
       return (
         (s.flags & t.flags) !== 0 ||
@@ -60,6 +64,7 @@ export const rule: Rule.RuleModule = {
       const lhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
       const rhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
       return (
+        !isSameSymbol(lhsType, rhsType) &&
         !isSubType(lhsType, rhsType) &&
         !isSubType(rhsType, lhsType) &&
         !isAny(lhsType) &&

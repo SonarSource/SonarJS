@@ -130,6 +130,15 @@ ruleTesterTs.run(`Strict equality operators should not be used with dissimilar t
         let str;
         str === union;`,
     },
+    {
+      code: `
+        class MyClass {
+          m() {
+            let that = new MyClass();
+            return this === that;
+          }
+        }`,
+    },
   ],
   invalid: [
     {
