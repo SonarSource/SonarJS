@@ -114,6 +114,22 @@ ruleTesterTs.run(`Strict equality operators should not be used with dissimilar t
         let str = 'str', undefinedd = undefed;
         str !== undefinedd;`,
     },
+    {
+      code: `
+        /** @type {(string | boolean)} */
+        let union;
+        /** @type {string} */
+        let str;
+        union === str;`,
+    },
+    {
+      code: `
+        /** @type {(string | boolean)} */
+        let union;
+        /** @type {string} */
+        let str;
+        str === union;`,
+    },
   ],
   invalid: [
     {

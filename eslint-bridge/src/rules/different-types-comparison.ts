@@ -40,6 +40,13 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
+    function isSubType(s: ts.Type, t: ts.Type): boolean {
+      return (
+        (s.flags & t.flags) !== 0 ||
+        (t.isUnionOrIntersection() && t.types.some(tp => isSubType(s, tp)))
+      );
+    }
+
     function isAny(type: ts.Type) {
       return type.flags === ts.TypeFlags.Any;
     }
@@ -53,7 +60,8 @@ export const rule: Rule.RuleModule = {
       const lhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
       const rhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
       return (
-        (lhsType.flags & rhsType.flags) === 0 &&
+        !isSubType(lhsType, rhsType) &&
+        !isSubType(rhsType, lhsType) &&
         !isAny(lhsType) &&
         !isAny(rhsType) &&
         !isUndefinedOrNull(lhsType) &&

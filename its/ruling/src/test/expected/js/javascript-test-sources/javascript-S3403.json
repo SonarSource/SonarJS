@@ -2,7 +2,4 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/ed-editor-api.js':[
 92,
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/pagination.js':[
-39,
-],
 }
