@@ -59,6 +59,10 @@ export const rule: Rule.RuleModule = {
       return type.flags === ts.TypeFlags.Null || type.flags === ts.TypeFlags.Undefined;
     }
 
+    function isThis(node: estree.Node) {
+      return node.type === 'ThisExpression';
+    }
+
     function haveDissimilarTypes(lhs: estree.Node, rhs: estree.Node) {
       const { getBaseTypeOfLiteralType } = services.program.getTypeChecker();
       const lhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
@@ -70,7 +74,9 @@ export const rule: Rule.RuleModule = {
         !isAny(lhsType) &&
         !isAny(rhsType) &&
         !isUndefinedOrNull(lhsType) &&
-        !isUndefinedOrNull(rhsType)
+        !isUndefinedOrNull(rhsType) &&
+        !isThis(lhs) &&
+        !isThis(rhs)
       );
     }
 
