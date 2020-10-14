@@ -42,6 +42,18 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
     {
       code: `
       var someWindow1 = window.open("url", "name");
+      someWindow1.postMessage("message", "receiver");
+            `,
+    },
+    {
+      code: `
+      postMessage("message", "receiver");
+            `,
+    },
+    {
+      code: `
+      postMessage("message");
+      postMessage("message", "*", "something", "something else");
             `,
     },
   ],

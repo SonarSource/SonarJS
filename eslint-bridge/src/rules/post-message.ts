@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
 import { childrenOf } from '../utils/visitor';
-import { getTypeAsString } from './utils';
+import { getTypeAsString, isIdentifier, getValueOfExpression } from './utils';
 
 const MESSAGE = 'Make sure this cross-domain message is being sent to the intended domain.';
 const POST_MESSAGE = 'postMessage';
@@ -37,19 +37,23 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         const { callee } = callExpression;
+        // Window.postMessage() can take 2 or 3 arguments
+        if (
+          ![2, 3].includes(callExpression.arguments.length) ||
+          getValueOfExpression(context, callExpression.arguments[1], 'Literal')?.value !== '*'
+        ) {
+          return;
+        }
         if (callee.type === 'Identifier' && callee.name === POST_MESSAGE) {
           context.report({
             node: callee,
             message: MESSAGE,
           });
         }
-        if (callee.type !== 'MemberExpression') {
+        if (callee.type !== 'MemberExpression' || !isIdentifier(callee.property, POST_MESSAGE)) {
           return;
         }
-        const { object, property } = callee;
-        if (property.type !== 'Identifier' || property.name !== POST_MESSAGE) {
-          return;
-        }
+        const { object } = callee;
         const type = getTypeAsString(object, services);
         const hasWindowName = WindowNameVisitor.containsWindowName(object, context);
         if (type.match(/window/i) || type.match(/globalThis/i) || hasWindowName) {
