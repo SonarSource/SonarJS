@@ -25,6 +25,7 @@ import * as VueJS from 'vue-eslint-parser';
 import * as semver from 'semver';
 import { version as typescriptRuntimeVersion } from 'typescript';
 import * as tsParser from '@typescript-eslint/parser';
+import { getContext } from './context';
 
 // this value is taken from typescript-estree
 // still we might consider extending this range
@@ -64,12 +65,15 @@ export function parseJavaScriptSourceFile(
   filePath: string,
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
-  const parsed = parseTypeScriptSourceFile(fileContent, filePath, tsConfigs);
-  if (parsed instanceof SourceCode) {
-    return parsed;
+  const context = getContext();
+  const shouldUseTypeScriptParserForJS = context ? context.shouldUseTypeScriptParserForJS : true;
+  if (shouldUseTypeScriptParserForJS) {
+    const parsed = parseTypeScriptSourceFile(fileContent, filePath, tsConfigs);
+    if (parsed instanceof SourceCode) {
+      return parsed;
+    }
+    console.log(`DEBUG Failed to parse ${filePath} with TypeScript compiler: ${parsed.message}`);
   }
-  console.log(`DEBUG Failed to parse ${filePath} with TypeScript compiler: ${parsed.message}`);
-
   let parseFunctions = [espree.parse, babel.parseForESLint];
   if (fileContent.includes('@flow')) {
     parseFunctions = [babel.parseForESLint];

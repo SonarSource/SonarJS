@@ -20,6 +20,7 @@
 
 interface Context {
   workDir: string;
+  shouldUseTypeScriptParserForJS: boolean;
 }
 
 let context: Context;

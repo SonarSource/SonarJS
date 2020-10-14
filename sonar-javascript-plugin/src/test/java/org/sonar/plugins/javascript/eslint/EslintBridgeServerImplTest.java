@@ -210,6 +210,27 @@ public class EslintBridgeServerImplTest {
   }
 
   @Test
+  public void should_set_allowTsParserJsFiles_to_false() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    context.setSettings(new MapSettings().setProperty("sonar.javascript.allowTsParserJsFiles", "false"));
+    eslintBridgeServer.startServer(context, emptyList());
+    eslintBridgeServer.stop();
+
+    assertThat(logTester.logs()).contains("allowTsParserJsFiles: false");
+  }
+
+  @Test
+  public void allowTsParserJsFiles_default_value_is_true() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context, emptyList());
+    eslintBridgeServer.stop();
+
+    assertThat(logTester.logs()).contains("allowTsParserJsFiles: true");
+  }
+
+  @Test
   public void test_isAlive() throws Exception {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     assertThat(eslintBridgeServer.isAlive()).isFalse();

@@ -37,6 +37,7 @@ import visit from '../src/utils/visitor';
 import * as path from 'path';
 import * as ts from 'typescript';
 import * as fs from 'fs';
+import { setContext } from '../src/context';
 
 describe('TypeScript version', () => {
   beforeEach(() => {
@@ -148,6 +149,17 @@ import { ParseExceptionCode } from '../src/parser';
     expect(sourceCode.ast).toBeDefined();
     expect(sourceCode.parserServices.program).toBeDefined();
     expect(sourceCode.parserServices.program.getTypeChecker()).toBeDefined();
+  });
+
+  it.only('should not parse JavaScript syntax with TypeScript compiler when analysis parameter is set to False', () => {
+    const dirPath = __dirname + '/fixtures/js-project';
+    const filePath = dirPath + '/sample.lint.js';
+    const tsConfig = dirPath + '/tsconfig.json';
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+    setContext({ workDir: '', shouldUseTypeScriptParserForJS: false });
+    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
+    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.parserServices.program).toBeUndefined();
   });
 
   it(`should log error on TypeScript compiler's parsing failure`, () => {
