@@ -118,16 +118,16 @@ describe('#getRuleConfig', () => {
   });
 
   it('should provide context when there is sonar-context in schema', () => {
-    setContext({ workDir: '/tmp/workdir', shouldUseTypescriptParserForJS: true });
+    setContext({ workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true });
     const config = getRuleConfig(ruleUsingContext, {
       key: 'ruleUsingContext',
       configurations: [],
     });
-    expect(config).toEqual([{ workDir: '/tmp/workdir', shouldUseTypescriptParserForJS: true }]);
+    expect(config).toEqual([{ workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true }]);
   });
 
   it('should provide context and set sonar-runtime when there is sonar-context and sonar-runtime in schema', () => {
-    setContext({ workDir: '/tmp/workdir', shouldUseTypescriptParserForJS: true });
+    setContext({ workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true });
     const config = getRuleConfig(ruleUsingContextAndSecondaryLocations, {
       key: 'ruleUsingContextAndSecondaryLocations',
       configurations: ['config'],
@@ -135,7 +135,7 @@ describe('#getRuleConfig', () => {
     expect(config).toEqual([
       'config',
       'sonar-runtime',
-      { workDir: '/tmp/workdir', shouldUseTypescriptParserForJS: true },
+      { workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true },
     ]);
   });
 });

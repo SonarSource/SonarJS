@@ -66,8 +66,8 @@ export function parseJavaScriptSourceFile(
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   const context = getContext();
-  const shouldUseTypescriptParserForJS = context ? context.shouldUseTypescriptParserForJS : true;
-  if (shouldUseTypescriptParserForJS) {
+  const shouldUseTypeScriptParserForJS = context ? context.shouldUseTypeScriptParserForJS : true;
+  if (shouldUseTypeScriptParserForJS) {
     const parsed = parseTypeScriptSourceFile(fileContent, filePath, tsConfigs);
     if (parsed instanceof SourceCode) {
       return parsed;

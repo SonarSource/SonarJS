@@ -156,7 +156,7 @@ import { ParseExceptionCode } from '../src/parser';
     const filePath = dirPath + '/sample.lint.js';
     const tsConfig = dirPath + '/tsconfig.json';
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-    setContext({ workDir: '', shouldUseTypescriptParserForJS: false });
+    setContext({ workDir: '', shouldUseTypeScriptParserForJS: false });
     const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
     expect(sourceCode.ast).toBeDefined();
     expect(sourceCode.parserServices.program).toBeUndefined();
