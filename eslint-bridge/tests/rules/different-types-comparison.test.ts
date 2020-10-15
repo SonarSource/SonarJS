@@ -116,18 +116,14 @@ ruleTesterTs.run(`Strict equality operators should not be used with dissimilar t
     },
     {
       code: `
-        /** @type {(string | boolean)} */
-        let union;
-        /** @type {string} */
-        let str;
+        let union: (string|boolean);
+        let str: string;
         union === str;`,
     },
     {
       code: `
-        /** @type {(string | boolean)} */
-        let union;
-        /** @type {string} */
-        let str;
+        let union: (string|boolean);
+        let str: string;
         str === union;`,
     },
     {
