@@ -24,6 +24,14 @@ import * as estree from 'estree';
 import { getPropertyWithValue, getValueOfExpression, isCallToFQN, toEncodedMessage } from './utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ['sonar-runtime'],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
     const MESSAGE = 'Enable server certificate validation on this SSL/TLS connection.';
     function checkSensitiveArgument(
