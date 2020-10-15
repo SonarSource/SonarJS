@@ -1,5 +1,15 @@
 {
+'jquery:src/selector.js':[
+1470,
+],
 'jquery:test/data/jquery-1.9.1.js':[
-9429,
+5302,
+5556,
+],
+'jquery:test/unit/ajax.js':[
+469,
+],
+'jquery:test/unit/css.js':[
+1002,
 ],
 }

@@ -19,76 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Sets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
-import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.points.ProgramPoint;
-import org.sonar.javascript.tree.symbols.Scope;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 
 @JavaScriptRule
 @Rule(key = "S3403")
-public class DifferentTypesComparisonCheck extends SeCheck {
-
-  private static final String MESSAGE_EQUAL = "Remove this \"===\" check; it will always be false. Did you mean to use \"==\"?";
-  private static final String MESSAGE_NOT_EQUAL = "Remove this \"!==\" check; it will always be true. Did you mean to use \"!=\"?";
-
-  // For each string equality comparison tree this map contains true if types are different in all execution paths, true if types are alike in at least one execution path
-  private Map<BinaryExpressionTree, Boolean> typeDifference = new HashMap<>();
-
+public class DifferentTypesComparisonCheck implements EslintBasedCheck {
 
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element, ProgramPoint programPoint) {
-    if (element.is(Kind.STRICT_NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO)) {
-
-      BinaryExpressionTree comparison = (BinaryExpressionTree) element;
-
-      Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
-      Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
-
-      Set<Type> rightType = rightConstraint.typeSet();
-      Set<Type> leftType = leftConstraint.typeSet();
-
-      boolean differentTypes = !rightType.isEmpty() && !leftType.isEmpty() && Sets.intersection(rightType, leftType).isEmpty();
-
-      if (!differentTypes) {
-        typeDifference.put(comparison, false);
-
-      } else if (!typeDifference.containsKey(comparison)) {
-        typeDifference.put(comparison, true);
-      }
-    }
-  }
-
-  @Override
-  public void endOfExecution(Scope functionScope) {
-    for (Entry<BinaryExpressionTree, Boolean> entry : typeDifference.entrySet()) {
-      if (entry.getValue()) {
-        raiseIssue(entry.getKey());
-      }
-    }
-  }
-
-  @Override
-  public void startOfExecution(Scope functionScope) {
-    typeDifference.clear();
-  }
-
-  private void raiseIssue(BinaryExpressionTree tree) {
-    String message = tree.is(Kind.STRICT_EQUAL_TO) ? MESSAGE_EQUAL : MESSAGE_NOT_EQUAL;
-
-    addIssue(tree.operatorToken(), message)
-      .secondary(tree.leftOperand())
-      .secondary(tree.rightOperand());
+  public String eslintKey() {
+    return "different-types-comparison";
   }
 }
+
