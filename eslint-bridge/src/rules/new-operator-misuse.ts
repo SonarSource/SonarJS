@@ -26,6 +26,15 @@ import * as ts from 'typescript';
 import { getSignatureFromCallee, getTypeFromTreeNode, toEncodedMessage } from './utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      { type: 'object' },
+      {
+        // internal parameter for rules having secondary locations
+        enum: ['sonar-runtime'],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
     const { considerJSDoc } = context.options[0];
     const services = context.parserServices;
