@@ -1,8 +1,8 @@
 {
-'knockout:src/binding/expressionRewriting.js':[
-9,
+'knockout:spec/lib/innershiv.js':[
+12,
 ],
-'knockout:src/subscribables/mappingHelpers.js':[
-23,
+'knockout:src/subscribables/observableArray.js':[
+67,
 ],
 }

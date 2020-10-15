@@ -8,9 +8,6 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/setup/three.js':[
 57,
 ],
-'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/services/ajax.js':[
-9,
-],
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/ed-image-manager.js':[
 29,
 ],
@@ -20,8 +17,11 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/permissions/effective.js':[
 39,
 ],
-'javascript-test-sources:src/ecmascript6/http/test/TestUtils.js':[
-2,
+'javascript-test-sources:src/ecmascript6/expressionist.js/test/watch_parser.spec.js':[
+252,
+],
+'javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
+633,
 ],
 'javascript-test-sources:src/ecmascript6/snoode/src/models/base.es6.js':[
 47,

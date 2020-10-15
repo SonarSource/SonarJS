@@ -1,13 +1,8 @@
 {
-'backbone:backbone.js':[
-570,
-],
 'backbone:test/vendor/jquery.js':[
-6764,
 8635,
 ],
 'backbone:test/vendor/qunit.js':[
-88,
 3654,
 ],
 }
