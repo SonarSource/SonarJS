@@ -167,7 +167,7 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
           } else {
             ret = 'str';
           }
-          return ret // FP - does not infer ret to number | string;
+          return ret // FN - does not infer ret to number | string;
         }`,
     },
     {
