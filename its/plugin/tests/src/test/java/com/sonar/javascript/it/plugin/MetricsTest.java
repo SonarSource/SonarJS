@@ -32,20 +32,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricsTest {
 
+  private static final String PROJECT_KEY = "MetricsTest";
+
   @ClassRule
   public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
   @BeforeClass
   public static void prepare() {
-    orchestrator.resetData();
-
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("metrics"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectKey(PROJECT_KEY)
+      .setProjectName(PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs("src");
-    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(PROJECT_KEY);
     orchestrator.executeBuild(build);
   }
 
@@ -133,16 +133,8 @@ public class MetricsTest {
 
   /* Helper methods */
 
-  private Measure getProjectMeasure(String metricKey) {
-    return getMeasure("project", metricKey);
-  }
-
   private Double getProjectMeasureAsDouble(String metricKey) {
-    return getMeasureAsDouble("project", metricKey);
-  }
-
-  private Measure getDirectoryMeasure(String metricKey) {
-    return getMeasure(keyFor("dir"), metricKey);
+    return getMeasureAsDouble(PROJECT_KEY, metricKey);
   }
 
   private Double getDirectoryMeasureAsDouble(String metricKey) {
@@ -158,7 +150,7 @@ public class MetricsTest {
   }
 
   private static String keyFor(String s) {
-    return "project:src/" + s;
+    return PROJECT_KEY + ":src/" + s;
   }
 
 }

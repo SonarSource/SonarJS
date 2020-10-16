@@ -22,9 +22,6 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
-import java.io.File;
-import java.util.List;
-import javax.annotation.CheckForNull;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -36,6 +33,10 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
+
+import javax.annotation.CheckForNull;
+import java.io.File;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 
@@ -62,9 +63,6 @@ import static java.util.Collections.singletonList;
   VueAnalysisTest.class
 })
 public final class Tests {
-
-
-  static final String PROJECT_KEY = "project";
 
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
