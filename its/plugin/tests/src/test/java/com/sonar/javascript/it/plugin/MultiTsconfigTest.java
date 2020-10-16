@@ -22,7 +22,6 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
@@ -38,11 +37,6 @@ public class MultiTsconfigTest {
 
   private static final String PROJECT = "multi-tsconfig-test-project";
   private static final File PROJECT_DIR = TestUtils.projectDir(PROJECT);
-
-  @BeforeClass
-  public static void startServer() throws Exception {
-    orchestrator.resetData();
-  }
 
   @Test
   public void test() throws Exception {

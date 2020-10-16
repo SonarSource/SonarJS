@@ -38,11 +38,6 @@ public class VueAnalysisTest {
 
   private static final File PROJECT_DIR = TestUtils.projectDir("vue-js-project");
 
-  @BeforeClass
-  public static void startServer() {
-    orchestrator.resetData();
-  }
-
   @Test
   public void test() {
     String projectKey = "vue-js-project";

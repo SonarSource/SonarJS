@@ -30,32 +30,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MinifiedFilesTest {
 
+  private static final String PROJECT_KEY = "minifiedFilesTest";
+
   @ClassRule
   public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
   @BeforeClass
   public static void prepare() {
-    orchestrator.resetData();
-
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("minified_files"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectKey(PROJECT_KEY)
+      .setProjectName(PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs("src");
-    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(PROJECT_KEY);
     orchestrator.executeBuild(build);
   }
 
   @Test
-  public void test() throws Exception {
-    assertThat(getProjectMeasureAsInt("functions")).isEqualTo(2);
-    assertThat(getProjectMeasureAsInt("statements")).isEqualTo(1);
+  public void test() {
+    assertThat(getMeasureAsInt(PROJECT_KEY, "functions")).isEqualTo(2);
+    assertThat(getMeasureAsInt(PROJECT_KEY, "statements")).isEqualTo(1);
   }
 
   /* Helper methods */
 
-  private Integer getProjectMeasureAsInt(String metricKey) {
-    return getMeasureAsInt("project", metricKey);
-  }
 }

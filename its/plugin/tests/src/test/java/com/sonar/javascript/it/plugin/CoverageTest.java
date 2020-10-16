@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.regex.Pattern;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -35,134 +34,136 @@ public class CoverageTest {
   @ClassRule
   public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
-  @Before
-  public void clean() {
-    orchestrator.resetData();
-  }
-
   @Test
   public void LCOV_path_can_be_relative() {
+    final String projectKey = "LcovPathCanBeRelative";
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPaths", "coverage.lcov");
-    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
-    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
-    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
   }
 
   @Test
   public void LCOV_path_can_be_absolute() {
+    final String projectKey = "LcovPathCanBeAbsolute";
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
-    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
-    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
-    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
   }
 
   @Test
   public void LCOV_report_paths() {
+    final String projectKey = "LcovReportPaths";
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
-    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
-    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
-    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
   }
 
   @Test
   public void LCOV_report_paths_deprecated_key() {
+    final String projectKey = "LcovReportPathsDeprecatedKey";
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.typescript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
-    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(projectKey);
     BuildResult result = orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(7);
-    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(4);
-    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
 
     assertThat(result.getLogs()).contains("The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead.");
   }
 
   @Test
   public void zero_coverage() {
+    final String projectKey = "ZeroCoverage";
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".");
 
-    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(5);
-    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(5);
+    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(5);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(5);
 
-    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();
-    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isNull();
+    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isNull();
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isNull();
   }
 
   @Test
   public void no_coverage_information_saved() {
+    final String projectKey = "NoCoverageInfo";
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".");
-    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
 
-    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(5);
-    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(5);
-    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isNull();
-    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isNull();
+    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(5);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(5);
+    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isNull();
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isNull();
   }
 
   @Test
   // SONARJS-301
   public void print_log_for_not_found_resource() {
+    final String projectKey = "PrintLogForNotFoundResource";
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage-wrong-file-name.lcov").getAbsolutePath())
       .setDebugLogs(true);
-    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(projectKey);
     BuildResult result = orchestrator.executeBuild(build);
 
     // Check that a log is printed
@@ -175,15 +176,16 @@ public class CoverageTest {
   @Test
   // SONARJS-547
   public void wrong_line_in_report() {
+    final String projectKey = "WrongLineInReport";
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey(Tests.PROJECT_KEY)
-      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setDebugLogs(true)
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage-wrong-line.lcov").getAbsolutePath());
-    Tests.setEmptyProfile(Tests.PROJECT_KEY);
+    Tests.setEmptyProfile(projectKey);
     BuildResult result = orchestrator.executeBuild(build);
 
     // Check that a log is printed
@@ -191,14 +193,14 @@ public class CoverageTest {
       .contains("DEBUG: Problem during processing LCOV report: can't save DA data for line 12 of coverage report file")
       .contains("DEBUG: Problem during processing LCOV report: can't save BRDA data for line 18 of coverage report file");
 
-    assertThat(getProjectMeasureAsInt("lines_to_cover")).isEqualTo(6);
-    assertThat(getProjectMeasureAsInt("uncovered_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsInt("conditions_to_cover")).isEqualTo(3);
-    assertThat(getProjectMeasureAsInt("uncovered_conditions")).isEqualTo(0);
+    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(6);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(3);
+    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(0);
   }
 
-  private Integer getProjectMeasureAsInt(String metricKey) {
-    return getMeasureAsInt("project", metricKey);
+  private Integer getProjectMeasureAsInt(String projectKey, String metricKey) {
+    return getMeasureAsInt(projectKey, metricKey);
   }
 
 }

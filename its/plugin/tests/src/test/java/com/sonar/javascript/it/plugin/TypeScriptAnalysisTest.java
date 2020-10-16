@@ -25,7 +25,6 @@ import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
@@ -40,11 +39,6 @@ public class TypeScriptAnalysisTest {
   public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
   private static final File PROJECT_DIR = TestUtils.projectDir("tsproject");
-
-  @BeforeClass
-  public static void startServer() throws Exception {
-    orchestrator.resetData();
-  }
 
   @Test
   public void test() throws Exception {

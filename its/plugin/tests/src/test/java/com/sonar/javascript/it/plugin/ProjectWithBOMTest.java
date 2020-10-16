@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.List;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
@@ -37,11 +36,6 @@ import static org.assertj.core.api.Assertions.tuple;
 public class ProjectWithBOMTest {
   @ClassRule
   public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
-
-  @BeforeClass
-  public static void startServer() {
-    orchestrator.resetData();
-  }
 
   @Test
   public void test() {

@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
@@ -41,11 +40,6 @@ public class EslintBasedRulesTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
-
-  @BeforeClass
-  public static void startServer() {
-    orchestrator.resetData();
-  }
 
   @Test
   public void test_without_ts() {
