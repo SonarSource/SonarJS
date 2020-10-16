@@ -73,11 +73,14 @@ export const rule: Rule.RuleModule = {
           services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as ts.SignatureDeclaration,
         );
         if (signature && hasMultipleReturnTypes(signature, checker)) {
+          const stmts = returnStatements.filter(
+            retStmt => !isNullLike(getTypeFromTreeNode(retStmt.argument!, services)),
+          );
           context.report({
             message: toEncodedMessage(
               'Refactor this function to always return the same type.',
-              returnStatements,
-              returnStatements.map(
+              stmts,
+              stmts.map(
                 retStmt =>
                   `Returns ${prettyPrint(
                     getTypeFromTreeNode(retStmt.argument!, services),
@@ -124,4 +127,12 @@ function prettyPrint(type: ts.Type, checker: ts.TypeChecker): string {
       .join(delimiter);
   }
   return checker.typeToString(checker.getBaseTypeOfLiteralType(type));
+}
+
+function isNullLike(type: ts.Type) {
+  return (
+    (type.flags & ts.TypeFlags.Null) !== 0 ||
+    (type.flags & ts.TypeFlags.Void) !== 0 ||
+    (type.flags & ts.TypeFlags.Undefined) !== 0
+  );
 }
