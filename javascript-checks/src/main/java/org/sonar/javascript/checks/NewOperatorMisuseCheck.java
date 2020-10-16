@@ -19,28 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.symbols.type.FunctionType;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.symbols.Type.Callability;
-import org.sonar.plugins.javascript.api.symbols.Type.Kind;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S2999")
-public class NewOperatorMisuseCheck extends DoubleDispatchVisitorCheck {
+public class NewOperatorMisuseCheck implements EslintBasedCheck{
 
-  private static final String MESSAGE = "Replace %s with a constructor function.";
   public static final boolean CONSIDER_JSDOC = false;
 
   @RuleProperty(
@@ -50,47 +42,20 @@ public class NewOperatorMisuseCheck extends DoubleDispatchVisitorCheck {
   public boolean considerJSDoc = CONSIDER_JSDOC;
 
   @Override
-  public void visitNewExpression(NewExpressionTree tree) {
-    ExpressionTree expression = tree.expression();
-
-    if (!expression.types().isEmpty() && !isConstructor(expression.types())) {
-      Tree primaryLocationTree = expression;
-      String expressionStr = CheckUtils.asString(expression);
-      ExpressionTree unwrapped = CheckUtils.removeParenthesis(expression);
-      if (unwrapped.is(Tree.Kind.FUNCTION_EXPRESSION)) {
-        primaryLocationTree = ((FunctionExpressionTree) unwrapped).functionKeyword();
-        expressionStr = "this function";
-      }
-      addIssue(primaryLocationTree, String.format(MESSAGE, expressionStr))
-        .secondary(tree.newKeyword());
-    }
-
-    super.visitNewExpression(tree);
+  public String eslintKey() {
+    return "new-operator-misuse";
   }
 
-  private boolean isConstructor(TypeSet types) {
-    boolean isConstructor = true;
-
-    Type type = types.getUniqueKnownType();
-
-    if (type != null && type.kind() != Kind.CLASS) {
-      if (type.callability().equals(Callability.NON_CALLABLE)) {
-        isConstructor = false;
-      } else if (considerJSDoc && type.kind().equals(Kind.FUNCTION)) {
-        isConstructor = hasJSDocAnnotation(((FunctionType) type).functionTree());
-      }
-    }
-
-    return isConstructor;
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config(considerJSDoc));
   }
 
-  private static boolean hasJSDocAnnotation(FunctionTree funcDec) {
-    for (SyntaxTrivia trivia : funcDec.firstToken().trivias()) {
-      if (trivia.text().contains("@constructor") || trivia.text().contains("@class")) {
-        return true;
-      }
-    }
-    return false;
-  }
+  private static class Config {
+    public boolean considerJSDoc;
 
+    Config(boolean considerJSDoc) {
+      this.considerJSDoc = considerJSDoc;
+    }
+  }
 }
