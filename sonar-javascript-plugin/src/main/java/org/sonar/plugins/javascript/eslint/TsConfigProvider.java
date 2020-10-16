@@ -145,7 +145,7 @@ class TsConfigProvider {
       Iterable<InputFile> inputFiles = context.fileSystem().inputFiles(filePredicateProvider.apply(context.fileSystem()));
       TsConfig tsConfig = new TsConfig(inputFiles, compilerOptions);
       File tsconfigFile = writeToJsonFile(tsConfig);
-      LOG.info("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
+      LOG.debug("Using generated tsconfig.json file {}", tsconfigFile.getAbsolutePath());
       return singletonList(tsconfigFile.getAbsolutePath());
     }
 
