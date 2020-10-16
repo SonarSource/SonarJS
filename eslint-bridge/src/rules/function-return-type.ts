@@ -24,7 +24,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { getTypeAsString, toEncodedMessage } from './utils';
+import { getTypeFromTreeNode, toEncodedMessage } from './utils';
 
 class FunctionScope {
   private readonly returnStatements: estree.ReturnStatement[] = [];
@@ -78,7 +78,11 @@ export const rule: Rule.RuleModule = {
               'Refactor this function to always return the same type.',
               returnStatements,
               returnStatements.map(
-                retStmt => `Returns ${getTypeAsString(retStmt.argument!, services)}`,
+                retStmt =>
+                  `Returns ${prettyPrint(
+                    getTypeFromTreeNode(retStmt.argument!, services),
+                    checker,
+                  )}`,
               ),
             ),
             node: node.type === 'FunctionDeclaration' && node.id ? node.id : node,
@@ -97,17 +101,27 @@ function hasMultipleReturnTypes(signature: ts.Signature, checker: ts.TypeChecker
   return isUnion(returnType, checker) && !hasReturnTypeJSDoc(signature);
 }
 
-function isUnion(type: ts.Type, checker: ts.TypeChecker) {
-  const stringify = (tp: ts.Type) =>
-    isObject(tp) ? 'object' : checker.typeToString(checker.getBaseTypeOfLiteralType(tp));
+function isUnion(type: ts.Type, checker: ts.TypeChecker): boolean {
   const distinct = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
+  const stringify = (tp: ts.Type) => prettyPrint(tp, checker);
   return type.isUnion() && type.types.map(stringify).filter(distinct).length > 1;
-}
-
-function isObject(type: ts.Type) {
-  return type.symbol && (type.symbol.flags & ts.SymbolFlags.ObjectLiteral) !== 0;
 }
 
 function hasReturnTypeJSDoc(signature: ts.Signature) {
   return signature.getJsDocTags().some(tag => ['return', 'returns'].includes(tag.name));
+}
+
+function prettyPrint(type: ts.Type, checker: ts.TypeChecker): string {
+  const distinct = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
+  if (type.symbol && (type.symbol.flags & ts.SymbolFlags.ObjectLiteral) !== 0) {
+    return 'object';
+  }
+  if (type.isUnionOrIntersection()) {
+    const delimiter = type.isUnion() ? ' | ' : ' & ';
+    return type.types
+      .map(tp => prettyPrint(tp, checker))
+      .filter(distinct)
+      .join(delimiter);
+  }
+  return checker.typeToString(checker.getBaseTypeOfLiteralType(type));
 }
