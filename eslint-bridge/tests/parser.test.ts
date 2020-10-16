@@ -57,6 +57,7 @@ describe('parseJavaScriptSourceFile', () => {
   beforeEach(() => {
     console.error = jest.fn();
     console.log = jest.fn();
+    setContext({ workDir: '', shouldUseTypeScriptParserForJS: true });
   });
 
   afterEach(() => {
@@ -151,7 +152,7 @@ import { ParseExceptionCode } from '../src/parser';
     expect(sourceCode.parserServices.program.getTypeChecker()).toBeDefined();
   });
 
-  it.only('should not parse JavaScript syntax with TypeScript compiler when analysis parameter is set to False', () => {
+  it('should not parse JavaScript syntax with TypeScript compiler when analysis parameter is set to False', () => {
     const dirPath = __dirname + '/fixtures/js-project';
     const filePath = dirPath + '/sample.lint.js';
     const tsConfig = dirPath + '/tsconfig.json';
