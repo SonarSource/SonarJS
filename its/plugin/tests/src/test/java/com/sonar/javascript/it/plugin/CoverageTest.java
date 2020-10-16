@@ -47,10 +47,10 @@ public class CoverageTest {
     Tests.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
   }
 
   @Test
@@ -66,10 +66,10 @@ public class CoverageTest {
     Tests.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
   }
 
   @Test
@@ -85,10 +85,10 @@ public class CoverageTest {
     Tests.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
   }
 
   @Test
@@ -104,10 +104,10 @@ public class CoverageTest {
     Tests.setEmptyProfile(projectKey);
     BuildResult result = orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
 
     assertThat(result.getLogs()).contains("The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead.");
   }
@@ -125,11 +125,11 @@ public class CoverageTest {
     Tests.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(5);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(5);
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(5);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(5);
 
-    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isNull();
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isNull();
+    assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isNull();
+    assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isNull();
   }
 
   @Test
@@ -145,10 +145,10 @@ public class CoverageTest {
     orchestrator.executeBuild(build);
 
 
-    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(5);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(5);
-    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isNull();
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isNull();
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(5);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(5);
+    assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isNull();
+    assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isNull();
   }
 
   @Test
@@ -193,14 +193,10 @@ public class CoverageTest {
       .contains("DEBUG: Problem during processing LCOV report: can't save DA data for line 12 of coverage report file")
       .contains("DEBUG: Problem during processing LCOV report: can't save BRDA data for line 18 of coverage report file");
 
-    assertThat(getProjectMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(6);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
-    assertThat(getProjectMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(3);
-    assertThat(getProjectMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(0);
-  }
-
-  private Integer getProjectMeasureAsInt(String projectKey, String metricKey) {
-    return getMeasureAsInt(projectKey, metricKey);
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(6);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(3);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(0);
   }
 
 }
