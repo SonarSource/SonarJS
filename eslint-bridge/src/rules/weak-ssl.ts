@@ -25,7 +25,7 @@ import {
   getValueOfExpression,
   isCallToFQN,
   getObjectExpressionProperty,
-  isIdentifier,
+  getModuleNameOfNode,
 } from './utils';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [
@@ -51,7 +51,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkMinMaxVersion(propertyName: string, property: estree.Literal | undefined) {
-      if (property && property.value !== 'TLSv1.2' && property.value !== 'TLSv1.3') {
+      if (property && (property.value === 'TLSv1.1' || property.value === 'TLSv1')) {
         context.report({
           node: property,
           message: `Change \'${propertyName}\' to use at least TLS v1.2.`,
@@ -99,7 +99,7 @@ export const rule: Rule.RuleModule = {
         collectIdentifiersFromBinary(node.right, acc);
       } else if (
         node.type === 'MemberExpression' &&
-        isIdentifier(node.object, 'constants') &&
+        getModuleNameOfNode(context, node.object)?.value === 'constants' &&
         node.property.type === 'Identifier'
       ) {
         acc.push(node.property.name);

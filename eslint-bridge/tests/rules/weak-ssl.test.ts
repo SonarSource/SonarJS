@@ -244,7 +244,7 @@ const secureOptions = {
         res.on('data', (d) => {
           process.stdout.write(d);
         });
-      }); // Noncompliant
+      });
       `,
     },
   ],
@@ -269,7 +269,7 @@ const secureOptions = {
         res.on('data', (d) => {
           process.stdout.write(d);
         });
-      }); // Noncompliant       
+      });
             `,
       errors: [
         {
@@ -287,6 +287,18 @@ const secureOptions = {
         const constants = require('constants');
         var options1 = {
           secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3 | constants.SSL_OP_NO_TLSv1 
+        };
+        
+        tls.createSecureContext(options1);    
+      `,
+      errors: 1,
+    },
+    {
+      code: `        
+        const tls = require('tls');
+        const c = require('constants');
+        var options1 = {
+          secureOptions: c.SSL_OP_NO_SSLv2 | c.SSL_OP_NO_SSLv3 | c.SSL_OP_NO_TLSv1 
         };
         
         tls.createSecureContext(options1);    
