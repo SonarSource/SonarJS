@@ -210,7 +210,6 @@ public final class CheckList {
       NonCaseLabelInSwitchCheck.class,
       NonEmptyCaseWithoutBreakCheck.class,
       NonExistentAssignmentOperatorCheck.class,
-      NonExistentPropertyAccessCheck.class,
       NoMisusedNewCheck.class,
       NonNumberInArithmeticExpressionCheck.class,
       NonStandardImportCheck.class,
