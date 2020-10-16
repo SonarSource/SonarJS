@@ -25,6 +25,14 @@ import { isRequiredParserServices } from '../utils/isRequiredParserServices';
 import { isString, toEncodedMessage } from './utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ['sonar-runtime'],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
