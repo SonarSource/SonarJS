@@ -350,6 +350,70 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
     {
       code: `
         function foo() {
+          if (condition1) {
+            return 42;
+          } else if (condition2) {
+            return [ 42 ];
+          } else if (condition3) {
+            return [ 'str' ];
+          } else if (condition4) {
+            return [ true ];
+          } else {
+            return [ { foo: 'bar' } ];
+          }
+        }`,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: `Refactor this function to always return the same type.`,
+            secondaryLocations: [
+              {
+                message: `Returns number`,
+                column: 12,
+                line: 4,
+                endColumn: 22,
+                endLine: 4,
+              },
+              {
+                message: `Returns number[]`,
+                column: 12,
+                line: 6,
+                endColumn: 26,
+                endLine: 6,
+              },
+              {
+                message: `Returns string[]`,
+                column: 12,
+                line: 8,
+                endColumn: 29,
+                endLine: 8,
+              },
+              {
+                message: `Returns boolean[]`,
+                column: 12,
+                line: 10,
+                endColumn: 28,
+                endLine: 10,
+              },
+              {
+                message: `Returns object[]`,
+                column: 12,
+                line: 12,
+                endColumn: 38,
+                endLine: 12,
+              },
+            ],
+          }),
+          line: 2,
+          column: 18,
+          endLine: 2,
+          endColumn: 21,
+        },
+      ],
+    },
+    {
+      code: `
+        function foo() {
           return condition ? 'str' : true;
         }`,
       errors: 1,

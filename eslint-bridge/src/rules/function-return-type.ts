@@ -127,10 +127,38 @@ function prettyPrint(type: ts.Type, checker: ts.TypeChecker): string {
       .join(delimiter);
   }
   const typeNode = checker.typeToTypeNode(type);
-  if (ts.isFunctionTypeNode(typeNode)) {
-    return 'function';
+  if (typeNode != undefined) {
+    if (ts.isFunctionTypeNode(typeNode)) {
+      return 'function';
+    }
+    if (ts.isArrayTypeNode(typeNode)) {
+      return arrayTypeToString(typeNode, checker);
+    }
   }
   return checker.typeToString(checker.getBaseTypeOfLiteralType(type));
+}
+
+function arrayTypeToString(type: ts.ArrayTypeNode, checker: ts.TypeChecker) {
+  let elementType = prettyPrint(checker.getTypeFromTypeNode(type.elementType), checker);
+  // TypeScript seems to fail resolving the element type of arrays. When this happens, we
+  // manually resolve it for straightforward cases.
+  if (elementType === 'any' && type.elementType.kind !== ts.SyntaxKind.AnyKeyword) {
+    switch (type.elementType.kind) {
+      case ts.SyntaxKind.NumberKeyword:
+        elementType = 'number';
+        break;
+      case ts.SyntaxKind.StringKeyword:
+        elementType = 'string';
+        break;
+      case ts.SyntaxKind.BooleanKeyword:
+        elementType = 'boolean';
+        break;
+      case ts.SyntaxKind.TypeLiteral:
+        elementType = 'object';
+        break;
+    }
+  }
+  return `${elementType}[]`;
 }
 
 function isNullLike(type: ts.Type) {
