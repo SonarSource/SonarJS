@@ -19,6 +19,7 @@
  */
 import { Rule } from 'eslint';
 import { rule as argumentsOrder } from './arguments-order';
+import { rule as argumentType } from './argument-type';
 import { rule as argumentsUsage } from './arguments-usage';
 import { rule as arrayConstructor } from './array-constructor';
 import { rule as arrowFunctionConvention } from './arrow-function-convention';
@@ -160,6 +161,7 @@ import { rule as xPoweredBy } from './x-powered-by';
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
 ruleModules['arguments-order'] = argumentsOrder;
+ruleModules['argument-type'] = argumentType;
 ruleModules['arguments-usage'] = argumentsUsage;
 ruleModules['array-constructor'] = arrayConstructor;
 ruleModules['arrow-function-convention'] = arrowFunctionConvention;
