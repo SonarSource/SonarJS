@@ -311,6 +311,44 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
     },
     {
       code: `
+        function fn() { return 'str'; }
+        function foo() {
+          if (condition) {
+            return 42;
+          } else {
+            return fn;
+          }
+        }`,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: `Refactor this function to always return the same type.`,
+            secondaryLocations: [
+              {
+                message: `Returns number`,
+                column: 12,
+                line: 5,
+                endColumn: 22,
+                endLine: 5,
+              },
+              {
+                message: `Returns function`,
+                column: 12,
+                line: 7,
+                endColumn: 22,
+                endLine: 7,
+              },
+            ],
+          }),
+          line: 3,
+          column: 18,
+          endLine: 3,
+          endColumn: 21,
+        },
+      ],
+    },
+    {
+      code: `
         function foo() {
           return condition ? 'str' : true;
         }`,

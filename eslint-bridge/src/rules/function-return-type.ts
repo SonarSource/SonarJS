@@ -126,6 +126,10 @@ function prettyPrint(type: ts.Type, checker: ts.TypeChecker): string {
       .filter(distinct)
       .join(delimiter);
   }
+  const typeNode = checker.typeToTypeNode(type);
+  if (ts.isFunctionTypeNode(typeNode)) {
+    return 'function';
+  }
   return checker.typeToString(checker.getBaseTypeOfLiteralType(type));
 }
 
