@@ -1,5 +1,6 @@
 {
 'prototype:src/prototype/lang/class.js':[
+67,
 69,
 ],
 'prototype:test/unit/phantomjs/core-extensions.js':[
