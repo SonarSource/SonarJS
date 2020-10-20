@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { getTypeAsString, isIdentifier } from './utils';
+import { getSymbolAtLocation, getTypeAsString, isIdentifier } from './utils';
 
 const MESSAGE = 'Convert this use of a Web SQL database to another technology.';
 const OPEN_DATABASE = 'openDatabase';
@@ -37,6 +37,10 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         const { callee } = callExpression;
+        const symbol = getSymbolAtLocation(callee, services);
+        if (!!symbol) {
+          return;
+        }
         if (isIdentifier(callee, OPEN_DATABASE)) {
           context.report({ node: callee, message: MESSAGE });
         }
