@@ -1,8 +1,12 @@
 {
+'jquery:src/exports/global.js':[
+12,
+],
 'jquery:src/selector.js':[
 1470,
 ],
 'jquery:test/data/jquery-1.9.1.js':[
+395,
 5302,
 5556,
 ],
