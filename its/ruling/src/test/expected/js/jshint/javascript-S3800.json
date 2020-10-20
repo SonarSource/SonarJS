@@ -1,5 +1,5 @@
 {
-'jshint:src/jshint.js':[
-186,
+'jshint:tests/unit/fixtures/gh1227.js':[
+5,
 ],
 }
