@@ -192,6 +192,18 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
           return 'str';
         }`,
     },
+    {
+      code: `
+        function bar() {}
+        function foo() {
+          if (condition) {
+            return 42;
+          } else {
+            return bar();
+          }
+        }
+      `,
+    },
   ],
   invalid: [
     {

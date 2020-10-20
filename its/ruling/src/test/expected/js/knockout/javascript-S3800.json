@@ -2,7 +2,4 @@
 'knockout:spec/lib/innershiv.js':[
 12,
 ],
-'knockout:src/subscribables/observableArray.js':[
-67,
-],
 }

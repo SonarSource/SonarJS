@@ -107,7 +107,10 @@ function hasMultipleReturnTypes(signature: ts.Signature, checker: ts.TypeChecker
 function isUnion(type: ts.Type, checker: ts.TypeChecker): boolean {
   const distinct = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
   const stringify = (tp: ts.Type) => prettyPrint(tp, checker);
-  return type.isUnion() && type.types.map(stringify).filter(distinct).length > 1;
+  const isNotNullLike = (tp: ts.Type) => !isNullLike(tp);
+  return (
+    type.isUnion() && type.types.filter(isNotNullLike).map(stringify).filter(distinct).length > 1
+  );
 }
 
 function hasReturnTypeJSDoc(signature: ts.Signature) {
