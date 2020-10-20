@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-2817
+// https://jira.sonarsource.com/browse/RSPEC-3782
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
@@ -53,20 +53,16 @@ export const rule: Rule.RuleModule = {
       return !!param.dotDotDotToken;
     }
 
-    function isFunctionType(declaredType: ts.Type) {
-      return declaredType.getCallSignatures().length > 0;
-    }
-
     function isTypeParameter(type: ts.Type) {
       return type.getFlags() & ts.TypeFlags.TypeParameter;
     }
 
-    function declarationMatch(
+    function declarationMismatch(
       declaration: ts.SignatureDeclaration,
       callExpression: estree.CallExpression,
     ) {
       const parameters = declaration.parameters;
-      for (let i = 0; i < parameters.length; i++) {
+      for (let i = 0; i < Math.min(parameters.length, callExpression.arguments.length); i++) {
         const parameterType = parameters[i].type;
         if (!parameterType) {
           return null;
@@ -77,13 +73,17 @@ export const rule: Rule.RuleModule = {
           // @ts-ignore private API, see https://github.com/microsoft/TypeScript/issues/9879
           !tc.isTypeAssignableTo(actualType, declaredType) &&
           !isTypeParameter(declaredType) &&
-          !isFunctionType(declaredType) &&
+          !ts.isFunctionTypeNode(parameterType) &&
           !isVarArg(parameters[i])
         ) {
           return { actualType, declaredType, node: callExpression.arguments[i] };
         }
       }
       return null;
+    }
+
+    function typeToString(type: ts.Type) {
+      return tc.typeToString(tc.getBaseTypeOfLiteralType(type));
     }
 
     return {
@@ -95,23 +95,23 @@ export const rule: Rule.RuleModule = {
         const symbol = tc.getSymbolAtLocation(tsCallExpr);
 
         if (symbol && isBuiltInMethod(symbol)) {
-          let result: {
+          let mismatch: {
             actualType: ts.Type;
             declaredType: ts.Type;
             node: estree.Node;
           } | null = null;
           for (const declaration of symbol.declarations) {
-            result = declarationMatch(declaration as ts.SignatureDeclaration, callExpression);
-            if (!result) {
+            mismatch = declarationMismatch(declaration as ts.SignatureDeclaration, callExpression);
+            if (!mismatch) {
               return;
             }
           }
-          if (result) {
+          if (mismatch) {
             context.report({
-              node: result.node,
-              message: `Verify that argument is of correct type: '${tc.typeToString(
-                result.declaredType,
-              )}' instead of '${tc.typeToString(result.actualType)}'.`,
+              node: mismatch.node,
+              message: `Verify that argument is of correct type: '${typeToString(
+                mismatch.declaredType,
+              )}' instead of '${typeToString(mismatch.actualType)}'.`,
             });
           }
         }

@@ -95,7 +95,7 @@ ruleTesterTs.run('Correct types should be used', rule, {
             `,
       errors: [
         {
-          message: `Verify that argument is of correct type: 'number' instead of '"5"'.`,
+          message: `Verify that argument is of correct type: 'number' instead of 'string'.`,
           line: 3,
           column: 18,
           endLine: 3,
@@ -124,7 +124,7 @@ ruleTesterTs.run('Correct types should be used', rule, {
       `,
       errors: [
         {
-          message: `Verify that argument is of correct type: 'number' instead of '"42"'.`,
+          message: `Verify that argument is of correct type: 'number' instead of 'string'.`,
           line: 2,
           column: 16,
           endLine: 2,
@@ -138,7 +138,7 @@ ruleTesterTs.run('Correct types should be used', rule, {
       `,
       errors: [
         {
-          message: "Verify that argument is of correct type: 'number' instead of 'false'.",
+          message: "Verify that argument is of correct type: 'number' instead of 'boolean'.",
           line: 2,
           column: 17,
           endLine: 2,
