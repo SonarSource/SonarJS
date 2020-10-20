@@ -21,12 +21,14 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import * as ts from 'typescript';
 import {
   isRequiredParserServices,
   RequiredParserServices,
 } from '../utils/isRequiredParserServices';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { getTypeFromTreeNode } from './utils';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   array: new Set([
@@ -37,8 +39,6 @@ const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
     'indexOf',
     'lastIndexOf',
     'entries',
-    'every',
-    'some',
     'filter',
     'findIndex',
     'keys',
@@ -183,6 +183,19 @@ export const rule: Rule.RuleModule = {
     if (!isRequiredParserServices(services)) {
       return {};
     }
+
+    function isReplaceWithCallback(
+      methodName: string,
+      callArguments: Array<estree.Expression | estree.SpreadElement>,
+    ) {
+      if (methodName === 'replace' && callArguments.length > 1) {
+        const type = getTypeFromTreeNode(callArguments[1], services);
+        const typeNode = services.program.getTypeChecker().typeToTypeNode(type);
+        return ts.isFunctionTypeNode(typeNode);
+      }
+      return false;
+    }
+
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
@@ -251,14 +264,4 @@ function typeToString(tp: any, services: RequiredParserServices): string | null 
   }
 
   return null;
-}
-
-function isReplaceWithCallback(
-  methodName: string,
-  callArguments: Array<estree.Expression | estree.SpreadElement>,
-) {
-  if (methodName === 'replace' && callArguments.length > 1) {
-    return ['FunctionExpression', 'ArrowFunctionExpression'].includes(callArguments[1].type);
-  }
-  return false;
 }

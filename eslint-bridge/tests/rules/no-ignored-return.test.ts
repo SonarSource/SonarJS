@@ -60,10 +60,31 @@ ruleTester.run('Return values from functions without side effects should not be 
     },
     {
       code: `
+      // "some" and "every" are sometimes used to provide early termination for loops
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+      [1, 2, 3].some(function(el) {
+        return el === 2;
+      });
+
+      [1,2,3].every(function(el) {
+        return ! el !== 2;
+      });
+            `,
+    },
+    {
+      code: `
       function methodsOnString() {
         // "replace" with callback is OK
         "abc".replace(/ab/, () => "");
         "abc".replace(/ab/, function() {return ""});
+      }`,
+    },
+    {
+      code: `
+      function myCallBack() {}
+      function methodsOnString() {
+        // "replace" with callback is OK
+        "abc".replace(/ab/, myCallBack);
       }`,
     },
   ],
