@@ -42,7 +42,7 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     return {
-      NewExpression: (node: estree.Node) => {
+      'NewExpression[callee.type!="ThisExpression"]': (node: estree.Node) => {
         const { callee } = node as estree.NewExpression;
         const type = getTypeFromTreeNode(callee, services);
         const signature = getSignatureFromCallee(node, services);
