@@ -78,6 +78,15 @@ ruleTesterTs.run('Callbacks of array methods should have return statements [w ty
       const arr = []
       arr["foo"](function() {})`,
     },
+    {
+      code: `
+      function someFunc(callback) {
+        callback();
+      }
+      const arr = [someFunc];
+      const some = 0;
+      arr[some](function() {console.log("hello there!")});`,
+    },
   ],
   invalid: [
     {

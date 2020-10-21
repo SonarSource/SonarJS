@@ -67,8 +67,9 @@ export const rule: Rule.RuleModule = {
       'CallExpression[callee.type="MemberExpression"]'(node: estree.Node) {
         const callExpression = node as estree.CallExpression;
         const args = callExpression.arguments;
-        const { property, object } = callExpression.callee as estree.MemberExpression;
-        if (property.type !== 'Identifier' || args.length === 0) {
+        const memberExpression = callExpression.callee as estree.MemberExpression;
+        const { property, object } = memberExpression;
+        if (memberExpression.computed || property.type !== 'Identifier' || args.length === 0) {
           return;
         }
         if (
