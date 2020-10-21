@@ -68,6 +68,18 @@ describe('parseJavaScriptSourceFile', () => {
     expectToParse('const foo = <div>bar</div>;');
   });
 
+  it('should parse decorators', () => {
+    expectToParse(`
+      @X()
+      @Y()
+      class C {
+        @Z('demo')
+        m() {
+          //
+        }
+      }`);
+  });
+
   it('should parse flow when with @flow', () => {
     expectToParse("/* @flow */ const foo: string = 'hello';");
     expectToParse('/* @flow */ var eval = 42');
