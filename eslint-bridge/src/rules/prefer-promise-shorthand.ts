@@ -29,7 +29,7 @@ export const rule: Rule.RuleModule = {
       NewExpression: (node: estree.Node) => {
         const executor = getPromiseExecutor(node as estree.NewExpression, context);
         if (executor) {
-          checkExecutor(executor, node, context);
+          checkExecutor(executor, (node as estree.NewExpression).callee, context);
         }
       },
     };
@@ -64,9 +64,7 @@ function checkExecutor(executor: estree.Node, node: estree.Node, context: Rule.R
       const action = getPromiseAction(callee.name, resolveParameterName, rejectParameterName);
       if (action && args.length === 1) {
         context.report({
-          message: `Replace this trivial promise with "Promise.${action}(${context
-            .getSourceCode()
-            .getText(args[0])})".`,
+          message: `Replace this trivial promise with "Promise.${action}".`,
           node,
         });
       }
