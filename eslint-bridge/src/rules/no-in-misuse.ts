@@ -23,12 +23,23 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 const message = 'Use "indexOf" or "includes" (available from ES2016) instead.';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
+
+    function prototypeProperty(expr: estree.Expression) {
+      if (!isLiteral(expr) || typeof expr.value !== 'string') {
+        return false;
+      }
+
+      return ['indexOf', 'lastIndexOf', 'forEach', 'map', 'filter', 'every', 'some'].includes(
+        expr.value,
+      );
+    }
 
     if (isRequiredParserServices(services)) {
       const checker = services.program.getTypeChecker();
@@ -41,8 +52,9 @@ export const rule: Rule.RuleModule = {
       }
 
       return {
-        "BinaryExpression[operator='in']": function (node: estree.Node) {
-          if (isArray((node as estree.BinaryExpression).right)) {
+        "BinaryExpression[operator='in']": (node: estree.Node) => {
+          const binExpr = node as estree.BinaryExpression;
+          if (isArray(binExpr.right) && !prototypeProperty(binExpr.left)) {
             context.report({
               message,
               node,
