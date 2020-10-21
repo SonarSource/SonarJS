@@ -57,6 +57,13 @@ ruleTesterTs.run('Web SQL databases should not be used', rule, {
     },
     {
       code: `
+      function openDatabase() {
+      }
+      openDatabase();
+            `,
+    },
+    {
+      code: `
       var win = window;
       win.somethingElse(); // OK
             `,
