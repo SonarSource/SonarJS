@@ -2,20 +2,25 @@
 <p>This rule raises an issue when an SSL/TLS context is created with an insecure protocol version (ie: a protocol different from "TLSv1.2", "TLSv1.3",
 "DTLSv1.2" or "DTLSv1.3").</p>
 <h2>Noncompliant Code Example</h2>
-<p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
+<p><code>secureProtocol</code>, <code>minVersion</code>/<code>maxVersion</code> and <code>secureOptions</code> should not be set to use weak TLS
+protocols (TLSv1.1 and lower):</p>
 <pre>
 let options = {
-  hostname: 'www.example.com',
-  port: 443,
-  path: '/',
-  method: 'GET',
   secureProtocol: 'TLSv1_method' // Noncompliant: TLS1.0 is insecure
 };
 
-let req = https.request(options, (res) =&gt; {
-  console.log('statusCode:', res.statusCode);
-  console.log('headers:', res.headers);
+let options = {
+  minVersion: 'TLSv1.1',  // Noncompliant: TLS1.1 is insecure
+  maxVersion: 'TLSv1.2'
+};
 
+let options = {
+  secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3 | constants.SSL_OP_NO_TLSv1
+}; // Noncompliant TLS 1.1 (constants.SSL_OP_NO_TLSv1_1) is not disabled
+</pre>
+<p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
+<pre>
+let req = https.request(options, (res) =&gt; {
   res.on('data', (d) =&gt; {
     process.stdout.write(d);
   });
@@ -23,31 +28,30 @@ let req = https.request(options, (res) =&gt; {
 </pre>
 <p><a href="https://nodejs.org/api/tls.html">tls</a> built-in module:</p>
 <pre>
-let options = {
-  secureProtocol: 'TLSv1_method' Noncompliant: TLS1.0 is insecure
-};
-
-let socket = tls.connect(443, "www.example.com", options, () =&gt; {
-});  // Noncompliant
+let socket = tls.connect(443, "www.example.com", options, () =&gt; { });  // Noncompliant
 </pre>
 <p><a href="https://www.npmjs.com/package/request">request</a> module:</p>
 <pre>
-let socket = request.get({
-    url: 'https://www.example.com/',
-    secureProtocol: 'TLSv1_method' // Noncompliant: TLS 1.0 is insecure
-});
+let socket = request.get(options);
 </pre>
 <h2>Compliant Solution</h2>
-<p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
+<p>Set either <code>secureProtocol</code> or <code>secureOptions</code> or <code>minVersion</code> to use secure protocols only (TLSv1.2 and
+higher):</p>
 <pre>
 let options = {
-  hostname: 'www.example.com',
-  port: 443,
-  path: '/',
-  method: 'GET',
   secureProtocol: 'TLSv1_2_method'
 };
-
+// or
+let options = {
+  secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3 | constants.SSL_OP_NO_TLSv1 | constants.SSL_OP_NO_TLSv1_1
+};
+// or
+let options = {
+    minVersion: 'TLSv1.2'
+};
+</pre>
+<p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
+<pre>
 let req = https.request(options, (res) =&gt; {
   res.on('data', (d) =&gt; {
     process.stdout.write(d);
@@ -56,19 +60,11 @@ let req = https.request(options, (res) =&gt; {
 </pre>
 <p><a href="https://nodejs.org/api/tls.html">tls</a> built-in module:</p>
 <pre>
-let options = {
-  secureProtocol: 'TLSv1_2_method'
-};
-
-let socket = tls.connect(443, "www.example.com", options, () =&gt; {
-});
+let socket = tls.connect(443, "www.example.com", options, () =&gt; { });
 </pre>
 <p><a href="https://www.npmjs.com/package/request">request</a> module:</p>
 <pre>
-let socket = request.get({
-    url: 'https://www.example.com/',
-    secureProtocol: 'TLSv1_2_method' // Compliant
-});
+let socket = request.get(options);
 </pre>
 <h2>See</h2>
 <ul>
