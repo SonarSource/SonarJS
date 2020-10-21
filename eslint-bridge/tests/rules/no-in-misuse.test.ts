@@ -38,6 +38,11 @@ ruleTester.run('"in" should not be used on arrays"', rule, {
                 return "Something else";
               }`,
     },
+    {
+      code: `
+        let x = 'indexOf' in Array.prototype;
+      `,
+    },
   ],
   invalid: [
     {
