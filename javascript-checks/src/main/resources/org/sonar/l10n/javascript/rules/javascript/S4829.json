@@ -1,9 +1,9 @@
 {
   "title": "Reading the Standard Input is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "status": "ready",
+  "status": "deprecated",
   "tags": [
-    "cwe"
+    
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4829",
@@ -12,10 +12,5 @@
     "JAVASCRIPT",
     "TYPESCRIPT"
   ],
-  "scope": "Main",
-  "securityStandards": {
-    "CWE": [
-      20
-    ]
-  }
+  "scope": "Main"
 }

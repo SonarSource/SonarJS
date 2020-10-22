@@ -15,6 +15,10 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-4426",
   "sqKey": "S4426",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -24,9 +28,5 @@
       "A3",
       "A6"
     ]
-  },
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+  }
 }

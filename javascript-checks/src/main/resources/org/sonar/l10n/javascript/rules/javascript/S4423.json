@@ -16,6 +16,10 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4423",
   "sqKey": "S4423",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -27,9 +31,5 @@
       "A3",
       "A6"
     ]
-  },
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ]
+  }
 }
