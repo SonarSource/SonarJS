@@ -1,6 +1,6 @@
 {
   "title": "\"in\" should not be used on arrays",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -9,7 +9,7 @@
   "tags": [
     "pitfall"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4619",
   "sqKey": "S4619",
   "compatibleLanguages": [
