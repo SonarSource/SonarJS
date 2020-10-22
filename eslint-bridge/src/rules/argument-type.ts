@@ -109,7 +109,7 @@ export const rule: Rule.RuleModule = {
           if (mismatch) {
             context.report({
               node: mismatch.node,
-              message: `Verify that argument is of correct type: '${typeToString(
+              message: `Verify that argument is of correct type: expected '${typeToString(
                 mismatch.declaredType,
               )}' instead of '${typeToString(mismatch.actualType)}'.`,
             });
