@@ -184,7 +184,6 @@ public final class CheckList {
       ModelDefaultsWithArrayOrObjectCheck.class,
       MultilineBlockCurlyBraceCheck.class,
       MultilineStringLiteralsCheck.class,
-      NamedFunctionExpressionCheck.class,
       NestedAssignmentCheck.class,
       NestedConditionalOperatorsCheck.class,
       NestedControlFlowDepthCheck.class,
