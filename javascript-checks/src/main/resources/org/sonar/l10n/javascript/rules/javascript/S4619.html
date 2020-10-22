@@ -1,5 +1,6 @@
-<p>The <code>in</code> operator used on an array is valid but the code will certainly not have the expected behavior. The <code>in</code> operator
-deals with the indexes of the array, not with the values. </p>
+<p>The <code>in</code> operator used on an array is valid but the code will likely not have the expected behavior. The <code>in</code> operator deals
+with the indexes of the array, not with the values.</p>
+<p>If checking for an array slot is indeed desired, using <code>hasOwnProperty</code> makes the code intention clearer.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 function func1() {
