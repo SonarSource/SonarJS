@@ -1,11 +1,9 @@
 {
   "title": "Using regular expressions is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "status": "ready",
+  "status": "deprecated",
   "tags": [
-    "cwe",
-    "owasp-a1",
-    "regex"
+    
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4784",
@@ -14,14 +12,5 @@
     "JAVASCRIPT",
     "TYPESCRIPT"
   ],
-  "scope": "Main",
-  "securityStandards": {
-    "CWE": [
-      624,
-      185
-    ],
-    "OWASP": [
-      "A1"
-    ]
-  }
+  "scope": "Main"
 }
