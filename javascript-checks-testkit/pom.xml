@@ -5,7 +5,7 @@
   <parent>
     <artifactId>javascript</artifactId>
     <groupId>org.sonarsource.javascript</groupId>
-    <version>6.6.0-SNAPSHOT</version>
+    <version>6.7.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>javascript-checks-testkit</artifactId>
