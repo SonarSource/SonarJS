@@ -1,0 +1,22 @@
+{
+  "title": "Disabling content security policy fetch directives is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "owasp-a6",
+    "express.js"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5728",
+  "sqKey": "S5728",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A6"
+    ]
+  }
+}

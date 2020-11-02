@@ -84,6 +84,7 @@ public final class CheckList {
       CommentRegularExpressionCheck.class,
       ConditionalUnreachableCodeCheck.class,
       ContentLengthCheck.class,
+      ContentSecurityPolicyCheck.class,
       ConsistentReturnsCheck.class,
       ValuesNotConvertibleToNumbersCheck.class,
       ComparisonWithNaNCheck.class,
