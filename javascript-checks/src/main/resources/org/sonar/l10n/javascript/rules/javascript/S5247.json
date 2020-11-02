@@ -1,0 +1,33 @@
+{
+  "title": "Disabling auto-escaping in template engines is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a7"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5247",
+  "sqKey": "S5247",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87
+    ],
+    "OWASP": [
+      "A7"
+    ]
+  }
+}
