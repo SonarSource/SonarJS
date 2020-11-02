@@ -575,6 +575,25 @@ export function isCallToFQN(
   return module?.value === moduleName && isIdentifier(callee.property, functionName);
 }
 
+export function resolveFromFunctionReference(
+  context: Rule.RuleContext,
+  functionIdentifier: estree.Identifier,
+) {
+  const reference = context
+    .getScope()
+    .references.find(ref => ref.identifier === functionIdentifier);
+  if (
+    reference &&
+    reference.resolved &&
+    reference.resolved.defs.length === 1 &&
+    reference.resolved.defs[0] &&
+    reference.resolved.defs[0].type === 'FunctionName'
+  ) {
+    return reference.resolved.defs[0].node;
+  }
+  return null;
+}
+
 export function flatMap<A, B>(xs: A[], f: (e: A) => B[]): B[] {
   const acc: B[] = [];
   for (const x of xs) {
