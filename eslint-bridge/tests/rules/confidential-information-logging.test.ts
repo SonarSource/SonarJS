@@ -1,0 +1,173 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2020 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+import { RuleTester } from 'eslint';
+
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+import { rule } from 'rules/confidential-information-logging';
+
+ruleTester.run('Allowing confidential information to be logged is security-sensitive', rule, {
+  valid: [
+    {
+      code: `
+      const { Signale } = require('signale');
+      const options = {
+        secrets: ["([0-9]{4}-?)+"]
+      };
+      const logger = new Signale(options); // Compliant
+      const CREDIT_CARD_NUMBERS = ["1234-5678-0000-9999", "1234-5678-0000-8888"];
+      CREDIT_CARD_NUMBERS.forEach(function(CREDIT_CARD_NUMBER) {
+        logger.log('The customer ordered products with the credit card number = %s', CREDIT_CARD_NUMBER);
+      });
+            `,
+    },
+    {
+      code: `
+      const signale = require('signale');
+      const options = {
+        secrets: []
+      };
+      const logger = new signale.Other(options);
+            `,
+    },
+    {
+      code: `
+      const { Signale } = require('signale');
+      let options = {
+        secrets: []
+      };
+      if (x) {
+        options = getOptions();
+      }
+      const logger = new Signale(options);
+            `,
+    },
+    {
+      code: `
+      const { Signale } = require('signale');
+      let options = {
+        secrets: getSecrets()
+      };
+      const logger = new Signale(options);
+            `,
+    },
+    {
+      code: `
+      const signale = require('signale');
+      let secretsArray = [];
+      if (x) {
+        secretsArray[0] = "([0-9]{4}-?)+";
+      }
+      const options = {
+        secrets: secretsArray
+      };
+      const logger = new signale.Signale(options);
+            `,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+      const signale = require('signale');
+      const CREDIT_CARD_NUMBERS = ["1234-5678-0000-9999", "1234-5678-0000-8888"];
+      const options = {
+        secrets: []
+      };
+      const logger = new signale.Signale(options); // Sensitive
+      CREDIT_CARD_NUMBERS.forEach(function(CREDIT_CARD_NUMBER) {
+        logger.log('The customer ordered products with the credit card number = %s', CREDIT_CARD_NUMBER);
+      });
+            `,
+      errors: [
+        {
+          line: 7,
+          endLine: 7,
+          column: 26,
+          endColumn: 41,
+          message: JSON.stringify({
+            message: 'Make sure confidential information is not logged here.',
+            secondaryLocations: [{ column: 8, line: 5, endColumn: 19, endLine: 5 }],
+          }),
+        },
+      ],
+    },
+    {
+      code: `
+      const { Signale } = require('signale');
+      const options = {
+        secrets: []
+      };
+      const logger = new Signale(options); // Sensitive
+            `,
+      errors: [
+        {
+          line: 6,
+          endLine: 6,
+          column: 26,
+          endColumn: 33,
+          message: JSON.stringify({
+            message: 'Make sure confidential information is not logged here.',
+            secondaryLocations: [{ column: 8, line: 4, endColumn: 19, endLine: 4 }],
+          }),
+        },
+      ],
+    },
+    {
+      code: `
+      const { Signale } = require('signale');
+      const options = {
+        other: []
+      };
+      const logger = new Signale(options); // Sensitive
+            `,
+      errors: [
+        {
+          line: 6,
+          endLine: 6,
+          column: 26,
+          endColumn: 33,
+          message: JSON.stringify({
+            message: 'Make sure confidential information is not logged here.',
+            secondaryLocations: [{ column: 22, line: 3, endColumn: 7, endLine: 5 }],
+          }),
+        },
+      ],
+    },
+    {
+      code: `
+      const signale = require('signale');
+      const CREDIT_CARD_NUMBERS = ["1234-5678-0000-9999", "1234-5678-0000-8888"];
+      const logger = new signale.Signale(); // Sensitive
+      CREDIT_CARD_NUMBERS.forEach(function(CREDIT_CARD_NUMBER) {
+        logger.log('The customer ordered products with the credit card number = %s', CREDIT_CARD_NUMBER);
+      });
+            `,
+      errors: [
+        {
+          line: 4,
+          endLine: 4,
+          column: 26,
+          endColumn: 41,
+          message: 'Make sure confidential information is not logged here.',
+        },
+      ],
+    },
+  ],
+});
