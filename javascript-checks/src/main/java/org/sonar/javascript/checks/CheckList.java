@@ -173,6 +173,7 @@ public final class CheckList {
       IgnoredReturnCheck.class,
       InOperatorTypeErrorCheck.class,
       InstanceofInMisuseCheck.class,
+      IntrusivePermissionsCheck.class,
       InvariantReturnCheck.class,
       JQueryVarNameConventionCheck.class,
       JumpStatementInFinallyCheck.class,
