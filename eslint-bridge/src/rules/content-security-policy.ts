@@ -32,11 +32,10 @@ export const rule: Rule.RuleModule = {
     let contentSecurityPolicyProp: estree.Property | undefined;
     let isSafe: boolean;
 
-    function isExposing(): (n: estree.Node) => boolean {
-      return (n: estree.Node) => {
-        contentSecurityPolicyProp = findFalseContentSecurityPolicyPropertyFromHelmet(context, n);
-        return contentSecurityPolicyProp !== undefined;
-      };
+    function isExposing(n: estree.Node): boolean {
+      return Boolean(
+        (contentSecurityPolicyProp = findFalseContentSecurityPolicyPropertyFromHelmet(context, n)),
+      );
     }
 
     return {
@@ -48,7 +47,7 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         if (isSafe && instantiatedApp) {
           const callExpr = node as estree.CallExpression;
-          isSafe = !Express.isUsingMiddleware(context, callExpr, instantiatedApp, isExposing());
+          isSafe = !Express.isUsingMiddleware(context, callExpr, instantiatedApp, isExposing);
         }
       },
       VariableDeclarator: (node: estree.Node) => {
@@ -74,7 +73,7 @@ export const rule: Rule.RuleModule = {
 
 /**
  * Looks for property `contentSecurityPolicy: false` in node looking
- * somewhat to `helmet(<options>?)`, and returns it.
+ * somewhat similar to `helmet(<options>?)`, and returns it.
  */
 function findFalseContentSecurityPolicyPropertyFromHelmet(
   context: Rule.RuleContext,
