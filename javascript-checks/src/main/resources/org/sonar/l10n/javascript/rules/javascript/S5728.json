@@ -2,6 +2,10 @@
   "title": "Disabling content security policy fetch directives is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "60min"
+  },
   "tags": [
     "owasp-a6",
     "express.js"
