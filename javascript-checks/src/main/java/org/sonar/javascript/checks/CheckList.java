@@ -73,6 +73,7 @@ public final class CheckList {
       BoolParamDefaultCheck.class,
       BuiltInObjectOverriddenCheck.class,
       CallabilityCheck.class,
+      CertificateTransparencyCheck.class,
       ClassNameCheck.class,
       ClassPrototypeCheck.class,
       CognitiveComplexityFunctionCheck.class,
