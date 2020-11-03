@@ -33,21 +33,21 @@ export const rule: Rule.RuleModule = {
     return {
       Program: () => {
         instantiatedApp = null;
-        isSafe = false;
+        isSafe = true;
       },
       CallExpression: (node: estree.Node) => {
-        if (!isSafe && instantiatedApp) {
+        if (isSafe && instantiatedApp) {
           const callExpr = node as estree.CallExpression;
-          isSafe = Express.isUsingMiddleware(
+          isSafe = !Express.isUsingMiddleware(
             context,
             callExpr,
             instantiatedApp,
-            isProtecting(context),
+            isExposing(context),
           );
         }
       },
       VariableDeclarator: (node: estree.Node) => {
-        if (!isSafe && !instantiatedApp) {
+        if (isSafe && !instantiatedApp) {
           const varDecl = node as estree.VariableDeclarator;
           const app = Express.attemptFindAppInstantiation(varDecl, context);
           if (app) {
@@ -67,8 +67,8 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isProtecting(context: Rule.RuleContext): (n: estree.Node) => boolean {
-  return (n: estree.Node) => !isSetFalseContentSecurityPolicyFromHelmet(context, n);
+function isExposing(context: Rule.RuleContext): (n: estree.Node) => boolean {
+  return (n: estree.Node) => isSetFalseContentSecurityPolicyFromHelmet(context, n);
 }
 
 /**
