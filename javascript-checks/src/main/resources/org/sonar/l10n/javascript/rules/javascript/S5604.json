@@ -1,0 +1,30 @@
+{
+  "title": "Using intrusive permissions is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "privacy",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5604",
+  "sqKey": "S5604",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      250
+    ],
+    "OWASP": [
+      "A3"
+    ]
+  }
+}
