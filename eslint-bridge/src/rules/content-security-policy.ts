@@ -29,21 +29,26 @@ const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let instantiatedApp: estree.Identifier | null;
+    let contentSecurityPolicyProp: estree.Property | undefined;
     let isSafe: boolean;
+
+    function isExposing(): (n: estree.Node) => boolean {
+      return (n: estree.Node) => {
+        contentSecurityPolicyProp = findFalseContentSecurityPolicyPropertyFromHelmet(context, n);
+        return contentSecurityPolicyProp !== undefined;
+      };
+    }
+
     return {
       Program: () => {
         instantiatedApp = null;
+        contentSecurityPolicyProp = undefined;
         isSafe = true;
       },
       CallExpression: (node: estree.Node) => {
         if (isSafe && instantiatedApp) {
           const callExpr = node as estree.CallExpression;
-          isSafe = !Express.isUsingMiddleware(
-            context,
-            callExpr,
-            instantiatedApp,
-            isExposing(context),
-          );
+          isSafe = !Express.isUsingMiddleware(context, callExpr, instantiatedApp, isExposing());
         }
       },
       VariableDeclarator: (node: estree.Node) => {
@@ -56,10 +61,10 @@ export const rule: Rule.RuleModule = {
         }
       },
       'Program:exit': () => {
-        if (!isSafe && instantiatedApp) {
+        if (!isSafe && contentSecurityPolicyProp) {
           context.report({
             message: `Make sure not enabling content security policy fetch directives is safe here.`,
-            node: instantiatedApp,
+            node: contentSecurityPolicyProp,
           });
         }
       },
@@ -67,31 +72,24 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isExposing(context: Rule.RuleContext): (n: estree.Node) => boolean {
-  return (n: estree.Node) => isSetFalseContentSecurityPolicyFromHelmet(context, n);
-}
-
 /**
- * Checks whether node looks like `helmet(<options>?)`,
- * where <options> includes `contentSecurityPolicy: false`.
+ * Looks for property `contentSecurityPolicy: false` in node looking
+ * somewhat to `helmet(<options>?)`, and returns it.
  */
-function isSetFalseContentSecurityPolicyFromHelmet(
+function findFalseContentSecurityPolicyPropertyFromHelmet(
   context: Rule.RuleContext,
   node: estree.Node,
-): boolean {
+): estree.Property | undefined {
   if (node.type === 'CallExpression') {
     const { callee, arguments: args } = node;
-    return (
+    if (
       callee.type === 'Identifier' &&
       getModuleNameOfNode(context, callee)?.value === HELMET &&
-      Boolean(
-        args.find(
-          arg =>
-            arg.type === 'ObjectExpression' &&
-            Boolean(getPropertyWithValue(context, arg, CONTENT_SECURITY_POLICY, false)),
-        ),
-      )
-    );
+      args.length === 1 &&
+      args[0].type === 'ObjectExpression'
+    ) {
+      return getPropertyWithValue(context, args[0], CONTENT_SECURITY_POLICY, false);
+    }
   }
-  return false;
+  return undefined;
 }

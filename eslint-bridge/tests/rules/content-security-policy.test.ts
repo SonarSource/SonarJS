@@ -72,10 +72,10 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
       errors: [
         {
           message: `Make sure not enabling content security policy fetch directives is safe here.`,
-          line: 4,
-          endLine: 4,
-          column: 15,
-          endColumn: 18,
+          line: 7,
+          endLine: 7,
+          column: 13,
+          endColumn: 41,
         },
       ],
     },
