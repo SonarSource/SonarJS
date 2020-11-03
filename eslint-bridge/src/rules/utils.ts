@@ -550,12 +550,12 @@ export function getPropertyWithValue(
   objectExpression: estree.ObjectExpression,
   propertyName: string,
   propertyValue: estree.Literal['value'],
-) {
-  const unsafeProperty = getObjectExpressionProperty(objectExpression, propertyName);
-  if (unsafeProperty) {
-    const unsafePropertyValue = getValueOfExpression(context, unsafeProperty.value, 'Literal');
-    if (unsafePropertyValue?.value === propertyValue) {
-      return unsafeProperty;
+): estree.Property | undefined {
+  const maybeProperty = getObjectExpressionProperty(objectExpression, propertyName);
+  if (maybeProperty) {
+    const maybePropertyValue = getValueOfExpression(context, maybeProperty.value, 'Literal');
+    if (maybePropertyValue?.value === propertyValue) {
+      return maybeProperty;
     }
   }
   return undefined;
