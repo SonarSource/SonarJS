@@ -21,10 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleNameOfNode, isIdentifier, flattenArgs } from './utils';
+import { Express, getModuleNameOfNode, isMethodInvocation } from './utils';
 
 const HELMET = 'helmet';
-const EXPRESS = 'express';
 const HIDE_POWERED_BY = 'hide-powered-by';
 const HEADER_X_POWERED_BY = 'X-Powered-By'.toLowerCase();
 const MESSAGE = 'Disable the fingerprinting of this web technology.';
@@ -45,7 +44,7 @@ export const rule: Rule.RuleModule = {
         if (!isSafe && appInstantiation) {
           const callExpr = node as estree.CallExpression;
           isSafe =
-            isUsingMiddleware(context, callExpr, appInstantiation, isProtecting(context)) ||
+            Express.isUsingMiddleware(context, callExpr, appInstantiation, isProtecting(context)) ||
             isDisabledXPoweredBy(callExpr, appInstantiation) ||
             isSetFalseXPoweredBy(callExpr, appInstantiation) ||
             isAppEscaping(callExpr, appInstantiation);
@@ -54,7 +53,7 @@ export const rule: Rule.RuleModule = {
       VariableDeclarator: (node: estree.Node) => {
         if (!isSafe && !appInstantiation) {
           const varDecl = node as estree.VariableDeclarator;
-          const app = attemptFindExpressAppInstantiation(varDecl, context);
+          const app = Express.attemptFindAppInstantiation(varDecl, context);
           if (app) {
             appInstantiation = app;
           }
@@ -71,56 +70,6 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function attemptFindExpressAppInstantiation(
-  varDecl: estree.VariableDeclarator,
-  context: Rule.RuleContext,
-): estree.Identifier | undefined {
-  const rhs = varDecl.init;
-  if (rhs && rhs.type === 'CallExpression') {
-    const { callee } = rhs as estree.CallExpression;
-    if (getModuleNameOfNode(context, callee)?.value === EXPRESS) {
-      const pattern = varDecl.id;
-      return pattern.type === 'Identifier' ? pattern : undefined;
-    }
-  }
-  return undefined;
-}
-
-/**
- * Checks whether the expression looks somewhat like `app.use(m1, [m2, m3], ..., mN)`,
- * where one of `mK`-nodes satisfies the given predicate.
- */
-function isUsingMiddleware(
-  context: Rule.RuleContext,
-  callExpression: estree.CallExpression,
-  app: estree.Identifier,
-  middlewareNodePredicate: (n: estree.Node) => boolean,
-): boolean {
-  if (isMethodInvocation(callExpression, app.name, 'use', 1)) {
-    const flattenedArgs = flattenArgs(context, callExpression.arguments);
-    return Boolean(flattenedArgs.find(middlewareNodePredicate));
-  }
-  return false;
-}
-
-/**
- * Checks whether a node looks somewhat like `require('m')()` for
- * some middleware `m` from the list of middlewares.
- */
-function isMiddlewareInstance(
-  context: Rule.RuleContext,
-  middlewares: string[],
-  n: estree.Node,
-): boolean {
-  if (n.type === 'CallExpression') {
-    const usedMiddleware = getModuleNameOfNode(context, n.callee)?.value;
-    if (usedMiddleware) {
-      return middlewares.includes(String(usedMiddleware));
-    }
-  }
-  return false;
-}
 
 /**
  * Checks whether node looks like `helmet.hidePoweredBy()`.
@@ -140,7 +89,7 @@ function isHidePoweredByFromHelmet(context: Rule.RuleContext, n: estree.Node): b
 
 function isProtecting(context: Rule.RuleContext): (n: estree.Node) => boolean {
   return (n: estree.Node) =>
-    isMiddlewareInstance(context, PROTECTING_MIDDLEWARES, n) ||
+    Express.isMiddlewareInstance(context, PROTECTING_MIDDLEWARES, n) ||
     isHidePoweredByFromHelmet(context, n);
 }
 
@@ -169,21 +118,6 @@ function isSetFalseXPoweredBy(
     );
   }
   return false;
-}
-
-function isMethodInvocation(
-  callExpression: estree.CallExpression,
-  objectIdentifierName: string,
-  methodName: string,
-  minArgs: number,
-): boolean {
-  return (
-    callExpression.callee.type === 'MemberExpression' &&
-    isIdentifier(callExpression.callee.object, objectIdentifierName) &&
-    isIdentifier(callExpression.callee.property, methodName) &&
-    callExpression.callee.property.type === 'Identifier' &&
-    callExpression.arguments.length >= minArgs
-  );
 }
 
 function isAppEscaping(callExpr: estree.CallExpression, app: estree.Identifier): boolean {
