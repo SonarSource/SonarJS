@@ -61,6 +61,16 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
       code: `
           const express = require('express');
           const app = express();
+          app.use(
+            unknown({
+              contentSecurityPolicy: false,
+            })
+          );`,
+    },
+    {
+      code: `
+          const express = require('express');
+          const app = express();
           app.use('/endpoint', callback);`,
     },
   ],
