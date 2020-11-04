@@ -654,4 +654,62 @@ export namespace Express {
     }
     return false;
   }
+
+  export function SensitiveMiddlewarePropertyRule(
+    sensitivePropertyFinder: (
+      context: Rule.RuleContext,
+      node: estree.CallExpression,
+    ) => estree.Property | undefined,
+    message: string,
+  ): Rule.RuleModule {
+    return {
+      create(context: Rule.RuleContext) {
+        let instantiatedApp: estree.Identifier | null;
+        let sensitiveProperty: estree.Property | undefined;
+        let isSafe: boolean;
+
+        function isExposing(node: estree.Node): boolean {
+          return Boolean((sensitiveProperty = findSensitiveProperty(node)));
+        }
+
+        function findSensitiveProperty(node: estree.Node): estree.Property | undefined {
+          if (node.type === 'CallExpression') {
+            return sensitivePropertyFinder(context, node);
+          }
+          return undefined;
+        }
+
+        return {
+          Program: () => {
+            instantiatedApp = null;
+            sensitiveProperty = undefined;
+            isSafe = true;
+          },
+          CallExpression: (node: estree.Node) => {
+            if (isSafe && instantiatedApp) {
+              const callExpr = node as estree.CallExpression;
+              isSafe = !isUsingMiddleware(context, callExpr, instantiatedApp, isExposing);
+            }
+          },
+          VariableDeclarator: (node: estree.Node) => {
+            if (isSafe && !instantiatedApp) {
+              const varDecl = node as estree.VariableDeclarator;
+              const app = attemptFindAppInstantiation(varDecl, context);
+              if (app) {
+                instantiatedApp = app;
+              }
+            }
+          },
+          'Program:exit': () => {
+            if (!isSafe && sensitiveProperty) {
+              context.report({
+                node: sensitiveProperty,
+                message,
+              });
+            }
+          },
+        };
+      },
+    };
+  }
 }
