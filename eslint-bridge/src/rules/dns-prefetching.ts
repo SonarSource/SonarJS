@@ -21,13 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getModuleNameOfNode,
-  getPropertyWithValue,
-  getValueOfExpression,
-  isCallToFQN,
-  toEncodedMessage,
-} from './utils';
+import { checkSensitiveCall } from '../utils/sensitive-arguments';
+import { getModuleNameOfNode, isCallToFQN } from './utils';
 
 const MESSAGE = 'Make sure allowing browsers to perform DNS prefetching is safe here.';
 
@@ -41,46 +36,19 @@ export const rule: Rule.RuleModule = {
     ],
   },
   create(context: Rule.RuleContext) {
-    function checkSensitiveCall(
-      callExpression: estree.CallExpression,
-      sensitiveArgumentIndex: number,
-      sensitiveProperty: string,
-      sensitivePropertyValue: boolean,
-    ) {
-      if (callExpression.arguments.length < sensitiveArgumentIndex + 1) {
-        return;
-      }
-      const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
-      const options = getValueOfExpression(context, sensitiveArgument, 'ObjectExpression');
-      if (!options) {
-        return;
-      }
-      const unsafeProperty = getPropertyWithValue(
-        context,
-        options,
-        sensitiveProperty,
-        sensitivePropertyValue,
-      );
-      if (unsafeProperty) {
-        context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(MESSAGE, [unsafeProperty]),
-        });
-      }
-    }
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         const { callee } = callExpression;
         if (isCallToFQN(context, callExpression, 'helmet', 'dnsPrefetchControl')) {
-          checkSensitiveCall(callExpression, 0, 'allow', true);
+          checkSensitiveCall(context, callExpression, 0, 'allow', true, MESSAGE);
         }
         const calledModule = getModuleNameOfNode(context, callee);
         if (calledModule?.value === 'helmet') {
-          checkSensitiveCall(callExpression, 0, 'dnsPrefetchControl', false);
+          checkSensitiveCall(context, callExpression, 0, 'dnsPrefetchControl', false, MESSAGE);
         }
         if (calledModule?.value === 'dns-prefetch-control') {
-          checkSensitiveCall(callExpression, 0, 'allow', true);
+          checkSensitiveCall(context, callExpression, 0, 'allow', true, MESSAGE);
         }
       },
     };

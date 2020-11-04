@@ -22,10 +22,9 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
+import { checkSensitiveCall } from '../utils/sensitive-arguments';
 import {
-  toEncodedMessage,
   getModuleNameOfNode,
-  getPropertyWithValue,
   getValueOfExpression,
   isCallToFQN,
   isIdentifier,
@@ -45,34 +44,6 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-
-    function checkSensitiveCall(
-      callExpression: estree.CallExpression | estree.NewExpression,
-      sensitiveArgumentIndex: number,
-      sensitiveProperty: string,
-      sensitivePropertyValue: boolean,
-    ) {
-      if (callExpression.arguments.length < sensitiveArgumentIndex + 1) {
-        return;
-      }
-      const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
-      const options = getValueOfExpression(context, sensitiveArgument, 'ObjectExpression');
-      if (!options) {
-        return;
-      }
-      const unsafeProperty = getPropertyWithValue(
-        context,
-        options,
-        sensitiveProperty,
-        sensitivePropertyValue,
-      );
-      if (unsafeProperty) {
-        context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(MESSAGE, [unsafeProperty]),
-        });
-      }
-    }
 
     function isEmptySanitizerFunction(
       sanitizerFunction:
@@ -132,14 +103,14 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         if (isCallToFQN(context, callExpression, 'handlebars', 'compile')) {
-          checkSensitiveCall(callExpression, 1, 'noEscape', true);
+          checkSensitiveCall(context, callExpression, 1, 'noEscape', true, MESSAGE);
         }
         if (isCallToFQN(context, callExpression, 'marked', 'setOptions')) {
-          checkSensitiveCall(callExpression, 0, 'sanitize', false);
+          checkSensitiveCall(context, callExpression, 0, 'sanitize', false, MESSAGE);
         }
         const calleeModule = getModuleNameOfNode(context, callExpression.callee);
         if (calleeModule?.value === 'markdown-it') {
-          checkSensitiveCall(callExpression, 0, 'html', true);
+          checkSensitiveCall(context, callExpression, 0, 'html', true, MESSAGE);
         }
       },
       NewExpression: (node: estree.Node) => {
@@ -150,7 +121,7 @@ export const rule: Rule.RuleModule = {
         }
         const module = getModuleNameOfNode(context, callee.object);
         if (module?.value === 'kramed' && isIdentifier(callee.property, 'Renderer')) {
-          checkSensitiveCall(newExpression, 0, 'sanitize', false);
+          checkSensitiveCall(context, newExpression, 0, 'sanitize', false, MESSAGE);
         }
       },
       AssignmentExpression: (node: estree.Node) => {
