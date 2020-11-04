@@ -47,6 +47,14 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
     },
     {
       code: `
+        const helmet = require('helmet');
+        const express = require('express');
+        const app = express();
+        const h = helmet({ expectCt: true });
+        app.use(h);`,
+    },
+    {
+      code: `
           const helmet = require('helmet');
           const express = require('express');
           const app = express();
@@ -91,6 +99,23 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
           endLine: 7,
           column: 13,
           endColumn: 28,
+        },
+      ],
+    },
+    {
+      code: `
+        const helmet = require('helmet');
+        const express = require('express');
+        const app = express();
+        const h = helmet({ expectCt: false }); // Noncompliant
+        app.use(h);`,
+      errors: [
+        {
+          message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
+          line: 5,
+          endLine: 5,
+          column: 28,
+          endColumn: 43,
         },
       ],
     },
