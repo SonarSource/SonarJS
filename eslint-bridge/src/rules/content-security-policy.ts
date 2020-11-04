@@ -26,50 +26,10 @@ import { Express, getModuleNameOfNode, getPropertyWithValue } from './utils';
 const HELMET = 'helmet';
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
 
-export const rule: Rule.RuleModule = {
-  create(context: Rule.RuleContext) {
-    let instantiatedApp: estree.Identifier | null;
-    let contentSecurityPolicyProp: estree.Property | undefined;
-    let isSafe: boolean;
-
-    function isExposing(n: estree.Node): boolean {
-      return Boolean(
-        (contentSecurityPolicyProp = findFalseContentSecurityPolicyPropertyFromHelmet(context, n)),
-      );
-    }
-
-    return {
-      Program: () => {
-        instantiatedApp = null;
-        contentSecurityPolicyProp = undefined;
-        isSafe = true;
-      },
-      CallExpression: (node: estree.Node) => {
-        if (isSafe && instantiatedApp) {
-          const callExpr = node as estree.CallExpression;
-          isSafe = !Express.isUsingMiddleware(context, callExpr, instantiatedApp, isExposing);
-        }
-      },
-      VariableDeclarator: (node: estree.Node) => {
-        if (isSafe && !instantiatedApp) {
-          const varDecl = node as estree.VariableDeclarator;
-          const app = Express.attemptFindAppInstantiation(varDecl, context);
-          if (app) {
-            instantiatedApp = app;
-          }
-        }
-      },
-      'Program:exit': () => {
-        if (!isSafe && contentSecurityPolicyProp) {
-          context.report({
-            message: `Make sure not enabling content security policy fetch directives is safe here.`,
-            node: contentSecurityPolicyProp,
-          });
-        }
-      },
-    };
-  },
-};
+export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
+  findFalseContentSecurityPolicyPropertyFromHelmet,
+  `Make sure not enabling content security policy fetch directives is safe here.`,
+);
 
 /**
  * Looks for property `contentSecurityPolicy: false` in node looking
@@ -77,18 +37,16 @@ export const rule: Rule.RuleModule = {
  */
 function findFalseContentSecurityPolicyPropertyFromHelmet(
   context: Rule.RuleContext,
-  node: estree.Node,
+  node: estree.CallExpression,
 ): estree.Property | undefined {
-  if (node.type === 'CallExpression') {
-    const { callee, arguments: args } = node;
-    if (
-      callee.type === 'Identifier' &&
-      getModuleNameOfNode(context, callee)?.value === HELMET &&
-      args.length === 1 &&
-      args[0].type === 'ObjectExpression'
-    ) {
-      return getPropertyWithValue(context, args[0], CONTENT_SECURITY_POLICY, false);
-    }
+  const { callee, arguments: args } = node;
+  if (
+    callee.type === 'Identifier' &&
+    getModuleNameOfNode(context, callee)?.value === HELMET &&
+    args.length === 1 &&
+    args[0].type === 'ObjectExpression'
+  ) {
+    return getPropertyWithValue(context, args[0], CONTENT_SECURITY_POLICY, false);
   }
   return undefined;
 }
