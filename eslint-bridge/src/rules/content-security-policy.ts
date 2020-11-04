@@ -21,7 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, getModuleNameOfNode, getPropertyWithValue } from './utils';
+import { getModuleNameOfNode, getPropertyWithValue } from './utils';
+import { Express } from './utils-express';
 
 const HELMET = 'helmet';
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';

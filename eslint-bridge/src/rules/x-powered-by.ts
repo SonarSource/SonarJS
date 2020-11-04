@@ -21,7 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, getModuleNameOfNode, isMethodInvocation } from './utils';
+import { getModuleNameOfNode, isMethodInvocation } from './utils';
+import { Express } from './utils-express';
 
 const HELMET = 'helmet';
 const HIDE_POWERED_BY = 'hide-powered-by';
