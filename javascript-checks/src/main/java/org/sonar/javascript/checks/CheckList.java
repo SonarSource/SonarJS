@@ -223,6 +223,7 @@ public final class CheckList {
       NoRedundantOptionalCheck.class,
       NoReturnAwaitCheck.class,
       NoReturnTypeAnyCheck.class,
+      NoSniffCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
       NoUselessCatchCheck.class,
       NoWeakCipherCheck.class,
