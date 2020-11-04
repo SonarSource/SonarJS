@@ -79,6 +79,39 @@ ruleTester.run('Allowing browsers to sniff MIME types is security-sensitive', ru
       code: `
         const helmet = require('helmet');
         module.exports = function (foo) {
+          foo.use(
+            helmet({
+              noSniff: false,
+            })
+          );
+        }`,
+    },
+    {
+      code: `
+        const helmet = require('helmet');
+        whatever = function (app) { // Not module.exports
+          app.use(
+            helmet({
+              noSniff: false,
+            })
+          );
+        }`,
+    },
+    {
+      code: `
+        const helmet = require('helmet');
+        module.exports = function (foo) { // Not app
+          foo.use(
+            helmet({
+              noSniff: false,
+            })
+          );
+        }`,
+    },
+    {
+      code: `
+        const helmet = require('helmet');
+        function foo(app) { // Not exported
           app.use(
             helmet({
               noSniff: false,
