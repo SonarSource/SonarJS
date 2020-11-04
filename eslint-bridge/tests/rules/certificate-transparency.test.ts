@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from 'rules/content-security-policy';
+import { rule } from 'rules/certificate-transparency';
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-ruleTester.run('Disabling content security policy fetch directives is security-sensitive', rule, {
+ruleTester.run('Disabling Certificate Transparency monitoring is security-sensitive', rule, {
   valid: [
     {
       code: `
-          const helmet = require('helmet');
           const express = require('express');
           const app = express();`,
     },
@@ -48,12 +47,20 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
     },
     {
       code: `
+        const helmet = require('helmet');
+        const express = require('express');
+        const app = express();
+        const h = helmet({ expectCt: true });
+        app.use(h);`,
+    },
+    {
+      code: `
           const helmet = require('helmet');
           const express = require('express');
           const app = express();
           app.use(
             helmet({
-              contentSecurityPolicy: true,
+              expectCt: true,
             })
           );`,
     },
@@ -63,7 +70,7 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
           const app = express();
           app.use(
             unknown({
-              contentSecurityPolicy: false,
+              expectCt: false,
             })
           );`,
     },
@@ -82,16 +89,33 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
         const app = express();
         app.use(
           helmet({
-            contentSecurityPolicy: false, // Noncompliant
+            expectCt: false, // Noncompliant
           })
         );`,
       errors: [
         {
-          message: `Make sure not enabling content security policy fetch directives is safe here.`,
+          message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
           line: 7,
           endLine: 7,
           column: 13,
-          endColumn: 41,
+          endColumn: 28,
+        },
+      ],
+    },
+    {
+      code: `
+        const helmet = require('helmet');
+        const express = require('express');
+        const app = express();
+        const h = helmet({ expectCt: false }); // Noncompliant
+        app.use(h);`,
+      errors: [
+        {
+          message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
+          line: 5,
+          endLine: 5,
+          column: 28,
+          endColumn: 43,
         },
       ],
     },

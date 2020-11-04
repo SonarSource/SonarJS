@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-5728
+// https://jira.sonarsource.com/browse/RSPEC-5742
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
@@ -25,18 +25,18 @@ import { getModuleNameOfNode, getPropertyWithValue } from './utils';
 import { Express } from './utils-express';
 
 const HELMET = 'helmet';
-const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
+const EXPECT_CERTIFICATE_TRANSPARENCY = 'expectCt';
 
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
-  findFalseContentSecurityPolicyPropertyFromHelmet,
-  `Make sure not enabling content security policy fetch directives is safe here.`,
+  findFalseCertificateTransparencyPropertyFromHelmet,
+  `Make sure disabling Certificate Transparency monitoring is safe here.`,
 );
 
 /**
- * Looks for property `contentSecurityPolicy: false` in node looking
+ * Looks for property `expectCt: false` in node looking
  * somewhat similar to `helmet(<options>?)`, and returns it.
  */
-function findFalseContentSecurityPolicyPropertyFromHelmet(
+function findFalseCertificateTransparencyPropertyFromHelmet(
   context: Rule.RuleContext,
   node: estree.CallExpression,
 ): estree.Property | undefined {
@@ -47,7 +47,7 @@ function findFalseContentSecurityPolicyPropertyFromHelmet(
     args.length === 1 &&
     args[0].type === 'ObjectExpression'
   ) {
-    return getPropertyWithValue(context, args[0], CONTENT_SECURITY_POLICY, false);
+    return getPropertyWithValue(context, args[0], EXPECT_CERTIFICATE_TRANSPARENCY, false);
   }
   return undefined;
 }
