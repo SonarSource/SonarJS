@@ -28,6 +28,7 @@ import {
   getSignatureFromCallee,
   getTypeAsString,
   resolveIdentifiers,
+  resolveFromFunctionReference,
 } from './utils';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
 import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
@@ -91,7 +92,7 @@ export const rule: Rule.RuleModule = {
       if (isFunctionNode(node.callee)) {
         functionDeclaration = node.callee;
       } else if (node.callee.type === 'Identifier') {
-        functionDeclaration = resolveFromFunctionReference(node.callee);
+        functionDeclaration = resolveFromFunctionReference(context, node.callee);
       }
 
       if (!functionDeclaration) {
@@ -111,22 +112,6 @@ export const rule: Rule.RuleModule = {
           params: signature.parameters.map(param => param.name),
           declaration: services.tsNodeToESTreeNodeMap.get(signature.declaration),
         };
-      }
-      return null;
-    }
-
-    function resolveFromFunctionReference(functionIdentifier: estree.Identifier) {
-      const reference = context
-        .getScope()
-        .references.find(ref => ref.identifier === functionIdentifier);
-      if (
-        reference &&
-        reference.resolved &&
-        reference.resolved.defs.length === 1 &&
-        reference.resolved.defs[0] &&
-        reference.resolved.defs[0].type === 'FunctionName'
-      ) {
-        return reference.resolved.defs[0].node;
       }
       return null;
     }

@@ -112,6 +112,7 @@ public final class CheckList {
       DeprecationCheck.class,
       DestructuringAssignmentSyntaxCheck.class,
       DifferentTypesComparisonCheck.class,
+      DisabledAutoEscapingCheck.class,
       DuplicateAllBranchImplementationCheck.class,
       DuplicateBranchImplementationCheck.class,
       DuplicateConditionIfCheck.class,
