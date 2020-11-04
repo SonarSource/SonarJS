@@ -6631,4 +6631,9 @@
 'javascript-test-sources:src/file-for-rules/S2688.js':[
 3,
 ],
+'javascript-test-sources:src/file-for-rules/S5247.js':[
+2,
+5,
+6,
+],
 }
