@@ -236,6 +236,16 @@ export function getValueOfExpression<T extends estree.Node['type']>(
   return undefined;
 }
 
+export function isModuleExports(node: estree.Node): boolean {
+  return (
+    node.type === 'MemberExpression' &&
+    node.object.type === 'Identifier' &&
+    node.object.name === 'module' &&
+    node.property.type === 'Identifier' &&
+    node.property.name === 'exports'
+  );
+}
+
 // see https://stackoverflow.com/questions/64262105/narrowing-return-value-of-function-based-on-argument
 function isNodeType<T extends estree.Node['type']>(
   node: estree.Node,

@@ -19,8 +19,9 @@
  */
 
 import { Rule } from 'eslint';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
-import { flattenArgs, getModuleNameOfNode, isMethodInvocation } from './utils';
+import { flattenArgs, getModuleNameOfNode, isMethodInvocation, isModuleExports } from './utils';
 
 /**
  * This modules provides utilities for writing rules about Express.js.
@@ -42,6 +43,32 @@ export namespace Express {
       if (getModuleNameOfNode(context, callee)?.value === EXPRESS) {
         const pattern = varDecl.id;
         return pattern.type === 'Identifier' ? pattern : undefined;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Checks whether the function injects an instantiated app and is exported like `module.exports = function(app) {}`
+   * or `module.exports.property = function(app) {}`, and returns app if it matches.
+   */
+  export function attemptFindAppInjection(
+    functionDef: estree.Function,
+    context: Rule.RuleContext,
+  ): estree.Identifier | undefined {
+    const app = functionDef.params.find(
+      param => param.type === 'Identifier' && param.name === 'app',
+    ) as estree.Identifier | undefined;
+    if (app) {
+      const parent = getParent(context);
+      if (parent?.type === 'AssignmentExpression') {
+        const { left } = parent;
+        if (
+          left.type === 'MemberExpression' &&
+          (isModuleExports(left) || isModuleExports(left.object))
+        ) {
+          return app;
+        }
       }
     }
     return undefined;
@@ -109,7 +136,7 @@ export namespace Express {
   ): Rule.RuleModule {
     return {
       create(context: Rule.RuleContext) {
-        let instantiatedApp: estree.Identifier | null;
+        let app: estree.Identifier | null;
         let sensitiveProperty: estree.Property | undefined;
         let isSafe: boolean;
 
@@ -126,22 +153,31 @@ export namespace Express {
 
         return {
           Program: () => {
-            instantiatedApp = null;
+            app = null;
             sensitiveProperty = undefined;
             isSafe = true;
           },
           CallExpression: (node: estree.Node) => {
-            if (isSafe && instantiatedApp) {
+            if (isSafe && app) {
               const callExpr = node as estree.CallExpression;
-              isSafe = !isUsingMiddleware(context, callExpr, instantiatedApp, isExposing);
+              isSafe = !isUsingMiddleware(context, callExpr, app, isExposing);
             }
           },
           VariableDeclarator: (node: estree.Node) => {
-            if (isSafe && !instantiatedApp) {
+            if (isSafe && !app) {
               const varDecl = node as estree.VariableDeclarator;
-              const app = attemptFindAppInstantiation(varDecl, context);
-              if (app) {
-                instantiatedApp = app;
+              const instantiatedApp = attemptFindAppInstantiation(varDecl, context);
+              if (instantiatedApp) {
+                app = instantiatedApp;
+              }
+            }
+          },
+          ':function': (node: estree.Node) => {
+            if (isSafe && !app) {
+              const functionDef = node as estree.Function;
+              const injectedApp = attemptFindAppInjection(functionDef, context);
+              if (injectedApp) {
+                app = injectedApp;
               }
             }
           },
