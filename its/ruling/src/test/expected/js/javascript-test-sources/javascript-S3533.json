@@ -2574,4 +2574,8 @@
 'javascript-test-sources:src/file-for-rules/S5247.js':[
 1,
 ],
+'javascript-test-sources:src/file-for-rules/S5743.js':[
+1,
+2,
+],
 }
