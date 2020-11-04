@@ -85,7 +85,7 @@ export namespace Express {
   export function SensitiveMiddlewarePropertyRule(
     sensitivePropertyFinder: (
       context: Rule.RuleContext,
-      node: estree.CallExpression,
+      middlewareCall: estree.CallExpression,
     ) => estree.Property | undefined,
     message: string,
   ): Rule.RuleModule {
@@ -95,13 +95,13 @@ export namespace Express {
         let sensitiveProperty: estree.Property | undefined;
         let isSafe: boolean;
 
-        function isExposing(node: estree.Node): boolean {
-          return Boolean((sensitiveProperty = findSensitiveProperty(node)));
+        function isExposing(middlewareNode: estree.Node): boolean {
+          return Boolean((sensitiveProperty = findSensitiveProperty(middlewareNode)));
         }
 
-        function findSensitiveProperty(node: estree.Node): estree.Property | undefined {
-          if (node.type === 'CallExpression') {
-            return sensitivePropertyFinder(context, node);
+        function findSensitiveProperty(middlewareNode: estree.Node): estree.Property | undefined {
+          if (middlewareNode.type === 'CallExpression') {
+            return sensitivePropertyFinder(context, middlewareNode);
           }
           return undefined;
         }
