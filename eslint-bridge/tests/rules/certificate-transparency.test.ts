@@ -78,10 +78,10 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
       code: `
         const helmet = require('helmet');
         const express = require('express');
-        const app = express(); // Noncompliant
+        const app = express();
         app.use(
           helmet({
-            expectCt: false,
+            expectCt: false, // Noncompliant
           })
         );`,
       errors: [

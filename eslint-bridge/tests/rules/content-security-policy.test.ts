@@ -79,10 +79,10 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
       code: `
         const helmet = require('helmet');
         const express = require('express');
-        const app = express(); // Noncompliant
+        const app = express();
         app.use(
           helmet({
-            contentSecurityPolicy: false,
+            contentSecurityPolicy: false, // Noncompliant
           })
         );`,
       errors: [
