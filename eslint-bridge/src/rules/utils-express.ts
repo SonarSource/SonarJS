@@ -21,7 +21,13 @@
 import { Rule } from 'eslint';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
-import { flattenArgs, getModuleNameOfNode, isMethodInvocation, isModuleExports } from './utils';
+import {
+  flattenArgs,
+  getModuleNameOfNode,
+  isMethodInvocation,
+  isModuleExports,
+  toEncodedMessage,
+} from './utils';
 
 /**
  * This modules provides utilities for writing rules about Express.js.
@@ -137,6 +143,7 @@ export namespace Express {
     return {
       create(context: Rule.RuleContext) {
         let app: estree.Identifier | null;
+        let callExpr: estree.CallExpression | null;
         let sensitiveProperty: estree.Property | undefined;
         let isSafe: boolean;
 
@@ -154,12 +161,13 @@ export namespace Express {
         return {
           Program: () => {
             app = null;
+            callExpr = null;
             sensitiveProperty = undefined;
             isSafe = true;
           },
           CallExpression: (node: estree.Node) => {
             if (isSafe && app) {
-              const callExpr = node as estree.CallExpression;
+              callExpr = node as estree.CallExpression;
               isSafe = !isUsingMiddleware(context, callExpr, app, isExposing);
             }
           },
@@ -182,10 +190,10 @@ export namespace Express {
             }
           },
           'Program:exit': () => {
-            if (!isSafe && sensitiveProperty) {
+            if (!isSafe && sensitiveProperty && callExpr) {
               context.report({
-                node: sensitiveProperty,
-                message,
+                node: callExpr,
+                message: toEncodedMessage(message, [sensitiveProperty]),
               });
             }
           },

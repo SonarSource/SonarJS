@@ -25,25 +25,25 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
   valid: [
     {
       code: `
-          const express = require('express');
-          const app = express();`,
+        const express = require('express');
+        const app = express();`,
     },
     {
       code: `
-          const helmet = require('helmet');
-          const express = require('express');
-          const app = express();
-          app.use(
-            helmet()
-          );`,
+        const helmet = require('helmet');
+        const express = require('express');
+        const app = express();
+        app.use(
+          helmet()
+        );`,
     },
     {
       code: `
-          const helmet = require('helmet');
-          const express = require('express');
-          const app = express();
-          const h = helmet();
-          app.use(h);`,
+        const helmet = require('helmet');
+        const express = require('express');
+        const app = express();
+        const h = helmet();
+        app.use(h);`,
     },
     {
       code: `
@@ -55,41 +55,52 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
     },
     {
       code: `
-          const helmet = require('helmet');
-          const express = require('express');
-          const app = express();
-          app.use(
-            helmet({
-              expectCt: true,
-            })
-          );`,
-    },
-    {
-      code: `
-      const helmet = require('helmet');
-      module.exports = function (app) {
+        const helmet = require('helmet');
+        const express = require('express');
+        const app = express();
         app.use(
           helmet({
             expectCt: true,
           })
-        );
-      }`,
+        );`,
     },
     {
       code: `
-          const express = require('express');
-          const app = express();
+        const helmet = require('helmet');
+        module.exports = function (app) {
           app.use(
-            unknown({
+            helmet({
+              expectCt: true,
+            })
+          );
+        }`,
+    },
+    {
+      code: `
+        const helmet = require('helmet');
+        module.exports = function (foo) {
+          app.use(
+            helmet({
               expectCt: false,
             })
-          );`,
+          );
+        }`,
     },
     {
       code: `
-          const express = require('express');
-          const app = express();
-          app.use('/endpoint', callback);`,
+        const express = require('express');
+        const app = express();
+        app.use(
+          unknown({
+            expectCt: false,
+          })
+        );`,
+    },
+    {
+      code: `
+        const express = require('express');
+        const app = express();
+        app.use('/endpoint', callback);`,
     },
   ],
   invalid: [
@@ -105,11 +116,21 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
         );`,
       errors: [
         {
-          message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
-          line: 7,
-          endLine: 7,
-          column: 13,
-          endColumn: 28,
+          message: JSON.stringify({
+            message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
+            secondaryLocations: [
+              {
+                column: 12,
+                line: 7,
+                endColumn: 27,
+                endLine: 7,
+              },
+            ],
+          }),
+          line: 5,
+          endLine: 9,
+          column: 9,
+          endColumn: 10,
         },
       ],
     },
@@ -122,51 +143,81 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
         app.use(h);`,
       errors: [
         {
-          message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
-          line: 5,
-          endLine: 5,
-          column: 28,
-          endColumn: 43,
+          message: JSON.stringify({
+            message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
+            secondaryLocations: [
+              {
+                column: 27,
+                line: 5,
+                endColumn: 42,
+                endLine: 5,
+              },
+            ],
+          }),
+          line: 6,
+          endLine: 6,
+          column: 9,
+          endColumn: 19,
         },
       ],
     },
     {
       code: `
-      const helmet = require('helmet');
-      module.exports = function (app) {
-        app.use(
-          helmet({
-            expectCt: false, // Noncompliant
-          })
-        );
-      }`,
+        const helmet = require('helmet');
+        module.exports = function (app) {
+          app.use(
+            helmet({
+              expectCt: false, // Noncompliant
+            })
+          );
+        }`,
       errors: [
         {
-          message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
-          line: 6,
-          endLine: 6,
-          column: 13,
-          endColumn: 28,
+          message: JSON.stringify({
+            message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
+            secondaryLocations: [
+              {
+                column: 14,
+                line: 6,
+                endColumn: 29,
+                endLine: 6,
+              },
+            ],
+          }),
+          line: 4,
+          endLine: 8,
+          column: 11,
+          endColumn: 12,
         },
       ],
     },
     {
       code: `
-      const helmet = require('helmet');
-      module.exports.sensitiveExpectCt = function (app) {
-        app.use(
-          helmet({
-            expectCt: false, // Noncompliant
-          })
-        );
-      }`,
+        const helmet = require('helmet');
+        module.exports.sensitiveExpectCt = function (app) {
+          app.use(
+            helmet({
+              expectCt: false, // Noncompliant
+            })
+          );
+        }`,
       errors: [
         {
-          message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
-          line: 6,
-          endLine: 6,
-          column: 13,
-          endColumn: 28,
+          message: JSON.stringify({
+            message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
+            secondaryLocations: [
+              {
+                column: 14,
+                line: 6,
+                endColumn: 29,
+                endLine: 6,
+              },
+            ],
+          }),
+          line: 4,
+          endLine: 8,
+          column: 11,
+          endColumn: 12,
         },
       ],
     },
