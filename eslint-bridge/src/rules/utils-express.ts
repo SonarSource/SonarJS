@@ -82,6 +82,24 @@ export namespace Express {
     return false;
   }
 
+  /**
+   * Rule factory for detecting sensitive settings that are passed to
+   * middlewares eventually used by Express.js applications:
+   *
+   * app.use(
+   *   middleware(settings)
+   * )
+   *
+   * or
+   *
+   * app.use(
+   *   middleware.method(settings)
+   * )
+   *
+   * @param sensitivePropertyFinder - a function looking for a sensitive setting on a middleware call
+   * @param message - the reported message when an issue is raised
+   * @returns a rule module that raises issues when a sensitive property is found
+   */
   export function SensitiveMiddlewarePropertyRule(
     sensitivePropertyFinder: (
       context: Rule.RuleContext,
