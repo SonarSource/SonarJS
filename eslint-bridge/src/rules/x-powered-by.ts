@@ -27,7 +27,7 @@ import { Express } from './utils-express';
 const HELMET = 'helmet';
 const HIDE_POWERED_BY = 'hide-powered-by';
 const HEADER_X_POWERED_BY = 'X-Powered-By'.toLowerCase();
-const MESSAGE = 'Disable the fingerprinting of this web technology.';
+const MESSAGE = 'Make sure disclosing the fingerprinting of this web technology is safe here.';
 const PROTECTING_MIDDLEWARES = [HELMET, HIDE_POWERED_BY];
 /** Expected number of arguments in `app.set`. */
 const APP_SET_NUM_ARGS = 2;
