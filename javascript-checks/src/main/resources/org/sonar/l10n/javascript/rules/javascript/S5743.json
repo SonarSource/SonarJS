@@ -1,0 +1,27 @@
+{
+  "title": "Allowing browsers to perform DNS prefetching  is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "privacy",
+    "express.js",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5743",
+  "sqKey": "S5743",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A3"
+    ]
+  }
+}
