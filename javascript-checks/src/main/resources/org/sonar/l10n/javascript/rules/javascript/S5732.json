@@ -1,0 +1,30 @@
+{
+  "title": "Disabling content security policy frame-ancestors directive is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "60min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a6",
+    "express.js"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5732",
+  "sqKey": "S5732",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      451
+    ],
+    "OWASP": [
+      "A6"
+    ]
+  }
+}
