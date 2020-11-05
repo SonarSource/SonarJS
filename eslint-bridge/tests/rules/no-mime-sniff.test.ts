@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from 'rules/certificate-transparency';
+import { rule } from 'rules/no-mime-sniff';
 import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-ruleTester.run('Disabling Certificate Transparency monitoring is security-sensitive', rule, {
+ruleTester.run('Allowing browsers to sniff MIME types is security-sensitive', rule, {
   valid: [
     {
       code: `
@@ -50,7 +50,7 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
-        const h = helmet({ expectCt: true });
+        const h = helmet({ noSniff: true });
         app.use(h);`,
     },
     {
@@ -60,7 +60,7 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
         const app = express();
         app.use(
           helmet({
-            expectCt: true,
+            noSniff: true,
           })
         );`,
     },
@@ -70,7 +70,7 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
         module.exports = function (app) {
           app.use(
             helmet({
-              expectCt: true,
+              noSniff: true,
             })
           );
         }`,
@@ -78,10 +78,32 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
     {
       code: `
         const helmet = require('helmet');
-        module.exports = function (foo) {
+        whatever = function (app) { // Not module.exports
           app.use(
             helmet({
-              expectCt: false,
+              noSniff: false,
+            })
+          );
+        }`,
+    },
+    {
+      code: `
+        const helmet = require('helmet');
+        module.exports = function (foo) { // Not app
+          foo.use(
+            helmet({
+              noSniff: false,
+            })
+          );
+        }`,
+    },
+    {
+      code: `
+        const helmet = require('helmet');
+        function foo(app) { // Not exported
+          app.use(
+            helmet({
+              noSniff: false,
             })
           );
         }`,
@@ -92,7 +114,7 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
         const app = express();
         app.use(
           unknown({
-            expectCt: false,
+            noSniff: false,
           })
         );`,
     },
@@ -111,18 +133,18 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
         const app = express();
         app.use(
           helmet({
-            expectCt: false, // Noncompliant
+            noSniff: false, // Noncompliant
           })
         );`,
       errors: [
         {
           message: JSON.stringify({
-            message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
+            message: `Make sure allowing browsers to sniff MIME types is safe here.`,
             secondaryLocations: [
               {
                 column: 12,
                 line: 7,
-                endColumn: 27,
+                endColumn: 26,
                 endLine: 7,
               },
             ],
@@ -139,17 +161,17 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
         const helmet = require('helmet');
         const express = require('express');
         const app = express();
-        const h = helmet({ expectCt: false }); // Noncompliant
+        const h = helmet({ noSniff: false }); // Noncompliant
         app.use(h);`,
       errors: [
         {
           message: JSON.stringify({
-            message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
+            message: `Make sure allowing browsers to sniff MIME types is safe here.`,
             secondaryLocations: [
               {
                 column: 27,
                 line: 5,
-                endColumn: 42,
+                endColumn: 41,
                 endLine: 5,
               },
             ],
@@ -167,19 +189,19 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
         module.exports = function (app) {
           app.use(
             helmet({
-              expectCt: false, // Noncompliant
+              noSniff: false, // Noncompliant
             })
           );
         }`,
       errors: [
         {
           message: JSON.stringify({
-            message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
+            message: `Make sure allowing browsers to sniff MIME types is safe here.`,
             secondaryLocations: [
               {
                 column: 14,
                 line: 6,
-                endColumn: 29,
+                endColumn: 28,
                 endLine: 6,
               },
             ],
@@ -194,22 +216,22 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
     {
       code: `
         const helmet = require('helmet');
-        module.exports.sensitiveExpectCt = function (app) {
+        module.exports.sensitiveNoSniff = function (app) {
           app.use(
             helmet({
-              expectCt: false, // Noncompliant
+              noSniff: false, // Noncompliant
             })
           );
         }`,
       errors: [
         {
           message: JSON.stringify({
-            message: `Make sure disabling Certificate Transparency monitoring is safe here.`,
+            message: `Make sure allowing browsers to sniff MIME types is safe here.`,
             secondaryLocations: [
               {
                 column: 14,
                 line: 6,
-                endColumn: 29,
+                endColumn: 28,
                 endLine: 6,
               },
             ],
