@@ -32,10 +32,6 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
         secrets: ["([0-9]{4}-?)+"]
       };
       const logger = new Signale(options); // Compliant
-      const CREDIT_CARD_NUMBERS = ["1234-5678-0000-9999", "1234-5678-0000-8888"];
-      CREDIT_CARD_NUMBERS.forEach(function(CREDIT_CARD_NUMBER) {
-        logger.log('The customer ordered products with the credit card number = %s', CREDIT_CARD_NUMBER);
-      });
             `,
     },
     {
@@ -86,24 +82,20 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
     {
       code: `
       const signale = require('signale');
-      const CREDIT_CARD_NUMBERS = ["1234-5678-0000-9999", "1234-5678-0000-8888"];
       const options = {
         secrets: []
       };
       const logger = new signale.Signale(options); // Sensitive
-      CREDIT_CARD_NUMBERS.forEach(function(CREDIT_CARD_NUMBER) {
-        logger.log('The customer ordered products with the credit card number = %s', CREDIT_CARD_NUMBER);
-      });
             `,
       errors: [
         {
-          line: 7,
-          endLine: 7,
+          line: 6,
+          endLine: 6,
           column: 26,
           endColumn: 41,
           message: JSON.stringify({
             message: 'Make sure confidential information is not logged here.',
-            secondaryLocations: [{ column: 8, line: 5, endColumn: 19, endLine: 5 }],
+            secondaryLocations: [{ column: 8, line: 4, endColumn: 19, endLine: 4 }],
           }),
         },
       ],
@@ -153,16 +145,12 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
     {
       code: `
       const signale = require('signale');
-      const CREDIT_CARD_NUMBERS = ["1234-5678-0000-9999", "1234-5678-0000-8888"];
       const logger = new signale.Signale(); // Sensitive
-      CREDIT_CARD_NUMBERS.forEach(function(CREDIT_CARD_NUMBER) {
-        logger.log('The customer ordered products with the credit card number = %s', CREDIT_CARD_NUMBER);
-      });
             `,
       errors: [
         {
-          line: 4,
-          endLine: 4,
+          line: 3,
+          endLine: 3,
           column: 26,
           endColumn: 41,
           message: 'Make sure confidential information is not logged here.',
