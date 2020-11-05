@@ -27,10 +27,10 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S5734")
-public class NoSniffCheck implements EslintBasedCheck {
+public class NoMimeSniffCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-sniff";
+    return "no-mime-sniff";
   }
 }
