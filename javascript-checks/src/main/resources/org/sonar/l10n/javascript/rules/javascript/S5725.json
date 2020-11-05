@@ -1,0 +1,29 @@
+{
+  "title": "Disabling resource integrity features is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "owasp-a6"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5725",
+  "sqKey": "S5725",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "All",
+  "securityStandards": {
+    "CWE": [
+      353
+    ],
+    "OWASP": [
+      "A6"
+    ]
+  }
+}

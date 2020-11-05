@@ -115,6 +115,7 @@ public final class CheckList {
       DestructuringAssignmentSyntaxCheck.class,
       DifferentTypesComparisonCheck.class,
       DisabledAutoEscapingCheck.class,
+      DisabledResourceIntegrityCheck.class,
       DnsPrefetchingCheck.class,
       DuplicateAllBranchImplementationCheck.class,
       DuplicateBranchImplementationCheck.class,
