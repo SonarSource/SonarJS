@@ -1,0 +1,26 @@
+{
+  "title": "Allowing mixed-content is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "60min"
+  },
+  "tags": [
+    "express.js",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5730",
+  "sqKey": "S5730",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A3"
+    ]
+  }
+}

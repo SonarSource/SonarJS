@@ -216,6 +216,7 @@ public final class CheckList {
       NonEmptyCaseWithoutBreakCheck.class,
       NonExistentAssignmentOperatorCheck.class,
       NoMisusedNewCheck.class,
+      NoMixedContentCheck.class,
       NonNumberInArithmeticExpressionCheck.class,
       NonStandardImportCheck.class,
       NoInMisuseCheck.class,
