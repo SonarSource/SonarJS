@@ -39,7 +39,8 @@ export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
 function findDirectiveWithMissingMixedContentPropertyFromHelmet(
   context: Rule.RuleContext,
   node: estree.CallExpression,
-): estree.Property | undefined {
+): estree.Property[] {
+  let sensitive: estree.Property | undefined;
   const { arguments: args } = node;
   if (args.length === 1) {
     const [options] = args;
@@ -49,10 +50,10 @@ function findDirectiveWithMissingMixedContentPropertyFromHelmet(
       isMissingMixedContentProperty(maybeDirective) &&
       isValidHelmetModuleCall(context, node)
     ) {
-      return maybeDirective;
+      sensitive = maybeDirective;
     }
   }
-  return undefined;
+  return sensitive ? [sensitive] : [];
 }
 
 function isValidHelmetModuleCall(context: Rule.RuleContext, callExpr: estree.CallExpression) {
