@@ -151,7 +151,7 @@ ruleTester.run(
       `,
         errors: [
           {
-            message: 'Disable the fingerprinting of this web technology.',
+            message: 'Make sure disclosing the fingerprinting of this web technology is safe here.',
             line: 3,
             endLine: 3,
             column: 15,
@@ -166,7 +166,7 @@ ruleTester.run(
       `,
         errors: [
           {
-            message: 'Disable the fingerprinting of this web technology.',
+            message: 'Make sure disclosing the fingerprinting of this web technology is safe here.',
             line: 3,
             endLine: 3,
             column: 15,
@@ -180,7 +180,7 @@ ruleTester.run(
       `,
         errors: [
           {
-            message: 'Disable the fingerprinting of this web technology.',
+            message: 'Make sure disclosing the fingerprinting of this web technology is safe here.',
             line: 2,
             endLine: 2,
             column: 15,

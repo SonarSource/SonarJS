@@ -1,11 +1,19 @@
-<p>The retrieval of technology fingerprints allows an attacker to gather information about the technologies used to develop the web application and to
+<p>Disclosing technology fingerprints allows an attacker to gather information about the technologies used to develop the web application and to
 perform relevant security assessments more quickly (like the identification of known vulnerable components).</p>
-<p>It's recommended to not disclose technologies used on a website, with <code>x-powered-by</code> HTTP header for example.</p>
-<h2>Noncompliant Code Example</h2>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The <code>x-powered-by</code> HTTP header or similar is used by the application. </li>
+  <li> Technologies used by the application are confidential and should not be easily guessed. </li>
+</ul>
+<p>There is a risk if you answered yes to any of these questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>It's recommended to not disclose technologies used on a website, with <code>x-powered-by</code> HTTP header for example. </p>
+<p>In addition, it's better to completely disable this HTTP header rather than setting it a random value.</p>
+<h2>Sensitive Code Example</h2>
 <p><a href="https://www.npmjs.com/package/express">Express.js</a> name is disclosed by default into the <code>x-powered-by</code> HTTP header:</p>
 <pre>
 let express = require('express');
-let app = express(); // Noncompliant
+let app = express(); // Sensitive
 
 app.get('/', function (req, res) {
   res.send('hello')
