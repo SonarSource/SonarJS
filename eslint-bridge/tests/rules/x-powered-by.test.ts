@@ -150,7 +150,7 @@ ruleTester.run(
             return appEscaping;
           };
         `,
-      }
+      },
     ],
     invalid: [
       {
