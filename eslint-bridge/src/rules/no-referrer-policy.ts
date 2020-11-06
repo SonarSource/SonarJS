@@ -37,19 +37,17 @@ export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
 function findNoReferrerPolicyPropertyFromHelmet(
   context: Rule.RuleContext,
   node: estree.CallExpression,
-): estree.Property | undefined {
-  const { callee, arguments: args } = node;
+): estree.Property[] {
+  let sensitive: estree.Property | undefined;
 
+  const { callee, arguments: args } = node;
   if (args.length === 1) {
     const [options] = args;
 
-    /* helmet({ referrerPolicy: false }) */
+    /* helmet({ referrerPolicy: false }) or helmet.referrerPolicy({ policy: <unsafe_value> }) */
     if (isHelmetModuleNode(context, callee) && options.type === 'ObjectExpression') {
-      return getPropertyWithValue(context, options, REFERRER_POLICY, false);
-    }
-
-    /* helmet.referrerPolicy({ policy: <unsafe_value> })  */
-    if (callee.type === 'MemberExpression') {
+      sensitive = getPropertyWithValue(context, options, REFERRER_POLICY, false);
+    } else if (callee.type === 'MemberExpression') {
       const { object, property } = callee;
       if (
         isHelmetModuleNode(context, object) &&
@@ -58,13 +56,13 @@ function findNoReferrerPolicyPropertyFromHelmet(
       ) {
         const maybePolicy = getObjectExpressionProperty(options, POLICY);
         if (maybePolicy && !isSafePolicy(maybePolicy)) {
-          return maybePolicy;
+          sensitive = maybePolicy;
         }
       }
     }
   }
 
-  return undefined;
+  return sensitive ? [sensitive] : [];
 }
 
 function isHelmetModuleNode(context: Rule.RuleContext, node: estree.Node): boolean {

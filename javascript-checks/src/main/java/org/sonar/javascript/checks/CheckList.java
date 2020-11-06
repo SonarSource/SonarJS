@@ -274,6 +274,7 @@ public final class CheckList {
       SqlQueriesCheck.class,
       StandardInputCheck.class,
       StrictModeCheck.class,
+      StrictTransportSecurityCheck.class,
       StringConcatenatedWithNonStringCheck.class,
       StringConcatenationCheck.class,
       StringLiteralsQuotesCheck.class,

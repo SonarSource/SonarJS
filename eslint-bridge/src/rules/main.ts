@@ -149,6 +149,7 @@ import { rule as sonarMaxLinesPerFunction } from './sonar-max-lines-per-function
 import { rule as sonarMaxLines } from './sonar-max-lines';
 import { rule as sqlQueries } from './sql-queries';
 import { rule as standardInput } from './standard-input';
+import { rule as strictTransportSecurity } from './strict-transport-security';
 import { rule as stringsComparison } from './strings-comparison';
 import { rule as switchWithoutDefault } from './switch-without-default';
 import { rule as todoTag } from './todo-tag';
@@ -301,6 +302,7 @@ ruleModules['sonar-max-lines-per-function'] = sonarMaxLinesPerFunction;
 ruleModules['sonar-max-lines'] = sonarMaxLines;
 ruleModules['sql-queries'] = sqlQueries;
 ruleModules['standard-input'] = standardInput;
+ruleModules['strict-transport-security'] = strictTransportSecurity;
 ruleModules['strings-comparison'] = stringsComparison;
 ruleModules['switch-without-default'] = switchWithoutDefault;
 ruleModules['todo-tag'] = todoTag;

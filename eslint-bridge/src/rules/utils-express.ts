@@ -137,32 +137,32 @@ export namespace Express {
     sensitivePropertyFinder: (
       context: Rule.RuleContext,
       middlewareCall: estree.CallExpression,
-    ) => estree.Property | undefined,
+    ) => estree.Property[],
     message: string,
   ): Rule.RuleModule {
     return {
       create(context: Rule.RuleContext) {
         let app: estree.Identifier | null;
         let callExpr: estree.CallExpression | null;
-        let sensitiveProperty: estree.Property | undefined;
+        let sensitiveProperties: estree.Property[];
         let isSafe: boolean;
 
         function isExposing(middlewareNode: estree.Node): boolean {
-          return Boolean((sensitiveProperty = findSensitiveProperty(middlewareNode)));
+          return Boolean(sensitiveProperties.push(...findSensitiveProperty(middlewareNode)));
         }
 
-        function findSensitiveProperty(middlewareNode: estree.Node): estree.Property | undefined {
+        function findSensitiveProperty(middlewareNode: estree.Node): estree.Property[] {
           if (middlewareNode.type === 'CallExpression') {
             return sensitivePropertyFinder(context, middlewareNode);
           }
-          return undefined;
+          return [];
         }
 
         return {
           Program: () => {
             app = null;
             callExpr = null;
-            sensitiveProperty = undefined;
+            sensitiveProperties = [];
             isSafe = true;
           },
           CallExpression: (node: estree.Node) => {
@@ -190,11 +190,13 @@ export namespace Express {
             }
           },
           'Program:exit': () => {
-            if (!isSafe && sensitiveProperty && callExpr) {
-              context.report({
-                node: callExpr,
-                message: toEncodedMessage(message, [sensitiveProperty]),
-              });
+            if (!isSafe && callExpr) {
+              for (const sensitive of sensitiveProperties) {
+                context.report({
+                  node: callExpr,
+                  message: toEncodedMessage(message, [sensitive]),
+                });
+              }
             }
           },
         };

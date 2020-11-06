@@ -39,7 +39,8 @@ export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
 function findFalseCertificateTransparencyPropertyFromHelmet(
   context: Rule.RuleContext,
   node: estree.CallExpression,
-): estree.Property | undefined {
+): estree.Property[] {
+  let sensitive: estree.Property | undefined;
   const { callee, arguments: args } = node;
   if (
     callee.type === 'Identifier' &&
@@ -47,7 +48,7 @@ function findFalseCertificateTransparencyPropertyFromHelmet(
     args.length === 1 &&
     args[0].type === 'ObjectExpression'
   ) {
-    return getPropertyWithValue(context, args[0], EXPECT_CERTIFICATE_TRANSPARENCY, false);
+    sensitive = getPropertyWithValue(context, args[0], EXPECT_CERTIFICATE_TRANSPARENCY, false);
   }
-  return undefined;
+  return sensitive ? [sensitive] : [];
 }
