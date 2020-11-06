@@ -142,6 +142,15 @@ ruleTester.run(
           apps[42] = require('express')(); // Limitation: we don't keep track of 'app' here.
         `,
       },
+      {
+        code: `
+          const express = require('express');
+          module.exports.createExpressApp = function() {
+            var appEscaping = express(); // should be compliant, because express object is returned from the function
+            return appEscaping;
+          };
+        `,
+      }
     ],
     invalid: [
       {
