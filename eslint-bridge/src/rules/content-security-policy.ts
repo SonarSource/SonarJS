@@ -39,7 +39,8 @@ export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
 function findFalseContentSecurityPolicyPropertyFromHelmet(
   context: Rule.RuleContext,
   node: estree.CallExpression,
-): estree.Property | undefined {
+): estree.Property[] {
+  let sensitive: estree.Property | undefined;
   const { callee, arguments: args } = node;
   if (
     callee.type === 'Identifier' &&
@@ -47,7 +48,7 @@ function findFalseContentSecurityPolicyPropertyFromHelmet(
     args.length === 1 &&
     args[0].type === 'ObjectExpression'
   ) {
-    return getPropertyWithValue(context, args[0], CONTENT_SECURITY_POLICY, false);
+    sensitive = getPropertyWithValue(context, args[0], CONTENT_SECURITY_POLICY, false);
   }
-  return undefined;
+  return sensitive ? [sensitive] : [];
 }
