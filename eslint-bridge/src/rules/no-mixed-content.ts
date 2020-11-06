@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getModuleNameOfNode, getObjectExpressionProperty } from './utils';
+import { getModuleNameOfNode, getObjectExpressionProperty, isCallToFQN } from './utils';
 import { Express } from './utils-express';
 
 const HELMET = 'helmet';
@@ -64,16 +64,7 @@ function isValidHelmetModuleCall(context: Rule.RuleContext, callExpr: estree.Cal
   }
 
   /* helmet.contentSecurityPolicy(options) */
-  if (
-    callee.type === 'MemberExpression' &&
-    getModuleNameOfNode(context, callee.object)?.value === HELMET &&
-    callee.property.type === 'Identifier' &&
-    callee.property.name === CONTENT_SECURITY_POLICY
-  ) {
-    return true;
-  }
-
-  return false;
+  return isCallToFQN(context, callExpr, HELMET, CONTENT_SECURITY_POLICY);
 }
 
 function isMissingMixedContentProperty(directive: estree.Property): boolean {
