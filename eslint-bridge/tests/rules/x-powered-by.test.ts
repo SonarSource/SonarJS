@@ -142,6 +142,27 @@ ruleTester.run(
           apps[42] = require('express')(); // Limitation: we don't keep track of 'app' here.
         `,
       },
+      {
+        code: `
+          const express = require('express');
+          module.exports.createExpressApp = function() {
+            var appEscaping = express(); // should be compliant, because express object is returned from the function
+            return appEscaping;
+          };
+        `,
+      },
+      {
+        code: `
+          const express = require('express');
+          function f() {
+            return 42; // a return before the application is discovered, for coverage
+          }
+          module.exports.createExpressApp = function() {
+            var appEscaping = express();
+            return appEscaping;
+          };
+        `,
+      },
     ],
     invalid: [
       {
@@ -241,6 +262,16 @@ ruleTester.run(
           horse(),
         ];
         app.use(usefulStuff, securityMiddlewares, something.unknown());
+        `,
+        errors: 1,
+      },
+      {
+        code: `
+          const express = require('express');
+          module.exports.createExpressApp = function() {
+            var appEscaping = express();
+            return appEscaping.someSubproperty; // that's not sufficient, does not count as escaped app.
+          };
         `,
         errors: 1,
       },

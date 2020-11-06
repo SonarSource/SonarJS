@@ -60,6 +60,12 @@ export const rule: Rule.RuleModule = {
           }
         }
       },
+      ReturnStatement: (node: estree.Node) => {
+        if (!isSafe && appInstantiation) {
+          const ret = node as estree.ReturnStatement;
+          isSafe = isAppEscapingThroughReturn(ret, appInstantiation);
+        }
+      },
       'Program:exit'() {
         if (!isSafe && appInstantiation) {
           context.report({
@@ -125,4 +131,9 @@ function isAppEscaping(callExpr: estree.CallExpression, app: estree.Identifier):
   return Boolean(
     callExpr.arguments.find(arg => arg.type === 'Identifier' && arg.name === app.name),
   );
+}
+
+function isAppEscapingThroughReturn(ret: estree.ReturnStatement, app: estree.Identifier): boolean {
+  const arg = ret.argument;
+  return Boolean(arg && arg.type === 'Identifier' && arg.name === app.name);
 }
