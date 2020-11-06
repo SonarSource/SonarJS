@@ -191,10 +191,10 @@ export namespace Express {
           },
           'Program:exit': () => {
             if (!isSafe && callExpr) {
-              for (const senstive of sensitiveProperties) {
+              for (const sensitive of sensitiveProperties) {
                 context.report({
                   node: callExpr,
-                  message: toEncodedMessage(message, [senstive]),
+                  message: toEncodedMessage(message, [sensitive]),
                 });
               }
             }
