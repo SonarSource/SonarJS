@@ -92,6 +92,7 @@ public final class CheckList {
       ConditionalCommentCheck.class,
       ConditionalIndentationCheck.class,
       ConditionalOperatorCheck.class,
+      ConfidentialInformationLoggingCheck.class,
       ConsoleLoggingCheck.class,
       ConstructorFunctionsForSideEffectsCheck.class,
       ConstructorSuperCheck.class,

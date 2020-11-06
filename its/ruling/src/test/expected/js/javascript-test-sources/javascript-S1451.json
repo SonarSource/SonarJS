@@ -4418,6 +4418,9 @@
 'javascript-test-sources:src/file-for-rules/S5743.js':[
 0,
 ],
+'javascript-test-sources:src/file-for-rules/S5757.js':[
+0,
+],
 'javascript-test-sources:src/file-for-rules/boundOrAssignedEvalOrArguments.js':[
 0,
 ],
