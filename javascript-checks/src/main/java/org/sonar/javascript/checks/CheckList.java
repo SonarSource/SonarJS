@@ -224,6 +224,7 @@ public final class CheckList {
       NoNonNullAssertionCheck.class,
       NoNestedTemplateLiteralsCheck.class,
       NoRedundantOptionalCheck.class,
+      NoReferrerPolicyCheck.class,
       NoReturnAwaitCheck.class,
       NoReturnTypeAnyCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
