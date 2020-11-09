@@ -26,29 +26,29 @@ import { Express } from './utils-express';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
-const DIRECTIVE = 'directives';
+const DIRECTIVES = 'directives';
 const NONE = "'none'";
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
 const FRAME_ANCESTORS_CAMEL = 'frameAncestors';
 const FRAME_ANCESTORS_HYPHEN = 'frame-ancestors';
 
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
-  findDirectiveWithSensitiveFrameAncestorsPropertyFromHelmet,
+  findDirectivesWithSensitiveFrameAncestorsPropertyFromHelmet,
   `Make sure disabling content security policy frame-ancestors directive is safe here.`,
 );
 
-function findDirectiveWithSensitiveFrameAncestorsPropertyFromHelmet(
+function findDirectivesWithSensitiveFrameAncestorsPropertyFromHelmet(
   context: Rule.RuleContext,
   node: estree.CallExpression,
 ): estree.Property[] {
   const { arguments: args } = node;
   if (isValidHelmetModuleCall(context, node) && args.length === 1) {
     const [options] = args;
-    const maybeDirective = getObjectExpressionProperty(options, DIRECTIVE);
-    if (maybeDirective) {
-      const maybeFrameAncestors = getFrameAncestorsProperty(maybeDirective);
+    const maybeDirectives = getObjectExpressionProperty(options, DIRECTIVES);
+    if (maybeDirectives) {
+      const maybeFrameAncestors = getFrameAncestorsProperty(maybeDirectives);
       if (!maybeFrameAncestors) {
-        return [maybeDirective];
+        return [maybeDirectives];
       }
       if (isSetNoneFrameAncestorsProperty(maybeFrameAncestors)) {
         return [maybeFrameAncestors];
@@ -91,10 +91,10 @@ function isSetNoneFrameAncestorsProperty(frameAncestors: estree.Property): boole
   );
 }
 
-function getFrameAncestorsProperty(directive: estree.Property): estree.Property | undefined {
+function getFrameAncestorsProperty(directives: estree.Property): estree.Property | undefined {
   const propertyKeys = [FRAME_ANCESTORS_CAMEL, FRAME_ANCESTORS_HYPHEN];
   for (const propertyKey of propertyKeys) {
-    const maybeProperty = getObjectExpressionProperty(directive.value, propertyKey);
+    const maybeProperty = getObjectExpressionProperty(directives.value, propertyKey);
     if (maybeProperty) {
       return maybeProperty;
     }
