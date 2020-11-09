@@ -89,6 +89,7 @@ public class JavaScriptRulingTest {
       jsProject("angular.js", "src/ngLocale/**", "i18n/**"),
       jsProject("backbone"),
       jsProject("es5-shim"),
+      jsProject("file-for-rules"),
       jsProject("javascript-test-sources"),
       jsProject("jquery"),
       jsProject("jshint", "dist/**", "tests/regression/**", "tests/test262/**"),
