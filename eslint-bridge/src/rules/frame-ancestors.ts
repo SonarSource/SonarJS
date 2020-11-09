@@ -26,8 +26,8 @@ import { Express } from './utils-express';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
-const DIRECTIVE = 'directive';
-const NONE = 'none';
+const DIRECTIVE = 'directives';
+const NONE = "'none'";
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
 const FRAME_ANCESTORS_CAMEL = 'frameAncestors';
 const FRAME_ANCESTORS_HYPHEN = 'frame-ancestors';

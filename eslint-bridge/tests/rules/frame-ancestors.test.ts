@@ -42,7 +42,7 @@ ruleTester.run(
         const app = express();
         app.use(
           csp({
-            directive: {
+            directives: {
               "frame-ancestors": ["example.com"]
             }
           })
@@ -55,7 +55,7 @@ ruleTester.run(
         const app = express();
         app.use(
           csp({
-            directive: {
+            directives: {
               frameAncestors: ["example.com"]
             }
           })
@@ -86,7 +86,7 @@ ruleTester.run(
         const app = express();
         app.use(
           helmet.contentSecurityPolicy({
-            directive: {
+            directives: {
               "frame-ancestors": ["example.com"]
             }
           })
@@ -99,7 +99,7 @@ ruleTester.run(
         const app = express();
         app.use(
           helmet.contentSecurityPolicy({
-            directive: {
+            directives: {
               frameAncestors: ["example.com"]
             }
           })
@@ -111,7 +111,7 @@ ruleTester.run(
         const app = express();
         app.use(
           whatever({
-            directive: {
+            directives: {
               defaultSrc: ["'self'", 'example.com', 'code.jquery.com'],
             }
           })
@@ -123,7 +123,7 @@ ruleTester.run(
         const app = express();
         app.use(
           unknown.whatever({
-            directive: {
+            directives: {
               defaultSrc: ["'self'", 'example.com', 'code.jquery.com'],
             }
           })
@@ -138,7 +138,7 @@ ruleTester.run(
         const app = express();
         app.use(
           csp({
-            directive: {},
+            directives: {},
           })
         );`,
         errors: [
@@ -149,7 +149,7 @@ ruleTester.run(
                 {
                   column: 12,
                   line: 7,
-                  endColumn: 25,
+                  endColumn: 26,
                   endLine: 7,
                 },
               ],
@@ -168,8 +168,8 @@ ruleTester.run(
         const app = express();
         app.use(
           csp({
-            directive: {
-              frameAncestors: ['none']
+            directives: {
+              frameAncestors: ["'none'"]
             },
           })
         );`,
@@ -181,7 +181,7 @@ ruleTester.run(
                 {
                   column: 14,
                   line: 8,
-                  endColumn: 38,
+                  endColumn: 40,
                   endLine: 8,
                 },
               ],
@@ -200,7 +200,7 @@ ruleTester.run(
         const app = express();
         app.use(
           helmet.contentSecurityPolicy({
-            directive: {}
+            directives: {}
           })
         );`,
         errors: 1,
@@ -212,8 +212,8 @@ ruleTester.run(
         const app = express();
         app.use(
           helmet.contentSecurityPolicy({
-            directive: {
-              "frame-ancestors": ['none']
+            directives: {
+              "frame-ancestors": ["'none'"]
             }
           })
         );`,
@@ -226,8 +226,8 @@ ruleTester.run(
         const app = express();
         app.use(
           helmet.contentSecurityPolicy({
-            directive: {
-              frameAncestors: ['none']
+            directives: {
+              frameAncestors: ["'none'"]
             }
           })
         );`,
