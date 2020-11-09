@@ -30,7 +30,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
         const app = express();
         app.use(
           csp({
-            directive: {
+            directives: {
               "block-all-mixed-content": []
             }
           })
@@ -43,7 +43,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
         const app = express();
         app.use(
           csp({
-            directive: {
+            directives: {
               blockAllMixedContent: []
             }
           })
@@ -74,7 +74,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
         const app = express();
         app.use(
           helmet.contentSecurityPolicy({
-            directive: {
+            directives: {
               "block-all-mixed-content": []
             }
           })
@@ -87,7 +87,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
         const app = express();
         app.use(
           helmet.contentSecurityPolicy({
-            directive: {
+            directives: {
               blockAllMixedContent: []
             }
           })
@@ -99,7 +99,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
         const app = express();
         app.use(
           whatever({
-            directive: {
+            directives: {
               defaultSrc: ["'self'", 'example.com', 'code.jquery.com'],
             }
           })
@@ -111,7 +111,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
         const app = express();
         app.use(
           unknown.whatever({
-            directive: {
+            directives: {
               defaultSrc: ["'self'", 'example.com', 'code.jquery.com'],
             }
           })
@@ -126,7 +126,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
         const app = express();
         app.use(
           csp({
-            directive: {},
+            directives: {},
           })
         );`,
       errors: [
@@ -137,7 +137,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
               {
                 column: 12,
                 line: 7,
-                endColumn: 25,
+                endColumn: 26,
                 endLine: 7,
               },
             ],
@@ -156,7 +156,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
         const app = express();
         app.use(
           csp({
-            directive: {
+            directives: {
               defaultSrc: ["'self'", 'example.com', 'code.jquery.com'],
             }
           })
@@ -170,7 +170,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
         const app = express();
         app.use(
           helmet.contentSecurityPolicy({
-            directive: {}
+            directives: {}
           })
         );`,
       errors: 1,
@@ -182,7 +182,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
         const app = express();
         app.use(
           helmet.contentSecurityPolicy({
-            directive: {
+            directives: {
               defaultSrc: ["'self'", 'example.com', 'code.jquery.com'],
             }
           })
