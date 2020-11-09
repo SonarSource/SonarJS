@@ -32,7 +32,7 @@ ruleTester.run(
         const express = require('express');
         const app = express();
         app.use(
-          csp({})
+          csp({}) // frame-ancestors set to 'self' if no directives are supplied
         );`,
       },
       {
