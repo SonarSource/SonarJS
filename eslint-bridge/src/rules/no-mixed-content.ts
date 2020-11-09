@@ -26,17 +26,17 @@ import { Express } from './utils-express';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
-const DIRECTIVE = 'directive';
+const DIRECTIVES = 'directives';
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
 const BLOCK_ALL_MIXED_CONTENT_CAMEL = 'blockAllMixedContent';
 const BLOCK_ALL_MIXED_CONTENT_HYPHEN = 'block-all-mixed-content';
 
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
-  findDirectiveWithMissingMixedContentPropertyFromHelmet,
+  findDirectivesWithMissingMixedContentPropertyFromHelmet,
   `Make sure allowing mixed-content is safe here.`,
 );
 
-function findDirectiveWithMissingMixedContentPropertyFromHelmet(
+function findDirectivesWithMissingMixedContentPropertyFromHelmet(
   context: Rule.RuleContext,
   node: estree.CallExpression,
 ): estree.Property[] {
@@ -44,13 +44,13 @@ function findDirectiveWithMissingMixedContentPropertyFromHelmet(
   const { arguments: args } = node;
   if (args.length === 1) {
     const [options] = args;
-    const maybeDirective = getObjectExpressionProperty(options, DIRECTIVE);
+    const maybeDirectives = getObjectExpressionProperty(options, DIRECTIVES);
     if (
-      maybeDirective &&
-      isMissingMixedContentProperty(maybeDirective) &&
+      maybeDirectives &&
+      isMissingMixedContentProperty(maybeDirectives) &&
       isValidHelmetModuleCall(context, node)
     ) {
-      sensitive = maybeDirective;
+      sensitive = maybeDirectives;
     }
   }
   return sensitive ? [sensitive] : [];
@@ -68,9 +68,9 @@ function isValidHelmetModuleCall(context: Rule.RuleContext, callExpr: estree.Cal
   return isCallToFQN(context, callExpr, HELMET, CONTENT_SECURITY_POLICY);
 }
 
-function isMissingMixedContentProperty(directive: estree.Property): boolean {
+function isMissingMixedContentProperty(directives: estree.Property): boolean {
   return !(
-    Boolean(getObjectExpressionProperty(directive.value, BLOCK_ALL_MIXED_CONTENT_CAMEL)) ||
-    Boolean(getObjectExpressionProperty(directive.value, BLOCK_ALL_MIXED_CONTENT_HYPHEN))
+    Boolean(getObjectExpressionProperty(directives.value, BLOCK_ALL_MIXED_CONTENT_CAMEL)) ||
+    Boolean(getObjectExpressionProperty(directives.value, BLOCK_ALL_MIXED_CONTENT_HYPHEN))
   );
 }
