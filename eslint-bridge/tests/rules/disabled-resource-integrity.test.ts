@@ -19,10 +19,26 @@
  */
 import { rule } from 'rules/disabled-resource-integrity';
 import { RuleTester } from 'eslint';
+import { RuleTesterTs } from '../RuleTesterTs';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterTs = new RuleTesterTs();
 
-ruleTester.run('Disabling resource integrity features is security-sensitive', rule, {
+ruleTesterJs.run('No issues without types', rule, {
+  valid: [
+    {
+      code: `
+      var script = document.createElement("script");
+      script.src = "https://code.jquery.com/jquery-3.4.1.min.js"; // Sensitive
+      script.crossOrigin = "anonymous";
+      document.head.appendChild(script);
+            `,
+    },
+  ],
+  invalid: [],
+});
+
+ruleTesterTs.run('Disabling resource integrity features is security-sensitive', rule, {
   valid: [
     {
       code: `
@@ -96,6 +112,14 @@ ruleTester.run('Disabling resource integrity features is security-sensitive', ru
     },
     {
       code: `
+      var script = document.createElement("other");
+      script.src = "https://code.jquery.com/jquery-3.4.1.min.js";
+      script.crossOrigin = "anonymous";
+      document.head.appendChild(script);
+            `,
+    },
+    {
+      code: `
         if (cond) {
           var script = document.createElement( "script" );
           script.src = "https://code.jquery.com/jquery-3.4.1.min.js"; // FN (missing variable)
@@ -120,6 +144,15 @@ ruleTester.run('Disabling resource integrity features is security-sensitive', ru
           message: 'Make sure not using resource integrity feature is safe here.',
         },
       ],
+    },
+    {
+      code: `
+      var script = document.createElement("script");
+      script.src = "//code.jquery.com/jquery-3.4.1.min.js"; // Sensitive
+      script.crossOrigin = "anonymous";
+      document.head.appendChild(script);
+            `,
+      errors: 1,
     },
   ],
 });

@@ -22,11 +22,16 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isIdentifier } from './utils';
+import { isIdentifier, getTypeAsString } from './utils';
 import { Variable } from 'eslint-scope';
+import { isRequiredParserServices } from '../utils/isRequiredParserServices';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    const services = context.parserServices;
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
     function shouldReport(assignedVariable: Variable) {
       let nbSrcAssignment = 0;
       let hasUnsafeSrcAssignment = false;
@@ -78,7 +83,7 @@ export const rule: Rule.RuleModule = {
       if (right.type !== 'Literal') {
         return false;
       }
-      return !!right.raw && !!right.raw.match('^"http');
+      return !!right.raw && (!!right.raw.match('^"http') || !!right.raw.match('^"//'));
     }
 
     return {
@@ -93,9 +98,11 @@ export const rule: Rule.RuleModule = {
         if (callee.type !== 'MemberExpression') {
           return;
         }
+        const typeName = getTypeAsString(left, services);
         if (
           !isIdentifier(callee.object, 'document') ||
-          !isIdentifier(callee.property, 'createElement')
+          !isIdentifier(callee.property, 'createElement') ||
+          typeName !== 'HTMLScriptElement'
         ) {
           return;
         }
