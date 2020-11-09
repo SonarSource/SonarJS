@@ -3504,16 +3504,4 @@
 864,
 882,
 ],
-'javascript-test-sources:src/file-for-rules/FutureReservedWords.js':[
-11,
-],
-'javascript-test-sources:src/file-for-rules/S2251.js':[
-1,
-],
-'javascript-test-sources:src/file-for-rules/S2432.js':[
-4,
-],
-'javascript-test-sources:src/file-for-rules/S3500.js':[
-2,
-],
 }

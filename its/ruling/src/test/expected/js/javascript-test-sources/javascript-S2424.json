@@ -338,7 +338,4 @@
 'javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
 73,
 ],
-'javascript-test-sources:src/file-for-rules/boundOrAssignedEvalOrArguments.js':[
-12,
-],
 }
