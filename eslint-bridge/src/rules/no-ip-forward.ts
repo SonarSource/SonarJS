@@ -31,6 +31,14 @@ import {
 } from './utils';
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ['sonar-runtime'],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.Node) {
@@ -38,12 +46,15 @@ export const rule: Rule.RuleModule = {
         const { callee, arguments: args } = call;
         if (isSensitiveFQN(context, call) && args.length > 0) {
           const xfwdProp = getObjectExpressionProperty(args[0], 'xfwd');
-          const xfwdValue = getValueOfExpression(context, xfwdProp?.value, 'Literal');
+          if (!xfwdProp) {
+            return;
+          }
+          const xfwdValue = getValueOfExpression(context, xfwdProp.value, 'Literal');
           if (xfwdValue?.value === true) {
             context.report({
               node: callee,
               message: toEncodedMessage('Make sure forwarding client IP address is safe here.', [
-                xfwdProp!,
+                xfwdProp,
               ]),
             });
           }
