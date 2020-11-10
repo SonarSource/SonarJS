@@ -160,7 +160,6 @@ public final class CheckList {
       HashingCheck.class,
       XPoweredByCheck.class,
       HiddenFilesCheck.class,
-      HtmlCommentsCheck.class,
       IdChildrenSelectorCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
       IdenticalFunctionsCheck.class,
