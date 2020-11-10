@@ -31,6 +31,10 @@
 3,
 8,
 ],
+'jshint:tests/unit/fixtures/es6-import-export.js':[
+70,
+71,
+],
 'jshint:tests/unit/objrestspread.js':[
 94,
 ],

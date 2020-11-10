@@ -134,6 +134,9 @@
 'javascript-test-sources:src/ecmascript6/reddit-mobile/test/helpers/buildProps.es6.js':[
 17,
 ],
+'javascript-test-sources:src/ecmascript6/reddit-mobile/test/helpers/components.es6.js':[
+109,
+],
 'javascript-test-sources:src/ecmascript6/router/karma.conf.js':[
 34,
 ],
@@ -142,6 +145,7 @@
 ],
 'javascript-test-sources:src/ecmascript6/snoode/src/api.es6.js':[
 28,
+33,
 ],
 'javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js':[
 44,
