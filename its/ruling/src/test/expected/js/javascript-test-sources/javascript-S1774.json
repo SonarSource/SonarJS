@@ -483,7 +483,7 @@
 877,
 ],
 'javascript-test-sources:src/ecmascript6/http/test/TestUtils.js':[
-4,
+3,
 ],
 'javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js':[
 14,
@@ -625,8 +625,8 @@
 1236,
 1236,
 1287,
+1381,
 1382,
-1383,
 1418,
 1469,
 1488,
@@ -1136,10 +1136,10 @@
 ],
 'javascript-test-sources:src/ecmascript6/watchtower.js/src/dirty_checking.js':[
 312,
-475,
+474,
 646,
 788,
-933,
+932,
 1052,
 ],
 }

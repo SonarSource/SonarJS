@@ -20,22 +20,19 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1774")
 @DeprecatedRuleKey(ruleKey = "ConditionalOperator")
-public class ConditionalOperatorCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Convert this usage of the ternary operator to an \"if\"/\"else\" structure.";
+public class ConditionalOperatorCheck implements EslintBasedCheck {
 
   @Override
-  public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    addIssue(tree.queryToken(), MESSAGE);
-    super.visitConditionalExpression(tree);
+  public String eslintKey() {
+    return "no-ternary";
   }
-
 }
