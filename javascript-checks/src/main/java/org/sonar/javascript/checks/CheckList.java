@@ -164,7 +164,6 @@ public final class CheckList {
       IdChildrenSelectorCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
       IdenticalFunctionsCheck.class,
-      IfConditionalAlwaysTrueOrFalseCheck.class,
       ImmediatelyReturnedVariableCheck.class,
       ImplicitDependenciesCheck.class,
       InconsistentFunctionCallCheck.class,
