@@ -151,9 +151,7 @@ export namespace Express {
       },
       create(context: Rule.RuleContext) {
         let app: estree.Identifier | null;
-        let callExpr: estree.CallExpression | null;
         let sensitiveProperties: estree.Property[];
-        let isSafe: boolean;
 
         function isExposing(middlewareNode: estree.Node): boolean {
           return Boolean(sensitiveProperties.push(...findSensitiveProperty(middlewareNode)));
@@ -169,18 +167,25 @@ export namespace Express {
         return {
           Program: () => {
             app = null;
-            callExpr = null;
             sensitiveProperties = [];
-            isSafe = true;
           },
           CallExpression: (node: estree.Node) => {
-            if (isSafe && app) {
-              callExpr = node as estree.CallExpression;
-              isSafe = !isUsingMiddleware(context, callExpr, app, isExposing);
+            if (app) {
+              const callExpr = node as estree.CallExpression;
+              const isSafe = !isUsingMiddleware(context, callExpr, app, isExposing);
+              if (!isSafe) {
+                for (const sensitive of sensitiveProperties) {
+                  context.report({
+                    node: callExpr,
+                    message: toEncodedMessage(message, [sensitive]),
+                  });
+                }
+                sensitiveProperties = [];
+              }
             }
           },
           VariableDeclarator: (node: estree.Node) => {
-            if (isSafe && !app) {
+            if (!app) {
               const varDecl = node as estree.VariableDeclarator;
               const instantiatedApp = attemptFindAppInstantiation(varDecl, context);
               if (instantiatedApp) {
@@ -189,21 +194,11 @@ export namespace Express {
             }
           },
           ':function': (node: estree.Node) => {
-            if (isSafe && !app) {
+            if (!app) {
               const functionDef = node as estree.Function;
               const injectedApp = attemptFindAppInjection(functionDef, context);
               if (injectedApp) {
                 app = injectedApp;
-              }
-            }
-          },
-          'Program:exit': () => {
-            if (!isSafe && callExpr) {
-              for (const sensitive of sensitiveProperties) {
-                context.report({
-                  node: callExpr,
-                  message: toEncodedMessage(message, [sensitive]),
-                });
               }
             }
           },
