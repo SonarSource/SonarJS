@@ -141,6 +141,14 @@ export namespace Express {
     message: string,
   ): Rule.RuleModule {
     return {
+      meta: {
+        schema: [
+          {
+            // internal parameter for rules having secondary locations
+            enum: ['sonar-runtime'],
+          },
+        ],
+      },
       create(context: Rule.RuleContext) {
         let app: estree.Identifier | null;
         let callExpr: estree.CallExpression | null;
