@@ -42,6 +42,13 @@
 934,
 954,
 ],
+'qunit:src/assert.js':[
+114,
+148,
+163,
+467,
+468,
+],
 'qunit:src/core/stacktrace.js':[
 8,
 ],

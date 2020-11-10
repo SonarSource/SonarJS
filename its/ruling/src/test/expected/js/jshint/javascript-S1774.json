@@ -71,13 +71,13 @@
 209,
 ],
 'jshint:tests/unit/fixtures/gh-226.js':[
-4,
+3,
 ],
 'jshint:tests/unit/fixtures/immed.js':[
 39,
 ],
 'jshint:tests/unit/fixtures/laxcomma.js':[
-15,
+14,
 ],
 'jshint:tests/unit/fixtures/max-cyclomatic-complexity-per-function.js':[
 77,
