@@ -58,7 +58,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         if (newExpression.arguments.length === 0) {
-          context.report({ node: callee, message: MESSAGE });
+          context.report({ node: callee, message: toEncodedMessage(MESSAGE, []) });
           return;
         }
         const firstArgument = getValueOfExpression(

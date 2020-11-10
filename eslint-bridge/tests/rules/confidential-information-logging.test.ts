@@ -153,7 +153,10 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
           endLine: 3,
           column: 26,
           endColumn: 41,
-          message: 'Make sure confidential information is not logged here.',
+          message: JSON.stringify({
+            message: 'Make sure confidential information is not logged here.',
+            secondaryLocations: [],
+          }),
         },
       ],
     },
@@ -162,7 +165,14 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
       const {Signale} = require('signale');
       const logger = new Signale(); // Sensitive
             `,
-      errors: 1,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: 'Make sure confidential information is not logged here.',
+            secondaryLocations: [],
+          }),
+        },
+      ],
     },
   ],
 });
