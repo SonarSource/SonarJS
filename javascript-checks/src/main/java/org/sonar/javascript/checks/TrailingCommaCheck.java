@@ -22,12 +22,14 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 /**
  * http://stackoverflow.com/questions/7246618/trailing-commas-in-javascript
  */
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1537")
 @DeprecatedRuleKey(ruleKey = "TrailingComma")
 public class TrailingCommaCheck implements EslintBasedCheck {
