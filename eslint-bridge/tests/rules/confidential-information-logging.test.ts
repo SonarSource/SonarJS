@@ -157,5 +157,12 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
         },
       ],
     },
+    {
+      code: `
+      const {Signale} = require('signale');
+      const logger = new Signale(); // Sensitive
+            `,
+      errors: 1,
+    },
   ],
 });
