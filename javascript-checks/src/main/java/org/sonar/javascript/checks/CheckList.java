@@ -89,7 +89,6 @@ public final class CheckList {
       ConsistentReturnsCheck.class,
       ValuesNotConvertibleToNumbersCheck.class,
       ComparisonWithNaNCheck.class,
-      ConditionalCommentCheck.class,
       ConditionalIndentationCheck.class,
       ConditionalOperatorCheck.class,
       ConfidentialInformationLoggingCheck.class,
