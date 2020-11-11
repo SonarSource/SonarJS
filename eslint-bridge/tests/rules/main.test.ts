@@ -23,6 +23,26 @@ import { Linter, SourceCode } from 'eslint';
 import { parseTypeScriptSourceFile } from '../../src/parser';
 import { rule as secondaryLocation } from 'rules/secondary-location';
 
+/**
+ * Detects missing of secondary location support for rules using secondary locations.
+ *
+ * A rule is considered to be using secondary location if its implementation calls at
+ * some point `toEncodedMessage` from `rules/utils.ts`.
+ *
+ * The idea is to parse and analyze the source code of all rules that are exposed in
+ * the module `rules/main.ts`. The analysis relies on an internal rule that checks a
+ * few conditions required for secondary locations to correctly be supported:
+ *
+ * - the rule calls `toEncodedMessage` from `rules/utils.ts`,
+ * - the rule includes `meta: { schema: [{ enum: ['sonar-runtime'] }] }` metadata.
+ *
+ * The source code of the exported rules violating these conditions will trigger an
+ * issue during analysis.
+ *
+ * The detection is formalized in the form of a unit test. The rule implementations
+ * missing something are collected. The presence of such rules eventually makes the
+ * test fail, and the names of the problematical rules are reported.
+ */
 describe('Secondary location support', () => {
   it('should be enabled for rules using secondary locations', () => {
     const rulesMissingSecondaryLocationEnabling = [];
