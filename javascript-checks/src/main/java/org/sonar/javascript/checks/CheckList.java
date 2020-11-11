@@ -157,7 +157,6 @@ public final class CheckList {
       HashingCheck.class,
       XPoweredByCheck.class,
       HiddenFilesCheck.class,
-      IdChildrenSelectorCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
       IdenticalFunctionsCheck.class,
       ImmediatelyReturnedVariableCheck.class,
