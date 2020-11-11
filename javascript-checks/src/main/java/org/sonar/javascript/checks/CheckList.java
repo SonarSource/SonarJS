@@ -174,7 +174,6 @@ public final class CheckList {
       IntrusivePermissionsCheck.class,
       InvariantReturnCheck.class,
       IpForwardCheck.class,
-      JQueryVarNameConventionCheck.class,
       JumpStatementInFinallyCheck.class,
       LabelledStatementCheck.class,
       LabelPlacementCheck.class,
