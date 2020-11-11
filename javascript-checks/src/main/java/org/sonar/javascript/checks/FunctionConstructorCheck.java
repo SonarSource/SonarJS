@@ -19,64 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ArgumentListTree;
-import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
 @JavaScriptRule
 @Rule(key = "S3523")
-public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Review this \"Function\" call and make sure its arguments are properly validated.";
+public class FunctionConstructorCheck implements EslintBasedCheck {
 
   @Override
-  public void visitNewExpression(NewExpressionTree tree) {
-    if (isFunctionConstructorWithPossibleInjection(tree.expression(), tree.argumentClause())) {
-      addIssue(new PreciseIssue(this, new IssueLocation(tree.newKeyword(), tree.expression(), MESSAGE)));
-    }
-
-    super.visitNewExpression(tree);
+  public String eslintKey() {
+    return "no-new-func";
   }
-
-  /**
-   * Same as {@link #visitNewExpression(NewExpressionTree)}, without the "new".
-   */
-  @Override
-  public void visitCallExpression(CallExpressionTree tree) {
-    if (isFunctionConstructorWithPossibleInjection(tree.callee(), tree.argumentClause())) {
-      addIssue(tree.callee(), MESSAGE);
-    }
-    
-    super.visitCallExpression(tree);
-  }
-  
-  private static boolean isFunctionConstructorWithPossibleInjection(ExpressionTree tree, @Nullable ArgumentListTree arguments) {
-    boolean result = false;
-    if (tree.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-      String name = ((IdentifierTree)tree).name();
-      result = "Function".equals(name) && arguments != null && atLeastOneArgumentNotLiteral(arguments);
-    }
-    return result;
-  }
-
-  private static boolean atLeastOneArgumentNotLiteral(ArgumentListTree arguments) {
-    for (ExpressionTree expressionTree : arguments.arguments()) {
-      if (!expressionTree.is(Kind.STRING_LITERAL)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-  
 }
