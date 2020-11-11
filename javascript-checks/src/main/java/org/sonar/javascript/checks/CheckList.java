@@ -267,7 +267,6 @@ public final class CheckList {
       SemicolonCheck.class,
       ShorthandPropertiesNotGroupedCheck.class,
       SocketsCheck.class,
-      SpaceInModelPropertyNameCheck.class,
       SqlQueriesCheck.class,
       StandardInputCheck.class,
       StrictModeCheck.class,
