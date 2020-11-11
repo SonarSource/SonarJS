@@ -264,7 +264,6 @@ public final class CheckList {
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,
       SameLineConditionalCheck.class,
-      SelectionTestedWithoutLengthCheck.class,
       SelfAssignmentCheck.class,
       SemicolonCheck.class,
       ShorthandPropertiesNotGroupedCheck.class,
