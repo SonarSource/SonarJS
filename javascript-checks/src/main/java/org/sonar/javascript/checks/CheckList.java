@@ -82,7 +82,6 @@ public final class CheckList {
       CommaOperatorUseCheck.class,
       CommentedCodeCheck.class,
       CommentRegularExpressionCheck.class,
-      ConditionalUnreachableCodeCheck.class,
       ContentLengthCheck.class,
       ContentSecurityPolicyCheck.class,
       ConsistentReturnsCheck.class,
