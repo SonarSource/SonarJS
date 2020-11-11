@@ -233,7 +233,6 @@ public final class CheckList {
       NoWeakCipherCheck.class,
       NoWeakKeysCheck.class,
       NullDereferenceCheck.class,
-      NullDereferenceInConditionalCheck.class,
       ObjectLiteralShorthandCheck.class,
       OctalNumberCheck.class,
       OneStatementPerLineCheck.class,
