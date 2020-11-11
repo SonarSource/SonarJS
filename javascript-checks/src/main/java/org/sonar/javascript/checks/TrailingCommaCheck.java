@@ -19,52 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.SeparatedList;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
-import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 /**
  * http://stackoverflow.com/questions/7246618/trailing-commas-in-javascript
  */
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1537")
 @DeprecatedRuleKey(ruleKey = "TrailingComma")
-public class TrailingCommaCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Remove this trailing comma.";
+public class TrailingCommaCheck implements EslintBasedCheck {
 
   @Override
-  public void visitObjectLiteral(ObjectLiteralTree tree) {
-    SeparatedList<Tree> separatedList = tree.properties();
-    int listSize = separatedList.size();
-    if (listSize > 0 && listSize == separatedList.getSeparators().size()) {
-      Tree trailingComma = separatedList.getSeparator(listSize - 1);
-      raiseIssue(trailingComma);
-    }
-    super.visitObjectLiteral(tree);
+  public String eslintKey() {
+    return "comma-dangle";
   }
-
-  @Override
-  public void visitArrayLiteral(ArrayLiteralTree tree) {
-    List<Tree> elementsAndCommas = tree.elementsAndCommas();
-    if (!elementsAndCommas.isEmpty()) {
-      Tree last = elementsAndCommas.get(elementsAndCommas.size() - 1);
-      if (last.is(Kind.TOKEN)) {
-        raiseIssue(last);
-      }
-    }
-    super.visitArrayLiteral(tree);
-  }
-
-  private void raiseIssue(Tree trailingComma) {
-    addIssue(trailingComma, MESSAGE);
-  }
-
 }
