@@ -19,68 +19,29 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.SeparatedList;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
-import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S3723")
-public class MissingTrailingCommaCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Add a trailing comma to this item of the list.";
+public class MissingTrailingCommaCheck implements EslintBasedCheck {
 
   @Override
-  public void visitObjectLiteral(ObjectLiteralTree tree) {
-    if (isMultiline(tree) && !endsWithComma(tree)) {
-      raiseIssueOnLastElement(tree.properties());
-    }
-
-    super.visitObjectLiteral(tree);
+  public String eslintKey() {
+    return "comma-dangle";
   }
 
   @Override
-  public void visitArrayLiteral(ArrayLiteralTree tree) {
-    if (isMultiline(tree) && !endsWithComma(tree)) {
-      raiseIssueOnLastElement(tree.elements());
-    }
-    
-    super.visitArrayLiteral(tree);
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config());
   }
-
-  private static boolean isMultiline(ObjectLiteralTree objectLiteral) {
-    return isMultilineInternal(objectLiteral.properties(), objectLiteral.closeCurlyBraceToken());
+  private static class Config {
+    String arrays = "always-multiline";
+    String objects = "always-multiline";
   }
-
-  private static boolean isMultiline(ArrayLiteralTree arrayLiteral) {
-    return isMultilineInternal(arrayLiteral.elements(), arrayLiteral.closeBracketToken());
-  }
-  
-  private static boolean isMultilineInternal(List<? extends Tree> list, SyntaxToken closingToken) {
-    if (!list.isEmpty()) {
-      Tree last = list.get(list.size() - 1);
-      return last.lastToken().endLine() != closingToken.line();
-    }
-    return false;
-  }
-  
-  private static boolean endsWithComma(ObjectLiteralTree objectLiteral) {
-    SeparatedList<Tree> properties = objectLiteral.properties();
-    return properties.size() == properties.getSeparators().size();
-  }
-
-  private static boolean endsWithComma(ArrayLiteralTree arrayLiteral) {
-    Tree last = arrayLiteral.elementsAndCommas().get(arrayLiteral.elementsAndCommas().size() - 1);
-    return last.is(Tree.Kind.TOKEN);
-  }
-  
-  private void raiseIssueOnLastElement(List<? extends Tree> list) {
-    addIssue(list.get(list.size() - 1), MESSAGE);
-  }
-
 }
