@@ -121,7 +121,6 @@ public final class CheckList {
       DuplicateFunctionArgumentCheck.class,
       DuplicatePropertyNameCheck.class,
       ElementTypeSelectorCheck.class,
-      ElementUsedWithClassSelectorCheck.class,
       ElseIfWithoutElseCheck.class,
       EmptyBlockCheck.class,
       EmptyDestructuringPatternCheck.class,
