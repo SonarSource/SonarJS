@@ -118,8 +118,7 @@ public class JavaScriptRulingTest {
       .add("S1451", "headerFormat", "// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.")
       .add("S1451", "isRegularExpression", "true")
       // to test parameters for eslint-based rules
-      .add("S1192", "threshold", "4")
-      .add("S2762", "threshold", "1");
+      .add("S1192", "threshold", "4");
 
     ProfileGenerator.RulesConfiguration tsRulesConfiguration = new ProfileGenerator.RulesConfiguration()
       // should be no issue only on files starting with a single-line comment

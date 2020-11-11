@@ -221,7 +221,6 @@ public final class CheckList {
       NonStandardImportCheck.class,
       NoInMisuseCheck.class,
       NoSparseArraysCheck.class,
-      NotStoredSelectionCheck.class,
       NoMimeSniffCheck.class,
       NoNonNullAssertionCheck.class,
       NoNestedTemplateLiteralsCheck.class,
