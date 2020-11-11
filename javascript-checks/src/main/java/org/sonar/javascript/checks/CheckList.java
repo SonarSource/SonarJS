@@ -186,7 +186,6 @@ public final class CheckList {
       MisorderedParameterListCheck.class,
       MissingNewlineAtEndOfFileCheck.class,
       MissingTrailingCommaCheck.class,
-      ModelDefaultsWithArrayOrObjectCheck.class,
       MultilineBlockCurlyBraceCheck.class,
       MultilineStringLiteralsCheck.class,
       NestedAssignmentCheck.class,
