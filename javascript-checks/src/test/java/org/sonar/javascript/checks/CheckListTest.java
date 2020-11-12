@@ -107,6 +107,8 @@ public class CheckListTest {
 
     // this rule has the same implementation for TS and JS, but defines a different rule property
     keys.remove("cyclomatic-complexity");
+    // comma-dangle is used for both S1537 and S3723
+    keys.remove("comma-dangle");
 
     assertThat(keys).doesNotHaveDuplicates();
   }
