@@ -22,11 +22,13 @@ import * as path from 'path';
 
 const parser = path.resolve(`${__dirname}/../node_modules/@typescript-eslint/parser`);
 
-const parserOptions = {
+const parserOptions = (isJs: boolean) => ({
   ecmaVersion: 2018,
   sourceType: 'module',
-  project: path.resolve(`${__dirname}/fixtures/rule-tester-project/tsconfig.json`),
-};
+  project: path.resolve(
+    `${__dirname}/fixtures/rule-tester-project/${isJs ? 'tsconfig-js.json' : 'tsconfig.json'}`,
+  ),
+});
 
 const env = {
   es6: true,
@@ -39,11 +41,11 @@ const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-proj
  * It will also assert that no issues is raised when there are no type information.
  */
 class RuleTesterTs extends RuleTester {
-  constructor(public expectNoIssuesWithoutTypes = true) {
+  constructor(public expectNoIssuesWithoutTypes = true, isJs = false) {
     super({
       env,
       parser,
-      parserOptions,
+      parserOptions: parserOptions(isJs),
     });
   }
 
