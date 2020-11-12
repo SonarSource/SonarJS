@@ -15,10 +15,8 @@ visiting the private page.</p>
 </ul>
 <p>There is a risk if you answered yes to this question.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li> Implement <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control">X-DNS-Prefetch-Control</a> header with an
-  <em>off</em> value but this could significantly degrade website performances. </li>
-</ul>
+<p>Implement <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control">X-DNS-Prefetch-Control</a> header with an
+<em>off</em> value but this could significantly degrade website performances.</p>
 <h2>Sensitive Code Example</h2>
 <p>In Express.js application the code is sensitive if the <a href="https://www.npmjs.com/package/dns-prefetch-control">dns-prefetch-control</a>
 middleware is disabled or used without the recommended value:</p>

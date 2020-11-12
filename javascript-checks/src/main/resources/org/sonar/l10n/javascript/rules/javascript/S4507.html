@@ -15,22 +15,6 @@ detailed information on both the system running the application and users. </p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>Do not enable debug features on production servers.</p>
 <h2>Sensitive Code Example</h2>
-<p>The <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger">debugger statement</a> should be removed in
-production:</p>
-<pre>
-for (i = 1; i&lt;5; i++) {
-  // Print i to the Output window.
-  Debug.write("loop index is " + i);
-  // Wait for user to resume.
-  debugger; // Sensitive
-}
-</pre>
-<p><code>alert()</code>, <code>confirm()</code> and <code>prompt()</code> instructions should be removed in production:</p>
-<pre>
-if(unexpectedCondition) {
-  alert("Unexpected Condition");  // Sensitive
-}
-</pre>
 <p><a href="https://www.npmjs.com/package/errorhandler">errorhandler Express.js middleware</a> should not be used in production:</p>
 <pre>
 const express = require('express');

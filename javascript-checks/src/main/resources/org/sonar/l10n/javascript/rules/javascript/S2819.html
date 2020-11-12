@@ -1,9 +1,11 @@
 <p>Browsers <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage">allow message exchanges</a> between Window objects of
 different origins. </p>
 <p>Because any window can send / receive messages from other window it is important to verify the sender's / receiver's identity:</p>
-<p>- When sending message with postMessage method, the identity's receiver should be defined (the wildcard keyword (<code>*</code>) should not be
-used).</p>
-<p>- When receiving message with message event, the sender's identity should be verified using the origin and possibly source properties.</p>
+<ul>
+  <li> When sending message with postMessage method, the identity's receiver should be defined (the wildcard keyword (<code>*</code>) should not be
+  used). </li>
+  <li> When receiving message with message event, the sender's identity should be verified using the origin and possibly source properties. </li>
+</ul>
 <h2>Noncompliant Code Example</h2>
 <p>When sending message:</p>
 <pre>

@@ -2,6 +2,8 @@
 misleading and induce bugs.</p>
 <p>This rule raises an issue when the whitespacing of the lines after a one line block indicates an intent to include those lines in the block, but
 the omission of curly braces means the lines will be unconditionally executed once.</p>
+<p>Note that this rule considers tab characters to be equivalent to 1 space. If you mix spaces and tabs you will sometimes see issues in code which
+looks fine in your editor but is confusing when you change the size of tabs.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (condition)

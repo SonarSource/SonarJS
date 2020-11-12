@@ -2,6 +2,10 @@
   "title": "Disabling auto-escaping in template engines is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
   "tags": [
     "cwe",
     "owasp-a7"
