@@ -2,7 +2,7 @@
 <code>Groovy's template engine</code>, allow configuration of automatic variable escaping before rendering templates. When escape occurs, characters
 that make sense to the browser (eg: &lt;a&gt;) will be transformed/replaced with escaped/sanitized values (eg: &amp; lt;a&amp; gt; ).</p>
 <p>Auto-escaping is not a magic feature to annihilate all cross-site scripting attacks, it depends on <a
-href="https://twig.symfony.com/doc/3.x/filters/escape.html">the strategy applied</a> and the context, for example a "_html auto-escaping_" strategy
+href="https://twig.symfony.com/doc/3.x/filters/escape.html">the strategy applied</a> and the context, for example a "html auto-escaping" strategy
 (which only transforms html characters into <a href="https://developer.mozilla.org/en-US/docs/Glossary/Entity">html entities</a>) will not be relevant
 when variables are used in a <a href="https://en.wikipedia.org/wiki/HTML_attribute">html attribute</a> because '<code>:</code>' character is not
 escaped and thus an attack as below is possible:</p>
@@ -20,10 +20,8 @@ escaped and thus an attack as below is possible:</p>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li> Enable auto-escaping by default and continue to review the use of inputs in order to be sure that the chosen auto-escaping strategy is the
-  right one. </li>
-</ul>
+<p>Enable auto-escaping by default and continue to review the use of inputs in order to be sure that the chosen auto-escaping strategy is the right
+one.</p>
 <p> </p>
 <h2>Sensitive Code Example</h2>
 <p><a href="https://www.npmjs.com/package/mustache">mustache.js</a> template engine:</p>

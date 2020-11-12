@@ -5,7 +5,7 @@ for applications that are distributed or that are open-source.</p>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-13466">CVE-2019-13466</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15389">CVE-2018-15389</a> </li>
 </ul>
-<p>Credentials should be stored outside of the code in a configuration file, a database or secret management service. </p>
+<p>Credentials should be stored outside of the code in a configuration file, a database, or a management service for secrets. </p>
 <p>This rule flags instances of hard-coded credentials used in database and LDAP connections. It looks for hard-coded credentials in connection
 strings, and for variable names that match any of the patterns from the provided list.</p>
 <p>It's recommended to customize the configuration of this rule with additional credential words such as "oauthToken", "secret", ...</p>
@@ -20,7 +20,7 @@ strings, and for variable names that match any of the patterns from the provided
 <ul>
   <li> Store the credentials in a configuration file that is not pushed to the code repository. </li>
   <li> Store the credentials in a database. </li>
-  <li> Use the secret management service of you cloud provider. </li>
+  <li> Use your cloud provider's service for managing secrets. </li>
   <li> If the a password has been disclosed through the source code: change it. </li>
 </ul>
 <h2>Sensitive Code Example</h2>

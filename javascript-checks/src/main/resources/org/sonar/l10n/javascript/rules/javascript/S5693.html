@@ -9,10 +9,12 @@ order to prevents DoS attacks.</p>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> For most of the features of an application, it is recommended to limit the size of requests to: </li>
+  <li> For most of the features of an application, it is recommended to limit the size of requests to:
+    <ul>
+      <li> lower or equal to 8mb for file uploads. </li>
+      <li> lower or equal to 2mb for other requests. </li>
+    </ul> </li>
 </ul>
-<p> <strong></strong> lower or equal to 8mb for file uploads.</p>
-<p> <strong></strong> lower or equal to 2mb for other requests.</p>
 <p>It is recommended to customize the rule with the limit values that correspond to the web application.</p>
 <h2>Sensitive Code Example</h2>
 <p><a href="https://www.npmjs.com/package/formidable">formidable</a> file upload module:</p>

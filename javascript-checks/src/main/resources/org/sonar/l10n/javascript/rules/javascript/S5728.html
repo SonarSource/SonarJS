@@ -20,10 +20,8 @@ authorized:</p>
 </ul>
 <p>There is a risk if you answered yes to this question.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li> Implement content security policy fetch directives, in particular <em>default-src</em> directive and continue to properly sanitize and validate
-  all inputs of the application, indeed CSP fetch directives is only a tool to reduce +the impact+ of cross site scripting attacks. </li>
-</ul>
+<p>Implement content security policy fetch directives, in particular <em>default-src</em> directive and continue to properly sanitize and validate all
+inputs of the application, indeed CSP fetch directives is only a tool to reduce the impact of cross site scripting attacks.</p>
 <h2>Sensitive Code Example</h2>
 <p>In a Express.js application, the code is sensitive if the <a href="https://www.npmjs.com/package/helmet">helmet</a> contentSecurityPolicy
 middleware is disabled:</p>

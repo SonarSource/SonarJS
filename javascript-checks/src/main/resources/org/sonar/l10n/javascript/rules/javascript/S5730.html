@@ -14,10 +14,8 @@ protection that was desired by implementing encryption with the HTTPs protocol.<
 </ul>
 <p>There is a risk if you answered yes to this question.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li> Implement content security policy <em>block-all-mixed-content</em> directive which is supported by all modern browsers and will block loading
-  of mixed-contents. </li>
-</ul>
+<p>Implement content security policy <em>block-all-mixed-content</em> directive which is supported by all modern browsers and will block loading of
+mixed-contents.</p>
 <h2>Sensitive Code Example</h2>
 <p>In Express.js application the code is sensitive if the <a href="https://www.npmjs.com/package/helmet-csp">helmet-csp</a> or <a
 href="https://www.npmjs.com/package/helmet">helmet</a> middleware is used without the <code>blockAllMixedContent</code> directive:</p>

@@ -4,12 +4,16 @@
 <p>Outside of the user environment, hidden files are sensitive because they are used to store privacy-related information or even hard-coded
 secrets.</p>
 <h2>Ask Yourself Whether</h2>
-<p> * Hidden files may have been inadvertently uploaded to the static server's public directory and it accepts requests to hidden files.</p>
-<p> * There is no business use cases linked to serve files in <code>.name</code> format but the server is not configured to reject requests to this
-type of files. </p>
+<ul>
+  <li> Hidden files may have been inadvertently uploaded to the static server's public directory and it accepts requests to hidden files. </li>
+  <li> There is no business use cases linked to serve files in <code>.name</code> format but the server is not configured to reject requests to this
+  type of files. </li>
+</ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p> * Disable the serving of hidden files.</p>
+<ul>
+  <li> Disable the serving of hidden files. </li>
+</ul>
 <h2>Sensitive Code Example</h2>
 <p><a href="https://www.npmjs.com/package/serve-static">Express.js serve-static</a> middleware:</p>
 <pre>
@@ -33,6 +37,7 @@ app.use(serveStaticMiddleware);
   </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Web Top 10 2017 Category A6</a> - Security
   Misconfiguration. </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/538.html">CWE-538</a> - File and Directory Information Exposure </li>
 </ul>
 <p> * <a href="https://cwe.mitre.org/data/definitions/538.html">CWE-538</a> - File and Directory Information Exposure</p>
 

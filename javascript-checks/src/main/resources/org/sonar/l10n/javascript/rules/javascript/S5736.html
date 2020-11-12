@@ -1,7 +1,7 @@
 <p><a href="https://en.wikipedia.org/wiki/HTTP_referer">HTTP header referer</a> contains a URL set by web browsers and used by applications to track
 from where the user came from, it's for instance a relevant value for web analytic services, but it can cause <a
 href="https://developer.mozilla.org/en-US/docs/Web/Security/Referer_header:_privacy_and_security_concerns">serious privacy and security problems</a>
-if the URL contains confidential information. Note that Firefox for instance to prevent data leaks <a
+if the URL contains confidential information. Note that Firefox for instance, to prevent data leaks, <a
 href="https://blog.mozilla.org/security/2018/01/31/preventing-data-leaks-by-stripping-path-information-in-http-referrers/">removes path
 information</a> in the Referer header while browsing privately.</p>
 <p>Suppose an e-commerce website asks the user his credit card number to purchase a product:</p>
@@ -15,15 +15,15 @@ Type your credit card number to purchase products:
 &lt;/form&gt;
 &lt;/body&gt;
 </pre>
-<p>When submitting the above HTML form a HTTP GET request will be performed, the URL requested will be
+<p>When submitting the above HTML form, a HTTP GET request will be performed, the URL requested will be
 https://example.com/valid_order?cc=1111-2222-3333-4444 with credit card number inside and it's obviously not secure for these reasons:</p>
 <ul>
   <li> URLs are stored in the history of browsers. </li>
   <li> URLs could be accidentally shared when doing copy/paste actions. </li>
   <li> URLs can be stolen if a malicious person looks at the computer screen of an user. </li>
 </ul>
-<p>In addition to these threats, when further requests will be performed from the <em>valid</em>order_ page with a simple legitimate embedded script
-like that:</p>
+<p>In addition to these threats, when further requests will be performed from the "valid_order" page with a simple legitimate embedded script like
+that:</p>
 <pre>
 &lt;script src="https://webanalyticservices_example.com/track"&gt;
 </pre>
@@ -40,11 +40,9 @@ Referer: https://example.com/valid_order?cc=1111-2222-3333-4444
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li> Confidential information should not be set inside URLs (GET requests) of the application and implementation of <a
-  href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy">Referrer-Policy</a> header with a safe policy, different from
-  <code>unsafe-url</code> or <code>no-referrer-when-downgrade</code>, allows to control how much information is included in the referer header. </li>
-</ul>
+<p>Confidential information should not be set inside URLs (GET requests) of the application and a safe (ie: different from <code>unsafe-url</code> or
+<code>no-referrer-when-downgrade</code>) <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy">referrer-Policy</a>
+header, to control how much information is included in the referer header, should be used.</p>
 <h2>Sensitive Code Example</h2>
 <p>In Express.js application the code is sensitive if the <a href="https://www.npmjs.com/package/helmet">helmet</a> <code>referrerPolicy</code>
 middleware is disabled or used with <code>no-referrer-when-downgrade</code> or <code>unsafe-url</code>:</p>

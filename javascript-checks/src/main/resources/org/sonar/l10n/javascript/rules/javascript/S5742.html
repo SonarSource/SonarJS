@@ -10,11 +10,9 @@ the identity owner to monitor these logs to verify that his identify was not usu
 </ul>
 <p>There is a risk if you answered yes to this question.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li> Implement <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect-CT">Expect-CT</a> HTTP header which instructs the web
-  browser to check <a href="https://www.certificate-transparency.org/known-logs">public CT logs</a> in order to verify if the website appears inside
-  and if it is not, the browser will block the request and display a warning to the user. </li>
-</ul>
+<p>Implement <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect-CT">Expect-CT</a> HTTP header which instructs the web browser
+to check <a href="https://www.certificate-transparency.org/known-logs">public CT logs</a> in order to verify if the website appears inside and if it
+is not, the browser will block the request and display a warning to the user.</p>
 <h2>Sensitive Code Example</h2>
 <p>In Express.js application the code is sensitive if the <a href="https://www.npmjs.com/package/expect-ct">expect-ct</a> middleware is disabled:</p>
 <pre>
