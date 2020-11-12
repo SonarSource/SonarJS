@@ -19,15 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import com.google.gson.Gson;
 import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MissingTrailingCommaCheckTest {
 
   @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new MissingTrailingCommaCheck(), new File("src/test/resources/checks/missingTrailingComma.js"));
-  }
+  public void test_configuration() {
+    MissingTrailingCommaCheck check = new MissingTrailingCommaCheck();
 
+    String config = new Gson().toJson(check.configurations());
+    assertThat(config).isEqualTo("[{\"arrays\":\"always-multiline\",\"objects\":\"always-multiline\"}]");
+  }
 }
