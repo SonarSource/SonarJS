@@ -103,7 +103,6 @@ public final class CheckList {
       DeadStoreCheck.class,
       DebuggerStatementCheck.class,
       DeclarationInGlobalScopeCheck.class,
-      DefaultParameterSideEffectCheck.class,
       DefaultParametersNotLastCheck.class,
       DeleteNonPropertyCheck.class,
       DeprecationCheck.class,
