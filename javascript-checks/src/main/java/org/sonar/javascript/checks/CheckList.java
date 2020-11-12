@@ -107,7 +107,6 @@ public final class CheckList {
       DefaultParameterSideEffectCheck.class,
       DefaultParametersNotLastCheck.class,
       DeleteNonPropertyCheck.class,
-      DeprecatedJQueryAPICheck.class,
       DeprecationCheck.class,
       DestructuringAssignmentSyntaxCheck.class,
       DifferentTypesComparisonCheck.class,
