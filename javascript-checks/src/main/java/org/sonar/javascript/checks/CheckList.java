@@ -172,7 +172,6 @@ public final class CheckList {
       LabelledStatementCheck.class,
       LabelPlacementCheck.class,
       LineLengthCheck.class,
-      LocalStorageCheck.class,
       LoopsShouldNotBeInfiniteCheck.class,
       MaxSwitchCasesCheck.class,
       MaxUnionSizeCheck.class,
