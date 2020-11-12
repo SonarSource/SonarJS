@@ -71,7 +71,6 @@ public final class CheckList {
       BooleanEqualityComparisonCheck.class,
       BoolParamDefaultCheck.class,
       BuiltInObjectOverriddenCheck.class,
-      CallabilityCheck.class,
       CertificateTransparencyCheck.class,
       ClassNameCheck.class,
       ClassPrototypeCheck.class,
