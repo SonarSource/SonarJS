@@ -282,7 +282,6 @@ public final class CheckList {
       TrailingCommentCheck.class,
       TrailingWhitespaceCheck.class,
       TryPromiseCheck.class,
-      UnaryPlusMinusWithObjectCheck.class,
       UnchangedLetVariableCheck.class,
       NoOneIterationLoopCheck.class,
       UndefinedAssignmentCheck.class,
