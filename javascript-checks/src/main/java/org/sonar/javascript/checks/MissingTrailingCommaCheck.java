@@ -33,7 +33,7 @@ public class MissingTrailingCommaCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "comma-dangle";
+    return "enforce-trailing-comma";
   }
 
   @Override
