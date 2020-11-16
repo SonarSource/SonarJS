@@ -513,6 +513,15 @@ export function isFunction(node: estree.Node, services: RequiredParserServices) 
   return type.symbol && (type.symbol.flags & tsTypes.SymbolFlags.Function) !== 0;
 }
 
+export function isUndefinedOrNull(node: estree.Node, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  const typ = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
+  return (
+    (typ.getFlags() & tsTypes.TypeFlags.Undefined) !== 0 ||
+    (typ.getFlags() & tsTypes.TypeFlags.Null) !== 0
+  );
+}
+
 export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
