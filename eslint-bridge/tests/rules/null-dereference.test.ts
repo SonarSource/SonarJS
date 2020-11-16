@@ -357,7 +357,14 @@ ruleTesterTs.run('', rule, {
               y.call();  // Noncompliant
             }
           }`,
-      errors: 1,
+      errors: [
+        {
+          line: 20,
+          endLine: 20,
+          column: 15,
+          endColumn: 16,
+        },
+      ],
     },
     {
       code: `function one_issue_per_symbol() {
@@ -389,7 +396,20 @@ ruleTesterTs.run('', rule, {
         for(x of obj) {                       // OK we should not care about x being undefined
         }
       }`,
-      errors: 2,
+      errors: [
+        {
+          line: 3,
+          endLine: 3,
+          column: 22,
+          endColumn: 36,
+        },
+        {
+          line: 7,
+          endLine: 7,
+          column: 22,
+          endColumn: 31,
+        },
+      ],
     },
     {
       code: `
