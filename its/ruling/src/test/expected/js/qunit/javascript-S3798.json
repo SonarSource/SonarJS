@@ -25,11 +25,17 @@
 3,
 4,
 ],
+'qunit:src/assert.js':[
+461,
+],
 'qunit:src/cli/find-reporter.js':[
 7,
 34,
 55,
 63,
+],
+'qunit:src/cli/run.js':[
+18,
 ],
 'qunit:src/cli/utils.js':[
 7,
@@ -37,6 +43,7 @@
 25,
 49,
 56,
+85,
 90,
 ],
 'qunit:src/core.js':[
@@ -87,6 +94,7 @@
 142,
 ],
 'qunit:src/events.js':[
+26,
 49,
 ],
 'qunit:src/export.js':[
@@ -98,6 +106,7 @@
 'qunit:src/module.js':[
 12,
 50,
+98,
 ],
 'qunit:src/test.js':[
 28,
@@ -105,6 +114,7 @@
 631,
 643,
 660,
+679,
 692,
 707,
 721,
@@ -179,6 +189,7 @@
 9,
 10,
 11,
+12,
 13,
 28,
 ],

@@ -1,8 +1,11 @@
 {
 'backbone:karma.conf-sauce.js':[
+1,
 4,
 ],
 'backbone:test/vendor/require.js':[
+11,
+11,
 11,
 ],
 }
