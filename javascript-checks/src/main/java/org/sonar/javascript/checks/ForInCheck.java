@@ -20,52 +20,19 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S1535")
 @DeprecatedRuleKey(ruleKey = "ForIn")
-public class ForInCheck extends DoubleDispatchVisitorCheck {
-
-  private static final String MESSAGE = "Restrict what this loop acts on by testing each property.";
+public class ForInCheck implements EslintBasedCheck {
 
   @Override
-  public void visitForObjectStatement(ForObjectStatementTree tree) {
-    if (tree.is(Kind.FOR_IN_STATEMENT)) {
-      StatementTree statementNode = tree.statement();
-
-      if (statementNode.is(Kind.BLOCK)) {
-        BlockTree block = (BlockTree) statementNode;
-        statementNode = !block.statements().isEmpty() ? block.statements().get(0) : null;
-      }
-
-      if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT) && !isAttrCopy(statementNode)) {
-        addIssue(tree.forKeyword(), MESSAGE);
-      }
-    }
-
-    super.visitForObjectStatement(tree);
+  public String eslintKey() {
+    return "for-in";
   }
-
-  private static boolean isAttrCopy(StatementTree statement) {
-    if (statement.is(Kind.EXPRESSION_STATEMENT)) {
-      Tree expression = ((ExpressionStatementTree) statement).expression();
-      if (expression.is(Kind.ASSIGNMENT)) {
-        AssignmentExpressionTree assignment = (AssignmentExpressionTree) expression;
-        return assignment.variable().is(Kind.BRACKET_MEMBER_EXPRESSION);
-      }
-    }
-
-    return false;
-  }
-
 }
