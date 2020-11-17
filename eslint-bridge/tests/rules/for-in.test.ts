@@ -25,6 +25,15 @@ ruleTester.run('"for...in" loops should filter properties before acting on them'
   valid: [
     {
       code: `
+      for (name in object) {
+        if (object.hasOwnProperty(name)) {
+          print(object[name]);
+        }
+      }
+            `,
+    },
+    {
+      code: `
       for (name in object) { // OK
       }
             `,
