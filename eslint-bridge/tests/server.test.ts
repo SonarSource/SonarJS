@@ -189,7 +189,9 @@ describe('server', () => {
     expect(server.listening).toEqual(true);
 
     await post(
-      JSON.stringify([{ key: 'no-all-duplicated-branches', configurations: [] }]),
+      JSON.stringify({
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
+      }),
       '/init-linter',
     );
     const response = await post(
@@ -211,7 +213,9 @@ describe('server', () => {
     expect(server.listening).toEqual(true);
 
     await post(
-      JSON.stringify([{ key: 'no-all-duplicated-branches', configurations: [] }]),
+      JSON.stringify({
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
+      }),
       '/init-linter',
     );
     const response = await post(
@@ -294,7 +298,9 @@ describe('support custom rules', () => {
     expect(server.listening).toEqual(true);
 
     await postToServer(
-      JSON.stringify([{ key: 'customrule', configurations: [] }]),
+      JSON.stringify({
+        rules: [{ key: 'customrule', configurations: [] }],
+      }),
       '/init-linter',
       server,
     );

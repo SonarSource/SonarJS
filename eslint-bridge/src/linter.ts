@@ -58,7 +58,7 @@ export class LinterWrapper {
    * 'additionalRules' - rules used for computing metrics (incl. highlighting) when it requires access to the rule context; resulting value is encoded in the message
    * and custom rules provided by additional rule bundles
    */
-  constructor(rules: Rule[], additionalRules: AdditionalRule[] = []) {
+  constructor(rules: Rule[], additionalRules: AdditionalRule[] = [], environments: string[] = []) {
     this.linter = new Linter();
     this.linter.defineRules(sonarjsRules);
     this.linter.defineRules(internalRules);
@@ -101,14 +101,26 @@ export class LinterWrapper {
     );
 
     this.rules = this.linter.getRules();
-    this.linterConfig = this.createLinterConfig(rules, additionalRules);
+    this.linterConfig = this.createLinterConfig(rules, environments, additionalRules);
   }
 
-  createLinterConfig(inputRules: Rule[], additionalRules: AdditionalRule[]) {
+  createLinterConfig(
+    inputRules: Rule[],
+    environments: string[],
+    additionalRules: AdditionalRule[],
+  ) {
+    const env: { [name: string]: boolean } = {};
+    if (environments.length === 0) {
+      // Enable es6 by default
+      env['es6'] = true;
+    }
+    for (const key of environments) {
+      env[key] = true;
+    }
     const ruleConfig: Linter.Config = {
       rules: {},
       parserOptions: { sourceType: 'module', ecmaVersion: 2018 },
-      env: { es6: true },
+      env,
     };
     inputRules.forEach(inputRule => {
       const ruleModule = this.rules.get(inputRule.key);

@@ -243,4 +243,16 @@ describe('#decodeSecondaryLocations', () => {
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(1);
   });
+
+  it('should not report on globals provided by environment configuration', () => {
+    const sourceCode = parseJavaScriptSourceFile(`var alert = 1;`, `foo.js`) as SourceCode;
+    const linter = new LinterWrapper(
+      [{ key: 'declaration-in-global-scope', configurations: [] }],
+      [],
+      ['browser'],
+    );
+    const result = linter.analyze(sourceCode, filePath).issues;
+    expect(linter.linterConfig.env['browser']).toEqual(true);
+    expect(result).toHaveLength(0);
+  });
 });
