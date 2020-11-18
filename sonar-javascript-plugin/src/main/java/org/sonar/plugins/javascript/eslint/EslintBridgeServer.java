@@ -39,7 +39,7 @@ public interface EslintBridgeServer extends Startable {
 
   void initLinter(Rule[] rules) throws IOException;
 
-  void initLinter(Rule[] rules, String[] environments) throws IOException;
+  void initLinter(Rule[] rules, String[] environments, String[] globals) throws IOException;
 
   AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException;
 

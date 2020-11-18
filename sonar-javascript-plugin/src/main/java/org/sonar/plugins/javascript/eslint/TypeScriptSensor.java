@@ -52,6 +52,7 @@ import org.sonarsource.nodejs.NodeCommandException;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.javascript.tree.symbols.GlobalVariableNames.ENVIRONMENTS_PROPERTY_KEY;
+import static org.sonar.javascript.tree.symbols.GlobalVariableNames.GLOBALS_PROPERTY_KEY;
 
 public class TypeScriptSensor extends AbstractEslintSensor {
 
@@ -109,7 +110,8 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
     List<InputFile> inputFiles = getInputFiles();
     String[] environments = context.config().getStringArray(ENVIRONMENTS_PROPERTY_KEY);
-    eslintBridgeServer.initLinter(rules, environments);
+    String[] globals = context.config().getStringArray(GLOBALS_PROPERTY_KEY);
+    eslintBridgeServer.initLinter(rules, environments, globals);
     List<String> tsConfigs = tsConfigs();
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
     try {

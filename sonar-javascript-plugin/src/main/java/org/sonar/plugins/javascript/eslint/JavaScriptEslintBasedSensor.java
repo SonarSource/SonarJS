@@ -49,6 +49,7 @@ import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvi
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 import static org.sonar.javascript.tree.symbols.GlobalVariableNames.ENVIRONMENTS_PROPERTY_KEY;
+import static org.sonar.javascript.tree.symbols.GlobalVariableNames.GLOBALS_PROPERTY_KEY;
 
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
@@ -102,7 +103,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       List<InputFile> inputFiles = getInputFiles();
       progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
       String[] environments = context.config().getStringArray(ENVIRONMENTS_PROPERTY_KEY);
-      eslintBridgeServer.initLinter(rules, environments);
+      String[] globals = context.config().getStringArray(GLOBALS_PROPERTY_KEY);
+      eslintBridgeServer.initLinter(rules, environments, globals);
       for (InputFile inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
