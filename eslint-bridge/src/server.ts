@@ -65,7 +65,11 @@ export function startServer(
     app.use(bodyParser.json({ limit: MAX_REQUEST_SIZE }));
 
     app.post('/init-linter', (req, resp) => {
-      initLinter(req.body.rules as Rule[], req.body.environments as string[]);
+      initLinter(
+        req.body.rules as Rule[],
+        req.body.environments as string[],
+        req.body.globals as string[],
+      );
       resp.send('OK!');
     });
 

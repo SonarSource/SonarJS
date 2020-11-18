@@ -188,12 +188,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public void initLinter(Rule[] rules) throws IOException {
-    initLinter(rules, new String[]{});
+    initLinter(rules, new String[]{}, new String[]{});
   }
 
   @Override
-  public void initLinter(Rule[] rules, String[] environments) throws IOException {
-    InitLinterRequest initLinterRequest = new InitLinterRequest(rules, environments);
+  public void initLinter(Rule[] rules, String[] environments, String[] globals) throws IOException {
+    InitLinterRequest initLinterRequest = new InitLinterRequest(rules, environments, globals);
     String request = GSON.toJson(initLinterRequest);
     String response = request(request, "init-linter");
     if (!"OK!".equals(response)) {
@@ -353,10 +353,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   static class InitLinterRequest {
     Rule[] rules;
     String[] environments;
+    String[] globals;
 
-    public InitLinterRequest(Rule[] rules, String[] environments) {
+    public InitLinterRequest(Rule[] rules, String[] environments, String[] globals) {
       this.rules = rules;
       this.environments = environments;
+      this.globals = globals;
     }
   }
 }

@@ -155,7 +155,7 @@ public class EslintBridgeServerImplTest {
     EslintBridgeServer.Rule[] rules = {new EslintBridgeServer.Rule("key", singletonList("config"))};
     eslintBridgeServer.initLinter(rules);
     eslintBridgeServer.stop();
-    assertThat(logTester.logs()).contains("{\"rules\":[{\"key\":\"key\",\"configurations\":[\"config\"]}],\"environments\":[]}");
+    assertThat(logTester.logs()).contains("{\"rules\":[{\"key\":\"key\",\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
   }
 
   @Test
