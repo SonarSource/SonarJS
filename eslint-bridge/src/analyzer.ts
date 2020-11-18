@@ -135,13 +135,13 @@ function stripBom(s: string) {
 let linter: LinterWrapper;
 const customRules: AdditionalRule[] = [];
 
-export function initLinter(rules: Rule[]) {
+export function initLinter(rules: Rule[], environments: string[] = []) {
   console.log(`DEBUG initializing linter with ${rules.map(r => r.key)}`);
-  linter = new LinterWrapper(rules, [
-    SYMBOL_HIGHLIGHTING_RULE,
-    COGNITIVE_COMPLEXITY_RULE,
-    ...customRules,
-  ]);
+  linter = new LinterWrapper(
+    rules,
+    [SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE, ...customRules],
+    environments,
+  );
 }
 
 export function loadCustomRuleBundle(bundlePath: string): string[] {

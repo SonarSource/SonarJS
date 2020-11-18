@@ -188,7 +188,13 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public void initLinter(Rule[] rules) throws IOException {
-    String request = GSON.toJson(rules);
+    initLinter(rules, new String[]{});
+  }
+
+  @Override
+  public void initLinter(Rule[] rules, String[] environments) throws IOException {
+    InitLinterRequest initLinterRequest = new InitLinterRequest(rules, environments);
+    String request = GSON.toJson(initLinterRequest);
     String response = request(request, "init-linter");
     if (!"OK!".equals(response)) {
       throw new IllegalStateException("Failed to initialize linter");
@@ -341,6 +347,16 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
     TsConfigRequest(String tsconfig) {
       this.tsconfig = tsconfig;
+    }
+  }
+
+  static class InitLinterRequest {
+    Rule[] rules;
+    String[] environments;
+
+    public InitLinterRequest(Rule[] rules, String[] environments) {
+      this.rules = rules;
+      this.environments = environments;
     }
   }
 }

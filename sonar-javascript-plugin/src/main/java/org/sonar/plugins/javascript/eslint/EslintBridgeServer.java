@@ -39,6 +39,8 @@ public interface EslintBridgeServer extends Startable {
 
   void initLinter(Rule[] rules) throws IOException;
 
+  void initLinter(Rule[] rules, String[] environments) throws IOException;
+
   AnalysisResponse analyzeJavaScript(AnalysisRequest request) throws IOException;
 
   AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException;
