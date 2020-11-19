@@ -167,6 +167,7 @@
 12,
 13,
 14,
+15,
 16,
 17,
 18,
@@ -286,6 +287,7 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/dependencies.js':[
 3,
 4,
+6,
 7,
 9,
 ],
@@ -1489,6 +1491,7 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/parse-package-json.js':[
 6,
 7,
+9,
 16,
 ],
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/pipeline.js':[
@@ -2603,6 +2606,9 @@
 1,
 5,
 ],
+'javascript-test-sources:src/ecmascript6/ecmascript6-today/2-const.js':[
+16,
+],
 'javascript-test-sources:src/ecmascript6/ecmascript6-today/5-map.js':[
 8,
 15,
@@ -2690,6 +2696,7 @@
 'javascript-test-sources:src/ecmascript6/http/lib/gulp/karma/index.js':[
 1,
 2,
+3,
 ],
 'javascript-test-sources:src/ecmascript6/http/src/IConnection.js':[
 3,
@@ -2702,6 +2709,9 @@
 ],
 'javascript-test-sources:src/ecmascript6/http/src/IResponse.js':[
 3,
+],
+'javascript-test-sources:src/ecmascript6/http/src/Serialize.js':[
+1,
 ],
 'javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js':[
 5,
@@ -2784,10 +2794,6 @@
 13,
 14,
 20,
-],
-'javascript-test-sources:src/ecmascript6/reddit-mobile/index.js':[
-128,
-137,
 ],
 'javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/errorLog.es6.js':[
 3,
@@ -3788,6 +3794,7 @@
 'javascript-test-sources:src/ecmascript6/watchtower.js/lib/gulp/karma/index.js':[
 1,
 2,
+3,
 ],
 'javascript-test-sources:src/ecmascript6/watchtower.js/src/dirty_checking.js':[
 6,

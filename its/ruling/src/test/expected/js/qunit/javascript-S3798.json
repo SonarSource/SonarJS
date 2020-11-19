@@ -25,6 +25,9 @@
 3,
 4,
 ],
+'qunit:src/assert.js':[
+461,
+],
 'qunit:src/cli/find-reporter.js':[
 7,
 34,
@@ -87,6 +90,7 @@
 142,
 ],
 'qunit:src/events.js':[
+26,
 49,
 ],
 'qunit:src/export.js':[
@@ -179,6 +183,7 @@
 9,
 10,
 11,
+12,
 13,
 28,
 ],
