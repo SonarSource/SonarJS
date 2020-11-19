@@ -62,7 +62,7 @@ function checkOpenDialogFunction(context: Rule.RuleContext, callExpression: estr
 
     if (name === 'alert' || name === 'prompt' || name === 'confirm') {
       const variable = getVariableFromName(context, name);
-      if (variable) {
+      if (variable && variable.defs.length !== 0) {
         // we don't report on custom function
         return;
       }
