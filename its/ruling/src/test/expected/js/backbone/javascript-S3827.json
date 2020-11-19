@@ -3,4 +3,7 @@
 1888,
 1909,
 ],
+'backbone:test/vendor/jquery.js':[
+540,
+],
 }

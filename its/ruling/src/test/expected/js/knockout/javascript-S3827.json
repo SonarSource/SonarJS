@@ -160,6 +160,9 @@
 'knockout:spec/lib/jasmine-1.2.0/jasmine-tap.js':[
 6,
 ],
+'knockout:spec/lib/jasmine-1.2.0/jasmine.js':[
+619,
+],
 'knockout:spec/lib/jasmine.extensions.js':[
 8,
 ],

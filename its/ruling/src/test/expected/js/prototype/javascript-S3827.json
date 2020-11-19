@@ -41,7 +41,6 @@
 ],
 'prototype:test/unit/tests/dom.test.js':[
 98,
-391,
 523,
 ],
 'prototype:test/unit/tests/element_mixins.test.js':[
@@ -60,11 +59,9 @@
 ],
 'prototype:test/unit/tests/form.test.js':[
 16,
-114,
 ],
 'prototype:test/unit/tests/function.test.js':[
 24,
-121,
 ],
 'prototype:test/unit/tests/hash.test.js':[
 1,
@@ -73,7 +70,6 @@
 'prototype:test/unit/tests/layout.test.js':[
 75,
 458,
-462,
 ],
 'prototype:test/unit/tests/number.test.js':[
 6,
@@ -82,7 +78,6 @@
 16,
 ],
 'prototype:test/unit/tests/periodical_executer.test.js':[
-14,
 15,
 ],
 'prototype:test/unit/tests/position.test.js':[

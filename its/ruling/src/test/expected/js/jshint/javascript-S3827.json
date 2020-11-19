@@ -1,5 +1,6 @@
 {
 'jshint:src/platforms/rhino.js':[
+12,
 104,
 115,
 ],
@@ -23,6 +24,7 @@
 ],
 'jshint:tests/unit/fixtures/default-arguments.js':[
 14,
+27,
 ],
 'jshint:tests/unit/fixtures/enforceall.js':[
 1,
@@ -102,7 +104,6 @@
 3,
 ],
 'jshint:tests/unit/fixtures/latedef-esnext.js':[
-9,
 52,
 ],
 'jshint:tests/unit/fixtures/latedef.js':[
@@ -156,9 +157,6 @@
 'jshint:tests/unit/fixtures/undef.js':[
 1,
 13,
-],
-'jshint:tests/unit/fixtures/unused.js':[
-114,
 ],
 'jshint:tests/unit/fixtures/unusedglobals.js':[
 4,
