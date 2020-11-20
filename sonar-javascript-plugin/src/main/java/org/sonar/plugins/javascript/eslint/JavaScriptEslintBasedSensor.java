@@ -48,9 +48,6 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
-import static org.sonar.javascript.tree.symbols.GlobalVariableNames.ENVIRONMENTS_PROPERTY_KEY;
-import static org.sonar.javascript.tree.symbols.GlobalVariableNames.GLOBALS_PROPERTY_KEY;
-
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
@@ -102,8 +99,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     try {
       List<InputFile> inputFiles = getInputFiles();
       progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
-      String[] environments = context.config().getStringArray(ENVIRONMENTS_PROPERTY_KEY);
-      String[] globals = context.config().getStringArray(GLOBALS_PROPERTY_KEY);
       eslintBridgeServer.initLinter(rules, environments, globals);
       for (InputFile inputFile : inputFiles) {
         if (context.isCancelled()) {

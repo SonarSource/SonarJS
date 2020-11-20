@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
@@ -62,6 +63,9 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Rule;
 import org.sonarsource.nodejs.NodeCommandException;
 
+import static org.sonar.javascript.tree.symbols.GlobalVariableNames.ENVIRONMENTS_PROPERTY_KEY;
+import static org.sonar.javascript.tree.symbols.GlobalVariableNames.GLOBALS_PROPERTY_KEY;
+
 abstract class AbstractEslintSensor implements Sensor {
   private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);
 
@@ -70,8 +74,10 @@ abstract class AbstractEslintSensor implements Sensor {
   final EslintBridgeServer eslintBridgeServer;
   private final AnalysisWarnings analysisWarnings;
   @VisibleForTesting
-  final Rule[] rules;
+  final List<Rule> rules;
   final AbstractChecks checks;
+  List<String> environments;
+  List<String> globals;
 
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
@@ -85,7 +91,7 @@ abstract class AbstractEslintSensor implements Sensor {
     this.checks = checks;
     this.rules = checks.eslintBasedChecks().stream()
       .map(check -> new EslintBridgeServer.Rule(check.eslintKey(), check.configurations()))
-      .toArray(Rule[]::new);
+      .collect(Collectors.toList());
 
     this.noSonarFilter = noSonarFilter;
     this.fileLinesContextFactory = fileLinesContextFactory;
@@ -107,6 +113,8 @@ abstract class AbstractEslintSensor implements Sensor {
   public void execute(SensorContext context) {
     this.context = context;
     failFast = context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
+    environments = Arrays.asList(context.config().getStringArray(ENVIRONMENTS_PROPERTY_KEY));
+    globals = Arrays.asList(context.config().getStringArray(GLOBALS_PROPERTY_KEY));
     try {
       startBridge(context);
       analyzeFiles();
