@@ -140,3 +140,27 @@ ruleTester.run(
     ],
   },
 );
+
+const ruleTesterWithBrowser = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  env: { browser: true },
+});
+
+ruleTesterWithBrowser.run('Should report when browser is set as environment', rule, {
+  valid: [
+    {
+      code: `
+      function alert(arg) {}
+      alert("hello");
+            `,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+      alert("here!");
+      `,
+      errors: 1,
+    },
+  ],
+});

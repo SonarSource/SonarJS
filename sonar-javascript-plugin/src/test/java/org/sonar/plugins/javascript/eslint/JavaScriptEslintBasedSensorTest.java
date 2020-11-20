@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -120,7 +121,7 @@ public class JavaScriptEslintBasedSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
-    verify(eslintBridgeServerMock, times(1)).initLinter(any());
+    verify(eslintBridgeServerMock, times(1)).initLinter(any(), any(), any());
     assertThat(context.allIssues()).hasSize(3);
 
     Iterator<Issue> issues = context.allIssues().iterator();
@@ -333,18 +334,18 @@ public class JavaScriptEslintBasedSensorTest {
       tempFolder
     );
 
-    EslintBridgeServer.Rule[] rules = sensor.rules;
+    List<EslintBridgeServer.Rule> rules = sensor.rules;
 
     assertThat(rules).hasSize(3);
 
-    assertThat(rules[0].key).isEqualTo("no-duplicate-string");
-    assertThat(rules[0].configurations).containsExactly(3);
+    assertThat(rules.get(0).key).isEqualTo("no-duplicate-string");
+    assertThat(rules.get(0).configurations).containsExactly(3);
 
-    assertThat(rules[1].key).isEqualTo("max-switch-cases");
-    assertThat(rules[1].configurations).containsExactly(42);
+    assertThat(rules.get(1).key).isEqualTo("max-switch-cases");
+    assertThat(rules.get(1).configurations).containsExactly(42);
 
-    assertThat(rules[2].key).isEqualTo("no-all-duplicated-branches");
-    assertThat(rules[2].configurations).isEmpty();
+    assertThat(rules.get(2).key).isEqualTo("no-all-duplicated-branches");
+    assertThat(rules.get(2).configurations).isEmpty();
   }
 
   @Test

@@ -24,6 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.awaitility.Awaitility;
 import org.junit.After;
@@ -72,7 +74,7 @@ public class EslintBridgeServerImplTest {
   private EslintBridgeServerImpl eslintBridgeServer;
   private final TestBundle testBundle = new TestBundle(START_SERVER_SCRIPT);
 
-  private final RulesBundles emptyRulesBundles = new RulesBundles(new RulesBundle[] {}, tempFolder);
+  private final RulesBundles emptyRulesBundles = new RulesBundles(new RulesBundle[]{}, tempFolder);
   private final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(8, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
   private final NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime);
 
@@ -152,10 +154,10 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    EslintBridgeServer.Rule[] rules = {new EslintBridgeServer.Rule("key", singletonList("config"))};
-    eslintBridgeServer.initLinter(rules);
+    List<EslintBridgeServer.Rule> rules = Collections.singletonList(new EslintBridgeServer.Rule("key", singletonList("config")));
+    eslintBridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList());
     eslintBridgeServer.stop();
-    assertThat(logTester.logs()).contains("[{\"key\":\"key\",\"configurations\":[\"config\"]}]");
+    assertThat(logTester.logs()).contains("{\"rules\":[{\"key\":\"key\",\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
   }
 
   @Test

@@ -217,6 +217,10 @@
 31,
 38,
 ],
+'jshint:tests/unit/fixtures/emptystmt.js':[
+3,
+8,
+],
 'jshint:tests/unit/fixtures/enforceall.js':[
 1,
 3,
@@ -232,6 +236,7 @@
 36,
 40,
 44,
+67,
 ],
 'jshint:tests/unit/fixtures/exported.js':[
 4,
@@ -316,8 +321,6 @@
 14,
 15,
 16,
-17,
-18,
 19,
 20,
 21,
@@ -333,7 +336,6 @@
 31,
 32,
 33,
-34,
 35,
 ],
 'jshint:tests/unit/fixtures/ignore-w117.js':[
@@ -410,7 +412,6 @@
 4,
 7,
 8,
-12,
 16,
 20,
 23,
@@ -498,12 +499,17 @@
 'jshint:tests/unit/fixtures/redef-es6.js':[
 1,
 4,
+7,
+14,
 17,
+24,
 36,
 47,
 63,
 89,
 99,
+119,
+122,
 130,
 137,
 145,
@@ -551,9 +557,6 @@
 ],
 'jshint:tests/unit/fixtures/strict_newcap.js':[
 1,
-],
-'jshint:tests/unit/fixtures/strings.js':[
-22,
 ],
 'jshint:tests/unit/fixtures/supernew.js':[
 1,

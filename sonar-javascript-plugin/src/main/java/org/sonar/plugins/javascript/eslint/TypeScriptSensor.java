@@ -107,7 +107,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     boolean success = false;
     ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
     List<InputFile> inputFiles = getInputFiles();
-    eslintBridgeServer.initLinter(rules);
+    eslintBridgeServer.initLinter(rules, environments, globals);
     List<String> tsConfigs = tsConfigs();
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
     try {
