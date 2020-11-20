@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -32,42 +33,10 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 @JavaScriptRule
 @Rule(key = "S4165")
-public class RedundantAssignmentCheck extends AbstractAllPathSeCheck<AssignmentExpressionTree> {
-
-  private static final String MESSAGE = "Review this useless assignment: \"%s\" already holds the assigned value along all execution paths.";
+public class RedundantAssignmentCheck implements EslintBasedCheck {
 
   @Override
-  AssignmentExpressionTree getTree(Tree element) {
-    if (element.is(Tree.Kind.ASSIGNMENT)) {
-      return (AssignmentExpressionTree) element;
-    } else {
-      return null;
-    }
-  }
-
-  @Override
-  boolean isProblem(AssignmentExpressionTree tree, ProgramState currentState) {
-    SymbolicValue rightSide = currentState.peekStack(0);
-    SymbolicValue leftSide = currentState.peekStack(1);
-    if (!tree.variable().is(Tree.Kind.IDENTIFIER_REFERENCE) || SyntacticEquivalence.areEquivalent(tree.variable(), tree.expression())) {
-      return false;
-    }
-
-    if (leftSide instanceof UnknownSymbolicValue || rightSide instanceof UnknownSymbolicValue) {
-      return false;
-    }
-    if (leftSide == rightSide) {
-      return true;
-    }
-
-    Constraint leftConstraint = currentState.getConstraint(leftSide);
-    Constraint rightConstraint = currentState.getConstraint(rightSide);
-    return leftConstraint.isSingleValue() && rightConstraint.isSingleValue() && leftConstraint.equals(rightConstraint);
-  }
-
-  @Override
-  void raiseIssue(AssignmentExpressionTree tree) {
-    IdentifierTree variable = (IdentifierTree) tree.variable();
-    addIssue(tree, String.format(MESSAGE, variable.name()));
+  public String eslintKey() {
+    return "no-redundant-assignments";
   }
 }

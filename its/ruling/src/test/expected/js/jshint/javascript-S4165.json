@@ -1,0 +1,9 @@
+{
+'jshint:tests/unit/fixtures/redef-es6.js':[
+270,
+],
+'jshint:tests/unit/fixtures/scope.js':[
+6,
+17,
+],
+}
