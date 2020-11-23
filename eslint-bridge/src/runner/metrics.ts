@@ -39,6 +39,7 @@ const EXECUTABLE_NODES = [
   'DebuggerStatement',
   'VariableDeclaration',
   'ForOfStatement',
+  'LogicalExpression',
 ];
 
 const STATEMENT_NODES = [
