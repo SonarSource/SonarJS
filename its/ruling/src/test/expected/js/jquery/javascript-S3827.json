@@ -5,6 +5,9 @@
 'jquery:test/data/core/jquery-iterability-transpiled-es6.js':[
 13,
 ],
+'jquery:test/data/jquery-1.9.1.js':[
+595,
+],
 'jquery:test/data/support/csp.js':[
 2,
 2,

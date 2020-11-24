@@ -1,4 +1,7 @@
 {
+'qunit:test/cli/fixtures/memory-leak/index.js':[
+42,
+],
 'qunit:test/cli/fixtures/syntax-error/test.js':[
 1,
 ],
