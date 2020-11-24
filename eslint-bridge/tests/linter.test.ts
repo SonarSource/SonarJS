@@ -268,4 +268,23 @@ describe('#decodeSecondaryLocations', () => {
     expect(linter.linterConfig.globals['angular']).toEqual(true);
     expect(result).toHaveLength(0);
   });
+
+  it('should merge "constructor-super" with "no-this-before-super" issues', () => {
+    const sourceCode = parseJavaScriptSourceFile(
+      `class A extends B { constructor() {this.bar();}}`,
+      `foo.js`,
+    ) as SourceCode;
+    const linter = new LinterWrapper(
+      [
+        { key: 'constructor-super', configurations: [] },
+        { key: 'no-this-before-super', configurations: [] },
+      ],
+      [],
+      [],
+      [],
+    );
+    const result = linter.analyze(sourceCode, filePath).issues;
+    expect(result).toHaveLength(2);
+    expect(result.every(i => i.ruleId === 'constructor-super')).toBe(true);
+  });
 });
