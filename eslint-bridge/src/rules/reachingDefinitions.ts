@@ -54,15 +54,10 @@ export class ReachingDefinitions {
    */
   references = new Set<Reference>();
 
-  identifierVariablesMap = new Map<estree.Identifier, Variable>();
-
-  add(ref: Reference, writeExprVariable: Variable | null) {
+  add(ref: Reference) {
     const variable = ref.resolved;
     if (variable) {
       this.references.add(ref);
-    }
-    if (writeExprVariable) {
-      this.identifierVariablesMap.set(ref.writeExpr as estree.Identifier, writeExprVariable);
     }
   }
 
@@ -87,12 +82,11 @@ export class ReachingDefinitions {
       return;
     }
     if (!ref.writeExpr) {
-      if (ref.identifier.type === 'Identifier') {
-        programState.set(variable, new Set([ref.identifier]));
-      }
+      // @ts-ignore parent is not exposed in the API
+      programState.set(variable, new Set([ref.identifier.parent]));
       return;
     }
-    const rhsValues = resolveAssignedValues(ref.writeExpr, programState, this);
+    const rhsValues = resolveAssignedValues(ref.writeExpr, programState, ref.from);
     programState.set(variable, rhsValues);
   }
 
@@ -144,11 +138,11 @@ export function areEquivalent(node1: estree.Node, node2: estree.Node) {
 export function resolveAssignedValues(
   writeExpr: estree.Node,
   assignedValuesMap: Map<Variable, VariableValue>,
-  reachingDefs: ReachingDefinitions,
+  scope: Scope.Scope,
 ) {
   let assignedValues = new Set([writeExpr]);
   if (writeExpr.type === 'Identifier') {
-    const resolvedVar = reachingDefs.identifierVariablesMap.get(writeExpr);
+    const resolvedVar = getVariableFromIdentifier(writeExpr, scope);
     if (resolvedVar) {
       const resolvedAssignedValues = assignedValuesMap.get(resolvedVar);
       if (resolvedAssignedValues) {
@@ -174,4 +168,14 @@ function equals(ps1: Map<Variable, VariableValue>, ps2: Map<Variable, VariableVa
 
 function setEquals<T>(a: Set<T>, b: Set<T>): boolean {
   return a.size === b.size && [...a].every(e => b.has(e));
+}
+
+export function getVariableFromIdentifier(identifier: estree.Identifier, scope: Scope.Scope) {
+  let variable;
+  let sc: Scope.Scope | null = scope;
+  while (variable == null && sc != null) {
+    variable = scope.variables.find(value => value.name === identifier.name);
+    sc = sc.upper;
+  }
+  return variable;
 }

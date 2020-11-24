@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-
+// https://jira.sonarsource.com/browse/RSPEC-4165
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
@@ -29,13 +29,14 @@ import Reference = Scope.Reference;
 import CodePathSegment = Rule.CodePathSegment;
 import {
   areEquivalent,
+  getVariableFromIdentifier,
   reachingDefinitions,
   ReachingDefinitions,
   resolveAssignedValues,
 } from './reachingDefinitions';
 
 const message = (name: string) =>
-  `Review this useless assignment: "${name}" already holds the assigned value along all execution paths.`;
+  `Review this redundant assignment: "${name}" already holds the assigned value along all execution paths.`;
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const codePathStack: CodePathContext[] = [];
@@ -61,6 +62,11 @@ export const rule: Rule.RuleModule = {
         reachingDefsMap.forEach(defs => {
           checkSegment(defs);
         });
+        reachingDefsMap.clear();
+        variableUsages.clear();
+        while (codePathStack.length > 0) {
+          codePathStack.pop();
+        }
       },
 
       // CodePath events
@@ -89,25 +95,23 @@ export const rule: Rule.RuleModule = {
       const assignedValuesMap = new Map<Variable, Set<estree.Node>>(reachingDefs.in);
       reachingDefs.references.forEach(ref => {
         const variable = ref.resolved;
-        if (!variable || !ref.writeExpr || !shouldReport(ref, reachingDefs)) {
+        if (!variable || !ref.isWrite() || !shouldReport(ref)) {
           return;
         }
         const lhsValues = assignedValuesMap.get(variable);
-        if (!lhsValues) {
-          const rhsValues = resolveAssignedValues(ref.writeExpr, assignedValuesMap, reachingDefs);
-          checkRedundantAssignement(ref.writeExpr, ref.identifier, rhsValues, variable.name);
-          assignedValuesMap.set(variable, new Set(rhsValues));
-          return;
-        }
-        if (lhsValues.size === 1) {
+        // @ts-ignore parent is not exposed in the API
+        const writeExpr: estree.Node = ref.writeExpr || ref.identifier.parent;
+        const rhsValues = resolveAssignedValues(writeExpr, assignedValuesMap, ref.from);
+        if (lhsValues?.size === 1) {
           const [lhsVal] = [...lhsValues];
-          const rhsValues = resolveAssignedValues(ref.writeExpr, assignedValuesMap, reachingDefs);
-          checkRedundantAssignement(ref.writeExpr, lhsVal, rhsValues, variable.name);
+          checkRedundantAssignement(ref, writeExpr, lhsVal, rhsValues, variable.name);
         }
+        assignedValuesMap.set(variable, new Set(rhsValues));
       });
     }
 
     function checkRedundantAssignement(
+      { resolved: variable, from: scope }: Scope.Reference,
       node: estree.Node,
       lhsVal: estree.Node,
       rhsValues: Set<estree.Node>,
@@ -117,7 +121,11 @@ export const rule: Rule.RuleModule = {
         return;
       }
       const [rhsVal] = [...rhsValues];
-      if (areEquivalent(lhsVal, rhsVal)) {
+      if (
+        !isRhsUndefinedVariable(rhsVal, scope) &&
+        !isWrittenOnlyOnce(variable!) &&
+        areEquivalent(lhsVal, rhsVal)
+      ) {
         context.report({
           node,
           message: message(name),
@@ -125,16 +133,22 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function shouldReport(ref: Reference, reachingDefs: ReachingDefinitions) {
-      const variable = ref.resolved;
-      return (
-        variable &&
-        shouldReportReference(ref, reachingDefs) &&
-        !variableUsedOutsideOfCodePath(variable)
-      );
+    function isRhsUndefinedVariable(rhs: estree.Node, scope: Scope.Scope) {
+      return rhs.type === 'Identifier' && !getVariableFromIdentifier(rhs, scope);
     }
 
-    function shouldReportReference(ref: Reference, reachingDefs: ReachingDefinitions) {
+    // to avoid raising on code like:
+    // while (cond) {  let x = 42; }
+    function isWrittenOnlyOnce(variable: Scope.Variable) {
+      return variable.references.filter(ref => ref.isWrite()).length === 1;
+    }
+
+    function shouldReport(ref: Reference) {
+      const variable = ref.resolved;
+      return variable && shouldReportReference(ref) && !variableUsedOutsideOfCodePath(variable);
+    }
+
+    function shouldReportReference(ref: Reference) {
       const variable = ref.resolved;
 
       return (
@@ -143,7 +157,7 @@ export const rule: Rule.RuleModule = {
         !isDefaultParameter(ref) &&
         !variable.name.startsWith('_') &&
         !isCompoundAssignment(ref.writeExpr) &&
-        !isSelfAssignement(ref, reachingDefs) &&
+        !isSelfAssignement(ref) &&
         !variable.defs.some(
           def => def.type === 'Parameter' || (def.type === 'Variable' && !def.node.init),
         )
@@ -176,11 +190,7 @@ export const rule: Rule.RuleModule = {
       } else {
         peek(codePathStack).codePath.currentSegments.forEach(segment => {
           const reachingDefs = reachingDefsForSegment(segment);
-          let writeExprVariable: Variable | null = null;
-          if (ref.writeExpr && ref.writeExpr.type === 'Identifier') {
-            writeExprVariable = resolveReference(ref.writeExpr).variable;
-          }
-          reachingDefs.add(ref, writeExprVariable);
+          reachingDefs.add(ref);
         });
       }
     }
@@ -299,10 +309,10 @@ function peek<T>(arr: Array<T>) {
   return arr[arr.length - 1];
 }
 
-function isSelfAssignement(ref: Reference, reachingDefs: ReachingDefinitions) {
+function isSelfAssignement(ref: Reference) {
   const lhs = ref.resolved;
   if (ref.writeExpr?.type === 'Identifier') {
-    const rhs = reachingDefs.identifierVariablesMap.get(ref.writeExpr);
+    const rhs = getVariableFromIdentifier(ref.writeExpr, ref.from);
     return lhs === rhs;
   }
   return false;

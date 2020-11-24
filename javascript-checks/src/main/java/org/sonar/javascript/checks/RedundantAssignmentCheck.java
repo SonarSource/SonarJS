@@ -27,11 +27,13 @@ import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.SyntacticEquivalence;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 @JavaScriptRule
+@TypeScriptRule
 @Rule(key = "S4165")
 public class RedundantAssignmentCheck implements EslintBasedCheck {
 

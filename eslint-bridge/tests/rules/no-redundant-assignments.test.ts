@@ -26,6 +26,26 @@ import { rule } from 'rules/no-redundant-assignments';
 ruleTesterTs.run('', rule, {
   valid: [
     {
+      code: `function compliant(cond) {
+        let x = 0;
+        let mx = 0;
+        if (cond) {
+           x = getSomething();
+           mx = x;
+        }
+    }`,
+    },
+    {
+      code: `function writtenInsideLoop(cond, items) {
+        while (cond) {
+          let x = 42;
+        }
+        for (const item of items) {
+          const { id, state } = item
+        }
+      }`,
+    },
+    {
       code: `function sameConstraintsAcrossBranches(z) {
         let x;
         let y = z;
@@ -167,18 +187,33 @@ ruleTesterTs.run('', rule, {
         x = foo();
       }`,
     },
+    {
+      code: `function increment() {
+        let xxx = 42;
+        let yyy = xxx;
+        xxx++;
+        yyy = xxx;
+      }`,
+    },
+    {
+      code: `function scanNumber(): string {
+        let end = pos;
+        pos++;
+        end = pos;
+    }`,
+    },
   ],
   invalid: [
     {
       code: `
       function overwrite() {
         let z = 42;
-        z = 42; // Noncompliant {{Review this useless assignment: "z" already holds the assigned value along all execution paths.}}
+        z = 42; // Noncompliant {{Review this redundant assignment: "z" already holds the assigned value along all execution paths.}}
       }`,
       errors: [
         {
           message:
-            'Review this useless assignment: "z" already holds the assigned value along all execution paths.',
+            'Review this redundant assignment: "z" already holds the assigned value along all execution paths.',
         },
       ],
     },
@@ -186,7 +221,7 @@ ruleTesterTs.run('', rule, {
       code: `function identities(x) {
         let y = x;
         let z = x;
-        z = y; // Noncompliant {{Review this useless assignment: "z" already holds the assigned value along all execution paths.}}
+        z = y; // Noncompliant {{Review this redundant assignment: "z" already holds the assigned value along all execution paths.}}
       }`,
       errors: 1,
     },
