@@ -271,20 +271,13 @@ describe('#decodeSecondaryLocations', () => {
 
   it('should merge "constructor-super" with "no-this-before-super" issues', () => {
     const sourceCode = parseJavaScriptSourceFile(
-      `class A extends B { constructor() {this.bar();}}`,
+      `class A extends B { constructor() {this.bar();}}
+       class A extends B { constructor(a) { while (a) super(); } }`,
       `foo.js`,
     ) as SourceCode;
-    const linter = new LinterWrapper(
-      [
-        { key: 'constructor-super', configurations: [] },
-        { key: 'no-this-before-super', configurations: [] },
-      ],
-      [],
-      [],
-      [],
-    );
+    const linter = new LinterWrapper([{ key: 'super-invocation', configurations: [] }], [], [], []);
     const result = linter.analyze(sourceCode, filePath).issues;
-    expect(result).toHaveLength(2);
-    expect(result.every(i => i.ruleId === 'constructor-super')).toBe(true);
+    expect(result).toHaveLength(4);
+    expect(result.every(i => i.ruleId === 'super-invocation')).toBe(true);
   });
 });

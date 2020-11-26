@@ -31,6 +31,6 @@ public class SuperInvocationCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "constructor-super";
+    return "super-invocation";
   }
 }

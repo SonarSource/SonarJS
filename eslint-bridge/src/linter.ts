@@ -29,6 +29,7 @@ import { Rule, Issue, IssueLocation } from './analyzer';
 import { rules as typescriptEslintRules } from '@typescript-eslint/eslint-plugin';
 import { getContext } from './context';
 import { decoratePreferTemplate } from './rules/prefer-template-decorator';
+import { mergeRules } from './rules/super-invocation';
 
 /**
  * In order to overcome ESLint limitation regarding issue reporting,
@@ -89,6 +90,16 @@ export class LinterWrapper {
       decoratePreferTemplate(this.linter.getRules().get(PREFER_TEMPLATE)!),
     );
 
+    // S3854 relies on the 'constructor-super' key but also encompasses the scope of 'no-this-before-super' from eslint
+    // so we merge the two rules
+    this.linter.defineRule(
+      'super-invocation',
+      mergeRules(
+        this.linter.getRules().get('constructor-super')!,
+        this.linter.getRules().get('no-this-before-super')!,
+      ),
+    );
+
     // TS implementation of no-throw-literal is not supporting JS code.
     delete typescriptEslintRules['no-throw-literal'];
     this.linter.defineRules(typescriptEslintRules);
@@ -104,11 +115,6 @@ export class LinterWrapper {
     additionalRules.forEach(additionalRule =>
       this.linter.defineRule(additionalRule.ruleId, additionalRule.ruleModule),
     );
-
-    // S3854 relies on the 'constructor-super' key but also encompasses the scope of 'no-this-before-super' from eslint
-    if (rules.some(r => r.key === 'constructor-super')) {
-      rules.push({ key: 'no-this-before-super', configurations: [] });
-    }
 
     this.rules = this.linter.getRules();
     this.linterConfig = this.createLinterConfig(rules, additionalRules, environments, globals);
@@ -183,10 +189,6 @@ export function decodeSonarRuntimeIssue(
       );
       return null;
     }
-  }
-  // We redirect issues raised by 'no-this-before-super' to the 'constructor-super' key used by S3854
-  if (issue.ruleId === 'no-this-before-super') {
-    issue.ruleId = 'constructor-super';
   }
   return issue;
 }
