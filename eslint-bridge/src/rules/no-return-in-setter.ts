@@ -17,17 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://jira.sonarsource.com/browse/RSPEC-2432
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import { Rule } from 'eslint';
+import * as estree from 'estree';
 
-public class ReturnInSetterCheckTest {
-
-  @Test
-  public void test() {
-    JavaScriptCheckVerifier.verify(new ReturnInSetterCheck(), new File("src/test/resources/checks/returnInSetter.js"));
-  }
-
-}
+export const rule: Rule.RuleModule = {
+  create(context: Rule.RuleContext) {
+    return {
+      'Property[kind="set"] ReturnStatement': (node: estree.Node) => {
+        if (!!(node as estree.ReturnStatement).argument) {
+          context.report({
+            node,
+            message: 'Consider removing this return statement; it will be ignored.',
+          });
+        }
+      },
+    };
+  },
+};
