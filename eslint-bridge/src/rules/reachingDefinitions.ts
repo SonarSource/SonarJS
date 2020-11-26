@@ -171,11 +171,9 @@ function setEquals<T>(a: Set<T>, b: Set<T>): boolean {
 }
 
 export function getVariableFromIdentifier(identifier: estree.Identifier, scope: Scope.Scope) {
-  let variable;
-  let sc: Scope.Scope | null = scope;
-  while (variable == null && sc != null) {
-    variable = sc.variables.find(value => value.name === identifier.name);
-    sc = sc.upper;
+  let variable = scope.variables.find(value => value.name === identifier.name);
+  if (!variable && scope.upper) {
+    variable = scope.upper.variables.find(value => value.name === identifier.name);
   }
   return variable;
 }
