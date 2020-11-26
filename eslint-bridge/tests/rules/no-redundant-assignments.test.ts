@@ -264,5 +264,20 @@ ruleTesterTs.run('', rule, {
       }`,
       errors: 1,
     },
+    {
+      code: `function outer() {
+        let x = 42;
+        let y = 0;
+        for (;;) {
+          y = x;
+          y = 42;
+        }
+      }`,
+      errors: [
+        {
+          line: 6,
+        },
+      ],
+    },
   ],
 });

@@ -174,7 +174,7 @@ export function getVariableFromIdentifier(identifier: estree.Identifier, scope: 
   let variable;
   let sc: Scope.Scope | null = scope;
   while (variable == null && sc != null) {
-    variable = scope.variables.find(value => value.name === identifier.name);
+    variable = sc.variables.find(value => value.name === identifier.name);
     sc = sc.upper;
   }
   return variable;
