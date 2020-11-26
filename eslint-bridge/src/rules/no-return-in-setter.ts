@@ -21,30 +21,18 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { childrenOf } from '../utils/visitor';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      'Property[kind="set"]': (node: estree.Node) => {
-        ReturnStatementsVisitor.visit(node, context);
+      'Property[kind="set"] ReturnStatement': (node: estree.Node) => {
+        if (!!(node as estree.ReturnStatement).argument) {
+          context.report({
+            node,
+            message: 'Consider removing this return statement; it will be ignored.',
+          });
+        }
       },
     };
   },
 };
-
-class ReturnStatementsVisitor {
-  static visit(root: estree.Node, context: Rule.RuleContext) {
-    const visitNode = (node: estree.Node) => {
-      if (node.type === 'ReturnStatement' && !!node.argument) {
-        context.report({
-          node,
-          message: 'Consider removing this return statement; it will be ignored.',
-        });
-        return;
-      }
-      childrenOf(node, context.getSourceCode().visitorKeys).forEach(visitNode);
-    };
-    visitNode(root);
-  }
-}
