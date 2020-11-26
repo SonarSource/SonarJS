@@ -117,6 +117,7 @@ import { rule as noNestedTemplateLiterals } from './no-nested-template-literals'
 import { rule as noNewSymbol } from './no-new-symbol';
 import { rule as noParameterReassignment } from './no-parameter-reassignment';
 import { rule as noPrimitiveWrappers } from './no-primitive-wrappers';
+import { rule as noRedundantAssignments } from './no-redundant-assignments';
 import { rule as noRedundantOptional } from './no-redundant-optional';
 import { rule as noRedundantParentheses } from './no-redundant-parentheses';
 import { rule as noReferenceError } from './no-reference-error';
@@ -278,6 +279,7 @@ ruleModules['no-nested-template-literals'] = noNestedTemplateLiterals;
 ruleModules['no-new-symbol'] = noNewSymbol;
 ruleModules['no-parameter-reassignment'] = noParameterReassignment;
 ruleModules['no-primitive-wrappers'] = noPrimitiveWrappers;
+ruleModules['no-redundant-assignments'] = noRedundantAssignments;
 ruleModules['no-redundant-optional'] = noRedundantOptional;
 ruleModules['no-redundant-parentheses'] = noRedundantParentheses;
 ruleModules['no-reference-error'] = noReferenceError;
