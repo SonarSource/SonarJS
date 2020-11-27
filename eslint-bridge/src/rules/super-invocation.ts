@@ -19,61 +19,57 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3854
 
-import { Rule } from 'eslint';
+import { Linter, Rule } from 'eslint';
 import * as estree from 'estree';
 
-export function mergeRules(
-  constructorSuperRule: Rule.RuleModule,
-  noThisBeforeSuperRule: Rule.RuleModule,
-): Rule.RuleModule {
-  return {
-    ...(!!constructorSuperRule.meta && { meta: constructorSuperRule.meta }),
-    create(originalContext: Rule.RuleContext) {
-      const constructorSuperListener: Rule.RuleListener = constructorSuperRule.create(
-        originalContext,
-      );
-      const notThisBeforeSuperListener: Rule.RuleListener = noThisBeforeSuperRule.create(
-        originalContext,
-      );
-      return {
-        onCodePathStart(codePath, node) {
-          constructorSuperListener.onCodePathStart!(codePath, node);
-          notThisBeforeSuperListener.onCodePathStart!(codePath, node);
-        },
-        onCodePathEnd(codePath, node) {
-          constructorSuperListener.onCodePathEnd!(codePath, node);
-          notThisBeforeSuperListener.onCodePathEnd!(codePath, node);
-        },
-        onCodePathSegmentStart(segment, node) {
-          constructorSuperListener.onCodePathSegmentStart!(segment, node);
-          notThisBeforeSuperListener.onCodePathSegmentStart!(segment, node);
-        },
-        onCodePathSegmentLoop(fromSegment, toSegment, node) {
-          constructorSuperListener.onCodePathSegmentLoop!(fromSegment, toSegment, node);
-          notThisBeforeSuperListener.onCodePathSegmentLoop!(fromSegment, toSegment, node);
-        },
-        'CallExpression:exit'(node: estree.Node) {
-          // @ts-ignore
-          constructorSuperListener['CallExpression:exit']!(node);
-          // @ts-ignore
-          notThisBeforeSuperListener['CallExpression:exit']!(node);
-        },
-        ReturnStatement(node) {
-          constructorSuperListener.ReturnStatement!(node);
-        },
-        ThisExpression(node) {
-          notThisBeforeSuperListener.ThisExpression!(node);
-        },
-        Super(node) {
-          notThisBeforeSuperListener.Super!(node);
-        },
-        'Program:exit'() {
-          // @ts-ignore
-          constructorSuperListener['Program:exit']!();
-          // @ts-ignore
-          notThisBeforeSuperListener['Program:exit']!();
-        },
-      };
-    },
-  };
-}
+const linter = new Linter();
+const constructorSuperRule = linter.getRules().get('constructor-super')!;
+const noThisBeforeSuperRule = linter.getRules().get('no-this-before-super')!;
+
+export const rule: Rule.RuleModule = {
+  // meta of constructor-super is required for issue messages
+  ...{ meta: constructorSuperRule.meta },
+  create(context: Rule.RuleContext) {
+    const constructorSuperListener: Rule.RuleListener = constructorSuperRule.create(context);
+    const notThisBeforeSuperListener: Rule.RuleListener = noThisBeforeSuperRule.create(context);
+    return {
+      onCodePathStart(codePath, node) {
+        constructorSuperListener.onCodePathStart!(codePath, node);
+        notThisBeforeSuperListener.onCodePathStart!(codePath, node);
+      },
+      onCodePathEnd(codePath, node) {
+        constructorSuperListener.onCodePathEnd!(codePath, node);
+        notThisBeforeSuperListener.onCodePathEnd!(codePath, node);
+      },
+      onCodePathSegmentStart(segment, node) {
+        constructorSuperListener.onCodePathSegmentStart!(segment, node);
+        notThisBeforeSuperListener.onCodePathSegmentStart!(segment, node);
+      },
+      onCodePathSegmentLoop(fromSegment, toSegment, node) {
+        constructorSuperListener.onCodePathSegmentLoop!(fromSegment, toSegment, node);
+        notThisBeforeSuperListener.onCodePathSegmentLoop!(fromSegment, toSegment, node);
+      },
+      'CallExpression:exit'(node: estree.Node) {
+        // @ts-ignore
+        constructorSuperListener['CallExpression:exit']!(node);
+        // @ts-ignore
+        notThisBeforeSuperListener['CallExpression:exit']!(node);
+      },
+      ReturnStatement(node) {
+        constructorSuperListener.ReturnStatement!(node);
+      },
+      ThisExpression(node) {
+        notThisBeforeSuperListener.ThisExpression!(node);
+      },
+      Super(node) {
+        notThisBeforeSuperListener.Super!(node);
+      },
+      'Program:exit'() {
+        // @ts-ignore
+        constructorSuperListener['Program:exit']!();
+        // @ts-ignore
+        notThisBeforeSuperListener['Program:exit']!();
+      },
+    };
+  },
+};

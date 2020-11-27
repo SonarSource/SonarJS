@@ -29,7 +29,6 @@ import { Rule, Issue, IssueLocation } from './analyzer';
 import { rules as typescriptEslintRules } from '@typescript-eslint/eslint-plugin';
 import { getContext } from './context';
 import { decoratePreferTemplate } from './rules/prefer-template-decorator';
-import { mergeRules } from './rules/super-invocation';
 
 /**
  * In order to overcome ESLint limitation regarding issue reporting,
@@ -88,16 +87,6 @@ export class LinterWrapper {
     this.linter.defineRule(
       PREFER_TEMPLATE,
       decoratePreferTemplate(this.linter.getRules().get(PREFER_TEMPLATE)!),
-    );
-
-    // S3854 relies on the 'constructor-super' key but also encompasses the scope of 'no-this-before-super' from eslint
-    // so we merge the two rules
-    this.linter.defineRule(
-      'super-invocation',
-      mergeRules(
-        this.linter.getRules().get('constructor-super')!,
-        this.linter.getRules().get('no-this-before-super')!,
-      ),
     );
 
     // TS implementation of no-throw-literal is not supporting JS code.
