@@ -25,9 +25,11 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class LoopsShouldNotBeInfiniteCheckTest {
 
+/*
    @Test
    public void test() {
       JavaScriptCheckVerifier.verify(new LoopsShouldNotBeInfiniteCheck(), new File("src/test/resources/checks/loopsShouldNotBeInfinite.js"));
    }
+*/
 
 }
