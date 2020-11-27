@@ -32,6 +32,10 @@ const ruleTesterScript = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'script' },
 });
 
+const ruleTesterBabel = new RuleTester({
+  parser: require.resolve('babel-eslint'),
+});
+
 import { rule } from 'rules/declarations-in-global-scope';
 
 ruleTester.run('Variables and functions should not be declared in the global scope', rule, {
@@ -259,6 +263,22 @@ ruleTesterCustomGlobals.run('No issue for custom globals', rule, {
       code: `
       var angular = 1;
       var other = 2;
+            `,
+    },
+  ],
+  invalid: [],
+});
+
+ruleTesterBabel.run('Should not fail with Babel parser', rule, {
+  valid: [
+    {
+      code: `
+      /* @flow */
+      export interface SimpleSet {
+        has(key: string | number): boolean;
+        add(key: string | number): mixed;
+        clear(): void;
+      }
             `,
     },
   ],

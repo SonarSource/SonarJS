@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
             const defNode = def.node;
             if (
               def.type === 'FunctionName' ||
-              (def.type === 'Variable' && def.parent.kind === 'var')
+              (def.type === 'Variable' && def.parent?.kind === 'var')
             ) {
               context.report({
                 node: defNode,
