@@ -106,7 +106,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
    */
   private static void addSecurityRules(NewBuiltInQualityProfile newProfile, String language) {
     Set<RuleKey> ruleKeys = getSecurityRuleKeys(SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, language);
-    LOG.warn("Adding security ruleKeys {}", ruleKeys);
+    LOG.debug("Adding security ruleKeys {}", ruleKeys);
     ruleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
   }
 
