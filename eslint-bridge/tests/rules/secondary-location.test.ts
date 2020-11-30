@@ -17,144 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from 'rules/secondary-location';
-import { RuleTester } from 'eslint';
+import * as fs from 'fs';
+import { rules } from 'rules/main';
+import { Linter, SourceCode } from 'eslint';
+import { parseTypeScriptSourceFile } from '../../src/parser';
+import { rule as secondaryLocation } from 'rules/secondary-location';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-ruleTester.run('Secondary locations should be enabled when used', rule, {
-  valid: [
-    {
-      code: ``,
-    },
-    {
-      code: `
-        import { toEncodedMessage } from './utils';`,
-    },
-    {
-      code: `
-        toEncodedMessage();`,
-    },
-    {
-      code: `
-        unknown.toEncodedMessage();`,
-    },
-    {
-      code: `const config = {};`,
-    },
-    {
-      code: `const config =
-        {
-          alpha: whatever
-        };`,
-    },
-    {
-      code: `const config =
-        {
-          meta: {
-            whatever: something
-          }
-        };`,
-    },
-    {
-      code: `const config =
-        {
-          meta: {
-            schema: whatever
-          }
-        };`,
-    },
-    {
-      code: `const config =
-        {
-          meta: {
-            schema: [{}]
-          }
-        };`,
-    },
-    {
-      code: `const config =
-        {
-          meta: {
-            schema: [
-              {
-                enum: whatever
-              }
-            ]
-          }
-        };`,
-    },
-    {
-      code: `const config =
-        {
-          meta: {
-            schema: [
-              {
-                enum: []
-              }
-            ]
-          }
-        };`,
-    },
-    {
-      code: `const config =
-        {
-          meta: {
-            schema: [
-              {
-                enum: [whatever]
-              }
-            ]
-          }
-        };`,
-    },
-    {
-      code: `const config =
-        {
-          meta: {
-            schema: [
-              {
-                enum: ['whatever']
-              }
-            ]
-          }
-        };`,
-    },
-    {
-      code: `const config =
-        {
-          meta: {
-            schema: [
-              {
-                enum: ['sonar-runtime']
-              }
-            ]
-          }
-        };`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-        import { toEncodedMessage } from './utils';
-        /* ... */
-        toEncodedMessage(whatever);`,
-      errors: [
-        {
-          message: `Missing enabling of secondary location support`,
-          line: 2,
-          endLine: 4,
-          column: 9,
-          endColumn: 36,
-        },
-      ],
-    },
-    {
-      code: `
-        import { toEncodedMessage } from './utils';
-        /* ... */
-        toEncodedMessage(whatever);
-        toEncodedMessage(whatever);`,
-      errors: 1,
-    },
-  ],
+/**
+ * Detects missing of secondary location support for rules using secondary locations.
+ *
+ * A rule is considered to be using secondary location if its implementation calls at
+ * some point `toEncodedMessage` from `rules/utils.ts`.
+ *
+ * The idea is to parse and analyze the source code of all rules that are exposed in
+ * the module `rules/main.ts`. The analysis relies on an internal rule that checks a
+ * few conditions required for secondary locations to correctly be supported:
+ *
+ * - the rule calls `toEncodedMessage` from `rules/utils.ts`,
+ * - the rule includes `meta: { schema: [{ enum: ['sonar-runtime'] }] }` metadata.
+ *
+ * The source code of the exported rules violating these conditions will trigger an
+ * issue during analysis.
+ *
+ * The detection is formalized in the form of a unit test. The rule implementations
+ * missing something are collected. The presence of such rules eventually makes the
+ * test fail, and the names of the problematical rules are reported.
+ */
+describe('Secondary location support', () => {
+  it('should be enabled for rules using secondary locations', () => {
+    const rulesMissingSecondaryLocationEnabling = [];
+    const linter = new Linter();
+    linter.defineRule('secondary-location', secondaryLocation);
+    Object.keys(rules).forEach(rule => {
+      const filePath = `${__dirname}/../../src/rules/${rule}.ts`;
+      const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+      const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, []) as SourceCode;
+      const issues = linter.verify(sourceCode, { rules: { 'secondary-location': 'error' } });
+      if (issues.length > 0) {
+        rulesMissingSecondaryLocationEnabling.push(rule);
+      }
+    });
+    expect(rulesMissingSecondaryLocationEnabling).toHaveLength(0);
+  });
 });
