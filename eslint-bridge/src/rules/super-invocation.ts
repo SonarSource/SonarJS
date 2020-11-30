@@ -20,56 +20,39 @@
 // https://jira.sonarsource.com/browse/RSPEC-3854
 
 import { Linter, Rule } from 'eslint';
-import * as estree from 'estree';
 
-const linter = new Linter();
-const constructorSuperRule = linter.getRules().get('constructor-super')!;
-const noThisBeforeSuperRule = linter.getRules().get('no-this-before-super')!;
+const rules = new Linter().getRules();
+const constructorSuperRule = rules.get('constructor-super')!;
+const noThisBeforeSuperRule = rules.get('no-this-before-super')!;
 
 export const rule: Rule.RuleModule = {
   // meta of constructor-super is required for issue messages
-  ...{ meta: constructorSuperRule.meta },
+  meta: constructorSuperRule.meta,
   create(context: Rule.RuleContext) {
     const constructorSuperListener: Rule.RuleListener = constructorSuperRule.create(context);
     const notThisBeforeSuperListener: Rule.RuleListener = noThisBeforeSuperRule.create(context);
-    return {
-      onCodePathStart(codePath, node) {
-        constructorSuperListener.onCodePathStart!(codePath, node);
-        notThisBeforeSuperListener.onCodePathStart!(codePath, node);
-      },
-      onCodePathEnd(codePath, node) {
-        constructorSuperListener.onCodePathEnd!(codePath, node);
-        notThisBeforeSuperListener.onCodePathEnd!(codePath, node);
-      },
-      onCodePathSegmentStart(segment, node) {
-        constructorSuperListener.onCodePathSegmentStart!(segment, node);
-        notThisBeforeSuperListener.onCodePathSegmentStart!(segment, node);
-      },
-      onCodePathSegmentLoop(fromSegment, toSegment, node) {
-        constructorSuperListener.onCodePathSegmentLoop!(fromSegment, toSegment, node);
-        notThisBeforeSuperListener.onCodePathSegmentLoop!(fromSegment, toSegment, node);
-      },
-      'CallExpression:exit'(node: estree.Node) {
-        // @ts-ignore
-        constructorSuperListener['CallExpression:exit']!(node);
-        // @ts-ignore
-        notThisBeforeSuperListener['CallExpression:exit']!(node);
-      },
-      ReturnStatement(node) {
-        constructorSuperListener.ReturnStatement!(node);
-      },
-      ThisExpression(node) {
-        notThisBeforeSuperListener.ThisExpression!(node);
-      },
-      Super(node) {
-        notThisBeforeSuperListener.Super!(node);
-      },
-      'Program:exit'() {
-        // @ts-ignore
-        constructorSuperListener['Program:exit']!();
-        // @ts-ignore
-        notThisBeforeSuperListener['Program:exit']!();
-      },
-    };
+
+    return mergeRules(constructorSuperListener, notThisBeforeSuperListener);
   },
 };
+
+function mergeRules(rule1: Rule.RuleListener, rule2: Rule.RuleListener): Rule.RuleListener {
+  const merged = { ...rule1, ...rule2 };
+  for (const listener in merged) {
+    if (rule1.hasOwnProperty(listener) && rule2.hasOwnProperty(listener)) {
+      merged[listener] = mergeListeners(rule1[listener], rule2[listener]);
+    }
+  }
+  return merged;
+}
+
+function mergeListeners(listener1: Function | undefined, listener2: Function | undefined) {
+  return (...args: any[]) => {
+    if (listener1) {
+      listener1(...args);
+    }
+    if (listener2) {
+      listener2(...args);
+    }
+  };
+}
