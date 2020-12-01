@@ -23,14 +23,14 @@ class A2 {
     super();                 // Noncompliant {{super() can only be invoked in a derived class constructor.}}
 //  ^^^^^
     this.f = function() {
-      super();               // Noncompliant {{super() can only be invoked in a derived class constructor.}}
+      super();               // FN
     }
     this.g = (function() {
-      super();               // Noncompliant {{super() can only be invoked in a derived class constructor.}}
+      super();               // FN
     })(1)
   }
   bar() {
-    super();                 // Noncompliant {{super() can only be invoked in a derived class constructor.}}
+    super();                 // FN
   }
 }
 
@@ -38,7 +38,7 @@ class B2a extends A2 {
   constructor() {
     super();                 // OK
     this.f = function() {
-      super();               // Noncompliant {{super() can only be invoked in a derived class constructor.}}
+      super();               // FN
     }
   }
 }
@@ -47,7 +47,7 @@ var B2b = class extends A2 {
   constructor() {
     super();                 // OK
     this.f = function() {
-      super();               // Noncompliant {{super() can only be invoked in a derived class constructor.}}
+      super();               // FN
     }
   }
 }
@@ -342,7 +342,7 @@ class B41 extends A40 {
 
 var top_level_object = {
   constructor() {         // OK
-    super();              // Noncompliant
+    super();              // FN
   }
 }
 
@@ -395,7 +395,7 @@ class Derived4 extends Super {
 
 class Derived5 extends Super {
     constructor() {
-        super(1, 2, 3, 4, 5); // Noncompliant
+        super(1, 2, 3, 4, 5); // FN
     }
 }
 
