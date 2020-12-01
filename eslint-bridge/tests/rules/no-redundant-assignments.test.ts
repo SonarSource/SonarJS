@@ -26,6 +26,25 @@ import { rule } from 'rules/no-redundant-assignments';
 ruleTesterTs.run('', rule, {
   valid: [
     {
+      code: `
+        function circleOfAssignments (array) {
+          var buffer = new Array(len);
+          for (var chk = 1; chk < len; chk *= 2) {
+             var tmp = array;
+             array = buffer;
+             buffer = tmp;
+         }
+     }
+     `,
+    },
+    {
+      code: `function identities(x) {
+        let y = x;
+        let z = x;
+        z = y; // FN
+      }`,
+    },
+    {
       code: `function compliant(cond) {
         let x = 0;
         let mx = 0;
@@ -216,14 +235,6 @@ ruleTesterTs.run('', rule, {
             'Review this redundant assignment: "z" already holds the assigned value along all execution paths.',
         },
       ],
-    },
-    {
-      code: `function identities(x) {
-        let y = x;
-        let z = x;
-        z = y; // Noncompliant {{Review this redundant assignment: "z" already holds the assigned value along all execution paths.}}
-      }`,
-      errors: 1,
     },
     {
       code: `function nul() {

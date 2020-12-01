@@ -23,7 +23,21 @@ import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
 import Reference = Scope.Reference;
 
-export type VariableValue = Set<estree.Node>;
+type LiteralValue = string;
+
+class AssignedValues extends Set<LiteralValue> {
+  type: 'AssignedValues' = 'AssignedValues';
+}
+
+const assignedValues = (val: LiteralValue) => new AssignedValues([val]);
+interface UnknownValue {
+  type: 'UnknownValue';
+}
+export const unknownValue: UnknownValue = {
+  type: 'UnknownValue',
+};
+
+export type Values = AssignedValues | UnknownValue;
 
 export function reachingDefinitions(reachingDefinitionsMap: Map<string, ReachingDefinitions>) {
   const worklist = Array.from(reachingDefinitionsMap.values(), defs => defs.segment);
@@ -45,9 +59,9 @@ export class ReachingDefinitions {
 
   segment: CodePathSegment;
 
-  in = new Map<Variable, VariableValue>();
+  in = new Map<Variable, Values>();
 
-  out = new Map<Variable, VariableValue>();
+  out = new Map<Variable, Values>();
 
   /**
    * collects references in order they are evaluated, set in JS maintains insertion order
@@ -64,9 +78,9 @@ export class ReachingDefinitions {
   propagate(reachingDefinitionsMap: Map<string, ReachingDefinitions>) {
     this.in.clear();
     this.segment.prevSegments.forEach(prev => {
-      this.in = this.join(this.in, reachingDefinitionsMap.get(prev.id)!.out);
+      this.join(reachingDefinitionsMap.get(prev.id)!.out);
     });
-    const newOut = new Map<Variable, VariableValue>(this.in);
+    const newOut = new Map<Variable, Values>(this.in);
     this.references.forEach(ref => this.updateProgramState(ref, newOut));
     if (!equals(this.out, newOut)) {
       this.out = newOut;
@@ -76,94 +90,74 @@ export class ReachingDefinitions {
     }
   }
 
-  updateProgramState(ref: Reference, programState: Map<Variable, VariableValue>) {
+  updateProgramState(ref: Reference, programState: Map<Variable, Values>) {
     const variable = ref.resolved;
     if (!variable || !ref.isWrite()) {
       return;
     }
     if (!ref.writeExpr) {
-      // @ts-ignore parent is not exposed in the API
-      programState.set(variable, new Set([ref.identifier.parent]));
+      programState.set(variable, unknownValue);
       return;
     }
-    const rhsValues = resolveAssignedValues(ref.writeExpr, programState, ref.from);
+    const rhsValues = resolveAssignedValues(variable, ref.writeExpr, programState, ref.from);
     programState.set(variable, rhsValues);
   }
 
-  join(ps1: Map<Variable, VariableValue>, ps2: Map<Variable, VariableValue>) {
-    const result = new Map<Variable, VariableValue>();
-    for (const key of [...ps1.keys(), ...ps2.keys()]) {
-      const allValues: VariableValue = new Set();
-      const values1 = [...(ps1.get(key) || [])];
-      for (const val of values1) {
-        if (!setContains(allValues, val)) {
-          allValues.add(val);
-        }
+  join(previousOut: Map<Variable, Values>) {
+    for (const [key, values] of previousOut.entries()) {
+      const inValues = this.in.get(key) || new AssignedValues();
+      if (inValues.type === 'AssignedValues' && values.type === 'AssignedValues') {
+        values.forEach(val => inValues.add(val));
+        this.in.set(key, inValues);
+      } else {
+        this.in.set(key, unknownValue);
       }
-      const values2 = [...(ps2.get(key) || [])];
-      for (const val of values2) {
-        if (!setContains(allValues, val)) {
-          allValues.add(val);
-        }
-      }
-      result.set(key, allValues);
     }
-    return result;
-  }
-}
-
-function setContains(set: VariableValue, value: estree.Node) {
-  for (const val of set) {
-    if (areEquivalent(val, value)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-export function areEquivalent(node1: estree.Node, node2: estree.Node) {
-  if (node1.type !== node2.type) {
-    return false;
-  }
-  switch (node1.type) {
-    case 'Identifier':
-      return node1.name === (node2 as estree.Identifier).name;
-    case 'Literal':
-      return node1.raw === (node2 as estree.Literal).raw;
-    default:
-      return false;
   }
 }
 
 export function resolveAssignedValues(
-  writeExpr: estree.Node,
-  assignedValuesMap: Map<Variable, VariableValue>,
+  lhsVariable: Variable,
+  writeExpr: estree.Node | null,
+  assignedValuesMap: Map<Variable, Values>,
   scope: Scope.Scope,
-) {
-  let assignedValues = new Set([writeExpr]);
-  if (writeExpr.type === 'Identifier') {
-    const resolvedVar = getVariableFromIdentifier(writeExpr, scope);
-    if (resolvedVar) {
-      const resolvedAssignedValues = assignedValuesMap.get(resolvedVar);
-      if (resolvedAssignedValues) {
-        assignedValues = resolvedAssignedValues;
-      }
-    }
+): Values {
+  if (!writeExpr) {
+    return unknownValue;
   }
-  return assignedValues;
+  switch (writeExpr.type) {
+    case 'Literal':
+      return writeExpr.raw ? assignedValues(writeExpr.raw) : unknownValue;
+    case 'Identifier':
+      const resolvedVar = getVariableFromIdentifier(writeExpr, scope);
+      if (resolvedVar && resolvedVar !== lhsVariable) {
+        const resolvedAssignedValues = assignedValuesMap.get(resolvedVar);
+        return resolvedAssignedValues || unknownValue;
+      }
+      return unknownValue;
+    default:
+      return unknownValue;
+  }
 }
 
-function equals(ps1: Map<Variable, VariableValue>, ps2: Map<Variable, VariableValue>) {
+function equals(ps1: Map<Variable, Values>, ps2: Map<Variable, Values>) {
   if (ps1.size !== ps2.size) {
     return false;
   }
-  for (const [variable, expressions1] of ps1) {
-    const expressions2 = ps2.get(variable);
-    if (!expressions2 || !setEquals(expressions2, expressions1)) {
+  for (const [variable, values1] of ps1) {
+    const values2 = ps2.get(variable);
+    if (!values2 || !valuesEquals(values2, values1)) {
       return false;
     }
   }
   return true;
+}
+
+function valuesEquals(a: Values, b: Values) {
+  if (a.type === 'AssignedValues' && b.type === 'AssignedValues') {
+    return setEquals(a, b);
+  }
+  return a === b;
 }
 
 function setEquals<T>(a: Set<T>, b: Set<T>): boolean {

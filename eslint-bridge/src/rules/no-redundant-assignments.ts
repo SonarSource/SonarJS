@@ -28,11 +28,11 @@ import Variable = Scope.Variable;
 import Reference = Scope.Reference;
 import CodePathSegment = Rule.CodePathSegment;
 import {
-  areEquivalent,
   getVariableFromIdentifier,
   reachingDefinitions,
   ReachingDefinitions,
   resolveAssignedValues,
+  Values,
 } from './reachingDefinitions';
 
 const message = (name: string) =>
@@ -92,49 +92,44 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkSegment(reachingDefs: ReachingDefinitions) {
-      const assignedValuesMap = new Map<Variable, Set<estree.Node>>(reachingDefs.in);
+      const assignedValuesMap = new Map<Variable, Values>(reachingDefs.in);
       reachingDefs.references.forEach(ref => {
         const variable = ref.resolved;
         if (!variable || !ref.isWrite() || !shouldReport(ref)) {
           return;
         }
         const lhsValues = assignedValuesMap.get(variable);
-        // @ts-ignore parent is not exposed in the API
-        const writeExpr: estree.Node = ref.writeExpr || ref.identifier.parent;
-        const rhsValues = resolveAssignedValues(writeExpr, assignedValuesMap, ref.from);
-        if (lhsValues?.size === 1) {
+        const rhsValues = resolveAssignedValues(
+          variable,
+          ref.writeExpr,
+          assignedValuesMap,
+          ref.from,
+        );
+        if (lhsValues?.type === 'AssignedValues' && lhsValues?.size === 1) {
           const [lhsVal] = [...lhsValues];
-          checkRedundantAssignement(ref, writeExpr, lhsVal, rhsValues, variable.name);
+          checkRedundantAssignement(ref, ref.writeExpr, lhsVal, rhsValues, variable.name);
         }
-        assignedValuesMap.set(variable, new Set(rhsValues));
+        assignedValuesMap.set(variable, rhsValues);
       });
     }
 
     function checkRedundantAssignement(
-      { resolved: variable, from: scope }: Scope.Reference,
-      node: estree.Node,
-      lhsVal: estree.Node,
-      rhsValues: Set<estree.Node>,
+      { resolved: variable }: Scope.Reference,
+      node: estree.Node | null,
+      lhsVal: string | Variable,
+      rhsValues: Values,
       name: string,
     ) {
-      if (rhsValues.size !== 1) {
+      if (rhsValues.type === 'UnknownValue' || rhsValues.size !== 1) {
         return;
       }
       const [rhsVal] = [...rhsValues];
-      if (
-        !isRhsUndefinedVariable(rhsVal, scope) &&
-        !isWrittenOnlyOnce(variable!) &&
-        areEquivalent(lhsVal, rhsVal)
-      ) {
+      if (!isWrittenOnlyOnce(variable!) && lhsVal === rhsVal) {
         context.report({
-          node,
+          node: node!,
           message: message(name),
         });
       }
-    }
-
-    function isRhsUndefinedVariable(rhs: estree.Node, scope: Scope.Scope) {
-      return rhs.type === 'Identifier' && !getVariableFromIdentifier(rhs, scope);
     }
 
     // to avoid raising on code like:
