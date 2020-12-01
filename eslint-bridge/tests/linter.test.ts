@@ -247,7 +247,7 @@ describe('#decodeSecondaryLocations', () => {
   it('should not report on globals provided by environment configuration', () => {
     const sourceCode = parseJavaScriptSourceFile(`var alert = 1;`, `foo.js`) as SourceCode;
     const linter = new LinterWrapper(
-      [{ key: 'declaration-in-global-scope', configurations: [] }],
+      [{ key: 'declarations-in-global-scope', configurations: [] }],
       [],
       ['browser'],
     );
@@ -259,7 +259,7 @@ describe('#decodeSecondaryLocations', () => {
   it('should not report on globals provided by globals configuration', () => {
     const sourceCode = parseJavaScriptSourceFile(`var angular = 1;`, `foo.js`) as SourceCode;
     const linter = new LinterWrapper(
-      [{ key: 'declaration-in-global-scope', configurations: [] }],
+      [{ key: 'declarations-in-global-scope', configurations: [] }],
       [],
       [],
       ['angular'],

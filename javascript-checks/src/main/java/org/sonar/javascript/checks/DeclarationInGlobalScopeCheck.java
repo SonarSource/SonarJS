@@ -29,6 +29,6 @@ public class DeclarationInGlobalScopeCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "declaration-in-global-scope";
+    return "declarations-in-global-scope";
   }
 }

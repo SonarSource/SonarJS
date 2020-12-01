@@ -19,8 +19,13 @@
  */
 import * as estree from 'estree';
 import { Rule } from 'eslint';
-import { getModuleNameOfImportedIdentifier, getObjectExpressionProperty } from './utils';
+import { getModuleNameOfImportedIdentifier, getObjectExpressionProperty } from 'rules/utils';
 
+/**
+ * This rule is applied to our own code in the `src/rules` directory.
+ * It checks whether the `sonar-runtime` is set for rules that obviously use the
+ * `toEncodedMessage` method (which encodes secondary locations).
+ */
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let isSecondaryLocationUsed = false;
