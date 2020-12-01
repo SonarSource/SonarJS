@@ -50,6 +50,12 @@ describe('Secondary location support', () => {
     linter.defineRule('secondary-location', secondaryLocation);
     Object.keys(rules).forEach(rule => {
       const filePath = `${__dirname}/../../src/rules/${rule}.ts`;
+      if (!fs.existsSync(filePath)) {
+        throw new Error(
+          `The file '${filePath}' corresponding to rule name '${rule}' is missing ` +
+            '(mismatch between rule and file name?)',
+        );
+      }
       const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
       const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, []) as SourceCode;
       const issues = linter.verify(sourceCode, { rules: { 'secondary-location': 'error' } });
