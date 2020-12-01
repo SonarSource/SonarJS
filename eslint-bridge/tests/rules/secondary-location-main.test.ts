@@ -20,8 +20,8 @@
 import * as fs from 'fs';
 import { rules } from 'rules/main';
 import { Linter, SourceCode } from 'eslint';
-import { parseTypeScriptSourceFile } from '../../src/parser';
-import { rule as secondaryLocation } from 'rules/secondary-location';
+import { parseTypeScriptSourceFile } from 'parser';
+import { rule as secondaryLocation } from './secondary-location';
 
 /**
  * Detects missing of secondary location support for rules using secondary locations.
@@ -50,6 +50,12 @@ describe('Secondary location support', () => {
     linter.defineRule('secondary-location', secondaryLocation);
     Object.keys(rules).forEach(rule => {
       const filePath = `${__dirname}/../../src/rules/${rule}.ts`;
+      if (!fs.existsSync(filePath)) {
+        throw new Error(
+          `The file '${filePath}' corresponding to rule name '${rule}' is missing ` +
+            '(mismatch between rule and file name?)',
+        );
+      }
       const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
       const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, []) as SourceCode;
       const issues = linter.verify(sourceCode, { rules: { 'secondary-location': 'error' } });
