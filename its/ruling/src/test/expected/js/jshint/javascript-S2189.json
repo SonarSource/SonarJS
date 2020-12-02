@@ -1,4 +1,7 @@
 {
+'jshint:src/jshint.js':[
+2079,
+],
 'jshint:tests/unit/fixtures/curly.js':[
 4,
 7,
@@ -39,8 +42,6 @@
 207,
 213,
 219,
-316,
-363,
 ],
 'jshint:tests/unit/fixtures/scope.js':[
 16,
