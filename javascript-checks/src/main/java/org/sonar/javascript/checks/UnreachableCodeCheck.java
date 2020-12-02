@@ -27,7 +27,8 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S1736")
+@Rule(key = "S1763")
+@DeprecatedRuleKey(ruleKey = "S1736")
 @DeprecatedRuleKey(ruleKey = "UnreachableCode")
 public class UnreachableCodeCheck implements EslintBasedCheck {
 
