@@ -19,64 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.Type;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 @JavaScriptRule
 @Rule(key = "S3402")
-public class StringConcatenatedWithNonStringCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
-
-  private static final String MESSAGE = "Either make this concatenation explicit or cast one operand to a number.";
+public class StringConcatenatedWithNonStringCheck implements EslintBasedCheck {
 
   @Override
-  BinaryExpressionTree getTree(Tree element) {
-    if (element.is(Kind.PLUS)) {
-      return (BinaryExpressionTree) element;
-    }
-    return null;
+  public String eslintKey() {
+    return "no-incorrect-string-concat";
   }
-
-  @Override
-  boolean isProblem(BinaryExpressionTree tree, ProgramState currentState) {
-    ExpressionTree onlyStringOperand = getOnlyStringOperand(tree.leftOperand(), tree.rightOperand(), currentState);
-    return onlyStringOperand != null && onlyStringOperand.is(Kind.IDENTIFIER_REFERENCE);
-  }
-
-  @Override
-  void raiseIssue(BinaryExpressionTree tree) {
-    addIssue(tree.operatorToken(), MESSAGE)
-      .secondary(tree.leftOperand())
-      .secondary(tree.rightOperand());
-  }
-
-  @CheckForNull
-  private static ExpressionTree getOnlyStringOperand(ExpressionTree leftOperand, ExpressionTree rightOperand, ProgramState currentState) {
-    Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
-    Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
-
-    Type rightType = rightConstraint.type();
-    Type leftType = leftConstraint.type();
-
-
-    if (leftType != null && rightType != null) {
-
-      if (leftConstraint.isStricterOrEqualTo(Constraint.ANY_STRING) && !rightConstraint.isStricterOrEqualTo(Constraint.ANY_STRING)) {
-        return leftOperand;
-
-      } else if (!leftConstraint.isStricterOrEqualTo(Constraint.ANY_STRING) && rightConstraint.isStricterOrEqualTo(Constraint.ANY_STRING)) {
-        return rightOperand;
-      }
-    }
-
-    return null;
-  }
-
 }
