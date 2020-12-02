@@ -17,18 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+import { rule } from 'rules/super-invocation';
+import { RuleTester } from 'eslint';
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
-
-@TypeScriptRule
-@Rule(key = "S3854")
-public class ConstructorSuperCheck implements EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "constructor-super";
-  }
-}
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+ruleTester.run('"super()" should be invoked appropriately', rule, {
+  valid: [
+    {
+      code: `
+      var B1b = class extends A1 {
+        constructor() {
+          super();                 // OK
+          super.x = 1;
+        }
+      }
+            `,
+    },
+  ],
+  invalid: [
+    {
+      code: `class A extends B { constructor() {this.bar();}}`,
+      errors: 2,
+    },
+    {
+      code: `class A extends B { constructor(a) { while (a) super(); } }`,
+      errors: 2,
+    },
+  ],
+});

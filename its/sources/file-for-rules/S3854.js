@@ -1,6 +1,6 @@
 class A1 {
   constructor() {
-    // no super()            // OK            
+    // no super()            // OK
   }
 }
 
@@ -23,14 +23,14 @@ class A2 {
     super();                 // Noncompliant {{super() can only be invoked in a derived class constructor.}}
 //  ^^^^^
     this.f = function() {
-      super();               // Noncompliant {{super() can only be invoked in a derived class constructor.}}
+      super();               // FN
     }
     this.g = (function() {
-      super();               // Noncompliant {{super() can only be invoked in a derived class constructor.}}
+      super();               // FN
     })(1)
   }
   bar() {
-    super();                 // Noncompliant {{super() can only be invoked in a derived class constructor.}}
+    super();                 // FN
   }
 }
 
@@ -38,7 +38,7 @@ class B2a extends A2 {
   constructor() {
     super();                 // OK
     this.f = function() {
-      super();               // Noncompliant {{super() can only be invoked in a derived class constructor.}}
+      super();               // FN
     }
   }
 }
@@ -47,7 +47,7 @@ var B2b = class extends A2 {
   constructor() {
     super();                 // OK
     this.f = function() {
-      super();               // Noncompliant {{super() can only be invoked in a derived class constructor.}}
+      super();               // FN
     }
   }
 }
@@ -68,8 +68,8 @@ class A4 extends Unknown {
 }
 
 class A5 extends null {
-  constructor() {             
-    super();                 // NOK, but no solution: super() -> TypeError, whereas no super() -> ReferenceError 
+  constructor() {
+    super();                 // NOK, but no solution: super() -> TypeError, whereas no super() -> ReferenceError
   }
 }
 
@@ -97,7 +97,7 @@ class A10 {
 class B10 extends A10 {
   constructor() {            // Noncompliant {{super() must be invoked in any derived class constructor.}}
 //^^^^^^^^^^^
-    // no super()            
+    // no super()
   }
 }
 
@@ -151,7 +151,7 @@ class B20c extends A20 {
     this.foo(
 //S ^^^^                     ID2
         super(x));           // Noncompliant [[ID=ID2]] {{super() must be invoked before "this" or "super" can be used.}}
-//      ^^^^^    
+//      ^^^^^
   }
 }
 
@@ -218,29 +218,29 @@ function f35() {
   class A35 {
     constructor(x) {}
   }
-  
+
   class B35a extends A35() {
     constructor(x) {
       super(x);              // OK
-    } 
+    }
   }
-  
+
   class B35b extends A35 {
     constructor(x,y) {
       super(x, y);           // Noncompliant {{super() must be invoked with 1 argument.}}
-    }       
+    }
   }
-  
+
   class D34a extends A33 {
     constructor(x) {
       super(x);              // Noncompliant {{super() must be invoked with 3 arguments.}}
-    } 
+    }
   }
 
   class D34b extends B32 {
     constructor(x) {
       super(x, y);           // Noncompliant {{super() must be invoked with 0 arguments.}}
-    } 
+    }
   }
 }
 
@@ -342,7 +342,7 @@ class B41 extends A40 {
 
 var top_level_object = {
   constructor() {         // OK
-    super();              // Noncompliant
+    super();              // FN
   }
 }
 
@@ -395,7 +395,7 @@ class Derived4 extends Super {
 
 class Derived5 extends Super {
     constructor() {
-        super(1, 2, 3, 4, 5); // Noncompliant
+        super(1, 2, 3, 4, 5); // FN
     }
 }
 

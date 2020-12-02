@@ -91,7 +91,6 @@ public final class CheckList {
       ConfidentialInformationLoggingCheck.class,
       ConsoleLoggingCheck.class,
       ConstructorFunctionsForSideEffectsCheck.class,
-      ConstructorSuperCheck.class,
       ContinueStatementCheck.class,
       CookieNoHttpOnlyCheck.class,
       CookiesCheck.class,
