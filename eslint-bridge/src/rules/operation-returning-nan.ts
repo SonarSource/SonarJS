@@ -28,7 +28,8 @@ import ts, { TypeFlags } from 'typescript';
 const message =
   'Change the expression which uses this operand so that it can\'t evaluate to "NaN" (Not a Number).';
 
-const OPERATORS = ['/', '*', '%', '++', '--', '-', '-=', '*=', '/=', '%='];
+const BINARY_OPERATORS = ['/', '*', '%', '-', '-=', '*=', '/=', '%='];
+const UNARY_OPERATORS = ['++', '--', '+', '-'];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -49,7 +50,7 @@ export const rule: Rule.RuleModule = {
     return {
       'BinaryExpression, AssignmentExpression': (node: estree.Node) => {
         const expression = node as estree.BinaryExpression | estree.AssignmentExpression;
-        if (!OPERATORS.includes(expression.operator)) {
+        if (!BINARY_OPERATORS.includes(expression.operator)) {
           return;
         }
         const leftType = getTypeFromTreeNode(expression.left, services);
@@ -60,6 +61,9 @@ export const rule: Rule.RuleModule = {
       },
       'UnaryExpression, UpdateExpression': (node: estree.Node) => {
         const expr = node as estree.UpdateExpression | estree.UnaryExpression;
+        if (!UNARY_OPERATORS.includes(expr.operator)) {
+          return;
+        }
         const argType = getTypeFromTreeNode(expr.argument, services);
         if (isObjectType(argType)) {
           context.report({ node, message });

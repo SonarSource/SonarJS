@@ -53,6 +53,11 @@ ruleTester.run('Arithmetic operation returning NaN', rule, {
       true + 42; // ok
     `,
     },
+    {
+      code: `
+        typeof {} == 'string';
+      `,
+    },
   ],
   invalid: [
     {
