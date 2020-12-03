@@ -1,0 +1,17 @@
+{
+'jquery:src/core.js':[
+193,
+],
+'jquery:src/css.js':[
+42,
+],
+'jquery:test/data/jquery-1.9.1.js':[
+1796,
+4200,
+4211,
+7023,
+7222,
+8939,
+8950,
+],
+}
