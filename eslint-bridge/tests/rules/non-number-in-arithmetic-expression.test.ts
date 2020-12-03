@@ -61,6 +61,7 @@ ruleTesterTs.run('Arithmetic operators should only have numbers as operands', ru
 
         // PLUS -> addition
         num + num;
+        num * num;
 
         // comparisons
         str < str; str > str; str <= str; str >= str;
@@ -75,6 +76,9 @@ ruleTesterTs.run('Arithmetic operators should only have numbers as operands', ru
         d1 + bool; // OK, concatenation
 
         42 + new String(x); // OK
+
+        num++;
+        +num;
       }
             `,
     },
