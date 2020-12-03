@@ -1,7 +1,6 @@
 {
-'jshint:tests/unit/fixtures/unused.js':[
-110,
-112,
-115,
+'jshint:tests/unit/fixtures/boss.js':[
+17,
+52,
 ],
 }
