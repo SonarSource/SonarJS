@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-3579
+// https://jira.sonarsource.com/browse/RSPEC-3758
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
@@ -25,8 +25,8 @@ import {
   isRequiredParserServices,
   RequiredParserServices,
 } from '../utils/isRequiredParserServices';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as tsTypes from 'typescript';
+import { getTypeFromTreeNode, isStringType } from './utils';
 
 const message = (typeName: string) =>
   `Re-evaluate the data flow; this operand of a numeric comparison could be of type ${typeName}.`;
@@ -47,13 +47,9 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const checker = services.program.getTypeChecker();
-        const leftType = checker.getTypeAtLocation(
-          services.esTreeNodeToTSNodeMap.get(left as TSESTree.Node),
-        );
-        const rightType = checker.getTypeAtLocation(
-          services.esTreeNodeToTSNodeMap.get(right as TSESTree.Node),
-        );
-        if (isStringLike(leftType) || isStringLike(rightType)) {
+        const leftType = getTypeFromTreeNode(left, services);
+        const rightType = getTypeFromTreeNode(right, services);
+        if (isStringType(leftType) || isStringType(rightType)) {
           return;
         }
 
@@ -104,8 +100,4 @@ function getValueOfSignatures(typ: tsTypes.Type, checker: tsTypes.TypeChecker) {
 
 function isNumberLike(typ: tsTypes.Type) {
   return (typ.getFlags() & tsTypes.TypeFlags.NumberLike) !== 0;
-}
-
-function isStringLike(typ: tsTypes.Type) {
-  return (typ.getFlags() & tsTypes.TypeFlags.StringLike) !== 0;
 }

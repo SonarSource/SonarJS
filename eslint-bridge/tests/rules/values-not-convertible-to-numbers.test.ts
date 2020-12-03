@@ -23,7 +23,7 @@ import { RuleTester } from 'eslint';
 const ruleTesterTs = new RuleTesterTs();
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
-import { rule } from 'rules/values-convertible-to-numbers';
+import { rule } from 'rules/values-not-convertible-to-numbers';
 
 ruleTesterTs.run(
   'Values not convertible to numbers should not be used in numeric comparisons [TS]',
@@ -89,6 +89,10 @@ ruleTesterTs.run(
           {
             message:
               'Re-evaluate the data flow; this operand of a numeric comparison could be of type Object.',
+            line: 1,
+            endLine: 1,
+            column: 1,
+            endColumn: 13,
           },
         ],
       },

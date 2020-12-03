@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import ts from 'typescript';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { getTypeFromTreeNode, toEncodedMessage } from './utils';
+import { getTypeFromTreeNode, toEncodedMessage, isStringType } from './utils';
 
 const MESSAGE = 'Convert this operand into a number.';
 export const rule: Rule.RuleModule = {
@@ -192,10 +192,6 @@ function isNumber(type: ts.Type) {
   return (type.flags & ts.TypeFlags.NumberLike) > 0 || type.symbol?.name === 'Number';
 }
 
-function isString(type: ts.Type) {
-  return (type.flags & ts.TypeFlags.StringLike) > 0 || type.symbol?.name === 'String';
-}
-
 function isBooleanStringOrDate(type: ts.Type) {
-  return isBoolean(type) || isString(type) || type.symbol?.name === 'Date';
+  return isBoolean(type) || isStringType(type) || type.symbol?.name === 'Date';
 }

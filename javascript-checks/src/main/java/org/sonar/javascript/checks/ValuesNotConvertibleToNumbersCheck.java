@@ -29,6 +29,6 @@ public class ValuesNotConvertibleToNumbersCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "values-convertible-to-numbers";
+    return "values-not-convertible-to-numbers";
   }
 }

@@ -507,6 +507,10 @@ export function isString(node: estree.Node, services: RequiredParserServices) {
   return (typ.getFlags() & tsTypes.TypeFlags.StringLike) !== 0;
 }
 
+export function isStringType(type: tsTypes.Type) {
+  return (type.flags & tsTypes.TypeFlags.StringLike) > 0 || type.symbol?.name === 'String';
+}
+
 export function isFunction(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
