@@ -19,10 +19,12 @@
  */
 package org.sonar.plugins.javascript.minify;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.visitors.JavaScriptFileImpl;
 
 /**
  * An instance of this class computes the average line length of file.
@@ -50,7 +52,7 @@ class AverageLineLengthCalculator {
     long nbLines = 0;
     long nbCharacters = 0;
 
-    List<String> lines = CheckUtils.readLines(new JavaScriptFileImpl(file));
+    List<String> lines = readLines(file);
 
     for (String line : lines) {
       if (!isLineInHeaderComment(line)) {
@@ -105,5 +107,15 @@ class AverageLineLengthCalculator {
       }
     }
   }
+
+  private static List<String> readLines(InputFile file) {
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.inputStream()))) {
+      return reader.lines().collect(Collectors.toList());
+
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to read file " + file.uri(), e);
+    }
+  }
+
 
 }

@@ -24,8 +24,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.javascript.tree.symbols.GlobalVariableNames;
-import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
@@ -48,7 +46,6 @@ public class JavaScriptPlugin implements Plugin {
 
   private static final String GENERAL = "General";
   private static final String TEST_AND_COVERAGE = "Tests and Coverage";
-  private static final String LIBRARIES = "Libraries";
   private static final String JS_TS_CATEGORY = "JavaScript / TypeScript";
   private static final String TS_SUB_CATEGORY = "TypeScript";
 
@@ -59,14 +56,12 @@ public class JavaScriptPlugin implements Plugin {
   public static final String LCOV_REPORT_PATHS = PROPERTY_PREFIX + ".lcov.reportPaths";
   public static final String LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
 
-  public static final String JQUERY_OBJECT_ALIASES = JQuery.JQUERY_OBJECT_ALIASES;
-  public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
+  public static final String ENVIRONMENTS = "sonar.javascript.environments";
+  public static final String ENVIRONMENTS_DEFAULT_VALUE = "amd, applescript, atomtest, browser, commonjs, couch, embertest, flow, greasemonkey, jasmine, jest, jquery, " +
+    "meteor, mocha, mongo, nashorn, node, phantomjs, prototypejs, protractor, qunit, rhino, serviceworker, shared-node-browser, shelljs, webextensions, worker, wsh, yui";
 
-  public static final String ENVIRONMENTS = GlobalVariableNames.ENVIRONMENTS_PROPERTY_KEY;
-  public static final String ENVIRONMENTS_DEFAULT_VALUE = GlobalVariableNames.ENVIRONMENTS_DEFAULT_VALUE;
-
-  public static final String GLOBALS = GlobalVariableNames.GLOBALS_PROPERTY_KEY;
-  public static final String GLOBALS_DEFAULT_VALUE = GlobalVariableNames.GLOBALS_DEFAULT_VALUE;
+  public static final String GLOBALS = "sonar.javascript.globals";
+  public static final String GLOBALS_DEFAULT_VALUE = "angular,goog,google,OenLayers,d3,dojo,dojox,dijit,Backbone,moment,casper";
 
   public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
@@ -168,16 +163,6 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
         .type(PropertyType.BOOLEAN)
-        .build(),
-
-      PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
-        .defaultValue(JavaScriptPlugin.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE)
-        .name("jQuery object aliases")
-        .description("List of names used to address jQuery object.")
-        .onQualifiers(Qualifiers.PROJECT)
-        .subCategory(LIBRARIES)
-        .multiValues(true)
-        .category(JS_TS_CATEGORY)
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.ENVIRONMENTS)

@@ -21,8 +21,10 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
+import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
-import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import org.assertj.core.groups.Tuple;
 import org.junit.AfterClass;
@@ -31,8 +33,7 @@ import org.junit.Test;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 
-import static com.sonar.javascript.it.plugin.CustomRulesTest.initOrchestrator;
-import static com.sonar.javascript.it.plugin.CustomRulesTest.runBuild;
+import static com.sonar.javascript.it.plugin.Tests.JAVASCRIPT_PLUGIN_LOCATION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EslintCustomRulesTest {
@@ -51,11 +52,47 @@ public class EslintCustomRulesTest {
     orchestrator.stop();
   }
 
+  static Orchestrator initOrchestrator(String customRulesArtifactId) {
+    Orchestrator orchestrator = Orchestrator.builderEnv()
+      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+      .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
+      .addPlugin(FileLocation.byWildcardMavenFilename(
+        new File("../plugins/" + customRulesArtifactId + "/target"), customRulesArtifactId + "-*.jar"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-typescript-custom-rules.xml"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
+      .build();
+    orchestrator.start();
+    return orchestrator;
+  }
+
+  static List<Issue> findIssues(String ruleKey, Orchestrator orchestrator) {
+    org.sonarqube.ws.client.issues.SearchRequest searchRequest = new org.sonarqube.ws.client.issues.SearchRequest();
+    searchRequest.setRules(Collections.singletonList(ruleKey));
+    Issues.SearchWsResponse response = Tests.newWsClient(orchestrator).issues().search(searchRequest);
+    return response.getIssuesList();
+  }
+
+  static BuildResult runBuild(Orchestrator orchestrator) {
+    SonarScanner build = Tests.createScanner()
+      .setProjectDir(TestUtils.projectDir("custom_rules"))
+      .setProjectKey("custom-rules")
+      .setProjectName("Custom Rules")
+      .setProjectVersion("1.0")
+      .setDebugLogs(true)
+      .setSourceDirs("src");
+    orchestrator.getServer().provisionProject("custom-rules", "Custom Rules");
+    orchestrator.getServer().associateProjectToQualityProfile("custom-rules", "js", "javascript-custom-rules-profile");
+    orchestrator.getServer().associateProjectToQualityProfile("custom-rules", "ts", "ts-custom-rules-profile");
+    return orchestrator.executeBuild(build);
+  }
+
   @Test
   public void test() {
     BuildResult buildResult = runBuild(orchestrator);
     assertThat(buildResult.getLogsLines(l -> l.matches(".*INFO: Deploying custom rules bundle jar:file:.*/custom-eslint-based-rules-1\\.0\\.0\\.tgz to .*"))).hasSize(1);
-    List<Issue> issues = CustomRulesTest.findIssues("eslint-custom-rules:sqKey", orchestrator);
+    List<Issue> issues = findIssues("eslint-custom-rules:sqKey", orchestrator);
     assertThat(issues).hasSize(2);
     assertThat(issues).extracting(Issue::getRule, Issue::getComponent, Issue::getLine, Issue::getMessage)
       .containsExactlyInAnyOrder(
@@ -65,7 +102,7 @@ public class EslintCustomRulesTest {
     Issues.Location secondaryLocation = issues.get(0).getFlows(0).getLocations(0);
     assertThat(secondaryLocation.getMsg()).isEqualTo(new File(TestUtils.projectDir("custom_rules"), ".scannerwork").getAbsolutePath());
 
-    issues = CustomRulesTest.findIssues("ts-custom-rules:tsRuleKey", orchestrator);
+    issues = findIssues("ts-custom-rules:tsRuleKey", orchestrator);
     assertThat(issues).extracting(Issue::getRule, Issue::getComponent, Issue::getLine, Issue::getMessage)
       .containsExactlyInAnyOrder(
         new Tuple("ts-custom-rules:tsRuleKey", "custom-rules:src/dir/file.ts", 4, "tsrule call")

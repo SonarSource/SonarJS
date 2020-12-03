@@ -17,26 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.plugins.javascript.api;
 
-import com.google.gson.Gson;
-import org.junit.Test;
+import java.util.Collections;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface EslintBasedCheck extends JavaScriptCheck {
 
-public class FunctionNameCheckTest {
+  String eslintKey();
 
-  @Test
-  public void configurations() {
-    FunctionNameCheck check = new FunctionNameCheck();
-
-    // default configuration
-    String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[{\"format\":\"^[_a-z][a-zA-Z0-9]*$\"}]");
-
-    // custom configuration
-    check.format = "^[a-zA-Z0-9]*$";
-    String customConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(customConfigAsString).isEqualTo("[{\"format\":\"^[a-zA-Z0-9]*$\"}]");
+  default List<Object> configurations() {
+    return Collections.emptyList();
   }
+
 }
