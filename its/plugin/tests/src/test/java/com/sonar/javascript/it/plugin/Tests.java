@@ -104,7 +104,7 @@ public final class Tests {
 
   @CheckForNull
   static Measure getMeasure(String componentKey, String metricKey) {
-    ComponentWsResponse response = newWsClient().measures().component(new ComponentRequest()
+    ComponentWsResponse response = newWsClient(ORCHESTRATOR).measures().component(new ComponentRequest()
       .setComponent(componentKey)
       .setMetricKeys(singletonList(metricKey)));
     List<Measure> measures = response.getComponent().getMeasuresList();
@@ -123,15 +123,15 @@ public final class Tests {
     return (measure == null) ? null : Double.parseDouble(measure.getValue());
   }
 
-  static WsClient newWsClient() {
+  static WsClient newWsClient(Orchestrator orchestrator) {
     return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .url(ORCHESTRATOR.getServer().getUrl())
+      .url(orchestrator.getServer().getUrl())
       .build());
   }
 
   static List<Issue> getIssues(String componentKey) {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(componentKey));
-    return newWsClient().issues().search(request).getIssuesList();
+    return newWsClient(ORCHESTRATOR).issues().search(request).getIssuesList();
   }
 }

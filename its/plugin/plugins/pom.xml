@@ -13,8 +13,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>custom-rules-plugin</module>
-    <module>deprecated-custom-rules-plugin</module>
     <module>eslint-custom-rules-plugin</module>
   </modules>
 

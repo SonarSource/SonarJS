@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.sonar.api.internal.google.common.annotations.VisibleForTesting;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.utils.log.Logger;
@@ -97,7 +96,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     ruleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
   }
 
-  @VisibleForTesting
+  // Visible for testing
   static Set<RuleKey> getSecurityRuleKeys(String className, String ruleKeysMethodName, String language) {
     try {
       Class<?> rulesClass = Class.forName(className);

@@ -30,10 +30,6 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>javascript-frontend</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>javascript-checks</artifactId>
     </dependency>
     <dependency>
@@ -58,20 +54,12 @@
       <artifactId>sonar-plugin-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonarsource.sslr</groupId>
-      <artifactId>sslr-core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sonarqube</groupId>
-      <artifactId>sonar-testing-harness</artifactId>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -157,8 +145,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>21000000</minsize>
-                  <maxsize>23000000</maxsize>
+                  <minsize>19500000</minsize>
+                  <maxsize>20500000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>

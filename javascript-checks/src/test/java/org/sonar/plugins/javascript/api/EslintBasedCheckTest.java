@@ -17,18 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.plugins.javascript.api;
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
+import org.junit.Test;
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S2260")
-@DeprecatedRuleKey(ruleKey = "ParsingError")
-public class ParsingErrorCheck implements JavaScriptCheck {
-  // this class exists only to provide metadata for rule
+import static org.assertj.core.api.Assertions.assertThat;
+
+
+public class EslintBasedCheckTest {
+
+  @Test
+  public void test() {
+    EslintBasedCheck check = () -> "key";
+
+    assertThat(check.eslintKey()).isEqualTo("key");
+    assertThat(check.configurations()).isEmpty();
+  }
+
 }
