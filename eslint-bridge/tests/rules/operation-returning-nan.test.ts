@@ -19,6 +19,19 @@
  */
 import { rule } from 'rules/operation-returning-nan';
 import { RuleTesterTs } from '../RuleTesterTs';
+import { RuleTester } from 'eslint';
+
+const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+ruleTesterJs.run('Arithmetic operation returning NaN [NoParserServices]', rule, {
+  valid: [
+    {
+      code: `
+        let x = 42 - [1,2];
+      `,
+    },
+  ],
+  invalid: [],
+});
 
 const ruleTester = new RuleTesterTs(true);
 ruleTester.run('Arithmetic operation returning NaN', rule, {
