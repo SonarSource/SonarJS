@@ -1,1 +1,0 @@
-var inAJsxFile = 1;

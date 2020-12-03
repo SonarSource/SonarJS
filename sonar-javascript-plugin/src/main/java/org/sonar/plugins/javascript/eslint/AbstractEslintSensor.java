@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -63,9 +62,6 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Rule;
 import org.sonarsource.nodejs.NodeCommandException;
 
-import static org.sonar.javascript.tree.symbols.GlobalVariableNames.ENVIRONMENTS_PROPERTY_KEY;
-import static org.sonar.javascript.tree.symbols.GlobalVariableNames.GLOBALS_PROPERTY_KEY;
-
 abstract class AbstractEslintSensor implements Sensor {
   private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);
 
@@ -73,7 +69,7 @@ abstract class AbstractEslintSensor implements Sensor {
   private final FileLinesContextFactory fileLinesContextFactory;
   final EslintBridgeServer eslintBridgeServer;
   private final AnalysisWarnings analysisWarnings;
-  @VisibleForTesting
+  // Visible for testing
   final List<Rule> rules;
   final AbstractChecks checks;
   List<String> environments;
@@ -104,7 +100,7 @@ abstract class AbstractEslintSensor implements Sensor {
       .map(checks::ruleKeyFor).orElse(null);
   }
 
-  @VisibleForTesting
+  // Visible for testing
   AnalysisWarnings getAnalysisWarnings() {
     return analysisWarnings;
   }
@@ -113,8 +109,8 @@ abstract class AbstractEslintSensor implements Sensor {
   public void execute(SensorContext context) {
     this.context = context;
     failFast = context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
-    environments = Arrays.asList(context.config().getStringArray(ENVIRONMENTS_PROPERTY_KEY));
-    globals = Arrays.asList(context.config().getStringArray(GLOBALS_PROPERTY_KEY));
+    environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
+    globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
     try {
       startBridge(context);
       analyzeFiles();

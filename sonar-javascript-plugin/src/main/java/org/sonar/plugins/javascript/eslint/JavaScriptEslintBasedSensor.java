@@ -42,7 +42,6 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.JavaScriptSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
@@ -78,9 +77,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   @Override
   void analyzeFiles() throws IOException, InterruptedException {
     runEslintAnalysis(provideDefaultTsConfig());
-    PROFILER.startInfo("Java-based frontend sensor [javascript]");
-    new JavaScriptSensor(checks).execute(context);
-    PROFILER.stopInfo();
   }
 
   private List<String> provideDefaultTsConfig() throws IOException {

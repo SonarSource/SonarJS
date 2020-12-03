@@ -19,12 +19,11 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import com.google.common.base.Charsets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.FileUtils;
+import java.nio.file.Files;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -80,7 +79,7 @@ public class CoverageSensorTest {
       .setType(type)
       .build();
 
-    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), Charsets.UTF_8, inputFile.absolutePath()));
+    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), StandardCharsets.UTF_8, inputFile.absolutePath()));
     context.fileSystem().add(inputFile);
 
     return inputFile;
@@ -250,7 +249,8 @@ public class CoverageSensorTest {
     String absolutePathFile1 = new File("src/test/resources/coverage/file1.js").getAbsolutePath();
     String absolutePathFile2 = new File("src/test/resources/coverage/file2.js").getAbsolutePath();
 
-    FileUtils.writeStringToFile(lcovFile, "SF:" + absolutePathFile1 + "\n" +
+    Files.write(lcovFile.toPath(),
+      ("SF:" + absolutePathFile1 + "\n" +
       "DA:1,2\n" +
       "DA:2,2\n" +
       "DA:3,1\n" +
@@ -264,7 +264,7 @@ public class CoverageSensorTest {
       "SF:" + absolutePathFile2 + "\n" +
       "DA:1,5\n" +
       "DA:2,5\n" +
-      "end_of_record\n", "UTF-8", false);
+      "end_of_record\n").getBytes(StandardCharsets.UTF_8));
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcovFile.getAbsolutePath());
     inputFile("file1.js", Type.MAIN);
     inputFile("file2.js", Type.MAIN);
@@ -298,7 +298,7 @@ public class CoverageSensorTest {
     context.fileSystem().add(inputFile);
 
     File lcov = temp.newFile();
-    FileUtils.writeStringToFile(lcov, "SF:src/file1.ts\n" +
+    Files.write(lcov.toPath(), ("SF:src/file1.ts\n" +
       "DA:1,2\n" +
       "DA:2,2\n" +
       "DA:3,1\n" +
@@ -312,7 +312,7 @@ public class CoverageSensorTest {
       "SF:src/file2.ts\n" +
       "DA:1,5\n" +
       "DA:2,5\n" +
-      "end_of_record\n", StandardCharsets.UTF_8);
+      "end_of_record\n").getBytes(StandardCharsets.UTF_8));
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.getAbsolutePath());
     coverageSensor.execute(context);
     assertThat(context.lineHits(inputFile.key(), 1)).isEqualTo(2);

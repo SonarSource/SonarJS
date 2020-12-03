@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -53,7 +53,7 @@ public final class CheckList {
   }
 
   public static List<Class<? extends JavaScriptCheck>> getAllChecks() {
-    return ImmutableList.of(
+    return Arrays.asList(
       AdjacentOverloadSignaturesCheck.class,
       AlertUseCheck.class,
       AlphabeticalSortCheck.class,
