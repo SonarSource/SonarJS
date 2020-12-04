@@ -12,13 +12,15 @@ href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS</a>, that act
 <ul>
   <li> You don't trust the origin specified, example: <code>Access-Control-Allow-Origin: untrustedwebsite.com</code>. </li>
   <li> Access control policy is entirely disabled: <code>Access-Control-Allow-Origin: *</code> </li>
-  <li> You access control policy is dynamically defined by a user-controlled input like <a
+  <li> Your access control policy is dynamically defined by a user-controlled input like <a
   href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Origin"><code>origin</code></a> header. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
   <li> The <code>Access-Control-Allow-Origin</code> header should be set only for a trusted origin and for specific resources. </li>
+  <li> Allow only selected, trusted domains in the <code>Access-Control-Allow-Origin</code> header. Prefer whitelisting domains over blacklisting or
+  allowing any domain (do not use * wildcard nor blindly return the <code>Origin</code> header content without any checks). </li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <p><a href="https://nodejs.org/api/http.html">nodejs http</a> built-in module:</p>

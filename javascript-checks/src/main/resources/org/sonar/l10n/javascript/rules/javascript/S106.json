@@ -8,7 +8,8 @@
   },
   "tags": [
     "bad-practice",
-    "user-experience"
+    "user-experience",
+    "owasp-a3"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-106",
@@ -17,5 +18,10 @@
     "JAVASCRIPT",
     "TYPESCRIPT"
   ],
-  "scope": "Main"
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A3"
+    ]
+  }
 }

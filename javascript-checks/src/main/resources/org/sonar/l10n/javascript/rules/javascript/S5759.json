@@ -1,5 +1,5 @@
 {
-  "title": "Forwarding client IP address is security sensitive",
+  "title": "Forwarding client IP address is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
