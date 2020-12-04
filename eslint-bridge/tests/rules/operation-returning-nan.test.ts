@@ -76,14 +76,22 @@ ruleTester.run('Arithmetic operation returning NaN', rule, {
     {
       code: `
         let x = 42 - [1,2];
+        let y = [1,2] - 42;
       `,
       errors: [
         {
           message: `Change the expression which uses this operand so that it can't evaluate to "NaN" (Not a Number).`,
           line: 2,
-          column: 17,
+          column: 22,
           endLine: 2,
           endColumn: 27,
+        },
+        {
+          message: `Change the expression which uses this operand so that it can't evaluate to "NaN" (Not a Number).`,
+          line: 3,
+          column: 17,
+          endLine: 3,
+          endColumn: 22,
         },
       ],
     },
