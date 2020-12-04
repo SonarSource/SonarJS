@@ -1,21 +1,15 @@
-<p>CSRF vulnerabilities occur when attackers can trick a user to perform sensitive authenticated operations on a web application without his
-consent.</p>
-<pre>
-&lt;body onload="document.forms[0].submit()"&gt;
-&lt;form&gt;
-&lt;form action="http://mybank.com/account/transfer_money" method="POST"&gt;
-    &lt;input type="hidden" name="accountNo" value="attacker_account_123456"/&gt;
-    &lt;input type="hidden" name="amount" value="10000"/&gt;
-    &lt;input type="submit" value="Steal money"/&gt;
-&lt;/form&gt;
-</pre>
-<p>If an user visits the attacker's website which contains the above malicious code, his bank account will be debited without his consent and
-notice.</p>
+<p>Cross-site request forgery (CSRF) vulnerabilities occur when attackers can trick a user to perform sensitive authenticated operations on a web
+application without his consent.</p>
+<p>Imagine a web application where an authenticated user can do actions like changing his email address and which has no CSRF protection. A malicious
+website could forge a web page form to send the HTTP request that change the user email. When the user visits the malicious web page, the form is
+automatically submitted in his name and his account email is changed to an arbitrary email.</p>
+<p>Such an attack is only possible if the web browser automatically sends authentication information to the trusted domain (e.g cookie based
+authentication) </p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> There exist sensitive operations on the web application that can be performed when the user is authenticated. </li>
-  <li> The state / resources of the web application could be modified by doing HTTP POST or HTTP DELETE requests for example. </li>
-  <li> The web application is not only a public API designed to be requested by external websites. </li>
+  <li> The web application uses cookies to authenticate users. </li>
+  <li> There exist sensitive operations in the web application that can be performed when the user is authenticated. </li>
+  <li> The state / resources of the web application can be modified by doing HTTP POST or HTTP DELETE requests for example. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
