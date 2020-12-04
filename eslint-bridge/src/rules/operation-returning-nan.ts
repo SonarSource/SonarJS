@@ -55,8 +55,11 @@ export const rule: Rule.RuleModule = {
         }
         const leftType = getTypeFromTreeNode(expression.left, services);
         const rightType = getTypeFromTreeNode(expression.right, services);
-        if (isObjectType(leftType, rightType)) {
-          context.report({ node, message });
+        if (isObjectType(leftType)) {
+          context.report({ node: expression.left, message });
+        }
+        if (isObjectType(rightType)) {
+          context.report({ node: expression.right, message });
         }
       },
       'UnaryExpression, UpdateExpression': (node: estree.Node) => {
