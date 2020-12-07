@@ -22,7 +22,15 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.UnknownSymbolicValue;
+import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 @JavaScriptRule
 @TypeScriptRule

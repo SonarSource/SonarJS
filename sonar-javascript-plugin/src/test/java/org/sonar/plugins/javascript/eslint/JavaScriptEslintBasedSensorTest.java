@@ -475,6 +475,23 @@ public class JavaScriptEslintBasedSensorTest {
       .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
   }
 
+  @Test
+  public void should_run_old_frontend() throws Exception {
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
+      .setLanguage("js")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("0123;")
+      .build();
+    context.fileSystem().add(inputFile);
+
+    JavaScriptChecks checks = checks("S1314");
+    NoSonarFilter noSonarFilter = new NoSonarFilter();
+    JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServerMock, null, tempFolder);
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(1);
+    assertThat(context.allIssues()).extracting(i -> i.ruleKey().toString()).containsExactly("javascript:S1314");
+  }
 
   @Test
   public void stop_analysis_if_cancelled() throws Exception {

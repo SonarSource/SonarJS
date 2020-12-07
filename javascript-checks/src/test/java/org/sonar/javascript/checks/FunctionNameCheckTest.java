@@ -20,7 +20,9 @@
 package org.sonar.javascript.checks;
 
 import com.google.gson.Gson;
+import java.io.File;
 import org.junit.Test;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

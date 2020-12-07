@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Lists;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -68,7 +68,7 @@ public class CheckListTest {
       }
     }
 
-    List<String> keys = new ArrayList<>();
+    List<String> keys = Lists.newArrayList();
     List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", Collections.unmodifiableList(checks));
     for (Rule rule : rules) {
       keys.add(rule.getKey());
@@ -95,13 +95,13 @@ public class CheckListTest {
   @Test
   public void test_eslint_key() throws IllegalAccessException, InstantiationException {
     List<Class<? extends JavaScriptCheck>> checks = CheckList.getAllChecks();
-    List<String> keys = new ArrayList<>();
+    List<String> keys = Lists.newArrayList();
 
     for (Class<? extends JavaScriptCheck> cls : checks) {
       if (isEslintBasedCheck(cls)) {
         EslintBasedCheck eslintBasedCheck = (EslintBasedCheck) cls.newInstance();
         keys.add(eslintBasedCheck.eslintKey());
-        assertThat(eslintBasedCheck.eslintKey()).as("Invalid key for " + eslintBasedCheck.getClass()).matches("[a-z\\-]+");
+        assertThat(eslintBasedCheck.eslintKey()).matches("[a-z\\-]+");
       }
     }
 

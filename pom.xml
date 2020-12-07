@@ -29,8 +29,10 @@
   </licenses>
 
   <modules>
+    <module>javascript-frontend</module>
     <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
+    <module>javascript-checks-testkit</module>
     <module>eslint-bridge</module>
     <module>nodejs-utils</module>
   </modules>
@@ -58,6 +60,7 @@
     <assertj.version>3.16.1</assertj.version>
     <commons-io.version>2.5</commons-io.version>
     <commons-lang.version>2.6</commons-lang.version>
+    <guava.version>28.0-jre</guava.version>
     <junit.version>4.13.1</junit.version>
     <logback.version>1.0.13</logback.version>
     <mockito.version>3.5.0</mockito.version>
@@ -83,6 +86,11 @@
       <!-- Default dependencies (compile) -->
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>javascript-frontend</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>javascript-checks</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -90,6 +98,11 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>nodejs-utils</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sslr</groupId>
+        <artifactId>sslr-core</artifactId>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
@@ -143,6 +156,11 @@
         <version>${logback.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
         <version>${gson.version}</version>
@@ -185,6 +203,12 @@
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${assertj.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-testing-harness</artifactId>
+        <version>${sonar.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
