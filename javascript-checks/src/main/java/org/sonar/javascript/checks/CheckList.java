@@ -185,6 +185,7 @@ public final class CheckList {
       NoAccessorFieldMismatchCheck.class,
       NoAnyCheck.class,
       NoArrayDeleteCheck.class,
+      NoClearTextProtocolsCheck.class,
       NoDuplicateImportsCheck.class,
       NoDuplicateInCompositeCheck.class,
       NoDuplicateStringCheck.class,
