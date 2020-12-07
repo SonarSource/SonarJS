@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -35,11 +36,28 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public class TypeScriptChecks extends AbstractChecks {
 
   public TypeScriptChecks(CheckFactory checkFactory) {
-    this(checkFactory, null);
+    this(checkFactory, null, null);
   }
 
+  /**
+   *  This constructor is necessary for Pico container to correctly instantiate sensor with custom rules loaded via {@link CustomJavaScriptRulesDefinition}
+   *  See plugin integration tests
+   */
+  public TypeScriptChecks(CheckFactory checkFactory, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
+    this(checkFactory, customRulesDefinition, null);
+  }
+
+  /**
+   *  This constructor is necessary for Pico container to correctly instantiate sensor with custom rules loaded via {@link CustomRuleRepository}
+   *  See plugin integration tests
+   */
   public TypeScriptChecks(CheckFactory checkFactory, @Nullable CustomRuleRepository[] customRuleRepositories) {
-    super(checkFactory, customRuleRepositories);
+    this(checkFactory, null, customRuleRepositories);
+  }
+
+  public TypeScriptChecks(CheckFactory checkFactory, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinitions,
+                          @Nullable CustomRuleRepository[] customRuleRepositories) {
+    super(checkFactory, customRulesDefinitions, customRuleRepositories);
     addChecks(CustomRuleRepository.Language.TYPESCRIPT, CheckList.TS_REPOSITORY_KEY, CheckList.getTypeScriptChecks());
   }
 
