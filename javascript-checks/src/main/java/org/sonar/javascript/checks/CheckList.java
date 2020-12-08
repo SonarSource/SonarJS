@@ -241,6 +241,7 @@ public final class CheckList {
       PreferDefaultLastCheck.class,
       ProductionDebugCheck.class,
       PseudoRandomCheck.class,
+      PubliclyWritableDirectoriesCheck.class,
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,
       RestrictPlusOperandsCheck.class,
