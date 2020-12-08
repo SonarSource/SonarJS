@@ -59,6 +59,7 @@ import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
@@ -115,7 +116,20 @@ public class JavaScriptSensorTest {
   private final SensorContextTester context = SensorContextTester.create(baseDir);
 
   private JavaScriptSensor createSensor() {
-   return new JavaScriptSensor(new JavaScriptChecks(checkFactory));
+    CustomRuleRepository[] ruleRepository = {new CustomRuleRepository() {
+
+      @Override
+      public String repositoryKey() {
+        return "javascript";
+      }
+
+      @Override
+      public List<Class<? extends JavaScriptCheck>> checkClasses() {
+        return ImmutableList.of(OctalNumberCheck.class);
+      }
+    }};
+
+    return new JavaScriptSensor(new JavaScriptChecks(checkFactory, ruleRepository));
   }
 
   private JavaScriptSensor createSensorWithCustomRules() {
@@ -147,11 +161,10 @@ public class JavaScriptSensorTest {
     context.setActiveRules(activeRules);
     createSensor().execute(context);
     Collection<Issue> issues = context.allIssues();
-    assertThat(issues).hasSize(0);
-    assertThat(context.allAnalysisErrors()).hasSize(0);
+    assertThat(issues).isEmpty();
+    assertThat(context.allAnalysisErrors()).isEmpty();
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).isEqualTo("Unable to parse file with java-based frontend (some rules will not be executed): " + inputFile.toString());
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(1)).startsWith("Parse error at line 3 column 1:");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Unable to parse file with java-based frontend (some rules will not be executed): " + inputFile.toString());
   }
 
   @Test
@@ -182,7 +195,7 @@ public class JavaScriptSensorTest {
     inputFile("file.js");
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S1314")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "octal")).build())
       .build();
     checkFactory = new CheckFactory(activeRules);
 
@@ -201,7 +214,7 @@ public class JavaScriptSensorTest {
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .addRule(new NewActiveRule.Builder()
         // octal number
-        .setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S1314"))
+        .setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "octal"))
         .build())
       .build();
 
@@ -304,7 +317,7 @@ public class JavaScriptSensorTest {
 
   private void analyseFile(String relativePath) {
     ActiveRules activeRules = (new ActiveRulesBuilder())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S1314")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "octal")).build())
       .build();
     checkFactory = new CheckFactory(activeRules);
     context.setActiveRules(activeRules);
@@ -407,6 +420,33 @@ public class JavaScriptSensorTest {
     @Override
     public void visitScript(ScriptTree tree) {
       addIssue(new LineIssue(this, 1, "Message of custom rule")).cost(42);
+    }
+  }
+
+  @Rule(
+    key = "octal",
+    name = "Octal",
+    description = "desc",
+    tags = {"bug"})
+  public static class OctalNumberCheck extends DoubleDispatchVisitorCheck {
+    private static final String MESSAGE = "Replace the value of the octal number (%s) by its decimal equivalent (%s).";
+
+    @Override
+    public void visitLiteral(LiteralTree tree) {
+      if (tree.is(Tree.Kind.NUMERIC_LITERAL)) {
+        String value = tree.value();
+        if (value.length() > 1 && value.startsWith("0")) {
+          int newValue;
+          try {
+            newValue = Integer.parseInt(value, 8);
+          } catch (NumberFormatException e) {
+            return;
+          }
+          if (newValue > 9) {
+            addIssue(tree, String.format(MESSAGE, value, newValue));
+          }
+        }
+      }
     }
   }
 

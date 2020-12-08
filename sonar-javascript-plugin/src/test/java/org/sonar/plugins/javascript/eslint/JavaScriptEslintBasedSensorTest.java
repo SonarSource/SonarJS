@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
@@ -62,6 +63,9 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.JavaScriptSensorTest;
+import org.sonar.plugins.javascript.api.CustomRuleRepository;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -147,6 +151,7 @@ public class JavaScriptEslintBasedSensorTest {
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(thirdIssue.ruleKey().rule()).isEqualTo("S1451");
+    assertThat(logTester.logs(LoggerLevel.WARN)).doesNotContain("Custom JavaScript rules are deprecated and API will be removed in future version.");
   }
 
   private AnalysisResponse response(String json) {
@@ -484,13 +489,34 @@ public class JavaScriptEslintBasedSensorTest {
       .build();
     context.fileSystem().add(inputFile);
 
-    JavaScriptChecks checks = checks("S1314");
+    JavaScriptChecks checks = createChecksWithOctalCustomRule();
     NoSonarFilter noSonarFilter = new NoSonarFilter();
     JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServerMock, null, tempFolder);
     sensor.execute(context);
 
     assertThat(context.allIssues()).hasSize(1);
-    assertThat(context.allIssues()).extracting(i -> i.ruleKey().toString()).containsExactly("javascript:S1314");
+    assertThat(context.allIssues()).extracting(i -> i.ruleKey().toString()).containsExactly("javascript:octal");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Custom JavaScript rules are deprecated and API will be removed in future version.");
+  }
+
+
+  private JavaScriptChecks createChecksWithOctalCustomRule() {
+    CustomRuleRepository[] ruleRepository = {new CustomRuleRepository() {
+
+      @Override
+      public String repositoryKey() {
+        return "javascript";
+      }
+
+      @Override
+      public List<Class<? extends JavaScriptCheck>> checkClasses() {
+        return ImmutableList.of(JavaScriptSensorTest.OctalNumberCheck.class);
+      }
+    }};
+    ActiveRulesBuilder builder = new ActiveRulesBuilder();
+    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "octal")).build());
+    CheckFactory checkFactory = new CheckFactory(builder.build());
+    return new JavaScriptChecks(checkFactory, ruleRepository);
   }
 
   @Test

@@ -78,9 +78,12 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   @Override
   void analyzeFiles() throws IOException, InterruptedException {
     runEslintAnalysis(provideDefaultTsConfig());
-    PROFILER.startInfo("Java-based frontend sensor [javascript]");
-    new JavaScriptSensor(checks).execute(context);
-    PROFILER.stopInfo();
+    if (checks.hasCustomChecks()) {
+      PROFILER.startInfo("Java-based frontend sensor [javascript] for custom rules");
+      LOG.warn("Custom JavaScript rules are deprecated and API will be removed in future version.");
+      new JavaScriptSensor(checks).execute(context);
+      PROFILER.stopInfo();
+    }
   }
 
   private List<String> provideDefaultTsConfig() throws IOException {

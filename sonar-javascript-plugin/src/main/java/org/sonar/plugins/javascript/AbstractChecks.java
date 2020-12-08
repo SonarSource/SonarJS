@@ -44,6 +44,7 @@ public class AbstractChecks {
   private final CustomJavaScriptRulesDefinition[] customRulesDefinitions;
   private final CustomRuleRepository[] customRuleRepositories;
   private final Set<Checks<JavaScriptCheck>> checksByRepository = new HashSet<>();
+  private boolean hasCustomChecks;
 
   public AbstractChecks(CheckFactory checkFactory, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinitions, @Nullable CustomRuleRepository[] customRuleRepositories) {
     this.checkFactory = checkFactory;
@@ -70,6 +71,7 @@ public class AbstractChecks {
         LOG.debug("Adding rules for repository '{}' {} from {}", rulesDefinition.repositoryKey(), rulesDefinition.checkClasses(),
           rulesDefinition.getClass().getCanonicalName());
         doAddChecks(rulesDefinition.repositoryKey(), Arrays.asList(rulesDefinition.checkClasses()));
+        hasCustomChecks = true;
       }
     }
 
@@ -80,10 +82,15 @@ public class AbstractChecks {
             repo.checkClasses(),
             repo.getClass().getCanonicalName());
           doAddChecks(repo.repositoryKey(), repo.checkClasses());
+          hasCustomChecks = true;
         }
       }
     }
 
+  }
+
+  public boolean hasCustomChecks() {
+    return hasCustomChecks;
   }
 
   public List<JavaScriptCheck> all() {
