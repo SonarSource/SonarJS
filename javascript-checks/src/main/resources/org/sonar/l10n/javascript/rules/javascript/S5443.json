@@ -1,0 +1,28 @@
+{
+  "title": "Using publicly writable directories is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a5",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-5443",
+  "sqKey": "S5443",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      377,
+      379
+    ],
+    "OWASP": [
+      "A5",
+      "A3"
+    ]
+  }
+}
