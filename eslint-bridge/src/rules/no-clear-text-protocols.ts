@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { URL } from 'url';
 import {
   getModuleNameOfNode,
   getObjectExpressionProperty,
@@ -41,16 +42,13 @@ export const rule: Rule.RuleModule = {
       const secure = getObjectExpressionProperty(firstArgValue, 'secure');
       const requireTls = getObjectExpressionProperty(firstArgValue, 'requireTLS');
       const port = getObjectExpressionProperty(firstArgValue, 'port');
-      if (secure && secure.value.type === 'Literal') {
-        if (secure.value.raw === 'false') {
-          context.report({ node: callExpression, message: getMessage('http') });
-        }
+      if (secure && (secure.value.type !== 'Literal' || secure.value.raw !== 'false')) {
         return;
       }
-      if (requireTls && requireTls.value.type === 'Literal' && requireTls.value.raw === 'true') {
+      if (requireTls && (requireTls.value.type !== 'Literal' || requireTls.value.raw !== 'false')) {
         return;
       }
-      if (port && port.value.type === 'Literal' && port.value.raw === '465') {
+      if (port && (port.value.type !== 'Literal' || port.value.raw === '465')) {
         return;
       }
       context.report({ node: callExpression.callee, message: getMessage('http') });
@@ -109,13 +107,16 @@ export const rule: Rule.RuleModule = {
         const literal = node as estree.Literal;
         const value = literal.value;
         if (typeof value === 'string' && !value.match(LOOPBACK_PATTERN)) {
-          const insecure = INSECURE_PROTOCOLS.find(i => value.startsWith(`${i}://`));
-          if (insecure) {
-            context.report({
-              node: literal,
-              message: getMessage(insecure),
-            });
-          }
+          try {
+            const parsedUrl = new URL(value);
+            const insecure = INSECURE_PROTOCOLS.find(i => `${i}:` === parsedUrl.protocol);
+            if (insecure && parsedUrl.hostname.length !== 0) {
+              context.report({
+                node: literal,
+                message: getMessage(insecure),
+              });
+            }
+          } catch (err) {}
         }
       },
       CallExpression: (node: estree.Node) => {

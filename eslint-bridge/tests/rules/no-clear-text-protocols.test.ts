@@ -102,6 +102,27 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       import * as estree from 'estree';
       `,
     },
+    {
+      code: `
+      const nodemailer = require("nodemailer");
+
+      let transporter = nodemailer.createTransport({ // OK
+        secure: false,
+        requireTLS: someGlobalVar,
+        port: 1234
+      });
+      `,
+    },
+    {
+      code: `
+      url = "http://";
+      url = "http://0001::1";
+      url = "http://dead:beef::1";
+      url = "http://::dead:beef:1";
+      url = "ftp://";
+      url = "telnet://";
+      `,
+    },
   ],
   invalid: [
     {
@@ -120,19 +141,13 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
     },
     {
       code: `
-      url = "http://";
-      url = "http://0001::1";
-      url = "http://dead:beef::1";
-      url = "http://::dead:beef:1";
       url = "http://192.168.0.1";
       url = "http://10.1.1.123";
       url = "http://subdomain.exemple.com";
-      url = "ftp://";
       url = "ftp://anonymous@exemple.com";
-      url = "telnet://";
       url = "telnet://anonymous@exemple.com";
 `,
-      errors: 11,
+      errors: 5,
     },
     {
       code: `
