@@ -70,7 +70,7 @@ public class JavaScriptProfilesDefinitionTest {
     assertThat(profile.language()).isEqualTo(JavaScriptLanguage.KEY);
     assertThat(profile.name()).isEqualTo(JavaScriptProfilesDefinition.SONAR_WAY);
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.JS_REPOSITORY_KEY);
-    assertThat(profile.rules().size()).isGreaterThan(50);
+    assertThat(profile.rules().size()).isGreaterThan(100);
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
   }
@@ -89,9 +89,23 @@ public class JavaScriptProfilesDefinitionTest {
     assertThat(profile.language()).isEqualTo(JavaScriptLanguage.KEY);
     assertThat(profile.name()).isEqualTo("Sonar way Recommended");
     assertThat(profile.rules()).extracting("repoKey").containsOnly("common-js", CheckList.JS_REPOSITORY_KEY);
-    assertThat(profile.rules().size()).isGreaterThan(110);
+    assertThat(profile.rules().size()).isGreaterThan(180);
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
+  }
+
+  @Test
+  public void sonar_way_should_be_subset_of_recommended() {
+    BuiltInQualityProfile sonarWay = context.profile(JavaScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY);
+    BuiltInQualityProfile sonarWayRecommended = context.profile(JavaScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY_RECOMMENDED_JS);
+
+    Set<String> recommendedRules = sonarWayRecommended.rules().stream()
+      .map(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .collect(Collectors.toSet());
+    Set<String> wayRules = sonarWay.rules().stream()
+      .map(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .collect(Collectors.toSet());
+    assertThat(recommendedRules).containsAll(wayRules);
   }
 
   @Test
@@ -101,7 +115,7 @@ public class JavaScriptProfilesDefinitionTest {
     assertThat(profile.language()).isEqualTo(TypeScriptLanguage.KEY);
     assertThat(profile.name()).isEqualTo(JavaScriptProfilesDefinition.SONAR_WAY);
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CheckList.TS_REPOSITORY_KEY);
-    assertThat(profile.rules().size()).isGreaterThan(0);
+    assertThat(profile.rules().size()).isGreaterThan(100);
     assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S5122");
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
@@ -114,7 +128,7 @@ public class JavaScriptProfilesDefinitionTest {
     assertThat(profile.language()).isEqualTo(TypeScriptLanguage.KEY);
     assertThat(profile.name()).isEqualTo("Sonar way recommended");
     assertThat(profile.rules()).extracting("repoKey").containsOnly("common-ts", CheckList.TS_REPOSITORY_KEY);
-    assertThat(profile.rules().size()).isGreaterThan(1);
+    assertThat(profile.rules().size()).isGreaterThan(180);
     assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S5122");
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
