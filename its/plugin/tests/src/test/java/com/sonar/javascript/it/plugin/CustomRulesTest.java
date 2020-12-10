@@ -48,11 +48,12 @@ public class CustomRulesTest {
   static final String BASE_CHECK = "base";
 
   private static Orchestrator orchestrator;
+  private static BuildResult buildResult;
 
   @BeforeClass
   public static void before() {
     orchestrator = initOrchestrator(CUSTOM_RULES_ARTIFACT_ID);
-    runBuild(orchestrator);
+    buildResult = runBuild(orchestrator);
   }
 
   @AfterClass
@@ -67,6 +68,7 @@ public class CustomRulesTest {
 
     issues = findIssues(CUSTOM_RULES + SUBSCRIPTION_CHECK, orchestrator);
     assertSubscriptionCheckIssues(issues);
+    assertThat(buildResult.getLogsLines(l -> l.contains("Custom JavaScript rules are deprecated and API will be removed in future version."))).hasSize(1);
   }
 
 

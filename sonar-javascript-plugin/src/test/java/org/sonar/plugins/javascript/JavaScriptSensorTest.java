@@ -116,20 +116,8 @@ public class JavaScriptSensorTest {
   private final SensorContextTester context = SensorContextTester.create(baseDir);
 
   private JavaScriptSensor createSensor() {
-    CustomRuleRepository[] ruleRepository = {new CustomRuleRepository() {
 
-      @Override
-      public String repositoryKey() {
-        return "javascript";
-      }
-
-      @Override
-      public List<Class<? extends JavaScriptCheck>> checkClasses() {
-        return ImmutableList.of(OctalNumberCheck.class);
-      }
-    }};
-
-    return new JavaScriptSensor(new JavaScriptChecks(checkFactory, ruleRepository));
+    return new JavaScriptSensor(new JavaScriptChecks(checkFactory, OctalNumberCheck.repository()));
   }
 
   private JavaScriptSensor createSensorWithCustomRules() {
@@ -307,7 +295,8 @@ public class JavaScriptSensorTest {
 
   @Test
   public void should_cancel_progress_report_and_return_with_no_exception_when_context_cancelled() {
-    JavaScriptCheck check = new DoubleDispatchVisitorCheck() {};
+    JavaScriptCheck check = new DoubleDispatchVisitorCheck() {
+    };
     JavaScriptSensor sensor = createSensor();
     SensorContextTester cancelledContext = SensorContextTester.create(baseDir);
     cancelledContext.setCancelled(true);
@@ -448,6 +437,23 @@ public class JavaScriptSensorTest {
         }
       }
     }
+
+    static CustomRuleRepository[] repository() {
+      CustomRuleRepository[] ruleRepository = {new CustomRuleRepository() {
+        @Override
+        public String repositoryKey() {
+          return "javascript";
+        }
+
+        @Override
+        public List<Class<? extends JavaScriptCheck>> checkClasses() {
+          return ImmutableList.of(OctalNumberCheck.class);
+        }
+      }};
+
+      return ruleRepository;
+    }
+
   }
 
   @Rule(key = "key2")
