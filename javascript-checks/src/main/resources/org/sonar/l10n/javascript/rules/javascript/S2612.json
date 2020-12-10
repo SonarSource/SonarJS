@@ -1,0 +1,31 @@
+{
+  "title": "Setting loose POSIX file permissions is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "sans-top25-porous",
+    "owasp-a5"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2612",
+  "sqKey": "S2612",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      732,
+      266
+    ],
+    "OWASP": [
+      "A5"
+    ]
+  }
+}
