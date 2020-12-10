@@ -1,0 +1,26 @@
+{
+  "title": "Using clear-text protocols is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-5332",
+  "sqKey": "S5332",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      200,
+      319
+    ],
+    "OWASP": [
+      "A3"
+    ]
+  }
+}

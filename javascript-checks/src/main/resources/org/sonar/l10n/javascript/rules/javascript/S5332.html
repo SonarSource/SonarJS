@@ -1,0 +1,102 @@
+<p>Clear-text protocols as <code>ftp</code>, <code>telnet</code> or non secure <code>http</code> are lacking encryption of transported data. They are
+also missing the capability to build an authenticated connection. This mean that any attacker who can sniff traffic from the network can read, modify
+or corrupt the transported content. These protocol are not secure as they expose applications to a large range of risk:</p>
+<ul>
+  <li> Sensitive data exposure </li>
+  <li> Traffic redirected to a malicious endpoint </li>
+  <li> Malware infected software update or installer </li>
+  <li> Execution of client side code </li>
+  <li> Corruption of critical information </li>
+</ul>
+<p>Note also that using the <code>http</code> protocol is being deprecated by <a
+href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">major web browser</a>. </p>
+<p>In the past, it has led to the following vulnerabilities:</p>
+<ul>
+  <li> <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-6169">CVE-2019-6169</a> </li>
+  <li> <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-12327">CVE-2019-12327</a> </li>
+  <li> <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-11065">CVE-2019-11065</a> </li>
+</ul>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The confidentiality and integrity of data is necessary in the context of the web application. </li>
+  <li> The data is exchanged on an exposed network (Internet, public network etc). </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Use <code>ssh</code> as an alternative to <code>telnet</code> </li>
+  <li> Use <code>sftp</code>, <code>scp</code> or <code>ftps</code> instead of <code>ftp</code> </li>
+  <li> Use <code>https</code> instead of <code>http</code> </li>
+  <li> Use <code>SMTP</code> over <code>SSL/TLS</code> or <code>SMTP</code> with <code>STARTTLS</code> instead of clear-text SMTP </li>
+</ul>
+<p>It is recommended to secure all transport channels (event local network) as it can take a single non secure connection to compromise an entire
+application or system. </p>
+<h2>Sensitive Code Example</h2>
+<pre>
+url = "http://example.com"; // Sensitive
+url = "ftp://anonymous@example.com"; // Sensitive
+url = "telnet://anonymous@example.com"; // Sensitive
+</pre>
+<p>For <a href="https://nodemailer.com">nodemailer</a>:</p>
+<pre>
+const nodemailer = require("nodemailer");
+let transporter = nodemailer.createTransport({
+  secure: false, // Sensitive
+  requireTLS: false // Sensitive
+});
+</pre>
+<pre>
+const nodemailer = require("nodemailer");
+let transporter = nodemailer.createTransport({}); // Sensitive
+</pre>
+<p>For <a href="https://github.com/mscdex/node-ftp">ftp</a>:</p>
+<pre>
+var Client = require('ftp');
+var c = new Client();
+c.connect({
+  'secure': false // Sensitive
+});
+</pre>
+<p>For <a href="https://github.com/mkozjak/node-telnet-client">telnet-client</a>:</p>
+<pre>
+const Telnet = require('telnet-client'); // Sensitive
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+url = "https://example.com"; // Compliant
+url = "sftp://anonymous@example.com"; // Compliant
+url = "ssh://anonymous@example.com"; // Compliant
+</pre>
+<p>For <a href="https://nodemailer.com">nodemailer</a> one of the following options must be set:</p>
+<pre>
+const nodemailer = require("nodemailer");
+let transporter = nodemailer.createTransport({
+  secure: true, // Compliant
+  requireTLS: true, // Compliant
+  port: 465, // Compliant
+  secured: true // Compliant
+});
+</pre>
+<p>For <a href="https://github.com/mscdex/node-ftp">ftp</a>:</p>
+<pre>
+var Client = require('ftp');
+var c = new Client();
+c.connect({
+  'secure': true // Compliant
+});
+</pre>
+<h2>Exceptions</h2>
+<p>No issue is reported for the following cases because they are not considered sensitive:</p>
+<ul>
+  <li> Insecure protocol scheme followed by loopback addresses like 127.0.0.1 or <code>localhost</code> </li>
+</ul>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
+  </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/200.html">MITRE, CWE-200</a> - Exposure of Sensitive Information to an Unauthorized Actor </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/319">MITRE, CWE-319</a> - Cleartext Transmission of Sensitive Information </li>
+  <li> <a href="https://security.googleblog.com/2016/09/moving-towards-more-secure-web.html">Google, Moving towards more secure web</a> </li>
+  <li> <a href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http/">Mozilla, Deprecating non secure http</a> </li>
+</ul>
+
