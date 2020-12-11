@@ -82,14 +82,18 @@ public class AbstractChecks {
             repo.checkClasses(),
             repo.getClass().getCanonicalName());
           doAddChecks(repo.repositoryKey(), repo.checkClasses());
-          hasCustomChecks = true;
+          hasCustomChecks = hasCustomChecks || repo.checkClasses().stream().anyMatch(AbstractChecks::isLegacyJavaCheck);
         }
       }
     }
 
   }
 
-  public boolean hasCustomChecks() {
+  private static boolean isLegacyJavaCheck(Class<? extends JavaScriptCheck> checkClass) {
+    return !EslintBasedCheck.class.isAssignableFrom(checkClass);
+  }
+
+  public boolean hasLegacyCustomChecks() {
     return hasCustomChecks;
   }
 
