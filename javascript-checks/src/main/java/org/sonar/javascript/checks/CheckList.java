@@ -288,6 +288,7 @@ public final class CheckList {
       UndefinedArgumentCheck.class,
       UnnecessaryTypeArgumentsCheck.class,
       UnreachableCodeCheck.class,
+      UnsafeUnzipCheck.class,
       UnusedCollectionCheck.class,
       UnusedFunctionArgumentCheck.class,
       UnusedImportCheck.class,
