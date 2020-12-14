@@ -1,0 +1,91 @@
+<p>In Unix, "<code>others</code>" class refers to all users except the owner of the file and the members of the group assigned to this file.</p>
+<p>Granting permissions to this group can lead to unintended access to files. </p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The application is designed to be run on a multi-user environment. </li>
+  <li> Corresponding files and directories may contain confidential information. </li>
+</ul>
+<p>There is a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<p>The most restrictive possible permissions should be assigned to files and directories.</p>
+<h2>Sensitive Code Example</h2>
+<p>Node.js <a href="https://nodejs.org/api/fs.html"><code>fs</code></a></p>
+<pre>
+const fs = require('fs');
+
+fs.chmodSync("/tmp/fs", 0o777); // Sensitive
+</pre>
+<pre>
+const fs = require('fs');
+const fsPromises = fs.promises;
+
+fsPromises.chmod("/tmp/fsPromises", 0o777); // Sensitive
+</pre>
+<pre>
+const fs = require('fs');
+const fsPromises = fs.promises
+
+async function fileHandler() {
+  let filehandle;
+  try {
+    filehandle = fsPromises.open('/tmp/fsPromises', 'r');
+    filehandle.chmod(0o777); // Sensitive
+  } finally {
+    if (filehandle !== undefined)
+      filehandle.close();
+  }
+}
+</pre>
+<p>Node.js <a href="https://nodejs.org/api/process.html#process_process_umask_mask"><code>process.umask</code></a></p>
+<pre>
+const process = require('process');
+
+process.umask(0o000); // Sensitive
+</pre>
+<h2>Compliant Solution</h2>
+<p>Node.js <a href="https://nodejs.org/api/fs.html"><code>fs</code></a></p>
+<pre>
+const fs = require('fs');
+
+fs.chmodSync("/tmp/fs", 0o770); // Compliant
+</pre>
+<pre>
+const fs = require('fs');
+const fsPromises = fs.promises;
+
+fsPromises.chmod("/tmp/fsPromises", 0o770); // Compliant
+</pre>
+<pre>
+const fs = require('fs');
+const fsPromises = fs.promises
+
+async function fileHandler() {
+  let filehandle;
+  try {
+    filehandle = fsPromises.open('/tmp/fsPromises', 'r');
+    filehandle.chmod(0o770); // Compliant
+  } finally {
+    if (filehandle !== undefined)
+      filehandle.close();
+  }
+}
+</pre>
+<p>Node.js <a href="https://nodejs.org/api/process.html#process_process_umask_mask"><code>process.umask</code></a></p>
+<pre>
+const process = require('process');
+
+process.umask(0o007); // Compliant
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A5-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control </li>
+  <li> <a href="https://www.owasp.org/index.php/Test_File_Permission_(OTG-CONFIG-009)">OWASP File Permission</a> </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/732">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/266.html">MITRE, CWE-266</a> - Incorrect Privilege Assignment </li>
+  <li> <a href="https://wiki.sei.cmu.edu/confluence/display/java/FIO01-J.+Create+files+with+appropriate+access+permissions">CERT, FIO01-J.</a> -
+  Create files with appropriate access permissions </li>
+  <li> <a href="https://wiki.sei.cmu.edu/confluence/display/c/FIO06-C.+Create+files+with+appropriate+access+permissions">CERT, FIO06-C.</a> - Create
+  files with appropriate access permissions </li>
+  <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
+</ul>
+
