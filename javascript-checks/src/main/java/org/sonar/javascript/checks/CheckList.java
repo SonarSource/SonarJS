@@ -314,7 +314,8 @@ public final class CheckList {
       WithStatementCheck.class,
       WrongScopeDeclarationCheck.class,
       XMLParserXXEVulnerableCheck.class,
-      XpathCheck.class);
+      XpathCheck.class
+    );
   }
 
 }
