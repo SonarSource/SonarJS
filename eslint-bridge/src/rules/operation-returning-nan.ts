@@ -39,7 +39,9 @@ export const rule: Rule.RuleModule = {
     }
 
     function isObjectType(...types: ts.Type[]): boolean {
-      return types.some(t => !!(t.getFlags() & TypeFlags.Object) && !isDate(t));
+      return types.some(
+        t => !!(t.getFlags() & TypeFlags.Object) && !isDate(t) && t.symbol?.name !== 'Number',
+      );
     }
 
     function isDate(type: ts.Type) {
