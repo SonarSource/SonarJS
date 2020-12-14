@@ -280,5 +280,22 @@ ruleTesterTs.run('Arithmetic operators should only have numbers as operands', ru
             `,
       errors: [{ line: 5 }],
     },
+    {
+      code: `
+      expect(something()).toEqual(-'1');
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: 'Convert this operand into a number.',
+            secondaryLocations: [],
+          }),
+          line: 2,
+          endLine: 2,
+          column: 36,
+          endColumn: 39,
+        },
+      ],
+    },
   ],
 });

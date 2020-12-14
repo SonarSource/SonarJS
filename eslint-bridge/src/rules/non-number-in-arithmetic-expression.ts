@@ -73,14 +73,20 @@ export const rule: Rule.RuleModule = {
         const unaryExpression = node as estree.UnaryExpression;
         const type = getTypeFromTreeNode(unaryExpression.argument, services);
         if (isBooleanStringOrDate(type)) {
-          context.report({ node: unaryExpression.argument, message: MESSAGE });
+          context.report({
+            node: unaryExpression.argument,
+            message: toEncodedMessage(MESSAGE, []),
+          });
         }
       },
       UpdateExpression: (node: estree.Node) => {
         const updateExpression = node as estree.UpdateExpression;
         const type = getTypeFromTreeNode(updateExpression.argument, services);
         if (isBooleanStringOrDate(type)) {
-          context.report({ node: updateExpression.argument, message: MESSAGE });
+          context.report({
+            node: updateExpression.argument,
+            message: toEncodedMessage(MESSAGE, []),
+          });
         }
       },
     };
