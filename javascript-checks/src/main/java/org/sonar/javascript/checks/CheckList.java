@@ -255,6 +255,7 @@ public final class CheckList {
       SameLineConditionalCheck.class,
       SelfAssignmentCheck.class,
       SemicolonCheck.class,
+      SessionRegenerationCheck.class,
       ShorthandPropertiesNotGroupedCheck.class,
       SocketsCheck.class,
       SqlQueriesCheck.class,
