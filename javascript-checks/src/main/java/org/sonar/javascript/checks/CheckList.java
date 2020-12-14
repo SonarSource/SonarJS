@@ -246,7 +246,6 @@ public final class CheckList {
       PubliclyWritableDirectoriesCheck.class,
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,
-      RestrictPlusOperandsCheck.class,
       GratuitousConditionCheck.class,
       RedundantAssignmentCheck.class,
       ReferenceErrorCheck.class,
