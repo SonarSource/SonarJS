@@ -1,11 +1,9 @@
 {
 'p5.js:docs/preprocessor.js':[
 47,
-112,
 217,
 ],
 'p5.js:docs/yuidoc-p5-theme/assets/js/reference.js':[
-397,
 503,
 515,
 619,
@@ -18,15 +16,12 @@
 790,
 845,
 846,
-862,
 953,
 977,
 1036,
 1081,
 1238,
 1259,
-1271,
-1271,
 1331,
 1333,
 1459,
@@ -63,11 +58,7 @@
 'p5.js:src/color/p5.Color.js':[
 382,
 ],
-'p5.js:src/core/environment.js':[
-740,
-],
 'p5.js:src/core/error_helpers.js':[
-335,
 637,
 ],
 'p5.js:src/core/p5.Renderer.js':[
@@ -89,9 +80,6 @@
 181,
 684,
 ],
-'p5.js:tasks/build/combineModules.js':[
-37,
-],
 'p5.js:test/js/sinon.js':[
 40,
 672,
@@ -100,7 +88,6 @@
 672,
 672,
 969,
-1440,
 4519,
 5213,
 ],
@@ -137,9 +124,6 @@
 4,
 ],
 'p5.js:utils/sample-linter.js':[
-45,
-103,
 111,
-118,
 ],
 }

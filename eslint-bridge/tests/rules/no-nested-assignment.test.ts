@@ -84,6 +84,13 @@ ruleTester.run('Assignments should not be made from within sub-expressions', rul
     {
       code: `let f = a => (b = a);`,
     },
+    {
+      code: `
+      while ((line = reader.readLine()) !== null) {
+        doSomething();
+      }
+      `,
+    },
   ],
   invalid: [
     {
@@ -168,6 +175,14 @@ ruleTester.run('Assignments should not be made from within sub-expressions', rul
     },
     {
       code: `let f = a => (a = (b = 0));`,
+      errors: 1,
+    },
+    {
+      code: `
+      while (something()) {
+        let f = a => (a = (b = 0));
+      }
+      `,
       errors: 1,
     },
   ],
