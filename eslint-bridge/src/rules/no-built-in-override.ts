@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
 
     function isTSEnumMemberId(node: estree.Identifier) {
       const id = node as TSESTree.Identifier;
-      return id.parent?.type === 'TSEnumMember' && id.parent.id === id;
+      return id.parent?.type === 'TSEnumMember';
     }
 
     return {

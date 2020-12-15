@@ -77,14 +77,5 @@ tests.valid.push({
     }`,
 });
 
-tests.invalid.push({
-  code: `
-    enum Result {
-      Err = Error++,
-      Success
-    }`,
-  errors: 1,
-});
-
 const ruleTesterTs = new RuleTesterTs(false);
 ruleTesterTs.run('Built-in objects should not be overridden [ts]', rule, tests);
