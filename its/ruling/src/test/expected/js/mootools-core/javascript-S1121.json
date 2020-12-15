@@ -1,7 +1,4 @@
 {
-'mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js':[
-20,
-],
 'mootools-core:Grunt/plugins/karma/syn/lib/syn.js':[
 8,
 8,
@@ -98,7 +95,6 @@
 899,
 ],
 'mootools-core:Source/Slick/Slick.Parser.js':[
-35,
 37,
 ],
 'mootools-core:Source/Types/Array.js':[

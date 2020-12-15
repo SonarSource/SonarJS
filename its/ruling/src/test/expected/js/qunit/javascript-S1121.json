@@ -1,11 +1,7 @@
 {
-'qunit:reporter/diff.js':[
-439,
-],
 'qunit:reporter/html.js':[
 165,
 173,
-229,
 ],
 'qunit:src/module.js':[
 60,

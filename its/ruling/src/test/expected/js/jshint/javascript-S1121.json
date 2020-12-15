@@ -3,9 +3,6 @@
 1373,
 2386,
 ],
-'jshint:src/lex.js':[
-1117,
-],
 'jshint:src/platforms/rhino.js':[
 105,
 ],
