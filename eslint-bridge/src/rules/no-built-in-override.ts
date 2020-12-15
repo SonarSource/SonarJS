@@ -22,6 +22,7 @@
 import { globalsByLibraries } from '../utils/globals';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -45,17 +46,24 @@ export const rule: Rule.RuleModule = {
       scope.childScopes.forEach(checkScope);
     }
 
+    function isTSEnumMemberId(node: estree.Identifier) {
+      const id = node as TSESTree.Identifier;
+      return id.parent?.type === 'TSEnumMember';
+    }
+
     return {
       Program: () => {
         checkScope(context.getScope());
       },
       'Program:exit': () => {
-        overriden.forEach(node =>
-          context.report({
-            message: `Remove this override of "${node.name}".`,
-            node,
-          }),
-        );
+        overriden.forEach(node => {
+          if (!isTSEnumMemberId(node)) {
+            context.report({
+              message: `Remove this override of "${node.name}".`,
+              node,
+            });
+          }
+        });
         overriden.clear();
       },
     };

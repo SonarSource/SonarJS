@@ -67,7 +67,15 @@ const tests = {
 };
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 }, env: { es6: true } });
-const ruleTesterTs = new RuleTesterTs(false);
-
 ruleTesterJs.run('Built-in objects should not be overridden [js]', rule, tests);
+
+tests.valid.push({
+  code: `
+    enum Result {
+      Error,
+      Success
+    }`,
+});
+
+const ruleTesterTs = new RuleTesterTs(false);
 ruleTesterTs.run('Built-in objects should not be overridden [ts]', rule, tests);
