@@ -9,7 +9,8 @@
     "test": "jest",
     "format": "prettier --write \"{src,tests}/**/!(*.lint).ts\"",
     "compile": "tsc -b src tests",
-    "jar": "npm pack && mkdirp target/classes && mv eslint-bridge-1.0.0.tgz target/classes"
+    "jar": "npm pack && mkdirp target/classes && mv eslint-bridge-1.0.0.tgz target/classes",
+    "new-rule": "ts-node tools/newRule.ts"
   },
   "repository": {
     "type": "git",
@@ -38,7 +39,8 @@
     "jest-sonar-reporter": "1.3.0",
     "mkdirp": "1.0.4",
     "prettier": "2.1.2",
-    "ts-jest": "26.4.1"
+    "ts-jest": "26.4.1",
+    "ts-node": "9.0.0"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "2.34.0",

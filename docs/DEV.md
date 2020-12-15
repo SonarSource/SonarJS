@@ -1,5 +1,14 @@
 # Development
 
+## Adding a rule
+* run `new-rule` script
+```
+# from project root
+java -jar <location of rule-api jar> generate -rule S1234
+cd eslint-bridge
+yarn new-rule S1234 no-something-somewhere 
+```
+
 ## <a name="testing"></a>Testing
 To run tests locally follow these instructions
 
