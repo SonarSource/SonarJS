@@ -22,9 +22,32 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { findFirstMatchingAncestor } from './utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { childrenOf } from '../utils/visitor';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    function nodeContains(node: estree.Node, searched: estree.Node): boolean {
+      if (node === searched) {
+        return true;
+      }
+      const children = childrenOf(node, context.getSourceCode().visitorKeys);
+      if (children.length === 0) {
+        return false;
+      }
+      return children.some(child => nodeContains(child, searched));
+    }
+
+    function isWhileConditionSubExpression(node: estree.AssignmentExpression) {
+      const whileStatement = findFirstMatchingAncestor(
+        node as TSESTree.Node,
+        ancestor =>
+          ancestor.type === 'WhileStatement' && nodeContains(ancestor.test as estree.Node, node),
+      ) as estree.WhileStatement | undefined;
+      return !!whileStatement && whileStatement.test !== node;
+    }
+
     return {
       AssignmentExpression: (node: estree.Node) => {
         const assignment = node as estree.AssignmentExpression;
@@ -32,7 +55,8 @@ export const rule: Rule.RuleModule = {
         if (
           parent &&
           parent.type !== 'ExpressionStatement' &&
-          !isArrowFunctionWithAssignmentBody(assignment, context)
+          !isArrowFunctionWithAssignmentBody(assignment, context) &&
+          !isWhileConditionSubExpression(assignment)
         ) {
           raiseIssue(assignment, context);
         }
