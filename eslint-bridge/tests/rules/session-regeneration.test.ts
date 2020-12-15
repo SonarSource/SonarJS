@@ -23,10 +23,13 @@ import { rule } from 'rules/session-regeneration';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 
-ruleTester.run('Using publicly writable directories is security-sensitive', rule, {
-  valid: [
-    {
-      code: `
+ruleTester.run(
+  'Create a new session during user authentication to prevent session fixation attacks.',
+  rule,
+  {
+    valid: [
+      {
+        code: `
       var passport = require('passport');
       
       app.post('/login', 
@@ -39,23 +42,23 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
         });
         console.log('coverage');
       });`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var passport = require('passport');
       passport.authenticate('local', { failureRedirect: '/login' });
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var passport = require('passport');      
       app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }),  foo);            
     `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       var passport = require('passport');
       
       app.post('/login', 
@@ -64,16 +67,17 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
         // Sensitive - no session.regenerate after login
         res.redirect('/');
       });`,
-      errors: [
-        {
-          message:
-            'Create a new session during user authentication to prevent session fixation attacks.',
-          line: 6,
-          column: 7,
-          endLine: 9,
-          endColumn: 8,
-        },
-      ],
-    },
-  ],
-});
+        errors: [
+          {
+            message:
+              'Create a new session during user authentication to prevent session fixation attacks.',
+            line: 6,
+            column: 7,
+            endLine: 9,
+            endColumn: 8,
+          },
+        ],
+      },
+    ],
+  },
+);
