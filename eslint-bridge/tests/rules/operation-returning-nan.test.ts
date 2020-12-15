@@ -71,6 +71,15 @@ ruleTester.run('Arithmetic operation returning NaN', rule, {
         typeof {} == 'string';
       `,
     },
+    {
+      code: `
+        function doSomething(something) {
+           if ((typeof something === 'number' || something instanceof Number) && !isFinite(+something)) {
+               console.log("hello");
+           }
+       }
+      `,
+    },
   ],
   invalid: [
     {
