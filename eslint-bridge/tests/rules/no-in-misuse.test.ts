@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTesterTs } from '../RuleTesterTs';
+import { rule } from 'rules/no-in-misuse';
 
 const ruleTester = new RuleTesterTs();
-
-import { rule } from 'rules/no-in-misuse';
 
 ruleTester.run('"in" should not be used on arrays"', rule, {
   valid: [
@@ -43,6 +42,13 @@ ruleTester.run('"in" should not be used on arrays"', rule, {
         let x = 'indexOf' in Array.prototype;
       `,
     },
+    {
+      code: `
+      var a = [];
+      for (var i = 0, l = a.length; i < l; i++) {
+        if (i in a) { console.log() }
+      }`,
+    },
   ],
   invalid: [
     {
@@ -63,9 +69,9 @@ ruleTester.run('"in" should not be used on arrays"', rule, {
     {
       code: `let arr = ["a", "b", "c"];
             "1" in arr; // Noncompliant
-            1 in arr; // Noncompliant
+            1 in arr;
             "b" in arr; // Noncompliant`,
-      errors: 3,
+      errors: 2,
     },
     {
       code: `// in different contexts

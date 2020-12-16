@@ -1,7 +1,7 @@
 let arr = ["a", "b", "c"];
 
   "1" in arr; // Noncompliant
-  1 in arr; // Noncompliant
+  1 in arr;
   "b" in arr; // Noncompliant
 
 

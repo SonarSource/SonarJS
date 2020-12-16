@@ -22,8 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { isArray, isNumber } from './utils';
 
 const message = 'Use "indexOf" or "includes" (available from ES2016) instead.';
 
@@ -42,19 +42,14 @@ export const rule: Rule.RuleModule = {
     }
 
     if (isRequiredParserServices(services)) {
-      const checker = services.program.getTypeChecker();
-
-      function isArray(node: estree.Node) {
-        const typ = checker.getTypeAtLocation(
-          services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node),
-        );
-        return typ.symbol && typ.symbol.name === 'Array';
-      }
-
       return {
         "BinaryExpression[operator='in']": (node: estree.Node) => {
           const binExpr = node as estree.BinaryExpression;
-          if (isArray(binExpr.right) && !prototypeProperty(binExpr.left)) {
+          if (
+            isArray(binExpr.right, services) &&
+            !prototypeProperty(binExpr.left) &&
+            !isNumber(binExpr.left, services)
+          ) {
             context.report({
               message,
               node,
