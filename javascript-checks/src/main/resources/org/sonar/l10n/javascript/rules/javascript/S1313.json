@@ -1,0 +1,25 @@
+{
+  "title": "Using hardcoded IP addresses is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1313",
+  "sqKey": "S1313",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A3"
+    ]
+  }
+}
