@@ -21,13 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getVariableFromName,
-  isIdentifier,
-  getUniqueWriteUsageOrNode,
-  flattenArgs,
-  getModuleNameOfNode,
-} from './utils';
+import { isIdentifier, getUniqueWriteUsageOrNode, flattenArgs, getModuleNameOfNode } from './utils';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
 const message =
@@ -36,43 +30,14 @@ const message =
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
-      DebuggerStatement(node: estree.Node) {
-        context.report({
-          node,
-          message,
-        });
-      },
       CallExpression(node: estree.Node) {
         const callExpression = node as estree.CallExpression;
-
-        // alert(...)
-        checkOpenDialogFunction(context, callExpression);
-
         // app.use(...)
         checkErrorHandlerMiddleware(context, callExpression);
       },
     };
   },
 };
-
-function checkOpenDialogFunction(context: Rule.RuleContext, callExpression: estree.CallExpression) {
-  const { callee } = callExpression;
-  if (callee.type === 'Identifier') {
-    const { name } = callee;
-
-    if (name === 'alert' || name === 'prompt' || name === 'confirm') {
-      const variable = getVariableFromName(context, name);
-      if (variable && variable.defs.length !== 0) {
-        // we don't report on custom function
-        return;
-      }
-      context.report({
-        node: callExpression,
-        message,
-      });
-    }
-  }
-}
 
 function checkErrorHandlerMiddleware(
   context: Rule.RuleContext,
