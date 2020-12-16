@@ -46,41 +46,18 @@ ruleTester.run(
       confirm("Are you sure?");
       `,
       },
-    ],
-    invalid: [
-      {
-        code: `debugger;`,
-        errors: [
-          {
-            message,
-            line: 1,
-            endLine: 1,
-            column: 1,
-            endColumn: 10,
-          },
-        ],
-      },
       {
         code: `
       alert("here!");
       confirm("Are you sure?");
       prompt("What's your name?", "John Doe");
       `,
-        errors: [
-          {
-            message,
-            line: 2,
-          },
-          {
-            message,
-            line: 3,
-          },
-          {
-            message,
-            line: 4,
-          },
-        ],
       },
+      {
+        code: `debugger;`,
+      },
+    ],
+    invalid: [
       {
         code: `
         const errorhandler = require('errorhandler');
@@ -140,27 +117,3 @@ ruleTester.run(
     ],
   },
 );
-
-const ruleTesterWithBrowser = new RuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  env: { browser: true },
-});
-
-ruleTesterWithBrowser.run('Should report when browser is set as environment', rule, {
-  valid: [
-    {
-      code: `
-      function alert(arg) {}
-      alert("hello");
-            `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-      alert("here!");
-      `,
-      errors: 1,
-    },
-  ],
-});
