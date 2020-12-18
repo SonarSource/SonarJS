@@ -26,7 +26,7 @@ import { isIP } from 'net';
 const message = (ip: string) => `Make sure using a hardcoded IP address ${ip} is safe here.`;
 
 const netMaskRegex = /(^[^\/]+)\/\d{1,3}$/;
-const acceptedIpAddresses = ['255.255.255.255', '::1', '::'];
+const acceptedIpAddresses = ['255.255.255.255', '::1', '::', '0:0:0:0:0:0:0:1', '0:0:0:0:0:0:0:0'];
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

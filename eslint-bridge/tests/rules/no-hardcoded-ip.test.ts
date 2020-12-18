@@ -39,8 +39,10 @@ ruleTesterTs.run('', rule, {
       address = "0177.0000.0000.0001";
       address = "7f.00.00.01";
       address = "::1";
+      address = "0:0:0:0:0:0:0:1";
       address = "::1/128";
-      address = "::"
+      address = "::";
+      address = "0:0:0:0:0:0:0:0";
       address = 42`,
     },
   ],
