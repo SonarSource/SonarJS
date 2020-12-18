@@ -289,6 +289,14 @@ let tests = {
       `,
       errors: 6,
     },
+    {
+      code: `
+      const mode = fs.constants.S_IROTH;
+      fs.chmodSync("/tmp/fs", mode); // Sensitive -------r--
+      fs.chmodSync("/tmp/fs", fs.constants.S_IRWXU | mode); // Sensitive -------r--
+      `,
+      errors: 2,
+    },
   ],
 };
 

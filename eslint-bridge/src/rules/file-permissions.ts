@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getValueOfExpression, isIdentifier, isCallToFQN } from './utils';
+import { isIdentifier, isCallToFQN, getUniqueWriteUsage } from './utils';
 
 const chmodLikeFunction = ['chmod', 'chmodSync', 'fchmod', 'fchmodSync', 'lchmod', 'lchmodSync'];
 
@@ -82,16 +82,24 @@ export const rule: Rule.RuleModule = {
       return null;
     }
 
-    function modeFromBinaryExpr(modeExpr: estree.Node): number | null {
-      if (modeExpr.type === 'MemberExpression') {
-        return modeFromMemberExpression(modeExpr);
-      } else if (modeExpr.type === 'Literal') {
-        return modeFromLiteral(modeExpr);
-      } else if (modeExpr.type === 'BinaryExpression') {
-        const { left, operator, right } = modeExpr;
+    function modeFromExpression(expr: estree.Node | undefined): number | null {
+      if (!expr) {
+        return null;
+      }
+      if (expr.type === 'MemberExpression') {
+        return modeFromMemberExpression(expr);
+      } else if (expr.type === 'Literal') {
+        return modeFromLiteral(expr);
+      } else if (expr.type === 'Identifier') {
+        const usage = getUniqueWriteUsage(context, expr.name);
+        if (usage) {
+          return modeFromExpression(usage);
+        }
+      } else if (expr.type === 'BinaryExpression') {
+        const { left, operator, right } = expr;
         if (operator === '|') {
-          const leftValue = modeFromBinaryExpr(left);
-          const rightValue = modeFromBinaryExpr(right);
+          const leftValue = modeFromExpression(left);
+          const rightValue = modeFromExpression(right);
           if (leftValue && rightValue) {
             return leftValue | rightValue;
           }
@@ -101,21 +109,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkModeArgument(node: estree.Node, moduloTest: number) {
-      let mode: number | null = null;
-      const modeExpr = getValueOfExpression(context, node, 'Literal');
-      if (modeExpr) {
-        mode = modeFromLiteral(modeExpr);
-      } else {
-        const modeMemberExpr = getValueOfExpression(context, node, 'MemberExpression');
-        if (modeMemberExpr) {
-          mode = modeFromMemberExpression(modeMemberExpr);
-        } else {
-          const modeBinExpr = getValueOfExpression(context, node, 'BinaryExpression');
-          if (modeBinExpr) {
-            mode = modeFromBinaryExpr(modeBinExpr);
-          }
-        }
-      }
+      const mode = modeFromExpression(node);
       if (mode !== null && !isNaN(mode) && mode % 8 !== moduloTest) {
         context.report({
           node,
