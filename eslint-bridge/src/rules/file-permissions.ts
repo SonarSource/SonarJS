@@ -43,7 +43,13 @@ export const rule: Rule.RuleModule = {
       if (typeof modeValue === 'string') {
         mode = Number.parseInt(modeValue, 8);
       } else if (typeof modeValue === 'number') {
-        mode = modeValue;
+        const raw = modeExpr?.raw;
+        // ts parser interprets number starting with 0 as decimal, we need to parse it as octal value
+        if (raw && raw.startsWith('0') && !raw.startsWith('0o')) {
+          mode = Number.parseInt(raw, 8);
+        } else {
+          mode = modeValue;
+        }
       }
       if (mode !== null && !isNaN(mode) && mode % 8 !== moduloTest) {
         context.report({

@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { RuleTester } from 'eslint';
 import { rule } from 'rules/file-permissions';
+import { RuleTesterTs } from "../RuleTesterTs";
+import { RuleTester } from "eslint";
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-
-ruleTester.run('Using publicly writable directories is security-sensitive', rule, {
+let tests = {
   valid: [
     {
       code: `
@@ -256,4 +255,10 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
       errors: 16,
     },
   ],
-});
+};
+
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+ruleTester.run('Using publicly writable directories is security-sensitive', rule, tests);
+
+const ruleTesterTs = new RuleTesterTs();
+ruleTesterTs.run('Using publicly writable directories is security-sensitive [TS]', rule, tests);
