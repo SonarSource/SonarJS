@@ -37,12 +37,12 @@ export const rule: Rule.RuleModule = {
     }
 
     function modeFromLiteral(modeExpr: estree.Literal) {
-      const modeValue = modeExpr?.value;
+      const modeValue = modeExpr.value;
       let mode = null;
       if (typeof modeValue === 'string') {
         mode = Number.parseInt(modeValue, 8);
       } else if (typeof modeValue === 'number') {
-        const raw = modeExpr?.raw;
+        const raw = modeExpr.raw;
         // ts parser interprets number starting with 0 as decimal, we need to parse it as octal value
         if (raw && raw.startsWith('0') && !raw.startsWith('0o')) {
           mode = Number.parseInt(raw, 8);
@@ -70,7 +70,7 @@ export const rule: Rule.RuleModule = {
     };
 
     function modeFromMemberExpression(modeExpr: estree.MemberExpression): number | null {
-      let { object, property } = modeExpr;
+      const { object, property } = modeExpr;
       if (
         object.type === 'MemberExpression' &&
         isIdentifier(object.object, 'fs') &&
@@ -85,11 +85,13 @@ export const rule: Rule.RuleModule = {
     function modeFromBinaryExpr(modeExpr: estree.Node): number | null {
       if (modeExpr.type === 'MemberExpression') {
         return modeFromMemberExpression(modeExpr);
+      } else if (modeExpr.type === 'Literal') {
+        return modeFromLiteral(modeExpr);
       } else if (modeExpr.type === 'BinaryExpression') {
-        let { left, operator, right } = modeExpr;
+        const { left, operator, right } = modeExpr;
         if (operator === '|') {
-          let leftValue = modeFromBinaryExpr(left);
-          let rightValue = modeFromBinaryExpr(right);
+          const leftValue = modeFromBinaryExpr(left);
+          const rightValue = modeFromBinaryExpr(right);
           if (leftValue && rightValue) {
             return leftValue | rightValue;
           }
@@ -100,15 +102,15 @@ export const rule: Rule.RuleModule = {
 
     function checkModeArgument(node: estree.Node, moduloTest: number) {
       let mode: number | null = null;
-      let modeExpr = getValueOfExpression(context, node, 'Literal');
+      const modeExpr = getValueOfExpression(context, node, 'Literal');
       if (modeExpr) {
         mode = modeFromLiteral(modeExpr);
       } else {
-        let modeMemberExpr = getValueOfExpression(context, node, 'MemberExpression');
+        const modeMemberExpr = getValueOfExpression(context, node, 'MemberExpression');
         if (modeMemberExpr) {
           mode = modeFromMemberExpression(modeMemberExpr);
         } else {
-          let modeBinExpr = getValueOfExpression(context, node, 'BinaryExpression');
+          const modeBinExpr = getValueOfExpression(context, node, 'BinaryExpression');
           if (modeBinExpr) {
             mode = modeFromBinaryExpr(modeBinExpr);
           }

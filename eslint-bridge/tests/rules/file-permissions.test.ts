@@ -107,7 +107,16 @@ let tests = {
     fs.chmodSync("/tmp/fs", fs.constants.S_IXGRP); // Compliant ------x---
     fs.chmodSync("/tmp/fs", fs.constants.S_IRWXG); // Compliant ----rwx---
     fs.chmodSync("/tmp/fs", fs.constants.S_IRWXU | fs.constants.S_IRWXG); // Compliant -rwxrwx---
-    fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP | fs.constants.S_IRUSR); // Compliant -r--r-----`,
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP | fs.constants.S_IRUSR); // Compliant -r--r-----
+    
+    //coverage
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP | 0o700); // Compliant -r--r-----
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP | foo()); // Compliant -r--r-----    
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP & fs.constants.S_IRUSR);
+    fs.chmodSync("/tmp/fs", foo());
+    fs.chmodSync("/tmp/fs", fs.bla);
+    fs.chmodSync("/tmp/fs", /rwx/);
+    `,
     },
   ],
   invalid: [
