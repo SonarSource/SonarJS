@@ -18,17 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { RuleTester } from 'eslint';
 import { rule } from 'rules/file-permissions';
+import { RuleTesterTs } from '../RuleTesterTs';
+import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-
-ruleTester.run('Using publicly writable directories is security-sensitive', rule, {
+let tests = {
   valid: [
     {
       code: `
     const fs = require('fs');
-  
+
     // Octal
     fs.chmodSync("/tmp/fs", 0o0770);  // Compliant -rwxrwx---
     fs.chmodSync("/tmp/fs", 0o770);   // Compliant -rwxrwx---
@@ -38,14 +37,14 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     fs.chmodSync("/tmp/fs", 0770);    // Compliant -rwxrwx---
     fs.chmodSync("/tmp/fs", 070);     // Compliant ----rwx---
     fs.chmodSync("/tmp/fs", 00);      // Compliant ----------
-    
+
     fs.chmodSync("/tmp/fs", "0770");  // Compliant -rwxrwx---
     fs.chmodSync("/tmp/fs", "770");   // Compliant -rwxrwx---
     fs.chmodSync("/tmp/fs", "70");    // Compliant ----rwx---
     fs.chmodSync("/tmp/fs", "0");     // Compliant ----------
     fs.chmodSync("/tmp/fs", "00770"); // Compliant -rwxrwx---
     fs.chmodSync("/tmp/fs", "00");    // Compliant ----------
-    
+
     // fs.constants
     fs.chmodSync("/tmp/fs", fs.constants.S_IRUSR); // Compliant -r--------
     fs.chmodSync("/tmp/fs", fs.constants.S_IWUSR); // Compliant --w-------
@@ -57,12 +56,12 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     fs.chmodSync("/tmp/fs", fs.constants.S_IRWXG); // Compliant ----rwx---
     fs.chmodSync("/tmp/fs", fs.constants.S_IRWXU | fs.constants.S_IRWXG); // Compliant -rwxrwx---
     fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP | fs.constants.S_IRUSR); // Compliant -r--r-----
-    
+
     // Decimal
     // Should raise when the mode as decimal value modulo 8 does not equal zero ($mode%8 !== 0)
     fs.chmodSync("/tmp/fs", 32);     // Compliant; 4 % 8 = 4    ----r-----
     fs.chmodSync("/tmp/fs", 256);   // Compliant; 260 % 8 = 4   -r--------
-    
+
     // Variable
     let doChmod = (mode) => fs.chmodSync("/tmp/fs", mode); // Compliant; mode value is unknown
   `,
@@ -79,21 +78,51 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     process.umask(0007); // Compliant
     process.umask(007); // Compliant
     process.umask(07); // Compliant
-    
+
     // String
     process.umask("0777"); // Compliant
     process.umask("0007"); // Compliant
     process.umask("007"); // Compliant
     process.umask("07"); // Compliant
     process.umask("7"); // Compliant
-    
+
     // Decimal
     // Should raise when the mask as decimal value modulo 8 does not equal seven ($mode%8 !== 7)
     process.umask(7);   // Compliant 0o007
     process.umask(511); // Compliant 0o777
-    
+
     // Variable
     let updateUmask = (mode) => process.umask(mode); // Compliant; mode value is unknown
+    `,
+    },
+    {
+      code: `
+    // fs.constants
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRUSR); // Compliant -r--------
+    fs.chmodSync("/tmp/fs", fs.constants.S_IWUSR); // Compliant --w-------
+    fs.chmodSync("/tmp/fs", fs.constants.S_IXUSR); // Compliant ---x------
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRWXU); // Compliant -rwx------
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP); // Compliant ----r-----
+    fs.chmodSync("/tmp/fs", fs.constants.S_IWGRP); // Compliant -----w----
+    fs.chmodSync("/tmp/fs", fs.constants.S_IXGRP); // Compliant ------x---
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRWXG); // Compliant ----rwx---
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRWXU | fs.constants.S_IRWXG); // Compliant -rwxrwx---
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP | fs.constants.S_IRUSR); // Compliant -r--r-----
+    
+    //coverage
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP | 0o700); // Compliant -r--r-----
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP | foo()); // Compliant -r--r-----    
+    fs.chmodSync("/tmp/fs", fs.constants.S_IRGRP & fs.constants.S_IRUSR);
+    fs.chmodSync("/tmp/fs", foo());
+    fs.chmodSync("/tmp/fs", fs.bla);
+    fs.chmodSync("/tmp/fs", /rwx/);
+    `,
+    },
+    {
+      code: `
+      const x = y;
+      const y = x;
+      fs.chmodSync("/tmp/fs", x);
     `,
     },
   ],
@@ -105,7 +134,7 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
       fs.chmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx`,
       errors: [
         {
-          message: "Make sure this permission to '0o0777' is safe.",
+          message: 'Make sure this permission is safe.',
           line: 4,
           column: 31,
           endLine: 4,
@@ -116,7 +145,7 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     {
       code: `
       const fs = require('fs');
-      
+
       fs.chmod("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
       fs.chmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
       fs.fchmod("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
@@ -128,7 +157,7 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     {
       code: `
       const fsPromises = require('fs').promises;
-      
+
       fsPromises.chmod("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
       fsPromises.chmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
       fsPromises.fchmod("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
@@ -140,7 +169,7 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     {
       code: `
       const fs = require('fs');
-  
+
       // Octal
       fs.chmodSync("/tmp/fs", 0o0777);  // Sensitive -rwxrwxrwx
       fs.chmodSync("/tmp/fs", 0o0551);  // Sensitive -r-xr-x--x
@@ -159,7 +188,7 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     {
       code: `
     const fs = require('fs');
-    
+
     // String
     fs.chmodSync("/tmp/fs", "777");   // Sensitive -rwxrwxrwx
     fs.chmodSync("/tmp/fs", "551");   // Sensitive -r-xr-x--x
@@ -177,7 +206,7 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     {
       code: `
     const fs = require('fs');
-    
+
     // Decimal
     // Should raise when the mode as decimal value modulo 8 does not equal zero ($mode%8 !== 0)
     fs.chmodSync("/tmp/fs", 4);     // Sensitive; 4 % 8 = 4     -------r--
@@ -202,7 +231,7 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
      `,
       errors: [
         {
-          message: "Make sure this permission to '0o777' is safe.",
+          message: 'Make sure this permission is safe.',
           line: 8,
           column: 30,
           endLine: 8,
@@ -219,7 +248,7 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     `,
       errors: [
         {
-          message: "Make sure this permission to '0o000' is safe.",
+          message: 'Make sure this permission is safe.',
           line: 5,
           column: 19,
           endLine: 5,
@@ -240,7 +269,7 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     process.umask(0022); // Sensitive
     process.umask(022); // Sensitive
     process.umask(02); // Sensitive
-    
+
     // String
     process.umask("0000"); // Sensitive
     process.umask("0022"); // Sensitive
@@ -248,12 +277,38 @@ ruleTester.run('Using publicly writable directories is security-sensitive', rule
     process.umask("02"); // Sensitive
     process.umask("0"); // Sensitive
     process.umask("2"); // Sensitive
-    
+
     // Decimal
     process.umask(0);   // Sensitive 0o000
     process.umask(18);  // Sensitive 0o022
     `,
       errors: 16,
     },
+    {
+      code: `
+      // fs.constants
+      fs.chmodSync("/tmp/fs", fs.constants.S_IROTH); // Sensitive -------r--
+      fs.chmodSync("/tmp/fs", fs.constants.S_IWOTH); // Sensitive --------w-
+      fs.chmodSync("/tmp/fs", fs.constants.S_IXOTH); // Sensitive ---------x
+      fs.chmodSync("/tmp/fs", fs.constants.S_IRWXO); // Sensitive -------rwx
+      fs.chmodSync("/tmp/fs", fs.constants.S_IRWXU | fs.constants.S_IRWXG | fs.constants.S_IRWXO); // Sensitive -rwxrwxrwx
+      fs.chmodSync("/tmp/fs", fs.constants.S_IROTH | fs.constants.S_IRGRP | fs.constants.S_IRUSR); // Sensitive -r--r--r--
+      `,
+      errors: 6,
+    },
+    {
+      code: `
+      const mode = fs.constants.S_IROTH;
+      fs.chmodSync("/tmp/fs", mode); // Sensitive -------r--
+      fs.chmodSync("/tmp/fs", fs.constants.S_IRWXU | mode); // Sensitive -------r--
+      `,
+      errors: 2,
+    },
   ],
-});
+};
+
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+ruleTester.run('Using publicly writable directories is security-sensitive', rule, tests);
+
+const ruleTesterTs = new RuleTesterTs();
+ruleTesterTs.run('Using publicly writable directories is security-sensitive [TS]', rule, tests);
