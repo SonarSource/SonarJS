@@ -155,6 +155,24 @@ ruleTester.run(
           p1 = this.position;
         }`,
       },
+      {
+        code: `
+        function someFunction(node, param = false) {
+          switch (node.type) {
+              case 'ForStatement':
+                  param = true;
+                  break;
+              case 'IfStatement':
+                  if (param) {
+                      doSomething();
+                 }
+                 break;
+              default:
+                  break;
+          }
+          node.children().forEach(child => someFunction(child, param));
+        }`,
+      },
     ],
     invalid: [
       {
