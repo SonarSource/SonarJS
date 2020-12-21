@@ -55,6 +55,16 @@ ruleTester.run(
       app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }),  foo);            
     `,
       },
+      {
+        code: `
+        var passport = require('passport');
+        app.post('/api/login', 
+        passport.authenticate('local', { session: false }), // Compliant - no session
+        function(req, res) {
+          res.redirect('/');
+        });
+      `,
+      },
     ],
     invalid: [
       {
@@ -77,6 +87,28 @@ ruleTester.run(
             endColumn: 8,
           },
         ],
+      },
+      {
+        code: `
+        var passport = require('passport');
+        app.post('/api/login', 
+        passport.authenticate('local', { session: true }),
+        function(req, res) {
+          res.redirect('/');
+        });
+      `,
+        errors: 1,
+      },
+      {
+        code: `
+        var passport = require('passport');
+        app.post('/api/login', 
+        passport.authenticate('local', foo()), // could be FP if foo() sets session to false
+        function(req, res) {
+          res.redirect('/');
+        });
+      `,
+        errors: 1,
       },
     ],
   },

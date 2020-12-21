@@ -21,7 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isCallToFQN, getValueOfExpression, isIdentifier, last } from './utils';
+import {
+  isCallToFQN,
+  getValueOfExpression,
+  isIdentifier,
+  last,
+  getPropertyWithValue,
+} from './utils';
 import { childrenOf } from '../utils/visitor';
 
 const message =
@@ -50,10 +56,22 @@ export const rule: Rule.RuleModule = {
       childrenOf(node, context.getSourceCode().visitorKeys).forEach(visitCallback);
     }
 
+    function hasSessionFalseOption(callExpression: estree.CallExpression) {
+      const opt = callExpression.arguments[1];
+      if (opt?.type === 'ObjectExpression') {
+        const sessionProp = getPropertyWithValue(context, opt, 'session', false);
+        return !!sessionProp;
+      }
+      return false;
+    }
+
     return {
       CallExpression: (node: estree.Node) => {
         const callExpression = node as estree.CallExpression;
         if (isCallToFQN(context, callExpression, 'passport', 'authenticate')) {
+          if (hasSessionFalseOption(callExpression)) {
+            return;
+          }
           const parent = last(context.getAncestors());
           if (parent.type === 'CallExpression') {
             const callback = getValueOfExpression(
