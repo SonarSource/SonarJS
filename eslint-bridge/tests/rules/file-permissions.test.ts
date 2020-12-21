@@ -118,6 +118,13 @@ let tests = {
     fs.chmodSync("/tmp/fs", /rwx/);
     `,
     },
+    {
+      code: `
+      const x = y;
+      const y = x;
+      fs.chmodSync("/tmp/fs", x);
+    `,
+    },
   ],
   invalid: [
     {

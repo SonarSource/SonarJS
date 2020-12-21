@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isCallToFQN, getUniqueWriteUsage } from './utils';
+import { isIdentifier, isCallToFQN, getUniqueWriteUsage, isMemberExpression } from './utils';
 
 const chmodLikeFunction = ['chmod', 'chmodSync', 'fchmod', 'fchmodSync', 'lchmod', 'lchmodSync'];
 
@@ -71,18 +71,16 @@ export const rule: Rule.RuleModule = {
 
     function modeFromMemberExpression(modeExpr: estree.MemberExpression): number | null {
       const { object, property } = modeExpr;
-      if (
-        object.type === 'MemberExpression' &&
-        isIdentifier(object.object, 'fs') &&
-        isIdentifier(object.property, 'constants') &&
-        property.type === 'Identifier'
-      ) {
+      if (isMemberExpression(object, 'fs', 'constants') && property.type === 'Identifier') {
         return FS_CONST[property.name];
       }
       return null;
     }
 
-    function modeFromExpression(expr: estree.Node | undefined): number | null {
+    function modeFromExpression(
+      expr: estree.Node | undefined,
+      visited: Set<estree.Node>,
+    ): number | null {
       if (!expr) {
         return null;
       }
@@ -92,14 +90,15 @@ export const rule: Rule.RuleModule = {
         return modeFromLiteral(expr);
       } else if (expr.type === 'Identifier') {
         const usage = getUniqueWriteUsage(context, expr.name);
-        if (usage) {
-          return modeFromExpression(usage);
+        if (usage && !visited.has(usage)) {
+          visited.add(usage);
+          return modeFromExpression(usage, visited);
         }
       } else if (expr.type === 'BinaryExpression') {
         const { left, operator, right } = expr;
         if (operator === '|') {
-          const leftValue = modeFromExpression(left);
-          const rightValue = modeFromExpression(right);
+          const leftValue = modeFromExpression(left, visited);
+          const rightValue = modeFromExpression(right, visited);
           if (leftValue && rightValue) {
             return leftValue | rightValue;
           }
@@ -109,7 +108,8 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkModeArgument(node: estree.Node, moduloTest: number) {
-      const mode = modeFromExpression(node);
+      const visited = new Set<estree.Node>();
+      const mode = modeFromExpression(node, visited);
       if (mode !== null && !isNaN(mode) && mode % 8 !== moduloTest) {
         context.report({
           node,
