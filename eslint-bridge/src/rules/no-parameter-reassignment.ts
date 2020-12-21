@@ -68,7 +68,10 @@ export const rule: Rule.RuleModule = {
         ) {
           // we do not raise issue when value is reassigned inside a top-level IfStatement, as it might be a shift or
           // default value reassignment
-          if (isInsideTopLevelIfStatement(context)) {
+          if (
+            isInsideTopLevelIfStatement(context) ||
+            context.getAncestors().some(node => node.type === 'SwitchCase') // issue-2398
+          ) {
             return;
           }
           raiseIssue(currentReference);
