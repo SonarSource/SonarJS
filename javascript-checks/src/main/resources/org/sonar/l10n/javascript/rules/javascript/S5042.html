@@ -184,6 +184,8 @@ fs.readFile("foo.zip", function(err, data) {
   });
 });
 </pre>
+<p>Be aware that due to the similar structure of sensitive and compliant code the issue will be raised in both cases. It is up to the developer to
+decide if the implementation is secure.</p>
 <p>For <a href="https://github.com/thejoshwolfe/yauzl">yauzl</a> module</p>
 <pre>
 const yauzl = require('yauzl');
@@ -226,6 +228,8 @@ yauzl.open('foo.zip', function (err, zipfile) {
   });
 });
 </pre>
+<p>Be aware that due to the similar structure of sensitive and compliant code the issue will be raised in both cases. It is up to the developer to
+decide if the implementation is secure.</p>
 <p>For <a href="https://github.com/maxogden/extract-zip">extract-zip</a> module:</p>
 <pre>
 const extract = require('extract-zip')
