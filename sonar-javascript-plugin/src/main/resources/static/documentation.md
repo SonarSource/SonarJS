@@ -33,13 +33,13 @@ There are 2 built-in rule profiles for each JavaScript and TypeScript: `Sonar wa
 
 ### Slow or unresponsive analysis
 
-On a big project, more memory may need to be allocated to analyze the project. This would be manifested by analysis getting stuck and the following stacktrace might appear in the logs
+On a big project, more time or memory may be needed to analyze the project. This would be manifested by analysis getting stuck and the following stacktrace might appear in the logs
 
 ```
 ERROR: Failed to get response while analyzing [file].ts
 java.io.InterruptedIOException: timeout
 ```   
-You can use `sonar.javascript.node.maxspace` property to allow the analysis to use more memory. Set this property to `4096` or `8192` for big projects. This property should be set in `sonar-project.properties` file or on command line for scanner (with `-Dsonar.javascript.node.maxspace=4096`).
+You can use `sonar.javascript.timeoutSeconds` property to allow more time for the analysis to start and analyze each file (set this to `120` or `240`), and `sonar.javascript.node.maxspace` property to allow the analysis to use more memory (set this to `4096` or `8192`). These properties should be set in `sonar-project.properties` file or on command line for scanner (e.g. `-Dsonar.javascript.node.maxspace=4096`).
 
 
 ### Default exclusions

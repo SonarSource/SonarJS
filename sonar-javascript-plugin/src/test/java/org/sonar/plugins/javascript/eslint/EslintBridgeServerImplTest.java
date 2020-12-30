@@ -82,6 +82,7 @@ public class EslintBridgeServerImplTest {
   public void setUp() throws Exception {
     context = SensorContextTester.create(tempFolder.newDir());
     context.fileSystem().setWorkDir(tempFolder.newDir().toPath());
+    context.settings().setProperty("sonar.javascript.timeoutSeconds", TEST_TIMEOUT_SECONDS);
   }
 
   @After
@@ -116,7 +117,7 @@ public class EslintBridgeServerImplTest {
       }
     });
 
-    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle, emptyRulesBundles, deprecationWarning, tempFolder);
+    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, testBundle, emptyRulesBundles, deprecationWarning, tempFolder);
     eslintBridgeServer.deploy();
 
     assertThatThrownBy(() -> eslintBridgeServer.startServer(context, emptyList()))
@@ -359,8 +360,8 @@ public class EslintBridgeServerImplTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("eslint-bridge is unresponsive");
     assertThat(logTester.logs(ERROR)).contains("eslint-bridge Node.js process is unresponsive. This is most likely " +
-      "caused by process running out of memory. Consider setting sonar.javascript.node.maxspace to higher value" +
-      " (e.g. 4096).");
+      "caused by process running out of memory or taking too much time. Consider increasing " +
+      "sonar.javascript.node.maxspace (e.g. 4096) or sonar.javascript.timeoutSeconds (e.g. 120).");
   }
 
   @Test
@@ -380,8 +381,12 @@ public class EslintBridgeServerImplTest {
   }
 
   @Test
-  public void should_use_default_timeout() {
-    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class), deprecationWarning, tempFolder);
+  public void should_use_default_timeout() throws Exception {
+    context.setSettings(new MapSettings());
+
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.startServerLazily(context);
+
     assertThat(eslintBridgeServer.getTimeoutSeconds()).isEqualTo(60);
   }
 
@@ -403,7 +408,7 @@ public class EslintBridgeServerImplTest {
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript), emptyRulesBundles, deprecationWarning, tempFolder);
+    return new EslintBridgeServerImpl(NodeCommand.builder(), new TestBundle(startServerScript), emptyRulesBundles, deprecationWarning, tempFolder);
   }
 
   static class TestBundle implements Bundle {
