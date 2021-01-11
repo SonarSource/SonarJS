@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -40,22 +39,20 @@ public class BundleImpl implements Bundle {
 
   // this archive is created in eslint-bridge module
   private static final String BUNDLE_LOCATION = "/eslint-bridge-1.0.0.tgz";
-  private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
   private static final String DEFAULT_STARTUP_SCRIPT = "package/bin/server";
-  private final Path deployLocation;
+  private Path deployLocation;
   private final String bundleLocation;
 
-  public BundleImpl(TempFolder tempFolder) {
-    this(tempFolder, BUNDLE_LOCATION);
+  public BundleImpl() {
+    this(BUNDLE_LOCATION);
   }
 
-  BundleImpl(TempFolder tempFolder, String bundleLocation) {
+  BundleImpl(String bundleLocation) {
     this.bundleLocation = bundleLocation;
-    this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
   }
 
   @Override
-  public void deploy() throws IOException {
+  public void deploy(Path deployLocation) throws IOException {
     PROFILER.startDebug("Deploying bundle");
     LOG.debug("Deploying eslint-bridge into {}", deployLocation);
     InputStream bundle = getClass().getResourceAsStream(bundleLocation);
@@ -63,6 +60,7 @@ public class BundleImpl implements Bundle {
       throw new IllegalStateException("eslint-bridge not found in plugin jar");
     }
     BundleUtils.extractFromClasspath(bundle, deployLocation);
+    this.deployLocation = deployLocation;
     PROFILER.stopDebug();
   }
 

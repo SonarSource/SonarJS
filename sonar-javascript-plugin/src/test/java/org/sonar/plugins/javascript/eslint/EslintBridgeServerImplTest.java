@@ -74,7 +74,7 @@ public class EslintBridgeServerImplTest {
   private EslintBridgeServerImpl eslintBridgeServer;
   private final TestBundle testBundle = new TestBundle(START_SERVER_SCRIPT);
 
-  private final RulesBundles emptyRulesBundles = new RulesBundles(new RulesBundle[]{}, tempFolder);
+  private final RulesBundles emptyRulesBundles = new RulesBundles();
   private final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(8, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
   private final NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime);
 
@@ -116,7 +116,7 @@ public class EslintBridgeServerImplTest {
       }
     });
 
-    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle, emptyRulesBundles, deprecationWarning);
+    eslintBridgeServer = new EslintBridgeServerImpl(nodeCommandBuilder, TEST_TIMEOUT_SECONDS, testBundle, emptyRulesBundles, deprecationWarning, tempFolder);
     eslintBridgeServer.deploy();
 
     assertThatThrownBy(() -> eslintBridgeServer.startServer(context, emptyList()))
@@ -381,7 +381,7 @@ public class EslintBridgeServerImplTest {
 
   @Test
   public void should_use_default_timeout() {
-    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class), deprecationWarning);
+    eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class), deprecationWarning, tempFolder);
     assertThat(eslintBridgeServer.getTimeoutSeconds()).isEqualTo(60);
   }
 
@@ -403,7 +403,7 @@ public class EslintBridgeServerImplTest {
   }
 
   private EslintBridgeServerImpl createEslintBridgeServer(String startServerScript) {
-    return new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript), emptyRulesBundles, deprecationWarning);
+    return new EslintBridgeServerImpl(NodeCommand.builder(), TEST_TIMEOUT_SECONDS, new TestBundle(startServerScript), emptyRulesBundles, deprecationWarning, tempFolder);
   }
 
   static class TestBundle implements Bundle {
@@ -415,7 +415,7 @@ public class EslintBridgeServerImplTest {
     }
 
     @Override
-    public void deploy() {
+    public void deploy(Path deployLocation) {
       // no-op for unit test
     }
 

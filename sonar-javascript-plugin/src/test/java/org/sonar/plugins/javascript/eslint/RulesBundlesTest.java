@@ -37,8 +37,8 @@ public class RulesBundlesTest {
   @Test
   public void test() throws Exception {
     TestRulesBundle rulesBundle = new TestRulesBundle("/test-bundle.tgz");
-    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle}, tempFolder);
-    List<Path> paths = rulesBundles.deploy();
+    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
+    List<Path> paths = rulesBundles.deploy(tempFolder.newDir().toPath());
     assertThat(paths).hasSize(1);
     assertThat(paths.get(0)).exists();
     assertThat(paths.get(0).resolve("bin/server")).hasContent("#!/usr/bin/env node\n\n");
@@ -47,14 +47,14 @@ public class RulesBundlesTest {
   @Test
   public void test_not_exists() {
     RulesBundle[] missingBundle = {new TestRulesBundle("missing.tgz")};
-    assertThatThrownBy(() -> new RulesBundles(missingBundle, tempFolder))
+    assertThatThrownBy(() -> new RulesBundles(missingBundle))
       .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void test_empty() {
-    RulesBundles rulesBundles = new RulesBundles(tempFolder);
-    assertThat(rulesBundles.deploy()).isEmpty();
+    RulesBundles rulesBundles = new RulesBundles();
+    assertThat(rulesBundles.deploy(tempFolder.newDir().toPath())).isEmpty();
   }
 
 

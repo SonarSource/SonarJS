@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.eslint;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.internal.JUnitTempFolder;
@@ -35,8 +36,9 @@ public class BundleImplTest {
 
   @Test
   public void test() throws Exception {
-    BundleImpl bundle = new BundleImpl(tempFolder, "/test-bundle.tgz");
-    bundle.deploy();
+    BundleImpl bundle = new BundleImpl("/test-bundle.tgz");
+    Path deployLocation = tempFolder.newDir().toPath();
+    bundle.deploy(deployLocation);
     String script = bundle.startServerScript();
     File scriptFile = new File(script);
     assertThat(scriptFile).exists();
@@ -46,9 +48,10 @@ public class BundleImplTest {
 
   @Test
   public void should_not_fail_when_deployed_twice() throws Exception {
-    BundleImpl bundle = new BundleImpl(tempFolder, "/test-bundle.tgz");
-    bundle.deploy();
-    bundle.deploy();
+    Path deployLocation = tempFolder.newDir().toPath();
+    BundleImpl bundle = new BundleImpl("/test-bundle.tgz");
+    bundle.deploy(deployLocation);
+    bundle.deploy(deployLocation);
     // no exception expected
   }
 }

@@ -42,17 +42,15 @@ public class RulesBundles {
   private static final Logger LOG = Loggers.get(RulesBundles.class);
 
   private final List<URL> bundles;
-  private final TempFolder tempFolder;
 
   /**
    * This constructor is used by pico container when no RulesBundle is provided on classpath
    */
-  public RulesBundles(TempFolder tempFolder) {
-    this.tempFolder = tempFolder;
+  public RulesBundles() {
     this.bundles = Collections.emptyList();
   }
 
-  public RulesBundles(RulesBundle[] rulesBundles, TempFolder tempFolder) {
+  public RulesBundles(RulesBundle[] rulesBundles) {
     bundles = Arrays.stream(rulesBundles)
       .map(bundle -> {
         URL resource = bundle.getClass().getResource(bundle.bundlePath());
@@ -62,21 +60,20 @@ public class RulesBundles {
         return resource;
       })
       .collect(Collectors.toList());
-    this.tempFolder = tempFolder;
   }
 
   /**
    * Deploy bundles in temporary directory and return list of paths for deployed modules
    *
    */
-  public List<Path> deploy() {
+  public List<Path> deploy(Path target) {
     List<Path> unpackedBundles = new ArrayList<>();
     bundles.forEach(bundle -> {
-      Path target = tempFolder.newDir().toPath();
       try {
-        LOG.info("Deploying custom rules bundle {} to {}", bundle, target);
-        BundleUtils.extractFromClasspath(bundle.openStream(), target);
-        Path deployedBundle = target.resolve("package").toAbsolutePath();
+        Path location = Files.createTempDirectory(target, "custom-rules");
+        LOG.info("Deploying custom rules bundle {} to {}", bundle, location);
+        BundleUtils.extractFromClasspath(bundle.openStream(), location);
+        Path deployedBundle = location.resolve("package").toAbsolutePath();
         if (!Files.exists(deployedBundle)) {
           // Inside tgz we expect "package" directory, this is npm contract.
           // see https://stackoverflow.com/questions/29717774/npm-pack-rename-package-directory

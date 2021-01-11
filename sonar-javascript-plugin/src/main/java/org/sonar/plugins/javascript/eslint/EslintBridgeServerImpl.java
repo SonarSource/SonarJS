@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetAddress;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
@@ -37,6 +38,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -58,6 +60,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
   private static final Gson GSON = new Gson();
   private static final int MIN_NODE_VERSION = 8;
+  private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
 
   private final OkHttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
@@ -69,18 +72,19 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private boolean failedToStart;
   private final RulesBundles rulesBundles;
   private final NodeDeprecationWarning deprecationWarning;
+  private final Path deployLocation;
 
   // Used by pico container for dependency injection
   public EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder, Bundle bundle, RulesBundles rulesBundles,
-    NodeDeprecationWarning deprecationWarning) {
-    this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle, rulesBundles, deprecationWarning);
+                                NodeDeprecationWarning deprecationWarning, TempFolder tempFolder) {
+    this(nodeCommandBuilder, DEFAULT_TIMEOUT_SECONDS, bundle, rulesBundles, deprecationWarning, tempFolder);
   }
 
   EslintBridgeServerImpl(NodeCommandBuilder nodeCommandBuilder,
     int timeoutSeconds,
     Bundle bundle,
     RulesBundles rulesBundles,
-    NodeDeprecationWarning deprecationWarning) {
+    NodeDeprecationWarning deprecationWarning, TempFolder tempFolder) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
@@ -91,6 +95,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     this.rulesBundles = rulesBundles;
     this.deprecationWarning = deprecationWarning;
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
+    this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
   }
 
   int getTimeoutSeconds() {
@@ -98,7 +103,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   }
 
   void deploy() throws IOException {
-    bundle.deploy();
+    bundle.deploy(deployLocation);
   }
 
   void startServer(SensorContext context, List<Path> deployedBundles) throws IOException {
@@ -178,7 +183,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
         return;
       }
       deploy();
-      List<Path> deployedBundles = rulesBundles.deploy();
+      List<Path> deployedBundles = rulesBundles.deploy(deployLocation.resolve("package"));
       startServer(context, deployedBundles);
     } catch (NodeCommandException e) {
       failedToStart = true;
