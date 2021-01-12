@@ -20,6 +20,9 @@ exports.rules = [
         ],
       },
       create(context) {
+        const ts = require("typescript");
+        console.log(`TS API in custom rule: TS version ${ts.version}`);  // should print embedded typescript version
+
         console.log('Rule context options: ', context.options);
         return {
           CallExpression(node) {
