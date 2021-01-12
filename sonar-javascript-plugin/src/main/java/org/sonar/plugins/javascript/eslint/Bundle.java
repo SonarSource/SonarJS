@@ -20,11 +20,12 @@
 package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import org.sonarsource.nodejs.BundlePathResolver;
 
 interface Bundle extends BundlePathResolver {
 
-  void deploy() throws IOException;
+  void deploy(Path deployLocation) throws IOException;
 
   String startServerScript();
 }
