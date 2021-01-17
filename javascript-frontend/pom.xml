@@ -30,10 +30,6 @@
       <artifactId>sslr-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sslr-squid-bridge</groupId>
-      <artifactId>sslr-squid-bridge</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
     </dependency>
