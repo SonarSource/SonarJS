@@ -54,7 +54,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -80,22 +79,6 @@ public class JavaScriptSensorTest {
   public LogTester logTester = new LogTester();
 
   private CheckFactory checkFactory = new CheckFactory(mock(ActiveRules.class));
-  private final CustomJavaScriptRulesDefinition[] CUSTOM_RULES = {new CustomJavaScriptRulesDefinition() {
-    @Override
-    public String repositoryName() {
-      return "custom name";
-    }
-
-    @Override
-    public String repositoryKey() {
-      return "customKey";
-    }
-
-    @Override
-    public Class[] checkClasses() {
-      return new Class[]{MyCustomRule.class};
-    }
-  }};
 
   private final CustomRuleRepository[] CUSTOM_RULE_REPOSITORIES = {
     new CustomRuleRepository() {
@@ -121,16 +104,16 @@ public class JavaScriptSensorTest {
   }
 
   private JavaScriptSensor createSensorWithCustomRules() {
-    return new JavaScriptSensor(new JavaScriptChecks(checkFactory, CUSTOM_RULES));
+    return new JavaScriptSensor(new JavaScriptChecks(checkFactory));
   }
 
   private JavaScriptSensor createSensorWithCustomRuleRepository() {
     return new JavaScriptSensor(new JavaScriptChecks(checkFactory, CUSTOM_RULE_REPOSITORIES));
   }
 
-  private JavaScriptSensor createSensor(@Nullable CustomJavaScriptRulesDefinition[] customRules, @Nullable CustomRuleRepository[] customRuleRepositories) {
+  private JavaScriptSensor createSensor(@Nullable CustomRuleRepository[] customRuleRepositories) {
     return new JavaScriptSensor(
-      new JavaScriptChecks(checkFactory, customRules, customRuleRepositories));
+      new JavaScriptChecks(checkFactory, customRuleRepositories));
   }
 
   @Test
@@ -214,26 +197,6 @@ public class JavaScriptSensorTest {
   }
 
   @Test
-  public void should_run_custom_rule() throws Exception {
-    inputFile("file.js");
-    ActiveRules activeRules = (new ActiveRulesBuilder())
-      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of("customKey", "key")).build())
-      .build();
-    checkFactory = new CheckFactory(activeRules);
-    createSensorWithCustomRules().execute(context);
-
-    Collection<Issue> issues = context.allIssues();
-    assertThat(issues).hasSize(1);
-    Map<Integer, Issue> issueByLine = issues.stream().collect(Collectors.toMap(issue -> issue.primaryLocation().textRange().start().line(), i -> i));
-    assertThat(issueByLine.keySet()).containsExactlyInAnyOrder(1);
-
-    Issue issue = issueByLine.get(1);
-    assertThat(issue.gap()).isEqualTo(42);
-    assertThat(issue.primaryLocation().message()).isEqualTo("Message of custom rule");
-    assertThat(issue.primaryLocation().textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 7)));
-  }
-
-  @Test
   public void should_run_custom_rule_repository() throws Exception {
     inputFile("file.js");
     ActiveRules activeRules = (new ActiveRulesBuilder())
@@ -256,12 +219,7 @@ public class JavaScriptSensorTest {
 
   @Test
   public void should_log_deprecation_warning() throws Exception {
-    JavaScriptSensor sensor = createSensor(CUSTOM_RULES, null);
-    sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("JavaScript analyzer custom rules are deprecated. Consider using ESlint custom rules instead");
-
-    logTester.clear();
-    sensor = createSensor(null, CUSTOM_RULE_REPOSITORIES);
+    JavaScriptSensor sensor = createSensor(CUSTOM_RULE_REPOSITORIES);
     sensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.WARN)).doesNotContain("JavaScript analyzer custom rules are deprecated. Consider using ESlint custom rules instead");
   }
