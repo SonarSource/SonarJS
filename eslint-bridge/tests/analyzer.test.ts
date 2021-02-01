@@ -124,20 +124,6 @@ describe('#analyzeJavaScript', () => {
     expect(issues).toContainEqual(noDuplicateStringIssue);
   });
 
-  it('should analyze Vue.js file', () => {
-    const filePath = join(__dirname, './fixtures/vue-project/sample.lint.vue');
-    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-    initLinter([
-      { key: 'no-one-iteration-loop', configurations: [] },
-      { key: 'no-duplicate-string', configurations: ['2'] },
-    ]);
-    const { issues } = analyzeJavaScript({
-      filePath: filePath,
-      fileContent: fileContent,
-    });
-    expect(issues).toHaveLength(2);
-  });
-
   it('should handle BOM', () => {
     const filePath = join(__dirname, './fixtures/js-project/fileWithBom.lint.js');
 
@@ -347,5 +333,21 @@ describe('#analyzeTypeScript', () => {
       'DEBUG Failed to retrieve cognitive complexity metric from analysis results',
     );
     jest.resetAllMocks();
+  });
+
+  it('should analyze Vue.js file', () => {
+    const filePath = join(__dirname, './fixtures/vue-project/sample.lint.vue');
+    const tsConfig = join(__dirname, './fixtures/vue-project/tsconfig.json');
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+    initLinter([
+      { key: 'no-extra-semi', configurations: [] },
+      { key: 'no-return-type-any', configurations: [] },
+    ]);
+    const { issues } = analyzeTypeScript({
+      filePath,
+      fileContent,
+      tsConfigs: [tsConfig],
+    });
+    expect(issues).toHaveLength(2);
   });
 });

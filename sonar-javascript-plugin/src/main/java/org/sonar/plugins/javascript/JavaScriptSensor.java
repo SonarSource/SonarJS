@@ -65,12 +65,10 @@ public class JavaScriptSensor {
 
   private final AbstractChecks checks;
   private final ActionParser<Tree> parser;
-  private final ActionParser<Tree> vueParser;
 
   public JavaScriptSensor(AbstractChecks checks) {
     this.checks = checks;
     this.parser = JavaScriptParserBuilder.createParser();
-    this.vueParser = JavaScriptParserBuilder.createVueParser();
   }
 
   @VisibleForTesting
@@ -103,15 +101,10 @@ public class JavaScriptSensor {
   }
 
   private void analyse(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors) {
-    ActionParser<Tree> currentParser = this.parser;
-    if (inputFile.filename().endsWith(".vue")) {
-      currentParser = this.vueParser;
-    }
-
     ScriptTree scriptTree;
 
     try {
-      scriptTree = (ScriptTree) currentParser.parse(inputFile.contents());
+      scriptTree = (ScriptTree) parser.parse(inputFile.contents());
       scanFile(sensorContext, inputFile, visitors, scriptTree);
     } catch (RecognitionException e) {
       checkInterrupted(e);

@@ -27,7 +27,7 @@ public class TypeScriptLanguage extends AbstractLanguage {
   public static final String KEY = "ts";
 
   static final String FILE_SUFFIXES_KEY = "sonar.typescript.file.suffixes";
-  static final String FILE_SUFFIXES_DEFVALUE = ".ts,.tsx";
+  static final String FILE_SUFFIXES_DEFVALUE = ".ts,.tsx,.vue";
 
   private Configuration configuration;
 

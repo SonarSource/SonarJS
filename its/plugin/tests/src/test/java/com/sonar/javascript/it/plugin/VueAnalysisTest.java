@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.util.List;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
@@ -47,19 +46,19 @@ public class VueAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     orchestrator.executeBuild(build);
 
     List<Issues.Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).hasSize(1);
-    assertThat(issuesList.get(0).getLine()).isEqualTo(8);
+    assertThat(issuesList.get(0).getLine()).isEqualTo(10);
 
-    assertThat(Tests.getMeasureAsInt(projectKey, "ncloc")).isEqualTo(11);
+    assertThat(Tests.getMeasureAsInt(projectKey, "ncloc")).isEqualTo(7);
     assertThat(Tests.getMeasureAsInt(projectKey, "classes")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "functions")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(projectKey, "statements")).isEqualTo(4);
+    assertThat(Tests.getMeasureAsInt(projectKey, "functions")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(projectKey, "statements")).isEqualTo(1);
     assertThat(Tests.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(projectKey, "complexity")).isEqualTo(2);
-    assertThat(Tests.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(2);
+    assertThat(Tests.getMeasureAsInt(projectKey, "complexity")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(0);
   }
 }

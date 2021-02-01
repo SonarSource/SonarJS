@@ -120,23 +120,35 @@ export function unloadTypeScriptEslint() {
   tsParser.clearCaches();
 }
 
-export function parseVueSourceFile(fileContent: string): SourceCode | ParsingError {
-  let exceptionToReport: ParseException | null = null;
-  // setting parser to be able to parse more code (by default `espree` is used by vue parser)
-  const vueModuleConfig = { ...PARSER_CONFIG_MODULE, parser: 'babel-eslint' };
-  for (const config of [vueModuleConfig, PARSER_CONFIG_SCRIPT]) {
+export function parseVueSourceFile(
+  fileContent: string,
+  filePath: string,
+  tsConfigs?: string[],
+): SourceCode | ParsingError {
+  let exception: ParseException | null = null;
+  const parsers = ['@typescript-eslint/parser', 'espree', 'babel-eslint'];
+  for (const parser of parsers) {
     try {
-      const result = VueJS.parseForESLint(fileContent, config);
-      return new SourceCode(fileContent, result.ast as any);
-    } catch (exception) {
-      exceptionToReport = exception;
+      const result = VueJS.parseForESLint(fileContent, {
+        filePath,
+        parser,
+        project: tsConfigs,
+        extraFileExtensions: ['.vue'],
+        ...PARSER_CONFIG_MODULE,
+      });
+      return new SourceCode(({
+        ...result,
+        parserServices: result.services,
+        text: fileContent,
+      } as unknown) as SourceCode.Config);
+    } catch (err) {
+      exception = err as ParseException;
     }
   }
-  // if we reach this point, we are sure that "exceptionToReport" is defined
   return {
-    line: exceptionToReport!.lineNumber,
-    message: exceptionToReport!.message,
-    code: ParseExceptionCode.Parsing,
+    line: exception!.lineNumber,
+    message: exception!.message,
+    code: parseExceptionCodeOf(exception!.message),
   };
 }
 

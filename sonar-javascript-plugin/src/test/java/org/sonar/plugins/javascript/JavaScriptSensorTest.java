@@ -317,24 +317,6 @@ public class JavaScriptSensorTest {
   }
 
   @Test
-  public void should_skip_vue_script_with_lang_ts() {
-    analyseFile("vue/tsScript.vue");
-    assertThat(context.allIssues()).isEmpty();
-  }
-
-  @Test
-  public void should_analyse_vue_script_with_lang_js() {
-    analyseFile("vue/jsScript.vue");
-    assertThat(context.allIssues()).hasSize(1);
-  }
-
-  @Test
-  public void should_analyse_vue_with_custom_sections() {
-    analyseFile("vue/customSections.vue");
-    assertThat(context.allIssues()).hasSize(1);
-  }
-
-  @Test
   public void should_log_deprecated_property_used() throws Exception {
     context.settings().setProperty(DEPRECATED_ESLINT_PROPERTY, "eslint-report.json");
     createSensor().execute(context);

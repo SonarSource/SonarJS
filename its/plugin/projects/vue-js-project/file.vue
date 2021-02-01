@@ -1,17 +1,14 @@
 <template>
-  <p>Hello</p>
+  <p>{{greeting}}</p>
 </template>
 
-<script>
-module.exports = {
-  foo: function (b) {
-    if (b == 0) { // Noncompliant  
-      doOneMoreThing();
-    } else {
-      doOneMoreThing();
-    }
-  }
-}
+<script lang="ts">
+import Vue from 'vue';
+
+const hello: string = 'Hello';
+export default Vue.extend({
+  greeting: hello as string, // Noncompliant
+});
 </script>
 
 <style>
