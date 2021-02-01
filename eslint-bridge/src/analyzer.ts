@@ -110,14 +110,14 @@ export interface IssueLocation {
 }
 
 export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(
-    input,
-    input.filePath.endsWith('.vue') ? parseVueSourceFile : parseJavaScriptSourceFile,
-  );
+  return analyze(input, parseJavaScriptSourceFile);
 }
 
 export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(input, parseTypeScriptSourceFile);
+  return analyze(
+    input,
+    input.filePath.endsWith('.vue') ? parseVueSourceFile : parseTypeScriptSourceFile,
+  );
 }
 
 function getFileContent(filePath: string) {

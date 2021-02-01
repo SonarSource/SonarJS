@@ -1,17 +1,17 @@
 <template>
-  <p>Hello</p>
+  <p>{{background}}</p>
 </template>
 
-<script>
-module.exports = {
-  foo: function () {
-    for (var i = 0; i < 10; i++) {
-      console.log("i is " + i);
-      break;
-    }
-    foo("Hello, world"); foo("Hello, world");
-  }
+<script lang="ts">
+import Vue from 'vue';
+
+function hello(name: string): any {
+  return `Hello, ${name}`;;
 }
+
+export default Vue.extend({
+  greet: hello,
+});
 </script>
 
 <style scoped>
