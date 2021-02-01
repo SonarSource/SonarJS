@@ -25,8 +25,6 @@ import {
   parseJavaScriptSourceFile,
   parseTypeScriptSourceFile,
   parseVueSourceFile,
-  checkTypeScriptVersionCompatibility,
-  resetReportedNewerTypeScriptVersion,
   ParseExceptionCode,
   parseExceptionCodeOf,
 } from '../src/parser';
@@ -35,23 +33,8 @@ import { SourceCode } from 'eslint';
 import { ParsingError } from '../src/analyzer';
 import visit from '../src/utils/visitor';
 import * as path from 'path';
-import * as ts from 'typescript';
 import * as fs from 'fs';
 import { setContext } from '../src/context';
-
-describe('TypeScript version', () => {
-  beforeEach(() => {
-    console.log = jest.fn();
-  });
-
-  it('should log typescript version once', () => {
-    parseTypeScriptSourceFile('', 'foo.ts');
-    parseTypeScriptSourceFile('', 'foo.ts');
-    const callsToLogger = (console.log as jest.Mock).mock.calls;
-    const message = `Version of TypeScript used during analysis: ${ts.version}`;
-    expect(callsToLogger.filter(args => args[0] === message)).toHaveLength(1);
-  });
-});
 
 describe('parseJavaScriptSourceFile', () => {
   beforeEach(() => {
@@ -225,35 +208,6 @@ describe('parseTypeScriptSourceFile', () => {
     expect(parsingError.message).toEqual(
       `\"parserOptions.project\" has been set for @typescript-eslint/parser.\nThe file does not match your project config: ${file}.\nThe file must be included in at least one of the projects provided.`,
     );
-  });
-
-  it('should throw a parsing exception with TypeScript version below minimum expected', () => {
-    let parsingException = undefined;
-    try {
-      checkTypeScriptVersionCompatibility('1.2.3');
-    } catch (exception) {
-      parsingException = exception;
-    }
-    expect(parsingException).toBeDefined;
-    expect(parsingException).toEqual({
-      message:
-        'You are using version of TypeScript 1.2.3 which is not supported; supported versions >=3.3.1',
-    });
-  });
-
-  it('should log a warning with TypeScript version above maximum expected', () => {
-    console.log = jest.fn();
-    resetReportedNewerTypeScriptVersion();
-    checkTypeScriptVersionCompatibility('5.0.0');
-    expect(console.log).toHaveBeenCalledWith(
-      'WARN You are using version of TypeScript 5.0.0 which is not officially supported; supported versions >=3.3.1 <3.10.0',
-    );
-    console.log = jest.fn();
-    checkTypeScriptVersionCompatibility('5.0.0');
-    // should log only once
-    expect(console.log).not.toHaveBeenCalled();
-
-    jest.resetAllMocks();
   });
 
   it('should return correct parsing exception code from exception message', () => {
