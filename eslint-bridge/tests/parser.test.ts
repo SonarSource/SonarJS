@@ -28,7 +28,7 @@ import {
   ParseExceptionCode,
   parseExceptionCodeOf,
 } from '../src/parser';
-import * as espree from 'espree';
+import * as babel from 'babel-eslint';
 import { SourceCode } from 'eslint';
 import { ParsingError } from '../src/analyzer';
 import visit from '../src/utils/visitor';
@@ -71,19 +71,25 @@ describe('parseJavaScriptSourceFile', () => {
   });
 
   it('should parse as script (non-strict mode)', () => {
-    expectToParseInNonStrictMode(`var eval = 42`, `Binding eval in strict mode`);
-    expectToParseInNonStrictMode(`eval = 42`, `Assigning to eval in strict mode`);
+    expectToParseInNonStrictMode(`var eval = 42`, `Binding 'eval' in strict mode (1:4)`);
+    expectToParseInNonStrictMode(`eval = 42`, `Assigning to 'eval' in strict mode (1:0)`);
     expectToParseInNonStrictMode(
       `function foo() {}\n var foo = 42;`,
-      `Identifier 'foo' has already been declared`,
+      `Identifier 'foo' has already been declared (2:5)`,
     );
 
-    expectToParseInNonStrictMode(`x = 043;`, `Invalid number`);
-    expectToParseInNonStrictMode(`'\\033'`, `Octal literal in strict mode`);
-    expectToParseInNonStrictMode(`with (a) {}`, `'with' in strict mode`);
-    expectToParseInNonStrictMode(`public = 42`, `The keyword 'public' is reserved`);
-    expectToParseInNonStrictMode(`function foo(a, a) {}`, `Argument name clash`);
-    expectToParseInNonStrictMode(`delete x`, `Deleting local variable in strict mode`);
+    expectToParseInNonStrictMode(
+      `x = 043;`,
+      `Legacy octal literals are not allowed in strict mode (1:4)`,
+    );
+    expectToParseInNonStrictMode(
+      `'\\033'`,
+      `The only valid numeric escape in strict mode is '\\0' (1:2)`,
+    );
+    expectToParseInNonStrictMode(`with (a) {}`, `'with' in strict mode (1:0)`);
+    expectToParseInNonStrictMode(`public = 42`, `Unexpected reserved word 'public' (1:0)`);
+    expectToParseInNonStrictMode(`function foo(a, a) {}`, `Argument name clash (1:16)`);
+    expectToParseInNonStrictMode(`delete x`, `Deleting local variable in strict mode (1:0)`);
   });
 
   it('should parse recent javascript syntax', () => {
@@ -132,7 +138,7 @@ import { ParseExceptionCode } from '../src/parser';
   });
 
   it('should return ParsingError when parse errors', () => {
-    expectToNotParse('if()', 'Unexpected token )');
+    expectToNotParse('if()', 'Unexpected token (1:3)');
     expectToNotParse('/* @flow */ if()', 'Unexpected token (1:15)');
   });
 
@@ -332,9 +338,9 @@ function expectToNotParse(code: string, message: string) {
 }
 
 function expectToParseInNonStrictMode(code: string, msgInStrictMode: string) {
-  const result1 = parse(espree.parse, PARSER_CONFIG_MODULE, code);
+  const result1 = parse(babel.parse, PARSER_CONFIG_MODULE, code);
   expect((result1 as ParseException).message).toEqual(msgInStrictMode);
 
-  const result2 = parse(espree.parse, PARSER_CONFIG_SCRIPT, code);
+  const result2 = parse(babel.parse, PARSER_CONFIG_SCRIPT, code);
   expect((result2 as SourceCode).ast.body.length).toBeGreaterThan(0);
 }
