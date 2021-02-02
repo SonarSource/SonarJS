@@ -26,7 +26,7 @@ public class JavaScriptLanguage extends AbstractLanguage {
 
   public static final String KEY = "js";
   static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
-  static final String FILE_SUFFIXES_DEFVALUE = ".js,.jsx";
+  static final String FILE_SUFFIXES_DEFVALUE = ".js,.jsx,.mjs";
 
   private Configuration configuration;
 
