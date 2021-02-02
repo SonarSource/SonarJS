@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as espree from 'espree';
 import * as babel from 'babel-eslint';
 import { Linter, SourceCode } from 'eslint';
 import { ParsingError } from './analyzer';
@@ -66,20 +65,14 @@ export function parseJavaScriptSourceFile(
     }
     console.log(`DEBUG Failed to parse ${filePath} with TypeScript compiler: ${parsed.message}`);
   }
-  let parseFunctions = [espree.parse, babel.parseForESLint];
-  if (fileContent.includes('@flow')) {
-    parseFunctions = [babel.parseForESLint];
-  }
 
   let exceptionToReport: ParseException | null = null;
-  for (const parseFunction of parseFunctions) {
-    for (const config of [PARSER_CONFIG_MODULE, PARSER_CONFIG_SCRIPT]) {
-      const result = parse(parseFunction, config, fileContent);
-      if (result instanceof SourceCode) {
-        return result;
-      } else if (!exceptionToReport) {
-        exceptionToReport = result;
-      }
+  for (const config of [PARSER_CONFIG_MODULE, PARSER_CONFIG_SCRIPT]) {
+    const result = parse(babel.parseForESLint, config, fileContent);
+    if (result instanceof SourceCode) {
+      return result;
+    } else if (!exceptionToReport) {
+      exceptionToReport = result;
     }
   }
 
@@ -126,7 +119,7 @@ export function parseVueSourceFile(
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   let exception: ParseException | null = null;
-  const parsers = ['@typescript-eslint/parser', 'espree', 'babel-eslint'];
+  const parsers = ['@typescript-eslint/parser', 'babel-eslint'];
   for (const parser of parsers) {
     try {
       const result = VueJS.parseForESLint(fileContent, {
