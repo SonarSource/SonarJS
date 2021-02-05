@@ -70,4 +70,19 @@ describe('tsconfig', () => {
       projectReferences: [`${cwd}/foo`],
     });
   });
+
+  it('should return implicitly included Vue files', () => {
+    const tsConfig = path.join(
+      __dirname,
+      'fixtures',
+      'vue-project-tsconfig-implicit',
+      'tsconfig.json',
+    );
+    const result = getFilesForTsConfig(tsConfig, { ...defaultParseConfigHost }) as {
+      files: string[];
+      projectReferences: string[];
+    };
+    expect(result.files).toHaveLength(1);
+    expect(result.files[0]).toMatch(/.vue$/g);
+  });
 });
