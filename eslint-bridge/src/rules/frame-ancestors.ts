@@ -85,7 +85,7 @@ function isSetNoneFrameAncestorsProperty(frameAncestors: estree.Property): boole
     value.type === 'ArrayExpression' &&
     Boolean(
       value.elements.find(
-        v => v.type === 'Literal' && typeof v.value === 'string' && v.value === NONE,
+        v => v?.type === 'Literal' && typeof v.value === 'string' && v.value === NONE,
       ),
     )
   );

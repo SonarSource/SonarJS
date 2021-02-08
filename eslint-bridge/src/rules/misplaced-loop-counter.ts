@@ -151,8 +151,8 @@ function getCalleeObject(node: estree.CallExpression) {
   return null;
 }
 
-function computeAssignedExpressions(node: estree.Node, assigned: estree.Node[]) {
-  switch (node.type) {
+function computeAssignedExpressions(node: estree.Node | null, assigned: Array<estree.Node | null>) {
+  switch (node?.type) {
     case 'ArrayPattern':
       node.elements.forEach(element => computeAssignedExpressions(element, assigned));
       break;

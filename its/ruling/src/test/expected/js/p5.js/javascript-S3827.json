@@ -29,9 +29,6 @@
 'p5.js:test/js/p5_helpers.js':[
 6,
 ],
-'p5.js:test/js/sinon.js':[
-4678,
-],
 'p5.js:test/manual-test-examples/addons/p5.sound/DelayNoiseEnvelope/sketch.js':[
 13,
 14,

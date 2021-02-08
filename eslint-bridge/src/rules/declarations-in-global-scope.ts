@@ -22,11 +22,15 @@ import { Rule } from 'eslint';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    function findModuleScope() {
+      return context.getSourceCode().scopeManager.scopes.find(s => s.type === 'module');
+    }
+
     return {
       Program() {
         const scope = context.getScope();
         // As we parse every file with "module" source type, we find user defined global variables in the module scope
-        const moduleScope = scope.childScopes.find(s => s.type === 'module');
+        const moduleScope = findModuleScope();
         moduleScope?.variables.forEach(variable => {
           if (scope.variables.find(global => global.name === variable.name)) {
             // Avoid reporting on redefinitions of actual global variables

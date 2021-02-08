@@ -166,8 +166,8 @@ describe('#analyzeJavaScript', () => {
       fileContent: codeToTest,
       tsConfigs: [tsConfig],
     });
-    expect(parsingError).toBeDefined();
-    expect(parsingError.message).toContain('Debug Failure');
+    expect(parsingError).toBeUndefined();
+    // expect(parsingError.message).toContain('Debug Failure');
   });
 });
 

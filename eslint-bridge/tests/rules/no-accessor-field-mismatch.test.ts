@@ -135,7 +135,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           }
         
           public getV() { // Compliant
-            return \`v is ${this.z}\`;
+            return \`v is \${this.z}\`;
           }
         }`,
     },

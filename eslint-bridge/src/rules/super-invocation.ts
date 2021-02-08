@@ -26,8 +26,10 @@ const constructorSuperRule = rules.get('constructor-super')!;
 const noThisBeforeSuperRule = rules.get('no-this-before-super')!;
 
 export const rule: Rule.RuleModule = {
-  // meta of constructor-super is required for issue messages
-  meta: constructorSuperRule.meta,
+  // meta of constructor-super and no-this-before-super is required for issue messages
+  meta: {
+    messages: { ...constructorSuperRule.meta!.messages, ...noThisBeforeSuperRule.meta!.messages },
+  },
   create(context: Rule.RuleContext) {
     const constructorSuperListener: Rule.RuleListener = constructorSuperRule.create(context);
     const notThisBeforeSuperListener: Rule.RuleListener = noThisBeforeSuperRule.create(context);

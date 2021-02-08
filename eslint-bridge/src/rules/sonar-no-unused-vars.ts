@@ -56,12 +56,16 @@ export const rule: Rule.RuleModule = {
       }
     }
 
+    function isParentOfModuleScope(scope: Scope.Scope) {
+      return scope.childScopes.some(s => s.type === 'module');
+    }
+
     function checkScope(
       scope: Scope.Scope,
       checkedInParent: 'nothing' | 'let-const-function' | 'all',
     ) {
       let toCheck = checkedInParent;
-      if (scope.type === 'function') {
+      if (scope.type === 'function' && !isParentOfModuleScope(scope)) {
         toCheck = 'all';
       } else if (checkedInParent === 'nothing' && scope.type === 'block') {
         toCheck = 'let-const-function';
