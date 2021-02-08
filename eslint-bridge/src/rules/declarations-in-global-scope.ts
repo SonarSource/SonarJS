@@ -26,7 +26,7 @@ export const rule: Rule.RuleModule = {
       Program() {
         const scope = context.getScope();
         // As we parse every file with "module" source type, we find user defined global variables in the module scope
-        const moduleScope = scope.childScopes.find(s => s.type === 'module');
+        const moduleScope = findModuleScope(context);
         moduleScope?.variables.forEach(variable => {
           if (scope.variables.find(global => global.name === variable.name)) {
             // Avoid reporting on redefinitions of actual global variables
@@ -51,3 +51,7 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function findModuleScope(context: Rule.RuleContext) {
+  return context.getSourceCode().scopeManager.scopes.find(s => s.type === 'module');
+}

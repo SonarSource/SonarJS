@@ -20,6 +20,7 @@
 import { Rule, Scope, AST } from 'eslint';
 import * as estree from 'estree';
 import { Location } from './location';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const symbolHighlightingRuleId = 'internal-symbol-highlighting';
 
@@ -29,6 +30,33 @@ export const symbolHighlightingRuleId = 'internal-symbol-highlighting';
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let variables: Set<Scope.Variable>;
+
+    /*
+       Remove TypeAnnotation part from location of identifier for purpose of symbol highlighting.
+       This was motivated by following code
+
+         var XMLHttpRequest: {
+           new(): XMLHttpRequest; // this is reference to var, not interface
+         };
+         interface XMLHttpRequest  {}
+
+       where XMLHttpRequest is both type and variable name. Issue type annotation inside the variable declaration
+       is reference to the variable (this is likely a bug in parser), which causes overlap between declaration and
+       reference, which makes SQ API fail with RuntimeException. As a workaround we remove TypeAnnotation part of
+       identifier node from its location, so no overlap is possible (arguably this is also better UX for symbol
+       highlighting).
+     */
+    function identifierLocation(identifier: TSESTree.Identifier) {
+      const source = context.getSourceCode();
+      const loc = {
+        start: identifier.loc.start,
+        end: identifier.typeAnnotation
+          ? source.getLocFromIndex(identifier.typeAnnotation.range[0])
+          : identifier.loc.end,
+      };
+      return location(loc);
+    }
+
     return {
       Program() {
         // clear "variables" for each file
@@ -47,8 +75,8 @@ export const rule: Rule.RuleModule = {
             .sort((a, b) => a.loc!.start.line - b.loc!.start.line);
           const declaration = allRef[0];
           const highlightedSymbol: HighlightedSymbol = {
-            declaration: location(declaration.loc!),
-            references: allRef.slice(1).map(r => location(r.loc!)),
+            declaration: identifierLocation(declaration as TSESTree.Identifier),
+            references: allRef.slice(1).map(r => identifierLocation(r as TSESTree.Identifier)),
           };
           result.push(highlightedSymbol);
         });

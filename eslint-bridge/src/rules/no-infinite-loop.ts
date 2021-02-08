@@ -31,6 +31,8 @@ const noUnmodifiedLoopEslint = interceptReport(
 );
 const MESSAGE = "Correct this loop's end condition to not be invariant.";
 export const rule: Rule.RuleModule = {
+  // we copy the meta to have proper messageId
+  meta: noUnmodifiedLoopEslint.meta,
   create(context: Rule.RuleContext) {
     const noUnmodifiedLoopListener = noUnmodifiedLoopEslint.create(context);
     return {

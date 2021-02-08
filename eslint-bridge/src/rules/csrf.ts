@@ -29,8 +29,8 @@ import {
   getModuleNameFromRequire,
   getObjectExpressionProperty,
   flattenArgs,
+  isLiteral,
 } from './utils';
-import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 const CSURF_MODULE = 'csurf';
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
@@ -51,9 +51,9 @@ export const rule: Rule.RuleModule = {
     function checkIgnoredMethods(node: estree.Property) {
       if (node.value.type === 'ArrayExpression') {
         const arrayExpr = node.value;
-        const unsafeMethods = arrayExpr.elements.filter(
-          e => isLiteral(e) && typeof e.value === 'string' && !SAFE_METHODS.includes(e.value),
-        );
+        const unsafeMethods = arrayExpr.elements
+          .filter(isLiteral)
+          .filter(e => typeof e.value === 'string' && !SAFE_METHODS.includes(e.value));
         if (unsafeMethods.length > 0) {
           const [first, ...rest] = unsafeMethods;
           context.report({

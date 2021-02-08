@@ -24,7 +24,6 @@ import { IssueLocation } from '../analyzer';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { RequiredParserServices } from '../utils/isRequiredParserServices';
 import * as tsTypes from 'typescript';
-import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const functionLike = new Set([
   'FunctionDeclaration',
@@ -217,7 +216,7 @@ export function getUniqueWriteUsageOrNode(
 
 export function getValueOfExpression<T extends estree.Node['type']>(
   context: Rule.RuleContext,
-  expr: estree.Node | undefined,
+  expr: estree.Node | undefined | null,
   type: T,
 ) {
   if (!expr) {
@@ -305,7 +304,7 @@ export function flattenArgs(context: Rule.RuleContext, args: estree.Node[]): est
   function recHelper(nodePossiblyIdentifier: estree.Node): estree.Node[] {
     const n = getUniqueWriteUsageOrNode(context, nodePossiblyIdentifier);
     if (n.type === 'ArrayExpression') {
-      return flatMap(n.elements, recHelper);
+      return flatMap(n.elements as estree.Node[], recHelper);
     } else {
       return [n];
     }
@@ -648,4 +647,10 @@ export function isMethodInvocation(
 
 export function last(arr: Array<any>) {
   return arr[arr.length - 1];
+}
+
+// we have similar function in eslint-plugin-sonarjs, however this one accepts null
+// eventually we should update eslint-plugin-sonarjs
+export function isLiteral(n: estree.Node | null): n is estree.Literal {
+  return n != null && n.type === 'Literal';
 }

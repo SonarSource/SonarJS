@@ -172,19 +172,11 @@ export const rule: Rule.RuleModule = {
       return parent && parent.type === 'AssignmentPattern';
     }
 
-    function isLocalVar(variable: Scope.Variable) {
-      // @ts-ignore scope is not exposed in the API
+    function isLocalVar(variable: Variable) {
+      // @ts-ignore
       const scope = variable.scope;
-      return hasUpperFunctionScope(scope);
-    }
-
-    function hasUpperFunctionScope(scope: Scope.Scope | null): boolean {
-      return (
-        !!scope &&
-        (scope.type === 'function' ||
-          scope.type === 'function-expression-name' ||
-          hasUpperFunctionScope(scope.upper))
-      );
+      const node = scope.block as TSESTree.Node;
+      return node.type !== 'Program' && node.type !== 'TSModuleDeclaration';
     }
 
     function variableUsedOutsideOfCodePath(variable: Scope.Variable) {

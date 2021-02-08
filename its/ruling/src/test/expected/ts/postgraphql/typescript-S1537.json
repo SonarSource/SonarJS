@@ -271,6 +271,8 @@
 8,
 ],
 'postgraphql:src/interface/__ideas__/01-new-types.ts':[
+10,
+20,
 95,
 ],
 'postgraphql:src/interface/index.ts':[
@@ -280,6 +282,9 @@
 18,
 31,
 32,
+],
+'postgraphql:src/interface/type/ListType.ts':[
+11,
 ],
 'postgraphql:src/interface/type/getNamedType.ts':[
 18,

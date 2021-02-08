@@ -147,6 +147,8 @@
 'jshint:tests/unit/fixtures/unused.js':[
 7,
 24,
+58,
+62,
 101,
 110,
 112,

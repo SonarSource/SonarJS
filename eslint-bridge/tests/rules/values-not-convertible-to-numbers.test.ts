@@ -81,6 +81,11 @@ ruleTesterTs.run(
         var nan = undefinedVariable + 42;
         nan >= 42;`, // FN
       },
+      {
+        code: `
+        let x = { };
+        x.a >= 42;`, // FN
+      },
     ],
     invalid: [
       {

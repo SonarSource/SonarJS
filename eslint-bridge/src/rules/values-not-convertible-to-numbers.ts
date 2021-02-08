@@ -25,7 +25,7 @@ import {
   isRequiredParserServices,
   RequiredParserServices,
 } from '../utils/isRequiredParserServices';
-import * as tsTypes from 'typescript';
+import * as ts from 'typescript';
 import { getTypeFromTreeNode, isStringType } from './utils';
 
 const message = (typeName: string) =>
@@ -44,6 +44,10 @@ export const rule: Rule.RuleModule = {
       BinaryExpression(node: estree.Node) {
         const { left, operator, right } = node as estree.BinaryExpression;
         if (!comparisonOperators.has(operator)) {
+          return;
+        }
+        if (left.type === 'MemberExpression' || right.type === 'MemberExpression') {
+          // avoid FPs on field access
           return;
         }
         const checker = services.program.getTypeChecker();
@@ -72,12 +76,12 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isConvertibleToNumber(typ: tsTypes.Type, checker: tsTypes.TypeChecker) {
+function isConvertibleToNumber(typ: ts.Type, checker: ts.TypeChecker) {
   const flags = typ.getFlags();
-  if ((flags & tsTypes.TypeFlags.BooleanLike) !== 0) {
+  if ((flags & ts.TypeFlags.BooleanLike) !== 0) {
     return true;
   }
-  if ((flags & tsTypes.TypeFlags.Undefined) !== 0) {
+  if ((flags & ts.TypeFlags.Undefined) !== 0) {
     return false;
   }
   const valueOfSignatures = getValueOfSignatures(typ, checker);
@@ -87,7 +91,7 @@ function isConvertibleToNumber(typ: tsTypes.Type, checker: tsTypes.TypeChecker) 
   );
 }
 
-function getValueOfSignatures(typ: tsTypes.Type, checker: tsTypes.TypeChecker) {
+function getValueOfSignatures(typ: ts.Type, checker: ts.TypeChecker) {
   const valueOfSymbol = typ.getProperty('valueOf');
   if (!valueOfSymbol) {
     return [];
@@ -98,6 +102,6 @@ function getValueOfSignatures(typ: tsTypes.Type, checker: tsTypes.TypeChecker) {
     .reduce((result, decl) => result.concat(decl), []);
 }
 
-function isNumberLike(typ: tsTypes.Type) {
-  return (typ.getFlags() & tsTypes.TypeFlags.NumberLike) !== 0;
+function isNumberLike(typ: ts.Type) {
+  return (typ.getFlags() & ts.TypeFlags.NumberLike) !== 0;
 }

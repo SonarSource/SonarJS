@@ -59,7 +59,11 @@ export const rule: Rule.RuleModule = {
 
 function arrayElementTypeOf(node: TSESTree.Node, services: RequiredParserServices) {
   const { typeToTypeNode, getTypeAtLocation } = services.program.getTypeChecker();
-  const typeNode = typeToTypeNode(getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node)));
+  const typeNode = typeToTypeNode(
+    getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node)),
+    undefined,
+    undefined,
+  );
   if (typeNode && ts.isArrayTypeNode(typeNode)) {
     return typeNode.elementType;
   }

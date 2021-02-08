@@ -44,7 +44,7 @@ it('should highlight parameter references', () => {
   expect(result[0].declaration).toEqual(location(1, 9, 1, 12));
   expect(result[0].references).toHaveLength(0);
 
-  expect(result[1].declaration).toEqual(location(1, 13, 1, 22));
+  expect(result[1].declaration).toEqual(location(1, 13, 1, 14));
   expect(result[1].references).toHaveLength(1);
   expect(result[1].references[0]).toEqual(location(1, 33, 1, 34));
 });
@@ -52,7 +52,7 @@ it('should highlight parameter references', () => {
 it('should highlight variable declared with type', () => {
   const result = actual(`let x: number = 42;`);
   expect(result).toHaveLength(1);
-  expect(result[0].declaration).toEqual(location(1, 4, 1, 13));
+  expect(result[0].declaration).toEqual(location(1, 4, 1, 5));
   expect(result[0].references).toHaveLength(0);
 });
 
@@ -95,6 +95,23 @@ it('should highlight curly brackets', () => {
   expect(result[2].declaration).toEqual(location(4, 11, 4, 12));
   expect(result[2].references).toHaveLength(1);
   expect(result[2].references[0]).toEqual(location(4, 12, 4, 13));
+});
+
+it('should highlight constructor', () => {
+  expect(
+    actual(`
+    var XMLHttpRequest: {
+      new(): XMLHttpRequest;
+    };
+    interface XMLHttpRequest  {}
+    `),
+  ).toContainEqual({
+    declaration: { endCol: 22, endLine: 2, startCol: 8, startLine: 2 },
+    references: [
+      { endCol: 27, endLine: 3, startCol: 13, startLine: 3 },
+      { endCol: 28, endLine: 5, startCol: 14, startLine: 5 },
+    ],
+  });
 });
 
 function location(startLine: number, startCol: number, endLine: number, endCol: number): Location {
