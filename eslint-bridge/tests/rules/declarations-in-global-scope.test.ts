@@ -19,7 +19,11 @@
  */
 import { RuleTester } from 'eslint';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const tsParserPath = require.resolve('@typescript-eslint/parser');
+const ruleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  parser: tsParserPath,
+});
 const ruleTesterwithBrowser = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   env: { es6: true, browser: true },
@@ -100,6 +104,14 @@ ruleTester.run('Variables and functions should not be declared in the global sco
       if (x) {
         function func10() {}  // FN
       }
+            `,
+    },
+    {
+      code: `
+      type A = number;
+      class A {}
+
+      let a : { <T>(x: T): number; }
             `,
     },
   ],
@@ -207,15 +219,6 @@ ruleTester.run('Variables and functions should not be declared in the global sco
         
         function bat2() {};                  // OK
       }
-            `,
-      errors: 1,
-    },
-    {
-      code: `
-      type A = number;
-      class A {}
-
-      let a : { <T>(x: T): number; }
             `,
       errors: 1,
     },

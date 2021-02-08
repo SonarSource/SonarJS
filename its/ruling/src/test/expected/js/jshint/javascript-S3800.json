@@ -1,4 +1,7 @@
 {
+'jshint:src/jshint.js':[
+3344,
+],
 'jshint:tests/unit/fixtures/gh1227.js':[
 5,
 ],

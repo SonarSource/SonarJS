@@ -129,7 +129,7 @@ function prettyPrint(type: ts.Type, checker: ts.TypeChecker): string {
       .filter(distinct)
       .join(delimiter);
   }
-  const typeNode = checker.typeToTypeNode(type);
+  const typeNode = checker.typeToTypeNode(type, undefined, undefined);
   if (typeNode !== undefined) {
     if (ts.isFunctionTypeNode(typeNode)) {
       return 'function';

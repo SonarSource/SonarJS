@@ -34,7 +34,7 @@ export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
   codeFrame: false,
   ecmaFeatures: {
     jsx: true,
-    globalReturn: true,
+    globalReturn: false,
     legacyDecorators: true,
   },
 };

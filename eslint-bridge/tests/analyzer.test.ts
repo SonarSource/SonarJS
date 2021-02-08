@@ -23,7 +23,7 @@ import {
   getCognitiveComplexity,
   getHighlightedSymbols,
   initLinter,
-} from '../src/analyzer';
+} from 'analyzer';
 import { join } from 'path';
 import * as fs from 'fs';
 
@@ -166,8 +166,9 @@ describe('#analyzeJavaScript', () => {
       fileContent: codeToTest,
       tsConfigs: [tsConfig],
     });
-    expect(parsingError).toBeDefined();
-    expect(parsingError.message).toContain('Debug Failure');
+    // this test used to handle typescript exception which was fixed in some version prior 4.1
+    // as we are not aware of code triggering an exception in 4.1 this test is left just for curiosity
+    expect(parsingError).toBeUndefined();
   });
 });
 

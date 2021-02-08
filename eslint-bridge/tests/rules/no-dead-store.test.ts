@@ -199,6 +199,13 @@ const valid = [
     }
   `,
   },
+  {
+    code: `
+  var x; 
+  function foo() {
+    x = 5;
+  }`,
+  },
 ];
 
 const invalid = [

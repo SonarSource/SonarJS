@@ -148,7 +148,6 @@ export const rule: Rule.RuleModule = {
 
       return (
         variable &&
-        isLocalVar(variable) &&
         !isDefaultParameter(ref) &&
         !variable.name.startsWith('_') &&
         !isCompoundAssignment(ref.writeExpr) &&
@@ -327,19 +326,4 @@ function isDefaultParameter(ref: Reference) {
   }
   const parent = (ref.identifier as TSESTree.Identifier).parent;
   return parent && parent.type === 'AssignmentPattern';
-}
-
-function hasUpperFunctionScope(scope: Scope.Scope | null): boolean {
-  return (
-    !!scope &&
-    (scope.type === 'function' ||
-      scope.type === 'function-expression-name' ||
-      hasUpperFunctionScope(scope.upper))
-  );
-}
-
-function isLocalVar(variable: Scope.Variable) {
-  // @ts-ignore scope is not exposed in the API
-  const scope = variable.scope;
-  return hasUpperFunctionScope(scope);
 }

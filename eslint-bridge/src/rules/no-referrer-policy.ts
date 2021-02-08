@@ -71,10 +71,11 @@ function isHelmetModuleNode(context: Rule.RuleContext, node: estree.Node): boole
 
 function isSafePolicy(policy: estree.Property): boolean {
   const { value } = policy;
-  const values: estree.Node[] = value.type === 'ArrayExpression' ? [...value.elements] : [value];
+  const values: Array<estree.Node | null> =
+    value.type === 'ArrayExpression' ? value.elements : [value];
   const sensitiveValue = values.find(
     v =>
-      v.type === 'Literal' &&
+      v?.type === 'Literal' &&
       typeof v.value === 'string' &&
       UNSAFE_REFERRER_POLICY_VALUES.includes(v.value),
   );
