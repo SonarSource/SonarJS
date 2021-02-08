@@ -46,6 +46,15 @@ export function getFilesForTsConfig(
     {
       noEmit: true,
     },
+    undefined,
+    undefined,
+    [
+      {
+        extension: '.vue',
+        scriptKind: ts.ScriptKind.Deferred,
+        isMixedContent: true,
+      },
+    ],
   );
 
   if (parsed.errors.length > 0) {
