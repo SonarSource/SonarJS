@@ -44,8 +44,8 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   static final String SONAR_WAY = "Sonar way";
   // unfortunately we have this inconsistency in names
   // in order to keep compatibility we should stick to these names
-  static final String SONAR_WAY_RECOMMENDED_JS = "Sonar way Recommended";
-  static final String SONAR_WAY_RECOMMENDED_TS = "Sonar way recommended";
+  static final String SONAR_WAY_RECOMMENDED_JS = "Sonar way Recommended (deprecated)";
+  static final String SONAR_WAY_RECOMMENDED_TS = "Sonar way recommended (deprecated)";
 
   public static final String RESOURCE_PATH = "org/sonar/l10n/javascript/rules/javascript";
   public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
