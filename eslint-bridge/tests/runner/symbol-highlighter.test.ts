@@ -114,6 +114,19 @@ it('should highlight constructor', () => {
   });
 });
 
+it('should highlight TS enums', () => {
+  expect(
+    actual(`
+    enum PublishSettingsType {
+      'enterprise',
+      'dotcom',
+    }`),
+  ).toContainEqual({
+    declaration: { endCol: 28, endLine: 2, startCol: 9, startLine: 2 },
+    references: [],
+  });
+});
+
 function location(startLine: number, startCol: number, endLine: number, endCol: number): Location {
   return {
     startLine,
