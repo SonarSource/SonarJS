@@ -19,11 +19,9 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from 'rules/unused-import';
+import { babelRuleTester } from '../utils/babel-rule-tester';
 
-const ruleTesterJS = new RuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  parser: require.resolve('babel-eslint'),
-});
+const ruleTesterJS = babelRuleTester();
 
 ruleTesterJS.run('Unnecessary imports should be removed', rule, {
   valid: [
