@@ -29,6 +29,6 @@ public class ReturnInSetterCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-return-in-setter";
+    return "no-setter-return";
   }
 }
