@@ -91,6 +91,9 @@ export class LinterWrapper {
 
     // TS implementation of no-throw-literal is not supporting JS code.
     delete typescriptEslintRules['no-throw-literal'];
+    Object.keys(typescriptEslintRules).forEach(name => {
+      typescriptEslintRules[name] = sanitizeTypeScriptESLintRule(typescriptEslintRules[name]);
+    });
     this.linter.defineRules(typescriptEslintRules);
 
     const noUnusedExpressionsRule = typescriptEslintRules[NO_UNUSED_EXPRESSIONS];
@@ -180,6 +183,58 @@ export function decodeSonarRuntimeIssue(
     }
   }
   return issue;
+}
+
+function sanitizeTypeScriptESLintRule(rule: ESLintRule.RuleModule): ESLintRule.RuleModule {
+  return {
+    ...(!!rule.meta && { meta: rule.meta }),
+    create(originalContext: ESLintRule.RuleContext) {
+      const interceptingContext: ESLintRule.RuleContext = {
+        id: originalContext.id,
+        options: originalContext.options,
+        settings: originalContext.settings,
+        parserPath: originalContext.parserPath,
+        parserOptions: originalContext.parserOptions,
+        parserServices: originalContext.parserServices,
+
+        getAncestors() {
+          return originalContext.getAncestors();
+        },
+
+        getDeclaredVariables(node: ESLintRule.Node) {
+          return originalContext.getDeclaredVariables(node);
+        },
+
+        getFilename() {
+          return originalContext.getFilename();
+        },
+
+        getScope() {
+          return originalContext.getScope();
+        },
+
+        getSourceCode() {
+          return originalContext.getSourceCode();
+        },
+
+        markVariableAsUsed(name: string) {
+          return originalContext.markVariableAsUsed(name);
+        },
+
+        report(descriptor: ESLintRule.ReportDescriptor): void {
+          return originalContext.report(descriptor);
+        },
+      };
+      if (
+        rule.meta?.docs &&
+        (rule.meta.docs as any).requiresTypeChecking === true &&
+        interceptingContext.parserServices.hasFullTypeInformation !== true
+      ) {
+        return {};
+      }
+      return rule.create(interceptingContext);
+    },
+  };
 }
 
 function removeIrrelevantProperties(eslintIssue: Linter.LintMessage): Issue | null {
