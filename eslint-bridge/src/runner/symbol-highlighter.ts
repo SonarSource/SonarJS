@@ -81,8 +81,8 @@ export const rule: Rule.RuleModule = {
             return;
           }
           const highlightedSymbol: HighlightedSymbol = {
-            declaration: identifierLocation(allRef[0] as TSESTree.Identifier),
-            references: allRef.slice(1).map(r => identifierLocation(r as TSESTree.Identifier)),
+            declaration: identifierLocation(allRef[0] as TSESTree.Node),
+            references: allRef.slice(1).map(r => identifierLocation(r as TSESTree.Node)),
           };
           result.push(highlightedSymbol);
         });
