@@ -20,8 +20,9 @@
 import { getRuleConfig, decodeSonarRuntimeIssue, LinterWrapper } from 'linter';
 import { Rule, SourceCode } from 'eslint';
 import { SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE } from 'analyzer';
-import { parseJavaScriptSourceFile } from 'parser';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from 'parser';
 import { setContext } from 'context';
+import path from 'path';
 
 const ruleUsingSecondaryLocations = {
   meta: { schema: { enum: ['sonar-runtime'] } },
@@ -279,5 +280,26 @@ describe('#decodeSecondaryLocations', () => {
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(4);
     expect(result.every(i => i.ruleId === 'super-invocation')).toBe(true);
+  });
+});
+
+describe('TypeScript ESLint rule sanitization', () => {
+  const linter = new LinterWrapper([{ key: 'prefer-readonly', configurations: [] }], [], [], []);
+
+  const filePath = path.join(__dirname, './fixtures/ts-project/sample.lint.ts');
+  const tsConfig = path.join(__dirname, './fixtures/ts-project/tsconfig.json');
+  const fileContent = `class C { private static f = 5; }`;
+
+  it('when type information is available', () => {
+    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
+    const result = linter.analyze(sourceCode, filePath).issues;
+    expect(result).toHaveLength(1);
+  });
+
+  it('when type information is missing', () => {
+    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, []) as SourceCode;
+    const linter = new LinterWrapper([{ key: 'prefer-readonly', configurations: [] }], [], [], []);
+    const result = linter.analyze(sourceCode, filePath).issues;
+    expect(result).toHaveLength(0);
   });
 });
