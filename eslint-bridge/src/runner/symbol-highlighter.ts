@@ -46,13 +46,14 @@ export const rule: Rule.RuleModule = {
        identifier node from its location, so no overlap is possible (arguably this is also better UX for symbol
        highlighting).
      */
-    function identifierLocation(identifier: TSESTree.Identifier) {
+    function identifierLocation(node: TSESTree.Node) {
       const source = context.getSourceCode();
       const loc = {
-        start: identifier.loc.start,
-        end: identifier.typeAnnotation
-          ? source.getLocFromIndex(identifier.typeAnnotation.range[0])
-          : identifier.loc.end,
+        start: node.loc.start,
+        end:
+          node.type === 'Identifier' && node.typeAnnotation
+            ? source.getLocFromIndex(node.typeAnnotation.range[0])
+            : node.loc.end,
       };
       return location(loc);
     }
@@ -70,12 +71,17 @@ export const rule: Rule.RuleModule = {
         variables.forEach(v => {
           // if variable is initialized during declaration it is part of references as well
           // so we merge declarations and references to remove duplicates and take the earliest in the file as the declaration
-          const allRef = [...new Set([...v.identifiers, ...v.references.map(r => r.identifier)])]
+          const allRef = [
+            ...new Set([...v.defs.map(d => d.name), ...v.references.map(r => r.identifier)]),
+          ]
             .filter(i => !!i.loc)
             .sort((a, b) => a.loc!.start.line - b.loc!.start.line);
-          const declaration = allRef[0];
+          if (allRef.length === 0) {
+            // defensive check, this should never happen
+            return;
+          }
           const highlightedSymbol: HighlightedSymbol = {
-            declaration: identifierLocation(declaration as TSESTree.Identifier),
+            declaration: identifierLocation(allRef[0] as TSESTree.Identifier),
             references: allRef.slice(1).map(r => identifierLocation(r as TSESTree.Identifier)),
           };
           result.push(highlightedSymbol);
