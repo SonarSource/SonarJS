@@ -87,7 +87,7 @@ public class JavaScriptProfilesDefinitionTest {
     BuiltInQualityProfile profile = context.profile(JavaScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY_RECOMMENDED_JS);
 
     assertThat(profile.language()).isEqualTo(JavaScriptLanguage.KEY);
-    assertThat(profile.name()).isEqualTo("Sonar way Recommended (deprecated)");
+    assertThat(profile.name()).isEqualTo("Sonar way Recommended");
     assertThat(profile.rules()).extracting("repoKey").containsOnly("common-js", CheckList.JS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(180);
 
@@ -126,7 +126,7 @@ public class JavaScriptProfilesDefinitionTest {
     BuiltInQualityProfile profile = context.profile(TypeScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY_RECOMMENDED_TS);
 
     assertThat(profile.language()).isEqualTo(TypeScriptLanguage.KEY);
-    assertThat(profile.name()).isEqualTo("Sonar way recommended (deprecated)");
+    assertThat(profile.name()).isEqualTo("Sonar way recommended");
     assertThat(profile.rules()).extracting("repoKey").containsOnly("common-ts", CheckList.TS_REPOSITORY_KEY);
     assertThat(profile.rules().size()).isGreaterThan(180);
     assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S5122");
