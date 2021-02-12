@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as babel from '@babel/eslint-parser';
+import * as babel from 'babel-eslint';
 import { Linter, SourceCode } from 'eslint';
 import { ParsingError } from './analyzer';
 import * as VueJS from 'vue-eslint-parser';
@@ -68,7 +68,7 @@ export function parseJavaScriptSourceFile(
 
   let exceptionToReport: ParseException | null = null;
   for (const config of [PARSER_CONFIG_MODULE, PARSER_CONFIG_SCRIPT]) {
-    const result = parse(babel.parseForESLint, babelConfig(config), fileContent);
+    const result = parse(babel.parseForESLint, config, fileContent);
     if (result instanceof SourceCode) {
       return result;
     } else if (!exceptionToReport) {
@@ -119,19 +119,16 @@ export function parseVueSourceFile(
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   let exception: ParseException | null = null;
-  const parserOptions = {
-    filePath,
-    project: tsConfigs,
-    extraFileExtensions: ['.vue'],
-    ...PARSER_CONFIG_MODULE,
-  };
-  const parsers = [
-    { parser: '@typescript-eslint/parser', parserOptions },
-    { parser: '@babel/eslint-parser', parserOptions: babelConfig(parserOptions) },
-  ];
-  for (const { parser, parserOptions } of parsers) {
+  const parsers = ['@typescript-eslint/parser', 'babel-eslint'];
+  for (const parser of parsers) {
     try {
-      const result = VueJS.parseForESLint(fileContent, { parser, ...parserOptions });
+      const result = VueJS.parseForESLint(fileContent, {
+        filePath,
+        parser,
+        project: tsConfigs,
+        extraFileExtensions: ['.vue'],
+        ...PARSER_CONFIG_MODULE,
+      });
       return new SourceCode(({
         ...result,
         parserServices: result.services,
@@ -190,12 +187,4 @@ export function parseExceptionCodeOf(exceptionMsg: string): ParseExceptionCode {
   } else {
     return ParseExceptionCode.Parsing;
   }
-}
-
-export function babelConfig(config: Linter.ParserOptions) {
-  const pluginPath = `${__dirname}/../node_modules`;
-  const babelOptions = {
-    presets: [`${pluginPath}/@babel/preset-react`, `${pluginPath}/@babel/preset-flow`],
-  };
-  return { ...config, requireConfigFile: false, babelOptions };
 }

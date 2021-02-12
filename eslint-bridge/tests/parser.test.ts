@@ -27,15 +27,14 @@ import {
   parseVueSourceFile,
   ParseExceptionCode,
   parseExceptionCodeOf,
-  babelConfig,
-} from 'parser';
-import * as babel from '@babel/eslint-parser';
+} from '../src/parser';
+import * as babel from 'babel-eslint';
 import { SourceCode } from 'eslint';
-import { ParsingError } from 'analyzer';
+import { ParsingError } from '../src/analyzer';
 import visit from '../src/utils/visitor';
 import * as path from 'path';
 import * as fs from 'fs';
-import { setContext } from 'context';
+import { setContext } from '../src/context';
 
 describe('parseJavaScriptSourceFile', () => {
   beforeEach(() => {
@@ -281,7 +280,7 @@ describe('parseVueSourceFile', () => {
     ) as ParsingError;
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(4);
-    expect(parsingError.message).toContain('Unexpected token (3:4)');
+    expect(parsingError.message).toEqual('Unexpected token (3:4)');
     expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
   });
 
@@ -335,13 +334,13 @@ function expectToNotParse(code: string, message: string) {
   const parsingError = parseJavaScriptSourceFile(code, 'foo.js') as ParsingError;
   expect(parsingError).toBeDefined();
   expect(parsingError.line).toEqual(1);
-  expect(parsingError.message).toContain(message);
+  expect(parsingError.message).toEqual(message);
 }
 
 function expectToParseInNonStrictMode(code: string, msgInStrictMode: string) {
-  const result1 = parse(babel.parse, babelConfig(PARSER_CONFIG_MODULE), code);
-  expect((result1 as ParseException).message).toContain(msgInStrictMode);
+  const result1 = parse(babel.parse, PARSER_CONFIG_MODULE, code);
+  expect((result1 as ParseException).message).toEqual(msgInStrictMode);
 
-  const result2 = parse(babel.parse, babelConfig(PARSER_CONFIG_SCRIPT), code);
+  const result2 = parse(babel.parse, PARSER_CONFIG_SCRIPT, code);
   expect((result2 as SourceCode).ast.body.length).toBeGreaterThan(0);
 }

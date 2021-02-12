@@ -130,25 +130,22 @@ ruleTester.run('Disallow unused expressions', rule, {
 });
 
 import { rules as chaiFriendlyRules } from 'eslint-plugin-chai-friendly';
-import { babelConfig } from 'parser';
 
-for (let { parser, languageSpecificRule, parserOptions } of [
+for (let { parser, languageSpecificRule } of [
   {
     parser: '@typescript-eslint/parser',
     languageSpecificRule: decorateTypescriptEslint(
       require('@typescript-eslint/eslint-plugin').rules!['no-unused-expressions'],
     ),
-    parserOptions: { ecmaVersion: 2018 },
   },
   {
-    parser: '@babel/eslint-parser',
+    parser: 'babel-eslint',
     languageSpecificRule: decorateJavascriptEslint(chaiFriendlyRules['no-unused-expressions']),
-    parserOptions: babelConfig({ ecmaVersion: 2018 }),
   },
 ]) {
   const tester = new RuleTester({
     parser: require.resolve(parser),
-    parserOptions,
+    parserOptions: { ecmaVersion: 2018 },
   });
 
   tester.run(`Disallow unused expressions - negations & IIFE (${parser})`, languageSpecificRule, {

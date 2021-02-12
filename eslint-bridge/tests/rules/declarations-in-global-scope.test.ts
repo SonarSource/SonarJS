@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from 'rules/declarations-in-global-scope';
-import { babelRuleTester } from '../utils/babel-rule-tester';
 
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
@@ -38,7 +36,11 @@ const ruleTesterScript = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'script' },
 });
 
-const ruleTesterBabel = babelRuleTester();
+const ruleTesterBabel = new RuleTester({
+  parser: require.resolve('babel-eslint'),
+});
+
+import { rule } from 'rules/declarations-in-global-scope';
 
 ruleTester.run('Variables and functions should not be declared in the global scope', rule, {
   valid: [

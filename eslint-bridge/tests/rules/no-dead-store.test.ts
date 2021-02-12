@@ -18,10 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from 'rules/no-dead-store';
+import { RuleTester } from 'eslint';
 import { RuleTesterTs } from '../RuleTesterTs';
-import { babelRuleTester } from '../utils/babel-rule-tester';
 
-const ruleTester = babelRuleTester();
+const ruleTester = new RuleTester({
+  // we use babel to parse JSX syntax
+  parser: require.resolve('babel-eslint'),
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
 
 const valid = [
   {
