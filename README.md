@@ -9,9 +9,9 @@ This SonarSource project is a [static code analyser](https://en.wikipedia.org/wi
 # Features
 
 * Advanced rules based on pattern matching and control flow analysis
-* [~220 rules for JavaScript](https://rules.sonarsource.com/javascript) and [~170 rules for TypeScript](https://rules.sonarsource.com/typescript)
+* [~250 rules for JavaScript](https://rules.sonarsource.com/javascript) and [~240 rules for TypeScript](https://rules.sonarsource.com/typescript)
 * Compatible with ECMAScript 2015-2019
-* React JSX, Flow and Vue support for JavaScript
+* React JSX, Flow and Vue support for JavaScript and TypeScript
 * Metrics (complexity, number of lines etc.)
 * Import of test coverage reports
 * Import of ESLint and TSLint issues
