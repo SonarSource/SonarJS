@@ -1,6 +1,7 @@
 {
 'jshint:src/jshint.js':[
 5096,
+5525,
 ],
 'jshint:tests/unit/core.js':[
 1080,
