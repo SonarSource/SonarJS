@@ -47,6 +47,6 @@ export function flatMap<A, B>(xs: A[], f: (e: A) => B[]): B[] {
   return acc;
 }
 
-export function last(arr: Array<any>) {
+export function last<T>(arr: Array<T>) {
   return arr[arr.length - 1];
 }
