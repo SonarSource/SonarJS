@@ -22,14 +22,14 @@
 import { Rule } from 'eslint';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
+import { isIdentifier } from '../utils/ast-shape';
 import {
   getImportDeclarations,
-  getModuleNameOfIdentifier,
   getRequireCalls,
-  getValueOfExpression,
   isCallToFQN,
-  isIdentifier,
-} from './utils';
+  getModuleNameOfIdentifier,
+} from '../utils/module-resolving';
+import { getValueOfExpression } from '../utils/node-extractors';
 
 const message = `Make sure that expanding this archive file is safe here.`;
 

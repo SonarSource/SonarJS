@@ -21,12 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getValueOfExpression,
-  isCallToFQN,
-  getObjectExpressionProperty,
-  getModuleNameOfNode,
-} from './utils';
+import { getModuleNameOfNode, isCallToFQN } from '../utils/module-resolving';
+import { getObjectExpressionProperty, getValueOfExpression } from '../utils/node-extractors';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [
   'TLSv1_2_method',

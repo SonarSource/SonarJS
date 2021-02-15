@@ -23,8 +23,9 @@ import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { getTypeFromTreeNode, toEncodedMessage } from './utils';
+import { isRequiredParserServices } from '../utils/parser-services';
+import { toEncodedMessage } from '../utils/secondary-locations';
+import { getTypeFromTreeNode } from '../utils/type-checking';
 
 class FunctionScope {
   private readonly returnStatements: estree.ReturnStatement[] = [];

@@ -21,9 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getVariableFromName, resolveIdentifiers, toEncodedMessage } from './utils';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { toEncodedMessage } from '../utils/secondary-locations';
+import { getVariableFromName, resolveIdentifiers } from '../utils/node-extractors';
 
 export const rule: Rule.RuleModule = {
   meta: {

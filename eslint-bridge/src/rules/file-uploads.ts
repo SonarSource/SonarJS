@@ -20,16 +20,18 @@
 // https://jira.sonarsource.com/browse/RSPEC-2598
 
 import { Rule, Scope } from 'eslint';
+import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
 import {
-  getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
-  getVariableFromName,
-  getValueOfExpression,
-  toEncodedMessage,
+  getModuleNameOfIdentifier,
+} from '../utils/module-resolving';
+import {
   getLhsVariable,
+  getValueOfExpression,
   getObjectExpressionProperty,
-} from './utils';
+  getVariableFromName,
+} from '../utils/node-extractors';
 
 const FORMIDABLE_MODULE = 'formidable';
 const KEEP_EXTENSIONS = 'keepExtensions';

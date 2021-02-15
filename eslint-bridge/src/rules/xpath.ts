@@ -21,12 +21,11 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isMemberExpression, isMemberWithProperty } from '../utils/ast-shape';
 import {
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
-  isMemberExpression,
-  isMemberWithProperty,
-} from './utils';
+} from '../utils/module-resolving';
 
 const xpathModule = 'xpath';
 

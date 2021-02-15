@@ -19,7 +19,8 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getValueOfExpression, isCallToFQN } from './utils';
+import { isCallToFQN } from '../utils/module-resolving';
+import { getValueOfExpression } from '../utils/node-extractors';
 
 const WEAK_CIPHERS = ['bf', 'blowfish', 'des', 'rc2', 'rc4'];
 

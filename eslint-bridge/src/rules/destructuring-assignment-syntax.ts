@@ -22,7 +22,8 @@
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
-import { toEncodedMessage, findFirstMatchingAncestor } from './utils';
+import { findFirstMatchingAncestor } from '../utils/ancestor-finder';
+import { toEncodedMessage } from '../utils/secondary-locations';
 
 const MAX_INDEX = 4;
 const isAllowedIndex = (idx: number) => idx >= 0 && idx <= MAX_INDEX;

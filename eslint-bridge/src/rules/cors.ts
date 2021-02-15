@@ -21,13 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getModuleNameOfNode,
-  toEncodedMessage,
-  getUniqueWriteUsage,
-  getObjectExpressionProperty,
-} from './utils';
-
+import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { getModuleNameOfNode } from '../utils/module-resolving';
+import { getUniqueWriteUsage, getObjectExpressionProperty } from '../utils/node-extractors';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;

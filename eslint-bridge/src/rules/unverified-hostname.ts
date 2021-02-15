@@ -20,15 +20,15 @@
 // https://jira.sonarsource.com/browse/RSPEC-5667
 
 import { Rule } from 'eslint';
+import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
-import { childrenOf } from '../utils/visitor';
+import { isCallToFQN } from '../utils/module-resolving';
 import {
-  getObjectExpressionProperty,
-  getPropertyWithValue,
   getValueOfExpression,
-  isCallToFQN,
-  toEncodedMessage,
-} from './utils';
+  getPropertyWithValue,
+  getObjectExpressionProperty,
+} from '../utils/node-extractors';
+import { childrenOf } from '../utils/visitor';
 
 export const rule: Rule.RuleModule = {
   meta: {

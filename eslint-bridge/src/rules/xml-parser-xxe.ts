@@ -21,12 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getImportDeclarations,
-  getObjectExpressionProperty,
-  getRequireCalls,
-  toEncodedMessage,
-} from './utils';
+import { getImportDeclarations, getRequireCalls } from '../utils/module-resolving';
+import { getObjectExpressionProperty } from '../utils/node-extractors';
+import { toEncodedMessage } from '../utils/secondary-locations';
 
 const XML_LIBRARY = 'libxmljs';
 const XML_PARSERS = ['parseXml', 'parseXmlString'];

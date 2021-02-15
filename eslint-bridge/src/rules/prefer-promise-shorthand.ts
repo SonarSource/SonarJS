@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isFunctionNode } from './utils';
+import { isFunctionNode } from '../utils/ast-shape';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

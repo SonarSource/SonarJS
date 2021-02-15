@@ -19,7 +19,8 @@
  */
 import * as estree from 'estree';
 import { Rule } from 'eslint';
-import { getModuleNameOfImportedIdentifier, getObjectExpressionProperty } from 'rules/utils';
+import { getModuleNameOfImportedIdentifier } from '../../src/utils/module-resolving';
+import { getObjectExpressionProperty } from '../../src/utils/node-extractors';
 
 /**
  * This rule is applied to our own code in the `src/rules` directory.
@@ -38,7 +39,8 @@ export const rule: Rule.RuleModule = {
         const { callee } = node as estree.CallExpression;
         if (callee.type === 'Identifier' && callee.name === 'toEncodedMessage') {
           isSecondaryLocationUsed =
-            getModuleNameOfImportedIdentifier(context, callee)?.value === './utils';
+            getModuleNameOfImportedIdentifier(context, callee)?.value ===
+            '../utils/secondary-locations';
         }
       },
       ObjectExpression: (node: estree.Node) => {

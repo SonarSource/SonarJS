@@ -22,8 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import ts from 'typescript';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { getTypeFromTreeNode } from './utils';
+import { isRequiredParserServices } from '../utils/parser-services';
+import { getTypeFromTreeNode } from '../utils/type-checking';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

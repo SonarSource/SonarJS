@@ -21,13 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getModuleNameOfNode,
-  getObjectExpressionProperty,
-  getValueOfExpression,
-  isIdentifier,
-  toEncodedMessage,
-} from './utils';
+import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { getModuleNameOfNode } from '../utils/module-resolving';
+import { getValueOfExpression, getObjectExpressionProperty } from '../utils/node-extractors';
+import { isIdentifier } from '../utils/ast-shape';
 
 const MESSAGE = 'Make sure confidential information is not logged here.';
 export const rule: Rule.RuleModule = {

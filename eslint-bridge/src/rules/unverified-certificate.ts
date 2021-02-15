@@ -21,7 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getPropertyWithValue, getValueOfExpression, isCallToFQN, toEncodedMessage } from './utils';
+import { isCallToFQN } from '../utils/module-resolving';
+import { getValueOfExpression, getPropertyWithValue } from '../utils/node-extractors';
+import { toEncodedMessage } from '../utils/secondary-locations';
 
 export const rule: Rule.RuleModule = {
   meta: {

@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { isArray, isString } from './utils';
+import { isRequiredParserServices } from '../utils/parser-services';
+import { isArray, isString } from '../utils/type-checking';
 
 const message = `Make it an object if it must have named properties; otherwise, use a numeric index here.`;
 

@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isCallToFQN, getModuleNameOfNode } from '../utils/module-resolving';
 import { checkSensitiveCall } from '../utils/sensitive-arguments';
-import { getModuleNameOfNode, isCallToFQN } from './utils';
 
 const MESSAGE = 'Make sure allowing browsers to perform DNS prefetching is safe here.';
 

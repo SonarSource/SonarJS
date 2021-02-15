@@ -21,9 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
+import { isRequiredParserServices } from '../utils/parser-services';
+import { isArray, isNumber } from '../utils/type-checking';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-import { isArray, isNumber } from './utils';
 
 const message = 'Use "indexOf" or "includes" (available from ES2016) instead.';
 

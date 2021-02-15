@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getObjectExpressionProperty } from 'rules/utils';
 import { Express } from 'rules/utils-express';
 import { Rule, RuleTester } from 'eslint';
 import * as estree from 'estree';
+import { getObjectExpressionProperty } from '../../src/utils/node-extractors';
 
 const rule = Express.SensitiveMiddlewarePropertyRule(
   (_context: Rule.RuleContext, node: estree.CallExpression): estree.Property[] => {

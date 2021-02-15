@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { resolveIdentifiers } from './utils';
+import { resolveIdentifiers } from '../utils/node-extractors';
 
 interface FunctionLike {
   declare?: boolean;

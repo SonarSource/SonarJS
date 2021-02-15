@@ -25,7 +25,7 @@ import builtins from 'builtin-modules';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as ts from 'typescript';
-import { RequiredParserServices } from '../utils/isRequiredParserServices';
+import { RequiredParserServices } from '../utils/parser-services';
 
 const DefinitelyTyped = '@types/';
 

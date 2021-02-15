@@ -21,9 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
+import { isRequiredParserServices } from '../utils/parser-services';
 import * as ts from 'typescript';
-import { getSignatureFromCallee, getTypeFromTreeNode, toEncodedMessage } from './utils';
+import { toEncodedMessage } from '../utils/secondary-locations';
+import { getTypeFromTreeNode, getSignatureFromCallee } from '../utils/type-checking';
 
 export const rule: Rule.RuleModule = {
   meta: {

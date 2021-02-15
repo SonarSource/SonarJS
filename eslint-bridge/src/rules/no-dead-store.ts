@@ -28,11 +28,11 @@ import {
   isIdentifier,
   isAssignmentExpression,
 } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-import { isUnaryExpression, isArrayExpression } from './utils';
 import { LiveVariables, lva, ReferenceLike } from './lva';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
+import { isUnaryExpression, isArrayExpression } from '../utils/ast-shape';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

@@ -21,11 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  isRequiredParserServices,
-  RequiredParserServices,
-} from '../utils/isRequiredParserServices';
-import { isArray, isMemberExpression } from './utils';
+import { isRequiredParserServices, RequiredParserServices } from '../utils/parser-services';
+import { isArray } from '../utils/type-checking';
+import { isMemberExpression } from '../utils/ast-shape';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 

@@ -22,10 +22,7 @@
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
-import {
-  isRequiredParserServices,
-  RequiredParserServices,
-} from '../utils/isRequiredParserServices';
+import { isRequiredParserServices, RequiredParserServices } from '../utils/parser-services';
 import * as ts from 'typescript';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 

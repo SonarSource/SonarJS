@@ -21,7 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, getUniqueWriteUsageOrNode, flattenArgs, getModuleNameOfNode } from './utils';
+import { isIdentifier } from '../utils/ast-shape';
+import { getModuleNameOfNode } from '../utils/module-resolving';
+import { flattenArgs, getUniqueWriteUsageOrNode } from '../utils/node-extractors';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
 const message =

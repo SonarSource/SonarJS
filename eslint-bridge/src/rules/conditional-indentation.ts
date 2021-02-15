@@ -21,7 +21,8 @@
 
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
-import { LoopLike, toEncodedMessage } from './utils';
+import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { LoopLike } from '../utils/ast-shape';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const rule: Rule.RuleModule = {

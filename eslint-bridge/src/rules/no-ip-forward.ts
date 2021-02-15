@@ -21,14 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getModuleNameOfNode,
-  getObjectExpressionProperty,
-  getValueOfExpression,
-  isCallToFQN,
-  isIdentifier,
-  toEncodedMessage,
-} from './utils';
+import { isIdentifier } from '../utils/ast-shape';
+import { isCallToFQN, getModuleNameOfNode } from '../utils/module-resolving';
+import { getObjectExpressionProperty, getValueOfExpression } from '../utils/node-extractors';
+import { toEncodedMessage } from '../utils/secondary-locations';
 
 export const rule: Rule.RuleModule = {
   meta: {

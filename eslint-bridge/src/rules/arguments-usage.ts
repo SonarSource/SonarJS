@@ -21,7 +21,7 @@
 
 import { Rule, Scope } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { toEncodedMessage } from './utils';
+import { toEncodedMessage } from '../utils/secondary-locations';
 
 const message = "Use the rest syntax to declare this function's arguments.";
 

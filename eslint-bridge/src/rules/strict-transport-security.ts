@@ -21,12 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { getModuleNameOfNode } from '../utils/module-resolving';
 import {
-  getModuleNameOfNode,
-  getObjectExpressionProperty,
   getPropertyWithValue,
+  getObjectExpressionProperty,
   getValueOfExpression,
-} from './utils';
+} from '../utils/node-extractors';
 import { Express } from './utils-express';
 
 const HSTS = 'hsts';

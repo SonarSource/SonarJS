@@ -21,8 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { isString, toEncodedMessage } from './utils';
+import { isRequiredParserServices } from '../utils/parser-services';
+import { toEncodedMessage } from '../utils/secondary-locations';
+import { isString } from '../utils/type-checking';
 
 export const rule: Rule.RuleModule = {
   meta: {

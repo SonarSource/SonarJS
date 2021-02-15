@@ -20,10 +20,11 @@
 // https://jira.sonarsource.com/browse/RSPEC-4158
 
 import { Rule, Scope } from 'eslint';
-import { isIdentifier, findFirstMatchingAncestor, isReferenceTo, ancestorsChain } from './utils';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
 import { collectionConstructor } from '../utils/collections';
+import { findFirstMatchingAncestor, ancestorsChain } from '../utils/ancestor-finder';
+import { isIdentifier, isReferenceTo } from '../utils/ast-shape';
 
 // Methods that mutate the collection but can't add elements
 const nonAdditiveMutatorMethods = [

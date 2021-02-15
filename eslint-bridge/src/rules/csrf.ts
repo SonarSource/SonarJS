@@ -21,16 +21,14 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isIdentifier, isLiteral } from '../utils/ast-shape';
+import { getModuleNameOfIdentifier, getModuleNameFromRequire } from '../utils/module-resolving';
 import {
-  isIdentifier,
-  getModuleNameOfIdentifier,
-  toEncodedMessage,
   getUniqueWriteUsage,
-  getModuleNameFromRequire,
   getObjectExpressionProperty,
   flattenArgs,
-  isLiteral,
-} from './utils';
+} from '../utils/node-extractors';
+import { toEncodedMessage } from '../utils/secondary-locations';
 
 const CSURF_MODULE = 'csurf';
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];

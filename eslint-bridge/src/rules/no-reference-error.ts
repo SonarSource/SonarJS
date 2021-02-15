@@ -21,7 +21,8 @@
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { findFirstMatchingAncestor, toEncodedMessage } from './utils';
+import { findFirstMatchingAncestor } from '../utils/ancestor-finder';
+import { toEncodedMessage } from '../utils/secondary-locations';
 
 export const rule: Rule.RuleModule = {
   meta: {

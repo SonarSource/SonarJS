@@ -20,11 +20,8 @@
 // https://jira.sonarsource.com/browse/RSPEC-3533
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  isRequiredParserServices,
-  RequiredParserServices,
-} from '../utils/isRequiredParserServices';
-import { isFunction, isString } from './utils';
+import { isRequiredParserServices, RequiredParserServices } from '../utils/parser-services';
+import { isFunction, isString } from '../utils/type-checking';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

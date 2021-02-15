@@ -18,15 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
+import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
-import {
-  flattenArgs,
-  getModuleNameOfNode,
-  isMethodInvocation,
-  isModuleExports,
-  toEncodedMessage,
-} from './utils';
+import { isModuleExports, isMethodInvocation } from '../utils/ast-shape';
+import { getModuleNameOfNode } from '../utils/module-resolving';
+import { flattenArgs } from '../utils/node-extractors';
 
 /**
  * This modules provides utilities for writing rules about Express.js.

@@ -21,13 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  isCallToFQN,
-  getValueOfExpression,
-  isIdentifier,
-  last,
-  getPropertyWithValue,
-} from './utils';
+import { isIdentifier } from '../utils/ast-shape';
+import { last } from '../utils/collections';
+import { isCallToFQN } from '../utils/module-resolving';
+import { getPropertyWithValue, getValueOfExpression } from '../utils/node-extractors';
 import { childrenOf } from '../utils/visitor';
 
 const message =

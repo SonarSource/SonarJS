@@ -21,11 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getModuleNameOfIdentifier,
-  getUniqueWriteUsage,
-  getObjectExpressionProperty,
-} from './utils';
+import { getModuleNameOfIdentifier } from '../utils/module-resolving';
+import { getUniqueWriteUsage, getObjectExpressionProperty } from '../utils/node-extractors';
 
 const message = 'Make sure serving hidden files is safe here.';
 

@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { getPropertyWithValue, getValueOfExpression, toEncodedMessage } from '../rules/utils';
 import * as estree from 'estree';
+import { getValueOfExpression, getPropertyWithValue } from './node-extractors';
+import { toEncodedMessage } from './secondary-locations';
 
 export function checkSensitiveCall(
   context: Rule.RuleContext,
