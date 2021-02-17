@@ -19,8 +19,7 @@
  */
 import * as estree from 'estree';
 import { Rule } from 'eslint';
-import { getModuleNameOfImportedIdentifier } from '../../src/utils/module-resolving';
-import { getObjectExpressionProperty } from '../../src/utils/node-extractors';
+import { getModuleNameOfImportedIdentifier, getObjectExpressionProperty } from '../../src/utils';
 
 /**
  * This rule is applied to our own code in the `src/rules` directory.
