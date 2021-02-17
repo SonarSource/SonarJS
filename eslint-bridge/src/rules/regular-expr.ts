@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isMemberWithProperty, isIdentifier } from './utils';
+import { isIdentifier, isMemberWithProperty } from '../utils';
 
 const stringMethods = ['match', 'search', 'split'];
 const minPatternLength = 3;

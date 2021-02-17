@@ -23,10 +23,10 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   getModuleNameOfNode,
-  getObjectExpressionProperty,
   getPropertyWithValue,
+  getObjectExpressionProperty,
   getValueOfExpression,
-} from './utils';
+} from '../utils';
 import { Express } from './utils-express';
 
 const HSTS = 'hsts';

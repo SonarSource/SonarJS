@@ -22,17 +22,17 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { isIdentifier } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import {
   FunctionNodeType,
+  isRequiredParserServices,
   isFunctionNode,
+  resolveFromFunctionReference,
   getSignatureFromCallee,
   getTypeAsString,
   resolveIdentifiers,
-  resolveFromFunctionReference,
-} from './utils';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { isIdentifier } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+} from '../utils';
 
 interface FunctionSignature {
   params: Array<string | undefined>;

@@ -25,7 +25,7 @@ import {
   getModuleNameOfIdentifier,
   getUniqueWriteUsage,
   getObjectExpressionProperty,
-} from './utils';
+} from '../utils';
 
 const message = 'Make sure serving hidden files is safe here.';
 

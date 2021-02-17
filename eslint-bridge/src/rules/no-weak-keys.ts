@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, getObjectExpressionProperty, getValueOfExpression } from './utils';
+import { isIdentifier, getValueOfExpression, getObjectExpressionProperty } from '../utils';
 
 const MINIMAL_MODULUS_LENGTH = 2048;
 const MINIMAL_DIVISOR_LENGTH = 224;

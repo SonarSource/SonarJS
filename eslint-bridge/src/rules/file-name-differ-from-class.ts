@@ -21,7 +21,7 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { getVariableFromName } from './utils';
+import { getVariableFromName } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

@@ -21,9 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { childrenOf } from '../utils/visitor';
-import { getTypeAsString, isIdentifier, getValueOfExpression } from './utils';
+import {
+  isIdentifier,
+  isRequiredParserServices,
+  getValueOfExpression,
+  getTypeAsString,
+  childrenOf,
+} from '../utils';
 
 const MESSAGE = 'Make sure this cross-domain message is being sent to the intended domain.';
 const POST_MESSAGE = 'postMessage';

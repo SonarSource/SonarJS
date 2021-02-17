@@ -22,9 +22,9 @@
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { toEncodedMessage } from './utils';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { toEncodedMessage } from '../utils';
 
 interface FunctionContext {
   codePath: Rule.CodePath;

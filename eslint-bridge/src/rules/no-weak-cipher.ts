@@ -19,7 +19,7 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getValueOfExpression, isCallToFQN } from './utils';
+import { isCallToFQN, getValueOfExpression } from '../utils';
 
 const WEAK_CIPHERS = ['bf', 'blowfish', 'des', 'rc2', 'rc4'];
 

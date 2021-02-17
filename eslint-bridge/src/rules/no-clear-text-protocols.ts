@@ -23,11 +23,11 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { URL } from 'url';
 import {
-  getModuleNameOfNode,
-  getObjectExpressionProperty,
   getValueOfExpression,
+  getObjectExpressionProperty,
+  getModuleNameOfNode,
   isCallToFQN,
-} from './utils';
+} from '../utils';
 
 const INSECURE_PROTOCOLS = ['http', 'ftp', 'telnet'];
 const LOOPBACK_PATTERN = /localhost|127(?:\.[0-9]+){0,2}\.[0-9]+$|\/\/(?:0*\:)*?:?0*1$/;

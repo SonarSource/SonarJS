@@ -21,13 +21,14 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  isRequiredParserServices,
-  RequiredParserServices,
-} from '../utils/isRequiredParserServices';
-import { isArray, isMemberExpression } from './utils';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import {
+  isArray,
+  RequiredParserServices,
+  isRequiredParserServices,
+  isMemberExpression,
+} from '../utils';
 
 const message = `Add a "return" statement to this callback.`;
 

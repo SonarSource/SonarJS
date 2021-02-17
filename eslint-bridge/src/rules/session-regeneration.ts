@@ -22,13 +22,13 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  isCallToFQN,
-  getValueOfExpression,
   isIdentifier,
-  last,
+  childrenOf,
   getPropertyWithValue,
-} from './utils';
-import { childrenOf } from '../utils/visitor';
+  isCallToFQN,
+  last,
+  getValueOfExpression,
+} from '../utils';
 
 const message =
   'Create a new session during user authentication to prevent session fixation attacks.';

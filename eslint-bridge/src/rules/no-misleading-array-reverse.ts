@@ -21,13 +21,16 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import * as ts from 'typescript';
 import {
+  isArray,
+  sortLike,
   isRequiredParserServices,
   RequiredParserServices,
-} from '../utils/isRequiredParserServices';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isArray, getSymbolAtLocation, sortLike, localAncestorsChain } from './utils';
-import * as ts from 'typescript';
+  getSymbolAtLocation,
+  localAncestorsChain,
+} from '../utils';
 
 const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
 

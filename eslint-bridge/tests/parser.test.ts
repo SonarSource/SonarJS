@@ -31,7 +31,7 @@ import {
 import * as babel from 'babel-eslint';
 import { SourceCode } from 'eslint';
 import { ParsingError } from '../src/analyzer';
-import visit from '../src/utils/visitor';
+import { visit } from '../src/utils';
 import * as path from 'path';
 import * as fs from 'fs';
 import { setContext } from '../src/context';

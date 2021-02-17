@@ -28,7 +28,7 @@ ruleTester.run('Secondary locations should be enabled when used', rule, {
     },
     {
       code: `
-        import { toEncodedMessage } from './utils';`,
+        import { toEncodedMessage } from '../utils';`,
     },
     {
       code: `
@@ -135,7 +135,7 @@ ruleTester.run('Secondary locations should be enabled when used', rule, {
   invalid: [
     {
       code: `
-        import { toEncodedMessage } from './utils';
+        import { toEncodedMessage } from '../utils';
         /* ... */
         toEncodedMessage(whatever);`,
       errors: [
@@ -150,7 +150,7 @@ ruleTester.run('Secondary locations should be enabled when used', rule, {
     },
     {
       code: `
-        import { toEncodedMessage } from './utils';
+        import { toEncodedMessage } from '../utils';
         /* ... */
         toEncodedMessage(whatever);
         toEncodedMessage(whatever);`,

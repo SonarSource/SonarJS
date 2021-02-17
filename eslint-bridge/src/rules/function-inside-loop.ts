@@ -23,8 +23,8 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { findFirstMatchingAncestor, LoopLike } from './utils';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { findFirstMatchingAncestor, LoopLike } from '../utils';
 
 const message = 'Define this function outside of a loop.';
 

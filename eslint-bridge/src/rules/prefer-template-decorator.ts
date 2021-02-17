@@ -19,7 +19,7 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport } from '../utils/decorators';
+import { interceptReport } from '../utils';
 
 export function decoratePreferTemplate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, reportExempting(isTwoOperands));

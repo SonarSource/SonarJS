@@ -22,10 +22,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
+  isIdentifier,
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
-  isIdentifier,
-} from './utils';
+} from '../utils';
 
 const EXEC_FUNCTIONS = ['exec', 'execSync'];
 

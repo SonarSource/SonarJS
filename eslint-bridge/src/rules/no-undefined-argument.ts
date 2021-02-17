@@ -21,10 +21,7 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import {
-  isRequiredParserServices,
-  RequiredParserServices,
-} from '../utils/isRequiredParserServices';
+import { isRequiredParserServices, RequiredParserServices } from '../utils';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 

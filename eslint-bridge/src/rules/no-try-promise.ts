@@ -21,13 +21,9 @@
 
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import {
-  isRequiredParserServices,
-  RequiredParserServices,
-} from '../utils/isRequiredParserServices';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { toEncodedMessage } from './utils';
 import * as ts from 'typescript';
+import { isRequiredParserServices, RequiredParserServices, toEncodedMessage } from '../utils';
 
 type CallLikeExpression =
   | TSESTree.CallExpression

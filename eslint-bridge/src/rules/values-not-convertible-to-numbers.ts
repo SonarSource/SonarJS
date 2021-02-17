@@ -21,12 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import * as ts from 'typescript';
 import {
   isRequiredParserServices,
   RequiredParserServices,
-} from '../utils/isRequiredParserServices';
-import * as ts from 'typescript';
-import { getTypeFromTreeNode, isStringType } from './utils';
+  getTypeFromTreeNode,
+  isStringType,
+} from '../utils';
 
 const message = (typeName: string) =>
   `Re-evaluate the data flow; this operand of a numeric comparison could be of type ${typeName}.`;

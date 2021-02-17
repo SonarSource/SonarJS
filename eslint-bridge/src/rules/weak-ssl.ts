@@ -22,11 +22,11 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  getValueOfExpression,
+  getModuleNameOfNode,
   isCallToFQN,
   getObjectExpressionProperty,
-  getModuleNameOfNode,
-} from './utils';
+  getValueOfExpression,
+} from '../utils';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [
   'TLSv1_2_method',

@@ -20,8 +20,7 @@
 // https://jira.sonarsource.com/browse/RSPEC-2703
 
 import { Rule } from 'eslint';
-import { globalsByLibraries } from '../utils/globals';
-import { flatMap } from './utils';
+import { flatMap, globalsByLibraries } from '../utils';
 
 const message = (variable: string) =>
   `Add the "let", "const" or "var" keyword to this declaration of "${variable}" to make it explicit.`;

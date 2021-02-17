@@ -22,7 +22,7 @@
 import { AST, Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-import { toEncodedMessage } from './utils';
+import { toEncodedMessage } from '../utils';
 
 interface ParenthesesPair {
   openingParenthesis: AST.Token;

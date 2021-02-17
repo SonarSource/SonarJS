@@ -23,10 +23,10 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   isIdentifier,
+  isMemberWithProperty,
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
-  isMemberWithProperty,
-} from './utils';
+} from '../utils';
 
 export const getEncryptionRuleModule = (
   clientSideMethods: string[],

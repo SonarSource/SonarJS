@@ -21,9 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { getTypeFromTreeNode } from './utils';
 import ts, { TypeFlags } from 'typescript';
+import { isRequiredParserServices, getTypeFromTreeNode } from '../utils';
 
 const message =
   'Change the expression which uses this operand so that it can\'t evaluate to "NaN" (Not a Number).';

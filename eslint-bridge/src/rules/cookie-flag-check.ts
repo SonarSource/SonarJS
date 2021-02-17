@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
+import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
 import {
-  getModuleNameOfNode,
-  getObjectExpressionProperty,
-  getValueOfExpression,
   isIdentifier,
-  toEncodedMessage,
-} from './utils';
+  getValueOfExpression,
+  getObjectExpressionProperty,
+  getModuleNameOfNode,
+} from '../utils';
 
 export class CookieFlagCheck {
   issueMessage: string;

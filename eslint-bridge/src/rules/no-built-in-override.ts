@@ -19,7 +19,7 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2424
 
-import { globalsByLibraries } from '../utils/globals';
+import { globalsByLibraries } from '../utils';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';

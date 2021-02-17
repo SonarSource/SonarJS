@@ -19,7 +19,7 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getValueOfExpression, isCallToFQN } from './utils';
+import { getValueOfExpression, isCallToFQN } from '../utils';
 
 const aliases: string[] = [
   'AES128',

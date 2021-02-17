@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
+import { isRequiredParserServices } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

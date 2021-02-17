@@ -21,7 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, getUniqueWriteUsageOrNode, flattenArgs, getModuleNameOfNode } from './utils';
+import {
+  isIdentifier,
+  flattenArgs,
+  getUniqueWriteUsageOrNode,
+  getModuleNameOfNode,
+} from '../utils';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
 const message =

@@ -22,9 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isIdentifier, getTypeAsString } from './utils';
 import { Variable } from 'eslint-scope';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
+import { isIdentifier, isRequiredParserServices, getTypeAsString } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

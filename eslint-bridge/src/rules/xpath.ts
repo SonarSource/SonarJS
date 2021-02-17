@@ -23,10 +23,10 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   getModuleNameOfIdentifier,
-  getModuleNameOfImportedIdentifier,
   isMemberExpression,
   isMemberWithProperty,
-} from './utils';
+  getModuleNameOfImportedIdentifier,
+} from '../utils';
 
 const xpathModule = 'xpath';
 

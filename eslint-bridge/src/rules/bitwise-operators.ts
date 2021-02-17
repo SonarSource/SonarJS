@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { getTypeFromTreeNode } from './utils';
+import { getTypeFromTreeNode } from '../utils';
 
 const BITWISE_AND_OR = ['&', '|'];
 const BITWISE_OPERATORS = [

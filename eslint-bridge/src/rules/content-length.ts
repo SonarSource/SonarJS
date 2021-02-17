@@ -21,15 +21,15 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import {
-  getModuleNameOfIdentifier,
-  getModuleNameOfImportedIdentifier,
-  getValueOfExpression,
-  getLhsVariable,
-  getObjectExpressionProperty,
-} from './utils';
-import { parse } from 'bytes';
 import { getVariablePropertyFromAssignment } from './file-uploads';
+import { parse } from 'bytes';
+import {
+  getModuleNameOfImportedIdentifier,
+  getModuleNameOfIdentifier,
+  getLhsVariable,
+  getValueOfExpression,
+  getObjectExpressionProperty,
+} from '../utils';
 
 const FORMIDABLE_MODULE = 'formidable';
 const MAX_FILE_SIZE = 'maxFileSize';

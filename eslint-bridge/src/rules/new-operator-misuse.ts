@@ -21,10 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
 import * as ts from 'typescript';
-import { getSignatureFromCallee, getTypeFromTreeNode, toEncodedMessage } from './utils';
-
+import {
+  isRequiredParserServices,
+  getTypeFromTreeNode,
+  getSignatureFromCallee,
+  toEncodedMessage,
+} from '../utils';
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [

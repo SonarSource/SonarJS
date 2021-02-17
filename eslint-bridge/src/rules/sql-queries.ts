@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isMemberWithProperty, isRequireModule } from './utils';
+import { isRequireModule, isMemberWithProperty } from '../utils';
 
 const message = `Make sure that executing SQL queries is safe here.`;
 

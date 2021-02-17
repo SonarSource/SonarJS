@@ -21,15 +21,15 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
-import { checkSensitiveCall } from '../utils/sensitive-arguments';
 import {
-  getModuleNameOfNode,
-  getValueOfExpression,
-  isCallToFQN,
   isIdentifier,
+  getValueOfExpression,
+  isRequiredParserServices,
   resolveFromFunctionReference,
-} from './utils';
+  isCallToFQN,
+  checkSensitiveCall,
+  getModuleNameOfNode,
+} from '../utils';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';
 
