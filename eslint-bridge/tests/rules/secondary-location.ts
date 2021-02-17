@@ -39,8 +39,7 @@ export const rule: Rule.RuleModule = {
         const { callee } = node as estree.CallExpression;
         if (callee.type === 'Identifier' && callee.name === 'toEncodedMessage') {
           isSecondaryLocationUsed =
-            getModuleNameOfImportedIdentifier(context, callee)?.value ===
-            '../utils/secondary-locations';
+            getModuleNameOfImportedIdentifier(context, callee)?.value === '../utils';
         }
       },
       ObjectExpression: (node: estree.Node) => {

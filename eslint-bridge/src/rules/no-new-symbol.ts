@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { getVariableFromName } from '../utils/node-extractors';
+import { getVariableFromName } from '../utils';
 
 const SYMBOL = 'Symbol';
 

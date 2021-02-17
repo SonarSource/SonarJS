@@ -21,9 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isMemberExpression } from '../utils/ast-shape';
-import { isCallToFQN } from '../utils/module-resolving';
-import { getUniqueWriteUsage } from '../utils/node-extractors';
+import { isIdentifier, isMemberExpression, getUniqueWriteUsage, isCallToFQN } from '../utils';
 
 const chmodLikeFunction = ['chmod', 'chmodSync', 'fchmod', 'fchmodSync', 'lchmod', 'lchmodSync'];
 

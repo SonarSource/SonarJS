@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { toEncodedMessage } from '../utils/secondary-locations';
+import { toEncodedMessage } from '../utils';
 
 const TYPE_THRESHOLD = 2;
 const USAGE_THRESHOLD = 2;

@@ -20,7 +20,7 @@
 // https://jira.sonarsource.com/browse/RSPEC-___RULE_KEY___
 
 import { Rule } from 'eslint';
-import { isRequiredParserServices } from '../utils/isRequiredParserServices';
+import { isRequiredParserServices } from '../utils';
 import * as estree from 'estree';
 
 const message = `TODO: add message`;

@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier } from '../utils/ast-shape';
+import { isIdentifier } from '../utils';
 
 const message = `Make sure that cookie is written safely here.`;
 

@@ -22,9 +22,13 @@
 import { Rule, Scope } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
-import { collectionConstructor } from '../utils/collections';
-import { findFirstMatchingAncestor, ancestorsChain } from '../utils/ancestor-finder';
-import { isIdentifier, isReferenceTo } from '../utils/ast-shape';
+import {
+  isIdentifier,
+  findFirstMatchingAncestor,
+  isReferenceTo,
+  collectionConstructor,
+  ancestorsChain,
+} from '../utils';
 
 // Methods that mutate the collection but can't add elements
 const nonAdditiveMutatorMethods = [

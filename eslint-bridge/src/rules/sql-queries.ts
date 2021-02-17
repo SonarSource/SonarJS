@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequireModule, isMemberWithProperty } from '../utils/ast-shape';
+import { isRequireModule, isMemberWithProperty } from '../utils';
 
 const message = `Make sure that executing SQL queries is safe here.`;
 

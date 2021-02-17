@@ -24,9 +24,12 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { toEncodedMessage } from '../utils/secondary-locations';
-import { findFirstMatchingAncestor } from '../utils/ancestor-finder';
-import { FUNCTION_NODES, isElementWrite } from '../utils/ast-shape';
+import {
+  findFirstMatchingAncestor,
+  FUNCTION_NODES,
+  isElementWrite,
+  toEncodedMessage,
+} from '../utils';
 
 interface FunctionContext {
   codePath: Rule.CodePath;

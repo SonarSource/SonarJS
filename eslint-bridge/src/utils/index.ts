@@ -17,30 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
-import { SourceCode } from 'eslint';
 
-export function visit(sourceCode: SourceCode, callback: (node: estree.Node) => void): void {
-  const stack: estree.Node[] = [sourceCode.ast];
-  while (stack.length) {
-    const node = stack.pop() as estree.Node;
-    callback(node);
-    stack.push(...childrenOf(node, sourceCode.visitorKeys).reverse());
-  }
-}
-
-export function childrenOf(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): estree.Node[] {
-  const keys = visitorKeys[node.type];
-  const children = [];
-  if (keys) {
-    for (const key of keys) {
-      const child = (node as any)[key];
-      if (Array.isArray(child)) {
-        children.push(...child);
-      } else {
-        children.push(child);
-      }
-    }
-  }
-  return children.filter(Boolean);
-}
+export * from './ancestor-finder';
+export * from './ast-shape';
+export * from './collections';
+export * from './decorators';
+export * from './globals';
+export * from './module-resolving';
+export * from './node-extractors';
+export * from './parser-services';
+export * from './secondary-locations';
+export * from './sensitive-arguments';
+export * from './type-checking';
+export * from './visitor';

@@ -22,7 +22,7 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { LoopLike } from '../utils/ast-shape';
+import { LoopLike } from '../utils';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const rule: Rule.RuleModule = {

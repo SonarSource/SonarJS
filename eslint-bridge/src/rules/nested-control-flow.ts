@@ -21,7 +21,7 @@
 
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
-import { toEncodedMessage } from '../utils/secondary-locations';
+import { toEncodedMessage } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {

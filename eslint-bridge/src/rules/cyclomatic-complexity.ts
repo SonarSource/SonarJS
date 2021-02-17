@@ -26,9 +26,8 @@ import {
   IssueLocation,
   getMainFunctionTokenLocation,
 } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { childrenOf } from '../utils/visitor';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-import { FunctionNodeType, isFunctionNode } from '../utils/ast-shape';
+import { FunctionNodeType, isFunctionNode, childrenOf } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {

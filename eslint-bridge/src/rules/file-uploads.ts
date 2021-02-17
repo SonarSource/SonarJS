@@ -25,13 +25,11 @@ import * as estree from 'estree';
 import {
   getModuleNameOfImportedIdentifier,
   getModuleNameOfIdentifier,
-} from '../utils/module-resolving';
-import {
   getLhsVariable,
   getValueOfExpression,
   getObjectExpressionProperty,
   getVariableFromName,
-} from '../utils/node-extractors';
+} from '../utils';
 
 const FORMIDABLE_MODULE = 'formidable';
 const KEEP_EXTENSIONS = 'keepExtensions';

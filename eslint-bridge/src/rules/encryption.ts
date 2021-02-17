@@ -21,11 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isMemberWithProperty } from '../utils/ast-shape';
 import {
+  isIdentifier,
+  isMemberWithProperty,
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
-} from '../utils/module-resolving';
+} from '../utils';
 
 export const getEncryptionRuleModule = (
   clientSideMethods: string[],

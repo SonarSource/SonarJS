@@ -21,8 +21,7 @@
 
 import { Linter, Rule } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport } from '../utils/decorators';
-import { childrenOf } from '../utils/visitor';
+import { interceptReport, childrenOf } from '../utils';
 
 const linter = new Linter();
 const noUnmodifiedLoopEslint = interceptReport(

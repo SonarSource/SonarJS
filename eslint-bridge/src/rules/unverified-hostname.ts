@@ -22,13 +22,13 @@
 import { Rule } from 'eslint';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
-import { isCallToFQN } from '../utils/module-resolving';
 import {
+  isCallToFQN,
   getValueOfExpression,
   getPropertyWithValue,
   getObjectExpressionProperty,
-} from '../utils/node-extractors';
-import { childrenOf } from '../utils/visitor';
+  childrenOf,
+} from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {

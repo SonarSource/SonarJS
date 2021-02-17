@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices } from '../utils/parser-services';
-import { getTypeFromTreeNode } from '../utils/type-checking';
+import { getTypeFromTreeNode, isRequiredParserServices } from '../utils';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import ts, { SyntaxKind } from 'typescript';
 

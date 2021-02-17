@@ -21,11 +21,15 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier } from '../utils/ast-shape';
-import { isCallToFQN, getModuleNameOfNode } from '../utils/module-resolving';
-import { getValueOfExpression, resolveFromFunctionReference } from '../utils/node-extractors';
-import { isRequiredParserServices } from '../utils/parser-services';
-import { checkSensitiveCall } from '../utils/sensitive-arguments';
+import {
+  isIdentifier,
+  getValueOfExpression,
+  isRequiredParserServices,
+  resolveFromFunctionReference,
+  isCallToFQN,
+  checkSensitiveCall,
+  getModuleNameOfNode,
+} from '../utils';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';
 

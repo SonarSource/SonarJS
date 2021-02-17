@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isMemberExpression } from '../utils/ast-shape';
-import { getValueOfExpression } from '../utils/node-extractors';
+import { isIdentifier, isMemberExpression, getValueOfExpression } from '../utils';
 
 const permissions = ['geolocation', 'camera', 'microphone', 'notifications', 'persistent-storage'];
 

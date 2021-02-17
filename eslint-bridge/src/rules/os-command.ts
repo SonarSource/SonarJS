@@ -21,11 +21,11 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier } from '../utils/ast-shape';
 import {
+  isIdentifier,
   getModuleNameOfIdentifier,
   getModuleNameOfImportedIdentifier,
-} from '../utils/module-resolving';
+} from '../utils';
 
 const EXEC_FUNCTIONS = ['exec', 'execSync'];
 

@@ -21,10 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices, RequiredParserServices } from '../utils/parser-services';
 import * as tsTypes from 'typescript';
-import { toEncodedMessage } from '../utils/secondary-locations';
-import { getTypeFromTreeNode } from '../utils/type-checking';
+import {
+  RequiredParserServices,
+  isRequiredParserServices,
+  getTypeFromTreeNode,
+  toEncodedMessage,
+} from '../utils';
 
 const message = `Review this expression to be sure that the concatenation was intended.`;
 const objectLikeTypes = new Set(['object', 'Object']);

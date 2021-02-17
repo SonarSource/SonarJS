@@ -24,8 +24,7 @@ import * as estree from 'estree';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { findFirstMatchingAncestor } from '../utils/ancestor-finder';
-import { LoopLike } from '../utils/ast-shape';
+import { findFirstMatchingAncestor, LoopLike } from '../utils';
 
 const message = 'Define this function outside of a loop.';
 

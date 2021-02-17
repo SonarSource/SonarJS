@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier } from '../utils/ast-shape';
-import { getValueOfExpression, getObjectExpressionProperty } from '../utils/node-extractors';
+import { isIdentifier, getValueOfExpression, getObjectExpressionProperty } from '../utils';
 
 const MINIMAL_MODULUS_LENGTH = 2048;
 const MINIMAL_DIVISOR_LENGTH = 224;

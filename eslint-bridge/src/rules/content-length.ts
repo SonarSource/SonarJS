@@ -22,16 +22,14 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { getVariablePropertyFromAssignment } from './file-uploads';
+import { parse } from 'bytes';
 import {
   getModuleNameOfImportedIdentifier,
   getModuleNameOfIdentifier,
-} from '../utils/module-resolving';
-import {
   getLhsVariable,
   getValueOfExpression,
   getObjectExpressionProperty,
-} from '../utils/node-extractors';
-import { parse } from 'bytes';
+} from '../utils';
 
 const FORMIDABLE_MODULE = 'formidable';
 const MAX_FILE_SIZE = 'maxFileSize';

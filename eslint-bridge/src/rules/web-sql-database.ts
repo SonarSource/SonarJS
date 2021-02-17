@@ -21,9 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier } from '../utils/ast-shape';
-import { isRequiredParserServices } from '../utils/parser-services';
-import { getSymbolAtLocation, getTypeAsString } from '../utils/type-checking';
+import {
+  isIdentifier,
+  isRequiredParserServices,
+  getSymbolAtLocation,
+  getTypeAsString,
+} from '../utils';
 
 const MESSAGE = 'Convert this use of a Web SQL database to another technology.';
 const OPEN_DATABASE = 'openDatabase';

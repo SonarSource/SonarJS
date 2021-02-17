@@ -21,9 +21,7 @@ import { Rule } from 'eslint';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
-import { isModuleExports, isMethodInvocation } from '../utils/ast-shape';
-import { getModuleNameOfNode } from '../utils/module-resolving';
-import { flattenArgs } from '../utils/node-extractors';
+import { getModuleNameOfNode, isModuleExports, isMethodInvocation, flattenArgs } from '../utils';
 
 /**
  * This modules provides utilities for writing rules about Express.js.

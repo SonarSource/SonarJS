@@ -22,9 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import ts from 'typescript';
-import { isRequiredParserServices } from '../utils/parser-services';
-import { toEncodedMessage } from '../utils/secondary-locations';
-import { getTypeFromTreeNode, isStringType } from '../utils/type-checking';
+import {
+  isRequiredParserServices,
+  getTypeFromTreeNode,
+  isStringType,
+  toEncodedMessage,
+} from '../utils';
 
 const MESSAGE = 'Convert this operand into a number.';
 export const rule: Rule.RuleModule = {

@@ -20,12 +20,14 @@
 // https://jira.sonarsource.com/browse/RSPEC-22259
 
 import { Rule, Scope } from 'eslint';
-import { isRequiredParserServices } from '../utils/parser-services';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { findFirstMatchingAncestor } from '../utils/ancestor-finder';
-import { isUndefinedOrNull } from '../utils/type-checking';
-import { functionLike } from '../utils/ast-shape';
+import {
+  isRequiredParserServices,
+  functionLike,
+  isUndefinedOrNull,
+  findFirstMatchingAncestor,
+} from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

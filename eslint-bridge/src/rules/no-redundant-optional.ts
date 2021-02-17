@@ -22,8 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isRequiredParserServices } from '../utils/parser-services';
-import { toEncodedMessage } from '../utils/secondary-locations';
+import { isRequiredParserServices, toEncodedMessage } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {

@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isMethodInvocation } from '../utils/ast-shape';
-import { getModuleNameOfNode } from '../utils/module-resolving';
+import { isMethodInvocation, getModuleNameOfNode } from '../utils';
 import { Express } from './utils-express';
 
 const HELMET = 'helmet';

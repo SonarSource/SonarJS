@@ -23,8 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { childrenOf } from '../utils/visitor';
-import { findFirstMatchingAncestor } from '../utils/ancestor-finder';
+import { childrenOf, findFirstMatchingAncestor } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

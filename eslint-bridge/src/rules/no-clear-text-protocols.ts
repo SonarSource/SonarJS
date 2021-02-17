@@ -22,8 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { URL } from 'url';
-import { getModuleNameOfNode, isCallToFQN } from '../utils/module-resolving';
-import { getValueOfExpression, getObjectExpressionProperty } from '../utils/node-extractors';
+import {
+  getValueOfExpression,
+  getObjectExpressionProperty,
+  getModuleNameOfNode,
+  isCallToFQN,
+} from '../utils';
 
 const INSECURE_PROTOCOLS = ['http', 'ftp', 'telnet'];
 const LOOPBACK_PATTERN = /localhost|127(?:\.[0-9]+){0,2}\.[0-9]+$|\/\/(?:0*\:)*?:?0*1$/;

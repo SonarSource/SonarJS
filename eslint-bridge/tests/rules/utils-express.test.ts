@@ -20,7 +20,7 @@
 import { Express } from 'rules/utils-express';
 import { Rule, RuleTester } from 'eslint';
 import * as estree from 'estree';
-import { getObjectExpressionProperty } from '../../src/utils/node-extractors';
+import { getObjectExpressionProperty } from '../../src/utils';
 
 const rule = Express.SensitiveMiddlewarePropertyRule(
   (_context: Rule.RuleContext, node: estree.CallExpression): estree.Property[] => {

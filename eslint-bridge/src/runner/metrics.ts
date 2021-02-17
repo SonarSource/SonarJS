@@ -19,7 +19,7 @@
  */
 import { SourceCode } from 'eslint';
 import * as estree from 'estree';
-import visit from '../utils/visitor';
+import { visit } from '../utils';
 
 const EXECUTABLE_NODES = [
   'ExpressionStatement',

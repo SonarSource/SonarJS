@@ -21,10 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getModuleNameOfIdentifier,
-  getModuleNameOfImportedIdentifier,
-} from '../utils/module-resolving';
+import { getModuleNameOfIdentifier, getModuleNameOfImportedIdentifier } from '../utils';
 
 const NET_MODULE = 'net';
 

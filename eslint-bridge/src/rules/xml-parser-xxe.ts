@@ -20,10 +20,9 @@
 // https://jira.sonarsource.com/browse/RSPEC-2755
 
 import { Rule } from 'eslint';
+import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
-import { getImportDeclarations, getRequireCalls } from '../utils/module-resolving';
-import { getObjectExpressionProperty } from '../utils/node-extractors';
-import { toEncodedMessage } from '../utils/secondary-locations';
+import { getImportDeclarations, getRequireCalls, getObjectExpressionProperty } from '../utils';
 
 const XML_LIBRARY = 'libxmljs';
 const XML_PARSERS = ['parseXml', 'parseXmlString'];

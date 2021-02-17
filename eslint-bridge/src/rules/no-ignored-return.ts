@@ -22,10 +22,9 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { isRequiredParserServices, RequiredParserServices } from '../utils/parser-services';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-import { getTypeFromTreeNode } from '../utils/type-checking';
+import { isRequiredParserServices, getTypeFromTreeNode, RequiredParserServices } from '../utils';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   array: new Set([

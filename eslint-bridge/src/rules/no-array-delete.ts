@@ -21,9 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices } from '../utils/parser-services';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-import { isArray } from '../utils/type-checking';
+import { isArray, isRequiredParserServices } from '../utils';
 
 const ArrayDeleteExpression =
   "UnaryExpression[operator='delete'] > MemberExpression[computed=true]";

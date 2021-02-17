@@ -20,9 +20,12 @@
 import { Rule } from 'eslint';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
-import { isIdentifier } from '../utils/ast-shape';
-import { getModuleNameOfNode } from '../utils/module-resolving';
-import { getValueOfExpression, getObjectExpressionProperty } from '../utils/node-extractors';
+import {
+  isIdentifier,
+  getValueOfExpression,
+  getObjectExpressionProperty,
+  getModuleNameOfNode,
+} from '../utils';
 
 export class CookieFlagCheck {
   issueMessage: string;

@@ -20,16 +20,16 @@
 // https://jira.sonarsource.com/browse/RSPEC-5042
 
 import { Rule } from 'eslint';
-import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
-import { isIdentifier } from '../utils/ast-shape';
 import {
+  isIdentifier,
+  isLiteral,
   getImportDeclarations,
   getRequireCalls,
   isCallToFQN,
+  getValueOfExpression,
   getModuleNameOfIdentifier,
-} from '../utils/module-resolving';
-import { getValueOfExpression } from '../utils/node-extractors';
+} from '../utils';
 
 const message = `Make sure that expanding this archive file is safe here.`;
 

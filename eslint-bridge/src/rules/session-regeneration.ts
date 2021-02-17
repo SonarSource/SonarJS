@@ -21,11 +21,14 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier } from '../utils/ast-shape';
-import { last } from '../utils/collections';
-import { isCallToFQN } from '../utils/module-resolving';
-import { getPropertyWithValue, getValueOfExpression } from '../utils/node-extractors';
-import { childrenOf } from '../utils/visitor';
+import {
+  isIdentifier,
+  childrenOf,
+  getPropertyWithValue,
+  isCallToFQN,
+  last,
+  getValueOfExpression,
+} from '../utils';
 
 const message =
   'Create a new session during user authentication to prevent session fixation attacks.';

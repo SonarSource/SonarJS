@@ -20,15 +20,17 @@
 // https://jira.sonarsource.com/browse/RSPEC-4502
 
 import { Rule } from 'eslint';
+import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
-import { isIdentifier, isLiteral } from '../utils/ast-shape';
-import { getModuleNameOfIdentifier, getModuleNameFromRequire } from '../utils/module-resolving';
 import {
+  isIdentifier,
+  isLiteral,
   getUniqueWriteUsage,
+  getModuleNameOfIdentifier,
+  getModuleNameFromRequire,
   getObjectExpressionProperty,
   flattenArgs,
-} from '../utils/node-extractors';
-import { toEncodedMessage } from '../utils/secondary-locations';
+} from '../utils';
 
 const CSURF_MODULE = 'csurf';
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];

@@ -21,10 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices, RequiredParserServices } from '../utils/parser-services';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as ts from 'typescript';
-import { sortLike } from '../utils/collections';
+import { isRequiredParserServices, sortLike, RequiredParserServices } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

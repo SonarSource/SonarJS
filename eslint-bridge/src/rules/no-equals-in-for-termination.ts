@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getVariableFromName } from '../utils/node-extractors';
+import { getVariableFromName } from '../utils';
 
 const equalityOperator = ['!=', '=='];
 const plusMinusOperator = ['+=', '-='];
