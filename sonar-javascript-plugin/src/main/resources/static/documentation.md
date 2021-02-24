@@ -10,7 +10,12 @@ key: javascript
 
 ## Prerequisites
 
-In order to analyze JavaScript or TypeScript code, you need to have Node.js >= 10 installed on the machine running the scan. If standard `node` is not available, you have to set property `sonar.nodejs.executable` to an absolute path to Node.js executable.
+In order to analyze JavaScript or TypeScript code, you need to have supported version of Node.js installed on the
+machine running the scan. Supported versions are current LTS versions (v10, v12, v14) and latest version v15. Odd
+(non LTS) versions might work, but are not actively tested.
+
+If standard `node` is not available, you have to set property `sonar.nodejs.executable` to an absolute path to
+Node.js executable.
  
 ## Language-Specific Properties
 
