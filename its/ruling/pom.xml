@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>javascript-its</artifactId>
-    <version>7.3.0-SNAPSHOT</version>
+    <version>7.2.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>javascript-it-ruling</artifactId>
