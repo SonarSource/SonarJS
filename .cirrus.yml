@@ -105,6 +105,7 @@ plugin_qa_nodejs_task:
       - dockerfile: .cirrus/nodejs-10.Dockerfile
       - dockerfile: .cirrus/nodejs-12.Dockerfile
       - dockerfile: .cirrus/nodejs-14.Dockerfile
+      - dockerfile: .cirrus/nodejs-15.Dockerfile
     <<: *CONTAINER_DEFINITION
     cpu: 3
     memory: 8G
