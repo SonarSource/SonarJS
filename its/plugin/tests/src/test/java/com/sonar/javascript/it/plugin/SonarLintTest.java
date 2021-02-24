@@ -146,7 +146,7 @@ public class SonarLintTest {
     // we need to stop the engine to make sure that sonarlint will not concurrently modify logs collection
     sonarlintEngine.stop();
     assertThat(issues).isEmpty();
-    assertThat(logs).contains("No tsconfig.json file found, analysis will be stopped.");
+    assertThat(logs).contains("No tsconfig.json file found, analysis will be skipped.");
   }
 
 
