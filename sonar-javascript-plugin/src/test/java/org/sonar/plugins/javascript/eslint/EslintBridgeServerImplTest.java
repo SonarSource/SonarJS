@@ -382,7 +382,7 @@ public class EslintBridgeServerImplTest {
   @Test
   public void should_use_default_timeout() {
     eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class), deprecationWarning, tempFolder);
-    assertThat(eslintBridgeServer.getTimeoutSeconds()).isEqualTo(60);
+    assertThat(eslintBridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
 
   @Test
