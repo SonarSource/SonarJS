@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.util.Arrays;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarProduct;
@@ -35,6 +37,7 @@ public class NodeDeprecationWarning {
 
   private static final Logger LOG = Loggers.get(NodeDeprecationWarning.class);
   private static final int MIN_RECOMMENDED_NODE_VERSION = 10;
+  private static final List<Integer> SUPPORTED_NODE_VERSIONS = Arrays.asList(10, 12, 14, 15);
   private final SonarRuntime sonarRuntime;
   private final AnalysisWarnings analysisWarnings;
 
@@ -53,9 +56,18 @@ public class NodeDeprecationWarning {
         "Support for this version will be dropped in future release, please upgrade Node.js to more recent version.",
         actualNodeVersion);
       LOG.warn(msg);
-      if (isSonarQube() && analysisWarnings != null) {
-        analysisWarnings.addUnique(msg);
-      }
+      addWarning(msg);
+    } else if (!SUPPORTED_NODE_VERSIONS.contains(actualNodeVersion)) {
+      String msg = String.format("Node.js version %d is not supported, you might experience issues. Please use " +
+        "a supported version of Node.js %s", actualNodeVersion, SUPPORTED_NODE_VERSIONS);
+      LOG.warn(msg, actualNodeVersion);
+      addWarning(msg);
+    }
+  }
+
+  private void addWarning(String msg) {
+    if (isSonarQube() && analysisWarnings != null) {
+      analysisWarnings.addUnique(msg);
     }
   }
 
