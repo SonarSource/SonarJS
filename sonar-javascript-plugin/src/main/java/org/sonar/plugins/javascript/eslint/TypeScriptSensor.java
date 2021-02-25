@@ -48,7 +48,6 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonarsource.analyzer.commons.ProgressReport;
-import org.sonarsource.nodejs.NodeCommandException;
 
 import static java.util.Collections.singletonList;
 
@@ -108,7 +107,13 @@ public class TypeScriptSensor extends AbstractEslintSensor {
     ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
     List<InputFile> inputFiles = getInputFiles();
     eslintBridgeServer.initLinter(rules, environments, globals);
-    List<String> tsConfigs = tsConfigs();
+    List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
+    if (tsConfigs.isEmpty()) {
+      // This can happen in SonarLint context where we are not able to create temporary file for generated tsconfig.json
+      // See also https://github.com/SonarSource/SonarJS/issues/2506
+      LOG.warn("No tsconfig.json file found, analysis will be skipped.");
+      return;
+    }
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(loadTsConfigs(tsConfigs), inputFiles);
     try {
       progressReport.start(filesByTsConfig.values().stream().flatMap(List::stream).map(InputFile::toString).collect(Collectors.toList()));
@@ -159,14 +164,6 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       LOG.error("Failed to get response while analyzing " + file, e);
       throw e;
     }
-  }
-
-  private List<String> tsConfigs() throws IOException {
-    List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
-    if (tsConfigs.isEmpty()) {
-      throw new NodeCommandException("No tsconfig.json file found, analysis will be stopped.");
-    }
-    return tsConfigs;
   }
 
   private List<TsConfigFile> loadTsConfigs(List<String> tsConfigPaths) {

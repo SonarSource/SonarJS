@@ -430,7 +430,7 @@ public class TypeScriptSensorTest {
     SensorContextTester context = SensorContextTester.create(tempFolder.newDir());
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createSensor().execute(context);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("No tsconfig.json file found, analysis will be stopped.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("No tsconfig.json file found, analysis will be skipped.");
   }
 
   @Test
