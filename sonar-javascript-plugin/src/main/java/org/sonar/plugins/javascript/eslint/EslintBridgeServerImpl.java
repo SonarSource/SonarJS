@@ -53,7 +53,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
   private static final Profiler PROFILER = Profiler.createIfDebug(LOG);
 
-  private static final int DEFAULT_TIMEOUT_SECONDS = 60;
+  private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
