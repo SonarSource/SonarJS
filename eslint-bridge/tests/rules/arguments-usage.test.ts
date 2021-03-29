@@ -75,16 +75,28 @@ const foo2 = function() {
 `,
       errors: [
         {
-          message:
-            '{"message":"Use the rest syntax to declare this function\'s arguments.","secondaryLocations":[]}',
+          message: JSON.stringify({
+            message: "Use the rest syntax to declare this function's arguments.",
+            secondaryLocations: [],
+          }),
           line: 3,
           endLine: 3,
           column: 7,
           endColumn: 16,
         },
         {
-          message:
-            '{"message":"Use the rest syntax to declare this function\'s arguments.","secondaryLocations":[{"column":6,"line":8,"endColumn":15,"endLine":8}]}',
+          message: JSON.stringify({
+            message: "Use the rest syntax to declare this function's arguments.",
+            secondaryLocations: [
+              {
+                message: 'Replace this reference to "arguments".',
+                column: 6,
+                line: 8,
+                endColumn: 15,
+                endLine: 8,
+              },
+            ],
+          }),
           line: 7,
           endLine: 7,
           column: 7,

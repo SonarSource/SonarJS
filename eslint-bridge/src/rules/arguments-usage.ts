@@ -23,7 +23,8 @@ import { Rule, Scope } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { toEncodedMessage } from '../utils';
 
-const message = "Use the rest syntax to declare this function's arguments.";
+const MESSAGE = "Use the rest syntax to declare this function's arguments.";
+const SECONDARY_MESSAGE = 'Replace this reference to "arguments".';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -69,7 +70,11 @@ function checkArgumentsVariableWithoutDefinition(
     const secondaryLocations = references.slice(1).map(ref => ref.identifier) as TSESTree.Node[];
     context.report({
       node: firstReference.identifier,
-      message: toEncodedMessage(message, secondaryLocations),
+      message: toEncodedMessage(
+        MESSAGE,
+        secondaryLocations,
+        secondaryLocations.map(_ => SECONDARY_MESSAGE),
+      ),
     });
   }
 }
