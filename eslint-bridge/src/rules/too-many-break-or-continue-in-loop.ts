@@ -60,6 +60,9 @@ export const rule: Rule.RuleModule = {
           message: toEncodedMessage(
             'Reduce the total number of "break" and "continue" statements in this loop to use one at most.',
             jumps,
+            jumps.map(jmp =>
+              jmp.type === 'BreakStatement' ? '"break" statement.' : '"continue" statement.',
+            ),
           ),
         });
       }

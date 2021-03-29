@@ -74,12 +74,30 @@ const testCases = {
             `,
       errors: [
         {
-          message:
-            '{"message":"Reduce the total number of \\"break\\" and \\"continue\\" statements in this loop to use one at most.","secondaryLocations":[{"column":16,"line":4,"endColumn":22,"endLine":4},{"column":16,"line":7,"endColumn":25,"endLine":7}]}',
           line: 2,
           endLine: 2,
           column: 13,
           endColumn: 16,
+          message: JSON.stringify({
+            message:
+              'Reduce the total number of "break" and "continue" statements in this loop to use one at most.',
+            secondaryLocations: [
+              {
+                message: '"break" statement.',
+                column: 16,
+                line: 4,
+                endColumn: 22,
+                endLine: 4,
+              },
+              {
+                message: '"continue" statement.',
+                column: 16,
+                line: 7,
+                endColumn: 25,
+                endLine: 7,
+              },
+            ],
+          }),
         },
       ],
     },
