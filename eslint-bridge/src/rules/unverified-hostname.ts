@@ -20,7 +20,6 @@
 // https://jira.sonarsource.com/browse/RSPEC-5667
 
 import { Rule } from 'eslint';
-import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
 import {
   isCallToFQN,
@@ -28,6 +27,7 @@ import {
   getPropertyWithValue,
   getObjectExpressionProperty,
   childrenOf,
+  toEncodedMessage,
 } from '../utils';
 
 export const rule: Rule.RuleModule = {
@@ -41,6 +41,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const MESSAGE = 'Enable server hostname verification on this SSL/TLS connection.';
+    const SECONDARY_MESSAGE = 'Set "rejectUnauthorized" to "true".';
     function checkSensitiveArgument(
       callExpression: estree.CallExpression,
       sensitiveArgumentIndex: number,
@@ -50,6 +51,7 @@ export const rule: Rule.RuleModule = {
       }
       const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
       const secondaryLocations: estree.Node[] = [];
+      const secondaryMessages: (string | undefined)[] = [];
       let shouldReport = false;
       const argumentValue = getValueOfExpression(context, sensitiveArgument, 'ObjectExpression');
       if (!argumentValue) {
@@ -57,6 +59,7 @@ export const rule: Rule.RuleModule = {
       }
       if (sensitiveArgument !== argumentValue) {
         secondaryLocations.push(argumentValue);
+        secondaryMessages.push(undefined);
       }
       const unsafeRejectUnauthorizedConfiguration = getPropertyWithValue(
         context,
@@ -66,6 +69,7 @@ export const rule: Rule.RuleModule = {
       );
       if (unsafeRejectUnauthorizedConfiguration) {
         secondaryLocations.push(unsafeRejectUnauthorizedConfiguration);
+        secondaryMessages.push(SECONDARY_MESSAGE);
         shouldReport = true;
       }
       const checkServerIdentityProperty = getObjectExpressionProperty(
@@ -77,12 +81,13 @@ export const rule: Rule.RuleModule = {
         shouldReportOnCheckServerIdentityCallBack(checkServerIdentityProperty)
       ) {
         secondaryLocations.push(checkServerIdentityProperty);
+        secondaryMessages.push(undefined);
         shouldReport = true;
       }
       if (shouldReport) {
         context.report({
           node: callExpression.callee,
-          message: toEncodedMessage(MESSAGE, secondaryLocations),
+          message: toEncodedMessage(MESSAGE, secondaryLocations, secondaryMessages),
         });
       }
     }
