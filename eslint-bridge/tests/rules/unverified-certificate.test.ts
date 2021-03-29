@@ -124,6 +124,7 @@ const testCasesHttps = {
                 endLine: 12,
               },
               {
+                message: 'Set "rejectUnauthorized" to "true".',
                 column: 6,
                 line: 11,
                 endColumn: 31,
