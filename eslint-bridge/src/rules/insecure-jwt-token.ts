@@ -42,6 +42,7 @@ export const rule: Rule.RuleModule = {
     const SIGN_MESSAGE = 'Use only strong cipher algorithms when signing this JWT.';
     const VERIFY_MESSAGE =
       'Use only strong cipher algorithms when verifying the signature of this JWT.';
+    const SECONDARY_MESSAGE = `The "algorithms" option should be defined and should not contain 'none'.`;
 
     function checkCallToSign(
       callExpression: estree.CallExpression,
@@ -63,10 +64,7 @@ export const rule: Rule.RuleModule = {
         if (unsafeAlgorithmValue && unsafeAlgorithmValue !== unsafeAlgorithmProperty.value) {
           secondaryLocations.push(unsafeAlgorithmValue);
         }
-        context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(SIGN_MESSAGE, secondaryLocations),
-        });
+        raiseIssueOn(callExpression.callee, SIGN_MESSAGE, secondaryLocations);
       }
     }
 
@@ -77,10 +75,7 @@ export const rule: Rule.RuleModule = {
     ) {
       const algorithmsProperty = getObjectExpressionProperty(thirdArgumentValue, 'algorithms');
       if (!algorithmsProperty) {
-        context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(VERIFY_MESSAGE, secondaryLocations),
-        });
+        raiseIssueOn(callExpression.callee, VERIFY_MESSAGE, secondaryLocations);
         return;
       }
       const algorithmsValue = getValueOfExpression(
@@ -99,11 +94,19 @@ export const rule: Rule.RuleModule = {
         if (algorithmsProperty.value !== algorithmsValue) {
           secondaryLocations.push(algorithmsValue);
         }
-        context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(VERIFY_MESSAGE, secondaryLocations),
-        });
+        raiseIssueOn(callExpression.callee, VERIFY_MESSAGE, secondaryLocations);
       }
+    }
+
+    function raiseIssueOn(node: estree.Node, message: string, secondaryLocations: estree.Node[]) {
+      context.report({
+        node,
+        message: toEncodedMessage(
+          message,
+          secondaryLocations,
+          Array(secondaryLocations.length).fill(SECONDARY_MESSAGE),
+        ),
+      });
     }
 
     return {
