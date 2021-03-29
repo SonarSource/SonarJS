@@ -115,6 +115,7 @@ const testCases = {
             message: 'Use only strong cipher algorithms when signing this JWT.',
             secondaryLocations: [
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 48,
                 line: 3,
                 endColumn: 69,
@@ -141,12 +142,14 @@ const testCases = {
             message: 'Use only strong cipher algorithms when signing this JWT.',
             secondaryLocations: [
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 22,
                 line: 3,
                 endColumn: 43,
                 endLine: 3,
               },
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 48,
                 line: 4,
                 endColumn: 55,
@@ -173,12 +176,14 @@ const testCases = {
             message: 'Use only strong cipher algorithms when signing this JWT.',
             secondaryLocations: [
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 48,
                 line: 4,
                 endColumn: 67,
                 endLine: 4,
               },
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 19,
                 line: 3,
                 endColumn: 25,
@@ -206,18 +211,21 @@ const testCases = {
             message: 'Use only strong cipher algorithms when signing this JWT.',
             secondaryLocations: [
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 22,
                 line: 4,
                 endColumn: 41,
                 endLine: 4,
               },
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 48,
                 line: 5,
                 endColumn: 55,
                 endLine: 5,
               },
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 19,
                 line: 3,
                 endColumn: 25,
@@ -242,6 +250,7 @@ const testCases = {
             message: 'Use only strong cipher algorithms when signing this JWT.',
             secondaryLocations: [
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 68,
                 line: 2,
                 endColumn: 89,
@@ -275,12 +284,14 @@ const testCases = {
             message: 'Use only strong cipher algorithms when verifying the signature of this JWT.',
             secondaryLocations: [
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 35,
                 line: 4,
                 endColumn: 72,
                 endLine: 4,
               },
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 25,
                 line: 3,
                 endColumn: 42,
@@ -306,6 +317,7 @@ const testCases = {
             message: 'Use only strong cipher algorithms when verifying the signature of this JWT.',
             secondaryLocations: [
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 35,
                 line: 3,
                 endColumn: 60,
@@ -340,6 +352,7 @@ const testCases = {
             message: 'Use only strong cipher algorithms when verifying the signature of this JWT.',
             secondaryLocations: [
               {
+                message: `The "algorithms" option should be defined and should not contain 'none'.`,
                 column: 35,
                 line: 4,
                 endColumn: 89,
