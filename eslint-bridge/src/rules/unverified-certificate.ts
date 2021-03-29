@@ -39,6 +39,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const MESSAGE = 'Enable server certificate validation on this SSL/TLS connection.';
+    const SECONDARY_MESSAGE = 'Set "rejectUnauthorized" to "true".';
     function checkSensitiveArgument(
       callExpression: estree.CallExpression,
       sensitiveArgumentIndex: number,
@@ -48,12 +49,14 @@ export const rule: Rule.RuleModule = {
       }
       const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
       const secondaryLocations: estree.Node[] = [];
+      const secondaryMessages: (string | undefined)[] = [];
       const argumentValue = getValueOfExpression(context, sensitiveArgument, 'ObjectExpression');
       if (!argumentValue) {
         return;
       }
       if (sensitiveArgument !== argumentValue) {
         secondaryLocations.push(argumentValue);
+        secondaryMessages.push(undefined);
       }
       const unsafeRejectUnauthorizedConfiguration = getPropertyWithValue(
         context,
@@ -63,9 +66,10 @@ export const rule: Rule.RuleModule = {
       );
       if (unsafeRejectUnauthorizedConfiguration) {
         secondaryLocations.push(unsafeRejectUnauthorizedConfiguration);
+        secondaryMessages.push(SECONDARY_MESSAGE);
         context.report({
           node: callExpression.callee,
-          message: toEncodedMessage(MESSAGE, secondaryLocations),
+          message: toEncodedMessage(MESSAGE, secondaryLocations, secondaryMessages),
         });
       }
     }

@@ -25,7 +25,7 @@ import { EncodedMessage, IssueLocation } from 'eslint-plugin-sonarjs/lib/utils/l
 export function toEncodedMessage(
   message: string,
   secondaryLocationsHolder: Array<AST.Token | TSESTree.Node | estree.Node>,
-  secondaryMessages?: string[],
+  secondaryMessages?: (string | undefined)[],
   cost?: number,
 ): string {
   const encodedMessage: EncodedMessage = {
