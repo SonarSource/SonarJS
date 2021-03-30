@@ -232,8 +232,14 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         }`,
       errors: [
         {
-          message:
-            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":4,"endColumn":23,"endLine":4},{"column":17,"line":6,"endColumn":19,"endLine":6}]}',
+          message: JSON.stringify({
+            message: 'Refactor this function to not always return the same value.',
+            cost: 2,
+            secondaryLocations: [
+              { message: 'Returned value.', column: 21, line: 4, endColumn: 23, endLine: 4 },
+              { message: 'Returned value.', column: 17, line: 6, endColumn: 19, endLine: 6 },
+            ],
+          }),
           line: 2,
           endLine: 2,
           column: 18,
@@ -253,8 +259,15 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         }`,
       errors: [
         {
-          message:
-            '{"message":"Refactor this function to not always return the same value.","cost":3,"secondaryLocations":[{"column":21,"line":4,"endColumn":26,"endLine":4},{"column":21,"line":6,"endColumn":26,"endLine":6},{"column":19,"line":8,"endColumn":24,"endLine":8}]}',
+          message: JSON.stringify({
+            message: 'Refactor this function to not always return the same value.',
+            cost: 3,
+            secondaryLocations: [
+              { message: 'Returned value.', column: 21, line: 4, endColumn: 26, endLine: 4 },
+              { message: 'Returned value.', column: 21, line: 6, endColumn: 26, endLine: 6 },
+              { message: 'Returned value.', column: 19, line: 8, endColumn: 24, endLine: 8 },
+            ],
+          }),
           line: 2,
           endLine: 2,
         },
@@ -264,8 +277,14 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
       code: `var arrowNok = (p) => { if (p) { return "foo"; } return "foo"; };`,
       errors: [
         {
-          message:
-            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":40,"line":1,"endColumn":45,"endLine":1},{"column":56,"line":1,"endColumn":61,"endLine":1}]}',
+          message: JSON.stringify({
+            message: 'Refactor this function to not always return the same value.',
+            cost: 2,
+            secondaryLocations: [
+              { message: 'Returned value.', column: 40, line: 1, endColumn: 45, endLine: 1 },
+              { message: 'Returned value.', column: 56, line: 1, endColumn: 61, endLine: 1 },
+            ],
+          }),
           line: 1,
           endLine: 1,
         },
@@ -282,8 +301,14 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         }`,
       errors: [
         {
-          message:
-            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":5,"endColumn":22,"endLine":5},{"column":17,"line":7,"endColumn":18,"endLine":7}]}',
+          message: JSON.stringify({
+            message: 'Refactor this function to not always return the same value.',
+            cost: 2,
+            secondaryLocations: [
+              { message: 'Returned value.', column: 21, line: 5, endColumn: 22, endLine: 5 },
+              { message: 'Returned value.', column: 17, line: 7, endColumn: 18, endLine: 7 },
+            ],
+          }),
           line: 2,
           endLine: 2,
         },
@@ -302,8 +327,14 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         }`,
       errors: [
         {
-          message:
-            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":19,"line":5,"endColumn":24,"endLine":5},{"column":17,"line":9,"endColumn":22,"endLine":9}]}',
+          message: JSON.stringify({
+            message: 'Refactor this function to not always return the same value.',
+            cost: 2,
+            secondaryLocations: [
+              { message: 'Returned value.', column: 19, line: 5, endColumn: 24, endLine: 5 },
+              { message: 'Returned value.', column: 17, line: 9, endColumn: 22, endLine: 9 },
+            ],
+          }),
           line: 2,
           endLine: 2,
         },
@@ -320,8 +351,14 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         }`,
       errors: [
         {
-          message:
-            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":4,"endColumn":23,"endLine":4},{"column":17,"line":7,"endColumn":19,"endLine":7}]}',
+          message: JSON.stringify({
+            message: 'Refactor this function to not always return the same value.',
+            cost: 2,
+            secondaryLocations: [
+              { message: 'Returned value.', column: 21, line: 4, endColumn: 23, endLine: 4 },
+              { message: 'Returned value.', column: 17, line: 7, endColumn: 19, endLine: 7 },
+            ],
+          }),
           line: 2,
           endLine: 2,
         },
@@ -338,8 +375,14 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         }`,
       errors: [
         {
-          message:
-            '{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":51,"line":6,"endColumn":53,"endLine":6},{"column":64,"line":6,"endColumn":66,"endLine":6}]}',
+          message: JSON.stringify({
+            message: 'Refactor this function to not always return the same value.',
+            cost: 2,
+            secondaryLocations: [
+              { message: 'Returned value.', column: 51, line: 6, endColumn: 53, endLine: 6 },
+              { message: 'Returned value.', column: 64, line: 6, endColumn: 66, endLine: 6 },
+            ],
+          }),
           line: 6,
           endLine: 6,
         },
@@ -357,7 +400,14 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         }`,
       errors: [
         {
-          message: `{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":6,"endColumn":22,"endLine":6},{"column":17,"line":8,"endColumn":18,"endLine":8}]}`,
+          message: JSON.stringify({
+            message: 'Refactor this function to not always return the same value.',
+            cost: 2,
+            secondaryLocations: [
+              { message: 'Returned value.', column: 21, line: 6, endColumn: 22, endLine: 6 },
+              { message: 'Returned value.', column: 17, line: 8, endColumn: 18, endLine: 8 },
+            ],
+          }),
         },
       ],
     },
@@ -375,7 +425,14 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         }`,
       errors: [
         {
-          message: `{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":21,"line":8,"endColumn":23,"endLine":8},{"column":17,"line":10,"endColumn":19,"endLine":10}]}`,
+          message: JSON.stringify({
+            message: 'Refactor this function to not always return the same value.',
+            cost: 2,
+            secondaryLocations: [
+              { message: 'Returned value.', column: 21, line: 8, endColumn: 23, endLine: 8 },
+              { message: 'Returned value.', column: 17, line: 10, endColumn: 19, endLine: 10 },
+            ],
+          }),
         },
       ],
     },
@@ -391,7 +448,14 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
           });`,
       errors: [
         {
-          message: `{"message":"Refactor this function to not always return the same value.","cost":2,"secondaryLocations":[{"column":23,"line":6,"endColumn":24,"endLine":6},{"column":19,"line":8,"endColumn":20,"endLine":8}]}`,
+          message: JSON.stringify({
+            message: 'Refactor this function to not always return the same value.',
+            cost: 2,
+            secondaryLocations: [
+              { message: 'Returned value.', column: 23, line: 6, endColumn: 24, endLine: 6 },
+              { message: 'Returned value.', column: 19, line: 8, endColumn: 20, endLine: 8 },
+            ],
+          }),
           line: 3,
           endLine: 3,
         },

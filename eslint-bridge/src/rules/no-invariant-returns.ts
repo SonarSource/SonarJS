@@ -72,7 +72,7 @@ export const rule: Rule.RuleModule = {
         const message = toEncodedMessage(
           `Refactor this function to not always return the same value.`,
           returnedValues as TSESTree.Node[],
-          undefined,
+          returnedValues.map(_ => 'Returned value.'),
           returnedValues.length,
         );
 
