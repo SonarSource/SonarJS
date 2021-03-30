@@ -26,7 +26,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     function checkNode(node: estree.Node) {
       const unaryExpression: estree.UnaryExpression = node as estree.UnaryExpression;
-      if (unaryExpression.argument.type === 'Literal' && 0 === unaryExpression.argument.value) {
+      if (isVoid0(unaryExpression) || isIIFE(unaryExpression)) {
         return;
       }
       const operatorToken = context.getSourceCode().getTokenBefore(unaryExpression.argument);
@@ -34,6 +34,17 @@ export const rule: Rule.RuleModule = {
         loc: operatorToken!.loc, // cannot be null due to previous checks
         message: 'Remove this use of the "void" operator.',
       });
+    }
+
+    function isVoid0(expr: estree.UnaryExpression) {
+      return expr.argument.type === 'Literal' && 0 === expr.argument.value;
+    }
+
+    function isIIFE(expr: estree.UnaryExpression) {
+      return (
+        expr.argument.type === 'CallExpression' &&
+        expr.argument.callee.type === 'FunctionExpression'
+      );
     }
 
     return {
