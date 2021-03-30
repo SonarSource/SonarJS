@@ -73,7 +73,7 @@ function checkArgumentsVariableWithoutDefinition(
       message: toEncodedMessage(
         MESSAGE,
         secondaryLocations,
-        secondaryLocations.map(_ => SECONDARY_MESSAGE),
+        Array(secondaryLocations.length).fill(SECONDARY_MESSAGE),
       ),
     });
   }
