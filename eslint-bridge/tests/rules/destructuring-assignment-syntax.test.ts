@@ -91,28 +91,28 @@ ruleTester.run('Destructuring syntax should be used for assignments', rule, {
           }`,
       errors: [
         {
-          message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1\\\".\",\"secondaryLocations\":[{\"column\":16,\"line\":3,\"endColumn\":26,\"endLine\":3}]}`,
+          message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":16,\"line\":3,\"endColumn\":26,\"endLine\":3}]}`,
           line: 2,
           endLine: 2,
           column: 17,
           endColumn: 27,
         },
         {
-          message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj2\\\".\",\"secondaryLocations\":[{\"column\":28,\"line\":7,\"endColumn\":38,\"endLine\":7}]}`,
+          message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj2\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":28,\"line\":7,\"endColumn\":38,\"endLine\":7}]}`,
           line: 7,
           endLine: 7,
           column: 17,
           endColumn: 27,
         },
         {
-          message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1\\\".\",\"secondaryLocations\":[{\"column\":16,\"line\":12,\"endColumn\":26,\"endLine\":12},{\"column\":28,\"line\":12,\"endColumn\":38,\"endLine\":12}]}`,
+          message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":16,\"line\":12,\"endColumn\":26,\"endLine\":12},{\"message\":\"Replace this assignment.\",\"column\":28,\"line\":12,\"endColumn\":38,\"endLine\":12}]}`,
           line: 11,
           endLine: 11,
           column: 17,
           endColumn: 27,
         },
         {
-          message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1.prop\\\".\",\"secondaryLocations\":[{\"column\":33,\"line\":16,\"endColumn\":48,\"endLine\":16}]}`,
+          message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1.prop\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":33,\"line\":16,\"endColumn\":48,\"endLine\":16}]}`,
           line: 16,
         },
       ],
@@ -129,7 +129,7 @@ ruleTester.run('Destructuring syntax should be used for assignments', rule, {
             }`,
       errors: [
         {
-          message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"arr1\\\".\",\"secondaryLocations\":[{\"column\":22,\"line\":3,\"endColumn\":36,\"endLine\":3},{\"column\":22,\"line\":4,\"endColumn\":38,\"endLine\":4}]}`,
+          message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"arr1\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":22,\"line\":3,\"endColumn\":36,\"endLine\":3},{\"message\":\"Replace this assignment.\",\"column\":22,\"line\":4,\"endColumn\":38,\"endLine\":4}]}`,
           line: 2,
         },
         {
