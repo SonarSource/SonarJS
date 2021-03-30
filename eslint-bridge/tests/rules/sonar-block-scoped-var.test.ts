@@ -68,7 +68,7 @@ ruleTester.run('Variables should be used in the blocks where they are declared',
         `,
       errors: [
         {
-          message: `{"message":"Consider moving declaration of 'a' as it is referenced outside current binding context.","secondaryLocations":[{"column":16,"line":7,"endColumn":17,"endLine":7}]}`,
+          message: `{"message":"Consider moving declaration of 'a' as it is referenced outside current binding context.","secondaryLocations":[{"message":"Outside reference.","column":16,"line":7,"endColumn":17,"endLine":7}]}`,
           line: 4,
           endLine: 4,
           column: 17,
@@ -87,7 +87,7 @@ ruleTester.run('Variables should be used in the blocks where they are declared',
         `,
       errors: [
         {
-          message: `{"message":"Consider moving declaration of 'a' as it is referenced outside current binding context.","secondaryLocations":[{"column":20,"line":6,"endColumn":21,"endLine":6}]}`,
+          message: `{"message":"Consider moving declaration of 'a' as it is referenced outside current binding context.","secondaryLocations":[{"message":"Outside reference.","column":20,"line":6,"endColumn":21,"endLine":6}]}`,
           line: 4,
         },
       ],
@@ -102,7 +102,7 @@ ruleTester.run('Variables should be used in the blocks where they are declared',
         `,
       errors: [
         {
-          message: `{"message":"Consider moving declaration of 'i' as it is referenced outside current binding context.","secondaryLocations":[{"column":14,"line":4,"endColumn":15,"endLine":4},{"column":17,"line":5,"endColumn":18,"endLine":5}]}`,
+          message: `{"message":"Consider moving declaration of 'i' as it is referenced outside current binding context.","secondaryLocations":[{"message":"Outside reference.","column":14,"line":4,"endColumn":15,"endLine":4},{"message":"Outside reference.","column":17,"line":5,"endColumn":18,"endLine":5}]}`,
           line: 3,
           endLine: 3,
           column: 20,

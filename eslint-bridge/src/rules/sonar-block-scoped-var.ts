@@ -93,6 +93,7 @@ export const rule: Rule.RuleModule = {
                 `Consider moving declaration of '${variable.name}' ` +
                   `as it is referenced outside current binding context.`,
                 referencesOutside as TSESTree.Node[],
+                Array(referencesOutside.length).fill('Outside reference.'),
               ),
             });
             variable.defs.map(def => def.name).forEach(defId => reported.push(defId));
