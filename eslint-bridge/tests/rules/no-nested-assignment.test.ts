@@ -91,6 +91,36 @@ ruleTester.run('Assignments should not be made from within sub-expressions', rul
       }
       `,
     },
+    {
+      code: `while (a = 0) {}`,
+    },
+    {
+      code: `do {} while (a = 0);`,
+    },
+    {
+      code: `a || (a = 0);`,
+    },
+    {
+      code: `a && (a = 0);`,
+    },
+    {
+      code: `if (a, b = 0) {}`,
+    },
+    {
+      code: `for (; i, j = 0;);`,
+    },
+    {
+      code: `for (; (j = i) === 0;);`,
+    },
+    {
+      code: `let a = b = c = 0;`,
+    },
+    {
+      code: `let a = (b = (c = 0));`,
+    },
+    {
+      code: `let f = a => (a = (b = 0));`,
+    },
   ],
   invalid: [
     {
@@ -106,12 +136,8 @@ ruleTester.run('Assignments should not be made from within sub-expressions', rul
       ],
     },
     {
-      code: `if (a, b = 0) {}`,
-      errors: 1,
-    },
-    {
       code: `if (a = b = 0) {}`,
-      errors: 2,
+      errors: 1,
     },
     {
       code: `if ((a = 0) && b) {}`,
@@ -130,20 +156,12 @@ ruleTester.run('Assignments should not be made from within sub-expressions', rul
       errors: 1,
     },
     {
-      code: `while (a = 0) {}`,
-      errors: 1,
-    },
-    {
-      code: `do {} while (a = 0);`,
-      errors: 1,
-    },
-    {
       code: `fun(a = 0);`,
       errors: 1,
     },
     {
       code: `fun(a = b = c = 0);`,
-      errors: 3,
+      errors: 1,
     },
     {
       code: `fun(a, b = 0);`,
@@ -155,34 +173,78 @@ ruleTester.run('Assignments should not be made from within sub-expressions', rul
     },
     {
       code: `for (; i = j = 0;);`,
-      errors: 2,
-    },
-    {
-      code: `for (; i, j = 0;);`,
       errors: 1,
     },
     {
-      code: `for (; (j = i) === 0;);`,
+      code: `let a = [ a = 0 ];`,
       errors: 1,
     },
     {
-      code: `let a = b = c = 0;`,
-      errors: 2,
-    },
-    {
-      code: `let a = (b = (c = 0));`,
-      errors: 2,
-    },
-    {
-      code: `let f = a => (a = (b = 0));`,
+      code: `let a = { a: b = 0 };`,
       errors: 1,
     },
     {
-      code: `
-      while (something()) {
-        let f = a => (a = (b = 0));
-      }
-      `,
+      code: `let a = { [a = 0]: b };`,
+      errors: 1,
+    },
+    {
+      code: `function* foo() { yield (a = 0); }`,
+      errors: 1,
+    },
+    {
+      code: `-(a = 0);`,
+      errors: 1,
+    },
+    {
+      code: `(a = 0) % b;`,
+      errors: 1,
+    },
+    {
+      code: `a[b = 0];`,
+      errors: 1,
+    },
+    {
+      code: `(a = 0) ? b = 1 : c = 2`,
+      errors: 3,
+    },
+    {
+      code: `new C(a = 0);`,
+      errors: 1,
+    },
+    {
+      code: '`hello${a = 0}`',
+      errors: 1,
+    },
+    {
+      code: 'myTag`hello${a = 0}`',
+      errors: 1,
+    },
+    {
+      code: `class C { [a = 0]() {} }`,
+      errors: 1,
+    },
+    {
+      code: `async () => await (a = 0);`,
+      errors: 1,
+    },
+    {
+      code: `switch (a = 0) { case (b = 0): break; }`,
+      errors: 2,
+    },
+    {
+      code: `function foo() { return (a = 0); }`,
+      errors: 1,
+    },
+    {
+      code: `throw (a = 0);`,
+      errors: 1,
+    },
+    {
+      code: `for (;a = 0;) {}`,
+      errors: 1,
+    },
+    {
+      code: `(a = 0) || a;`,
       errors: 1,
     },
   ],

@@ -20,42 +20,68 @@
 // https://jira.sonarsource.com/browse/RSPEC-1121
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { childrenOf, findFirstMatchingAncestor } from '../utils';
+import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
-    function nodeContains(node: estree.Node, searched: estree.Node): boolean {
-      if (node === searched) {
-        return true;
-      }
-      const children = childrenOf(node, context.getSourceCode().visitorKeys);
-      if (children.length === 0) {
-        return false;
-      }
-      return children.some(child => nodeContains(child, searched));
+    function isAssignmentStatement(parent: estree.Node) {
+      return parent.type === 'ExpressionStatement';
     }
 
-    function isWhileConditionSubExpression(node: estree.AssignmentExpression) {
-      const whileStatement = findFirstMatchingAncestor(
-        node as TSESTree.Node,
-        ancestor =>
-          ancestor.type === 'WhileStatement' && nodeContains(ancestor.test as estree.Node, node),
-      ) as estree.WhileStatement | undefined;
-      return !!whileStatement && whileStatement.test !== node;
+    function isEnclosingChain(parent: estree.Node) {
+      return parent.type === 'AssignmentExpression';
+    }
+
+    function isEnclosingRelation(parent: estree.Node) {
+      return (
+        parent.type === 'BinaryExpression' &&
+        ['==', '!=', '===', '!==', '<', '<=', '>', '>='].includes(parent.operator)
+      );
+    }
+
+    function isEnclosingSequence(parent: estree.Node) {
+      return parent.type === 'SequenceExpression';
+    }
+
+    function isEnclosingDeclarator(parent: estree.Node) {
+      return parent.type === 'VariableDeclarator';
+    }
+
+    function isLambdaBody(parent: estree.Node, expr: estree.AssignmentExpression) {
+      return parent.type === 'ArrowFunctionExpression' && parent.body === expr;
+    }
+
+    function isConditionalAssignment(parent: estree.Node, expr: estree.AssignmentExpression) {
+      return parent.type === 'LogicalExpression' && parent.right === expr;
+    }
+
+    function isWhileCondition(parent: estree.Node, expr: estree.AssignmentExpression) {
+      return (
+        (parent.type === 'DoWhileStatement' || parent.type === 'WhileStatement') &&
+        parent.test === expr
+      );
+    }
+
+    function isForInitOrUpdate(parent: estree.Node, expr: estree.AssignmentExpression) {
+      return parent.type === 'ForStatement' && (parent.init === expr || parent.update === expr);
     }
 
     return {
       AssignmentExpression: (node: estree.Node) => {
         const assignment = node as estree.AssignmentExpression;
-        const parent = parentOf(assignment, context.getAncestors());
+        const parent = getParent(context);
         if (
           parent &&
-          parent.type !== 'ExpressionStatement' &&
-          !isArrowFunctionWithAssignmentBody(assignment, context) &&
-          !isWhileConditionSubExpression(assignment)
+          !isAssignmentStatement(parent) &&
+          !isEnclosingChain(parent) &&
+          !isEnclosingRelation(parent) &&
+          !isEnclosingSequence(parent) &&
+          !isEnclosingDeclarator(parent) &&
+          !isLambdaBody(parent, assignment) &&
+          !isConditionalAssignment(parent, assignment) &&
+          !isWhileCondition(parent, assignment) &&
+          !isForInitOrUpdate(parent, assignment)
         ) {
           raiseIssue(assignment, context);
         }
@@ -76,20 +102,4 @@ function raiseIssue(node: estree.AssignmentExpression, context: Rule.RuleContext
     message: `Extract the assignment of \"${text}\" from this expression.`,
     loc: operator!.loc,
   });
-}
-
-function parentOf(node: estree.Node, ancestors: estree.Node[]): estree.Node | undefined {
-  const parent = ancestors.pop();
-  if (parent && (parent.type === 'SequenceExpression' || parent.type === 'AssignmentExpression')) {
-    return parentOf(parent, ancestors);
-  }
-  if (parent && parent.type === 'ForStatement' && parent.test !== node) {
-    return undefined;
-  }
-  return parent;
-}
-
-function isArrowFunctionWithAssignmentBody(node: estree.Node, context: Rule.RuleContext) {
-  const parent = getParent(context);
-  return parent && parent.type === 'ArrowFunctionExpression' && parent.body === node;
 }
