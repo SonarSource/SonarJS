@@ -105,6 +105,7 @@ export const rule: Rule.RuleModule = {
               message: toEncodedMessage(
                 `Use destructuring syntax for these assignments from "${key}".`,
                 tail as TSESTree.Node[],
+                Array(tail.length).fill('Replace this assignment.'),
               ),
             });
           }
