@@ -204,6 +204,7 @@ const testCasesHttps = {
                 endLine: 18,
               },
               {
+                message: 'Set "rejectUnauthorized" to "true".',
                 column: 8,
                 line: 11,
                 endColumn: 33,
@@ -364,6 +365,7 @@ const testCasesRequest = {
             message: 'Enable server hostname verification on this SSL/TLS connection.',
             secondaryLocations: [
               {
+                message: 'Set "rejectUnauthorized" to "true".',
                 column: 8,
                 line: 7,
                 endColumn: 33,
