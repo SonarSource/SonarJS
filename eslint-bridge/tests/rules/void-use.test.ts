@@ -41,23 +41,19 @@ const testCases = {
             void (0);
             `,
     },
-  ],
-  invalid: [
     {
       code: `
             void function() {
             }()
             `,
-      errors: [
-        {
-          message: `Remove this use of the \"void\" operator.`,
-          line: 2,
-          endLine: 2,
-          column: 13,
-          endColumn: 17,
-        },
-      ],
     },
+    {
+      code: `
+            void (() => 42) ()
+            `,
+    },
+  ],
+  invalid: [
     {
       code: `
             foo(void 42);
