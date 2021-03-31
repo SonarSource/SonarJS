@@ -47,6 +47,11 @@ const testCases = {
             }()
             `,
     },
+    {
+      code: `
+            void (() => 42) ()
+            `,
+    },
   ],
   invalid: [
     {

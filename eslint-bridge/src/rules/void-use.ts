@@ -43,7 +43,7 @@ export const rule: Rule.RuleModule = {
     function isIIFE(expr: estree.UnaryExpression) {
       return (
         expr.argument.type === 'CallExpression' &&
-        expr.argument.callee.type === 'FunctionExpression'
+        ['ArrowFunctionExpression', 'FunctionExpression'].includes(expr.argument.callee.type)
       );
     }
 
