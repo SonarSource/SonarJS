@@ -27,7 +27,7 @@ export const rule: Rule.RuleModule = {
     const sourceCode = context.getSourceCode();
     return {
       'ExpressionStatement > NewExpression': (node: estree.Node) => {
-        if (isTryable(node, context)) {
+        if (isTestCode(context) || isTryable(node, context)) {
           return;
         }
         const callee = (node as estree.NewExpression).callee;
@@ -46,6 +46,15 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isTestCode(context: Rule.RuleContext) {
+  const filename = context.getFilename();
+  return (
+    /^.*(\.|_)(test|spec|debug)\.\w+$/.test(filename) ||
+    filename.includes('/tests/') ||
+    filename.includes('\\tests\\')
+  );
+}
 
 function isTryable(node: estree.Node, context: Rule.RuleContext) {
   const ancestors = context.getAncestors();
