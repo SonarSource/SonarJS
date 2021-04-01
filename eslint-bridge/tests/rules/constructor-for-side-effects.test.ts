@@ -33,6 +33,12 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
       new MyConstructor().doSomething();   // OK
       `,
     },
+    {
+      code: `
+      try { new MyConstructor(); } catch (e) {}
+      try { if (cond()) { new MyConstructor(); } } catch (e) {}
+      `,
+    },
   ],
   invalid: [
     {
@@ -70,6 +76,12 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
           endColumn: 10,
         },
       ],
+    },
+    {
+      code: `
+      try {} catch (e) { new MyConstructor(); }
+      `,
+      errors: 1,
     },
   ],
 });

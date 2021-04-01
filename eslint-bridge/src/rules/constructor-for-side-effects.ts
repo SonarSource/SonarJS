@@ -27,8 +27,10 @@ export const rule: Rule.RuleModule = {
     const sourceCode = context.getSourceCode();
     return {
       'ExpressionStatement > NewExpression': (node: estree.Node) => {
+        if (isTryable(node, context)) {
+          return;
+        }
         const callee = (node as estree.NewExpression).callee;
-
         if (callee.type === 'Identifier' || callee.type === 'MemberExpression') {
           const calleeText = sourceCode.getText(callee);
           const reportLocation = {
@@ -44,6 +46,19 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isTryable(node: estree.Node, context: Rule.RuleContext) {
+  const ancestors = context.getAncestors();
+  let parent = undefined;
+  let child = node;
+  while ((parent = ancestors.pop()) != undefined) {
+    if (parent.type === 'TryStatement' && parent.block === child) {
+      return true;
+    }
+    child = parent;
+  }
+  return false;
+}
 
 function reportIssue(
   loc: { start: estree.Position; end: estree.Position },
