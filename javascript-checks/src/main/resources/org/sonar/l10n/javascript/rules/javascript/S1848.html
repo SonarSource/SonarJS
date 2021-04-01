@@ -10,4 +10,13 @@ new MyConstructor(); // Non-Compliant
 <pre>
 var something = new MyConstructor();  // Compliant
 </pre>
+<h2>Exceptions</h2>
+<p>Immediately dropped new objects inside <code>try</code>-statements are ignored.</p>
+<pre>
+try {
+  new MyConstructor();
+} catch (e) {
+  /* ... */
+}
+</pre>
 
