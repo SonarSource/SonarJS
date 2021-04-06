@@ -34,7 +34,6 @@ public class BundleImplTest {
   @Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
-  @Test
   public void test() throws Exception {
     BundleImpl bundle = new BundleImpl("/test-bundle.tgz");
     Path deployLocation = tempFolder.newDir().toPath();

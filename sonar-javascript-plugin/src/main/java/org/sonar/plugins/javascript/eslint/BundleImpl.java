@@ -39,7 +39,7 @@ public class BundleImpl implements Bundle {
 
   // this archive is created in eslint-bridge module
   private static final String BUNDLE_LOCATION = "/eslint-bridge-1.0.0.tgz";
-  private static final String DEFAULT_STARTUP_SCRIPT = "package/bin/server";
+  private static final String DEFAULT_STARTUP_SCRIPT = "package/index.js";
   private Path deployLocation;
   private final String bundleLocation;
 
