@@ -56,12 +56,12 @@ import static org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition.METAD
  *  <li>rule parameter data from annotations on check classes</li>
  *  <li>eslint key</li>
  * </ul>
- *
+ * <p>
  * The file is packaged inside the jar artifact during the build
  */
 public class RulesMetadataForSonarLint {
 
-  private List<Rule> rules = new ArrayList<>();
+  private final List<Rule> rules = new ArrayList<>();
 
   RulesMetadataForSonarLint(String repositoryKey, List<Class<? extends JavaScriptCheck>> checks) {
     addRules(repositoryKey, checks);
@@ -87,9 +87,9 @@ public class RulesMetadataForSonarLint {
       .filter(EslintBasedCheck.class::isAssignableFrom)
       .collect(Collectors.toMap(RulesMetadataForSonarLint::ruleKeyFromRuleClass, RulesMetadataForSonarLint::eslintKey));
 
-    rules = context.repository(repositoryKey).rules().stream()
+    context.repository(repositoryKey).rules().stream()
       .map(r -> Rule.fromSqRule(repositoryKey, r, ruleKeyToEslintKey.get(r.key())))
-      .collect(Collectors.toList());
+      .forEach(rules::add);
   }
 
   static String ruleKeyFromRuleClass(Class<?> clazz) {
