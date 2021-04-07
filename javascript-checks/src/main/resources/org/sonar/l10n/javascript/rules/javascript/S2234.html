@@ -29,4 +29,20 @@ function doTheThing() {
   //...
 }
 </pre>
+<h2>Exceptions</h2>
+<p>Swapped arguments that are compared beforehand in an enclosing <code>if</code>-statement are ignored:</p>
+<pre>
+function divide(divisor, dividend) {
+  return divisor/dividend;
+}
+
+function doTheThing() {
+  var divisor = 15;
+  var dividend = 5;
+  if (divisor &gt; dividend) {
+    var result = divide(dividend, divisor);
+    //...
+  }
+}
+</pre>
 
