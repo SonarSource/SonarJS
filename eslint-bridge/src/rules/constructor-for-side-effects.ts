@@ -51,7 +51,7 @@ function isTryable(node: estree.Node, context: Rule.RuleContext) {
   const ancestors = context.getAncestors();
   let parent = undefined;
   let child = node;
-  while ((parent = ancestors.pop()) != undefined) {
+  while ((parent = ancestors.pop()) !== undefined) {
     if (parent.type === 'TryStatement' && parent.block === child) {
       return true;
     }
