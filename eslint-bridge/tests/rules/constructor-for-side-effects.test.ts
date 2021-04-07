@@ -39,26 +39,6 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
       try { if (cond()) { new MyConstructor(); } } catch (e) {}
       `,
     },
-    {
-      code: `new MyConstructor();`,
-      filename: `/foo/bar/file.test.js`,
-    },
-    {
-      code: `new MyConstructor();`,
-      filename: `/foo/bar/file.spec.js`,
-    },
-    {
-      code: `new MyConstructor();`,
-      filename: `/foo/bar/file_test.js`,
-    },
-    {
-      code: `new MyConstructor();`,
-      filename: `/foo/tests/file.js`,
-    },
-    {
-      code: `new MyConstructor();`,
-      filename: `\\foo\\tests\\file.js`,
-    },
   ],
   invalid: [
     {
