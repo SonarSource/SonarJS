@@ -2,17 +2,28 @@
 side-effects.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
-if ((str = cont.substring(pos1, pos2)) != '') { // Noncompliant
-  //...
+if (val = value() &amp;&amp; check()) { // Noncompliant
+  // ...
 }
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-str = cont.substring(pos1, pos2);
-if (str != '') {
-  //...
+val = value();
+if (val &amp;&amp; check()) {
+  // ...
 }
 </pre>
+<h2>Exceptions</h2>
+<p>The rule does not raise issues for the following patterns:</p>
+<ul>
+  <li> assignments at declaration-level: <code>let a = b = 0;</code> </li>
+  <li> chained assignments: <code>a = b = c = 0;</code> </li>
+  <li> relational assignments: <code>(a = 0) != b</code> </li>
+  <li> sequential assignments: <code>a = 0, b = 1, c = 2</code> </li>
+  <li> assignments in lambda body: <code>() =&gt; a = 0</code> </li>
+  <li> conditional assignment idiom: <code>a || (a = 0)</code> </li>
+  <li> assignments in (do-)while conditions: <code>while (a = 0);</code> </li>
+</ul>
 <h2>See</h2>
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/481.html">MITRE, CWE-481</a> - Assigning instead of Comparing </li>
