@@ -20,6 +20,7 @@
 import { rule } from 'rules/function-return-type';
 import { RuleTester } from 'eslint';
 import { RuleTesterTs } from '../RuleTesterTs';
+import { RuleTesterJsWithTypes } from '../RuleTesterJsWithTypes';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTesterJs.run('Functions should always return the same type [js]', rule, {
@@ -514,3 +515,27 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
     },
   ],
 });
+
+const ruleTestJSWithTypes = new RuleTesterJsWithTypes();
+ruleTestJSWithTypes.run(
+  `'Functions should always return the same type [js with type inference]'`,
+  rule,
+  {
+    valid: [
+      {
+        code: `
+        /**
+         * @param {Function|Object} supplier The object or function supplying the properties to be mixed.
+         */
+        function mix(supplier) {}
+        mix({
+          f() {
+            return this;
+          },
+        });
+        `,
+      },
+    ],
+    invalid: [],
+  },
+);

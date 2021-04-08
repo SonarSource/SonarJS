@@ -70,6 +70,9 @@ export const rule: Rule.RuleModule = {
       },
       ':function:exit': (node: estree.Node) => {
         const returnStatements = scopes.pop()!.getReturnStatements();
+        if (returnStatements.every(retStmt => retStmt.argument?.type === 'ThisExpression')) {
+          return;
+        }
         const signature = checker.getSignatureFromDeclaration(
           services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as ts.SignatureDeclaration,
         );
