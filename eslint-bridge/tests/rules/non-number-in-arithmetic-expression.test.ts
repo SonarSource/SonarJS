@@ -21,7 +21,7 @@ import { RuleTesterTs } from '../RuleTesterTs';
 import { RuleTester } from 'eslint';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-const ruleTesterTs = new RuleTesterTs(true, true);
+const ruleTesterTs = new RuleTesterTs();
 import { rule } from 'rules/non-number-in-arithmetic-expression';
 
 ruleTesterJs.run('No issues without types', rule, {
