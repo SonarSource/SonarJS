@@ -36,17 +36,6 @@ export const rule: Rule.RuleModule = {
             message: `Add a "default" clause to this "switch" statement.`,
             loc: switchKeyword.loc,
           });
-        } else if (cases.indexOf(defaultClause) !== cases.length - 1) {
-          const defaultKeyword = context
-            .getSourceCode()
-            .getFirstToken(
-              defaultClause,
-              token => token.type === 'Keyword' && token.value === 'default',
-            )!;
-          context.report({
-            message: `Move this "default" clause to the end of this "switch" statement.`,
-            loc: defaultKeyword.loc,
-          });
         }
       },
     };
