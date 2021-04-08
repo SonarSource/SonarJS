@@ -1,7 +1,4 @@
 {
-'jshint:src/lex.js':[
-1771,
-],
 'jshint:tests/unit/fixtures/class-declaration.js':[
 18,
 ],
