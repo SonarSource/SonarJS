@@ -57,6 +57,10 @@ export function isUndefinedOrNull(node: estree.Node, services: RequiredParserSer
   );
 }
 
+export function isAny(type: ts.Type) {
+  return type.flags === ts.TypeFlags.Any;
+}
+
 export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));

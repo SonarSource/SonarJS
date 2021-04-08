@@ -25,7 +25,7 @@ import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/lo
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { isRequiredParserServices, getTypeFromTreeNode, toEncodedMessage } from '../utils';
+import { isRequiredParserServices, getTypeFromTreeNode, toEncodedMessage, isAny } from '../utils';
 
 class FunctionScope {
   private readonly returnStatements: estree.ReturnStatement[] = [];
@@ -58,6 +58,33 @@ export const rule: Rule.RuleModule = {
 
     const checker = services.program.getTypeChecker();
 
+    function onFunctionExit(node: estree.Node) {
+      const returnStatements = scopes.pop()!.getReturnStatements();
+      if (returnStatements.every(retStmt => retStmt.argument?.type === 'ThisExpression')) {
+        return;
+      }
+      const signature = checker.getSignatureFromDeclaration(
+        services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as ts.SignatureDeclaration,
+      );
+      if (signature && hasMultipleReturnTypes(signature, checker)) {
+        const stmts = returnStatements.filter(
+          retStmt => !isNullLike(getTypeFromTreeNode(retStmt.argument!, services)),
+        );
+        const stmtsTypes = stmts.map(retStmt => getTypeFromTreeNode(retStmt.argument!, services));
+        if (stmtsTypes.every(isAny)) {
+          return;
+        }
+        context.report({
+          message: toEncodedMessage(
+            'Refactor this function to always return the same type.',
+            stmts,
+            stmtsTypes.map(stmtType => `Returns ${prettyPrint(stmtType, checker)}`),
+          ),
+          loc: getMainFunctionTokenLocation(node as estree.Function, getParent(context), context),
+        });
+      }
+    }
+
     return {
       ReturnStatement: (node: estree.Node) => {
         const retStmt = node as estree.ReturnStatement;
@@ -68,34 +95,7 @@ export const rule: Rule.RuleModule = {
       ':function': () => {
         scopes.push(new FunctionScope());
       },
-      ':function:exit': (node: estree.Node) => {
-        const returnStatements = scopes.pop()!.getReturnStatements();
-        if (returnStatements.every(retStmt => retStmt.argument?.type === 'ThisExpression')) {
-          return;
-        }
-        const signature = checker.getSignatureFromDeclaration(
-          services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as ts.SignatureDeclaration,
-        );
-        if (signature && hasMultipleReturnTypes(signature, checker)) {
-          const stmts = returnStatements.filter(
-            retStmt => !isNullLike(getTypeFromTreeNode(retStmt.argument!, services)),
-          );
-          context.report({
-            message: toEncodedMessage(
-              'Refactor this function to always return the same type.',
-              stmts,
-              stmts.map(
-                retStmt =>
-                  `Returns ${prettyPrint(
-                    getTypeFromTreeNode(retStmt.argument!, services),
-                    checker,
-                  )}`,
-              ),
-            ),
-            loc: getMainFunctionTokenLocation(node as estree.Function, getParent(context), context),
-          });
-        }
-      },
+      ':function:exit': onFunctionExit,
       'Program:exit': () => {
         scopes = [];
       },

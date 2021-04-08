@@ -205,6 +205,13 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
         }
       `,
     },
+    {
+      code: `
+      function foo(value: any): Object | Array<any> {
+        return value;
+      }
+      `,
+    },
   ],
   invalid: [
     {
