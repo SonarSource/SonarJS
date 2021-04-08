@@ -74,12 +74,57 @@ export const rule: Rule.RuleModule = {
             argumentIndex,
             functionCall,
           );
-          if (swappedArgumentName) {
+          if (swappedArgumentName && !areComparedArguments([argumentName, swappedArgumentName])) {
             raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
             return;
           }
         }
       }
+    }
+
+    function areComparedArguments(argumentNames: string[]): boolean {
+      function getName(node: estree.Node): string | undefined {
+        switch (node.type) {
+          case 'Identifier':
+            return node.name;
+          case 'CallExpression':
+            return getName(node.callee);
+          case 'MemberExpression':
+            return getName(node.object);
+          default:
+            return undefined;
+        }
+      }
+      function checkComparedArguments(lhs: estree.Node, rhs: estree.Node): boolean {
+        return (
+          [lhs, rhs].map(getName).filter(name => name && argumentNames.includes(name)).length ===
+          argumentNames.length
+        );
+      }
+      const maybeIfStmt = context
+        .getAncestors()
+        .reverse()
+        .find(ancestor => ancestor.type === 'IfStatement');
+      if (maybeIfStmt) {
+        const { test } = maybeIfStmt as estree.IfStatement;
+        switch (test.type) {
+          case 'BinaryExpression':
+            const binExpr = test;
+            if (['==', '!=', '===', '!==', '<', '<=', '>', '>='].includes(binExpr.operator)) {
+              const { left: lhs, right: rhs } = binExpr;
+              return checkComparedArguments(lhs, rhs);
+            }
+            break;
+          case 'CallExpression':
+            const callExpr = test;
+            if (callExpr.arguments.length === 1 && callExpr.callee.type === 'MemberExpression') {
+              const [lhs, rhs] = [callExpr.callee.object, callExpr.arguments[0]];
+              return checkComparedArguments(lhs, rhs);
+            }
+            break;
+        }
+      }
+      return false;
     }
 
     function resolveFunctionDeclaration(node: estree.CallExpression): FunctionSignature | null {

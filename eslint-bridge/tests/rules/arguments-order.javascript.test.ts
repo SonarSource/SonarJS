@@ -51,6 +51,20 @@ ruleTester.run('Parameters should be passed in the correct order', rule, {
           arrayBindingPattern(p2, p1);
         }`,
     },
+    {
+      code: `
+      function f(p1, p2) {}
+      if (p1 < p2) {
+        f(p2, p1);
+      }
+      if (p1.value() < p2.value()) {
+        f(p2, p1);
+      }
+      if (p1.doesSomething(p2)) {
+        f(p2, p1);
+      }
+      `,
+    },
   ],
   invalid: [
     {
@@ -91,6 +105,27 @@ ruleTester.run('Parameters should be passed in the correct order', rule, {
           endLine: 3,
         },
       ],
+    },
+    {
+      code: `
+      function f(p1, p2) {}
+      if (p1 = p2) {
+        f(p2, p1);
+      }
+      if (p1 << p2) {
+        f(p2, p1);
+      }
+      if ([].doesSomething(p2)) {
+        f(p2, p1);
+      }
+      if (p1.doesSomething(p2, p3)) {
+        f(p2, p1);
+      }
+      if (doesSomething(p1, p2)) {
+        f(p2, p1);
+      }
+      `,
+      errors: 5,
     },
   ],
 });
