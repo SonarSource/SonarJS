@@ -239,22 +239,76 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
           `,
       errors: [
         {
-          message: `Define this function outside of a loop.`,
+          message: JSON.stringify({
+            message: `Make sure this function is not called after the loop completes.`,
+            secondaryLocations: [
+              {
+                column: 10,
+                line: 4,
+                endColumn: 13,
+                endLine: 4,
+              },
+            ],
+          }),
           line: 5,
           endLine: 5,
           column: 23,
           endColumn: 31,
         },
         {
+          message: JSON.stringify({
+            message: `Make sure this function is not called after the loop completes.`,
+            secondaryLocations: [
+              {
+                column: 10,
+                line: 10,
+                endColumn: 13,
+                endLine: 10,
+              },
+            ],
+          }),
           line: 12,
         },
         {
+          message: JSON.stringify({
+            message: `Make sure this function is not called after the loop completes.`,
+            secondaryLocations: [
+              {
+                column: 10,
+                line: 18,
+                endColumn: 15,
+                endLine: 18,
+              },
+            ],
+          }),
           line: 19,
         },
         {
+          message: JSON.stringify({
+            message: `Make sure this function is not called after the loop completes.`,
+            secondaryLocations: [
+              {
+                column: 12,
+                line: 28,
+                endColumn: 17,
+                endLine: 28,
+              },
+            ],
+          }),
           line: 25,
         },
         {
+          message: JSON.stringify({
+            message: `Make sure this function is not called after the loop completes.`,
+            secondaryLocations: [
+              {
+                column: 10,
+                line: 32,
+                endColumn: 13,
+                endLine: 32,
+              },
+            ],
+          }),
           line: 33,
         },
       ],
