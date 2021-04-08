@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTesterTs } from '../RuleTesterTs';
+import { RuleTesterJsWithTypes } from '../RuleTesterJsWithTypes';
 import { RuleTester } from 'eslint';
 
-const ruleTesterTs = new RuleTesterTs(true, true);
+const ruleTesterJsWithTypes = new RuleTesterJsWithTypes();
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
 import { rule } from 'rules/null-dereference';
 
-ruleTesterTs.run('', rule, {
+ruleTesterJsWithTypes.run('', rule, {
   valid: [
     {
       code: `

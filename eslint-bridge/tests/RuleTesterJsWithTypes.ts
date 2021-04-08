@@ -25,25 +25,24 @@ const parser = path.resolve(`${__dirname}/../node_modules/@typescript-eslint/par
 const parserOptions = {
   ecmaVersion: 2018,
   sourceType: 'module',
-  project: path.resolve(`${__dirname}/fixtures/rule-tester-project/tsconfig.json`),
+  project: path.resolve(`${__dirname}/fixtures/rule-tester-project-js/tsconfig.json`),
 };
 
 const env = {
   es6: true,
 };
 
-const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-project/file.tsx`);
+const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/rule-tester-project-js/file.js`);
 
 /**
- * Rule tester for Typescript, using @typescript-eslint parser, making sure that type information is present.
- * It will also assert that no issues is raised when there are no type information.
+ * Rule tester for JavaScript, using @typescript-eslint parser.
  */
-class RuleTesterTs extends RuleTester {
-  constructor(public expectNoIssuesWithoutTypes = true) {
+class RuleTesterJsWithTypes extends RuleTester {
+  constructor() {
     super({
       env,
       parser,
-      parserOptions: parserOptions,
+      parserOptions,
     });
   }
 
@@ -68,4 +67,4 @@ class RuleTesterTs extends RuleTester {
   }
 }
 
-export { RuleTesterTs };
+export { RuleTesterJsWithTypes };

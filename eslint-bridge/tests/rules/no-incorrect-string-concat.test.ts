@@ -19,7 +19,7 @@
  */
 import { RuleTesterTs } from '../RuleTesterTs';
 
-const ruleTesterTs = new RuleTesterTs(true, true);
+const ruleTesterTs = new RuleTesterTs();
 
 import { rule } from 'rules/no-incorrect-string-concat';
 
