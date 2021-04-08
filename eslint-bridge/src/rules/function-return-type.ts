@@ -21,6 +21,8 @@
 
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
+import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import { isRequiredParserServices, getTypeFromTreeNode, toEncodedMessage } from '../utils';
@@ -87,7 +89,7 @@ export const rule: Rule.RuleModule = {
                   )}`,
               ),
             ),
-            node: node.type === 'FunctionDeclaration' && node.id ? node.id : node,
+            loc: getMainFunctionTokenLocation(node as estree.Function, getParent(context), context),
           });
         }
       },
