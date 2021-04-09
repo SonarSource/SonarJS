@@ -19,14 +19,14 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-1515
 
-import { Rule, Scope } from 'eslint';
+import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { findFirstMatchingAncestor, LoopLike } from '../utils';
+import { findFirstMatchingAncestor, LoopLike, toEncodedMessage } from '../utils';
 
-const message = 'Define this function outside of a loop.';
+const message = 'Make sure this function is not called after the loop completes.';
 
 const loopLike = 'WhileStatement,DoWhileStatement,ForStatement,ForOfStatement,ForInStatement';
 
@@ -48,6 +48,14 @@ const allowedCallbacks = [
 ];
 
 export const rule: Rule.RuleModule = {
+  meta: {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: ['sonar-runtime'],
+      },
+    ],
+  },
   create(context: Rule.RuleContext) {
     function getLocalEnclosingLoop(node: estree.Node) {
       return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type));
@@ -63,7 +71,7 @@ export const rule: Rule.RuleModule = {
             context.getScope().through.some(ref => !isSafe(ref, loopNode))
           ) {
             context.report({
-              message,
+              message: toEncodedMessage(message, [getMainLoopToken(loopNode, context)]),
               loc: getMainFunctionTokenLocation(
                 node as estree.Function,
                 getParent(context),
@@ -153,4 +161,23 @@ function getLoopTestRange(loopNode: LoopLike) {
         }
     }
   }
+}
+
+function getMainLoopToken(loop: LoopLike, context: Rule.RuleContext): AST.Token {
+  const sourceCode = context.getSourceCode();
+  let token: AST.Token | null;
+  switch (loop.type) {
+    case 'WhileStatement':
+    case 'DoWhileStatement':
+      token = sourceCode.getTokenBefore(
+        loop.test,
+        t => t.type === 'Keyword' && t.value === 'while',
+      );
+      break;
+    case 'ForStatement':
+    case 'ForOfStatement':
+    default:
+      token = sourceCode.getFirstToken(loop, t => t.type === 'Keyword' && t.value === 'for');
+  }
+  return token!;
 }
