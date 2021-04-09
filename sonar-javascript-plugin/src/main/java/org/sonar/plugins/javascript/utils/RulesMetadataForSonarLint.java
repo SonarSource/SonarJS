@@ -83,12 +83,19 @@ public class RulesMetadataForSonarLint {
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, Collections.unmodifiableList(ruleClasses));
     repository.done();
 
-    Map<String, String> ruleKeyToEslintKey = ruleClasses.stream()
+    Map<String, EslintBasedCheck> ruleKeyToCheck = ruleClasses.stream()
       .filter(EslintBasedCheck.class::isAssignableFrom)
-      .collect(Collectors.toMap(RulesMetadataForSonarLint::ruleKeyFromRuleClass, RulesMetadataForSonarLint::eslintKey));
+      .collect(Collectors.toMap(RulesMetadataForSonarLint::ruleKeyFromRuleClass, RulesMetadataForSonarLint::javaScriptCheck));
 
     context.repository(repositoryKey).rules().stream()
-      .map(r -> Rule.fromSqRule(repositoryKey, r, ruleKeyToEslintKey.get(r.key())))
+      .map(r -> {
+        EslintBasedCheck check = ruleKeyToCheck.get(r.key());
+        if (check != null) {
+          return Rule.fromSqRule(repositoryKey, r, check.eslintKey(), check.configurations());
+        } else {
+          return Rule.fromSqRule(repositoryKey, r, null, Collections.emptyList());
+        }
+      })
       .forEach(rules::add);
   }
 
@@ -97,10 +104,9 @@ public class RulesMetadataForSonarLint {
     return ruleAnnotation.key();
   }
 
-  static String eslintKey(Class<? extends JavaScriptCheck> clazz) {
+  static EslintBasedCheck javaScriptCheck(Class<? extends JavaScriptCheck> clazz) {
     try {
-      EslintBasedCheck check = (EslintBasedCheck) clazz.getDeclaredConstructor().newInstance();
-      return check.eslintKey();
+      return (EslintBasedCheck) clazz.getDeclaredConstructor().newInstance();
     } catch (Exception e) {
       throw new IllegalStateException("failed to instantiate " + clazz.getSimpleName(), e);
     }
@@ -128,11 +134,12 @@ public class RulesMetadataForSonarLint {
     private RuleStatus status = RuleStatus.defaultStatus();
     private Set<String> tags;
     private List<RulesDefinition.Param> params;
+    private List<Object> defaultParams;
     private RuleScope scope;
     private String eslintKey;
     private boolean activatedByDefault;
 
-    static Rule fromSqRule(String repository, RulesDefinition.Rule sqRule, String eslintKey) {
+    static Rule fromSqRule(String repository, RulesDefinition.Rule sqRule, String eslintKey, List<Object> defaultParams) {
       Rule rule = new Rule();
       rule.ruleKey = RuleKey.of(repository, sqRule.key()).toString();
       rule.type = sqRule.type();
@@ -145,6 +152,7 @@ public class RulesMetadataForSonarLint {
       rule.scope = sqRule.scope();
       rule.eslintKey = eslintKey;
       rule.activatedByDefault = sqRule.activatedByDefault();
+      rule.defaultParams = defaultParams;
       return rule;
     }
   }

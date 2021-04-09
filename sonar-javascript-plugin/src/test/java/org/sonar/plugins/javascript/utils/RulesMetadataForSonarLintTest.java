@@ -62,6 +62,13 @@ public class RulesMetadataForSonarLintTest {
       "        }\n" +
       "      }\n" +
       "    ],\n" +
+      "    \"defaultParams\": [\n" +
+      "      \"single\",\n" +
+      "      {\n" +
+      "        \"avoidEscape\": true,\n" +
+      "        \"allowTemplateLiterals\": true\n" +
+      "      }\n" +
+      "    ],\n" +
       "    \"scope\": \"MAIN\",\n" +
       "    \"eslintKey\": \"quotes\",\n" +
       "    \"activatedByDefault\": false\n" +
