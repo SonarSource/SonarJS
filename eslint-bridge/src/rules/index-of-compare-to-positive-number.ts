@@ -21,19 +21,24 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isArray, isRequiredParserServices, RequiredParserServices } from '../utils';
 
 const message =
   "This check ignores index 0; consider using 'includes' method to make this check safe and explicit.";
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
+    const services = context.parserServices;
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
     return {
       BinaryExpression(node: estree.Node) {
         const expression = node as estree.BinaryExpression;
         if (
           expression.operator === '>' &&
           isZero(expression.right) &&
-          isIndexOfCall(expression.left)
+          isArrayIndexOfCall(expression.left, services)
         ) {
           context.report({ node, message });
         }
@@ -46,12 +51,13 @@ function isZero(node: estree.Expression): boolean {
   return node.type === 'Literal' && node.value === 0;
 }
 
-function isIndexOfCall(node: estree.Expression): boolean {
+function isArrayIndexOfCall(node: estree.Expression, services: RequiredParserServices): boolean {
   return (
     node.type === 'CallExpression' &&
     node.arguments.length === 1 &&
     node.callee.type === 'MemberExpression' &&
     node.callee.property.type === 'Identifier' &&
-    node.callee.property.name === 'indexOf'
+    node.callee.property.name === 'indexOf' &&
+    isArray(node.callee.object, services)
   );
 }

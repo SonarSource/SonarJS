@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+import { RuleTesterTs } from '../RuleTesterTs';
+const ruleTester = new RuleTesterTs();
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 import { rule } from 'rules/index-of-compare-to-positive-number';
 
 ruleTester.run(`"indexOf" checks should not be for positive numbers`, rule, {
@@ -30,10 +30,19 @@ ruleTester.run(`"indexOf" checks should not be for positive numbers`, rule, {
     {
       code: `a.indexOf("str") > -1;`,
     },
+    {
+      code: `"str".indexOf("str") > 0;`,
+    },
+    {
+      code: `[].indexOf(a) >= 0;`,
+    },
+    {
+      code: `(new Array()).indexOf(a) >= 0;`,
+    },
   ],
   invalid: [
     {
-      code: `a.indexOf("str") > 0;`,
+      code: `[].indexOf("str") > 0;`,
       errors: [
         {
           message:
@@ -41,12 +50,16 @@ ruleTester.run(`"indexOf" checks should not be for positive numbers`, rule, {
           line: 1,
           endLine: 1,
           column: 1,
-          endColumn: 21,
+          endColumn: 22,
         },
       ],
     },
     {
-      code: `a.indexOf(a) > 0;`,
+      code: `[].indexOf(a) > 0;`,
+      errors: 1,
+    },
+    {
+      code: `(new Array()).indexOf(a) > 0;`,
       errors: 1,
     },
   ],
