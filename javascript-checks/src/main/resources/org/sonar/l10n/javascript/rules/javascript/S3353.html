@@ -4,7 +4,7 @@ and it's not supposed to be". <code>const</code> should be used in these situati
 <pre>
 function seek(input) {
   let target = 32;  // Noncompliant
-  for (let i of input) {
+  for (let i of input) {  // Noncompliant
     if (i == target) {
       return true;
     }
@@ -22,7 +22,7 @@ function getUrl(query) { &nbsp;&nbsp;&nbsp;
 <pre>
 function seek(input) {
   const target = 32;
-  for (let i of input) {
+  for (const i of input) {
     if (i == target) {
       return true;
     }
