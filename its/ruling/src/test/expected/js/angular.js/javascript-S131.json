@@ -27,9 +27,6 @@
 'angular.js:src/ngAria/aria.js':[
 285,
 ],
-'angular.js:src/ngResource/resource.js':[
-783,
-],
 'angular.js:src/ngSanitize/sanitize.js':[
 533,
 ],

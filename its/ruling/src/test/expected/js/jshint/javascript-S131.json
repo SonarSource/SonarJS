@@ -17,7 +17,4 @@
 'jshint:src/reporters/checkstyle.js':[
 45,
 ],
-'jshint:tests/unit/fixtures/switchDefaultFirst.js':[
-11,
-],
 }
