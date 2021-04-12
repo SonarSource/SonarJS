@@ -29,6 +29,6 @@ public class NoMagicNumbersCheckTest {
   @Test
   public void config() {
     String configAsString = new Gson().toJson(new NoMagicNumbersCheck().configurations());
-    assertThat(configAsString).isEqualTo("[{\"ignore\":[0,1,-1]}]");
+    assertThat(configAsString).isEqualTo("[{\"ignore\":[0,1,-1],\"ignoreEnums\":true}]");
   }
 }
