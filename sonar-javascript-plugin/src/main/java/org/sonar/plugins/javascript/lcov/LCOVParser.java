@@ -206,6 +206,7 @@ class LCOVParser {
         newCoverage.lineHits(e.getKey(), e.getValue());
       }
       for (Map.Entry<Integer, Map<String, Integer>> e : branches.entrySet()) {
+        int line = e.getKey();
         int conditions = e.getValue().size();
         int covered = 0;
         for (Integer taken : e.getValue().values()) {
@@ -214,7 +215,8 @@ class LCOVParser {
           }
         }
 
-        newCoverage.conditions(e.getKey(), conditions, covered);
+        newCoverage.conditions(line, conditions, covered);
+        newCoverage.lineHits(line, hits.getOrDefault(line, 0) + covered);
       }
     }
 
