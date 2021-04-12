@@ -20,6 +20,7 @@
 // https://jira.sonarsource.com/browse/RSPEC-3798
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isIdentifier } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -61,7 +62,6 @@ function isRequire(node: estree.Node | null | undefined) {
   return (
     node?.type === 'CallExpression' &&
     node.arguments.length === 1 &&
-    node.callee.type === 'Identifier' &&
-    node.callee.name === 'require'
+    isIdentifier(node.callee, 'require')
   );
 }
