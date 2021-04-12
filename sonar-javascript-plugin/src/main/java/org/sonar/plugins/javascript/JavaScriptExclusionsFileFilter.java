@@ -34,7 +34,13 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   private static final Logger LOG = Loggers.get(JavaScriptExclusionsFileFilter.class);
 
-  private static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[]{"**/node_modules/**", "**/bower_components/**"};
+  private static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[]{"**/node_modules/**",
+    "**/bower_components/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/vendor/**",
+    "**/external/**"};
+
   private final WildcardPattern[] excludedPatterns;
   private static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
   /** Note that in user-facing option handling the units are kilobytes, not bytes. */
