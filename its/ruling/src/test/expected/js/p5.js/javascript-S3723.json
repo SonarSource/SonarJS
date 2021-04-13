@@ -564,17 +564,6 @@
 606,
 617,
 ],
-'p5.js:tasks/build/browserify.js':[
-35,
-70,
-],
-'p5.js:tasks/build/combineModules.js':[
-69,
-100,
-],
-'p5.js:tasks/build/eslint-samples.js':[
-15,
-],
 'p5.js:tasks/release/release-github.js':[
 22,
 43,

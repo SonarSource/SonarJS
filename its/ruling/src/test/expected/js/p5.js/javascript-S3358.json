@@ -16,9 +16,6 @@
 'p5.js:src/typography/p5.Font.js':[
 1167,
 ],
-'p5.js:tasks/build/browserify.js':[
-22,
-],
 'p5.js:test/js/sinon.js':[
 672,
 1096,

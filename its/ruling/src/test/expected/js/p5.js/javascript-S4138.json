@@ -117,9 +117,6 @@
 'p5.js:src/webgl/text.js':[
 532,
 ],
-'p5.js:tasks/build/combineModules.js':[
-47,
-],
 'p5.js:test/js/sinon.js':[
 672,
 2328,

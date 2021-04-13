@@ -62,9 +62,6 @@
 'p5.js:src/utilities/string_functions.js':[
 296,
 ],
-'p5.js:tasks/build/combineModules.js':[
-34,
-],
 'p5.js:test/js/sinon.js':[
 493,
 ],

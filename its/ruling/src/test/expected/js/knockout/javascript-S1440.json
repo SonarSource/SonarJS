@@ -2,9 +2,6 @@
 'knockout:Gruntfile.js':[
 47,
 ],
-'knockout:build/knockout-raw.js':[
-18,
-],
 'knockout:spec/asyncBehaviors.js':[
 1321,
 ],

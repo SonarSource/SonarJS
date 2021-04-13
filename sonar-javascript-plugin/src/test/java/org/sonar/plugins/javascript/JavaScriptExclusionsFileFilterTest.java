@@ -39,13 +39,16 @@ public class JavaScriptExclusionsFileFilterTest {
   public LogTester logTester = new LogTester();
 
   @Test
-  public void should_exclude_node_modules_and_bower_components() throws Exception {
+  public void should_exclude_node_modules_and_bower_components_by_default() throws Exception {
     MapSettings settings = new MapSettings();
-    settings.setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, EXCLUSIONS_DEFAULT_VALUE);
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("some_app.ts"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("vendor/some_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("build/some_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("dist/some_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("external/some_lib.js"))).isFalse();
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File test_node_modules/node_modules/some_lib.js was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions");
     assertThat(filter.accept(inputFile("node_modules/my_lib_folder/my_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("sub_module/node_modules/submodule_lib.js"))).isFalse();
@@ -55,7 +58,6 @@ public class JavaScriptExclusionsFileFilterTest {
   @Test
   public void should_exclude_using_ts_property() throws Exception {
     MapSettings settings = new MapSettings();
-    settings.setProperty(JavaScriptPlugin.TS_EXCLUSIONS_KEY, EXCLUSIONS_DEFAULT_VALUE);
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("some_app.ts"))).isTrue();

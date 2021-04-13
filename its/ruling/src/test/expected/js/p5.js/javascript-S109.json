@@ -2689,15 +2689,6 @@
 599,
 731,
 ],
-'p5.js:tasks/build/browserify.js':[
-70,
-70,
-],
-'p5.js:tasks/build/combineModules.js':[
-40,
-100,
-100,
-],
 'p5.js:tasks/release/release-github.js':[
 72,
 82,

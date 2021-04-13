@@ -251,15 +251,6 @@
 'p5.js:src/webgl/text.js':[
 0,
 ],
-'p5.js:tasks/build/browserify.js':[
-0,
-],
-'p5.js:tasks/build/combineModules.js':[
-0,
-],
-'p5.js:tasks/build/eslint-samples.js':[
-0,
-],
 'p5.js:tasks/release/release-bower.js':[
 0,
 ],

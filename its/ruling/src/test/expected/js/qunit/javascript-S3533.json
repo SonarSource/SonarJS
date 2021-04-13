@@ -10,12 +10,6 @@
 7,
 8,
 ],
-'qunit:build/tasks/livereload.js':[
-2,
-],
-'qunit:build/tasks/test-on-node.js':[
-4,
-],
 'qunit:rollup.config.js':[
 3,
 4,
