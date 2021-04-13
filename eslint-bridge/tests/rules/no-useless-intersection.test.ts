@@ -41,6 +41,21 @@ ruleTester.run(
       function withNotEmptyInterface(x: { a: string } & NotEmpty) {}
       `,
       },
+      {
+        code: `
+        const propName = 'prop-name';
+        
+        interface MyInterface {
+          [propName]: string;
+        }
+        
+        interface MyOtherInterface {
+          prop: string;
+        }
+        
+        type MyType = MyOtherInterface & MyInterface;
+        `,
+      },
     ],
     invalid: [
       {

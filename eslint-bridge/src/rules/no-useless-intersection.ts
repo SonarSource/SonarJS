@@ -75,7 +75,7 @@ function isNullLike(tp: ts.Type): boolean {
 }
 
 function isEmptyInterface(tp: ts.Type): boolean {
-  return Boolean(tp.symbol && tp.symbol.members && tp.symbol.members.size === 0);
+  return tp.getProperties().length === 0;
 }
 
 function isStandaloneInterface({ declarations }: ts.Symbol) {
