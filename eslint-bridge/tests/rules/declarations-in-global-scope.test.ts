@@ -114,6 +114,11 @@ ruleTester.run('Variables and functions should not be declared in the global sco
       let a : { <T>(x: T): number; }
             `,
     },
+    {
+      code: `
+      var _ = require('lodash');
+      `,
+    },
   ],
   invalid: [
     {

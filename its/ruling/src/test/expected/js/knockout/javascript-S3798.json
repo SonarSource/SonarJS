@@ -17,13 +17,10 @@
 1,
 ],
 'knockout:spec/runner.node.js':[
-3,
 7,
 51,
 ],
 'knockout:spec/runner.phantom.js':[
-33,
-34,
 48,
 71,
 ],

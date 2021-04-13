@@ -19,6 +19,8 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3798
 import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { isIdentifier } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -36,7 +38,7 @@ export const rule: Rule.RuleModule = {
             const defNode = def.node;
             if (
               def.type === 'FunctionName' ||
-              (def.type === 'Variable' && def.parent?.kind === 'var')
+              (def.type === 'Variable' && def.parent?.kind === 'var' && !isRequire(def.node.init))
             ) {
               context.report({
                 node: defNode,
@@ -54,4 +56,12 @@ export const rule: Rule.RuleModule = {
 
 function findModuleScope(context: Rule.RuleContext) {
   return context.getSourceCode().scopeManager.scopes.find(s => s.type === 'module');
+}
+
+function isRequire(node: estree.Node | null | undefined) {
+  return (
+    node?.type === 'CallExpression' &&
+    node.arguments.length === 1 &&
+    isIdentifier(node.callee, 'require')
+  );
 }
