@@ -2,9 +2,6 @@
 'qunit:bin/qunit.js':[
 3,
 ],
-'qunit:build/tasks/test-on-node.js':[
-2,
-],
 'qunit:src/cli/find-reporter.js':[
 1,
 ],

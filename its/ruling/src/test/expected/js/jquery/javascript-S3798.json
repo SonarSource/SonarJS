@@ -1,12 +1,4 @@
 {
-'jquery:build/release/cdn.js':[
-8,
-10,
-19,
-24,
-32,
-58,
-],
 'jquery:src/ajax.js':[
 15,
 16,

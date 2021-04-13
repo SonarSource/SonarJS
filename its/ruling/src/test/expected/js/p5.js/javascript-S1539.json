@@ -35,15 +35,6 @@
 'p5.js:src/core/preload.js':[
 1,
 ],
-'p5.js:tasks/build/browserify.js':[
-1,
-],
-'p5.js:tasks/build/combineModules.js':[
-1,
-],
-'p5.js:tasks/build/eslint-samples.js':[
-1,
-],
 'p5.js:test/js/sinon.js':[
 37,
 48,

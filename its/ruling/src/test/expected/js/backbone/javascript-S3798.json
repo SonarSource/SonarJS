@@ -2,7 +2,4 @@
 'backbone:karma.conf-sauce.js':[
 4,
 ],
-'backbone:test/vendor/require.js':[
-11,
-],
 }

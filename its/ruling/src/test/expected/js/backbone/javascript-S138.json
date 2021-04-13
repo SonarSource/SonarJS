@@ -2,13 +2,4 @@
 'backbone:backbone.js':[
 34,
 ],
-'backbone:test/vendor/jquery.js':[
-7617,
-],
-'backbone:test/vendor/require.js':[
-194,
-],
-'backbone:test/vendor/underscore.js':[
-6,
-],
 }
