@@ -19,7 +19,7 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3973
 
-import { Rule, AST } from 'eslint';
+import { Rule, AST, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { LoopLike } from '../utils';
@@ -56,7 +56,12 @@ export const rule: Rule.RuleModule = {
             //case with "else if", we have to check the consequent of the next if
             checkIndentation(elseToken, alternate.consequent, context);
           } else {
-            checkIndentation(elseToken, alternate, context);
+            checkIndentation(
+              getPrecedingBrace(elseToken, sourceCode) || elseToken,
+              alternate,
+              context,
+              elseToken,
+            );
           }
         }
       },
@@ -72,8 +77,9 @@ function checkIndentation(
   firstToken: AST.Token | null,
   statement: estree.Statement,
   context: Rule.RuleContext,
+  tokenToReport = firstToken,
 ) {
-  if (firstToken && statement.type !== 'BlockStatement') {
+  if (firstToken && tokenToReport && statement.type !== 'BlockStatement') {
     const firstStatementToken = context.getSourceCode().getFirstToken(statement);
     if (
       firstStatementToken &&
@@ -81,11 +87,24 @@ function checkIndentation(
     ) {
       const message =
         `Use curly braces or indentation to denote the code conditionally ` +
-        `executed by this "${firstToken.value}".`;
+        `executed by this "${tokenToReport.value}".`;
       context.report({
         message: toEncodedMessage(message, [firstStatementToken]),
-        loc: firstToken.loc,
+        loc: tokenToReport.loc,
       });
     }
   }
+}
+
+function getPrecedingBrace(elseToken: AST.Token | null, sourceCode: SourceCode) {
+  if (elseToken) {
+    const tokenBeforeElse = sourceCode.getTokenBefore(elseToken);
+    if (
+      tokenBeforeElse?.value === '}' &&
+      tokenBeforeElse.loc.start.line === elseToken.loc.start.line
+    ) {
+      return tokenBeforeElse;
+    }
+  }
+  return undefined;
 }
