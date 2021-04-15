@@ -56,6 +56,44 @@ ruleTester.run(
         type MyType = MyOtherInterface & MyInterface;
         `,
       },
+      {
+        code: `
+         export namespace TestCaseParser {
+          export interface CompilerSettings {
+              [name: string]: string;
+          }
+         }
+         
+           interface HarnessOptions {
+            useCaseSensitiveFileNames?: boolean;
+            includeBuiltFile?: string;
+            baselineFile?: string;
+            libFiles?: string;
+        }
+        
+        let  harnessSettings: TestCaseParser.CompilerSettings & HarnessOptions;
+ 
+        `,
+      },
+      {
+        code: `
+         export namespace TestCaseParser {
+          export interface CompilerSettings {
+              [name: number]: string;
+          }
+         }
+         
+           interface HarnessOptions {
+            useCaseSensitiveFileNames?: boolean;
+            includeBuiltFile?: string;
+            baselineFile?: string;
+            libFiles?: string;
+        }
+        
+        let  harnessSettings: TestCaseParser.CompilerSettings & HarnessOptions;
+ 
+        `,
+      },
     ],
     invalid: [
       {

@@ -75,12 +75,20 @@ function isNullLike(tp: ts.Type): boolean {
 }
 
 function isEmptyInterface(tp: ts.Type): boolean {
-  return tp.getProperties().length === 0;
+  return (
+    tp.getProperties().length === 0 &&
+    !(tp as ts.InterfaceTypeWithDeclaredMembers).declaredStringIndexInfo &&
+    !(tp as ts.InterfaceTypeWithDeclaredMembers).declaredNumberIndexInfo
+  );
 }
 
-function isStandaloneInterface({ declarations }: ts.Symbol) {
+function isStandaloneInterface(typeSymbol: ts.Symbol) {
   // there is no declarations for `{}`
   // otherwise check that none of declarations has a heritage clause (`extends X` or `implements X`)
+  if (!typeSymbol) {
+    return false;
+  }
+  const { declarations } = typeSymbol;
   return (
     !declarations ||
     declarations.every(declaration => {
