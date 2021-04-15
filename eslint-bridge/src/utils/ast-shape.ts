@@ -134,6 +134,10 @@ export function isLiteral(n: estree.Node | null): n is estree.Literal {
   return n != null && n.type === 'Literal';
 }
 
+export function isNullLiteral(n: estree.Node): boolean {
+  return isLiteral(n) && n.value === null;
+}
+
 /**
  * Detect expression statements like the following:
  *  myArray[1] = 42;
