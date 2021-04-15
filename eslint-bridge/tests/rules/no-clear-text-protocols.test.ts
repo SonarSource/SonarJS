@@ -41,7 +41,6 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       // Exception: The url domain component is a loopback address.
       url = "http://localhost";
       url = "http://127.0.0.1";
-      url = "http://::1";
       url = "ftp://user@localhost";
       `,
     },
@@ -116,29 +115,33 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
     {
       code: `
       url = "http://";
-      url = "http://0001::1";
-      url = "http://dead:beef::1";
-      url = "http://::dead:beef:1";
       url = "ftp://";
       url = "telnet://";
       `,
     },
-  ],
-  invalid: [
     {
       code: `
-      url = "http://exemple.com";
+      url = "http://example.com";
+      url = "http://someSubdomain.example.com";
+      url = "http://example.org";
+      url = "http://someSubdomain.example.org";
+      url = "http://test.com";
+      url = "http://someSubdomain.test.com";
       `,
-      errors: [
-        {
-          message: 'Using http protocol is insecure. Use https instead.',
-          line: 2,
-          endLine: 2,
-          column: 13,
-          endColumn: 33,
-        },
-      ],
     },
+    {
+      code: `
+      url = "http://xmlns.com";
+      `,
+    },
+    {
+      code: `
+      url = 'http://'.replace('', foo);
+      url = 'http://'.replace('', foo) + bar;
+      `,
+    },
+  ],
+  invalid: [
     {
       code: `
       url = "http://192.168.0.1";
@@ -146,7 +149,7 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       url = "http://subdomain.exemple.com";
       url = "ftp://anonymous@exemple.com";
       url = "telnet://anonymous@exemple.com";
-`,
+      `,
       errors: 5,
     },
     {
@@ -185,6 +188,39 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       import * as telnet from 'telnet-client';
       `,
       errors: 2,
+    },
+    {
+      code: `
+      url = "http://someUrl.com?url=test.com";
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      url = "http://someSubdomain.xmlns.com";
+      url = "http://someUrl.com?url=xmlns.com";
+      `,
+      errors: 2,
+    },
+    {
+      code: `
+      url = 'http://' + something;
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+      url = "http://0001::1";
+      url = "http://dead:beef::1";
+      url = "http://::dead:beef:1";
+      `,
+      errors: 3,
+    },
+    {
+      code: `
+      url = "http://::1"; // FP - url from Node.js is not able to parse IPV6 loopback address
+      `,
+      errors: 1,
     },
   ],
 });
