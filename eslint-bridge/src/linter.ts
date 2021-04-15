@@ -29,6 +29,7 @@ import { Rule, Issue, IssueLocation } from './analyzer';
 import { rules as typescriptEslintRules } from '@typescript-eslint/eslint-plugin';
 import { getContext } from './context';
 import { decoratePreferTemplate } from './rules/prefer-template-decorator';
+import { decorateAccessorPairs } from './rules/accessor-pairs-decorator';
 
 /**
  * In order to overcome ESLint limitation regarding issue reporting,
@@ -81,6 +82,12 @@ export class LinterWrapper {
     // S1537 and S3723 both depend on the same eslint implementation
     // but the plugin doesn't allow duplicates of the same key.
     this.linter.defineRule(TRAILING_COMMA, this.linter.getRules().get('comma-dangle')!);
+
+    const ACCESSOR_PAIRS = 'accessor-pairs';
+    this.linter.defineRule(
+      ACCESSOR_PAIRS,
+      decorateAccessorPairs(this.linter.getRules().get(ACCESSOR_PAIRS)!),
+    );
 
     // core implementation of this rule raises issues on binary expressions with string literal operand(s)
     const PREFER_TEMPLATE = 'prefer-template';
