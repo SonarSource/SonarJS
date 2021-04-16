@@ -84,7 +84,6 @@ ruleTester.run(`A conditionally executed single line should be denoted by indent
     },
   ],
   invalid: [
-    //TODO: secondary
     {
       code: `
         if (x > 0)  // Noncompliant [[ID=ID1]] {{}}
