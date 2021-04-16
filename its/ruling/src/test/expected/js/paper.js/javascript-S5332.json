@@ -2,12 +2,4 @@
 'paper.js:examples/Node.js/RasterRemote.js':[
 10,
 ],
-'paper.js:src/svg/SvgElement.js':[
-20,
-21,
-22,
-],
-'paper.js:test/helpers.js':[
-599,
-],
 }
