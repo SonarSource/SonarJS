@@ -21,6 +21,7 @@ import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 import { rule } from 'rules/constructor-for-side-effects';
+import { FileType } from '../../src/utils';
 
 ruleTester.run(`Objects should not be created to be dropped immediately without being used`, rule, {
   valid: [
@@ -38,6 +39,10 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
       try { new MyConstructor(); } catch (e) {}
       try { if (cond()) { new MyConstructor(); } } catch (e) {}
       `,
+    },
+    {
+      code: `new MyConstructor();`,
+      settings: { fileType: FileType.TEST },
     },
   ],
   invalid: [
