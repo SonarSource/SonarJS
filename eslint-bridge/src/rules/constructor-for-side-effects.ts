@@ -21,13 +21,14 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isTestCode } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const sourceCode = context.getSourceCode();
     return {
       'ExpressionStatement > NewExpression': (node: estree.Node) => {
-        if (isTryable(node, context)) {
+        if (isTestCode(context) || isTryable(node, context)) {
           return;
         }
         const callee = (node as estree.NewExpression).callee;
