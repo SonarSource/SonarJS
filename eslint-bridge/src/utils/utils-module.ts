@@ -19,8 +19,12 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isDefaultSpecifier, isIdentifier, isNamespaceSpecifier } from './ast-shape';
-import { getUniqueWriteUsage } from './node-extractors';
+import {
+  isDefaultSpecifier,
+  isIdentifier,
+  isNamespaceSpecifier,
+  getUniqueWriteUsage,
+} from './utils-ast';
 
 /**
  * Returns the module name, when an identifier either represents a namespace for that module,

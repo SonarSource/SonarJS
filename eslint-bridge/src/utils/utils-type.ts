@@ -20,7 +20,7 @@
 import * as estree from 'estree';
 import ts from 'typescript';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { RequiredParserServices } from './parser-services';
+import { RequiredParserServices } from './utils-parsing';
 
 export function isArray(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);

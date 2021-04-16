@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, RuleTester } from 'eslint';
-import { interceptReport } from 'utils/decorators';
+import { interceptReport } from '../../src/utils';
 
 function assertThatInterceptReportDecoratorForwardsCalls(
   name: string,
