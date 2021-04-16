@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Rule } from 'eslint';
 
-export * from './ancestor-finder';
-export * from './ast-shape';
-export * from './collections';
-export * from './decorators';
-export * from './globals';
-export * from './module-resolving';
-export * from './node-extractors';
-export * from './parser-services';
-export * from './secondary-locations';
-export * from './sensitive-arguments';
-export * from './type-checking';
-export * from './visitor';
-export * from './utils-file';
+export enum FileType {
+  MAIN = 'MAIN',
+  TEST = 'TEST',
+}
+
+export function isMainCode(context: Rule.RuleContext) {
+  return !isTestCode(context);
+}
+
+export function isTestCode(context: Rule.RuleContext) {
+  return getFileType(context) === FileType.TEST;
+}
+
+function getFileType(context: Rule.RuleContext) {
+  return context.settings['fileType'];
+}

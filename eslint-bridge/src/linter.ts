@@ -153,12 +153,16 @@ export class LinterWrapper {
     return ruleConfig;
   }
 
-  analyze(sourceCode: SourceCode, filePath: string) {
+  analyze(sourceCode: SourceCode, filePath: string, fileType?: string) {
     const issues = this.linter
-      .verify(sourceCode, this.linterConfig, {
-        filename: filePath,
-        allowInlineConfig: false,
-      })
+      .verify(
+        sourceCode,
+        { ...this.linterConfig, settings: { fileType } },
+        {
+          filename: filePath,
+          allowInlineConfig: false,
+        },
+      )
       .map(removeIrrelevantProperties)
       .map(issue => {
         if (!issue) {

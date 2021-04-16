@@ -144,7 +144,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, true, null);
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null);
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
   }
 
@@ -172,7 +172,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, true,
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true,
       singletonList(tsConfig.absolutePath()));
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
@@ -277,7 +277,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, true, null);
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null);
     assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request)).isInstanceOf(IllegalStateException.class);
     assertThat(context.allIssues()).isEmpty();
   }
