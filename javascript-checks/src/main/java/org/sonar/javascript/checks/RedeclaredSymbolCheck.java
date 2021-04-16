@@ -44,5 +44,6 @@ public class RedeclaredSymbolCheck implements EslintBasedCheck {
 
   private static class Config {
     boolean builtinGlobals = false;
+    boolean ignoreDeclarationMerge = true;
   }
 }
