@@ -41,6 +41,59 @@ ruleTester.run(
       function withNotEmptyInterface(x: { a: string } & NotEmpty) {}
       `,
       },
+      {
+        code: `
+        const propName = 'prop-name';
+        
+        interface MyInterface {
+          [propName]: string;
+        }
+        
+        interface MyOtherInterface {
+          prop: string;
+        }
+        
+        type MyType = MyOtherInterface & MyInterface;
+        `,
+      },
+      {
+        code: `
+         export namespace TestCaseParser {
+          export interface CompilerSettings {
+              [name: string]: string;
+          }
+         }
+         
+           interface HarnessOptions {
+            useCaseSensitiveFileNames?: boolean;
+            includeBuiltFile?: string;
+            baselineFile?: string;
+            libFiles?: string;
+        }
+        
+        let  harnessSettings: TestCaseParser.CompilerSettings & HarnessOptions;
+ 
+        `,
+      },
+      {
+        code: `
+         export namespace TestCaseParser {
+          export interface CompilerSettings {
+              [name: number]: string;
+          }
+         }
+         
+           interface HarnessOptions {
+            useCaseSensitiveFileNames?: boolean;
+            includeBuiltFile?: string;
+            baselineFile?: string;
+            libFiles?: string;
+        }
+        
+        let  harnessSettings: TestCaseParser.CompilerSettings & HarnessOptions;
+ 
+        `,
+      },
     ],
     invalid: [
       {
