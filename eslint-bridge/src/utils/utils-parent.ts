@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { functionLike } from './ast-shape';
+import { functionLike } from './utils-ast';
 
 export function findFirstMatchingLocalAncestor(
   node: TSESTree.Node,

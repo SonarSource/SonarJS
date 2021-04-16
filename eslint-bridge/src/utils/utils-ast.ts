@@ -17,11 +17,155 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule, Scope } from 'eslint';
-import { flatMap } from './collections';
-import { isIdentifier, isLiteral } from './ast-shape';
+import * as estree from 'estree';
+import { flatMap, toEncodedMessage } from '.';
+
+export type LoopLike =
+  | estree.WhileStatement
+  | estree.DoWhileStatement
+  | estree.ForStatement
+  | estree.ForOfStatement
+  | estree.ForInStatement;
+
+export type FunctionNodeType =
+  | estree.FunctionDeclaration
+  | estree.FunctionExpression
+  | estree.ArrowFunctionExpression;
+
+export const FUNCTION_NODES = [
+  'FunctionDeclaration',
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+];
+
+export const functionLike = new Set([
+  'FunctionDeclaration',
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+  'MethodDefinition',
+]);
+
+export function isIdentifier(node: estree.Node, ...values: string[]): node is estree.Identifier {
+  return node.type === 'Identifier' && values.some(value => value === node.name);
+}
+
+export function isMemberWithProperty(node: estree.Node, ...values: string[]) {
+  return node.type === 'MemberExpression' && isIdentifier(node.property, ...values);
+}
+
+export function isMemberExpression(
+  node: estree.Node,
+  objectValue: string,
+  ...propertyValue: string[]
+) {
+  if (node.type === 'MemberExpression') {
+    const { object, property } = node;
+    if (isIdentifier(object, objectValue) && isIdentifier(property, ...propertyValue)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function isUnaryExpression(node: estree.Node | undefined): node is estree.UnaryExpression {
+  return node !== undefined && node.type === 'UnaryExpression';
+}
+
+export function isArrayExpression(node: estree.Node | undefined): node is estree.ArrayExpression {
+  return node !== undefined && node.type === 'ArrayExpression';
+}
+
+export function isRequireModule(node: estree.CallExpression, ...moduleNames: string[]) {
+  if (isIdentifier(node.callee, 'require') && node.arguments.length === 1) {
+    const argument = node.arguments[0];
+    if (argument.type === 'Literal') {
+      return moduleNames.includes(String(argument.value));
+    }
+  }
+
+  return false;
+}
+
+export function isMethodInvocation(
+  callExpression: estree.CallExpression,
+  objectIdentifierName: string,
+  methodName: string,
+  minArgs: number,
+): boolean {
+  return (
+    callExpression.callee.type === 'MemberExpression' &&
+    isIdentifier(callExpression.callee.object, objectIdentifierName) &&
+    isIdentifier(callExpression.callee.property, methodName) &&
+    callExpression.callee.property.type === 'Identifier' &&
+    callExpression.arguments.length >= minArgs
+  );
+}
+
+export function isNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
+  return importDeclaration.specifiers.some(
+    ({ type, local }) => type === 'ImportNamespaceSpecifier' && local.name === name,
+  );
+}
+
+export function isDefaultSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
+  return importDeclaration.specifiers.some(
+    ({ type, local }) => type === 'ImportDefaultSpecifier' && local.name === name,
+  );
+}
+
+export function isModuleExports(node: estree.Node): boolean {
+  return (
+    node.type === 'MemberExpression' &&
+    node.object.type === 'Identifier' &&
+    node.object.name === 'module' &&
+    node.property.type === 'Identifier' &&
+    node.property.name === 'exports'
+  );
+}
+
+export function isFunctionNode(node: estree.Node): node is FunctionNodeType {
+  return FUNCTION_NODES.includes(node.type);
+}
+
+// we have similar function in eslint-plugin-sonarjs, however this one accepts null
+// eventually we should update eslint-plugin-sonarjs
+export function isLiteral(n: estree.Node | null): n is estree.Literal {
+  return n != null && n.type === 'Literal';
+}
+
+export function isNullLiteral(n: estree.Node): boolean {
+  return isLiteral(n) && n.value === null;
+}
+
+/**
+ * Detect expression statements like the following:
+ *  myArray[1] = 42;
+ *  myArray[1] += 42;
+ *  myObj.prop1 = 3;
+ *  myObj.prop1 += 3;
+ */
+export function isElementWrite(statement: estree.ExpressionStatement, ref: Scope.Reference) {
+  if (statement.expression.type === 'AssignmentExpression') {
+    const assignmentExpression = statement.expression;
+    const lhs = assignmentExpression.left;
+    return isMemberExpressionReference(lhs, ref);
+  }
+  return false;
+}
+
+function isMemberExpressionReference(lhs: estree.Node, ref: Scope.Reference): boolean {
+  return (
+    lhs.type === 'MemberExpression' &&
+    (isReferenceTo(ref, lhs.object) || isMemberExpressionReference(lhs.object, ref))
+  );
+}
+
+export function isReferenceTo(ref: Scope.Reference, node: estree.Node) {
+  return node.type === 'Identifier' && node === ref.identifier;
+}
 
 export function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
   const variable = getVariableFromName(context, name);
@@ -229,4 +373,34 @@ export function resolveFromFunctionReference(
     return reference.resolved.defs[0].node;
   }
   return null;
+}
+
+export function checkSensitiveCall(
+  context: Rule.RuleContext,
+  callExpression: estree.CallExpression,
+  sensitiveArgumentIndex: number,
+  sensitiveProperty: string,
+  sensitivePropertyValue: boolean,
+  message: string,
+) {
+  if (callExpression.arguments.length < sensitiveArgumentIndex + 1) {
+    return;
+  }
+  const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
+  const options = getValueOfExpression(context, sensitiveArgument, 'ObjectExpression');
+  if (!options) {
+    return;
+  }
+  const unsafeProperty = getPropertyWithValue(
+    context,
+    options,
+    sensitiveProperty,
+    sensitivePropertyValue,
+  );
+  if (unsafeProperty) {
+    context.report({
+      node: callExpression.callee,
+      message: toEncodedMessage(message, [unsafeProperty]),
+    });
+  }
 }
