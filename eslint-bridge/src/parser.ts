@@ -17,30 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as babel from 'babel-eslint';
+import * as babel from '@babel/eslint-parser';
 import { Linter, SourceCode } from 'eslint';
 import { ParsingError } from './analyzer';
 import * as VueJS from 'vue-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { getContext } from './context';
 
-export const PARSER_CONFIG_MODULE: Linter.ParserOptions = {
+export const PARSER_CONFIG_MODULE: tsParser.ParserOptions = {
   tokens: true,
   comment: true,
   loc: true,
   range: true,
   ecmaVersion: 2018,
   sourceType: 'module',
-  codeFrame: false,
+  // codeFrame: false,
   ecmaFeatures: {
     jsx: true,
     globalReturn: false,
-    legacyDecorators: true,
+    // legacyDecorators: true,
   },
 };
 
 // 'script' source type forces not strict
-export const PARSER_CONFIG_SCRIPT: Linter.ParserOptions = {
+export const PARSER_CONFIG_SCRIPT: tsParser.ParserOptions = {
   ...PARSER_CONFIG_MODULE,
   sourceType: 'script',
 };
@@ -68,7 +68,7 @@ export function parseJavaScriptSourceFile(
 
   let exceptionToReport: ParseException | null = null;
   for (const config of [PARSER_CONFIG_MODULE, PARSER_CONFIG_SCRIPT]) {
-    const result = parse(babel.parseForESLint, config, fileContent);
+    const result = parse(babel.parseForESLint, babelConfig(config), fileContent);
     if (result instanceof SourceCode) {
       return result;
     } else if (!exceptionToReport) {
@@ -119,16 +119,19 @@ export function parseVueSourceFile(
   tsConfigs?: string[],
 ): SourceCode | ParsingError {
   let exception: ParseException | null = null;
-  const parsers = ['@typescript-eslint/parser', 'babel-eslint'];
-  for (const parser of parsers) {
+  const parserOptions = {
+    filePath,
+    project: tsConfigs,
+    extraFileExtensions: ['.vue'],
+    ...PARSER_CONFIG_MODULE,
+  };
+  const parsers = [
+    { parser: '@typescript-eslint/parser', parserOptions },
+    { parser: '@babel/eslint-parser', parserOptions: babelConfig(parserOptions) },
+  ];
+  for (const { parser, parserOptions } of parsers) {
     try {
-      const result = VueJS.parseForESLint(fileContent, {
-        filePath,
-        parser,
-        project: tsConfigs,
-        extraFileExtensions: ['.vue'],
-        ...PARSER_CONFIG_MODULE,
-      });
+      const result = VueJS.parseForESLint(fileContent, { parser, ...parserOptions });
       return new SourceCode(({
         ...result,
         parserServices: result.services,
@@ -187,4 +190,13 @@ export function parseExceptionCodeOf(exceptionMsg: string): ParseExceptionCode {
   } else {
     return ParseExceptionCode.Parsing;
   }
+}
+
+export function babelConfig(config: Linter.ParserOptions) {
+  const pluginPath = `${__dirname}/../node_modules`;
+  const babelOptions = {
+    presets: [`${pluginPath}/@babel/preset-react`, `${pluginPath}/@babel/preset-flow`],
+    babelrc: false,
+  };
+  return { ...config, requireConfigFile: false, babelOptions };
 }

@@ -28,6 +28,7 @@ const ruleTester = new RuleTester({
 });
 
 import { rule } from 'rules/no-globals-shadowing';
+import { babelRuleTester } from '../utils/babel-rule-tester';
 
 ruleTester.run('Special identifiers should not be bound or assigned', rule, {
   valid: [
@@ -196,9 +197,7 @@ ruleTester.run('Special identifiers should not be bound or assigned', rule, {
   ],
 });
 
-const ruleTesterBabel = new RuleTester({
-  parser: require.resolve('babel-eslint'),
-});
+const ruleTesterBabel = babelRuleTester();
 
 ruleTesterBabel.run('Special identifiers should not be bound or assigned', rule, {
   valid: [

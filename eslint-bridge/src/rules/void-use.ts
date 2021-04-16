@@ -19,7 +19,7 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-3735
 
-import { Rule } from 'eslint';
+import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {
@@ -31,7 +31,7 @@ export const rule: Rule.RuleModule = {
       }
       const operatorToken = context.getSourceCode().getTokenBefore(unaryExpression.argument);
       context.report({
-        loc: operatorToken!.loc, // cannot be null due to previous checks
+        loc: operatorToken!.loc as AST.SourceLocation, // cannot be null due to previous checks
         message: 'Remove this use of the "void" operator.',
       });
     }
