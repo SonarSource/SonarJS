@@ -157,7 +157,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private void analyze(InputFile file, TsConfigFile tsConfigFile) throws IOException {
     try {
       String fileContent = shouldSendFileContent(file) ? file.contents() : null;
-      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, ignoreHeaderComments(), singletonList(tsConfigFile.filename));
+      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), file.type().toString(), fileContent, ignoreHeaderComments(), singletonList(tsConfigFile.filename));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       processResponse(file, response);
     } catch (IOException e) {

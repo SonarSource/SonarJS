@@ -63,6 +63,7 @@ export const COGNITIVE_COMPLEXITY_RULE: AdditionalRule = {
 
 export interface AnalysisInput {
   filePath: string;
+  fileType?: string;
   fileContent: string | undefined;
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
@@ -174,7 +175,7 @@ function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
   let issues: Issue[] = [];
   let parsingError: ParsingError | undefined = undefined;
   try {
-    issues = linter.analyze(sourceCode, input.filePath).issues;
+    issues = linter.analyze(sourceCode, input.filePath, input.fileType).issues;
   } catch (e) {
     // turns exceptions from TypeScript compiler into "parsing" errors
     if (e.stack.indexOf('typescript.js:') > -1) {

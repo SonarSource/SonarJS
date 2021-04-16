@@ -55,12 +55,14 @@ public interface EslintBridgeServer extends Startable {
 
   class AnalysisRequest {
     String filePath;
+    String fileType;
     String fileContent;
     boolean ignoreHeaderComments;
     List<String> tsConfigs;
 
-    AnalysisRequest(String filePath, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs) {
+    AnalysisRequest(String filePath, String fileType, @Nullable String fileContent, boolean ignoreHeaderComments, @Nullable List<String> tsConfigs) {
       this.filePath = filePath;
+      this.fileType = fileType;
       this.fileContent = fileContent;
       this.ignoreHeaderComments = ignoreHeaderComments;
       this.tsConfigs = tsConfigs;
