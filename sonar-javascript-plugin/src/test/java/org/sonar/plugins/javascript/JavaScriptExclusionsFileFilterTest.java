@@ -159,6 +159,15 @@ public class JavaScriptExclusionsFileFilterTest {
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"huge\", falling back to 1000.");
   }
 
+  @Test
+  public void should_exclude_definitely_typed_files() {
+    MapSettings settings = new MapSettings();
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
+    assertThat(filter.accept(inputFile("foo.d.ts"))).isFalse();
+    assertThat(filter.accept(inputFile("dir/foo.d.ts"))).isFalse();
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File test_node_modules/dir/foo.d.ts was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions");
+  }
+
   /**
    * Generates a synthetic file with exported constants `N1`, `N2`, ... mapped to integers `1`, `2` ... in every line.
    * The size of the synthetic file is small as possible while being at least `approxSizeBytes`.
