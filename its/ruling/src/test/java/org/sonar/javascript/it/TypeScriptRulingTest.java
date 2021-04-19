@@ -41,6 +41,7 @@ public class TypeScriptRulingTest extends JavaScriptRulingTest {
       tsProject("console"),
       tsProject("desktop"),
       tsProject("emission"),
+      tsProject("file-for-rules"),
       tsProject("fireface"),
       tsProject("ionic2-auth"),
       tsProject("Joust"),
