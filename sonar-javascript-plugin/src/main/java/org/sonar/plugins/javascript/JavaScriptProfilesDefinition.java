@@ -42,14 +42,9 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   private static final Logger LOG = Loggers.get(JavaScriptProfilesDefinition.class);
 
   static final String SONAR_WAY = "Sonar way";
-  // unfortunately we have this inconsistency in names
-  // in order to keep compatibility we should stick to these names
-  static final String SONAR_WAY_RECOMMENDED_JS = "Sonar way Recommended";
-  static final String SONAR_WAY_RECOMMENDED_TS = "Sonar way recommended";
 
   public static final String RESOURCE_PATH = "org/sonar/l10n/javascript/rules/javascript";
   public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
-  public static final String SONAR_WAY_RECOMMENDED_JSON = RESOURCE_PATH + "/Sonar_way_recommended_profile.json";
 
   private static final Map<String, String> PROFILES = new HashMap<>();
   static final String SECURITY_RULES_CLASS_NAME = "com.sonar.plugins.security.api.JsRules";
@@ -57,8 +52,6 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
 
   static {
     PROFILES.put(SONAR_WAY, SONAR_WAY_JSON);
-    PROFILES.put(SONAR_WAY_RECOMMENDED_JS, SONAR_WAY_RECOMMENDED_JSON);
-    PROFILES.put(SONAR_WAY_RECOMMENDED_TS, SONAR_WAY_RECOMMENDED_JSON);
   }
 
   private static final Map<String, String> REPO_BY_LANGUAGE = new HashMap<>();
@@ -71,11 +64,9 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public void define(Context context) {
     Set<String> javaScriptRuleKeys = ruleKeys(CheckList.getJavaScriptChecks());
     createProfile(SONAR_WAY, JavaScriptLanguage.KEY, javaScriptRuleKeys, context);
-    createProfile(SONAR_WAY_RECOMMENDED_JS, JavaScriptLanguage.KEY, javaScriptRuleKeys, context);
 
     Set<String> typeScriptRuleKeys = ruleKeys(CheckList.getTypeScriptChecks());
     createProfile(SONAR_WAY, TypeScriptLanguage.KEY, typeScriptRuleKeys, context);
-    createProfile(SONAR_WAY_RECOMMENDED_TS, TypeScriptLanguage.KEY, typeScriptRuleKeys, context);
   }
 
   private static void createProfile(String profileName, String language, Set<String> keys, Context context) {
@@ -87,10 +78,6 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     keys.stream()
       .filter(activeKeysForBothLanguages::contains)
       .forEach(key -> newProfile.activateRule(repositoryKey, key));
-
-    if (profileName.equals(SONAR_WAY_RECOMMENDED_JS) || profileName.equals(SONAR_WAY_RECOMMENDED_TS)) {
-      newProfile.activateRule("common-" + language, "DuplicatedBlocks");
-    }
 
     addSecurityRules(newProfile, language);
 
