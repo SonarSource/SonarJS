@@ -118,11 +118,16 @@ public class RulesMetadataForSonarLint {
     Files.write(path, json.getBytes(StandardCharsets.UTF_8));
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     if (args.length == 0) {
       throw new IllegalStateException("missig path to save metadata");
     }
-    new RulesMetadataForSonarLint().save(Paths.get(args[0]));
+    try {
+      new RulesMetadataForSonarLint().save(Paths.get(args[0]));
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
   }
 
   static class Rule {
