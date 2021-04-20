@@ -28,10 +28,6 @@ Discover and update the JavaScript / TypeScript properties in: **<!-- sonarcloud
 * Vue.js
 * Flow
 
-## Rule Profiles
-
-There is 1 built-in rule profile for each JavaScript and TypeScript: `Sonar way`. It defines a trimmed list of high-value/low-noise rules useful in almost any JS / TS development context.
-
 ## Troubleshooting
 
 ### Slow or unresponsive analysis
