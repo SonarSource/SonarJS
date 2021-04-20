@@ -19,7 +19,12 @@
  */
 package org.sonar.plugins.javascript.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -31,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RulesMetadataForSonarLintTest {
 
   @Rule
-  public TemporaryFolder folder= new TemporaryFolder();
+  public TemporaryFolder folder = new TemporaryFolder();
 
   @Test
   public void test() throws Exception {
@@ -74,6 +79,14 @@ public class RulesMetadataForSonarLintTest {
       "    \"activatedByDefault\": false\n" +
       "  }\n" +
       "]");
+  }
+
+  @Test
+  public void test_all() throws Exception {
+    Path path = folder.newFile().toPath();
+    RulesMetadataForSonarLint.main(new String[]{path.toString()});
+    JsonArray jsonArray = new Gson().fromJson(Files.newBufferedReader(path), JsonArray.class);
+    assertThat(jsonArray.size()).isGreaterThan(470);
   }
 
 }
