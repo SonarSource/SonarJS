@@ -375,6 +375,19 @@ export function resolveFromFunctionReference(
   return null;
 }
 
+export function resolveFunction(
+  context: Rule.RuleContext,
+  node: estree.Node,
+): estree.Function | null {
+  if (isFunctionNode(node)) {
+    return node;
+  } else if (node.type === 'Identifier') {
+    return resolveFromFunctionReference(context, node);
+  } else {
+    return null;
+  }
+}
+
 export function checkSensitiveCall(
   context: Rule.RuleContext,
   callExpression: estree.CallExpression,
