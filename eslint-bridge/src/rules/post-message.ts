@@ -22,7 +22,6 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  isIdentifier,
   isRequiredParserServices,
   getValueOfExpression,
   getTypeAsString,
@@ -37,35 +36,41 @@ export const rule: Rule.RuleModule = {
     if (!isRequiredParserServices(services)) {
       return {};
     }
+
+    function checkPostMessageCall(callExpr: estree.CallExpression) {
+      const { callee } = callExpr;
+      // Window.postMessage() can take 2 or 3 arguments
+      if (
+        ![2, 3].includes(callExpr.arguments.length) ||
+        getValueOfExpression(context, callExpr.arguments[1], 'Literal')?.value !== '*'
+      ) {
+        return;
+      }
+      if (callee.type === 'Identifier') {
+        context.report({
+          node: callee,
+          message: MESSAGE,
+        });
+      }
+      if (callee.type !== 'MemberExpression') {
+        return;
+      }
+      const { object } = callee;
+      const type = getTypeAsString(object, services);
+      const hasWindowName = WindowNameVisitor.containsWindowName(object, context);
+      if (type.match(/window/i) || type.match(/globalThis/i) || hasWindowName) {
+        context.report({
+          node: callee,
+          message: MESSAGE,
+        });
+      }
+    }
+
     return {
-      CallExpression: (node: estree.Node) => {
-        const callExpression = node as estree.CallExpression;
-        const { callee } = callExpression;
-        // Window.postMessage() can take 2 or 3 arguments
-        if (
-          ![2, 3].includes(callExpression.arguments.length) ||
-          getValueOfExpression(context, callExpression.arguments[1], 'Literal')?.value !== '*'
-        ) {
-          return;
-        }
-        if (callee.type === 'Identifier' && callee.name === POST_MESSAGE) {
-          context.report({
-            node: callee,
-            message: MESSAGE,
-          });
-        }
-        if (callee.type !== 'MemberExpression' || !isIdentifier(callee.property, POST_MESSAGE)) {
-          return;
-        }
-        const { object } = callee;
-        const type = getTypeAsString(object, services);
-        const hasWindowName = WindowNameVisitor.containsWindowName(object, context);
-        if (type.match(/window/i) || type.match(/globalThis/i) || hasWindowName) {
-          context.report({
-            node: callee,
-            message: MESSAGE,
-          });
-        }
+      [`CallExpression:matches([callee.name="${POST_MESSAGE}"], [callee.property.name="${POST_MESSAGE}"])`]: (
+        node: estree.Node,
+      ) => {
+        checkPostMessageCall(node as estree.CallExpression);
       },
     };
   },
