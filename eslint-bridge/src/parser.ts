@@ -197,7 +197,7 @@ export function babelConfig(config: Linter.ParserOptions) {
   const babelOptions = {
     presets: [`${pluginPath}/@babel/preset-react`, `${pluginPath}/@babel/preset-flow`],
     babelrc: false,
-    configFile: false
+    configFile: false,
   };
   return { ...config, requireConfigFile: false, babelOptions };
 }
