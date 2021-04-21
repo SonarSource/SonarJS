@@ -2,9 +2,6 @@
 'jshint:src/jshint.js':[
 5096,
 ],
-'jshint:tests/unit/core.js':[
-1080,
-],
 'jshint:tests/unit/fixtures/gh1632-1.js':[
 5,
 6,

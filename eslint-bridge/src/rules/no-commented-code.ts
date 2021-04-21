@@ -22,8 +22,8 @@
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { parseJavaScriptSourceFile } from '../parser';
-import { ParsingError } from '../analyzer';
+import { babelConfig, parse, PARSER_CONFIG_MODULE } from '../parser';
+import * as babel from '@babel/eslint-parser';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
@@ -80,10 +80,7 @@ export const rule: Rule.RuleModule = {
         );
         groupedComments.forEach(groupComment => {
           const rawTextTrimmed = groupComment.value.trim();
-          if (
-            rawTextTrimmed !== '}' &&
-            containsCode(injectMissingBraces(rawTextTrimmed), context.getFilename())
-          ) {
+          if (rawTextTrimmed !== '}' && containsCode(injectMissingBraces(rawTextTrimmed))) {
             context.report({
               message: 'Remove this commented out code.',
               loc: getCommentLocation(groupComment.nodes),
@@ -123,10 +120,10 @@ function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
   return false;
 }
 
-function containsCode(value: string, filename: string) {
-  const parseResult = parseJavaScriptSourceFile(value, filename);
+function containsCode(value: string) {
+  const parseResult = parse(babel.parse, babelConfig(PARSER_CONFIG_MODULE), value);
   return (
-    isSourceCode(parseResult) &&
+    parseResult instanceof SourceCode &&
     parseResult.ast.body.length > 0 &&
     !isExclusion(parseResult.ast.body, parseResult)
   );
@@ -150,10 +147,6 @@ function getCommentLocation(nodes: TSESTree.Comment[]) {
     start: nodes[0].loc.start,
     end: nodes[nodes.length - 1].loc.end,
   };
-}
-
-function isSourceCode(parseResult: SourceCode | ParsingError): parseResult is SourceCode {
-  return !!(parseResult as SourceCode).ast;
 }
 
 function isReturnThrowExclusion(statement: estree.Node) {
