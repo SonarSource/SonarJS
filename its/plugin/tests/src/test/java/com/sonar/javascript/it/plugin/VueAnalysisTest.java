@@ -22,10 +22,22 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonarqube.ws.Issues;
+import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
+import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
+import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
+import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
+import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
 
 import static com.sonar.javascript.it.plugin.Tests.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,10 +47,13 @@ public class VueAnalysisTest {
   @ClassRule
   public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
+  @ClassRule
+  public static final TemporaryFolder temp = new TemporaryFolder();
+
   private static final File PROJECT_DIR = TestUtils.projectDir("vue-js-project");
 
   @Test
-  public void test() {
+  public void sonarqube() {
     String projectKey = "vue-js-project";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
@@ -46,19 +61,46 @@ public class VueAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
     orchestrator.executeBuild(build);
 
     List<Issues.Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).hasSize(1);
-    assertThat(issuesList.get(0).getLine()).isEqualTo(10);
+    assertThat(issuesList.get(0).getLine()).isEqualTo(6);
 
     assertThat(Tests.getMeasureAsInt(projectKey, "ncloc")).isEqualTo(7);
     assertThat(Tests.getMeasureAsInt(projectKey, "classes")).isEqualTo(0);
     assertThat(Tests.getMeasureAsInt(projectKey, "functions")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "statements")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(projectKey, "complexity")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(projectKey, "statements")).isEqualTo(3);
+    assertThat(Tests.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(projectKey, "complexity")).isEqualTo(1);
+    assertThat(Tests.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(2);
+  }
+
+  @Test
+  public void sonarlint() throws IOException {
+    StandaloneGlobalConfiguration globalConfig = StandaloneGlobalConfiguration.builder()
+      .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
+      .setSonarLintUserHome(temp.newFolder().toPath())
+      .build();
+
+    String fileName = "file.vue";
+    Path baseDir = PROJECT_DIR.toPath();
+    Path filePath = baseDir.resolve(fileName);
+
+    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir.toFile(), fileName, Files.lines(filePath).collect(Collectors.joining(System.lineSeparator())));
+
+    StandaloneAnalysisConfiguration analysisConfig = StandaloneAnalysisConfiguration.builder()
+      .setBaseDir(baseDir)
+      .addInputFile(inputFile)
+      .build();
+
+    List<org.sonarsource.sonarlint.core.client.api.common.analysis.Issue> issues = new ArrayList<>();
+
+    StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(globalConfig);
+    sonarlintEngine.analyze(analysisConfig, issues::add, null, null);
+    sonarlintEngine.stop();
+
+    assertThat(issues).extracting("ruleKey").containsOnly("javascript:S3923");
   }
 }
