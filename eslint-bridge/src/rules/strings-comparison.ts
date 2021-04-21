@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isString, isRequiredParserServices, toEncodedMessage } from '../utils';
 
 export const rule: Rule.RuleModule = {
@@ -45,7 +46,8 @@ export const rule: Rule.RuleModule = {
           isString(left, services) &&
           isString(right, services) &&
           !isLiteralException(left) &&
-          !isLiteralException(right)
+          !isLiteralException(right) &&
+          !isWithinSortCallback(context)
         ) {
           context.report({
             message: toEncodedMessage(
@@ -65,4 +67,26 @@ export const rule: Rule.RuleModule = {
 
 function isLiteralException(node: estree.Node) {
   return node.type === 'Literal' && node.raw!.length === 3;
+}
+
+function isWithinSortCallback(context: Rule.RuleContext) {
+  const ancestors = context.getAncestors().reverse();
+  const maybeCallback = ancestors.find(node =>
+    ['ArrowFunctionExpression', 'FunctionExpression'].includes(node.type),
+  );
+  if (maybeCallback) {
+    const callback = maybeCallback as TSESTree.Node;
+    const parent = callback.parent;
+    if (parent?.type === 'CallExpression') {
+      const { callee, arguments: args } = parent;
+      let funcName: string | undefined;
+      if (callee.type === 'Identifier') {
+        funcName = callee.name;
+      } else if (callee.type === 'MemberExpression' && callee.property.type === 'Identifier') {
+        funcName = callee.property.name;
+      }
+      return funcName && funcName.match(/sort/i) && args.some(arg => arg === callback);
+    }
+  }
+  return false;
 }

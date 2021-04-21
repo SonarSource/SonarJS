@@ -61,6 +61,16 @@ ruleTesterTs.run(`Comparison operators should not be used with strings [ts]`, ru
         let str = 'hello';
         'h' < str;`,
     },
+    {
+      code: `
+        ['foo', 'bar', 'baz'].sort((a, b) => a < b);
+      `,
+    },
+    {
+      code: `
+        sort((a: string, b: string) => a < b)
+      `,
+    },
   ],
   invalid: [
     {
@@ -94,6 +104,12 @@ ruleTesterTs.run(`Comparison operators should not be used with strings [ts]`, ru
       code: `
         let str1 = 'hello', str2 = 'world';
         str1 >= str2;`,
+      errors: 1,
+    },
+    {
+      code: `
+        (function () {})((a: string, b: string) => a < b)
+      `,
       errors: 1,
     },
   ],
