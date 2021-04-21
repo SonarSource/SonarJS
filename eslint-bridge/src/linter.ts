@@ -30,6 +30,7 @@ import { rules as typescriptEslintRules } from '@typescript-eslint/eslint-plugin
 import { getContext } from './context';
 import { decoratePreferTemplate } from './rules/prefer-template-decorator';
 import { decorateAccessorPairs } from './rules/accessor-pairs-decorator';
+import { decorateNoRedeclare } from './rules/no-redeclare-decorator';
 
 /**
  * In order to overcome ESLint limitation regarding issue reporting,
@@ -94,6 +95,13 @@ export class LinterWrapper {
     this.linter.defineRule(
       PREFER_TEMPLATE,
       decoratePreferTemplate(this.linter.getRules().get(PREFER_TEMPLATE)!),
+    );
+
+    // core implementation of this rule raises issues on type exports
+    const NO_REDECLARE = 'no-redeclare';
+    this.linter.defineRule(
+      NO_REDECLARE,
+      decorateNoRedeclare(this.linter.getRules().get(NO_REDECLARE)!),
     );
 
     // TS implementation of no-throw-literal is not supporting JS code.
