@@ -120,7 +120,7 @@ public class RulesMetadataForSonarLint {
 
   public static void main(String[] args) {
     if (args.length == 0) {
-      throw new IllegalStateException("missig path to save metadata");
+      throw new IllegalStateException("Missing argument - provide path where to save metadata");
     }
     try {
       new RulesMetadataForSonarLint().save(Paths.get(args[0]));
