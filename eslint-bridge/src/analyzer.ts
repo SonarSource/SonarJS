@@ -21,8 +21,9 @@ import {
   Parse,
   parseJavaScriptSourceFile,
   parseTypeScriptSourceFile,
-  parseVueSourceFile,
+  parseTypeScriptVueSourceFile,
   ParseExceptionCode,
+  parseJavaScriptVueSourceFile,
 } from './parser';
 import getHighlighting, { Highlight } from './runner/highlighter';
 import getMetrics, { EMPTY_METRICS, Metrics } from './runner/metrics';
@@ -111,13 +112,16 @@ export interface IssueLocation {
 }
 
 export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(input, parseJavaScriptSourceFile);
+  return analyze(
+    input,
+    input.filePath.endsWith('.vue') ? parseJavaScriptVueSourceFile : parseJavaScriptSourceFile,
+  );
 }
 
 export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
   return analyze(
     input,
-    input.filePath.endsWith('.vue') ? parseVueSourceFile : parseTypeScriptSourceFile,
+    input.filePath.endsWith('.vue') ? parseTypeScriptVueSourceFile : parseTypeScriptSourceFile,
   );
 }
 

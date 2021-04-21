@@ -46,19 +46,19 @@ public class VueAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
     orchestrator.executeBuild(build);
 
     List<Issues.Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).hasSize(1);
-    assertThat(issuesList.get(0).getLine()).isEqualTo(10);
+    assertThat(issuesList.get(0).getLine()).isEqualTo(6);
 
     assertThat(Tests.getMeasureAsInt(projectKey, "ncloc")).isEqualTo(7);
     assertThat(Tests.getMeasureAsInt(projectKey, "classes")).isEqualTo(0);
     assertThat(Tests.getMeasureAsInt(projectKey, "functions")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "statements")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(projectKey, "complexity")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(projectKey, "statements")).isEqualTo(3);
+    assertThat(Tests.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(projectKey, "complexity")).isEqualTo(1);
+    assertThat(Tests.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(2);
   }
 }

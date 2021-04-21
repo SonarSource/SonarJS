@@ -2,13 +2,12 @@
   <p>{{greeting}}</p>
 </template>
 
-<script lang="ts">
-import Vue from 'vue';
-
-const hello: string = 'Hello';
-export default Vue.extend({
-  greeting: hello as string, // Noncompliant
-});
+<script>
+if (cond) {
+  foo();
+} else {
+  foo();
+}
 </script>
 
 <style>
