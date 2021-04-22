@@ -11,9 +11,6 @@
 'console:src/mutations/SetPlanMutation.ts':[
 41,
 ],
-'console:src/views/FunctionsView/FunctionLogs/Log.tsx':[
-6,
-],
 'console:src/views/PermissionsView/PermissionPopup/ast.ts':[
 10,
 ],
@@ -53,6 +50,5 @@
 ],
 'console:src/views/playground/PlaygroundView/PlaygroundView.tsx':[
 108,
-127,
 ],
 }
