@@ -50,8 +50,6 @@ public class VueAnalysisTest {
   @ClassRule
   public static final TemporaryFolder temp = new TemporaryFolder();
 
-  private static final File PROJECT_DIR = TestUtils.projectDir("vue-js-project");
-
   @Test
   public void sonarqube() {
     String projectKey = "vue-js-project";
@@ -59,7 +57,7 @@ public class VueAnalysisTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(PROJECT_DIR);
+      .setProjectDir(TestUtils.projectDir(projectKey));
 
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
     orchestrator.executeBuild(build);
@@ -79,13 +77,14 @@ public class VueAnalysisTest {
 
   @Test
   public void sonarlint() throws IOException {
+    String projectKey = "vue-js-project";
     StandaloneGlobalConfiguration globalConfig = StandaloneGlobalConfiguration.builder()
       .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
       .setSonarLintUserHome(temp.newFolder().toPath())
       .build();
 
     String fileName = "file.vue";
-    Path baseDir = PROJECT_DIR.toPath();
+    Path baseDir = TestUtils.projectDir(projectKey).toPath();
     Path filePath = baseDir.resolve(fileName);
 
     ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir.toFile(), fileName, Files.lines(filePath).collect(Collectors.joining(System.lineSeparator())));
@@ -102,5 +101,22 @@ public class VueAnalysisTest {
     sonarlintEngine.stop();
 
     assertThat(issues).extracting("ruleKey").containsOnly("javascript:S3923");
+  }
+
+  @Test
+  public void jsWithinVueAsJavaScript() {
+    String projectKey = "vue-js-project-with-lang-js";
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(TestUtils.projectDir(projectKey));
+
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
+    orchestrator.executeBuild(build);
+
+    List<Issues.Issue> issuesList = getIssues(projectKey);
+    assertThat(issuesList).hasSize(1);
+    assertThat(issuesList.get(0).getRule()).isEqualTo("javascript:S3923");
   }
 }

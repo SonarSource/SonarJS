@@ -41,6 +41,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
@@ -145,9 +146,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   static FilePredicate filePredicate(FileSystem fileSystem) {
-    return fileSystem.predicates().and(
-      fileSystem.predicates().hasType(Type.MAIN),
-      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
+    return JavaScriptFilePredicate.getJavaScriptPredicate(fileSystem);
   }
 
   @Override

@@ -43,6 +43,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.TypeScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
@@ -96,9 +97,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   static FilePredicate filePredicate(FileSystem fileSystem) {
-    return fileSystem.predicates().and(
-      fileSystem.predicates().hasType(Type.MAIN),
-      fileSystem.predicates().hasLanguage(TypeScriptLanguage.KEY));
+    return JavaScriptFilePredicate.getTypeScriptPredicate(fileSystem);
   }
 
   @Override

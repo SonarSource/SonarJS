@@ -2,7 +2,7 @@
   <p>{{greeting}}</p>
 </template>
 
-<script>
+<script lang="js">
 if (cond) {
   foo();
 } else {
