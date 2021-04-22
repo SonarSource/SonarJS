@@ -107,16 +107,36 @@ public class JavaScriptFilePredicateTest {
     fs.add(createInputFile(baseDir, "a.js"));
     fs.add(createInputFile(baseDir, "b.ts"));
     fs.add(createInputFile(baseDir, "c.vue"));
-    fs.add(createInputFile(baseDir, "d.java"));
-    fs.add(createInputFile(baseDir, "e.jsx"));
-    fs.add(createInputFile(baseDir, "f.tsx"));
+    fs.add(createInputFile(baseDir, "d.vue", ""
+                                            .concat("<template><p>Hello, world!</p></template>")
+                                            .concat(newLine)
+                                            .concat("   <script  ")
+                                            .concat(newLine)
+                                            .concat("   lang=\"js\"   ")
+                                            .concat(newLine)
+                                            .concat(">foo()</script>")
+                                            .concat(newLine)
+                                            .concat("<style>p{}</style>")));
+    fs.add(createInputFile(baseDir, "e.vue", ""
+                                            .concat("<template><p>Hello, world!</p></template>")
+                                            .concat(newLine)
+                                            .concat("   <script  ")
+                                            .concat(newLine)
+                                            .concat("   lang=\"ts\"   ")
+                                            .concat(newLine)
+                                            .concat(">foo()</script>")
+                                            .concat(newLine)
+                                            .concat("<style>p{}</style>")));
+    fs.add(createInputFile(baseDir, "f.java"));
+    fs.add(createInputFile(baseDir, "g.jsx"));
+    fs.add(createInputFile(baseDir, "h.tsx"));
 
     FilePredicate predicate = JavaScriptFilePredicate.getTypeScriptPredicate(fs);
     List<File> files = new ArrayList<>();
     fs.files(predicate).forEach(files::add);
 
     List<String> filenames = files.stream().map(File::getName).collect(Collectors.toList());
-    assertThat(filenames).containsExactlyInAnyOrder("b.ts", "f.tsx");
+    assertThat(filenames).containsExactlyInAnyOrder("b.ts", "e.vue", "h.tsx");
   }
 
   private static final InputFile createInputFile(Path baseDir, String relativePath) {

@@ -44,6 +44,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
@@ -84,7 +85,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguage(TypeScriptLanguage.KEY)
+      .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
       .name("TypeScript analysis")
       .onlyOnFileType(Type.MAIN);
   }

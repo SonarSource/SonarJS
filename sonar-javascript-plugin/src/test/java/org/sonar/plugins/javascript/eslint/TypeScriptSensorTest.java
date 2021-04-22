@@ -137,7 +137,7 @@ public class TypeScriptSensorTest {
 
     createSensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("TypeScript analysis");
-    assertThat(descriptor.languages()).containsOnly("ts");
+    assertThat(descriptor.languages()).containsOnly("js", "ts");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
   }
 

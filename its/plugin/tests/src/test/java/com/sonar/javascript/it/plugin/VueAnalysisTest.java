@@ -21,7 +21,6 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -110,7 +109,7 @@ public class VueAnalysisTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(TestUtils.projectDir(projectKey));
+      .setProjectDir(TestUtils.projectDir("vue-js-project-with-lang-js"));
 
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
     orchestrator.executeBuild(build);
@@ -118,5 +117,43 @@ public class VueAnalysisTest {
     List<Issues.Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getRule()).isEqualTo("javascript:S3923");
+  }
+
+  @Test
+  public void tsWithinVueAsTypeScript() {
+    String projectKey = "vue-js-project-with-lang-ts-2";
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(TestUtils.projectDir("vue-js-project-with-lang-ts"));
+
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    orchestrator.executeBuild(build);
+
+    List<Issues.Issue> issuesList = getIssues(projectKey);
+    assertThat(issuesList).hasSize(1);
+    assertThat(issuesList.get(0).getRule()).isEqualTo("typescript:S3923");
+  }
+
+  @Test
+  public void metricsForTypeScript() {
+    String projectKey = "vue-js-project-with-lang-ts-3";
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(TestUtils.projectDir("vue-js-project-with-lang-ts"));
+
+    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    orchestrator.executeBuild(build);
+
+    assertThat(Tests.getMeasureAsInt(projectKey, "ncloc")).isEqualTo(7);
+    assertThat(Tests.getMeasureAsInt(projectKey, "classes")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(projectKey, "functions")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(projectKey, "statements")).isEqualTo(3);
+    assertThat(Tests.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(projectKey, "complexity")).isEqualTo(1);
+    assertThat(Tests.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(2);
   }
 }
