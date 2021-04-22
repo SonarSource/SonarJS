@@ -23,7 +23,7 @@ Discover and update the JavaScript / TypeScript properties in: **<!-- sonarcloud
 
 ## Supported Frameworks and Versions
 * ECMAScript 5 / ECMAScript 2015 (ECMAScript 6) / ECMAScript 2016-2017-2018
-* TypeScript 3
+* TypeScript 4
 * React JSX
 * Vue.js
 * Flow
