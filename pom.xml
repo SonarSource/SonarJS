@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>55</version>
+    <version>58.0.22</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
