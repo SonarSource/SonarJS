@@ -65,7 +65,8 @@ export const rule: Rule.RuleModule = {
     ) {
       if (
         !functionContext ||
-        (!!node.returnType && declaredReturnTypeContainsVoidTypes(node.returnType.typeAnnotation))
+        (!!node.returnType &&
+          declaredReturnTypeContainsVoidOrNeverTypes(node.returnType.typeAnnotation))
       ) {
         return;
       }
@@ -159,16 +160,20 @@ function hasInconsistentReturns(functionContext: FunctionContext) {
   );
 }
 
-function declaredReturnTypeContainsVoidTypes(returnTypeNode: TSESTree.TypeNode): boolean {
+function declaredReturnTypeContainsVoidOrNeverTypes(returnTypeNode: TSESTree.TypeNode): boolean {
   return (
     isVoidType(returnTypeNode) ||
     (returnTypeNode.type === 'TSUnionType' &&
-      returnTypeNode.types.some(declaredReturnTypeContainsVoidTypes)) ||
+      returnTypeNode.types.some(declaredReturnTypeContainsVoidOrNeverTypes)) ||
     (returnTypeNode.type === 'TSParenthesizedType' &&
-      declaredReturnTypeContainsVoidTypes(returnTypeNode.typeAnnotation))
+      declaredReturnTypeContainsVoidOrNeverTypes(returnTypeNode.typeAnnotation))
   );
 }
 
 function isVoidType(typeNode: TSESTree.TypeNode) {
-  return typeNode.type === 'TSUndefinedKeyword' || typeNode.type === 'TSVoidKeyword';
+  return (
+    typeNode.type === 'TSUndefinedKeyword' ||
+    typeNode.type === 'TSVoidKeyword' ||
+    typeNode.type === 'TSNeverKeyword'
+  );
 }
