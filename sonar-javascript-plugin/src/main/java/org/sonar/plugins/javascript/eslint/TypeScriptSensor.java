@@ -92,13 +92,9 @@ public class TypeScriptSensor extends AbstractEslintSensor {
 
   private List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
-    FilePredicate mainFilePredicate = filePredicate(fileSystem);
+    FilePredicate mainFilePredicate = JavaScriptFilePredicate.getTypeScriptPredicate(fileSystem);
     return StreamSupport.stream(fileSystem.inputFiles(mainFilePredicate).spliterator(), false)
       .collect(Collectors.toList());
-  }
-
-  static FilePredicate filePredicate(FileSystem fileSystem) {
-    return JavaScriptFilePredicate.getTypeScriptPredicate(fileSystem);
   }
 
   @Override
