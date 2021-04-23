@@ -142,6 +142,16 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
         var simple_arrow_function = (a) => 42;
         var arrowWithExpressionBody = (p) => p ? true : false;`,
     },
+    {
+      code: `
+      function withNeverType(a): boolean | never {
+        if (a === 1) {
+            return true;
+        }
+        throwError('False')
+    }
+    `,
+    },
   ],
   invalid: [
     {
