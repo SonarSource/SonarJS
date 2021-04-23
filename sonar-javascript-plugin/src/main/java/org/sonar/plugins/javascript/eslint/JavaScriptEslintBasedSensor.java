@@ -41,6 +41,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
@@ -92,7 +93,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     compilerOptions.put("allowJs", true);
     // to make TypeScript compiler "better infer types"
     compilerOptions.put("noImplicitAny", true);
-    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptEslintBasedSensor::filePredicate, compilerOptions);
+    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate, compilerOptions);
     return provider.tsconfigs(context);
   }
 
@@ -139,15 +140,9 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
-    FilePredicate mainFilePredicate = filePredicate(context.fileSystem());
+    FilePredicate mainFilePredicate = JavaScriptFilePredicate.getJavaScriptPredicate(fileSystem);
     return StreamSupport.stream(fileSystem.inputFiles(mainFilePredicate).spliterator(), false)
       .collect(Collectors.toList());
-  }
-
-  static FilePredicate filePredicate(FileSystem fileSystem) {
-    return fileSystem.predicates().and(
-      fileSystem.predicates().hasType(Type.MAIN),
-      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
   }
 
   @Override

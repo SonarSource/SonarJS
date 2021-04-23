@@ -220,9 +220,7 @@ public class JavaScriptSensor {
 
   private static Iterable<InputFile> getInputFiles(SensorContext context) {
     FileSystem fs = context.fileSystem();
-    FilePredicate filePredicate = fs.predicates().and(
-      fs.predicates().hasType(InputFile.Type.MAIN),
-      fs.predicates().hasLanguage(JavaScriptLanguage.KEY));
+    FilePredicate filePredicate = JavaScriptFilePredicate.getJavaScriptPredicate(fs);
 
     return fs.inputFiles(filePredicate);
   }

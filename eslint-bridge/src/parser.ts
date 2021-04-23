@@ -113,7 +113,7 @@ export function unloadTypeScriptEslint() {
   tsParser.clearCaches();
 }
 
-export function parseVueSourceFile(
+export function parseJavaScriptVueSourceFile(
   fileContent: string,
   filePath: string,
   tsConfigs?: string[],
@@ -146,6 +146,35 @@ export function parseVueSourceFile(
     message: exception!.message,
     code: parseExceptionCodeOf(exception!.message),
   };
+}
+
+export function parseTypeScriptVueSourceFile(
+  fileContent: string,
+  filePath: string,
+  tsConfigs?: string[],
+): SourceCode | ParsingError {
+  const parserOptions = {
+    filePath,
+    project: tsConfigs,
+    extraFileExtensions: ['.vue'],
+    ...PARSER_CONFIG_MODULE,
+  };
+  const parser = '@typescript-eslint/parser';
+  try {
+    const result = VueJS.parseForESLint(fileContent, { parser, ...parserOptions });
+    return new SourceCode(({
+      ...result,
+      parserServices: result.services,
+      text: fileContent,
+    } as unknown) as SourceCode.Config);
+  } catch (err) {
+    const exception = err as ParseException;
+    return {
+      line: exception.lineNumber,
+      message: exception.message,
+      code: parseExceptionCodeOf(exception.message),
+    };
+  }
 }
 
 export function parse(
