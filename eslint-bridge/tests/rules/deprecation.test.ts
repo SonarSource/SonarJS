@@ -61,6 +61,17 @@ ruleTester.run('should report usages of deprecated', rule, {
   foo\`${42}\`;
   foo\`${[1, 2, 3]}\`; // FN Noncompliant, for some reason not resolved properly `,
     },
+    {
+      code: `
+      module.exports = {
+        foo: {
+          [bar]: {
+            baz
+          }
+        }
+      }
+      `,
+    },
   ],
   invalid: [
     {

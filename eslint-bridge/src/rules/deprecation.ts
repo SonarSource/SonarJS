@@ -39,7 +39,9 @@ export const rule: Rule.RuleModule = {
           // to not report twice
           return;
         }
-
+        if (isObjectExpressionProperty(node, context)) {
+          return;
+        }
         const id = node as estree.Identifier;
         const insideImportExport = context.getAncestors().some(anc => anc.type.includes('Import'));
         if (insideImportExport || isDeclaration(id, context)) {
@@ -208,6 +210,19 @@ function isShorthandPropertyAssignment(node: ts.Node): node is ts.ShorthandPrope
 
 function isShortHandProperty(parent: estree.Node | undefined): parent is estree.Property {
   return !!parent && parent.type === 'Property' && parent.shorthand;
+}
+
+function isObjectExpressionProperty(node: estree.Node, context: Rule.RuleContext) {
+  const ancestors = context.getAncestors();
+  const parent = ancestors.pop();
+  const grandparent = ancestors.pop();
+  return (
+    parent?.type === 'Property' &&
+    !parent.computed &&
+    !parent.shorthand &&
+    parent.key === node &&
+    grandparent?.type === 'ObjectExpression'
+  );
 }
 
 class Deprecation {
