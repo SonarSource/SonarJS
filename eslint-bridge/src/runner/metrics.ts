@@ -99,16 +99,22 @@ export default function getMetrics(
   };
 }
 
+export function getMetricsForSonarLint(sourceCode: SourceCode) {
+  return {
+    nosonarLines: findCommentLines(sourceCode, false).nosonarLines,
+  };
+}
+
 export interface Metrics {
-  ncloc: number[];
-  commentLines: number[];
+  ncloc?: number[];
+  commentLines?: number[];
   nosonarLines: number[];
-  executableLines: number[];
-  functions: number;
-  statements: number;
-  classes: number;
-  complexity: number;
-  cognitiveComplexity: number;
+  executableLines?: number[];
+  functions?: number;
+  statements?: number;
+  classes?: number;
+  complexity?: number;
+  cognitiveComplexity?: number;
 }
 
 export const EMPTY_METRICS: Metrics = {

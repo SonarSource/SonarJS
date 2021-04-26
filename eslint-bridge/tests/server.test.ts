@@ -22,6 +22,7 @@ import * as http from 'http';
 import { promisify } from 'util';
 import { join } from 'path';
 import { AddressInfo } from 'net';
+import { setContext } from 'context';
 
 const expectedResponse = {
   issues: [
@@ -178,6 +179,11 @@ describe('server', () => {
   beforeEach(async () => {
     server = await start();
     close = promisify(server.close.bind(server));
+    setContext({
+      workDir: '/tmp/workdir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+    });
   });
 
   afterEach(async () => {
@@ -379,6 +385,58 @@ describe('should send error when failing', () => {
     expect(JSON.parse(response).parsingError.message).toEqual('general error');
     expect(JSON.parse(response).parsingError.code).toEqual('GENERAL_ERROR');
   });
+});
+
+describe('sonarlint context', () => {
+  const expectedInSonarLint = {
+    issues: expectedResponse.issues,
+    metrics: {
+      nosonarLines: [2],
+    },
+  };
+  let server: http.Server;
+  let close;
+
+  beforeEach(async () => {
+    server = await start();
+    close = promisify(server.close.bind(server));
+    setContext({
+      workDir: '/tmp/workdir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: true,
+    });
+  });
+
+  afterEach(async () => {
+    await close();
+  });
+
+  it('should respond to JavaScript analysis request', async () => {
+    expect.assertions(2);
+    expect(server.listening).toEqual(true);
+
+    await post(
+      JSON.stringify({
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
+      }),
+      '/init-linter',
+    );
+    const response = await post(
+      JSON.stringify({
+        filePath: 'dir/file.js',
+        fileContent: `if (true) 42; else 42;
+        foo(); // NOSONAR 
+        `,
+      }),
+      '/analyze-js',
+    );
+
+    expect(JSON.parse(response)).toEqual(expectedInSonarLint);
+  });
+
+  function post(data, endpoint) {
+    return postToServer(data, endpoint, server);
+  }
 });
 
 function postToServer(data, endpoint, server: http.Server): Promise<string> {

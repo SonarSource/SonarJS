@@ -21,6 +21,13 @@ import { join } from 'path';
 import { analyzeTypeScript, initLinter } from 'analyzer';
 import { HighlightedSymbol } from 'runner/symbol-highlighter';
 import { Location } from 'runner/location';
+import { setContext } from 'context';
+
+setContext({
+  workDir: '/tmp/workdir',
+  shouldUseTypeScriptParserForJS: true,
+  sonarlint: false,
+});
 
 it('should highlight variable references', () => {
   const result = actual(

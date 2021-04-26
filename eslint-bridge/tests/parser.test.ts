@@ -42,7 +42,7 @@ describe('parseJavaScriptSourceFile', () => {
   beforeEach(() => {
     console.error = jest.fn();
     console.log = jest.fn();
-    setContext({ workDir: '', shouldUseTypeScriptParserForJS: true });
+    setContext({ workDir: '', shouldUseTypeScriptParserForJS: true, sonarlint: false });
   });
 
   afterEach(() => {
@@ -160,7 +160,7 @@ import { ParseExceptionCode } from '../src/parser';
     const filePath = dirPath + '/sample.lint.js';
     const tsConfig = dirPath + '/tsconfig.json';
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-    setContext({ workDir: '', shouldUseTypeScriptParserForJS: false });
+    setContext({ workDir: '', shouldUseTypeScriptParserForJS: false, sonarlint: false });
     const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
     expect(sourceCode.ast).toBeDefined();
     expect(sourceCode.parserServices.program).toBeUndefined();

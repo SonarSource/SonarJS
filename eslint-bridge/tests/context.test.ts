@@ -21,8 +21,16 @@ import { setContext, getContext } from 'context';
 
 describe('context', () => {
   it('should set context', () => {
-    setContext({ workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: false });
+    setContext({
+      workDir: '/tmp/workdir',
+      shouldUseTypeScriptParserForJS: false,
+      sonarlint: false,
+    });
     const ctx = getContext();
-    expect(ctx).toEqual({ workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: false });
+    expect(ctx).toEqual({
+      workDir: '/tmp/workdir',
+      shouldUseTypeScriptParserForJS: false,
+      sonarlint: false,
+    });
   });
 });

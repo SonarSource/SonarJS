@@ -380,6 +380,17 @@ public class EslintBridgeServerImplTest {
   }
 
   @Test
+  public void should_skip_metrics_on_sonarlint() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(7, 9)));
+    eslintBridgeServer.startServer(context, Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2")));
+    eslintBridgeServer.stop();
+
+    assertThat(logTester.logs()).contains("sonarlint: true");
+  }
+
+  @Test
   public void should_use_default_timeout() {
     eslintBridgeServer = new EslintBridgeServerImpl(NodeCommand.builder(), mock(Bundle.class), mock(RulesBundles.class), deprecationWarning, tempFolder);
     assertThat(eslintBridgeServer.getTimeoutSeconds()).isEqualTo(300);

@@ -26,7 +26,7 @@ import {
   parseJavaScriptVueSourceFile,
 } from './parser';
 import getHighlighting, { Highlight } from './runner/highlighter';
-import getMetrics, { EMPTY_METRICS, Metrics } from './runner/metrics';
+import getMetrics, { EMPTY_METRICS, getMetricsForSonarLint, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
 import { SourceCode } from 'eslint';
 import {
@@ -37,6 +37,7 @@ import {
 import * as fs from 'fs';
 import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
 import { LinterWrapper, AdditionalRule } from './linter';
+import { getContext } from './context';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
@@ -80,10 +81,10 @@ export interface Rule {
 export interface AnalysisResponse {
   parsingError?: ParsingError;
   issues: Issue[];
-  highlights: Highlight[];
-  highlightedSymbols: HighlightedSymbol[];
-  metrics: Metrics;
-  cpdTokens: CpdToken[];
+  highlights?: Highlight[];
+  highlightedSymbols?: HighlightedSymbol[];
+  metrics?: Metrics;
+  cpdTokens?: CpdToken[];
 }
 
 export interface ParsingError {
@@ -142,12 +143,11 @@ const customRules: AdditionalRule[] = [];
 
 export function initLinter(rules: Rule[], environments: string[] = [], globals: string[] = []) {
   console.log(`DEBUG initializing linter with ${rules.map(r => r.key)}`);
-  linter = new LinterWrapper(
-    rules,
-    [SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE, ...customRules],
-    environments,
-    globals,
-  );
+  const additionalRules = [COGNITIVE_COMPLEXITY_RULE, ...customRules];
+  if (!getContext().sonarlint) {
+    additionalRules.push(SYMBOL_HIGHLIGHTING_RULE);
+  }
+  linter = new LinterWrapper(rules, additionalRules, environments, globals);
 }
 
 export function loadCustomRuleBundle(bundlePath: string): string[] {
@@ -188,14 +188,21 @@ function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
       throw e;
     }
   }
-  return {
-    issues,
-    parsingError,
-    highlightedSymbols: getHighlightedSymbols(issues),
-    highlights: getHighlighting(sourceCode).highlights,
-    metrics: getMetrics(sourceCode, !!input.ignoreHeaderComments, getCognitiveComplexity(issues)),
-    cpdTokens: getCpdTokens(sourceCode).cpdTokens,
-  };
+  // this is invoked for side-effect also for SonarLint, it removes cognitive complexity pseudo-issue which is used
+  // for the metric
+  const cognitiveComplexityMetric = getCognitiveComplexity(issues);
+  if (getContext().sonarlint) {
+    return { issues, parsingError, metrics: getMetricsForSonarLint(sourceCode) };
+  } else {
+    return {
+      issues,
+      parsingError,
+      highlightedSymbols: getHighlightedSymbols(issues),
+      highlights: getHighlighting(sourceCode).highlights,
+      metrics: getMetrics(sourceCode, !!input.ignoreHeaderComments, cognitiveComplexityMetric),
+      cpdTokens: getCpdTokens(sourceCode).cpdTokens,
+    };
+  }
 }
 
 // exported for testing
