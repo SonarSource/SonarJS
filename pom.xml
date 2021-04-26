@@ -58,7 +58,7 @@
     <!-- override sonar-packaging plugin version from parent -->
     <version.sonar-packaging.plugin>1.20.0.405</version.sonar-packaging.plugin>
     <assertj.version>3.16.1</assertj.version>
-    <commons-io.version>2.5</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
     <commons-lang.version>2.6</commons-lang.version>
     <guava.version>30.1.1-jre</guava.version>
     <junit.version>4.13.1</junit.version>
