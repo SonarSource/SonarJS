@@ -26,6 +26,7 @@ import {
 } from 'analyzer';
 import { join } from 'path';
 import * as fs from 'fs';
+import { setContext } from 'context';
 
 const noOneIterationIssue = {
   line: 3,
@@ -59,6 +60,11 @@ const noUnnecessaryTypeAssertionIssue = {
 describe('#analyzeJavaScript', () => {
   const filePath = join(__dirname, './fixtures/js-project/sample.lint.js');
   const codeToTest = fs.readFileSync(filePath, { encoding: 'utf8' });
+  setContext({
+    workDir: '/tmp/workdir',
+    shouldUseTypeScriptParserForJS: true,
+    sonarlint: false,
+  });
 
   it('should report issue running eslint', () => {
     initLinter([
