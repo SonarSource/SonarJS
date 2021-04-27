@@ -1,10 +1,8 @@
-<p>Cross-site request forgery (CSRF) vulnerabilities occur when attackers can trick a user to perform sensitive authenticated operations on a web
-application without his consent.</p>
-<p>Imagine a web application where an authenticated user can do actions like changing his email address and which has no CSRF protection. A malicious
-website could forge a web page form to send the HTTP request that change the user email. When the user visits the malicious web page, the form is
-automatically submitted in his name and his account email is changed to an arbitrary email.</p>
-<p>Such an attack is only possible if the web browser automatically sends authentication information to the trusted domain (e.g cookie based
-authentication) </p>
+<p>A cross-site request forgery (CSRF) attack occurs when a trusted user of a web application can be forced, by an attacker, to perform sensitive
+actions that he didn't intend, such as updating his profile or sending a message, more generally anything that can change the state of the
+application.</p>
+<p>The attacker can trick the user/victim to click on a link, corresponding to the privileged action, or to visit a malicious web site that embeds a
+hidden web request and as web browsers automatically include cookies, the actions can be authenticated and sensitive.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The web application uses cookies to authenticate users. </li>
@@ -73,7 +71,7 @@ app.use(csrf({ cookie: true, ignoreMethods: ["GET"] })); // Compliant
   <li> <a href="https://cwe.mitre.org/data/definitions/352.html">MITRE, CWE-352</a> - Cross-Site Request Forgery (CSRF) </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
-  <li> <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29">OWASP: Cross-Site Request Forgery</a> </li>
+  <li> <a href="https://owasp.org/www-community/attacks/csrf">OWASP: Cross-Site Request Forgery</a> </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat1">SANS Top 25</a> - Insecure Interaction Between Components </li>
 </ul>
 

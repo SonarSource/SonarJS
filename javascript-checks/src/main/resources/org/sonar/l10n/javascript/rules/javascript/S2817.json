@@ -1,15 +1,13 @@
 {
   "title": "Web SQL databases should not be used",
   "type": "VULNERABILITY",
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "2h"
   },
   "tags": [
-    "html5",
-    "owasp-a9",
-    "owasp-a3"
+    
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-2817",
@@ -18,11 +16,5 @@
     "JAVASCRIPT",
     "TYPESCRIPT"
   ],
-  "scope": "Main",
-  "securityStandards": {
-    "OWASP": [
-      "A3",
-      "A9"
-    ]
-  }
+  "scope": "Main"
 }

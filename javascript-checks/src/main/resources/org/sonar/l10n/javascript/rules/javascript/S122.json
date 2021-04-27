@@ -7,7 +7,7 @@
     "constantCost": "1min"
   },
   "tags": [
-    "style"
+    "convention"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-122",

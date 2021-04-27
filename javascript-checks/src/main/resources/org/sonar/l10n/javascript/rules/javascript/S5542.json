@@ -9,7 +9,7 @@
     "sans-top25-porous",
     "owasp-a3"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5542",
   "sqKey": "S5542",
   "compatibleLanguages": [

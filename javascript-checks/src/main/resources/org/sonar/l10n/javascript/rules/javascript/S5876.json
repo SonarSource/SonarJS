@@ -17,7 +17,7 @@
     "JAVASCRIPT",
     "TYPESCRIPT"
   ],
-  "scope": "All",
+  "scope": "Main",
   "securityStandards": {
     "CWE": [
       384

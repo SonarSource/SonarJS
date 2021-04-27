@@ -1,7 +1,7 @@
 <p>Cryptographic hash algorithms such as <code>MD2</code>, <code>MD4</code>, <code>MD5</code>, <code>MD6</code>, <code>HAVAL-128</code>,
 <code>HMAC-MD5</code>, <code>DSA</code> (which uses <code>SHA-1</code>), <code>RIPEMD</code>, <code>RIPEMD-128</code>, <code>RIPEMD-160</code>,
-<code>HMACRIPEMD160</code> and <code>SHA-1</code> are no longer considered secure, because it is too easy to create hash collisions with them (little
-computational effort is enough to find two or more different inputs that produces the same hash).</p>
+<code>HMACRIPEMD160</code> and <code>SHA-1</code> are no longer considered secure, because it is possible to have <code>collisions</code> (little
+computational effort is enough to find two or more different inputs that produce the same hash).</p>
 <h2>Ask Yourself Whether</h2>
 <p>The hashed value is used in a security context like:</p>
 <ul>
@@ -11,9 +11,9 @@ computational effort is enough to find two or more different inputs that produce
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Safer alternatives, such as <code>SHA-256</code>, <code>SHA-512</code>, <code>SHA-3</code> or <code>bcrypt</code> are recommended, and for password
-hashing, it's even better to use algorithms that not compute too "quickly", like <code>bcrypt</code> instead of <code>SHA-256</code>, because it slows
-brute force and dictionary based attacks.</p>
+<p>Safer alternatives, such as <code>SHA-256</code>, <code>SHA-512</code>, <code>SHA-3</code> are recommended, and for password hashing, it's even
+better to use algorithms that do not compute too "quickly", like <code>bcrypt</code>, <code>scrypt</code>, <code>argon2</code> or <code>pbkdf2</code>
+because it slows down <code>brute force attacks</code>.</p>
 <h2>Sensitive Code Example</h2>
 <pre>
 const crypto = require("crypto");
@@ -24,7 +24,7 @@ const hash = crypto.createHash('sha1'); // Sensitive
 <pre>
 const crypto = require("crypto");
 
-const hash = crypto.createHash('sha256'); // Compliant
+const hash = crypto.createHash('sha512'); // Compliant
 </pre>
 <h2>See</h2>
 <ul>

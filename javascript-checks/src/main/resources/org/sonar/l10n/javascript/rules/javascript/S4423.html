@@ -1,6 +1,5 @@
-<p>Older versions of SSL/TLS protocol like "SSLv3" have been proven to be insecure.</p>
-<p>This rule raises an issue when an SSL/TLS context is created with an insecure protocol version (ie: a protocol different from "TLSv1.2", "TLSv1.3",
-"DTLSv1.2" or "DTLSv1.3").</p>
+<p>This rule raises an issue when an insecure TLS protocol version is used (ie: a protocol different from "TLSv1.2", "TLSv1.3", "DTLSv1.2" or
+"DTLSv1.3").</p>
 <h2>Noncompliant Code Example</h2>
 <p><code>secureProtocol</code>, <code>minVersion</code>/<code>maxVersion</code> and <code>secureOptions</code> should not be set to use weak TLS
 protocols (TLSv1.1 and lower):</p>
@@ -72,10 +71,9 @@ let socket = request.get(options);
   </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
-  <li> <a href="http://cwe.mitre.org/data/definitions/326.html">MITRE, CWE-327</a> - Inadequate Encryption Strength </li>
-  <li> <a href="http://cwe.mitre.org/data/definitions/327.html">MITRE, CWE-326</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/326.html">MITRE, CWE-327</a> - Inadequate Encryption Strength </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/327.html">MITRE, CWE-326</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
-  <li> <a href="https://blogs.oracle.com/java-platform-group/diagnosing-tls,-ssl,-and-https">Diagnosing TLS, SSL, and HTTPS</a> </li>
   <li> <a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#22-use-secure-protocols">SSL and TLS Deployment Best
   Practices - Use secure protocols</a> </li>
 </ul>

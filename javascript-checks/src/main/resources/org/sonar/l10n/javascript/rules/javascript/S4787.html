@@ -6,7 +6,6 @@
 </ul>
 <p>Proper encryption requires both the encryption algorithm and the key to be strong. Obviously the private key needs to remain secret and be renewed
 regularly. However these are not the only means to defeat or weaken an encryption.</p>
-<p> </p>
 <p>This rule flags function calls that initiate encryption/decryption.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
@@ -85,5 +84,5 @@ const pubDec = crypto.publicDecrypt(key, privEnc); // Sensitive
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>
 <h2>Deprecated</h2>
-<p>This rule is deprecated; use {rule:javascript:S4426} instead.</p>
+<p>This rule is deprecated; use {rule:javascript:S4426}, {rule:javascript:S5542}, {rule:javascript:S5547} instead.</p>
 
