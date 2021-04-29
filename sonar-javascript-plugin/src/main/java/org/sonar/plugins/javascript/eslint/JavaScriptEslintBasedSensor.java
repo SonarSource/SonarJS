@@ -122,7 +122,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       } else {
         progressReport.cancel();
       }
-      progressReport.join();
     }
   }
 
