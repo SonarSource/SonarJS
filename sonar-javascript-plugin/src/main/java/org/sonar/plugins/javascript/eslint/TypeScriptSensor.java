@@ -132,7 +132,6 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       } else {
         progressReport.cancel();
       }
-      progressReport.join();
     }
   }
 
