@@ -69,7 +69,7 @@
     <sonar-orchestrator.version>3.35.0.2707</sonar-orchestrator.version>
     <sonarlint.version>4.3.1.2486</sonarlint.version>
     <sslr.version>1.24.0.633</sslr.version>
-    <sslr-squid-bridge.version>2.7.0.377</sslr-squid-bridge.version>
+    <sslr-squid-bridge.version>2.7.1.392</sslr-squid-bridge.version>
     <gson.version>2.6.2</gson.version>
     <analyzer-commons.version>1.14.1.690</analyzer-commons.version>
 
