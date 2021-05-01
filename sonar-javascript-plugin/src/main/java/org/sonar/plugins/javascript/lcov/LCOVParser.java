@@ -105,6 +105,9 @@ class LCOVParser {
           parseBranchCoverage(fileData, reportLineNum, line);
         }
       }
+      else if (line.startsWith(DA) || line.startsWith(BRDA)) {
+        LOG.debug(String.format("Problem during processing LCOV report: can't save data for line %s of coverage report file with missing SF:.", reportLineNum));
+      }
 
     }
 

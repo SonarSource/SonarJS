@@ -74,9 +74,13 @@ public class CoverageSensorTest {
   }
 
   private InputFile inputFile(String relativePath, Type type) throws FileNotFoundException {
+    return inputFile(relativePath, type, "js");
+  }
+
+  private InputFile inputFile(String relativePath, Type type, String language) throws FileNotFoundException {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(moduleBaseDir.toPath())
-      .setLanguage("js")
+      .setLanguage(language)
       .setType(type)
       .build();
 
@@ -174,7 +178,9 @@ public class CoverageSensorTest {
       .contains("Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]")
       .contains("First unresolved path: unresolved/file1.js (Run in DEBUG mode to get full list of unresolved paths)");
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .isEmpty();
+      .doesNotContain("Unresolved paths:\n" +
+        "unresolved/file1.js\n" +
+        "unresolved/file2.js");
   }
 
   @Test
@@ -287,18 +293,11 @@ public class CoverageSensorTest {
 
   @Test
   public void should_import_coverage_for_ts() throws Exception {
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "src/file1.ts")
-      .setModuleBaseDir(moduleBaseDir.toPath())
-      .setLanguage("ts")
-      .setContents("function foo(x: any) {\n" +
-        "  if (x && !x)\n" +
-        "    console.log(\"file1\");\n" +
-        "}\n")
-      .build();
-    context.fileSystem().add(inputFile);
+    InputFile inputFile = inputFile("file1.ts", Type.MAIN, "ts");
+    InputFile inputFile2 = inputFile("file2.ts", Type.MAIN, "ts");
 
     File lcov = temp.newFile();
-    FileUtils.writeStringToFile(lcov, "SF:src/file1.ts\n" +
+    FileUtils.writeStringToFile(lcov, "SF:file1.ts\n" +
       "DA:1,2\n" +
       "DA:2,2\n" +
       "DA:3,1\n" +
@@ -309,7 +308,7 @@ public class CoverageSensorTest {
       "BRDA:2,2,0,0\n" +
       "BRDA:2,2,1,-\n" +
       "end_of_record\n" +
-      "SF:src/file2.ts\n" +
+      "SF:file2.ts\n" +
       "DA:1,5\n" +
       "DA:2,5\n" +
       "end_of_record\n", StandardCharsets.UTF_8);
@@ -319,6 +318,25 @@ public class CoverageSensorTest {
     assertThat(context.lineHits(inputFile.key(), 2)).isEqualTo(2);
     assertThat(context.lineHits(inputFile.key(), 3)).isEqualTo(1);
     assertThat(context.lineHits(inputFile.key(), 0)).isNull();
+
+    assertThat(context.lineHits(inputFile2.key(), 0)).isNull();
+    assertThat(context.lineHits(inputFile2.key(), 1)).isEqualTo(5);
+    assertThat(context.lineHits(inputFile2.key(), 2)).isEqualTo(5);
   }
 
+  @Test
+  public void should_warn_processing_missing_file_data() throws Exception {
+    File lcovFile = temp.newFile();
+
+    FileUtils.writeStringToFile(lcovFile,
+      "DA:1,2\n" +
+      "DA:2,2\n" +
+      "end_of_record\n", "UTF-8", false);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcovFile.getAbsolutePath());
+
+    coverageSensor.execute(context);
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save data for line 1 of coverage report file with missing SF:.");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save data for line 2 of coverage report file with missing SF:.");
+  }
 }
