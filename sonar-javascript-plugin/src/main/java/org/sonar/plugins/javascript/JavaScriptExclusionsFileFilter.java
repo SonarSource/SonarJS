@@ -38,7 +38,6 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
     "**/node_modules/**",
     "**/bower_components/**",
     "**/dist/**",
-    "**/build/**",
     "**/vendor/**",
     "**/external/**",
     "**/*.d.ts"};

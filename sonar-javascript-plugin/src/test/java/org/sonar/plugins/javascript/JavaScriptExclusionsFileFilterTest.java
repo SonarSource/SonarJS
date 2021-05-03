@@ -55,7 +55,7 @@ public class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile("some_app.ts"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("vendor/some_lib.js"))).isFalse();
-    assertThat(filter.accept(inputFile("build/some_lib.js"))).isFalse();
+    assertThat(filter.accept(inputFile("build/some_lib.js"))).isTrue();
     assertThat(filter.accept(inputFile("dist/some_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("external/some_lib.js"))).isFalse();
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File test_node_modules/node_modules/some_lib.js was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions");
