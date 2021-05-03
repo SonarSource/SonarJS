@@ -1,4 +1,11 @@
 {
+'jquery:build/tasks/build.js':[
+24,
+120,
+198,
+220,
+275,
+],
 'jquery:src/ajax.js':[
 18,
 ],

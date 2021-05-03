@@ -1,4 +1,8 @@
 {
+'qunit:build/tasks/test-on-node.js':[
+17,
+17,
+],
 'qunit:reporter/diff.js':[
 431,
 431,

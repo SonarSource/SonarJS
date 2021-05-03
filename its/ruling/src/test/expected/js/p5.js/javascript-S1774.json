@@ -283,6 +283,14 @@
 89,
 92,
 ],
+'p5.js:tasks/build/browserify.js':[
+20,
+22,
+],
+'p5.js:tasks/build/combineModules.js':[
+53,
+62,
+],
 'p5.js:test/js/sinon.js':[
 316,
 317,

@@ -1,4 +1,7 @@
 {
+'qunit:build/tasks/livereload.js':[
+11,
+],
 'qunit:src/cli/run.js':[
 39,
 81,

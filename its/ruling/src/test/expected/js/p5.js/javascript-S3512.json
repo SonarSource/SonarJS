@@ -74,6 +74,12 @@
 712,
 712,
 ],
+'p5.js:tasks/build/browserify.js':[
+79,
+],
+'p5.js:tasks/build/combineModules.js':[
+109,
+],
 'p5.js:tasks/release/release-github.js':[
 32,
 ],
