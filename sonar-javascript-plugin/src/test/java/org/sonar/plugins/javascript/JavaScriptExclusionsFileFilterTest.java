@@ -185,8 +185,35 @@ public class JavaScriptExclusionsFileFilterTest {
     Path file = basedirUnderVendor.resolve("file.js");
     InputFile inputFile = new TestInputFileBuilder("key", basedirUnderVendor.toFile(), file.toFile())
       .setContents("alert('hello');")
+      .setCharset(StandardCharsets.UTF_8)
+      .setLanguage("js")
       .build();
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
+    assertThat(filter.accept(inputFile)).isTrue();
+  }
+
+  @Test
+  public void should_exclude_only_jsts_files() throws Exception {
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
+    InputFile inputFile = new TestInputFileBuilder("key", "vendor/file.js")
+      .setContents("alert('hello');")
+      .setLanguage("js")
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+    assertThat(filter.accept(inputFile)).isFalse();
+
+    inputFile = new TestInputFileBuilder("key", "vendor/file.ts")
+      .setContents("alert('hello');")
+      .setLanguage("ts")
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+    assertThat(filter.accept(inputFile)).isFalse();
+
+    inputFile = new TestInputFileBuilder("key", "vendor/file.ts")
+      .setContents("alert('hello');")
+      .setLanguage("xxx")
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
     assertThat(filter.accept(inputFile)).isTrue();
   }
 

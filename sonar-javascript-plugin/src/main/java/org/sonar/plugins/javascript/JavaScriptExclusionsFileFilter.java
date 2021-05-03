@@ -79,7 +79,12 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
       JavaScriptLanguage.KEY.equals(inputFile.language()) ||
       TypeScriptLanguage.KEY.equals(inputFile.language());
 
-    if (isJsTs && SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
+    // filter only JS/TS files
+    if (!isJsTs) {
+      return true;
+    }
+
+    if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
       LOG.debug("File {} was excluded because of excessive size", inputFile);
       return false;
     }
