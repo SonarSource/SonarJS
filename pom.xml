@@ -11,7 +11,7 @@
 
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>7.4.1-SNAPSHOT</version>
+  <version>7.4.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarJS</name>
