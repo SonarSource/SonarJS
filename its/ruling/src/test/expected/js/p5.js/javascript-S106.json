@@ -186,6 +186,12 @@
 626,
 636,
 ],
+'p5.js:tasks/build/combineModules.js':[
+59,
+],
+'p5.js:tasks/build/eslint-samples.js':[
+34,
+],
 'p5.js:tasks/release/release-bower.js':[
 21,
 41,

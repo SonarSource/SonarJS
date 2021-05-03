@@ -8,6 +8,9 @@
 'qunit:bin/qunit.js':[
 20,
 ],
+'qunit:build/tasks/livereload.js':[
+3,
+],
 'qunit:reporter/html.js':[
 16,
 ],

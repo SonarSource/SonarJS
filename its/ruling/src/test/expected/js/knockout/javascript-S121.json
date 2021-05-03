@@ -5,6 +5,10 @@
 166,
 168,
 ],
+'knockout:build/knockout-raw.js':[
+18,
+30,
+],
 'knockout:spec/arrayToDomEditDetectionBehaviors.js':[
 4,
 ],

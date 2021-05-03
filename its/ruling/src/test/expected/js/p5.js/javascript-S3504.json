@@ -1525,6 +1525,12 @@
 3389,
 3404,
 ],
+'p5.js:tasks/build/combineModules.js':[
+47,
+48,
+49,
+54,
+],
 'p5.js:test/js/chai_helpers.js':[
 2,
 3,

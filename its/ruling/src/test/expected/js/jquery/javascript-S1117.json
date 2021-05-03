@@ -1,4 +1,16 @@
 {
+'jquery:build/release/cdn.js':[
+62,
+104,
+108,
+],
+'jquery:build/tasks/build.js':[
+118,
+315,
+],
+'jquery:build/tasks/dist.js':[
+31,
+],
 'jquery:src/attributes/attr.js':[
 116,
 ],

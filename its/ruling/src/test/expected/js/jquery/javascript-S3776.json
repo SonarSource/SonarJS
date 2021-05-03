@@ -1,4 +1,7 @@
 {
+'jquery:build/tasks/build.js':[
+59,
+],
 'jquery:src/ajax.js':[
 134,
 192,

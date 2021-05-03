@@ -1,4 +1,8 @@
 {
+'qunit:build/release.js':[
+9,
+13,
+],
 'qunit:reporter/diff.js':[
 991,
 992,

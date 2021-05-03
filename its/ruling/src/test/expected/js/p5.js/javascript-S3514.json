@@ -58,6 +58,9 @@
 'p5.js:src/webgl/text.js':[
 717,
 ],
+'p5.js:tasks/build/eslint-samples.js':[
+28,
+],
 'p5.js:test/js/chai_helpers.js':[
 2,
 ],

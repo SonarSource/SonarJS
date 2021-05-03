@@ -1,4 +1,7 @@
 {
+'knockout:build/knockout-raw.js':[
+3,
+],
 'knockout:spec/arrayToDomEditDetectionBehaviors.js':[
 116,
 143,

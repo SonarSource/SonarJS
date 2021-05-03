@@ -1,4 +1,7 @@
 {
+'jquery:build/release/cdn.js':[
+52,
+],
 'jquery:src/ajax.js':[
 101,
 231,
