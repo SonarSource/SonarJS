@@ -19,10 +19,15 @@
  */
 package org.sonar.plugins.javascript;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
@@ -37,6 +42,10 @@ public class JavaScriptExclusionsFileFilterTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
 
   @Test
   public void should_exclude_node_modules_and_bower_components_by_default() throws Exception {
@@ -166,6 +175,19 @@ public class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile("foo.d.ts"))).isFalse();
     assertThat(filter.accept(inputFile("dir/foo.d.ts"))).isFalse();
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("File test_node_modules/dir/foo.d.ts was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions");
+  }
+
+  @Test
+  public void should_exclude_only_on_relative_path() throws Exception {
+    File tmp = temporaryFolder.newFolder();
+    // **/vendor/** is excluded by default, however it should only be excluded under 'basedir', here it's above
+    Path basedirUnderVendor = tmp.toPath().resolve("vendor/basedir");
+    Path file = basedirUnderVendor.resolve("file.js");
+    InputFile inputFile = new TestInputFileBuilder("key", basedirUnderVendor.toFile(), file.toFile())
+      .setContents("alert('hello');")
+      .build();
+    JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(new MapSettings().asConfig());
+    assertThat(filter.accept(inputFile)).isTrue();
   }
 
   /**

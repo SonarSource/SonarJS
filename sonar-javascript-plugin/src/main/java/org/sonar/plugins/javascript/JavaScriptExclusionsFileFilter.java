@@ -85,8 +85,7 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
       return false;
     }
 
-    String relativePath = inputFile.uri().toString();
-    if (WildcardPattern.match(excludedPatterns, relativePath)) {
+    if (WildcardPattern.match(excludedPatterns, inputFile.relativePath())) {
       LOG.debug("File {} was excluded by {} or {}", inputFile, JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.TS_EXCLUSIONS_KEY);
       return false;
     }
