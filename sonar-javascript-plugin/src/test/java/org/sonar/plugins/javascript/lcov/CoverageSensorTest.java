@@ -336,7 +336,7 @@ public class CoverageSensorTest {
 
     coverageSensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save data for line 1 of coverage report file with missing SF:.");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save data for line 2 of coverage report file with missing SF:.");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save data for line 1 of coverage report file with missing SF:");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save data for line 2 of coverage report file with missing SF:");
   }
 }
