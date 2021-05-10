@@ -20,6 +20,7 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
@@ -67,7 +68,8 @@ public class EslintBasedRulesTest {
 
     Tests.setProfile(projectKey, "rules", "js");
 
-    orchestrator.executeBuild(build);
+    BuildResult buildResult = orchestrator.executeBuild(build);
+    assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));

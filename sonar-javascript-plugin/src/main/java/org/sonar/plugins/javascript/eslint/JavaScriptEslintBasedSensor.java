@@ -77,8 +77,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   @Override
-  void analyzeFiles() throws IOException, InterruptedException {
-    runEslintAnalysis(provideDefaultTsConfig());
+  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    runEslintAnalysis(provideDefaultTsConfig(), inputFiles);
     if (checks.hasLegacyCustomChecks()) {
       PROFILER.startInfo("Java-based frontend sensor [javascript] for custom rules");
       LOG.warn("Custom JavaScript rules are deprecated and API will be removed in future version.");
@@ -97,11 +97,10 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     return provider.tsconfigs(context);
   }
 
-  private void runEslintAnalysis(List<String> tsConfigs) throws IOException, InterruptedException {
+  private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
     try {
-      List<InputFile> inputFiles = getInputFiles();
       progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
       eslintBridgeServer.initLinter(rules, environments, globals);
       for (InputFile inputFile : inputFiles) {
@@ -137,7 +136,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     }
   }
 
-  private List<InputFile> getInputFiles() {
+  protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicate mainFilePredicate = JavaScriptFilePredicate.getJavaScriptPredicate(fileSystem);
     return StreamSupport.stream(fileSystem.inputFiles(mainFilePredicate).spliterator(), false)
