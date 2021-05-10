@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>javascript-it-plugin-plugins</artifactId>
-    <version>7.4.2-SNAPSHOT</version>
+    <version>7.4.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>eslint-custom-rules-plugin</artifactId>
