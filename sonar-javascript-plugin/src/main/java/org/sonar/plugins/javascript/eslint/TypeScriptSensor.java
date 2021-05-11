@@ -85,12 +85,14 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
+      // JavaScriptLanguage.KEY is required for Vue single file components, bc .vue is considered as JS language
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
       .name("TypeScript analysis")
       .onlyOnFileType(Type.MAIN);
   }
 
-  private List<InputFile> getInputFiles() {
+  @Override
+  protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicate mainFilePredicate = JavaScriptFilePredicate.getTypeScriptPredicate(fileSystem);
     return StreamSupport.stream(fileSystem.inputFiles(mainFilePredicate).spliterator(), false)
@@ -98,10 +100,9 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   }
 
   @Override
-  void analyzeFiles() throws IOException, InterruptedException {
+  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     boolean success = false;
     ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
-    List<InputFile> inputFiles = getInputFiles();
     eslintBridgeServer.initLinter(rules, environments, globals);
     List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
     if (tsConfigs.isEmpty()) {

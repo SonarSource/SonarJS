@@ -354,6 +354,19 @@ public class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
+  public void should_skip_analysis_when_no_files() throws Exception {
+    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
+      new NoSonarFilter(),
+      fileLinesContextFactory,
+      eslintBridgeServerMock,
+      mock(AnalysisWarnings.class),
+      tempFolder
+    );
+    javaScriptEslintBasedSensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files found for analysis");
+  }
+
+  @Test
   public void handle_missing_node() throws Exception {
     doThrow(new NodeCommandException("Exception Message", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
     AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
@@ -364,7 +377,7 @@ public class JavaScriptEslintBasedSensorTest {
       analysisWarnings,
       tempFolder
     );
-
+    createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
     verify(analysisWarnings).addUnique("JavaScript and/or TypeScript rules were not executed. Exception Message");
@@ -374,6 +387,7 @@ public class JavaScriptEslintBasedSensorTest {
   public void log_debug_if_already_failed_server() throws Exception {
     doThrow(new ServerAlreadyFailedException()).when(eslintBridgeServerMock).startServerLazily(any());
     JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = createSensor();
+    createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
 
     assertThat(logTester.logs()).contains("Skipping start of eslint-bridge server due to the failure during first analysis",
@@ -475,6 +489,7 @@ public class JavaScriptEslintBasedSensorTest {
     JavaScriptEslintBasedSensor sensor = createSensor();
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
+    createInputFile(context);
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");

@@ -116,8 +116,13 @@ abstract class AbstractEslintSensor implements Sensor {
     environments = Arrays.asList(context.config().getStringArray(ENVIRONMENTS_PROPERTY_KEY));
     globals = Arrays.asList(context.config().getStringArray(GLOBALS_PROPERTY_KEY));
     try {
+      List<InputFile> inputFiles = getInputFiles();
+      if (inputFiles.isEmpty()) {
+        LOG.info("No input files found for analysis");
+        return;
+      }
       startBridge(context);
-      analyzeFiles();
+      analyzeFiles(inputFiles);
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
@@ -145,7 +150,9 @@ abstract class AbstractEslintSensor implements Sensor {
     eslintBridgeServer.startServerLazily(context);
   }
 
-  abstract void analyzeFiles() throws IOException, InterruptedException;
+  abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
+
+  protected abstract List<InputFile> getInputFiles();
 
   private void processParsingError(SensorContext sensorContext, InputFile inputFile, ParsingError parsingError) {
     Integer line = parsingError.line;
