@@ -439,11 +439,8 @@ public class TypeScriptSensorTest {
   @Test
   public void should_stop_when_no_input_files() throws Exception {
     SensorContextTester context = SensorContextTester.create(tempFolder.newDir());
-
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createSensor().execute(context);
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files for analysis found.");
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs()).containsOnly("No input files found for analysis");
   }
 
   @Test

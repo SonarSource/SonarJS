@@ -85,11 +85,13 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
+      // JavaScriptLanguage.KEY is required for Vue single file components, bc .vue is considered as JS language
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
       .name("TypeScript analysis")
       .onlyOnFileType(Type.MAIN);
   }
 
+  @Override
   protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicate mainFilePredicate = JavaScriptFilePredicate.getTypeScriptPredicate(fileSystem);

@@ -136,6 +136,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     }
   }
 
+  @Override
   protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicate mainFilePredicate = JavaScriptFilePredicate.getJavaScriptPredicate(fileSystem);

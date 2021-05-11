@@ -355,16 +355,15 @@ public class JavaScriptEslintBasedSensorTest {
 
   @Test
   public void should_skip_analysis_when_no_files() throws Exception {
-    AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
     JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
       new NoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
-      analysisWarnings,
+      mock(AnalysisWarnings.class),
       tempFolder
     );
     javaScriptEslintBasedSensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files for analysis found.");
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files found for analysis");
   }
 
   @Test

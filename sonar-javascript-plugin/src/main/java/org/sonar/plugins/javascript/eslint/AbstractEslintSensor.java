@@ -118,7 +118,7 @@ abstract class AbstractEslintSensor implements Sensor {
     try {
       List<InputFile> inputFiles = getInputFiles();
       if (inputFiles.isEmpty()) {
-        LOG.info("No input files for analysis found.");
+        LOG.info("No input files found for analysis");
         return;
       }
       startBridge(context);
