@@ -56,6 +56,16 @@ public class EslintBasedRulesTest {
   }
 
   public void testProject(File projectDir, String projectKey) {
+    runBuild(projectDir, projectKey);
+
+    SearchRequest request = new SearchRequest();
+    request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
+    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    assertThat(issuesList).hasSize(1);
+    assertThat(issuesList.get(0).getLine()).isEqualTo(1);
+  }
+
+  private void runBuild(File projectDir, String projectKey) {
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
@@ -70,12 +80,6 @@ public class EslintBasedRulesTest {
 
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
-
-    SearchRequest request = new SearchRequest();
-    request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
-    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
-    assertThat(issuesList).hasSize(1);
-    assertThat(issuesList.get(0).getLine()).isEqualTo(1);
   }
 
   @Test
@@ -116,5 +120,17 @@ public class EslintBasedRulesTest {
     List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(2);
+  }
+
+  @Test
+  public void test_exclusion_filter() throws Exception {
+    String projectKey = "file-filter-project";
+    runBuild(TestUtils.projectDir("file-filter/node_modules/project"), projectKey);
+    SearchRequest request = new SearchRequest();
+    request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
+    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    assertThat(issuesList).hasSize(1)
+      .extracting(Issue::getComponent)
+      .containsExactly("file-filter-project:main.js");
   }
 }
