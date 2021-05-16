@@ -293,11 +293,18 @@ public class CoverageSensorTest {
 
   @Test
   public void should_import_coverage_for_ts() throws Exception {
-    InputFile inputFile = inputFile("file1.ts", Type.MAIN, "ts");
-    InputFile inputFile2 = inputFile("file2.ts", Type.MAIN, "ts");
+    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "src/file1.ts")
+      .setModuleBaseDir(moduleBaseDir.toPath())
+      .setLanguage("ts")
+      .setContents("function foo(x: any) {\n" +
+        "  if (x && !x)\n" +
+        "    console.log(\"file1\");\n" +
+        "}\n")
+      .build();
+    context.fileSystem().add(inputFile);
 
     File lcov = temp.newFile();
-    FileUtils.writeStringToFile(lcov, "SF:file1.ts\n" +
+    FileUtils.writeStringToFile(lcov, "SF:src/file1.ts\n" +
       "DA:1,2\n" +
       "DA:2,2\n" +
       "DA:3,1\n" +
@@ -308,7 +315,7 @@ public class CoverageSensorTest {
       "BRDA:2,2,0,0\n" +
       "BRDA:2,2,1,-\n" +
       "end_of_record\n" +
-      "SF:file2.ts\n" +
+      "SF:src/file2.ts\n" +
       "DA:1,5\n" +
       "DA:2,5\n" +
       "end_of_record\n", StandardCharsets.UTF_8);
@@ -318,10 +325,6 @@ public class CoverageSensorTest {
     assertThat(context.lineHits(inputFile.key(), 2)).isEqualTo(2);
     assertThat(context.lineHits(inputFile.key(), 3)).isEqualTo(1);
     assertThat(context.lineHits(inputFile.key(), 0)).isNull();
-
-    assertThat(context.lineHits(inputFile2.key(), 0)).isNull();
-    assertThat(context.lineHits(inputFile2.key(), 1)).isEqualTo(5);
-    assertThat(context.lineHits(inputFile2.key(), 2)).isEqualTo(5);
   }
 
   @Test
@@ -330,13 +333,20 @@ public class CoverageSensorTest {
 
     FileUtils.writeStringToFile(lcovFile,
       "DA:1,2\n" +
-      "DA:2,2\n" +
-      "end_of_record\n", "UTF-8", false);
+        "DA:2,2\n" +
+        "FN:2,(anonymous_1)\n" +
+        "FNDA:2,(anonymous_1)\n" +
+        "BRDA:2,1,0,2\n" +
+        "BRDA:2,1,1,1\n" +
+        "end_of_record\n", "UTF-8", false);
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcovFile.getAbsolutePath());
 
     coverageSensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save data for line 1 of coverage report file with missing SF:");
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save data for line 2 of coverage report file with missing SF:");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save DA data for line 1 of coverage report file.");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save DA data for line 2 of coverage report file.");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save BRDA data for line 5 of coverage report file.");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Found 4 inconsistencies in coverage report. Re-run analyse in debug mode to see details.");
   }
 }
