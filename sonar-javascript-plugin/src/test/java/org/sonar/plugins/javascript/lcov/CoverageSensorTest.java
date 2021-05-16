@@ -74,13 +74,9 @@ public class CoverageSensorTest {
   }
 
   private InputFile inputFile(String relativePath, Type type) throws FileNotFoundException {
-    return inputFile(relativePath, type, "js");
-  }
-
-  private InputFile inputFile(String relativePath, Type type, String language) throws FileNotFoundException {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(moduleBaseDir.toPath())
-      .setLanguage(language)
+      .setLanguage("js")
       .setType(type)
       .build();
 
