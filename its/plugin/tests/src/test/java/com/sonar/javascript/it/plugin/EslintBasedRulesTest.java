@@ -117,4 +117,30 @@ public class EslintBasedRulesTest {
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(2);
   }
+
+  @Test
+  public void test_exclusion_filter() throws Exception {
+    String projectKey = "file-filter-project";
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(TestUtils.projectDir("file-filter/excluded_dir/project"))
+      .setProperty("sonar.javascript.exclusions", "excluded_dir/**");
+
+    File jsProfile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), "js",
+      "javascript", new ProfileGenerator.RulesConfiguration(), new HashSet<>());
+    orchestrator.getServer().restoreProfile(FileLocation.of(jsProfile));
+
+    Tests.setProfile(projectKey, "rules", "js");
+
+    BuildResult buildResult = orchestrator.executeBuild(build);
+    assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
+    SearchRequest request = new SearchRequest();
+    request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
+    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    assertThat(issuesList).hasSize(1)
+      .extracting(Issue::getComponent)
+      .containsExactly("file-filter-project:main.js");
+  }
 }
