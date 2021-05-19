@@ -1,0 +1,28 @@
+{
+  "title": "Disabling Angular built-in sanitization is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
+  "status": "ready",
+  "tags": [
+    "cwe",
+    "owasp-a7"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-6268",
+  "sqKey": "S6268",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      79,
+      80,
+      83,
+      84
+    ],
+    "OWASP": [
+      "A7"
+    ]
+  }
+}

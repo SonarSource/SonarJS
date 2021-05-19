@@ -17,30 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-___RULE_KEY___
+// https://jira.sonarsource.com/browse/RSPEC-6268
 
 import { Rule } from 'eslint';
-import { isRequiredParserServices } from '../utils';
 import * as estree from 'estree';
+import { isMemberWithProperty, isLiteral } from '../utils';
 
-const message = `TODO: add message`;
+const message = `Make sure disabling Angular built-in sanitization is safe here.`;
+
+const bypassMethods = [
+  'bypassSecurityTrustHtml',
+  'bypassSecurityTrustStyle',
+  'bypassSecurityTrustScript',
+  'bypassSecurityTrustUrl',
+  'bypassSecurityTrustResourceUrl',
+];
 
 export const rule: Rule.RuleModule = {
-  meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: ['sonar-runtime'],
-      },
-    ],
-  },  
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    return {
+      CallExpression: (node: estree.Node) => {
+        const { callee, arguments: args } = node as estree.CallExpression;
 
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
-    return {};
+        if (
+          isMemberWithProperty(callee, ...bypassMethods) &&
+          args.length === 1 &&
+          !isHardcodedLiteral(args[0])
+        ) {
+          context.report({
+            message,
+            node: (callee as estree.MemberExpression).property,
+          });
+        }
+      },
+    };
   },
 };
+
+function isHardcodedLiteral(node: estree.Node) {
+  if (node.type === 'TemplateLiteral') {
+    return node.expressions.length === 0;
+  } else {
+    return isLiteral(node);
+  }
+}
