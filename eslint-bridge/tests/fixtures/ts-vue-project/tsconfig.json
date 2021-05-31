@@ -1,3 +1,6 @@
 {
-  "files": ["sample.lint.vue"]
+  "include": [
+    "**/*.ts",
+    "**/*.vue"
+  ]
 }
