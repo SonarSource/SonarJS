@@ -58,7 +58,7 @@ public class TslintRulesDefinitionTest {
     assertThat(sonartsRule.name()).isEqualTo("Cognitive Complexity of functions should not be too high");
     assertThat(sonartsRule.type()).isEqualTo(RuleType.CODE_SMELL);
     assertThat(sonartsRule.severity()).isEqualTo("MAJOR");
-    String cognitiveComplexityDoc = "https://github.com/SonarSource/SonarTS/blob/master/sonarts-core/docs/rules/cognitive-complexity.md";
+    String cognitiveComplexityDoc = "https://github.com/SonarSource/SonarTS/tree/1.9.0.3766/sonarts-core/docs/rules/cognitive-complexity.md";
     assertThat(sonartsRule.htmlDescription())
       .isEqualTo("See description of tslint-sonarts rule <code>cognitive-complexity</code> at the <a href=\"" + cognitiveComplexityDoc + "\">tslint-sonarts website</a>.");
     assertThat(sonartsRule.tags()).isEmpty();
