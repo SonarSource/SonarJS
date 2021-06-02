@@ -93,6 +93,7 @@ export function parseTypeScriptSourceFile(
     const result = tsParser.parseForESLint(fileContent, {
       ...PARSER_CONFIG_MODULE,
       filePath,
+      extraFileExtensions: ['.vue'],
       project: tsConfigs,
     });
     return new SourceCode(({

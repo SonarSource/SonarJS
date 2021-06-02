@@ -121,7 +121,7 @@ public class VueAnalysisTest {
 
   @Test
   public void tsWithinVueAsTypeScript() {
-    String projectKey = "vue-js-project-with-lang-ts-2";
+    String projectKey = "vue-js-project-with-lang-ts";
     SonarScanner build = SonarScanner.create()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
@@ -131,29 +131,26 @@ public class VueAnalysisTest {
     Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     orchestrator.executeBuild(build);
 
-    List<Issues.Issue> issuesList = getIssues(projectKey);
+    // assert metrics on .vue file
+    String vueFileKey = projectKey + ":file.vue";
+    assertThat(Tests.getMeasureAsInt(vueFileKey, "ncloc")).isEqualTo(7);
+    assertThat(Tests.getMeasureAsInt(vueFileKey, "classes")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(vueFileKey, "functions")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(vueFileKey, "statements")).isEqualTo(3);
+    assertThat(Tests.getMeasureAsInt(vueFileKey, "comment_lines")).isEqualTo(0);
+    assertThat(Tests.getMeasureAsInt(vueFileKey, "complexity")).isEqualTo(1);
+    assertThat(Tests.getMeasureAsInt(vueFileKey, "cognitive_complexity")).isEqualTo(2);
+
+    // assert both .vue and .ts files are analyzed
+
+    // test added for https://github.com/SonarSource/SonarJS/issues/2626 but not actually testing it as order of analysis is not reliable
+    // still we prefer to keep more real-life vue project with another file and tsconfig
+    List<Issues.Issue> issuesList = getIssues(vueFileKey);
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getRule()).isEqualTo("typescript:S3923");
-  }
 
-  @Test
-  public void metricsForTypeScript() {
-    String projectKey = "vue-js-project-with-lang-ts-3";
-    SonarScanner build = SonarScanner.create()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProjectDir(TestUtils.projectDir("vue-js-project-with-lang-ts"));
-
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
-    orchestrator.executeBuild(build);
-
-    assertThat(Tests.getMeasureAsInt(projectKey, "ncloc")).isEqualTo(7);
-    assertThat(Tests.getMeasureAsInt(projectKey, "classes")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "functions")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "statements")).isEqualTo(3);
-    assertThat(Tests.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "complexity")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(2);
+    issuesList = getIssues(projectKey + ":main.ts");
+    assertThat(issuesList).hasSize(1);
+    assertThat(issuesList.get(0).getRule()).isEqualTo("typescript:S3923");
   }
 }
