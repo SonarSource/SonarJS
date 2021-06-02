@@ -286,7 +286,7 @@ describe('parseVueSourceFile', () => {
     expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
   });
 
-  it('should parse TypeScript syntax', () => {
+  it('should parse TypeScript syntax in .vue file', () => {
     const dirName = __dirname + '/fixtures/ts-vue-project';
     const filePath = dirName + '/sample.lint.vue';
     const tsConfig = dirName + '/tsconfig.json';
@@ -321,6 +321,19 @@ describe('parseVueSourceFile', () => {
     expect(parsingError.message).toContain(`'}' expected.`);
     expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
   });
+});
+
+it('should parse TS Vue file after regular TS file', () => {
+  const dirName = __dirname + '/fixtures/ts-vue-project';
+  const tsConfig = dirName + '/tsconfig.json';
+  const tsResult = parseTypeScriptSourceFile(``, dirName + '/main.ts', [tsConfig]);
+  const vueResult = parseTypeScriptVueSourceFile(
+    `<script lang="ts"></script>`,
+    dirName + '/sample.lint.vue',
+    [tsConfig],
+  );
+  expect(tsResult).toBeInstanceOf(SourceCode);
+  expect(vueResult).toBeInstanceOf(SourceCode);
 });
 
 describe('parse import expression', () => {
