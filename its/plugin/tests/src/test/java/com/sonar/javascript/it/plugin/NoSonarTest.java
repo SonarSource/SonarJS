@@ -27,7 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.sonar.javascript.it.plugin.CustomRulesTest.newWsClient;
+import static com.sonar.javascript.it.plugin.Tests.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,7 +58,7 @@ public class NoSonarTest {
   public void test() {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList("nosonar-project")).setSeverities(singletonList("INFO")).setRules(singletonList("javascript:S1116"));
-    assertThat(newWsClient(orchestrator).issues().search(request).getIssuesList()).hasSize(1);
+    assertThat(newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList()).hasSize(1);
   }
 
 }

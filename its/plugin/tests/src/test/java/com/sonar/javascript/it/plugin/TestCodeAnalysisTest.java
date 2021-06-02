@@ -77,7 +77,7 @@ public class TestCodeAnalysisTest {
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(project)).setRules(singletonList("javascript:S1848"));
-    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getComponent()).endsWith("src/file.js");
   }

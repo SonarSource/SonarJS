@@ -73,7 +73,7 @@ public class EslintBasedRulesTest {
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
-    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    List<Issue> issuesList = newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(1);
   }
@@ -93,7 +93,7 @@ public class EslintBasedRulesTest {
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
-    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    List<Issue> issuesList = newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(5);
   }
@@ -113,7 +113,7 @@ public class EslintBasedRulesTest {
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3525"));
-    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    List<Issue> issuesList = newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(2);
   }
@@ -138,7 +138,7 @@ public class EslintBasedRulesTest {
     assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
-    List<Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1)
       .extracting(Issue::getComponent)
       .containsExactly("file-filter-project:main.js");

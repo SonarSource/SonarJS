@@ -38,12 +38,10 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.JavaScriptSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
@@ -52,7 +50,6 @@ import org.sonarsource.analyzer.commons.ProgressReport;
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
-  private static final Profiler PROFILER = Profiler.create(LOG);
   private final TempFolder tempFolder;
 
   /**
@@ -79,12 +76,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   @Override
   void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     runEslintAnalysis(provideDefaultTsConfig(), inputFiles);
-    if (checks.hasLegacyCustomChecks()) {
-      PROFILER.startInfo("Java-based frontend sensor [javascript] for custom rules");
-      LOG.warn("Custom JavaScript rules are deprecated and API will be removed in future version.");
-      new JavaScriptSensor(checks).execute(context);
-      PROFILER.stopInfo();
-    }
   }
 
   private List<String> provideDefaultTsConfig() throws IOException {
