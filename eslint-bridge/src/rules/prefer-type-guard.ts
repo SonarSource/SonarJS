@@ -94,7 +94,7 @@ function isInequalityBinaryExpression(
 
 function checkCastedType(
   node: FunctionLikeDeclaration,
-  expression: TSESTree.Expression,
+  expression: TSESTree.CallExpressionArgument,
   context: Rule.RuleContext,
 ) {
   const sourceCode = context.getSourceCode();
@@ -113,7 +113,7 @@ function checkCastedType(
 }
 
 function getCastTupleFromMemberExpression(
-  node: TSESTree.Expression,
+  node: TSESTree.CallExpressionArgument,
 ): [estree.Node, estree.Node] | undefined {
   if (node.type === 'MemberExpression') {
     const object = node.object as TSESTree.Node;
