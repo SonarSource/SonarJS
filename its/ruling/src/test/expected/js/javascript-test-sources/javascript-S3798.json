@@ -1914,6 +1914,9 @@
 'javascript-test-sources:src/ecmascript6/snoode/src/models/stylesheet.es6.js':[
 4,
 ],
+'javascript-test-sources:src/ecmascript6/snoode/test/models/account.js':[
+12,
+],
 'javascript-test-sources:src/ecmascript6/snoode/test/models/base.js':[
 12,
 ],
