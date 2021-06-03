@@ -86,7 +86,7 @@ function getDeprecation(
   id: estree.Identifier,
   services: RequiredParserServices,
   context: Rule.RuleContext,
-) {
+): Deprecation | undefined {
   const tc = services.program.getTypeChecker();
   const callExpression = getCallExpression(context, id);
 
@@ -175,10 +175,10 @@ function isCallExpression(
   return false;
 }
 
-function getJsDocDeprecation(tags: ts.JSDocTagInfo[]) {
+function getJsDocDeprecation(tags: ts.JSDocTagInfo[]): Deprecation | undefined {
   for (const tag of tags) {
     if (tag.name === 'deprecated') {
-      return tag.text ? { reason: tag.text } : new Deprecation();
+      return tag.text ? { reason: tag.text.map(e => e.text).join(' ') } : new Deprecation();
     }
   }
   return undefined;

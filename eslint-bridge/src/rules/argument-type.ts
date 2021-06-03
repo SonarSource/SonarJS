@@ -93,7 +93,7 @@ export const rule: Rule.RuleModule = {
         );
         const symbol = tc.getSymbolAtLocation(tsCallExpr);
 
-        if (symbol && isBuiltInMethod(symbol)) {
+        if (symbol && symbol.declarations && isBuiltInMethod(symbol)) {
           let mismatch: {
             actualType: ts.Type;
             declaredType: ts.Type;
