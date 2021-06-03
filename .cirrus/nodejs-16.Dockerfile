@@ -2,7 +2,7 @@ FROM gcr.io/language-team/base:latest
 
 USER root
 
-ENV NODE_VERSION v15.10.0
+ENV NODE_VERSION v16.3.0
 
 RUN  wget -U "nodejs" -q -O nodejs.tar.xz https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.xz \
     && tar -xJf "nodejs.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
