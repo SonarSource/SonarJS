@@ -22,6 +22,7 @@ package com.sonar.javascript.it.plugin;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -34,7 +35,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -99,8 +99,10 @@ public class EslintBridgeIntegrationTest {
     JsonArray issues = jsonObject.getAsJsonArray("issues");
     assertThat(issues).hasSize(3);
     assertThat(issues).extracting(i -> i.getAsJsonObject().get("line").getAsInt()).containsExactlyInAnyOrder(2, 3, 4);
-    // this assert makes sure that we don't compute metrics
-    assertThat(jsonObject.entrySet()).extracting(Map.Entry::getKey).containsOnly("issues");
+    // this assert makes sure that we don't compute metrics except nosonar lines
+    JsonObject metrics = jsonObject.getAsJsonObject("metrics");
+    assertThat(metrics.entrySet()).hasSize(1);
+    assertThat(metrics.get("nosonarLines").getAsJsonArray()).containsExactly(new JsonPrimitive(3));
   }
 
   private void assertStatus(EslintBridge eslintBridge) {
@@ -110,7 +112,6 @@ public class EslintBridgeIntegrationTest {
         response[0] = eslintBridge.status();
         return response[0].equals("OK!");
       } catch (Exception e) {
-        e.printStackTrace();
         Thread.sleep(100);
         return false;
       }
