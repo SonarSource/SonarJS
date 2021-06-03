@@ -43,12 +43,10 @@ import static java.util.Collections.singletonList;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   CoverageTest.class,
-//  these tests are run separately
-//  CustomRulesTest.class,
-//  CustomRulesWithDeprecatedPluginTest.class,
-//  TypeScriptRuleTest.class,
-//  EslintCustomRulesTest.class,
+//  EslintCustomRulesTest.class, - test runs separately
+  ECMAScriptModulesTest.class,
   EslintBasedRulesTest.class,
+  EslintBridgeIntegrationTest.class,
   EslintReportTest.class,
   MetricsTest.class,
   MinifiedFilesTest.class,
@@ -58,8 +56,10 @@ import static java.util.Collections.singletonList;
   ProjectWithDifferentEncodingTest.class,
   SonarLintTest.class,
   SonarLintTestCustomNodeJS.class,
+  TestCodeAnalysisTest.class,
   TslintExternalReportTest.class,
   TypeScriptAnalysisTest.class,
+//  TypeScriptRuleTest.class, - test runs separately
   VueAnalysisTest.class
 })
 public final class Tests {
