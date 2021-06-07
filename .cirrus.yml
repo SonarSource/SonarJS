@@ -60,7 +60,7 @@ build_task:
   build_script:
     - source cirrus-env BUILD
     - yarn config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    - regular_mvn_build_deploy_analyze
+    - regular_mvn_build_deploy_analyze -DskipTests
   cleanup_before_cache_script: cleanup_maven_repository
 
 
@@ -76,6 +76,30 @@ build_win_task:
     - yarn config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - mvn.cmd -s /c/buildTools-docker/settings-public.xml test
   cleanup_before_cache_script: cleanup_maven_repository
+
+ws_scan_task:
+  depends_on:
+    - build
+  gke_container:
+    dockerfile: .cirrus/nodejs-12.Dockerfile
+    <<: *CONTAINER_DEFINITION
+    cpu: 2
+    memory: 2G
+  env:
+    WS_APIKEY: ENCRYPTED[de49edbfb148e7165e1f0d66a0f26fc1efbe95a9b4a62e9e968c173379ffcf1c2aaa8e0e4794d066814fa24d1c3e6eac]
+    WS_WSS_URL: https://saas-eu.whitesourcesoftware.com/agent
+    WS_RESOLVEALLDEPENDENCIES: false
+    WS_MAVEN_RESOLVEDEPENDENCIES: true
+    WS_NPM_RESOLVEDEPENDENCIES: true
+    WS_FILESYSTEMSCAN: false
+    WS_MAVEN_AGGREGATEMODULES: true
+    WS_EXCLUDES: "**/*sources.jar **/*javadoc.jar **/its/plugin/projects/**"
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  whitesource_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - bash ws_scan.sh
 
 plugin_qa_task:
   depends_on:
