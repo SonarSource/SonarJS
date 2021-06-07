@@ -23,12 +23,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -179,7 +179,8 @@ public class NodeCommand {
 
     @Override
     public boolean isMac() {
-      return SystemUtils.IS_OS_MAC;
+      String osName = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+      return osName.startsWith("mac");
     }
 
     @Override

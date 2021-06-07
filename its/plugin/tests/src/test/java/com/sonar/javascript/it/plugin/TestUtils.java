@@ -23,11 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.apache.commons.io.FileUtils;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 
 public class TestUtils {
@@ -35,7 +35,12 @@ public class TestUtils {
   private static final File HOME;
 
   static {
-    File testResources = FileUtils.toFile(TestUtils.class.getResource("/TestUtils.txt"));
+    File testResources;
+    try {
+      testResources = new File(TestUtils.class.getResource("/TestUtils.txt").toURI());
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException("failed to obtain HOME", e);
+    }
 
     HOME = testResources // home/tests/src/tests/resources
       .getParentFile() // home/tests/src/tests
@@ -61,9 +66,9 @@ public class TestUtils {
   }
 
   static ClientInputFile prepareInputFile(File baseDir, String relativePath, String content) throws IOException {
-    File file = new File(baseDir, relativePath);
-    FileUtils.write(file, content, StandardCharsets.UTF_8);
-    return createInputFile(file.toPath());
+    Path file = baseDir.toPath().resolve(relativePath);
+    Files.write(file, content.getBytes(StandardCharsets.UTF_8));
+    return createInputFile(file);
   }
 
   private static ClientInputFile createInputFile(final Path path) {
