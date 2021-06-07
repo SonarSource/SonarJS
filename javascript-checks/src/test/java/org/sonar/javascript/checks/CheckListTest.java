@@ -19,13 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
@@ -40,15 +40,10 @@ public class CheckListTest {
    * Enforces that each check declared in list.
    */
   @Test
-  public void count() {
-    int count = 0;
-    List<File> files = (List<File>) FileUtils.listFiles(new File("src/main/java/org/sonar/javascript/checks/"), new String[]{"java"}, false);
-    for (File file : files) {
-      String name = file.getName();
-      if (name.endsWith("Check.java") && !name.startsWith("Abstract")) {
-        count++;
-      }
-    }
+  public void count() throws Exception {
+    long count = Files.list(Paths.get("src/main/java/org/sonar/javascript/checks/"))
+      .filter(p -> p.toString().endsWith("Check.java") && !p.toString().startsWith("Abstract"))
+      .count();
     assertThat(CheckList.getAllChecks().size()).isEqualTo(count);
   }
 

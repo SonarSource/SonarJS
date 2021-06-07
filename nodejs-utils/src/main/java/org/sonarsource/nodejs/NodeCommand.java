@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -179,7 +178,8 @@ public class NodeCommand {
 
     @Override
     public boolean isMac() {
-      return SystemUtils.IS_OS_MAC;
+      String osName = System.getProperty("os.name").toLowerCase();
+      return osName.contains("mac");
     }
 
     @Override
