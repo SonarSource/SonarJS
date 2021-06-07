@@ -23,8 +23,8 @@ Node.js executable.
 Discover and update the JavaScript / TypeScript properties in: **<!-- sonarcloud -->Project <!-- /sonarcloud -->[Administration > General Settings > JavaScript / TypeScript](/#sonarqube-admin#/admin/settings?category=javascript+%2F+typescript)**.
 
 ## Supported Frameworks and Versions
-* ECMAScript 5 / ECMAScript 2015 (ECMAScript 6) / ECMAScript 2016-2017-2018
-* TypeScript 4
+* ECMAScript 3, 5, 2015, 2016, 2017, 2018, 2019, and 2020
+* TypeScript 4.3
 * React JSX
 * Vue.js
 * Flow
