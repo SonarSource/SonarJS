@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -178,7 +179,7 @@ public class NodeCommand {
 
     @Override
     public boolean isMac() {
-      String osName = System.getProperty("os.name").toLowerCase();
+      String osName = System.getProperty("os.name").toLowerCase(Locale.ROOT);
       return osName.contains("mac");
     }
 
