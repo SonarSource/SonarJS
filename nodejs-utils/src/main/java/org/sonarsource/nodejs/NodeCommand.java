@@ -179,8 +179,8 @@ public class NodeCommand {
 
     @Override
     public boolean isMac() {
-      String osName = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-      return osName.contains("mac");
+      String osName = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+      return osName.startsWith("mac");
     }
 
     @Override
