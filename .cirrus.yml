@@ -85,6 +85,8 @@ ws_scan_task:
     <<: *CONTAINER_DEFINITION
     cpu: 2
     memory: 2G
+  # run only on master and long-term branches
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
     WS_APIKEY: ENCRYPTED[de49edbfb148e7165e1f0d66a0f26fc1efbe95a9b4a62e9e968c173379ffcf1c2aaa8e0e4794d066814fa24d1c3e6eac]
     WS_WSS_URL: https://saas-eu.whitesourcesoftware.com/agent
@@ -201,6 +203,7 @@ ruling_task:
 
 promote_task:
   depends_on:
+    - ws_scan
     - build_win
     - plugin_qa
     - plugin_qa_win
