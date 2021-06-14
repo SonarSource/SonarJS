@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, Scope, AST } from 'eslint';
+import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { Location } from './location';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { AST } from 'vue-eslint-parser';
+import { extractTokensAndComments } from './utils-token';
 
 export const symbolHighlightingRuleId = 'internal-symbol-highlighting';
 
@@ -88,7 +90,8 @@ export const rule: Rule.RuleModule = {
         });
 
         const openCurlyBracesStack: AST.Token[] = [];
-        context.getSourceCode().ast.tokens.forEach(token => {
+        const openHtmlTagsStack: AST.Token[] = [];
+        extractTokensAndComments(context.getSourceCode()).tokens.forEach(token => {
           if (token.type === 'Punctuator') {
             if (token.value === '{') {
               openCurlyBracesStack.push(token);
@@ -100,6 +103,16 @@ export const rule: Rule.RuleModule = {
               };
               result.push(highlightedSymbol);
             }
+          } else if (token.type === 'HTMLTagOpen') {
+            openHtmlTagsStack.push(token);
+          } else if (token.type === 'HTMLSelfClosingTagClose') {
+            openHtmlTagsStack.pop();
+          } else if (token.type === 'HTMLEndTagOpen') {
+            const highlightedSymbol: HighlightedSymbol = {
+              declaration: location(openHtmlTagsStack.pop()!.loc),
+              references: [location(token.loc)],
+            };
+            result.push(highlightedSymbol);
           }
         });
 

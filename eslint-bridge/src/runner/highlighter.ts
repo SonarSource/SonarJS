@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AST, SourceCode } from 'eslint';
+import { SourceCode } from 'eslint';
 import * as ESTree from 'estree';
 import { Location } from './location';
+import { AST } from 'vue-eslint-parser';
+import { extractTokensAndComments } from './utils-token';
 
 export default function getHighlighting(sourceCode: SourceCode) {
+  const { tokens, comments } = extractTokensAndComments(sourceCode);
   const highlights: Highlight[] = [];
-  for (const token of sourceCode.ast.tokens) {
+  for (const token of tokens) {
     switch (token.type as any) {
+      case 'HTMLTagOpen':
+      case 'HTMLTagClose':
+      case 'HTMLEndTagOpen':
+      case 'HTMLSelfClosingTagClose':
       case 'Keyword':
         highlight(token, 'KEYWORD', highlights);
         break;
+      case 'HTMLLiteral':
       case 'String':
       case 'Template':
         highlight(token, 'STRING', highlights);
@@ -37,8 +45,11 @@ export default function getHighlighting(sourceCode: SourceCode) {
         break;
     }
   }
-  for (const comment of sourceCode.ast.comments) {
-    if (comment.type === 'Block' && comment.value.startsWith('*')) {
+  for (const comment of comments) {
+    if (
+      (comment.type === 'Block' && comment.value.startsWith('*')) ||
+      comment.type === 'HTMLBogusComment'
+    ) {
       highlight(comment, 'STRUCTURED_COMMENT', highlights);
     } else {
       highlight(comment, 'COMMENT', highlights);
