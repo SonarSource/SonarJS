@@ -92,30 +92,34 @@ export const rule: Rule.RuleModule = {
         const openCurlyBracesStack: AST.Token[] = [];
         const openHtmlTagsStack: AST.Token[] = [];
         extractTokensAndComments(context.getSourceCode()).tokens.forEach(token => {
-          if (token.type === 'Punctuator') {
-            if (token.value === '{') {
-              openCurlyBracesStack.push(token);
-            }
-            if (token.value === '}') {
-              const highlightedSymbol: HighlightedSymbol = {
-                declaration: location(openCurlyBracesStack.pop()!.loc),
-                references: [location(token.loc)],
-              };
-              result.push(highlightedSymbol);
-            }
-          } else if (token.type === 'HTMLTagOpen') {
-            openHtmlTagsStack.push(token);
-          } else if (token.type === 'HTMLSelfClosingTagClose') {
-            openHtmlTagsStack.pop();
-          } else if (token.type === 'HTMLEndTagOpen') {
-            const openHtmlTag = openHtmlTagsStack.pop();
-            if (openHtmlTag) {
-              const highlightedSymbol: HighlightedSymbol = {
-                declaration: location(openHtmlTag.loc),
-                references: [location(token.loc)],
-              };
-              result.push(highlightedSymbol);
-            }
+          switch (token.type) {
+            case 'Punctuator':
+              if (token.value === '{') {
+                openCurlyBracesStack.push(token);
+              } else if (token.value === '}') {
+                const highlightedSymbol: HighlightedSymbol = {
+                  declaration: location(openCurlyBracesStack.pop()!.loc),
+                  references: [location(token.loc)],
+                };
+                result.push(highlightedSymbol);
+              }
+              break;
+            case 'HTMLTagOpen':
+              openHtmlTagsStack.push(token);
+              break;
+            case 'HTMLSelfClosingTagClose':
+              openHtmlTagsStack.pop();
+              break;
+            case 'HTMLEndTagOpen':
+              const openHtmlTag = openHtmlTagsStack.pop();
+              if (openHtmlTag) {
+                const highlightedSymbol: HighlightedSymbol = {
+                  declaration: location(openHtmlTag.loc),
+                  references: [location(token.loc)],
+                };
+                result.push(highlightedSymbol);
+              }
+              break;
           }
         });
 
