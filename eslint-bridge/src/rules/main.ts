@@ -141,6 +141,7 @@ import { rule as noUnusedFunctionArgument } from './no-unused-function-argument'
 import { rule as noUselessIncrement } from './no-useless-increment';
 import { rule as noUselessIntersection } from './no-useless-intersection';
 import { rule as noVariableUsageBeforeDeclaration } from './no-variable-usage-before-declaration';
+import { rule as noVueBypassSanitization } from './no-vue-bypass-sanitization';
 import { rule as noWeakCipher } from './no-weak-cipher';
 import { rule as noWeakKeys } from './no-weak-keys';
 import { rule as noWildcardImport } from './no-wildcard-import';
@@ -315,6 +316,7 @@ ruleModules['no-unused-function-argument'] = noUnusedFunctionArgument;
 ruleModules['no-useless-increment'] = noUselessIncrement;
 ruleModules['no-useless-intersection'] = noUselessIntersection;
 ruleModules['no-variable-usage-before-declaration'] = noVariableUsageBeforeDeclaration;
+ruleModules['no-vue-bypass-sanitization'] = noVueBypassSanitization;
 ruleModules['no-weak-cipher'] = noWeakCipher;
 ruleModules['no-weak-keys'] = noWeakKeys;
 ruleModules['no-wildcard-import'] = noWildcardImport;
