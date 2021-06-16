@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, Scope, AST } from 'eslint';
+import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { Location } from './location';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { AST } from 'vue-eslint-parser';
+import { extractTokensAndComments } from './utils-token';
 
 export const symbolHighlightingRuleId = 'internal-symbol-highlighting';
 
@@ -88,18 +90,36 @@ export const rule: Rule.RuleModule = {
         });
 
         const openCurlyBracesStack: AST.Token[] = [];
-        context.getSourceCode().ast.tokens.forEach(token => {
-          if (token.type === 'Punctuator') {
-            if (token.value === '{') {
-              openCurlyBracesStack.push(token);
-            }
-            if (token.value === '}') {
-              const highlightedSymbol: HighlightedSymbol = {
-                declaration: location(openCurlyBracesStack.pop()!.loc),
-                references: [location(token.loc)],
-              };
-              result.push(highlightedSymbol);
-            }
+        const openHtmlTagsStack: AST.Token[] = [];
+        extractTokensAndComments(context.getSourceCode()).tokens.forEach(token => {
+          switch (token.type) {
+            case 'Punctuator':
+              if (token.value === '{') {
+                openCurlyBracesStack.push(token);
+              } else if (token.value === '}') {
+                const highlightedSymbol: HighlightedSymbol = {
+                  declaration: location(openCurlyBracesStack.pop()!.loc),
+                  references: [location(token.loc)],
+                };
+                result.push(highlightedSymbol);
+              }
+              break;
+            case 'HTMLTagOpen':
+              openHtmlTagsStack.push(token);
+              break;
+            case 'HTMLSelfClosingTagClose':
+              openHtmlTagsStack.pop();
+              break;
+            case 'HTMLEndTagOpen':
+              const openHtmlTag = openHtmlTagsStack.pop();
+              if (openHtmlTag) {
+                const highlightedSymbol: HighlightedSymbol = {
+                  declaration: location(openHtmlTag.loc),
+                  references: [location(token.loc)],
+                };
+                result.push(highlightedSymbol);
+              }
+              break;
           }
         });
 
