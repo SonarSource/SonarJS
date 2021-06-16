@@ -108,11 +108,14 @@ export const rule: Rule.RuleModule = {
           } else if (token.type === 'HTMLSelfClosingTagClose') {
             openHtmlTagsStack.pop();
           } else if (token.type === 'HTMLEndTagOpen') {
-            const highlightedSymbol: HighlightedSymbol = {
-              declaration: location(openHtmlTagsStack.pop()!.loc),
-              references: [location(token.loc)],
-            };
-            result.push(highlightedSymbol);
+            const openHtmlTag = openHtmlTagsStack.pop();
+            if (openHtmlTag) {
+              const highlightedSymbol: HighlightedSymbol = {
+                declaration: location(openHtmlTag.loc),
+                references: [location(token.loc)],
+              };
+              result.push(highlightedSymbol);
+            }
           }
         });
 

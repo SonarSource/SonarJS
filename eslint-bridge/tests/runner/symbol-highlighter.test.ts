@@ -138,10 +138,8 @@ it('should highlight Vue templates', () => {
   const filePath = '/some/path/file.vue';
   const fileContent = `
   <template>
-    <foo>
-      <bar>
-        <baz/> <!-- ignored -->
-      </bar>
+    <foo a="v" b="w">
+      <baz/> <!-- ignored: self-closing -->
     </foo>
   </template>`;
 
@@ -149,16 +147,29 @@ it('should highlight Vue templates', () => {
   const { highlightedSymbols } = analyzeJavaScript({ filePath, fileContent, tsConfigs: [] });
   expect(highlightedSymbols).toEqual([
     {
-      declaration: { startLine: 4, startCol: 6, endLine: 4, endCol: 10 } /* <bar> */,
-      references: [{ startLine: 6, startCol: 6, endLine: 6, endCol: 11 }] /* </bar> */,
+      declaration: { startLine: 3, startCol: 4, endLine: 3, endCol: 8 } /* <foo */,
+      references: [{ startLine: 5, startCol: 4, endLine: 5, endCol: 9 }] /* </foo */,
     },
     {
-      declaration: { startLine: 3, startCol: 4, endLine: 3, endCol: 8 } /* <foo> */,
-      references: [{ startLine: 7, startCol: 4, endLine: 7, endCol: 9 }] /* </foo> */,
+      declaration: { startLine: 2, startCol: 2, endLine: 2, endCol: 11 } /* <template */,
+      references: [{ startLine: 6, startCol: 2, endLine: 6, endCol: 12 }] /* </template */,
     },
+  ]);
+});
+
+it('should highlight inconsistent Vue templates', () => {
+  const filePath = '/some/path/file.vue';
+  const fileContent = `
+  <template>
+    </p>
+  </template> <!-- ignored: inconsistency -->`;
+
+  initLinter([]);
+  const { highlightedSymbols } = analyzeJavaScript({ filePath, fileContent, tsConfigs: [] });
+  expect(highlightedSymbols).toEqual([
     {
-      declaration: { startLine: 2, startCol: 2, endLine: 2, endCol: 11 } /* <template> */,
-      references: [{ startLine: 8, startCol: 2, endLine: 8, endCol: 12 }] /* </template> */,
+      declaration: { startLine: 2, startCol: 2, endLine: 2, endCol: 11 } /* <template */,
+      references: [{ startLine: 3, startCol: 4, endLine: 3, endCol: 7 }] /* </p */,
     },
   ]);
 });
