@@ -224,6 +224,7 @@ public final class CheckList {
       NonEmptyCaseWithoutBreakCheck.class,
       NonExistentAssignmentOperatorCheck.class,
       NonNumberInArithmeticExpressionCheck.class,
+      NoVueBypassSanitizationCheck.class,
       NonStandardImportCheck.class,
       NullDereferenceCheck.class,
       OSCommandCheck.class,
@@ -320,5 +321,4 @@ public final class CheckList {
       XpathCheck.class
     );
   }
-
 }
