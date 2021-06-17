@@ -48,6 +48,15 @@ ruleTesterForVue.run(testName, rule, {
       </script>
       `,
     },
+    {
+      code: `
+      <template>
+      <div>
+        <!-- normal href which is not a directive -->
+        <a href="tainted">click here1</a> 
+      </div>
+      </template>`,
+    },
   ],
   invalid: [
     {
