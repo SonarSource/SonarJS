@@ -60,7 +60,7 @@ build_task:
   build_script:
     - source cirrus-env BUILD
     - yarn config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    - regular_mvn_build_deploy_analyze
+    - regular_mvn_build_deploy_analyze -DskipTests
   cleanup_before_cache_script: cleanup_maven_repository
 
 
@@ -86,7 +86,7 @@ ws_scan_task:
     cpu: 2
     memory: 2G
   # run only on master and long-term branches
-  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
+#  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
     WS_APIKEY: ENCRYPTED[de49edbfb148e7165e1f0d66a0f26fc1efbe95a9b4a62e9e968c173379ffcf1c2aaa8e0e4794d066814fa24d1c3e6eac]
     WS_WSS_URL: https://saas-eu.whitesourcesoftware.com/agent
