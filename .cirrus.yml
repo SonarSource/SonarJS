@@ -89,13 +89,6 @@ ws_scan_task:
 #  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
     WS_APIKEY: ENCRYPTED[de49edbfb148e7165e1f0d66a0f26fc1efbe95a9b4a62e9e968c173379ffcf1c2aaa8e0e4794d066814fa24d1c3e6eac]
-    WS_WSS_URL: https://saas-eu.whitesourcesoftware.com/agent
-    WS_RESOLVEALLDEPENDENCIES: false
-    WS_MAVEN_RESOLVEDEPENDENCIES: true
-    WS_NPM_RESOLVEDEPENDENCIES: true
-    WS_FILESYSTEMSCAN: false
-    WS_MAVEN_AGGREGATEMODULES: true
-    WS_EXCLUDES: "**/*sources.jar **/*javadoc.jar **/its/plugin/projects/**"
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   whitesource_script:

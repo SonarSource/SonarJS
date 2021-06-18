@@ -35,7 +35,7 @@ scan() {
   export WS_PRODUCTNAME=$(maven_expression "project.name")
   export WS_PROJECTNAME="${WS_PRODUCTNAME} ${PROJECT_VERSION%.*}"
   echo "${WS_PRODUCTNAME} - ${WS_PROJECTNAME}"
-  java -jar wss-unified-agent.jar
+  java -jar wss-unified-agent.jar -c whitesource.properties
 }
 
 get_ws_agent
