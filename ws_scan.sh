@@ -56,7 +56,7 @@ scan() {
   echo "${WS_PRODUCTNAME} - ${WS_PROJECTNAME}"
   java -jar ${UNIFIED_AGENT_JAR} -d "${PWD}" -analyzeMultiModule ${SETUP_FILE}
   cat ${SETUP_FILE}
-  java -jar ${X_MODULE_ANALYZER_JAR} -xModulePath ${SETUP_FILE} -fsaJarPath ${UNIFIED_AGENT_JAR} -aggregateModules True -logPath /tmp/ws_logs
+  java -jar ${X_MODULE_ANALYZER_JAR} -xModulePath ${SETUP_FILE} -fsaJarPath ${UNIFIED_AGENT_JAR} -c wss-unified-agent.config -aggregateModules True -logPath /tmp/ws_logs
 }
 
 get_ws_agent
