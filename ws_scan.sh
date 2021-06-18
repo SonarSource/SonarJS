@@ -2,7 +2,10 @@
 
 readonly URL="https://unified-agent.s3.amazonaws.com/wss-unified-agent.jar"
 readonly UNIFIED_AGENT_JAR="wss-unified-agent.jar"
+readonly X_MODULE_ANALYZER_JAR="xModuleAnalyzer-21.4.1.jar"
 readonly MD5_CHECKSUM="8E51FDC3C9EF7FCAE250737BD226C8F6"
+readonly CONFIG_FILE="whitesource.properties"
+readonly SETUP_FILE="setupFile.txt"
 
 get_ws_agent() {
   if [[ ! -f "${UNIFIED_AGENT_JAR}" ]]; then
@@ -31,11 +34,28 @@ get_ws_agent() {
   fi
 }
 
+get_xModuleAnalyzer() {
+  local url="https://unified-agent.s3.amazonaws.com/xModuleAnalyzer/${X_MODULE_ANALYZER_JAR}"
+  curl \
+    --location \
+    --remote-name \
+    --remote-header-name \
+    "${url}"
+
+   if [[ ! -f "${X_MODULE_ANALYZER_JAR}" ]]; then
+    echo "Could not find downloaded Unified Agent" >&2
+    exit 1
+  fi
+
+}
+
 scan() {
   export WS_PRODUCTNAME=$(maven_expression "project.name")
   export WS_PROJECTNAME="${WS_PRODUCTNAME} ${PROJECT_VERSION%.*}"
   echo "${WS_PRODUCTNAME} - ${WS_PROJECTNAME}"
-  java -jar wss-unified-agent.jar -c whitesource.properties
+  java -jar ${UNIFIED_AGENT_JAR} -c ${CONFIG_FILE} -d "${PWD}" -analyzeMultiModule ${SETUP_FILE}
+  cat setupFile.txt
+  java -jar ${X_MODULE_ANALYZER_JAR} -xModulePath ${SETUP_FILE} -fsaJarPath ${UNIFIED_AGENT_JAR} -c ${CONFIG_FILE} -aggregateModules True -logPath /tmp/ws_logs
 }
 
 get_ws_agent

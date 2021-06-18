@@ -95,6 +95,9 @@ ws_scan_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - bash ws_scan.sh
+  always:
+    logs_artifact:
+      path: /tmp/ws_logs
 
 plugin_qa_task:
   depends_on:
