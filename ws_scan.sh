@@ -51,6 +51,9 @@ get_xModuleAnalyzer() {
 }
 
 scan() {
+  # remove its/plugin/projects seems exclusion is not taken into account
+  rm -rf its/plugin/projects
+
   export WS_PRODUCTNAME=$(maven_expression "project.name")
   export WS_PROJECTNAME="${WS_PRODUCTNAME} ${PROJECT_VERSION%.*}"
   echo "${WS_PRODUCTNAME} - ${WS_PROJECTNAME}"
