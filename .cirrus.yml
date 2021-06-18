@@ -78,8 +78,8 @@ build_win_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 ws_scan_task:
-#  depends_on:
-#    - build
+  depends_on:
+    - build
   gke_container:
     dockerfile: .cirrus/nodejs-12.Dockerfile
     <<: *CONTAINER_DEFINITION
