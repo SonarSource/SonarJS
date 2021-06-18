@@ -1,10 +1,12 @@
 #! /usr/bin/env bash
 
+set -euox pipefail
+
 readonly URL="https://unified-agent.s3.amazonaws.com/wss-unified-agent.jar"
 readonly UNIFIED_AGENT_JAR="wss-unified-agent.jar"
 readonly X_MODULE_ANALYZER_JAR="xModuleAnalyzer-21.4.1.jar"
 readonly MD5_CHECKSUM="8E51FDC3C9EF7FCAE250737BD226C8F6"
-readonly CONFIG_FILE="whitesource.properties"
+readonly SETUP_FILE="setupFile.txt"
 
 get_ws_agent() {
   if [[ ! -f "${UNIFIED_AGENT_JAR}" ]]; then
@@ -53,7 +55,7 @@ scan() {
   export WS_PROJECTNAME="${WS_PRODUCTNAME} ${PROJECT_VERSION%.*}"
   echo "${WS_PRODUCTNAME} - ${WS_PROJECTNAME}"
   java -jar ${UNIFIED_AGENT_JAR} -d "${PWD}" -analyzeMultiModule ${SETUP_FILE}
-  cat setupFile.txt
+  cat ${SETUP_FILE}
   java -jar ${X_MODULE_ANALYZER_JAR} -xModulePath ${SETUP_FILE} -fsaJarPath ${UNIFIED_AGENT_JAR} -aggregateModules True -logPath /tmp/ws_logs
 }
 
