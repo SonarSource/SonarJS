@@ -83,8 +83,8 @@ ws_scan_task:
   gke_container:
     dockerfile: .cirrus/nodejs-12.Dockerfile
     <<: *CONTAINER_DEFINITION
-    cpu: 2
-    memory: 2G
+    cpu: 4
+    memory: 8G
   # run only on master and long-term branches
 #  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
