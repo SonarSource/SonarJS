@@ -5,7 +5,7 @@ set -euox pipefail
 readonly URL="https://unified-agent.s3.amazonaws.com/wss-unified-agent.jar"
 readonly UNIFIED_AGENT_JAR="wss-unified-agent.jar"
 readonly X_MODULE_ANALYZER_JAR="xModuleAnalyzer-21.6.1.jar"
-readonly MD5_CHECKSUM="8E51FDC3C9EF7FCAE250737BD226C8F6"
+readonly MD5_CHECKSUM="F2EB843816A572904954052756EB66E7"
 readonly SETUP_FILE="setupFile.txt"
 
 get_ws_agent() {
