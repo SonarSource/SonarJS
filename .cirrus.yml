@@ -96,6 +96,7 @@ ws_scan_task:
   whitesource_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
+    - mvn install -DskipTests
     - bash ws_scan.sh
   always:
     logs_artifact:
