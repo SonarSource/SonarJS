@@ -91,6 +91,8 @@ ws_scan_task:
     WS_APIKEY: ENCRYPTED[de49edbfb148e7165e1f0d66a0f26fc1efbe95a9b4a62e9e968c173379ffcf1c2aaa8e0e4794d066814fa24d1c3e6eac]
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  print_env_script:
+    - env
   whitesource_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
