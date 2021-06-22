@@ -87,5 +87,6 @@
   "files": [
     "lib/",
     "bin/"
-  ]
+  ],
+  "main": "lib/server.js"
 }
