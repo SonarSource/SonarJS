@@ -55,7 +55,7 @@
     "eslint-plugin-sonarjs": "0.8.0-125",
     "express": "4.17.1",
     "run-node": "2.0.0",
-    "typescript": "4.3.2",
+    "typescript": "4.3.4",
     "vue-eslint-parser": "7.6.0"
   },
   "bundledDependencies": [
