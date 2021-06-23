@@ -2,15 +2,13 @@
   "title": "Executing XPath expressions is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "deprecated",
-  "tags": [
-    
-  ],
+  "tags": [],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4817",
   "sqKey": "S4817",
+  "scope": "Main",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "Main"
+  ]
 }

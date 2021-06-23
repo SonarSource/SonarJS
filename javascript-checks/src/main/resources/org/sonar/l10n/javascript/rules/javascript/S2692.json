@@ -12,9 +12,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2692",
   "sqKey": "S2692",
+  "scope": "All",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

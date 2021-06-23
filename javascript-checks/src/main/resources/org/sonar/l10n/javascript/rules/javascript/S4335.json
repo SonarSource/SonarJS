@@ -1,5 +1,5 @@
 {
-  "title": "Types without members, 'any' and 'never' should not be used in type intersections",
+  "title": "Types without members, \u0027any\u0027 and \u0027never\u0027 should not be used in type intersections",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -12,8 +12,8 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4335",
   "sqKey": "S4335",
+  "scope": "All",
   "compatibleLanguages": [
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

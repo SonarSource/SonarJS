@@ -12,8 +12,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4136",
   "sqKey": "S4136",
+  "scope": "All",
   "compatibleLanguages": [
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

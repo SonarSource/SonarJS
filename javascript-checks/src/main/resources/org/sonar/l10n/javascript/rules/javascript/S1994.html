@@ -1,5 +1,5 @@
-<p>It can be extremely confusing when a <code>for</code> loop's counter is incremented outside of its increment clause. In such cases, the increment
-should be moved to the loop's increment clause if at all possible.</p>
+<p>It can be extremely confusing when a <code>for</code> loop’s counter is incremented outside of its increment clause. In such cases, the increment
+should be moved to the loop’s increment clause if at all possible.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 for (i = 0; i &lt; 10; j++) { // Noncompliant
@@ -13,7 +13,7 @@ for (i = 0; i &lt; 10; i++, j++) {
   // ...
 }
 </pre>
-<p>Or </p>
+<p>Or</p>
 <pre>
 for (i = 0; i &lt; 10; i++) {
   // ...

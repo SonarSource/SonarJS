@@ -1,5 +1,5 @@
 {
-  "title": "Optional property declarations should not use both '?' and 'undefined' syntax",
+  "title": "Optional property declarations should not use both \u0027?\u0027 and \u0027undefined\u0027 syntax",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -12,8 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4782",
   "sqKey": "S4782",
+  "scope": "All",
   "compatibleLanguages": [
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

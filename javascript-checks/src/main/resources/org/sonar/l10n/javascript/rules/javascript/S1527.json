@@ -13,8 +13,8 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1527",
   "sqKey": "S1527",
+  "scope": "Main",
   "compatibleLanguages": [
     "JAVASCRIPT"
-  ],
-  "scope": "Main"
+  ]
 }

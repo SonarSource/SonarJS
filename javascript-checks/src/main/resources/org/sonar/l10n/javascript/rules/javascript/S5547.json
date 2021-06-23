@@ -2,20 +2,21 @@
   "title": "Cipher algorithms should be robust",
   "type": "VULNERABILITY",
   "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
   "tags": [
     "cwe",
     "privacy",
     "owasp-a6",
     "sans-top25-porous",
-    "owasp-a3"
+    "owasp-a3",
+    "owasp-m5"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5547",
   "sqKey": "S5547",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -25,6 +26,16 @@
     "OWASP": [
       "A3",
       "A6"
+    ],
+    "OWASP Mobile": [
+      "M5"
+    ],
+    "MASVS": [
+      "MSTG-CRYPTO-3"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

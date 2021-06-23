@@ -1,7 +1,7 @@
-<p>To establish a SSL/TLS connection not vulnerable to man-in-the-middle attacks, it's essential to make sure the server presents the right
-certificate. </p>
-<p>The certificate's hostname-specific data should match the server hostname.</p>
-<p>It's not recommended to re-invent the wheel by implementing custom hostname verification.</p>
+<p>To establish a SSL/TLS connection not vulnerable to man-in-the-middle attacks, it’s essential to make sure the server presents the right
+certificate.</p>
+<p>The certificate’s hostname-specific data should match the server hostname.</p>
+<p>It’s not recommended to re-invent the wheel by implementing custom hostname verification.</p>
 <p>TLS/SSL libraries provide built-in hostname verification functions that should be used.</p>
 <h2>Noncompliant Code Example</h2>
 <p><a href="https://nodejs.org/api/https.html">https</a> built-in module:</p>
@@ -87,6 +87,10 @@ let socket = request.get({
   </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements">Mobile AppSec Verification
+  Standard</a> - Network Communication Requirements </li>
+  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m3-insecure-communication">OWASP Mobile Top 10 2016 Category M3</a> - Insecure
+  Communication </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/297.html">MITRE, CWE-297</a> - Improper Validation of Certificate with Host Mismatch </li>
 </ul>
 

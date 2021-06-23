@@ -14,10 +14,6 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2589",
   "sqKey": "S2589",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "All",
   "securityStandards": {
     "CWE": [
@@ -25,5 +21,9 @@
       571,
       570
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

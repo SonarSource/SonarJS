@@ -13,14 +13,14 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1874",
   "sqKey": "S1874",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
       477
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

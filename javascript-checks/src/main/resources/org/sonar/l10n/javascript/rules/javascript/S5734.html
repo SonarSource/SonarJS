@@ -1,10 +1,10 @@
 <p><a href="https://blog.mozilla.org/security/2016/08/26/mitigating-mime-confusion-attacks-in-firefox/">MIME confusion</a> attacks occur when an
 attacker successfully tricks a web-browser to interpret a resource as a different type than the one expected. To correctly interpret a resource
-(script, image, stylesheet ...) web browsers look for the <a
-href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">Content-Type header</a> defined in the HTTP response received from the
-server, but often this header is not set or is set with an incorrect value. To avoid content-type mismatch and to provide the best user experience,
-web browsers try to deduce the right content-type, generally by inspecting the content of the resources (the first bytes). This "guess mechanism" is
-called <a href="https://en.wikipedia.org/wiki/Content_sniffing">MIME type sniffing</a>.</p>
+(script, image, stylesheet …​) web browsers look for the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">Content-Type
+header</a> defined in the HTTP response received from the server, but often this header is not set or is set with an incorrect value. To avoid
+content-type mismatch and to provide the best user experience, web browsers try to deduce the right content-type, generally by inspecting the content
+of the resources (the first bytes). This "guess mechanism" is called <a href="https://en.wikipedia.org/wiki/Content_sniffing">MIME type
+sniffing</a>.</p>
 <p>Attackers can take advantage of this feature when a website ("example.com" here) allows to upload arbitrary files. In that case, an attacker can
 upload a malicious image <em>fakeimage.png</em> (containing malicious JavaScript code or <a
 href="https://docs.microsoft.com/fr-fr/archive/blogs/ieinternals/script-polyglots">a polyglot content</a> file) such as:</p>

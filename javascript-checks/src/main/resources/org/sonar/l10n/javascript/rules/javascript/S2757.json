@@ -1,20 +1,18 @@
 {
-  "title": "Non-existent operators '=+', '=-' and '=!' should not be used",
+  "title": "Non-existent operators \u0027\u003d+\u0027, \u0027\u003d-\u0027 and \u0027\u003d!\u0027 should not be used",
   "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "2min"
   },
-  "tags": [
-    
-  ],
+  "tags": [],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2757",
   "sqKey": "S2757",
+  "scope": "All",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

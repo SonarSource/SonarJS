@@ -5,10 +5,10 @@ for applications that are distributed or that are open-source.</p>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-13466">CVE-2019-13466</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15389">CVE-2018-15389</a> </li>
 </ul>
-<p>Credentials should be stored outside of the code in a configuration file, a database, or a management service for secrets. </p>
+<p>Credentials should be stored outside of the code in a configuration file, a database, or a management service for secrets.</p>
 <p>This rule flags instances of hard-coded credentials used in database and LDAP connections. It looks for hard-coded credentials in connection
 strings, and for variable names that match any of the patterns from the provided list.</p>
-<p>It's recommended to customize the configuration of this rule with additional credential words such as "oauthToken", "secret", ...</p>
+<p>It’s recommended to customize the configuration of this rule with additional credential words such as "oauthToken", "secret", …​</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> Credentials allows access to a sensitive component like a database, a file storage, an API or a service. </li>
@@ -20,7 +20,7 @@ strings, and for variable names that match any of the patterns from the provided
 <ul>
   <li> Store the credentials in a configuration file that is not pushed to the code repository. </li>
   <li> Store the credentials in a database. </li>
-  <li> Use your cloud provider's service for managing secrets. </li>
+  <li> Use your cloud provider’s service for managing secrets. </li>
   <li> If the a password has been disclosed through the source code: change it. </li>
 </ul>
 <h2>Sensitive Code Example</h2>
@@ -55,7 +55,6 @@ connection.connect();
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A2-Broken_Authentication">OWASP Top 10 2017 Category A2</a> - Broken Authentication </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/798">MITRE, CWE-798</a> - Use of Hard-coded Credentials </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/259">MITRE, CWE-259</a> - Use of Hard-coded Password </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/OjdGBQ">CERT, MSC03-J.</a> - Never hard code sensitive information </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
   <li> Derived from FindSecBugs rule <a href="https://h3xstream.github.io/find-sec-bugs/bugs.htm#HARD_CODE_PASSWORD">Hard Coded Password</a> </li>
 </ul>

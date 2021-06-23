@@ -1,18 +1,18 @@
 <p>Most of cryptographic systems require a sufficient key size to be robust against brute-force attacks.</p>
 <p><a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf">NIST recommendations</a> will be checked for these
 use-cases:</p>
-<p><strong>Digital Signature Generation</strong> and <strong>Verification:</strong> </p>
+<p><strong>Digital Signature Generation</strong> and <strong>Verification:</strong></p>
 <ul>
   <li> p ≥ 2048 AND q ≥ 224 for DSA (<code>p</code> is key length and <code>q</code> the modulus length) </li>
   <li> n ≥ 2048 for RSA (<code>n</code> is the key length) </li>
 </ul>
-<p><strong>Key Agreement</strong>: </p>
+<p><strong>Key Agreement</strong>:</p>
 <ul>
   <li> p ≥ 2048 AND q ≥ 224 for DH and MQV </li>
   <li> n ≥ 224 for ECDH and ECMQV (Examples: <code>secp192r1</code> is a non-compliant curve (<code>n</code> &lt; 224) but <code>secp224k1</code> is
   compliant (<code>n</code> &gt;= 224)) </li>
 </ul>
-<p><strong>Symmetric keys</strong>: </p>
+<p><strong>Symmetric keys</strong>:</p>
 <ul>
   <li> key length ≥ 128 bits </li>
 </ul>
@@ -53,6 +53,10 @@ crypto.generateKeyPair('ec', {
   </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x08-v3-cryptography_verification_requirements">Mobile AppSec
+  Verification Standard</a> - Cryptography Requirements </li>
+  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m5-insufficient-cryptography">OWASP Mobile Top 10 2016 Category M5</a> -
+  Insufficient Cryptography </li>
   <li> <a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar1.pdf">NIST 800-131A</a> - Recommendation for Transitioning the
   Use of Cryptographic Algorithms and Key Lengths </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/326.html">MITRE, CWE-326</a> - Inadequate Encryption Strength </li>

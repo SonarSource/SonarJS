@@ -13,10 +13,6 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5876",
   "sqKey": "S5876",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -25,5 +21,9 @@
     "OWASP": [
       "A2"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }
