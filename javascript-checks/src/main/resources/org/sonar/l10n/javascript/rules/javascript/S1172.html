@@ -32,15 +32,10 @@ var mySecondCallBackFunction = function (p1, p2, p3, p4) {  // p1, p2 and p3 are
 var myThirdCallBackFunction = function (p1, p2, p3, p4) {  // p1 is ignored but p3 and p4 are reported
                                               return p2; }
 </pre>
-<p>Further, when <code>arguments</code> is used in the function body, no parameter is reported as unused. </p>
+<p>Further, when <code>arguments</code> is used in the function body, no parameter is reported as unused.</p>
 <pre>
 function doSomething(a, b, c) {
   compute(arguments);
 }
 </pre>
-<h2>See</h2>
-<ul>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/5dUxBQ">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never executed
-  </li>
-</ul>
 

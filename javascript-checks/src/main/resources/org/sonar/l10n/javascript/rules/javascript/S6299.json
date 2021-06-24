@@ -9,10 +9,6 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-6299",
   "sqKey": "S6299",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -24,5 +20,9 @@
     "OWASP": [
       "A7"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

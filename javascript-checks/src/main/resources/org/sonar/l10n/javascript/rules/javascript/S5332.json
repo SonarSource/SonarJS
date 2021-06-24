@@ -4,15 +4,12 @@
   "status": "ready",
   "tags": [
     "cwe",
-    "owasp-a3"
+    "owasp-a3",
+    "owasp-m3"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5332",
   "sqKey": "S5332",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -21,6 +18,16 @@
     ],
     "OWASP": [
       "A3"
+    ],
+    "OWASP Mobile": [
+      "M3"
+    ],
+    "MASVS": [
+      "MSTG-NETWORK-1"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

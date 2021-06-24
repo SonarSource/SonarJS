@@ -14,10 +14,6 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5732",
   "sqKey": "S5732",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -26,5 +22,9 @@
     "OWASP": [
       "A6"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

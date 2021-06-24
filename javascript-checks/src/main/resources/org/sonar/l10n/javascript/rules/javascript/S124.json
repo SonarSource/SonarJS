@@ -2,15 +2,17 @@
   "title": "Track comments matching a regular expression",
   "type": "CODE_SMELL",
   "status": "ready",
-  "tags": [
-    
-  ],
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "0min"
+  },
+  "tags": [],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-124",
   "sqKey": "S124",
+  "scope": "Main",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "Main"
+  ]
 }

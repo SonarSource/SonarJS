@@ -13,14 +13,14 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-905",
   "sqKey": "S905",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
       482
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

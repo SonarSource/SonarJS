@@ -1,11 +1,11 @@
-<p>Validation of X.509 certificates is essential to create secure SSL/TLS sessions not vulnerable to man-in-the-middle attacks. </p>
+<p>Validation of X.509 certificates is essential to create secure SSL/TLS sessions not vulnerable to man-in-the-middle attacks.</p>
 <p>The certificate chain validation includes these steps:</p>
 <ul>
   <li> The certificate is issued by its parent Certificate Authority or the root CA trusted by the system. </li>
   <li> Each CA is allowed to issue certificates. </li>
   <li> Each certificate in the chain is not expired. </li>
 </ul>
-<p>It's not recommended to reinvent the wheel by implementing custom certificate chain validation.</p>
+<p>It’s not recommended to reinvent the wheel by implementing custom certificate chain validation.</p>
 <p>TLS libraries provide built-in certificate validation functions that should be used.</p>
 <h2>Noncompliant Code Example</h2>
 <p>There is no way to disable certificate verification in tls, https and request modules but it is possible to not reject request when verification
@@ -88,6 +88,10 @@ let socket = request.get({
   </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements">Mobile AppSec Verification
+  Standard</a> - Network Communication Requirements </li>
+  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m3-insecure-communication">OWASP Mobile Top 10 2016 Category M3</a> - Insecure
+  Communication </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/295.html">MITRE, CWE-295</a> - Improper Certificate Validation </li>
 </ul>
 

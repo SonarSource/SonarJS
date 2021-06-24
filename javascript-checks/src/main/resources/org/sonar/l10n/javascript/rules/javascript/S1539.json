@@ -13,9 +13,9 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1539",
   "sqKey": "S1539",
+  "scope": "Main",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "Main"
+  ]
 }

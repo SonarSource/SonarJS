@@ -6,16 +6,16 @@ information or impersonating other users.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The value for which sanitization has been disabled is user controlled. </li>
-  <li> It's difficult to understand how this value is constructed. </li>
+  <li> It’s difficult to understand how this value is constructed. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> Avoid including dynamic executable code and thus disabling Angular's built-in sanitization unless it's absolutely necessary. Try instead to
+  <li> Avoid including dynamic executable code and thus disabling Angular’s built-in sanitization unless it’s absolutely necessary. Try instead to
   rely as much as possible on static templates and Angular built-in sanitization to define web page content. </li>
-  <li> Make sure you understand how the value you want to trust is constructed and that it's never concatenated with user controlled data. </li>
-  <li> Make sure that you choose the correct <a href="https://angular.io/api/platform-browser/DomSanitizer">DomSanitizer</a> "bypass" method based on
-  the context. For instance, only use <code>bypassSecurityTrustUrl</code> to trust urls in an <code>href</code> attribute context. </li>
+  <li> Make sure to understand how the value to consider as trusted is constructed and never concatenate it with user controlled data. </li>
+  <li> Make sure to choose the correct <a href="https://angular.io/api/platform-browser/DomSanitizer">DomSanitizer</a> "bypass" method based on the
+  context. For instance, only use <code>bypassSecurityTrustUrl</code> to trust urls in an <code>href</code> attribute context. </li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>
@@ -59,8 +59,8 @@ export class HelloComponent implements OnInit {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A7_2017-Cross-Site_Scripting_(XSS)">OWASP Top 10 2017 Category A7</a> - Broken Access
-  Control </li>
+  <li> <a href="https://owasp.org/www-project-top-ten/2017/A7_2017-Cross-Site_Scripting_(XSS)">OWASP Top 10 2017 Category A7</a> - Cross-Site
+  Scripting (XSS) </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/79.html">MITRE, CWE-79</a> - Improper Neutralization of Input During Web Page Generation
   ('Cross-site Scripting') </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/80.html">MITRE, CWE-80</a> - Improper Neutralization of Script-Related HTML Tags in a Web Page

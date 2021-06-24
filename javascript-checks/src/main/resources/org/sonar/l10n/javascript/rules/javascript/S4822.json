@@ -1,20 +1,18 @@
 {
-  "title": "Promise rejections should not be caught by 'try' block",
+  "title": "Promise rejections should not be caught by \u0027try\u0027 block",
   "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [
-    
-  ],
+  "tags": [],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4822",
   "sqKey": "S4822",
+  "scope": "All",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

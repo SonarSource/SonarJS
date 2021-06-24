@@ -6,12 +6,12 @@ computational effort is enough to find two or more different inputs that produce
 <p>The hashed value is used in a security context like:</p>
 <ul>
   <li> User-password storage. </li>
-  <li> Security token generation (used to confirm e-mail when registering on a website, reset password, etc ...). </li>
+  <li> Security token generation (used to confirm e-mail when registering on a website, reset password, etc …​). </li>
   <li> To compute some message integrity. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Safer alternatives, such as <code>SHA-256</code>, <code>SHA-512</code>, <code>SHA-3</code> are recommended, and for password hashing, it's even
+<p>Safer alternatives, such as <code>SHA-256</code>, <code>SHA-512</code>, <code>SHA-3</code> are recommended, and for password hashing, it’s even
 better to use algorithms that do not compute too "quickly", like <code>bcrypt</code>, <code>scrypt</code>, <code>argon2</code> or <code>pbkdf2</code>
 because it slows down <code>brute force attacks</code>.</p>
 <h2>Sensitive Code Example</h2>
@@ -32,6 +32,10 @@ const hash = crypto.createHash('sha512'); // Compliant
   </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x08-v3-cryptography_verification_requirements">Mobile AppSec
+  Verification Standard</a> - Cryptography Requirements </li>
+  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m5-insufficient-cryptography">OWASP Mobile Top 10 2016 Category M5</a> -
+  Insufficient Cryptography </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/327.html">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/916.html">MITRE, CWE-916</a> - Use of Password Hash With Insufficient Computational Effort
   </li>

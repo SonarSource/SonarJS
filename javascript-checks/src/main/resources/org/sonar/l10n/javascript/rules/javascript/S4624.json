@@ -13,9 +13,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4624",
   "sqKey": "S4624",
+  "scope": "All",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

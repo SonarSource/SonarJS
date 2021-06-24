@@ -1,5 +1,5 @@
 <p>In Unix, "<code>others</code>" class refers to all users except the owner of the file and the members of the group assigned to this file.</p>
-<p>Granting permissions to this group can lead to unintended access to files. </p>
+<p>Granting permissions to this group can lead to unintended access to files.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The application is designed to be run on a multi-user environment. </li>
@@ -82,10 +82,6 @@ process.umask(0o007); // Compliant
   <li> <a href="https://www.owasp.org/index.php/Test_File_Permission_(OTG-CONFIG-009)">OWASP File Permission</a> </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/732">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/266.html">MITRE, CWE-266</a> - Incorrect Privilege Assignment </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/display/java/FIO01-J.+Create+files+with+appropriate+access+permissions">CERT, FIO01-J.</a> -
-  Create files with appropriate access permissions </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/display/c/FIO06-C.+Create+files+with+appropriate+access+permissions">CERT, FIO06-C.</a> - Create
-  files with appropriate access permissions </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>
 

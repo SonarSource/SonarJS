@@ -2,15 +2,13 @@
   "title": "Using regular expressions is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "deprecated",
-  "tags": [
-    
-  ],
+  "tags": [],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4784",
   "sqKey": "S4784",
+  "scope": "Main",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "Main"
+  ]
 }

@@ -1,5 +1,5 @@
 <p>An infinite loop is one that will never end while the program is running, i.e., you have to kill the program to get out of the loop. Whether it is
-by meeting the loop's end condition or via a <code>break</code>, every loop should have an end condition.</p>
+by meeting the loop’s end condition or via a <code>break</code>, every loop should have an end condition.</p>
 <h3>Known Limitations</h3>
 <ul>
   <li> False positives: when <code>yield</code> is used - <a href="https://github.com/SonarSource/SonarJS/issues/674">Issue #674</a>. </li>
@@ -25,7 +25,6 @@ while (b) { // Noncompliant; constant end condition
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-
 while (true) { // break will potentially allow leaving the loop
   if (someCondition) {
     break;
@@ -46,8 +45,4 @@ while(true) {
   }
 }
 </pre>
-<h2>See</h2>
-<ul>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/lzZGBQ">CERT, MSC01-J.</a> - Do not use an empty infinite loop </li>
-</ul>
 

@@ -8,14 +8,12 @@
     "linearOffset": "1h",
     "linearFactor": "5min"
   },
-  "tags": [
-    
-  ],
+  "tags": [],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3271",
   "sqKey": "S3271",
+  "scope": "Main",
   "compatibleLanguages": [
     "JAVASCRIPT"
-  ],
-  "scope": "Main"
+  ]
 }

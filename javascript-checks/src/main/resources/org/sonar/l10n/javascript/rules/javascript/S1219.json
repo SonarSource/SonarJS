@@ -12,9 +12,9 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-1219",
   "sqKey": "S1219",
+  "scope": "All",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

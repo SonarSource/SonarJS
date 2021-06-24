@@ -2,15 +2,13 @@
   "title": "Using command line arguments is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "deprecated",
-  "tags": [
-    
-  ],
+  "tags": [],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4823",
   "sqKey": "S4823",
+  "scope": "Main",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "Main"
+  ]
 }

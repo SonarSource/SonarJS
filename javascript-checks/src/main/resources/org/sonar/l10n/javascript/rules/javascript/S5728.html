@@ -1,6 +1,6 @@
 <p>Content security policy (CSP) (fetch directives) is a <a href="https://www.w3.org/TR/CSP3/">W3C standard </a> which is used by a server to specify,
 via a http header, the origins from where the browser is allowed to load resources. It can help to mitigate the risk of cross site scripting (XSS)
-attacks and reduce privileges used by an application. If the website doesn't define CSP header the browser will apply <a
+attacks and reduce privileges used by an application. If the website doesn’t define CSP header the browser will apply <a
 href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy">same-origin policy</a> by default.</p>
 <pre>
 Content-Security-Policy: default-src 'self'; script-src ‘self ‘ http://www.example.com

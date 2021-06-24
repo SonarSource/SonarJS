@@ -19,7 +19,7 @@ let arr = new Array(3.14);  // RangeError: Invalid array length
 <pre>
 let arr = new Array("3");  // ["3"]
 </pre>
-<p>Note that even if you set the length of an array, it will be empty. That is, it will have the number of elements you declared, but they won't
+<p>Note that even if you set the length of an array, it will be empty. That is, it will have the number of elements you declared, but they won’t
 contain anything, so no callbacks will be applied to the array elements.</p>
 <p>For these reasons, if someone changes the code to pass 1 argument instead of 2 arguments, the array might not have the expected length. To avoid
 these kinds of weird cases, always use the more readable array literal initialization format.</p>

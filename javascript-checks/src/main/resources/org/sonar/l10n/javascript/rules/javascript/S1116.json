@@ -12,9 +12,9 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1116",
   "sqKey": "S1116",
+  "scope": "All",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

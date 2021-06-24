@@ -44,14 +44,15 @@ const buf = crypto.randomBytes(1); // Compliant for security-sensitive use cases
 <ul>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
   </li>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x08-v3-cryptography_verification_requirements">Mobile AppSec
+  Verification Standard</a> - Cryptography Requirements </li>
+  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m5-insufficient-cryptography">OWASP Mobile Top 10 2016 Category M5</a> -
+  Insufficient Cryptography </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/338.html">MITRE, CWE-338</a> - Use of Cryptographically Weak Pseudo-Random Number Generator
   (PRNG) </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/330.html">MITRE, CWE-330</a> - Use of Insufficiently Random Values </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/326.html">MITRE, CWE-326</a> - Inadequate Encryption Strength </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/oTdGBQ">CERT, MSC02-J.</a> - Generate strong random numbers </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/UNcxBQ">CERT, MSC30-C.</a> - Do not use the rand() function for generating pseudorandom numbers
-  </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/2ns-BQ">CERT, MSC50-CPP.</a> - Do not use std::rand() for generating pseudorandom numbers </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/1241.html">MITRE, CWE-1241</a> - Use of Predictable Algorithm in Random Number Generator </li>
   <li> Derived from FindSecBugs rule <a href="https://h3xstream.github.io/find-sec-bugs/bugs.htm#PREDICTABLE_RANDOM">Predictable Pseudo Random Number
   Generator</a> </li>
 </ul>

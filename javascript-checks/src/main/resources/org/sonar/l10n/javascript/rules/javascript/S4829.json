@@ -2,15 +2,13 @@
   "title": "Reading the Standard Input is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "deprecated",
-  "tags": [
-    
-  ],
+  "tags": [],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4829",
   "sqKey": "S4829",
+  "scope": "Main",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "Main"
+  ]
 }

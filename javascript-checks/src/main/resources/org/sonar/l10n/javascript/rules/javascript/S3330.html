@@ -1,7 +1,7 @@
 <p>When a cookie is configured with the <code>HttpOnly</code> attribute set to <em>true</em>, the browser guaranties that no client-side script will
-be able to read it. In most cases, when a cookie is created, the default value of <code>HttpOnly</code> is <em>false</em> and it's up to the developer
+be able to read it. In most cases, when a cookie is created, the default value of <code>HttpOnly</code> is <em>false</em> and it’s up to the developer
 to decide whether or not the content of the cookie can be read by the client-side script. As a majority of Cross-Site Scripting (XSS) attacks target
-the theft of session-cookies, the <code>HttpOnly</code> attribute can help to reduce their impact as it won't be possible to exploit the XSS
+the theft of session-cookies, the <code>HttpOnly</code> attribute can help to reduce their impact as it won’t be possible to exploit the XSS
 vulnerability to steal session-cookies.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
@@ -12,7 +12,7 @@ vulnerability to steal session-cookies.</p>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> By default the <code>HttpOnly</code> flag should be set to <em>true</em> for most of the cookies and it's mandatory for session /
+  <li> By default the <code>HttpOnly</code> flag should be set to <em>true</em> for most of the cookies and it’s mandatory for session /
   sensitive-security cookies. </li>
 </ul>
 <h2>Sensitive Code Example</h2>

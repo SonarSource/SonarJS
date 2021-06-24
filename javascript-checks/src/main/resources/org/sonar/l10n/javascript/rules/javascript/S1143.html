@@ -1,7 +1,7 @@
 <p>Using <code>return</code>, <code>break</code>, <code>throw</code>, and <code>continue</code> from a <code>finally</code> block overwrites similar
 statements from the suspended <code>try</code> and <code>catch</code> blocks.</p>
 <p>This rule raises an issue when a jump statement (<code>break</code>, <code>continue</code>, <code>return</code> and <code>throw</code>) would force
-control flow to leave a <code>finally</code> block. </p>
+control flow to leave a <code>finally</code> block.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 function foo() {
@@ -27,6 +27,5 @@ function foo() {
 <h2>See</h2>
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/584.html">MITRE, CWE-584</a> - Return Inside Finally Block </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/BTdGBQ">CERT, ERR04-J.</a> - Do not complete abruptly from a finally block </li>
 </ul>
 

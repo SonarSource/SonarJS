@@ -1,5 +1,5 @@
 <p><code>NaN</code> is not equal to anything, even itself. Testing for equality or inequality against <code>NaN</code> will yield predictable results,
-but probably not the ones you want. </p>
+but probably not the ones you want.</p>
 <p>Instead, the best way to see whether a variable is equal to <code>NaN</code> is to use <code>Number.isNaN()</code>, since ES2015, or (perhaps
 counter-intuitively) to compare it to itself. Since <code>NaN !== NaN</code>, when <code>a !== a</code>, you know it must equal <code>NaN</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -22,8 +22,3 @@ if (!Number.isNaN(a)) {
   console.log("a is not NaN");
 }
 </pre>
-<h2>See</h2>
-<ul>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/wzdGBQ">CERT, NUM07-J.</a> - Do not attempt comparisons with NaN </li>
-</ul>
-

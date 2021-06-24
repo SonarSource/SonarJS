@@ -7,15 +7,12 @@
     "spring",
     "owasp-a6",
     "sans-top25-porous",
-    "owasp-a3"
+    "owasp-a3",
+    "owasp-m5"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4790",
   "sqKey": "S4790",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -26,6 +23,16 @@
     "OWASP": [
       "A3",
       "A6"
+    ],
+    "OWASP Mobile": [
+      "M5"
+    ],
+    "MASVS": [
+      "MSTG-CRYPTO-4"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

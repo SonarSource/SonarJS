@@ -5,12 +5,12 @@
       <li> The GCM (Galois Counter Mode) mode which <a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode#Mathematical_basis">works
       internally</a> with zero/no padding scheme, is recommended, as it is designed to provide both data authenticity (integrity) and confidentiality.
       Other similar modes are CCM, CWC, EAX, IAPM and OCB. </li>
-      <li> The CBC (Cipher Block Chaining) mode by itself provides only data confidentiality, it's recommended to use it along with Message
+      <li> The CBC (Cipher Block Chaining) mode by itself provides only data confidentiality, it’s recommended to use it along with Message
       Authentication Code or similar to achieve data authenticity (integrity) too and thus to <a
       href="https://en.wikipedia.org/wiki/Padding_oracle_attack">prevent padding oracle attacks</a>. </li>
-      <li> The ECB (Electronic Codebook) mode doesn't provide serious message confidentiality: under a given key any given plaintext block always gets
+      <li> The ECB (Electronic Codebook) mode doesn’t provide serious message confidentiality: under a given key any given plaintext block always gets
       encrypted to the same ciphertext block. This mode should not be used. </li>
-    </ul> </li>
+    </ul>  </li>
   <li> For RSA encryption algorithm, the recommended padding scheme is OAEP. </li>
 </ul>
 <h2>Noncompliant Code Example</h2>
