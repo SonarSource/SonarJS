@@ -20,7 +20,6 @@
 // https://jira.sonarsource.com/browse/RSPEC-5332
 
 import { Rule } from 'eslint';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
 import { URL } from 'url';
 import {
@@ -28,6 +27,7 @@ import {
   getObjectExpressionProperty,
   getModuleNameOfNode,
   isCallToFQN,
+  getParent,
 } from '../utils';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];

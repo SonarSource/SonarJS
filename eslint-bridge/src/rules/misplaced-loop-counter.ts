@@ -22,7 +22,9 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
+import { getParent } from '../utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 class ForInfo {
   updatedExpressions: estree.Node[] = [];
@@ -78,7 +80,11 @@ export const rule: Rule.RuleModule = {
         }
         const hasIntersection = forInfo.testedExpressions.some(testedExpr =>
           forInfo.updatedExpressions.some(updatedExpr =>
-            areEquivalent(updatedExpr, testedExpr, context.getSourceCode()),
+            areEquivalent(
+              updatedExpr as TSESTree.Node,
+              testedExpr as TSESTree.Node,
+              ((context as unknown) as Rule1.RuleContext).getSourceCode(),
+            ),
           ),
         );
 

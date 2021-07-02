@@ -22,8 +22,8 @@
 import { Rule, AST, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { LoopLike } from '../utils';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { getParent, LoopLike } from '../utils';
+import { TSESLint } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -89,7 +89,7 @@ function checkIndentation(
         `Use curly braces or indentation to denote the code conditionally ` +
         `executed by this "${tokenToReport.value}".`;
       context.report({
-        message: toEncodedMessage(message, [firstStatementToken]),
+        message: toEncodedMessage(message, [firstStatementToken as TSESLint.AST.Token]),
         loc: tokenToReport.loc,
       });
     }

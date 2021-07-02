@@ -17,11 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
-import { getModuleNameOfNode, isModuleExports, isMethodInvocation, flattenArgs } from '../utils';
+import {
+  getModuleNameOfNode,
+  isModuleExports,
+  isMethodInvocation,
+  flattenArgs,
+  getParent,
+} from '../utils';
 
 /**
  * This modules provides utilities for writing rules about Express.js.
@@ -171,7 +177,7 @@ export namespace Express {
                 for (const sensitive of sensitiveProperties) {
                   context.report({
                     node: callExpr,
-                    message: toEncodedMessage(message, [sensitive]),
+                    message: toEncodedMessage(message, [sensitive as TSESTree.Property]),
                   });
                 }
                 sensitiveProperties = [];

@@ -24,8 +24,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
+import { getParent } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -52,7 +54,11 @@ export const rule: Rule.RuleModule = {
         if (lineCount > threshold) {
           context.report({
             message: `This function has ${lineCount} lines, which is greater than the ${threshold} lines authorized. Split it into smaller functions.`,
-            loc: getMainFunctionTokenLocation(node as estree.Function, getParent(context), context),
+            loc: getMainFunctionTokenLocation(
+              node as TSESTree.FunctionLike,
+              getParent(context) as TSESTree.Node,
+              (context as unknown) as Rule1.RuleContext,
+            ),
           });
         }
       },

@@ -26,8 +26,9 @@ import {
   IssueLocation,
   getMainFunctionTokenLocation,
 } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-import { FunctionNodeType, isFunctionNode, childrenOf } from '../utils';
+import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
+import { FunctionNodeType, isFunctionNode, childrenOf, getParent } from '../utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -84,7 +85,11 @@ function raiseOnUnauthorizedComplexity(
   if (complexity > threshold) {
     context.report({
       message: toEncodedMessage(complexity, threshold, tokens),
-      loc: getMainFunctionTokenLocation(node, parent, context),
+      loc: getMainFunctionTokenLocation(
+        node as TSESTree.FunctionLike,
+        parent as TSESTree.Node,
+        (context as unknown) as Rule1.RuleContext,
+      ),
     });
   }
 }
@@ -143,7 +148,13 @@ class FunctionComplexityVisitor {
         if (node !== this.root) {
           return;
         } else {
-          token = { loc: getMainFunctionTokenLocation(node, this.parent, this.context) };
+          token = {
+            loc: getMainFunctionTokenLocation(
+              node as TSESTree.FunctionLike,
+              this.parent as TSESTree.Node,
+              (this.context as unknown) as Rule1.RuleContext,
+            ),
+          };
         }
       } else {
         switch (node.type) {
