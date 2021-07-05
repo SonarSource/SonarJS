@@ -1851,10 +1851,10 @@ eslint-plugin-chai-friendly@0.6.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-chai-friendly/-/eslint-plugin-chai-friendly-0.6.0.tgz#54052fab79302ed0cea76ab997351ea4809bfb77"
   integrity sha512-Uvvv1gkbRGp/qfN15B0kQyQWg+oFA8buDSqrwmW3egNSk/FpqH2MjQqKOuKwmEL6w4QIQrIjDp+gg6kGGmD3oQ==
 
-eslint-plugin-sonarjs@0.9.0-228:
-  version "0.9.0-228"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.9.0-228.tgz#b3d8f2ea91316c3aec7adb69a45d5a7a459227e5"
-  integrity sha1-s9jy6pExbDrsettppF1aekWSJ+U=
+eslint-plugin-sonarjs@0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.9.0.tgz#4e97f84d89db465e57c6e7afa3f9e34eef16838d"
+  integrity sha512-zXbYcjJmv72qJlIJ4Wig/4RHkH5047ZjoD4kjKmjLi6Hs91RP8HjGKV+n/Ob1Cg85pDJcA952ftXtxVXrX4IkA==
 
 eslint-scope@^5.0.0, eslint-scope@^5.1.0, eslint-scope@^5.1.1:
   version "5.1.1"
