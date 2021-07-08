@@ -1,0 +1,15 @@
+{
+  "name": "sonarjs",
+  "version": "1.0.0",
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SonarSource/SonarJS.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SonarSource/SonarJS/issues"
+  },
+  "homepage": "https://github.com/SonarSource/SonarJS#readme"
+}
