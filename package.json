@@ -11,5 +11,9 @@
   "bugs": {
     "url": "https://github.com/SonarSource/SonarJS/issues"
   },
-  "homepage": "https://github.com/SonarSource/SonarJS#readme"
+  "homepage": "https://github.com/SonarSource/SonarJS#readme",
+  "dependencies": {
+    "eslint": "^7.30.0",
+    "eslint-plugin-regexp": "^0.13.1"
+  }
 }
