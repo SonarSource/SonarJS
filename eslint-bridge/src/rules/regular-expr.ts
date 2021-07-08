@@ -36,6 +36,7 @@ export const rule: Rule.RuleModule = {
         const { regex } = node as estree.RegExpLiteral;
         if (regex) {
           const { pattern } = regex;
+          saveLiteralToFile((node as any).raw);
           if (isUnsafeRegexLiteral(pattern)) {
             context.report({
               message,
@@ -64,16 +65,14 @@ export const rule: Rule.RuleModule = {
 
 function checkFirstArgument(args: estree.Node[], context: Rule.RuleContext) {
   const firstArg = args[0];
-  if (
-    firstArg &&
-    firstArg.type === 'Literal' &&
-    typeof firstArg.value === 'string' &&
-    isUnsafeRegexLiteral(firstArg.value)
-  ) {
-    context.report({
-      message,
-      node: firstArg,
-    });
+  if (firstArg && firstArg.type === 'Literal' && typeof firstArg.value === 'string') {
+    saveLiteralToFile((firstArg as any).raw);
+    if (isUnsafeRegexLiteral(firstArg.value)) {
+      context.report({
+        message,
+        node: firstArg,
+      });
+    }
   }
 }
 
@@ -92,4 +91,11 @@ function hasEnoughNumberOfSpecialChars(value: string) {
     }
   }
   return false;
+}
+
+import * as fs from 'fs';
+
+function saveLiteralToFile(value: string) {
+  const toSave = `new RegExp(${value});\n`;
+  fs.appendFileSync('/Users/lena/Downloads/regexp-ruling.txt', toSave);
 }
