@@ -188,6 +188,7 @@ public final class CheckList {
       NoAnyCheck.class,
       NoArrayDeleteCheck.class,
       NoClearTextProtocolsCheck.class,
+      NoControlRegexCheck.class,
       NoDuplicateImportsCheck.class,
       NoDuplicateInCompositeCheck.class,
       NoDuplicateStringCheck.class,
