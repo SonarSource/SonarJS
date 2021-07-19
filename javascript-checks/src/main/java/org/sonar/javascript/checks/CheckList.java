@@ -263,6 +263,7 @@ public final class CheckList {
       SemicolonCheck.class,
       SessionRegenerationCheck.class,
       ShorthandPropertiesNotGroupedCheck.class,
+      SingleCharacterAlternativeCheck.class,
       SocketsCheck.class,
       SqlQueriesCheck.class,
       StandardInputCheck.class,
