@@ -154,6 +154,7 @@ import { rule as publiclyWrittableDirectories } from './publicly-writable-direct
 import { rule as regularExpr } from './regular-expr';
 import { rule as sessionRegeneration } from './session-regeneration';
 import { rule as shorthandPropertyGrouping } from './shorthand-property-grouping';
+import { rule as singleCharacterAlternative } from './single-character-alternation';
 import { rule as sockets } from './sockets';
 import { rule as sonarBlockScopedVar } from './sonar-block-scoped-var';
 import { rule as sonarMaxLines } from './sonar-max-lines';
@@ -322,6 +323,7 @@ ruleModules['publicly-writable-directories'] = publiclyWrittableDirectories;
 ruleModules['regular-expr'] = regularExpr;
 ruleModules['session-regeneration'] = sessionRegeneration;
 ruleModules['shorthand-property-grouping'] = shorthandPropertyGrouping;
+ruleModules['single-character-alternation'] = singleCharacterAlternative;
 ruleModules['sockets'] = sockets;
 ruleModules['sonar-block-scoped-var'] = sonarBlockScopedVar;
 ruleModules['sonar-max-lines'] = sonarMaxLines;

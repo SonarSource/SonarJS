@@ -17,16 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.javascript.checks;
 
-export * from './utils-ast';
-export * from './utils-collection';
-export * from './utils-decorator';
-export * from './utils-file';
-export * from './utils-global';
-export * from './utils-location';
-export * from './utils-module';
-export * from './utils-parent';
-export * from './utils-parsing';
-export * from './utils-regex';
-export * from './utils-type';
-export * from './utils-visitor';
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
+
+@JavaScriptRule
+@TypeScriptRule
+@Rule(key = "S6035")
+public class SingleCharacterAlternativeCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "single-character-alternation";
+  }
+}
+

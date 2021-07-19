@@ -18,15 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './utils-ast';
-export * from './utils-collection';
-export * from './utils-decorator';
-export * from './utils-file';
-export * from './utils-global';
-export * from './utils-location';
-export * from './utils-module';
-export * from './utils-parent';
-export * from './utils-parsing';
-export * from './utils-regex';
-export * from './utils-type';
-export * from './utils-visitor';
+import { CapturingGroup, Group, LookaroundAssertion, Pattern } from 'regexpp/ast';
+
+/**
+ * An alternation is a regexpp node that has an `alternatives` field.
+ */
+export type Alternation = Pattern | CapturingGroup | Group | LookaroundAssertion;
