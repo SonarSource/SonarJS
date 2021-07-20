@@ -21,9 +21,8 @@
 
 import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { FUNCTION_NODES, resolveIdentifiers } from '../utils';
+import { FUNCTION_NODES, getParent, resolveIdentifiers } from '../utils';
 
 type ContextType = 'catch' | 'function' | 'foreach' | 'global';
 

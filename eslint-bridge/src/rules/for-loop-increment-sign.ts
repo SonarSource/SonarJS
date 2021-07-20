@@ -20,6 +20,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -46,7 +47,7 @@ export const rule: Rule.RuleModule = {
           const movement: string = wrongDirection > 0 ? 'incremented' : 'decremented';
           const message = toEncodedMessage(
             `"${loopIncrement.identifier.name}" is ${movement} and will never reach its stop condition.`,
-            [test],
+            [test as TSESTree.Node],
           );
           context.report({
             message,

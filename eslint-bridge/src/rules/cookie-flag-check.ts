@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
@@ -61,7 +62,7 @@ export class CookieFlagCheck {
       if (cookiePropertyLiteral?.value === true) {
         this.context.report({
           node: callExpression.callee,
-          message: toEncodedMessage(this.issueMessage, [cookiePropertyLiteral]),
+          message: toEncodedMessage(this.issueMessage, [cookiePropertyLiteral as TSESTree.Node]),
         });
       }
     }
@@ -145,7 +146,7 @@ export class CookieFlagCheck {
         }
         this.context.report({
           node: callExpression.callee,
-          message: toEncodedMessage(this.issueMessage, secondaryLocations),
+          message: toEncodedMessage(this.issueMessage, secondaryLocations as TSESTree.Node[]),
         });
       }
     }

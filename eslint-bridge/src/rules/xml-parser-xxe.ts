@@ -19,6 +19,7 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2755
 
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
@@ -75,7 +76,7 @@ export const rule: Rule.RuleModule = {
           if (noent && isNoEntSet(noent)) {
             context.report({
               message: toEncodedMessage('Disable access to external entities in XML parsing.', [
-                call.callee,
+                call.callee as TSESTree.Node,
               ]),
               node: noent,
             });

@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { getParent } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

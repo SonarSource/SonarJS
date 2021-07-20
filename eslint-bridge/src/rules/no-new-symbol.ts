@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { getVariableFromName } from '../utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 const SYMBOL = 'Symbol';
 
@@ -51,7 +52,7 @@ export const rule: Rule.RuleModule = {
             .getSourceCode()
             .getFirstToken(node, token => token.value === 'new')!;
           context.report({
-            message: toEncodedMessage(`Remove this "new" operator.`, [callee]),
+            message: toEncodedMessage(`Remove this "new" operator.`, [callee as TSESTree.Node]),
             loc: newToken.loc,
           });
         }

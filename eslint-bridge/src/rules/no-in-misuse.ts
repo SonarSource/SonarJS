@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isArray, isNumber, isRequiredParserServices } from '../utils';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 const message = 'Use "indexOf" or "includes" (available from ES2016) instead.';
 
@@ -30,7 +31,8 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
-    function prototypeProperty(expr: estree.Expression) {
+    function prototypeProperty(node: estree.Expression) {
+      const expr = node as TSESTree.Expression;
       if (!isLiteral(expr) || typeof expr.value !== 'string') {
         return false;
       }
