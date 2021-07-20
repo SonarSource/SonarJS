@@ -243,6 +243,7 @@ public final class CheckList {
       PreferObjectLiteralCheck.class,
       PreferPromiseShorthandCheck.class,
       PreferReadonlyCheck.class,
+      PreferRegexLiteralsCheck.class,
       PreferTypeGuardCheck.class,
       PrimitiveWrappersCheck.class,
       ProcessArgvCheck.class,
@@ -323,3 +324,4 @@ public final class CheckList {
     );
   }
 }
+
