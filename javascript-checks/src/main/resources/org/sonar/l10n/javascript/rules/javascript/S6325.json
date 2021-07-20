@@ -1,0 +1,20 @@
+{
+  "title": "Regular expression literals should be used when possible",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "regex"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6325",
+  "sqKey": "S6325",
+  "scope": "All",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
