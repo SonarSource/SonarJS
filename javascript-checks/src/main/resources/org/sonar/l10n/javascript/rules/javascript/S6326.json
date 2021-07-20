@@ -1,0 +1,20 @@
+{
+  "title": "Regular expressions should not contain multiple spaces",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "regex"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6326",
+  "sqKey": "S6326",
+  "scope": "All",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
