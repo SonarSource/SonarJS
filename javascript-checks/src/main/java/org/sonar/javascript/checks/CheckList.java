@@ -212,6 +212,7 @@ public final class CheckList {
       NoRedundantJumpCheck.class,
       NoRedundantOptionalCheck.class,
       NoReferrerPolicyCheck.class,
+      NoRegexSpacesCheck.class,
       NoReturnAwaitCheck.class,
       NoReturnTypeAnyCheck.class,
       NoSparseArraysCheck.class,
