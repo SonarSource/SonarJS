@@ -203,6 +203,7 @@ public final class CheckList {
       NoMagicNumbersCheck.class,
       NoMimeSniffCheck.class,
       NoMisleadingArrayReverseCheck.class,
+      NoMisleadingCharactersCheck.class,
       NoMisusedNewCheck.class,
       NoMixedContentCheck.class,
       NoNestedSwitchCheck.class,
