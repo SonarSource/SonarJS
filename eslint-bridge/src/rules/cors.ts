@@ -24,6 +24,7 @@ import * as estree from 'estree';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { getModuleNameOfNode, getUniqueWriteUsage, getObjectExpressionProperty } from '../utils';
 import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
 
@@ -40,7 +41,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     function report(node: estree.Node, ...secondaryLocations: estree.Node[]) {
-      const message = toEncodedMessage(MESSAGE, secondaryLocations);
+      const message = toEncodedMessage(MESSAGE, secondaryLocations as TSESTree.Node[]);
       context.report({ message, node });
     }
 
@@ -88,11 +89,13 @@ export const rule: Rule.RuleModule = {
 };
 
 function isCorsHeader(node: estree.Node) {
-  return isLiteral(node) && node.value === CORS_HEADER;
+  const header = node as TSESTree.Node;
+  return isLiteral(header) && header.value === CORS_HEADER;
 }
 
 function isAnyDomain(node: estree.Node) {
-  return isLiteral(node) && node.value === '*';
+  const domain = node as TSESTree.Node;
+  return isLiteral(domain) && domain.value === '*';
 }
 
 function getSensitiveCorsProperty(

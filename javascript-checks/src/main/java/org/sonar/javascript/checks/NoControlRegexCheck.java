@@ -17,25 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://jira.sonarsource.com/browse/RSPEC-1821
+package org.sonar.javascript.checks;
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-const message = 'Refactor the code to eliminate this nested "switch".';
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S6324")
+public class NoControlRegexCheck implements EslintBasedCheck {
 
-export const rule: Rule.RuleModule = {
-  create(context: Rule.RuleContext) {
-    return {
-      'SwitchStatement SwitchStatement': function (node: estree.Node) {
-        const switchToken = context
-          .getSourceCode()
-          .getFirstToken(node, token => token.value === 'switch');
-        context.report({
-          message,
-          loc: switchToken!.loc,
-        });
-      },
-    };
-  },
-};
+  @Override
+  public String eslintKey() {
+    return "no-control-regex";
+  }
+
+}

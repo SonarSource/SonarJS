@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
 import {
   isArray,
   RequiredParserServices,
@@ -104,7 +105,11 @@ function getNodeToReport(node: estree.Node, parent: estree.Node, context: Rule.R
     node.type === 'ArrowFunctionExpression'
   ) {
     return {
-      loc: getMainFunctionTokenLocation(node, parent, context),
+      loc: getMainFunctionTokenLocation(
+        node as TSESTree.FunctionLike,
+        parent as TSESTree.Node,
+        (context as unknown) as Rule1.RuleContext,
+      ),
     };
   }
   return {

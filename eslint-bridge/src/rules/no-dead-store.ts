@@ -188,17 +188,18 @@ export const rule: Rule.RuleModule = {
     }
 
     function isBasicValue(node: estree.Node): boolean {
-      if (isLiteral(node)) {
-        return node.value === '' || [0, 1, null, true, false].includes(node.value as any);
+      const node1 = node as TSESTree.Node;
+      if (isLiteral(node1)) {
+        return node1.value === '' || [0, 1, null, true, false].includes(node1.value as any);
       }
-      if (isIdentifier(node)) {
-        return node.name === 'undefined';
+      if (isIdentifier(node1)) {
+        return node1.name === 'undefined';
       }
       if (isUnaryExpression(node)) {
         return isBasicValue(node.argument);
       }
-      if (isObjectExpression(node)) {
-        return node.properties.length === 0;
+      if (isObjectExpression(node1)) {
+        return node1.properties.length === 0;
       }
       if (isArrayExpression(node)) {
         return node.elements.length === 0;
@@ -335,7 +336,7 @@ class DestructuringContext {
   references: ReferenceLike[] = [];
 }
 
-type AssignmentLike = estree.AssignmentExpression | estree.VariableDeclarator;
+type AssignmentLike = TSESTree.AssignmentExpression | TSESTree.VariableDeclarator;
 
 class AssignmentContext {
   node: AssignmentLike;

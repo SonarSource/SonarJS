@@ -22,9 +22,8 @@
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
-import { isRequiredParserServices, RequiredParserServices } from '../utils';
+import { getParent, isRequiredParserServices, RequiredParserServices } from '../utils';
 import * as ts from 'typescript';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

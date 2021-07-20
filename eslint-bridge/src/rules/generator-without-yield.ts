@@ -19,8 +19,10 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
+import { getParent } from '../utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 const MESSAGE = 'Add a "yield" statement to this generator.';
 
@@ -38,7 +40,11 @@ export const rule: Rule.RuleModule = {
       if (countYield === 0 && functionNode.body.body.length > 0) {
         context.report({
           message: MESSAGE,
-          loc: getMainFunctionTokenLocation(functionNode, getParent(context), context),
+          loc: getMainFunctionTokenLocation(
+            functionNode as TSESTree.FunctionLike,
+            getParent(context) as TSESTree.Node,
+            (context as unknown) as Rule1.RuleContext,
+          ),
         });
       }
     }
