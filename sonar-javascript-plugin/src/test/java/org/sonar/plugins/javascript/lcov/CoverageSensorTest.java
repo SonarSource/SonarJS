@@ -173,7 +173,9 @@ public class CoverageSensorTest {
       .contains("Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]")
       .contains("First unresolved path: unresolved/file1.js (Run in DEBUG mode to get full list of unresolved paths)");
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .isEmpty();
+      .doesNotContain("Unresolved paths:\n" +
+        "unresolved/file1.js\n" +
+        "unresolved/file2.js");
   }
 
   @Test
@@ -321,4 +323,26 @@ public class CoverageSensorTest {
     assertThat(context.lineHits(inputFile.key(), 0)).isNull();
   }
 
+  @Test
+  public void should_warn_processing_missing_file_data() throws Exception {
+    File lcovFile = temp.newFile();
+
+    FileUtils.writeStringToFile(lcovFile,
+      "DA:1,2\n" +
+        "DA:2,2\n" +
+        "FN:2,(anonymous_1)\n" +
+        "FNDA:2,(anonymous_1)\n" +
+        "BRDA:2,1,0,2\n" +
+        "BRDA:2,1,1,1\n" +
+        "end_of_record\n", "UTF-8", false);
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcovFile.getAbsolutePath());
+
+    coverageSensor.execute(context);
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save DA data for line 1 of coverage report file.");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save DA data for line 2 of coverage report file.");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save BRDA data for line 5 of coverage report file.");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Found 4 inconsistencies in coverage report. Re-run analyse in debug mode to see details.");
+  }
 }
