@@ -1,0 +1,12 @@
+<p>Alternation is used to match a single regular expression out of several possible regular expressions. If one of the alternatives is empty it would
+match any input, which is most probably a mistake.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+/Jack|Peter|/.test('John'); // returns 'true'
+/Jack||Peter/.test('John'); // returns 'true'
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+/Jack|Peter/.test('John'); // returns 'false'
+</pre>
+
