@@ -58,6 +58,7 @@ public final class CheckList {
       AlertUseCheck.class,
       AlphabeticalSortCheck.class,
       AlwaysUseCurlyBracesCheck.class,
+      AnchorPrecedenceCheck.class,
       AngleBracketTypeAssertionCheck.class,
       ArgumentTypesCheck.class,
       ArgumentsCallerCalleeUsageCheck.class,
