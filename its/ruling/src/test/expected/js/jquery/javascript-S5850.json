@@ -1,0 +1,16 @@
+{
+'jquery:src/event.js':[
+16,
+],
+'jquery:src/manipulation.js':[
+34,
+],
+'jquery:test/data/jquery-1.9.1.js':[
+74,
+2787,
+6036,
+],
+'jquery:test/data/testinit.js':[
+359,
+],
+}
