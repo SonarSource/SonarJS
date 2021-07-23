@@ -110,6 +110,17 @@ ruleTester.run('await should only be used with promises.', rule, {
       }
       `,
     },
+    {
+      code: `
+      interface MyQuery<T> extends Pick<Promise<T>, keyof Promise<T>> {
+        toQuery(): string;
+      }
+      async function foo(query: MyQuery<string>) {
+        const result = await query;
+        console.log(result);
+      }
+      `,
+    },
   ],
   invalid: [
     {
@@ -150,14 +161,6 @@ ruleTester.run('await should only be used with promises.', rule, {
       code: `
       async function foo() {
         await {else: 42};
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      async function foo() {
-        await {then: 42};
       }
       `,
       errors: 1,
