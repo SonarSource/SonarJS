@@ -269,6 +269,7 @@ public final class CheckList {
       ShorthandPropertiesNotGroupedCheck.class,
       SingleCharacterAlternativeCheck.class,
       SocketsCheck.class,
+      SonarNoInvalidRegexCheck.class,
       SqlQueriesCheck.class,
       StandardInputCheck.class,
       StrictModeCheck.class,

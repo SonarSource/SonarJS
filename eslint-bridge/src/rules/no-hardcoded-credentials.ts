@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { isStringLiteral } from '../utils';
 
 const MESSAGE = 'Review this potentially hardcoded credential.';
 
@@ -75,8 +76,4 @@ function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: es
       node: literal,
     });
   }
-}
-
-function isStringLiteral(node: estree.Node): node is estree.Literal {
-  return node.type === 'Literal' && typeof node.value === 'string';
 }
