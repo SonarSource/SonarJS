@@ -28,8 +28,8 @@ import {
   isStringType,
 } from '../utils';
 import * as estree from 'estree';
+import { RegExpValidator } from 'regexpp';
 
-const RegExpValidator = require('regexpp').RegExpValidator;
 const validator = new RegExpValidator();
 
 export const rule: Rule.RuleModule = {
@@ -99,7 +99,7 @@ export const rule: Rule.RuleModule = {
         if (!pattern) {
           return;
         }
-        let flags = getFlags(call);
+        const flags = getFlags(call);
 
         const message =
           (flags && validateRegExpFlags(flags)) ||

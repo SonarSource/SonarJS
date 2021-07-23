@@ -44,7 +44,10 @@ ruleTesterTs.run('', rule, {
       code: `foo.match('[');`,
     },
     {
-      code: `new RegExp();`,
+      code: `
+        new RegExp();
+        new RegExp('foo', 4);
+      `,
     },
   ],
   invalid: [
