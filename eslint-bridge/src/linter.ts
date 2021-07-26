@@ -194,11 +194,9 @@ export function decodeSonarRuntimeIssue(
       const encodedMessage: EncodedMessage = JSON.parse(issue.message);
       return { ...issue, ...encodedMessage };
     } catch (e) {
-      console.error(
-        `Failed to parse encoded issue message for rule ${issue.ruleId}:\n"${issue.message}"`,
-        e,
+      throw new Error(
+        `Failed to parse encoded issue message for rule ${issue.ruleId}:\n"${issue.message}". ${e.message}`,
       );
-      return null;
     }
   }
   return issue;
