@@ -70,7 +70,7 @@ ruleTester.run('Template for regular expressions rules', rule, {
     {
       code: `
         const re = /a/u;
-                 //^^^^          
+                 //^^^^
       `,
       errors: [
         {

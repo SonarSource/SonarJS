@@ -54,6 +54,7 @@ import { rule as disabledResourceIntegrity } from './disabled-resource-integrity
 import { rule as dnsPrefetching } from './dns-prefetching';
 import { rule as encryption } from './encryption';
 import { rule as encryptionSecureMode } from './encryption-secure-mode';
+import { rule as existingGroups } from './existing-groups';
 import { rule as expressionComplexity } from './expression-complexity';
 import { rule as fileHeader } from './file-header';
 import { rule as fileNameDifferFromClass } from './file-name-differ-from-class';
@@ -227,6 +228,7 @@ ruleModules['disabled-resource-integrity'] = disabledResourceIntegrity;
 ruleModules['dns-prefetching'] = dnsPrefetching;
 ruleModules['encryption'] = encryption;
 ruleModules['encryption-secure-mode'] = encryptionSecureMode;
+ruleModules['existing-groups'] = existingGroups;
 ruleModules['expression-complexity'] = expressionComplexity;
 ruleModules['file-header'] = fileHeader;
 ruleModules['file-name-differ-from-class'] = fileNameDifferFromClass;
