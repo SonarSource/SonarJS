@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
+
+import { rule as anchorPrecedence } from './anchor-precedence';
 import { rule as argumentType } from './argument-type';
 import { rule as argumentsOrder } from './arguments-order';
 import { rule as argumentsUsage } from './arguments-usage';
@@ -189,6 +191,7 @@ import { rule as xpath } from './xpath';
 
 const ruleModules: { [key: string]: Rule.RuleModule } = {};
 
+ruleModules['anchor-precedence'] = anchorPrecedence;
 ruleModules['argument-type'] = argumentType;
 ruleModules['arguments-order'] = argumentsOrder;
 ruleModules['arguments-usage'] = argumentsUsage;
