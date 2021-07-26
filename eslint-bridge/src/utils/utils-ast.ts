@@ -417,3 +417,7 @@ export function checkSensitiveCall(
     });
   }
 }
+
+export function isStringLiteral(node: estree.Node): node is estree.Literal {
+  return node && node.type === 'Literal' && typeof node.value === 'string';
+}
