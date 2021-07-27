@@ -17,6 +17,7 @@ const requestHandler = (request, response) => {
 }
 
 const server = http.createServer(requestHandler)
+server.keepAliveTimeout = 100  // this is used so server disconnects faster
 
 server.listen(port, host, (err) => {
   if (err) {
