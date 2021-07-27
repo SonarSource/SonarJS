@@ -63,6 +63,9 @@ ruleTester.run('Template for regular expressions rules', rule, {
       code: `const re = new RegExp('z');`,
     },
     {
+      code: `const re = new RegExp(42);`,
+    },
+    {
       code: `const re = new RegExp('[malformed');`,
     },
     {
@@ -80,6 +83,9 @@ ruleTester.run('Template for regular expressions rules', rule, {
       code: `
         const pattern = 'a';
         const re = RegExp(\`b \${pattern}\`);`,
+    },
+    {
+      code: `const re = RegExp('42' - '24');`,
     },
   ],
   invalid: [

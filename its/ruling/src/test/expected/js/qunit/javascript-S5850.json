@@ -2,4 +2,11 @@
 'qunit:reporter/html.js':[
 99,
 ],
+'qunit:test/main/deepEqual.js':[
+549,
+550,
+551,
+552,
+553,
+],
 }
