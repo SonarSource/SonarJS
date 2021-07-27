@@ -22,6 +22,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import type { RegExpVisitor } from 'regexpp/visitor';
+import { getFlags, getPattern, isRegexLiteral, isRegExpConstructor } from '../utils';
 
 /**
  * Rule context for regex rules that also includes the original ESLint node
@@ -54,7 +55,7 @@ export function createRegExpRule(
       }
 
       function checkLiteral(literal: estree.Literal) {
-        if (!(literal.value instanceof RegExp)) {
+        if (!isRegexLiteral(literal)) {
           return;
         }
         const {
@@ -81,29 +82,4 @@ export function createRegExpRule(
       };
     },
   };
-}
-
-function isRegExpConstructor(callExpr: estree.CallExpression) {
-  return callExpr.callee.type === 'Identifier' && callExpr.callee.name === 'RegExp';
-}
-
-function getPattern(callExpr: estree.CallExpression): string | null {
-  if (callExpr.arguments.length > 0) {
-    const pattern = callExpr.arguments[0];
-    if (pattern.type === 'Literal' && typeof pattern.value === 'string') {
-      return pattern.value;
-    }
-  }
-  return null;
-}
-
-function getFlags(callExpr: estree.CallExpression): string | null {
-  if (callExpr.arguments.length < 2) {
-    return '';
-  }
-  const flags = callExpr.arguments[1];
-  if (flags.type === 'Literal' && typeof flags.value === 'string') {
-    return flags.value;
-  }
-  return null;
 }
