@@ -165,14 +165,24 @@ typeAwareRuleTester.run('Template for regular expressions rules', rule, {
     },
     {
       code: `
+        'str'.match('a');
+        'str'.matchAll('a');
+        'str'.search('a');
+      `,
+      errors: 3,
+    },
+    {
+      // test we are reporting only once
+      code: `
         const pattern = 'a';
-        'str'.match(pattern);
-        'str'.matchAll(pattern);
+        const regexPattern = /a/;
+        'str'.search(pattern);
         'str'.search('a');
         'str'.search(/a/);
+        'str'.search(regexPattern); // we should not report here, as we are reporting on regex literal
         'str'.search(new RegExp(pattern));
       `,
-      errors: 5,
+      errors: [{ line: 3 }, { line: 4 }, { line: 5 }, { line: 6 }, { line: 8 }],
     },
   ],
 });

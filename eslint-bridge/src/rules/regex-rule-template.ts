@@ -97,6 +97,7 @@ function isStringRegexMethodCall(call: estree.CallExpression, services: ParserSe
     !call.callee.computed &&
     ['match', 'matchAll', 'search'].includes(call.callee.property.name) &&
     call.arguments.length > 0 &&
-    isString(call.callee.object, services)
+    isString(call.callee.object, services) &&
+    isString(call.arguments[0], services)
   );
 }
