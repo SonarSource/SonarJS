@@ -23,6 +23,7 @@ import * as regexpp from 'regexpp';
 import { CapturingGroup, Group, LookaroundAssertion, Pattern } from 'regexpp/ast';
 import { getUniqueWriteUsage, isRegexLiteral, isStringLiteral } from './utils-ast';
 import { Rule } from 'eslint';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 /**
  * An alternation is a regexpp node that has an `alternatives` field.
@@ -67,7 +68,10 @@ function getPatternFromNode(
     return { pattern: node.quasis[0].value.raw, flags: '' };
   } else if (node.type === 'Identifier') {
     const assignedExpression = getUniqueWriteUsage(context, node.name);
-    if (assignedExpression) {
+    if (
+      assignedExpression &&
+      (assignedExpression as TSESTree.Node).parent?.type === 'VariableDeclarator'
+    ) {
       return getPatternFromNode(assignedExpression, context);
     }
   } else if (node.type === 'BinaryExpression' && node.operator === '+') {

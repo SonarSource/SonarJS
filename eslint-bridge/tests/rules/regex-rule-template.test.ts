@@ -88,6 +88,14 @@ typeAwareRuleTester.run('Template for regular expressions rules', rule, {
     {
       code: `const re = RegExp('42' - '24');`,
     },
+    {
+      // should work for 'recursive' reassignments
+      code: `
+      let regex;
+      if (isString(regex)) {
+        regex = new RegExp('^' + regex + '$');
+      }`,
+    },
   ],
   invalid: [
     {
