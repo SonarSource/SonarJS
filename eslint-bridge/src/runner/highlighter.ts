@@ -43,6 +43,9 @@ export default function getHighlighting(sourceCode: SourceCode) {
       case 'Numeric':
         highlight(token, 'CONSTANT', highlights);
         break;
+      case 'RegularExpression':
+        highlight(token, 'STRING', highlights);
+        break;
     }
   }
   for (const comment of comments) {
