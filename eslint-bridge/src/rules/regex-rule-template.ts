@@ -23,7 +23,13 @@ import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import type { RegExpVisitor } from 'regexpp/visitor';
 import { ParserServices } from '@typescript-eslint/parser';
-import { getParsedRegex, isRegexLiteral, isRequiredParserServices, isString } from '../utils';
+import {
+  getParsedRegex,
+  isRegexLiteral,
+  isRegExpConstructor,
+  isRequiredParserServices,
+  isString,
+} from '../utils';
 
 /**
  * Rule context for regex rules that also includes the original ESLint node
@@ -58,16 +64,19 @@ export function createRegExpRule(
       function checkLiteral(literal: estree.Literal) {
         // we can't call `getParsedRegex` withouth following check
         // as it will return regex for string literal which might be not a regex
-        if (!isRegexLiteral(literal)) {
-          return;
+        if (isRegexLiteral(literal)) {
+          checkRegex(literal, getParsedRegex(literal, context));
         }
-        checkRegex(literal, getParsedRegex(literal, context));
       }
 
       function checkCallExpression(callExpr: estree.CallExpression) {
         let parsedRegex = getParsedRegex(callExpr, context);
         if (!parsedRegex && services && isStringRegexMethodCall(callExpr, services)) {
-          parsedRegex = getParsedRegex(callExpr.arguments[0], context);
+          const firstArgument = callExpr.arguments[0];
+          if (isRegexLiteral(firstArgument) || isRegExpConstructor(firstArgument)) {
+            return;
+          }
+          parsedRegex = getParsedRegex(firstArgument, context);
         }
         checkRegex(callExpr.arguments[0], parsedRegex);
       }

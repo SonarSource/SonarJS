@@ -85,7 +85,7 @@ function getPatternFromNode(
   return null;
 }
 
-function isRegExpConstructor(node: estree.Node): node is estree.CallExpression {
+export function isRegExpConstructor(node: estree.Node): node is estree.CallExpression {
   return (
     (node.type === 'CallExpression' || node.type === 'NewExpression') &&
     node.callee.type === 'Identifier' &&

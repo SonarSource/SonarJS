@@ -169,8 +169,10 @@ typeAwareRuleTester.run('Template for regular expressions rules', rule, {
         'str'.match(pattern);
         'str'.matchAll(pattern);
         'str'.search('a');
+        'str'.search(/a/);
+        'str'.search(new RegExp(pattern));
       `,
-      errors: 3,
+      errors: 5,
     },
   ],
 });
