@@ -21,19 +21,21 @@
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import { CapturingGroup, Group, LookaroundAssertion, Pattern } from 'regexpp/ast';
+import { getUniqueWriteUsage } from './utils-ast';
+import { Rule } from 'eslint';
 
 /**
  * An alternation is a regexpp node that has an `alternatives` field.
  */
 export type Alternation = Pattern | CapturingGroup | Group | LookaroundAssertion;
 
-export function extractRegex(node: estree.Node) {
+export function extractRegex(node: estree.Node, context: Rule.RuleContext) {
   let pattern: string | null;
   let flags: string | null;
   if (isRegexLiteral(node)) {
     ({ pattern, flags } = (node as estree.RegExpLiteral).regex);
   } else if (isRegExpConstructor(node)) {
-    pattern = getPattern(node);
+    pattern = getPattern(node, context);
     flags = getFlags(node);
   } else {
     pattern = flags = null;
@@ -60,13 +62,43 @@ export function isRegExpConstructor(node: estree.Node): node is estree.CallExpre
   );
 }
 
-export function getPattern(callExpr: estree.CallExpression): string | null {
+export function getPattern(
+  callExpr: estree.CallExpression,
+  context: Rule.RuleContext,
+): string | null {
   if (callExpr.arguments.length > 0) {
     const pattern = callExpr.arguments[0];
-    if (pattern.type === 'Literal' && typeof pattern.value === 'string') {
-      return pattern.value;
-    }
+    return getPatternValue(pattern, context);
   }
+  return null;
+}
+
+function getPatternValue(expression: estree.Node, context: Rule.RuleContext): string | null {
+  switch (expression.type) {
+    case 'TemplateLiteral':
+      if (expression.expressions.length === 0 && expression.quasis.length === 1) {
+        return expression.quasis[0].value.raw;
+      }
+      break;
+    case 'Literal':
+      return typeof expression.value === 'string' ? expression.value : null;
+    case 'Identifier':
+      const usage = getUniqueWriteUsage(context, expression.name);
+      if (usage) {
+        return getPatternValue(usage, context);
+      }
+      break;
+    case 'BinaryExpression':
+      if (expression.operator === '+') {
+        const leftValue = getPatternValue(expression.left, context);
+        const rightValue = getPatternValue(expression.right, context);
+        if (leftValue !== null && rightValue !== null) {
+          return leftValue + rightValue;
+        }
+      }
+      break;
+  }
+
   return null;
 }
 

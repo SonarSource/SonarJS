@@ -68,7 +68,7 @@ export function createRegExpRule(
         if (!isRegExpConstructor(callExpr)) {
           return;
         }
-        const pattern = getPattern(callExpr);
+        const pattern = getPattern(callExpr, context);
         const flags = getFlags(callExpr);
         if (pattern !== null && flags !== null) {
           checkRegex(callExpr.arguments[0], pattern, flags);

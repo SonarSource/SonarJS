@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
       CallExpression: (call: estree.CallExpression) => {
         if (isStringReplaceCall(call, services)) {
           const [pattern, substr] = call.arguments;
-          const regex = extractRegex(pattern);
+          const regex = extractRegex(pattern, context);
           if (regex !== null) {
             const groups = extractGroups(regex);
             const references = extractReferences(substr);

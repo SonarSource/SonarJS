@@ -65,6 +65,22 @@ ruleTester.run('Template for regular expressions rules', rule, {
     {
       code: `const re = new RegExp('[malformed');`,
     },
+    {
+      code: `        
+        let pattern = 'a';
+        pattern = 'b';
+        const re = new RegExp(pattern);
+      `,
+    },
+    {
+      code: `const re = RegExp(\`a \${pattern}\`);`,
+    },
+    {
+      // FN
+      code: `
+        const pattern = 'a';
+        const re = RegExp(\`b \${pattern}\`);`,
+    },
   ],
   invalid: [
     {
@@ -92,6 +108,44 @@ ruleTester.run('Template for regular expressions rules', rule, {
     },
     {
       code: `const re = new RegExp('\u0061', 'u');`,
+      errors: 1,
+    },
+    {
+      code: `const re = RegExp(\`a\`);`,
+      errors: 1,
+    },
+    {
+      code: `
+        const pattern = 'a';
+        const re = new RegExp(pattern);
+        //                    ^^^^^^^
+        `,
+      errors: [
+        {
+          line: 3,
+          column: 31,
+          endColumn: 38,
+        },
+      ],
+    },
+    {
+      code: `
+        const re = new RegExp(('a' + 'c') + 'b');
+                           // ^^^^^^^^^^^^^^^^^
+      `,
+
+      errors: [
+        {
+          line: 2,
+          column: 31,
+          endColumn: 48,
+        },
+      ],
+    },
+    {
+      code: `
+        const pattern = 'a';
+        const re = new RegExp('c' + pattern + 'b');`,
       errors: 1,
     },
   ],
