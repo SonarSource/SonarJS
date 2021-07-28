@@ -169,6 +169,12 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
         },
       ],
     },
+    {
+      code: `
+        const pattern = /(\d+)/;
+        'str'.replaceAll(pattern, '$0')`,
+      errors: [{ message: 'Referencing non-existing group: $0' }],
+    },
   ],
 });
 
