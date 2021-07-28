@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Rule, RuleTester } from 'eslint';
+import { Rule } from 'eslint';
 import { AST } from 'regexpp';
 import { createRegExpRule } from 'rules/regex-rule-template';
+import { RuleTesterJsWithTypes as TypeAwareRuleTester } from '../RuleTesterJsWithTypes';
 
 const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
@@ -35,8 +36,8 @@ const rule: Rule.RuleModule = createRegExpRule(context => {
   };
 });
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-ruleTester.run('Template for regular expressions rules', rule, {
+const typeAwareRuleTester = new TypeAwareRuleTester();
+typeAwareRuleTester.run('Template for regular expressions rules', rule, {
   valid: [
     {
       code: `const str = 'abc123';`,
@@ -153,6 +154,15 @@ ruleTester.run('Template for regular expressions rules', rule, {
         const pattern = 'a';
         const re = new RegExp('c' + pattern + 'b');`,
       errors: 1,
+    },
+    {
+      code: `
+        const pattern = 'a';
+        'str'.match(pattern);
+        'str'.matchAll(pattern);
+        'str'.search('a');
+      `,
+      errors: 3,
     },
   ],
 });

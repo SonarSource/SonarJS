@@ -22,7 +22,8 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import type { RegExpVisitor } from 'regexpp/visitor';
-import { getParsedRegex, isRegexLiteral } from '../utils';
+import { ParserServices } from '@typescript-eslint/parser';
+import { getParsedRegex, isRegexLiteral, isRequiredParserServices, isString } from '../utils';
 
 /**
  * Rule context for regex rules that also includes the original ESLint node
@@ -43,6 +44,10 @@ export function createRegExpRule(
   return {
     meta,
     create(context: Rule.RuleContext) {
+      const services = isRequiredParserServices(context.parserServices)
+        ? context.parserServices
+        : null;
+
       function checkRegex(node: estree.Node, regExpAST: regexpp.AST.Node | null) {
         if (!regExpAST) {
           return;
@@ -60,7 +65,11 @@ export function createRegExpRule(
       }
 
       function checkCallExpression(callExpr: estree.CallExpression) {
-        checkRegex(callExpr.arguments[0], getParsedRegex(callExpr, context));
+        let parsedRegex = getParsedRegex(callExpr, context);
+        if (!parsedRegex && services && isStringRegexMethodCall(callExpr, services)) {
+          parsedRegex = getParsedRegex(callExpr.arguments[0], context);
+        }
+        checkRegex(callExpr.arguments[0], parsedRegex);
       }
 
       return {
@@ -70,4 +79,15 @@ export function createRegExpRule(
       };
     },
   };
+}
+
+function isStringRegexMethodCall(call: estree.CallExpression, services: ParserServices) {
+  return (
+    call.callee.type === 'MemberExpression' &&
+    call.callee.property.type === 'Identifier' &&
+    !call.callee.computed &&
+    ['match', 'matchAll', 'search'].includes(call.callee.property.name) &&
+    call.arguments.length > 0 &&
+    isString(call.callee.object, services)
+  );
 }

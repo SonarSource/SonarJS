@@ -179,7 +179,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
 });
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-ruleTester.run('Existing regular expression groups', rule, {
+ruleTester.run('Existing regular expression groups reports nothing without types', rule, {
   valid: [
     {
       code: `'str'.replace(/(\d+)/, '$1')`,
