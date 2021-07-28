@@ -421,3 +421,7 @@ export function checkSensitiveCall(
 export function isStringLiteral(node: estree.Node): node is estree.Literal {
   return node && node.type === 'Literal' && typeof node.value === 'string';
 }
+
+export function isRegexLiteral(node: estree.Node): node is estree.RegExpLiteral {
+  return node.type === 'Literal' && node.value instanceof RegExp;
+}

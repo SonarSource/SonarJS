@@ -24,7 +24,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import { RegExpLiteral } from 'regexpp/ast';
-import { isRequiredParserServices, isString, isStringLiteral, extractRegex } from '../utils';
+import { getParsedRegex, isRequiredParserServices, isString, isStringLiteral } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
       CallExpression: (call: estree.CallExpression) => {
         if (isStringReplaceCall(call, services)) {
           const [pattern, substr] = call.arguments;
-          const regex = extractRegex(pattern, context);
+          const regex = getParsedRegex(pattern, context);
           if (regex !== null) {
             const groups = extractGroups(regex);
             const references = extractReferences(substr);

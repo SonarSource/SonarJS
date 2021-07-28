@@ -22,7 +22,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import type { RegExpVisitor } from 'regexpp/visitor';
-import { getFlags, getPattern, isRegexLiteral, isRegExpConstructor } from '../utils';
+import { getParsedRegex, isRegexLiteral } from '../utils';
 
 /**
  * Rule context for regex rules that also includes the original ESLint node
@@ -43,36 +43,24 @@ export function createRegExpRule(
   return {
     meta,
     create(context: Rule.RuleContext) {
-      function checkRegex(node: estree.Node, pattern: string, flags: string) {
-        let regExpAST: regexpp.AST.Node;
-        try {
-          regExpAST = regexpp.parseRegExpLiteral(new RegExp(pattern, flags));
-        } catch {
-          // Ignore regular expressions with syntax errors
+      function checkRegex(node: estree.Node, regExpAST: regexpp.AST.Node | null) {
+        if (!regExpAST) {
           return;
         }
         regexpp.visitRegExpAST(regExpAST, handlers({ ...context, node }));
       }
 
       function checkLiteral(literal: estree.Literal) {
+        // we can't call `getParsedRegex` withouth following check
+        // as it will return regex for string literal which might be not a regex
         if (!isRegexLiteral(literal)) {
           return;
         }
-        const {
-          regex: { pattern, flags },
-        } = literal as estree.RegExpLiteral;
-        checkRegex(literal, pattern, flags);
+        checkRegex(literal, getParsedRegex(literal, context));
       }
 
       function checkCallExpression(callExpr: estree.CallExpression) {
-        if (!isRegExpConstructor(callExpr)) {
-          return;
-        }
-        const pattern = getPattern(callExpr, context);
-        const flags = getFlags(callExpr);
-        if (pattern !== null && flags !== null) {
-          checkRegex(callExpr.arguments[0], pattern, flags);
-        }
+        checkRegex(callExpr.arguments[0], getParsedRegex(callExpr, context));
       }
 
       return {
