@@ -47,14 +47,29 @@ ruleTester.run('Alternation with empty alternatives', rule, {
           message: 'Remove this empty alternative.',
           line: 1,
           endLine: 1,
-          column: 1,
+          column: 2,
+          endColumn: 3,
+        },
+        {
+          message: 'Remove this empty alternative.',
+          line: 1,
+          endLine: 1,
+          column: 3,
           endColumn: 4,
         },
       ],
     },
     {
       code: `/a|/`,
-      errors: 1,
+      errors: [
+        {
+          message: 'Remove this empty alternative.',
+          line: 1,
+          endLine: 1,
+          column: 4,
+          endColumn: 5,
+        },
+      ],
     },
     {
       code: `/a|b|/`,
@@ -66,15 +81,15 @@ ruleTester.run('Alternation with empty alternatives', rule, {
     },
     {
       code: `/||/`,
-      errors: 1,
+      errors: 3,
     },
     {
       code: `/(|)/`,
-      errors: 1,
+      errors: 2,
     },
     {
       code: `/(?:|)/;`,
-      errors: 1,
+      errors: 2,
     },
   ],
 });

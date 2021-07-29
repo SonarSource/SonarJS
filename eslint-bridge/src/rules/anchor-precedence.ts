@@ -37,10 +37,11 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         (anchoredAt(alternatives, Position.BEGINNING) || anchoredAt(alternatives, Position.END)) &&
         notAnchoredElseWhere(alternatives)
       ) {
-        context.report({
+        context.reportRegExpNode({
           message:
             'Group parts of the regex together to make the intended operator precedence explicit.',
           node: context.node,
+          regexpNode: pattern,
         });
       }
     },

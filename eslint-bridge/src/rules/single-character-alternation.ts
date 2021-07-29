@@ -27,13 +27,16 @@ import { createRegExpRule } from './regex-rule-template';
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   function checkAlternation(alternation: Alternation) {
     const { alternatives } = alternation;
+    if (alternatives.length <= 1) {
+      return;
+    }
     if (
-      alternatives.length > 1 &&
       alternatives.every(alt => alt.elements.length === 1 && alt.elements[0].type === 'Character')
     ) {
-      context.report({
+      context.reportRegExpNode({
         message: 'Replace this alternation with a character class.',
         node: context.node,
+        regexpNode: alternation,
       });
     }
   }
