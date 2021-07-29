@@ -48,7 +48,7 @@ ruleTester.run('Empty groups', rule, {
           line: 1,
           endLine: 1,
           column: 2,
-          endColumn: 5,
+          endColumn: 4,
         },
       ],
     },

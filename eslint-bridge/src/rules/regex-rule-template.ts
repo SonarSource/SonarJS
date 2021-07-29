@@ -41,7 +41,12 @@ export type RegexRuleContext = Rule.RuleContext & {
   reportRegExpNode: (descriptor: RegexReportDescriptor) => void;
 };
 
-type RegexReportDescriptor = { message: string; regexpNode?: regexpp.AST.Node; node: estree.Node };
+type RegexReportDescriptor = {
+  message: string;
+  regexpNode: regexpp.AST.Node;
+  node: estree.Node;
+  offset?: [number, number];
+};
 
 /**
  * Rule template to create regex rules.
@@ -69,14 +74,14 @@ export function createRegExpRule(
 
       function reportRegExpNode(descriptor: RegexReportDescriptor) {
         let loc: AST.SourceLocation;
-        const { node, regexpNode, message } = descriptor;
-        if (regexpNode) {
+        const { node, regexpNode, message, offset = [0, 0] } = descriptor;
+        if (regexpNode && isRegexLiteral(node)) {
           const source = context.getSourceCode();
           const [start] = node.range!;
           const [reStart, reEnd] = getRegexpRange(node, regexpNode);
           loc = {
-            start: source.getLocFromIndex(start + reStart),
-            end: source.getLocFromIndex(start + reEnd + 1),
+            start: source.getLocFromIndex(start + reStart + offset[0]),
+            end: source.getLocFromIndex(start + reEnd + offset[1]),
           };
         } else {
           loc = node.loc!;
@@ -85,7 +90,7 @@ export function createRegExpRule(
       }
 
       function checkLiteral(literal: estree.Literal) {
-        // we can't call `getParsedRegex` withouth following check
+        // we can't call `getParsedRegex` without following check
         // as it will return regex for string literal which might be not a regex
         if (isRegexLiteral(literal)) {
           checkRegex(literal, getParsedRegex(literal, context));

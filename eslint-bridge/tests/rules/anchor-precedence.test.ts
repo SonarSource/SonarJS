@@ -79,7 +79,7 @@ ruleTester.run('Anchor precedence', rule, {
           line: 1,
           endLine: 1,
           column: 2,
-          endColumn: 10,
+          endColumn: 9,
         },
       ],
     },
