@@ -56,14 +56,22 @@ ruleTester.run('Single-character alternation', rule, {
           message: 'Replace this alternation with a character class.',
           line: 2,
           endLine: 2,
-          column: 22,
-          endColumn: 29,
+          column: 23,
+          endColumn: 28,
         },
       ],
     },
     {
       code: `const re = /a|(b|c)/;`,
-      errors: 1,
+      errors: [
+        {
+          message: 'Replace this alternation with a character class.',
+          line: 1,
+          endLine: 1,
+          column: 15,
+          endColumn: 20,
+        },
+      ],
     },
     {
       code: `const re = /abcd|(e|f)gh/;`,

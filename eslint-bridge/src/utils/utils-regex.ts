@@ -21,8 +21,8 @@
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import { CapturingGroup, Group, LookaroundAssertion, Pattern } from 'regexpp/ast';
+import { AST, Rule } from 'eslint';
 import { getUniqueWriteUsage, isRegexLiteral, isStringLiteral } from './utils-ast';
-import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 /**
@@ -102,4 +102,11 @@ function getFlags(callExpr: estree.CallExpression): string | null {
     return flags.value;
   }
   return null;
+}
+
+export function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node): AST.Range {
+  if (isRegexLiteral(node)) {
+    return [regexpNode.start, regexpNode.end];
+  }
+  throw new Error(`Expected node regexp literal, got ${node.type}`);
 }

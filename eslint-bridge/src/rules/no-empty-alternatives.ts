@@ -26,13 +26,22 @@ import { createRegExpRule } from './regex-rule-template';
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   function checkAlternation(alternation: Alternation) {
     const { alternatives: alts } = alternation;
-    if (alts.length > 1 && alts.some(alt => alt.elements.length === 0)) {
-      context.report({
-        message: 'Remove this empty alternative.',
-        node: context.node,
-      });
+    if (alts.length <= 1) {
+      return;
+    }
+    for (let i = 0; i < alts.length; i++) {
+      let alt = alts[i];
+      if (alt.elements.length === 0) {
+        context.reportRegExpNode({
+          message: 'Remove this empty alternative.',
+          regexpNode: alt,
+          offset: i === alts.length - 1 ? [-1, 0] : [0, 1], // we want to raise the issue on the |
+          node: context.node,
+        });
+      }
     }
   }
+
   return {
     onPatternEnter: checkAlternation,
     onGroupEnter: checkAlternation,

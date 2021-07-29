@@ -18,24 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Rule } from 'eslint';
+import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import type { RegExpVisitor } from 'regexpp/visitor';
-import { ParserServices } from '@typescript-eslint/parser';
 import {
   getParsedRegex,
+  getRegexpRange,
   isRegexLiteral,
   isRegExpConstructor,
   isRequiredParserServices,
   isString,
 } from '../utils';
+import { ParserServices } from '@typescript-eslint/parser';
 
 /**
  * Rule context for regex rules that also includes the original ESLint node
  * denoting the regular expression (string) literal.
  */
-export type RegexRuleContext = Rule.RuleContext & { node: estree.Node };
+export type RegexRuleContext = Rule.RuleContext & {
+  node: estree.Node;
+  reportRegExpNode: (descriptor: RegexReportDescriptor) => void;
+};
+
+type RegexReportDescriptor = {
+  message: string;
+  regexpNode: regexpp.AST.Node;
+  node: estree.Node;
+  offset?: [number, number];
+};
 
 /**
  * Rule template to create regex rules.
@@ -58,11 +69,28 @@ export function createRegExpRule(
         if (!regExpAST) {
           return;
         }
-        regexpp.visitRegExpAST(regExpAST, handlers({ ...context, node }));
+        regexpp.visitRegExpAST(regExpAST, handlers({ ...context, node, reportRegExpNode }));
+      }
+
+      function reportRegExpNode(descriptor: RegexReportDescriptor) {
+        let loc: AST.SourceLocation;
+        const { node, regexpNode, message, offset = [0, 0] } = descriptor;
+        if (regexpNode && isRegexLiteral(node)) {
+          const source = context.getSourceCode();
+          const [start] = node.range!;
+          const [reStart, reEnd] = getRegexpRange(node, regexpNode);
+          loc = {
+            start: source.getLocFromIndex(start + reStart + offset[0]),
+            end: source.getLocFromIndex(start + reEnd + offset[1]),
+          };
+        } else {
+          loc = node.loc!;
+        }
+        context.report({ message, loc });
       }
 
       function checkLiteral(literal: estree.Literal) {
-        // we can't call `getParsedRegex` withouth following check
+        // we can't call `getParsedRegex` without following check
         // as it will return regex for string literal which might be not a regex
         if (isRegexLiteral(literal)) {
           checkRegex(literal, getParsedRegex(literal, context));
