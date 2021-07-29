@@ -22,7 +22,14 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import type { RegExpVisitor } from 'regexpp/visitor';
-import { getFlags, getPattern, isRegexLiteral, isRegExpConstructor } from '../utils';
+import { ParserServices } from '@typescript-eslint/parser';
+import {
+  getParsedRegex,
+  isRegexLiteral,
+  isRegExpConstructor,
+  isRequiredParserServices,
+  isString,
+} from '../utils';
 
 /**
  * Rule context for regex rules that also includes the original ESLint node
@@ -43,36 +50,35 @@ export function createRegExpRule(
   return {
     meta,
     create(context: Rule.RuleContext) {
-      function checkRegex(node: estree.Node, pattern: string, flags: string) {
-        let regExpAST: regexpp.AST.Node;
-        try {
-          regExpAST = regexpp.parseRegExpLiteral(new RegExp(pattern, flags));
-        } catch {
-          // Ignore regular expressions with syntax errors
+      const services = isRequiredParserServices(context.parserServices)
+        ? context.parserServices
+        : null;
+
+      function checkRegex(node: estree.Node, regExpAST: regexpp.AST.Node | null) {
+        if (!regExpAST) {
           return;
         }
         regexpp.visitRegExpAST(regExpAST, handlers({ ...context, node }));
       }
 
       function checkLiteral(literal: estree.Literal) {
-        if (!isRegexLiteral(literal)) {
-          return;
+        // we can't call `getParsedRegex` withouth following check
+        // as it will return regex for string literal which might be not a regex
+        if (isRegexLiteral(literal)) {
+          checkRegex(literal, getParsedRegex(literal, context));
         }
-        const {
-          regex: { pattern, flags },
-        } = literal as estree.RegExpLiteral;
-        checkRegex(literal, pattern, flags);
       }
 
       function checkCallExpression(callExpr: estree.CallExpression) {
-        if (!isRegExpConstructor(callExpr)) {
-          return;
+        let parsedRegex = getParsedRegex(callExpr, context);
+        if (!parsedRegex && services && isStringRegexMethodCall(callExpr, services)) {
+          const firstArgument = callExpr.arguments[0];
+          if (isRegexLiteral(firstArgument) || isRegExpConstructor(firstArgument)) {
+            return;
+          }
+          parsedRegex = getParsedRegex(firstArgument, context);
         }
-        const pattern = getPattern(callExpr);
-        const flags = getFlags(callExpr);
-        if (pattern !== null && flags !== null) {
-          checkRegex(callExpr.arguments[0], pattern, flags);
-        }
+        checkRegex(callExpr.arguments[0], parsedRegex);
       }
 
       return {
@@ -82,4 +88,16 @@ export function createRegExpRule(
       };
     },
   };
+}
+
+function isStringRegexMethodCall(call: estree.CallExpression, services: ParserServices) {
+  return (
+    call.callee.type === 'MemberExpression' &&
+    call.callee.property.type === 'Identifier' &&
+    !call.callee.computed &&
+    ['match', 'matchAll', 'search'].includes(call.callee.property.name) &&
+    call.arguments.length > 0 &&
+    isString(call.callee.object, services) &&
+    isString(call.arguments[0], services)
+  );
 }

@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Rule, RuleTester } from 'eslint';
+import { Rule } from 'eslint';
 import { AST } from 'regexpp';
 import { createRegExpRule } from 'rules/regex-rule-template';
+import { RuleTesterJsWithTypes as TypeAwareRuleTester } from '../RuleTesterJsWithTypes';
 
 const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
@@ -35,8 +36,8 @@ const rule: Rule.RuleModule = createRegExpRule(context => {
   };
 });
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-ruleTester.run('Template for regular expressions rules', rule, {
+const typeAwareRuleTester = new TypeAwareRuleTester();
+typeAwareRuleTester.run('Template for regular expressions rules', rule, {
   valid: [
     {
       code: `const str = 'abc123';`,
@@ -63,7 +64,37 @@ ruleTester.run('Template for regular expressions rules', rule, {
       code: `const re = new RegExp('z');`,
     },
     {
+      code: `const re = new RegExp(42);`,
+    },
+    {
       code: `const re = new RegExp('[malformed');`,
+    },
+    {
+      code: `        
+        let pattern = 'a';
+        pattern = 'b';
+        const re = new RegExp(pattern);
+      `,
+    },
+    {
+      code: `const re = RegExp(\`a \${pattern}\`);`,
+    },
+    {
+      // FN
+      code: `
+        const pattern = 'a';
+        const re = RegExp(\`b \${pattern}\`);`,
+    },
+    {
+      code: `const re = RegExp('42' - '24');`,
+    },
+    {
+      // should work for 'recursive' reassignments
+      code: `
+      let regex;
+      if (isString(regex)) {
+        regex = new RegExp('^' + regex + '$');
+      }`,
     },
   ],
   invalid: [
@@ -93,6 +124,65 @@ ruleTester.run('Template for regular expressions rules', rule, {
     {
       code: `const re = new RegExp('\u0061', 'u');`,
       errors: 1,
+    },
+    {
+      code: `const re = RegExp(\`a\`);`,
+      errors: 1,
+    },
+    {
+      code: `
+        const pattern = 'a';
+        const re = new RegExp(pattern);
+        //                    ^^^^^^^
+        `,
+      errors: [
+        {
+          line: 3,
+          column: 31,
+          endColumn: 38,
+        },
+      ],
+    },
+    {
+      code: `
+        const re = new RegExp(('a' + 'c') + 'b');
+                           // ^^^^^^^^^^^^^^^^^
+      `,
+
+      errors: [
+        {
+          line: 2,
+          column: 31,
+          endColumn: 48,
+        },
+      ],
+    },
+    {
+      code: `
+        const pattern = 'a';
+        const re = new RegExp('c' + pattern + 'b');`,
+      errors: 1,
+    },
+    {
+      code: `
+        'str'.match('a');
+        'str'.matchAll('a');
+        'str'.search('a');
+      `,
+      errors: 3,
+    },
+    {
+      // test we are reporting only once
+      code: `
+        const pattern = 'a';
+        const regexPattern = /a/;
+        'str'.search(pattern);
+        'str'.search('a');
+        'str'.search(/a/);
+        'str'.search(regexPattern); // we should not report here, as we are reporting on regex literal
+        'str'.search(new RegExp(pattern));
+      `,
+      errors: [{ line: 3 }, { line: 4 }, { line: 5 }, { line: 6 }, { line: 8 }],
     },
   ],
 });

@@ -21,35 +21,68 @@
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import { CapturingGroup, Group, LookaroundAssertion, Pattern } from 'regexpp/ast';
+import { getUniqueWriteUsage, isRegexLiteral, isStringLiteral } from './utils-ast';
+import { Rule } from 'eslint';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 /**
  * An alternation is a regexpp node that has an `alternatives` field.
  */
 export type Alternation = Pattern | CapturingGroup | Group | LookaroundAssertion;
 
-export function extractRegex(node: estree.Node) {
-  let pattern: string | null;
-  let flags: string | null;
-  if (isRegexLiteral(node)) {
-    ({ pattern, flags } = (node as estree.RegExpLiteral).regex);
-  } else if (isRegExpConstructor(node)) {
-    pattern = getPattern(node);
-    flags = getFlags(node);
-  } else {
-    pattern = flags = null;
+export function getParsedRegex(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): regexpp.AST.RegExpLiteral | null {
+  const patternAndFlags = getPatternFromNode(node, context);
+  if (patternAndFlags) {
+    try {
+      return regexpp.parseRegExpLiteral(new RegExp(patternAndFlags.pattern, patternAndFlags.flags));
+    } catch {
+      // do nothing for invalid regex
+    }
   }
-  if (pattern === null || flags === null) {
-    return null;
-  }
-  try {
-    return regexpp.parseRegExpLiteral(new RegExp(pattern, flags));
-  } catch {
-    return null;
-  }
+
+  return null;
 }
 
-export function isRegexLiteral(node: estree.Node): node is estree.Literal {
-  return node.type === 'Literal' && node.value instanceof RegExp;
+function getPatternFromNode(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): { pattern: string; flags: string } | null {
+  if (isRegExpConstructor(node) && node.arguments.length > 0) {
+    const patternOnly = getPatternFromNode(node.arguments[0], context);
+    const flags = getFlags(node);
+    if (patternOnly && flags !== null) {
+      return { pattern: patternOnly.pattern, flags };
+    }
+  } else if (isRegexLiteral(node)) {
+    return node.regex;
+  } else if (isStringLiteral(node)) {
+    return { pattern: node.value as string, flags: '' };
+  } else if (
+    node.type === 'TemplateLiteral' &&
+    node.expressions.length === 0 &&
+    node.quasis.length === 1
+  ) {
+    return { pattern: node.quasis[0].value.raw, flags: '' };
+  } else if (node.type === 'Identifier') {
+    const assignedExpression = getUniqueWriteUsage(context, node.name);
+    if (
+      assignedExpression &&
+      (assignedExpression as TSESTree.Node).parent?.type === 'VariableDeclarator'
+    ) {
+      return getPatternFromNode(assignedExpression, context);
+    }
+  } else if (node.type === 'BinaryExpression' && node.operator === '+') {
+    const left = getPatternFromNode(node.left, context);
+    const right = getPatternFromNode(node.right, context);
+    if (left && right) {
+      return { pattern: left.pattern + right.pattern, flags: '' };
+    }
+  }
+
+  return null;
 }
 
 export function isRegExpConstructor(node: estree.Node): node is estree.CallExpression {
@@ -60,17 +93,7 @@ export function isRegExpConstructor(node: estree.Node): node is estree.CallExpre
   );
 }
 
-export function getPattern(callExpr: estree.CallExpression): string | null {
-  if (callExpr.arguments.length > 0) {
-    const pattern = callExpr.arguments[0];
-    if (pattern.type === 'Literal' && typeof pattern.value === 'string') {
-      return pattern.value;
-    }
-  }
-  return null;
-}
-
-export function getFlags(callExpr: estree.CallExpression): string | null {
+function getFlags(callExpr: estree.CallExpression): string | null {
   if (callExpr.arguments.length < 2) {
     return '';
   }

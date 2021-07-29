@@ -157,11 +157,29 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
         },
       ],
     },
+    {
+      code: `
+        const pattern = '(\d+)';
+        'str'.replaceAll(new RegExp(pattern), '$0')`,
+      errors: [
+        {
+          message: 'Referencing non-existing group: $0',
+          line: 3,
+          column: 47,
+        },
+      ],
+    },
+    {
+      code: `
+        const pattern = /(\d+)/;
+        'str'.replaceAll(pattern, '$0')`,
+      errors: [{ message: 'Referencing non-existing group: $0' }],
+    },
   ],
 });
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-ruleTester.run('Existing regular expression groups', rule, {
+ruleTester.run('Existing regular expression groups reports nothing without types', rule, {
   valid: [
     {
       code: `'str'.replace(/(\d+)/, '$1')`,
