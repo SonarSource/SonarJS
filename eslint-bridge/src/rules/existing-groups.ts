@@ -19,12 +19,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6328
 
-import { ParserServices } from '@typescript-eslint/parser';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import { RegExpLiteral } from 'regexpp/ast';
-import { getParsedRegex, isRequiredParserServices, isString, isStringLiteral } from '../utils';
+import { getParsedRegex, isRequiredParserServices } from '../utils';
+import {
+  extractReferences,
+  GroupReference,
+  isStringReplaceCall,
+} from '../utils/utils-string-replace';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -79,43 +83,12 @@ class CapturingGroups {
   }
 }
 
-interface GroupReference {
-  raw: string;
-  value: string;
-}
-
-function isStringReplaceCall(call: estree.CallExpression, services: ParserServices) {
-  return (
-    call.callee.type === 'MemberExpression' &&
-    call.callee.property.type === 'Identifier' &&
-    !call.callee.computed &&
-    ['replace', 'replaceAll'].includes(call.callee.property.name) &&
-    call.arguments.length > 1 &&
-    isString(call.callee.object, services)
-  );
-}
-
 function extractGroups(regex: RegExpLiteral) {
   const groups = new CapturingGroups();
   regexpp.visitRegExpAST(regex, {
     onCapturingGroupEnter: group => groups.add(group.name),
   });
   return groups;
-}
-
-function extractReferences(node: estree.Node) {
-  const references: GroupReference[] = [];
-  if (isStringLiteral(node)) {
-    const str = node.value as string;
-    const reg = /\$(\d+)|\$\<([a-zA-Z][a-zA-Z0-9_]*)\>/g;
-    let match: RegExpExecArray | null;
-    while ((match = reg.exec(str)) !== null) {
-      const [raw, index, name] = match;
-      const value = index || name;
-      references.push({ raw, value });
-    }
-  }
-  return references;
 }
 
 function isReferencingExistingGroup(reference: GroupReference, groups: CapturingGroups) {

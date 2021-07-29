@@ -104,6 +104,14 @@ export function isMethodInvocation(
   );
 }
 
+export function isMethodCall(callExpr: estree.CallExpression) {
+  return (
+    callExpr.callee.type === 'MemberExpression' &&
+    !callExpr.callee.computed &&
+    callExpr.callee.property.type === 'Identifier'
+  );
+}
+
 export function isNamespaceSpecifier(importDeclaration: estree.ImportDeclaration, name: string) {
   return importDeclaration.specifiers.some(
     ({ type, local }) => type === 'ImportNamespaceSpecifier' && local.name === name,
