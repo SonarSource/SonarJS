@@ -38,13 +38,11 @@ export default function getHighlighting(sourceCode: SourceCode) {
       case 'HTMLLiteral':
       case 'String':
       case 'Template':
+      case 'RegularExpression':
         highlight(token, 'STRING', highlights);
         break;
       case 'Numeric':
         highlight(token, 'CONSTANT', highlights);
-        break;
-      case 'RegularExpression':
-        highlight(token, 'STRING', highlights);
         break;
     }
   }
