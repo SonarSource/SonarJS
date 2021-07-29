@@ -55,7 +55,7 @@
             </goals>
             <configuration>
               <executable>yarn</executable>
-              <commandlineArgs>test --coverage</commandlineArgs>
+              <commandlineArgs>test --coverage --silent</commandlineArgs>
               <skip>${skipTests}</skip>
             </configuration>
           </execution>
