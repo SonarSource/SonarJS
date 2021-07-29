@@ -84,6 +84,11 @@ it('should highlight numbers', () => {
   expect(actual('10e-2')).toContainEqual(token(1, 0, 1, 5, 'CONSTANT'));
 });
 
+it('should highlight regex literals', () => {
+  expect(actual('/x/')).toContainEqual(token(1, 0, 1, 3, 'STRING'));
+  expect(actual('/42/gu')).toContainEqual(token(1, 0, 1, 6, 'STRING'));
+});
+
 it('should highlight Vue templates', () => {
   function highlights(code: string): Highlight[] {
     const sourceCode = parseJavaScriptVueSourceFile(code, '/some/path/file.vue', []) as SourceCode;
