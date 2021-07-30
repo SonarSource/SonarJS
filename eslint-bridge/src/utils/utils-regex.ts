@@ -24,6 +24,7 @@ import { CapturingGroup, Group, LookaroundAssertion, Pattern } from 'regexpp/ast
 import { AST, Rule } from 'eslint';
 import { getUniqueWriteUsage, isRegexLiteral, isStringLiteral } from './utils-ast';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { tokenizeString } from './utils-string-literal';
 
 /**
  * An alternation is a regexpp node that has an `alternatives` field.
@@ -108,5 +109,22 @@ export function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node):
   if (isRegexLiteral(node)) {
     return [regexpNode.start, regexpNode.end];
   }
-  throw new Error(`Expected node regexp literal, got ${node.type}`);
+  if (isStringLiteral(node)) {
+    if (node.value === '') {
+      return [0, 2];
+    }
+    const s = node.raw!;
+    const tokens = tokenizeString(unquote(s));
+    const start = tokens[regexpNode.start - 1].range[0];
+    const end = tokens[regexpNode.end - 2].range[1];
+    return [start, end];
+  }
+  throw new Error(`Expected regexp or string literal, got ${node.type}`);
+}
+
+function unquote(s: string): string {
+  if (s.charAt(0) !== "'" && s.charAt(0) !== '"') {
+    throw new Error(`invalid string to unquote: ${s}`);
+  }
+  return s.substring(1, s.length - 1);
 }
