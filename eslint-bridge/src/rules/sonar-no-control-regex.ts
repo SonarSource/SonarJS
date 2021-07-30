@@ -17,21 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://sonarsource.github.io/rspec/#/rspec/S6324
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import { Rule } from 'eslint';
+import { Character } from 'regexpp/ast';
+import { createRegExpRule } from './regex-rule-template';
 
-@TypeScriptRule
-@JavaScriptRule
-@Rule(key = "S6324")
-public class NoControlRegexCheck implements EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "sonar-no-control-regex";
-  }
-
-}
+export const rule: Rule.RuleModule = createRegExpRule(context => {
+  return {
+    onCharacterEnter: (character: Character) => {
+      const { value, raw } = character;
+      if (value >= 0x00 && value <= 0x1f && (raw.startsWith('\\x') || raw.startsWith('\\u'))) {
+        context.reportRegExpNode({
+          message: 'Remove this control character.',
+          node: context.node,
+          regexpNode: character,
+        });
+      }
+    },
+  };
+});
