@@ -41,15 +41,6 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         });
       }
     }
-
-    function isLastEmptyInGroup(alt: regexpp.AST.Alternative) {
-      const group = alt.parent;
-      return (
-        (group.type === 'Group' || group.type === 'CapturingGroup') &&
-        last(group.alternatives) === alt &&
-        group.parent.type !== 'Quantifier'
-      );
-    }
   }
 
   return {
@@ -58,3 +49,12 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     onCapturingGroupEnter: checkAlternation,
   };
 });
+
+function isLastEmptyInGroup(alt: regexpp.AST.Alternative) {
+  const group = alt.parent;
+  return (
+    (group.type === 'Group' || group.type === 'CapturingGroup') &&
+    last(group.alternatives) === alt &&
+    group.parent.type !== 'Quantifier'
+  );
+}
