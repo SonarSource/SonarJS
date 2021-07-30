@@ -27,9 +27,10 @@ const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onCharacterEnter(character: AST.Character) {
       if (character.value === 'a'.charCodeAt(0)) {
-        context.report({
+        context.reportRegExpNode({
           message: `Found character 'a'.`,
           node: context.node,
+          regexpNode: character,
         });
       }
     },
@@ -101,21 +102,29 @@ typeAwareRuleTester.run('Template for regular expressions rules', rule, {
     {
       code: `
         const re = /a/u;
-                 //^^^^
+                 // ^
       `,
       errors: [
         {
           message: `Found character 'a'.`,
           line: 2,
-          column: 20,
+          column: 21,
           endLine: 2,
-          endColumn: 24,
+          endColumn: 22,
         },
       ],
     },
     {
-      code: `const re = RegExp('a');`,
-      errors: 1,
+      code: `const re = RegExp('ab');`,
+      errors: [
+        {
+          message: `Found character 'a'.`,
+          line: 1,
+          column: 19,
+          endLine: 1,
+          endColumn: 20,
+        },
+      ],
     },
     {
       code: `const re = new RegExp('a');`,
