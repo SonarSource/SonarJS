@@ -53,6 +53,18 @@ ruleTester.run('Empty groups', rule, {
       ],
     },
     {
+      code: `new RegExp("\\u{000000000061}()")`,
+      errors: [
+        {
+          message: 'Remove this empty group.',
+          line: 1,
+          endLine: 1,
+          column: 28,
+          endColumn: 30,
+        },
+      ],
+    },
+    {
       code: `/(|)/`,
       errors: 1,
     },

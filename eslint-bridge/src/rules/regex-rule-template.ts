@@ -29,6 +29,7 @@ import {
   isRegExpConstructor,
   isRequiredParserServices,
   isString,
+  isStringLiteral,
 } from '../utils';
 import { ParserServices } from '@typescript-eslint/parser';
 
@@ -75,7 +76,7 @@ export function createRegExpRule(
       function reportRegExpNode(descriptor: RegexReportDescriptor) {
         let loc: AST.SourceLocation;
         const { node, regexpNode, message, offset = [0, 0] } = descriptor;
-        if (regexpNode && isRegexLiteral(node)) {
+        if (isRegexLiteral(node) || isStringLiteral(node)) {
           const source = context.getSourceCode();
           const [start] = node.range!;
           const [reStart, reEnd] = getRegexpRange(node, regexpNode);
