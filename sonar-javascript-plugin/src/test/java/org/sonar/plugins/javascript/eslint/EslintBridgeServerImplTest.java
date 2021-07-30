@@ -39,6 +39,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -58,6 +59,7 @@ import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 import static org.sonar.api.utils.log.LoggerLevel.INFO;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl.MAX_OLD_SPACE_SIZE_PROPERTY;
 
 public class EslintBridgeServerImplTest {
 
@@ -254,6 +256,25 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.startServerLazily(context);
     assertThat(logTester.logs(DEBUG).stream().noneMatch(s -> s.startsWith(starting))).isTrue();
     assertThat(logTester.logs(DEBUG)).contains(alreadyStarted);
+  }
+
+  @Test
+  public void test_restarts() throws Exception {
+    context.settings().setProperty(MAX_OLD_SPACE_SIZE_PROPERTY, "4096");
+    eslintBridgeServer = createEslintBridgeServer("startServer.js");
+    eslintBridgeServer.startServerLazily(context);
+    assertThat(getNumberOfOccurrencesInDebugLogs("max-old-space-size")).isEqualTo(1);
+    eslintBridgeServer.stop();
+    logTester.clear();
+    eslintBridgeServer.startServerLazily(context);
+    assertThat(getNumberOfOccurrencesInDebugLogs("max-old-space-size")).isEqualTo(1);
+  }
+
+  private int getNumberOfOccurrencesInDebugLogs(String searchString) {
+    return logTester.logs(DEBUG)
+      .stream()
+      .mapToInt(s -> StringUtils.countMatches(s, searchString))
+      .sum();
   }
 
   @Test

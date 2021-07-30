@@ -53,16 +53,31 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private final NodeCommand.ProcessWrapper processWrapper;
   private Integer minNodeVersion;
   private Configuration configuration;
-  private List<String> args = new ArrayList<>();
-  private List<String> nodeJsArgs = new ArrayList<>();
-  private Consumer<String> outputConsumer = LOG::info;
-  private Consumer<String> errorConsumer = LOG::error;
+  private List<String> args;
+  private List<String> nodeJsArgs;
+  private Consumer<String> outputConsumer;
+  private Consumer<String> errorConsumer;
   private String scriptFilename;
   private BundlePathResolver pathResolver;
   private int actualNodeVersion;
 
   NodeCommandBuilderImpl(NodeCommand.ProcessWrapper processWrapper) {
     this.processWrapper = processWrapper;
+    reset();
+  }
+
+  @Override
+  public NodeCommandBuilder reset() {
+    minNodeVersion = null;
+    configuration = null;
+    args = new ArrayList<>();
+    nodeJsArgs = new ArrayList<>();
+    outputConsumer = LOG::info;
+    errorConsumer = LOG::error;
+    scriptFilename = null;
+    pathResolver = null;
+    actualNodeVersion = 0;
+    return this;
   }
 
   @Override

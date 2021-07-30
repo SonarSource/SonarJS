@@ -56,7 +56,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
   // internal property to set "--max-old-space-size" for Node process running this server
-  private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
+  static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
   private static final Gson GSON = new Gson();
   private static final int MIN_NODE_VERSION = 8;
@@ -152,6 +152,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
     nodeCommandBuilder
+      .reset()
       .outputConsumer(message -> {
         if (message.startsWith("DEBUG")) {
           LOG.debug(message.substring(5).trim());

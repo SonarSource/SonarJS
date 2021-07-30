@@ -355,6 +355,21 @@ public class NodeCommandTest {
   }
 
   @Test
+  public void test_reset() throws IOException {
+    when(mockProcessWrapper.isMac()).thenReturn(false);
+    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
+      .nodeJsArgs("--verbose")
+      .scriptArgs("arg1", "arg2")
+      .reset()
+      .scriptArgs("newArg1", "newArg2")
+      .nodeJsArgs("-v")
+      .script("script.js")
+      .build();
+
+    assertThat(nodeCommand.toString()).endsWith("node -v script.js newArg1 newArg2");
+  }
+
+  @Test
   public void test_command_on_mac() throws Exception {
     if (System.getProperty("os.name").toLowerCase().contains("win")) {
       // we can't test this on Windows as we are setting permissions

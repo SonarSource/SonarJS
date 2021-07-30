@@ -34,10 +34,24 @@ public interface NodeCommandBuilder {
 
   NodeCommandBuilder maxOldSpaceSize(int maxOldSpaceSize);
 
+  /**
+   * Adds Node.js arguments. This does not replace previously set Node.js arguments.
+   * Use {@link NodeCommandBuilder#reset()} to reset the builder in cases in which you are
+   * reusing it.
+   *
+   * @return this
+   */
   NodeCommandBuilder nodeJsArgs(String... nodeJsArgs);
 
   NodeCommandBuilder script(String scriptFilename);
 
+  /**
+   * Adds additional script arguments. This does not replace previously set script arguments.
+   * Use {@link NodeCommandBuilder#reset()} to reset the builder in cases in which you are
+   * reusing it.
+   *
+   * @return this
+   */
   NodeCommandBuilder scriptArgs(String... args);
 
   NodeCommandBuilder outputConsumer(Consumer<String> consumer);
@@ -47,4 +61,12 @@ public interface NodeCommandBuilder {
   NodeCommandBuilder pathResolver(BundlePathResolver pathResolver);
 
   NodeCommand build() throws IOException;
+
+  /**
+   * Resets the state of the builder as if none of the {@link NodeCommandBuilder} APIs
+   * have been used before.
+   *
+   * @return this
+   */
+  NodeCommandBuilder reset();
 }
