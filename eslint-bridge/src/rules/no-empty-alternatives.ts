@@ -20,8 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6323
 
 import { Rule } from 'eslint';
-import { Alternation } from '../utils';
+import { Alternation, last } from '../utils';
 import { createRegExpRule } from './regex-rule-template';
+import * as regexpp from 'regexpp';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   function checkAlternation(alternation: Alternation) {
@@ -31,7 +32,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     }
     for (let i = 0; i < alts.length; i++) {
       let alt = alts[i];
-      if (alt.elements.length === 0) {
+      if (alt.elements.length === 0 && !isLastEmptyInGroup(alt)) {
         context.reportRegExpNode({
           message: 'Remove this empty alternative.',
           regexpNode: alt,
@@ -48,3 +49,12 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     onCapturingGroupEnter: checkAlternation,
   };
 });
+
+function isLastEmptyInGroup(alt: regexpp.AST.Alternative) {
+  const group = alt.parent;
+  return (
+    (group.type === 'Group' || group.type === 'CapturingGroup') &&
+    last(group.alternatives) === alt &&
+    group.parent.type !== 'Quantifier'
+  );
+}

@@ -38,6 +38,10 @@ ruleTester.run('Alternation with empty alternatives', rule, {
     {
       code: `/a|b|c/`,
     },
+    {
+      // exception when used to make group optional
+      code: `/(a|)/,/(?:a|)/`,
+    },
   ],
   invalid: [
     {
@@ -97,11 +101,23 @@ ruleTester.run('Alternation with empty alternatives', rule, {
     },
     {
       code: `/(|)/`,
-      errors: 2,
+      errors: 1,
     },
     {
       code: `/(?:|)/;`,
-      errors: 2,
+      errors: 1,
+    },
+    {
+      code: `/(a|)?/`,
+      errors: 1,
+    },
+    {
+      code: `/(a|)*/`,
+      errors: 1,
+    },
+    {
+      code: `/(a|){1,3}/`,
+      errors: 1,
     },
   ],
 });
