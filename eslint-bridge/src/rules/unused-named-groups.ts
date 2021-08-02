@@ -113,12 +113,12 @@ function checkIndexBasedGroupReference(
   intellisense: RegexIntelliSense,
 ) {
   const { object: matcher, property } = memberExpr;
-  const pattern = intellisense.resolve(matcher);
-  if (pattern) {
+  const regex = intellisense.resolve(matcher);
+  if (regex) {
     const maybeIndex = getValueOfExpression(intellisense.context, property, 'Literal');
     if (maybeIndex && typeof maybeIndex.value === 'number') {
       const index = maybeIndex.value;
-      const group = pattern.groups.find(grp => grp.index === index);
+      const group = regex.groups.find(grp => grp.index === index);
       if (group) {
         group.used = true;
         // Temporary workaround
@@ -127,7 +127,7 @@ function checkIndexBasedGroupReference(
         intellisense.context.report({
           message: toEncodedMessage(
             `Directly use '${group.name}' instead of its group number.`,
-            [pattern.node],
+            [regex.node],
             ['Regular expression'],
           ),
           node: property,
@@ -142,12 +142,12 @@ function checkNonExistingGroupReference(
   intellisense: RegexIntelliSense,
 ) {
   const { object: matcher, property } = memberExpr;
-  const pattern = intellisense.resolve(matcher);
-  if (pattern) {
+  const regex = intellisense.resolve(matcher);
+  if (regex) {
     /* matcher.groups.<name> / matcher.indices.groups.<name>  */
     const name = extractGroupName(memberExpr, intellisense);
     if (name !== null) {
-      const group = pattern.groups.find(grp => grp.name === name);
+      const group = regex.groups.find(grp => grp.name === name);
       if (group) {
         group.used = true;
       } else {
@@ -157,7 +157,7 @@ function checkNonExistingGroupReference(
         intellisense.context.report({
           message: toEncodedMessage(
             `There is no group named '${name}' in the regular expression.`,
-            [pattern.node],
+            [regex.node],
             ['Regular expression'],
           ),
           node: property,
