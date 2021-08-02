@@ -18,16 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AST, Rule } from 'eslint';
+import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import type { RegExpVisitor } from 'regexpp/visitor';
 import {
   getParsedRegex,
-  getRegexpRange,
-  isRegexLiteral,
+  getRegexpLocation,
   isRequiredParserServices,
-  isStringLiteral,
   isStringRegexMethodCall,
 } from '../utils';
 
@@ -72,19 +70,8 @@ export function createRegExpRule(
       }
 
       function reportRegExpNode(descriptor: RegexReportDescriptor) {
-        let loc: AST.SourceLocation;
         const { node, regexpNode, message, offset = [0, 0] } = descriptor;
-        if (isRegexLiteral(node) || isStringLiteral(node)) {
-          const source = context.getSourceCode();
-          const [start] = node.range!;
-          const [reStart, reEnd] = getRegexpRange(node, regexpNode);
-          loc = {
-            start: source.getLocFromIndex(start + reStart + offset[0]),
-            end: source.getLocFromIndex(start + reEnd + offset[1]),
-          };
-        } else {
-          loc = node.loc!;
-        }
+        const loc = getRegexpLocation(node, regexpNode, context, offset);
         context.report({ message, loc });
       }
 

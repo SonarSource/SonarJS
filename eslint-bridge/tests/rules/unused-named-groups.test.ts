@@ -168,12 +168,27 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     {
       code: `
         const pattern = /(?<foo>\\w)/;
+                      // ^^^^^^^^^^^
         const matched = 'str'.match(pattern);
         if (matched) {
           matched[1]; // Noncompliant: 'foo' referenced by index
+               // ^
         }
       `,
-      errors: 1,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: `Directly use 'foo' instead of its group number.`,
+            secondaryLocations: [
+              { message: `Group 'foo'`, column: 25, line: 2, endColumn: 35, endLine: 2 },
+            ],
+          }),
+          line: 6,
+          endLine: 6,
+          column: 19,
+          endColumn: 20,
+        },
+      ],
     },
     {
       code: `
@@ -199,6 +214,31 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     },
     {
       code: `
+        const pattern = /(?<foo>\\w)(?<bar>\\w)/; // Noncompliant: unused 'foo'
+                      // ^^^^^^^^^^^
+                     // ^^^^^^^^^^^^^^^^^^^^^^^^
+        const matched = 'str'.match(pattern);
+        if (matched) {
+          matched.groups.bar;
+        }
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: 'Use the named groups of this regex or remove the names.',
+            secondaryLocations: [
+              { message: `Named group 'foo'`, column: 25, line: 2, endColumn: 35, endLine: 2 },
+            ],
+          }),
+          line: 2,
+          endLine: 2,
+          column: 25,
+          endColumn: 47,
+        },
+      ],
+    },
+    {
+      code: `
         const pattern = /(?<foo>\\w)/; // Noncompliant: unused 'foo'
         const matched = 'str'.match(pattern);
         if (matched) {
@@ -219,14 +259,29 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     },
     {
       code: `
-        const pattern = /foo/;
+        const pattern = /(?<foo>\\w)/;
+                      // ^^^^^^^^^^^
         const matched = 'str'.match(pattern);
         if (matched) {
+          matched.groups.foo;
           matched.groups.bar; // Noncompliant: 'bar' doesn't exist
-          matched.groups.baz; // Noncompliant: 'baz' doesn't exist
+                      // ^^^
         }
       `,
-      errors: 2,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: `There is no group named 'bar' in the regular expression.`,
+            secondaryLocations: [
+              { message: `Named group 'foo'`, column: 25, line: 2, endColumn: 35, endLine: 2 },
+            ],
+          }),
+          line: 7,
+          endLine: 7,
+          column: 26,
+          endColumn: 29,
+        },
+      ],
     },
     {
       code: `
@@ -282,14 +337,29 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     },
     {
       code: `
-        const pattern = /foo/;
+        const pattern = /(?<foo>\\w)/;
+                      // ^^^^^^^^^^^
         const matched = pattern.exec('str');
         if (matched) {
+          matched.indices.groups.foo;
           matched.indices.groups.bar; // Noncompliant: 'bar' doesn't exist
-          matched.indices.groups.baz; // Noncompliant: 'baz' doesn't exist
+                              // ^^^
         }
       `,
-      errors: 2,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: `There is no group named 'bar' in the regular expression.`,
+            secondaryLocations: [
+              { message: `Named group 'foo'`, column: 25, line: 2, endColumn: 35, endLine: 2 },
+            ],
+          }),
+          line: 7,
+          endLine: 7,
+          column: 34,
+          endColumn: 37,
+        },
+      ],
     },
     {
       code: `
@@ -313,9 +383,24 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     {
       code: `
         const pattern = /(?<foo>\\w)/;
+                      // ^^^^^^^^^^
         const result = 'str'.replace(pattern, '$1'); // Noncompliant: 'foo' referenced by index
+                                           // ^^^^
       `,
-      errors: 1,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: 'Directly use the names instead of their group number.',
+            secondaryLocations: [
+              { message: `Group 'foo'`, column: 25, line: 2, endColumn: 35, endLine: 2 },
+            ],
+          }),
+          line: 4,
+          endLine: 4,
+          column: 47,
+          endColumn: 51,
+        },
+      ],
     },
     {
       code: `
@@ -341,13 +426,30 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
       errors: 3,
     },
     {
-      code: `/(?<foo>\\w)\\1(?<bar>\\w)\\k<bar>(?<baz>\\w)/; // Noncompliant: 'foo' referenced by index`,
-      errors: 1,
+      code: `
+        /(?<foo>\\w)\\1(?<bar>\\w)\\k<bar>(?<baz>\\w)/; // Noncompliant: 'foo' referenced by index
+                 // ^^^
+      // ^^^^^^^^^^^
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: `Directly use 'foo' instead of its group number.`,
+            secondaryLocations: [
+              { message: `Group 'foo'`, column: 9, line: 2, endColumn: 19, endLine: 2 },
+            ],
+          }),
+          line: 2,
+          endLine: 2,
+          column: 20,
+          endColumn: 22,
+        },
+      ],
     },
     {
       code: `'str'.search('(?<foo>\\w)\\\\1(?<bar>\\w)\\\\k<bar>(?<baz>\\w)'); // Noncompliant: 'foo' referenced by index`,
       errors: 1,
-    }
+    },
   ],
 });
 

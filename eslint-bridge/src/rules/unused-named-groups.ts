@@ -26,6 +26,7 @@ import { Backreference, CapturingGroup, RegExpLiteral } from 'regexpp/ast';
 import {
   getLhsVariable,
   getParsedRegex,
+  getRegexpLocation,
   getUniqueWriteUsage,
   getValueOfExpression,
   getVariableFromName,
@@ -108,12 +109,14 @@ function checkStringReplaceGroupReferences(
       });
       const indexedGroups = regex.groups.filter(group => indexes.has(group.index));
       if (indexedGroups.length > 0) {
-        // Temporary workaround
-        //
-        // Remove names from message and add secondary location for each indexed group node
-        const indexedGroupNames = indexedGroups.map(group => group.name).join(', ');
         intellisense.context.report({
-          message: `Directly use '${indexedGroupNames}' instead of their group number.`,
+          message: toEncodedMessage(
+            `Directly use the names instead of their group number.`,
+            indexedGroups.map(group => ({
+              loc: getRegexpLocation(regex.node, group.node, intellisense.context),
+            })),
+            indexedGroups.map(group => `Group '${group.name}'`),
+          ),
           node: substr,
         });
       }
@@ -134,14 +137,11 @@ function checkIndexBasedGroupReference(
       const group = regex.groups.find(grp => grp.index === index);
       if (group) {
         group.used = true;
-        // Temporary workaround
-        //
-        // Add secondary location on group nodes instead of the regex node (#2712, #2721)
         intellisense.context.report({
           message: toEncodedMessage(
             `Directly use '${group.name}' instead of its group number.`,
-            [regex.node],
-            ['Regular expression'],
+            [{ loc: getRegexpLocation(regex.node, group.node, intellisense.context) }],
+            [`Group '${group.name}'`],
           ),
           node: property,
         });
@@ -154,53 +154,51 @@ function checkNonExistingGroupReference(
   memberExpr: estree.MemberExpression,
   intellisense: RegexIntelliSense,
 ) {
-  const { object: matcher, property } = memberExpr;
+  const { object: matcher } = memberExpr;
   const regex = intellisense.resolve(matcher);
   if (regex) {
     regex.matched = true;
     /* matcher.groups.<name> / matcher.indices.groups.<name>  */
-    const name = extractGroupName(memberExpr, intellisense);
-    if (name !== null) {
-      const group = regex.groups.find(grp => grp.name === name);
+    const groupNode = extractGroupNode(memberExpr, intellisense);
+    if (groupNode !== null) {
+      const group = regex.groups.find(grp => grp.name === groupNode.name);
       if (group) {
         group.used = true;
       } else {
-        // Temporary workaround
-        //
-        // Add secondary location on group nodes instead of the regex node (#2712, #2721)
         intellisense.context.report({
           message: toEncodedMessage(
-            `There is no group named '${name}' in the regular expression.`,
-            [regex.node],
-            ['Regular expression'],
+            `There is no group named '${groupNode.name}' in the regular expression.`,
+            regex.groups.map(grp => ({
+              loc: getRegexpLocation(regex.node, grp.node, intellisense.context),
+            })),
+            regex.groups.map(grp => `Named group '${grp.name}'`),
           ),
-          node: property,
+          node: groupNode,
         });
       }
     }
   }
 }
 
-function extractGroupName(
+function extractGroupNode(
   memberExpr: estree.MemberExpression,
   intellisense: RegexIntelliSense,
-): string | null {
+): estree.Identifier | null {
   const { property, computed } = memberExpr;
   if (property.type === 'Identifier' && !computed) {
     const ancestors = intellisense.context.getAncestors();
     let parent = ancestors.pop();
     if (parent && isDotNotation(parent)) {
-      let parentProperty = parent.property.name;
       switch (property.name) {
         case 'groups':
           /* matcher.groups.<name> */
-          return parent.property.name;
+          return parent.property;
         case 'indices':
           /* matcher.indices.groups.<name> */
-          if (parentProperty === 'groups') {
+          if (parent.property.name === 'groups') {
             parent = ancestors.pop();
             if (parent && isDotNotation(parent)) {
-              return parent.property.name;
+              return parent.property;
             }
           }
       }
@@ -214,15 +212,13 @@ function checkUnusedGroups(intellisense: RegexIntelliSense) {
     if (regex.matched) {
       const unusedGroups = regex.groups.filter(group => !group.used);
       if (unusedGroups.length) {
-        const names = unusedGroups.map(group => group.name).join(', ');
-        // Temporary workaround
-        //
-        // Remove unused names from message and add secondary location for each unused group node (#2712, #2721)
         intellisense.context.report({
           message: toEncodedMessage(
-            `Use the named groups of this regex or remove the names: ${names}.`,
-            [],
-            [],
+            'Use the named groups of this regex or remove the names.',
+            unusedGroups.map(grp => ({
+              loc: getRegexpLocation(regex.node, grp.node, intellisense.context),
+            })),
+            unusedGroups.map(grp => `Named group '${grp.name}'`),
           ),
           node: regex.node,
         });
@@ -233,17 +229,20 @@ function checkUnusedGroups(intellisense: RegexIntelliSense) {
 
 function checkIndexedGroups(intellisense: RegexIntelliSense) {
   intellisense.getKnowledge().forEach(regex => {
-    regex.groups.forEach(group => group.node.references.forEach(reference => {
-      if (typeof reference.ref === 'number') {
-        // Temporary workaround
-        //
-        // Change main location to the group node and add secondary location to the regex node (#2712, #2721)
-        intellisense.context.report({
-          message: `Directly use '${group.name}' instead of its group number.`,
-          node: regex.node,
-        });
-      }
-    }))
+    regex.groups.forEach(group =>
+      group.node.references.forEach(reference => {
+        if (typeof reference.ref === 'number') {
+          intellisense.context.report({
+            message: toEncodedMessage(
+              `Directly use '${group.name}' instead of its group number.`,
+              [{ loc: getRegexpLocation(regex.node, group.node, intellisense.context) }],
+              [`Group '${group.name}'`],
+            ),
+            loc: getRegexpLocation(regex.node, reference, intellisense.context),
+          });
+        }
+      }),
+    );
   });
 }
 

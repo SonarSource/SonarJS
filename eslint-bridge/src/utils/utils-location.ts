@@ -22,9 +22,11 @@ import { AST } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { EncodedMessage, IssueLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
+export type LocationHolder = AST.Token | TSESTree.Node | estree.Node | { loc: AST.SourceLocation };
+
 export function toEncodedMessage(
   message: string,
-  secondaryLocationsHolder: Array<AST.Token | TSESTree.Node | estree.Node>,
+  secondaryLocationsHolder: Array<LocationHolder>,
   secondaryMessages?: (string | undefined)[],
   cost?: number,
 ): string {
@@ -41,10 +43,7 @@ export function toEncodedMessage(
   return JSON.stringify(encodedMessage);
 }
 
-function toSecondaryLocation(
-  locationHolder: AST.Token | TSESTree.Node | estree.Node,
-  message?: string,
-): IssueLocation {
+function toSecondaryLocation(locationHolder: LocationHolder, message?: string): IssueLocation {
   if (!locationHolder.loc) {
     throw new Error('Invalid secondary location');
   }

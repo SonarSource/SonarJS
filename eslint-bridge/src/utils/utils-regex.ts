@@ -106,7 +106,28 @@ function getFlags(callExpr: estree.CallExpression): string | null {
   return null;
 }
 
-export function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node): AST.Range {
+export function getRegexpLocation(
+  node: estree.Node,
+  regexpNode: regexpp.AST.Node,
+  context: Rule.RuleContext,
+  offset = [0, 0],
+): AST.SourceLocation {
+  let loc: AST.SourceLocation;
+  if (isRegexLiteral(node) || isStringLiteral(node)) {
+    const source = context.getSourceCode();
+    const [start] = node.range!;
+    const [reStart, reEnd] = getRegexpRange(node, regexpNode);
+    loc = {
+      start: source.getLocFromIndex(start + reStart + offset[0]),
+      end: source.getLocFromIndex(start + reEnd + offset[1]),
+    };
+  } else {
+    loc = node.loc!;
+  }
+  return loc;
+}
+
+function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node): AST.Range {
   if (isRegexLiteral(node)) {
     return [regexpNode.start, regexpNode.end];
   }
