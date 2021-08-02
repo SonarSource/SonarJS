@@ -433,3 +433,9 @@ export function isStringLiteral(node: estree.Node): node is estree.Literal {
 export function isRegexLiteral(node: estree.Node): node is estree.RegExpLiteral {
   return node.type === 'Literal' && node.value instanceof RegExp;
 }
+
+export function isDotNotation(
+  node: estree.Node,
+): node is estree.MemberExpression & { property: estree.Identifier } {
+  return node.type === 'MemberExpression' && !node.computed && node.property.type === 'Identifier';
+}

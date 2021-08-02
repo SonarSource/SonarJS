@@ -26,6 +26,7 @@ import { Backreference, CapturingGroup, RegExpLiteral } from 'regexpp/ast';
 import {
   getParsedRegex,
   getValueOfExpression,
+  isDotNotation,
   isMethodCall,
   isRegexLiteral,
   isRegExpConstructor,
@@ -139,20 +140,11 @@ function checkNonExistingGroupReference(
   memberExpr: estree.MemberExpression,
   intellisense: RegexIntelliSense,
 ) {
-  const { object: matcher, property, computed } = memberExpr;
+  const { object: matcher, property } = memberExpr;
   const pattern = intellisense.resolve(matcher);
-  if (pattern && property.type === 'Identifier' && !computed) {
-    let name: string | null = null;
-    switch (property.name) {
-      /* matcher.groups.<name> */
-      case 'groups':
-        name = extractGroupNameFromMatchMatcher(intellisense);
-        break;
-      /* matcher.indices.groups.<name> */
-      case 'indices':
-        name = extractGroupNameFromExecMatcher(intellisense);
-        break;
-    }
+  if (pattern) {
+    /* matcher.groups.<name> / matcher.indices.groups.<name>  */
+    const name = extractGroupName(memberExpr, intellisense);
     if (name !== null) {
       const group = pattern.groups.find(grp => grp.name === name);
       if (group) {
@@ -174,34 +166,29 @@ function checkNonExistingGroupReference(
   }
 }
 
-function extractGroupNameFromMatchMatcher(intellisense: RegexIntelliSense): string | null {
-  const parent = intellisense.context.getAncestors().pop();
-  if (
-    parent?.type === 'MemberExpression' &&
-    parent.property.type === 'Identifier' &&
-    !parent.computed
-  ) {
-    return parent.property.name;
-  }
-  return null;
-}
-
-function extractGroupNameFromExecMatcher(intellisense: RegexIntelliSense): string | null {
-  const ancestors = intellisense.context.getAncestors();
-  let parent = ancestors.pop();
-  if (
-    parent?.type === 'MemberExpression' &&
-    parent.property.type === 'Identifier' &&
-    parent.property.name === 'groups' &&
-    !parent.computed
-  ) {
-    parent = ancestors.pop();
-    if (
-      parent?.type === 'MemberExpression' &&
-      parent.property.type === 'Identifier' &&
-      !parent.computed
-    ) {
-      return parent.property.name;
+function extractGroupName(
+  memberExpr: estree.MemberExpression,
+  intellisense: RegexIntelliSense,
+): string | null {
+  const { property, computed } = memberExpr;
+  if (property.type === 'Identifier' && !computed) {
+    const ancestors = intellisense.context.getAncestors();
+    let parent = ancestors.pop();
+    if (parent && isDotNotation(parent)) {
+      let parentProperty = parent.property.name;
+      switch (property.name) {
+        case 'groups':
+          /* matcher.groups.<name> */
+          return parent.property.name;
+        case 'indices':
+          /* matcher.indices.groups.<name> */
+          if (parentProperty === 'groups') {
+            parent = ancestors.pop();
+            if (parent && isDotNotation(parent)) {
+              return parent.property.name;
+            }
+          }
+      }
     }
   }
   return null;
