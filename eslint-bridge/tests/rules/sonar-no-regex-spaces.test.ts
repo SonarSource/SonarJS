@@ -37,7 +37,13 @@ ruleTester.run('Regex with multiple spaces', rule, {
       code: `/[   ]/`,
     },
     {
-      code: `/ ( )/; /a | b/`,
+      code: `
+        / ( )/;
+        /a | b/;
+        / .* /;
+        / \\w /;
+        / . /;
+        / \\b /;`,
     },
   ],
   invalid: [
@@ -60,6 +66,20 @@ ruleTester.run('Regex with multiple spaces', rule, {
     {
       code: `/   */; /  +/; /  {2}/; /  ?/ `,
       errors: 4,
+    },
+    {
+      code: `/(a  b)/ `,
+      errors: 1,
+    },
+    {
+      code: `
+        /  ( )/;
+        /a  | b/;
+        /  .* /;
+        /  \\w /;
+        /  . /;
+        /  \\b /;`,
+      errors: 6,
     },
   ],
 });

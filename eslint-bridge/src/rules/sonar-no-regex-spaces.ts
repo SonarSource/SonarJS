@@ -24,45 +24,43 @@ import { createRegExpRule } from './regex-rule-template';
 import * as regexpp from 'regexpp';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
-  let spacesNumber = 0;
-  let lastSpaceCharacter: regexpp.AST.Character | null = null;
-  let spacesParent: regexpp.AST.Node | null = null;
-
-  const checkSpaces = () => {
-    if (spacesNumber > 1) {
-      context.reportRegExpNode({
-        message: `If multiple spaces are required here, use number quantifier ({${spacesNumber}}).`,
-        regexpNode: lastSpaceCharacter!,
-        offset: [-spacesNumber + 1, 0],
-        node: context.node,
-      });
-    }
-    spacesNumber = 0;
-    spacesParent = null;
-  };
+  let rawPattern: string;
 
   return {
+    onRegExpLiteralEnter: (node: regexpp.AST.RegExpLiteral) => {
+      rawPattern = node.raw;
+    },
     onCharacterEnter: (node: regexpp.AST.Character) => {
-      if (node.value === ' '.codePointAt(0)) {
-        lastSpaceCharacter = node;
-        let { parent } = node;
-        if (parent.type === 'CharacterClass') {
-          // '/[  ]/' will be reported by S5869
-          return;
-        }
+      if (node.raw !== ' ' || node.parent.type === 'CharacterClass') {
+        return;
+      }
 
-        parent = parent.type === 'Quantifier' ? parent.parent : parent;
-
-        if (spacesNumber > 0 && spacesParent === parent) {
-          spacesNumber++;
-        } else if (spacesNumber === 0) {
-          spacesNumber++;
-          spacesParent = parent;
+      const nextChar = rawPattern[node.start + 1];
+      if (nextChar !== ' ') {
+        const spacesBefore = getSpacesBeforeCount(rawPattern, node.start);
+        if (spacesBefore > 0) {
+          const spacesNumber = spacesBefore + 1;
+          context.reportRegExpNode({
+            message: `If multiple spaces are required here, use number quantifier ({${spacesNumber}}).`,
+            regexpNode: node,
+            offset: [-spacesNumber + 1, 0],
+            node: context.node,
+          });
         }
-      } else {
-        checkSpaces();
       }
     },
-    onPatternLeave: checkSpaces,
   };
 });
+
+function getSpacesBeforeCount(pattern: string, index: number) {
+  let counter = 0;
+  for (let i = index - 1; i > 0; i--) {
+    if (pattern[i] === ' ') {
+      counter++;
+    } else {
+      break;
+    }
+  }
+
+  return counter;
+}
