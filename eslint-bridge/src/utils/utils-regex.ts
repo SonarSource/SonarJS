@@ -23,8 +23,9 @@ import * as regexpp from 'regexpp';
 import { CapturingGroup, Group, LookaroundAssertion, Pattern } from 'regexpp/ast';
 import { AST, Rule } from 'eslint';
 import { getUniqueWriteUsage, isRegexLiteral, isStringLiteral } from './utils-ast';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
 import { tokenizeString } from './utils-string-literal';
+import { isString } from './utils-type';
 
 /**
  * An alternation is a regexpp node that has an `alternatives` field.
@@ -127,4 +128,16 @@ function unquote(s: string): string {
     throw new Error(`invalid string to unquote: ${s}`);
   }
   return s.substring(1, s.length - 1);
+}
+
+export function isStringRegexMethodCall(call: estree.CallExpression, services: ParserServices) {
+  return (
+    call.callee.type === 'MemberExpression' &&
+    call.callee.property.type === 'Identifier' &&
+    !call.callee.computed &&
+    ['match', 'matchAll', 'search'].includes(call.callee.property.name) &&
+    call.arguments.length > 0 &&
+    isString(call.callee.object, services) &&
+    isString(call.arguments[0], services)
+  );
 }

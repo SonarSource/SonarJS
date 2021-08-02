@@ -27,10 +27,9 @@ import {
   getRegexpRange,
   isRegexLiteral,
   isRequiredParserServices,
-  isString,
   isStringLiteral,
+  isStringRegexMethodCall,
 } from '../utils';
-import { ParserServices } from '@typescript-eslint/parser';
 
 /**
  * Rule context for regex rules that also includes the original ESLint node
@@ -109,16 +108,4 @@ export function createRegExpRule(
       };
     },
   };
-}
-
-function isStringRegexMethodCall(call: estree.CallExpression, services: ParserServices) {
-  return (
-    call.callee.type === 'MemberExpression' &&
-    call.callee.property.type === 'Identifier' &&
-    !call.callee.computed &&
-    ['match', 'matchAll', 'search'].includes(call.callee.property.name) &&
-    call.arguments.length > 0 &&
-    isString(call.callee.object, services) &&
-    isString(call.arguments[0], services)
-  );
 }

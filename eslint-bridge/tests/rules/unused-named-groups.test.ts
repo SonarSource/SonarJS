@@ -321,6 +321,18 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
       `,
       errors: 1,
     },
+    {
+      code: `
+        const pattern = '(?<foo>\\w)(?<bar>\\w)(?<baz>\\w)'; // Noncompliant: unused 'baz'
+        const matched = 'str'.match(pattern);
+        if (matched) {
+          matched[1]; // Noncompliant: 'foo' referenced by index
+          matched.indices.groups.bar;
+          matched.indices.groups.qux; // Noncompliant: 'qux' doesn't exist
+        }
+      `,
+      errors: 3,
+    },
   ],
 });
 

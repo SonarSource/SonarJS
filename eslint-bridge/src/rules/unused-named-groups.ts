@@ -31,10 +31,9 @@ import {
   getVariableFromName,
   isDotNotation,
   isMethodCall,
-  isRegexLiteral,
-  isRegExpConstructor,
   isRequiredParserServices,
   isString,
+  isStringRegexMethodCall,
   RequiredParserServices,
   toEncodedMessage,
 } from '../utils';
@@ -65,7 +64,7 @@ export const rule: Rule.RuleModule = {
         intellisense.collectKnowledge(newExpr);
       },
       'CallExpression:exit': (callExpr: estree.CallExpression) => {
-        /* RegExp(regex) */
+        /* RegExp(regex), implicit regex e.g. str.match('regex') */
         intellisense.collectKnowledge(callExpr);
         /* str.match(pattern) / pattern.exec(str) */
         intellisense.collectPatternMatcher(callExpr);
@@ -281,9 +280,14 @@ class RegexIntelliSense {
   }
 
   collectKnowledge(node: estree.Node) {
-    const regex = getParsedRegex(node, this.context);
+    let originalNode = node;
+    if (node.type === 'CallExpression' && isStringRegexMethodCall(node, this.services)) {
+      /* implicit regex */
+      originalNode = node.arguments[0];
+    }
+    const regex = getParsedRegex(originalNode, this.context);
     if (regex !== null) {
-      this.knowledge.push(makeRegexKnowledge(node, regex));
+      this.knowledge.push(makeRegexKnowledge(originalNode, regex));
     }
   }
 
@@ -317,9 +321,6 @@ class RegexIntelliSense {
   }
 
   findRegex(node: estree.Node): RegexKnowledge | undefined {
-    if (isRegexLiteral(node) || isRegExpConstructor(node)) {
-      return this.knowledge.find(regex => regex.node === node);
-    }
     const variable = this.findVariable(node);
     if (variable) {
       const value = getUniqueWriteUsage(this.context, variable.name);
@@ -330,7 +331,7 @@ class RegexIntelliSense {
         }
       }
     }
-    return undefined;
+    return this.knowledge.find(regex => regex.node === node);
   }
 
   private bind(pattern: estree.Node, matcher: Scope.Variable) {
