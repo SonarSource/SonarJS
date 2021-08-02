@@ -261,6 +261,16 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     },
     {
       code: `
+        const pattern = /(?<foo>\\w)/; // Noncompliant: unused 'foo'
+        const matched = pattern.exec('str');
+        if (matched) {
+          matched.indices.groupz.foo; // Intentional typo 'groupz'
+        }
+      `,
+      errors: 1,
+    },
+    {
+      code: `
         const pattern = /(?<foo>\\w)/;
         const matched = pattern.exec('str');
         if (matched) {
