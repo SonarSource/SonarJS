@@ -91,11 +91,7 @@ export function createRegExpRule(
       }
 
       function checkLiteral(literal: estree.Literal) {
-        // we can't call `getParsedRegex` without following check
-        // as it will return regex for string literal which might be not a regex
-        if (isRegexLiteral(literal)) {
-          checkRegex(literal, getParsedRegex(literal, context));
-        }
+        checkRegex(literal, getParsedRegex(literal, context));
       }
 
       function checkCallExpression(callExpr: estree.CallExpression) {
@@ -111,7 +107,7 @@ export function createRegExpRule(
       }
 
       return {
-        Literal: checkLiteral,
+        'Literal[regex]': checkLiteral,
         NewExpression: checkCallExpression,
         CallExpression: checkCallExpression,
       };
