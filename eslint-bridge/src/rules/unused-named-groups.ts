@@ -82,6 +82,7 @@ export const rule: Rule.RuleModule = {
       },
       'Program:exit': () => {
         checkUnusedGroups(intellisense);
+        checkIndexedGroups(intellisense);
       },
     };
   },
@@ -227,6 +228,22 @@ function checkUnusedGroups(intellisense: RegexIntelliSense) {
         });
       }
     }
+  });
+}
+
+function checkIndexedGroups(intellisense: RegexIntelliSense) {
+  intellisense.getKnowledge().forEach(regex => {
+    regex.groups.forEach(group => group.node.references.forEach(reference => {
+      if (typeof reference.ref === 'number') {
+        // Temporary workaround
+        //
+        // Change main location to the group node and add secondary location to the regex node (#2712, #2721)
+        intellisense.context.report({
+          message: `Directly use '${group.name}' instead of its group number.`,
+          node: regex.node,
+        });
+      }
+    }))
   });
 }
 

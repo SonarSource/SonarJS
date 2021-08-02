@@ -25,9 +25,6 @@ const typeAwareRuleTester = new TypeAwareRuleTester();
 typeAwareRuleTester.run('Regular expressions named groups should be used', rule, {
   valid: [
     {
-      code: `/(?<foo>\\w)\\1/`,
-    },
-    {
       code: `
         const pattern = /(?<foo>\\w)/;
         const matched = 'str'.matchAll(pattern);
@@ -333,6 +330,14 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
       `,
       errors: 3,
     },
+    {
+      code: `/(?<foo>\\w)\\1(?<bar>\\w)\\k<bar>(?<baz>\\w)/; // Noncompliant: 'foo' referenced by index`,
+      errors: 1,
+    },
+    {
+      code: `'str'.search('(?<foo>\\w)\\\\1(?<bar>\\w)\\\\k<bar>(?<baz>\\w)'); // Noncompliant: 'foo' referenced by index`,
+      errors: 1,
+    }
   ],
 });
 
