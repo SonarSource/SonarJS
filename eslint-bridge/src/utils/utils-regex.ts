@@ -26,6 +26,7 @@ import { getUniqueWriteUsage, isRegexLiteral, isStringLiteral } from './utils-as
 import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
 import { tokenizeString } from './utils-string-literal';
 import { isString } from './utils-type';
+import { last } from './utils-collection';
 
 /**
  * An alternation is a regexpp node that has an `alternatives` field.
@@ -137,9 +138,21 @@ function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node): AST.Ra
     }
     const s = node.raw!;
     const tokens = tokenizeString(unquote(s));
-    const start = tokens[regexpNode.start - 1].range[0];
-    const end = tokens[regexpNode.end - 2].range[1];
-    return [start, end];
+    if (regexpNode.start === regexpNode.end) {
+      if (regexpNode.start - 1 < tokens.length) {
+        return [
+          tokens[regexpNode.start - 1].range[0] + 1,
+          tokens[regexpNode.start - 1].range[0] + 1,
+        ];
+      } else {
+        return [last(tokens).range[1] + 1, last(tokens).range[1] + 1];
+      }
+    }
+    const startToken = regexpNode.start - 1;
+    const start = tokens[startToken].range[0];
+    const endToken = Math.min(regexpNode.end - 2, tokens.length - 1);
+    const end = tokens[endToken].range[1];
+    return [start + 1, end + 1];
   }
   throw new Error(`Expected regexp or string literal, got ${node.type}`);
 }
