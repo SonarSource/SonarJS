@@ -24,9 +24,11 @@ import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import { Backreference, CapturingGroup, RegExpLiteral } from 'regexpp/ast';
 import {
-  getParent,
+  getLhsVariable,
   getParsedRegex,
+  getUniqueWriteUsage,
   getValueOfExpression,
+  getVariableFromName,
   isDotNotation,
   isMethodCall,
   isRegexLiteral,
@@ -289,9 +291,8 @@ class RegexIntelliSense {
     const { callee, arguments: args } = callExpr;
     if (isMethodCall(callExpr) && args.length > 0) {
       const target = (callee as estree.MemberExpression).object;
-      const parent = getParent(this.context);
-      if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
-        const matcher = parent.id;
+      const matcher = getLhsVariable(this.context);
+      if (matcher) {
         const method = (callee as estree.MemberExpression).property as estree.Identifier;
         if (isString(target, this.services) && ['match', 'matchAll'].includes(method.name)) {
           /* str.match(pattern) */
@@ -321,40 +322,28 @@ class RegexIntelliSense {
     }
     const variable = this.findVariable(node);
     if (variable) {
-      for (const def of variable.defs) {
-        if (def.type === 'Variable' && def.node.init) {
-          const regex = this.findRegex(def.node.init);
-          if (regex) {
-            return regex;
-          }
+      const value = getUniqueWriteUsage(this.context, variable.name);
+      if (value) {
+        const regex = this.findRegex(value);
+        if (regex) {
+          return regex;
         }
       }
     }
     return undefined;
   }
 
-  private bind(pattern: estree.Node, matcher: estree.Identifier) {
-    const variable = this.findVariable(matcher);
-    if (variable) {
-      const regex = this.findRegex(pattern);
-      if (regex) {
-        regex.matched = true;
-        this.bindings.set(variable, regex);
-      }
+  private bind(pattern: estree.Node, matcher: Scope.Variable) {
+    const regex = this.findRegex(pattern);
+    if (regex) {
+      regex.matched = true;
+      this.bindings.set(matcher, regex);
     }
   }
 
   private findVariable(node: estree.Node) {
     if (node.type === 'Identifier') {
-      const { name } = node;
-      let scope: Scope.Scope | null = this.context.getScope();
-      while (scope !== null) {
-        const variable = scope.set.get(name);
-        if (variable != null) {
-          return variable;
-        }
-        scope = scope.upper;
-      }
+      return getVariableFromName(this.context, node.name);
     }
     return null;
   }

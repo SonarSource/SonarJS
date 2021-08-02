@@ -264,17 +264,6 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     },
     {
       code: `
-        const pattern = /(?<foo>\\w)/; // Noncompliant: unused 'foo'
-        undeclaredMatch = 'str'.match(pattern);
-        if (matched) {
-          undeclaredMatch[1];
-          undeclaredMatch.groups.foo;
-        }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
         const pattern = /(?<foo>\\w)/;
         const matched = pattern.exec('str');
         if (matched) {
@@ -318,6 +307,17 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
       code: `
         const pattern = /(?<foo>\\w)/;
         const result = 'str'.replace(pattern, '$1'); // Noncompliant: 'foo' referenced by index
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)/;
+        let declaredMatch;
+        declaredMatch = 'str'.match(pattern);
+        if (matched) {
+          declaredMatch[1]; // Noncompliant: 'foo' referenced by index
+        }
       `,
       errors: 1,
     },
