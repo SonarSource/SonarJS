@@ -99,7 +99,8 @@ function checkStringReplaceGroupReferences(
         isNaN(Number(ref.value)) ? names.add(ref.value) : indexes.add(Number(ref.value)),
       );
       regex.groups.forEach(group => {
-        group.used ||= names.has(group.name) || indexes.has(group.index);
+        group.used ||= names.has(group.name);
+        group.used ||= indexes.has(group.index);
       });
     }
   }
