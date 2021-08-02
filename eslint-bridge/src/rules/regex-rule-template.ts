@@ -26,7 +26,6 @@ import {
   getParsedRegex,
   getRegexpRange,
   isRegexLiteral,
-  isRegExpConstructor,
   isRequiredParserServices,
   isString,
   isStringLiteral,
@@ -97,11 +96,8 @@ export function createRegExpRule(
       function checkCallExpression(callExpr: estree.CallExpression) {
         let parsedRegex = getParsedRegex(callExpr, context);
         if (!parsedRegex && services && isStringRegexMethodCall(callExpr, services)) {
-          const firstArgument = callExpr.arguments[0];
-          if (isRegexLiteral(firstArgument) || isRegExpConstructor(firstArgument)) {
-            return;
-          }
-          parsedRegex = getParsedRegex(firstArgument, context);
+          const [implicitRegex] = callExpr.arguments;
+          parsedRegex = getParsedRegex(implicitRegex, context);
         }
         checkRegex(callExpr.arguments[0], parsedRegex);
       }
