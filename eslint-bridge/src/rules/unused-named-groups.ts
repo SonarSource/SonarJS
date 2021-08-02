@@ -104,6 +104,17 @@ function checkStringReplaceGroupReferences(
         group.used ||= names.has(group.name);
         group.used ||= indexes.has(group.index);
       });
+      const indexedGroups = regex.groups.filter(group => indexes.has(group.index));
+      if (indexedGroups.length > 0) {
+        // Temporary workaround
+        //
+        // Remove names from message and add secondary location for each indexed group node
+        const indexedGroupNames = indexedGroups.map(group => group.name).join(', ');
+        intellisense.context.report({
+          message: `Directly use '${indexedGroupNames}' instead of their group number.`,
+          node: substr,
+        });
+      }
     }
   }
 }
