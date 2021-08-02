@@ -330,7 +330,7 @@ class RegexIntelliSense {
     return undefined;
   }
 
-  private bind(pattern: estree.Node, matcher: estree.Node) {
+  private bind(pattern: estree.Node, matcher: estree.Identifier) {
     const variable = this.findVariable(matcher);
     if (variable) {
       const regex = this.findRegex(pattern);
