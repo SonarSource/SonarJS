@@ -24,96 +24,37 @@ const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceTy
 ruleTester.run('Regex with multiple spaces', rule, {
   valid: [
     {
-      code: `/a/`,
+      code: `/ /`,
     },
     {
-      code: `/()/`,
+      code: `/ {2}/`,
     },
     {
-      code: `/(?:)/`,
+      code: `/ a /`,
     },
     {
-      code: `/a|b/`,
+      code: `/[   ]/`,
     },
     {
-      code: `/a|b|c/`,
+      code: `//`,
     },
   ],
   invalid: [
     {
-      code: `/|/`,
+      code: `/  /`,
       errors: [
         {
-          message: 'Use number quantifier ({2}) these multiple spaces with ',
+          message: 'Use number quantifier ({2}) if multiple spaces are required.',
           line: 1,
           endLine: 1,
           column: 2,
-          endColumn: 3,
-        },
-        {
-          message: 'Remove this empty alternative.',
-          line: 1,
-          endLine: 1,
-          column: 2,
-          endColumn: 3,
-        },
-      ],
-    },
-    {
-      code: `/a|/`,
-      errors: [
-        {
-          message: 'Remove this empty alternative.',
-          line: 1,
-          endLine: 1,
-          column: 3,
           endColumn: 4,
         },
       ],
     },
     {
-      code: `/|a/`,
-      errors: [
-        {
-          message: 'Remove this empty alternative.',
-          line: 1,
-          endLine: 1,
-          column: 2,
-          endColumn: 3,
-        },
-      ],
-    },
-    {
-      code: `/a|b|/`,
-      errors: 1,
-    },
-    {
-      code: `/a||b/`,
-      errors: 1,
-    },
-    {
-      code: `/||/`,
-      errors: 3,
-    },
-    {
-      code: `/(|)/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:|)/;`,
-      errors: 1,
-    },
-    {
-      code: `/(a|)?/`,
-      errors: 1,
-    },
-    {
-      code: `/(a|)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(a|){1,3}/`,
-      errors: 1,
+      code: `/  a  /`,
+      errors: 2,
     },
   ],
 });
