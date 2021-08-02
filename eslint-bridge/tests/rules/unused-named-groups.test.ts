@@ -170,7 +170,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
         const pattern = /(abc)(?<foo>\\w)/;
         const matched = 'str'.match(pattern);
         if (matched) {
-          matched[1]; // non-capturing group
+          matched[1]; // unnamed capturing group
           matched[2]; // Noncompliant: 'foo' referenced by index
         }
       `,
