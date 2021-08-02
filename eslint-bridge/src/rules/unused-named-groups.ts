@@ -24,6 +24,7 @@ import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import { Backreference, CapturingGroup, RegExpLiteral } from 'regexpp/ast';
 import {
+  getParent,
   getParsedRegex,
   getValueOfExpression,
   isDotNotation,
@@ -273,7 +274,7 @@ class RegexIntelliSense {
     const { callee, arguments: args } = callExpr;
     if (isMethodCall(callExpr) && args.length > 0) {
       const target = (callee as estree.MemberExpression).object;
-      const parent = this.context.getAncestors().pop();
+      const parent = getParent(this.context);
       if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
         const matcher = parent.id;
         const method = (callee as estree.MemberExpression).property as estree.Identifier;
