@@ -33,28 +33,33 @@ ruleTester.run('Regex with multiple spaces', rule, {
       code: `/ a /`,
     },
     {
+      // will be reported by S5869
       code: `/[   ]/`,
     },
     {
-      code: `//`,
+      code: `/ ( )/; /a | b/`,
     },
   ],
   invalid: [
     {
-      code: `/  /`,
+      code: `/a   b /`,
       errors: [
         {
-          message: 'Use number quantifier ({2}) if multiple spaces are required.',
+          message: 'If multiple spaces are required here, use number quantifier ({3}).',
           line: 1,
           endLine: 1,
-          column: 2,
-          endColumn: 4,
+          column: 3,
+          endColumn: 6,
         },
       ],
     },
     {
       code: `/  a  /`,
       errors: 2,
+    },
+    {
+      code: `/   */; /  +/; /  {2}/; /  ?/ `,
+      errors: 4,
     },
   ],
 });

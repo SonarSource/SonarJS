@@ -20,41 +20,49 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6326
 
 import { Rule } from 'eslint';
-import { Alternation, last } from '../utils';
 import { createRegExpRule } from './regex-rule-template';
 import * as regexpp from 'regexpp';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
-  function checkAlternation(alternation: Alternation) {
-    const { alternatives: alts } = alternation;
-    if (alts.length <= 1) {
-      return;
+  let spacesNumber = 0;
+  let lastSpaceCharacter: regexpp.AST.Character | null = null;
+  let spacesParent: regexpp.AST.Node | null = null;
+
+  const checkSpaces = () => {
+    if (spacesNumber > 1) {
+      context.reportRegExpNode({
+        message: `If multiple spaces are required here, use number quantifier ({${spacesNumber}}).`,
+        regexpNode: lastSpaceCharacter!,
+        offset: [-spacesNumber + 1, 0],
+        node: context.node,
+      });
     }
-    for (let i = 0; i < alts.length; i++) {
-      let alt = alts[i];
-      if (alt.elements.length === 0 && !isLastEmptyInGroup(alt)) {
-        context.reportRegExpNode({
-          message: 'Remove this empty alternative.',
-          regexpNode: alt,
-          offset: i === alts.length - 1 ? [-1, 0] : [0, 1], // we want to raise the issue on the |
-          node: context.node,
-        });
-      }
-    }
-  }
+    spacesNumber = 0;
+    spacesParent = null;
+  };
 
   return {
-    onPatternEnter: checkAlternation,
-    onGroupEnter: checkAlternation,
-    onCapturingGroupEnter: checkAlternation,
+    onCharacterEnter: (node: regexpp.AST.Character) => {
+      if (node.value === ' '.codePointAt(0)) {
+        lastSpaceCharacter = node;
+        let { parent } = node;
+        if (parent.type === 'CharacterClass') {
+          // '/[  ]/' will be reported by S5869
+          return;
+        }
+
+        parent = parent.type === 'Quantifier' ? parent.parent : parent;
+
+        if (spacesNumber > 0 && spacesParent === parent) {
+          spacesNumber++;
+        } else if (spacesNumber === 0) {
+          spacesNumber++;
+          spacesParent = parent;
+        }
+      } else {
+        checkSpaces();
+      }
+    },
+    onPatternLeave: checkSpaces,
   };
 });
-
-function isLastEmptyInGroup(alt: regexpp.AST.Alternative) {
-  const group = alt.parent;
-  return (
-    (group.type === 'Group' || group.type === 'CapturingGroup') &&
-    last(group.alternatives) === alt &&
-    group.parent.type !== 'Quantifier'
-  );
-}
