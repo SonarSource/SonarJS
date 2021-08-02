@@ -144,6 +144,7 @@ function checkNonExistingGroupReference(
   const { object: matcher, property } = memberExpr;
   const regex = intellisense.resolve(matcher);
   if (regex) {
+    regex.matched = true;
     /* matcher.groups.<name> / matcher.indices.groups.<name>  */
     const name = extractGroupName(memberExpr, intellisense);
     if (name !== null) {
@@ -197,20 +198,22 @@ function extractGroupName(
 
 function checkUnusedGroups(intellisense: RegexIntelliSense) {
   intellisense.getKnowledge().forEach(regex => {
-    const unusedGroups = regex.groups.filter(group => !group.used);
-    if (unusedGroups.length) {
-      const names = unusedGroups.map(group => group.name).join(', ');
-      // Temporary workaround
-      //
-      // Remove unused names from message and add secondary location for each unused group node (#2712, #2721)
-      intellisense.context.report({
-        message: toEncodedMessage(
-          `Use the named groups of this regex or remove the names: ${names}.`,
-          [],
-          [],
-        ),
-        node: regex.node,
-      });
+    if (regex.matched) {
+      const unusedGroups = regex.groups.filter(group => !group.used);
+      if (unusedGroups.length) {
+        const names = unusedGroups.map(group => group.name).join(', ');
+        // Temporary workaround
+        //
+        // Remove unused names from message and add secondary location for each unused group node (#2712, #2721)
+        intellisense.context.report({
+          message: toEncodedMessage(
+            `Use the named groups of this regex or remove the names: ${names}.`,
+            [],
+            [],
+          ),
+          node: regex.node,
+        });
+      }
     }
   });
 }
@@ -219,6 +222,7 @@ interface RegexKnowledge {
   node: estree.Node;
   regexp: RegExpLiteral;
   groups: GroupKnowledge[];
+  matched: boolean;
 }
 
 interface GroupKnowledge {
@@ -240,7 +244,7 @@ function makeRegexKnowledge(node: estree.Node, regexp: RegExpLiteral): RegexKnow
     (group, index) =>
       group.name && groups.push(makeGroupKnowledge(group, backreferences, index + 1)),
   );
-  return { node, regexp, groups };
+  return { node, regexp, groups, matched: false };
 }
 
 function makeGroupKnowledge(
@@ -323,6 +327,7 @@ class RegexIntelliSense {
     if (variable) {
       const regex = this.findRegex(pattern);
       if (regex) {
+        regex.matched = true;
         this.bindings.set(variable, regex);
       }
     }

@@ -109,30 +109,60 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
         const result = 'str'.replace(unknownPattern, '$<foo>');
       `,
     },
-  ],
-  invalid: [
     {
-      code: `/(?<foo>\\w)/`,
-      errors: 1,
+      code: `/(?<foo>\\w)/ // unused 'foo': ignored because pattern never matched`,
     },
     {
-      code: `RegExp('(?<foo>\\w)')`,
-      errors: 1,
+      code: `RegExp('(?<foo>\\w)') // unused 'foo': ignored because pattern never matched`,
     },
     {
-      code: `new RegExp('(?<foo>\\w)')`,
-      errors: 1,
+      code: `new RegExp('(?<foo>\\w)') // unused 'foo': ignored because pattern never matched`,
     },
     {
       code: `
-        const pattern = /(?<foo>\\w)/;
+        const pattern = /(?<foo>\\w)/; // unused 'foo': ignored because pattern never matched
         const matched = 'str'.matchAll(/* missing pattern */);
         if (matched) {
           matched.groups.foo;
         }
       `,
-      errors: 1,
     },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)/; // unused 'foo': ignored because pattern never
+        const matched = match(pattern); // not 'String.prototype.match' method call
+        if (matched) {
+          matched.groups.foo;
+        }
+      `,
+    },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)/; // unused 'foo': ignored because pattern never matched
+        const found = pattern.test('str'); // using 'RegExp.prototype.test'
+        if (found) {
+          /* ... */
+        }
+      `,
+    },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)(?<bar>\\w)/; // unused 'foo': ignored because pattern never matched
+        const result = 'str'.replace(pattern, '$<bar> $<baz>');
+      `,
+    },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)/; // unused 'foo': ignored because undeclared pattern
+        undeclaredMatch = 'str'.match(pattern);
+        if (matched) {
+          undeclaredMatch[1];
+          undeclaredMatch.groups.foo;
+        }
+      `,
+    },
+  ],
+  invalid: [
     {
       code: `
         const pattern = /(?<foo>\\w)/;
@@ -241,16 +271,6 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     {
       code: `
         const pattern = /(?<foo>\\w)/; // Noncompliant: unused 'foo'
-        const matched = match(pattern); // not 'String.prototype.match' method call
-        if (matched) {
-          matched.groups.foo;
-        }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-        const pattern = /(?<foo>\\w)/; // Noncompliant: unused 'foo'
         undeclaredMatch = 'str'.match(pattern);
         if (matched) {
           undeclaredMatch[1];
@@ -295,25 +315,8 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     },
     {
       code: `
-        const pattern = /(?<foo>\\w)/; // Noncompliant: unused 'foo'
-        const found = pattern.test('str');
-        if (found) {
-          /* ... */
-        }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
         const pattern = /(?<foo>\\w)(?<bar>\\w)/; // Noncompliant: unused 'foo'
         const result = 'str'.replace(pattern, '$2 $3');
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-        const pattern = /(?<foo>\\w)(?<bar>\\w)/; // Noncompliant: unused 'foo'
-        const result = 'str'.replace(pattern, '$<bar> $<baz>');
       `,
       errors: 1,
     },
