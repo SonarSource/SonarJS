@@ -406,7 +406,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
       errors: [
         {
           message: JSON.stringify({
-            message: 'Directly use the names instead of their group number.',
+            message: 'Directly use the group names instead of their numbers.',
             secondaryLocations: [
               { message: `Group 'foo'`, column: 25, line: 2, endColumn: 35, endLine: 2 },
             ],

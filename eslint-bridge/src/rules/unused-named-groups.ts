@@ -111,7 +111,7 @@ function checkStringReplaceGroupReferences(
       if (indexedGroups.length > 0) {
         intellisense.context.report({
           message: toEncodedMessage(
-            `Directly use the names instead of their group number.`,
+            `Directly use the group names instead of their numbers.`,
             indexedGroups.map(group => ({
               loc: getRegexpLocation(regex.node, group.node, intellisense.context),
             })),
