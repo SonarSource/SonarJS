@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
   };
 });
 
-function getSpacesBeforeCount(pattern: string, index: number) {
+function countSpacesBefore(pattern: string, index: number) {
   let counter = 0;
   for (let i = index - 1; i > 0; i--) {
     if (pattern[i] === ' ') {
