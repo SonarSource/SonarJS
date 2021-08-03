@@ -295,14 +295,14 @@ class RegexIntelliSense {
   }
 
   collectKnowledge(node: estree.Node) {
-    let originalNode = node;
+    let regexNode = node;
     if (node.type === 'CallExpression' && isStringRegexMethodCall(node, this.services)) {
       /* implicit regex */
-      originalNode = node.arguments[0];
+      regexNode = node.arguments[0];
     }
-    const regex = getParsedRegex(originalNode, this.context);
+    const regex = getParsedRegex(regexNode, this.context);
     if (regex !== null) {
-      this.knowledge.push(makeRegexKnowledge(originalNode, regex));
+      this.knowledge.push(makeRegexKnowledge(regexNode, regex));
     }
   }
 
