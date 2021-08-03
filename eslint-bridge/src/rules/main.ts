@@ -167,6 +167,7 @@ import { rule as sonarMaxLinesPerFunction } from './sonar-max-lines-per-function
 import { rule as sonarNoControlRegex } from './sonar-no-control-regex';
 import { rule as sonarNoFallthrough } from './sonar-no-fallthrough';
 import { rule as sonarNoInvalidRegexp } from './sonar-no-invalid-regexp';
+import { rule as sonarNoRegexSpaces } from './sonar-no-regex-spaces';
 import { rule as sonarNoUnusedVars } from './sonar-no-unused-vars';
 import { rule as sqlQueries } from './sql-queries';
 import { rule as standardInput } from './standard-input';
@@ -342,6 +343,7 @@ ruleModules['sonar-max-lines-per-function'] = sonarMaxLinesPerFunction;
 ruleModules['sonar-no-control-regex'] = sonarNoControlRegex;
 ruleModules['sonar-no-fallthrough'] = sonarNoFallthrough;
 ruleModules['sonar-no-invalid-regexp'] = sonarNoInvalidRegexp;
+ruleModules['sonar-no-regex-spaces'] = sonarNoRegexSpaces;
 ruleModules['sonar-no-unused-vars'] = sonarNoUnusedVars;
 ruleModules['sql-queries'] = sqlQueries;
 ruleModules['standard-input'] = standardInput;
