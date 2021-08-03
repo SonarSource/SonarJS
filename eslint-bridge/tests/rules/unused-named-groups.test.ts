@@ -152,6 +152,22 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
         }
       `,
     },
+    {
+      code: `
+        let pattern;
+        pattern = pattern;
+        const matched = 'str'.matchAll(pattern);
+      `,
+    },
+    {
+      code: `
+        let pattern1, pattern2, pattern3;
+        pattern1 = pattern3;
+        pattern2 = pattern1;
+        pattern3 = pattern2;
+        const matched = 'str'.matchAll(pattern3);
+      `,
+    },
   ],
   invalid: [
     {

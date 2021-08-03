@@ -336,13 +336,20 @@ class RegexIntelliSense {
   }
 
   findRegex(node: estree.Node): RegexKnowledge | undefined {
-    const variable = this.findVariable(node);
-    if (variable) {
-      const value = getUniqueWriteUsage(this.context, variable.name);
-      if (value) {
-        const regex = this.findRegex(value);
-        if (regex) {
-          return regex;
+    return this.findRegexRec(node, new Set<estree.Node>());
+  }
+
+  private findRegexRec(node: estree.Node, visited: Set<estree.Node>): RegexKnowledge | undefined {
+    if (!visited.has(node)) {
+      visited.add(node);
+      const variable = this.findVariable(node);
+      if (variable) {
+        const value = getUniqueWriteUsage(this.context, variable.name);
+        if (value) {
+          const regex = this.findRegexRec(value, visited);
+          if (regex) {
+            return regex;
+          }
         }
       }
     }
