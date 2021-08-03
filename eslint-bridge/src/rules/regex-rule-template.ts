@@ -18,20 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AST, Rule } from 'eslint';
+import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import type { RegExpVisitor } from 'regexpp/visitor';
 import {
   getParsedRegex,
-  getRegexpRange,
-  isRegexLiteral,
-  isRegExpConstructor,
+  getRegexpLocation,
   isRequiredParserServices,
-  isString,
-  isStringLiteral,
+  isStringRegexMethodCall,
 } from '../utils';
-import { ParserServices } from '@typescript-eslint/parser';
 
 /**
  * Rule context for regex rules that also includes the original ESLint node
@@ -74,59 +70,29 @@ export function createRegExpRule(
       }
 
       function reportRegExpNode(descriptor: RegexReportDescriptor) {
-        let loc: AST.SourceLocation;
         const { node, regexpNode, message, offset = [0, 0] } = descriptor;
-        if (isRegexLiteral(node) || isStringLiteral(node)) {
-          const source = context.getSourceCode();
-          const [start] = node.range!;
-          const [reStart, reEnd] = getRegexpRange(node, regexpNode);
-          loc = {
-            start: source.getLocFromIndex(start + reStart + offset[0]),
-            end: source.getLocFromIndex(start + reEnd + offset[1]),
-          };
-        } else {
-          loc = node.loc!;
-        }
+        const loc = getRegexpLocation(node, regexpNode, context, offset);
         context.report({ message, loc });
       }
 
       function checkLiteral(literal: estree.Literal) {
-        // we can't call `getParsedRegex` without following check
-        // as it will return regex for string literal which might be not a regex
-        if (isRegexLiteral(literal)) {
-          checkRegex(literal, getParsedRegex(literal, context));
-        }
+        checkRegex(literal, getParsedRegex(literal, context));
       }
 
       function checkCallExpression(callExpr: estree.CallExpression) {
         let parsedRegex = getParsedRegex(callExpr, context);
         if (!parsedRegex && services && isStringRegexMethodCall(callExpr, services)) {
-          const firstArgument = callExpr.arguments[0];
-          if (isRegexLiteral(firstArgument) || isRegExpConstructor(firstArgument)) {
-            return;
-          }
-          parsedRegex = getParsedRegex(firstArgument, context);
+          const [implicitRegex] = callExpr.arguments;
+          parsedRegex = getParsedRegex(implicitRegex, context);
         }
         checkRegex(callExpr.arguments[0], parsedRegex);
       }
 
       return {
-        Literal: checkLiteral,
+        'Literal[regex]': checkLiteral,
         NewExpression: checkCallExpression,
         CallExpression: checkCallExpression,
       };
     },
   };
-}
-
-function isStringRegexMethodCall(call: estree.CallExpression, services: ParserServices) {
-  return (
-    call.callee.type === 'MemberExpression' &&
-    call.callee.property.type === 'Identifier' &&
-    !call.callee.computed &&
-    ['match', 'matchAll', 'search'].includes(call.callee.property.name) &&
-    call.arguments.length > 0 &&
-    isString(call.callee.object, services) &&
-    isString(call.arguments[0], services)
-  );
 }

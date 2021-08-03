@@ -304,6 +304,7 @@ public final class CheckList {
       UnusedCollectionCheck.class,
       UnusedFunctionArgumentCheck.class,
       UnusedImportCheck.class,
+      UnusedNamedGroupsCheck.class,
       UnusedVariableCheck.class,
       UnverifiedCertificateCheck.class,
       UnverifiedHostnameCheck.class,

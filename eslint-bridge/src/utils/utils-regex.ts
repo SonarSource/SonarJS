@@ -23,8 +23,9 @@ import * as regexpp from 'regexpp';
 import { CapturingGroup, Group, LookaroundAssertion, Pattern } from 'regexpp/ast';
 import { AST, Rule } from 'eslint';
 import { getUniqueWriteUsage, isRegexLiteral, isStringLiteral } from './utils-ast';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
 import { tokenizeString } from './utils-string-literal';
+import { isString } from './utils-type';
 
 /**
  * An alternation is a regexpp node that has an `alternatives` field.
@@ -105,7 +106,28 @@ function getFlags(callExpr: estree.CallExpression): string | null {
   return null;
 }
 
-export function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node): AST.Range {
+export function getRegexpLocation(
+  node: estree.Node,
+  regexpNode: regexpp.AST.Node,
+  context: Rule.RuleContext,
+  offset = [0, 0],
+): AST.SourceLocation {
+  let loc: AST.SourceLocation;
+  if (isRegexLiteral(node) || isStringLiteral(node)) {
+    const source = context.getSourceCode();
+    const [start] = node.range!;
+    const [reStart, reEnd] = getRegexpRange(node, regexpNode);
+    loc = {
+      start: source.getLocFromIndex(start + reStart + offset[0]),
+      end: source.getLocFromIndex(start + reEnd + offset[1]),
+    };
+  } else {
+    loc = node.loc!;
+  }
+  return loc;
+}
+
+function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node): AST.Range {
   if (isRegexLiteral(node)) {
     return [regexpNode.start, regexpNode.end];
   }
@@ -127,4 +149,16 @@ function unquote(s: string): string {
     throw new Error(`invalid string to unquote: ${s}`);
   }
   return s.substring(1, s.length - 1);
+}
+
+export function isStringRegexMethodCall(call: estree.CallExpression, services: ParserServices) {
+  return (
+    call.callee.type === 'MemberExpression' &&
+    call.callee.property.type === 'Identifier' &&
+    !call.callee.computed &&
+    ['match', 'matchAll', 'search'].includes(call.callee.property.name) &&
+    call.arguments.length > 0 &&
+    isString(call.callee.object, services) &&
+    isString(call.arguments[0], services)
+  );
 }
