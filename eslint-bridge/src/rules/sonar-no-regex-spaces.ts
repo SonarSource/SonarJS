@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
 
       const nextChar = rawPattern[node.start + 1];
       if (nextChar !== ' ') {
-        const spacesBefore = getSpacesBeforeCount(rawPattern, node.start);
+        const spacesBefore = countSpacesBefore(rawPattern, node.start);
         if (spacesBefore > 0) {
           const spacesNumber = spacesBefore + 1;
           context.reportRegExpNode({
