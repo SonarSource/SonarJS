@@ -119,5 +119,36 @@ ruleTester.run('Alternation with empty alternatives', rule, {
       code: `/(a|){1,3}/`,
       errors: 1,
     },
+    {
+      code: `new RegExp('|')`,
+      errors: [
+        {
+          message: 'Remove this empty alternative.',
+          line: 1,
+          endLine: 1,
+          column: 13,
+          endColumn: 14,
+        },
+        {
+          message: 'Remove this empty alternative.',
+          line: 1,
+          endLine: 1,
+          column: 13,
+          endColumn: 14,
+        },
+      ],
+    },
+    {
+      code: `new RegExp('a\\n(|)')`,
+      errors: [
+        {
+          message: 'Remove this empty alternative.',
+          line: 1,
+          endLine: 1,
+          column: 18,
+          endColumn: 19,
+        },
+      ],
+    },
   ],
 });

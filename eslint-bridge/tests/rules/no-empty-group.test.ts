@@ -59,8 +59,8 @@ ruleTester.run('Empty groups', rule, {
           message: 'Remove this empty group.',
           line: 1,
           endLine: 1,
-          column: 28,
-          endColumn: 30,
+          column: 29,
+          endColumn: 31,
         },
       ],
     },
@@ -75,6 +75,43 @@ ruleTester.run('Empty groups', rule, {
     {
       code: `new RegExp('')`, // parsed as /(?:)/
       errors: 1,
+    },
+    {
+      // \u0009 is unicode escape for TAB
+      code: `new RegExp('\\u0009(|)')`,
+      errors: [
+        {
+          message: 'Remove this empty group.',
+          line: 1,
+          endLine: 1,
+          column: 19,
+          endColumn: 22,
+        },
+      ],
+    },
+    {
+      code: `new RegExp('\\t(|)')`,
+      errors: [
+        {
+          message: 'Remove this empty group.',
+          line: 1,
+          endLine: 1,
+          column: 15,
+          endColumn: 18,
+        },
+      ],
+    },
+    {
+      code: `new RegExp('\\n(|)')`,
+      errors: [
+        {
+          message: 'Remove this empty group.',
+          line: 1,
+          endLine: 1,
+          column: 16,
+          endColumn: 18,
+        },
+      ],
     },
   ],
 });

@@ -26,6 +26,7 @@ import { getUniqueWriteUsage, isRegexLiteral, isStringLiteral } from './utils-as
 import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
 import { tokenizeString } from './utils-string-literal';
 import { isString } from './utils-type';
+import { last } from './utils-collection';
 
 /**
  * An alternation is a regexpp node that has an `alternatives` field.
@@ -137,9 +138,29 @@ function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node): AST.Ra
     }
     const s = node.raw!;
     const tokens = tokenizeString(unquote(s));
-    const start = tokens[regexpNode.start - 1].range[0];
-    const end = tokens[regexpNode.end - 2].range[1];
-    return [start, end];
+    if (regexpNode.start === regexpNode.end) {
+      // this happens in case of empty alternative node like '|'
+      if (regexpNode.start - 1 < tokens.length) {
+        // '|' first empty alternative will have start = 1, end = 1
+        // +1 is to account for string quote
+        return [
+          tokens[regexpNode.start - 1].range[0] + 1,
+          tokens[regexpNode.start - 1].range[0] + 1,
+        ];
+      } else {
+        // '|' second empty alternative regex node will have start = 2, end = 2
+        // +1 is to account for string quote
+        return [last(tokens).range[1] + 1, last(tokens).range[1] + 1];
+      }
+    }
+    // regexpNode positions are 1 - based, we need to -1 to report as 0 - based
+    const startToken = regexpNode.start - 1;
+    const start = tokens[startToken].range[0];
+    // it's possible for node to be outside of range, eg new RegExp('\n(|)')
+    const endToken = Math.min(regexpNode.end - 2, tokens.length - 1);
+    const end = tokens[endToken].range[1];
+    // +1 is needed to account for string quotes
+    return [start + 1, end + 1];
   }
   throw new Error(`Expected regexp or string literal, got ${node.type}`);
 }

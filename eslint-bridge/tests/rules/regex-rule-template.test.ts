@@ -120,15 +120,23 @@ typeAwareRuleTester.run('Template for regular expressions rules', rule, {
         {
           message: `Found character 'a'.`,
           line: 1,
-          column: 19,
+          column: 20,
           endLine: 1,
-          endColumn: 20,
+          endColumn: 21,
         },
       ],
     },
     {
       code: `const re = new RegExp('a');`,
-      errors: 1,
+      errors: [
+        {
+          message: `Found character 'a'.`,
+          line: 1,
+          column: 24,
+          endLine: 1,
+          endColumn: 25,
+        },
+      ],
     },
     {
       code: `const re = new RegExp('\u0061', 'u');`,
