@@ -157,7 +157,6 @@ function checkNonExistingGroupReference(
   const { object: matcher } = memberExpr;
   const regex = intellisense.resolve(matcher);
   if (regex) {
-    regex.matched = true;
     /* matcher.groups.<name> / matcher.indices.groups.<name>  */
     const groupNode = extractGroupNode(memberExpr, intellisense);
     if (groupNode !== null) {
