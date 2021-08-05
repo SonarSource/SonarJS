@@ -218,4 +218,23 @@ public class CoverageTest {
     assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(2);
     assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
   }
+
+  @Test
+  public void wildcard_LCOV_report_paths() {
+    final String projectKey = "LcovWildcardReportPaths";
+    SonarScanner build = Tests.createScanner()
+      .setProjectDir(TestUtils.projectDir("lcov-wildcard"))
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
+      .setProjectVersion("1.0")
+      .setSourceDirs(".")
+      .setProperty("sonar.javascript.lcov.reportPaths", "foo.lcov,bar/*.lcov,**/qux/*.lcov");
+    Tests.setEmptyProfile(projectKey);
+    orchestrator.executeBuild(build);
+
+    assertThat(getMeasureAsInt(projectKey + ":foo.js", "uncovered_lines")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey + ":bar/bar.js", "uncovered_lines")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey + ":baz/baz.js", "uncovered_lines")).isEqualTo(5);
+    assertThat(getMeasureAsInt(projectKey + ":baz/qux/qux.js", "uncovered_lines")).isEqualTo(1);
+  }
 }

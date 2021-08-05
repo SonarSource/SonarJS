@@ -173,7 +173,7 @@ public class CoverageSensorTest {
       .contains("Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]")
       .contains("First unresolved path: unresolved/file1.js (Run in DEBUG mode to get full list of unresolved paths)");
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .isEmpty();
+      .contains("Using pattern 'reports/report_with_unresolved_path.lcov' to resolve LCOV files");
   }
 
   @Test
@@ -202,7 +202,7 @@ public class CoverageSensorTest {
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(2);
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.NumberFormatException: For input string: \"1.\").");
-    String stringIndexOutOfBoundLogMessage = logTester.logs(LoggerLevel.DEBUG).get(1);
+    String stringIndexOutOfBoundLogMessage = logTester.logs(LoggerLevel.DEBUG).get(2);
     assertThat(stringIndexOutOfBoundLogMessage).startsWith("Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException:");
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(logTester.logs(LoggerLevel.DEBUG).size() - 1)).startsWith("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: ");
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Found 3 inconsistencies in coverage report. Re-run analyse in debug mode to see details.");
@@ -280,6 +280,28 @@ public class CoverageSensorTest {
     assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(2);
 
     String file2Key = "moduleKey:file2.js";
+    assertThat(context.lineHits(file2Key, 0)).isNull();
+    assertThat(context.lineHits(file2Key, 1)).isEqualTo(5);
+    assertThat(context.lineHits(file2Key, 2)).isEqualTo(5);
+  }
+
+  @Test
+  public void should_resolve_wildcard_report_paths() throws Exception {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "**/reports/*.lcov");
+    inputFile("deep/nested/dir/js/file1.js", Type.MAIN);
+    inputFile("deep/nested/dir/js/file2.js", Type.MAIN);
+    coverageSensor.execute(context);
+
+    String file1Key = "moduleKey:deep/nested/dir/js/file1.js";
+    assertThat(context.lineHits(file1Key, 0)).isNull();
+    assertThat(context.lineHits(file1Key, 1)).isEqualTo(2);
+    assertThat(context.lineHits(file1Key, 2)).isEqualTo(2);
+
+    assertThat(context.conditions(file1Key, 102)).isNull();
+    assertThat(context.conditions(file1Key, 2)).isEqualTo(4);
+    assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(2);
+
+    String file2Key = "moduleKey:deep/nested/dir/js/file2.js";
     assertThat(context.lineHits(file2Key, 0)).isNull();
     assertThat(context.lineHits(file2Key, 1)).isEqualTo(5);
     assertThat(context.lineHits(file2Key, 2)).isEqualTo(5);
