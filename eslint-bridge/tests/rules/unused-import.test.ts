@@ -20,6 +20,7 @@
 import { RuleTester } from 'eslint';
 import { rule } from 'rules/unused-import';
 import { babelRuleTester } from '../utils/babel-rule-tester';
+import * as path from 'path';
 
 const ruleTesterJS = babelRuleTester();
 
@@ -255,6 +256,60 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
       class C implements Bar.Foo {};
       `,
       errors: 1,
+    },
+  ],
+});
+
+const ruleTesterJsxFactory = new RuleTester({
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    ecmaFeatures: { jsx: true },
+    project: path.resolve(`${__dirname}/../fixtures/unused-import/tsconfig.json`),
+  },
+  parser: require.resolve('@typescript-eslint/parser'),
+});
+
+const filename = path.resolve(`${__dirname}/../fixtures/unused-import/sample.lint.tsx`);
+
+ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored', rule, {
+  valid: [
+    {
+      filename,
+      code: `
+        import { h } from 'jsxlib';
+        export class Component {
+          render() {
+            return <div>Hello, world!</div>
+          }
+        }
+      `,
+    },
+  ],
+  invalid: [
+    {
+      filename,
+      code: `
+        import { g } from 'jsxlib';
+        export class Component {
+          render() {
+            return <div>Hello, world!</div>
+          }
+        }
+      `,
+      errors: 1,
+    },
+    {
+      filename,
+      code: `
+        import { g, h } from 'jsxlib';
+        export class Component {
+          render() {
+            return <div>Hello, world!</div>
+          }
+        }
+      `,
+      errors: [{ message: `Remove this unused import of 'g'.` }],
     },
   ],
 });

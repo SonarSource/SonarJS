@@ -22,6 +22,7 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { isRequiredParserServices } from '../utils';
 
 const EXCLUDED_IMPORTS = ['React'];
 
@@ -46,6 +47,15 @@ export const rule: Rule.RuleModule = {
 
     function isImplicitJsx(variable: Scope.Variable) {
       return variable.name === 'jsx' && isJsxPragmaSet;
+    }
+
+    function getJsxFactory() {
+      const parserServices = context.parserServices;
+      if (isRequiredParserServices(parserServices)) {
+        const compilerOptions = parserServices.program.getCompilerOptions();
+        return compilerOptions.jsxFactory;
+      }
+      return undefined;
     }
 
     return {
@@ -73,13 +83,17 @@ export const rule: Rule.RuleModule = {
         );
       },
       'Program:exit': () => {
+        const jsxFactory = getJsxFactory();
         const jsxIdentifiers = context
           .getSourceCode()
           .ast.tokens.filter(token => token.type === 'JSXIdentifier')
           .map(token => token.value);
         unusedImports
           .filter(
-            unused => !jsxIdentifiers.includes(unused.name) && !tsTypeIdentifiers.has(unused.name),
+            unused =>
+              !jsxIdentifiers.includes(unused.name) &&
+              !tsTypeIdentifiers.has(unused.name) &&
+              unused.name !== jsxFactory,
           )
           .forEach(unused =>
             context.report({
