@@ -287,24 +287,24 @@ public class CoverageSensorTest {
 
   @Test
   public void should_resolve_wildcard_report_paths() throws Exception {
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "**/reports/*.lcov");
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "**/wildcard/**/*.lcov");
+    inputFile("file1.js", Type.MAIN);
+    inputFile("file2.js", Type.MAIN); // not referenced in any '**/wildcard/**/*.lcov' files
+    inputFile("tests/file1.js", Type.MAIN);
     inputFile("deep/nested/dir/js/file1.js", Type.MAIN);
-    inputFile("deep/nested/dir/js/file2.js", Type.MAIN);
     coverageSensor.execute(context);
 
-    String file1Key = "moduleKey:deep/nested/dir/js/file1.js";
-    assertThat(context.lineHits(file1Key, 0)).isNull();
-    assertThat(context.lineHits(file1Key, 1)).isEqualTo(2);
-    assertThat(context.lineHits(file1Key, 2)).isEqualTo(2);
+    String file1Key = "moduleKey:file1.js";
+    assertThat(context.lineHits(file1Key, 2)).isEqualTo(1);
 
-    assertThat(context.conditions(file1Key, 102)).isNull();
-    assertThat(context.conditions(file1Key, 2)).isEqualTo(4);
-    assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(2);
+    String file2Key = "moduleKey:file2.js";
+    assertThat(context.lineHits(file2Key, 2)).isNull();
 
-    String file2Key = "moduleKey:deep/nested/dir/js/file2.js";
-    assertThat(context.lineHits(file2Key, 0)).isNull();
-    assertThat(context.lineHits(file2Key, 1)).isEqualTo(5);
-    assertThat(context.lineHits(file2Key, 2)).isEqualTo(5);
+    String nestedFileKey = "moduleKey:tests/file1.js";
+    assertThat(context.lineHits(nestedFileKey, 2)).isEqualTo(1);
+
+    String deeplyNestedFileKey = "moduleKey:deep/nested/dir/js/file1.js";
+    assertThat(context.lineHits(deeplyNestedFileKey, 2)).isEqualTo(1);
   }
 
   @Test
