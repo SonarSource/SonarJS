@@ -173,7 +173,7 @@ public class CoverageSensorTest {
       .contains("Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]")
       .contains("First unresolved path: unresolved/file1.js (Run in DEBUG mode to get full list of unresolved paths)");
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("Using pattern 'reports/report_with_unresolved_path.lcov' to resolve LCOV files");
+      .contains("Using 'reports/report_with_unresolved_path.lcov' to resolve LCOV files");
   }
 
   @Test

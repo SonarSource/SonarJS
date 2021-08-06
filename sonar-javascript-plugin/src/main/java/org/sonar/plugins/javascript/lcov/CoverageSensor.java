@@ -74,7 +74,7 @@ public class CoverageSensor implements Sensor {
   private static List<File> getLcovFiles(File baseDir, Set<String> reportPaths) {
     List<File> lcovFiles = new ArrayList<>();
     for (String reportPath : reportPaths) {
-      LOG.debug("Using pattern '{}' to resolve LCOV files", reportPath);
+      LOG.debug("Using '{}' to resolve LCOV files", reportPath);
       DirectoryScanner scanner = new DirectoryScanner(baseDir, WildcardPattern.create(reportPath));
       List<File> includedFiles = scanner.getIncludedFiles();
       if (includedFiles.isEmpty()) {
