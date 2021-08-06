@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "jsxFactory": "h"
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
   },
   "files": [
     "sample.lint.tsx"

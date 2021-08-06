@@ -303,6 +303,13 @@ ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored'
         /* does something */
       `,
     },
+    {
+      filename,
+      code: `
+        import { Fragment } from 'some/lib';
+        /* does something */
+      `,
+    },
   ],
   invalid: [
     {

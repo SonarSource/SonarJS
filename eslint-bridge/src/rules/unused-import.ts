@@ -49,13 +49,19 @@ export const rule: Rule.RuleModule = {
       return variable.name === 'jsx' && isJsxPragmaSet;
     }
 
-    function getJsxFactory() {
+    function getJsxFactories() {
+      const factories = new Set<string>();
       const parserServices = context.parserServices;
       if (isRequiredParserServices(parserServices)) {
         const compilerOptions = parserServices.program.getCompilerOptions();
-        return compilerOptions.jsxFactory;
+        if (compilerOptions.jsxFactory) {
+          factories.add(compilerOptions.jsxFactory);
+        }
+        if (compilerOptions.jsxFragmentFactory) {
+          factories.add(compilerOptions.jsxFragmentFactory);
+        }
       }
-      return undefined;
+      return factories;
     }
 
     return {
@@ -83,7 +89,7 @@ export const rule: Rule.RuleModule = {
         );
       },
       'Program:exit': () => {
-        const jsxFactory = getJsxFactory();
+        const jsxFactories = getJsxFactories();
         const jsxIdentifiers = context
           .getSourceCode()
           .ast.tokens.filter(token => token.type === 'JSXIdentifier')
@@ -93,7 +99,7 @@ export const rule: Rule.RuleModule = {
             unused =>
               !jsxIdentifiers.includes(unused.name) &&
               !tsTypeIdentifiers.has(unused.name) &&
-              unused.name !== jsxFactory,
+              !jsxFactories.has(unused.name),
           )
           .forEach(unused =>
             context.report({
