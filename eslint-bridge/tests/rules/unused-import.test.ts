@@ -285,6 +285,13 @@ ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored'
         }
       `,
     },
+    {
+      filename,
+      code: `
+        import { h } from 'some/lib';
+        /* does something */
+      `,
+    },
   ],
   invalid: [
     {
