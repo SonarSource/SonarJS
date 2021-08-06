@@ -129,6 +129,17 @@ ruleTesterJS.run('Unnecessary imports should be removed', rule, {
       code: `import { jsx } from '@emotion/core'`,
       errors: 1,
     },
+    {
+      code: `
+        import { h } from 'some/lib'; // no 'h' jsxFactory
+        export class Component {
+          render() {
+            return <div>Hello, world!</div>
+          }
+        }
+      `,
+      errors: 1,
+    },
   ],
 });
 
