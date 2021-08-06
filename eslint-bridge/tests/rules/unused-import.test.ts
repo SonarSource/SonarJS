@@ -277,7 +277,7 @@ ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored'
     {
       filename,
       code: `
-        import { h } from 'jsxlib';
+        import { h } from 'some/lib';
         export class Component {
           render() {
             return <div>Hello, world!</div>
@@ -290,7 +290,7 @@ ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored'
     {
       filename,
       code: `
-        import { g } from 'jsxlib';
+        import { g } from 'some/lib';
         export class Component {
           render() {
             return <div>Hello, world!</div>
@@ -302,7 +302,7 @@ ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored'
     {
       filename,
       code: `
-        import { g, h } from 'jsxlib';
+        import { g, h } from 'some/lib';
         export class Component {
           render() {
             return <div>Hello, world!</div>
