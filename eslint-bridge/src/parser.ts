@@ -29,20 +29,6 @@ const babelParser = { parse: babel.parseForESLint, parser: '@babel/eslint-parser
 const vueParser = { parse: VueJS.parseForESLint, parser: 'vue-eslint-parser' };
 const tsParser = { parse: tsEslintParser.parseForESLint, parser: '@typescript-eslint/parser' };
 
-export type ParseException = {
-  lineNumber?: number;
-  message: string;
-  code: string;
-};
-
-export enum ParseExceptionCode {
-  Parsing = 'PARSING',
-  MissingTypeScript = 'MISSING_TYPESCRIPT',
-  UnsupportedTypeScript = 'UNSUPPORTED_TYPESCRIPT',
-  FailingTypeScript = 'FAILING_TYPESCRIPT',
-  GeneralError = 'GENERAL_ERROR',
-}
-
 function shouldTryTsParser() {
   const context = getContext();
   return context ? context.shouldUseTypeScriptParserForJS : true;
@@ -158,16 +144,6 @@ export function buildParsingOptions(
   return options;
 }
 
-function babelConfig(config: Linter.ParserOptions) {
-  const pluginPath = `${__dirname}/../node_modules`;
-  const babelOptions = {
-    presets: [`${pluginPath}/@babel/preset-react`, `${pluginPath}/@babel/preset-flow`],
-    babelrc: false,
-    configFile: false,
-  };
-  return { ...config, requireConfigFile: false, babelOptions };
-}
-
 function getFileContent(filePath: string) {
   const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
   return stripBom(fileContent);
@@ -183,6 +159,20 @@ function stripBom(s: string) {
 export function unloadTypeScriptEslint() {
   tsEslintParser.clearCaches();
 }
+gi
+export type ParseException = {
+  lineNumber?: number;
+  message: string;
+  code: string;
+};
+
+export enum ParseExceptionCode {
+  Parsing = 'PARSING',
+  MissingTypeScript = 'MISSING_TYPESCRIPT',
+  UnsupportedTypeScript = 'UNSUPPORTED_TYPESCRIPT',
+  FailingTypeScript = 'FAILING_TYPESCRIPT',
+  GeneralError = 'GENERAL_ERROR',
+}
 
 // exported for testing
 export function parseExceptionCodeOf(exceptionMsg: string): ParseExceptionCode {
@@ -195,4 +185,14 @@ export function parseExceptionCodeOf(exceptionMsg: string): ParseExceptionCode {
   } else {
     return ParseExceptionCode.Parsing;
   }
+}
+
+function babelConfig(config: Linter.ParserOptions) {
+  const pluginPath = `${__dirname}/../node_modules`;
+  const babelOptions = {
+    presets: [`${pluginPath}/@babel/preset-react`, `${pluginPath}/@babel/preset-flow`],
+    babelrc: false,
+    configFile: false,
+  };
+  return { ...config, requireConfigFile: false, babelOptions };
 }
