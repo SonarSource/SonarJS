@@ -20,7 +20,7 @@
 import * as estree from 'estree';
 import ts from 'typescript';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { RequiredParserServices } from './utils-parsing';
+import { RequiredParserServices } from 'eslint-plugin-sonarjs/lib/utils/parser-services';
 
 export function isArray(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);
