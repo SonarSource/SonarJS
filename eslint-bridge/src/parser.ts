@@ -159,7 +159,7 @@ function stripBom(s: string) {
 export function unloadTypeScriptEslint() {
   tsEslintParser.clearCaches();
 }
-gi
+
 export type ParseException = {
   lineNumber?: number;
   message: string;
