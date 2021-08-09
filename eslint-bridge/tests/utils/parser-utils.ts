@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { buildParsingOptions } from '../../src/parser';
 
-export function babelRuleTester() {
-  const parserOptions = buildParsingOptions(
-    { filePath: 'some/filePath', tsConfigs: [], fileContent: '' },
-    true,
-  );
-  return new RuleTester({
-    // we use babel to parse JSX syntax
-    parser: require.resolve('@babel/eslint-parser'),
-    parserOptions,
-  });
+import { buildSourceCode } from '../../src/parser';
+
+export function parseTypeScriptSourceFile(
+  fileContent: string,
+  filePath: string,
+  tsConfigs: string[],
+) {
+  return buildSourceCode({ fileContent, filePath, tsConfigs }, 'ts');
+}
+
+export function parseJavaScriptSourceFile(
+  fileContent: string,
+  filePath: string,
+  tsConfigs: string[] = [],
+) {
+  return buildSourceCode({ fileContent, filePath, tsConfigs }, 'js');
 }

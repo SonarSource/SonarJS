@@ -20,9 +20,9 @@
 import { getRuleConfig, decodeSonarRuntimeIssue, LinterWrapper } from 'linter';
 import { Rule, SourceCode } from 'eslint';
 import { SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE } from 'analyzer';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from 'parser';
 import { setContext } from 'context';
 import path from 'path';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from './utils/parser-utils';
 
 const ruleUsingSecondaryLocations = {
   meta: { schema: { enum: ['sonar-runtime'] } },

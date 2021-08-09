@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseTypeScriptSourceFile } from 'parser';
 import { SourceCode } from 'eslint';
 import { visit } from '../../src/utils';
+import { parseTypeScriptSourceFile } from './parser-utils';
 
 it('should visit a node and its children', () => {
   const sourceCode = parseTypeScriptSourceFile(

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import getCpdTokens, { CpdToken } from 'runner/cpd';
-import { parseTypeScriptSourceFile } from 'parser';
 import { join } from 'path';
 import { SourceCode } from 'eslint';
+import { parseTypeScriptSourceFile } from '../utils/parser-utils';
 
 it('should not skip any token', () => {
   const result = actual(
