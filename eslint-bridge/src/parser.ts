@@ -64,8 +64,12 @@ export function buildSourceCode(input: AnalysisInput, language: 'ts' | 'js') {
   }
 
   // js
+  return buildSourceCodeForJs(input, tryTsParser);
+}
+
+function buildSourceCodeForJs(input: AnalysisInput, tryTsParser: boolean) {
   if (tryTsParser) {
-    result = parseForEslint(input, tsParser.parse, buildParsingOptions(input, false));
+    const result = parseForEslint(input, tsParser.parse, buildParsingOptions(input, false));
     if (result instanceof SourceCode) {
       return result;
     }
