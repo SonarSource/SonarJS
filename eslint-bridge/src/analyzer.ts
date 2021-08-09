@@ -17,14 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  Parse,
-  parseJavaScriptSourceFile,
-  parseTypeScriptSourceFile,
-  parseTypeScriptVueSourceFile,
-  ParseExceptionCode,
-  parseJavaScriptVueSourceFile,
-} from './parser';
+import { ParseExceptionCode, buildSourceCode } from './parser';
 import getHighlighting, { Highlight } from './runner/highlighter';
 import getMetrics, { EMPTY_METRICS, getMetricsForSonarLint, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
@@ -34,7 +27,6 @@ import {
   rule as symbolHighlightingRule,
   symbolHighlightingRuleId,
 } from './runner/symbol-highlighter';
-import * as fs from 'fs';
 import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
 import { LinterWrapper, AdditionalRule } from './linter';
 import { getContext } from './context';
@@ -113,29 +105,11 @@ export interface IssueLocation {
 }
 
 export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(
-    input,
-    input.filePath.endsWith('.vue') ? parseJavaScriptVueSourceFile : parseJavaScriptSourceFile,
-  );
+  return analyze(input, 'js');
 }
 
 export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(
-    input,
-    input.filePath.endsWith('.vue') ? parseTypeScriptVueSourceFile : parseTypeScriptSourceFile,
-  );
-}
-
-function getFileContent(filePath: string) {
-  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-  return stripBom(fileContent);
-}
-
-function stripBom(s: string) {
-  if (s.charCodeAt(0) === 0xfeff) {
-    return s.slice(1);
-  }
-  return s;
+  return analyze(input, 'ts');
 }
 
 let linter: LinterWrapper;
@@ -156,15 +130,11 @@ export function loadCustomRuleBundle(bundlePath: string): string[] {
   return bundle.rules.map((r: AdditionalRule) => r.ruleId);
 }
 
-function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
-  let fileContent = input.fileContent;
-  if (!fileContent) {
-    fileContent = getFileContent(input.filePath);
-  }
+function analyze(input: AnalysisInput, language: 'ts' | 'js'): AnalysisResponse {
   if (!linter) {
     throw new Error('Linter is undefined. Did you call /init-linter?');
   }
-  const result = parse(fileContent, input.filePath, input.tsConfigs);
+  const result = buildSourceCode(input, language);
   if (result instanceof SourceCode) {
     return analyzeFile(result, input);
   } else {

@@ -20,8 +20,8 @@
 import * as fs from 'fs';
 import { rules } from 'rules/main';
 import { Linter, SourceCode } from 'eslint';
-import { parseTypeScriptSourceFile } from 'parser';
 import { rule as secondaryLocation } from './secondary-location';
+import { parseTypeScriptSourceFile } from '../utils/parser-utils';
 
 /**
  * Detects missing of secondary location support for rules using secondary locations.

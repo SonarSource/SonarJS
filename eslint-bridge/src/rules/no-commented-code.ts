@@ -22,8 +22,8 @@
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { babelConfig, parse, PARSER_CONFIG_MODULE } from '../parser';
 import * as babel from '@babel/eslint-parser';
+import { buildParsingOptions } from '../parser';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
@@ -121,12 +121,17 @@ function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
 }
 
 function containsCode(value: string) {
-  const parseResult = parse(babel.parse, babelConfig(PARSER_CONFIG_MODULE), value);
-  return (
-    parseResult instanceof SourceCode &&
-    parseResult.ast.body.length > 0 &&
-    !isExclusion(parseResult.ast.body, parseResult)
-  );
+  try {
+    const options = buildParsingOptions(
+      { filePath: 'some/filePath', tsConfigs: [], fileContent: '' },
+      true,
+    );
+    const result = babel.parse(value, options);
+    const parseResult = new SourceCode(value, result);
+    return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
+  } catch (exception) {
+    return false;
+  }
 }
 
 function injectMissingBraces(value: string) {

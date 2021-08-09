@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import getHighlighting, { Highlight, SonarTypeOfText } from 'runner/highlighter';
-import { parseJavaScriptVueSourceFile, parseTypeScriptSourceFile } from 'parser';
 import { join } from 'path';
 import { SourceCode } from 'eslint';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../utils/parser-utils';
 
 it('should highlight keywords', () => {
   const result = actual(
@@ -91,7 +91,7 @@ it('should highlight regex literals', () => {
 
 it('should highlight Vue templates', () => {
   function highlights(code: string): Highlight[] {
-    const sourceCode = parseJavaScriptVueSourceFile(code, '/some/path/file.vue', []) as SourceCode;
+    const sourceCode = parseJavaScriptSourceFile(code, '/some/path/file.vue', []) as SourceCode;
     return getHighlighting(sourceCode).highlights;
   }
   expect(highlights('<template></template>')).toEqual(
