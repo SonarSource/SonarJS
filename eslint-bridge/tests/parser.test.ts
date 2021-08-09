@@ -151,7 +151,7 @@ import { ParseExceptionCode } from '../src/parser';
     expect(callsToLogger.filter(args => args[0] === message)).toHaveLength(1);
   });
 
-  it.only(`should log error on TypeScript compiler's parsing failure for .vue file`, () => {
+  it(`should log error on TypeScript compiler's parsing failure for .vue file`, () => {
     parseJavaScriptSourceFile('<script>if (true) {</script>', 'foo.vue');
     const callsToLogger = (console.log as jest.Mock).mock.calls;
     const message = `DEBUG Failed to parse foo.vue with TypeScript compiler: '}' expected.`;
@@ -305,6 +305,14 @@ describe('parseVueSourceFile', () => {
     expect(parsingError.line).toEqual(4);
     expect(parsingError.message).toContain(`'}' expected.`);
     expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
+  });
+
+  it('should not parse .vue with TypeScript compiler when analysis parameter is set to False', () => {
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+    setContext({ workDir: '', shouldUseTypeScriptParserForJS: false, sonarlint: false });
+    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
+    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.parserServices.program).toBeUndefined();
   });
 });
 
