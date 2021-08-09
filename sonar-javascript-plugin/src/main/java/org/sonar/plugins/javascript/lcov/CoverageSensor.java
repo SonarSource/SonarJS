@@ -34,12 +34,12 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
-import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonarsource.analyzer.commons.FileProvider;
 
 public class CoverageSensor implements Sensor {
   private static final Logger LOG = Loggers.get(CoverageSensor.class);
@@ -75,17 +75,17 @@ public class CoverageSensor implements Sensor {
     List<File> lcovFiles = new ArrayList<>();
     for (String reportPath : reportPaths) {
       LOG.debug("Using '{}' to resolve LCOV files", reportPath);
-      DirectoryScanner scanner = new DirectoryScanner(baseDir, WildcardPattern.create(reportPath));
-      List<File> includedFiles = scanner.getIncludedFiles();
-      if (includedFiles.isEmpty()) {
+      FileProvider fileProvider = new FileProvider(baseDir, reportPath);
+      List<File> matchingFiles = fileProvider.getMatchingFiles();
+      if (matchingFiles.isEmpty()) {
         File file = new File(reportPath);
         if (!file.exists()) {
           LOG.info("No LCOV files were found using pattern {}", reportPath);
         } else {
-          includedFiles.add(file);
+          matchingFiles.add(file);
         }
       }
-      lcovFiles.addAll(includedFiles);
+      lcovFiles.addAll(matchingFiles);
     }
     return lcovFiles;
   }
