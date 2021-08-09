@@ -80,7 +80,7 @@ public class CoverageSensor implements Sensor {
       if (matchingFiles.isEmpty()) {
         File file = new File(reportPath);
         if (!file.exists()) {
-          LOG.info("No LCOV files were found using pattern {}", reportPath);
+          LOG.info("No LCOV files were found using {}", reportPath);
         } else {
           matchingFiles.add(file);
         }
