@@ -291,7 +291,6 @@ public class CoverageSensorTest {
     inputFile("file1.js", Type.MAIN);
     inputFile("file2.js", Type.MAIN); // not referenced in any '**/wildcard/**/*.lcov' files
     inputFile("tests/file1.js", Type.MAIN);
-    inputFile("deep/nested/dir/js/file1.js", Type.MAIN);
     coverageSensor.execute(context);
 
     String file1Key = "moduleKey:file1.js";
@@ -302,9 +301,6 @@ public class CoverageSensorTest {
 
     String nestedFileKey = "moduleKey:tests/file1.js";
     assertThat(context.lineHits(nestedFileKey, 2)).isEqualTo(1);
-
-    String deeplyNestedFileKey = "moduleKey:deep/nested/dir/js/file1.js";
-    assertThat(context.lineHits(deeplyNestedFileKey, 2)).isEqualTo(1);
   }
 
   @Test
