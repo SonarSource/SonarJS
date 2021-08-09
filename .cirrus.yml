@@ -32,7 +32,7 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     zone: us-central1-a
     preemptible: false
     disk: 128
-    type: n1-standard-8
+    type: c2-standard-8
     use_ssd: true
     
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
@@ -57,6 +57,11 @@ build_task:
     PGP_PASSPHRASE: ENCRYPTED[!314a8fc344f45e462dd5e8dccd741d7562283a825e78ebca27d4ae9db8e65ce618e7f6aece386b2782a5abe5171467bd!]
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  sonar_cache:
+    folder: ${HOME}/.sonar/cache
+    fingerprint_script:
+      - echo ${CIRRUS_OS}
+      - curl --silent ${SONAR_HOST_URL}/deploy/plugins/index.txt | sort
   build_script:
     - source cirrus-env BUILD
     - yarn config set registry "${ARTIFACTORY_URL}/api/npm/npm"
