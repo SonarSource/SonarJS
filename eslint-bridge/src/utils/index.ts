@@ -26,7 +26,7 @@ export * from './utils-global';
 export * from './utils-location';
 export * from './utils-module';
 export * from './utils-parent';
-export * from './utils-parsing';
 export * from './utils-regex';
 export * from './utils-type';
 export * from './utils-visitor';
+export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';
