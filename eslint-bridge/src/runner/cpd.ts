@@ -45,10 +45,7 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
       return;
     }
 
-    if (
-      (text.startsWith('"') || text.startsWith("'") || text.startsWith('`')) &&
-      !jsxTokens.includes(token)
-    ) {
+    if (isStringLiteralToken(token) && !jsxTokens.includes(token)) {
       text = 'LITERAL';
     }
 
@@ -67,6 +64,12 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
   });
 
   return { cpdTokens };
+}
+
+function isStringLiteralToken(token: AST.Token) {
+  return (
+    token.value.startsWith('"') || token.value.startsWith("'") || token.value.startsWith('`')
+  );
 }
 
 export interface CpdToken {
