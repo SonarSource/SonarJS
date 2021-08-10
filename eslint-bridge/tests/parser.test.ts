@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ParseExceptionCode, parseExceptionCodeOf } from 'parser';
+import { buildSourceCode, ParseExceptionCode, parseExceptionCodeOf } from 'parser';
 import { SourceCode } from 'eslint';
 import { ParsingError } from 'analyzer';
 import { visit } from '../src/utils';
@@ -156,6 +156,16 @@ import { ParseExceptionCode } from '../src/parser';
     const callsToLogger = (console.log as jest.Mock).mock.calls;
     const message = `DEBUG Failed to parse foo.vue with TypeScript compiler: '}' expected.`;
     expect(callsToLogger.filter(args => args[0] === message)).toHaveLength(1);
+  });
+
+  it(`should parse experimental class properties with Babel parser`, () => {
+    const code = ` class C { #f = 42; #m() {} }`;
+    setContext({ workDir: '', shouldUseTypeScriptParserForJS: false, sonarlint: false });
+    const sourceCode = buildSourceCode(
+      { filePath: '/some/path', fileContent: code },
+      'js',
+    ) as SourceCode;
+    expect(sourceCode.ast).toBeDefined();
   });
 });
 
