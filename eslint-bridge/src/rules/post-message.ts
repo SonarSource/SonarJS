@@ -87,7 +87,11 @@ function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.Rul
 
 function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rule.RuleContext) {
   const { callee, arguments: args } = callExpr;
-  if (!isWindowObject(callee, context) || args.length < 2) {
+  if (
+    !isWindowObject(callee, context) ||
+    args.length < 2 ||
+    !isMessageTypeEvent(args[0], context)
+  ) {
     return;
   }
   const listener = resolveFunction(context, args[1]);
@@ -109,6 +113,11 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
       message: MESSAGE,
     });
   }
+}
+
+function isMessageTypeEvent(eventNode: estree.Node, context: Rule.RuleContext) {
+  const eventValue = getValueOfExpression(context, eventNode, 'Literal');
+  return typeof eventValue?.value === 'string' && eventValue.value.toLowerCase() === 'message';
 }
 
 class WindowNameVisitor {
