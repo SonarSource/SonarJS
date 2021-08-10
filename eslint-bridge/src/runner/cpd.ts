@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { SourceCode, AST } from 'eslint';
 import { visit } from '../utils';
 import { Location } from './location';
@@ -59,11 +60,7 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
 function extractJSXTokens(sourceCode: SourceCode) {
   const tokens: AST.Token[] = [];
   visit(sourceCode, (node: estree.Node) => {
-    if (
-      ['JSXExpressionContainer', 'JSXSpreadChild', 'JSXSpreadAttribute', 'JSXAttribute'].includes(
-        node.type,
-      )
-    ) {
+    if ((node as TSESTree.Node).type === 'JSXAttribute') {
       tokens.push(...sourceCode.getTokens(node));
     }
   });
