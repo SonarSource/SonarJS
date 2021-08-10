@@ -47,6 +47,7 @@ import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -65,16 +66,13 @@ public class NodeCommandTest {
   @Captor
   private ArgumentCaptor<List<String>> processStartArgument;
 
-  @Captor
-  private ArgumentCaptor<Map<String, String>> processStartEnv;
-
   @Mock
-  private NodeCommand.ProcessWrapper mockProcessWrapper;
+  private ProcessWrapper mockProcessWrapper;
 
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    when(mockProcessWrapper.start(any(), any())).thenReturn(mock(Process.class));
+    when(mockProcessWrapper.startProcess(any(), any(), any(), any())).thenReturn(mock(Process.class));
   }
 
   @Test
@@ -137,7 +135,7 @@ public class NodeCommandTest {
 
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
-    assertThat(exitValue).isEqualTo(0);
+    assertThat(exitValue).isZero();
   }
 
   @Test
@@ -181,8 +179,8 @@ public class NodeCommandTest {
       .build();
     nodeCommand.start();
 
-    verify(mockProcessWrapper).start(processStartArgument.capture(), any());
-    assertThat(processStartArgument.getValue()).contains(nodeExecutable.getAbsolutePath());
+    List<String> value = captureProcessWrapperArgument();
+    assertThat(value).contains(nodeExecutable.getAbsolutePath());
     await().until(() -> logTester.logs(LoggerLevel.INFO)
       .contains("Using Node.js executable " + nodeExecutable.getAbsolutePath() + " from property " + NODE_EXECUTABLE_PROPERTY + "."));
   }
@@ -200,8 +198,7 @@ public class NodeCommandTest {
       .build();
     nodeCommand.start();
 
-    verify(mockProcessWrapper).start(processStartArgument.capture(), any());
-    assertThat(processStartArgument.getValue()).contains(nodeExecutable.getAbsolutePath());
+    assertThat(captureProcessWrapperArgument()).contains(nodeExecutable.getAbsolutePath());
     await().until(() -> logTester.logs(LoggerLevel.WARN)
       .contains("The use of " + NODE_EXECUTABLE_PROPERTY_TS + " is deprecated, use sonar.nodejs.executable instead."));
     await().until(() -> logTester.logs(LoggerLevel.INFO)
@@ -223,8 +220,7 @@ public class NodeCommandTest {
       .build();
     nodeCommand.start();
 
-    verify(mockProcessWrapper).start(processStartArgument.capture(), any());
-    assertThat(processStartArgument.getValue()).contains(nodeExecutable.getAbsolutePath());
+    assertThat(captureProcessWrapperArgument()).contains(nodeExecutable.getAbsolutePath());
     await().until(() -> logTester.logs(LoggerLevel.WARN)
       .contains("The use of " + NODE_EXECUTABLE_PROPERTY_TS + " is deprecated, use sonar.nodejs.executable instead."));
     await().until(() -> logTester.logs(LoggerLevel.INFO)
@@ -239,8 +235,13 @@ public class NodeCommandTest {
       .build();
     nodeCommand.start();
 
-    verify(mockProcessWrapper).start(processStartArgument.capture(), any());
-    assertThat(processStartArgument.getValue()).contains("node");
+    List<String> value = captureProcessWrapperArgument();
+    assertThat(value).contains("node");
+  }
+
+  private List<String> captureProcessWrapperArgument() throws IOException {
+    verify(mockProcessWrapper).startProcess(processStartArgument.capture(), any(), any(), any());
+    return processStartArgument.getValue();
   }
 
   @Test
@@ -278,7 +279,7 @@ public class NodeCommandTest {
   @Test
   public void test_exception_start() throws Exception {
     IOException cause = new IOException("Error starting process");
-    when(mockProcessWrapper.start(any(), any())).thenThrow(cause);
+    when(mockProcessWrapper.startProcess(any(), any(), any(), any())).thenThrow(cause);
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .script(resourceScript(PATH_TO_SCRIPT))
       .build();
@@ -366,8 +367,7 @@ public class NodeCommandTest {
       .pathResolver(getPathResolver())
       .build();
     nodeCommand.start();
-    verify(mockProcessWrapper).start(processStartArgument.capture(), any());
-    List<String> value = processStartArgument.getValue();
+    List<String> value = captureProcessWrapperArgument();
     assertThat(value).hasSize(2);
     assertThat(value.get(0)).endsWith("nodejs-utils/src/test/resources/package/node_modules/run-node/run-node");
     assertThat(value.get(1)).isEqualTo("script.js");
@@ -375,7 +375,7 @@ public class NodeCommandTest {
 
   @Test
   public void test_missing_node() throws Exception {
-    when(mockProcessWrapper.start(any(), any())).thenThrow(new IOException("CreateProcess error=2"));
+    when(mockProcessWrapper.startProcess(any(), any(), any(), any())).thenThrow(new IOException("CreateProcess error=2"));
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .script("not-used")
       .build();
@@ -390,6 +390,30 @@ public class NodeCommandTest {
     NodeCommand nodeCommand = new NodeCommand(mockProcessWrapper, "node", 12, Collections.emptyList(), null,
       Collections.emptyList(), noop, noop);
     assertThat(nodeCommand.getActualNodeVersion()).isEqualTo(12);
+  }
+
+  @Test
+  public void test_windows_default_node() throws Exception {
+    when(mockProcessWrapper.isWindows()).thenReturn(true);
+    when(mockProcessWrapper.startProcess(processStartArgument.capture(), any(), any(), any())).then(invocation -> {
+      invocation.getArgument(2, Consumer.class).accept("C:\\Program Files\\node.exe");
+      return mock(Process.class);
+    });
+    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper).script("script.js").build();
+    assertThat(processStartArgument.getValue()).containsExactly("C:\\Windows\\System32\\where.exe", "$PATH:node.exe");
+    nodeCommand.start();
+    assertThat(processStartArgument.getValue()).containsExactly("C:\\Program Files\\node.exe", "script.js");
+  }
+
+  @Test
+  public void test_windows_default_node_not_found() throws Exception {
+    when(mockProcessWrapper.isWindows()).thenReturn(true);
+    when(mockProcessWrapper.startProcess(processStartArgument.capture(), any(), any(), any())).thenReturn(mock(Process.class));
+    NodeCommandBuilder builder = NodeCommand.builder(mockProcessWrapper).script("script.js");
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessage("Node.js not found in PATH. PATH value was: null");
+    assertThat(processStartArgument.getValue()).containsExactly("C:\\Windows\\System32\\where.exe", "$PATH:node.exe");
   }
 
   private static String resourceScript(String script) throws URISyntaxException {

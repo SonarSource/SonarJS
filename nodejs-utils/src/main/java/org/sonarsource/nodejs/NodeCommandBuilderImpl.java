@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,10 +35,12 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 
-class NodeCommandBuilderImpl implements NodeCommandBuilder {
+public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private static final Logger LOG = Loggers.get(NodeCommandBuilderImpl.class);
 
@@ -50,7 +52,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile("v?(\\d+)\\.\\d+\\.\\d+");
 
-  private final NodeCommand.ProcessWrapper processWrapper;
+  private final ProcessWrapper processWrapper;
   private Integer minNodeVersion;
   private Configuration configuration;
   private List<String> args = new ArrayList<>();
@@ -61,7 +63,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private BundlePathResolver pathResolver;
   private int actualNodeVersion;
 
-  NodeCommandBuilderImpl(NodeCommand.ProcessWrapper processWrapper) {
+  public NodeCommandBuilderImpl(ProcessWrapper processWrapper) {
     this.processWrapper = processWrapper;
   }
 
@@ -85,7 +87,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   @Override
   public NodeCommandBuilder nodeJsArgs(String... nodeJsArgs) {
-    this.nodeJsArgs.addAll(Arrays.asList(nodeJsArgs));
+    this.nodeJsArgs.addAll(asList(nodeJsArgs));
     return this;
   }
 
@@ -97,7 +99,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   @Override
   public NodeCommandBuilder scriptArgs(String... args) {
-    this.args.addAll(Arrays.asList(args));
+    this.args.addAll(asList(args));
     return this;
   }
 
@@ -186,9 +188,9 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private String retrieveNodeExecutableFromConfig(@Nullable Configuration configuration) throws NodeCommandException, IOException {
-    if (configuration != null && (configuration.hasKey(NODE_EXECUTABLE_PROPERTY) || configuration.hasKey(NODE_EXECUTABLE_PROPERTY_TS))) {
-      String nodeExecutable = "";
-      String usedProperty = "";
+    if (configuration != null) {
+      String nodeExecutable = null;
+      String usedProperty = null;
 
       if (configuration.hasKey(NODE_EXECUTABLE_PROPERTY_TS)) {
         LOG.warn("The use of " + NODE_EXECUTABLE_PROPERTY_TS + " is deprecated, use "
@@ -202,30 +204,64 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
         nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
       }
 
-      File file = new File(nodeExecutable);
-      if (file.exists()) {
-        LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), usedProperty);
-        return nodeExecutable;
-      } else {
-        LOG.error("Provided Node.js executable file does not exist. Property '{}' was set to '{}'", usedProperty, nodeExecutable);
-        throw new NodeCommandException("Provided Node.js executable file does not exist.");
+      if (nodeExecutable != null) {
+        File file = new File(nodeExecutable);
+        if (file.exists()) {
+          LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), usedProperty);
+          return nodeExecutable;
+        } else {
+          LOG.error("Provided Node.js executable file does not exist. Property '{}' was set to '{}'", usedProperty, nodeExecutable);
+          throw new NodeCommandException("Provided Node.js executable file does not exist.");
+        }
       }
     }
 
+    return locateNode();
+  }
+
+  private String locateNode() throws IOException {
     String defaultNode = NODE_EXECUTABLE_DEFAULT;
-    // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured
-    // in .bashrc or similar, thus we launch node via 'run-node', which should load required configuration
     if (processWrapper.isMac()) {
-      defaultNode = pathResolver.resolve(NODE_EXECUTABLE_DEFAULT_MACOS);
-      File file = new File(defaultNode);
-      if (!file.exists()) {
-        LOG.error("Default Node.js executable for MacOS does not exist. Value '{}'. Consider setting Node.js location through property '{}'", defaultNode, NODE_EXECUTABLE_PROPERTY);
-        throw new NodeCommandException("Default Node.js executable for MacOS does not exist.");
-      } else {
-        Files.setPosixFilePermissions(file.toPath(), EnumSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ));
-      }
+      defaultNode = locateNodeOnMac();
+    } else if (processWrapper.isWindows()) {
+      defaultNode = locateNodeOnWindows();
     }
     LOG.debug("Using default Node.js executable: '{}'.", defaultNode);
     return defaultNode;
+  }
+
+  private String locateNodeOnMac() throws IOException {
+    // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured
+    // in .bashrc or similar, thus we launch node via 'run-node', which should load required configuration
+    LOG.debug("Looking for Node.js in the PATH using run-node (macOS)");
+    String defaultNode = pathResolver.resolve(NODE_EXECUTABLE_DEFAULT_MACOS);
+    File file = new File(defaultNode);
+    if (!file.exists()) {
+      LOG.error("Default Node.js executable for MacOS does not exist. Value '{}'. Consider setting Node.js location through property '{}'", defaultNode, NODE_EXECUTABLE_PROPERTY);
+      throw new NodeCommandException("Default Node.js executable for MacOS does not exist.");
+    } else {
+      Files.setPosixFilePermissions(file.toPath(), EnumSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ));
+    }
+    return defaultNode;
+  }
+
+  private String locateNodeOnWindows() throws IOException {
+    // Windows will search current directory in addition to the PATH variable, which is unsecure.
+    // To avoid it we use where.exe to find node binary only in PATH. See SSF-181
+    LOG.debug("Looking for Node.js in the PATH using where.exe (Windows)");
+    List<String> stdOut = new ArrayList<>();
+    Process whereTool = processWrapper.startProcess(asList("C:\\Windows\\System32\\where.exe", "$PATH:node.exe"), emptyMap(), stdOut::add, LOG::error);
+    try {
+      processWrapper.waitFor(whereTool, 5, TimeUnit.SECONDS);
+      if (!stdOut.isEmpty()) {
+        String out = stdOut.get(0);
+        LOG.debug("Found node.exe at {}", out);
+        return out;
+      }
+    } catch (InterruptedException e) {
+      processWrapper.interrupt();
+      LOG.error("Interrupted while waiting for 'where.exe' to terminate.");
+    }
+    throw new NodeCommandException("Node.js not found in PATH. PATH value was: " + processWrapper.getenv("PATH"));
   }
 }
