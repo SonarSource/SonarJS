@@ -17,12 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
+import * as estree from 'estree';
+import { SourceCode, AST } from 'eslint';
+import { visit } from '../utils';
 import { Location } from './location';
 
 export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdToken[] } {
   const cpdTokens: CpdToken[] = [];
   const tokens = sourceCode.ast.tokens;
+
+  const jsxTokens: AST.Token[] = [];
+  visit(sourceCode, (node: estree.Node) => {
+    if (
+      ['JSXExpressionContainer', 'JSXSpreadChild', 'JSXSpreadAttribute', 'JSXAttribute'].includes(
+        node.type,
+      )
+    ) {
+      jsxTokens.push(...sourceCode.getTokens(node));
+    }
+  });
 
   tokens.forEach(token => {
     let text = token.value;
@@ -32,7 +45,10 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
       return;
     }
 
-    if (text.startsWith('"') || text.startsWith("'") || text.startsWith('`')) {
+    if (
+      (text.startsWith('"') || text.startsWith("'") || text.startsWith('`')) &&
+      !jsxTokens.includes(token)
+    ) {
       text = 'LITERAL';
     }
 
