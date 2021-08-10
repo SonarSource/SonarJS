@@ -117,14 +117,14 @@ it('should preserve string literals inside JSX constructs', () => {
     <foo bar="abc">
       {"def"}
       {..."ghi"}
-      <baz {..."jkl"} />
+      <baz {...getAttributes("jkl")} />
     </foo>
   `);
   expect(result).toContainEqual(token(2, 16, 2, 23, 'LITERAL'));
   expect(result).toContainEqual(token(3, 13, 3, 18, '"abc"'));
   expect(result).toContainEqual(token(4, 7, 4, 12, '"def"'));
   expect(result).toContainEqual(token(5, 10, 5, 15, '"ghi"'));
-  expect(result).toContainEqual(token(6, 15, 6, 20, '"jkl"'));
+  expect(result).toContainEqual(token(6, 29, 6, 34, '"jkl"'));
 });
 
 function token(
