@@ -19,6 +19,7 @@
  */
 import { RuleTesterTs } from '../RuleTesterTs';
 import { rule } from 'rules/no-invalid-await';
+import { RuleTester } from 'eslint';
 
 const ruleTester = new RuleTesterTs();
 ruleTester.run('await should only be used with promises.', rule, {
@@ -163,4 +164,27 @@ ruleTester.run('await should only be used with promises.', rule, {
       errors: 1,
     },
   ],
+});
+
+const ruleTesterWithNoFullTypeInfo = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    project: [],
+  },
+});
+
+ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rule, {
+  valid: [
+    {
+      code: `
+      async function bar() { return 42; }
+      async function foo() {
+        await bar();
+      }
+      `,
+    },
+  ],
+  invalid: [],
 });

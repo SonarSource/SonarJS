@@ -51,7 +51,7 @@
     "bytes": "3.1.0",
     "eslint": "7.27.0",
     "eslint-plugin-chai-friendly": "0.6.0",
-    "eslint-plugin-sonarjs": "0.9.1",
+    "eslint-plugin-sonarjs": "0.10.0-290",
     "express": "4.17.1",
     "regexpp": "3.2.0",
     "run-node": "2.0.0",
