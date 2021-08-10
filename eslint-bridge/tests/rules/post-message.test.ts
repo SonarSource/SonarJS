@@ -73,6 +73,15 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
       window.addEventListener("message", (...not_an_identifier) => {});
             `,
     },
+    {
+      code: `
+      window.addEventListener("click", function(event) { // OK: event type is not "message"
+        if (event.data !== "http://example.org")
+          return;
+        console.log(event.data);
+      });
+            `,
+    },
   ],
   invalid: [
     {
@@ -134,6 +143,17 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
     {
       code: `
       window.addEventListener("message", function(event) {
+        if (event.data !== "http://example.org")
+          return;
+        console.log(event.data);
+      });
+            `,
+      errors: 1,
+    },
+    {
+      code: `
+      const eventType = "message";
+      window.addEventListener(eventType, function(event) {
         if (event.data !== "http://example.org")
           return;
         console.log(event.data);
