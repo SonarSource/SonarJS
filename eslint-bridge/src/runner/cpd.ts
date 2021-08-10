@@ -25,17 +25,7 @@ import { Location } from './location';
 export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdToken[] } {
   const cpdTokens: CpdToken[] = [];
   const tokens = sourceCode.ast.tokens;
-
-  const jsxTokens: AST.Token[] = [];
-  visit(sourceCode, (node: estree.Node) => {
-    if (
-      ['JSXExpressionContainer', 'JSXSpreadChild', 'JSXSpreadAttribute', 'JSXAttribute'].includes(
-        node.type,
-      )
-    ) {
-      jsxTokens.push(...sourceCode.getTokens(node));
-    }
-  });
+  const jsxTokens = extractJSXTokens(sourceCode);
 
   tokens.forEach(token => {
     let text = token.value;
@@ -66,10 +56,22 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
   return { cpdTokens };
 }
 
+function extractJSXTokens(sourceCode: SourceCode) {
+  const tokens: AST.Token[] = [];
+  visit(sourceCode, (node: estree.Node) => {
+    if (
+      ['JSXExpressionContainer', 'JSXSpreadChild', 'JSXSpreadAttribute', 'JSXAttribute'].includes(
+        node.type,
+      )
+    ) {
+      tokens.push(...sourceCode.getTokens(node));
+    }
+  });
+  return tokens;
+}
+
 function isStringLiteralToken(token: AST.Token) {
-  return (
-    token.value.startsWith('"') || token.value.startsWith("'") || token.value.startsWith('`')
-  );
+  return token.value.startsWith('"') || token.value.startsWith("'") || token.value.startsWith('`');
 }
 
 export interface CpdToken {
