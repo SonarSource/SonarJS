@@ -118,6 +118,7 @@ it('should preserve string literals inside JSX constructs', () => {
       {"def"}
       {..."ghi"}
       <baz {...getAttributes("jkl")} />
+      <Qux xyz={'str'}/>
     </foo>
   `);
   expect(result).toContainEqual(token(2, 16, 2, 23, 'LITERAL'));
@@ -125,6 +126,7 @@ it('should preserve string literals inside JSX constructs', () => {
   expect(result).toContainEqual(token(4, 7, 4, 12, 'LITERAL'));
   expect(result).toContainEqual(token(5, 10, 5, 15, 'LITERAL'));
   expect(result).toContainEqual(token(6, 29, 6, 34, 'LITERAL'));
+  expect(result).toContainEqual(token(7, 16, 7, 21, 'LITERAL'));
 });
 
 function token(
