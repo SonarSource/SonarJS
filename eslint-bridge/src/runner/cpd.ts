@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
+import * as estree from 'estree';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { SourceCode, AST } from 'eslint';
+import { visit } from '../utils';
 import { Location } from './location';
 
 export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdToken[] } {
   const cpdTokens: CpdToken[] = [];
   const tokens = sourceCode.ast.tokens;
+  const jsxTokens = extractJSXTokens(sourceCode);
 
   tokens.forEach(token => {
     let text = token.value;
@@ -32,7 +36,7 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
       return;
     }
 
-    if (text.startsWith('"') || text.startsWith("'") || text.startsWith('`')) {
+    if (isStringLiteralToken(token) && !jsxTokens.includes(token)) {
       text = 'LITERAL';
     }
 
@@ -51,6 +55,21 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
   });
 
   return { cpdTokens };
+}
+
+function extractJSXTokens(sourceCode: SourceCode) {
+  const tokens: AST.Token[] = [];
+  visit(sourceCode, (node: estree.Node) => {
+    const tsNode = node as TSESTree.Node;
+    if (tsNode.type === 'JSXAttribute' && tsNode.value?.type === 'Literal') {
+      tokens.push(...sourceCode.getTokens(tsNode.value as estree.Node));
+    }
+  });
+  return tokens;
+}
+
+function isStringLiteralToken(token: AST.Token) {
+  return token.value.startsWith('"') || token.value.startsWith("'") || token.value.startsWith('`');
 }
 
 export interface CpdToken {
