@@ -55,7 +55,6 @@ import static java.util.Collections.singletonList;
   ProjectWithBOMTest.class,
   ProjectWithDifferentEncodingTest.class,
   SonarLintTest.class,
-  SonarLintTestCustomNodeJS.class,
   TestCodeAnalysisTest.class,
   TslintExternalReportTest.class,
   TypeScriptAnalysisTest.class,

@@ -35,7 +35,9 @@ import org.junit.rules.TemporaryFolder;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
+import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
+import org.sonarsource.sonarlint.core.client.api.common.Language;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
@@ -59,7 +61,7 @@ public class TestCodeAnalysisTest {
   public void sonarqube() {
     String sourceDir = "src";
     String testDir = "test";
-    
+
     SonarScanner build = SonarScanner.create()
       .setProjectKey(project)
       .setSourceEncoding("UTF-8")
@@ -86,9 +88,18 @@ public class TestCodeAnalysisTest {
   public void sonarlint() throws Exception {
     File baseDir = TestUtils.projectDir(project);
 
+    NodeJsHelper nodeJsHelper = new NodeJsHelper();
+    nodeJsHelper.detect(null);
+
     StandaloneGlobalConfiguration globalConfig = StandaloneGlobalConfiguration.builder()
+      .addEnabledLanguage(Language.JS)
+      .addEnabledLanguage(Language.TS)
       .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
       .setSonarLintUserHome(temp.newFolder().toPath())
+      .setNodeJs(nodeJsHelper.getNodeJsPath(), nodeJsHelper.getNodeJsVersion())
+      .setLogOutput((formattedMessage, level) -> {
+        System.out.println(formattedMessage);
+      })
       .build();
 
     List<ClientInputFile> inputFiles = Files.walk(baseDir.toPath())

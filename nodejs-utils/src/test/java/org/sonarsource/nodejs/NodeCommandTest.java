@@ -256,7 +256,7 @@ public class NodeCommandTest {
       .hasMessage("Provided Node.js executable file does not exist.");
 
     await().until(() -> logTester.logs(LoggerLevel.ERROR)
-      .contains("Provided Node.js executable file does not exist. Property 'sonar.nodejs.executable' was to 'non-existing-file'"));
+      .contains("Provided Node.js executable file does not exist. Property 'sonar.nodejs.executable' was set to 'non-existing-file'"));
   }
 
   @Test
@@ -272,7 +272,7 @@ public class NodeCommandTest {
       .hasMessage("Provided Node.js executable file does not exist.");
 
     await().until(() -> logTester.logs(LoggerLevel.ERROR)
-      .contains("Provided Node.js executable file does not exist. Property 'sonar.typescript.node' was to 'non-existing-file'"));
+      .contains("Provided Node.js executable file does not exist. Property 'sonar.typescript.node' was set to 'non-existing-file'"));
   }
 
   @Test

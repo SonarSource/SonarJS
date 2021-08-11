@@ -22,13 +22,22 @@ package com.sonar.javascript.it.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
+import org.sonarsource.sonarlint.core.client.api.common.Language;
+import org.sonarsource.sonarlint.core.client.api.common.LogOutput;
+import org.sonarsource.sonarlint.core.client.api.common.Version;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
@@ -39,116 +48,118 @@ import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
+/**
+ * NOTE on how SonarLint resolves NodeJS path
+ * 1. It takes property `sonar.nodejs.executable` set by user
+ * 2. If it's not available, NodeJS used by IDE is taken
+ * 3. Before loading the SonarJS plugin SonarLint checks that version of NodeJS is compatible with SonarJS
+ * 4. SonarLint skips loading the plugin if version is not compatible
+ * 5. `sonar.nodejs.executable` is set to NodeJS used by IDE if it was used on step 2. That way SonarJS is using the same NodeJS as SonarLint
+ *
+ * Note that in the following tests we use {@link StandaloneGlobalConfiguration.Builder#setNodeJs(Path, Version)} as that's the only way to make sonarlint-core aware of NodeJS.
+ * The logic described above is specific to various SonarLint flavours and not part of sonarlint-core.
+ */
 public class SonarLintTest {
 
-  private static final String FILE_PATH = "foo.js";
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
-  private StandaloneSonarLintEngine sonarlintEngine;
+  private static final String FILE_PATH = "foo.js";
+  private final static List<String> LOGS = new ArrayList<>();
 
   private static File baseDir;
-
-  private static List<String> logs = new ArrayList<>();
   private static StandaloneGlobalConfiguration sonarLintConfig;
+  private StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
 
   @BeforeClass
   public static void prepare() throws Exception {
-    sonarLintConfig = StandaloneGlobalConfiguration.builder()
-      .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
-      .setSonarLintUserHome(temp.newFolder().toPath())
-      .setLogOutput((formattedMessage, level) -> logs.add(formattedMessage))
-      .build();
+    sonarLintConfig = getSonarLintConfig();
     baseDir = temp.newFolder();
   }
 
+  @After
+  public void stop() {
+    sonarlintEngine.stop();
+  }
+
   @Test
-  public void should_raise_three_issues() throws IOException {
-    sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
+  public void should_raise_issues() throws IOException {
     List<Issue> issues = analyze(FILE_PATH, "function foo() { \n"
       + "  var a; \n"
       + "  var c; // NOSONAR\n"
       + "  var b = 42; \n"
       + "} \n");
-    sonarlintEngine.stop();
     String filePath = new File(baseDir, FILE_PATH).getAbsolutePath();
     assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
       tuple("javascript:S1481", 2, filePath, "MINOR"),
       tuple("javascript:S1481", 4, filePath, "MINOR"),
       tuple("javascript:S1854", 4, filePath, "MAJOR"));
+
+    assertThat(LOGS.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
   }
 
   @Test
-  public void should_run_eslint_based_rules() throws Exception {
-    sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
-    String sourceCode = "function foo() { try {" +
-      "  doSomething();" +
-      "} catch (ex) {" +
-      "  throw ex;" +
-      "}}";
-    List<Issue> issues = analyze(FILE_PATH, sourceCode);
-    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
-    // let's analyze again
-    issues = analyze(FILE_PATH, sourceCode);
-    sonarlintEngine.stop();
-    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S2737");
-    assertThat(logs).contains("eslint-bridge server is up, no need to start.");
+  public void should_start_node_server_once() throws Exception {
+    analyze(FILE_PATH, "");
+    assertThat(LOGS).doesNotContain("eslint-bridge server is up, no need to start.");
+    analyze(FILE_PATH, "");
+    assertThat(LOGS).contains("eslint-bridge server is up, no need to start.");
   }
 
   @Test
   public void should_analyze_typescript() throws Exception {
-    StandaloneGlobalConfiguration sonarLintConfig = StandaloneGlobalConfiguration.builder()
-      .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
-      .setSonarLintUserHome(temp.newFolder().toPath())
-      .setLogOutput((formattedMessage, level) -> logs.add(formattedMessage))
-      .build();
-    StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
-
-    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, "foo.ts", "x = true ? 42 : 42");
-    // we have to provide tsconfig.json
     Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
-
-    List<Issue> issues = new ArrayList<>();
-    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
-      .setBaseDir(baseDir.toPath())
-      .addInputFile(inputFile)
-      .build();
-    sonarlintEngine.analyze(
-      configuration,
-      issues::add, (formattedMessage, level) -> logs.add(formattedMessage), null);
-
-    // we need to stop the engine to make sure that sonarlint will not concurrently modify logs collection
-    sonarlintEngine.stop();
+    List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
     assertThat(issues).extracting(Issue::getRuleKey).containsExactly("typescript:S3923");
   }
 
   @Test
-  public void should_not_analyze_ts_project_without_config() throws Exception {
-    StandaloneGlobalConfiguration sonarLintConfig = StandaloneGlobalConfiguration.builder()
-      .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
-      .setSonarLintUserHome(temp.newFolder().toPath())
-      .setLogOutput((formattedMessage, level) -> logs.add(formattedMessage))
-      .build();
-    StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
+  public void should_analyze_vue() throws IOException {
+    String fileName = "file.vue";
+    Path filePath = TestUtils.projectDir("vue-js-project").toPath().resolve(fileName);
 
-    File baseDir = temp.newFolder();
-    ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, "foo.ts", "x = true ? 42 : 42");
+    String content = Files.lines(filePath).collect(Collectors.joining(System.lineSeparator()));
+    List<Issue> issues = analyze(fileName, content);
 
-    List<Issue> issues = new ArrayList<>();
-    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
-      .setBaseDir(baseDir.toPath())
-      .addInputFile(inputFile)
-      .build();
-    sonarlintEngine.analyze(
-      configuration,
-      issues::add, (formattedMessage, level) -> logs.add(formattedMessage), null);
-
-    // we need to stop the engine to make sure that sonarlint will not concurrently modify logs collection
-    sonarlintEngine.stop();
-    assertThat(issues).isEmpty();
-    assertThat(logs).contains("No tsconfig.json file found, analysis will be skipped.");
+    assertThat(issues).extracting("ruleKey").containsOnly("javascript:S3923");
   }
 
+  @Test
+  public void should_not_analyze_ts_project_without_config() throws Exception {
+    List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
+    assertThat(issues).isEmpty();
+    assertThat(LOGS).contains("No tsconfig.json file found, analysis will be skipped.");
+  }
+
+  @Test
+  public void should_log_deprecation_for_typescript_node_property() throws Exception {
+    List<Issue> issues = new ArrayList<>();
+
+    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
+      .setBaseDir(baseDir.toPath())
+      .addInputFile(TestUtils.prepareInputFile(baseDir, FILE_PATH, "let x = true ? 42 : 42"))
+      .putExtraProperty("sonar.typescript.node", "some/node").build();
+    sonarlintEngine.analyze(configuration, issues::add, null, null);
+    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S3923");
+    assertThat(LOGS.stream().anyMatch(s -> s.matches("The use of sonar\\.typescript\\.node is deprecated, use sonar\\.nodejs\\.executable instead\\."))).isTrue();
+    // we are forced to properly set `sonar.nodejs.executable` as its version is checked by SonarLint at plugin load stage
+    assertThat(LOGS.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
+  }
+
+  @Test
+  public void should_log_failure_only_once() throws IOException {
+    // version `42` will let us pass SonarLint check of version
+    sonarlintEngine = new StandaloneSonarLintEngineImpl(getSonarLintConfig(new File("invalid/path/node").toPath(), Version.create("42")));
+    List<Issue> issues = analyze(FILE_PATH, "");
+    assertThat(LOGS).contains("Provided Node.js executable file does not exist.");
+    assertThat(issues).isEmpty();
+    LOGS.clear();
+    issues = analyze(FILE_PATH, "");
+    assertThat(issues).isEmpty();
+    assertThat(LOGS)
+      .doesNotContain("Provided Node.js executable file does not exist.")
+      .contains("Skipping the start of eslint-bridge server as it failed to start during the first analysis or it's not answering anymore");
+  }
 
   private List<Issue> analyze(String filePath, String sourceCode) throws IOException {
     ClientInputFile inputFile = TestUtils.prepareInputFile(baseDir, filePath, sourceCode);
@@ -158,6 +169,29 @@ public class SonarLintTest {
       StandaloneAnalysisConfiguration.builder().setBaseDir(baseDir.toPath()).addInputFile(inputFile).build(),
       issues::add, null, null);
     return issues;
+  }
+
+  private static StandaloneGlobalConfiguration getSonarLintConfig() throws IOException {
+    NodeJsHelper nodeJsHelper = new NodeJsHelper();
+    nodeJsHelper.detect(null);
+
+    return getSonarLintConfig(nodeJsHelper.getNodeJsPath(), nodeJsHelper.getNodeJsVersion());
+  }
+
+  private static StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion) throws IOException {
+    LogOutput logOutput = (formattedMessage, level) -> {
+      LOGS.add(formattedMessage);
+      System.out.println(formattedMessage);
+    };
+
+    return StandaloneGlobalConfiguration.builder()
+      .addEnabledLanguage(Language.JS)
+      .addEnabledLanguage(Language.TS)
+      .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
+      .setSonarLintUserHome(temp.newFolder().toPath())
+      .setLogOutput(logOutput)
+      .setNodeJs(nodePath, nodeVersion)
+      .build();
   }
 
 }
