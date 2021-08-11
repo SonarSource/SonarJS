@@ -38,6 +38,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.internal.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -50,6 +51,12 @@ import static java.util.Collections.emptyList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
 
 public class EslintBridgeServerImpl implements EslintBridgeServer {
+
+  private enum Status {
+    NOT_STARTED,
+    FAILED,
+    STARTED
+  }
 
   private static final Logger LOG = Loggers.get(EslintBridgeServerImpl.class);
   private static final Profiler PROFILER = Profiler.createIfDebug(LOG);
@@ -69,7 +76,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private final String hostAddress;
   private int port;
   private NodeCommand nodeCommand;
-  private boolean failedToStart;
+  private Status status = Status.NOT_STARTED;
   private final RulesBundles rulesBundles;
   private final NodeDeprecationWarning deprecationWarning;
   private final Path deployLocation;
@@ -122,7 +129,10 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     nodeCommand.start();
 
     if (!waitServerToStart(timeoutSeconds * 1000)) {
+      status = Status.FAILED;
       throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
+    } else {
+      status = Status.STARTED;
     }
     PROFILER.stopDebug();
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion());
@@ -176,21 +186,24 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
 
   @Override
   public void startServerLazily(SensorContext context) throws IOException {
-    // required for SonarLint context to avoid restarting already failed server
-    if (failedToStart) {
+    if (status == Status.FAILED) {
+      // required for SonarLint context to avoid restarting already failed server
       throw new ServerAlreadyFailedException();
     }
-
     try {
       if (isAlive()) {
         LOG.debug("eslint-bridge server is up, no need to start.");
         return;
+      } else if (status == Status.STARTED) {
+        status = Status.FAILED;
+        throw new ServerAlreadyFailedException();
       }
       deploy();
       List<Path> deployedBundles = rulesBundles.deploy(deployLocation.resolve("package"));
       startServer(context, deployedBundles);
+
     } catch (NodeCommandException e) {
-      failedToStart = true;
+      status = Status.FAILED;
       throw e;
     }
   }
@@ -315,6 +328,11 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
       nodeCommand.waitFor();
       nodeCommand = null;
     }
+  }
+
+  @VisibleForTesting
+  void waitFor() {
+    nodeCommand.waitFor();
   }
 
   @Override
