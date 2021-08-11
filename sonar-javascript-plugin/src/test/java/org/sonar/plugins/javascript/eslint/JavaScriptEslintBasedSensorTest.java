@@ -386,8 +386,8 @@ public class JavaScriptEslintBasedSensorTest {
     createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
 
-    assertThat(logTester.logs()).contains("Skipping start of eslint-bridge server due to the failure during first analysis",
-      "Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
+    assertThat(logTester.logs()).contains("Skipping the start of eslint-bridge server as it failed to start during the first analysis or it's not answering anymore",
+      "No rules will be executed");
   }
 
   @Test

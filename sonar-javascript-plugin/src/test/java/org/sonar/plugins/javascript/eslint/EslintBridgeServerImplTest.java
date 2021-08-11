@@ -257,12 +257,34 @@ public class EslintBridgeServerImplTest {
   }
 
   @Test
-  public void should_throw_special_exception_when_failed_already() throws Exception {
+  public void should_throw_special_exception_when_failed_start_server_before() {
     eslintBridgeServer = createEslintBridgeServer("throw.js");
     String failedToStartExceptionMessage = "Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)";
     assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
       .isInstanceOf(NodeCommandException.class)
       .hasMessage(failedToStartExceptionMessage);
+
+    assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
+      .isInstanceOf(ServerAlreadyFailedException.class);
+  }
+
+  @Test
+  public void should_throw_special_exception_when_failed_start_process_before() {
+    eslintBridgeServer = createEslintBridgeServer("invalid");
+    assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessageStartingWith("Node.js script to start eslint-bridge server doesn't exist");
+
+    assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
+      .isInstanceOf(ServerAlreadyFailedException.class);
+  }
+
+  @Test
+  public void should_throw_if_server_not_alive() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("startAndClose.js");
+    eslintBridgeServer.startServerLazily(context);
+
+    eslintBridgeServer.waitFor();
 
     assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
       .isInstanceOf(ServerAlreadyFailedException.class);

@@ -117,14 +117,15 @@ abstract class AbstractEslintSensor implements Sensor {
         LOG.info("No input files found for analysis");
         return;
       }
-      startBridge(context);
+      eslintBridgeServer.startServerLazily(context);
       analyzeFiles(inputFiles);
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
     } catch (ServerAlreadyFailedException e) {
-      LOG.debug("Skipping start of eslint-bridge server due to the failure during first analysis");
-      LOG.debug("Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
+      LOG.debug("Skipping the start of eslint-bridge server " +
+        "as it failed to start during the first analysis or it's not answering anymore");
+      LOG.debug("No rules will be executed");
 
     } catch (NodeCommandException | MissingTypeScriptException e) {
       LOG.error(e.getMessage(), e);
@@ -140,10 +141,6 @@ abstract class AbstractEslintSensor implements Sensor {
         throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
       }
     }
-  }
-
-  private void startBridge(SensorContext context) throws IOException {
-    eslintBridgeServer.startServerLazily(context);
   }
 
   abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;

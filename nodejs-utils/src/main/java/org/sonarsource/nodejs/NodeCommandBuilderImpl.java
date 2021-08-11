@@ -207,7 +207,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
         LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), usedProperty);
         return nodeExecutable;
       } else {
-        LOG.error("Provided Node.js executable file does not exist. Property '{}' was to '{}'", usedProperty, nodeExecutable);
+        LOG.error("Provided Node.js executable file does not exist. Property '{}' was set to '{}'", usedProperty, nodeExecutable);
         throw new NodeCommandException("Provided Node.js executable file does not exist.");
       }
     }
