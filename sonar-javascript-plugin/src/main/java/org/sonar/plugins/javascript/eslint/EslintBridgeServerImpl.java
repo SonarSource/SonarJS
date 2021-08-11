@@ -38,7 +38,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.internal.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -330,7 +329,9 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
     }
   }
 
-  @VisibleForTesting
+  /**
+   * Required for testing purposes
+   */
   void waitFor() {
     nodeCommand.waitFor();
   }
