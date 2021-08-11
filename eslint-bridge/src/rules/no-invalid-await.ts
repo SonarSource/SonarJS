@@ -49,10 +49,11 @@ export const rule: Rule.RuleModule = {
 
 function hasThenMethod(type: ts.Type) {
   const thenProperty = type.getProperty('then');
-  return Boolean(
-    thenProperty &&
-      (thenProperty.flags & ts.SymbolFlags.Method || thenProperty.flags & ts.SymbolFlags.Transient),
-  );
+  if (thenProperty && thenProperty.declarations && thenProperty.declarations?.length > 0) {
+    const declaration = thenProperty.declarations[0];
+    return declaration.kind === ts.SyntaxKind.MethodSignature || declaration.kind === ts.SyntaxKind.MethodDeclaration;
+  }
+  return false;
 }
 
 function isAny(type: ts.Type) {

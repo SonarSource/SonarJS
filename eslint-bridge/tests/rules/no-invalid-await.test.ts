@@ -166,6 +166,14 @@ ruleTester.run('await should only be used with promises.', rule, {
       `,
       errors: 1,
     },
+    {
+      code: `
+      async function foo() {
+        await {then: 42};
+      }
+      `,
+      errors: 1,
+    },
   ],
 });
 
