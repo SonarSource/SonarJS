@@ -10,6 +10,8 @@
 41,
 89,
 113,
+154,
+172,
 ],
 'knockout:build/fragments/source-references.js':[
 59,
@@ -160,6 +162,7 @@
 482,
 496,
 497,
+513,
 528,
 ],
 'knockout:spec/components/defaultLoaderBehaviors.js':[
@@ -296,6 +299,9 @@
 107,
 122,
 133,
+287,
+307,
+320,
 381,
 391,
 639,
@@ -306,7 +312,9 @@
 ],
 'knockout:spec/expressionRewritingBehaviors.js':[
 29,
+38,
 55,
+104,
 114,
 210,
 225,
@@ -315,9 +323,16 @@
 54,
 ],
 'knockout:spec/lib/jasmine-1.2.0/jasmine-html.js':[
+157,
 189,
 337,
+338,
 345,
+346,
+409,
+470,
+471,
+477,
 562,
 ],
 'knockout:spec/lib/jasmine-1.2.0/jasmine-tap.js':[
@@ -356,6 +371,9 @@
 34,
 ],
 'knockout:spec/mappingHelperBehaviors.js':[
+23,
+24,
+25,
 36,
 37,
 74,
@@ -498,6 +516,8 @@
 'knockout:src/binding/bindingAttributeSyntax.js':[
 18,
 257,
+430,
+523,
 536,
 ],
 'knockout:src/binding/bindingProvider.js':[
@@ -640,6 +660,7 @@
 60,
 ],
 'knockout:src/templating/templating.js':[
+162,
 188,
 327,
 335,

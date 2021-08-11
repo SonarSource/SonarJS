@@ -5,6 +5,8 @@
 'es5-shim:es5-shim.js':[
 101,
 187,
+244,
+274,
 333,
 388,
 469,
@@ -47,6 +49,9 @@
 37,
 ],
 'es5-shim:tests/lib/jasmine-html.js':[
+44,
+45,
+51,
 136,
 ],
 'es5-shim:tests/lib/jasmine.js':[
@@ -116,5 +121,8 @@
 208,
 264,
 281,
+],
+'es5-shim:tests/spec/s-string.js':[
+32,
 ],
 }

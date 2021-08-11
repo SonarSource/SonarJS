@@ -12,6 +12,7 @@
 1562,
 1622,
 1733,
+1812,
 2037,
 ],
 'backbone:docs/js/jquery.lazyload.js':[
@@ -198,6 +199,7 @@
 1444,
 ],
 'backbone:test/router.js':[
+30,
 40,
 60,
 69,
@@ -279,6 +281,9 @@
 1056,
 1068,
 ],
+'backbone:test/setup/dom-setup.js':[
+3,
+],
 'backbone:test/setup/environment.js':[
 29,
 ],
@@ -295,6 +300,7 @@
 222,
 ],
 'backbone:test/view.js':[
+9,
 15,
 22,
 58,
