@@ -60,8 +60,9 @@ export default function getCpdTokens(sourceCode: SourceCode): { cpdTokens: CpdTo
 function extractJSXTokens(sourceCode: SourceCode) {
   const tokens: AST.Token[] = [];
   visit(sourceCode, (node: estree.Node) => {
-    if ((node as TSESTree.Node).type === 'JSXAttribute') {
-      tokens.push(...sourceCode.getTokens(node));
+    const tsNode = node as TSESTree.Node;
+    if (tsNode.type === 'JSXAttribute' && tsNode.value?.type === 'Literal') {
+      tokens.push(...sourceCode.getTokens(tsNode.value as estree.Node));
     }
   });
   return tokens;
