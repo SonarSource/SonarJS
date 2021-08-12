@@ -47,7 +47,6 @@ import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -186,48 +185,6 @@ public class NodeCommandTest {
   }
 
   @Test
-  public void test_node_with_deprecated_key() throws Exception {
-    String NODE_EXECUTABLE_PROPERTY_TS = "sonar.typescript.node";
-    File nodeExecutable = temporaryFolder.newFile("custom-node");
-    MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY_TS, nodeExecutable.getAbsolutePath());
-    Configuration configuration = mapSettings.asConfig();
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
-      .configuration(configuration)
-      .script("not-used")
-      .build();
-    nodeCommand.start();
-
-    assertThat(captureProcessWrapperArgument()).contains(nodeExecutable.getAbsolutePath());
-    await().until(() -> logTester.logs(LoggerLevel.WARN)
-      .contains("The use of " + NODE_EXECUTABLE_PROPERTY_TS + " is deprecated, use sonar.nodejs.executable instead."));
-    await().until(() -> logTester.logs(LoggerLevel.INFO)
-      .contains("Using Node.js executable " + nodeExecutable.getAbsolutePath() + " from property " + NODE_EXECUTABLE_PROPERTY_TS + "."));
-  }
-
-  @Test
-  public void test_node_with_both_key() throws Exception {
-    String NODE_EXECUTABLE_PROPERTY_TS = "sonar.typescript.node";
-    String NODE_EXECUTABLE_PROPERTY = "sonar.typescript.node";
-    File nodeExecutable = temporaryFolder.newFile("custom-node");
-    MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY, nodeExecutable.getAbsolutePath());
-    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY_TS, nodeExecutable.getAbsolutePath());
-    Configuration configuration = mapSettings.asConfig();
-    NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
-      .configuration(configuration)
-      .script("not-used")
-      .build();
-    nodeCommand.start();
-
-    assertThat(captureProcessWrapperArgument()).contains(nodeExecutable.getAbsolutePath());
-    await().until(() -> logTester.logs(LoggerLevel.WARN)
-      .contains("The use of " + NODE_EXECUTABLE_PROPERTY_TS + " is deprecated, use sonar.nodejs.executable instead."));
-    await().until(() -> logTester.logs(LoggerLevel.INFO)
-      .contains("Using Node.js executable " + nodeExecutable.getAbsolutePath() + " from property " + NODE_EXECUTABLE_PROPERTY + "."));
-  }
-
-  @Test
   public void test_empty_configuration() throws Exception {
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .configuration(new MapSettings().asConfig())
@@ -258,22 +215,6 @@ public class NodeCommandTest {
 
     await().until(() -> logTester.logs(LoggerLevel.ERROR)
       .contains("Provided Node.js executable file does not exist. Property 'sonar.nodejs.executable' was set to 'non-existing-file'"));
-  }
-
-  @Test
-  public void test_non_existing_node_file_deprecated_key() throws Exception {
-    MapSettings settings = new MapSettings();
-    settings.setProperty("sonar.typescript.node", "non-existing-file");
-    NodeCommandBuilder nodeCommand = NodeCommand.builder(mockProcessWrapper)
-      .configuration(settings.asConfig())
-      .script("not-used");
-
-    assertThatThrownBy(nodeCommand::build)
-      .isInstanceOf(NodeCommandException.class)
-      .hasMessage("Provided Node.js executable file does not exist.");
-
-    await().until(() -> logTester.logs(LoggerLevel.ERROR)
-      .contains("Provided Node.js executable file does not exist. Property 'sonar.typescript.node' was set to 'non-existing-file'"));
   }
 
   @Test
