@@ -69,7 +69,7 @@
 9781,
 9782,
 9783,
-16498,
+16499,
 19799,
 19800,
 22141,
@@ -217,7 +217,7 @@
 59,
 ],
 'TypeScript:src/harness/harness.ts':[
-262,
+263,
 1986,
 ],
 'TypeScript:src/harness/loggedIO.ts':[
@@ -242,10 +242,10 @@
 ],
 'TypeScript:src/server/session.ts':[
 68,
-1562,
-1567,
-1569,
-1572,
+1563,
+1568,
+1570,
+1573,
 ],
 'TypeScript:src/services/completions.ts':[
 840,
@@ -273,7 +273,7 @@
 179,
 184,
 189,
-674,
+675,
 ],
 'TypeScript:src/services/symbolDisplay.ts':[
 7,
