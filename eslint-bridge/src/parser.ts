@@ -194,7 +194,11 @@ export function parseExceptionCodeOf(exceptionMsg: string): ParseExceptionCode {
 function babelConfig(config: Linter.ParserOptions) {
   const pluginPath = `${__dirname}/../node_modules`;
   const babelOptions = {
-    presets: [`${pluginPath}/@babel/preset-react`, `${pluginPath}/@babel/preset-flow`],
+    presets: [
+      `${pluginPath}/@babel/preset-react`,
+      `${pluginPath}/@babel/preset-flow`,
+      `${pluginPath}/@babel/preset-env`,
+    ],
     babelrc: false,
     configFile: false,
   };
