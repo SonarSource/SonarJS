@@ -48,7 +48,6 @@ public class CoverageSensorTest {
   private static final String REPORT2 = "reports/report_2.lcov";
   private static final String TWO_REPORTS = REPORT1 + ", " + REPORT2;
 
-  private final String DEPRECATED_MESSAGE = "The use of sonar.typescript.lcov.reportPaths for coverage import is deprecated, use sonar.javascript.lcov.reportPaths instead.";
   private SensorContextTester context;
   private MapSettings settings;
   @ClassRule
@@ -100,36 +99,6 @@ public class CoverageSensorTest {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, TWO_REPORTS);
     coverageSensor.execute(context);
     assertTwoReportsCoverageDataPresent();
-  }
-
-  @Test
-  public void should_work_and_log_warning_when_deprecated_key() throws Exception {
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "");
-    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, TWO_REPORTS);
-    coverageSensor.execute(context);
-
-    assertTwoReportsCoverageDataPresent();
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(DEPRECATED_MESSAGE);
-  }
-
-  @Test
-  public void should_include_coverage_from_both_key() throws Exception {
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1);
-    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, REPORT2);
-    coverageSensor.execute(context);
-
-    assertTwoReportsCoverageDataPresent();
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(DEPRECATED_MESSAGE);
-  }
-
-  @Test
-  public void both_properties_reports_paths_overlap() throws Exception {
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, TWO_REPORTS);
-    settings.setProperty(JavaScriptPlugin.TS_LCOV_REPORT_PATHS, TWO_REPORTS);
-    coverageSensor.execute(context);
-
-    assertTwoReportsCoverageDataPresent();
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(DEPRECATED_MESSAGE);
   }
 
   private void assertTwoReportsCoverageDataPresent() {
@@ -217,7 +186,6 @@ public class CoverageSensorTest {
     assertThat(descriptor.languages()).contains("js", "ts");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
     assertThat(descriptor.configurationPredicate().test(new MapSettings().setProperty("sonar.javascript.lcov.reportPaths", "foo").asConfig())).isTrue();
-    assertThat(descriptor.configurationPredicate().test(new MapSettings().setProperty("sonar.typescript.lcov.reportPaths", "foo").asConfig())).isTrue();
     assertThat(descriptor.configurationPredicate().test(new MapSettings().asConfig())).isFalse();
   }
 
