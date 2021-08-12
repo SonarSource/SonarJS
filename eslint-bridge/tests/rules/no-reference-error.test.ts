@@ -130,6 +130,11 @@ ruleTester.run('Variables should be defined before being used', rule, {
             `,
       errors: 1,
     },
+    {
+      // even if we report on `_` in unit test here, in real analysis it should not happen as `_` is set as a default global
+      code: `_.foo();`,
+      errors: 1,
+    },
   ],
 });
 
