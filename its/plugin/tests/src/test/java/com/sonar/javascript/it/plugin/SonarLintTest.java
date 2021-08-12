@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -129,21 +128,6 @@ public class SonarLintTest {
     List<Issue> issues = analyze("foo.ts", "x = true ? 42 : 42");
     assertThat(issues).isEmpty();
     assertThat(LOGS).contains("No tsconfig.json file found, analysis will be skipped.");
-  }
-
-  @Test
-  public void should_log_deprecation_for_typescript_node_property() throws Exception {
-    List<Issue> issues = new ArrayList<>();
-
-    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
-      .setBaseDir(baseDir.toPath())
-      .addInputFile(TestUtils.prepareInputFile(baseDir, FILE_PATH, "let x = true ? 42 : 42"))
-      .putExtraProperty("sonar.typescript.node", "some/node").build();
-    sonarlintEngine.analyze(configuration, issues::add, null, null);
-    assertThat(issues).extracting(Issue::getRuleKey).containsExactly("javascript:S3923");
-    assertThat(LOGS.stream().anyMatch(s -> s.matches("The use of sonar\\.typescript\\.node is deprecated, use sonar\\.nodejs\\.executable instead\\."))).isTrue();
-    // we are forced to properly set `sonar.nodejs.executable` as its version is checked by SonarLint at plugin load stage
-    assertThat(LOGS.stream().anyMatch(s -> s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\."))).isTrue();
   }
 
   @Test
