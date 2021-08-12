@@ -31,6 +31,6 @@ public class MissingTrailingCommaCheckTest {
     MissingTrailingCommaCheck check = new MissingTrailingCommaCheck();
 
     String config = new Gson().toJson(check.configurations());
-    assertThat(config).isEqualTo("[{\"arrays\":\"always-multiline\",\"objects\":\"always-multiline\"}]");
+    assertThat(config).isEqualTo("[\"always-multiline\"]");
   }
 }

@@ -36,6 +36,7 @@
 ],
 'underscore:test/cross-document.js':[
 32,
+33,
 ],
 'underscore:test/functions.js':[
 99,
@@ -56,10 +57,12 @@
 ],
 'underscore:test/utility.js':[
 13,
+40,
 118,
 201,
 202,
 227,
+235,
 241,
 256,
 270,

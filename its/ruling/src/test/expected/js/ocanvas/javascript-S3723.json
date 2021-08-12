@@ -1,4 +1,12 @@
 {
+'ocanvas:scripts/release.js':[
+14,
+50,
+57,
+59,
+66,
+73,
+],
 'ocanvas:src/animation.js':[
 13,
 18,
@@ -60,6 +68,7 @@
 30,
 42,
 50,
+184,
 296,
 ],
 'ocanvas:src/displayobjects/sprite.js':[
@@ -97,6 +106,10 @@
 79,
 91,
 100,
+496,
+503,
+510,
+517,
 609,
 745,
 ],

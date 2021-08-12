@@ -131,6 +131,12 @@
 'fireface:src/storage/storage.component.ts':[
 19,
 51,
+54,
 75,
+92,
+],
+'fireface:src/test.ts':[
+14,
+27,
 ],
 }

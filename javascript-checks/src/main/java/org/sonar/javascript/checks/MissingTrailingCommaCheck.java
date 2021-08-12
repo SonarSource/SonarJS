@@ -38,10 +38,6 @@ public class MissingTrailingCommaCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-  private static class Config {
-    String arrays = "always-multiline";
-    String objects = "always-multiline";
+    return Collections.singletonList("always-multiline");
   }
 }
