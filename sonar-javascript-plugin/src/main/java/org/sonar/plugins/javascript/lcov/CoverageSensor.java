@@ -48,7 +48,7 @@ public class CoverageSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
-      .onlyWhenConfiguration(conf -> conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) || conf.hasKey(JavaScriptPlugin.TS_LCOV_REPORT_PATHS))
+      .onlyWhenConfiguration(conf -> conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS))
       .name("JavaScript/TypeScript Coverage")
       .onlyOnFileType(Type.MAIN);
   }
@@ -56,13 +56,6 @@ public class CoverageSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     Set<String> reports = new HashSet<>(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS)));
-
-    if (context.config().hasKey(JavaScriptPlugin.TS_LCOV_REPORT_PATHS)) {
-      LOG.warn("The use of " + JavaScriptPlugin.TS_LCOV_REPORT_PATHS + " for coverage import is deprecated, use "
-        + JavaScriptPlugin.LCOV_REPORT_PATHS + " instead.");
-      reports.addAll(Arrays.asList(context.config().getStringArray(JavaScriptPlugin.TS_LCOV_REPORT_PATHS)));
-    }
-
     List<File> lcovFiles = getLcovFiles(context.fileSystem().baseDir(), reports);
     if (lcovFiles.isEmpty()) {
       LOG.warn("No coverage information will be saved because all LCOV files cannot be found.");

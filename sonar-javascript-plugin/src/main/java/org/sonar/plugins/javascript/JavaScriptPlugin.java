@@ -75,11 +75,7 @@ public class JavaScriptPlugin implements Plugin {
   public static final String ESLINT_REPORT_PATHS = "sonar.eslint.reportPaths";
   public static final String TSLINT_REPORT_PATHS = "sonar.typescript.tslint.reportPaths";
 
-  public static final String DEPRECATED_ESLINT_PROPERTY = "sonar.typescript.eslint.reportPaths";
-
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
-
-  public static final String TS_LCOV_REPORT_PATHS = "sonar.typescript.lcov.reportPaths";
 
   public static final String TSCONFIG_PATH = "sonar.typescript.tsconfigPath";
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
