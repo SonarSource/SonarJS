@@ -104,6 +104,10 @@ class LCOVParser {
         } else if (line.startsWith(BRDA)) {
           parseBranchCoverage(fileData, reportLineNum, line);
         }
+      } else if (line.startsWith(DA)) {
+        logWrongDataWarning("DA", reportLineNum, null);
+      } else if (line.startsWith(BRDA)) {
+        logWrongDataWarning("BRDA", reportLineNum, null);
       }
 
     }
@@ -146,9 +150,14 @@ class LCOVParser {
   }
 
   private void logWrongDataWarning(String dataType, int reportLineNum, Exception e) {
-    LOG.debug(String.format("Problem during processing LCOV report: can't save %s data for line %s of coverage report file (%s).", dataType, reportLineNum, e.toString()));
+    if (e == null) {
+      LOG.debug(String.format("Problem during processing LCOV report: can't save %s data for line %s of coverage report file.", dataType, reportLineNum));
+    } else {
+      LOG.debug(String.format("Problem during processing LCOV report: can't save %s data for line %s of coverage report file (%s).", dataType, reportLineNum, e.toString()));
+    }
     inconsistenciesCounter++;
   }
+
 
   @CheckForNull
   private InputFile inputFileForSourceFile(String line) {
