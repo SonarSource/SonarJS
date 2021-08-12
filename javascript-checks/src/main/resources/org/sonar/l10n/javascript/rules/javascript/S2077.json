@@ -13,13 +13,9 @@
     "bad-practice",
     "sql"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2077",
   "sqKey": "S2077",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -31,5 +27,9 @@
     "OWASP": [
       "A1"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

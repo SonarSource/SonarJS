@@ -43,6 +43,8 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptChecks;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
@@ -83,29 +85,24 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguage(TypeScriptLanguage.KEY)
+      // JavaScriptLanguage.KEY is required for Vue single file components, bc .vue is considered as JS language
+      .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
       .name("TypeScript analysis")
       .onlyOnFileType(Type.MAIN);
   }
 
-  private List<InputFile> getInputFiles() {
+  @Override
+  protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
-    FilePredicate mainFilePredicate = filePredicate(fileSystem);
+    FilePredicate mainFilePredicate = JavaScriptFilePredicate.getTypeScriptPredicate(fileSystem);
     return StreamSupport.stream(fileSystem.inputFiles(mainFilePredicate).spliterator(), false)
       .collect(Collectors.toList());
   }
 
-  static FilePredicate filePredicate(FileSystem fileSystem) {
-    return fileSystem.predicates().and(
-      fileSystem.predicates().hasType(Type.MAIN),
-      fileSystem.predicates().hasLanguage(TypeScriptLanguage.KEY));
-  }
-
   @Override
-  void analyzeFiles() throws IOException, InterruptedException {
+  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     boolean success = false;
     ProgressReport progressReport = new ProgressReport("Progress of TypeScript analysis", TimeUnit.SECONDS.toMillis(10));
-    List<InputFile> inputFiles = getInputFiles();
     eslintBridgeServer.initLinter(rules, environments, globals);
     List<String> tsConfigs = new TsConfigProvider(tempFolder).tsconfigs(context);
     if (tsConfigs.isEmpty()) {
@@ -136,7 +133,6 @@ public class TypeScriptSensor extends AbstractEslintSensor {
       } else {
         progressReport.cancel();
       }
-      progressReport.join();
     }
   }
 
@@ -157,7 +153,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private void analyze(InputFile file, TsConfigFile tsConfigFile) throws IOException {
     try {
       String fileContent = shouldSendFileContent(file) ? file.contents() : null;
-      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), fileContent, ignoreHeaderComments(), singletonList(tsConfigFile.filename));
+      AnalysisRequest request = new AnalysisRequest(file.absolutePath(), file.type().toString(), fileContent, ignoreHeaderComments(), singletonList(tsConfigFile.filename));
       AnalysisResponse response = eslintBridgeServer.analyzeTypeScript(request);
       processResponse(file, response);
     } catch (IOException e) {

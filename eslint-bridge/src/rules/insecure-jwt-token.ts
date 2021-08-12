@@ -27,6 +27,7 @@ import {
   getObjectExpressionProperty,
   isCallToFQN,
   toEncodedMessage,
+  isNullLiteral,
 } from '../utils';
 
 export const rule: Rule.RuleModule = {
@@ -70,12 +71,15 @@ export const rule: Rule.RuleModule = {
 
     function checkCallToVerify(
       callExpression: estree.CallExpression,
+      publicKey: estree.Node,
       thirdArgumentValue: estree.ObjectExpression,
       secondaryLocations: estree.Node[],
     ) {
       const algorithmsProperty = getObjectExpressionProperty(thirdArgumentValue, 'algorithms');
       if (!algorithmsProperty) {
-        raiseIssueOn(callExpression.callee, VERIFY_MESSAGE, secondaryLocations);
+        if (isNullLiteral(publicKey)) {
+          raiseIssueOn(callExpression.callee, VERIFY_MESSAGE, secondaryLocations);
+        }
         return;
       }
       const algorithmsValue = getValueOfExpression(
@@ -133,8 +137,9 @@ export const rule: Rule.RuleModule = {
         if (isCallToSign) {
           checkCallToSign(callExpression, thirdArgumentValue, secondaryLocations);
         }
+        const secondArgument = callExpression.arguments[1];
         if (isCallToVerify) {
-          checkCallToVerify(callExpression, thirdArgumentValue, secondaryLocations);
+          checkCallToVerify(callExpression, secondArgument, thirdArgumentValue, secondaryLocations);
         }
       },
     };

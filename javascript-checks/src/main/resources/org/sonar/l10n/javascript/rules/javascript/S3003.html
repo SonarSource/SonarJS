@@ -16,4 +16,10 @@ if (Number(appleNumber) &lt; Number(orangeNumber)) {
   alert("There are more oranges");
 }
 </pre>
+<h2>Exceptions</h2>
+<p>The rule ignores string comparisons occurring in the callback of a sort invocation, e.g.:</p>
+<pre>
+const fruits = ['orange', 'apple', 'banana'];
+fruits.sort((a, b) =&gt; a &lt; b);
+</pre>
 

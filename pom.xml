@@ -6,12 +6,12 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>55</version>
+    <version>59.0.29</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>7.4.0-SNAPSHOT</version>
+  <version>8.3.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarJS</name>
@@ -29,10 +29,8 @@
   </licenses>
 
   <modules>
-    <module>javascript-frontend</module>
     <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
-    <module>javascript-checks-testkit</module>
     <module>eslint-bridge</module>
     <module>nodejs-utils</module>
   </modules>
@@ -58,20 +56,14 @@
     <!-- override sonar-packaging plugin version from parent -->
     <version.sonar-packaging.plugin>1.20.0.405</version.sonar-packaging.plugin>
     <assertj.version>3.16.1</assertj.version>
-    <commons-io.version>2.5</commons-io.version>
-    <commons-lang.version>2.6</commons-lang.version>
-    <guava.version>30.1.1-jre</guava.version>
     <junit.version>4.13.1</junit.version>
-    <logback.version>1.0.13</logback.version>
     <mockito.version>3.5.0</mockito.version>
     <slf4j.version>1.7.21</slf4j.version>
     <sonar.version>7.9</sonar.version>
     <sonar-orchestrator.version>3.35.0.2707</sonar-orchestrator.version>
-    <sonarlint.version>4.3.1.2486</sonarlint.version>
-    <sslr.version>1.24.0.633</sslr.version>
-    <sslr-squid-bridge.version>2.7.0.377</sslr-squid-bridge.version>
-    <gson.version>2.6.2</gson.version>
-    <analyzer-commons.version>1.11.0.541</analyzer-commons.version>
+    <sonarlint.version>6.2.0.34235</sonarlint.version>
+    <gson.version>2.8.6</gson.version>
+    <analyzer-commons.version>1.16.0.719</analyzer-commons.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
@@ -86,11 +78,6 @@
       <!-- Default dependencies (compile) -->
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>javascript-frontend</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
         <artifactId>javascript-checks</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -100,65 +87,9 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.sonarsource.sslr</groupId>
-        <artifactId>sslr-core</artifactId>
-        <version>${sslr.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-analyzer-commons</artifactId>
         <version>${analyzer-commons.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sslr-squid-bridge</groupId>
-        <artifactId>sslr-squid-bridge</artifactId>
-        <version>${sslr-squid-bridge.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.sonar.sslr</groupId>
-            <artifactId>sslr-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.sonar.sslr</groupId>
-            <artifactId>sslr-xpath</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.sonar</groupId>
-            <artifactId>sonar-plugin-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.picocontainer</groupId>
-            <artifactId>picocontainer</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>${commons-lang.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${commons-io.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>${logback.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${guava.version}</version>
       </dependency>
       <dependency>
         <groupId>com.google.code.gson</groupId>
@@ -173,20 +104,15 @@
       <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
-        <version>3.13.1</version>
+        <version>3.14.2</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.20</version>
+        <version>1.21</version>
       </dependency>
 
       <!-- Test dependencies -->
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>javascript-checks-testkit</artifactId>
-        <version>${project.version}</version>
-      </dependency>
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
@@ -206,18 +132,6 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-testing-harness</artifactId>
-        <version>${sonar.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sslr</groupId>
-        <artifactId>sslr-testing-harness</artifactId>
-        <version>${sslr.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>org.sonarsource.sonarlint.core</groupId>
         <artifactId>sonarlint-core</artifactId>
         <version>${sonarlint.version}</version>
@@ -232,7 +146,7 @@
       <dependency>
         <groupId>org.awaitility</groupId>
         <artifactId>awaitility</artifactId>
-        <version>3.1.2</version>
+        <version>4.0.3</version>
         <scope>test</scope>
       </dependency>
 

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import getCpdTokens, { CpdToken } from 'runner/cpd';
-import { parseTypeScriptSourceFile } from 'parser';
 import { join } from 'path';
 import { SourceCode } from 'eslint';
+import { parseTypeScriptSourceFile } from '../utils/parser-utils';
 
 it('should not skip any token', () => {
   const result = actual(
@@ -109,6 +109,24 @@ it('should process JSX syntax with not empty text elements', () => {
   expect(result).toContainEqual(token(1, 4, 1, 5, '>'));
   expect(result).toContainEqual(token(1, 5, 2, 10, ' hello\n    world '));
   expect(result).toContainEqual(token(2, 10, 2, 11, '<'));
+});
+
+it('should preserve string literals inside JSX constructs', () => {
+  const result = actual(`
+    const str = 'hello';
+    <foo bar="abc">
+      {"def"}
+      {..."ghi"}
+      <baz {...getAttributes("jkl")} />
+      <Qux xyz={'str'}/>
+    </foo>
+  `);
+  expect(result).toContainEqual(token(2, 16, 2, 23, 'LITERAL'));
+  expect(result).toContainEqual(token(3, 13, 3, 18, '"abc"'));
+  expect(result).toContainEqual(token(4, 7, 4, 12, 'LITERAL'));
+  expect(result).toContainEqual(token(5, 10, 5, 15, 'LITERAL'));
+  expect(result).toContainEqual(token(6, 29, 6, 34, 'LITERAL'));
+  expect(result).toContainEqual(token(7, 16, 7, 21, 'LITERAL'));
 });
 
 function token(

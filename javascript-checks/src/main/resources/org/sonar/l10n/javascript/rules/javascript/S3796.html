@@ -1,5 +1,6 @@
-<p>Arrays in JavaScript have several methods for filtering, mapping or folding that require a callback. Not having a return statement in such a
-callback function is most likely a mistake.</p>
+<p>Arrays in JavaScript have several methods for filtering, mapping, or folding that require a callback. Not having a return statement in such a
+callback function is most likely a mistake, because processing of the array uses the return value of the callback. If there is no return, callback
+will implicitly return <code>undefined</code>, which will likely fail.</p>
 <p>This rule applies for the following methods of an array:</p>
 <ul>
   <li> <code>Array.from</code> </li>
@@ -15,14 +16,16 @@ callback function is most likely a mistake.</p>
 </ul>
 <h2>Noncompliant Code Example</h2>
 <pre>
-var merged = arr.reduce(function(a, b) {
+let arr = ["a", "b", "c"];
+let merged = arr.reduce(function(a, b) {
   a.concat(b);
-}); // Noncompliant: No return statement
+}); // Noncompliant: No return statement, will result in TypeError
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-var merged = arr.reduce(function(a, b) {
+let arr = ["a", "b", "c"];
+let merged = arr.reduce(function(a, b) {
   return a.concat(b);
-});
+}); // merged === "abc"
 </pre>
 

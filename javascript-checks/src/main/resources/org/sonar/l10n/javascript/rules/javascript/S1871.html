@@ -1,6 +1,6 @@
 <p>Having two <code>cases</code> in a <code>switch</code> statement or two branches in an <code>if</code> chain with the same implementation is at
 best duplicate code, and at worst a coding error. If the same logic is truly needed for both instances, then in an <code>if</code> chain they should
-be combined, or for a <code>switch</code>, one should fall through to the other. </p>
+be combined, or for a <code>switch</code>, one should fall through to the other.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 switch (i) {
@@ -48,7 +48,7 @@ if (a == 1) {
 </pre>
 <p>But this exception does not apply to <code>if</code> chains without <code>else</code>-s, or to <code>switch</code>-es without default clauses when
 all branches have the same single line of code. In case of <code>if</code> chains with <code>else</code>-s, or of <code>switch</code>-es with default
-clauses, rule {rule:javascript:S3923} raises a bug. </p>
+clauses, rule {rule:javascript:S3923} raises a bug.</p>
 <pre>
 if (a == 1) {
   doSomething();  //Noncompliant, this might have been done on purpose but probably not

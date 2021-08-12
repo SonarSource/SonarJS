@@ -27,10 +27,29 @@ import {
   getObjectExpressionProperty,
   getModuleNameOfNode,
   isCallToFQN,
+  getParent,
 } from '../utils';
 
-const INSECURE_PROTOCOLS = ['http', 'ftp', 'telnet'];
+const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
 const LOOPBACK_PATTERN = /localhost|127(?:\.[0-9]+){0,2}\.[0-9]+$|\/\/(?:0*\:)*?:?0*1$/;
+const EXCEPTION_FULL_HOSTS = [
+  'www.w3.org',
+  'xml.apache.org',
+  'schemas.xmlsoap.org',
+  'schemas.openxmlformats.org',
+  'rdfs.org',
+  'purl.org',
+  'xmlns.com',
+  'schemas.google.com',
+  'a9.com',
+  'ns.adobe.com',
+  'ltsc.ieee.org',
+  'docbook.org',
+  'graphml.graphdrawing.org',
+  'json-schema.org',
+];
+const EXCEPTION_TOP_HOSTS = [/(.*\.)?example\.com$/, /(.*\.)?example\.org$/, /(.*\.)?test\.com$/];
+
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     function checkNodemailer(callExpression: estree.CallExpression) {
@@ -102,21 +121,45 @@ export const rule: Rule.RuleModule = {
       }
     }
 
+    function isExceptionUrl(value: string) {
+      if (INSECURE_PROTOCOLS.includes(value)) {
+        const parent = getParent(context);
+        return !(parent?.type === 'BinaryExpression' && parent.operator === '+');
+      }
+      return hasExceptionHost(value);
+    }
+
+    function hasExceptionHost(value: string) {
+      let url;
+
+      try {
+        url = new URL(value);
+      } catch (err) {
+        return false;
+      }
+
+      const host = url.hostname;
+      return (
+        host.length === 0 ||
+        LOOPBACK_PATTERN.test(host) ||
+        EXCEPTION_FULL_HOSTS.some(exception => exception === host) ||
+        EXCEPTION_TOP_HOSTS.some(exception => exception.test(host))
+      );
+    }
+
     return {
       Literal: (node: estree.Node) => {
         const literal = node as estree.Literal;
-        const value = literal.value;
-        if (typeof value === 'string' && !value.match(LOOPBACK_PATTERN)) {
-          try {
-            const parsedUrl = new URL(value);
-            const insecure = INSECURE_PROTOCOLS.find(i => `${i}:` === parsedUrl.protocol);
-            if (insecure && parsedUrl.hostname.length !== 0) {
-              context.report({
-                node: literal,
-                message: getMessage(insecure),
-              });
-            }
-          } catch (err) {}
+        if (typeof literal.value === 'string') {
+          const value = literal.value.trim().toLocaleLowerCase();
+          const insecure = INSECURE_PROTOCOLS.find(protocol => value.startsWith(protocol));
+          if (insecure && !isExceptionUrl(value)) {
+            const protocol = insecure.substring(0, insecure.indexOf(':'));
+            context.report({
+              message: getMessage(protocol),
+              node,
+            });
+          }
         }
       },
       CallExpression: (node: estree.Node) => {

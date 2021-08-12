@@ -22,9 +22,9 @@
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { toEncodedMessage } from '../utils';
+import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
+import { getParent, toEncodedMessage } from '../utils';
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -65,7 +65,8 @@ export const rule: Rule.RuleModule = {
     ) {
       if (
         !functionContext ||
-        (!!node.returnType && declaredReturnTypeContainsVoidTypes(node.returnType.typeAnnotation))
+        (!!node.returnType &&
+          declaredReturnTypeContainsVoidOrNeverTypes(node.returnType.typeAnnotation))
       ) {
         return;
       }
@@ -85,7 +86,11 @@ export const rule: Rule.RuleModule = {
 
         context.report({
           message,
-          loc: getMainFunctionTokenLocation(node as estree.Function, getParent(context), context),
+          loc: getMainFunctionTokenLocation(
+            node as TSESTree.FunctionLike,
+            getParent(context) as TSESTree.Node,
+            (context as unknown) as Rule1.RuleContext,
+          ),
         });
       }
     }
@@ -159,16 +164,20 @@ function hasInconsistentReturns(functionContext: FunctionContext) {
   );
 }
 
-function declaredReturnTypeContainsVoidTypes(returnTypeNode: TSESTree.TypeNode): boolean {
+function declaredReturnTypeContainsVoidOrNeverTypes(returnTypeNode: TSESTree.TypeNode): boolean {
   return (
     isVoidType(returnTypeNode) ||
     (returnTypeNode.type === 'TSUnionType' &&
-      returnTypeNode.types.some(declaredReturnTypeContainsVoidTypes)) ||
+      returnTypeNode.types.some(declaredReturnTypeContainsVoidOrNeverTypes)) ||
     (returnTypeNode.type === 'TSParenthesizedType' &&
-      declaredReturnTypeContainsVoidTypes(returnTypeNode.typeAnnotation))
+      declaredReturnTypeContainsVoidOrNeverTypes(returnTypeNode.typeAnnotation))
   );
 }
 
 function isVoidType(typeNode: TSESTree.TypeNode) {
-  return typeNode.type === 'TSUndefinedKeyword' || typeNode.type === 'TSVoidKeyword';
+  return (
+    typeNode.type === 'TSUndefinedKeyword' ||
+    typeNode.type === 'TSVoidKeyword' ||
+    typeNode.type === 'TSNeverKeyword'
+  );
 }

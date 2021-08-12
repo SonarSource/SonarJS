@@ -7,8 +7,8 @@ perform relevant security assessments more quickly (like the identification of k
 </ul>
 <p>There is a risk if you answered yes to any of these questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It's recommended to not disclose technologies used on a website, with <code>x-powered-by</code> HTTP header for example. </p>
-<p>In addition, it's better to completely disable this HTTP header rather than setting it a random value.</p>
+<p>It’s recommended to not disclose technologies used on a website, with <code>x-powered-by</code> HTTP header for example.</p>
+<p>In addition, it’s better to completely disable this HTTP header rather than setting it a random value.</p>
 <h2>Sensitive Code Example</h2>
 <p><a href="https://www.npmjs.com/package/express">Express.js</a> name is disclosed by default into the <code>x-powered-by</code> HTTP header:</p>
 <pre>
@@ -34,10 +34,8 @@ app2.use(helmet.hidePoweredBy());
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://www.owasp.org/index.php/Fingerprint_Web_Application_Framework_(OTG-INFO-008)">OWASP Testing Guide - OTG-INFO-008</a> -
-  Fingerprint Web Application Framework </li>
-  <li> <a href="https://www.owasp.org/index.php/Fingerprint_Web_Application_(OTG-INFO-009)">OWASP Testing Guide - OTG-INFO-009</a> - Fingerprint Web
-  Application </li>
+  <li> <a
+  href="https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/01-Information_Gathering/08-Fingerprint_Web_Application_Framework.html">OWASP Testing Guide - OTG-INFO-008</a> - Fingerprint Web Application Framework </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/200.html">MITRE, CWE-200</a> - Information Exposure </li>

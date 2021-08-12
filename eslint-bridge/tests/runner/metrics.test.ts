@@ -20,8 +20,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as metrics from 'runner/metrics';
-import { parseTypeScriptSourceFile } from 'parser';
 import { SourceCode } from 'eslint';
+import { parseTypeScriptSourceFile } from '../utils/parser-utils';
 
 it('should return lines of code', () => {
   const sourceCode = parseTS(

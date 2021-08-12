@@ -6,15 +6,13 @@
     "func": "Constant\/Issue",
     "constantCost": "15min"
   },
-  "tags": [
-    
-  ],
+  "tags": [],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4158",
   "sqKey": "S4158",
+  "scope": "All",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

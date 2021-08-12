@@ -32,7 +32,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.internal.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -165,7 +164,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
     LOG.debug("Using Node.js {}.", versionString);
   }
 
-  @VisibleForTesting
+  // Visible for testing
   static int nodeMajorVersion(String versionString) throws NodeCommandException {
     Matcher versionMatcher = NODEJS_VERSION_PATTERN.matcher(versionString);
     if (versionMatcher.lookingAt()) {
@@ -208,7 +207,7 @@ class NodeCommandBuilderImpl implements NodeCommandBuilder {
         LOG.info("Using Node.js executable {} from property {}.", file.getAbsoluteFile(), usedProperty);
         return nodeExecutable;
       } else {
-        LOG.error("Provided Node.js executable file does not exist. Property '{}' was to '{}'", usedProperty, nodeExecutable);
+        LOG.error("Provided Node.js executable file does not exist. Property '{}' was set to '{}'", usedProperty, nodeExecutable);
         throw new NodeCommandException("Provided Node.js executable file does not exist.");
       }
     }

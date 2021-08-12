@@ -142,6 +142,28 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
         var simple_arrow_function = (a) => 42;
         var arrowWithExpressionBody = (p) => p ? true : false;`,
     },
+    {
+      code: `
+      function withNeverType(a) {
+        if (a === 1) {
+            return true;
+        }
+        throw new Error('False')
+      }`,
+    },
+    {
+      code: `
+      function throwError(message: string): never {
+        throw new Error(message);
+      }
+      function withNeverType(a): boolean | never {
+        if (a === 1) {
+            return true;
+        }
+        throwError('False')
+      }
+    `,
+    },
   ],
   invalid: [
     {
@@ -274,6 +296,21 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
             }
           }
         }`,
+      errors: 1,
+    },
+    // possible FP, see https://github.com/SonarSource/SonarJS/issues/2579
+    {
+      code: `
+      function throwError(message: string): never {
+        throw new Error(message);
+      }
+      function withNeverType(a) {
+        if (a === 1) {
+            return true;
+        }
+        throwError('False')
+      }
+    `,
       errors: 1,
     },
   ],

@@ -2,20 +2,24 @@
   "title": "Track uses of \"TODO\" tags",
   "type": "CODE_SMELL",
   "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "0min"
+  },
   "tags": [
     "cwe"
   ],
   "defaultSeverity": "Info",
   "ruleSpecification": "RSPEC-1135",
   "sqKey": "S1135",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "All",
   "securityStandards": {
     "CWE": [
       546
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

@@ -14,14 +14,14 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5759",
   "sqKey": "S5759",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "OWASP": [
       "A3"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

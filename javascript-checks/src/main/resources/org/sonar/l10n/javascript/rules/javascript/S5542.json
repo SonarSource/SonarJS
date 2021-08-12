@@ -2,20 +2,21 @@
   "title": "Encryption algorithms should be used with secure mode and padding scheme",
   "type": "VULNERABILITY",
   "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
   "tags": [
     "cwe",
     "privacy",
     "owasp-a6",
     "sans-top25-porous",
-    "owasp-a3"
+    "owasp-a3",
+    "owasp-m5"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5542",
   "sqKey": "S5542",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -25,6 +26,16 @@
     "OWASP": [
       "A6",
       "A3"
+    ],
+    "OWASP Mobile": [
+      "M5"
+    ],
+    "MASVS": [
+      "MSTG-CRYPTO-3"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

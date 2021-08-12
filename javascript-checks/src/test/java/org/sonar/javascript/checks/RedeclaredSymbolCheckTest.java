@@ -30,6 +30,6 @@ public class RedeclaredSymbolCheckTest {
   @Test
   public void configurations() {
     String configAsString = new Gson().toJson(new RedeclaredSymbolCheck().configurations());
-    assertThat(configAsString).isEqualTo("[{\"builtinGlobals\":false}]");
+    assertThat(configAsString).isEqualTo("[{\"builtinGlobals\":false,\"ignoreDeclarationMerge\":true}]");
   }
 }

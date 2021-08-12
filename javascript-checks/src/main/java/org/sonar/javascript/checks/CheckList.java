@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -53,11 +53,12 @@ public final class CheckList {
   }
 
   public static List<Class<? extends JavaScriptCheck>> getAllChecks() {
-    return ImmutableList.of(
+    return Arrays.asList(
       AdjacentOverloadSignaturesCheck.class,
       AlertUseCheck.class,
       AlphabeticalSortCheck.class,
       AlwaysUseCurlyBracesCheck.class,
+      AnchorPrecedenceCheck.class,
       AngleBracketTypeAssertionCheck.class,
       ArgumentTypesCheck.class,
       ArgumentsCallerCalleeUsageCheck.class,
@@ -125,6 +126,7 @@ public final class CheckList {
       EqualInForLoopTerminationCheck.class,
       ErrorWithoutThrowCheck.class,
       EvalCheck.class,
+      ExistingGroupsCheck.class,
       ExpressionComplexityCheck.class,
       FileHeaderCheck.class,
       FileNameDiffersFromClassCheck.class,
@@ -184,14 +186,18 @@ public final class CheckList {
       NestedControlFlowDepthCheck.class,
       NewOperatorMisuseCheck.class,
       NoAccessorFieldMismatchCheck.class,
+      NoAngularBypassSanitizationCheck.class,
       NoAnyCheck.class,
       NoArrayDeleteCheck.class,
       NoClearTextProtocolsCheck.class,
+      NoControlRegexCheck.class,
       NoDuplicateImportsCheck.class,
       NoDuplicateInCompositeCheck.class,
       NoDuplicateStringCheck.class,
       NoElementOverwriteCheck.class,
+      NoEmptyAlternativesCheck.class,
       NoEmptyCollectionCheck.class,
+      NoEmptyGroupCheck.class,
       NoEmptyInterfaceCheck.class,
       NoForInArrayCheck.class,
       NoHardcodedIpCheck.class,
@@ -202,6 +208,7 @@ public final class CheckList {
       NoMagicNumbersCheck.class,
       NoMimeSniffCheck.class,
       NoMisleadingArrayReverseCheck.class,
+      NoMisleadingCharactersCheck.class,
       NoMisusedNewCheck.class,
       NoMixedContentCheck.class,
       NoNestedSwitchCheck.class,
@@ -211,6 +218,7 @@ public final class CheckList {
       NoRedundantJumpCheck.class,
       NoRedundantOptionalCheck.class,
       NoReferrerPolicyCheck.class,
+      NoRegexSpacesCheck.class,
       NoReturnAwaitCheck.class,
       NoReturnTypeAnyCheck.class,
       NoSparseArraysCheck.class,
@@ -223,6 +231,7 @@ public final class CheckList {
       NonEmptyCaseWithoutBreakCheck.class,
       NonExistentAssignmentOperatorCheck.class,
       NonNumberInArithmeticExpressionCheck.class,
+      NoVueBypassSanitizationCheck.class,
       NonStandardImportCheck.class,
       NullDereferenceCheck.class,
       OSCommandCheck.class,
@@ -240,6 +249,7 @@ public final class CheckList {
       PreferObjectLiteralCheck.class,
       PreferPromiseShorthandCheck.class,
       PreferReadonlyCheck.class,
+      PreferRegexLiteralsCheck.class,
       PreferTypeGuardCheck.class,
       PrimitiveWrappersCheck.class,
       ProcessArgvCheck.class,
@@ -258,7 +268,9 @@ public final class CheckList {
       SemicolonCheck.class,
       SessionRegenerationCheck.class,
       ShorthandPropertiesNotGroupedCheck.class,
+      SingleCharacterAlternativeCheck.class,
       SocketsCheck.class,
+      SonarNoInvalidRegexCheck.class,
       SqlQueriesCheck.class,
       StandardInputCheck.class,
       StrictModeCheck.class,
@@ -292,6 +304,7 @@ public final class CheckList {
       UnusedCollectionCheck.class,
       UnusedFunctionArgumentCheck.class,
       UnusedImportCheck.class,
+      UnusedNamedGroupsCheck.class,
       UnusedVariableCheck.class,
       UnverifiedCertificateCheck.class,
       UnverifiedHostnameCheck.class,
@@ -319,5 +332,5 @@ public final class CheckList {
       XpathCheck.class
     );
   }
-
 }
+

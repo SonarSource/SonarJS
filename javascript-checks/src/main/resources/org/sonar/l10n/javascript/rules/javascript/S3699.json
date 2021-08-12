@@ -1,20 +1,18 @@
 {
-  "title": "The output of functions that don't return anything should not be used",
+  "title": "The output of functions that don\u0027t return anything should not be used",
   "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [
-    
-  ],
+  "tags": [],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3699",
   "sqKey": "S3699",
+  "scope": "All",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

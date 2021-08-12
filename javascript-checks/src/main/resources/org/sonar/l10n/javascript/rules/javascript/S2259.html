@@ -4,13 +4,11 @@ block. But instead of <code>catch</code>-ing this condition, it is best to avoid
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (x === undefined) {
-  console.log(x.length); // Noncompliant; TypeError will be thrown
+  console.log(x.bar); // Noncompliant; TypeError will be thrown
 }
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="http://cwe.mitre.org/data/definitions/476.html">MITRE, CWE-476</a> - NULL Pointer Dereference </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/QdcxBQ">CERT, EXP34-C.</a> - Do not dereference null pointers </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/aDdGBQ">CERT, EXP01-J.</a> - Do not use a null in a case where an object is required </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/476.html">MITRE, CWE-476</a> - NULL Pointer Dereference </li>
 </ul>
 

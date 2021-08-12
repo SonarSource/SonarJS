@@ -40,7 +40,7 @@ also detects access to environment variables that point to publicly writable dir
       <li> The file is readable and writable only by the creating user ID </li>
       <li> The file descriptor is not inherited by child processes </li>
       <li> The file will be destroyed as soon as it is closed </li>
-    </ul> </li>
+    </ul>  </li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>
@@ -70,8 +70,8 @@ const tmpobj = tmp.fileSync(); // Compliant
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A5-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Broken Access Control </li>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
   </li>
-  <li> <a href="http://cwe.mitre.org/data/definitions/377">MITRE, CWE-377</a> - Insecure Temporary File </li>
-  <li> <a href="http://cwe.mitre.org/data/definitions/379">MITRE, CWE-379</a> - Creation of Temporary File in Directory with Incorrect Permissions
+  <li> <a href="https://cwe.mitre.org/data/definitions/377">MITRE, CWE-377</a> - Insecure Temporary File </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/379">MITRE, CWE-379</a> - Creation of Temporary File in Directory with Incorrect Permissions
   </li>
   <li> <a href="https://www.owasp.org/index.php/Insecure_Temporary_File">OWASP, Insecure Temporary File</a> </li>
 </ul>

@@ -52,7 +52,7 @@ public class ProjectWithBOMTest {
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
-    List<Issues.Issue> issuesList = newWsClient().issues().search(request).getIssuesList();
+    List<Issues.Issue> issuesList = newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList();
     assertThat(issuesList).extracting(Issues.Issue::getLine, Issues.Issue::getComponent, Issues.Issue::getRule)
       .containsExactly(tuple(1, "project-with-bom:fileWithBom.js", "javascript:S3923"));
   }

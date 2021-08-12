@@ -20,8 +20,8 @@
 // https://jira.sonarsource.com/browse/RSPEC-1121
 
 import { Rule } from 'eslint';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import * as estree from 'estree';
+import { getParent } from '../utils';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

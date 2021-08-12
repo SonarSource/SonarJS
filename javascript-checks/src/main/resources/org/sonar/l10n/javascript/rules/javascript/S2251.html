@@ -1,6 +1,6 @@
 <p>A <code>for</code> loop with a stop condition that can never be reached, such as one with a counter that moves in the wrong direction, will run
 infinitely. While there are occasions when an infinite loop is intended, the convention is to construct such loops as <code>while</code> loops. More
-typically, an infinite <code>for</code> loop is a bug. </p>
+typically, an infinite <code>for</code> loop is a bug.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 for (var i = 0; i &lt; strings.length; i--) { // Noncompliant;
@@ -13,8 +13,3 @@ for (var i = 0; i &lt; strings.length; i++) {
   //...
 }
 </pre>
-<h2>See</h2>
-<ul>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/aTdGBQ">CERT, MSC54-J.</a> - Avoid inadvertent wrapping of loop counters </li>
-</ul>
-

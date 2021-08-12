@@ -13,13 +13,13 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-930",
   "sqKey": "S930",
-  "compatibleLanguages": [
-    "JAVASCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
       628
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ]
 }

@@ -28,6 +28,7 @@ import {
   getValueOfExpression,
   getObjectExpressionProperty,
 } from '../utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 const MESSAGE = 'Make sure confidential information is not logged here.';
 export const rule: Rule.RuleModule = {
@@ -76,9 +77,15 @@ export const rule: Rule.RuleModule = {
           secrets.value.type === 'ArrayExpression' &&
           secrets.value.elements.length === 0
         ) {
-          context.report({ node: callee, message: toEncodedMessage(MESSAGE, [secrets]) });
+          context.report({
+            node: callee,
+            message: toEncodedMessage(MESSAGE, [secrets as TSESTree.Node]),
+          });
         } else if (!secrets) {
-          context.report({ node: callee, message: toEncodedMessage(MESSAGE, [firstArgument]) });
+          context.report({
+            node: callee,
+            message: toEncodedMessage(MESSAGE, [firstArgument as TSESTree.Node]),
+          });
         }
       },
     };

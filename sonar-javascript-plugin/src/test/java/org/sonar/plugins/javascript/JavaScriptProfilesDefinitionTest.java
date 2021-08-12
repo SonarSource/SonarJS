@@ -41,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULES_CLASS_NAME;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULE_KEYS_METHOD_NAME;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_RECOMMENDED_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
 
 public class JavaScriptProfilesDefinitionTest {
@@ -83,32 +82,6 @@ public class JavaScriptProfilesDefinitionTest {
   }
 
   @Test
-  public void sonar_way_recommended_js() {
-    BuiltInQualityProfile profile = context.profile(JavaScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY_RECOMMENDED_JS);
-
-    assertThat(profile.language()).isEqualTo(JavaScriptLanguage.KEY);
-    assertThat(profile.name()).isEqualTo("Sonar way Recommended");
-    assertThat(profile.rules()).extracting("repoKey").containsOnly("common-js", CheckList.JS_REPOSITORY_KEY);
-    assertThat(profile.rules().size()).isGreaterThan(180);
-
-    assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
-  }
-
-  @Test
-  public void sonar_way_should_be_subset_of_recommended() {
-    BuiltInQualityProfile sonarWay = context.profile(JavaScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY);
-    BuiltInQualityProfile sonarWayRecommended = context.profile(JavaScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY_RECOMMENDED_JS);
-
-    Set<String> recommendedRules = sonarWayRecommended.rules().stream()
-      .map(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .collect(Collectors.toSet());
-    Set<String> wayRules = sonarWay.rules().stream()
-      .map(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .collect(Collectors.toSet());
-    assertThat(recommendedRules).containsAll(wayRules);
-  }
-
-  @Test
   public void sonar_way_ts() {
     BuiltInQualityProfile profile = context.profile(TypeScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY);
 
@@ -122,19 +95,6 @@ public class JavaScriptProfilesDefinitionTest {
   }
 
   @Test
-  public void sonar_way_recommended_ts() {
-    BuiltInQualityProfile profile = context.profile(TypeScriptLanguage.KEY, JavaScriptProfilesDefinition.SONAR_WAY_RECOMMENDED_TS);
-
-    assertThat(profile.language()).isEqualTo(TypeScriptLanguage.KEY);
-    assertThat(profile.name()).isEqualTo("Sonar way recommended");
-    assertThat(profile.rules()).extracting("repoKey").containsOnly("common-ts", CheckList.TS_REPOSITORY_KEY);
-    assertThat(profile.rules().size()).isGreaterThan(180);
-    assertThat(profile.rules()).extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey).contains("S5122");
-
-    assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
-  }
-
-  @Test
   public void no_legacy_Key_in_profile_json() {
     Set<String> allKeys = CheckList.getAllChecks().stream().map(c -> {
       Annotation ruleAnnotation = c.getAnnotation(Rule.class);
@@ -142,10 +102,8 @@ public class JavaScriptProfilesDefinitionTest {
     }).collect(Collectors.toSet());
 
     Set<String> sonarWayKeys = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(SONAR_WAY_JSON);
-    Set<String> sonarRecommendedWayKeys = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(SONAR_WAY_RECOMMENDED_JSON);
 
     assertThat(sonarWayKeys).isSubsetOf(allKeys);
-    assertThat(sonarRecommendedWayKeys).isSubsetOf(allKeys);
   }
 
   @Test

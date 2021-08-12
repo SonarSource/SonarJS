@@ -2,10 +2,4 @@
 'backbone:karma.conf.js':[
 54,
 ],
-'backbone:test/vendor/json2.js':[
-481,
-],
-'backbone:test/vendor/underscore.js':[
-1548,
-],
 }

@@ -102,6 +102,17 @@ const testCases = {
       jwt.verify(forgedtoken, key, { expiresIn: 360000 * 5, algorithms }, callbackcheck);
             `,
     },
+    {
+      code: `
+      const jwt = require('jsonwebtoken');
+      jwt.verify(forgedtoken, key, { expiresIn: 360000 * 5 }, callbackcheck);`,
+    },
+    {
+      code: `
+      const jwt = require('jsonwebtoken');
+      const options = { expiresIn: 360000 * 5 };
+      jwt.verify(forgedtoken, key, options, callbackcheck);`,
+    },
   ],
   invalid: [
     {
@@ -309,40 +320,6 @@ const testCases = {
     {
       code: `
       const jwt = require('jsonwebtoken');
-      jwt.verify(forgedtoken, key, { expiresIn: 360000 * 5 }, callbackcheck);
-            `,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: 'Use only strong cipher algorithms when verifying the signature of this JWT.',
-            secondaryLocations: [
-              {
-                message: `The "algorithms" option should be defined and should not contain 'none'.`,
-                column: 35,
-                line: 3,
-                endColumn: 60,
-                endLine: 3,
-              },
-            ],
-          }),
-          line: 3,
-          endLine: 3,
-          column: 7,
-          endColumn: 17,
-        },
-      ],
-    },
-    {
-      code: `
-      const jwt = require('jsonwebtoken');
-      const options = { expiresIn: 360000 * 5 };
-      jwt.verify(forgedtoken, key, options, callbackcheck);
-            `,
-      errors: 1,
-    },
-    {
-      code: `
-      const jwt = require('jsonwebtoken');
       const NONE = 'none';
       jwt.verify(forgedtoken, key, { expiresIn: 360000 * 5, algorithms: ['RS256', NONE] }, callbackcheck);
             `,
@@ -366,6 +343,12 @@ const testCases = {
           endColumn: 17,
         },
       ],
+    },
+    {
+      code: `
+      const jwt = require('jsonwebtoken');
+      jwt.verify(forgedtoken, null, { expiresIn: 360000 * 500 }, callbackcheck);`,
+      errors: 1,
     },
   ],
 };

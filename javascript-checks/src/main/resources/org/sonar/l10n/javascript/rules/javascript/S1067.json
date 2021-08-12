@@ -14,9 +14,9 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-1067",
   "sqKey": "S1067",
+  "scope": "All",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "All"
+  ]
 }

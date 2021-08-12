@@ -1,6 +1,6 @@
 <p>Fetching external resources, for example from a CDN, without verifying their integrity could impact the security of an application if the CDN gets
 compromised and resources are replaced by malicious ones. Resources integrity feature will block resources inclusion into an application if the
-pre-computed digest of the expected resource doesn't match with the digest of the retrieved resource.</p>
+pre-computed digest of the expected resource doesn’t match with the digest of the retrieved resource.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> The resources are fetched from external CDNs. </li>
@@ -8,7 +8,7 @@ pre-computed digest of the expected resource doesn't match with the digest of th
 <p>There is a risk if you answered yes to this question.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> implement resources integrity checks for all static resources (where "static" means that the resource's content doesn't change dynamically
+  <li> implement resources integrity checks for all static resources (where "static" means that the resource’s content doesn’t change dynamically
   based on the browser) </li>
   <li> use versioned resources instead of using "latest" version of the resources </li>
 </ul>

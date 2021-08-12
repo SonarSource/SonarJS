@@ -27,6 +27,7 @@ import {
   isRequiredParserServices,
   getTypeFromTreeNode,
   toEncodedMessage,
+  isStringLiteral,
 } from '../utils';
 
 const message = `Review this expression to be sure that the concatenation was intended.`;
@@ -110,10 +111,6 @@ function isLiteralType(type: tsTypes.Type): boolean {
     return type.types.some(t => isLiteralType(t));
   }
   return type.isStringLiteral();
-}
-
-function isStringLiteral(node: estree.Node) {
-  return node.type === 'Literal' && typeof node.value === 'string';
 }
 
 function isConcatenation(node: estree.Node) {

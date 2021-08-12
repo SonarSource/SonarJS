@@ -137,7 +137,7 @@ public class TypeScriptSensorTest {
 
     createSensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("TypeScript analysis");
-    assertThat(descriptor.languages()).containsOnly("ts");
+    assertThat(descriptor.languages()).containsOnly("js", "ts");
     assertThat(descriptor.type()).isEqualTo(Type.MAIN);
   }
 
@@ -426,11 +426,21 @@ public class TypeScriptSensorTest {
   }
 
   @Test
-  public void should_stop_without_tsconfig() {
+  public void should_stop_without_tsconfig() throws Exception {
+    Path baseDir = Paths.get("src/test/resources/solution-tsconfig");
     SensorContextTester context = SensorContextTester.create(tempFolder.newDir());
+    inputFileFromResource(context, baseDir, "src/file.ts");
+
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("No tsconfig.json file found, analysis will be skipped.");
+  }
+
+  @Test
+  public void should_stop_when_no_input_files() throws Exception {
+    SensorContextTester context = SensorContextTester.create(tempFolder.newDir());
+    createSensor().execute(context);
+    assertThat(logTester.logs()).containsOnly("No input files found for analysis");
   }
 
   @Test

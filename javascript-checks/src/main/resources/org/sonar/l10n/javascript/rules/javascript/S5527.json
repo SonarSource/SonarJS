@@ -11,15 +11,12 @@
     "privacy",
     "owasp-a6",
     "ssl",
-    "owasp-a3"
+    "owasp-a3",
+    "owasp-m3"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5527",
   "sqKey": "S5527",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -29,6 +26,16 @@
     "OWASP": [
       "A3",
       "A6"
+    ],
+    "OWASP Mobile": [
+      "M3"
+    ],
+    "MASVS": [
+      "MSTG-NETWORK-3"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

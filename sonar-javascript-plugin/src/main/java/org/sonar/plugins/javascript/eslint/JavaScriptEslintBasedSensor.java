@@ -38,11 +38,10 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.JavaScriptSensor;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.eslint.TsConfigProvider.DefaultTsConfigProvider;
@@ -51,7 +50,6 @@ import org.sonarsource.analyzer.commons.ProgressReport;
 public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
-  private static final Profiler PROFILER = Profiler.create(LOG);
   private final TempFolder tempFolder;
 
   /**
@@ -76,14 +74,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   }
 
   @Override
-  void analyzeFiles() throws IOException, InterruptedException {
-    runEslintAnalysis(provideDefaultTsConfig());
-    if (checks.hasLegacyCustomChecks()) {
-      PROFILER.startInfo("Java-based frontend sensor [javascript] for custom rules");
-      LOG.warn("Custom JavaScript rules are deprecated and API will be removed in future version.");
-      new JavaScriptSensor(checks).execute(context);
-      PROFILER.stopInfo();
-    }
+  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    runEslintAnalysis(provideDefaultTsConfig(), inputFiles);
   }
 
   private List<String> provideDefaultTsConfig() throws IOException {
@@ -92,15 +84,14 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     compilerOptions.put("allowJs", true);
     // to make TypeScript compiler "better infer types"
     compilerOptions.put("noImplicitAny", true);
-    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptEslintBasedSensor::filePredicate, compilerOptions);
+    DefaultTsConfigProvider provider = new DefaultTsConfigProvider(tempFolder, JavaScriptFilePredicate::getJavaScriptPredicate, compilerOptions);
     return provider.tsconfigs(context);
   }
 
-  private void runEslintAnalysis(List<String> tsConfigs) throws IOException, InterruptedException {
+  private void runEslintAnalysis(List<String> tsConfigs, List<InputFile> inputFiles) throws IOException {
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
     try {
-      List<InputFile> inputFiles = getInputFiles();
       progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
       eslintBridgeServer.initLinter(rules, environments, globals);
       for (InputFile inputFile : inputFiles) {
@@ -121,14 +112,13 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       } else {
         progressReport.cancel();
       }
-      progressReport.join();
     }
   }
 
   private void analyze(InputFile file, List<String> tsConfigs) throws IOException {
     try {
       String fileContent = shouldSendFileContent(file) ? file.contents() : null;
-      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), fileContent, ignoreHeaderComments(), tsConfigs);
+      AnalysisRequest analysisRequest = new AnalysisRequest(file.absolutePath(), file.type().toString(), fileContent, ignoreHeaderComments(), tsConfigs);
       AnalysisResponse response = eslintBridgeServer.analyzeJavaScript(analysisRequest);
       processResponse(file, response);
     } catch (IOException e) {
@@ -137,17 +127,12 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
     }
   }
 
-  private List<InputFile> getInputFiles() {
+  @Override
+  protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
-    FilePredicate mainFilePredicate = filePredicate(context.fileSystem());
+    FilePredicate mainFilePredicate = JavaScriptFilePredicate.getJavaScriptPredicate(fileSystem);
     return StreamSupport.stream(fileSystem.inputFiles(mainFilePredicate).spliterator(), false)
       .collect(Collectors.toList());
-  }
-
-  static FilePredicate filePredicate(FileSystem fileSystem) {
-    return fileSystem.predicates().and(
-      fileSystem.predicates().hasType(Type.MAIN),
-      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
   }
 
   @Override

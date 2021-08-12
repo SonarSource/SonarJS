@@ -22,10 +22,16 @@
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { isRequiredParserServices, getTypeFromTreeNode, toEncodedMessage, isAny } from '../utils';
+import {
+  isRequiredParserServices,
+  getTypeFromTreeNode,
+  toEncodedMessage,
+  isAny,
+  getParent,
+} from '../utils';
 
 class FunctionScope {
   private readonly returnStatements: estree.ReturnStatement[] = [];
@@ -80,7 +86,11 @@ export const rule: Rule.RuleModule = {
             stmts,
             stmtsTypes.map(stmtType => `Returns ${prettyPrint(stmtType, checker)}`),
           ),
-          loc: getMainFunctionTokenLocation(node as estree.Function, getParent(context), context),
+          loc: getMainFunctionTokenLocation(
+            node as TSESTree.FunctionLike,
+            getParent(context) as TSESTree.Node,
+            (context as unknown) as Rule1.RuleContext,
+          ),
         });
       }
     }

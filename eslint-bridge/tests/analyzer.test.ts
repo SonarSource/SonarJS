@@ -26,6 +26,7 @@ import {
 } from 'analyzer';
 import { join } from 'path';
 import * as fs from 'fs';
+import { setContext } from 'context';
 
 const noOneIterationIssue = {
   line: 3,
@@ -59,6 +60,11 @@ const noUnnecessaryTypeAssertionIssue = {
 describe('#analyzeJavaScript', () => {
   const filePath = join(__dirname, './fixtures/js-project/sample.lint.js');
   const codeToTest = fs.readFileSync(filePath, { encoding: 'utf8' });
+  setContext({
+    workDir: '/tmp/workdir',
+    shouldUseTypeScriptParserForJS: true,
+    sonarlint: false,
+  });
 
   it('should report issue running eslint', () => {
     initLinter([
@@ -336,9 +342,20 @@ describe('#analyzeTypeScript', () => {
     jest.resetAllMocks();
   });
 
-  it('should analyze Vue.js file', () => {
-    const filePath = join(__dirname, './fixtures/vue-project/sample.lint.vue');
-    const tsConfig = join(__dirname, './fixtures/vue-project/tsconfig.json');
+  it('should analyze JavaScript code in Vue.js file', () => {
+    const filePath = join(__dirname, './fixtures/js-vue-project/sample.lint.vue');
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+    initLinter([{ key: 'no-one-iteration-loop', configurations: [] }]);
+    const { issues } = analyzeJavaScript({
+      filePath,
+      fileContent,
+    });
+    expect(issues).toHaveLength(1);
+  });
+
+  it('should analyze TypeScript code in Vue.js file', () => {
+    const filePath = join(__dirname, './fixtures/ts-vue-project/sample.lint.vue');
+    const tsConfig = join(__dirname, './fixtures/ts-vue-project/tsconfig.json');
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
     initLinter([
       { key: 'no-extra-semi', configurations: [] },

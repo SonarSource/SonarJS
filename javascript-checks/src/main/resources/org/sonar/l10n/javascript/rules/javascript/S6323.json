@@ -1,0 +1,20 @@
+{
+  "title": "Alternation in regular expressions should not contain empty alternatives",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "regex"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6323",
+  "sqKey": "S6323",
+  "scope": "All",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

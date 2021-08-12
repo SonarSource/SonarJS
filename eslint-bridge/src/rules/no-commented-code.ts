@@ -22,8 +22,8 @@
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { parseJavaScriptSourceFile } from '../parser';
-import { ParsingError } from '../analyzer';
+import * as babel from '@babel/eslint-parser';
+import { buildParsingOptions } from '../parser';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
@@ -80,10 +80,7 @@ export const rule: Rule.RuleModule = {
         );
         groupedComments.forEach(groupComment => {
           const rawTextTrimmed = groupComment.value.trim();
-          if (
-            rawTextTrimmed !== '}' &&
-            containsCode(injectMissingBraces(rawTextTrimmed), context.getFilename())
-          ) {
+          if (rawTextTrimmed !== '}' && containsCode(injectMissingBraces(rawTextTrimmed))) {
             context.report({
               message: 'Remove this commented out code.',
               loc: getCommentLocation(groupComment.nodes),
@@ -123,13 +120,18 @@ function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
   return false;
 }
 
-function containsCode(value: string, filename: string) {
-  const parseResult = parseJavaScriptSourceFile(value, filename);
-  return (
-    isSourceCode(parseResult) &&
-    parseResult.ast.body.length > 0 &&
-    !isExclusion(parseResult.ast.body, parseResult)
-  );
+function containsCode(value: string) {
+  try {
+    const options = buildParsingOptions(
+      { filePath: 'some/filePath', tsConfigs: [], fileContent: '' },
+      true,
+    );
+    const result = babel.parse(value, options);
+    const parseResult = new SourceCode(value, result);
+    return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
+  } catch (exception) {
+    return false;
+  }
 }
 
 function injectMissingBraces(value: string) {
@@ -150,10 +152,6 @@ function getCommentLocation(nodes: TSESTree.Comment[]) {
     start: nodes[0].loc.start,
     end: nodes[nodes.length - 1].loc.end,
   };
-}
-
-function isSourceCode(parseResult: SourceCode | ParsingError): parseResult is SourceCode {
-  return !!(parseResult as SourceCode).ast;
 }
 
 function isReturnThrowExclusion(statement: estree.Node) {

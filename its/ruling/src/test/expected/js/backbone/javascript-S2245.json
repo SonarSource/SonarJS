@@ -2,11 +2,4 @@
 'backbone:examples/backbone.localStorage.js':[
 28,
 ],
-'backbone:test/vendor/jquery.js':[
-1522,
-3685,
-],
-'backbone:test/vendor/underscore.js':[
-1327,
-],
 }

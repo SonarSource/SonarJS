@@ -16,13 +16,12 @@ escaped and thus an attack as below is possible:</p>
     <ul>
       <li> dynamic variables in templates come from untrusted locations or are user-controlled inputs </li>
       <li> there is no local mechanism in place to sanitize or validate the inputs. </li>
-    </ul> </li>
+    </ul>  </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>Enable auto-escaping by default and continue to review the use of inputs in order to be sure that the chosen auto-escaping strategy is the right
 one.</p>
-<p> </p>
 <h2>Sensitive Code Example</h2>
 <p><a href="https://www.npmjs.com/package/mustache">mustache.js</a> template engine:</p>
 <pre>

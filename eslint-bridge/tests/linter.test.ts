@@ -20,9 +20,9 @@
 import { getRuleConfig, decodeSonarRuntimeIssue, LinterWrapper } from 'linter';
 import { Rule, SourceCode } from 'eslint';
 import { SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE } from 'analyzer';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from 'parser';
 import { setContext } from 'context';
 import path from 'path';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from './utils/parser-utils';
 
 const ruleUsingSecondaryLocations = {
   meta: { schema: { enum: ['sonar-runtime'] } },
@@ -119,16 +119,26 @@ describe('#getRuleConfig', () => {
   });
 
   it('should provide context when there is sonar-context in schema', () => {
-    setContext({ workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true });
+    setContext({
+      workDir: '/tmp/workdir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+    });
     const config = getRuleConfig(ruleUsingContext, {
       key: 'ruleUsingContext',
       configurations: [],
     });
-    expect(config).toEqual([{ workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true }]);
+    expect(config).toEqual([
+      { workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true, sonarlint: false },
+    ]);
   });
 
   it('should provide context and set sonar-runtime when there is sonar-context and sonar-runtime in schema', () => {
-    setContext({ workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true });
+    setContext({
+      workDir: '/tmp/workdir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+    });
     const config = getRuleConfig(ruleUsingContextAndSecondaryLocations, {
       key: 'ruleUsingContextAndSecondaryLocations',
       configurations: ['config'],
@@ -136,7 +146,7 @@ describe('#getRuleConfig', () => {
     expect(config).toEqual([
       'config',
       'sonar-runtime',
-      { workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true },
+      { workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true, sonarlint: false },
     ]);
   });
 });
@@ -179,17 +189,15 @@ describe('#decodeSecondaryLocations', () => {
   });
 
   it('should log error when cannot parse secondary locations', () => {
-    console.error = jest.fn();
-    const decodedIssue = decodeSonarRuntimeIssue(ruleUsingSecondaryLocations, {
-      ...issueWithEncodedMessage,
-      message: 'Incorrect message',
-    });
-    expect(decodedIssue).toBe(null);
-    expect(console.error).toHaveBeenCalledWith(
-      `Failed to parse encoded issue message for rule ${issue.ruleId}:\n"Incorrect message"`,
-      new SyntaxError('Unexpected token I in JSON at position 0'),
+    expect(() =>
+      decodeSonarRuntimeIssue(ruleUsingSecondaryLocations, {
+        ...issueWithEncodedMessage,
+        message: 'Incorrect message',
+      }),
+    ).toThrowError(
+      'Failed to parse encoded issue message for rule ruleUsingSecondaryLocations:\n' +
+        '"Incorrect message". Unexpected token I in JSON at position 0',
     );
-    jest.resetAllMocks();
   });
 
   it('should compute symbol highlighting when additional rule', () => {

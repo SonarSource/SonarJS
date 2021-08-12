@@ -29,6 +29,8 @@ import { Rule, Issue, IssueLocation } from './analyzer';
 import { rules as typescriptEslintRules } from '@typescript-eslint/eslint-plugin';
 import { getContext } from './context';
 import { decoratePreferTemplate } from './rules/prefer-template-decorator';
+import { decorateAccessorPairs } from './rules/accessor-pairs-decorator';
+import { decorateNoRedeclare } from './rules/no-redeclare-decorator';
 
 /**
  * In order to overcome ESLint limitation regarding issue reporting,
@@ -82,11 +84,24 @@ export class LinterWrapper {
     // but the plugin doesn't allow duplicates of the same key.
     this.linter.defineRule(TRAILING_COMMA, this.linter.getRules().get('comma-dangle')!);
 
+    const ACCESSOR_PAIRS = 'accessor-pairs';
+    this.linter.defineRule(
+      ACCESSOR_PAIRS,
+      decorateAccessorPairs(this.linter.getRules().get(ACCESSOR_PAIRS)!),
+    );
+
     // core implementation of this rule raises issues on binary expressions with string literal operand(s)
     const PREFER_TEMPLATE = 'prefer-template';
     this.linter.defineRule(
       PREFER_TEMPLATE,
       decoratePreferTemplate(this.linter.getRules().get(PREFER_TEMPLATE)!),
+    );
+
+    // core implementation of this rule raises issues on type exports
+    const NO_REDECLARE = 'no-redeclare';
+    this.linter.defineRule(
+      NO_REDECLARE,
+      decorateNoRedeclare(this.linter.getRules().get(NO_REDECLARE)!),
     );
 
     // TS implementation of no-throw-literal is not supporting JS code.
@@ -146,12 +161,16 @@ export class LinterWrapper {
     return ruleConfig;
   }
 
-  analyze(sourceCode: SourceCode, filePath: string) {
+  analyze(sourceCode: SourceCode, filePath: string, fileType?: string) {
     const issues = this.linter
-      .verify(sourceCode, this.linterConfig, {
-        filename: filePath,
-        allowInlineConfig: false,
-      })
+      .verify(
+        sourceCode,
+        { ...this.linterConfig, settings: { fileType } },
+        {
+          filename: filePath,
+          allowInlineConfig: false,
+        },
+      )
       .map(removeIrrelevantProperties)
       .map(issue => {
         if (!issue) {
@@ -175,11 +194,9 @@ export function decodeSonarRuntimeIssue(
       const encodedMessage: EncodedMessage = JSON.parse(issue.message);
       return { ...issue, ...encodedMessage };
     } catch (e) {
-      console.error(
-        `Failed to parse encoded issue message for rule ${issue.ruleId}:\n"${issue.message}"`,
-        e,
+      throw new Error(
+        `Failed to parse encoded issue message for rule ${issue.ruleId}:\n"${issue.message}". ${e.message}`,
       );
-      return null;
     }
   }
   return issue;

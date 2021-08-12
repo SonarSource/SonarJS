@@ -18,9 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { analyzeTypeScript, initLinter } from 'analyzer';
+import { analyzeJavaScript, analyzeTypeScript, initLinter } from 'analyzer';
 import { HighlightedSymbol } from 'runner/symbol-highlighter';
 import { Location } from 'runner/location';
+import { setContext } from 'context';
+
+setContext({
+  workDir: '/tmp/workdir',
+  shouldUseTypeScriptParserForJS: true,
+  sonarlint: false,
+});
 
 it('should highlight variable references', () => {
   const result = actual(
@@ -125,6 +132,46 @@ it('should highlight TS enums', () => {
     declaration: { endCol: 28, endLine: 2, startCol: 9, startLine: 2 },
     references: [],
   });
+});
+
+it('should highlight Vue templates', () => {
+  const filePath = '/some/path/file.vue';
+  const fileContent = `
+  <template>
+    <foo a="v" b="w">
+      <baz/> <!-- ignored: self-closing -->
+    </foo>
+  </template>`;
+
+  initLinter([]);
+  const { highlightedSymbols } = analyzeJavaScript({ filePath, fileContent, tsConfigs: [] });
+  expect(highlightedSymbols).toEqual([
+    {
+      declaration: { startLine: 3, startCol: 4, endLine: 3, endCol: 8 } /* <foo */,
+      references: [{ startLine: 5, startCol: 4, endLine: 5, endCol: 9 }] /* </foo */,
+    },
+    {
+      declaration: { startLine: 2, startCol: 2, endLine: 2, endCol: 11 } /* <template */,
+      references: [{ startLine: 6, startCol: 2, endLine: 6, endCol: 12 }] /* </template */,
+    },
+  ]);
+});
+
+it('should highlight inconsistent Vue templates', () => {
+  const filePath = '/some/path/file.vue';
+  const fileContent = `
+  <template>
+    </p>
+  </template> <!-- ignored: inconsistency -->`;
+
+  initLinter([]);
+  const { highlightedSymbols } = analyzeJavaScript({ filePath, fileContent, tsConfigs: [] });
+  expect(highlightedSymbols).toEqual([
+    {
+      declaration: { startLine: 2, startCol: 2, endLine: 2, endCol: 11 } /* <template */,
+      references: [{ startLine: 3, startCol: 4, endLine: 3, endCol: 7 }] /* </p */,
+    },
+  ]);
 });
 
 function location(startLine: number, startCol: number, endLine: number, endCol: number): Location {

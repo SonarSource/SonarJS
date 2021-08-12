@@ -44,6 +44,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static java.lang.String.format;
@@ -64,7 +65,7 @@ class TsConfigProvider {
     providers = Arrays.asList(
       new PropertyTsConfigProvider(),
       new LookupTsConfigProvider(),
-      new DefaultTsConfigProvider(folder, TypeScriptSensor::filePredicate));
+      new DefaultTsConfigProvider(folder, JavaScriptFilePredicate::getTypeScriptPredicate));
   }
 
   List<String> tsconfigs(SensorContext context) throws IOException {

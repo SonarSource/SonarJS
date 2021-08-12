@@ -6,14 +6,12 @@
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [
-    
-  ],
+  "tags": [],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4798",
   "sqKey": "S4798",
+  "scope": "Main",
   "compatibleLanguages": [
     "TYPESCRIPT"
-  ],
-  "scope": "Main"
+  ]
 }

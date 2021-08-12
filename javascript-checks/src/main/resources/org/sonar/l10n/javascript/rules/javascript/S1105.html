@@ -1,8 +1,10 @@
 <p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when the brace-style is not respecting the convention
 setup in parameter:</p>
-<p> * <a href="https://en.wikipedia.org/wiki/Indentation_style#K&amp;R_style">1tbs</a> (default)</p>
-<p> * <a href="https://en.wikipedia.org/wiki/Indentation_style#Allman_style">allman</a></p>
-<p> * <a href="https://en.wikipedia.org/wiki/Indentation_style#Variant:_Stroustrup">stroustrup</a></p>
+<ul>
+  <li> <a href="https://en.wikipedia.org/wiki/Indentation_style#K&amp;R_style">1tbs</a> (default) </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Indentation_style#Allman_style">allman</a> </li>
+  <li> <a href="https://en.wikipedia.org/wiki/Indentation_style#Variant:_Stroustrup">stroustrup</a> </li>
+</ul>
 <h2>Noncompliant Code Example</h2>
 <p>Using the parameter default (1tbs):</p>
 <pre>
@@ -23,7 +25,9 @@ if (condition) {                                   //Compliant
 }
 </pre>
 <h2>Exceptions</h2>
-<p> * Object literals appearing as arguments can start on their own line.</p>
+<ul>
+  <li> Object literals appearing as arguments can start on their own line. </li>
+</ul>
 <pre>
 functionWithObject(
    {                                                 //Compliant
@@ -31,7 +35,9 @@ functionWithObject(
    }
 );
 </pre>
-<p> * When blocks are inlined (left and right curly braces on the same line), no issue is triggered.</p>
+<ul>
+  <li> When blocks are inlined (left and right curly braces on the same line), no issue is triggered. </li>
+</ul>
 <pre>
 if(condition) {doSomething();}                       //Compliant
 </pre>

@@ -1,7 +1,7 @@
 <p>Successful Zip Bomb attacks occur when an application expands untrusted archive files without controlling the size of the expanded data, which can
 lead to denial of service. A Zip bomb is usually a malicious archive file of a few kilobytes of compressed data but turned into gigabytes of
 uncompressed data. To achieve this extreme <a href="https://en.wikipedia.org/wiki/Data_compression_ratio">compression ratio</a>, attackers will
-compress irrelevant data (eg: a long string of repeated bytes). </p>
+compress irrelevant data (eg: a long string of repeated bytes).</p>
 <h2>Ask Yourself Whether</h2>
 <p>Archives to expand are untrusted and:</p>
 <ul>
@@ -10,14 +10,13 @@ compress irrelevant data (eg: a long string of repeated bytes). </p>
   <li> There is no validation of the ratio between the compressed and uncompressed archive entry. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
-<p> </p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
   <li> Define and control the ratio between compressed and uncompressed data, in general the data compression ratio for most of the legit archives is
   1 to 3. </li>
   <li> Define and control the threshold for maximum total size of the uncompressed data. </li>
   <li> Count the number of file entries extracted from the archive and abort the extraction if their number is greater than a predefined threshold, in
-  particular it's not recommended to recursively expand archives (an entry of an archive could be also an archive). </li>
+  particular it’s not recommended to recursively expand archives (an entry of an archive could be also an archive). </li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://github.com/npm/node-tar">tar</a> module:</p>

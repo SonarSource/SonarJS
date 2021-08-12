@@ -74,9 +74,16 @@ ruleTester.run(`A conditionally executed single line should be denoted by indent
             doTheOtherThing();
             }`,
     },
+    {
+      code: `
+      if (something) {
+        //... some logic
+        doSomething();
+      } else
+        doSomethingElse();`,
+    },
   ],
   invalid: [
-    //TODO: secondary
     {
       code: `
         if (x > 0)  // Noncompliant [[ID=ID1]] {{}}

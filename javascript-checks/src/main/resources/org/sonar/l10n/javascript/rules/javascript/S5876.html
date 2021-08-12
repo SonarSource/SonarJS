@@ -1,4 +1,4 @@
-<p>Session fixation attacks occur when an attacker can force a legitimate user to use a session ID that he knows. To avoid fixation attacks, it's a
+<p>Session fixation attacks occur when an attacker can force a legitimate user to use a session ID that he knows. To avoid fixation attacks, it’s a
 good practice to generate a new session each time a user authenticates and delete/invalidate the existing session (the one possibly known by the
 attacker).</p>
 <h2>Noncompliant Code Example</h2>
@@ -29,6 +29,6 @@ app.post('/login',
   <li> <a href="https://owasp.org/www-project-top-ten/OWASP_Top_Ten_2017/Top_10-2017_A2-Broken_Authentication">OWASP Top 10 2017 Category A2</a> -
   Broken Authentication </li>
   <li> <a href="https://www.owasp.org/index.php/Session_fixation">OWASP Sesssion Fixation</a> </li>
-  <li> <a href="http://cwe.mitre.org/data/definitions/384.html">MITRE, CWE-384</a> - Session Fixation </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/384.html">MITRE, CWE-384</a> - Session Fixation </li>
 </ul>
 

@@ -1,15 +1,17 @@
-<p>To perform secure cryptography, operation modes and padding scheme are essentials and should be used correctly according to the encryption
-algorithm:</p>
+<p>Encryption operation mode and the padding scheme should be chosen appropriately to guarantee data confidentiality, integrity and authenticity:</p>
 <ul>
-  <li> For block cipher encryption algorithms (like AES), the GCM (Galois Counter Mode) mode that <a
-  href="https://en.wikipedia.org/wiki/Galois/Counter_Mode#Mathematical_basis">works internally</a> with zero/no padding scheme, is recommended. At the
-  opposite, these modes and/or schemes are highly discouraged:
+  <li> For block cipher encryption algorithms (like AES):
     <ul>
-      <li> Electronic Codebook (ECB) mode is vulnerable because it doesn't provide serious message confidentiality: under a given key any given
-      plaintext block always gets encrypted to the same ciphertext block. </li>
-      <li> Cipher Block Chaining (CBC) with PKCS#5 padding (or PKCS#7) is vulnerable to padding oracle attacks. </li>
-    </ul> </li>
-  <li> RSA encryption algorithm should be used with the recommended padding scheme (OAEP) </li>
+      <li> The GCM (Galois Counter Mode) mode which <a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode#Mathematical_basis">works
+      internally</a> with zero/no padding scheme, is recommended, as it is designed to provide both data authenticity (integrity) and confidentiality.
+      Other similar modes are CCM, CWC, EAX, IAPM and OCB. </li>
+      <li> The CBC (Cipher Block Chaining) mode by itself provides only data confidentiality, it’s recommended to use it along with Message
+      Authentication Code or similar to achieve data authenticity (integrity) too and thus to <a
+      href="https://en.wikipedia.org/wiki/Padding_oracle_attack">prevent padding oracle attacks</a>. </li>
+      <li> The ECB (Electronic Codebook) mode doesn’t provide serious message confidentiality: under a given key any given plaintext block always gets
+      encrypted to the same ciphertext block. This mode should not be used. </li>
+    </ul>  </li>
+  <li> For RSA encryption algorithm, the recommended padding scheme is OAEP. </li>
 </ul>
 <h2>Noncompliant Code Example</h2>
 <p><a href="https://nodejs.org/api/crypto.html">crypto</a> built-in module:</p>
@@ -26,8 +28,7 @@ crypto.createCipheriv("AES-256-GCM", key, iv);
 <ul>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
-  <li> <a href="http://cwe.mitre.org/data/definitions/327.html">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/hDdGBQ">CERT, MSC61-J.</a> - Do not use insecure or weak cryptographic algorithms </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/327.html">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>
 

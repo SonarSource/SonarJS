@@ -10,10 +10,6 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5443",
   "sqKey": "S5443",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -24,5 +20,9 @@
       "A5",
       "A3"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

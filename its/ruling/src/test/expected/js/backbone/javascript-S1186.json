@@ -45,17 +45,4 @@
 'backbone:test/setup/environment.js':[
 17,
 ],
-'backbone:test/vendor/jquery.js':[
-553,
-5338,
-],
-'backbone:test/vendor/qunit.js':[
-811,
-2201,
-],
-'backbone:test/vendor/underscore.js':[
-36,
-1293,
-1299,
-],
 }

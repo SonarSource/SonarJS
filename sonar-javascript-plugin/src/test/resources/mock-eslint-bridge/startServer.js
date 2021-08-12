@@ -5,7 +5,8 @@ const port = process.argv[2];
 const host = process.argv[3];
 
 console.log(`allowTsParserJsFiles: ${process.argv[5]}`);
-console.log(`additional rules: [${process.argv[6]}]`);
+console.log(`sonarlint: ${process.argv[6]}`);
+console.log(`additional rules: [${process.argv[7]}]`);
 
 const requestHandler = (request, response) => {
   let data = "";
@@ -31,6 +32,7 @@ const requestHandler = (request, response) => {
 };
 
 const server = http.createServer(requestHandler);
+server.keepAliveTimeout = 100  // this is used so server disconnects faster
 
 server.listen(port, host, (err) => {
   if (err) {

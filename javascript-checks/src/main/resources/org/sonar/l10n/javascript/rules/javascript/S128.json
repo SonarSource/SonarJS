@@ -13,14 +13,14 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-128",
   "sqKey": "S128",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "All",
   "securityStandards": {
     "CWE": [
       484
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

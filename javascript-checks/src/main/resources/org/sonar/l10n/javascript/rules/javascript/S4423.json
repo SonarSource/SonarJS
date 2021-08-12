@@ -11,15 +11,12 @@
     "privacy",
     "owasp-a6",
     "sans-top25-porous",
-    "owasp-a3"
+    "owasp-a3",
+    "owasp-m3"
   ],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4423",
   "sqKey": "S4423",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -30,6 +27,16 @@
     "OWASP": [
       "A3",
       "A6"
+    ],
+    "OWASP Mobile": [
+      "M3"
+    ],
+    "MASVS": [
+      "MSTG-NETWORK-2"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

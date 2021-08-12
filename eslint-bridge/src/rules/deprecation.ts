@@ -22,9 +22,8 @@
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
-import { isRequiredParserServices, RequiredParserServices } from '../utils';
+import { getParent, isRequiredParserServices, RequiredParserServices } from '../utils';
 import * as ts from 'typescript';
-import { getParent } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -39,7 +38,9 @@ export const rule: Rule.RuleModule = {
           // to not report twice
           return;
         }
-
+        if (isObjectExpressionProperty(node, context)) {
+          return;
+        }
         const id = node as estree.Identifier;
         const insideImportExport = context.getAncestors().some(anc => anc.type.includes('Import'));
         if (insideImportExport || isDeclaration(id, context)) {
@@ -84,7 +85,7 @@ function getDeprecation(
   id: estree.Identifier,
   services: RequiredParserServices,
   context: Rule.RuleContext,
-) {
+): Deprecation | undefined {
   const tc = services.program.getTypeChecker();
   const callExpression = getCallExpression(context, id);
 
@@ -173,10 +174,10 @@ function isCallExpression(
   return false;
 }
 
-function getJsDocDeprecation(tags: ts.JSDocTagInfo[]) {
+function getJsDocDeprecation(tags: ts.JSDocTagInfo[]): Deprecation | undefined {
   for (const tag of tags) {
     if (tag.name === 'deprecated') {
-      return tag.text ? { reason: tag.text } : new Deprecation();
+      return tag.text ? { reason: tag.text.map(e => e.text).join(' ') } : new Deprecation();
     }
   }
   return undefined;
@@ -208,6 +209,19 @@ function isShorthandPropertyAssignment(node: ts.Node): node is ts.ShorthandPrope
 
 function isShortHandProperty(parent: estree.Node | undefined): parent is estree.Property {
   return !!parent && parent.type === 'Property' && parent.shorthand;
+}
+
+function isObjectExpressionProperty(node: estree.Node, context: Rule.RuleContext) {
+  const ancestors = context.getAncestors();
+  const parent = ancestors.pop();
+  const grandparent = ancestors.pop();
+  return (
+    parent?.type === 'Property' &&
+    !parent.computed &&
+    !parent.shorthand &&
+    parent.key === node &&
+    grandparent?.type === 'ObjectExpression'
+  );
 }
 
 class Deprecation {

@@ -1,0 +1,11 @@
+<p>Multiple spaces in a regular expression can make it hard to tell how many spaces should be matched. It’s more readable to use only one space and
+then indicate with a quantifier how many spaces are expected.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+const pattern = /Hello,   world!/;
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+const pattern = /Hello, {3}world!/;
+</pre>
+

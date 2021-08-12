@@ -17,15 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  Parse,
-  parseJavaScriptSourceFile,
-  parseTypeScriptSourceFile,
-  parseVueSourceFile,
-  ParseExceptionCode,
-} from './parser';
+import { ParseExceptionCode, buildSourceCode } from './parser';
 import getHighlighting, { Highlight } from './runner/highlighter';
-import getMetrics, { EMPTY_METRICS, Metrics } from './runner/metrics';
+import getMetrics, { EMPTY_METRICS, getMetricsForSonarLint, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
 import { SourceCode } from 'eslint';
 import {
@@ -33,9 +27,9 @@ import {
   rule as symbolHighlightingRule,
   symbolHighlightingRuleId,
 } from './runner/symbol-highlighter';
-import * as fs from 'fs';
 import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
 import { LinterWrapper, AdditionalRule } from './linter';
+import { getContext } from './context';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
@@ -63,6 +57,7 @@ export const COGNITIVE_COMPLEXITY_RULE: AdditionalRule = {
 
 export interface AnalysisInput {
   filePath: string;
+  fileType?: string;
   fileContent: string | undefined;
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
@@ -78,10 +73,10 @@ export interface Rule {
 export interface AnalysisResponse {
   parsingError?: ParsingError;
   issues: Issue[];
-  highlights: Highlight[];
-  highlightedSymbols: HighlightedSymbol[];
-  metrics: Metrics;
-  cpdTokens: CpdToken[];
+  highlights?: Highlight[];
+  highlightedSymbols?: HighlightedSymbol[];
+  metrics?: Metrics;
+  cpdTokens?: CpdToken[];
 }
 
 export interface ParsingError {
@@ -110,26 +105,11 @@ export interface IssueLocation {
 }
 
 export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(input, parseJavaScriptSourceFile);
+  return analyze(input, 'js');
 }
 
 export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(
-    input,
-    input.filePath.endsWith('.vue') ? parseVueSourceFile : parseTypeScriptSourceFile,
-  );
-}
-
-function getFileContent(filePath: string) {
-  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-  return stripBom(fileContent);
-}
-
-function stripBom(s: string) {
-  if (s.charCodeAt(0) === 0xfeff) {
-    return s.slice(1);
-  }
-  return s;
+  return analyze(input, 'ts');
 }
 
 let linter: LinterWrapper;
@@ -137,12 +117,11 @@ const customRules: AdditionalRule[] = [];
 
 export function initLinter(rules: Rule[], environments: string[] = [], globals: string[] = []) {
   console.log(`DEBUG initializing linter with ${rules.map(r => r.key)}`);
-  linter = new LinterWrapper(
-    rules,
-    [SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE, ...customRules],
-    environments,
-    globals,
-  );
+  const additionalRules = [COGNITIVE_COMPLEXITY_RULE, ...customRules];
+  if (!getContext().sonarlint) {
+    additionalRules.push(SYMBOL_HIGHLIGHTING_RULE);
+  }
+  linter = new LinterWrapper(rules, additionalRules, environments, globals);
 }
 
 export function loadCustomRuleBundle(bundlePath: string): string[] {
@@ -151,15 +130,11 @@ export function loadCustomRuleBundle(bundlePath: string): string[] {
   return bundle.rules.map((r: AdditionalRule) => r.ruleId);
 }
 
-function analyze(input: AnalysisInput, parse: Parse): AnalysisResponse {
-  let fileContent = input.fileContent;
-  if (!fileContent) {
-    fileContent = getFileContent(input.filePath);
-  }
+function analyze(input: AnalysisInput, language: 'ts' | 'js'): AnalysisResponse {
   if (!linter) {
     throw new Error('Linter is undefined. Did you call /init-linter?');
   }
-  const result = parse(fileContent, input.filePath, input.tsConfigs);
+  const result = buildSourceCode(input, language);
   if (result instanceof SourceCode) {
     return analyzeFile(result, input);
   } else {
@@ -174,7 +149,7 @@ function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
   let issues: Issue[] = [];
   let parsingError: ParsingError | undefined = undefined;
   try {
-    issues = linter.analyze(sourceCode, input.filePath).issues;
+    issues = linter.analyze(sourceCode, input.filePath, input.fileType).issues;
   } catch (e) {
     // turns exceptions from TypeScript compiler into "parsing" errors
     if (e.stack.indexOf('typescript.js:') > -1) {
@@ -183,14 +158,21 @@ function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
       throw e;
     }
   }
-  return {
-    issues,
-    parsingError,
-    highlightedSymbols: getHighlightedSymbols(issues),
-    highlights: getHighlighting(sourceCode).highlights,
-    metrics: getMetrics(sourceCode, !!input.ignoreHeaderComments, getCognitiveComplexity(issues)),
-    cpdTokens: getCpdTokens(sourceCode).cpdTokens,
-  };
+  // this is invoked for side-effect also for SonarLint, it removes cognitive complexity pseudo-issue which is used
+  // for the metric
+  const cognitiveComplexityMetric = getCognitiveComplexity(issues);
+  if (getContext().sonarlint) {
+    return { issues, parsingError, metrics: getMetricsForSonarLint(sourceCode) };
+  } else {
+    return {
+      issues,
+      parsingError,
+      highlightedSymbols: getHighlightedSymbols(issues),
+      highlights: getHighlighting(sourceCode).highlights,
+      metrics: getMetrics(sourceCode, !!input.ignoreHeaderComments, cognitiveComplexityMetric),
+      cpdTokens: getCpdTokens(sourceCode).cpdTokens,
+    };
+  }
 }
 
 // exported for testing

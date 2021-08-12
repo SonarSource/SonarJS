@@ -81,6 +81,12 @@ ruleTesterTs.run('', rule, {
       var num = 1;
       num * str`,
     },
+    {
+      code: `
+      declare enum E { X, Y }
+      const a = 1 + E.X;
+      `,
+    },
   ],
   invalid: [
     {

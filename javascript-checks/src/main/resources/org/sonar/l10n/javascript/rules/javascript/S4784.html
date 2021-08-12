@@ -22,9 +22,9 @@ characters: <code>*+{</code>.</p>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>Check whether your regular expression engine (the algorithm executing your regular expression) has any known vulnerabilities. Search for
-vulnerability reports mentioning the one engine you're are using.</p>
+vulnerability reports mentioning the one engine you’re are using.</p>
 <p>Use if possible a library which is not vulnerable to Redos Attacks such as <a href="https://github.com/google/re2">Google Re2</a>.</p>
-<p>Remember also that a ReDos attack is possible if a user-provided regular expression is executed. This rule won't detect this kind of injection.</p>
+<p>Remember also that a ReDos attack is possible if a user-provided regular expression is executed. This rule won’t detect this kind of injection.</p>
 <h2>Sensitive Code Example</h2>
 <pre>
 const regex = /(a+)+b/; // Sensitive
@@ -46,4 +46,7 @@ str.split("(a+)+b"); // Sensitive
   </li>
   <li> OWASP Regular expression Denial of Service - ReDoS </li>
 </ul>
+<h2>Deprecated</h2>
+<!-- IMPORTANT: Keep "jssecurity", automatic generation will produce the wrong key -->
+<p>This rule is deprecated; use {rule:jssecurity:S2631} instead.</p>
 

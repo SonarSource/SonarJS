@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>javascript-it-plugin</artifactId>
-    <version>7.4.0-SNAPSHOT</version>
+    <version>8.3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>javascript-it-plugin-plugins</artifactId>
@@ -13,8 +13,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>custom-rules-plugin</module>
-    <module>deprecated-custom-rules-plugin</module>
     <module>eslint-custom-rules-plugin</module>
   </modules>
 

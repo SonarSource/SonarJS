@@ -19,6 +19,7 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-4502
 
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
@@ -57,7 +58,10 @@ export const rule: Rule.RuleModule = {
         if (unsafeMethods.length > 0) {
           const [first, ...rest] = unsafeMethods;
           context.report({
-            message: toEncodedMessage('Make sure disabling CSRF protection is safe here.', rest),
+            message: toEncodedMessage(
+              'Make sure disabling CSRF protection is safe here.',
+              rest as TSESTree.Node[],
+            ),
             node: first,
           });
         }

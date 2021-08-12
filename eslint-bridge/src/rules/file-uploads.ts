@@ -19,6 +19,7 @@
  */
 // https://jira.sonarsource.com/browse/RSPEC-2598
 
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule, Scope } from 'eslint';
 import { toEncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import * as estree from 'estree';
@@ -246,7 +247,11 @@ function report(
 
   if (message) {
     if (secondaryLocation) {
-      message = toEncodedMessage(message, [secondaryLocation.node], [secondaryLocation.message]);
+      message = toEncodedMessage(
+        message,
+        [secondaryLocation.node as TSESTree.Node],
+        [secondaryLocation.message],
+      );
     } else {
       message = toEncodedMessage(message, []);
     }

@@ -17,30 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  parse,
-  ParseException,
-  PARSER_CONFIG_MODULE,
-  PARSER_CONFIG_SCRIPT,
-  parseJavaScriptSourceFile,
-  parseTypeScriptSourceFile,
-  parseVueSourceFile,
-  ParseExceptionCode,
-  parseExceptionCodeOf,
-} from '../src/parser';
-import * as babel from 'babel-eslint';
+import { ParseExceptionCode, parseExceptionCodeOf } from 'parser';
 import { SourceCode } from 'eslint';
-import { ParsingError } from '../src/analyzer';
+import { ParsingError } from 'analyzer';
 import { visit } from '../src/utils';
 import * as path from 'path';
 import * as fs from 'fs';
-import { setContext } from '../src/context';
+import { setContext } from 'context';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from './utils/parser-utils';
 
 describe('parseJavaScriptSourceFile', () => {
   beforeEach(() => {
     console.error = jest.fn();
     console.log = jest.fn();
-    setContext({ workDir: '', shouldUseTypeScriptParserForJS: true });
+    setContext({ workDir: '', shouldUseTypeScriptParserForJS: true, sonarlint: false });
   });
 
   afterEach(() => {
@@ -71,25 +61,15 @@ describe('parseJavaScriptSourceFile', () => {
   });
 
   it('should parse as script (non-strict mode)', () => {
-    expectToParseInNonStrictMode(`var eval = 42`, `Binding 'eval' in strict mode (1:4)`);
-    expectToParseInNonStrictMode(`eval = 42`, `Assigning to 'eval' in strict mode (1:0)`);
-    expectToParseInNonStrictMode(
-      `function foo() {}\n var foo = 42;`,
-      `Identifier 'foo' has already been declared (2:5)`,
-    );
-
-    expectToParseInNonStrictMode(
-      `x = 043;`,
-      `Legacy octal literals are not allowed in strict mode (1:4)`,
-    );
-    expectToParseInNonStrictMode(
-      `'\\033'`,
-      `The only valid numeric escape in strict mode is '\\0' (1:2)`,
-    );
-    expectToParseInNonStrictMode(`with (a) {}`, `'with' in strict mode (1:0)`);
-    expectToParseInNonStrictMode(`public = 42`, `Unexpected reserved word 'public' (1:0)`);
-    expectToParseInNonStrictMode(`function foo(a, a) {}`, `Argument name clash (1:16)`);
-    expectToParseInNonStrictMode(`delete x`, `Deleting local variable in strict mode (1:0)`);
+    expectToParse(`var eval = 42`);
+    expectToParse(`eval = 42`);
+    expectToParse(`function foo() {}\n var foo = 42;`);
+    expectToParse(`x = 043;`);
+    expectToParse(`'\\033'`);
+    expectToParse(`with (a) {}`);
+    expectToParse(`public = 42`);
+    expectToParse(`function foo(a, a) {}`);
+    expectToParse(`delete x`);
   });
 
   it('should parse recent javascript syntax', () => {
@@ -158,7 +138,7 @@ import { ParseExceptionCode } from '../src/parser';
     const filePath = dirPath + '/sample.lint.js';
     const tsConfig = dirPath + '/tsconfig.json';
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-    setContext({ workDir: '', shouldUseTypeScriptParserForJS: false });
+    setContext({ workDir: '', shouldUseTypeScriptParserForJS: false, sonarlint: false });
     const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
     expect(sourceCode.ast).toBeDefined();
     expect(sourceCode.parserServices.program).toBeUndefined();
@@ -168,6 +148,13 @@ import { ParseExceptionCode } from '../src/parser';
     parseJavaScriptSourceFile('if (true) {', 'foo.js');
     const callsToLogger = (console.log as jest.Mock).mock.calls;
     const message = `DEBUG Failed to parse foo.js with TypeScript compiler: '}' expected.`;
+    expect(callsToLogger.filter(args => args[0] === message)).toHaveLength(1);
+  });
+
+  it(`should log error on TypeScript compiler's parsing failure for .vue file`, () => {
+    parseJavaScriptSourceFile('<script>if (true) {</script>', 'foo.vue');
+    const callsToLogger = (console.log as jest.Mock).mock.calls;
+    const message = `DEBUG Failed to parse foo.vue with TypeScript compiler: '}' expected.`;
     expect(callsToLogger.filter(args => args[0] === message)).toHaveLength(1);
   });
 });
@@ -231,7 +218,7 @@ describe('parseTypeScriptSourceFile', () => {
 });
 
 describe('parseVueSourceFile', () => {
-  const dirName = __dirname + '/fixtures/vue-project';
+  const dirName = __dirname + '/fixtures/js-vue-project';
   const filePath = dirName + '/sample.lint.vue';
   const tsConfig = dirName + '/tsconfig.json';
 
@@ -246,7 +233,7 @@ describe('parseVueSourceFile', () => {
       }`;
 
     const parsedJS = parseJavaScriptSourceFile(code, 'foo.js') as SourceCode;
-    const parsedVueJS = parseVueSourceFile(
+    const parsedVueJS = parseJavaScriptSourceFile(
       `
       <template>
         <p>{{foo}}</p>
@@ -269,8 +256,8 @@ describe('parseVueSourceFile', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('should log parse error with Vue.js', () => {
-    const parsingError = parseVueSourceFile(
+  it('should log parse error with Vue.js for JavaScript', () => {
+    const parsingError = parseJavaScriptSourceFile(
       `
     <script>
     module.exports = {
@@ -280,11 +267,14 @@ describe('parseVueSourceFile', () => {
     ) as ParsingError;
     expect(parsingError).toBeDefined();
     expect(parsingError.line).toEqual(4);
-    expect(parsingError.message).toEqual('Unexpected token (3:4)');
+    expect(parsingError.message).toContain('Unexpected token (3:4)');
     expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
   });
 
-  it('should parse TypeScript syntax', () => {
+  it('should parse TypeScript syntax in .vue file', () => {
+    const dirName = __dirname + '/fixtures/ts-vue-project';
+    const filePath = dirName + '/sample.lint.vue';
+    const tsConfig = dirName + '/tsconfig.json';
     const fileContent = `
       <template></template>
       <script lang="ts">
@@ -293,10 +283,50 @@ describe('parseVueSourceFile', () => {
       let assertion = something as number;
       </script>
       <style></style>`;
-    const sourceCode = parseVueSourceFile(fileContent, filePath, [tsConfig]);
+    const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, [tsConfig]);
     expect(sourceCode).toBeDefined();
     expect(sourceCode).toBeInstanceOf(SourceCode);
   });
+
+  it('should log parse error with Vue.js for TypeScript', () => {
+    const dirName = __dirname + '/fixtures/ts-vue-project';
+    const filePath = dirName + '/sample.lint.vue';
+    const tsConfig = dirName + '/tsconfig.json';
+
+    const parsingError = parseTypeScriptSourceFile(
+      `
+      <script>
+      module.exports = {
+      </script>`,
+      filePath,
+      [tsConfig],
+    ) as ParsingError;
+    expect(parsingError).toBeDefined();
+    expect(parsingError.line).toEqual(4);
+    expect(parsingError.message).toContain(`'}' expected.`);
+    expect(parsingError.code).toEqual(ParseExceptionCode.Parsing);
+  });
+
+  it('should not parse .vue with TypeScript compiler when analysis parameter is set to False', () => {
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+    setContext({ workDir: '', shouldUseTypeScriptParserForJS: false, sonarlint: false });
+    const sourceCode = parseJavaScriptSourceFile(fileContent, filePath, [tsConfig]) as SourceCode;
+    expect(sourceCode.ast).toBeDefined();
+    expect(sourceCode.parserServices.program).toBeUndefined();
+  });
+});
+
+it('should parse TS Vue file after regular TS file', () => {
+  const dirName = __dirname + '/fixtures/ts-vue-project';
+  const tsConfig = dirName + '/tsconfig.json';
+  const tsResult = parseTypeScriptSourceFile(``, dirName + '/main.ts', [tsConfig]);
+  const vueResult = parseTypeScriptSourceFile(
+    `<script lang="ts"></script>`,
+    dirName + '/sample.lint.vue',
+    [tsConfig],
+  );
+  expect(tsResult).toBeInstanceOf(SourceCode);
+  expect(vueResult).toBeInstanceOf(SourceCode);
 });
 
 describe('parse import expression', () => {
@@ -309,7 +339,7 @@ describe('parse import expression', () => {
     const dirName = __dirname + '/fixtures/vue-project';
     const filePath = dirName + '/sample.lint.vue';
     const tsConfig = dirName + '/tsconfig.json';
-    const sourceCode = parseVueSourceFile(
+    const sourceCode = parseJavaScriptSourceFile(
       `
     <script>
     import("moduleName");
@@ -334,13 +364,5 @@ function expectToNotParse(code: string, message: string) {
   const parsingError = parseJavaScriptSourceFile(code, 'foo.js') as ParsingError;
   expect(parsingError).toBeDefined();
   expect(parsingError.line).toEqual(1);
-  expect(parsingError.message).toEqual(message);
-}
-
-function expectToParseInNonStrictMode(code: string, msgInStrictMode: string) {
-  const result1 = parse(babel.parse, PARSER_CONFIG_MODULE, code);
-  expect((result1 as ParseException).message).toEqual(msgInStrictMode);
-
-  const result2 = parse(babel.parse, PARSER_CONFIG_SCRIPT, code);
-  expect((result2 as SourceCode).ast.body.length).toBeGreaterThan(0);
+  expect(parsingError.message).toContain(message);
 }

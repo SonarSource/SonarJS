@@ -1,0 +1,14 @@
+{
+'jquery:build/tasks/dist.js':[
+36,
+36,
+],
+'jquery:src/selector/escapeSelector.js':[
+5,
+],
+'jquery:test/data/jquery-1.9.1.js':[
+3902,
+3903,
+3904,
+],
+}

@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>javascript</artifactId>
-    <version>7.4.0-SNAPSHOT</version>
+    <version>8.3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>javascript-checks</artifactId>
@@ -13,10 +13,6 @@
   <name>SonarQube JavaScript :: Checks</name>
 
   <dependencies>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>javascript-frontend</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
@@ -26,12 +22,8 @@
       <artifactId>jsr305</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.analyzer-commons</groupId>
@@ -45,16 +37,6 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>javascript-checks-testkit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

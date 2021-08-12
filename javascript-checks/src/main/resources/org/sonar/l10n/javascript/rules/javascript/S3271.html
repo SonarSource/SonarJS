@@ -1,7 +1,7 @@
 <p>Session storage and local storage are HTML 5 features which allow developers to easily store megabytes of data client-side, as opposed to the 4Kb
 cookies can accommodate. While useful to speed applications up on the client side, it can be dangerous to store sensitive information this way because
 the data is not encrypted by default and any script on the page may access it.</p>
-<p>This rule raises an issue when the <code>localStorage</code> and <code>sessionStorage</code> API's are used.</p>
+<p>This rule raises an issue when the <code>localStorage</code> and <code>sessionStorage</code> API’s are used.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 localStorage.setItem("login", login); // Noncompliant

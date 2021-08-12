@@ -260,7 +260,7 @@ class CodePathContext {
   }
 }
 
-type AssignmentLike = estree.AssignmentExpression | estree.VariableDeclarator;
+type AssignmentLike = TSESTree.AssignmentExpression | TSESTree.VariableDeclarator;
 
 class AssignmentContext {
   node: AssignmentLike;

@@ -193,10 +193,48 @@ public class CoverageTest {
       .contains("DEBUG: Problem during processing LCOV report: can't save DA data for line 12 of coverage report file")
       .contains("DEBUG: Problem during processing LCOV report: can't save BRDA data for line 18 of coverage report file");
 
-    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(6);
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
     assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
     assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(3);
     assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(0);
   }
 
+  @Test
+  public void conditions_on_non_executable_lines() {
+    final String projectKey = "ConditionsOnNonExecutableLines";
+    SonarScanner build = Tests.createScanner()
+      .setProjectDir(TestUtils.projectDir("lcov-jsx"))
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
+      .setProjectVersion("1.0")
+      .setSourceDirs(".")
+      .setDebugLogs(true)
+      .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov-jsx/conditions-on-non-executable-lines.lcov").getAbsolutePath());
+    Tests.setEmptyProfile(projectKey);
+    orchestrator.executeBuild(build);
+
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(3);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(0);
+    assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(2);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
+  }
+
+  @Test
+  public void wildcard_LCOV_report_paths() {
+    final String projectKey = "LcovWildcardReportPaths";
+    SonarScanner build = Tests.createScanner()
+      .setProjectDir(TestUtils.projectDir("lcov-wildcard"))
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
+      .setProjectVersion("1.0")
+      .setSourceDirs(".")
+      .setProperty("sonar.javascript.lcov.reportPaths", "foo.lcov,bar/*.lcov,**/qux/*.lcov");
+    Tests.setEmptyProfile(projectKey);
+    orchestrator.executeBuild(build);
+
+    assertThat(getMeasureAsInt(projectKey + ":foo.js", "uncovered_lines")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey + ":bar/bar.js", "uncovered_lines")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey + ":baz/baz.js", "uncovered_lines")).isEqualTo(5);
+    assertThat(getMeasureAsInt(projectKey + ":baz/qux/qux.js", "uncovered_lines")).isEqualTo(1);
+  }
 }

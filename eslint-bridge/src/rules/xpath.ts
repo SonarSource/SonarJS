@@ -26,6 +26,7 @@ import {
   isMemberExpression,
   isMemberWithProperty,
   getModuleNameOfImportedIdentifier,
+  isLiteral,
 } from '../utils';
 
 const xpathModule = 'xpath';
@@ -53,6 +54,10 @@ function checkCallExpression(
   { callee, arguments: args }: estree.CallExpression,
   context: Rule.RuleContext,
 ) {
+  if (args.length > 0 && isLiteral(args[0])) {
+    return;
+  }
+
   // IE
   if (isMemberWithProperty(callee, ...ieEvalMethods) && args.length === 1) {
     context.report({ message, node: callee });

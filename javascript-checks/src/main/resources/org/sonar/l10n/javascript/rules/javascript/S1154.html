@@ -1,4 +1,4 @@
-<p>Doing an operation on a string without using the result of the operation is useless and is certainly due to a misunderstanding. </p>
+<p>Doing an operation on a string without using the result of the operation is useless and is certainly due to a misunderstanding.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var str = "..."
@@ -9,10 +9,6 @@ str.toUpperCase(); // Noncompliant
 var str = "..."
 str = str.toUpperCase();
 </pre>
-<h2>See</h2>
-<ul>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/xzdGBQ">CERT, EXP00-J.</a> - Do not ignore values returned by methods </li>
-</ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use {rule:javascript:S2201} instead.</p>
 

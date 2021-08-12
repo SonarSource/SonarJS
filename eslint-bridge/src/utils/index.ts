@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './ancestor-finder';
-export * from './ast-shape';
-export * from './collections';
-export * from './decorators';
-export * from './globals';
-export * from './module-resolving';
-export * from './node-extractors';
-export * from './parser-services';
-export * from './secondary-locations';
-export * from './sensitive-arguments';
-export * from './type-checking';
-export * from './visitor';
+export * from './utils-ast';
+export * from './utils-collection';
+export * from './utils-decorator';
+export * from './utils-file';
+export * from './utils-global';
+export * from './utils-location';
+export * from './utils-module';
+export * from './utils-parent';
+export * from './utils-regex';
+export * from './utils-type';
+export * from './utils-visitor';
+export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';

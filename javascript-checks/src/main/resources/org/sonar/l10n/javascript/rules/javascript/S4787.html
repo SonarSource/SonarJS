@@ -6,7 +6,6 @@
 </ul>
 <p>Proper encryption requires both the encryption algorithm and the key to be strong. Obviously the private key needs to remain secret and be renewed
 regularly. However these are not the only means to defeat or weaken an encryption.</p>
-<p> </p>
 <p>This rule flags function calls that initiate encryption/decryption.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
@@ -19,7 +18,7 @@ regularly. However these are not the only means to defeat or weaken an encryptio
   <li> a nonce is used, and the same value is reused multiple times, or the nonce is not random. </li>
   <li> the RSA algorithm is used, and it does not incorporate an Optimal Asymmetric Encryption Padding (OAEP), which might weaken the encryption.
   </li>
-  <li> the CBC (Cypher Block Chaining) algorithm is used for encryption, and it's IV (Initialization Vector) is not generated using a secure random
+  <li> the CBC (Cypher Block Chaining) algorithm is used for encryption, and it’s IV (Initialization Vector) is not generated using a secure random
   algorithm, or it is reused. </li>
   <li> the Advanced Encryption Standard (AES) encryption algorithm is used with an unsecure mode. See the recommended practices for more information.
   </li>
@@ -41,15 +40,15 @@ regularly. However these are not the only means to defeat or weaken an encryptio
   <li> When using the RSA algorithm, incorporate an Optimal Asymmetric Encryption Padding (OAEP). </li>
   <li> When CBC is used for encryption, the IV must be random and unpredictable. Otherwise it exposes the encrypted value to crypto-analysis attacks
   like "Chosen-Plaintext Attacks". Thus a secure random algorithm should be used. An IV value should be associated to one and only one encryption
-  cycle, because the IV's purpose is to ensure that the same plaintext encrypted twice will yield two different ciphertexts. </li>
+  cycle, because the IV’s purpose is to ensure that the same plaintext encrypted twice will yield two different ciphertexts. </li>
   <li> The Advanced Encryption Standard (AES) encryption algorithm can be used with various modes. Galois/Counter Mode (GCM) with no padding should be
   preferred to the following combinations which are not secured:
     <ul>
       <li> Electronic Codebook (ECB) mode: Under a given key, any given plaintext block always gets encrypted to the same ciphertext block. Thus, it
-      does not hide data patterns well. In some senses, it doesn't provide serious message confidentiality, and it is not recommended for use in
+      does not hide data patterns well. In some senses, it doesn’t provide serious message confidentiality, and it is not recommended for use in
       cryptographic protocols at all. </li>
       <li> Cipher Block Chaining (CBC) with PKCS#5 padding (or PKCS#7) is susceptible to padding oracle attacks. </li>
-    </ul> </li>
+    </ul>  </li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>
@@ -85,5 +84,5 @@ const pubDec = crypto.publicDecrypt(key, privEnc); // Sensitive
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>
 <h2>Deprecated</h2>
-<p>This rule is deprecated; use {rule:javascript:S4426} instead.</p>
+<p>This rule is deprecated; use {rule:javascript:S4426}, {rule:javascript:S5542}, {rule:javascript:S5547} instead.</p>
 

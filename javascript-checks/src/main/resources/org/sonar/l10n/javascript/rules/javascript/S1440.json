@@ -1,5 +1,5 @@
 {
-  "title": "\"===\" and \"!==\" should be used instead of \"==\" and \"!=\"",
+  "title": "\"\u003d\u003d\u003d\" and \"!\u003d\u003d\" should be used instead of \"\u003d\u003d\" and \"!\u003d\"",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -12,9 +12,9 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1440",
   "sqKey": "S1440",
+  "scope": "Main",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
-  ],
-  "scope": "Main"
+  ]
 }

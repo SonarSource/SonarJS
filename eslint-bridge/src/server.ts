@@ -19,8 +19,6 @@
  */
 import { Server } from 'http';
 import express from 'express';
-import { RequestHandler } from 'express';
-import * as bodyParser from 'body-parser';
 import {
   AnalysisInput,
   analyzeJavaScript,
@@ -62,7 +60,7 @@ export function startServer(
     const app = express();
 
     // for parsing application/json requests
-    app.use(bodyParser.json({ limit: MAX_REQUEST_SIZE }));
+    app.use(express.json({ limit: MAX_REQUEST_SIZE }));
 
     app.post('/init-linter', (req, resp) => {
       initLinter(
@@ -111,7 +109,7 @@ export function startServer(
   });
 }
 
-function analyze(analysisFunction: AnalysisFunction): RequestHandler {
+function analyze(analysisFunction: AnalysisFunction): express.RequestHandler {
   return (request: express.Request, response: express.Response) => {
     try {
       const parsedRequest = request.body as AnalysisInput;

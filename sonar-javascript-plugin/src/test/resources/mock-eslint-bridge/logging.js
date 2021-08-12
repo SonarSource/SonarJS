@@ -18,6 +18,7 @@ const server = http.createServer((req, res) => {
     res.end('OK!');
   }
 })
+server.keepAliveTimeout = 100  // this is used so server disconnects faster
 
 server.listen(port, host, () => {
   console.log(`server is listening on ${host} ${port}`);

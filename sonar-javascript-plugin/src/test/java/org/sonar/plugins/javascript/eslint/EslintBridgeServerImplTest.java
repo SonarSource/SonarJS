@@ -144,7 +144,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, true, null);
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null);
     assertThat(eslintBridgeServer.analyzeJavaScript(request).issues).isEmpty();
   }
 
@@ -172,7 +172,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, true,
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true,
       singletonList(tsConfig.absolutePath()));
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
   }
@@ -257,12 +257,34 @@ public class EslintBridgeServerImplTest {
   }
 
   @Test
-  public void should_throw_special_exception_when_failed_already() throws Exception {
+  public void should_throw_special_exception_when_failed_start_server_before() {
     eslintBridgeServer = createEslintBridgeServer("throw.js");
     String failedToStartExceptionMessage = "Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)";
     assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
       .isInstanceOf(NodeCommandException.class)
       .hasMessage(failedToStartExceptionMessage);
+
+    assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
+      .isInstanceOf(ServerAlreadyFailedException.class);
+  }
+
+  @Test
+  public void should_throw_special_exception_when_failed_start_process_before() {
+    eslintBridgeServer = createEslintBridgeServer("invalid");
+    assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessageStartingWith("Node.js script to start eslint-bridge server doesn't exist");
+
+    assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
+      .isInstanceOf(ServerAlreadyFailedException.class);
+  }
+
+  @Test
+  public void should_throw_if_server_not_alive() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer("startAndClose.js");
+    eslintBridgeServer.startServerLazily(context);
+
+    eslintBridgeServer.waitFor();
 
     assertThatThrownBy(() -> eslintBridgeServer.startServerLazily(context))
       .isInstanceOf(ServerAlreadyFailedException.class);
@@ -277,7 +299,7 @@ public class EslintBridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
-    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), null, true, null);
+    AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true, null);
     assertThatThrownBy(() -> eslintBridgeServer.analyzeJavaScript(request)).isInstanceOf(IllegalStateException.class);
     assertThat(context.allIssues()).isEmpty();
   }
@@ -377,6 +399,17 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.stop();
 
     assertThat(logTester.logs()).contains("additional rules: [bundle1" + File.pathSeparator + "bundle2]");
+  }
+
+  @Test
+  public void should_skip_metrics_on_sonarlint() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(7, 9)));
+    eslintBridgeServer.startServer(context, Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2")));
+    eslintBridgeServer.stop();
+
+    assertThat(logTester.logs()).contains("sonarlint: true");
   }
 
   @Test

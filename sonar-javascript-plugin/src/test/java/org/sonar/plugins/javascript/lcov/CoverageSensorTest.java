@@ -19,12 +19,11 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import com.google.common.base.Charsets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.FileUtils;
+import java.nio.file.Files;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -80,7 +79,7 @@ public class CoverageSensorTest {
       .setType(type)
       .build();
 
-    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), Charsets.UTF_8, inputFile.absolutePath()));
+    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), StandardCharsets.UTF_8, inputFile.absolutePath()));
     context.fileSystem().add(inputFile);
 
     return inputFile;
@@ -177,6 +176,7 @@ public class CoverageSensorTest {
       .doesNotContain("Unresolved paths:\n" +
         "unresolved/file1.js\n" +
         "unresolved/file2.js");
+      .contains("Using 'reports/report_with_unresolved_path.lcov' to resolve LCOV files");
   }
 
   @Test
@@ -205,7 +205,7 @@ public class CoverageSensorTest {
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(2);
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.NumberFormatException: For input string: \"1.\").");
-    String stringIndexOutOfBoundLogMessage = logTester.logs(LoggerLevel.DEBUG).get(1);
+    String stringIndexOutOfBoundLogMessage = logTester.logs(LoggerLevel.DEBUG).get(2);
     assertThat(stringIndexOutOfBoundLogMessage).startsWith("Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException:");
     assertThat(logTester.logs(LoggerLevel.DEBUG).get(logTester.logs(LoggerLevel.DEBUG).size() - 1)).startsWith("Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: ");
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Found 3 inconsistencies in coverage report. Re-run analyse in debug mode to see details.");
@@ -252,7 +252,8 @@ public class CoverageSensorTest {
     String absolutePathFile1 = new File("src/test/resources/coverage/file1.js").getAbsolutePath();
     String absolutePathFile2 = new File("src/test/resources/coverage/file2.js").getAbsolutePath();
 
-    FileUtils.writeStringToFile(lcovFile, "SF:" + absolutePathFile1 + "\n" +
+    Files.write(lcovFile.toPath(),
+      ("SF:" + absolutePathFile1 + "\n" +
       "DA:1,2\n" +
       "DA:2,2\n" +
       "DA:3,1\n" +
@@ -266,7 +267,7 @@ public class CoverageSensorTest {
       "SF:" + absolutePathFile2 + "\n" +
       "DA:1,5\n" +
       "DA:2,5\n" +
-      "end_of_record\n", "UTF-8", false);
+      "end_of_record\n").getBytes(StandardCharsets.UTF_8));
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcovFile.getAbsolutePath());
     inputFile("file1.js", Type.MAIN);
     inputFile("file2.js", Type.MAIN);
@@ -288,6 +289,24 @@ public class CoverageSensorTest {
   }
 
   @Test
+  public void should_resolve_wildcard_report_paths() throws Exception {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "**/wildcard/**/*.lcov");
+    inputFile("file1.js", Type.MAIN);
+    inputFile("file2.js", Type.MAIN); // not referenced in any '**/wildcard/**/*.lcov' files
+    inputFile("tests/file1.js", Type.MAIN);
+    coverageSensor.execute(context);
+
+    String file1Key = "moduleKey:file1.js";
+    assertThat(context.lineHits(file1Key, 2)).isEqualTo(1);
+
+    String file2Key = "moduleKey:file2.js";
+    assertThat(context.lineHits(file2Key, 2)).isNull();
+
+    String nestedFileKey = "moduleKey:tests/file1.js";
+    assertThat(context.lineHits(nestedFileKey, 2)).isEqualTo(1);
+  }
+
+  @Test
   public void should_import_coverage_for_ts() throws Exception {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "src/file1.ts")
       .setModuleBaseDir(moduleBaseDir.toPath())
@@ -300,7 +319,7 @@ public class CoverageSensorTest {
     context.fileSystem().add(inputFile);
 
     File lcov = temp.newFile();
-    FileUtils.writeStringToFile(lcov, "SF:src/file1.ts\n" +
+    Files.write(lcov.toPath(), ("SF:src/file1.ts\n" +
       "DA:1,2\n" +
       "DA:2,2\n" +
       "DA:3,1\n" +
@@ -314,7 +333,7 @@ public class CoverageSensorTest {
       "SF:src/file2.ts\n" +
       "DA:1,5\n" +
       "DA:2,5\n" +
-      "end_of_record\n", StandardCharsets.UTF_8);
+      "end_of_record\n").getBytes(StandardCharsets.UTF_8));
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.getAbsolutePath());
     coverageSensor.execute(context);
     assertThat(context.lineHits(inputFile.key(), 1)).isEqualTo(2);

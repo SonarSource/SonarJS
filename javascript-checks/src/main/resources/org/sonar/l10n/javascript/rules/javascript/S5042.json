@@ -1,5 +1,5 @@
 {
-  "title": "Expanding archive files without controlling resource consumption is security sensitive",
+  "title": "Expanding archive files without controlling resource consumption is security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "status": "ready",
   "remediation": {
@@ -14,10 +14,6 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5042",
   "sqKey": "S5042",
-  "compatibleLanguages": [
-    "JAVASCRIPT",
-    "TYPESCRIPT"
-  ],
   "scope": "Main",
   "securityStandards": {
     "CWE": [
@@ -27,5 +23,9 @@
       "A5",
       "A6"
     ]
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

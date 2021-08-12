@@ -50,26 +50,6 @@ const tests = {
         },
       ],
     },
-    {
-      code: `
-        switch (param) {
-          case 0:
-            break;
-          default:
-            break;
-          case 1:
-            break;
-        }`,
-      errors: [
-        {
-          message: `Move this "default" clause to the end of this "switch" statement.`,
-          line: 5,
-          endLine: 5,
-          column: 11,
-          endColumn: 18,
-        },
-      ],
-    },
   ],
 };
 

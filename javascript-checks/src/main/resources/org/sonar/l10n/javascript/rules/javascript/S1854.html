@@ -1,5 +1,5 @@
 <p>A dead store happens when a local variable is assigned a value that is not read by any subsequent instruction. Calculating or retrieving a value
-only to then overwrite it or throw it away, could indicate a serious error in the code. Even if it's not an error, it is at best a waste of resources.
+only to then overwrite it or throw it away, could indicate a serious error in the code. Even if it’s not an error, it is at best a waste of resources.
 Therefore all calculated values should be used.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -25,7 +25,5 @@ doSomething(x2, x3);
 <h2>See</h2>
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/563.html">MITRE, CWE-563</a> - Assignment to Variable without Use ('Unused Variable') </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/39UxBQ">CERT, MSC13-C.</a> - Detect and remove unused values </li>
-  <li> <a href="https://wiki.sei.cmu.edu/confluence/x/9DZGBQ">CERT, MSC56-J.</a> - Detect and remove superfluous code and values </li>
 </ul>
 

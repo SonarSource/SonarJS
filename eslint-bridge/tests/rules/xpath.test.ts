@@ -56,6 +56,15 @@ ruleTester.run('Executing XPath expressions is security-sensitive', rule, {
     {
       code: `foo.evaluate(userInput, xmlDoc, null, foo);`,
     },
+    {
+      code: `
+        const xpath = require('xpath');
+        xpath.select('foo/bar');
+        xpath.select1('foo/bar');
+        xpath.evaluate('foo/bar');
+        a.selectNodes('foo/bar');
+        a.SelectSingleNode('foo/bar')`,
+    },
   ],
   invalid: [
     {

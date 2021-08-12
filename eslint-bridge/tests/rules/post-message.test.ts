@@ -55,6 +55,33 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
       postMessage("message", "*", "something", "something else");
             `,
     },
+    {
+      code: `
+      window.addEventListener("message", function(event) {
+        if (event.origin !== "http://example.org")
+          return;
+        console.log(event.data);
+      });
+            `,
+    },
+    {
+      code: `
+      window.addEventListener("missing listener");
+      window.addEventListener("message", "not a function");
+      not_a_win_dow.addEventListener("message", () => {});
+      window.addEventListener("message", (/* missing event parameter */) => {});
+      window.addEventListener("message", (...not_an_identifier) => {});
+            `,
+    },
+    {
+      code: `
+      window.addEventListener("click", function(event) { // OK: event type is not "message"
+        if (event.data !== "http://example.org")
+          return;
+        console.log(event.data);
+      });
+            `,
+    },
   ],
   invalid: [
     {
@@ -93,6 +120,44 @@ ruleTesterTs.run('Origins should be verified during cross-origin communications'
     {
       code: `
       getWindow().postMessage("message", "*");
+            `,
+      errors: 1,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) {
+        console.log(event.data);
+      });
+            `,
+      errors: 1,
+    },
+    {
+      code: `
+      function eventHandler(event) {
+        console.log(event.data);
+      }
+      window.addEventListener("message", eventHandler);
+            `,
+      errors: 1,
+    },
+    {
+      code: `
+      window.addEventListener("message", function(event) {
+        if (event.data !== "http://example.org")
+          return;
+        console.log(event.data);
+      });
+            `,
+      errors: 1,
+    },
+    {
+      code: `
+      const eventType = "message";
+      window.addEventListener(eventType, function(event) {
+        if (event.data !== "http://example.org")
+          return;
+        console.log(event.data);
+      });
             `,
       errors: 1,
     },

@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
@@ -63,9 +62,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptChecks;
-import org.sonar.plugins.javascript.JavaScriptSensorTest;
-import org.sonar.plugins.javascript.api.CustomRuleRepository;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -354,6 +350,19 @@ public class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
+  public void should_skip_analysis_when_no_files() throws Exception {
+    JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
+      new NoSonarFilter(),
+      fileLinesContextFactory,
+      eslintBridgeServerMock,
+      mock(AnalysisWarnings.class),
+      tempFolder
+    );
+    javaScriptEslintBasedSensor.execute(context);
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files found for analysis");
+  }
+
+  @Test
   public void handle_missing_node() throws Exception {
     doThrow(new NodeCommandException("Exception Message", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
     AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
@@ -364,7 +373,7 @@ public class JavaScriptEslintBasedSensorTest {
       analysisWarnings,
       tempFolder
     );
-
+    createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
     verify(analysisWarnings).addUnique("JavaScript and/or TypeScript rules were not executed. Exception Message");
@@ -374,10 +383,11 @@ public class JavaScriptEslintBasedSensorTest {
   public void log_debug_if_already_failed_server() throws Exception {
     doThrow(new ServerAlreadyFailedException()).when(eslintBridgeServerMock).startServerLazily(any());
     JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = createSensor();
+    createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
 
-    assertThat(logTester.logs()).contains("Skipping start of eslint-bridge server due to the failure during first analysis",
-      "Skipping execution of eslint-based rules due to the problems with eslint-bridge server");
+    assertThat(logTester.logs()).contains("Skipping the start of eslint-bridge server as it failed to start during the first analysis or it's not answering anymore",
+      "No rules will be executed");
   }
 
   @Test
@@ -475,49 +485,12 @@ public class JavaScriptEslintBasedSensorTest {
     JavaScriptEslintBasedSensor sensor = createSensor();
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
+    createInputFile(context);
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
   }
 
-  @Test
-  public void should_run_old_frontend() throws Exception {
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
-      .setLanguage("js")
-      .setCharset(StandardCharsets.UTF_8)
-      .setContents("0123;")
-      .build();
-    context.fileSystem().add(inputFile);
-
-    JavaScriptChecks checks = createChecksWithOctalCustomRule();
-    NoSonarFilter noSonarFilter = new NoSonarFilter();
-    JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServerMock, null, tempFolder);
-    sensor.execute(context);
-
-    assertThat(context.allIssues()).hasSize(1);
-    assertThat(context.allIssues()).extracting(i -> i.ruleKey().toString()).containsExactly("javascript:octal");
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Custom JavaScript rules are deprecated and API will be removed in future version.");
-  }
-
-
-  private JavaScriptChecks createChecksWithOctalCustomRule() {
-    CustomRuleRepository[] ruleRepository = {new CustomRuleRepository() {
-
-      @Override
-      public String repositoryKey() {
-        return "javascript";
-      }
-
-      @Override
-      public List<Class<? extends JavaScriptCheck>> checkClasses() {
-        return ImmutableList.of(JavaScriptSensorTest.OctalNumberCheck.class);
-      }
-    }};
-    ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    builder.addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "octal")).build());
-    CheckFactory checkFactory = new CheckFactory(builder.build());
-    return new JavaScriptChecks(checkFactory, ruleRepository);
-  }
 
   @Test
   public void stop_analysis_if_cancelled() throws Exception {
