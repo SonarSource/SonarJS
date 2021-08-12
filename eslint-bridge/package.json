@@ -50,7 +50,7 @@
     "@typescript-eslint/parser": "4.29.1",
     "builtin-modules": "3.2.0",
     "bytes": "3.1.0",
-    "eslint": "7.27.0",
+    "eslint": "7.32.0",
     "eslint-plugin-chai-friendly": "0.7.2",
     "eslint-plugin-sonarjs": "0.10.0-290",
     "express": "4.17.1",
