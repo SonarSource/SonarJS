@@ -25,9 +25,9 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
-import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
+import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.eslint.RulesBundles;
 import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
@@ -37,7 +37,8 @@ import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
-import org.sonarsource.nodejs.NodeCommand;
+import org.sonarsource.nodejs.NodeCommandBuilderImpl;
+import org.sonarsource.nodejs.ProcessWrapperImpl;
 
 public class JavaScriptPlugin implements Plugin {
 
@@ -90,7 +91,8 @@ public class JavaScriptPlugin implements Plugin {
       JavaScriptExclusionsFileFilter.class,
       JavaScriptRulesDefinition.class,
       JavaScriptProfilesDefinition.class,
-      NodeCommand.builder(),
+      NodeCommandBuilderImpl.class,
+      ProcessWrapperImpl.class,
       EslintBridgeServerImpl.class,
       NodeDeprecationWarning.class,
       BundleImpl.class,

@@ -25,6 +25,10 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.List;
 import org.junit.ClassRule;
@@ -142,5 +146,38 @@ public class EslintBasedRulesTest {
     assertThat(issuesList).hasSize(1)
       .extracting(Issue::getComponent)
       .containsExactly("file-filter-project:main.js");
+  }
+
+  @Test
+  // cwd - current working directory
+  public void should_not_use_node_in_cwd() throws Exception {
+    if (!System.getProperty("os.name").startsWith("Windows")) {
+      // this test only makes sense on Windows
+      return;
+    }
+    String projectKey = "eslint_based_rules";
+    File projectDir = TestUtils.projectDir(projectKey);
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setDebugLogs(true)
+      .setProjectDir(projectDir);
+
+    // copy ping.exe to node.exe and place it in the project directory
+    Path ping = Paths.get("C:\\Windows\\System32\\PING.EXE");
+    Path fakeNodePath = projectDir.toPath().resolve("node.exe");
+    Files.copy(ping, fakeNodePath, StandardCopyOption.REPLACE_EXISTING);
+    BuildResult buildResult = orchestrator.executeBuild(build);
+    assertThat(buildResult.isSuccess()).isTrue();
+    assertThat(buildResult.getLogs()).contains("Looking for Node.js in the PATH using where.exe (Windows)");
+
+    // compare that the node which we used is not "ping.exe"
+    String log = buildResult.getLogsLines(s -> s.contains("Found node.exe at")).get(0);
+    Path nodePath = Paths.get(log.substring(log.indexOf("at") + 3));
+    assertThat(nodePath).isNotEqualTo(fakeNodePath);
+    byte[] nodeBytes = Files.readAllBytes(nodePath);
+    byte[] pingBytes = Files.readAllBytes(ping);
+    assertThat(pingBytes).isNotEqualTo(nodeBytes);
   }
 }

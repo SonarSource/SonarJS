@@ -34,7 +34,7 @@ import org.sonar.api.utils.log.Loggers;
 class StreamConsumer {
 
   private static final Logger LOG = Loggers.get(StreamConsumer.class);
-  private ExecutorService executorService;
+  private final ExecutorService executorService;
 
   StreamConsumer() {
     executorService = Executors.newCachedThreadPool(r -> {
@@ -59,10 +59,11 @@ class StreamConsumer {
     executorService.shutdown();
     if (!executorService.awaitTermination(5, TimeUnit.MINUTES)) {
       LOG.error("External process stream consumer timed out");
+      executorService.shutdownNow();
     }
   }
 
-  void shutdownNow() {
-    executorService.shutdownNow();
+  boolean isShutdown() {
+    return executorService.isShutdown();
   }
 }

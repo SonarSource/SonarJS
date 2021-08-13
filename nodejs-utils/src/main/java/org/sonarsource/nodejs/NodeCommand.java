@@ -23,11 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -48,7 +45,6 @@ public class NodeCommand {
 
   final Consumer<String> outputConsumer;
   final Consumer<String> errorConsumer;
-  private final StreamConsumer streamConsumer;
   private final ProcessWrapper processWrapper;
   private final int actualNodeVersion;
   private Process process;
@@ -63,7 +59,6 @@ public class NodeCommand {
     this.actualNodeVersion = actualNodeVersion;
     this.outputConsumer = outputConsumer;
     this.errorConsumer = errorConsumer;
-    this.streamConsumer = new StreamConsumer();
   }
 
   /**
@@ -74,9 +69,7 @@ public class NodeCommand {
   public void start() {
     try {
       LOG.debug("Launching command {}", toString());
-      process = processWrapper.start(command, new HashMap<>());
-      streamConsumer.consumeStream(process.getInputStream(), outputConsumer);
-      streamConsumer.consumeStream(process.getErrorStream(), errorConsumer);
+      process = processWrapper.startProcess(command, new HashMap<>(), outputConsumer, errorConsumer);
     } catch (IOException e) {
       throw new NodeCommandException("Error when running: '" + toString() + "'. Is Node.js available during analysis?", e);
     }
@@ -108,14 +101,11 @@ public class NodeCommand {
         processWrapper.destroyForcibly(process);
         exitValue = -1;
       }
-      streamConsumer.await();
       return exitValue;
     } catch (InterruptedException e) {
       processWrapper.interrupt();
       LOG.error("Interrupted while waiting for process to terminate.");
       return 1;
-    } finally {
-      streamConsumer.shutdownNow();
     }
   }
 
@@ -136,62 +126,4 @@ public class NodeCommand {
     return new NodeCommandBuilderImpl(processWrapper);
   }
 
-  interface ProcessWrapper {
-    Process start(List<String> commandLine, Map<String, String> env) throws IOException;
-
-    boolean waitFor(Process process, long timeout, TimeUnit unit) throws InterruptedException;
-
-    void interrupt();
-
-    void destroyForcibly(Process process);
-
-    boolean isMac();
-
-    @CheckForNull
-    String getenv(String name);
-
-    int exitValue(Process process);
-  }
-
-  private static class ProcessWrapperImpl implements ProcessWrapper {
-
-    @Override
-    public Process start(List<String> commandLine, Map<String, String> env) throws IOException {
-      ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
-      processBuilder.environment().putAll(env);
-      return processBuilder.start();
-    }
-
-    @Override
-    public boolean waitFor(Process process, long timeout, TimeUnit unit) throws InterruptedException {
-      return process.waitFor(timeout, unit);
-    }
-
-    @Override
-    public void interrupt() {
-      Thread.currentThread().interrupt();
-    }
-
-    @Override
-    public void destroyForcibly(Process process) {
-      process.destroyForcibly();
-    }
-
-    @Override
-    public boolean isMac() {
-      String osName = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
-      return osName.startsWith("mac");
-    }
-
-    @Override
-    @CheckForNull
-    public String getenv(String name) {
-      return System.getenv(name);
-    }
-
-    @Override
-    public int exitValue(Process process) {
-      return process.exitValue();
-    }
-  }
 }
