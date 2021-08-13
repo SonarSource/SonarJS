@@ -1296,15 +1296,15 @@
   dependencies:
     "@types/node" "*"
 
-"@types/eslint-scope@3.7.0":
-  version "3.7.0"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/eslint-scope/-/eslint-scope-3.7.0.tgz#4792816e31119ebd506902a482caec4951fabd86"
-  integrity sha1-R5KBbjERnr1QaQKkgsrsSVH6vYY=
+"@types/eslint-scope@3.7.1":
+  version "3.7.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/eslint-scope/-/eslint-scope-3.7.1.tgz#8dc390a7b4f9dd9f1284629efce982e41612116e"
+  integrity sha1-jcOQp7T53Z8ShGKe/OmC5BYSEW4=
   dependencies:
     "@types/eslint" "*"
     "@types/estree" "*"
 
-"@types/eslint@*":
+"@types/eslint@*", "@types/eslint@7.28.0":
   version "7.28.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/eslint/-/eslint-7.28.0.tgz#7e41f2481d301c68e14f483fe10b017753ce8d5a"
   integrity sha1-fkHySB0wHGjhT0g/4QsBd1POjVo=
@@ -1312,23 +1312,10 @@
     "@types/estree" "*"
     "@types/json-schema" "*"
 
-"@types/eslint@7.2.6":
-  version "7.2.6"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/eslint/-/eslint-7.2.6.tgz#5e9aff555a975596c03a98b59ecd103decc70c3c"
-  integrity sha1-Xpr/VVqXVZbAOpi1ns0QPezHDDw=
-  dependencies:
-    "@types/estree" "*"
-    "@types/json-schema" "*"
-
-"@types/estree@*":
+"@types/estree@*", "@types/estree@0.0.50":
   version "0.0.50"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/estree/-/estree-0.0.50.tgz#1e0caa9364d3fccd2931c3ed96fdbeaa5d4cca83"
   integrity sha1-Hgyqk2TT/M0pMcPtlv2+ql1MyoM=
-
-"@types/estree@0.0.46":
-  version "0.0.46"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/estree/-/estree-0.0.46.tgz#0fb6bfbbeabd7a30880504993369c4bf1deab1fe"
-  integrity sha1-D7a/u+q9ejCIBQSZM2nEvx3qsf4=
 
 "@types/express-serve-static-core@^4.17.18":
   version "4.17.24"

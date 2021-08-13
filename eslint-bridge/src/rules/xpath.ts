@@ -92,7 +92,7 @@ function checkCallExpression(
 }
 function getModuleAndCalledMethod(callee: estree.Node, context: Rule.RuleContext) {
   let moduleName;
-  let expression: estree.Expression | undefined;
+  let expression: estree.Expression | estree.PrivateIdentifier | undefined;
 
   if (callee.type === 'MemberExpression' && callee.object.type === 'Identifier') {
     moduleName = getModuleNameOfIdentifier(context, callee.object);

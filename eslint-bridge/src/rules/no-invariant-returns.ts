@@ -43,7 +43,7 @@ interface SingleWriteVariable {
   initExpression?: estree.Expression | null;
 }
 
-type LiteralValue = number | RegExp | string | null | boolean;
+type LiteralValue = number | RegExp | string | null | boolean | bigint;
 
 export const rule: Rule.RuleModule = {
   meta: {

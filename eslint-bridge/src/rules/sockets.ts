@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
 
 function checkCallExpression({ callee, type }: estree.CallExpression, context: Rule.RuleContext) {
   let moduleName;
-  let expression: estree.Expression | undefined;
+  let expression: estree.Expression | estree.PrivateIdentifier | undefined;
   if (callee.type === 'MemberExpression' && callee.object.type === 'Identifier') {
     moduleName = getModuleNameOfIdentifier(context, callee.object);
     expression = callee.property;
@@ -61,7 +61,7 @@ function checkCallExpression({ callee, type }: estree.CallExpression, context: R
 }
 
 function isQuestionable(
-  expression: estree.Expression,
+  expression: estree.Expression | estree.PrivateIdentifier,
   isConstructor: boolean,
   moduleName?: estree.Literal,
 ) {
