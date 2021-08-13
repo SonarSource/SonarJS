@@ -6,9 +6,6 @@
 2738,
 15771,
 ],
-'TypeScript:src/compiler/commandLineParser.ts':[
-684,
-],
 'TypeScript:src/compiler/parser.ts':[
 7020,
 ],
@@ -21,10 +18,6 @@
 ],
 'TypeScript:src/harness/unittests/tsserverProjectSystem.ts':[
 157,
-618,
-],
-'TypeScript:src/server/client.ts':[
-597,
 ],
 'TypeScript:src/server/session.ts':[
 776,
@@ -33,7 +26,6 @@
 35,
 ],
 'TypeScript:src/services/codefixes/helpers.ts':[
-19,
 78,
 ],
 'TypeScript:src/services/formatting/rulesMap.ts':[

@@ -9,10 +9,6 @@
 'desktop:app/src/lib/dispatcher/issues-store.ts':[
 114,
 ],
-'desktop:app/src/lib/git/diff.ts':[
-176,
-186,
-],
 'desktop:app/src/lib/git/for-each-ref.ts':[
 36,
 ],
