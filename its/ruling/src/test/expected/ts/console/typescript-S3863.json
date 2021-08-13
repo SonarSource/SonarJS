@@ -2,12 +2,6 @@
 'console:src/actions/databrowser/data.ts':[
 4,
 ],
-'console:src/components/Auth0LockWrapper/Auth0LockWrapper.tsx':[
-4,
-],
-'console:src/components/Datepicker/Datepicker.tsx':[
-4,
-],
 'console:src/utils/relay.ts':[
 9,
 ],
@@ -20,9 +14,6 @@
 ],
 'console:src/views/ActionsView/ActionsView.tsx':[
 12,
-],
-'console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx':[
-24,
 ],
 'console:src/views/FunctionsView/FunctionRow.tsx':[
 6,
@@ -38,9 +29,6 @@
 ],
 'console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx':[
 22,
-],
-'console:src/views/RelationsPopup/RelationPopup.tsx':[
-3,
 ],
 'console:src/views/SchemaView/EnumsOverview/EnumBox.tsx':[
 16,

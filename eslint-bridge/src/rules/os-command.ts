@@ -63,7 +63,7 @@ function checkCallExpression(
 
 function checkOSCommand(
   moduleName: estree.Literal | undefined,
-  callee: estree.Expression,
+  callee: estree.Expression | estree.PrivateIdentifier,
   args: Argument[],
   context: Rule.RuleContext,
 ) {
@@ -75,7 +75,10 @@ function checkOSCommand(
   }
 }
 
-function isQuestionable(expression: estree.Expression, [command, ...otherArguments]: Argument[]) {
+function isQuestionable(
+  expression: estree.Expression | estree.PrivateIdentifier,
+  [command, ...otherArguments]: Argument[],
+) {
   // if command is hardcoded => no issue
   if (!command || command.type === 'Literal') {
     return false;

@@ -47,6 +47,14 @@ export function interceptReport(
         parserOptions: originalContext.parserOptions,
         parserServices: originalContext.parserServices,
 
+        getCwd(): string {
+          return originalContext.getCwd();
+        },
+
+        getPhysicalFilename(): string {
+          return originalContext.getPhysicalFilename();
+        },
+
         getAncestors() {
           return originalContext.getAncestors();
         },
