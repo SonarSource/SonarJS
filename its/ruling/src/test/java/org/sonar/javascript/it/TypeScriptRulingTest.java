@@ -21,21 +21,15 @@ package org.sonar.javascript.it;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
 public class TypeScriptRulingTest extends JavaScriptRulingTest {
 
-  public TypeScriptRulingTest(String project, String language, String sourceDir, List<String> exclusions) {
-    super(project, language, sourceDir, exclusions);
-  }
-
-  @Parameters(name = "{0}")
-  public static Object[][] projects() {
-    return new Object[][]{
+  public static Stream<Arguments> ts_ruling() {
+    return Stream.of(
       tsProject("ag-grid"),
       tsProject("ant-design"),
       tsProject("console"),
@@ -49,20 +43,21 @@ public class TypeScriptRulingTest extends JavaScriptRulingTest {
       tsProject("prettier-vscode"),
       tsProject("rxjs"),
       tsProject("searchkit"),
-      tsProject("TypeScript"),
-    };
+      tsProject("TypeScript")
+      );
   }
 
-  private static Object[] tsProject(String project) {
+  private static Arguments tsProject(String project) {
     return tsProject(project, Arrays.asList("**/*.d.ts", "**/*.js"));
   }
 
-  private static Object[] tsProject(String project, List<String> exclusions) {
-    return new Object[]{project, "ts", "../typescript-test-sources/src/" + project, exclusions};
+  private static Arguments tsProject(String project, List<String> exclusions) {
+    return Arguments.of(project, "ts", "../typescript-test-sources/src/" + project, exclusions);
   }
 
-  @Test
-  public void ruling() throws Exception {
+  @ParameterizedTest
+  @MethodSource
+  void ts_ruling(String project, String language, String sourceDir, List<String> exclusions) throws Exception {
     runRulingTest(project, language, sourceDir, exclusions);
   }
 
