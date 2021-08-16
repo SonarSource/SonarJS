@@ -27,8 +27,8 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import org.assertj.core.groups.Tuple;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
@@ -42,13 +42,13 @@ public class EslintCustomRulesTest {
 
   private static Orchestrator orchestrator;
 
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     orchestrator = initOrchestrator(PLUGIN_ARTIFACT_ID);
   }
 
 
-  @AfterClass
+  @AfterAll
   public static void after() {
     orchestrator.stop();
   }

@@ -26,11 +26,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.client.api.common.Language;
@@ -59,23 +58,21 @@ import static org.assertj.core.api.Assertions.tuple;
  */
 public class SonarLintTest {
 
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
-
   private static final String FILE_PATH = "foo.js";
   private final static List<String> LOGS = new ArrayList<>();
 
-  private static File baseDir;
+  @TempDir
+  File baseDir;
+
   private static StandaloneGlobalConfiguration sonarLintConfig;
   private StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
 
-  @BeforeClass
-  public static void prepare() throws Exception {
-    sonarLintConfig = getSonarLintConfig();
-    baseDir = temp.newFolder();
+  @BeforeAll
+  public static void prepare(@TempDir Path sonarLintHome) throws Exception {
+    sonarLintConfig = getSonarLintConfig(sonarLintHome);
   }
 
-  @After
+  @AfterEach
   public void stop() {
     sonarlintEngine.stop();
   }
@@ -130,9 +127,9 @@ public class SonarLintTest {
   }
 
   @Test
-  public void should_log_failure_only_once() throws IOException {
+  public void should_log_failure_only_once(@TempDir Path sonarLintHome) throws IOException {
     // version `42` will let us pass SonarLint check of version
-    sonarlintEngine = new StandaloneSonarLintEngineImpl(getSonarLintConfig(new File("invalid/path/node").toPath(), Version.create("42")));
+    sonarlintEngine = new StandaloneSonarLintEngineImpl(getSonarLintConfig(new File("invalid/path/node").toPath(), Version.create("42"), sonarLintHome));
     List<Issue> issues = analyze(FILE_PATH, "");
     assertThat(LOGS).contains("Provided Node.js executable file does not exist.");
     assertThat(issues).isEmpty();
@@ -154,14 +151,14 @@ public class SonarLintTest {
     return issues;
   }
 
-  private static StandaloneGlobalConfiguration getSonarLintConfig() throws IOException {
+  private static StandaloneGlobalConfiguration getSonarLintConfig(Path sonarLintHome) throws IOException {
     NodeJsHelper nodeJsHelper = new NodeJsHelper();
     nodeJsHelper.detect(null);
 
-    return getSonarLintConfig(nodeJsHelper.getNodeJsPath(), nodeJsHelper.getNodeJsVersion());
+    return getSonarLintConfig(nodeJsHelper.getNodeJsPath(), nodeJsHelper.getNodeJsVersion(), sonarLintHome);
   }
 
-  private static StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion) throws IOException {
+  private static StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion, Path sonarLintHome) throws IOException {
     LogOutput logOutput = (formattedMessage, level) -> {
       LOGS.add(formattedMessage);
       System.out.println(formattedMessage);
@@ -171,7 +168,7 @@ public class SonarLintTest {
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
       .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
-      .setSonarLintUserHome(temp.newFolder().toPath())
+      .setSonarLintUserHome(sonarLintHome)
       .setLogOutput(logOutput)
       .setNodeJs(nodePath, nodeVersion)
       .build();

@@ -31,8 +31,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.List;
-import org.junit.ClassRule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
@@ -41,10 +41,10 @@ import static com.sonar.javascript.it.plugin.Tests.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(Tests.class)
 public class EslintBasedRulesTest {
 
-  @ClassRule
-  public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
+  public static Orchestrator orchestrator;
 
   @Test
   public void test_without_ts() {

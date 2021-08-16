@@ -29,8 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
@@ -44,7 +44,7 @@ public class TypeScriptRuleTest {
 
   private static Orchestrator orchestrator;
 
-  @BeforeClass
+  @BeforeAll
   public static void before() throws IOException, InterruptedException {
     orchestrator = Orchestrator.builderEnv()
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
@@ -73,7 +73,7 @@ public class TypeScriptRuleTest {
       .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"));
   }
 
-  @AfterClass
+  @AfterAll
   public static void after() {
     orchestrator.stop();
   }

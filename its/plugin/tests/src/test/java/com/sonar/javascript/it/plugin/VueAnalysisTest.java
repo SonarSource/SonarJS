@@ -21,10 +21,10 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import java.nio.file.Path;
 import java.util.List;
-import org.junit.ClassRule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonarqube.ws.Issues;
 
 import static com.sonar.javascript.it.plugin.Tests.getIssues;
@@ -32,11 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class VueAnalysisTest {
 
-  @ClassRule
   public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
-  @ClassRule
-  public static final TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  static Path tempDir;
 
   @Test
   public void sonarqube() {

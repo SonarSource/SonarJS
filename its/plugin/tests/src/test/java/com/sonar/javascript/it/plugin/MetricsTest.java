@@ -21,23 +21,23 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Measures.Measure;
 
 import static com.sonar.javascript.it.plugin.Tests.getMeasure;
 import static com.sonar.javascript.it.plugin.Tests.getMeasureAsDouble;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(Tests.class)
 public class MetricsTest {
 
   private static final String PROJECT_KEY = "MetricsTest";
 
-  @ClassRule
-  public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
+  public static Orchestrator orchestrator;
 
-  @BeforeClass
+  @BeforeAll
   public static void prepare() {
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("metrics"))

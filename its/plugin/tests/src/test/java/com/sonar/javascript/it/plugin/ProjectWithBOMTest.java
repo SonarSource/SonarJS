@@ -23,8 +23,8 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.List;
-import org.junit.ClassRule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
@@ -33,9 +33,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
+@ExtendWith(Tests.class)
 public class ProjectWithBOMTest {
-  @ClassRule
-  public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
+
+  public static Orchestrator orchestrator;
 
   @Test
   public void test() {

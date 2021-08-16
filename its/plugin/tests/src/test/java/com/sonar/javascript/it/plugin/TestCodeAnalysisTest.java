@@ -25,13 +25,14 @@ import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.ClassRule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
@@ -47,15 +48,15 @@ import static com.sonar.javascript.it.plugin.Tests.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(Tests.class)
 public class TestCodeAnalysisTest {
   
   private static final String project = "test-code-project";
 
-  @ClassRule
-  public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
+  public static Orchestrator orchestrator;
 
-  @ClassRule
-  public static final TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  Path sonarLintUserHome;
 
   @Test
   public void sonarqube() {
@@ -95,7 +96,7 @@ public class TestCodeAnalysisTest {
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
       .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
-      .setSonarLintUserHome(temp.newFolder().toPath())
+      .setSonarLintUserHome(sonarLintUserHome)
       .setNodeJs(nodeJsHelper.getNodeJsPath(), nodeJsHelper.getNodeJsVersion())
       .setLogOutput((formattedMessage, level) -> {
         System.out.println(formattedMessage);

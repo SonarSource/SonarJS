@@ -22,23 +22,23 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
 import static com.sonar.javascript.it.plugin.Tests.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(Tests.class)
 public class NoSonarTest {
 
-  @ClassRule
-  public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
+  public static Orchestrator orchestrator;
 
   private static final File PROJECT_DIR = TestUtils.projectDir("nosonar");
 
-  @BeforeClass
+  @BeforeAll
   public static void startServer() {
     String projectKey = "nosonar-project";
     SonarScanner build = SonarScanner.create()

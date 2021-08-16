@@ -23,16 +23,16 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.regex.Pattern;
-import org.junit.ClassRule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static com.sonar.javascript.it.plugin.Tests.getMeasureAsInt;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(Tests.class)
 public class CoverageTest {
 
-  @ClassRule
-  public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
+  public static Orchestrator orchestrator;
 
   @Test
   public void LCOV_path_can_be_relative() {
