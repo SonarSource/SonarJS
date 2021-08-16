@@ -1,0 +1,47 @@
+name: Milestone Issue
+
+on:
+  issues:
+    types: ["milestoned"]
+
+jobs:
+  create_card:
+    name: Create card
+    runs-on: ubuntu-latest
+    # Single quotes must be used here https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#literals
+    if: github.event.issue.state != 'closed'
+
+    steps:
+      # https://github.com/actions/github-script
+      - uses: actions/github-script@v4.0.2
+        with:
+          github-token: ${{secrets.KANBAN_GITHUB_TOKEN}}
+          script: |
+            const TODO_COLUMN = 820048;
+            const IN_PROGRESS_COLUMN = 820050;
+            const IN_REVIEW_COLUMN = 820059;
+            const RESOLVED_COLUMN = 12122954;
+            const DONE_COLUMN = 1415363;
+            //
+            async function findCard(content_url) {
+                // Columns are searched from the most probable one
+                const allColumns = [TODO_COLUMN, IN_PROGRESS_COLUMN, IN_REVIEW_COLUMN, RESOLVED_COLUMN, DONE_COLUMN];
+                for (let i = 0; i < allColumns.length; i++) {
+                    let cards = await github.projects.listCards({ column_id: allColumns[i] });
+                    let card = cards.data.find(x => x.content_url == content_url);
+                    if (card) {
+                        return card;
+                    }
+                }
+                console.log("Card not found for: " + content_url);
+                return null;
+            }
+            //
+            const card = await findCard(context.payload.issue.url);
+            if (card) {
+                console.log("Card already exists");
+            } else {
+                console.log("Creating Issue card");
+                github.projects.createCard({ column_id: TODO_COLUMN, content_id: context.payload.issue.id, content_type: "Issue" });
+            }
+            console.log("Done");
