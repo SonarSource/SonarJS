@@ -29,7 +29,8 @@ import java.util.List;
 import org.assertj.core.groups.Tuple;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 
@@ -101,7 +102,7 @@ public class EslintCustomRulesTest {
         new Tuple("eslint-custom-rules:sqKey", "custom-rules:src/dir/Person.js", 21, "call"),
         new Tuple("eslint-custom-rules:sqKey", "custom-rules:src/dir/file.ts", 4, "call")
       );
-    Issues.Location secondaryLocation = issues.get(0).getFlows(0).getLocations(0);
+    Common.Location secondaryLocation = issues.get(0).getFlows(0).getLocations(0);
     assertThat(secondaryLocation.getMsg()).isEqualTo(new File(TestUtils.projectDir("custom_rules"), ".scannerwork").getAbsolutePath());
 
     issues = findIssues("ts-custom-rules:tsRuleKey", orchestrator);

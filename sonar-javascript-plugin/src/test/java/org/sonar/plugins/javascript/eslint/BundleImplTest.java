@@ -23,21 +23,19 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.api.utils.internal.JUnitTempFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BundleImplTest {
 
-  @Rule
-  public JUnitTempFolder tempFolder = new JUnitTempFolder();
+  @TempDir
+  Path deployLocation;
 
   @Test
   public void test() throws Exception {
     BundleImpl bundle = new BundleImpl("/test-bundle.tgz");
-    Path deployLocation = tempFolder.newDir().toPath();
     bundle.deploy(deployLocation);
     String script = bundle.startServerScript();
     File scriptFile = new File(script);
@@ -48,7 +46,6 @@ public class BundleImplTest {
 
   @Test
   public void should_not_fail_when_deployed_twice() throws Exception {
-    Path deployLocation = tempFolder.newDir().toPath();
     BundleImpl bundle = new BundleImpl("/test-bundle.tgz");
     bundle.deploy(deployLocation);
     bundle.deploy(deployLocation);

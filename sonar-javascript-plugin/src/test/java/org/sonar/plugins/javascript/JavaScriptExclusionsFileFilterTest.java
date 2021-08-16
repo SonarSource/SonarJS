@@ -19,19 +19,17 @@
  */
 package org.sonar.plugins.javascript;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Function;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,12 +38,11 @@ public class JavaScriptExclusionsFileFilterTest {
 
   private static final String EXCLUSIONS_DEFAULT_VALUE = "**/node_modules/**,**/bower_components/**";
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
+  @TempDir
+  Path tempDir;
 
   @Test
   public void should_exclude_node_modules_and_bower_components_by_default() throws Exception {
@@ -179,9 +176,8 @@ public class JavaScriptExclusionsFileFilterTest {
 
   @Test
   public void should_exclude_only_on_relative_path() throws Exception {
-    File tmp = temporaryFolder.newFolder();
     // **/vendor/** is excluded by default, however it should only be excluded under 'basedir', here it's above
-    Path basedirUnderVendor = tmp.toPath().resolve("vendor/basedir");
+    Path basedirUnderVendor = tempDir.resolve("vendor/basedir");
     Path file = basedirUnderVendor.resolve("file.js");
     InputFile inputFile = new TestInputFileBuilder("key", basedirUnderVendor.toFile(), file.toFile())
       .setContents("alert('hello');")

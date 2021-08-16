@@ -19,9 +19,15 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -30,25 +36,15 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class JavaScriptFilePredicateTest {
 
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  public static Path baseDir;
 
   private static final String newLine = System.lineSeparator();
 
   @Test
   public void testJavaScriptPredicate() throws IOException {
-    File folder = temp.newFolder();
-    Path baseDir = folder.toPath();
 
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "a.js"));
@@ -100,8 +96,6 @@ public class JavaScriptFilePredicateTest {
 
   @Test
   public void testTypeScriptPredicate() throws IOException {
-    File folder = temp.newFolder();
-    Path baseDir = folder.toPath();
 
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "a.js"));

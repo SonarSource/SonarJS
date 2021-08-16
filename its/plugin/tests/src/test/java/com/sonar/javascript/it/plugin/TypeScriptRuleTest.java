@@ -31,7 +31,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static com.sonar.javascript.it.plugin.Tests.JAVASCRIPT_PLUGIN_LOCATION;

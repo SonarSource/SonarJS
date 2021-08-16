@@ -23,7 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.sonar.javascript.it.plugin.Tests.getMeasureAsInt;
 import static org.assertj.core.api.Assertions.assertThat;

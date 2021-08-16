@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;

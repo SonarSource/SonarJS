@@ -23,22 +23,23 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,14 +54,12 @@ import static org.mockito.Mockito.when;
 public class NodeCommandTest {
 
   private static final String PATH_TO_SCRIPT = "files/script.js";
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
+  @TempDir
+  Path tempDir;
 
   @Captor
   private ArgumentCaptor<List<String>> processStartArgument;
@@ -68,7 +67,7 @@ public class NodeCommandTest {
   @Mock
   private ProcessWrapper mockProcessWrapper;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     when(mockProcessWrapper.startProcess(any(), any(), any(), any())).thenReturn(mock(Process.class));
@@ -104,24 +103,23 @@ public class NodeCommandTest {
 
   @Test
   public void test_min_version() throws IOException {
-    thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("Only Node.js v99 or later is supported, got");
-
-    NodeCommand.builder()
+    assertThatThrownBy(() -> NodeCommand.builder()
       .minNodeVersion(99)
       .pathResolver(getPathResolver())
-      .build();
+      .build())
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessageStartingWith("Only Node.js v99 or later is supported, got");
   }
 
   @Test
   public void test_mac_default_executable_not_found() throws IOException {
     when(mockProcessWrapper.isMac()).thenReturn(true);
-    thrown.expect(NodeCommandException.class);
-    thrown.expectMessage("Default Node.js executable for MacOS does not exist.");
 
-    NodeCommand.builder(mockProcessWrapper)
+    assertThatThrownBy(() -> NodeCommand.builder(mockProcessWrapper)
       .pathResolver(p -> "/file/does/not/exist")
-      .build();
+      .build())
+      .isInstanceOf(NodeCommandException.class)
+      .hasMessage("Default Node.js executable for MacOS does not exist.");
   }
 
   @Test
@@ -168,9 +166,9 @@ public class NodeCommandTest {
   @Test
   public void test_executable_from_configuration() throws Exception {
     String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
-    File nodeExecutable = temporaryFolder.newFile("custom-node");
+    Path nodeExecutable = Files.createFile(tempDir.resolve("custom-node")).toAbsolutePath();
     MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY, nodeExecutable.getAbsolutePath());
+    mapSettings.setProperty(NODE_EXECUTABLE_PROPERTY, nodeExecutable.toString());
     Configuration configuration = mapSettings.asConfig();
     NodeCommand nodeCommand = NodeCommand.builder(mockProcessWrapper)
       .configuration(configuration)
@@ -179,9 +177,9 @@ public class NodeCommandTest {
     nodeCommand.start();
 
     List<String> value = captureProcessWrapperArgument();
-    assertThat(value).contains(nodeExecutable.getAbsolutePath());
+    assertThat(value).contains(nodeExecutable.toString());
     await().until(() -> logTester.logs(LoggerLevel.INFO)
-      .contains("Using Node.js executable " + nodeExecutable.getAbsolutePath() + " from property " + NODE_EXECUTABLE_PROPERTY + "."));
+      .contains("Using Node.js executable " + nodeExecutable + " from property " + NODE_EXECUTABLE_PROPERTY + "."));
   }
 
   @Test

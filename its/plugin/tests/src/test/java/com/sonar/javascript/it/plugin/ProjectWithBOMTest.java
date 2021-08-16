@@ -24,7 +24,7 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.List;
 import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.SearchRequest;
 

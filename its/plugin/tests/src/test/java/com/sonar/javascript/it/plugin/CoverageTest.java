@@ -24,7 +24,7 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.regex.Pattern;
 import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.sonar.javascript.it.plugin.Tests.getMeasureAsInt;
 import static org.assertj.core.api.Assertions.assertThat;

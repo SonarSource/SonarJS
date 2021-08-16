@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.javascript.checks.CheckList;
 

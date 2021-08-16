@@ -31,9 +31,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -53,18 +54,19 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogAndArguments;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TypeScriptChecks;
@@ -90,11 +92,11 @@ public class TypeScriptSensorTest {
 
   private static final String ESLINT_BASED_RULE = "S3923";
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Rule
-  public JUnitTempFolder tempFolder = new JUnitTempFolder();
+  @TempDir
+  Path baseDir;
 
   @Mock
   private EslintBridgeServerImpl eslintBridgeServerMock;
@@ -107,7 +109,12 @@ public class TypeScriptSensorTest {
 
   private SensorContextTester context;
 
-  @Before
+  @TempDir
+  Path tempDir;
+
+  TempFolder tempFolder;
+
+  @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
@@ -125,10 +132,11 @@ public class TypeScriptSensorTest {
       });
 
 
-    context = SensorContextTester.create(tempFolder.newDir());
+    context = SensorContextTester.create(baseDir);
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+    tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
   }
 
   @Test
@@ -207,7 +215,6 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_log_and_stop_with_wrong_tsconfig() throws Exception {
-    Path baseDir = tempFolder.newDir().toPath();
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "wrong.json"));
     createInputFile(ctx);
@@ -251,11 +258,10 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_send_content_on_sonarlint() throws Exception {
-    File baseDir = tempFolder.newDir();
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     DefaultInputFile file = createInputFile(ctx);
-    Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
+    Files.write(baseDir.resolve("tsconfig.json"), singleton("{}"));
     when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(new TsConfigFile("tsconfig.json", singletonList(file.absolutePath()), emptyList()));
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
     createSensor().execute(ctx);
@@ -266,7 +272,7 @@ public class TypeScriptSensorTest {
       "doFoo();");
 
     clearInvocations(eslintBridgeServerMock);
-    ctx = SensorContextTester.create(tempFolder.newDir());
+    ctx = SensorContextTester.create(baseDir);
     createInputFile(ctx);
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
@@ -275,7 +281,6 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_send_content_when_not_utf8() throws Exception {
-    File baseDir = tempFolder.newDir();
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.ts")
@@ -284,7 +289,7 @@ public class TypeScriptSensorTest {
       .setContents(content)
       .build();
     ctx.fileSystem().add(inputFile);
-    Files.write(baseDir.toPath().resolve("tsconfig.json"), singleton("{}"));
+    Files.write(baseDir.resolve("tsconfig.json"), singleton("{}"));
     when(eslintBridgeServerMock.loadTsConfig(any())).thenReturn(new TsConfigFile("tsconfig.json", singletonList(inputFile.absolutePath()), emptyList()));
 
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
@@ -428,7 +433,7 @@ public class TypeScriptSensorTest {
   @Test
   public void should_stop_without_tsconfig() throws Exception {
     Path baseDir = Paths.get("src/test/resources/solution-tsconfig");
-    SensorContextTester context = SensorContextTester.create(tempFolder.newDir());
+    SensorContextTester context = SensorContextTester.create(tempDir);
     inputFileFromResource(context, baseDir, "src/file.ts");
 
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
@@ -438,7 +443,7 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_stop_when_no_input_files() throws Exception {
-    SensorContextTester context = SensorContextTester.create(tempFolder.newDir());
+    SensorContextTester context = SensorContextTester.create(tempDir);
     createSensor().execute(context);
     assertThat(logTester.logs()).containsOnly("No input files found for analysis");
   }
@@ -493,7 +498,7 @@ public class TypeScriptSensorTest {
   public void test_sonarlint_constructor() {
     TypeScriptSensor typeScriptSensor = new TypeScriptSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
-      new NoSonarFilter(),
+      new DefaultNoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
       tempFolder);
@@ -503,7 +508,7 @@ public class TypeScriptSensorTest {
   private TypeScriptSensor createSensor() {
     return new TypeScriptSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
-      new NoSonarFilter(),
+      new DefaultNoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
       analysisWarningsMock,

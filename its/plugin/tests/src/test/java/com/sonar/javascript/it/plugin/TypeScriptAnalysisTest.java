@@ -26,7 +26,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarqube.ws.Issues.Issue;
 
 import static com.sonar.javascript.it.plugin.Tests.getIssues;

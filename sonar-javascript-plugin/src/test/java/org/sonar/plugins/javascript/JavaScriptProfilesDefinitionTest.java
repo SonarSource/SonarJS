@@ -24,8 +24,8 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
@@ -57,7 +57,7 @@ public class JavaScriptProfilesDefinitionTest {
       .map(RulesDefinition.Rule::key)
       .collect(Collectors.toSet());
 
-  @Before
+  @BeforeEach
   public void setUp() {
     new JavaScriptProfilesDefinition().define(context);
   }

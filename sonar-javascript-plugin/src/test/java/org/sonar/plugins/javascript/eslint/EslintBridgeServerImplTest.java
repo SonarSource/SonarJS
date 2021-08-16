@@ -28,9 +28,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -38,11 +40,11 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.internal.JUnitTempFolder;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.plugins.javascript.api.RulesBundle;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
@@ -64,11 +66,19 @@ public class EslintBridgeServerImplTest {
   private static final String START_SERVER_SCRIPT = "startServer.js";
   private static final int TEST_TIMEOUT_SECONDS = 1;
 
-  @org.junit.Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @org.junit.Rule
-  public JUnitTempFolder tempFolder = new JUnitTempFolder();
+  @TempDir
+  Path moduleBase;
+
+  @TempDir
+  Path workDir;
+
+  @TempDir
+  File tempDir;
+
+  TempFolder tempFolder;
 
   private SensorContextTester context;
   private EslintBridgeServerImpl eslintBridgeServer;
@@ -78,13 +88,14 @@ public class EslintBridgeServerImplTest {
   private final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(8, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
   private final NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime);
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
-    context = SensorContextTester.create(tempFolder.newDir());
-    context.fileSystem().setWorkDir(tempFolder.newDir().toPath());
+    context = SensorContextTester.create(moduleBase);
+    context.fileSystem().setWorkDir(workDir);
+    tempFolder = new DefaultTempFolder(tempDir, true);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     try {
       if (eslintBridgeServer != null) {
@@ -308,10 +319,9 @@ public class EslintBridgeServerImplTest {
   public void should_not_search_typescript_when_no_ts_file() throws Exception {
     eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
     eslintBridgeServer.deploy();
-    Path baseDir = tempFolder.newDir().toPath();
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.fileSystem().setWorkDir(tempFolder.newDir().toPath());
-    Path tsDir = baseDir.resolve("dir/node_modules/typescript");
+    SensorContextTester ctx = SensorContextTester.create(moduleBase);
+    ctx.fileSystem().setWorkDir(workDir);
+    Path tsDir = moduleBase.resolve("dir/node_modules/typescript");
     Files.createDirectories(tsDir);
     eslintBridgeServer.startServer(ctx, emptyList());
     assertThat(eslintBridgeServer.getCommandInfo()).doesNotContain("NODE_PATH");
