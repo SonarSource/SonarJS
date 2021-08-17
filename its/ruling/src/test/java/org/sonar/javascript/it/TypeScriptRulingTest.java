@@ -26,9 +26,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class TypeScriptRulingTest extends JavaScriptRulingTest {
+class TypeScriptRulingTest extends JavaScriptRulingTest {
 
-  public static Stream<Arguments> ts_ruling() {
+  public static Stream<Arguments> ruling() {
     return Stream.of(
       tsProject("ag-grid"),
       tsProject("ant-design"),
@@ -57,7 +57,8 @@ public class TypeScriptRulingTest extends JavaScriptRulingTest {
 
   @ParameterizedTest
   @MethodSource
-  void ts_ruling(String project, String language, String sourceDir, List<String> exclusions) throws Exception {
+  @Override
+  void ruling(String project, String language, String sourceDir, List<String> exclusions) throws Exception {
     runRulingTest(project, language, sourceDir, exclusions);
   }
 

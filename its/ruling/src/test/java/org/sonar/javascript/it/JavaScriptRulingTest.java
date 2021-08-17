@@ -55,7 +55,7 @@ import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JavaScriptRulingTest {
+class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
 
