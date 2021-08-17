@@ -44,16 +44,16 @@ import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisCo
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
 
-import static com.sonar.javascript.it.plugin.Tests.newWsClient;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(Tests.class)
+@ExtendWith(OrchestratorStarter.class)
 public class TestCodeAnalysisTest {
   
   private static final String project = "test-code-project";
 
-  public static Orchestrator orchestrator;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @TempDir
   Path sonarLintUserHome;
@@ -74,7 +74,7 @@ public class TestCodeAnalysisTest {
       orchestrator.getServer().getUrl(), "js", "javascript", new ProfileGenerator.RulesConfiguration(), new HashSet<>());
     orchestrator.getServer().restoreProfile(FileLocation.of(jsProfile));
 
-    Tests.setProfile(project, "rules", "js");
+    OrchestratorStarter.setProfile(project, "rules", "js");
 
     orchestrator.executeBuild(build);
 
@@ -95,7 +95,7 @@ public class TestCodeAnalysisTest {
     StandaloneGlobalConfiguration globalConfig = StandaloneGlobalConfiguration.builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
-      .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
+      .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
       .setSonarLintUserHome(sonarLintUserHome)
       .setNodeJs(nodeJsHelper.getNodeJsPath(), nodeJsHelper.getNodeJsVersion())
       .setLogOutput((formattedMessage, level) -> {

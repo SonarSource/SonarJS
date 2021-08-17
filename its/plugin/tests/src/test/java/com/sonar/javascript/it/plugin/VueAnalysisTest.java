@@ -26,13 +26,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 
-import static com.sonar.javascript.it.plugin.Tests.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(Tests.class)
+@ExtendWith(OrchestratorStarter.class)
 public class VueAnalysisTest {
 
-  public static Orchestrator orchestrator;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
 
   @Test
@@ -44,20 +44,20 @@ public class VueAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDir(projectKey));
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
     orchestrator.executeBuild(build);
 
     List<Issues.Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(6);
 
-    assertThat(Tests.getMeasureAsInt(projectKey, "ncloc")).isEqualTo(7);
-    assertThat(Tests.getMeasureAsInt(projectKey, "classes")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "functions")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "statements")).isEqualTo(3);
-    assertThat(Tests.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(projectKey, "complexity")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(2);
+    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "ncloc")).isEqualTo(7);
+    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "classes")).isEqualTo(0);
+    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "functions")).isEqualTo(0);
+    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "statements")).isEqualTo(3);
+    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(0);
+    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "complexity")).isEqualTo(1);
+    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(2);
   }
 
   @Test
@@ -69,7 +69,7 @@ public class VueAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDir("vue-js-project-with-lang-js"));
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
     orchestrator.executeBuild(build);
 
     List<Issues.Issue> issuesList = getIssues(projectKey);
@@ -86,18 +86,18 @@ public class VueAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDir("vue-js-project-with-lang-ts"));
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     orchestrator.executeBuild(build);
 
     // assert metrics on .vue file
     String vueFileKey = projectKey + ":file.vue";
-    assertThat(Tests.getMeasureAsInt(vueFileKey, "ncloc")).isEqualTo(7);
-    assertThat(Tests.getMeasureAsInt(vueFileKey, "classes")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(vueFileKey, "functions")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(vueFileKey, "statements")).isEqualTo(3);
-    assertThat(Tests.getMeasureAsInt(vueFileKey, "comment_lines")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(vueFileKey, "complexity")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(vueFileKey, "cognitive_complexity")).isEqualTo(2);
+    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "ncloc")).isEqualTo(7);
+    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "classes")).isEqualTo(0);
+    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "functions")).isEqualTo(0);
+    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "statements")).isEqualTo(3);
+    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "comment_lines")).isEqualTo(0);
+    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "complexity")).isEqualTo(1);
+    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "cognitive_complexity")).isEqualTo(2);
 
     // assert both .vue and .ts files are analyzed
 

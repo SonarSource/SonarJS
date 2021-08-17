@@ -27,14 +27,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.sonar.javascript.it.plugin.Tests.newWsClient;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(Tests.class)
+@ExtendWith(OrchestratorStarter.class)
 public class NoSonarTest {
 
-  public static Orchestrator orchestrator;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   private static final File PROJECT_DIR = TestUtils.projectDir("nosonar");
 
@@ -49,7 +49,7 @@ public class NoSonarTest {
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR);
 
-    Tests.setProfile(projectKey, "nosonar-profile", "js");
+    OrchestratorStarter.setProfile(projectKey, "nosonar-profile", "js");
 
     orchestrator.executeBuild(build);
   }
@@ -58,7 +58,7 @@ public class NoSonarTest {
   public void test() {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList("nosonar-project")).setSeverities(singletonList("INFO")).setRules(singletonList("javascript:S1116"));
-    assertThat(newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList()).hasSize(1);
+    assertThat(newWsClient(OrchestratorStarter.ORCHESTRATOR).issues().search(request).getIssuesList()).hasSize(1);
   }
 
 }

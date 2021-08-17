@@ -29,14 +29,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 
-import static com.sonar.javascript.it.plugin.Tests.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-@ExtendWith(Tests.class)
+@ExtendWith(OrchestratorStarter.class)
 public class TypeScriptAnalysisTest {
 
-  public static Orchestrator orchestrator;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   private static final File PROJECT_DIR = TestUtils.projectDir("tsproject");
 
@@ -49,7 +49,7 @@ public class TypeScriptAnalysisTest {
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
     String sampleFileKey = projectKey + ":sample.lint.ts";
@@ -57,17 +57,17 @@ public class TypeScriptAnalysisTest {
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(4);
 
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "ncloc")).isEqualTo(7);
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "classes")).isEqualTo(0);
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "functions")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(3);
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "complexity")).isEqualTo(2);
-    assertThat(Tests.getMeasureAsInt(sampleFileKey, "cognitive_complexity")).isEqualTo(2);
+    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "ncloc")).isEqualTo(7);
+    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "classes")).isEqualTo(0);
+    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "functions")).isEqualTo(1);
+    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(3);
+    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
+    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "complexity")).isEqualTo(2);
+    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "cognitive_complexity")).isEqualTo(2);
 
-    assertThat(Tests.getMeasureAsDouble(projectKey, "duplicated_lines")).isEqualTo(111.0);
-    assertThat(Tests.getMeasureAsDouble(projectKey, "duplicated_blocks")).isEqualTo(2.0);
-    assertThat(Tests.getMeasureAsDouble(projectKey, "duplicated_files")).isEqualTo(1.0);
+    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_lines")).isEqualTo(111.0);
+    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_blocks")).isEqualTo(2.0);
+    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_files")).isEqualTo(1.0);
 
     issuesList = getIssues(projectKey + ":nosonar.lint.ts");
     assertThat(issuesList).hasSize(1);
@@ -85,7 +85,7 @@ public class TypeScriptAnalysisTest {
       .setProjectDir(PROJECT_DIR)
       .setProperty("sonar.typescript.tsconfigPath", "custom.tsconfig.json");
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
@@ -110,7 +110,7 @@ public class TypeScriptAnalysisTest {
       .setProjectDir(dir)
       .setDebugLogs(true);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
@@ -133,7 +133,7 @@ public class TypeScriptAnalysisTest {
       .setProjectDir(dir)
       .setDebugLogs(true);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
@@ -156,7 +156,7 @@ public class TypeScriptAnalysisTest {
       .setProjectDir(dir)
       .setDebugLogs(true);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "ts");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);

@@ -25,25 +25,25 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static com.sonar.javascript.it.plugin.Tests.getMeasureAsInt;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsInt;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(Tests.class)
+@ExtendWith(OrchestratorStarter.class)
 public class MinifiedFilesTest {
 
   private static final String PROJECT_KEY = "minifiedFilesTest";
 
-  public static Orchestrator orchestrator;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @BeforeAll
   public static void prepare() {
-    SonarScanner build = Tests.createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("minified_files"))
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs("src");
-    Tests.setEmptyProfile(PROJECT_KEY);
+    OrchestratorStarter.setEmptyProfile(PROJECT_KEY);
     orchestrator.executeBuild(build);
   }
 

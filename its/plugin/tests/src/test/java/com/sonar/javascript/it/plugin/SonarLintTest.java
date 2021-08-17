@@ -167,7 +167,7 @@ public class SonarLintTest {
     return StandaloneGlobalConfiguration.builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
-      .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
+      .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
       .setSonarLintUserHome(sonarLintHome)
       .setLogOutput(logOutput)
       .setNodeJs(nodePath, nodeVersion)

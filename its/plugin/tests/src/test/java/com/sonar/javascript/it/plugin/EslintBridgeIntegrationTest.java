@@ -65,7 +65,7 @@ public class EslintBridgeIntegrationTest {
   @TempDir
   Path temp;
 
-  static Path pluginJar = Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath();
+  static Path pluginJar = OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath();
   static final Gson gson = new Gson();
 
   @Test

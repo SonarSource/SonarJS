@@ -34,7 +34,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 
-import static com.sonar.javascript.it.plugin.Tests.JAVASCRIPT_PLUGIN_LOCATION;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EslintCustomRulesTest {
@@ -71,12 +71,12 @@ public class EslintCustomRulesTest {
   static List<Issue> findIssues(String ruleKey, Orchestrator orchestrator) {
     org.sonarqube.ws.client.issues.SearchRequest searchRequest = new org.sonarqube.ws.client.issues.SearchRequest();
     searchRequest.setRules(Collections.singletonList(ruleKey));
-    Issues.SearchWsResponse response = Tests.newWsClient(orchestrator).issues().search(searchRequest);
+    Issues.SearchWsResponse response = OrchestratorStarter.newWsClient(orchestrator).issues().search(searchRequest);
     return response.getIssuesList();
   }
 
   static BuildResult runBuild(Orchestrator orchestrator) {
-    SonarScanner build = Tests.createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("custom_rules"))
       .setProjectKey("custom-rules")
       .setProjectName("Custom Rules")

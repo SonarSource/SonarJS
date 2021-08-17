@@ -23,11 +23,8 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.CheckForNull;
-import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonarqube.ws.Issues.Issue;
@@ -40,8 +37,9 @@ import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
 import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 
-public final class Tests implements BeforeAllCallback, AfterAllCallback {
+public final class OrchestratorStarter implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
 
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
@@ -58,34 +56,26 @@ public final class Tests implements BeforeAllCallback, AfterAllCallback {
     .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
     .build();
 
-  private static int counter;
+  private static boolean started;
 
-  private Tests() {
-  }
-
-  @Override
-  public void afterAll(ExtensionContext context) throws Exception {
-    counter--;
-    if (counter == 0) {
-      ORCHESTRATOR.stop();
-    }
+  private OrchestratorStarter() {
   }
 
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {
-    try {
-      Optional<Class<?>> testClass = context.getTestClass();
-      if (testClass.isPresent()) {
-        Field orchestrator = testClass.get().getDeclaredField("orchestrator");
-        orchestrator.set(null, ORCHESTRATOR);
-      }
-      if (counter == 0) {
-        ORCHESTRATOR.start();
-      }
-      counter++;
-    } catch (NoSuchFieldException e) {
-      // ignore when no orchestrator field
+    if (!started) {
+      started = true;
+      // this will register "this.close()" method to be called when GLOBAL context is shutdown
+      context.getRoot().getStore(GLOBAL).put(OrchestratorStarter.class, this);
+      ORCHESTRATOR.start();
     }
+  }
+
+
+  @Override
+  public void close() throws Throwable {
+    // this is executed once all tests are finished
+    ORCHESTRATOR.stop();
   }
 
   public static SonarScanner createScanner() {

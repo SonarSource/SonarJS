@@ -37,14 +37,14 @@ import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
-import static com.sonar.javascript.it.plugin.Tests.newWsClient;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(Tests.class)
+@ExtendWith(OrchestratorStarter.class)
 public class EslintBasedRulesTest {
 
-  public static Orchestrator orchestrator;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
   public void test_without_ts() {
@@ -70,14 +70,14 @@ public class EslintBasedRulesTest {
       "javascript", new ProfileGenerator.RulesConfiguration(), new HashSet<>());
     orchestrator.getServer().restoreProfile(FileLocation.of(jsProfile));
 
-    Tests.setProfile(projectKey, "rules", "js");
+    OrchestratorStarter.setProfile(projectKey, "rules", "js");
 
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
-    List<Issue> issuesList = newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList();
+    List<Issue> issuesList = newWsClient(OrchestratorStarter.ORCHESTRATOR).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(1);
   }
@@ -91,13 +91,13 @@ public class EslintBasedRulesTest {
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDir("(dir with paren)/eslint_based_rules"));
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
 
     orchestrator.executeBuild(build);
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
-    List<Issue> issuesList = newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList();
+    List<Issue> issuesList = newWsClient(OrchestratorStarter.ORCHESTRATOR).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(5);
   }
@@ -111,13 +111,13 @@ public class EslintBasedRulesTest {
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDir("js-with-ts-eslint-project"));
 
-    Tests.setProfile(projectKey, "js-with-ts-eslint-profile", "js");
+    OrchestratorStarter.setProfile(projectKey, "js-with-ts-eslint-profile", "js");
 
     orchestrator.executeBuild(build);
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3525"));
-    List<Issue> issuesList = newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList();
+    List<Issue> issuesList = newWsClient(OrchestratorStarter.ORCHESTRATOR).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getLine()).isEqualTo(2);
   }
@@ -136,7 +136,7 @@ public class EslintBasedRulesTest {
       "javascript", new ProfileGenerator.RulesConfiguration(), new HashSet<>());
     orchestrator.getServer().restoreProfile(FileLocation.of(jsProfile));
 
-    Tests.setProfile(projectKey, "rules", "js");
+    OrchestratorStarter.setProfile(projectKey, "rules", "js");
 
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();

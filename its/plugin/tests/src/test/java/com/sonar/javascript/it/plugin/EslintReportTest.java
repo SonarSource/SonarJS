@@ -30,15 +30,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
 
-import static com.sonar.javascript.it.plugin.Tests.getIssues;
-import static com.sonar.javascript.it.plugin.Tests.setEmptyProfile;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.setEmptyProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-@ExtendWith(Tests.class)
+@ExtendWith(OrchestratorStarter.class)
 public class EslintReportTest {
 
-  public static Orchestrator orchestrator;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   private static final String PROJECT_KEY_PREFIX = "SonarJS-eslint-report-test";
   private static final File PROJECT_DIR = TestUtils.projectDir("eslint_report");
@@ -47,7 +47,7 @@ public class EslintReportTest {
   public void should_save_issues_from_external_report_with_relative_paths() {
     String projectKey = PROJECT_KEY_PREFIX + "-relative";
 
-    SonarScanner build = Tests.createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(PROJECT_DIR)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -64,7 +64,7 @@ public class EslintReportTest {
   @Test
   public void should_save_issues_from_external_report_with_absolute_paths() throws IOException {
     String projectKey = PROJECT_KEY_PREFIX + "-absolute";
-    SonarScanner build = Tests.createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(PROJECT_DIR)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)

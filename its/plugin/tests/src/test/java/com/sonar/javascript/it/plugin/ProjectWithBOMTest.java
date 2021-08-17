@@ -28,15 +28,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.sonar.javascript.it.plugin.Tests.newWsClient;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-@ExtendWith(Tests.class)
+@ExtendWith(OrchestratorStarter.class)
 public class ProjectWithBOMTest {
 
-  public static Orchestrator orchestrator;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
   public void test() {
@@ -47,13 +47,13 @@ public class ProjectWithBOMTest {
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDir(projectKey));
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.getLogs()).doesNotContain("Failure during analysis");
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(projectKey)).setRules(singletonList("javascript:S3923"));
-    List<Issues.Issue> issuesList = newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList();
+    List<Issues.Issue> issuesList = newWsClient(OrchestratorStarter.ORCHESTRATOR).issues().search(request).getIssuesList();
     assertThat(issuesList).extracting(Issues.Issue::getLine, Issues.Issue::getComponent, Issues.Issue::getRule)
       .containsExactly(tuple(1, "project-with-bom:fileWithBom.js", "javascript:S3923"));
   }
