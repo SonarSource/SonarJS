@@ -65,7 +65,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
   private static final Gson GSON = new Gson();
-  private static final int MIN_NODE_VERSION = 8;
+
   private static final String DEPLOY_LOCATION = "eslint-bridge-bundle";
 
   private final OkHttpClient client;
@@ -171,7 +171,7 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
         }
       })
       .pathResolver(bundle)
-      .minNodeVersion(MIN_NODE_VERSION)
+      .minNodeVersion(NodeDeprecationWarning.MIN_NODE_VERSION)
       .configuration(context.config())
       .script(scriptFile.getAbsolutePath())
       .scriptArgs(String.valueOf(port), hostAddress, workDir.getAbsolutePath(), String.valueOf(allowTsParserJsFiles), String.valueOf(isSonarLint), bundles);

@@ -11,11 +11,12 @@ key: javascript
 ## Prerequisites
 
 In order to analyze JavaScript or TypeScript code, you need to have supported version of Node.js installed on the
-machine running the scan. Supported versions are current LTS versions (v10, v12, v14) and latest version v15. Odd
+machine running the scan. Supported versions are current LTS versions (v12, v14) and the latest version - v16. Odd
 (non LTS) versions might work, but are not actively tested. We recommend using the latest available LTS version 
-(v14 as of today) for optimal stability and performance.
+(v14 as of today) for optimal stability and performance. v10 is still supported, but it already reached end-of-life and 
+is deprecated.
 
-If standard `node` is not available, you have to set property `sonar.nodejs.executable` to an absolute path to
+If `node` is not available in the PATH, you can use property `sonar.nodejs.executable` to set an absolute path to
 Node.js executable.
  
 ## Language-Specific Properties
