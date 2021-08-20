@@ -27,13 +27,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.client.api.common.Language;
 import org.sonarsource.sonarlint.core.client.api.common.LogOutput;
+import org.sonarsource.sonarlint.core.client.api.common.SonarLintEngine;
 import org.sonarsource.sonarlint.core.client.api.common.Version;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
@@ -63,12 +64,15 @@ public class SonarLintTest {
 
   @TempDir
   File baseDir;
-  private static StandaloneGlobalConfiguration sonarLintConfig;
-  private StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
+  private StandaloneSonarLintEngine sonarlintEngine;
 
-  @BeforeAll
-  public static void prepare() throws Exception {
-    sonarLintConfig = getSonarLintConfig();
+  @TempDir
+  Path sonarLintHome;
+
+  @BeforeEach
+  public void prepare() throws Exception {
+    StandaloneGlobalConfiguration sonarLintConfig = getSonarLintConfig();
+    sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
   }
 
   @AfterEach
@@ -127,6 +131,8 @@ public class SonarLintTest {
 
   @Test
   public void should_log_failure_only_once() throws IOException {
+    // we need to stop engine initialized in @BeforeEach prepare() method, because we need configuration with different node
+    sonarlintEngine.stop();
     // version `42` will let us pass SonarLint check of version
     sonarlintEngine = new StandaloneSonarLintEngineImpl(getSonarLintConfig(new File("invalid/path/node").toPath(), Version.create("42")));
     List<Issue> issues = analyze(FILE_PATH, "");
@@ -150,14 +156,14 @@ public class SonarLintTest {
     return issues;
   }
 
-  private static StandaloneGlobalConfiguration getSonarLintConfig() throws IOException {
+  private StandaloneGlobalConfiguration getSonarLintConfig() throws IOException {
     NodeJsHelper nodeJsHelper = new NodeJsHelper();
     nodeJsHelper.detect(null);
 
     return getSonarLintConfig(nodeJsHelper.getNodeJsPath(), nodeJsHelper.getNodeJsVersion());
   }
 
-  private static StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion) throws IOException {
+  private StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion) throws IOException {
     LogOutput logOutput = (formattedMessage, level) -> {
       LOGS.add(formattedMessage);
       System.out.println(formattedMessage);
@@ -167,6 +173,7 @@ public class SonarLintTest {
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
       .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
+      .setSonarLintUserHome(sonarLintHome)
       .setLogOutput(logOutput)
       .setNodeJs(nodePath, nodeVersion)
       .build();
