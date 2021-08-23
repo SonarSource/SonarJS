@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,7 +37,6 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -58,26 +56,17 @@ public class TypeScriptSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(TypeScriptSensor.class);
   private final TempFolder tempFolder;
 
-  /**
-   * Required for SonarLint
-   */
   public TypeScriptSensor(TypeScriptChecks typeScriptChecks, NoSonarFilter noSonarFilter,
                           FileLinesContextFactory fileLinesContextFactory,
                           EslintBridgeServer eslintBridgeServer,
-                          TempFolder tempFolder) {
-    this(typeScriptChecks, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, tempFolder);
-  }
-
-  public TypeScriptSensor(TypeScriptChecks typeScriptChecks, NoSonarFilter noSonarFilter,
-                          FileLinesContextFactory fileLinesContextFactory,
-                          EslintBridgeServer eslintBridgeServer,
-                          @Nullable AnalysisWarnings analysisWarnings,
-                          TempFolder tempFolder) {
+                          AnalysisWarningsWrapper analysisWarnings,
+                          TempFolder tempFolder, Monitoring monitoring) {
     super(typeScriptChecks,
       noSonarFilter,
       fileLinesContextFactory,
       eslintBridgeServer,
-      analysisWarnings
+      analysisWarnings,
+      monitoring
     );
     this.tempFolder = tempFolder;
   }
@@ -142,6 +131,7 @@ public class TypeScriptSensor extends AbstractEslintSensor {
         throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
       }
       if (eslintBridgeServer.isAlive()) {
+        monitoring.startFile(inputFile);
         analyze(inputFile, tsConfigFile);
         progressReport.nextFile();
       } else {

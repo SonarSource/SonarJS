@@ -24,9 +24,11 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
 import org.sonar.plugins.javascript.eslint.JavaScriptEslintBasedSensor;
+import org.sonar.plugins.javascript.eslint.Monitoring;
 import org.sonar.plugins.javascript.eslint.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.eslint.RulesBundles;
 import org.sonar.plugins.javascript.eslint.TypeScriptSensor;
@@ -98,7 +100,9 @@ public class JavaScriptPlugin implements Plugin {
       TypeScriptRulesDefinition.class,
       RulesBundles.class,
       JavaScriptChecks.class,
-      TypeScriptChecks.class
+      TypeScriptChecks.class,
+      AnalysisWarningsWrapper.class,
+      Monitoring.class
     );
 
     context.addExtensions(

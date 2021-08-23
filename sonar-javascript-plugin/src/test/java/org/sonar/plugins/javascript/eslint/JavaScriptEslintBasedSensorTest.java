@@ -55,7 +55,6 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
@@ -101,6 +100,9 @@ public class JavaScriptEslintBasedSensorTest {
 
   private SensorContextTester context;
 
+  @TempDir
+  Path workDir;
+
   @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
@@ -108,6 +110,7 @@ public class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = SensorContextTester.create(baseDir);
+    context.fileSystem().setWorkDir(workDir);
     tempFolder = new DefaultTempFolder(tempDir, true);
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
@@ -338,7 +341,8 @@ public class JavaScriptEslintBasedSensorTest {
       fileLinesContextFactory,
       eslintBridgeServerMock,
       null,
-      tempFolder
+      tempFolder,
+      new Monitoring()
     );
 
     List<EslintBridgeServer.Rule> rules = sensor.rules;
@@ -361,8 +365,9 @@ public class JavaScriptEslintBasedSensorTest {
       new DefaultNoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
-      mock(AnalysisWarnings.class),
-      tempFolder
+      new AnalysisWarningsWrapper(),
+      tempFolder,
+      new Monitoring()
     );
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files found for analysis");
@@ -371,18 +376,20 @@ public class JavaScriptEslintBasedSensorTest {
   @Test
   public void handle_missing_node() throws Exception {
     doThrow(new NodeCommandException("Exception Message", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
-    AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
+
+    TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
     JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
       new DefaultNoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
       analysisWarnings,
-      tempFolder
+      tempFolder,
+      new Monitoring()
     );
     createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
-    verify(analysisWarnings).addUnique("JavaScript and/or TypeScript rules were not executed. Exception Message");
+    assertThat(analysisWarnings.warnings).containsExactly("JavaScript and/or TypeScript rules were not executed. Exception Message");
   }
 
   @Test
@@ -427,7 +434,7 @@ public class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
-    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE), new DefaultNoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, null, tempFolder).execute(context);
+    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE), new DefaultNoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, null, tempFolder, new Monitoring()).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(0);
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -436,7 +443,8 @@ public class JavaScriptEslintBasedSensorTest {
 
   @Test
   public void should_send_content_on_sonarlint() throws Exception {
-    SensorContextTester ctx = SensorContextTester.create(tempFolder.newDir());
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.fileSystem().setWorkDir(workDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx);
     ArgumentCaptor<AnalysisRequest> captor = ArgumentCaptor.forClass(AnalysisRequest.class);
@@ -448,7 +456,8 @@ public class JavaScriptEslintBasedSensorTest {
       "doFoo();");
 
     clearInvocations(eslintBridgeServerMock);
-    ctx = SensorContextTester.create(tempFolder.newDir());
+    ctx = SensorContextTester.create(baseDir);
+    ctx.fileSystem().setWorkDir(workDir);
     createInputFile(ctx);
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeJavaScript(captor.capture());
@@ -457,8 +466,8 @@ public class JavaScriptEslintBasedSensorTest {
 
   @Test
   public void should_send_content_when_not_utf8() throws Exception {
-    File baseDir = tempFolder.newDir();
     SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.fileSystem().setWorkDir(workDir);
     String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.js")
       .setLanguage("js")
@@ -528,7 +537,7 @@ public class JavaScriptEslintBasedSensorTest {
 
   private JavaScriptEslintBasedSensor createSensor() {
     return new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE, "S2260", "S1451"), new DefaultNoSonarFilter(), fileLinesContextFactory,
-      eslintBridgeServerMock, null, tempFolder
+      eslintBridgeServerMock, new AnalysisWarningsWrapper(), tempFolder, new Monitoring()
     );
   }
 }

@@ -101,8 +101,7 @@ public class TypeScriptSensorTest {
   @Mock
   private EslintBridgeServerImpl eslintBridgeServerMock;
 
-  @Mock
-  private AnalysisWarnings analysisWarningsMock;
+  private final TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
 
   @Mock
   private FileLinesContextFactory fileLinesContextFactory;
@@ -113,6 +112,9 @@ public class TypeScriptSensorTest {
   Path tempDir;
 
   TempFolder tempFolder;
+
+  @TempDir
+  Path workDir;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -132,7 +134,7 @@ public class TypeScriptSensorTest {
       });
 
 
-    context = SensorContextTester.create(baseDir);
+    context = createSensorContext(baseDir);
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
@@ -215,7 +217,7 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_log_and_stop_with_wrong_tsconfig() throws Exception {
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    SensorContextTester ctx = createSensorContext(baseDir);
     ctx.setSettings(new MapSettings().setProperty("sonar.typescript.tsconfigPath", "wrong.json"));
     createInputFile(ctx);
     TypeScriptSensor typeScriptSensor = createSensor();
@@ -224,6 +226,12 @@ public class TypeScriptSensorTest {
     verify(eslintBridgeServerMock, never()).analyzeTypeScript(any());
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Provided tsconfig.json path doesn't exist. Path: '" + baseDir.resolve("wrong.json") + "'");
+  }
+
+  private SensorContextTester createSensorContext(Path baseDir) {
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    ctx.fileSystem().setWorkDir(workDir);
+    return ctx;
   }
 
   @Test
@@ -258,7 +266,7 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_send_content_on_sonarlint() throws Exception {
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    SensorContextTester ctx = createSensorContext(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     DefaultInputFile file = createInputFile(ctx);
     Files.write(baseDir.resolve("tsconfig.json"), singleton("{}"));
@@ -272,7 +280,7 @@ public class TypeScriptSensorTest {
       "doFoo();");
 
     clearInvocations(eslintBridgeServerMock);
-    ctx = SensorContextTester.create(baseDir);
+    ctx = createSensorContext(baseDir);
     createInputFile(ctx);
     createSensor().execute(ctx);
     verify(eslintBridgeServerMock).analyzeTypeScript(captor.capture());
@@ -281,7 +289,7 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_send_content_when_not_utf8() throws Exception {
-    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    SensorContextTester ctx = createSensorContext(baseDir);
     String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.ts")
       .setLanguage("ts")
@@ -335,7 +343,7 @@ public class TypeScriptSensorTest {
     createInputFile(context, "dir/file1.ts");
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Missing TypeScript dependency");
-    verify(analysisWarningsMock).addUnique("JavaScript and/or TypeScript rules were not executed. Missing TypeScript dependency");
+    assertThat(analysisWarnings.warnings).containsExactly("JavaScript and/or TypeScript rules were not executed. Missing TypeScript dependency");
   }
 
   @Test
@@ -361,7 +369,8 @@ public class TypeScriptSensorTest {
   @Test
   public void should_analyze_by_tsconfig() throws Exception {
     Path baseDir = Paths.get("src/test/resources/multi-tsconfig");
-    SensorContextTester context = SensorContextTester.create(baseDir);
+    SensorContextTester context = createSensorContext(baseDir);
+
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "dir1/file.ts");
     DefaultInputFile file2 = inputFileFromResource(context, baseDir, "dir2/file.ts");
     DefaultInputFile file3 = inputFileFromResource(context, baseDir, "dir3/file.ts");
@@ -391,7 +400,7 @@ public class TypeScriptSensorTest {
   @Test
   public void should_resolve_project_references_from_tsconfig() throws Exception {
     Path baseDir = Paths.get("src/test/resources/solution-tsconfig");
-    SensorContextTester context = SensorContextTester.create(baseDir);
+    SensorContextTester context = createSensorContext(baseDir);
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/file.ts");
 
     String tsconfig = absolutePath(baseDir, "tsconfig.json");
@@ -433,7 +442,7 @@ public class TypeScriptSensorTest {
   @Test
   public void should_stop_without_tsconfig() throws Exception {
     Path baseDir = Paths.get("src/test/resources/solution-tsconfig");
-    SensorContextTester context = SensorContextTester.create(tempDir);
+    SensorContextTester context = createSensorContext(tempDir);
     inputFileFromResource(context, baseDir, "src/file.ts");
 
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
@@ -443,7 +452,7 @@ public class TypeScriptSensorTest {
 
   @Test
   public void should_stop_when_no_input_files() throws Exception {
-    SensorContextTester context = SensorContextTester.create(tempDir);
+    SensorContextTester context = createSensorContext(tempDir);
     createSensor().execute(context);
     assertThat(logTester.logs()).containsOnly("No input files found for analysis");
   }
@@ -494,25 +503,15 @@ public class TypeScriptSensorTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
   }
 
-  @Test
-  public void test_sonarlint_constructor() {
-    TypeScriptSensor typeScriptSensor = new TypeScriptSensor(
-      checks(ESLINT_BASED_RULE, "S2260"),
-      new DefaultNoSonarFilter(),
-      fileLinesContextFactory,
-      eslintBridgeServerMock,
-      tempFolder);
-    assertThat(typeScriptSensor.getAnalysisWarnings()).isNull();
-  }
-
   private TypeScriptSensor createSensor() {
     return new TypeScriptSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       new DefaultNoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
-      analysisWarningsMock,
-      tempFolder);
+      analysisWarnings,
+      tempFolder,
+      new Monitoring());
   }
 
   private AnalysisResponse createResponse() {

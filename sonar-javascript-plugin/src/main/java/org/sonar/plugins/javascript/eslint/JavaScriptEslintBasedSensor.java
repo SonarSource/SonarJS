@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -34,7 +33,6 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -52,23 +50,15 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   private static final Logger LOG = Loggers.get(JavaScriptEslintBasedSensor.class);
   private final TempFolder tempFolder;
 
-  /**
-   * Required for SonarLint
-   */
-  public JavaScriptEslintBasedSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
-                                     FileLinesContextFactory fileLinesContextFactory,
-                                     EslintBridgeServer eslintBridgeServer, TempFolder folder) {
-    this(checks, noSonarFilter, fileLinesContextFactory, eslintBridgeServer, null, folder);
-  }
-
   public JavaScriptEslintBasedSensor(JavaScriptChecks checks, NoSonarFilter noSonarFilter,
                                      FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-                                     @Nullable AnalysisWarnings analysisWarnings, TempFolder folder) {
+                                     AnalysisWarningsWrapper analysisWarnings, TempFolder folder, Monitoring monitoring) {
     super(checks,
       noSonarFilter,
       fileLinesContextFactory,
       eslintBridgeServer,
-      analysisWarnings
+      analysisWarnings,
+      monitoring
     );
     this.tempFolder = folder;
   }
@@ -95,6 +85,7 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
       progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
       eslintBridgeServer.initLinter(rules, environments, globals);
       for (InputFile inputFile : inputFiles) {
+        monitoring.startFile(inputFile);
         if (context.isCancelled()) {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
