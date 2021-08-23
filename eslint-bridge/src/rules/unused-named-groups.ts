@@ -32,6 +32,7 @@ import {
   getVariableFromName,
   isDotNotation,
   isMethodCall,
+  isObjectDestructuring,
   isRequiredParserServices,
   isString,
   isStringRegexMethodCall,
@@ -158,8 +159,8 @@ function checkNonExistingGroupReference(
   const regex = intellisense.resolve(matcher);
   if (regex) {
     /* matcher.groups.<name> / matcher.indices.groups.<name>  */
-    const groupNode = extractGroupNode(memberExpr, intellisense);
-    if (groupNode !== null) {
+    const groupNodes = extractGroupNodes(memberExpr, intellisense);
+    for (const groupNode of groupNodes) {
       const group = regex.groups.find(grp => grp.name === groupNode.name);
       if (group) {
         group.used = true;
@@ -179,31 +180,50 @@ function checkNonExistingGroupReference(
   }
 }
 
-function extractGroupNode(
+function extractGroupNodes(
   memberExpr: estree.MemberExpression,
   intellisense: RegexIntelliSense,
-): estree.Identifier | null {
-  const { property, computed } = memberExpr;
-  if (property.type === 'Identifier' && !computed) {
+): estree.Identifier[] {
+  if (isDotNotation(memberExpr)) {
+    const { property } = memberExpr;
     const ancestors = intellisense.context.getAncestors();
     let parent = ancestors.pop();
-    if (parent && isDotNotation(parent)) {
+    if (parent) {
       switch (property.name) {
         case 'groups':
           /* matcher.groups.<name> */
-          return parent.property;
+          return extractNamedOrDestructuredGroupNodes(parent);
         case 'indices':
           /* matcher.indices.groups.<name> */
-          if (parent.property.name === 'groups') {
+          if (isDotNotation(parent) && parent.property.name === 'groups') {
             parent = ancestors.pop();
-            if (parent && isDotNotation(parent)) {
-              return parent.property;
+            if (parent) {
+              return extractNamedOrDestructuredGroupNodes(parent);
             }
           }
       }
     }
   }
-  return null;
+  return [];
+}
+
+function extractNamedOrDestructuredGroupNodes(node: estree.Node): estree.Identifier[] {
+  if (isDotNotation(node)) {
+    /* matcher.groups.<name> */
+    return [node.property];
+  } else if (isObjectDestructuring(node)) {
+    /* { <name1>,..<nameN> } = matcher.groups */
+    const destructuredGroups: estree.Identifier[] = [];
+    const pattern = node.type === 'VariableDeclarator' ? node.id : node.left;
+    for (const property of pattern.properties) {
+      if (property.type === 'Property' && property.key.type === 'Identifier') {
+        destructuredGroups.push(property.key);
+      }
+    }
+    return destructuredGroups;
+  } else {
+    return [];
+  }
 }
 
 function checkUnusedGroups(intellisense: RegexIntelliSense) {

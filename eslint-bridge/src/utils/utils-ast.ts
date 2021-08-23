@@ -439,3 +439,14 @@ export function isDotNotation(
 ): node is estree.MemberExpression & { property: estree.Identifier } {
   return node.type === 'MemberExpression' && !node.computed && node.property.type === 'Identifier';
 }
+
+export function isObjectDestructuring(
+  node: estree.Node,
+): node is
+  | (estree.VariableDeclarator & { id: estree.ObjectPattern })
+  | (estree.AssignmentExpression & { left: estree.ObjectPattern }) {
+  return (
+    (node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern') ||
+    (node.type === 'AssignmentExpression' && node.left.type === 'ObjectPattern')
+  );
+}
