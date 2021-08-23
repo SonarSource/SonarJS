@@ -23,12 +23,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -41,7 +42,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
@@ -51,11 +52,12 @@ import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 public class TslintReportSensorTest {
 
   private static final String TSLINT_REPORT_FILE_NAME = "tslint-report.json";
-  @Rule
-  public TemporaryFolder tmpDir = new TemporaryFolder();
 
-  @Rule
-  public final LogTester logTester = new LogTester();
+  @TempDir
+  Path tmpDir;
+
+  @RegisterExtension
+  public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private static final File BASE_DIR = new File("src/test/resources/externalIssues/").getAbsoluteFile();
   private static final String CONTENT = "foo('aaaaaaa')\nif (cond) \n{ }";
@@ -67,7 +69,7 @@ public class TslintReportSensorTest {
 
   private static final SonarRuntime RUNTIME = SonarRuntimeImpl.forSonarQube(Version.create(7, 9), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
 
-  @Before
+  @BeforeEach
   public void setUp() {
     context.setRuntime(RUNTIME);
     context.fileSystem().add(inputFile);
@@ -119,7 +121,7 @@ public class TslintReportSensorTest {
       "  }\n" +
       "]";
 
-    File reportFile = tmpDir.newFile();
+    File reportFile = tmpDir.resolve("report").toFile();
     try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(reportFile), StandardCharsets.UTF_8)) {
       writer.write(String.format(report, inputFile.absolutePath()));
     }

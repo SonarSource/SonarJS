@@ -19,11 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import org.junit.Test;
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import com.google.gson.Gson;
 
 public class StringLiteralsQuotesCheckTest {
 

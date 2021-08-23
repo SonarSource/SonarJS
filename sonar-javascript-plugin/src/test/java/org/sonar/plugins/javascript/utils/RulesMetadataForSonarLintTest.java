@@ -21,13 +21,10 @@ package org.sonar.plugins.javascript.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.javascript.checks.StringLiteralsQuotesCheck;
 
 import static java.util.Arrays.asList;
@@ -35,12 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RulesMetadataForSonarLintTest {
 
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
+  @TempDir
+  Path tempDir;
 
   @Test
   public void test() throws Exception {
-    Path path = folder.newFile().toPath();
+    Path path = tempDir.resolve("sonarlint.json");
     new RulesMetadataForSonarLint("repo", asList(StringLiteralsQuotesCheck.class)).save(path);
     assertThat(path).hasContent("[\n" +
       "  {\n" +
@@ -83,7 +80,7 @@ public class RulesMetadataForSonarLintTest {
 
   @Test
   public void test_all() throws Exception {
-    Path path = folder.newFile().toPath();
+    Path path = tempDir.resolve("sonarlint.json");
     RulesMetadataForSonarLint.main(new String[]{path.toString()});
     JsonArray jsonArray = new Gson().fromJson(Files.newBufferedReader(path), JsonArray.class);
     assertThat(jsonArray.size()).isGreaterThan(470);

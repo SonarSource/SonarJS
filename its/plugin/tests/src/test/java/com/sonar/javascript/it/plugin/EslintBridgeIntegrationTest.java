@@ -46,9 +46,8 @@ import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.utils.IOUtils;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,21 +62,21 @@ import static org.awaitility.Awaitility.await;
  */
 public class EslintBridgeIntegrationTest {
 
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  Path temp;
 
-  static Path pluginJar = Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath();
+  static Path pluginJar = OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath();
   static final Gson gson = new Gson();
 
   @Test
   public void test() throws Exception {
-    Path dest = temp.newFolder().toPath();
+
     String filename = "eslint-bridge-1.0.0.tgz";
       EslintBridge eslintBridge = new EslintBridge();
     try (FileSystem fileSystem = FileSystems.newFileSystem(pluginJar, null)) {
       Path fileToExtract = fileSystem.getPath(filename);
-      extractArchive(fileToExtract, dest);
-      eslintBridge.start(dest);
+      extractArchive(fileToExtract, temp);
+      eslintBridge.start(temp);
       assertStatus(eslintBridge);
       eslintBridge.request(gson.toJson(InitLinter.build("sonar-no-unused-vars")), "init-linter");
       assertAnalyzeJs(eslintBridge);
@@ -93,7 +92,7 @@ public class EslintBridgeIntegrationTest {
       + "  var c; // NOSONAR\n"
       + "  var b = 42; \n"
       + "} \n";
-    r.filePath = temp.newFile().getAbsolutePath();
+    r.filePath = temp.resolve("file.js").toAbsolutePath().toString();
     String response = eslintBridge.request(gson.toJson(r), "analyze-js");
     JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
     JsonArray issues = jsonObject.getAsJsonArray("issues");
@@ -150,7 +149,7 @@ public class EslintBridgeIntegrationTest {
   }
 
 
-  static class EslintBridge {
+  class EslintBridge {
     int port;
     final OkHttpClient client;
     private Process process;
@@ -163,7 +162,7 @@ public class EslintBridgeIntegrationTest {
     void start(Path dest) throws IOException {
       port = findOpenPort();
       String[] cmd = {"node", dest.resolve("package/bin/server").toString(), String.valueOf(port), "127.0.0.1",
-        temp.newFolder().getAbsolutePath(), "true", "true"};
+        temp.toString(), "true", "true"};
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.inheritIO();
       process = pb.start();
@@ -201,7 +200,7 @@ public class EslintBridgeIntegrationTest {
         .build();
     }
 
-    static int findOpenPort() throws IOException {
+    int findOpenPort() throws IOException {
       try (ServerSocket socket = new ServerSocket(0)) {
         return socket.getLocalPort();
       }

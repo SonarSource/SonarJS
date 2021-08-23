@@ -19,35 +19,40 @@
  */
 package org.sonar.plugins.javascript.eslint;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.internal.JUnitTempFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TsConfigProviderTest {
 
-  @Rule
-  public JUnitTempFolder tempFolder = new JUnitTempFolder();
+  @TempDir
+  Path baseDir;
 
-  private Path baseDir;
+  @TempDir
+  File tempDir;
 
-  @Before
-  public void setUp() {
-    baseDir = tempFolder.newDir().toPath();
+  TempFolder tempFolder;
+
+  @BeforeEach
+  void setUp() {
+    tempFolder = new DefaultTempFolder(tempDir, true);
   }
 
   @Test

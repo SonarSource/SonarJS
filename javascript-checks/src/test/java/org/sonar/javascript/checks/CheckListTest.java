@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;

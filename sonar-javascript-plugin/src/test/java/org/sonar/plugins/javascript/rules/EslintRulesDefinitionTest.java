@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.javascript.rules;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 

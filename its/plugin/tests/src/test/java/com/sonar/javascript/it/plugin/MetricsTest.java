@@ -21,31 +21,31 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Measures.Measure;
 
-import static com.sonar.javascript.it.plugin.Tests.getMeasure;
-import static com.sonar.javascript.it.plugin.Tests.getMeasureAsDouble;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasure;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(OrchestratorStarter.class)
 public class MetricsTest {
 
   private static final String PROJECT_KEY = "MetricsTest";
 
-  @ClassRule
-  public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
-  @BeforeClass
+  @BeforeAll
   public static void prepare() {
-    SonarScanner build = Tests.createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("metrics"))
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs("src");
-    Tests.setEmptyProfile(PROJECT_KEY);
+    OrchestratorStarter.setEmptyProfile(PROJECT_KEY);
     orchestrator.executeBuild(build);
   }
 

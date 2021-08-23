@@ -26,7 +26,7 @@ import java.io.FileReader;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RulesDefinition.Param;
@@ -46,7 +46,7 @@ public class TypeScriptRulesDefinitionTest {
   public void test() {
     Repository repository = TestUtils.buildRepository("typescript", new TypeScriptRulesDefinition());
 
-    assertThat(repository.name()).isEqualTo("SonarAnalyzer");
+    assertThat(repository.name()).isEqualTo("SonarQube");
     assertThat(repository.language()).isEqualTo("ts");
     assertThat(repository.rules()).hasSize(CheckList.getTypeScriptChecks().size());
 

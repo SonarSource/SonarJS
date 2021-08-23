@@ -27,13 +27,14 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import org.assertj.core.groups.Tuple;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 
-import static com.sonar.javascript.it.plugin.Tests.JAVASCRIPT_PLUGIN_LOCATION;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EslintCustomRulesTest {
@@ -41,13 +42,13 @@ public class EslintCustomRulesTest {
 
   private static Orchestrator orchestrator;
 
-  @BeforeClass
+  @BeforeAll
   public static void before() {
     orchestrator = initOrchestrator(PLUGIN_ARTIFACT_ID);
   }
 
 
-  @AfterClass
+  @AfterAll
   public static void after() {
     orchestrator.stop();
   }
@@ -70,12 +71,12 @@ public class EslintCustomRulesTest {
   static List<Issue> findIssues(String ruleKey, Orchestrator orchestrator) {
     org.sonarqube.ws.client.issues.SearchRequest searchRequest = new org.sonarqube.ws.client.issues.SearchRequest();
     searchRequest.setRules(Collections.singletonList(ruleKey));
-    Issues.SearchWsResponse response = Tests.newWsClient(orchestrator).issues().search(searchRequest);
+    Issues.SearchWsResponse response = OrchestratorStarter.newWsClient(orchestrator).issues().search(searchRequest);
     return response.getIssuesList();
   }
 
   static BuildResult runBuild(Orchestrator orchestrator) {
-    SonarScanner build = Tests.createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("custom_rules"))
       .setProjectKey("custom-rules")
       .setProjectName("Custom Rules")
@@ -101,7 +102,7 @@ public class EslintCustomRulesTest {
         new Tuple("eslint-custom-rules:sqKey", "custom-rules:src/dir/Person.js", 21, "call"),
         new Tuple("eslint-custom-rules:sqKey", "custom-rules:src/dir/file.ts", 4, "call")
       );
-    Issues.Location secondaryLocation = issues.get(0).getFlows(0).getLocations(0);
+    Common.Location secondaryLocation = issues.get(0).getFlows(0).getLocations(0);
     assertThat(secondaryLocation.getMsg()).isEqualTo(new File(TestUtils.projectDir("custom_rules"), ".scannerwork").getAbsolutePath());
 
     issues = findIssues("ts-custom-rules:tsRuleKey", orchestrator);

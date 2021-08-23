@@ -22,20 +22,18 @@ package org.sonar.plugins.javascript.minify;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import org.assertj.core.api.AbstractBooleanAssert;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MinificationAssessorTest {
 
   private final static String DIR = "src/test/resources/minify/";
 
-  @org.junit.Rule
-  public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void assessOnFileName() {
@@ -55,8 +53,8 @@ public class MinificationAssessorTest {
 
   @Test
   public void assessNonExistingFile() {
-    thrown.expect(IllegalStateException.class);
-    getAssert("file-does-not-exist.js").isFalse();
+    assertThatThrownBy(() ->  getAssert("file-does-not-exist.js").isFalse())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

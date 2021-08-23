@@ -37,12 +37,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonarqube.ws.Qualityprofiles;
@@ -56,12 +55,10 @@ import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Parameterized.class)
-public class JavaScriptRulingTest {
+class JavaScriptRulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
 
-  @ClassRule
   public static final Orchestrator orchestrator = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(FileLocation.byWildcardMavenFilename(
@@ -69,22 +66,8 @@ public class JavaScriptRulingTest {
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.9.0.1682"))
     .build();
 
-
-  String project;
-  String language;
-  String sourceDir;
-  List<String> exclusions;
-
-  public JavaScriptRulingTest(String project, String language, String sourceDir, List<String> exclusions) {
-    this.project = project;
-    this.language = language;
-    this.sourceDir = sourceDir;
-    this.exclusions = exclusions;
-  }
-
-  @Parameters(name = "{0}")
-  public static Object[][] projects() {
-    return new Object[][]{
+  public static Stream<Arguments> ruling() {
+    return Stream.of(
       jsProject("amplify", "external/**"),
       jsProject("angular.js", "src/ngLocale/**", "i18n/**"),
       jsProject("backbone"),
@@ -102,18 +85,19 @@ public class JavaScriptRulingTest {
       jsProject("prototype", "dist/**", "vendor/**"),
       jsProject("qunit"),
       jsProject("sizzle", "external/**", "dist/**"),
-      jsProject("underscore", "test/vendor/**"),
-    };
+      jsProject("underscore", "test/vendor/**")
+      );
   }
 
-  private static Object[] jsProject(String project, String... exclusions) {
+  private static Arguments jsProject(String project, String... exclusions) {
     List<String> exclusionList = Stream.concat(Stream.of("**/.*", "**/*.ts"), Arrays.stream(exclusions))
       .collect(Collectors.toList());
-    return new Object[]{project, "js", "../sources/" + project, exclusionList};
+    return Arguments.of(project, "js", "../sources/" + project, exclusionList);
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
+    orchestrator.start();
     ProfileGenerator.RulesConfiguration jsRulesConfiguration = new ProfileGenerator.RulesConfiguration()
       .add("S1451", "headerFormat", "// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.")
       .add("S1451", "isRegularExpression", "true")
@@ -150,8 +134,14 @@ public class JavaScriptRulingTest {
       "regularExpression=\".*TODO.*\";message=\"bad user\";flags=\"i\"");
   }
 
-  @Test
-  public void ruling() throws Exception {
+  @AfterAll
+  static void afterAll() {
+    orchestrator.stop();
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void ruling(String project, String language, String sourceDir, List<String> exclusions) throws Exception {
     runRulingTest(project, language, sourceDir, exclusions);
   }
 
@@ -207,10 +197,10 @@ public class JavaScriptRulingTest {
     if (!StringUtils.isEmpty(profileKey)) {
       newAdminWsClient(orchestrator).qualityprofiles()
         .activateRule(new ActivateRuleRequest()
-        .setKey(profileKey)
-        .setRule(keyPrefix + instantiationKey)
-        .setSeverity("INFO")
-        .setParams(Collections.emptyList()));
+          .setKey(profileKey)
+          .setRule(keyPrefix + instantiationKey)
+          .setSeverity("INFO")
+          .setParams(Collections.emptyList()));
       LOG.warn(String.format("Successfully activated template rule '%s'", keyPrefix + instantiationKey));
     } else {
       throw new IllegalStateException("Could not retrieve profile key : Template rule " + ruleTemplateKey + " has not been activated");

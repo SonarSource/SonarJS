@@ -23,13 +23,14 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -47,18 +48,19 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogAndArguments;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptChecks;
@@ -80,8 +82,8 @@ public class JavaScriptEslintBasedSensorTest {
 
   private static final String ESLINT_BASED_RULE = "S3923";
 
-  @org.junit.Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Mock
   private EslintBridgeServer eslintBridgeServerMock;
@@ -89,20 +91,24 @@ public class JavaScriptEslintBasedSensorTest {
   @Mock
   private FileLinesContextFactory fileLinesContextFactory;
 
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
+  @TempDir
+  Path baseDir;
 
-  @Rule
-  public JUnitTempFolder tempFolder = new JUnitTempFolder();
+  @TempDir
+  File tempDir;
+
+  TempFolder tempFolder;
+
   private SensorContextTester context;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
     when(eslintBridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
-    context = SensorContextTester.create(tempFolder.newDir());
+    context = SensorContextTester.create(baseDir);
+    tempFolder = new DefaultTempFolder(tempDir, true);
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
@@ -328,7 +334,7 @@ public class JavaScriptEslintBasedSensorTest {
 
     JavaScriptEslintBasedSensor sensor = new JavaScriptEslintBasedSensor(
       new JavaScriptChecks(checkFactory),
-      new NoSonarFilter(),
+      new DefaultNoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
       null,
@@ -352,7 +358,7 @@ public class JavaScriptEslintBasedSensorTest {
   @Test
   public void should_skip_analysis_when_no_files() throws Exception {
     JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
-      new NoSonarFilter(),
+      new DefaultNoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
       mock(AnalysisWarnings.class),
@@ -367,7 +373,7 @@ public class JavaScriptEslintBasedSensorTest {
     doThrow(new NodeCommandException("Exception Message", new IOException())).when(eslintBridgeServerMock).startServerLazily(any());
     AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
     JavaScriptEslintBasedSensor javaScriptEslintBasedSensor = new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE),
-      new NoSonarFilter(),
+      new DefaultNoSonarFilter(),
       fileLinesContextFactory,
       eslintBridgeServerMock,
       analysisWarnings,
@@ -421,7 +427,7 @@ public class JavaScriptEslintBasedSensorTest {
     when(eslintBridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(new Gson().fromJson("{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }", AnalysisResponse.class));
     createInputFile(context);
-    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE), new NoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, null, tempFolder).execute(context);
+    new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE), new DefaultNoSonarFilter(), fileLinesContextFactory, eslintBridgeServerMock, null, tempFolder).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(0);
     assertThat(context.allAnalysisErrors()).hasSize(1);
@@ -521,7 +527,7 @@ public class JavaScriptEslintBasedSensorTest {
 
 
   private JavaScriptEslintBasedSensor createSensor() {
-    return new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE, "S2260", "S1451"), new NoSonarFilter(), fileLinesContextFactory,
+    return new JavaScriptEslintBasedSensor(checks(ESLINT_BASED_RULE, "S2260", "S1451"), new DefaultNoSonarFilter(), fileLinesContextFactory,
       eslintBridgeServerMock, null, tempFolder
     );
   }

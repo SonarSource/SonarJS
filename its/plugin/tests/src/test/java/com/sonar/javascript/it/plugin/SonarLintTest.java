@@ -26,16 +26,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonarsource.sonarlint.core.NodeJsHelper;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.client.api.common.Language;
 import org.sonarsource.sonarlint.core.client.api.common.LogOutput;
+import org.sonarsource.sonarlint.core.client.api.common.SonarLintEngine;
 import org.sonarsource.sonarlint.core.client.api.common.Version;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
@@ -60,23 +59,23 @@ import static org.assertj.core.api.Assertions.tuple;
  */
 public class SonarLintTest {
 
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
-
   private static final String FILE_PATH = "foo.js";
   private final static List<String> LOGS = new ArrayList<>();
 
-  private static File baseDir;
-  private static StandaloneGlobalConfiguration sonarLintConfig;
-  private StandaloneSonarLintEngine sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
+  @TempDir
+  File baseDir;
+  private StandaloneSonarLintEngine sonarlintEngine;
 
-  @BeforeClass
-  public static void prepare() throws Exception {
-    sonarLintConfig = getSonarLintConfig();
-    baseDir = temp.newFolder();
+  @TempDir
+  Path sonarLintHome;
+
+  @BeforeEach
+  public void prepare() throws Exception {
+    StandaloneGlobalConfiguration sonarLintConfig = getSonarLintConfig();
+    sonarlintEngine = new StandaloneSonarLintEngineImpl(sonarLintConfig);
   }
 
-  @After
+  @AfterEach
   public void stop() {
     sonarlintEngine.stop();
   }
@@ -132,6 +131,8 @@ public class SonarLintTest {
 
   @Test
   public void should_log_failure_only_once() throws IOException {
+    // we need to stop engine initialized in @BeforeEach prepare() method, because we need configuration with different node
+    sonarlintEngine.stop();
     // version `42` will let us pass SonarLint check of version
     sonarlintEngine = new StandaloneSonarLintEngineImpl(getSonarLintConfig(new File("invalid/path/node").toPath(), Version.create("42")));
     List<Issue> issues = analyze(FILE_PATH, "");
@@ -155,14 +156,14 @@ public class SonarLintTest {
     return issues;
   }
 
-  private static StandaloneGlobalConfiguration getSonarLintConfig() throws IOException {
+  private StandaloneGlobalConfiguration getSonarLintConfig() throws IOException {
     NodeJsHelper nodeJsHelper = new NodeJsHelper();
     nodeJsHelper.detect(null);
 
     return getSonarLintConfig(nodeJsHelper.getNodeJsPath(), nodeJsHelper.getNodeJsVersion());
   }
 
-  private static StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion) throws IOException {
+  private StandaloneGlobalConfiguration getSonarLintConfig(Path nodePath, Version nodeVersion) throws IOException {
     LogOutput logOutput = (formattedMessage, level) -> {
       LOGS.add(formattedMessage);
       System.out.println(formattedMessage);
@@ -171,8 +172,8 @@ public class SonarLintTest {
     return StandaloneGlobalConfiguration.builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
-      .addPlugin(Tests.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
-      .setSonarLintUserHome(temp.newFolder().toPath())
+      .addPlugin(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toURI().toURL())
+      .setSonarLintUserHome(sonarLintHome)
       .setLogOutput(logOutput)
       .setNodeJs(nodePath, nodeVersion)
       .build();

@@ -22,23 +22,23 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
-import static com.sonar.javascript.it.plugin.Tests.newWsClient;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.newWsClient;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(OrchestratorStarter.class)
 public class NoSonarTest {
 
-  @ClassRule
-  public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   private static final File PROJECT_DIR = TestUtils.projectDir("nosonar");
 
-  @BeforeClass
+  @BeforeAll
   public static void startServer() {
     String projectKey = "nosonar-project";
     SonarScanner build = SonarScanner.create()
@@ -49,7 +49,7 @@ public class NoSonarTest {
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR);
 
-    Tests.setProfile(projectKey, "nosonar-profile", "js");
+    OrchestratorStarter.setProfile(projectKey, "nosonar-profile", "js");
 
     orchestrator.executeBuild(build);
   }
@@ -58,7 +58,7 @@ public class NoSonarTest {
   public void test() {
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList("nosonar-project")).setSeverities(singletonList("INFO")).setRules(singletonList("javascript:S1116"));
-    assertThat(newWsClient(Tests.ORCHESTRATOR).issues().search(request).getIssuesList()).hasSize(1);
+    assertThat(newWsClient(OrchestratorStarter.ORCHESTRATOR).issues().search(request).getIssuesList()).hasSize(1);
   }
 
 }

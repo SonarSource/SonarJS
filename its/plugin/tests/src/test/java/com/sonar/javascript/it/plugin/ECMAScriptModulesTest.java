@@ -23,17 +23,17 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.util.List;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues;
 
-import static com.sonar.javascript.it.plugin.Tests.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(OrchestratorStarter.class)
 public class ECMAScriptModulesTest {
 
-  @ClassRule
-  public static final Orchestrator orchestrator = Tests.ORCHESTRATOR;
+  private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   private static final File PROJECT_DIR = TestUtils.projectDir("esm-project");
 
@@ -46,7 +46,7 @@ public class ECMAScriptModulesTest {
       .setSourceDirs(".")
       .setProjectDir(PROJECT_DIR);
 
-    Tests.setProfile(projectKey, "eslint-based-rules-profile", "js");
+    OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
     orchestrator.executeBuild(build);
 
     List<Issues.Issue> issuesList = getIssues(projectKey);

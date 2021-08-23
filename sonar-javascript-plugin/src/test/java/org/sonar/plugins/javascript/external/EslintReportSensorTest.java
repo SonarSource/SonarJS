@@ -22,8 +22,8 @@ package org.sonar.plugins.javascript.external;
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
@@ -31,7 +31,7 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
@@ -40,8 +40,8 @@ import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
 public class EslintReportSensorTest {
 
-  @Rule
-  public final LogTester logTester = new LogTester();
+  @RegisterExtension
+  public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private static final File BASE_DIR = new File("src/test/resources/externalIssues/").getAbsoluteFile();
   private static final String CONTENT = "function addOne(i) {\n" +

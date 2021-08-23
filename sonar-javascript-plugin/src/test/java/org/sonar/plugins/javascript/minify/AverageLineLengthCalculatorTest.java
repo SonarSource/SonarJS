@@ -21,8 +21,7 @@ package org.sonar.plugins.javascript.minify;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
@@ -32,8 +31,6 @@ public class AverageLineLengthCalculatorTest {
 
   private final static String DIR = "src/test/resources/minify/";
 
-  @org.junit.Rule
-  public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void noHeaderComment1() {

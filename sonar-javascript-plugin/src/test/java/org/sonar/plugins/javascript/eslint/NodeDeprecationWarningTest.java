@@ -21,14 +21,14 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,8 +39,8 @@ public class NodeDeprecationWarningTest {
   private static final String MSG_10 = "You are using Node.js version 10, which reached end-of-life. Support for this version will be dropped in future release, please upgrade Node.js to more recent version.";
   private static final String UNSUPPORTED_MSG = "Node.js version 15 is not supported, you might experience issues. Please use a supported version of Node.js [12, 14, 16]";
 
-  @Rule
-  public final LogTester logTester = new LogTester();
+  @RegisterExtension
+  public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   public void test() {

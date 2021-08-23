@@ -24,10 +24,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import java.nio.file.Path;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -36,7 +37,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
@@ -50,16 +51,17 @@ public class CoverageSensorTest {
 
   private SensorContextTester context;
   private MapSettings settings;
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
+
+  @TempDir
+  Path tempDir;
 
   private CoverageSensor coverageSensor = new CoverageSensor();
   private File moduleBaseDir = new File("src/test/resources/coverage/").getAbsoluteFile();
 
-  @org.junit.Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Before
+  @BeforeEach
   public void init() throws FileNotFoundException {
     settings = new MapSettings();
 
@@ -78,7 +80,7 @@ public class CoverageSensorTest {
       .setType(type)
       .build();
 
-    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), StandardCharsets.UTF_8, inputFile.absolutePath()));
+    inputFile.setMetadata(new FileMetadata(s -> {}).readMetadata(new FileInputStream(inputFile.file()), StandardCharsets.UTF_8, inputFile.absolutePath()));
     context.fileSystem().add(inputFile);
 
     return inputFile;
@@ -213,11 +215,11 @@ public class CoverageSensorTest {
 
   @Test
   public void should_resolve_absolute_path() throws Exception {
-    File lcovFile = temp.newFile();
+    Path lcovFile = tempDir.resolve("lcovfile");
     String absolutePathFile1 = new File("src/test/resources/coverage/file1.js").getAbsolutePath();
     String absolutePathFile2 = new File("src/test/resources/coverage/file2.js").getAbsolutePath();
 
-    Files.write(lcovFile.toPath(),
+    Files.write(lcovFile,
       ("SF:" + absolutePathFile1 + "\n" +
       "DA:1,2\n" +
       "DA:2,2\n" +
@@ -233,7 +235,7 @@ public class CoverageSensorTest {
       "DA:1,5\n" +
       "DA:2,5\n" +
       "end_of_record\n").getBytes(StandardCharsets.UTF_8));
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcovFile.getAbsolutePath());
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcovFile.toAbsolutePath().toString());
     inputFile("file1.js", Type.MAIN);
     inputFile("file2.js", Type.MAIN);
     coverageSensor.execute(context);
@@ -283,8 +285,8 @@ public class CoverageSensorTest {
       .build();
     context.fileSystem().add(inputFile);
 
-    File lcov = temp.newFile();
-    Files.write(lcov.toPath(), ("SF:src/file1.ts\n" +
+    Path lcov = tempDir.resolve("file.lcov");
+    Files.write(lcov, ("SF:src/file1.ts\n" +
       "DA:1,2\n" +
       "DA:2,2\n" +
       "DA:3,1\n" +
@@ -299,7 +301,7 @@ public class CoverageSensorTest {
       "DA:1,5\n" +
       "DA:2,5\n" +
       "end_of_record\n").getBytes(StandardCharsets.UTF_8));
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.getAbsolutePath());
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.toAbsolutePath().toString());
     coverageSensor.execute(context);
     assertThat(context.lineHits(inputFile.key(), 1)).isEqualTo(2);
     assertThat(context.lineHits(inputFile.key(), 2)).isEqualTo(2);

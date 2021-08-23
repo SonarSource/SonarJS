@@ -21,9 +21,8 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.nio.file.Path;
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.api.utils.internal.JUnitTempFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.plugins.javascript.api.RulesBundle;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,14 +30,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RulesBundlesTest {
 
-  @Rule
-  public JUnitTempFolder tempFolder = new JUnitTempFolder();
+  @TempDir
+  Path tempDir;
 
   @Test
   public void test() throws Exception {
     TestRulesBundle rulesBundle = new TestRulesBundle("/test-bundle.tgz");
     RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[]{rulesBundle});
-    List<Path> paths = rulesBundles.deploy(tempFolder.newDir().toPath());
+    List<Path> paths = rulesBundles.deploy(tempDir);
     assertThat(paths).hasSize(1);
     assertThat(paths.get(0)).exists();
     assertThat(paths.get(0).resolve("bin/server")).hasContent("#!/usr/bin/env node\n\n");
@@ -54,7 +53,7 @@ public class RulesBundlesTest {
   @Test
   public void test_empty() {
     RulesBundles rulesBundles = new RulesBundles();
-    assertThat(rulesBundles.deploy(tempFolder.newDir().toPath())).isEmpty();
+    assertThat(rulesBundles.deploy(tempDir)).isEmpty();
   }
 
 

@@ -40,8 +40,14 @@
       <artifactId>sonarlint-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-plugin-api-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
@@ -68,9 +74,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
-            <include>**/Tests.java</include>
-            <include>**/TypeScriptRuleTest.java</include>
-            <include>**/EslintCustomRulesTest.java</include>
+            <include>**/*Test.java</include>
           </includes>
         </configuration>
       </plugin>

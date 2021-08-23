@@ -54,6 +54,10 @@
       <artifactId>sonar-plugin-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-plugin-api-impl</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>
@@ -62,8 +66,9 @@
       <artifactId>jsr305</artifactId>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>

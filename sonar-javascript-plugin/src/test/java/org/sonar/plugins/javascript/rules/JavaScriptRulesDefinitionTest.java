@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.javascript.rules;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RuleParamType;
@@ -38,7 +38,7 @@ public class JavaScriptRulesDefinitionTest {
   public void test() {
     RulesDefinition.Repository repository = TestUtils.buildRepository("javascript", new JavaScriptRulesDefinition());
 
-    assertThat(repository.name()).isEqualTo("SonarAnalyzer");
+    assertThat(repository.name()).isEqualTo("SonarQube");
     assertThat(repository.language()).isEqualTo("js");
     assertThat(repository.rules()).hasSize(CheckList.getJavaScriptChecks().size());
 

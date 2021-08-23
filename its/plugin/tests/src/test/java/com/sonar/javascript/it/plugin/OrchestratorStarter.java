@@ -22,9 +22,11 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import java.io.File;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.Measures.Measure;
@@ -34,39 +36,14 @@ import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
-import javax.annotation.CheckForNull;
-import java.io.File;
-import java.util.List;
-
 import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-  CoverageTest.class,
-//  EslintCustomRulesTest.class, - test runs separately
-  ECMAScriptModulesTest.class,
-  EslintBasedRulesTest.class,
-  EslintBridgeIntegrationTest.class,
-  EslintReportTest.class,
-  MetricsTest.class,
-  MinifiedFilesTest.class,
-  MultiTsconfigTest.class,
-  NoSonarTest.class,
-  ProjectWithBOMTest.class,
-  ProjectWithDifferentEncodingTest.class,
-  SonarLintTest.class,
-  TestCodeAnalysisTest.class,
-  TslintExternalReportTest.class,
-  TypeScriptAnalysisTest.class,
-//  TypeScriptRuleTest.class, - test runs separately
-  VueAnalysisTest.class
-})
-public final class Tests {
+public final class OrchestratorStarter implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
 
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
-  @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
@@ -79,7 +56,26 @@ public final class Tests {
     .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
     .build();
 
-  private Tests() {
+  private static boolean started;
+
+  private OrchestratorStarter() {
+  }
+
+  @Override
+  public void beforeAll(ExtensionContext context) throws Exception {
+    if (!started) {
+      started = true;
+      // this will register "this.close()" method to be called when GLOBAL context is shutdown
+      context.getRoot().getStore(GLOBAL).put(OrchestratorStarter.class, this);
+      ORCHESTRATOR.start();
+    }
+  }
+
+
+  @Override
+  public void close() throws Throwable {
+    // this is executed once all tests are finished
+    ORCHESTRATOR.stop();
   }
 
   public static SonarScanner createScanner() {
@@ -133,4 +129,6 @@ public final class Tests {
     request.setComponentKeys(singletonList(componentKey));
     return newWsClient(ORCHESTRATOR).issues().search(request).getIssuesList();
   }
+
+
 }
