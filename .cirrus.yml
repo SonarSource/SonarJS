@@ -31,8 +31,8 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     platform: windows
     zone: us-central1-a
     preemptible: false
-    disk: 500
-    type: c2-standard-16
+    disk: 128
+    type: c2-standard-8
     use_ssd: true
     
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
