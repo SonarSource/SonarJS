@@ -168,6 +168,24 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
         const matched = 'str'.matchAll(pattern3);
       `,
     },
+    {
+      code: `
+      const pattern = /(?<foo>\\w)(?<bar>\\w)/;
+      const matched = 'str'.match(pattern);
+      if (matched) {
+        const { foo, bar: b } = matched.groups;
+      }
+      `,
+    },
+    {
+      code: `
+      const pattern = /(?<foo>\\w)(?<bar>\\w)/;
+      const matched = 'str'.match(pattern);
+      if (matched) {
+        ({ foo, bar } = matched.groups);
+      }
+      `,
+    },
   ],
   invalid: [
     {
@@ -465,6 +483,66 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
     {
       code: `'str'.search('(?<foo>\\w)\\\\1(?<bar>\\w)\\\\k<bar>(?<baz>\\w)'); // Noncompliant: 'foo' referenced by index`,
       errors: 1,
+    },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)(?<bar>\\w)/; // Noncompliant: unused 'foo'
+                        // ^^^^^^^^^^^
+                     // ^^^^^^^^^^^^^^^^^^^^^^^^
+        const matched = 'str'.match(pattern);
+        if (matched) {
+          const { bar } = matched.groups;
+        }
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: 'Use the named groups of this regex or remove the names.',
+            secondaryLocations: [
+              { message: `Named group 'foo'`, column: 25, line: 2, endColumn: 35, endLine: 2 },
+            ],
+          }),
+          line: 2,
+          endLine: 2,
+          column: 25,
+          endColumn: 47,
+        },
+      ],
+    },
+    {
+      code: `
+        const pattern = /(?<foo>\\w)(?<bar>\\w)/; // Noncompliant: unused 'foo'
+                        // ^^^^^^^^^^^
+                     // ^^^^^^^^^^^^^^^^^^^^^^^^
+        const matched = 'str'.match(pattern);
+        if (matched) {
+          ({ bar } = matched.groups);
+        }
+      `,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: 'Use the named groups of this regex or remove the names.',
+            secondaryLocations: [
+              { message: `Named group 'foo'`, column: 25, line: 2, endColumn: 35, endLine: 2 },
+            ],
+          }),
+          line: 2,
+          endLine: 2,
+          column: 25,
+          endColumn: 47,
+        },
+      ],
+    },
+    {
+      code: `
+      const pattern = /(?<foo>\\w)(?<bar>\\w)/; // Noncompliant: unused 'foo', 'bar'
+      const matched = 'str'.match(pattern);
+      if (matched) {
+        ({ [abc]: def, ...hij} = matched.groups);
+      }
+      `,
+      errors: 2,
     },
   ],
 });
