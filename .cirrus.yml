@@ -145,6 +145,7 @@ plugin_qa_win_task:
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
+    - powershell Get-MpComputerStatus  #antivirus setting test
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V verify
   cleanup_before_cache_script: cleanup_maven_repository
 
