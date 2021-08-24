@@ -47,7 +47,7 @@ ruleTester.run('No control characters in regular expressions', rule, {
       code: `/\\x00/`,
       errors: [
         {
-          message: 'Remove this control character.',
+          message: 'Remove this control character: \\x00.',
           line: 1,
           endLine: 1,
           column: 2,
@@ -59,7 +59,7 @@ ruleTester.run('No control characters in regular expressions', rule, {
       code: `/\\u001F/`,
       errors: [
         {
-          message: 'Remove this control character.',
+          message: 'Remove this control character: \\u001F.',
           line: 1,
           endLine: 1,
           column: 2,
@@ -71,7 +71,7 @@ ruleTester.run('No control characters in regular expressions', rule, {
       code: `/\\u{001F}/u`,
       errors: [
         {
-          message: 'Remove this control character.',
+          message: 'Remove this control character: \\u{001F}.',
           line: 1,
           endLine: 1,
           column: 2,
