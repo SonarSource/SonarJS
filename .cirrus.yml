@@ -143,7 +143,7 @@ plugin_qa_win_task:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
   qa_script:
-    - powershell Set-MpPreference -DisableIntrusionPreventionSystem $true -DisableIOAVProtection $true -DisableRealtimeMonitoring $true -DisableScriptScanning $true -EnableControlledFolderAccess Disabled -EnableNetworkProtection AuditMode -Force -MAPSReporting Disabled -SubmitSamplesConsent NeverSend
+    - powershell Set-MpPreference -DisableIntrusionPreventionSystem '$true' -DisableIOAVProtection '$true' -DisableRealtimeMonitoring '$true' -DisableScriptScanning '$true' -EnableControlledFolderAccess Disabled -EnableNetworkProtection AuditMode -Force -MAPSReporting Disabled -SubmitSamplesConsent NeverSend
     - powershell Get-MpComputerStatus  #antivirus setting test
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
