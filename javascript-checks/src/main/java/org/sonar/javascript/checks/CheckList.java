@@ -298,6 +298,7 @@ public final class CheckList {
       UnchangedLetVariableCheck.class,
       UndefinedArgumentCheck.class,
       UndefinedAssignmentCheck.class,
+      UnicodeAwareRegexCheck.class,
       UnnecessaryTypeArgumentsCheck.class,
       UnreachableCodeCheck.class,
       UnsafeUnzipCheck.class,
