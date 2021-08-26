@@ -53,10 +53,10 @@ type RegexReportDescriptor = {
  */
 export function createRegExpRule(
   handlers: (context: RegexRuleContext) => RegExpVisitor.Handlers,
-  meta: Rule.RuleMetaData = {},
+  metadata: { meta: Rule.RuleMetaData } = { meta: {} },
 ): Rule.RuleModule {
   return {
-    meta,
+    ...metadata,
     create(context: Rule.RuleContext) {
       const services = isRequiredParserServices(context.parserServices)
         ? context.parserServices
@@ -66,7 +66,10 @@ export function createRegExpRule(
         if (!regExpAST) {
           return;
         }
-        regexpp.visitRegExpAST(regExpAST, handlers({ ...context, node, reportRegExpNode }));
+        const ctx = Object.create(context) as RegexRuleContext;
+        ctx.node = node;
+        ctx.reportRegExpNode = reportRegExpNode;
+        regexpp.visitRegExpAST(regExpAST, handlers(ctx));
       }
 
       function reportRegExpNode(descriptor: RegexReportDescriptor) {
