@@ -104,11 +104,29 @@ export function isMethodInvocation(
   );
 }
 
-export function isMethodCall(callExpr: estree.CallExpression) {
+export function isMethodCall(
+  callExpr: estree.CallExpression,
+): callExpr is estree.CallExpression & {
+  callee: estree.MemberExpression & { property: estree.Identifier };
+} {
   return (
     callExpr.callee.type === 'MemberExpression' &&
     !callExpr.callee.computed &&
     callExpr.callee.property.type === 'Identifier'
+  );
+}
+
+export function isCallingMethod(
+  callExpr: estree.CallExpression,
+  arity: number,
+  ...methodNames: string[]
+): callExpr is estree.CallExpression & {
+  callee: estree.MemberExpression & { property: estree.Identifier };
+} {
+  return (
+    isMethodCall(callExpr) &&
+    callExpr.arguments.length === arity &&
+    methodNames.includes(callExpr.callee.property.name)
   );
 }
 

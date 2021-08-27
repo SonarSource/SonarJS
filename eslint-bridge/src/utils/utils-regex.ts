@@ -96,7 +96,7 @@ export function isRegExpConstructor(node: estree.Node): node is estree.CallExpre
   );
 }
 
-function getFlags(callExpr: estree.CallExpression): string | null {
+export function getFlags(callExpr: estree.CallExpression): string | null {
   if (callExpr.arguments.length < 2) {
     return '';
   }
