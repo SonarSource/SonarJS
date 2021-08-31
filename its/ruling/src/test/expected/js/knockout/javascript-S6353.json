@@ -1,0 +1,14 @@
+{
+'knockout:spec/templatingBehaviors.js':[
+62,
+65,
+],
+'knockout:src/templating/templateRewriting.js':[
+3,
+4,
+],
+'knockout:src/virtualElements.js':[
+15,
+15,
+],
+}
