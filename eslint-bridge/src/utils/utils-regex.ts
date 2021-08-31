@@ -22,7 +22,14 @@ import * as estree from 'estree';
 import * as regexpp from 'regexpp';
 import { CapturingGroup, Group, LookaroundAssertion, Pattern } from 'regexpp/ast';
 import { AST, Rule } from 'eslint';
-import { getUniqueWriteUsage, isRegexLiteral, isStringLiteral } from './utils-ast';
+import {
+  getUniqueWriteUsage,
+  isBinaryPlus,
+  isIdentifier,
+  isRegexLiteral,
+  isStaticTemplateLiteral,
+  isStringLiteral,
+} from './utils-ast';
 import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils';
 import { tokenizeString } from './utils-string-literal';
 import { isString } from './utils-type';
@@ -53,7 +60,7 @@ function getPatternFromNode(
   node: estree.Node,
   context: Rule.RuleContext,
 ): { pattern: string; flags: string } | null {
-  if (isRegExpConstructor(node) && node.arguments.length > 0) {
+  if (isRegExpConstructor(node)) {
     const patternOnly = getPatternFromNode(node.arguments[0], context);
     const flags = getFlags(node);
     if (patternOnly && flags !== null) {
@@ -63,13 +70,9 @@ function getPatternFromNode(
     return node.regex;
   } else if (isStringLiteral(node)) {
     return { pattern: node.value as string, flags: '' };
-  } else if (
-    node.type === 'TemplateLiteral' &&
-    node.expressions.length === 0 &&
-    node.quasis.length === 1
-  ) {
+  } else if (isStaticTemplateLiteral(node)) {
     return { pattern: node.quasis[0].value.raw, flags: '' };
-  } else if (node.type === 'Identifier') {
+  } else if (isIdentifier(node)) {
     const assignedExpression = getUniqueWriteUsage(context, node.name);
     if (
       assignedExpression &&
@@ -77,7 +80,7 @@ function getPatternFromNode(
     ) {
       return getPatternFromNode(assignedExpression, context);
     }
-  } else if (node.type === 'BinaryExpression' && node.operator === '+') {
+  } else if (isBinaryPlus(node)) {
     const left = getPatternFromNode(node.left, context);
     const right = getPatternFromNode(node.right, context);
     if (left && right) {
@@ -92,7 +95,8 @@ export function isRegExpConstructor(node: estree.Node): node is estree.CallExpre
   return (
     (node.type === 'CallExpression' || node.type === 'NewExpression') &&
     node.callee.type === 'Identifier' &&
-    node.callee.name === 'RegExp'
+    node.callee.name === 'RegExp' &&
+    node.arguments.length > 0
   );
 }
 
