@@ -56,8 +56,8 @@ public class Monitoring implements Startable {
   private SensorContext sensorContext;
   private boolean enabled;
   private Sensor sensor;
-  private Metric sensorMetric;
-  private Metric fileMetric;
+  private SensorMetric sensorMetric;
+  private FileMetric fileMetric;
 
   void startSensor(SensorContext sensorContext, Sensor sensor) {
     this.enabled = isMonitoringEnabled(sensorContext);
@@ -66,15 +66,15 @@ public class Monitoring implements Startable {
     }
     this.sensorContext = sensorContext;
     this.sensor = sensor;
-    sensorMetric = new Metric(SENSOR);
-    sensorMetric.start = System.nanoTime();
+    sensorMetric = new SensorMetric();
+    sensorMetric.duration = new Duration();
   }
 
   void stopSensor() {
     if (!enabled) {
       return;
     }
-    sensorMetric.stop();
+    sensorMetric.durationMs = sensorMetric.duration.stop();
     sensorMetric.component = sensor.getClass().getCanonicalName();
     sensorMetric.projectKey = sensorContext.project().key();
     metrics.add(sensorMetric);
@@ -84,20 +84,23 @@ public class Monitoring implements Startable {
     if (!enabled) {
       return;
     }
-    fileMetric = new Metric(FILE);
+    fileMetric = new FileMetric();
+    fileMetric.duration = new Duration();
     fileMetric.component = inputFile.toString();
     sensorMetric.fileCount++;
   }
 
-  public void stopFile(InputFile inputFile, EslintBridgeServer.Metrics fileMetrics) {
+  public void stopFile(InputFile inputFile, int ncloc, EslintBridgeServer.Perf perf) {
     if (!enabled) {
       return;
     }
-    fileMetric.stop();
+    fileMetric.durationMs = fileMetric.duration.stop();
     if (!fileMetric.component.equals(inputFile.toString())) {
       throw new IllegalStateException("Mismatched Monitoring.startFile / stopFile");
     }
-    fileMetric.ncloc = fileMetrics.ncloc.length;
+    fileMetric.ncloc = ncloc;
+    fileMetric.parseTimeMs = perf.parseTimeMs;
+    fileMetric.analysisTimeMs = perf.analysisTimeMs;
     metrics.add(fileMetric);
   }
 
@@ -154,22 +157,46 @@ public class Monitoring implements Startable {
     String pluginVersion;
     String pluginBuild;
     // transient to exclude field from json
-    transient long start;
-    long durationMs;
-    int ncloc;
-    int fileCount;
+    transient Duration duration;
 
     Metric(MetricType metricType) {
       pluginVersion = Metric.class.getPackage().getImplementationVersion();
       pluginBuild = ManifestUtils.getPropertyValues(Metric.class.getClassLoader(), "Implementation-Build").get(0);
-      start = System.nanoTime();
       this.metricType = metricType;
     }
+  }
 
-    void stop() {
-      durationMs = (System.nanoTime() - start) / 1_000_000;
+  static class SensorMetric extends Metric {
+    int fileCount;
+    long durationMs;
+
+    SensorMetric() {
+      super(SENSOR);
+    }
+  }
+
+  static class FileMetric extends Metric {
+    int ncloc;
+    int parseTimeMs;
+    int analysisTimeMs;
+    long durationMs;
+
+    FileMetric() {
+      super(FILE);
+    }
+  }
+
+  static class Duration {
+
+    final long start;
+
+    Duration() {
+      start = System.nanoTime();
     }
 
+    long stop() {
+      return (System.nanoTime() - start) / 1_000_000;
+    }
   }
 
 }

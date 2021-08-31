@@ -213,7 +213,7 @@ abstract class AbstractEslintSensor implements Sensor {
     saveHighlights(file, response.highlights);
     saveHighlightedSymbols(file, response.highlightedSymbols);
     saveCpd(file, response.cpdTokens);
-    monitoring.stopFile(file, response.metrics);
+    monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
   }
 
   private void saveIssues(InputFile file, Issue[] issues) {

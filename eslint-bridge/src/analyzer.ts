@@ -30,6 +30,7 @@ import {
 import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
 import { LinterWrapper, AdditionalRule } from './linter';
 import { getContext } from './context';
+import { hrtime } from 'process';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
@@ -77,6 +78,7 @@ export interface AnalysisResponse {
   highlightedSymbols?: HighlightedSymbol[];
   metrics?: Metrics;
   cpdTokens?: CpdToken[];
+  perf?: Perf;
 }
 
 export interface ParsingError {
@@ -102,6 +104,11 @@ export interface IssueLocation {
   endColumn: number;
   endLine: number;
   message?: string;
+}
+
+export interface Perf {
+  parseTimeMs: number;
+  analysisTimeMs: number;
 }
 
 export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
@@ -134,9 +141,15 @@ function analyze(input: AnalysisInput, language: 'ts' | 'js'): AnalysisResponse 
   if (!linter) {
     throw new Error('Linter is undefined. Did you call /init-linter?');
   }
-  const result = buildSourceCode(input, language);
+  const { result, durationMs: parseTimeMs } = measureDuration(() =>
+    buildSourceCode(input, language),
+  );
   if (result instanceof SourceCode) {
-    return analyzeFile(result, input);
+    const { result: response, durationMs: analysisTimeMs } = measureDuration(() =>
+      analyzeFile(result, input),
+    );
+    response.perf = { parseTimeMs, analysisTimeMs };
+    return response;
   } else {
     return {
       ...EMPTY_RESPONSE,
@@ -145,7 +158,14 @@ function analyze(input: AnalysisInput, language: 'ts' | 'js'): AnalysisResponse 
   }
 }
 
-function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
+function measureDuration<T>(f: () => T): { result: T; durationMs: number } {
+  const start = hrtime.bigint();
+  const result = f();
+  const durationMs = Math.round(Number(hrtime.bigint() - start) / 1_000_000);
+  return { result, durationMs };
+}
+
+function analyzeFile(sourceCode: SourceCode, input: AnalysisInput): AnalysisResponse {
   let issues: Issue[] = [];
   let parsingError: ParsingError | undefined = undefined;
   try {
