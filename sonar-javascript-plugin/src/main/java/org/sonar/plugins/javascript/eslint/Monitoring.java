@@ -67,14 +67,14 @@ public class Monitoring implements Startable {
     this.sensorContext = sensorContext;
     this.sensor = sensor;
     sensorMetric = new SensorMetric();
-    sensorMetric.duration = new Duration();
+    sensorMetric.clock = new Clock();
   }
 
   void stopSensor() {
     if (!enabled) {
       return;
     }
-    sensorMetric.durationMs = sensorMetric.duration.stop();
+    sensorMetric.duration = sensorMetric.clock.stop();
     sensorMetric.component = sensor.getClass().getCanonicalName();
     sensorMetric.projectKey = sensorContext.project().key();
     metrics.add(sensorMetric);
@@ -85,8 +85,9 @@ public class Monitoring implements Startable {
       return;
     }
     fileMetric = new FileMetric();
-    fileMetric.duration = new Duration();
+    fileMetric.clock = new Clock();
     fileMetric.component = inputFile.toString();
+    fileMetric.ordinal = sensorMetric.fileCount;
     sensorMetric.fileCount++;
   }
 
@@ -94,13 +95,13 @@ public class Monitoring implements Startable {
     if (!enabled) {
       return;
     }
-    fileMetric.durationMs = fileMetric.duration.stop();
+    fileMetric.duration = fileMetric.clock.stop();
     if (!fileMetric.component.equals(inputFile.toString())) {
       throw new IllegalStateException("Mismatched Monitoring.startFile / stopFile");
     }
     fileMetric.ncloc = ncloc;
-    fileMetric.parseTimeMs = perf.parseTimeMs;
-    fileMetric.analysisTimeMs = perf.analysisTimeMs;
+    fileMetric.parseTime = perf.parseTime;
+    fileMetric.analysisTime = perf.analysisTime;
     metrics.add(fileMetric);
   }
 
@@ -142,7 +143,7 @@ public class Monitoring implements Startable {
 
   private Path monitoringPath() {
     return sensorContext.config().get(MONITORING_PATH).map(Paths::get)
-      .orElse(sensorContext.fileSystem().workDir().toPath());
+      .orElseGet(() -> sensorContext.fileSystem().workDir().toPath());
   }
 
   static class Metric implements Serializable {
@@ -155,9 +156,10 @@ public class Monitoring implements Startable {
     String component;
     String projectKey;
     String pluginVersion;
+    // sha of the commit
     String pluginBuild;
     // transient to exclude field from json
-    transient Duration duration;
+    transient Clock clock;
 
     Metric(MetricType metricType) {
       pluginVersion = Metric.class.getPackage().getImplementationVersion();
@@ -168,7 +170,7 @@ public class Monitoring implements Startable {
 
   static class SensorMetric extends Metric {
     int fileCount;
-    long durationMs;
+    long duration;
 
     SensorMetric() {
       super(SENSOR);
@@ -176,26 +178,29 @@ public class Monitoring implements Startable {
   }
 
   static class FileMetric extends Metric {
+    // order of file in the project in which it was analyzed. 1 - first file, ....
+    int ordinal;
     int ncloc;
-    int parseTimeMs;
-    int analysisTimeMs;
-    long durationMs;
+    // time is measured in microseconds
+    int parseTime;
+    int analysisTime;
+    long duration;
 
     FileMetric() {
       super(FILE);
     }
   }
 
-  static class Duration {
+  static class Clock {
 
     final long start;
 
-    Duration() {
+    Clock() {
       start = System.nanoTime();
     }
 
     long stop() {
-      return (System.nanoTime() - start) / 1_000_000;
+      return (System.nanoTime() - start) / 1_000;
     }
   }
 

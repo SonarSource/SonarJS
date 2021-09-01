@@ -107,8 +107,8 @@ export interface IssueLocation {
 }
 
 export interface Perf {
-  parseTimeMs: number;
-  analysisTimeMs: number;
+  parseTime: number;
+  analysisTime: number;
 }
 
 export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
@@ -141,14 +141,12 @@ function analyze(input: AnalysisInput, language: 'ts' | 'js'): AnalysisResponse 
   if (!linter) {
     throw new Error('Linter is undefined. Did you call /init-linter?');
   }
-  const { result, durationMs: parseTimeMs } = measureDuration(() =>
-    buildSourceCode(input, language),
-  );
+  const { result, duration: parseTime } = measureDuration(() => buildSourceCode(input, language));
   if (result instanceof SourceCode) {
-    const { result: response, durationMs: analysisTimeMs } = measureDuration(() =>
+    const { result: response, duration: analysisTime } = measureDuration(() =>
       analyzeFile(result, input),
     );
-    response.perf = { parseTimeMs, analysisTimeMs };
+    response.perf = { parseTime, analysisTime };
     return response;
   } else {
     return {
@@ -158,11 +156,11 @@ function analyze(input: AnalysisInput, language: 'ts' | 'js'): AnalysisResponse 
   }
 }
 
-function measureDuration<T>(f: () => T): { result: T; durationMs: number } {
+function measureDuration<T>(f: () => T): { result: T; duration: number } {
   const start = hrtime.bigint();
   const result = f();
-  const durationMs = Math.round(Number(hrtime.bigint() - start) / 1_000_000);
-  return { result, durationMs };
+  const duration = Math.round(Number(hrtime.bigint() - start) / 1_000);
+  return { result, duration };
 }
 
 function analyzeFile(sourceCode: SourceCode, input: AnalysisInput): AnalysisResponse {

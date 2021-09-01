@@ -167,8 +167,8 @@ public interface EslintBridgeServer extends Startable {
   }
 
   class Perf {
-    int parseTimeMs;
-    int analysisTimeMs;
+    int parseTime;
+    int analysisTime;
   }
 
   class TsConfigResponse {
