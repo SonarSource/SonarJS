@@ -20,13 +20,17 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6353
 
 import { Rule } from 'eslint';
-import { CharacterClass, Quantifier } from 'regexpp/ast';
+import { CharacterClass, Flags, Quantifier, RegExpLiteral } from 'regexpp/ast';
 import { createRegExpRule, RegexRuleContext } from './regex-rule-template';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
+  let flags: Flags;
   return {
+    onRegExpLiteralEnter: (node: RegExpLiteral) => {
+      ({ flags } = node);
+    },
     onCharacterClassEnter: (node: CharacterClass) => {
-      checkBulkyAnyCharacterClass(node, context);
+      checkBulkyAnyCharacterClass(node, flags, context);
       checkBulkyNumericCharacterClass(node, context);
       checkBulkyAlphaNumericCharacterClass(node, context);
     },
@@ -36,7 +40,11 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
   };
 });
 
-function checkBulkyAnyCharacterClass(node: CharacterClass, context: RegexRuleContext) {
+function checkBulkyAnyCharacterClass(
+  node: CharacterClass,
+  flags: Flags,
+  context: RegexRuleContext,
+) {
   if (node.negate || node.elements.length !== 2) {
     return;
   }
@@ -63,7 +71,7 @@ function checkBulkyAnyCharacterClass(node: CharacterClass, context: RegexRuleCon
   const isBulkyAnyCharacterClass =
     (hasLowerEscapeW && hasUpperEscapeW) ||
     (hasLowerEscapeD && hasUpperEscapeD) ||
-    (hasLowerEscapeS && hasUpperEscapeS);
+    (hasLowerEscapeS && hasUpperEscapeS && flags.dotAll);
   if (isBulkyAnyCharacterClass) {
     context.reportRegExpNode({
       message: `Use concise character class syntax '.' instead of '${node.raw}'.`,

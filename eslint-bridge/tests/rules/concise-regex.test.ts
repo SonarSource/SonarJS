@@ -57,10 +57,13 @@ ruleTester.run(
       {
         code: `/x{2}/`,
       },
+      {
+        code: `/[\\s\\S]/`,
+      },
     ],
     invalid: [
       {
-        code: `/[\\s\\S]/`,
+        code: `/[\\s\\S]/s`,
         errors: [
           {
             message: `Use concise character class syntax '.' instead of '[\\s\\S]'.`,
