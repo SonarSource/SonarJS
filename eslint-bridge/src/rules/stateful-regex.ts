@@ -35,6 +35,8 @@ import {
   toEncodedMessage,
 } from '../utils';
 
+type RegexInfo = { node: estree.Node; flags: string };
+
 export const rule: Rule.RuleModule = {
   meta: {
     schema: [
@@ -46,7 +48,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const invocations = new Map<Scope.Variable, estree.CallExpression[]>();
-    const regexes: { node: estree.Node; flags: string }[] = [];
+    const regexes: RegexInfo[] = [];
     const resets = new Set<Scope.Variable>();
     return {
       'Literal:exit': (node: estree.Node) => {
@@ -74,7 +76,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function extractRegex(node: estree.Node, acc: { node: estree.Node; flags: string }[]) {
+function extractRegex(node: estree.Node, acc: RegexInfo[]) {
   if (isRegexLiteral(node)) {
     const { flags } = node.regex;
     acc.push({ node, flags });
@@ -86,7 +88,7 @@ function extractRegex(node: estree.Node, acc: { node: estree.Node; flags: string
 
 function extractRegexInvocation(
   callExpr: estree.CallExpression,
-  regexes: { node: estree.Node; flags: string }[],
+  regexes: RegexInfo[],
   invocations: Map<Scope.Variable, estree.CallExpression[]>,
   context: Rule.RuleContext,
 ) {
@@ -113,7 +115,7 @@ function extractRegexInvocation(
 
 function extractResetRegex(
   node: estree.Node,
-  regexes: { node: estree.Node; flags: string }[],
+  regexes: RegexInfo[],
   resets: Set<Scope.Variable>,
   context: Rule.RuleContext,
 ) {
@@ -153,10 +155,7 @@ function checkWhileConditionRegex(callExpr: estree.CallExpression, context: Rule
   }
 }
 
-function checkGlobalStickyRegex(
-  regex: { node: estree.Node; flags: string },
-  context: Rule.RuleContext,
-) {
+function checkGlobalStickyRegex(regex: RegexInfo, context: Rule.RuleContext) {
   /* RegExp with `g` and `y` flags */
   if (regex.flags.includes('g') && regex.flags.includes('y')) {
     context.report({
