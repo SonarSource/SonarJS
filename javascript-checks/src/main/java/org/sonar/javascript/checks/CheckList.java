@@ -120,6 +120,7 @@ public final class CheckList {
       EmptyDestructuringPatternCheck.class,
       EmptyFunctionCheck.class,
       EmptyStatementCheck.class,
+      EmptyStringRepetitionCheck.class,
       EncryptionCheck.class,
       EncryptionSecureModeCheck.class,
       EqEqEqCheck.class,
