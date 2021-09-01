@@ -273,6 +273,7 @@ public final class CheckList {
       SonarNoInvalidRegexCheck.class,
       SqlQueriesCheck.class,
       StandardInputCheck.class,
+      StatefulRegexCheck.class,
       StrictModeCheck.class,
       StrictTransportSecurityCheck.class,
       StringConcatenatedWithNonStringCheck.class,
