@@ -158,9 +158,10 @@ function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node): AST.Ra
       }
     }
     // regexpNode positions are 1 - based, we need to -1 to report as 0 - based
-    const startToken = regexpNode.start - 1;
+    // it's possible for node start to be outside of range, e.g. `a` in new RegExp('//a')
+    const startToken = Math.min(regexpNode.start - 1, tokens.length - 1);
     const start = tokens[startToken].range[0];
-    // it's possible for node to be outside of range, eg new RegExp('\n(|)')
+    // it's possible for node end to be outside of range, e.g. new RegExp('\n(|)')
     const endToken = Math.min(regexpNode.end - 2, tokens.length - 1);
     const end = tokens[endToken].range[1];
     // +1 is needed to account for string quotes
