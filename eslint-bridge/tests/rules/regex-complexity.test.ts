@@ -87,6 +87,10 @@ ruleTesterThreshold0.run(
         code: `Foo('abc')`,
         options: [0],
       },
+      {
+        code: `RegExp('(a|' + 'b)')`,
+        options: [0],
+      },
     ],
     invalid: [
       {
