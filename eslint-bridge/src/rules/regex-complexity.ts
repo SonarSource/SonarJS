@@ -112,6 +112,7 @@ function checkRegexComplexity(
           `Simplify this regular expression to reduce its complexity from ${complexity} to the ${threshold} allowed.`,
           secondaryLocations,
           secondaryMessages,
+          complexity - threshold,
         ),
         node: regexParts[0],
       });

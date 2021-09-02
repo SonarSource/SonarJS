@@ -99,6 +99,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
               secondaryLocations: [{ message: `+1`, column: 1, line: 1, endColumn: 4, endLine: 1 }],
             }),
             line: 1,
@@ -115,6 +116,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
               secondaryLocations: [{ message: `+1`, column: 1, line: 1, endColumn: 5, endLine: 1 }],
             }),
             line: 1,
@@ -131,6 +133,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
               secondaryLocations: [{ message: `+1`, column: 1, line: 1, endColumn: 2, endLine: 1 }],
             }),
             line: 1,
@@ -147,6 +150,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
               secondaryLocations: [{ message: `+1`, column: 2, line: 1, endColumn: 3, endLine: 1 }],
             }),
             line: 1,
@@ -163,6 +167,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
               secondaryLocations: [{ message: `+1`, column: 2, line: 1, endColumn: 7, endLine: 1 }],
             }),
             line: 1,
@@ -194,6 +199,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
               secondaryLocations: [{ message: `+1`, column: 2, line: 1, endColumn: 3, endLine: 1 }],
             }),
             line: 1,
@@ -210,6 +216,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 2 to the 0 allowed.`,
+              cost: 2,
               secondaryLocations: [
                 { message: `+1`, column: 2, line: 1, endColumn: 3, endLine: 1 },
                 { message: `+1`, column: 4, line: 1, endColumn: 5, endLine: 1 },
@@ -234,6 +241,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 4 to the 0 allowed.`,
+              cost: 4,
               secondaryLocations: [
                 { message: `+1`, column: 10, line: 1, endColumn: 11, endLine: 1 },
                 {
@@ -260,6 +268,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
               secondaryLocations: [{ message: `+1`, column: 6, line: 1, endColumn: 8, endLine: 1 }],
             }),
             line: 1,
@@ -276,6 +285,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
               secondaryLocations: [
                 { message: `+1`, column: 9, line: 1, endColumn: 10, endLine: 1 },
               ],
@@ -294,6 +304,7 @@ ruleTesterThreshold0.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
               secondaryLocations: [
                 { message: `+1`, column: 13, line: 1, endColumn: 14, endLine: 1 },
               ],
@@ -351,6 +362,7 @@ ruleTesterThreshold1.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 2 to the 1 allowed.`,
+              cost: 1,
               secondaryLocations: [
                 { message: `+1`, column: 24, line: 2, endColumn: 25, endLine: 2 },
                 { message: `+1`, column: 31, line: 2, endColumn: 32, endLine: 2 },
@@ -364,6 +376,7 @@ ruleTesterThreshold1.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 2 to the 1 allowed.`,
+              cost: 1,
               secondaryLocations: [
                 { message: `+1`, column: 24, line: 3, endColumn: 25, endLine: 3 },
                 { message: `+1`, column: 31, line: 3, endColumn: 32, endLine: 3 },
@@ -399,6 +412,7 @@ typeAwareRuleTester.run(
           {
             message: JSON.stringify({
               message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
               secondaryLocations: [
                 { message: `+1`, column: 15, line: 1, endColumn: 16, endLine: 1 },
               ],
