@@ -1,0 +1,20 @@
+{
+  "title": "Regular expression quantifiers and character classes should be used concisely",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "regex"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6353",
+  "sqKey": "S6353",
+  "scope": "All",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

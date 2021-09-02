@@ -83,6 +83,7 @@ public final class CheckList {
       CommentRegularExpressionCheck.class,
       CommentedCodeCheck.class,
       ComparisonWithNaNCheck.class,
+      ConciseRegexCheck.class,
       ConditionalIndentationCheck.class,
       ConditionalOperatorCheck.class,
       ConfidentialInformationLoggingCheck.class,
