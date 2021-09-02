@@ -1336,6 +1336,11 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
+"@types/functional-red-black-tree@1.0.1":
+  version "1.0.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#5e776b74ff706b307e861a9fb3cb5ce98bc2d0e5"
+  integrity sha1-XndrdP9wazB+hhqfs8tc6YvC0OU=
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"
@@ -2760,7 +2765,7 @@ function-bind@^1.1.1:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/function-bind/-/function-bind-1.1.1.tgz#a56899d3ea3c9bab874bb9773b7c5ede92f4895d"
   integrity sha1-pWiZ0+o8m6uHS7l3O3xe3pL0iV0=
 
-functional-red-black-tree@^1.0.1:
+functional-red-black-tree@1.0.1, functional-red-black-tree@^1.0.1:
   version "1.0.1"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
