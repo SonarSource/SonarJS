@@ -4,7 +4,8 @@ This rule recommends to replace some bulky quantifiers and character classes wit
 <ul>
   <li> <code>\d</code> for <code>[0-9]</code> and <code>\D</code> for <code>[^0-9]</code> </li>
   <li> <code>\w</code> for <code>[A-Za-z0-9_]</code> and <code>\W</code> for <code>[^A-Za-z0-9_]</code> </li>
-  <li> <code>.</code> for character classes matching everything (e.g. <code>[\w\W]</code>) </li>
+  <li> <code>.</code> for character classes matching everything (e.g. <code>[\w\W]</code>, <code>[\d\D]</code>, or <code>[\s\S]</code> with
+  <code>s</code> flag) </li>
   <li> <code>x?</code> for <code>x{0,1}</code>, <code>x*</code> for <code>x{0,}</code>, <code>x+</code> for <code>x{1,}</code>, <code>x{N}</code> for
   <code>x{N,N}</code> </li>
 </ul>
