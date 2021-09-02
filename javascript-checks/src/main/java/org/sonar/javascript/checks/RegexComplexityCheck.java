@@ -36,8 +36,8 @@ public class RegexComplexityCheck implements EslintBasedCheck {
   private static final int DEFAULT_THRESHOLD = 20;
 
   @RuleProperty(
-    key = "maximumRegexComplexityThreshold",
-    description = "The maximum authorized complexity in regular expressions",
+    key = "maxComplexity",
+    description = "The maximum authorized complexity.",
     defaultValue = "" + DEFAULT_THRESHOLD)
   int threshold = DEFAULT_THRESHOLD;
 
