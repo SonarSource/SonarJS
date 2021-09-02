@@ -201,5 +201,9 @@ typeAwareRuleTester.run('Template for regular expressions rules', rule, {
       `,
       errors: [{ line: 3 }, { line: 4 }, { line: 5 }, { line: 6 }, { line: 8 }],
     },
+    {
+      code: `RegExp('//a')`,
+      errors: 1,
+    },
   ],
 });

@@ -48,7 +48,9 @@ export const functionLike = new Set([
 ]);
 
 export function isIdentifier(node: estree.Node, ...values: string[]): node is estree.Identifier {
-  return node.type === 'Identifier' && values.some(value => value === node.name);
+  return (
+    node.type === 'Identifier' && (values.length === 0 || values.some(value => value === node.name))
+  );
 }
 
 export function isMemberWithProperty(node: estree.Node, ...values: string[]) {
@@ -68,6 +70,12 @@ export function isMemberExpression(
   }
 
   return false;
+}
+
+export function isBinaryPlus(
+  node: estree.Node,
+): node is estree.BinaryExpression & { operator: '+' } {
+  return node.type === 'BinaryExpression' && node.operator === '+';
 }
 
 export function isUnaryExpression(node: estree.Node | undefined): node is estree.UnaryExpression {
@@ -466,5 +474,11 @@ export function isObjectDestructuring(
   return (
     (node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern') ||
     (node.type === 'AssignmentExpression' && node.left.type === 'ObjectPattern')
+  );
+}
+
+export function isStaticTemplateLiteral(node: estree.Node): node is estree.TemplateLiteral {
+  return (
+    node.type === 'TemplateLiteral' && node.expressions.length === 0 && node.quasis.length === 1
   );
 }

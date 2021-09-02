@@ -262,6 +262,7 @@ public final class CheckList {
       RedeclaredSymbolCheck.class,
       RedundantAssignmentCheck.class,
       ReferenceErrorCheck.class,
+      RegexComplexityCheck.class,
       RegularExprCheck.class,
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,
