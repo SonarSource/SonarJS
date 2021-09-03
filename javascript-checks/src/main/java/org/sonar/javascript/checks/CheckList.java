@@ -271,6 +271,7 @@ public final class CheckList {
       SessionRegenerationCheck.class,
       ShorthandPropertiesNotGroupedCheck.class,
       SingleCharacterAlternativeCheck.class,
+      SlowRegexCheck.class,
       SocketsCheck.class,
       SonarNoInvalidRegexCheck.class,
       SqlQueriesCheck.class,
@@ -337,4 +338,3 @@ public final class CheckList {
     );
   }
 }
-
