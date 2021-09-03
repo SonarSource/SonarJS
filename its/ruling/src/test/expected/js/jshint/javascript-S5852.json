@@ -1,0 +1,14 @@
+{
+'jshint:src/cli.js':[
+609,
+],
+'jshint:src/lex.js':[
+472,
+],
+'jshint:src/platforms/rhino.js':[
+107,
+],
+'jshint:src/style.js':[
+47,
+],
+}

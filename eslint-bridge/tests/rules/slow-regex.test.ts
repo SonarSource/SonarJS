@@ -52,7 +52,13 @@ ruleTesterTs.run('redos', rule, {
     },
     {
       code: ` 
-        /([^,]*,)*/; // FP?
+        /([^,]*,)*/; // FP? compliant in SonarJava tests
+      `,
+      errors: 1,
+    },
+    {
+      code: ` 
+        new RegExp('x*$');
       `,
       errors: 1,
     },

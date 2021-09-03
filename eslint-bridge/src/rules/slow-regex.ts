@@ -31,10 +31,9 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     onRegExpLiteralEnter: (node: RegExpLiteral) => {
       const { reports } = analyse(node);
       if (reports.length > 0) {
-        context.reportRegExpNode({
+        context.report({
           message,
           node: context.node,
-          regexpNode: node,
         });
       }
     },
