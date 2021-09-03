@@ -15,6 +15,10 @@
   "ruleSpecification": "RSPEC-5852",
   "sqKey": "S5852",
   "scope": "All",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ],
   "securityStandards": {
     "CWE": [
       400,
