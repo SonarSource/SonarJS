@@ -39,12 +39,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
             characterClass,
           );
           if (intersections.length > 0) {
-            intersections.forEach(intersection => {
-              if (!duplicates.has(intersection)) {
-                // The element the current element is intersecting with should be included as well.
-                duplicates.add(intersection);
-              }
-            });
+            intersections.forEach(intersection => duplicates.add(intersection));
             duplicates.add(element);
           }
           characterClass.add(element);
