@@ -27,11 +27,11 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S5868")
-public class NoMisleadingCharactersCheck implements EslintBasedCheck {
+public class SonarNoMisleadingCharacterClassCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-misleading-character-class";
+    return "sonar-no-misleading-character-class";
   }
 
 }
