@@ -34,7 +34,6 @@ import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils'
 import { tokenizeString } from './utils-string-literal';
 import { isString } from './utils-type';
 import { last } from './utils-collection';
-
 /**
  * An alternation is a regexpp node that has an `alternatives` field.
  */

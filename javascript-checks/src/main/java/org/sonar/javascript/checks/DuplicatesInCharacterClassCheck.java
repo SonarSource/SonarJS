@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.javascript.checks;
 
-export * from './simplified-regex-character-class';
-export * from './utils-ast';
-export * from './utils-collection';
-export * from './utils-decorator';
-export * from './utils-file';
-export * from './utils-global';
-export * from './utils-location';
-export * from './utils-module';
-export * from './utils-parent';
-export * from './utils-regex';
-export * from './utils-type';
-export * from './utils-visitor';
-export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
+
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S5869")
+public class DuplicatesInCharacterClassCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "duplicates-in-character-class";
+  }
+}

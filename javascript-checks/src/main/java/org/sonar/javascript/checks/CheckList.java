@@ -116,6 +116,7 @@ public final class CheckList {
       DuplicateConditionIfCheck.class,
       DuplicateFunctionArgumentCheck.class,
       DuplicatePropertyNameCheck.class,
+      DuplicatesInCharacterClassCheck.class,
       ElseIfWithoutElseCheck.class,
       EmptyBlockCheck.class,
       EmptyDestructuringPatternCheck.class,
