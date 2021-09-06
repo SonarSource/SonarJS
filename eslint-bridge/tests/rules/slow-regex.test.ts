@@ -115,5 +115,10 @@ ruleTesterTs.run('redos', rule, {
         },
       ],
     },
+    {
+      // fails on Node 10
+      code: `new RegExp('[\\x09\\x0A]*$');`,
+      errors: 1,
+    },
   ],
 });
