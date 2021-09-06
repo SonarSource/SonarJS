@@ -96,7 +96,20 @@ ruleTester.run('Duplicated characters in character classes', rule, {
   invalid: [
     {
       code: `/[0-99]/`,
-      errors: 1,
+      errors: [
+        {
+          message: JSON.stringify({
+            message: 'Remove duplicates in this character class.',
+            secondaryLocations: [
+              { message: 'Additional duplicate', column: 5, line: 1, endColumn: 6, endLine: 1 },
+            ],
+          }),
+          line: 1,
+          endLine: 1,
+          column: 3,
+          endColumn: 6,
+        },
+      ],
     },
     {
       code: `/[90-9]/`,
