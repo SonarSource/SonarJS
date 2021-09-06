@@ -56,6 +56,10 @@ ruleTester.run('', rule, {
     // Ignore solo emoji modifier.
     'var r = /[\\u{1F3FB}]/u',
     'var r = /[\u{1F3FB}]/u',
+
+    // Coverage
+    'var r = /[x\\S]/u',
+    'var r = /[xa-z]/u',
   ],
   invalid: [
     // RegExp Literals.
