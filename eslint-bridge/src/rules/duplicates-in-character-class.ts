@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { CharacterClass, Flags, Node, RegExpLiteral } from 'regexpp/ast';
-import { getRegexpLocation, toEncodedMessage } from '../utils';
-import { SimplifiedRegexCharacterClass } from '../utils/simplified-regex-character-class';
+import { getRegexpLocation, SimplifiedRegexCharacterClass, toEncodedMessage } from '../utils';
 import { createRegExpRule } from './regex-rule-template';
 
 export const rule: Rule.RuleModule = createRegExpRule(
