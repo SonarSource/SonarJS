@@ -29,6 +29,7 @@ ruleTesterTs.run('Reluctant quantifiers followed by an optional', rule, {
       code: `
       /a*?x/;
       /a*?[abc]/;
+      /|x|a*x/;
       `,
     },
   ],
