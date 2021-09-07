@@ -22,116 +22,47 @@
 import { Rule } from 'eslint';
 import { createRegExpRule } from './regex-rule-template';
 import { Character, CharacterClassElement } from 'regexpp/ast';
-import {
-  isCombiningCharacter,
-  isEmojiModifier,
-  isRegionalIndicatorSymbol,
-  isSurrogatePair,
-} from '../utils/utils-unicode';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
-  function* iterateCharacterSequence(nodes: CharacterClassElement[]) {
-    let seq: Character[] = [];
-
+  function characters(nodes: CharacterClassElement[]): Character[][] {
+    let current: Character[] = [];
+    const sequences: Character[][] = [current];
     for (const node of nodes) {
-      switch (node.type) {
-        case 'Character':
-          seq.push(node);
-          break;
-
-        case 'CharacterClassRange':
-          seq.push(node.min);
-          yield seq;
-          seq = [node.max];
-          break;
-
-        case 'CharacterSet':
-          if (seq.length > 0) {
-            yield seq;
-            seq = [];
-          }
-          break;
-
-        // no default
+      if (node.type === 'Character') {
+        current.push(node);
+      } else if (node.type === 'CharacterClassRange') {
+        // for following regexp [xa-z] we produce [[xa],[z]]
+        // we would report for example if instead of 'xa' there would be unicode combined class
+        current.push(node.min);
+        current = [node.max];
+        sequences.push(current);
+      } else if (node.type === 'CharacterSet' && current.length > 0) {
+        // CharacterSet is for example [\d], ., or \p{ASCII}
+        // see https://github.com/mysticatea/regexpp/blob/master/src/ast.ts#L222
+        current = [];
+        sequences.push(current);
       }
     }
-
-    if (seq.length > 0) {
-      yield seq;
-    }
-  }
-
-  function surrogatePairWithoutUFlag(chars: Character[]) {
-    return chars.find((c, i) => i !== 0 && isSurrogatePair(chars[i - 1].value, c.value));
-  }
-
-  function combiningClass(chars: Character[]) {
-    return chars.find(
-      (c, i) =>
-        i !== 0 && isCombiningCharacter(c.value) && !isCombiningCharacter(chars[i - 1].value),
-    );
-  }
-
-  function emojiModifier(chars: Character[]) {
-    return chars.find(
-      (c, i) => i !== 0 && isEmojiModifier(c.value) && !isEmojiModifier(chars[i - 1].value),
-    );
-  }
-
-  function regionalIndicatorSymbol(chars: Character[]) {
-    return chars.find(
-      (c, i) =>
-        i !== 0 &&
-        isRegionalIndicatorSymbol(c.value) &&
-        isRegionalIndicatorSymbol(chars[i - 1].value),
-    );
-  }
-
-  function joinedCharacterSeq(chars: Character[]) {
-    const lastIndex = chars.length - 1;
-
-    return chars.find(
-      (c, i) =>
-        i !== 0 &&
-        i !== lastIndex &&
-        c.value === 0x200d &&
-        chars[i - 1].value !== 0x200d &&
-        chars[i + 1].value !== 0x200d,
-    );
-  }
-
-  function testChars(
-    test: (chars: Character[]) => Character | undefined,
-    chars: Character[],
-    message: string,
-  ) {
-    const regexpNode = test(chars);
-    if (regexpNode !== undefined) {
-      context.reportRegExpNode({
-        regexpNode,
-        message,
-        node: context.node,
-      });
-    }
+    return sequences;
   }
 
   return {
     onCharacterClassEnter(ccNode) {
-      for (const chars of iterateCharacterSequence(ccNode.elements)) {
-        testChars(
-          surrogatePairWithoutUFlag,
-          chars,
-          "Unexpected surrogate pair in character class. Use 'u' flag.",
+      for (const chars of characters(ccNode.elements)) {
+        const idx = chars.findIndex(
+          (c, i) =>
+            i !== 0 && isCombiningCharacter(c.value) && !isCombiningCharacter(chars[i - 1].value),
         );
-        testChars(combiningClass, chars, 'Unexpected combined character in character class.');
-        testChars(emojiModifier, chars, 'Unexpected modified Emoji in character class.');
-        testChars(regionalIndicatorSymbol, chars, 'Unexpected national flag in character class.');
-        testChars(
-          joinedCharacterSeq,
-          chars,
-          'Unexpected joined character sequence in character class.',
-        );
+        if (idx >= 0) {
+          const combinedChar = chars[idx - 1].raw + chars[idx].raw;
+          const message = `Move this Unicode combined character '${combinedChar}' outside of [...]`;
+          context.reportRegExpNode({ regexpNode: chars[idx], node: context.node, message });
+        }
       }
     },
   };
 });
+
+function isCombiningCharacter(codePoint: number) {
+  return /^[\p{Mc}\p{Me}\p{Mn}]$/u.test(String.fromCodePoint(codePoint));
+}
