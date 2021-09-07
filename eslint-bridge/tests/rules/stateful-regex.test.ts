@@ -136,7 +136,7 @@ ruleTester.run('Regular expressions with the global flag should be used with cau
         re2.test(""); // ok, empty string is used to reset the pattern
         re2.test('bar');
       `,
-    }
+    },
   ],
   invalid: [
     {
