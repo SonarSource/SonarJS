@@ -124,6 +124,19 @@ ruleTester.run('Regular expressions with the global flag should be used with cau
     {
       code: `foo = re.lastIndex;`,
     },
+    {
+      code: `
+        const re = /foo/g;
+        re.test('foo');
+        re.test(''); // ok, empty string is used to reset the pattern
+        re.test('bar');
+
+        const re2 = /foo/g;
+        re2.test('foo');
+        re2.test(""); // ok, empty string is used to reset the pattern
+        re2.test('bar');
+      `,
+    }
   ],
   invalid: [
     {

@@ -180,7 +180,8 @@ function checkMultipleInputsRegex(
     const uniqueInputs = new Set<string>(
       usages.map(callExpr => context.getSourceCode().getText(callExpr.arguments[0])),
     );
-    if (definition && uniqueInputs.size > 1) {
+    const regexReset = uniqueInputs.has(`''`) || uniqueInputs.has(`""`);
+    if (definition && uniqueInputs.size > 1 && !regexReset) {
       const pattern = definition.node.init as estree.Expression;
       context.report({
         message: toEncodedMessage(
