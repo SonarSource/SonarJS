@@ -197,6 +197,7 @@ public final class CheckList {
       NoDuplicateInCompositeCheck.class,
       NoDuplicateStringCheck.class,
       NoElementOverwriteCheck.class,
+      NoEmptyAfterReluctantCheck.class,
       NoEmptyAlternativesCheck.class,
       NoEmptyCollectionCheck.class,
       NoEmptyGroupCheck.class,
