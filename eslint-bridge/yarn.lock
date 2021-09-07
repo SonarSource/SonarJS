@@ -4586,7 +4586,7 @@ saxes@^5.0.1:
   dependencies:
     xmlchars "^2.2.0"
 
-scslre@^0.1.6:
+scslre@0.1.6:
   version "0.1.6"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/scslre/-/scslre-0.1.6.tgz#71a2832e4bf3a9254973a04fbed90aec94f75757"
   integrity sha1-caKDLkvzqSVJc6BPvtkK7JT3V1c=
