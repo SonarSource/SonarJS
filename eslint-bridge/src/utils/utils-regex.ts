@@ -90,12 +90,23 @@ function getPatternFromNode(
   return null;
 }
 
+function isRegExpWithGlobalThis(node: estree.Node) {
+  return (
+    node.type === 'NewExpression' &&
+    node.callee.type === 'MemberExpression' &&
+    isIdentifier(node.callee.object, 'globalThis') &&
+    isIdentifier(node.callee.property, 'RegExp') &&
+    node.arguments.length > 0
+  );
+}
+
 export function isRegExpConstructor(node: estree.Node): node is estree.CallExpression {
   return (
-    (node.type === 'CallExpression' || node.type === 'NewExpression') &&
-    node.callee.type === 'Identifier' &&
-    node.callee.name === 'RegExp' &&
-    node.arguments.length > 0
+    ((node.type === 'CallExpression' || node.type === 'NewExpression') &&
+      node.callee.type === 'Identifier' &&
+      node.callee.name === 'RegExp' &&
+      node.arguments.length > 0) ||
+    isRegExpWithGlobalThis(node)
   );
 }
 
