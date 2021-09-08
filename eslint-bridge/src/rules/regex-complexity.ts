@@ -35,6 +35,7 @@ import {
 import {
   getParsedRegex,
   getRegexpLocation,
+  getRegexpRange,
   getUniqueWriteUsage,
   isBinaryPlus,
   isIdentifier,
@@ -188,9 +189,10 @@ class ComplexityCalculator {
       onAssertionEnter: (node: Assertion) => {
         /* lookaround */
         if (node.kind === 'lookahead' || node.kind === 'lookbehind') {
+          const [start, end] = getRegexpRange(this.regexPart, node);
           this.increaseComplexity(this.nesting, node, [
             0,
-            -(node.end - node.start - 1) + (node.kind === 'lookahead' ? '?='.length : '?<='.length),
+            -(end - start - 1) + (node.kind === 'lookahead' ? '?='.length : '?<='.length),
           ]);
           this.nesting++;
           this.onDisjunctionEnter(node);
@@ -216,7 +218,8 @@ class ComplexityCalculator {
       },
       onCharacterClassEnter: (node: CharacterClass) => {
         /* character class */
-        this.increaseComplexity(1, node, [0, -(node.end - node.start - 1)]);
+        const [start, end] = getRegexpRange(this.regexPart, node);
+        this.increaseComplexity(1, node, [0, -(end - start - 1)]);
         this.nesting++;
       },
       onCharacterClassLeave: (_node: CharacterClass) => {
@@ -241,7 +244,9 @@ class ComplexityCalculator {
       },
       onQuantifierEnter: (node: Quantifier) => {
         /* repetition */
-        this.increaseComplexity(this.nesting, node, [node.element.end - node.start, 0]);
+        const [start] = getRegexpRange(this.regexPart, node);
+        const [, end] = getRegexpRange(this.regexPart, node.element);
+        this.increaseComplexity(this.nesting, node, [end - start, 0]);
         this.nesting++;
       },
       onQuantifierLeave: (_node: Quantifier) => {
@@ -257,9 +262,10 @@ class ComplexityCalculator {
     if (increment > 1) {
       message += ` (incl ${increment - 1} for nesting)`;
     }
+    const loc = getRegexpLocation(this.regexPart, node, this.context, offset);
     this.components.push({
       location: {
-        loc: getRegexpLocation(this.regexPart, node, this.context, offset),
+        loc,
       },
       message,
     });
@@ -270,10 +276,8 @@ class ComplexityCalculator {
       let { alternatives } = node;
       let increment = this.nesting;
       while (alternatives.length > 1) {
-        this.increaseComplexity(increment, alternatives[1], [
-          -1,
-          -(alternatives[1].end - alternatives[1].start),
-        ]);
+        const [start, end] = getRegexpRange(this.regexPart, alternatives[1]);
+        this.increaseComplexity(increment, alternatives[1], [-1, -(end - start)]);
         increment = 1;
         alternatives = alternatives.slice(1);
       }

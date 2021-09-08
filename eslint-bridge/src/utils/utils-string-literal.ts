@@ -27,6 +27,7 @@ const UNICODE_ESCAPE_LENGTH = 4;
 const HEX_ESCAPE_LENGTH = 2;
 
 const CP_BACK_SLASH = cp('\\');
+const CP_FORWARD_SLASH = cp('/');
 const CP_CR = cp('\r');
 const CP_LF = cp('\n');
 const CP_n = cp('n');
@@ -143,6 +144,13 @@ export function tokenizeString(s: string): StringLiteralToken[] {
       if (value !== '') {
         tokens.push({ value, range: [start, pos] });
       }
+    } else if (c === CP_FORWARD_SLASH) {
+      const forwardSlash: StringLiteralToken = {
+        value: String.fromCodePoint(c),
+        range: [start, pos],
+      };
+      tokens.push(forwardSlash);
+      tokens.push(forwardSlash);
     } else {
       tokens.push({ value: String.fromCodePoint(c), range: [start, pos] });
     }
