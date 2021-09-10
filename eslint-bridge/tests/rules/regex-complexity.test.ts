@@ -322,6 +322,56 @@ ruleTesterThreshold0.run(
         errors: 1,
         options: [0],
       },
+      {
+        code: `
+        RegExp('/s*')
+        `,
+        options: [0],
+        errors: [
+          {
+            message: JSON.stringify({
+              message:
+                'Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.',
+              cost: 1,
+              secondaryLocations: [
+                {
+                  message: '+1',
+                  column: 18,
+                  line: 2,
+                  endColumn: 19,
+                  endLine: 2,
+                },
+              ],
+            }),
+          },
+        ],
+      },
+      {
+        code: `
+        RegExp('|/?[a-z]')
+        `,
+        options: [0],
+        errors: [
+          {
+            message: JSON.stringify({
+              message:
+                'Simplify this regular expression to reduce its complexity from 4 to the 0 allowed.',
+              cost: 4,
+              secondaryLocations: [
+                { message: '+1', column: 16, line: 2, endColumn: 17, endLine: 2 },
+                {
+                  message: '+2 (incl 1 for nesting)',
+                  column: 18,
+                  line: 2,
+                  endColumn: 19,
+                  endLine: 2,
+                },
+                { message: '+1', column: 19, line: 2, endColumn: 20, endLine: 2 },
+              ],
+            }),
+          },
+        ],
+      },
     ],
   },
 );
