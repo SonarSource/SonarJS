@@ -18,7 +18,6 @@ jobs:
       # https://github.com/actions/github-script
       - uses: actions/github-script@v4.0.2
         with:
-          github-token: ${{secrets.KANBAN_GITHUB_TOKEN}}
           script: |
             const TODO_COLUMN = 820048;
             const IN_PROGRESS_COLUMN = 820050;
