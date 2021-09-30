@@ -22,8 +22,20 @@ import { RuleTester } from 'eslint';
 import { readFileSync } from 'fs';
 import { FileIssues } from './issues';
 
-export function readAssertions(filePath: string): RuleTester.InvalidTestCase {
+interface Tests {
+  valid?: (string | RuleTester.ValidTestCase)[];
+  invalid?: RuleTester.InvalidTestCase[];
+}
+
+export function readAssertions(filePath: string): Tests {
   const fileContent = readFileSync(filePath, { encoding: 'utf8' });
   const expectedIssues = new FileIssues(fileContent).getExpectedIssues();
-  throw new Error('not implemented yet');
+  const errors: RuleTester.TestCaseError[] = expectedIssues.map(i => {
+    return {
+      message: i.messages[0],
+      ...i.primaryLocation?.range,
+    };
+  });
+  console.log(`asserting ${errors.length} issues`);
+  return { valid: [], invalid: [{ code: fileContent, errors }] };
 }

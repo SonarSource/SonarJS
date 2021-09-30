@@ -30,11 +30,13 @@ export interface Comment {
 }
 
 export function extractLineComments(fileContent: string): Comment[] {
-  const comments: Comment[] = [];
-  fileContent.split('\n').forEach((line, index) => {
-    throw new Error('not implemented yet');
-  });
-  return comments;
+  return fileContent
+    .split('\n')
+    .filter(l => l.trimStart().startsWith('//'))
+    .map((line, index) => {
+      const value = line.substring(line.indexOf("//") + 2);
+      return { value , line: index, endLine: index, column: 1, endColumn: line.length };
+    });
 }
 
 const REGEX_START_WITH_NON_COMPLIANT = /^ *Noncompliant/i;

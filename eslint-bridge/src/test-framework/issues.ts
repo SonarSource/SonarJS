@@ -46,7 +46,7 @@ export class FileIssues {
     }
   }
 
-  getExpectedIssues() {
+  getExpectedIssues(): LineIssues[] {
     if (this.orphanSecondaryLocations.length !== 0) {
       throw new Error(
         this.orphanSecondaryLocations

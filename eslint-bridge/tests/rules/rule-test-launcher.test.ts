@@ -23,15 +23,7 @@ import * as path from 'path';
 import { Rule, RuleTester } from 'eslint';
 
 import { rules } from 'rules/main';
-
-interface Tests {
-  valid?: (string | RuleTester.ValidTestCase)[];
-  invalid?: RuleTester.InvalidTestCase[];
-}
-
-function readAssertions(_path: string): Tests {
-  return { valid: [], invalid: [] };
-}
+import { readAssertions } from 'test-framework/assertions';
 
 /**
  * Return test files for specific rule based on rule key
