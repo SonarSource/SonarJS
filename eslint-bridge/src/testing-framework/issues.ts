@@ -18,29 +18,31 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { extractLineComments, parseNonCompliantComment } from './comments';
-import { Location, parseLocations, PrimaryLocation, SecondaryLocation } from './locations';
+import { extractComments, extractLineIssues } from './comments';
+import { Location, extractLocations, PrimaryLocation, SecondaryLocation } from './locations';
 
 export class FileIssues {
-  private readonly expectedIssueMap = new Map<number, LineIssues>();
+  private readonly expectedIssues = new Map<number, LineIssues>();
   private orphanSecondaryLocations: SecondaryLocation[] = [];
   private currentPrimary: PrimaryLocation | null = null;
 
   constructor(fileContent: string) {
-    const comments = extractLineComments(fileContent);
+    const comments = extractComments(fileContent);
     for (const comment of comments) {
-      const lineIssues = parseNonCompliantComment(comment);
+      const lineIssues = extractLineIssues(comment);
       if (lineIssues !== null) {
-        const existingLineIssues = this.expectedIssueMap.get(lineIssues.line);
-        if (existingLineIssues !== undefined) {
+        const existingLineIssues = this.expectedIssues.get(lineIssues.line);
+        if (existingLineIssues) {
           existingLineIssues.merge(lineIssues);
         } else {
-          this.expectedIssueMap.set(lineIssues.line, lineIssues);
+          this.expectedIssues.set(lineIssues.line, lineIssues);
         }
       } else {
-        const locations = parseLocations(comment.line, comment.endColumn, comment.value);
+        const locations = extractLocations(comment.line, comment.column, comment.value);
         if (locations.length !== 0) {
-          locations.forEach(this.addLocation);
+          for (const location of locations) {
+            this.addLocation(location);
+          }
         }
       }
     }
@@ -57,7 +59,7 @@ export class FileIssues {
           .join('\n\n'),
       );
     }
-    return [...this.expectedIssueMap.values()];
+    return [...this.expectedIssues.values()];
   }
 
   private addLocation(location: Location) {
@@ -69,7 +71,7 @@ export class FileIssues {
   }
 
   private addPrimary(primary: PrimaryLocation) {
-    const lineIssues = this.expectedIssueMap.get(primary.range.line);
+    const lineIssues = this.expectedIssues.get(primary.range.line);
     if (lineIssues === undefined) {
       throw new Error(
         `Primary location does not have a related issue at ${primary.range.toString()}`,
@@ -111,7 +113,7 @@ export class LineIssues {
   constructor(
     readonly line: number,
     readonly messages: string[],
-    primaryLocation: PrimaryLocation | null,
+    primaryLocation: PrimaryLocation | null = null,
   ) {
     this.primaryLocation = primaryLocation;
   }

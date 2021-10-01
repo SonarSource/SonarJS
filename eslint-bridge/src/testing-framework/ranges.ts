@@ -49,6 +49,15 @@ export class Range {
     return this.endColumn - other.endColumn;
   }
 
+  toLocationHolder() {
+    return {
+      loc: {
+        start: { line: this.line, column: this.column },
+        end: { line: this.endLine, column: this.endColumn },
+      },
+    };
+  }
+
   toString() {
     return `(${this.line}:${this.column},${this.endLine}:${this.endColumn})`;
   }
