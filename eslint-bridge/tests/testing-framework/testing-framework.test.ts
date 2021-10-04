@@ -176,6 +176,10 @@ describe('Comment-based Testing Framework', () => {
     ]);
   });
 
+  it('unexpected character', () => {
+    expect(() => assertions('unexpected.js')).toThrow("Unexpected character 'u' found at 2:10");
+  });
+
   it('conflictual primary', () => {
     expect(() => assertions('conflict.js')).toThrow(
       'Primary location conflicts with another primary location at (1:11,1:15)',

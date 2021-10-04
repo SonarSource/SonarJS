@@ -82,8 +82,9 @@ export function extractLocations(line: number, column: number, commentContent: s
       offset += matcher[0].length;
     }
     if (offset !== commentContent.length) {
-      const position = `line ${line} col ${column + commentContent[offset]}`;
-      throw new Error(`Location: unexpected character found at ${position}: ${commentContent}"`);
+      throw new Error(
+        `Unexpected character '${commentContent[offset]}' found at ${line}:${column + offset}`,
+      );
     }
     return result;
   }
