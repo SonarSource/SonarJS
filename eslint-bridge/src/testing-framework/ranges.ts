@@ -24,30 +24,7 @@ export class Range {
     readonly column: number,
     readonly endLine: number,
     readonly endColumn: number,
-  ) {
-    if (endLine < line || (endLine == line && endColumn < column)) {
-      throw new Error(`index out of bound: ${this.toString()}`);
-    }
-    if (line < 1 || column < 1 || (endLine != line && endColumn < 1)) {
-      throw new Error(`index out of bound: ${this.toString()}`);
-    }
-  }
-
-  compareTo(other: Range) {
-    let diff = this.line - other.line;
-    if (diff != 0) {
-      return diff;
-    }
-    diff = this.column - other.column;
-    if (diff != 0) {
-      return diff;
-    }
-    diff = this.endLine - other.endLine;
-    if (diff != 0) {
-      return diff;
-    }
-    return this.endColumn - other.endColumn;
-  }
+  ) {}
 
   toLocationHolder() {
     return {

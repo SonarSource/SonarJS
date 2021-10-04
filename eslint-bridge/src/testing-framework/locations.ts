@@ -52,20 +52,8 @@ export class PrimaryLocation extends Location {
   readonly secondaryLocations: SecondaryLocation[] = [];
   expectedAdditionalCount: number | undefined;
 
-  constructor(range: Range, expectedAdditionalCount: number | undefined) {
+  constructor(range: Range) {
     super(range);
-    this.expectedAdditionalCount = expectedAdditionalCount;
-  }
-
-  addSecondary(range: Range, message: string | undefined) {
-    const primaryIsBefore = this.range.compareTo(range) <= 0;
-    const location = new SecondaryLocation(range, message, primaryIsBefore);
-    this.secondaryLocations.push(location);
-    return location;
-  }
-
-  secondaryLocationCount() {
-    return this.secondaryLocations.length;
   }
 }
 
@@ -112,9 +100,7 @@ function matcherToLocation(
   const range = fileRange(effectiveLine, column, offset, matcher);
   const direction = matcher.groups?.direction;
   if (!direction) {
-    const countGroup = matcher.groups?.count;
-    const additionalCount = countGroup ? parseInt(countGroup) : undefined;
-    return new PrimaryLocation(range, additionalCount);
+    return new PrimaryLocation(range);
   } else {
     return new SecondaryLocation(range, matcher.groups?.message, direction === '<');
   }

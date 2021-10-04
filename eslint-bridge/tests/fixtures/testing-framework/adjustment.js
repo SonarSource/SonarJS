@@ -1,4 +1,4 @@
-// Noncompliant@+1
+// Noncompliant@+1 
 alert(msg);
 
 alert(msg); // Noncompliant {{Expected error message}}

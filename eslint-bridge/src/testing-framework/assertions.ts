@@ -32,23 +32,22 @@ export function readAssertions(filePath: string): Tests {
   const fileContent = readFileSync(filePath, { encoding: 'utf8' });
   const expectedIssues = new FileIssues(fileContent).getExpectedIssues();
   const errors: RuleTester.TestCaseError[] = [];
-  for (const expectedIssue of expectedIssues) {
-    errors.push(...convertToTestCaseErrors(expectedIssue));
-  }
-  console.log(`asserting ${errors.length} issues`);
+  expectedIssues.forEach(issue => errors.push(...convertToTestCaseErrors(issue)));
   return { valid: [], invalid: [{ code: fileContent, errors }] };
 }
 
 function convertToTestCaseErrors(issue: LineIssues): RuleTester.TestCaseError[] {
   const line = issue.line;
   const primary = issue.primaryLocation;
-  const messages = issue.messages;
+  const messages = [...issue.messages.values()];
   if (primary === null) {
-    return messages.map(message => ({ line, message }));
+    return messages.length === 0 ? [{ line }] : messages.map(message => ({ line, message }));
   } else {
     const secondary = primary.secondaryLocations;
     if (secondary.length === 0) {
-      return messages.map(message => ({ ...primary.range, message }));
+      return messages.length === 0
+        ? [{ ...primary.range }]
+        : messages.map(message => ({ ...primary.range, message }));
     } else {
       return messages.map(message => ({
         ...primary.range,
