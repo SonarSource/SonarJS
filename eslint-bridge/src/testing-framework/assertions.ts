@@ -19,21 +19,14 @@
  */
 
 import { RuleTester } from 'eslint';
-import { readFileSync } from 'fs';
 import { toEncodedMessage } from '../utils';
 import { FileIssues, LineIssues } from './issues';
 
-export interface Tests {
-  valid?: (string | RuleTester.ValidTestCase)[];
-  invalid?: RuleTester.InvalidTestCase[];
-}
-
-export function readAssertions(filePath: string): Tests {
-  const fileContent = readFileSync(filePath, { encoding: 'utf8' });
+export function readAssertions(fileContent: string): RuleTester.TestCaseError[] {
   const expectedIssues = new FileIssues(fileContent).getExpectedIssues();
   const errors: RuleTester.TestCaseError[] = [];
   expectedIssues.forEach(issue => errors.push(...convertToTestCaseErrors(issue)));
-  return { valid: [], invalid: [{ code: fileContent, errors }] };
+  return errors;
 }
 
 function convertToTestCaseErrors(issue: LineIssues): RuleTester.TestCaseError[] {

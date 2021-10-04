@@ -19,44 +19,29 @@
  */
 
 import * as path from 'path';
-import { readAssertions, Tests } from '../../src/testing-framework/assertions';
+import { readAssertions } from 'testing-framework/assertions';
+import { readFileSync } from 'fs';
 
 describe('Comment-based Testing Framework', () => {
   const baseDir = path.resolve(`${__dirname}/../fixtures/testing-framework`);
 
   it('non compliant', () => {
-    expect(assertions('non_compliant.js')).toEqual([
-      {
-        errors: [{ line: 1 }],
-      },
-    ]);
+    expect(assertions('non_compliant.js')).toEqual([{ line: 1 }]);
   });
 
   it('issue message', () => {
-    expect(assertions('message.js')).toEqual([
-      {
-        errors: [{ line: 1, message: 'Expected error message' }],
-      },
-    ]);
+    expect(assertions('message.js')).toEqual([{ line: 1, message: 'Expected error message' }]);
   });
 
   it('multiple issue message', () => {
     expect(assertions('multiple.js')).toEqual([
-      {
-        errors: [
-          { line: 1, message: 'Expected error message 1' },
-          { line: 1, message: 'Expected error message 2' },
-        ],
-      },
+      { line: 1, message: 'Expected error message 1' },
+      { line: 1, message: 'Expected error message 2' },
     ]);
   });
 
   it('issue count', () => {
-    expect(assertions('count.js')).toEqual([
-      {
-        errors: [{ line: 1 }, { line: 1 }],
-      },
-    ]);
+    expect(assertions('count.js')).toEqual([{ line: 1 }, { line: 1 }]);
   });
 
   it('mixing message and count', () => {
@@ -69,7 +54,11 @@ describe('Comment-based Testing Framework', () => {
   it('primary', () => {
     expect(assertions('primary.js')).toEqual([
       {
-        errors: [{ column: 6, endColumn: 10, endLine: 1, line: 1, message: 'Rule message' }],
+        column: 6,
+        endColumn: 10,
+        endLine: 1,
+        line: 1,
+        message: 'Rule message',
       },
     ]);
   });
@@ -77,33 +66,29 @@ describe('Comment-based Testing Framework', () => {
   it('secondary', () => {
     expect(assertions('secondary.js')).toEqual([
       {
-        errors: [
-          {
-            column: 6,
-            line: 3,
-            endColumn: 10,
-            endLine: 3,
-            message: JSON.stringify({
-              message: 'Rule message',
-              secondaryLocations: [
-                {
-                  message: 'Secondary location message1',
-                  column: 6,
-                  line: 1,
-                  endColumn: 10,
-                  endLine: 1,
-                },
-                {
-                  message: 'Secondary location message2',
-                  column: 6,
-                  line: 5,
-                  endColumn: 10,
-                  endLine: 5,
-                },
-              ],
-            }),
-          },
-        ],
+        column: 6,
+        line: 3,
+        endColumn: 10,
+        endLine: 3,
+        message: JSON.stringify({
+          message: 'Rule message',
+          secondaryLocations: [
+            {
+              message: 'Secondary location message1',
+              column: 6,
+              line: 1,
+              endColumn: 10,
+              endLine: 1,
+            },
+            {
+              message: 'Secondary location message2',
+              column: 6,
+              line: 5,
+              endColumn: 10,
+              endLine: 5,
+            },
+          ],
+        }),
       },
     ]);
   });
@@ -111,69 +96,57 @@ describe('Comment-based Testing Framework', () => {
   it('line adjustment', () => {
     expect(assertions('adjustment.js')).toEqual([
       {
-        errors: [
-          {
-            line: 2,
-          },
-          {
-            column: 6,
-            endColumn: 10,
-            endLine: 4,
-            line: 4,
-            message: JSON.stringify({
-              message: 'Expected error message',
-              secondaryLocations: [
-                {
-                  message: 'Secondary location message1',
-                  column: 7,
-                  line: 4,
-                  endColumn: 13,
-                  endLine: 4,
-                },
-                {
-                  message: 'Secondary location message2',
-                  column: 12,
-                  line: 4,
-                  endColumn: 14,
-                  endLine: 4,
-                },
-              ],
-            }),
-          },
-        ],
+        line: 2,
+      },
+      {
+        column: 6,
+        endColumn: 10,
+        endLine: 4,
+        line: 4,
+        message: JSON.stringify({
+          message: 'Expected error message',
+          secondaryLocations: [
+            {
+              message: 'Secondary location message1',
+              column: 7,
+              line: 4,
+              endColumn: 13,
+              endLine: 4,
+            },
+            {
+              message: 'Secondary location message2',
+              column: 12,
+              line: 4,
+              endColumn: 14,
+              endLine: 4,
+            },
+          ],
+        }),
       },
     ]);
   });
 
   it('issue merging', () => {
     expect(assertions('merge.js')).toEqual([
+      { line: 3 },
+      { line: 3 },
       {
-        errors: [
-          { line: 3 },
-          { line: 3 },
-          {
-            column: 6,
-            endColumn: 10,
-            endLine: 7,
-            line: 7,
-          },
-          {
-            column: 6,
-            endColumn: 10,
-            endLine: 7,
-            line: 7,
-          },
-        ],
+        column: 6,
+        endColumn: 10,
+        endLine: 7,
+        line: 7,
+      },
+      {
+        column: 6,
+        endColumn: 10,
+        endLine: 7,
+        line: 7,
       },
     ]);
   });
 
   it('ignoring comment', () => {
-    expect(assertions('ignored.js')).toEqual([
-      {
-        errors: [],
-      },
-    ]);
+    expect(assertions('ignored.js')).toEqual([]);
   });
 
   it('unexpected character', () => {
@@ -200,14 +173,7 @@ describe('Comment-based Testing Framework', () => {
 
   function assertions(filename: string) {
     const filePath = path.join(baseDir, filename);
-    const tests = readAssertions(filePath);
-    return extractInvalidTestsCases(tests);
-  }
-
-  function extractInvalidTestsCases(tests: Tests) {
-    return tests.invalid.map(testCase => {
-      delete testCase.code;
-      return testCase;
-    });
+    const code = readFileSync(filePath, { encoding: 'utf8' });
+    return readAssertions(code);
   }
 });

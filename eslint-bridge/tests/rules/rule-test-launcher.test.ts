@@ -23,7 +23,9 @@ import * as path from 'path';
 import { Rule, RuleTester } from 'eslint';
 
 import { rules } from 'rules/main';
-import { readAssertions } from 'test-framework/assertions';
+import { readAssertions } from 'testing-framework/assertions';
+import { buildSourceCode } from 'parser';
+import { readFileSync } from 'fs';
 
 /**
  * Return test files for specific rule based on rule key
@@ -54,14 +56,28 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
       continue;
     }
     describe(`Running tests for rule ${rule}`, () => {
-      files.forEach(file => {
-        test.concurrent(`Running test file ${file} for rule ${rule}`, async () => {
-          ruleTester.run(file, rules[rule], readAssertions(file));
+      files.forEach(filename => {
+        test.concurrent(`Running test file ${filename} for rule ${rule}`, async () => {
+          const code = readFileSync(filename, { encoding: 'utf8' });
+          const tests = {
+            valid: [],
+            invalid: [{ code, errors: readAssertions(code), filename }],
+          };
+          ruleTester.run(filename, rules[rule], tests);
         });
       });
     });
   }
 }
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+/**
+ * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
+ * as we use in our 'parser.ts' module
+ */
+export function parseForESLint(fileContent: string, options: { filePath: string }) {
+  const { filePath } = options;
+  return buildSourceCode({ filePath, fileContent }, 'js');
+}
+
+const ruleTester = new RuleTester({ parser: __filename });
 runRuleTests(rules, ruleTester);
