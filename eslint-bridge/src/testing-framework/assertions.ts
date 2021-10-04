@@ -41,13 +41,11 @@ function convertToTestCaseErrors(issue: LineIssues): RuleTester.TestCaseError[] 
   const primary = issue.primaryLocation;
   const messages = [...issue.messages.values()];
   if (primary === null) {
-    return messages.length === 0 ? [{ line }] : messages.map(message => ({ line, message }));
+    return messages.map(message => ({ line, message }));
   } else {
     const secondary = primary.secondaryLocations;
     if (secondary.length === 0) {
-      return messages.length === 0
-        ? [{ ...primary.range }]
-        : messages.map(message => ({ ...primary.range, message }));
+      return messages.map(message => ({ ...primary.range, message }));
     } else {
       return messages.map(message => ({
         ...primary.range,
