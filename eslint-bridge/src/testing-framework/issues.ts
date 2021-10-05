@@ -39,10 +39,8 @@ export class FileIssues {
         }
       } else {
         const locations = extractLocations(comment.line, comment.column, comment.value);
-        if (locations.length !== 0) {
-          for (const location of locations) {
-            this.addLocation(location);
-          }
+        for (const location of locations) {
+          this.addLocation(location);
         }
       }
     }

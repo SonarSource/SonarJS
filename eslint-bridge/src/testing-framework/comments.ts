@@ -87,7 +87,9 @@ function extractIssueCountOrMessages(
       );
     }
     const messageContent = messageGroup.trim();
-    return messageContent.substring(2, messageContent.length - 2).split(/\}\} *\{\{/);
+    return messageContent
+      .substring('{{'.length, messageContent.length - '}}'.length)
+      .split(/\}\} *\{\{/);
   }
   const issueCount = issueCountGroup ? parseInt(issueCountGroup) : 1;
   return new Array<string>(issueCount);
