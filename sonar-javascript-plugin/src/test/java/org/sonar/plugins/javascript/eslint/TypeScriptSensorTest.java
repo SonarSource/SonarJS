@@ -61,7 +61,6 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
@@ -511,7 +510,7 @@ public class TypeScriptSensorTest {
       eslintBridgeServerMock,
       analysisWarnings,
       tempFolder,
-      new Monitoring());
+      new Monitoring(new MapSettings().asConfig()));
   }
 
   private AnalysisResponse createResponse() {

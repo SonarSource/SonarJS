@@ -190,6 +190,7 @@ public class EslintBasedRulesTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.monitoring", "true")
+      .setProperty("sonar.javascript.monitoring.path", projectDir.toPath().resolve(".scannerwork").toString())
       .setProjectDir(projectDir);
 
     BuildResult buildResult = orchestrator.executeBuild(build);

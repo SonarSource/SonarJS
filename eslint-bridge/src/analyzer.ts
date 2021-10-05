@@ -146,8 +146,7 @@ function analyze(input: AnalysisInput, language: 'ts' | 'js'): AnalysisResponse 
     const { result: response, duration: analysisTime } = measureDuration(() =>
       analyzeFile(result, input),
     );
-    response.perf = { parseTime, analysisTime };
-    return response;
+    return { ...response, perf: { parseTime, analysisTime } };
   } else {
     return {
       ...EMPTY_RESPONSE,

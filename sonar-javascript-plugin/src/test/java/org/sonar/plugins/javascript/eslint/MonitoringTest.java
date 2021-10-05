@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -46,12 +47,21 @@ class MonitoringTest {
 
   Gson gson = new Gson();
 
+  Monitoring monitoring;
+  private SensorContextTester sensorContextTester;
+
+  @BeforeEach
+  void beforeEach() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty("sonar.javascript.monitoring", true);
+    settings.setProperty("sonar.javascript.monitoring.path", monitoringPath.toString());
+    sensorContextTester = SensorContextTester.create(baseDir);
+    monitoring = new Monitoring(settings.asConfig());
+  }
+
   @Test
   void test_sensor() throws Exception {
-    Monitoring monitoring = new Monitoring();
     TestSensor sensor = new TestSensor();
-    SensorContextTester sensorContextTester = SensorContextTester.create(baseDir);
-    sensorContextTester.setSettings(getSettings());
     monitoring.startSensor(sensorContextTester, sensor);
     sleep();
     monitoring.stopSensor();
@@ -65,16 +75,9 @@ class MonitoringTest {
     }
   }
 
-  private MapSettings getSettings() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty("sonar.javascript.monitoring", true);
-    settings.setProperty("sonar.javascript.monitoring.path", monitoringPath.toString());
-    return settings;
-  }
-
   @Test
   void test_not_enabled() throws Exception {
-    Monitoring monitoring = new Monitoring();
+    Monitoring monitoring = new Monitoring(new MapSettings().asConfig());
     TestSensor sensor = new TestSensor();
     SensorContextTester sensorContextTester = SensorContextTester.create(baseDir);
     monitoring.startSensor(sensorContextTester, sensor);
@@ -89,10 +92,7 @@ class MonitoringTest {
 
   @Test
   void test_file() throws Exception {
-    Monitoring monitoring = new Monitoring();
     TestSensor sensor = new TestSensor();
-    SensorContextTester sensorContextTester = SensorContextTester.create(baseDir);
-    sensorContextTester.setSettings(getSettings());
     monitoring.startSensor(sensorContextTester, sensor);
     DefaultInputFile inputFile = TestInputFileBuilder.create("module", "path").build();
     monitoring.startFile(inputFile);
@@ -116,10 +116,7 @@ class MonitoringTest {
 
   @Test
   void test_file_mismatch() throws Exception {
-    Monitoring monitoring = new Monitoring();
     TestSensor sensor = new TestSensor();
-    SensorContextTester sensorContextTester = SensorContextTester.create(baseDir);
-    sensorContextTester.setSettings(getSettings());
     monitoring.startSensor(sensorContextTester, sensor);
     DefaultInputFile file1 = TestInputFileBuilder.create("module", "file1").build();
     DefaultInputFile file2 = TestInputFileBuilder.create("module", "file2").build();

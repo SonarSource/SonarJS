@@ -33,6 +33,7 @@ import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.ManifestUtils;
 import org.sonar.api.utils.log.Logger;
@@ -52,21 +53,24 @@ public class Monitoring implements Startable {
   private static final String MONITORING_PATH = "sonar.javascript.monitoring.path";
 
   private final List<Metric> metrics = new ArrayList<>();
+  private final Configuration configuration;
 
-  private SensorContext sensorContext;
   private boolean enabled;
-  private Sensor sensor;
   private SensorMetric sensorMetric;
   private FileMetric fileMetric;
 
+  public Monitoring(Configuration configuration) {
+    this.configuration = configuration;
+  }
+
   void startSensor(SensorContext sensorContext, Sensor sensor) {
-    this.enabled = isMonitoringEnabled(sensorContext);
+    this.enabled = isMonitoringEnabled();
     if (!enabled) {
       return;
     }
-    this.sensorContext = sensorContext;
-    this.sensor = sensor;
     sensorMetric = new SensorMetric();
+    sensorMetric.component = sensor.getClass().getCanonicalName();
+    sensorMetric.projectKey = sensorContext.project().key();
     sensorMetric.clock = new Clock();
   }
 
@@ -75,8 +79,6 @@ public class Monitoring implements Startable {
       return;
     }
     sensorMetric.duration = sensorMetric.clock.stop();
-    sensorMetric.component = sensor.getClass().getCanonicalName();
-    sensorMetric.projectKey = sensorContext.project().key();
     metrics.add(sensorMetric);
   }
 
@@ -137,13 +139,13 @@ public class Monitoring implements Startable {
     }
   }
 
-  private static boolean isMonitoringEnabled(SensorContext context) {
-    return context.config().getBoolean(MONITORING_ON).orElse(false);
+  private boolean isMonitoringEnabled() {
+    return configuration.getBoolean(MONITORING_ON).orElse(false);
   }
 
   private Path monitoringPath() {
-    return sensorContext.config().get(MONITORING_PATH).map(Paths::get)
-      .orElseGet(() -> sensorContext.fileSystem().workDir().toPath());
+    return configuration.get(MONITORING_PATH).map(Paths::get)
+      .orElseThrow(() -> new IllegalStateException("Monitoring path " + MONITORING_PATH + " not configured"));
   }
 
   static class Metric implements Serializable {
