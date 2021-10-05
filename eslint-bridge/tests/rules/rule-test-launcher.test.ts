@@ -23,7 +23,7 @@ import * as path from 'path';
 import { Rule, RuleTester } from 'eslint';
 
 import { rules } from 'rules/main';
-import { readAssertions } from 'testing-framework/assertions';
+import { readAssertions } from '../testing-framework/assertions';
 import { buildSourceCode } from 'parser';
 import { readFileSync } from 'fs';
 
@@ -76,7 +76,7 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
  */
 export function parseForESLint(fileContent: string, options: { filePath: string }) {
   const { filePath } = options;
-  return buildSourceCode({ filePath, fileContent }, 'js');
+  return buildSourceCode({ filePath, fileContent }, filePath.endsWith('.ts') ? 'ts' : 'js');
 }
 
 const ruleTester = new RuleTester({ parser: __filename });

@@ -19,7 +19,7 @@
  */
 
 import * as path from 'path';
-import { readAssertions } from 'testing-framework/assertions';
+import { readAssertions } from './assertions';
 import { readFileSync } from 'fs';
 
 describe('Comment-based Testing Framework', () => {

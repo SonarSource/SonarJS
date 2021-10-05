@@ -19,7 +19,7 @@
  */
 
 import { RuleTester } from 'eslint';
-import { toEncodedMessage } from '../utils';
+import { toEncodedMessage } from 'utils';
 import { FileIssues, LineIssues } from './issues';
 
 export function readAssertions(fileContent: string): RuleTester.TestCaseError[] {
