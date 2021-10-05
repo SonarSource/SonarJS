@@ -54,7 +54,7 @@ describe('Comment-based Testing Framework', () => {
   it('primary', () => {
     expect(assertions('primary.js')).toEqual([
       {
-        column: 6,
+        column: 7,
         endColumn: 10,
         endLine: 1,
         line: 1,
@@ -66,7 +66,7 @@ describe('Comment-based Testing Framework', () => {
   it('secondary', () => {
     expect(assertions('secondary.js')).toEqual([
       {
-        column: 6,
+        column: 7,
         line: 3,
         endColumn: 10,
         endLine: 3,
@@ -75,14 +75,14 @@ describe('Comment-based Testing Framework', () => {
           secondaryLocations: [
             {
               message: 'Secondary location message1',
-              column: 6,
+              column: 7,
               line: 1,
               endColumn: 10,
               endLine: 1,
             },
             {
               message: 'Secondary location message2',
-              column: 6,
+              column: 7,
               line: 5,
               endColumn: 10,
               endLine: 5,
@@ -99,7 +99,7 @@ describe('Comment-based Testing Framework', () => {
         line: 2,
       },
       {
-        column: 6,
+        column: 7,
         endColumn: 10,
         endLine: 4,
         line: 4,
@@ -108,14 +108,14 @@ describe('Comment-based Testing Framework', () => {
           secondaryLocations: [
             {
               message: 'Secondary location message1',
-              column: 7,
+              column: 8,
               line: 4,
               endColumn: 13,
               endLine: 4,
             },
             {
               message: 'Secondary location message2',
-              column: 12,
+              column: 13,
               line: 4,
               endColumn: 14,
               endLine: 4,
@@ -131,13 +131,13 @@ describe('Comment-based Testing Framework', () => {
       { line: 3 },
       { line: 3 },
       {
-        column: 6,
+        column: 7,
         endColumn: 10,
         endLine: 7,
         line: 7,
       },
       {
-        column: 6,
+        column: 7,
         endColumn: 10,
         endLine: 7,
         line: 7,
@@ -155,19 +155,19 @@ describe('Comment-based Testing Framework', () => {
 
   it('conflictual primary', () => {
     expect(() => assertions('conflict.js')).toThrow(
-      'Primary location conflicts with another primary location at (1:11,1:15)',
+      'Primary location conflicts with another primary location at (1:12,1:15)',
     );
   });
 
   it('orphan location', () => {
     expect(() => assertions('orphan0.js')).toThrow(
-      'Primary location does not have a related issue at (1:6,1:10)',
+      'Primary location does not have a related issue at (1:7,1:10)',
     );
     expect(() => assertions('orphan1.js')).toThrow(
-      "Secondary location '<' without previous primary location at (1:6,1:10)",
+      "Secondary location '<' without previous primary location at (1:7,1:10)",
     );
     expect(() => assertions('orphan2.js')).toThrow(
-      "Secondary location '>' without next primary location at (1:6,1:10)",
+      "Secondary location '>' without next primary location at (1:7,1:10)",
     );
   });
 

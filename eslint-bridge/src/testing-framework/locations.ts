@@ -76,7 +76,7 @@ export function extractLocations(line: number, column: number, commentContent: s
     LOCATION_PATTERN.lastIndex = 0;
     while ((matcher = comment.match(LOCATION_PATTERN)) !== null) {
       result.push(
-        matcherToLocation(line, column, commentContent.indexOf(matcher[1], offset), matcher),
+        matcherToLocation(line, column, commentContent.indexOf(matcher[1], offset) + 1, matcher),
       );
       comment = comment.substring(matcher[0].length);
       offset += matcher[0].length;
@@ -118,6 +118,6 @@ function fileRange(line: number, column: number, offset: number, matcher: RegExp
   const rangeLine = line;
   const rangeColumn = column + offset;
   const rangeEndLine = line;
-  const rangeEndColumn = rangeColumn + matcher[1].length + 1;
+  const rangeEndColumn = rangeColumn + matcher[1].length;
   return new Range(rangeLine, rangeColumn, rangeEndLine, rangeEndColumn);
 }
