@@ -1,4 +1,4 @@
-FROM eu.gcr.io/release-engineering-ci-staging/base:j16-m3-latest
+FROM eu.gcr.io/release-engineering-ci-staging/base:j16-m3-latest-PR14
 
 USER root
 
