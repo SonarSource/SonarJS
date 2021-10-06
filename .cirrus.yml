@@ -79,7 +79,7 @@ build_win_task:
     folder: ~/.m2/repository
   build_script:
     - yarn config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    - mvn.cmd -s /c/buildTools-docker/settings-public.xml test
+    - mvn.cmd -s /c/buildTools-docker/mvn/settings-public.xml test
   cleanup_before_cache_script: cleanup_maven_repository
 
 plugin_qa_task:
