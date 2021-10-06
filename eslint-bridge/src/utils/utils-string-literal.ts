@@ -142,6 +142,7 @@ export function tokenizeString(s: string): StringLiteralToken[] {
     if (c === CP_BACK_SLASH) {
       const value = readEscape();
       if (value !== '') {
+        tokens.push({ value: String.fromCodePoint(CP_BACK_SLASH), range: [start, start + 1] });
         tokens.push({ value, range: [start, pos] });
       }
     } else if (c === CP_FORWARD_SLASH) {

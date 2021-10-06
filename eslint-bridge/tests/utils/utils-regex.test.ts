@@ -40,3 +40,12 @@ it('should get range for regexp |/?[a-z]', () => {
   const range = getRegexpRange(literal, alternative);
   expect(range).toStrictEqual([2, 9]);
 });
+
+it('should get range for regexp \ns', () => {
+  const program = esprima.parse(`'\\ns'`);
+  const literal: estree.Literal = program.body[0].expression;
+  const regexNode = regexpp.parseRegExpLiteral(new RegExp(literal.value as string));
+  const quantifier = regexNode.pattern.alternatives[0].elements[1]; // s
+  const range = getRegexpRange(literal, quantifier);
+  expect(range).toStrictEqual([3, 4]);
+});
