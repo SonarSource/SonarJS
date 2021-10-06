@@ -112,6 +112,24 @@ export function isMethodInvocation(
   );
 }
 
+export function isFunctionInvocation(
+  callExpression: estree.CallExpression,
+  functionName: string,
+  minArgs: number,
+): boolean {
+  return (
+    callExpression.callee.type === 'Identifier' &&
+    isIdentifier(callExpression.callee, functionName) &&
+    callExpression.arguments.length >= minArgs
+  );
+}
+
+export function isFunctionCall(
+  node: estree.Node,
+): node is estree.CallExpression & { callee: estree.Identifier } {
+  return node.type === 'CallExpression' && node.callee.type === 'Identifier';
+}
+
 export function isMethodCall(
   callExpr: estree.CallExpression,
 ): callExpr is estree.CallExpression & {
@@ -394,17 +412,16 @@ export function resolveFromFunctionReference(
   context: Rule.RuleContext,
   functionIdentifier: estree.Identifier,
 ) {
-  const reference = context
-    .getScope()
-    .references.find(ref => ref.identifier === functionIdentifier);
-  if (
-    reference &&
-    reference.resolved &&
-    reference.resolved.defs.length === 1 &&
-    reference.resolved.defs[0] &&
-    reference.resolved.defs[0].type === 'FunctionName'
-  ) {
-    return reference.resolved.defs[0].node;
+  const { scopeManager } = context.getSourceCode();
+  for (const scope of scopeManager.scopes) {
+    const reference = scope.references.find(r => r.identifier === functionIdentifier);
+    if (
+      reference?.resolved &&
+      reference.resolved.defs.length === 1 &&
+      reference.resolved.defs[0].type === 'FunctionName'
+    ) {
+      return reference.resolved.defs[0].node;
+    }
   }
   return null;
 }

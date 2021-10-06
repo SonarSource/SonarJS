@@ -19,7 +19,15 @@
  */
 
 import { Rule } from 'eslint';
-import { getImportDeclarations, getRequireCalls } from '.';
+import * as estree from 'estree';
+import {
+  getImportDeclarations,
+  getRequireCalls,
+  isFunctionInvocation,
+  isIdentifier,
+  isMethodCall,
+  isMethodInvocation,
+} from '.';
 
 export namespace Chai {
   export function isImported(context: Rule.RuleContext): boolean {
@@ -28,5 +36,36 @@ export namespace Chai {
         r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'chai',
       ) || getImportDeclarations(context).some(i => i.source.value === 'chai')
     );
+  }
+
+  export function isAssertion(node: estree.Node): boolean {
+    return isAssertUsage(node) || isExpectUsage(node) || isShouldUsage(node);
+  }
+
+  function isAssertUsage(node: estree.Node) {
+    // assert(), assert.<expr>(), chai.assert(), chai.assert.<expr>()
+    return (
+      node.type === 'CallExpression' &&
+      (isMethodInvocation(node, 'chai', 'assert', 1) ||
+        isFunctionInvocation(node, 'assert', 1) ||
+        (isMethodCall(node) && isIdentifier(node.callee.object, 'assert')) ||
+        (isMethodCall(node) &&
+          node.callee.object.type === 'MemberExpression' &&
+          isIdentifier(node.callee.object.object, 'chai') &&
+          isIdentifier(node.callee.object.property, 'assert')))
+    );
+  }
+
+  function isExpectUsage(node: estree.Node) {
+    // expect(), chai.expect()
+    return (
+      node.type === 'CallExpression' &&
+      (isMethodInvocation(node, 'chai', 'expect', 1) || isFunctionInvocation(node, 'expect', 1))
+    );
+  }
+
+  function isShouldUsage(node: estree.Node) {
+    // <expr>.should.<expr>
+    return node.type === 'MemberExpression' && isIdentifier(node.property, 'should');
   }
 }

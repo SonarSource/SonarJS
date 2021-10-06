@@ -123,19 +123,21 @@ export function getImportDeclarations(context: Rule.RuleContext) {
 
 export function getRequireCalls(context: Rule.RuleContext) {
   const required: estree.CallExpression[] = [];
-  const variables = context.getScope().variables;
-  variables.forEach(variable =>
-    variable.defs.forEach(def => {
-      if (
-        def.type === 'Variable' &&
-        def.node.init?.type === 'CallExpression' &&
-        def.node.init.callee.type === 'Identifier' &&
-        def.node.init.callee.name === 'require' &&
-        def.node.init.arguments.length === 1
-      ) {
-        required.push(def.node.init);
-      }
-    }),
+  const { scopeManager } = context.getSourceCode();
+  scopeManager.scopes.forEach(scope =>
+    scope.variables.forEach(variable =>
+      variable.defs.forEach(def => {
+        if (
+          def.type === 'Variable' &&
+          def.node.init?.type === 'CallExpression' &&
+          def.node.init.callee.type === 'Identifier' &&
+          def.node.init.callee.name === 'require' &&
+          def.node.init.arguments.length === 1
+        ) {
+          required.push(def.node.init);
+        }
+      }),
+    ),
   );
   return required;
 }
