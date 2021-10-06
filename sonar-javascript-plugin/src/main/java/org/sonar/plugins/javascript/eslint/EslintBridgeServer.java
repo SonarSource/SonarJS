@@ -92,6 +92,7 @@ public interface EslintBridgeServer extends Startable {
     HighlightedSymbol[] highlightedSymbols = {};
     Metrics metrics = new Metrics();
     CpdToken[] cpdTokens = {};
+    Perf perf;
   }
 
   class ParsingError {
@@ -163,6 +164,11 @@ public interface EslintBridgeServer extends Startable {
   class CpdToken {
     Location location;
     String image;
+  }
+
+  class Perf {
+    int parseTime;
+    int analysisTime;
   }
 
   class TsConfigResponse {

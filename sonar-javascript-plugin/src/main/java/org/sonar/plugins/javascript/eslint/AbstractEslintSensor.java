@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
@@ -72,6 +71,7 @@ abstract class AbstractEslintSensor implements Sensor {
   // Visible for testing
   final List<Rule> rules;
   final AbstractChecks checks;
+  final Monitoring monitoring;
   List<String> environments;
   List<String> globals;
 
@@ -83,7 +83,7 @@ abstract class AbstractEslintSensor implements Sensor {
 
   AbstractEslintSensor(AbstractChecks checks, NoSonarFilter noSonarFilter,
                        FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
-                       @Nullable AnalysisWarnings analysisWarnings) {
+                       AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring) {
     this.checks = checks;
     this.rules = checks.eslintBasedChecks().stream()
       .map(check -> new EslintBridgeServer.Rule(check.eslintKey(), check.configurations()))
@@ -98,15 +98,12 @@ abstract class AbstractEslintSensor implements Sensor {
       .filter(check -> check instanceof ParsingErrorCheck)
       .findFirst()
       .map(checks::ruleKeyFor).orElse(null);
-  }
-
-  // Visible for testing
-  AnalysisWarnings getAnalysisWarnings() {
-    return analysisWarnings;
+    this.monitoring = monitoring;
   }
 
   @Override
   public void execute(SensorContext context) {
+    monitoring.startSensor(context, this);
     this.context = context;
     failFast = context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
@@ -129,9 +126,7 @@ abstract class AbstractEslintSensor implements Sensor {
 
     } catch (NodeCommandException | MissingTypeScriptException e) {
       LOG.error(e.getMessage(), e);
-      if (analysisWarnings != null) {
-        analysisWarnings.addUnique("JavaScript and/or TypeScript rules were not executed. " + e.getMessage());
-      }
+      analysisWarnings.addUnique("JavaScript and/or TypeScript rules were not executed. " + e.getMessage());
       if (failFast) {
         throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
       }
@@ -140,6 +135,8 @@ abstract class AbstractEslintSensor implements Sensor {
       if (failFast) {
         throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
       }
+    } finally {
+      monitoring.stopSensor();
     }
   }
 
@@ -215,6 +212,7 @@ abstract class AbstractEslintSensor implements Sensor {
     saveHighlights(file, response.highlights);
     saveHighlightedSymbols(file, response.highlightedSymbols);
     saveCpd(file, response.cpdTokens);
+    monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
   }
 
   private void saveIssues(InputFile file, Issue[] issues) {

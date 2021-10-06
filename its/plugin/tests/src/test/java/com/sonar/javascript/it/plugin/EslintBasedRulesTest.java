@@ -180,4 +180,21 @@ public class EslintBasedRulesTest {
     byte[] pingBytes = Files.readAllBytes(ping);
     assertThat(pingBytes).isNotEqualTo(nodeBytes);
   }
+
+  @Test
+  public void should_record_perf_metrics() throws Exception {
+    String projectKey = "eslint_based_rules";
+    File projectDir = TestUtils.projectDir(projectKey);
+    SonarScanner build = SonarScanner.create()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProperty("sonar.javascript.monitoring", "true")
+      .setProperty("sonar.javascript.monitoring.path", projectDir.toPath().resolve(".scannerwork").toString())
+      .setProjectDir(projectDir);
+
+    BuildResult buildResult = orchestrator.executeBuild(build);
+    assertThat(buildResult.isSuccess()).isTrue();
+    assertThat(projectDir.toPath().resolve(".scannerwork/metrics.json")).exists();
+  }
 }

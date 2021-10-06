@@ -207,8 +207,9 @@ describe('server', () => {
       }),
       '/analyze-js',
     );
-
-    expect(JSON.parse(response)).toEqual(expectedResponse);
+    const parsedResponse = JSON.parse(response);
+    delete parsedResponse.perf;
+    expect(parsedResponse).toEqual(expectedResponse);
   });
 
   it('should respond to TypeScript analysis request', async () => {
@@ -233,8 +234,9 @@ describe('server', () => {
       }),
       '/analyze-ts',
     );
-
-    expect(JSON.parse(response)).toEqual(expectedResponse);
+    const parsedResponse = JSON.parse(response);
+    delete parsedResponse.perf;
+    expect(parsedResponse).toEqual(expectedResponse);
   }, 10_000);
 
   it('should respond OK! when started', done => {
@@ -430,8 +432,9 @@ describe('sonarlint context', () => {
       }),
       '/analyze-js',
     );
-
-    expect(JSON.parse(response)).toEqual(expectedInSonarLint);
+    const parsedResponse = JSON.parse(response);
+    delete parsedResponse.perf;
+    expect(parsedResponse).toEqual(expectedInSonarLint);
   });
 
   function post(data, endpoint) {
