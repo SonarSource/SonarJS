@@ -76,8 +76,7 @@ export class LinterWrapper {
   rules: Map<string, ESLintRule.RuleModule>;
 
   /**
-   * 'additionalRules' - rules used for computing metrics (incl. highlighting) when it requires access to the rule context; resulting value is encoded in the message
-   * and custom rules provided by additional rule bundles
+   * 'customRules' - rules provided by additional rule bundles
    */
   constructor(
     inputRules: Rule[],

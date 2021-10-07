@@ -293,8 +293,6 @@ abstract class AbstractEslintSensor implements Sensor {
     newCpdTokens.save();
   }
 
-
-
   protected boolean ignoreHeaderComments() {
     return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
   }
