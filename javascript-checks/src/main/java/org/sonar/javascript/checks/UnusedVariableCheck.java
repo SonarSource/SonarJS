@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
@@ -34,5 +33,4 @@ public class UnusedVariableCheck implements EslintBasedCheck {
   public String eslintKey() {
     return "sonar-no-unused-vars";
   }
-
 }

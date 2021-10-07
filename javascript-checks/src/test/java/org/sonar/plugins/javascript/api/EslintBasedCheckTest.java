@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,6 +33,7 @@ public class EslintBasedCheckTest {
 
     assertThat(check.eslintKey()).isEqualTo("key");
     assertThat(check.configurations()).isEmpty();
+    assertThat(check.targets()).isEqualTo(InputFile.Type.MAIN);
   }
 
 }

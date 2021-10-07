@@ -195,8 +195,7 @@ abstract class AbstractEslintSensor implements Sensor {
   }
 
   protected boolean shouldSendFileContent(InputFile file) {
-    return context.runtime().getProduct() == SonarProduct.SONARLINT
-      || !StandardCharsets.UTF_8.equals(file.charset());
+    return isSonarLint() || !StandardCharsets.UTF_8.equals(file.charset());
   }
 
   protected void processResponse(InputFile file, AnalysisResponse response) {
@@ -243,7 +242,7 @@ abstract class AbstractEslintSensor implements Sensor {
   }
 
   private void saveMetrics(InputFile file, Metrics metrics) {
-    if (file.type().equals(InputFile.Type.TEST)) {
+    if (file.type() == InputFile.Type.TEST || isSonarLint()) {
       noSonarFilter.noSonarInFile(file, Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet()));
       return;
     }
@@ -270,6 +269,10 @@ abstract class AbstractEslintSensor implements Sensor {
     fileLinesContext.save();
   }
 
+  private boolean isSonarLint() {
+    return context.runtime().getProduct() == SonarProduct.SONARLINT;
+  }
+
   private <T extends Serializable> void saveMetric(InputFile file, Metric<T> metric, T value) {
     context.<T>newMeasure()
       .withValue(value)
@@ -279,7 +282,7 @@ abstract class AbstractEslintSensor implements Sensor {
   }
 
   private void saveCpd(InputFile file, CpdToken[] cpdTokens) {
-    if (file.type().equals(InputFile.Type.TEST)) {
+    if (file.type().equals(InputFile.Type.TEST) || isSonarLint()) {
       // even providing empty 'NewCpdTokens' will trigger duplication computation so skipping
       return;
     }
@@ -289,6 +292,8 @@ abstract class AbstractEslintSensor implements Sensor {
     }
     newCpdTokens.save();
   }
+
+
 
   protected boolean ignoreHeaderComments() {
     return context.config().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS).orElse(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE);
