@@ -423,15 +423,4 @@
 'searchkit:src/core/transport/AxiosESTransport.ts':[
 2,
 ],
-'searchkit:test/e2e/server/apps/children-app/index.tsx':[
-7,
-12,
-],
-'searchkit:test/e2e/server/apps/list-app/index.tsx':[
-3,
-4,
-],
-'searchkit:test/e2e/server/apps/taxonomy-app/index.tsx':[
-14,
-],
 }

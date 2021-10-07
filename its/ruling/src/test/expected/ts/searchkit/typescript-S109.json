@@ -423,15 +423,4 @@
 'searchkit:src/core/transport/AxiosESTransport.ts':[
 15,
 ],
-'searchkit:test/e2e/server/apps/playground/index.tsx':[
-261,
-261,
-261,
-],
-'searchkit:test/e2e/specs/MovieSpec.ts':[
-45,
-46,
-53,
-60,
-],
 }

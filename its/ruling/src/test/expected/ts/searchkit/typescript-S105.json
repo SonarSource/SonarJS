@@ -86,10 +86,4 @@
 'searchkit:src/core/support/Utils.ts':[
 25,
 ],
-'searchkit:test/e2e/server/apps/children-app/index.tsx':[
-61,
-],
-'searchkit:test/e2e/server/apps/taxonomy-app/index.tsx':[
-64,
-],
 }

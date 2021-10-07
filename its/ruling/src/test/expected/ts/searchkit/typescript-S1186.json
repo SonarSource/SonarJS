@@ -22,8 +22,4 @@
 'searchkit:src/core/accessors/StatefulAccessor.ts':[
 19,
 ],
-'searchkit:test/e2e/server/apps/ui-app/index.tsx':[
-46,
-47,
-],
 }

@@ -45,11 +45,4 @@
 'searchkit:src/core/react/SearchkitComponent.ts':[
 84,
 ],
-'searchkit:test/e2e/server/apps/playground/TogglePanel.tsx':[
-45,
-49,
-],
-'searchkit:test/e2e/server/apps/ui-app/MockRange.tsx':[
-37,
-],
 }
