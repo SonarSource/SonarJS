@@ -151,7 +151,9 @@ class JavaScriptRulingTest {
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
 
-    SonarScanner build = SonarScanner.create(FileLocation.of(sources).getFile())
+    File sourcesLocation = FileLocation.of(sources).getFile();
+
+    SonarScanner build = SonarScanner.create(sourcesLocation)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")
@@ -160,11 +162,17 @@ class JavaScriptRulingTest {
       .setProperty("dump.old", FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
-      .setProperty("sonar.exclusions", String.join(",", exclusions))
+      .setProperty("sonar.exclusions", String.join(",", exclusions) + ", test/**/*, tests/**/*")
       .setProperty("sonar.javascript.node.maxspace", "2048")
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.internal.analysis.failFast", "true");
+
+    if (new File(sourcesLocation, "test").exists()) {
+      build.setTestDirs("test");
+    } else if (new File(sourcesLocation, "tests").exists()) {
+      build.setTestDirs("tests");
+    }
 
     orchestrator.executeBuild(build);
 
