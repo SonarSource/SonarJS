@@ -144,7 +144,7 @@ for (let { parser, languageSpecificRule, parserOptions } of [
     parser: '@babel/eslint-parser',
     languageSpecificRule: decorateJavascriptEslint(chaiFriendlyRules['no-unused-expressions']),
     parserOptions: buildParsingOptions(
-      { filePath: 'some/filePath', tsConfigs: [], fileContent: '' },
+      { filePath: 'some/filePath', tsConfigs: [], fileContent: '', fileType: 'MAIN' },
       true,
     ),
   },

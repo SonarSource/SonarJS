@@ -19,20 +19,13 @@
  */
 import { ParseExceptionCode, buildSourceCode } from './parser';
 import getHighlighting, { Highlight } from './runner/highlighter';
-import getMetrics, { EMPTY_METRICS, getMetricsForSonarLint, Metrics } from './runner/metrics';
+import getMetrics, { EMPTY_METRICS, getNosonarMetric, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
 import { SourceCode } from 'eslint';
-import {
-  HighlightedSymbol,
-  rule as symbolHighlightingRule,
-  symbolHighlightingRuleId,
-} from './runner/symbol-highlighter';
-import { rules as sonarjsRules } from 'eslint-plugin-sonarjs';
+import { HighlightedSymbol } from './runner/symbol-highlighter';
 import { LinterWrapper, AdditionalRule } from './linter';
 import { getContext } from './context';
 import { hrtime } from 'process';
-
-const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -42,23 +35,9 @@ export const EMPTY_RESPONSE: AnalysisResponse = {
   cpdTokens: [],
 };
 
-export const SYMBOL_HIGHLIGHTING_RULE: AdditionalRule = {
-  ruleId: symbolHighlightingRuleId,
-  ruleModule: symbolHighlightingRule,
-  ruleConfig: [],
-  activateAutomatically: true,
-};
-
-export const COGNITIVE_COMPLEXITY_RULE: AdditionalRule = {
-  ruleId: COGNITIVE_COMPLEXITY_RULE_ID,
-  ruleModule: sonarjsRules['cognitive-complexity'],
-  ruleConfig: ['metric'],
-  activateAutomatically: true,
-};
-
 export interface AnalysisInput {
   filePath: string;
-  fileType?: string;
+  fileType: FileType;
   fileContent: string | undefined;
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
@@ -69,7 +48,10 @@ export interface Rule {
   key: string;
   // Currently we only have rules that accept strings, but configuration can be a JS object or a string.
   configurations: any[];
+  fileTypeTarget: FileType;
 }
+
+export type FileType = 'MAIN' | 'TEST';
 
 export interface AnalysisResponse {
   parsingError?: ParsingError;
@@ -124,11 +106,7 @@ const customRules: AdditionalRule[] = [];
 
 export function initLinter(rules: Rule[], environments: string[] = [], globals: string[] = []) {
   console.log(`DEBUG initializing linter with ${rules.map(r => r.key)}`);
-  const additionalRules = [COGNITIVE_COMPLEXITY_RULE, ...customRules];
-  if (!getContext().sonarlint) {
-    additionalRules.push(SYMBOL_HIGHLIGHTING_RULE);
-  }
-  linter = new LinterWrapper(rules, additionalRules, environments, globals);
+  linter = new LinterWrapper(rules, customRules, environments, globals);
 }
 
 export function loadCustomRuleBundle(bundlePath: string): string[] {
@@ -164,9 +142,15 @@ function measureDuration<T>(f: () => T): { result: T; duration: number } {
 
 function analyzeFile(sourceCode: SourceCode, input: AnalysisInput): AnalysisResponse {
   let issues: Issue[] = [];
+  let symbolHighlighting;
+  let cognitiveComplexity;
   let parsingError: ParsingError | undefined = undefined;
   try {
-    issues = linter.analyze(sourceCode, input.filePath, input.fileType).issues;
+    ({ issues, symbolHighlighting, cognitiveComplexity } = linter.analyze(
+      sourceCode,
+      input.filePath,
+      input.fileType,
+    ));
   } catch (e) {
     // turns exceptions from TypeScript compiler into "parsing" errors
     if (e.stack.indexOf('typescript.js:') > -1) {
@@ -175,52 +159,25 @@ function analyzeFile(sourceCode: SourceCode, input: AnalysisInput): AnalysisResp
       throw e;
     }
   }
-  // this is invoked for side-effect also for SonarLint, it removes cognitive complexity pseudo-issue which is used
-  // for the metric
-  const cognitiveComplexityMetric = getCognitiveComplexity(issues);
   if (getContext().sonarlint) {
-    return { issues, parsingError, metrics: getMetricsForSonarLint(sourceCode) };
-  } else {
+    return { issues, parsingError, metrics: getNosonarMetric(sourceCode) };
+  } else if (input.fileType === 'MAIN') {
     return {
       issues,
       parsingError,
-      highlightedSymbols: getHighlightedSymbols(issues),
+      highlightedSymbols: symbolHighlighting,
       highlights: getHighlighting(sourceCode).highlights,
-      metrics: getMetrics(sourceCode, !!input.ignoreHeaderComments, cognitiveComplexityMetric),
+      metrics: getMetrics(sourceCode, !!input.ignoreHeaderComments, cognitiveComplexity),
       cpdTokens: getCpdTokens(sourceCode).cpdTokens,
     };
-  }
-}
-
-// exported for testing
-export function getHighlightedSymbols(issues: Issue[]) {
-  const issue = findAndRemoveFirstIssue(issues, symbolHighlightingRuleId);
-  if (issue) {
-    return JSON.parse(issue.message);
   } else {
-    console.log('DEBUG Failed to retrieve symbol highlighting from analysis results');
-    return [];
+    // for test file
+    return {
+      issues,
+      parsingError,
+      highlightedSymbols: symbolHighlighting,
+      highlights: getHighlighting(sourceCode).highlights,
+      metrics: getNosonarMetric(sourceCode),
+    };
   }
-}
-
-// exported for testing
-export function getCognitiveComplexity(issues: Issue[]) {
-  const issue = findAndRemoveFirstIssue(issues, COGNITIVE_COMPLEXITY_RULE_ID);
-  if (issue && !isNaN(Number(issue.message))) {
-    return Number(issue.message);
-  } else {
-    console.log('DEBUG Failed to retrieve cognitive complexity metric from analysis results');
-    return 0;
-  }
-}
-
-function findAndRemoveFirstIssue(issues: Issue[], ruleId: string) {
-  for (const issue of issues) {
-    if (issue.ruleId === ruleId) {
-      const index = issues.indexOf(issue);
-      issues.splice(index, 1);
-      return issue;
-    }
-  }
-  return undefined;
 }

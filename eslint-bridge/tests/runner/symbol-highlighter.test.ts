@@ -144,7 +144,12 @@ it('should highlight Vue templates', () => {
   </template>`;
 
   initLinter([]);
-  const { highlightedSymbols } = analyzeJavaScript({ filePath, fileContent, tsConfigs: [] });
+  const { highlightedSymbols } = analyzeJavaScript({
+    filePath,
+    fileContent,
+    tsConfigs: [],
+    fileType: 'MAIN',
+  });
   expect(highlightedSymbols).toEqual([
     {
       declaration: { startLine: 3, startCol: 4, endLine: 3, endCol: 8 } /* <foo */,
@@ -165,7 +170,12 @@ it('should highlight inconsistent Vue templates', () => {
   </template> <!-- ignored: inconsistency -->`;
 
   initLinter([]);
-  const { highlightedSymbols } = analyzeJavaScript({ filePath, fileContent, tsConfigs: [] });
+  const { highlightedSymbols } = analyzeJavaScript({
+    filePath,
+    fileContent,
+    tsConfigs: [],
+    fileType: 'MAIN',
+  });
   expect(highlightedSymbols).toEqual([
     {
       declaration: { startLine: 2, startCol: 2, endLine: 2, endCol: 11 } /* <template */,
@@ -191,6 +201,7 @@ function actual(code: string): HighlightedSymbol[] {
     filePath,
     fileContent: code,
     tsConfigs: [tsConfig],
+    fileType: 'MAIN',
   });
 
   return result.highlightedSymbols;

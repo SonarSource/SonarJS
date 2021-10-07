@@ -196,7 +196,7 @@ describe('server', () => {
 
     await post(
       JSON.stringify({
-        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }],
       }),
       '/init-linter',
     );
@@ -204,6 +204,7 @@ describe('server', () => {
       JSON.stringify({
         filePath: 'dir/file.js',
         fileContent: 'if (true) 42; else 42;',
+        fileType: 'MAIN',
       }),
       '/analyze-js',
     );
@@ -221,7 +222,7 @@ describe('server', () => {
 
     await post(
       JSON.stringify({
-        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }],
       }),
       '/init-linter',
     );
@@ -231,6 +232,7 @@ describe('server', () => {
         fileContent: 'if (true) 42; else 42;',
         ignoreHeaderComments: true,
         tsConfigs: [tsConfig],
+        fileType: 'MAIN',
       }),
       '/analyze-ts',
     );
@@ -307,7 +309,7 @@ describe('support custom rules', () => {
 
     await postToServer(
       JSON.stringify({
-        rules: [{ key: 'customrule', configurations: [] }],
+        rules: [{ key: 'customrule', configurations: [], fileTypeTarget: 'MAIN' }],
       }),
       '/init-linter',
       server,
@@ -316,6 +318,7 @@ describe('support custom rules', () => {
       JSON.stringify({
         filePath: 'dir/file.js',
         fileContent: 'foo()',
+        fileType: 'MAIN',
       }),
       '/analyze-js',
       server,
@@ -365,7 +368,8 @@ describe('should send error when failing', () => {
       JSON.stringify({
         filePath: 'dir/file.js',
         fileContent: 'if (true) 42; else 42;',
-        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }],
+        fileType: 'MAIN',
       }),
       '/analyze-js',
       server,
@@ -379,7 +383,8 @@ describe('should send error when failing', () => {
       JSON.stringify({
         filePath: 'dir/file.js',
         fileContent: 'if (true) 42; else 42;',
-        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }],
+        fileType: 'MAIN',
       }),
       '/analyze-ts',
       server,
@@ -419,7 +424,7 @@ describe('sonarlint context', () => {
 
     await post(
       JSON.stringify({
-        rules: [{ key: 'no-all-duplicated-branches', configurations: [] }],
+        rules: [{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }],
       }),
       '/init-linter',
     );
@@ -429,6 +434,7 @@ describe('sonarlint context', () => {
         fileContent: `if (true) 42; else 42;
         foo(); // NOSONAR 
         `,
+        fileType: 'MAIN',
       }),
       '/analyze-js',
     );

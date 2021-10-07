@@ -18,20 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { FileType } from '../../src/analyzer';
 import { buildSourceCode } from '../../src/parser';
 
 export function parseTypeScriptSourceFile(
   fileContent: string,
   filePath: string,
   tsConfigs: string[],
+  fileType: FileType = 'MAIN',
 ) {
-  return buildSourceCode({ fileContent, filePath, tsConfigs }, 'ts');
+  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'ts');
 }
 
 export function parseJavaScriptSourceFile(
   fileContent: string,
   filePath: string,
   tsConfigs: string[] = [],
+  fileType: FileType = 'MAIN',
 ) {
-  return buildSourceCode({ fileContent, filePath, tsConfigs }, 'js');
+  return buildSourceCode({ fileContent, filePath, tsConfigs, fileType }, 'js');
 }

@@ -86,7 +86,7 @@ abstract class AbstractEslintSensor implements Sensor {
                        AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring) {
     this.checks = checks;
     this.rules = checks.eslintBasedChecks().stream()
-      .map(check -> new EslintBridgeServer.Rule(check.eslintKey(), check.configurations()))
+      .map(check -> new EslintBridgeServer.Rule(check.eslintKey(), check.configurations(), check.targets()))
       .collect(Collectors.toList());
 
     this.noSonarFilter = noSonarFilter;
@@ -243,6 +243,11 @@ abstract class AbstractEslintSensor implements Sensor {
   }
 
   private void saveMetrics(InputFile file, Metrics metrics) {
+    if (file.type().equals(InputFile.Type.TEST)) {
+      noSonarFilter.noSonarInFile(file, Arrays.stream(metrics.nosonarLines).boxed().collect(Collectors.toSet()));
+      return;
+    }
+
     saveMetric(file, CoreMetrics.FUNCTIONS, metrics.functions);
     saveMetric(file, CoreMetrics.STATEMENTS, metrics.statements);
     saveMetric(file, CoreMetrics.CLASSES, metrics.classes);
@@ -274,6 +279,10 @@ abstract class AbstractEslintSensor implements Sensor {
   }
 
   private void saveCpd(InputFile file, CpdToken[] cpdTokens) {
+    if (file.type().equals(InputFile.Type.TEST)) {
+      // even providing empty 'NewCpdTokens' will trigger duplication computation so skipping
+      return;
+    }
     NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(file);
     for (CpdToken cpdToken : cpdTokens) {
       newCpdTokens.addToken(cpdToken.location.toTextRange(file), cpdToken.image);

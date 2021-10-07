@@ -123,7 +123,7 @@ function isExclusion(parsedBody: Array<estree.Node>, code: SourceCode) {
 function containsCode(value: string) {
   try {
     const options = buildParsingOptions(
-      { filePath: 'some/filePath', tsConfigs: [], fileContent: '' },
+      { filePath: 'some/filePath', tsConfigs: [], fileContent: '', fileType: 'MAIN' },
       true,
     );
     const result = babel.parse(value, options);

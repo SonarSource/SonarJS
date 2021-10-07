@@ -25,12 +25,30 @@ import {
 } from './rules/no-unused-expressions-decorator';
 import { rules as internalRules } from './rules/main';
 import { Linter, SourceCode, Rule as ESLintRule } from 'eslint';
-import { Rule, Issue, IssueLocation } from './analyzer';
+import { Rule, Issue, IssueLocation, FileType } from './analyzer';
+import {
+  rule as symbolHighlightingRule,
+  symbolHighlightingRuleId,
+} from './runner/symbol-highlighter';
 import { rules as typescriptEslintRules } from '@typescript-eslint/eslint-plugin';
 import { getContext } from './context';
 import { decoratePreferTemplate } from './rules/prefer-template-decorator';
 import { decorateAccessorPairs } from './rules/accessor-pairs-decorator';
 import { decorateNoRedeclare } from './rules/no-redeclare-decorator';
+
+const COGNITIVE_COMPLEXITY_RULE_ID = 'internal-cognitive-complexity';
+
+export const SYMBOL_HIGHLIGHTING_RULE: AdditionalRule = {
+  ruleId: symbolHighlightingRuleId,
+  ruleModule: symbolHighlightingRule,
+  ruleConfig: [],
+};
+
+export const COGNITIVE_COMPLEXITY_RULE: AdditionalRule = {
+  ruleId: COGNITIVE_COMPLEXITY_RULE_ID,
+  ruleModule: sonarjsRules['cognitive-complexity'],
+  ruleConfig: ['metric'],
+};
 
 /**
  * In order to overcome ESLint limitation regarding issue reporting,
@@ -54,6 +72,7 @@ export interface AdditionalRule {
 export class LinterWrapper {
   linter: Linter;
   linterConfig: Linter.Config;
+  testLinterConfig: Linter.Config;
   rules: Map<string, ESLintRule.RuleModule>;
 
   /**
@@ -61,8 +80,8 @@ export class LinterWrapper {
    * and custom rules provided by additional rule bundles
    */
   constructor(
-    rules: Rule[],
-    additionalRules: AdditionalRule[] = [],
+    inputRules: Rule[],
+    customRules: AdditionalRule[] = [],
     environments: string[] = [],
     globals: string[] = [],
   ) {
@@ -119,20 +138,22 @@ export class LinterWrapper {
       );
     }
 
-    additionalRules.forEach(additionalRule =>
-      this.linter.defineRule(additionalRule.ruleId, additionalRule.ruleModule),
-    );
+    customRules.forEach(r => this.linter.defineRule(r.ruleId, r.ruleModule));
+    this.linter.defineRule(COGNITIVE_COMPLEXITY_RULE.ruleId, COGNITIVE_COMPLEXITY_RULE.ruleModule);
+    this.linter.defineRule(SYMBOL_HIGHLIGHTING_RULE.ruleId, SYMBOL_HIGHLIGHTING_RULE.ruleModule);
 
     this.rules = this.linter.getRules();
-    this.linterConfig = this.createLinterConfig(rules, additionalRules, environments, globals);
+
+    const inputRulesMain: Rule[] = [],
+      inputRulesTest: Rule[] = [];
+    inputRules.forEach(r =>
+      (r.fileTypeTarget === 'MAIN' ? inputRulesMain : inputRulesTest).push(r),
+    );
+    this.linterConfig = this.createLinterConfig(inputRulesMain, environments, globals);
+    this.testLinterConfig = this.createLinterConfig(inputRulesTest, environments, globals);
   }
 
-  createLinterConfig(
-    inputRules: Rule[],
-    additionalRules: AdditionalRule[],
-    environments: string[],
-    globals: string[],
-  ) {
+  createLinterConfig(inputRules: Rule[], environments: string[], globals: string[]) {
     const env: { [name: string]: boolean } = { es6: true };
     const globalsConfig: { [name: string]: boolean } = {};
     for (const key of environments) {
@@ -152,20 +173,20 @@ export class LinterWrapper {
       ruleConfig.rules![inputRule.key] = ['error', ...getRuleConfig(ruleModule, inputRule)];
     });
 
-    additionalRules
-      .filter(rule => rule.activateAutomatically)
-      .forEach(
-        additionalRule =>
-          (ruleConfig.rules![additionalRule.ruleId] = ['error', ...additionalRule.ruleConfig]),
+    if (!getContext().sonarlint) {
+      [COGNITIVE_COMPLEXITY_RULE, SYMBOL_HIGHLIGHTING_RULE].forEach(
+        r => (ruleConfig.rules![r.ruleId] = ['error', ...r.ruleConfig]),
       );
+    }
     return ruleConfig;
   }
 
-  analyze(sourceCode: SourceCode, filePath: string, fileType?: string) {
+  analyze(sourceCode: SourceCode, filePath: string, fileType?: FileType) {
+    const config = fileType === 'TEST' ? this.testLinterConfig : this.linterConfig;
     const issues = this.linter
       .verify(
         sourceCode,
-        { ...this.linterConfig, settings: { fileType } },
+        { ...config, settings: { fileType } },
         {
           filename: filePath,
           allowInlineConfig: false,
@@ -180,7 +201,12 @@ export class LinterWrapper {
       })
       .filter((issue): issue is Issue => issue !== null)
       .map(normalizeIssueLocation);
-    return { issues };
+
+    return {
+      issues,
+      symbolHighlighting: getHighlightedSymbols(issues),
+      cognitiveComplexity: getCognitiveComplexity(issues),
+    };
   }
 }
 
@@ -334,4 +360,33 @@ function normalizeIssueLocation(issue: Issue) {
     issue.endColumn -= 1;
   }
   return issue;
+}
+
+// exported for testing
+export function getHighlightedSymbols(issues: Issue[]) {
+  const issue = findAndRemoveFirstIssue(issues, symbolHighlightingRuleId);
+  if (issue) {
+    return JSON.parse(issue.message);
+  }
+  return undefined;
+}
+
+// exported for testing
+export function getCognitiveComplexity(issues: Issue[]) {
+  const issue = findAndRemoveFirstIssue(issues, COGNITIVE_COMPLEXITY_RULE_ID);
+  if (issue && !isNaN(Number(issue.message))) {
+    return Number(issue.message);
+  }
+  return undefined;
+}
+
+function findAndRemoveFirstIssue(issues: Issue[], ruleId: string) {
+  for (const issue of issues) {
+    if (issue.ruleId === ruleId) {
+      const index = issues.indexOf(issue);
+      issues.splice(index, 1);
+      return issue;
+    }
+  }
+  return undefined;
 }

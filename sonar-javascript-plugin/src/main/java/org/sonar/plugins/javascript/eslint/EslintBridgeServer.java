@@ -72,10 +72,12 @@ public interface EslintBridgeServer extends Startable {
 
   class Rule {
     String key;
+    String fileTypeTarget;
     List<Object> configurations;
 
-    Rule(String key, List<Object> configurations) {
+    Rule(String key, List<Object> configurations, InputFile.Type fileTypeTarget) {
       this.key = key;
+      this.fileTypeTarget = fileTypeTarget.name();
       this.configurations = configurations;
     }
 

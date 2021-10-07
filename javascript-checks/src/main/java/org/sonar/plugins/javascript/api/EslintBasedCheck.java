@@ -21,6 +21,8 @@ package org.sonar.plugins.javascript.api;
 
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Type;
 
 public interface EslintBasedCheck extends JavaScriptCheck {
 
@@ -28,6 +30,10 @@ public interface EslintBasedCheck extends JavaScriptCheck {
 
   default List<Object> configurations() {
     return Collections.emptyList();
+  }
+
+  default InputFile.Type targets() {
+    return Type.MAIN;
   }
 
 }

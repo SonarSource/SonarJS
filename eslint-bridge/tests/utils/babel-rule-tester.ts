@@ -22,7 +22,7 @@ import { buildParsingOptions } from '../../src/parser';
 
 export function babelRuleTester() {
   const parserOptions = buildParsingOptions(
-    { filePath: 'some/filePath', tsConfigs: [], fileContent: '' },
+    { filePath: 'some/filePath', tsConfigs: [], fileContent: '', fileType: 'MAIN' },
     true,
   );
   return new RuleTester({

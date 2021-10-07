@@ -162,7 +162,7 @@ import { ParseExceptionCode } from '../src/parser';
     const code = ` class C { #f = 42; #m() {} }`;
     setContext({ workDir: '', shouldUseTypeScriptParserForJS: false, sonarlint: false });
     const sourceCode = buildSourceCode(
-      { filePath: '/some/path', fileContent: code },
+      { filePath: '/some/path', fileContent: code, fileType: 'MAIN' },
       'js',
     ) as SourceCode;
     expect(sourceCode.ast).toBeDefined();

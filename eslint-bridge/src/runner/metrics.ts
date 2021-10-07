@@ -99,7 +99,7 @@ export default function getMetrics(
   };
 }
 
-export function getMetricsForSonarLint(sourceCode: SourceCode) {
+export function getNosonarMetric(sourceCode: SourceCode) {
   return {
     nosonarLines: findCommentLines(sourceCode, false).nosonarLines,
   };
