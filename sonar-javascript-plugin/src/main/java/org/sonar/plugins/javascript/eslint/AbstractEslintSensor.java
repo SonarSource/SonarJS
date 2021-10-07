@@ -67,7 +67,7 @@ abstract class AbstractEslintSensor implements Sensor {
   private final NoSonarFilter noSonarFilter;
   private final FileLinesContextFactory fileLinesContextFactory;
   final EslintBridgeServer eslintBridgeServer;
-  private final AnalysisWarnings analysisWarnings;
+  private final AnalysisWarningsWrapper analysisWarnings;
   // Visible for testing
   final List<Rule> rules;
   final AbstractChecks checks;

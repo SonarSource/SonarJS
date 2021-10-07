@@ -26,7 +26,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
 @SonarLintSide
-public class AnalysisWarningsWrapper implements AnalysisWarnings {
+public class AnalysisWarningsWrapper {
 
   private final AnalysisWarnings analysisWarnings;
 
@@ -41,7 +41,6 @@ public class AnalysisWarningsWrapper implements AnalysisWarnings {
     this.analysisWarnings = analysisWarnings;
   }
 
-  @Override
   public void addUnique(String text) {
     if (analysisWarnings != null) {
       analysisWarnings.addUnique(text);
