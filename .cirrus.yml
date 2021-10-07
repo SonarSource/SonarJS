@@ -1,4 +1,5 @@
-gcp_credentials: ENCRYPTED[00ee9ad38e18fd1f48a5746659724494fc3ed51098ad6ed80ba910d0f19c2fc2b6482cc781572527576aaae886aa0b75]
+# This credentials was generated following the documentation from this project https://github.com/SonarSource/re-ci-infrastructure/tree/master/languages-ci
+gcp_credentials: ENCRYPTED[!69421e3711c0f8af2ddf8dfd67f4ba9398e99d45864a2d2233d0add1dd9758c4f360bacc3db03f20b5b0b532008faf74!]
 
 env:
   ARTIFACTORY_URL: ENCRYPTED[!2f8fa307d3289faa0aa6791f18b961627ae44f1ef46b136e1a1e63b0b4c86454dbb25520d49b339e2d50a1e1e5f95c88!]
@@ -17,17 +18,17 @@ env:
   CIRRUS_SHELL: bash
 
 container_definition: &CONTAINER_DEFINITION
-  builder_image_project: release-engineering-ci-staging
+  builder_image_project: release-engineering-ci-prod
   builder_image_name: docker-builder-v20210927
-  cluster_name: cirrus-ci-dav
+  cluster_name: cirrus-ci-prod
   zone: europe-west4-b
   namespace: default
   use_in_memory_disk: true
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   gce_instance:
-    image_project: release-engineering-ci-staging
-    image_family: pr-14-lt-base-windows-jdk11
+    image_project: release-engineering-ci-prod
+    image_family: lt-base-windows-jdk11
     platform: windows
     zone: europe-west4-b
     preemptible: false
