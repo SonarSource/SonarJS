@@ -37,11 +37,4 @@
 'angular.js:src/ngSanitize/filter/linky.js':[
 181,
 ],
-'angular.js:test/helpers/supportSpec.js':[
-92,
-],
-'angular.js:test/helpers/testabilityPatch.js':[
-97,
-191,
-],
 }

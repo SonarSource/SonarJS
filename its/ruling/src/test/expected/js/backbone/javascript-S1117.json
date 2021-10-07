@@ -8,13 +8,4 @@
 'backbone:docs/js/jquery.lazyload.js':[
 109,
 ],
-'backbone:test/collection.js':[
-1447,
-1633,
-1641,
-],
-'backbone:test/model.js':[
-1400,
-1400,
-],
 }

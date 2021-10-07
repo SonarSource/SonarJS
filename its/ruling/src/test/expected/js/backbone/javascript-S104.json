@@ -2,10 +2,4 @@
 'backbone:backbone.js':[
 0,
 ],
-'backbone:test/collection.js':[
-0,
-],
-'backbone:test/model.js':[
-0,
-],
 }

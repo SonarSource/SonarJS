@@ -5,8 +5,4 @@
 'jshint:src/lex.js':[
 476,
 ],
-'jshint:tests/unit/fixtures/switchDefaultFirst.js':[
-3,
-10,
-],
 }

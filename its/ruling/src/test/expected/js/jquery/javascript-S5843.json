@@ -2,7 +2,4 @@
 'jquery:src/css/isAutoPx.js':[
 24,
 ],
-'jquery:test/data/jquery-1.9.1.js':[
-88,
-],
 }

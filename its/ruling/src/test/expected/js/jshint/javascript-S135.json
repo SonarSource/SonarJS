@@ -13,10 +13,4 @@
 'jshint:src/lex.js':[
 1557,
 ],
-'jshint:tests/unit/fixtures/asi.js':[
-8,
-],
-'jshint:tests/unit/fixtures/scripturl.js':[
-2,
-],
 }

@@ -18,10 +18,4 @@
 'qunit:src/test.js':[
 359,
 ],
-'qunit:test/cli/fixtures/notrycatch/returns-rejection.js':[
-3,
-],
-'qunit:test/webWorker-worker.js':[
-15,
-],
 }

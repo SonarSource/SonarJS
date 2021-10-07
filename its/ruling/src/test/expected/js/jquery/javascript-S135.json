@@ -2,10 +2,4 @@
 'jquery:src/selector.js':[
 1590,
 ],
-'jquery:test/data/jquery-1.9.1.js':[
-5664,
-],
-'jquery:test/unit/offset.js':[
-594,
-],
 }

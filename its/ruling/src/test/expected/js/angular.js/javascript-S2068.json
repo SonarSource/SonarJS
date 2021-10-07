@@ -2,7 +2,4 @@
 'angular.js:src/ngMock/browserTrigger.js':[
 76,
 ],
-'angular.js:test/ngResource/resourceSpec.js':[
-153,
-],
 }

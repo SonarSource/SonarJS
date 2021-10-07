@@ -163,11 +163,4 @@
 'paper.js:src/view/View.js':[
 1111,
 ],
-'paper.js:test/helpers.js':[
-272,
-611,
-],
-'paper.js:test/tests/HitResult.js':[
-36,
-],
 }

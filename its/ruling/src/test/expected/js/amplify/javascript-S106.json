@@ -9,8 +9,4 @@
 'amplify:test-server.js':[
 23,
 ],
-'amplify:test/request/unit.js':[
-1143,
-1149,
-],
 }

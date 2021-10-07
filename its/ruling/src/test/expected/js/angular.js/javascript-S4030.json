@@ -2,11 +2,4 @@
 'angular.js:benchmarks/bootstrap-compile-bp/app.js':[
 43,
 ],
-'angular.js:test/ngAnimate/animateSpec.js':[
-2174,
-3098,
-],
-'angular.js:test/ngRoute/directive/ngViewSpec.js':[
-62,
-],
 }

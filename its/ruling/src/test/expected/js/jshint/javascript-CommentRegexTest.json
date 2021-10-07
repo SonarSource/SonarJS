@@ -15,17 +15,4 @@
 'jshint:src/messages.js':[
 133,
 ],
-'jshint:tests/unit/core.js':[
-2090,
-2124,
-2136,
-],
-'jshint:tests/unit/options.js':[
-2047,
-4314,
-4318,
-4322,
-4345,
-4349,
-],
 }

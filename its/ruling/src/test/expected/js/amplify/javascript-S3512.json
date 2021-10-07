@@ -15,16 +15,4 @@
 13,
 41,
 ],
-'amplify:test/jquery.js':[
-21,
-24,
-],
-'amplify:test/request/routes/jsonp-route.js':[
-29,
-40,
-42,
-],
-'amplify:test/testswarm.js':[
-8,
-],
 }

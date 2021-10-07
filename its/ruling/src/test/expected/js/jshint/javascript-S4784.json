@@ -25,7 +25,4 @@
 'jshint:src/style.js':[
 47,
 ],
-'jshint:tests/helpers/browser/server.js':[
-79,
-],
 }

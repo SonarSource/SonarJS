@@ -21,14 +21,4 @@
 'amplify:src/core.js':[
 105,
 ],
-'amplify:test/core/unit.js':[
-174,
-203,
-250,
-255,
-],
-'amplify:test/request/unit.js':[
-399,
-546,
-],
 }

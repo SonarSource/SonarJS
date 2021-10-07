@@ -2,14 +2,4 @@
 'prototype:src/prototype/dom/event.js':[
 172,
 ],
-'prototype:test/unit/phantomjs/mocha-phantomjs.js':[
-137,
-],
-'prototype:test/unit/static/js/mocha.js':[
-4070,
-],
-'prototype:test/unit/static/js/proclaim.js':[
-364,
-371,
-],
 }

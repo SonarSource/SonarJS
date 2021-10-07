@@ -2,13 +2,4 @@
 'angular.js:src/ng/parse.js':[
 848,
 ],
-'angular.js:test/auto/injectorSpec.js':[
-499,
-],
-'angular.js:test/helpers/support.js':[
-15,
-],
-'angular.js:test/ng/compileSpec.js':[
-6639,
-],
 }

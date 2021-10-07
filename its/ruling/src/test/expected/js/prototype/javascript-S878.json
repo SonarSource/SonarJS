@@ -15,10 +15,4 @@
 'prototype:src/prototype/lang/string.js':[
 113,
 ],
-'prototype:test/unit/phantomjs/mocha-phantomjs.js':[
-96,
-],
-'prototype:test/unit/tests/dom.test.js':[
-361,
-],
 }

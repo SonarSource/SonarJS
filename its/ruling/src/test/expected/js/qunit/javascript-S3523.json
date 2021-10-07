@@ -1,8 +1,0 @@
-{
-'qunit:test/cli/fixtures/memory-leak/index.js':[
-45,
-],
-'qunit:test/main/utilities.js':[
-16,
-],
-}

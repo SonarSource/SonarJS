@@ -47,12 +47,4 @@
 'amplify:src/request.js':[
 3,
 ],
-'amplify:test/request/unit.js':[
-505,
-509,
-768,
-1250,
-1507,
-1555,
-],
 }

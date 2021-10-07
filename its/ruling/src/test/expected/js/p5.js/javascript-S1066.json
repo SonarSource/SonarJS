@@ -49,10 +49,4 @@
 'p5.js:src/webgl/p5.Texture.js':[
 183,
 ],
-'p5.js:test/js/sinon.js':[
-268,
-274,
-630,
-4274,
-],
 }

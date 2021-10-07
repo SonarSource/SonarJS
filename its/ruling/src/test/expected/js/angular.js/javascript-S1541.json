@@ -129,14 +129,4 @@
 'angular.js:src/ngSanitize/sanitize.js':[
 508,
 ],
-'angular.js:test/helpers/supportSpec.js':[
-3,
-],
-'angular.js:test/helpers/testabilityPatch.js':[
-132,
-],
-'angular.js:test/ng/parseSpec.js':[
-1908,
-1924,
-],
 }

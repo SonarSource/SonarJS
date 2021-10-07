@@ -7,13 +7,4 @@
 'jquery:src/selector.js':[
 931,
 ],
-'jquery:test/data/badjson.js':[
-1,
-],
-'jquery:test/data/jquery-1.9.1.js':[
-2747,
-2751,
-3950,
-5076,
-],
 }

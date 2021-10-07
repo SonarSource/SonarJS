@@ -24,17 +24,4 @@
 'angular.js:src/ngMessageFormat/messageFormatParser.js':[
 128,
 ],
-'angular.js:test/ng/directive/inputSpec.js':[
-4736,
-4737,
-4738,
-4739,
-4740,
-],
-'angular.js:test/ngAnimate/animateCssDriverSpec.js':[
-738,
-],
-'angular.js:test/ngSanitize/sanitizeSpec.js':[
-353,
-],
 }

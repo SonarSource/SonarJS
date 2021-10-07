@@ -11,9 +11,4 @@
 'jquery:src/selector.js':[
 1367,
 ],
-'jquery:test/data/jquery-1.9.1.js':[
-5474,
-9111,
-9600,
-],
 }

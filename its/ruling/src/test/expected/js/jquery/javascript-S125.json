@@ -6,17 +6,4 @@
 311,
 324,
 ],
-'jquery:test/data/jquery-1.9.1.js':[
-1284,
-],
-'jquery:test/unit/animation.js':[
-200,
-],
-'jquery:test/unit/core.js':[
-88,
-463,
-],
-'jquery:test/unit/effects.js':[
-456,
-],
 }

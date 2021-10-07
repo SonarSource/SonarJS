@@ -33,12 +33,4 @@
 'p5.js:src/utilities/array_functions.js':[
 217,
 ],
-'p5.js:test/manual-test-examples/p5.Image/drawing-images.js':[
-27,
-28,
-29,
-],
-'p5.js:test/unit/webgl/p5.RendererGL.js':[
-56,
-],
 }

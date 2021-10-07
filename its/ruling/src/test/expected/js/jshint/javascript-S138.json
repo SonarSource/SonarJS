@@ -10,10 +10,4 @@
 'jshint:src/scope-manager.js':[
 26,
 ],
-'jshint:tests/unit/options.js':[
-3712,
-],
-'jshint:tests/unit/parser.js':[
-6802,
-],
 }

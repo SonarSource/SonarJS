@@ -17,13 +17,4 @@
 'amplify:test-server.js':[
 8,
 ],
-'amplify:test/request/routes/echoraw-route.js':[
-6,
-],
-'amplify:test/request/routes/index.js':[
-11,
-],
-'amplify:test/request/routes/jsonp-route.js':[
-6,
-],
 }

@@ -2,10 +2,4 @@
 'qunit:Gruntfile.js':[
 15,
 ],
-'qunit:test/cli/watch.js':[
-30,
-],
-'qunit:test/main/deepEqual.js':[
-566,
-],
 }

@@ -6,11 +6,4 @@
 'sizzle:speed/speed.js':[
 25,
 ],
-'sizzle:test/karma/karma.conf.js':[
-16,
-],
-'sizzle:test/unit/selector.js':[
-227,
-247,
-],
 }

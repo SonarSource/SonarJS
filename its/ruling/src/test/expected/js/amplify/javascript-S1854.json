@@ -22,8 +22,4 @@
 'amplify:src/store.js':[
 46,
 ],
-'amplify:test/core/unit.js':[
-103,
-197,
-],
 }

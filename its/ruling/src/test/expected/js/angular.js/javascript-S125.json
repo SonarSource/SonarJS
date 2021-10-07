@@ -20,11 +20,4 @@
 'angular.js:src/ngAnimate/animateJs.js':[
 12,
 ],
-'angular.js:test/ng/compileSpec.js':[
-8501,
-],
-'angular.js:test/ng/directive/inputSpec.js':[
-3653,
-4643,
-],
 }

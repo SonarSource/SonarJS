@@ -5,17 +5,4 @@
 'es5-shim:es5-shim.js':[
 30,
 ],
-'es5-shim:tests/spec/s-array.js':[
-14,
-1610,
-],
-'es5-shim:tests/spec/s-date.js':[
-1,
-],
-'es5-shim:tests/spec/s-object.js':[
-37,
-],
-'es5-shim:tests/spec/s-string.js':[
-1,
-],
 }

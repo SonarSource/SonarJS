@@ -2,7 +2,4 @@
 'qunit:src/test.js':[
 555,
 ],
-'qunit:test/main/deepEqual.js':[
-526,
-],
 }

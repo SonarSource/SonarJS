@@ -2,7 +2,4 @@
 'underscore:karma.conf-sauce.js':[
 37,
 ],
-'underscore:test/collections.js':[
-763,
-],
 }

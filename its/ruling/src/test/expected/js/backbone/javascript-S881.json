@@ -9,12 +9,4 @@
 'backbone:docs/js/jquery.lazyload.js':[
 48,
 ],
-'backbone:test/events.js':[
-699,
-],
-'backbone:test/model.js':[
-632,
-1114,
-1142,
-],
 }

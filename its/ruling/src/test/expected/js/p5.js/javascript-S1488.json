@@ -27,10 +27,4 @@
 'p5.js:src/webgl/p5.RendererGL.js':[
 1524,
 ],
-'p5.js:test/manual-test-examples/learningprocessing/chp7/example_7_4.js':[
-34,
-],
-'p5.js:test/unit/image/loading.js':[
-23,
-],
 }

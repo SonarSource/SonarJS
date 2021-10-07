@@ -12,11 +12,4 @@
 'angular.js:src/ngSanitize/sanitize.js':[
 327,
 ],
-'angular.js:test/helpers/testabilityPatch.js':[
-136,
-],
-'angular.js:test/minErrSpec.js':[
-87,
-87,
-],
 }

@@ -55,16 +55,4 @@
 'p5.js:tasks/release/release-p5.js':[
 6,
 ],
-'p5.js:test/js/sinon.js':[
-672,
-],
-'p5.js:test/manual-test-examples/addons/p5.sound/micLevel_on_off/sketch.js':[
-31,
-],
-'p5.js:test/manual-test-examples/learningprocessing/chp10/example_10_3/example_10_3.js':[
-29,
-],
-'p5.js:test/manual-test-examples/learningprocessing/chp8/example_8_2.js':[
-27,
-],
 }

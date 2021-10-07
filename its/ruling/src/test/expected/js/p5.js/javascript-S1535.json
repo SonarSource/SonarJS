@@ -35,17 +35,4 @@
 'p5.js:tasks/release/release-github.js':[
 106,
 ],
-'p5.js:test/js/sinon.js':[
-428,
-961,
-1370,
-1382,
-1580,
-],
-'p5.js:test/unit/core/structure.js':[
-60,
-],
-'p5.js:test/unit/image/loading.js':[
-252,
-],
 }
