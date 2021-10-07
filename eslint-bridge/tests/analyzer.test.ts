@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeJavaScript, analyzeTypeScript, initLinter } from 'analyzer';
+import { AnalysisInput, analyzeJavaScript, analyzeTypeScript, initLinter } from 'analyzer';
 import { join } from 'path';
 import * as fs from 'fs';
 import { setContext } from 'context';
@@ -73,6 +73,53 @@ describe('#analyzeJavaScript', () => {
     expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noOneIterationIssue);
     expect(issues).toContainEqual(noDuplicateStringIssue);
+  });
+
+  it('should analyze test files', () => {
+    initLinter([
+      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'TEST' },
+      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: 'MAIN' },
+    ]);
+    const result = analyzeJavaScript({
+      filePath,
+      fileContent: codeToTest,
+      fileType: 'TEST',
+    });
+    expect(result.issues).toHaveLength(1);
+    expect(result.issues).toContainEqual(noOneIterationIssue);
+
+    expect(result.cpdTokens).toBeUndefined();
+    expect(result.metrics).toStrictEqual({ nosonarLines: [5] });
+    expect(result.highlightedSymbols).toHaveLength(3);
+    expect(result.highlights).toHaveLength(11);
+  });
+
+  it.only('should analyze both main and test files', () => {
+    initLinter([
+      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'TEST' },
+      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: 'MAIN' },
+    ]);
+
+    const testFile: AnalysisInput = {
+      filePath,
+      fileContent: codeToTest,
+      fileType: 'TEST',
+    };
+    let { issues } = analyzeJavaScript(testFile);
+    expect(issues).toHaveLength(1);
+    expect(issues).toContainEqual(noOneIterationIssue);
+
+    ({ issues } = analyzeJavaScript({
+      filePath,
+      fileContent: codeToTest,
+      fileType: 'MAIN',
+    }));
+    expect(issues).toHaveLength(1);
+    expect(issues).toContainEqual(noDuplicateStringIssue);
+
+    ({ issues } = analyzeJavaScript(testFile));
+    expect(issues).toHaveLength(1);
+    expect(issues).toContainEqual(noOneIterationIssue);
   });
 
   it('should not report issue when not receiving corresponding rule-key', () => {
