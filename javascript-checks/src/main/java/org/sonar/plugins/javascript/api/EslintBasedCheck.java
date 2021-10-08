@@ -32,8 +32,8 @@ public interface EslintBasedCheck extends JavaScriptCheck {
     return Collections.emptyList();
   }
 
-  default InputFile.Type targets() {
-    return Type.MAIN;
+  default List<InputFile.Type> targets() {
+    return Collections.singletonList(Type.MAIN);
   }
 
 }

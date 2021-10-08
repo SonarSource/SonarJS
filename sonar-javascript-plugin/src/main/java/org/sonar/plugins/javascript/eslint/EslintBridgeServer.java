@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
@@ -72,12 +73,12 @@ public interface EslintBridgeServer extends Startable {
 
   class Rule {
     String key;
-    String fileTypeTarget;
+    List<String> fileTypeTarget;
     List<Object> configurations;
 
-    Rule(String key, List<Object> configurations, InputFile.Type fileTypeTarget) {
+    Rule(String key, List<Object> configurations, List<InputFile.Type> fileTypeTarget) {
       this.key = key;
-      this.fileTypeTarget = fileTypeTarget.name();
+      this.fileTypeTarget = fileTypeTarget.stream().map(InputFile.Type::name).collect(Collectors.toList());
       this.configurations = configurations;
     }
 

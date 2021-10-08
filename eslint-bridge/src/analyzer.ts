@@ -48,7 +48,7 @@ export interface Rule {
   key: string;
   // Currently we only have rules that accept strings, but configuration can be a JS object or a string.
   configurations: any[];
-  fileTypeTarget: FileType;
+  fileTypeTarget: FileType[];
 }
 
 export type FileType = 'MAIN' | 'TEST';

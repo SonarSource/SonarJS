@@ -90,7 +90,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(ruleUsingSecondaryLocations, {
       key: 'ruleUsingSecondaryLocations',
       configurations: [],
-      fileTypeTarget: 'MAIN',
+      fileTypeTarget: ['MAIN'],
     });
     expect(config).toContain('sonar-runtime');
   });
@@ -99,7 +99,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(undefined, {
       key: 'regularRule',
       configurations: [],
-      fileTypeTarget: 'MAIN',
+      fileTypeTarget: ['MAIN'],
     });
     expect(config).not.toContain('sonar-runtime');
   });
@@ -108,7 +108,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(ruleUsingSecondaryLocations, {
       key: 'ruleUsingSecondaryLocations',
       configurations: ['someOtherOption'],
-      fileTypeTarget: 'MAIN',
+      fileTypeTarget: ['MAIN'],
     });
     expect(config).toEqual(['someOtherOption', 'sonar-runtime']);
   });
@@ -118,7 +118,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(undefined, {
       key: 'notExistingRuleModule',
       configurations: [],
-      fileTypeTarget: 'MAIN',
+      fileTypeTarget: ['MAIN'],
     });
     expect(console.log).toHaveBeenCalledWith(
       'DEBUG ruleModule not found for rule notExistingRuleModule',
@@ -136,7 +136,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(ruleUsingContext, {
       key: 'ruleUsingContext',
       configurations: [],
-      fileTypeTarget: 'MAIN',
+      fileTypeTarget: ['MAIN'],
     });
     expect(config).toEqual([
       { workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true, sonarlint: false },
@@ -152,7 +152,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(ruleUsingContextAndSecondaryLocations, {
       key: 'ruleUsingContextAndSecondaryLocations',
       configurations: ['config'],
-      fileTypeTarget: 'MAIN',
+      fileTypeTarget: ['MAIN'],
     });
     expect(config).toEqual([
       'config',
@@ -251,7 +251,7 @@ describe('#decodeSecondaryLocations', () => {
       `foo.js`, // we report only here
     ) as SourceCode;
     const linter = new LinterWrapper([
-      { key: 'no-unused-expressions', configurations: [], fileTypeTarget: 'MAIN' },
+      { key: 'no-unused-expressions', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(1);
@@ -260,7 +260,7 @@ describe('#decodeSecondaryLocations', () => {
   it('should not report on globals provided by environment configuration', () => {
     const sourceCode = parseJavaScriptSourceFile(`var alert = 1;`, `foo.js`) as SourceCode;
     const linter = new LinterWrapper(
-      [{ key: 'declarations-in-global-scope', configurations: [], fileTypeTarget: 'MAIN' }],
+      [{ key: 'declarations-in-global-scope', configurations: [], fileTypeTarget: ['MAIN'] }],
       [],
       ['browser'],
     );
@@ -272,7 +272,7 @@ describe('#decodeSecondaryLocations', () => {
   it('should not report on globals provided by globals configuration', () => {
     const sourceCode = parseJavaScriptSourceFile(`var angular = 1;`, `foo.js`) as SourceCode;
     const linter = new LinterWrapper(
-      [{ key: 'declarations-in-global-scope', configurations: [], fileTypeTarget: 'MAIN' }],
+      [{ key: 'declarations-in-global-scope', configurations: [], fileTypeTarget: ['MAIN'] }],
       [],
       [],
       ['angular'],
@@ -289,7 +289,7 @@ describe('#decodeSecondaryLocations', () => {
       `foo.js`,
     ) as SourceCode;
     const linter = new LinterWrapper(
-      [{ key: 'super-invocation', configurations: [], fileTypeTarget: 'MAIN' }],
+      [{ key: 'super-invocation', configurations: [], fileTypeTarget: ['MAIN'] }],
       [],
       [],
       [],
@@ -308,7 +308,7 @@ describe('TypeScript ESLint rule sanitization', () => {
   });
 
   const linter = new LinterWrapper(
-    [{ key: 'prefer-readonly', configurations: [], fileTypeTarget: 'MAIN' }],
+    [{ key: 'prefer-readonly', configurations: [], fileTypeTarget: ['MAIN'] }],
     [],
     [],
     [],
@@ -327,7 +327,7 @@ describe('TypeScript ESLint rule sanitization', () => {
   it('when type information is missing', () => {
     const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, []) as SourceCode;
     const linter = new LinterWrapper(
-      [{ key: 'prefer-readonly', configurations: [], fileTypeTarget: 'MAIN' }],
+      [{ key: 'prefer-readonly', configurations: [], fileTypeTarget: ['MAIN'] }],
       [],
       [],
       [],

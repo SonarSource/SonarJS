@@ -166,10 +166,10 @@ public class EslintBridgeServerImplTest {
     eslintBridgeServer.deploy();
     eslintBridgeServer.startServer(context, emptyList());
 
-    List<EslintBridgeServer.Rule> rules = Collections.singletonList(new EslintBridgeServer.Rule("key", singletonList("config"), InputFile.Type.MAIN));
+    List<EslintBridgeServer.Rule> rules = Collections.singletonList(new EslintBridgeServer.Rule("key", singletonList("config"), Collections.singletonList(InputFile.Type.MAIN)));
     eslintBridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList());
     eslintBridgeServer.stop();
-    assertThat(logTester.logs()).contains("{\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":\"MAIN\",\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
+    assertThat(logTester.logs()).contains("{\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"]}],\"environments\":[],\"globals\":[]}");
   }
 
   @Test
@@ -398,7 +398,7 @@ public class EslintBridgeServerImplTest {
 
   @Test
   public void test_rule_tostring() {
-    EslintBridgeServer.Rule rule = new EslintBridgeServer.Rule("key", emptyList(), InputFile.Type.MAIN);
+    EslintBridgeServer.Rule rule = new EslintBridgeServer.Rule("key", emptyList(), Collections.singletonList(InputFile.Type.MAIN));
     assertThat(rule).hasToString("key");
   }
 

@@ -33,7 +33,7 @@ public class EslintBasedCheckTest {
 
     assertThat(check.eslintKey()).isEqualTo("key");
     assertThat(check.configurations()).isEmpty();
-    assertThat(check.targets()).isEqualTo(InputFile.Type.MAIN);
+    assertThat(check.targets()).containsExactly(InputFile.Type.MAIN);
   }
 
 }

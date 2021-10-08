@@ -62,8 +62,8 @@ describe('#analyzeJavaScript', () => {
 
   it('should report issue running eslint', () => {
     initLinter([
-      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'MAIN' },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: 'MAIN' },
+      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = analyzeJavaScript({
       filePath,
@@ -77,8 +77,8 @@ describe('#analyzeJavaScript', () => {
 
   it('should analyze test files', () => {
     initLinter([
-      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'TEST' },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: 'MAIN' },
+      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['TEST'] },
+      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const result = analyzeJavaScript({
       filePath,
@@ -96,8 +96,8 @@ describe('#analyzeJavaScript', () => {
 
   it.only('should analyze both main and test files', () => {
     initLinter([
-      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'TEST' },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: 'MAIN' },
+      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['TEST', 'MAIN'] },
+      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
 
     const testFile: AnalysisInput = {
@@ -114,8 +114,9 @@ describe('#analyzeJavaScript', () => {
       fileContent: codeToTest,
       fileType: 'MAIN',
     }));
-    expect(issues).toHaveLength(1);
+    expect(issues).toHaveLength(2);
     expect(issues).toContainEqual(noDuplicateStringIssue);
+    expect(issues).toContainEqual(noOneIterationIssue);
 
     ({ issues } = analyzeJavaScript(testFile));
     expect(issues).toHaveLength(1);
@@ -123,7 +124,9 @@ describe('#analyzeJavaScript', () => {
   });
 
   it('should not report issue when not receiving corresponding rule-key', () => {
-    initLinter([{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }]);
+    initLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const { issues } = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
@@ -133,7 +136,9 @@ describe('#analyzeJavaScript', () => {
   });
 
   it('should report syntax highlights', () => {
-    initLinter([{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }]);
+    initLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const highlights = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
@@ -143,7 +148,9 @@ describe('#analyzeJavaScript', () => {
   });
 
   it('should report cpd tokens', () => {
-    initLinter([{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }]);
+    initLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const cpdTokens = analyzeJavaScript({
       filePath,
       fileContent: codeToTest,
@@ -153,7 +160,9 @@ describe('#analyzeJavaScript', () => {
   });
 
   it('should return empty list when parse error', () => {
-    initLinter([{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }]);
+    initLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const { issues } = analyzeJavaScript({
       filePath,
       fileContent: `if()`,
@@ -164,8 +173,8 @@ describe('#analyzeJavaScript', () => {
 
   it('should analyze shebang file', () => {
     initLinter([
-      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'MAIN' },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: 'MAIN' },
+      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = analyzeJavaScript({
       filePath: join(__dirname, 'fixtures/js-project/shebang.lint.js'),
@@ -214,7 +223,7 @@ describe('#analyzeJavaScript', () => {
     const tsConfig = join(__dirname, './fixtures/failing-typescript/tsconfig.json');
     const codeToTest = fs.readFileSync(filePath, { encoding: 'utf8' });
 
-    initLinter([{ key: 'arguments-order', configurations: [], fileTypeTarget: 'MAIN' }]);
+    initLinter([{ key: 'arguments-order', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const { parsingError } = analyzeJavaScript({
       filePath: filePath,
       fileContent: codeToTest,
@@ -234,8 +243,8 @@ describe('#analyzeTypeScript', () => {
 
   it('should report issue running eslint', () => {
     initLinter([
-      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'MAIN' },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: 'MAIN' },
+      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = analyzeTypeScript({
       filePath: filePath,
@@ -250,7 +259,7 @@ describe('#analyzeTypeScript', () => {
 
   it('should report issue using type-checker', () => {
     initLinter([
-      { key: 'no-unnecessary-type-assertion', configurations: [], fileTypeTarget: 'MAIN' },
+      { key: 'no-unnecessary-type-assertion', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = analyzeTypeScript({
       filePath: filePath,
@@ -264,8 +273,8 @@ describe('#analyzeTypeScript', () => {
 
   it('should read file content from fs when not provided', () => {
     initLinter([
-      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'MAIN' },
-      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: 'MAIN' },
+      { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = analyzeTypeScript({
       filePath: filePath,
@@ -279,7 +288,9 @@ describe('#analyzeTypeScript', () => {
   });
 
   it('should normalize provided path', () => {
-    initLinter([{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }]);
+    initLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     let result = analyzeTypeScript({
       filePath: __dirname + '/./fixtures/ts-project/sample.lint.ts',
       fileContent: 'true ? 42 : 42',
@@ -288,7 +299,9 @@ describe('#analyzeTypeScript', () => {
     });
     expect(result.issues).toHaveLength(1);
 
-    initLinter([{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }]);
+    initLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     result = analyzeTypeScript({
       filePath: __dirname + '/././fixtures/ts-project/sample.lint.ts',
       fileContent: 'true ? 42 : 24',
@@ -355,7 +368,9 @@ describe('#analyzeTypeScript', () => {
   });
 
   it('should return empty issues list when parse error', () => {
-    initLinter([{ key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: 'MAIN' }]);
+    initLinter([
+      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const { issues, parsingError } = analyzeTypeScript({
       filePath: filePath,
       fileContent: `if()`,
@@ -370,7 +385,7 @@ describe('#analyzeTypeScript', () => {
   it('should analyze JavaScript code in Vue.js file', () => {
     const filePath = join(__dirname, './fixtures/js-vue-project/sample.lint.vue');
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-    initLinter([{ key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: 'MAIN' }]);
+    initLinter([{ key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const { issues } = analyzeJavaScript({
       filePath,
       fileContent,
@@ -384,8 +399,8 @@ describe('#analyzeTypeScript', () => {
     const tsConfig = join(__dirname, './fixtures/ts-vue-project/tsconfig.json');
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
     initLinter([
-      { key: 'no-extra-semi', configurations: [], fileTypeTarget: 'MAIN' },
-      { key: 'no-return-type-any', configurations: [], fileTypeTarget: 'MAIN' },
+      { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'no-return-type-any', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = analyzeTypeScript({
       filePath,

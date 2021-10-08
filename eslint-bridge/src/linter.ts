@@ -145,9 +145,14 @@ export class LinterWrapper {
 
     const inputRulesMain: Rule[] = [],
       inputRulesTest: Rule[] = [];
-    inputRules.forEach(r =>
-      (r.fileTypeTarget === 'MAIN' ? inputRulesMain : inputRulesTest).push(r),
-    );
+    inputRules.forEach(r => {
+      if (r.fileTypeTarget.includes('MAIN')) {
+        inputRulesMain.push(r);
+      }
+      if (r.fileTypeTarget.includes('TEST')) {
+        inputRulesTest.push(r);
+      }
+    });
     this.linterConfig = this.createLinterConfig(inputRulesMain, environments, globals);
     this.testLinterConfig = this.createLinterConfig(inputRulesTest, environments, globals);
   }
