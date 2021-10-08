@@ -140,44 +140,39 @@ function measureDuration<T>(f: () => T): { result: T; duration: number } {
   return { result, duration };
 }
 
-function analyzeFile(sourceCode: SourceCode, input: AnalysisInput): AnalysisResponse {
-  let issues: Issue[] = [];
-  let symbolHighlighting;
-  let cognitiveComplexity;
-  let parsingError: ParsingError | undefined = undefined;
+function analyzeFile(sourceCode: SourceCode, input: AnalysisInput) {
   try {
-    ({ issues, symbolHighlighting, cognitiveComplexity } = linter.analyze(
+    const { issues, highlightedSymbols, cognitiveComplexity } = linter.analyze(
       sourceCode,
       input.filePath,
       input.fileType,
-    ));
+    );
+    if (getContext().sonarlint) {
+      return { issues, metrics: getNosonarMetric(sourceCode) };
+    } else if (input.fileType === 'MAIN') {
+      return {
+        issues,
+        highlightedSymbols,
+        highlights: getHighlighting(sourceCode).highlights,
+        metrics: getMetrics(sourceCode, !!input.ignoreHeaderComments, cognitiveComplexity),
+        cpdTokens: getCpdTokens(sourceCode).cpdTokens,
+      };
+    } else {
+      // for test file
+      return {
+        issues,
+        highlightedSymbols,
+        highlights: getHighlighting(sourceCode).highlights,
+        metrics: getNosonarMetric(sourceCode),
+      };
+    }
   } catch (e) {
     // turns exceptions from TypeScript compiler into "parsing" errors
     if (e.stack.indexOf('typescript.js:') > -1) {
-      parsingError = { message: e.message, code: ParseExceptionCode.FailingTypeScript };
+      const parsingError = { message: e.message, code: ParseExceptionCode.FailingTypeScript };
+      return { issues: [], parsingError };
     } else {
       throw e;
     }
-  }
-  if (getContext().sonarlint) {
-    return { issues, parsingError, metrics: getNosonarMetric(sourceCode) };
-  } else if (input.fileType === 'MAIN') {
-    return {
-      issues,
-      parsingError,
-      highlightedSymbols: symbolHighlighting,
-      highlights: getHighlighting(sourceCode).highlights,
-      metrics: getMetrics(sourceCode, !!input.ignoreHeaderComments, cognitiveComplexity),
-      cpdTokens: getCpdTokens(sourceCode).cpdTokens,
-    };
-  } else {
-    // for test file
-    return {
-      issues,
-      parsingError,
-      highlightedSymbols: symbolHighlighting,
-      highlights: getHighlighting(sourceCode).highlights,
-      metrics: getNosonarMetric(sourceCode),
-    };
   }
 }

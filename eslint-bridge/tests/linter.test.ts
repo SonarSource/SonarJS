@@ -229,9 +229,9 @@ describe('#decodeSecondaryLocations', () => {
       `foo.js`,
     ) as SourceCode;
     const linter = new LinterWrapper([]);
-    const { cognitiveComplexity, symbolHighlighting } = linter.analyze(sourceCode, filePath);
+    const { cognitiveComplexity, highlightedSymbols } = linter.analyze(sourceCode, filePath);
     expect(cognitiveComplexity).toEqual(6);
-    expect(symbolHighlighting).toEqual([
+    expect(highlightedSymbols).toEqual([
       {
         declaration: {
           endCol: 43,

@@ -203,7 +203,7 @@ export class LinterWrapper {
 
     return {
       issues,
-      symbolHighlighting: getHighlightedSymbols(issues),
+      highlightedSymbols: getHighlightedSymbols(issues),
       cognitiveComplexity: getCognitiveComplexity(issues),
     };
   }
