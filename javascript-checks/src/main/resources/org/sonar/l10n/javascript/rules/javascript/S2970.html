@@ -1,0 +1,48 @@
+<p>It is very easy to write incomplete assertions when using some test frameworks. This rule enforces complete Chai assertions in the following
+cases:</p>
+<ul>
+  <li> when <code>assert.fail</code>, <code>expect.fail</code> or <code>should.fail</code> are present but not called. </li>
+  <li> when an <code>expect(...)</code> or <code>should</code> assertion is not followed by an assertion method, such as <code>equal</code>. </li>
+  <li> when an <code>expect</code> or <code>should</code> assertion ends with a <a
+  href="https://www.chaijs.com/api/bdd/#method_language-chains">chainable getters</a>, such as <code>.that</code>, or a modifier, such as
+  <code>.deep</code>. </li>
+  <li> when an <code>expect</code> or <code>should</code> assertion function, such as <code>.throw</code>, is not called. </li>
+</ul>
+<p>In such cases, what is intended to be a test doesn’t actually verify anything</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+const assert = require('chai').assert;
+const expect = require('chai').expect;
+
+describe("incomplete assertions", function() {
+    const value = 42;
+
+    it("uses chai 'assert'", function() {
+        assert.fail;  // Noncompliant
+    });
+
+    it("uses chai 'expect'", function() {
+        expect(1 == 1);  // Noncompliant
+        expect(value.toString).to.throw;  // Noncompliant
+    });
+});
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+const assert = require('chai').assert;
+const expect = require('chai').expect;
+
+describe("incomplete assertions", function() {
+    const value = 42;
+
+    it("uses chai 'assert'", function() {
+        assert.fail();
+    });
+
+    it("uses chai 'expect'", function() {
+        expect(1).to.equal(1);
+        expect(value.toString).throw(TypeError);
+    });
+});
+</pre>
+

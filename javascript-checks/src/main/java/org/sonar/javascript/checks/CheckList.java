@@ -207,6 +207,7 @@ public final class CheckList {
       NoEmptyInterfaceCheck.class,
       NoForInArrayCheck.class,
       NoHardcodedIpCheck.class,
+      NoIncompleteAssertionsCheck.class,
       NoInMisuseCheck.class,
       NoInferrableTypesCheck.class,
       NoInvalidAwaitCheck.class,
