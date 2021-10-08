@@ -77,8 +77,8 @@ function isNullLike(tp: ts.Type): boolean {
 function isEmptyInterface(tp: ts.Type): boolean {
   return (
     tp.getProperties().length === 0 &&
-    !(tp as ts.InterfaceTypeWithDeclaredMembers).declaredStringIndexInfo &&
-    !(tp as ts.InterfaceTypeWithDeclaredMembers).declaredNumberIndexInfo
+    (!(tp as ts.InterfaceTypeWithDeclaredMembers).declaredIndexInfos ||
+      (tp as ts.InterfaceTypeWithDeclaredMembers).declaredIndexInfos.length === 0)
   );
 }
 

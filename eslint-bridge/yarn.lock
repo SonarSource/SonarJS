@@ -5118,10 +5118,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typescript@4.3.5:
-  version "4.3.5"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/typescript/-/typescript-4.3.5.tgz#4d1c37cc16e893973c45a06886b7113234f119f4"
-  integrity sha1-TRw3zBbok5c8RaBohrcRMjTxGfQ=
+typescript@4.4.3:
+  version "4.4.3"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/typescript/-/typescript-4.4.3.tgz#bdc5407caa2b109efd4f82fe130656f977a29324"
+  integrity sha1-vcVAfKorEJ79T4L+EwZW+XeikyQ=
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"
