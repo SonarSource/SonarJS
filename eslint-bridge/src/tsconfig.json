@@ -13,6 +13,7 @@
     "composite": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "useUnknownInCatchVariables": false,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": [
       "../node_modules/@types",
