@@ -2,6 +2,12 @@
 'angular.js:src/AngularPublic.js':[
 136,
 ],
+'angular.js:src/ngMock/browserTrigger.js':[
+129,
+146,
+160,
+223,
+],
 'angular.js:src/ngTouch/directive/ngSwipe.js':[
 85,
 143,
@@ -23,5 +29,12 @@
 792,
 807,
 822,
+],
+'angular.js:test/ng/directive/aSpec.js':[
+45,
+131,
+],
+'angular.js:test/ng/locationSpec.js':[
+2024,
 ],
 }

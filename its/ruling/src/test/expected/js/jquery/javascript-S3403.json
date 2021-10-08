@@ -13,6 +13,10 @@
 'jquery:test/unit/ajax.js':[
 469,
 ],
+'jquery:test/unit/core.js':[
+1005,
+1011,
+],
 'jquery:test/unit/css.js':[
 1002,
 ],

@@ -2,6 +2,10 @@
 'javascript-test-sources:src/ecmascript6/Ghost/core/client/app/services/media-queries.js':[
 37,
 ],
+'javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/acceptance/settings/tags-test.js':[
+30,
+41,
+],
 'javascript-test-sources:src/ecmascript6/Ghost/core/server/models/post.js':[
 329,
 ],
@@ -21,5 +25,8 @@
 337,
 572,
 575,
+877,
+1637,
+3917,
 ],
 }
