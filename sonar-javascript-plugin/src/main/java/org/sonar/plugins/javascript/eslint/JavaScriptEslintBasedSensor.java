@@ -130,7 +130,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguage(JavaScriptLanguage.KEY)
-      .name("JavaScript analysis")
-      .onlyOnFileType(Type.MAIN);
+      .name("JavaScript analysis");
   }
 }

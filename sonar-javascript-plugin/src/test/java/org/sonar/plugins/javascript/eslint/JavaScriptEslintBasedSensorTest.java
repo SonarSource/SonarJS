@@ -357,7 +357,6 @@ public class JavaScriptEslintBasedSensorTest {
     createSensor().describe(descriptor);
     assertThat(descriptor.name()).isEqualTo("JavaScript analysis");
     assertThat(descriptor.languages()).containsOnly("js");
-    assertThat(descriptor.type()).isEqualTo(Type.MAIN);
   }
 
   @Test
