@@ -26,6 +26,7 @@ import { rules } from 'rules/main';
 import { readAssertions } from '../testing-framework/assertions';
 import { buildSourceCode } from 'parser';
 import { readFileSync } from 'fs';
+import { FileType } from '../../src/analyzer';
 
 /**
  * Return test files for specific rule based on rule key
@@ -74,9 +75,16 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
  * as we use in our 'parser.ts' module
  */
-export function parseForESLint(fileContent: string, options: { filePath: string }) {
+export function parseForESLint(
+  fileContent: string,
+  options: { filePath: string },
+  fileType: FileType = 'MAIN',
+) {
   const { filePath } = options;
-  return buildSourceCode({ filePath, fileContent }, filePath.endsWith('.ts') ? 'ts' : 'js');
+  return buildSourceCode(
+    { filePath, fileContent, fileType },
+    filePath.endsWith('.ts') ? 'ts' : 'js',
+  );
 }
 
 const ruleTester = new RuleTester({ parser: __filename });
