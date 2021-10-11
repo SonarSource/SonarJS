@@ -20,8 +20,4 @@
 'prototype:src/prototype/lang/function.js':[
 197,
 ],
-'prototype:test/unit/tests/dom.test.js':[
-36,
-1025,
-],
 }
