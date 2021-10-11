@@ -5,16 +5,4 @@
 'angular.js:src/ng/directive/ngModel.js':[
 1093,
 ],
-'angular.js:test/ng/parseSpec.js':[
-1903,
-1904,
-1962,
-1963,
-1967,
-1968,
-1972,
-1973,
-1977,
-1978,
-],
 }

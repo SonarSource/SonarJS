@@ -9,7 +9,4 @@
 'qunit:src/core/stacktrace.js':[
 4,
 ],
-'qunit:test/reporter-html/reporter-html.js':[
-58,
-],
 }

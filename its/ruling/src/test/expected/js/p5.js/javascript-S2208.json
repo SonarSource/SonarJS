@@ -81,7 +81,4 @@
 'p5.js:src/webgl/text.js':[
 2,
 ],
-'p5.js:test/node/helpers.js':[
-2,
-],
 }

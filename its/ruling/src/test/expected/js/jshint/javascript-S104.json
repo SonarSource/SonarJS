@@ -5,16 +5,4 @@
 'jshint:src/lex.js':[
 0,
 ],
-'jshint:tests/cli.js':[
-0,
-],
-'jshint:tests/unit/core.js':[
-0,
-],
-'jshint:tests/unit/options.js':[
-0,
-],
-'jshint:tests/unit/parser.js':[
-0,
-],
 }

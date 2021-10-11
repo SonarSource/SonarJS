@@ -16,13 +16,4 @@
 'prototype:src/prototype/lang/object.js':[
 304,
 ],
-'prototype:test/unit/static/js/mocha.js':[
-2650,
-3885,
-5411,
-],
-'prototype:test/unit/tests/object.test.js':[
-220,
-226,
-],
 }

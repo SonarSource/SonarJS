@@ -7,14 +7,4 @@
 'backbone:examples/backbone.localStorage.js':[
 27,
 ],
-'backbone:test/events.js':[
-434,
-],
-'backbone:test/router.js':[
-13,
-887,
-],
-'backbone:test/view.js':[
-370,
-],
 }

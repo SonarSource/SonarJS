@@ -121,8 +121,8 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   @Override
   protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
-    FilePredicate mainFilePredicate = JavaScriptFilePredicate.getJavaScriptPredicate(fileSystem);
-    return StreamSupport.stream(fileSystem.inputFiles(mainFilePredicate).spliterator(), false)
+    FilePredicate allFilesPredicate = JavaScriptFilePredicate.getJavaScriptPredicate(fileSystem);
+    return StreamSupport.stream(fileSystem.inputFiles(allFilesPredicate).spliterator(), false)
       .collect(Collectors.toList());
   }
 
@@ -130,7 +130,6 @@ public class JavaScriptEslintBasedSensor extends AbstractEslintSensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguage(JavaScriptLanguage.KEY)
-      .name("JavaScript analysis")
-      .onlyOnFileType(Type.MAIN);
+      .name("JavaScript analysis");
   }
 }

@@ -8,10 +8,4 @@
 'angular.js:src/ngMessages/messages.js':[
 410,
 ],
-'angular.js:test/helpers/supportSpec.js':[
-93,
-],
-'angular.js:test/ng/parseSpec.js':[
-841,
-],
 }

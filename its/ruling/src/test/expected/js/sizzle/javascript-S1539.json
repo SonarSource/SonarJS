@@ -32,10 +32,4 @@
 'sizzle:tasks/version.js':[
 1,
 ],
-'sizzle:test/karma/karma.conf.js':[
-1,
-],
-'sizzle:test/karma/launchers.js':[
-1,
-],
 }

@@ -5,8 +5,4 @@
 'jshint:src/reporters/jslint_xml.js':[
 38,
 ],
-'jshint:tests/unit/fixtures/forin.js':[
-37,
-73,
-],
 }

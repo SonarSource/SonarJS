@@ -45,7 +45,6 @@ public class JavaScriptFilePredicate {
 
   public static FilePredicate getJavaScriptPredicate(FileSystem fs) {
     return fs.predicates().and(
-      fs.predicates().hasType(Type.MAIN),
       fs.predicates().or(
         fs.predicates().and(
           fs.predicates().hasLanguage(JavaScriptLanguage.KEY),
@@ -58,7 +57,6 @@ public class JavaScriptFilePredicate {
 
   public static FilePredicate getTypeScriptPredicate(FileSystem fs) {
     return fs.predicates().and(
-      fs.predicates().hasType(Type.MAIN),
       fs.predicates().or(
         fs.predicates().and(
           fs.predicates().hasLanguage(TypeScriptLanguage.KEY),

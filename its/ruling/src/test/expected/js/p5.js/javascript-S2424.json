@@ -11,11 +11,4 @@
 'p5.js:src/webgl/p5.RendererGL.js':[
 1385,
 ],
-'p5.js:test/js/sinon.js':[
-69,
-755,
-1404,
-1497,
-3767,
-],
 }

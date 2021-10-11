@@ -80,10 +80,4 @@
 678,
 813,
 ],
-'jshint:tests/helpers/testhelper.js':[
-109,
-],
-'jshint:tests/unit/fixtures/forin.js':[
-41,
-],
 }

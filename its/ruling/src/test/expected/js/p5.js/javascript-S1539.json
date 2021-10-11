@@ -44,11 +44,6 @@
 'p5.js:tasks/build/eslint-samples.js':[
 1,
 ],
-'p5.js:test/js/sinon.js':[
-37,
-48,
-1111,
-],
 'p5.js:utils/sample-linter.js':[
 1,
 ],

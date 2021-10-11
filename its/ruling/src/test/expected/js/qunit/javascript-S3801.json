@@ -18,11 +18,4 @@
 'qunit:src/test.js':[
 346,
 ],
-'qunit:test/main/dump.js':[
-211,
-217,
-],
-'qunit:test/reporter-html/reporter-html.js':[
-70,
-],
 }

@@ -6,9 +6,4 @@
 'jquery:src/selector/escapeSelector.js':[
 5,
 ],
-'jquery:test/data/jquery-1.9.1.js':[
-3902,
-3903,
-3904,
-],
 }

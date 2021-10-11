@@ -92,10 +92,4 @@
 495,
 730,
 ],
-'jshint:tests/helpers/testhelper.js':[
-76,
-],
-'jshint:tests/unit/fixtures/redef-es6.js':[
-154,
-],
 }

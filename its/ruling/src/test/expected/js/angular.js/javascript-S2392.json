@@ -24,7 +24,4 @@
 'angular.js:src/ngMock/angular-mocks.js':[
 2409,
 ],
-'angular.js:test/ng/parseSpec.js':[
-2053,
-],
 }

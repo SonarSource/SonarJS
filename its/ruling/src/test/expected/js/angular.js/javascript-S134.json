@@ -97,15 +97,4 @@
 549,
 671,
 ],
-'angular.js:test/e2e/tools/fixture.js':[
-60,
-],
-'angular.js:test/helpers/testabilityPatch.js':[
-99,
-186,
-193,
-],
-'angular.js:test/ng/directive/ngOptionsSpec.js':[
-2974,
-],
 }

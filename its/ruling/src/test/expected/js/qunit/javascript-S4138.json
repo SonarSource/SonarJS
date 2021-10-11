@@ -11,7 +11,4 @@
 'qunit:src/test.js':[
 252,
 ],
-'qunit:test/main/test.js':[
-61,
-],
 }

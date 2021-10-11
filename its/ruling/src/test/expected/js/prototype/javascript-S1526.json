@@ -12,14 +12,4 @@
 'prototype:src/prototype/lang/range.js':[
 82,
 ],
-'prototype:test/unit/static/js/mocha.js':[
-1769,
-2460,
-],
-'prototype:test/unit/static/js/proclaim.js':[
-120,
-],
-'prototype:test/unit/tests/class.test.js':[
-18,
-],
 }

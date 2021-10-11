@@ -13,13 +13,4 @@
 122,
 135,
 ],
-'jquery:test/middleware-mockserver.js':[
-248,
-],
-'jquery:test/node_smoke_tests/iterable_with_native_symbol.js':[
-4,
-],
-'jquery:test/unit/ajax.js':[
-1882,
-],
 }

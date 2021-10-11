@@ -18,12 +18,4 @@
 'p5.js:src/webgl/p5.Shader.js':[
 381,
 ],
-'p5.js:test/js/sinon.js':[
-4251,
-4567,
-4772,
-],
-'p5.js:test/manual-test-examples/webgl/blendMode/sketch.js':[
-75,
-],
 }

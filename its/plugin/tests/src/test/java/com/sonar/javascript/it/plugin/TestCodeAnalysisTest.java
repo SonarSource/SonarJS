@@ -20,6 +20,7 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
@@ -76,13 +77,14 @@ public class TestCodeAnalysisTest {
 
     OrchestratorStarter.setProfile(project, "rules", "js");
 
-    orchestrator.executeBuild(build);
+    BuildResult buildResult = orchestrator.executeBuild(build);
 
     SearchRequest request = new SearchRequest();
     request.setComponentKeys(singletonList(project)).setRules(singletonList("javascript:S1848"));
     List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getComponent()).endsWith("src/file.js");
+    assertThat(buildResult.getLogsLines(l -> l.contains("2 source files to be analyzed"))).hasSize(1);
   }
 
   @Test

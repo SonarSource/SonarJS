@@ -40,11 +40,4 @@
 'angular.js:src/ngRoute/route.js':[
 328,
 ],
-'angular.js:test/ng/httpSpec.js':[
-2356,
-2385,
-],
-'angular.js:test/ngRoute/directive/ngViewSpec.js':[
-893,
-],
 }

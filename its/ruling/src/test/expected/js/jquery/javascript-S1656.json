@@ -2,12 +2,4 @@
 'jquery:src/ajax.js':[
 553,
 ],
-'jquery:test/unit/core.js':[
-720,
-721,
-721,
-1152,
-1153,
-1153,
-],
 }

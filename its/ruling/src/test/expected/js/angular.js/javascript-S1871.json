@@ -6,13 +6,4 @@
 'angular.js:src/ngAnimate/animateQueue.js':[
 207,
 ],
-'angular.js:test/helpers/supportSpec.js':[
-28,
-40,
-46,
-52,
-67,
-73,
-79,
-],
 }

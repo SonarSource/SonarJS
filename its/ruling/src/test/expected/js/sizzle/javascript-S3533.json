@@ -23,7 +23,4 @@
 'sizzle:tasks/version.js':[
 3,
 ],
-'sizzle:test/karma/karma.conf.js':[
-3,
-],
 }

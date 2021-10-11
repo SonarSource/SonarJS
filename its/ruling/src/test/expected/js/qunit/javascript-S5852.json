@@ -15,7 +15,4 @@
 'qunit:src/equiv.js':[
 63,
 ],
-'qunit:test/reporter-html/reporter-html.js':[
-58,
-],
 }

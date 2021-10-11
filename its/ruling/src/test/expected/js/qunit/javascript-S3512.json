@@ -79,13 +79,4 @@
 535,
 557,
 ],
-'qunit:test/cli/main.js':[
-231,
-],
-'qunit:test/main/dump.js':[
-156,
-],
-'qunit:test/main/utilities.js':[
-16,
-],
 }

@@ -89,15 +89,4 @@
 'searchkit:src/core/query/query_dsl/full_text/MatchPhrasePrefix.ts':[
 2,
 ],
-'searchkit:test/e2e/server/apps/readme-app/index.tsx':[
-62,
-],
-'searchkit:test/e2e/server/apps/ui-app/MockRange.tsx':[
-41,
-46,
-54,
-],
-'searchkit:test/e2e/server/apps/ui-app/index.tsx':[
-69,
-],
 }

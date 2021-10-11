@@ -14,9 +14,4 @@
 'prototype:src/prototype/dom/form.js':[
 248,
 ],
-'prototype:test/unit/static/js/mocha.js':[
-144,
-3096,
-4263,
-],
 }

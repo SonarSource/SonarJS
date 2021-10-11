@@ -77,13 +77,4 @@
 'searchkit:src/core/support/Utils.ts':[
 28,
 ],
-'searchkit:test/e2e/server/apps/playground/TogglePanel.tsx':[
-67,
-70,
-77,
-],
-'searchkit:test/e2e/server/apps/playground/index.tsx':[
-99,
-107,
-],
 }

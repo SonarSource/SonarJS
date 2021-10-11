@@ -2,7 +2,4 @@
 'qunit:src/dump.js':[
 14,
 ],
-'qunit:test/main/assert/timeout.js':[
-59,
-],
 }

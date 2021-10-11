@@ -214,6 +214,7 @@ public class EslintBridgeIntegrationTest {
   static class AnalysisRequest {
     String filePath;
     String fileContent;
+    String fileType = "MAIN";
   }
 
   static class InitLinter {
@@ -233,5 +234,6 @@ public class EslintBridgeIntegrationTest {
   static class Rule {
     String key;
     List<Object> configurations = Collections.emptyList();
+    String fileTypeTarget = "MAIN";
   }
 }

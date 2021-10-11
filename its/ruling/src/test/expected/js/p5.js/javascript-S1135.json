@@ -77,15 +77,6 @@
 9,
 18,
 ],
-'p5.js:test/unit/color/p5.Color.js':[
-83,
-],
-'p5.js:test/unit/image/loading.js':[
-105,
-],
-'p5.js:test/unit/io/files.js':[
-205,
-],
 'p5.js:utils/sample-linter.js':[
 159,
 ],

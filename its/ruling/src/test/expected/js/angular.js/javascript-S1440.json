@@ -12,8 +12,4 @@
 'angular.js:src/ngSanitize/sanitize.js':[
 644,
 ],
-'angular.js:test/ng/parseSpec.js':[
-1899,
-2353,
-],
 }

@@ -15,15 +15,4 @@
 'prototype:src/prototype/lang/string.js':[
 505,
 ],
-'prototype:test/unit/static/js/assertions.js':[
-462,
-466,
-],
-'prototype:test/unit/static/js/proclaim.js':[
-517,
-521,
-],
-'prototype:test/unit/tests/string.test.js':[
-185,
-],
 }

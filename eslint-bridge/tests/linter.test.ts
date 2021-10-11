@@ -17,9 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getRuleConfig, decodeSonarRuntimeIssue, LinterWrapper } from 'linter';
+import {
+  getRuleConfig,
+  decodeSonarRuntimeIssue,
+  LinterWrapper,
+  getCognitiveComplexity,
+  getHighlightedSymbols,
+} from 'linter';
 import { Rule, SourceCode } from 'eslint';
-import { SYMBOL_HIGHLIGHTING_RULE, COGNITIVE_COMPLEXITY_RULE } from 'analyzer';
 import { setContext } from 'context';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from './utils/parser-utils';
@@ -85,6 +90,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(ruleUsingSecondaryLocations, {
       key: 'ruleUsingSecondaryLocations',
       configurations: [],
+      fileTypeTarget: ['MAIN'],
     });
     expect(config).toContain('sonar-runtime');
   });
@@ -93,6 +99,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(undefined, {
       key: 'regularRule',
       configurations: [],
+      fileTypeTarget: ['MAIN'],
     });
     expect(config).not.toContain('sonar-runtime');
   });
@@ -101,6 +108,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(ruleUsingSecondaryLocations, {
       key: 'ruleUsingSecondaryLocations',
       configurations: ['someOtherOption'],
+      fileTypeTarget: ['MAIN'],
     });
     expect(config).toEqual(['someOtherOption', 'sonar-runtime']);
   });
@@ -110,6 +118,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(undefined, {
       key: 'notExistingRuleModule',
       configurations: [],
+      fileTypeTarget: ['MAIN'],
     });
     expect(console.log).toHaveBeenCalledWith(
       'DEBUG ruleModule not found for rule notExistingRuleModule',
@@ -127,6 +136,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(ruleUsingContext, {
       key: 'ruleUsingContext',
       configurations: [],
+      fileTypeTarget: ['MAIN'],
     });
     expect(config).toEqual([
       { workDir: '/tmp/workdir', shouldUseTypeScriptParserForJS: true, sonarlint: false },
@@ -142,6 +152,7 @@ describe('#getRuleConfig', () => {
     const config = getRuleConfig(ruleUsingContextAndSecondaryLocations, {
       key: 'ruleUsingContextAndSecondaryLocations',
       configurations: ['config'],
+      fileTypeTarget: ['MAIN'],
     });
     expect(config).toEqual([
       'config',
@@ -200,24 +211,6 @@ describe('#decodeSecondaryLocations', () => {
     );
   });
 
-  it('should compute symbol highlighting when additional rule', () => {
-    const sourceCode = parseJavaScriptSourceFile('let x = 42;', `foo.js`) as SourceCode;
-    const linter = new LinterWrapper([], [SYMBOL_HIGHLIGHTING_RULE]);
-    const result = linter.analyze(sourceCode, filePath).issues;
-    expect(result).toHaveLength(1);
-    expect(result[0].ruleId).toEqual(SYMBOL_HIGHLIGHTING_RULE.ruleId);
-    expect(result[0].message).toEqual(
-      `[{\"declaration\":{\"startLine\":1,\"startCol\":4,\"endLine\":1,\"endCol\":5},\"references\":[]}]`,
-    );
-  });
-
-  it('should not compute symbol highlighting when no additional rule', () => {
-    const sourceCode = parseJavaScriptSourceFile('let x = 42;', `foo.js`) as SourceCode;
-    const linter = new LinterWrapper([]);
-    const result = linter.analyze(sourceCode, filePath).issues;
-    expect(result).toHaveLength(0);
-  });
-
   it('should not take into account config from comments', () => {
     const sourceCode = parseJavaScriptSourceFile(
       `
@@ -230,16 +223,25 @@ describe('#decodeSecondaryLocations', () => {
     expect(result).toHaveLength(0);
   });
 
-  it('should compute cognitive complexity when additional rule', () => {
+  it('should compute cognitive complexity and symbol highlighting', () => {
     const sourceCode = parseJavaScriptSourceFile(
-      'if (true) if (true) if (true) return;',
+      'if (true) if (true) if (true) return; let x = 42;',
       `foo.js`,
     ) as SourceCode;
-    const linter = new LinterWrapper([], [COGNITIVE_COMPLEXITY_RULE]);
-    const result = linter.analyze(sourceCode, filePath).issues;
-    expect(result).toHaveLength(1);
-    expect(result[0].ruleId).toEqual(COGNITIVE_COMPLEXITY_RULE.ruleId);
-    expect(result[0].message).toEqual('6');
+    const linter = new LinterWrapper([]);
+    const { cognitiveComplexity, highlightedSymbols } = linter.analyze(sourceCode, filePath);
+    expect(cognitiveComplexity).toEqual(6);
+    expect(highlightedSymbols).toEqual([
+      {
+        declaration: {
+          endCol: 43,
+          endLine: 1,
+          startCol: 42,
+          startLine: 1,
+        },
+        references: [],
+      },
+    ]);
   });
 
   it('should not report unused expressions when chai lib is used', () => {
@@ -248,7 +250,9 @@ describe('#decodeSecondaryLocations', () => {
        42;`,
       `foo.js`, // we report only here
     ) as SourceCode;
-    const linter = new LinterWrapper([{ key: 'no-unused-expressions', configurations: [] }]);
+    const linter = new LinterWrapper([
+      { key: 'no-unused-expressions', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]);
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(1);
   });
@@ -256,7 +260,7 @@ describe('#decodeSecondaryLocations', () => {
   it('should not report on globals provided by environment configuration', () => {
     const sourceCode = parseJavaScriptSourceFile(`var alert = 1;`, `foo.js`) as SourceCode;
     const linter = new LinterWrapper(
-      [{ key: 'declarations-in-global-scope', configurations: [] }],
+      [{ key: 'declarations-in-global-scope', configurations: [], fileTypeTarget: ['MAIN'] }],
       [],
       ['browser'],
     );
@@ -268,7 +272,7 @@ describe('#decodeSecondaryLocations', () => {
   it('should not report on globals provided by globals configuration', () => {
     const sourceCode = parseJavaScriptSourceFile(`var angular = 1;`, `foo.js`) as SourceCode;
     const linter = new LinterWrapper(
-      [{ key: 'declarations-in-global-scope', configurations: [] }],
+      [{ key: 'declarations-in-global-scope', configurations: [], fileTypeTarget: ['MAIN'] }],
       [],
       [],
       ['angular'],
@@ -284,7 +288,12 @@ describe('#decodeSecondaryLocations', () => {
        class A extends B { constructor(a) { while (a) super(); } }`,
       `foo.js`,
     ) as SourceCode;
-    const linter = new LinterWrapper([{ key: 'super-invocation', configurations: [] }], [], [], []);
+    const linter = new LinterWrapper(
+      [{ key: 'super-invocation', configurations: [], fileTypeTarget: ['MAIN'] }],
+      [],
+      [],
+      [],
+    );
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(4);
     expect(result.every(i => i.ruleId === 'super-invocation')).toBe(true);
@@ -292,7 +301,18 @@ describe('#decodeSecondaryLocations', () => {
 });
 
 describe('TypeScript ESLint rule sanitization', () => {
-  const linter = new LinterWrapper([{ key: 'prefer-readonly', configurations: [] }], [], [], []);
+  setContext({
+    workDir: '/tmp/workdir',
+    shouldUseTypeScriptParserForJS: true,
+    sonarlint: false,
+  });
+
+  const linter = new LinterWrapper(
+    [{ key: 'prefer-readonly', configurations: [], fileTypeTarget: ['MAIN'] }],
+    [],
+    [],
+    [],
+  );
 
   const filePath = path.join(__dirname, './fixtures/ts-project/sample.lint.ts');
   const tsConfig = path.join(__dirname, './fixtures/ts-project/tsconfig.json');
@@ -306,8 +326,37 @@ describe('TypeScript ESLint rule sanitization', () => {
 
   it('when type information is missing', () => {
     const sourceCode = parseTypeScriptSourceFile(fileContent, filePath, []) as SourceCode;
-    const linter = new LinterWrapper([{ key: 'prefer-readonly', configurations: [] }], [], [], []);
+    const linter = new LinterWrapper(
+      [{ key: 'prefer-readonly', configurations: [], fileTypeTarget: ['MAIN'] }],
+      [],
+      [],
+      [],
+    );
     const result = linter.analyze(sourceCode, filePath).issues;
     expect(result).toHaveLength(0);
+  });
+});
+
+describe('Metrics computation', () => {
+  it('should return undefined for cognitive complexity when issue is not found', () => {
+    expect(getCognitiveComplexity([])).toBeUndefined();
+  });
+
+  it('should return undefined for cognitive complexity when message is not numeric', () => {
+    expect(
+      getCognitiveComplexity([
+        {
+          ruleId: 'internal-cognitive-complexity',
+          message: 'nan',
+          column: 0,
+          line: 0,
+          secondaryLocations: [],
+        },
+      ]),
+    ).toBeUndefined();
+  });
+
+  it('should return undefined with highlighted symbols when issue is not found', () => {
+    expect(getHighlightedSymbols([])).toBeUndefined();
   });
 });

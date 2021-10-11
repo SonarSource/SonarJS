@@ -13,15 +13,4 @@
 57,
 65,
 ],
-'jshint:tests/unit/fixtures/noarg.js':[
-2,
-6,
-],
-'jshint:tests/unit/fixtures/protoiterator.js':[
-32,
-],
-'jshint:tests/unit/fixtures/strict_violations.js':[
-7,
-8,
-],
 }
