@@ -111,14 +111,6 @@ const gettersOrModifiers = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: ['sonar-runtime'],
-      },
-    ],
-  },
   create(context: Rule.RuleContext) {
     return {
       ExpressionStatement(node: estree.Node) {
