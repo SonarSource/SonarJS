@@ -2,10 +2,6 @@
 'knockout:Gruntfile.js':[
 60,
 ],
-'knockout:spec/lib/innershiv.js':[
-18,
-18,
-],
 'knockout:src/binding/expressionRewriting.js':[
 7,
 43,

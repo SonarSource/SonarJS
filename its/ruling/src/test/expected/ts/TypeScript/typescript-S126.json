@@ -318,12 +318,6 @@
 'TypeScript:src/harness/rwcRunner.ts':[
 111,
 ],
-'TypeScript:src/harness/unittests/session.ts':[
-463,
-],
-'TypeScript:src/harness/unittests/tsserverProjectSystem.ts':[
-450,
-],
 'TypeScript:src/server/editorServices.ts':[
 746,
 1232,

@@ -64,16 +64,4 @@
 'mootools-core:Source/Utilities/DOMReady.js':[
 39,
 ],
-'mootools-core:Specs/Class/Class.Extras.js':[
-164,
-],
-'mootools-core:Specs/Class/Class.Thenable.js':[
-248,
-],
-'mootools-core:Specs/Element/Element.Event.js':[
-23,
-],
-'mootools-core:Specs/Types/Array.js':[
-81,
-],
 }

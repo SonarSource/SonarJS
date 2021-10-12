@@ -1,17 +1,4 @@
 {
-'searchkit:src/__test__/core/AccessorManagerSpec.ts':[
-165,
-166,
-],
-'searchkit:src/__test__/core/SearchkitManagerSpec.ts':[
-107,
-],
-'searchkit:src/__test__/core/accessors/AnonymousAccessorSpec.ts':[
-9,
-],
-'searchkit:src/__test__/core/react/SearchkitComponentSpec.tsx':[
-68,
-],
 'searchkit:src/components/search/hits/src/NoHits.tsx':[
 99,
 ],

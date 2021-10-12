@@ -34,7 +34,4 @@
 'desktop:app/src/ui/sign-in/sign-in.tsx':[
 57,
 ],
-'desktop:app/test/integration/launch-test.ts':[
-36,
-],
 }

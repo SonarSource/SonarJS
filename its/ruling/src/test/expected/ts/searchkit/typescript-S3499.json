@@ -27,4 +27,7 @@
 'searchkit:src/components/ui/list/TagCloud.tsx':[
 74,
 ],
+'searchkit:test/e2e/server/apps/playground/index.tsx':[
+110,
+],
 }

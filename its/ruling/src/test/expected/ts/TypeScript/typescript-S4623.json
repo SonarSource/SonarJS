@@ -23,9 +23,6 @@
 'TypeScript:src/compiler/transformers/module/system.ts':[
 431,
 ],
-'TypeScript:src/harness/unittests/cachingInServerLSHost.ts':[
-75,
-],
 'TypeScript:src/server/session.ts':[
 980,
 ],

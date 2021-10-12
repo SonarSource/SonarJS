@@ -10,17 +10,6 @@
 2389,
 2678,
 ],
-'TypeScript:src/harness/unittests/compileOnSave.ts':[
-16,
-26,
-],
-'TypeScript:src/harness/unittests/tsconfigParsing.ts':[
-28,
-28,
-],
-'TypeScript:src/harness/unittests/typingsInstaller.ts':[
-1021,
-],
 'TypeScript:src/server/editorServices.ts':[
 594,
 594,

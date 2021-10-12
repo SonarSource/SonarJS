@@ -151,17 +151,6 @@
 45,
 65,
 ],
-'desktop:app/test/globals.ts':[
-10,
-],
-'desktop:app/test/integration/launch-test.ts':[
-15,
-16,
-],
-'desktop:app/test/unit/app-test.tsx':[
-55,
-55,
-],
 'desktop:tslint-rules/noSyncFunctionsRule.ts':[
 33,
 34,

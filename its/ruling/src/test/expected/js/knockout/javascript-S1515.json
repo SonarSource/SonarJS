@@ -1,7 +1,4 @@
 {
-'knockout:spec/lib/jasmine-1.2.0/jasmine.js':[
-2000,
-],
 'knockout:src/binding/editDetection/arrayToDomNodeChildren.js':[
 79,
 ],

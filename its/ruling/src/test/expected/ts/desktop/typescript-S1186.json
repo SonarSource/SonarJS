@@ -5,8 +5,4 @@
 'desktop:app/src/main-process/main.ts':[
 129,
 ],
-'desktop:app/test/test-app-shell.ts':[
-12,
-13,
-],
 }

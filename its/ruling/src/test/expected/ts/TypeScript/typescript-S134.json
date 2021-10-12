@@ -368,9 +368,6 @@
 'TypeScript:src/harness/rwcRunner.ts':[
 118,
 ],
-'TypeScript:src/harness/unittests/moduleResolution.ts':[
-41,
-],
 'TypeScript:src/server/editorServices.ts':[
 695,
 700,

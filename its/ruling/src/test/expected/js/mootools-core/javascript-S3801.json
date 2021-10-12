@@ -28,10 +28,4 @@
 'mootools-core:Source/Types/DOMEvent.js':[
 31,
 ],
-'mootools-core:Specs/Class/Class.Thenable.js':[
-27,
-],
-'mootools-core:Specs/Types/Array.js':[
-383,
-],
 }
