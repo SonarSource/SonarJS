@@ -24,10 +24,4 @@
 'desktop:app/src/ui/lib/git-perf.ts':[
 16,
 ],
-'desktop:app/test/unit/status-parser-test.ts':[
-77,
-78,
-79,
-80,
-],
 }

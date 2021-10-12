@@ -30,7 +30,4 @@
 'desktop:app/src/ui/list.tsx':[
 598,
 ],
-'desktop:app/test/unit/octicon-test.ts':[
-10,
-],
 }

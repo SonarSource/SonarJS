@@ -66,9 +66,6 @@
 'TypeScript:src/harness/rwcRunner.ts':[
 187,
 ],
-'TypeScript:src/harness/unittests/versionCache.ts':[
-190,
-],
 'TypeScript:src/services/formatting/rulesMap.ts':[
 22,
 25,

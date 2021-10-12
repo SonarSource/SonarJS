@@ -546,9 +546,6 @@
 'desktop:app/src/ui/window/window-controls.tsx':[
 85,
 ],
-'desktop:app/test/async-in-memory-store.ts':[
-24,
-],
 'desktop:tslint-rules/reactProperLifecycleMethodsRule.ts':[
 101,
 135,

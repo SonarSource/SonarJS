@@ -5,10 +5,6 @@
 'TypeScript:src/compiler/core.ts':[
 139,
 ],
-'TypeScript:src/harness/unittests/tsserverProjectSystem.ts':[
-348,
-355,
-],
 'TypeScript:src/server/typingsInstaller/typingsInstaller.ts':[
 196,
 ],

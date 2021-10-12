@@ -1,10 +1,4 @@
 {
-'knockout:spec/domNodeDisposalBehaviors.js':[
-132,
-],
-'knockout:spec/lib/innershiv.js':[
-24,
-],
 'knockout:src/binding/editDetection/arrayToDomNodeChildren.js':[
 167,
 ],

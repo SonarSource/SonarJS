@@ -1,14 +1,4 @@
 {
-'knockout:spec/defaultBindings/foreachBehaviors.js':[
-755,
-],
-'knockout:spec/lib/jasmine.extensions.js':[
-45,
-],
-'knockout:spec/lib/json2.js':[
-307,
-346,
-],
 'knockout:src/binding/expressionRewriting.js':[
 13,
 ],

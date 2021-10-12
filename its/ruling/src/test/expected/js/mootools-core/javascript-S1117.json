@@ -98,11 +98,4 @@
 'mootools-core:Source/Slick/Slick.Parser.js':[
 176,
 ],
-'mootools-core:Specs/Class/Class.Thenable.js':[
-256,
-259,
-],
-'mootools-core:Specs/Types/Object.js':[
-116,
-],
 }

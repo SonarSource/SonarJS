@@ -11,13 +11,4 @@
 'mootools-core:Source/Slick/Slick.Finder.js':[
 10,
 ],
-'mootools-core:Specs/Class/Class.Thenable.js':[
-9,
-],
-'mootools-core:Specs/Element/Element.Dimensions.js':[
-9,
-],
-'mootools-core:Specs/Element/Element.Style.js':[
-132,
-],
 }

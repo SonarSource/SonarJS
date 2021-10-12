@@ -186,9 +186,6 @@
 'TypeScript:src/harness/typeWriter.ts':[
 39,
 ],
-'TypeScript:src/harness/unittests/transpile.ts':[
-10,
-],
 'TypeScript:src/server/editorServices.ts':[
 658,
 726,

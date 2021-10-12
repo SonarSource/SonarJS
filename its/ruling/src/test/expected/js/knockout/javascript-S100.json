@@ -1,12 +1,4 @@
 {
-'knockout:spec/defaultBindings/withBehaviors.js':[
-251,
-534,
-652,
-],
-'knockout:spec/lib/jasmine-1.2.0/jasmine-tap.js':[
-21,
-],
 'knockout:src/binding/bindingAttributeSyntax.js':[
 172,
 ],

@@ -19,7 +19,4 @@
 'desktop:app/src/ui/preferences/accounts.tsx':[
 45,
 ],
-'desktop:app/test/unit/text-token-parser-test.ts':[
-58,
-],
 }

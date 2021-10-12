@@ -1,7 +1,4 @@
 {
-'searchkit:src/__test__/core/accessors/HierarchicalFacetAccessorSpec.ts':[
-117,
-],
 'searchkit:src/components/search/filters/facet-filter/FacetFilter.tsx':[
 50,
 ],
@@ -81,5 +78,19 @@
 ],
 'searchkit:src/core/support/Utils.ts':[
 27,
+],
+'searchkit:test/e2e/server/apps/playground/TogglePanel.tsx':[
+60,
+61,
+65,
+],
+'searchkit:test/e2e/server/apps/playground/index.tsx':[
+108,
+],
+'searchkit:test/e2e/specs/MovieSpec.ts':[
+35,
+59,
+67,
+71,
 ],
 }

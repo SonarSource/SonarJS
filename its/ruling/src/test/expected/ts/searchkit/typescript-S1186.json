@@ -1,14 +1,4 @@
 {
-'searchkit:src/__test__/core/accessors/ResetSearchAccessorSpec.ts':[
-35,
-],
-'searchkit:src/__test__/core/react/pure-render/shallowEqualWithoutFunctionsSpec.ts':[
-18,
-19,
-24,
-25,
-28,
-],
 'searchkit:src/components/search/page-size-selector/PageSizeSelector.tsx':[
 67,
 ],
@@ -21,5 +11,9 @@
 ],
 'searchkit:src/core/accessors/StatefulAccessor.ts':[
 19,
+],
+'searchkit:test/e2e/server/apps/ui-app/index.tsx':[
+46,
+47,
 ],
 }

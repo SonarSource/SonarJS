@@ -1,17 +1,4 @@
 {
-'knockout:spec/lib/jasmine-1.2.0/jasmine-html.js':[
-210,
-357,
-],
-'knockout:spec/lib/jasmine-1.2.0/jasmine.js':[
-2232,
-],
-'knockout:spec/lib/json2.js':[
-255,
-],
-'knockout:spec/observableArrayChangeTrackingBehaviors.js':[
-381,
-],
 'knockout:src/binding/editDetection/arrayToDomNodeChildren.js':[
 102,
 ],

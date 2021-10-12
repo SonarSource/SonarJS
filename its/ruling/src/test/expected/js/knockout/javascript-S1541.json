@@ -1,13 +1,4 @@
 {
-'knockout:spec/lib/jasmine-1.2.0/jasmine.js':[
-872,
-910,
-1167,
-1844,
-],
-'knockout:spec/lib/json2.js':[
-227,
-],
 'knockout:src/binding/bindingAttributeSyntax.js':[
 35,
 388,

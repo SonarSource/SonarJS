@@ -1,10 +1,4 @@
 {
-'knockout:spec/lib/jasmine-1.2.0/jasmine.js':[
-1579,
-],
-'knockout:spec/lib/loadDependencies.js':[
-37,
-],
 'knockout:src/subscribables/mappingHelpers.js':[
 66,
 ],

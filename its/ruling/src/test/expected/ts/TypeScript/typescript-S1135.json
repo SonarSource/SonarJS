@@ -53,9 +53,6 @@
 'TypeScript:src/harness/runner.ts':[
 180,
 ],
-'TypeScript:src/harness/unittests/tsserverProjectSystem.ts':[
-542,
-],
 'TypeScript:src/server/client.ts':[
 290,
 310,

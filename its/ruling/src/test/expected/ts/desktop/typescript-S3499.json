@@ -49,7 +49,4 @@
 'desktop:app/src/ui/publish-repository/publish.tsx':[
 68,
 ],
-'desktop:app/test/unit/text-token-parser-test.ts':[
-46,
-],
 }

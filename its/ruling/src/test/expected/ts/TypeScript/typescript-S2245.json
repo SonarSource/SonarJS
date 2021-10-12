@@ -2,10 +2,4 @@
 'TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts':[
 55,
 ],
-'TypeScript:src/harness/unittests/versionCache.ts':[
-212,
-213,
-221,
-222,
-],
 }

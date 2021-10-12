@@ -27,11 +27,6 @@
 'TypeScript:src/harness/runnerbase.ts':[
 9,
 ],
-'TypeScript:src/harness/unittests/tsserverProjectSystem.ts':[
-79,
-3695,
-3827,
-],
 'TypeScript:src/server/scriptVersionCache.ts':[
 44,
 ],

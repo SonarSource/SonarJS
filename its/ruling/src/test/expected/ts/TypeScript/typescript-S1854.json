@@ -24,15 +24,6 @@
 'TypeScript:src/compiler/tsc.ts':[
 192,
 ],
-'TypeScript:src/harness/unittests/compileOnSave.ts':[
-115,
-],
-'TypeScript:src/harness/unittests/services/patternMatcher.ts':[
-471,
-],
-'TypeScript:src/harness/unittests/typingsInstaller.ts':[
-363,
-],
 'TypeScript:src/server/editorServices.ts':[
 860,
 ],

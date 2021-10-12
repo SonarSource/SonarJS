@@ -1,14 +1,4 @@
 {
-'knockout:spec/lib/innershiv.js':[
-3,
-3,
-],
-'knockout:spec/lib/jasmine-1.2.0/jasmine.js':[
-1740,
-],
-'knockout:spec/lib/loadDependencies.js':[
-2,
-],
 'knockout:src/binding/editDetection/arrayToDomNodeChildren.js':[
 78,
 ],

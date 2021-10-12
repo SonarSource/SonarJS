@@ -5,15 +5,4 @@
 'desktop:app/src/ui/repositories-list/group-repositories.ts':[
 21,
 ],
-'desktop:app/test/unit/diff-parser-test.ts':[
-103,
-145,
-186,
-224,
-268,
-318,
-],
-'desktop:app/test/unit/status-parser-test.ts':[
-80,
-],
 }

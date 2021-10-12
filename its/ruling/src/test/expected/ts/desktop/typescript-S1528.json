@@ -102,9 +102,6 @@
 'desktop:app/src/ui/repository-settings/repository-settings.tsx':[
 151,
 ],
-'desktop:app/test/unit/accounts-store-test.ts':[
-19,
-],
 'desktop:tslint-rules/buttonGroupOrderRule.ts':[
 51,
 ],

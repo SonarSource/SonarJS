@@ -30,36 +30,36 @@ class TypeScriptRulingTest extends JavaScriptRulingTest {
 
   public static Stream<Arguments> ruling() {
     return Stream.of(
-      tsProject("ag-grid"),
-      tsProject("ant-design"),
-      tsProject("console"),
-      tsProject("desktop"),
-      tsProject("emission"),
-      tsProject("file-for-rules"),
-      tsProject("fireface"),
-      tsProject("ionic2-auth"),
-      tsProject("Joust"),
-      tsProject("postgraphql"),
-      tsProject("prettier-vscode"),
-      tsProject("rxjs"),
-      tsProject("searchkit"),
-      tsProject("TypeScript")
+      tsProject("ag-grid", "spec"),
+      tsProject("ant-design", "tests"), // todo: many dirs **/__tests__
+      tsProject("console", ""), // todo: many dirs **/__tests__
+      tsProject("desktop", "app/test"),
+      tsProject("emission", ""), // todo: many dirs **/__tests__
+      tsProject("file-for-rules", ""),
+      tsProject("fireface", ""),
+      tsProject("ionic2-auth", ""),
+      tsProject("Joust", ""), // todo: files **/*.spec.ts
+      tsProject("postgraphql", ""), // todo: many dirs **/__tests__
+      tsProject("prettier-vscode", ""),
+      tsProject("rxjs", "spec"),
+      tsProject("searchkit", "src/__test__"), // todo: **/*.unit.ts
+      tsProject("TypeScript", "src/harness/unittests")
       );
   }
 
-  private static Arguments tsProject(String project) {
-    return tsProject(project, Arrays.asList("**/*.d.ts", "**/*.js"));
+  private static Arguments tsProject(String project, String testDir) {
+    return tsProject(project, "**/*.d.ts, **/*.js", testDir);
   }
 
-  private static Arguments tsProject(String project, List<String> exclusions) {
-    return Arguments.of(project, "ts", "../typescript-test-sources/src/" + project, exclusions);
+  private static Arguments tsProject(String project, String exclusions, String testDir) {
+    return Arguments.of(project, "ts", "../typescript-test-sources/src/" + project, exclusions, testDir);
   }
 
   @ParameterizedTest
   @MethodSource
   @Override
-  void ruling(String project, String language, String sourceDir, List<String> exclusions) throws Exception {
-    runRulingTest(project, language, sourceDir, exclusions);
+  void ruling(String project, String language, String sourceDir, String exclusions, String testDir) throws Exception {
+    runRulingTest(project, language, sourceDir, exclusions, testDir);
   }
 
 }

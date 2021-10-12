@@ -68,31 +68,30 @@ class JavaScriptRulingTest {
 
   public static Stream<Arguments> ruling() {
     return Stream.of(
-      jsProject("amplify", "external/**"),
-      jsProject("angular.js", "src/ngLocale/**", "i18n/**"),
-      jsProject("backbone"),
-      jsProject("es5-shim"),
-      jsProject("file-for-rules"),
-      jsProject("javascript-test-sources"),
-      jsProject("jquery"),
-      jsProject("jshint", "dist/**", "tests/regression/**", "tests/test262/**"),
-      jsProject("jStorage"),
-      jsProject("knockout"),
-      jsProject("mootools-core"),
-      jsProject("ocanvas", "build/**"),
-      jsProject("p5.js"),
-      jsProject("paper.js", "dist/**", "gulp/jsdoc/**", "packages/**"),
-      jsProject("prototype", "dist/**", "vendor/**"),
-      jsProject("qunit"),
-      jsProject("sizzle", "external/**", "dist/**"),
-      jsProject("underscore", "test/vendor/**")
+      jsProject("amplify", "external/**", "test"),
+      jsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
+      jsProject("backbone", "", "test"),
+      jsProject("es5-shim", "", "tests"),
+      jsProject("file-for-rules", "", ""),
+      jsProject("javascript-test-sources", "", ""),
+      jsProject("jquery", "", "test"),
+      jsProject("jshint", "", "tests"),
+      jsProject("jStorage", "", "tests"),
+      jsProject("knockout", "", "spec"),
+      jsProject("mootools-core", "", "Specs"),
+      jsProject("ocanvas", "build/**", ""),
+      jsProject("p5.js", "", "test"),
+      jsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
+      jsProject("prototype", "", "test"),
+      jsProject("qunit", "", "test"),
+      jsProject("sizzle", "external/**", "test"),
+      jsProject("underscore", "", "test")
       );
   }
 
-  private static Arguments jsProject(String project, String... exclusions) {
-    List<String> exclusionList = Stream.concat(Stream.of("**/.*", "**/*.ts"), Arrays.stream(exclusions))
-      .collect(Collectors.toList());
-    return Arguments.of(project, "js", "../sources/" + project, exclusionList);
+  private static Arguments jsProject(String project, String exclusions, String testDir) {
+    String exclusionList = "**/.*, **/*.ts, " + exclusions;
+    return Arguments.of(project, "js", "../sources/" + project, exclusionList, testDir);
   }
 
   @BeforeAll
@@ -141,11 +140,11 @@ class JavaScriptRulingTest {
 
   @ParameterizedTest
   @MethodSource
-  void ruling(String project, String language, String sourceDir, List<String> exclusions) throws Exception {
-    runRulingTest(project, language, sourceDir, exclusions);
+  void ruling(String project, String language, String sourceDir, String exclusions, String testDir) throws Exception {
+    runRulingTest(project, language, sourceDir, exclusions, testDir);
   }
 
-  static void runRulingTest(String projectKey, String languageToAnalyze, String sources, List<String> exclusions) throws IOException {
+  static void runRulingTest(String projectKey, String languageToAnalyze, String sources, String exclusions, String testDir) throws IOException {
     String languageToIgnore = "js".equals(languageToAnalyze) ? "ts" : "js";
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
@@ -153,26 +152,26 @@ class JavaScriptRulingTest {
 
     File sourcesLocation = FileLocation.of(sources).getFile();
 
+    String actualExclusions = exclusions;
+    if (!testDir.equals("")) {
+      actualExclusions += ", " + testDir + "/**/*";
+    }
+
     SonarScanner build = SonarScanner.create(sourcesLocation)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")
       .setSourceDirs("./")
+      .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
       .setProperty("dump.old", FileLocation.of("src/test/expected/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual/" + languageToAnalyze + "/" + projectKey).getFile().getAbsolutePath())
       .setProperty("lits.differences", FileLocation.of("target/differences").getFile().getAbsolutePath())
-      .setProperty("sonar.exclusions", String.join(",", exclusions) + ", test/**/*, tests/**/*")
+      .setProperty("sonar.exclusions", actualExclusions)
       .setProperty("sonar.javascript.node.maxspace", "2048")
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.internal.analysis.failFast", "true");
-
-    if (new File(sourcesLocation, "test").exists()) {
-      build.setTestDirs("test");
-    } else if (new File(sourcesLocation, "tests").exists()) {
-      build.setTestDirs("tests");
-    }
 
     orchestrator.executeBuild(build);
 

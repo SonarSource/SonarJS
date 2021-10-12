@@ -56,15 +56,6 @@
 'TypeScript:src/harness/harness.ts':[
 0,
 ],
-'TypeScript:src/harness/unittests/matchFiles.ts':[
-0,
-],
-'TypeScript:src/harness/unittests/tsserverProjectSystem.ts':[
-0,
-],
-'TypeScript:src/harness/unittests/typingsInstaller.ts':[
-0,
-],
 'TypeScript:src/server/editorServices.ts':[
 0,
 ],
