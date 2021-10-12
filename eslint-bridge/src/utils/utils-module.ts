@@ -112,7 +112,7 @@ export function getModuleNameOfImportedIdentifier(
 }
 
 export function getImportDeclarations(context: Rule.RuleContext) {
-  const program = context.getAncestors().find(node => node.type === 'Program') as estree.Program;
+  const program = context.getSourceCode().ast;
   if (program.sourceType === 'module') {
     return program.body.filter(
       node => node.type === 'ImportDeclaration',

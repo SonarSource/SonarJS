@@ -452,8 +452,12 @@ export function checkSensitiveCall(
   }
 }
 
-export function isStringLiteral(node: estree.Node): node is estree.Literal {
+export function isStringLiteral(node: estree.Node): node is estree.Literal & { value: string } {
   return node && node.type === 'Literal' && typeof node.value === 'string';
+}
+
+export function isNumberLiteral(node: estree.Node): node is estree.Literal & { value: number } {
+  return node && node.type === 'Literal' && typeof node.value === 'number';
 }
 
 export function isRegexLiteral(node: estree.Node): node is estree.RegExpLiteral {
@@ -481,4 +485,8 @@ export function isStaticTemplateLiteral(node: estree.Node): node is estree.Templ
   return (
     node.type === 'TemplateLiteral' && node.expressions.length === 0 && node.quasis.length === 1
   );
+}
+
+export function isThisExpression(node: estree.Node): node is estree.ThisExpression {
+  return node.type === 'ThisExpression';
 }

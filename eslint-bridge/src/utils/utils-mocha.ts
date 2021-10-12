@@ -18,18 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './simplified-regex-character-class';
-export * from './utils-ast';
-export * from './utils-chai';
-export * from './utils-collection';
-export * from './utils-decorator';
-export * from './utils-file';
-export * from './utils-global';
-export * from './utils-location';
-export * from './utils-mocha';
-export * from './utils-module';
-export * from './utils-parent';
-export * from './utils-regex';
-export * from './utils-type';
-export * from './utils-visitor';
-export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+import * as estree from 'estree';
+import { isIdentifier } from '.';
+
+export namespace Mocha {
+  const TEST_CONSTRUCTS = [
+    'describe',
+    'context',
+    'it',
+    'specify',
+    'before',
+    'after',
+    'beforeEach',
+    'afterEach',
+  ];
+
+  export interface TestCase {
+    node: estree.Node;
+    callback: estree.Function;
+  }
+
+  export function isTestConstruct(
+    node: estree.Node,
+    constructs: string[] = TEST_CONSTRUCTS,
+  ): boolean {
+    return constructs.some(construct => {
+      return (
+        node.type === 'CallExpression' &&
+        (isIdentifier(node.callee, construct) ||
+          (node.callee.type === 'MemberExpression' &&
+            isIdentifier(node.callee.object, construct) &&
+            isIdentifier(node.callee.property, 'only', 'skip')))
+      );
+    });
+  }
+}
