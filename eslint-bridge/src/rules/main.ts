@@ -52,6 +52,7 @@ import { rule as destructuringAssignmentSyntax } from './destructuring-assignmen
 import { rule as differentTypesComparison } from './different-types-comparison';
 import { rule as disabledAutoEscaping } from './disabled-auto-escaping';
 import { rule as disabledResourceIntegrity } from './disabled-resource-integrity';
+import { rule as disabledTimeout } from './disabled-timeout';
 import { rule as dnsPrefetching } from './dns-prefetching';
 import { rule as duplicatesInCharacterClass } from './duplicates-in-character-class';
 import { rule as emptyStringRepetition } from './empty-string-repetition';
@@ -238,6 +239,7 @@ ruleModules['destructuring-assignment-syntax'] = destructuringAssignmentSyntax;
 ruleModules['different-types-comparison'] = differentTypesComparison;
 ruleModules['disabled-auto-escaping'] = disabledAutoEscaping;
 ruleModules['disabled-resource-integrity'] = disabledResourceIntegrity;
+ruleModules['disabled-timeout'] = disabledTimeout;
 ruleModules['dns-prefetching'] = dnsPrefetching;
 ruleModules['duplicates-in-character-class'] = duplicatesInCharacterClass;
 ruleModules['empty-string-repetition'] = emptyStringRepetition;

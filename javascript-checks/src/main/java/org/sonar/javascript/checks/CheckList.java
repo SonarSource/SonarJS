@@ -110,6 +110,7 @@ public final class CheckList {
       DifferentTypesComparisonCheck.class,
       DisabledAutoEscapingCheck.class,
       DisabledResourceIntegrityCheck.class,
+      DisabledTimeoutCheck.class,
       DnsPrefetchingCheck.class,
       DuplicateAllBranchImplementationCheck.class,
       DuplicateBranchImplementationCheck.class,

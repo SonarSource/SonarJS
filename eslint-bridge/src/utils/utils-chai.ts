@@ -18,18 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './simplified-regex-character-class';
-export * from './utils-ast';
-export * from './utils-chai';
-export * from './utils-collection';
-export * from './utils-decorator';
-export * from './utils-file';
-export * from './utils-global';
-export * from './utils-location';
-export * from './utils-mocha';
-export * from './utils-module';
-export * from './utils-parent';
-export * from './utils-regex';
-export * from './utils-type';
-export * from './utils-visitor';
-export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+import { Rule } from 'eslint';
+import { getImportDeclarations, getRequireCalls } from '.';
+
+export namespace Chai {
+  export function isImported(context: Rule.RuleContext): boolean {
+    return (
+      getRequireCalls(context).some(
+        r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'chai',
+      ) || getImportDeclarations(context).some(i => i.source.value === 'chai')
+    );
+  }
+}

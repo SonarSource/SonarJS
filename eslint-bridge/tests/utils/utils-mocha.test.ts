@@ -18,18 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './simplified-regex-character-class';
-export * from './utils-ast';
-export * from './utils-chai';
-export * from './utils-collection';
-export * from './utils-decorator';
-export * from './utils-file';
-export * from './utils-global';
-export * from './utils-location';
-export * from './utils-mocha';
-export * from './utils-module';
-export * from './utils-parent';
-export * from './utils-regex';
-export * from './utils-type';
-export * from './utils-visitor';
-export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+import * as esprima from 'esprima';
+import * as estree from 'estree';
+import { Mocha } from 'utils';
+
+it('should recognize test constructs', () => {
+  const program = esprima.parse(`it('foo', () => {})`);
+  const node: estree.Node = program.body[0].expression;
+  expect(Mocha.isTestConstruct(node)).toEqual(true);
+});
+
+it('should recognize special test constructs', () => {
+  const program = esprima.parse(`it.only('foo', () => {})`);
+  const node: estree.Node = program.body[0].expression;
+  expect(Mocha.isTestConstruct(node)).toEqual(true);
+});
+
+it('should not recognize garbage', () => {
+  const program = esprima.parse(`'foo'`);
+  const node: estree.Node = program.body[0].expression;
+  expect(Mocha.isTestConstruct(node)).toEqual(false);
+});
