@@ -24,14 +24,14 @@ import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TestFileCheck;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S2699")
-public class AssertionsInTestsCheck extends TestFileCheck {
+@JavaScriptRule
+@Rule(key = "S2970")
+public class NoIncompleteAssertionsCheck extends TestFileCheck {
 
   @Override
   public String eslintKey() {
-    return "assertions-in-tests";
+    return "no-incomplete-assertions";
   }
 
 }

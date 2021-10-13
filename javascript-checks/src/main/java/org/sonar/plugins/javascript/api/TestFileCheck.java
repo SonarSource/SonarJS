@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.plugins.javascript.api;
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TestFileCheck;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import java.util.Collections;
+import java.util.List;
+import org.sonar.api.batch.fs.InputFile;
 
-@JavaScriptRule
-@TypeScriptRule
-@Rule(key = "S2699")
-public class AssertionsInTestsCheck extends TestFileCheck {
+public abstract class TestFileCheck implements EslintBasedCheck {
 
   @Override
-  public String eslintKey() {
-    return "assertions-in-tests";
+  public List<InputFile.Type> targets() {
+    return Collections.singletonList(InputFile.Type.TEST);
   }
-
 }
