@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier } from '../utils';
+import { isIdentifier, isNumberLiteral } from '../utils';
 
 const assertionFunctions = [
   'a',
@@ -132,11 +132,8 @@ export const rule: Rule.RuleModule = {
             }
           }
         }
-        if (
-          exprStatement.expression.type === 'CallExpression' &&
-          isIdentifier(exprStatement.expression.callee, 'expect')
-        ) {
-          const callee = exprStatement.expression.callee;
+        if (isExpectCall(exprStatement.expression)) {
+          const { callee } = exprStatement.expression;
           context.report({
             node: callee,
             message: `Complete this assertion; '${callee.name}' doesn't assert anything by itself.`,
@@ -153,10 +150,7 @@ function isTestAssertion(node: estree.MemberExpression): boolean {
   if (isIdentifier(object) && isIdentifier(property, 'should')) {
     return true;
   }
-  if (
-    (object.type === 'CallExpression' && isIdentifier(object.callee, 'expect')) ||
-    isIdentifier(object, 'assert', 'expect', 'should')
-  ) {
+  if (isExpectCall(object) || isIdentifier(object, 'assert', 'expect', 'should')) {
     return true;
   } else if (object.type === 'MemberExpression') {
     return isTestAssertion(object);
@@ -164,4 +158,14 @@ function isTestAssertion(node: estree.MemberExpression): boolean {
     return isTestAssertion(object.callee);
   }
   return false;
+}
+
+function isExpectCall(
+  node: estree.Node,
+): node is estree.CallExpression & { callee: estree.Identifier } {
+  return (
+    node.type === 'CallExpression' &&
+    isIdentifier(node.callee, 'expect') &&
+    !isNumberLiteral(node.arguments[0])
+  );
 }

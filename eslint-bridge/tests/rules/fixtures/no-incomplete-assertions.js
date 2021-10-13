@@ -32,6 +32,9 @@ describe("incomplete assertions", function() {
     // "expect" without assertion
     expect(1 == 1)  // Noncompliant  {{Complete this assertion; 'expect' doesn't assert anything by itself.}}
 
+    // qunit expects number argument
+    expect( 10 ); // Compliant
+
     // Assertion ends with a chainable getter:
     // https://www.chaijs.com/api/bdd/#method_language-chains
     expect(value).to  // Noncompliant    {{Complete this assertion; 'to' doesn't assert anything by itself.}}
@@ -160,4 +163,6 @@ describe("complete assertions", function() {
     beverages.should.have.property('tea').with.lengthOf(3);
   });
 });
+
+foo().bar;
 
