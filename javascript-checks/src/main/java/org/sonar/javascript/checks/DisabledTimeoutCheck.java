@@ -19,26 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TestFileCheck;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S6080")
-public class DisabledTimeoutCheck implements EslintBasedCheck {
+public class DisabledTimeoutCheck extends TestFileCheck {
   @Override
   public String eslintKey() {
     return "disabled-timeout";
   }
 
-  @Override
-  public List<Type> targets() {
-    return Collections.singletonList(Type.TEST);
-  }
 }

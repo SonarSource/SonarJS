@@ -19,26 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TestFileCheck;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S2699")
-public class AssertionsInTestsCheck implements EslintBasedCheck {
+public class AssertionsInTestsCheck extends TestFileCheck {
 
   @Override
   public String eslintKey() {
     return "assertions-in-tests";
   }
 
-  @Override
-  public List<Type> targets() {
-    return Collections.singletonList(Type.TEST);
-  }
 }
