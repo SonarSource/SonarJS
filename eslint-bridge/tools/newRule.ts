@@ -24,7 +24,6 @@ const rootFolder = path.join(__dirname, '../../');
 const templatesFolder = path.join(rootFolder, 'eslint-bridge/tools/resources/');
 const ruleTemplatePath = path.join(templatesFolder, 'rule.template_ts');
 const javaRuleTemplatePath = path.join(templatesFolder, 'rule.template_java');
-const unitTestTemplatePath = path.join(templatesFolder, 'unitTest.template_ts');
 const checkListPath = path.join(
   rootFolder,
   'javascript-checks/src/main/java/org/sonar/javascript/checks/CheckList.java',
@@ -72,7 +71,7 @@ function run() {
     const ruleMetadata: { [x: string]: string } = {};
     ruleMetadata['___RULE_NAME_DASH___'] = ruleNameDash;
     ruleMetadata['___RULE_CLASS_NAME___'] = javaRuleClassName;
-    ruleMetadata['___RSPEC_KEY___'] = rspecId.slice(1); // remove S-prefix
+    ruleMetadata['___RULE_KEY___'] = rspecId;
 
     copyWithReplace(
       ruleTemplatePath,
@@ -80,7 +79,7 @@ function run() {
       ruleMetadata,
     );
 
-    const testPath = path.join(rootFolder, `eslint-bridge/tests/rules/`);
+    const testPath = path.join(rootFolder, `eslint-bridge/tests/rules/fixtures`);
 
     try {
       fs.mkdirSync(testPath);
@@ -88,11 +87,7 @@ function run() {
       // already exists
     }
 
-    copyWithReplace(
-      unitTestTemplatePath,
-      path.join(testPath, `${ruleNameDash}.test.ts`),
-      ruleMetadata,
-    );
+    fs.writeFileSync(path.join(testPath, `${ruleNameDash}.js`), '');
   }
 
   /** Creates rule java source from template */
@@ -100,7 +95,7 @@ function run() {
     const ruleMetadata: { [x: string]: string } = {};
     ruleMetadata['___RULE_NAME_DASH___'] = ruleNameDash;
     ruleMetadata['___JAVA_RULE_CLASS_NAME___'] = javaRuleClassName;
-    ruleMetadata['___RULE_KEY___'] = rspecId.slice(1); // remove S-prefix;
+    ruleMetadata['___RULE_KEY___'] = rspecId;
     copyWithReplace(
       javaRuleTemplatePath,
       path.join(

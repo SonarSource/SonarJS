@@ -26,7 +26,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
-@Rule(key = "S___RULE_KEY___")
+@Rule(key = "___RULE_KEY___")
 public class ___JAVA_RULE_CLASS_NAME___ implements EslintBasedCheck {
 
   @Override
