@@ -1,0 +1,29 @@
+<p>Many assertion functions have specific parameters for the expected and actual values. Swap them, and your test will still have the same outcome
+(succeed/fail when it should) but the error messages will be confusing.</p>
+<p>This rule raises an issue when the "expected" argument of an assertion function is a hard-coded value and the "actual" argument is not.</p>
+<p>This rule currently supports Chai assertions.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+const assert = require('chai').assert;
+const expect = require('chai').expect;
+const should = require('chai').should();
+
+it("inverts arguments", function() {
+    assert.equal(42, aNumber); // Noncompliant
+    expect(42).to.equal(aNumber); // Noncompliant
+    should.fail(42, aNumber);  // Noncompliant
+});
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+const assert = require('chai').assert;
+const expect = require('chai').expect;
+const should = require('chai').should();
+
+it("inverts arguments", function() {
+    assert.equal(aNumber, 42);
+    expect(aNumber).to.equal(42);
+    should.fail(aNumber, 42);
+});
+</pre>
+
