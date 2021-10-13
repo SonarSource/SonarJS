@@ -19,7 +19,7 @@
  */
 
 import * as estree from 'estree';
-import { isIdentifier } from '.';
+import { FUNCTION_NODES, isIdentifier } from '.';
 
 export namespace Mocha {
   const TEST_CONSTRUCTS = [
@@ -51,5 +51,25 @@ export namespace Mocha {
             isIdentifier(node.callee.property, 'only', 'skip')))
       );
     });
+  }
+
+  export function extractTestCase(node: estree.Node): TestCase | null {
+    if (isTestCase(node)) {
+      const [, callback] = node.arguments;
+      if (FUNCTION_NODES.includes(callback.type)) {
+        return { node: node.callee, callback: callback as estree.Function };
+      }
+    }
+    return null;
+  }
+
+  function isTestCase(node: estree.Node): node is estree.CallExpression {
+    return (
+      node.type === 'CallExpression' &&
+      (isIdentifier(node.callee, 'it') ||
+        (node.callee.type === 'MemberExpression' &&
+          isIdentifier(node.callee.object, 'it') &&
+          isIdentifier(node.callee.property, 'only', 'skip')))
+    );
   }
 }

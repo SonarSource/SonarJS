@@ -1,1 +1,2 @@
 *.lint.js
+tests/rules/fixtures

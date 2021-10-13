@@ -1,0 +1,22 @@
+{
+  "title": "Tests should include assertions",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "tests",
+    "chai",
+    "mocha"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2699",
+  "sqKey": "S2699",
+  "scope": "Tests",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

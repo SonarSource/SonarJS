@@ -67,6 +67,7 @@ public final class CheckList {
       ArrayCallbackWithoutReturnCheck.class,
       ArrayConstructorsCheck.class,
       ArrowFunctionConventionCheck.class,
+      AssertionsInTestsCheck.class,
       AssociativeArraysCheck.class,
       BitwiseOperatorsCheck.class,
       BoolParamDefaultCheck.class,
