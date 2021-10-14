@@ -56,7 +56,7 @@ export namespace Mocha {
   export function extractTestCase(node: estree.Node): TestCase | null {
     if (isTestCase(node)) {
       const [, callback] = node.arguments;
-      if (FUNCTION_NODES.includes(callback.type)) {
+      if (callback && FUNCTION_NODES.includes(callback.type)) {
         return { node: node.callee, callback: callback as estree.Function };
       }
     }
