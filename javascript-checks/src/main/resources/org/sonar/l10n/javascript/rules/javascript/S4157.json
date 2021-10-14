@@ -13,6 +13,7 @@
   "ruleSpecification": "RSPEC-4157",
   "sqKey": "S4157",
   "scope": "All",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "TYPESCRIPT"
   ]

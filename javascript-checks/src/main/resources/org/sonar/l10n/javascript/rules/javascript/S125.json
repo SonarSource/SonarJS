@@ -13,6 +13,7 @@
   "ruleSpecification": "RSPEC-125",
   "sqKey": "S125",
   "scope": "All",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

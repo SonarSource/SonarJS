@@ -15,6 +15,7 @@
   "ruleSpecification": "RSPEC-2699",
   "sqKey": "S2699",
   "scope": "Tests",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

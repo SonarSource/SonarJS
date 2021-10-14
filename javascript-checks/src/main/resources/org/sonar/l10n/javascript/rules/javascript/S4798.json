@@ -11,6 +11,7 @@
   "ruleSpecification": "RSPEC-4798",
   "sqKey": "S4798",
   "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "TYPESCRIPT"
   ]

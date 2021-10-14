@@ -11,6 +11,7 @@
   "ruleSpecification": "RSPEC-881",
   "sqKey": "S881",
   "scope": "All",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

@@ -11,6 +11,7 @@
   "ruleSpecification": "RSPEC-3403",
   "sqKey": "S3403",
   "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ]
