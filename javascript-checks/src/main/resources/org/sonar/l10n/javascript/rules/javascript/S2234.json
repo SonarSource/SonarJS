@@ -10,7 +10,7 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2234",
   "sqKey": "S2234",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",

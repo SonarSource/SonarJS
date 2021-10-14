@@ -12,7 +12,7 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3972",
   "sqKey": "S3972",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",

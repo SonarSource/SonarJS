@@ -12,7 +12,7 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4156",
   "sqKey": "S4156",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
     "TYPESCRIPT"

@@ -12,7 +12,7 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1301",
   "sqKey": "S1301",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",

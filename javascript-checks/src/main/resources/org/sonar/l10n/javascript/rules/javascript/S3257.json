@@ -13,7 +13,7 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-3257",
   "sqKey": "S3257",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
     "TYPESCRIPT"

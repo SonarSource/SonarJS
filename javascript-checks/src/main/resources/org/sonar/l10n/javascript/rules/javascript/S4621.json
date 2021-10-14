@@ -10,7 +10,7 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4621",
   "sqKey": "S4621",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "unknown",
   "compatibleLanguages": [
     "TYPESCRIPT"
