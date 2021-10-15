@@ -75,16 +75,16 @@ describe('Comment-based Testing Framework', () => {
           secondaryLocations: [
             {
               message: 'Secondary location message1',
-              column: 7,
+              column: 6,
               line: 1,
-              endColumn: 10,
+              endColumn: 9,
               endLine: 1,
             },
             {
               message: 'Secondary location message2',
-              column: 7,
+              column: 6,
               line: 5,
-              endColumn: 10,
+              endColumn: 9,
               endLine: 5,
             },
           ],
@@ -108,16 +108,16 @@ describe('Comment-based Testing Framework', () => {
           secondaryLocations: [
             {
               message: 'Secondary location message1',
-              column: 8,
+              column: 7,
               line: 4,
-              endColumn: 13,
+              endColumn: 12,
               endLine: 4,
             },
             {
               message: 'Secondary location message2',
-              column: 13,
+              column: 12,
               line: 4,
-              endColumn: 14,
+              endColumn: 13,
               endLine: 4,
             },
           ],
@@ -164,10 +164,10 @@ describe('Comment-based Testing Framework', () => {
       'Primary location does not have a related issue at (1:7,1:10)',
     );
     expect(() => assertions('orphan1.js')).toThrow(
-      "Secondary location '<' without previous primary location at (1:7,1:10)",
+      "Secondary location '<' without previous primary location at (1:6,1:9)",
     );
     expect(() => assertions('orphan2.js')).toThrow(
-      "Secondary location '>' without next primary location at (1:7,1:10)",
+      "Secondary location '>' without next primary location at (1:6,1:9)",
     );
   });
 
