@@ -227,6 +227,7 @@ public final class CheckList {
       NoRegexSpacesCheck.class,
       NoReturnAwaitCheck.class,
       NoReturnTypeAnyCheck.class,
+      NoSameArgumentAssertCheck.class,
       NoSparseArraysCheck.class,
       NoThisAliasCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
