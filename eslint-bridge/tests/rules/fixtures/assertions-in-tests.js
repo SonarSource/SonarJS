@@ -60,4 +60,6 @@ describe('test cases', () => {
   function nocheck() {
     alert('msg');
   }
+
+  it('foo') // missing callback
 });
