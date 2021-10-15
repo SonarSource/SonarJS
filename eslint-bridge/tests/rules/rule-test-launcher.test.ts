@@ -58,14 +58,12 @@ function runRuleTests(rules: Record<string, Rule.RuleModule>, ruleTester: RuleTe
     }
     describe(`Running tests for rule ${rule}`, () => {
       files.forEach(filename => {
-        test.concurrent(`Running test file ${filename} for rule ${rule}`, async () => {
-          const code = readFileSync(filename, { encoding: 'utf8' });
-          const tests = {
-            valid: [],
-            invalid: [{ code, errors: readAssertions(code), filename }],
-          };
-          ruleTester.run(filename, rules[rule], tests);
-        });
+        const code = readFileSync(filename, { encoding: 'utf8' });
+        const tests = {
+          valid: [],
+          invalid: [{ code, errors: readAssertions(code), filename }],
+        };
+        ruleTester.run(filename, rules[rule], tests);
       });
     });
   }
