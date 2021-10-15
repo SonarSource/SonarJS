@@ -112,7 +112,11 @@ function findDuplicates(context: Rule.RuleContext, args: estree.Node[]) {
   const castedContext = ((context as unknown) as Rule1.RuleContext).getSourceCode();
   for (let i = 0; i < args.length; i++) {
     for (let j = i + 1; j < args.length; j++) {
-      const duplicates = areEquivalent(args[i] as TSESTree.Node, args[j] as TSESTree.Node, castedContext);
+      const duplicates = areEquivalent(
+        args[i] as TSESTree.Node,
+        args[j] as TSESTree.Node,
+        castedContext,
+      );
       if (duplicates && !isLiteral(args[i])) {
         const message = toEncodedMessage(`Replace this argument or its duplicate.`, [args[j]]);
         context.report({ message, node: args[i] });
