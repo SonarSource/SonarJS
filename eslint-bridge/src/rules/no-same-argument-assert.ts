@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5863/javascript
 
-import { TSESTree } from '@typescript-eslint/types';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
 import * as estree from 'estree';
@@ -53,10 +53,8 @@ export const rule: Rule.RuleModule = {
 function checkAssert(context: Rule.RuleContext, expression: estree.Expression) {
   if (expression.type === 'CallExpression') {
     const { callee, arguments: args } = expression;
-    if (callee.type === 'MemberExpression') {
-      if (isIdentifier(callee.object, 'assert')) {
-        findDuplicates(context, args);
-      }
+    if (callee.type === 'MemberExpression' && isIdentifier(callee.object, 'assert')) {
+      findDuplicates(context, args);
     }
   }
 }
