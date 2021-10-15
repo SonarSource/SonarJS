@@ -127,19 +127,26 @@ export function getRequireCalls(context: Rule.RuleContext) {
   scopeManager.scopes.forEach(scope =>
     scope.variables.forEach(variable =>
       variable.defs.forEach(def => {
-        if (
-          def.type === 'Variable' &&
-          def.node.init?.type === 'CallExpression' &&
-          def.node.init.callee.type === 'Identifier' &&
-          def.node.init.callee.name === 'require' &&
-          def.node.init.arguments.length === 1
-        ) {
-          required.push(def.node.init);
+        if (def.type === 'Variable' && def.node.init) {
+          if (isRequire(def.node.init)) {
+            required.push(def.node.init as estree.CallExpression);
+          } else if (def.node.init.type === 'MemberExpression' && isRequire(def.node.init.object)) {
+            required.push(def.node.init.object as estree.CallExpression);
+          }
         }
       }),
     ),
   );
   return required;
+}
+
+function isRequire(node: estree.Node) {
+  return (
+    node.type === 'CallExpression' &&
+    node.callee.type === 'Identifier' &&
+    node.callee.name === 'require' &&
+    node.arguments.length === 1
+  );
 }
 
 export function getModuleNameFromRequire(node: estree.Node): estree.Literal | undefined {

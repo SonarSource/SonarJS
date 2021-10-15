@@ -12,9 +12,9 @@ describe("test the same object", function() {
                      obj);
 //                   ^^^<
         // ok when literals
-        assert.equal(42, 42);  // Noncompliant
-        assert.equal('foo', 'foo');  // Noncompliant
-        assert.closeTo(obj, 0.5, 0.5); // Noncompliant
+        assert.equal(42, 42);
+        assert.equal('foo', 'foo');
+        assert.closeTo(obj, 0.5, 0.5);
 
         assert.equal(obj, other, obj); // Noncompliant
         assert.equal(1 + 1, 1+1); // Noncompliant
@@ -36,7 +36,7 @@ describe("test the same object", function() {
       expect(obj).to.be.an(obj).that.includes(2);// Noncompliant
 
       // ok when literals
-      expect(obj).closeTo(other, 0.5, 0.5);  // Noncompliant
+      expect(obj).closeTo(other, 0.5, 0.5);
 
       expect(obj).include(obj, other)  // Noncompliant
       expect(obj).ownPropertyDescriptor(obj, 1, 2)  // Noncompliant
