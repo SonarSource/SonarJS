@@ -32,6 +32,7 @@
       "MSTG-CRYPTO-3"
     ]
   },
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

@@ -20,6 +20,8 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
 <ul>
   <li> The confidentiality and integrity of data is necessary in the context of the web application. </li>
   <li> The data is exchanged on an exposed network (Internet, public network etc). </li>
+  <li> Your application renders web pages with a relaxed mixed content policy. </li>
+  <li> OS level protections against clear-text traffic are deactivated. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -28,6 +30,8 @@ href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http">
   <li> Use <code>sftp</code>, <code>scp</code> or <code>ftps</code> instead of <code>ftp</code> </li>
   <li> Use <code>https</code> instead of <code>http</code> </li>
   <li> Use <code>SMTP</code> over <code>SSL/TLS</code> or <code>SMTP</code> with <code>STARTTLS</code> instead of clear-text SMTP </li>
+  <li> Configure your application to block mixed content when rendering web pages. </li>
+  <li> If available, enforce OS level deativation of all clear-text traffic </li>
 </ul>
 <p>It is recommended to secure all transport channels (event local network) as it can take a single non secure connection to compromise an entire
 application or system.</p>

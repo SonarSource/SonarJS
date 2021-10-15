@@ -8,12 +8,12 @@
 detailed information on both the system running the application and users.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> the code or configuration enabling the application debug features is deployed on production servers. </li>
+  <li> the code or configuration enabling the application debug features is deployed on production servers or distributed to end users. </li>
   <li> the application runs by default with debug features activated. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>Do not enable debug features on production servers.</p>
+<p>Do not enable debug features on production servers or applications distributed to end users.</p>
 <h2>Sensitive Code Example</h2>
 <p><a href="https://www.npmjs.com/package/errorhandler">errorhandler Express.js middleware</a> should not be used in production:</p>
 <pre>

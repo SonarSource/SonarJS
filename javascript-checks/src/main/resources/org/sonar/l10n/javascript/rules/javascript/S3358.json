@@ -12,7 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3358",
   "sqKey": "S3358",
-  "scope": "All",
+  "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

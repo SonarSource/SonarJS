@@ -12,7 +12,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4623",
   "sqKey": "S4623",
-  "scope": "All",
+  "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "TYPESCRIPT"
   ]

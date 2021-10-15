@@ -7,8 +7,7 @@
     "constantCost": "10min"
   },
   "tags": [
-    "cwe",
-    "based-on-misra"
+    "cwe"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-930",
@@ -19,6 +18,7 @@
       628
     ]
   },
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ]

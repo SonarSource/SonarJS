@@ -13,7 +13,8 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2208",
   "sqKey": "S2208",
-  "scope": "All",
+  "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

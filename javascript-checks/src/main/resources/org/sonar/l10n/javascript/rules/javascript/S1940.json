@@ -12,7 +12,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1940",
   "sqKey": "S1940",
-  "scope": "All",
+  "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

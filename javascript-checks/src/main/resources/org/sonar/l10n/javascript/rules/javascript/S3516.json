@@ -12,6 +12,7 @@
   "ruleSpecification": "RSPEC-3516",
   "sqKey": "S3516",
   "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

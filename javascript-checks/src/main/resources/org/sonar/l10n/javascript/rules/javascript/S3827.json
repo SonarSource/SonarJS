@@ -10,7 +10,8 @@
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-3827",
   "sqKey": "S3827",
-  "scope": "All",
+  "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT"
   ]

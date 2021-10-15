@@ -12,12 +12,13 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-131",
   "sqKey": "S131",
-  "scope": "All",
+  "scope": "Main",
   "securityStandards": {
     "CWE": [
       478
     ]
   },
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

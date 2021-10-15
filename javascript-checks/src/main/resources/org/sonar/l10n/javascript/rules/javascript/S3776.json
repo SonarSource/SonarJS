@@ -14,7 +14,8 @@
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3776",
   "sqKey": "S3776",
-  "scope": "All",
+  "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

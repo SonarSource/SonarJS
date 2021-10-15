@@ -13,12 +13,13 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1121",
   "sqKey": "S1121",
-  "scope": "All",
+  "scope": "Main",
   "securityStandards": {
     "CWE": [
       481
     ]
   },
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

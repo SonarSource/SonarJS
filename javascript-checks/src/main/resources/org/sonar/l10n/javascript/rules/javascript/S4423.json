@@ -35,6 +35,7 @@
       "MSTG-NETWORK-2"
     ]
   },
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

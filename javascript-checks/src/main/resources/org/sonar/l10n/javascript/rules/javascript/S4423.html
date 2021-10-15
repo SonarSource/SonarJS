@@ -1,5 +1,8 @@
-<p>This rule raises an issue when an insecure TLS protocol version is used (ie: a protocol different from "TLSv1.2", "TLSv1.3", "DTLSv1.2" or
-"DTLSv1.3").</p>
+<p>This rule raises an issue when an insecure TLS protocol version (i.e. a protocol different from "TLSv1.2", "TLSv1.3", "DTLSv1.2", or "DTLSv1.3") is
+used or allowed.</p>
+<p>It is recommended to enforce TLS 1.2 as the minimum protocol version and to disallow older versions like TLS 1.0. Failure to do so could open the
+door to downgrade attacks: a malicious actor who is able to intercept the connection could modify the requested protocol version and downgrade it to a
+less secure version.</p>
 <h2>Noncompliant Code Example</h2>
 <p><code>secureProtocol</code>, <code>minVersion</code>/<code>maxVersion</code> and <code>secureOptions</code> should not be set to use weak TLS
 protocols (TLSv1.1 and lower):</p>

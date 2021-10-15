@@ -15,6 +15,7 @@
   "ruleSpecification": "RSPEC-1541",
   "sqKey": "S1541",
   "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

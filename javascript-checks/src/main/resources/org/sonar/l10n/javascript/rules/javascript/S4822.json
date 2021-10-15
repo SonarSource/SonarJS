@@ -10,7 +10,8 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4822",
   "sqKey": "S4822",
-  "scope": "All",
+  "scope": "Main",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

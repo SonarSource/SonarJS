@@ -14,7 +14,7 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2589",
   "sqKey": "S2589",
-  "scope": "All",
+  "scope": "Main",
   "securityStandards": {
     "CWE": [
       489,
@@ -22,6 +22,7 @@
       570
     ]
   },
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"
