@@ -34,7 +34,7 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     disk: 128
     type: c2-standard-8
     use_ssd: true
-    
+
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
 
@@ -134,7 +134,14 @@ plugin_qa_nodejs_task:
 plugin_qa_win_task:
   depends_on:
     - build
-  <<: *WINDOWS_VM_DEFINITION
+  gce_instance:
+    image_project: language-team
+    image_family: lt-base-windows-jdk16
+    platform: windows
+    zone: us-central1-a
+    preemptible: false
+    disk: 128
+    type: n1-standard-4
   <<: *ONLY_SONARSOURCE_QA
   env:
     SONARSOURCE_QA: true
