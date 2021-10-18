@@ -62,7 +62,8 @@ export class SecondaryLocation extends Location {
   message: string | undefined;
 
   constructor(range: Range, message: string | undefined, readonly primaryIsBefore: boolean) {
-    super(range);
+    // we need to extract 1 from columns as it's computed by us being sonar-friendly, while primary location is eslint-friendly
+    super(new Range(range.line, range.column - 1, range.endLine, range.endColumn - 1));
     this.message = message;
   }
 }

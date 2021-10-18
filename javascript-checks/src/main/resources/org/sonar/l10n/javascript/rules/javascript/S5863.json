@@ -1,0 +1,21 @@
+{
+  "title": "Assertions should not be given twice the same argument",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5863",
+  "sqKey": "S5863",
+  "scope": "Tests",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
