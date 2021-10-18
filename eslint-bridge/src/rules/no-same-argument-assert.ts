@@ -19,12 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5863/javascript
 
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESLint, TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
 import * as estree from 'estree';
 import { Chai, isIdentifier, isLiteral, toEncodedMessage } from '../utils';
-import { Rule as Rule1 } from 'eslint-plugin-sonarjs/lib/utils/types';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -107,7 +106,7 @@ function checkShould(context: Rule.RuleContext, expression: estree.Expression) {
 }
 
 function findDuplicates(context: Rule.RuleContext, args: estree.Node[]) {
-  const castedContext = ((context as unknown) as Rule1.RuleContext).getSourceCode();
+  const castedContext = (context.getSourceCode() as unknown) as TSESLint.SourceCode;
   for (let i = 0; i < args.length; i++) {
     for (let j = i + 1; j < args.length; j++) {
       const duplicates = areEquivalent(
