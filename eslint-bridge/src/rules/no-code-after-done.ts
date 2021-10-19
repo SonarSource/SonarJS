@@ -36,6 +36,12 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     let currentDone: Scope.Variable | undefined;
+    let doneCall: estree.Node;
+    let doneSegment: Rule.CodePathSegment | undefined;
+
+    let currentSegment: Rule.CodePathSegment | undefined;
+    let currentCase: Mocha.TestCase;
+    const segmentFirstStatement: Map<Rule.CodePathSegment, estree.Node> = new Map();
 
     function visitTestCase(node: estree.Node) {
       const testCase = Mocha.extractTestCase(node);
@@ -52,11 +58,12 @@ export const rule: Rule.RuleModule = {
         }
         const callbackScope = context
           .getScope()
-          .childScopes.find(scope => scope.block === testCase.callback);
+          .childScopes.find(scope => scope.block === testCase!.callback);
         if (!callbackScope) {
           return;
         }
         currentDone = getVariableFromIdentifier(done, callbackScope);
+        currentCase = testCase;
       }
     }
 
@@ -70,6 +77,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
+      doneCall = node;
       const ancestors = localAncestorsChain(node as TSESTree.Node);
       const statementWithDone = ancestors.find(
         parent => parent.type === AST_NODE_TYPES.ExpressionStatement,
@@ -82,19 +90,49 @@ export const rule: Rule.RuleModule = {
       }
       const indexDoneStatement = parentBlock.body.findIndex(stmt => stmt === statementWithDone);
       if (indexDoneStatement >= 0 && indexDoneStatement !== parentBlock.body.length - 1) {
-        context.report({
-          node: parentBlock.body[indexDoneStatement + 1],
-          message: toEncodedMessage(`Move this code before the call to "done".`, [
-            node as TSESTree.Node,
-          ]),
-        });
+        report(parentBlock.body[indexDoneStatement + 1]);
+      } else {
+        doneSegment = currentSegment;
       }
+    }
+
+    function report(statementAfterDone: estree.Node) {
+      context.report({
+        node: statementAfterDone,
+        message: toEncodedMessage(`Move this code before the call to "done".`, [
+          doneCall as TSESTree.Node,
+        ]),
+      });
     }
 
     return {
       CallExpression: (node: estree.Node) => {
         visitTestCase(node);
         checkDoneIsLast(node as estree.CallExpression);
+      },
+
+      ExpressionStatement: (node: estree.Node) => {
+        if (currentSegment && !segmentFirstStatement.has(currentSegment)) {
+          segmentFirstStatement.set(currentSegment, node);
+        }
+      },
+
+      onCodePathSegmentStart(segment: Rule.CodePathSegment) {
+        currentSegment = segment;
+      },
+
+      onCodePathEnd(_codePath: Rule.CodePath, node: estree.Node) {
+        currentSegment = undefined;
+        if (currentCase?.callback !== node || !doneSegment) {
+          return;
+        }
+        // we report an issue if one of 'doneSegment.nextSegments' is not empty
+        const statementAfterDone = doneSegment.nextSegments
+          .map(segment => segmentFirstStatement.get(segment))
+          .find(stmt => !!stmt);
+        if (statementAfterDone) {
+          report(statementAfterDone);
+        }
       },
     };
   },

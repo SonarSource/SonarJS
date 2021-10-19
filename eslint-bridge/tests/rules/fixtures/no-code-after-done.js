@@ -45,10 +45,18 @@ describe("Code is executed after Done", function() {
         } catch (err) {
             done(err);
         }
-        fs.readFile("/etc/bashrc", 'utf8', function(err, data) {  // FN Noncompliant
+        fs.readFile("/etc/bashrc", 'utf8', function(err, data) {  // Noncompliant
             // This assertion error will be assigned to "Other test".
             expect(data).to.match(/some expected string/);
         });
+    });
+
+    it("Ok with try/catch", function(done) {
+        try {
+            throw Error("An error");
+        } catch (err) {
+            done(err);
+        }
     });
 
     it("No done", function() {
