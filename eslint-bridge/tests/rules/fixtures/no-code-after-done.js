@@ -44,11 +44,33 @@ describe("Code is executed after Done", function() {
             throw Error("An error");
         } catch (err) {
             done(err);
+//          ^^^^^^^^^>
         }
-        fs.readFile("/etc/bashrc", 'utf8', function(err, data) {  // Noncompliant
-            // This assertion error will be assigned to "Other test".
-            expect(data).to.match(/some expected string/);
-        });
+        fs.readFile("/etc/bashrc", 'utf8', function(err, data) { }); // Noncompliant {{Move this code before the call to "done".}}
+//      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    });
+
+    it("'done' inside 'if'", function(done) {
+        if (condition) {
+            done(err);
+//          ^^^^^^^^^>
+        }
+        fs.readFile("/etc/bashrc", 'utf8', function(err, data) { }); // Noncompliant {{Move this code before the call to "done".}}
+//      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    });
+
+    it ("'done' is inside another function", function(done) {
+        function foo(){
+            done();
+            bar(); // Noncompliant
+        }
+
+        foo(); // ok
+    });
+
+    it ("'done' on top level", function(done) {
+        done();
+        bar(); // Noncompliant
     });
 
     it("Ok with try/catch", function(done) {

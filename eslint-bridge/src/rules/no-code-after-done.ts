@@ -35,49 +35,50 @@ export const rule: Rule.RuleModule = {
     ],
   },
   create(context: Rule.RuleContext) {
-    let currentDone: Scope.Variable | undefined;
-    let doneCall: estree.Node;
+    let currentDoneVariable: Scope.Variable | undefined;
+    let doneCall: estree.Node | undefined;
     let doneSegment: Rule.CodePathSegment | undefined;
 
     let currentSegment: Rule.CodePathSegment | undefined;
     let currentCase: Mocha.TestCase;
     const segmentFirstStatement: Map<Rule.CodePathSegment, estree.Node> = new Map();
 
-    function visitTestCase(node: estree.Node) {
+    function checkForTestCase(node: estree.Node) {
       const testCase = Mocha.extractTestCase(node);
-      if (testCase !== null) {
-        // to be more precise we should reset 'currentDone' when leaving the test case
-        // but it's good enough when entering a next test case
-        currentDone = undefined;
-        if (testCase.callback.params.length === 0) {
-          return;
-        }
-        const [done] = testCase.callback.params;
-        if (done.type !== 'Identifier') {
-          return;
-        }
-        const callbackScope = context
-          .getScope()
-          .childScopes.find(scope => scope.block === testCase!.callback);
-        if (!callbackScope) {
-          return;
-        }
-        currentDone = getVariableFromIdentifier(done, callbackScope);
-        currentCase = testCase;
+      if (!testCase) {
+        return;
       }
+
+      currentCase = testCase;
+      currentDoneVariable = undefined;
+      if (testCase.callback.params.length === 0) {
+        return;
+      }
+      const [done] = testCase.callback.params;
+      if (done.type !== 'Identifier') {
+        return;
+      }
+      const callbackScope = context
+        .getScope()
+        .childScopes.find(scope => scope.block === testCase.callback);
+      if (!callbackScope) {
+        return;
+      }
+      currentDoneVariable = getVariableFromIdentifier(done, callbackScope);
     }
 
-    function checkDoneIsLast(node: estree.CallExpression) {
-      if (!currentDone) {
+    function checkForDoneCall(node: estree.CallExpression) {
+      if (!currentDoneVariable) {
         return;
       }
 
       const { callee } = node;
-      if (!currentDone.references.some(ref => ref.identifier === callee)) {
+      if (!currentDoneVariable.references.some(ref => ref.identifier === callee)) {
         return;
       }
 
       doneCall = node;
+      doneSegment = currentSegment;
       const ancestors = localAncestorsChain(node as TSESTree.Node);
       const statementWithDone = ancestors.find(
         parent => parent.type === AST_NODE_TYPES.ExpressionStatement,
@@ -91,8 +92,9 @@ export const rule: Rule.RuleModule = {
       const indexDoneStatement = parentBlock.body.findIndex(stmt => stmt === statementWithDone);
       if (indexDoneStatement >= 0 && indexDoneStatement !== parentBlock.body.length - 1) {
         report(parentBlock.body[indexDoneStatement + 1]);
-      } else {
-        doneSegment = currentSegment;
+        doneSegment = undefined;
+        doneCall = undefined;
+        currentDoneVariable = undefined;
       }
     }
 
@@ -107,11 +109,18 @@ export const rule: Rule.RuleModule = {
 
     return {
       CallExpression: (node: estree.Node) => {
-        visitTestCase(node);
-        checkDoneIsLast(node as estree.CallExpression);
+        checkForTestCase(node);
+        checkForDoneCall(node as estree.CallExpression);
       },
 
       ExpressionStatement: (node: estree.Node) => {
+        // if (currentSegment && currentSegment === doneSegment) {
+        //   report(node);
+        //   doneSegment = undefined;
+        //   doneCall = undefined;
+        //   currentDoneVariable = undefined;
+        // }
+
         if (currentSegment && !segmentFirstStatement.has(currentSegment)) {
           segmentFirstStatement.set(currentSegment, node);
         }
