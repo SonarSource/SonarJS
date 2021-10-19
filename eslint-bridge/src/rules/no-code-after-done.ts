@@ -20,10 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6079/javascript
 
 import { Rule, Scope } from 'eslint';
-import { localAncestorsChain, Mocha, toEncodedMessage } from '../utils';
+import { Mocha, toEncodedMessage } from '../utils';
 import * as estree from 'estree';
 import { getVariableFromIdentifier } from './reachingDefinitions';
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -68,33 +68,13 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkForDoneCall(node: estree.CallExpression) {
-      if (!currentDoneVariable) {
-        return;
-      }
-
       const { callee } = node;
-      if (!currentDoneVariable.references.some(ref => ref.identifier === callee)) {
-        return;
-      }
-
-      doneCall = node;
-      doneSegment = currentSegment;
-      const ancestors = localAncestorsChain(node as TSESTree.Node);
-      const statementWithDone = ancestors.find(
-        parent => parent.type === AST_NODE_TYPES.ExpressionStatement,
-      );
-      const parentBlock = ancestors.find(
-        parent => parent.type === AST_NODE_TYPES.BlockStatement,
-      ) as estree.BlockStatement;
-      if (!statementWithDone || !parentBlock) {
-        return;
-      }
-      const indexDoneStatement = parentBlock.body.findIndex(stmt => stmt === statementWithDone);
-      if (indexDoneStatement >= 0 && indexDoneStatement !== parentBlock.body.length - 1) {
-        report(parentBlock.body[indexDoneStatement + 1]);
-        doneSegment = undefined;
-        doneCall = undefined;
-        currentDoneVariable = undefined;
+      if (
+        currentDoneVariable &&
+        currentDoneVariable.references.some(ref => ref.identifier === callee)
+      ) {
+        doneCall = node;
+        doneSegment = currentSegment;
       }
     }
 
@@ -114,12 +94,12 @@ export const rule: Rule.RuleModule = {
       },
 
       ExpressionStatement: (node: estree.Node) => {
-        // if (currentSegment && currentSegment === doneSegment) {
-        //   report(node);
-        //   doneSegment = undefined;
-        //   doneCall = undefined;
-        //   currentDoneVariable = undefined;
-        // }
+        if (currentSegment && currentSegment === doneSegment) {
+          report(node);
+          doneSegment = undefined;
+          doneCall = undefined;
+          currentDoneVariable = undefined;
+        }
 
         if (currentSegment && !segmentFirstStatement.has(currentSegment)) {
           segmentFirstStatement.set(currentSegment, node);
@@ -132,15 +112,14 @@ export const rule: Rule.RuleModule = {
 
       onCodePathEnd(_codePath: Rule.CodePath, node: estree.Node) {
         currentSegment = undefined;
-        if (currentCase?.callback !== node || !doneSegment) {
-          return;
-        }
-        // we report an issue if one of 'doneSegment.nextSegments' is not empty
-        const statementAfterDone = doneSegment.nextSegments
-          .map(segment => segmentFirstStatement.get(segment))
-          .find(stmt => !!stmt);
-        if (statementAfterDone) {
-          report(statementAfterDone);
+        if (currentCase?.callback === node && doneSegment) {
+          // we report an issue if one of 'doneSegment.nextSegments' is not empty
+          const statementAfterDone = doneSegment.nextSegments
+            .map(segment => segmentFirstStatement.get(segment))
+            .find(stmt => !!stmt);
+          if (statementAfterDone) {
+            report(statementAfterDone);
+          }
         }
       },
     };
