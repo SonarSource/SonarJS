@@ -72,7 +72,7 @@ class JavaScriptRulingTest {
       jsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
       jsProject("backbone", "", "test"),
       jsProject("es5-shim", "", "tests"),
-      jsProject("file-for-rules", "", ""),
+      jsProject("file-for-rules", "", "tests"),
       jsProject("javascript-test-sources", "", ""),
       jsProject("jquery", "", "test"),
       jsProject("jshint", "", "tests"),

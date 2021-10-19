@@ -1,0 +1,23 @@
+{
+  "title": "Tests should check which exception is thrown",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "chai",
+    "mocha"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5958",
+  "sqKey": "S5958",
+  "scope": "Tests",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

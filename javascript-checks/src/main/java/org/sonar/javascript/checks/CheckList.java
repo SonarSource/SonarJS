@@ -297,6 +297,7 @@ public final class CheckList {
       SymbolUsedAsConstructorCheck.class,
       TabCharacterCheck.class,
       TemplateStringMisuseCheck.class,
+      TestCheckExceptionCheck.class,
       ThrowLiteralCheck.class,
       TodoTagPresenceCheck.class,
       TooManyArgumentsCheck.class,
