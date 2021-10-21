@@ -15,8 +15,8 @@ describe("uncertain assertions", function() {
 //                                                 ^^^^^^^^^^^
         expect({a: 42}).to.not.include({b: 10, c: 20}).to.satisfy(x => x > 42);  // Noncompliant
 //                         ^^^^^^^^^^^
-        expect({a: 42}).to.include({b: 10, c: 20}).to.not.satisfy(x => x > 42);  // Noncompliant
 
+        expect({a: 42}).to.include({b: 10, c: 20}).to.not.satisfy(x => x > 42);
         expect({a: 42}).to.include({b: 10, c: 20});
         expect({a: 42}).to.not.include(42);
 
@@ -46,5 +46,7 @@ describe("uncertain assertions", function() {
         // The same is true for "should" assertions.
         throwsTypeError.should.to.not.throw(ReferenceError); // Noncompliant {{Refactor this uncertain assertion; it can succeed for multiple reasons.}}
         //                        ^^^^^^^^^
-    });
+        {a: 42}.should.not.include({b: 10, c: 20});  // Noncompliant
+        //              ^^^^^^^^^^^
+      });
 });
