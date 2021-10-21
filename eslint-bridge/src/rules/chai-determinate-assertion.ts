@@ -88,24 +88,24 @@ function checkNotHaveOwnPropertyDescriptor(context: Rule.RuleContext, elements: 
 }
 
 function checkNotHaveMembers(context: Rule.RuleContext, elements: ChainElement[]) {
-  checkWithCondition(context, elements, 'not', 'members', _el => true);
+  checkWithCondition(context, elements, 'not', 'members');
 }
 
 function checkChangeBy(context: Rule.RuleContext, elements: ChainElement[]) {
-  checkWithCondition(context, elements, 'change', 'by', _el => true);
+  checkWithCondition(context, elements, 'change', 'by');
 }
 
 function checkNotIncDec(context: Rule.RuleContext, elements: ChainElement[]) {
-  checkWithCondition(context, elements, 'not', 'increase', _el => true);
-  checkWithCondition(context, elements, 'not', 'decrease', _el => true);
+  checkWithCondition(context, elements, 'not', 'increase');
+  checkWithCondition(context, elements, 'not', 'decrease');
 }
 
 function checkNotBy(context: Rule.RuleContext, elements: ChainElement[]) {
-  checkWithCondition(context, elements, 'not', 'by', _el => true);
+  checkWithCondition(context, elements, 'not', 'by');
 }
 
 function checkNotFinite(context: Rule.RuleContext, elements: ChainElement[]) {
-  checkWithCondition(context, elements, 'not', 'finite', _el => true);
+  checkWithCondition(context, elements, 'not', 'finite');
 }
 
 function checkWithCondition(
@@ -113,7 +113,7 @@ function checkWithCondition(
   elements: ChainElement[],
   first: string,
   second: string,
-  condition: (args?: estree.Node[]) => boolean,
+  condition: (args?: estree.Node[]) => boolean = () => true,
 ) {
   const firstIndex = getElementIndex(elements, first);
   const firstElement = elements[firstIndex];
