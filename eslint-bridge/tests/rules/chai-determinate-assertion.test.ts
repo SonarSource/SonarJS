@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTesterTs } from '../RuleTesterTs';
-
 import { RuleTester } from 'eslint';
 import { rule } from 'rules/chai-determinate-assertion';
 
 // Main test cases are in the file chai-determinate-assertion.js (comment-based)
 // Here we are testing that no issues are reported when no 'chai' import
 
-const ruleTester = new RuleTester();
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTester.run('Assertions should not be given twice the same argument', rule, {
   valid: [
     {
@@ -41,4 +39,3 @@ ruleTester.run('Assertions should not be given twice the same argument', rule, {
     },
   ],
 });
-

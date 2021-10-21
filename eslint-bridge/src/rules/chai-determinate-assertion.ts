@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//sonarsource.github.io/rspec/#/rspec/S6092/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S6092/javascript
 
 import { Rule } from 'eslint';
 import { Chai, isDotNotation, isIdentifier } from '../utils';
@@ -31,14 +31,6 @@ type ChainElement = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: ['sonar-runtime'],
-      },
-    ],
-  },
   create(context: Rule.RuleContext) {
     if (!Chai.isImported(context)) {
       return {};
@@ -54,6 +46,13 @@ export const rule: Rule.RuleModule = {
         ) {
           checkNotThrow(context, elements);
           checkNotInclude(context, elements);
+          checkNotHaveProperty(context, elements);
+          checkNotHaveOwnPropertyDescriptor(context, elements);
+          checkNotHaveMembers(context, elements);
+          checkChangeBy(context, elements);
+          checkNotIncDec(context, elements);
+          checkNotBy(context, elements);
+          checkNotFinite(context, elements);
         }
       },
     };
@@ -61,45 +60,87 @@ export const rule: Rule.RuleModule = {
 };
 
 function checkNotThrow(context: Rule.RuleContext, elements: ChainElement[]) {
-  const notIndex = getElementIndex(elements, 'not');
-  const notElement = elements[notIndex];
+  checkWithCondition(context, elements, 'not', 'throw', args => !!args && args.length > 0);
+}
 
-  const throwIndex = getElementIndex(elements, 'throw');
-  const throwElement = elements[throwIndex];
+function checkNotInclude(context: Rule.RuleContext, elements: ChainElement[]) {
+  checkWithCondition(
+    context,
+    elements,
+    'not',
+    'include',
+    args => !!args && args.length > 0 && args[0].type === 'ObjectExpression',
+  );
+}
+
+function checkNotHaveProperty(context: Rule.RuleContext, elements: ChainElement[]) {
+  checkWithCondition(context, elements, 'not', 'property', args => !!args && args.length > 1);
+}
+
+function checkNotHaveOwnPropertyDescriptor(context: Rule.RuleContext, elements: ChainElement[]) {
+  checkWithCondition(
+    context,
+    elements,
+    'not',
+    'ownPropertyDescriptor',
+    args => !!args && args.length > 1,
+  );
+}
+
+function checkNotHaveMembers(context: Rule.RuleContext, elements: ChainElement[]) {
+  checkWithCondition(context, elements, 'not', 'members', _el => true);
+}
+
+function checkChangeBy(context: Rule.RuleContext, elements: ChainElement[]) {
+  checkWithCondition(context, elements, 'change', 'by', _el => true);
+}
+
+function checkNotIncDec(context: Rule.RuleContext, elements: ChainElement[]) {
+  checkWithCondition(context, elements, 'not', 'increase', _el => true);
+  checkWithCondition(context, elements, 'not', 'decrease', _el => true);
+}
+
+function checkNotBy(context: Rule.RuleContext, elements: ChainElement[]) {
+  checkWithCondition(context, elements, 'not', 'by', _el => true);
+}
+
+function checkNotFinite(context: Rule.RuleContext, elements: ChainElement[]) {
+  checkWithCondition(context, elements, 'not', 'finite', _el => true);
+}
+
+function checkWithCondition(
+  context: Rule.RuleContext,
+  elements: ChainElement[],
+  first: string,
+  second: string,
+  condition: (args?: estree.Node[]) => boolean,
+) {
+  const firstIndex = getElementIndex(elements, first);
+  const firstElement = elements[firstIndex];
+
+  const secondIndex = getElementIndex(elements, second);
+  const secondElement = elements[secondIndex];
 
   if (
-    notElement &&
-    throwElement &&
-    notIndex === throwIndex - 1 &&
-    throwElement.arguments &&
-    throwElement.arguments.length > 0
+    firstElement &&
+    secondElement &&
+    neighborIndexes(firstIndex, secondIndex, elements) &&
+    condition(secondElement.arguments)
   ) {
     context.report({
       message,
-      loc: locFromTwoNodes(notElement.identifier, throwElement.identifier),
+      loc: locFromTwoNodes(firstElement.identifier, secondElement.identifier),
     });
   }
 }
 
-function checkNotInclude(context: Rule.RuleContext, elements: ChainElement[]) {
-  const notIndex = getElementIndex(elements, 'not');
-  const notElement = elements[notIndex];
-
-  const includeIndex = getElementIndex(elements, 'include');
-  const includeElement = elements[includeIndex];
-
-  if (
-    notElement &&
-    includeElement &&
-    notIndex === includeIndex - 1 &&
-    includeElement.arguments &&
-    includeElement.arguments.length > 0 && includeElement.arguments[0].type === 'ObjectExpression'
-  ) {
-    context.report({
-      message,
-      loc: locFromTwoNodes(notElement.identifier, includeElement.identifier),
-    });
+// first element is not applied to second if between them function call (e.g. fist.foo().second())
+function neighborIndexes(firstIndex: number, secondIndex: number, elements: ChainElement[]) {
+  if (firstIndex === secondIndex - 2) {
+    return !elements[firstIndex + 1].arguments;
   }
+
+  return firstIndex === secondIndex - 1;
 }
 
 function retrieveAssertionChainElements(node: estree.Expression) {
@@ -117,11 +158,13 @@ function retrieveAssertionChainElements(node: estree.Expression) {
       currentNode = currentNode.callee;
     } else if (isIdentifier(currentNode)) {
       result.push({ identifier: currentNode, arguments: currentArguments });
-      return result.reverse();
+      break;
     } else {
-      return [];
+      break;
     }
   }
+
+  return result.reverse();
 }
 
 function getElementIndex(elements: ChainElement[], name: string) {
