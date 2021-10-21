@@ -106,7 +106,7 @@ public class EslintBridgeIntegrationTest {
 
   private void assertStatus(EslintBridge eslintBridge) {
     String[] response = new String[1];
-    await().atMost(10, SECONDS).until(() -> {
+    await().atMost(30, SECONDS).until(() -> {
       try {
         response[0] = eslintBridge.status();
         return response[0].equals("OK!");
