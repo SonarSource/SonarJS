@@ -1,0 +1,22 @@
+{
+  "title": "Chai assertions should have only one reason to succeed",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "chai",
+    "tests"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6092",
+  "sqKey": "S6092",
+  "scope": "Tests",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

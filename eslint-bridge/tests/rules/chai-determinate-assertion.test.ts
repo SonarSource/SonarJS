@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RuleTesterTs } from '../RuleTesterTs';
+
 import { RuleTester } from 'eslint';
+import { rule } from 'rules/chai-determinate-assertion';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from 'rules/no-same-argument-assert';
-
-// Main test cases are in the file no-same-argument-assert.js (comment-based)
+// Main test cases are in the file chai-determinate-assertion.js (comment-based)
 // Here we are testing that no issues are reported when no 'chai' import
 
+const ruleTester = new RuleTester();
 ruleTester.run('Assertions should not be given twice the same argument', rule, {
   valid: [
     {
-      code: `assert.equal(obj, obj);`,
+      code: `expect(foo).to.not.throw(ReferenceError);`,
     },
   ],
   invalid: [
     {
       code: `
       const chai = require('chai');
-      assert.equal(obj, obj);`,
+      expect(foo).to.not.throw(ReferenceError);`,
       errors: [{ line: 3 }],
     },
   ],
 });
+

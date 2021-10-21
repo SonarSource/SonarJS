@@ -17,26 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+package org.sonar.javascript.checks;
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-import { rule } from 'rules/no-same-argument-assert';
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TestFileCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-// Main test cases are in the file no-same-argument-assert.js (comment-based)
-// Here we are testing that no issues are reported when no 'chai' import
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S6092")
+public class ChaiDeterminateAssertionCheck extends TestFileCheck {
 
-ruleTester.run('Assertions should not be given twice the same argument', rule, {
-  valid: [
-    {
-      code: `assert.equal(obj, obj);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-      const chai = require('chai');
-      assert.equal(obj, obj);`,
-      errors: [{ line: 3 }],
-    },
-  ],
-});
+  @Override
+  public String eslintKey() {
+    return "chai-determinate-assertion";
+  }
+
+}
