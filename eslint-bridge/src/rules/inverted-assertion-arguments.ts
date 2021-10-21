@@ -21,14 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  isFunctionInvocation,
-  isIdentifier,
-  isLiteral,
-  isMethodCall,
-  Mocha,
-  toEncodedMessage,
-} from '../utils';
+import { isIdentifier, isLiteral, isMethodCall, Mocha, toEncodedMessage } from '../utils';
 
 const ASSERT_FUNCTIONS = [
   'equal',
@@ -53,7 +46,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const testCases: estree.Node[] = [];
     return {
-      CallExpression: (node: estree.Node) => {
+      CallExpression(node: estree.Node) {
         if (Mocha.isTestCase(node)) {
           testCases.push(node);
           return;
@@ -109,32 +102,18 @@ function extractAssertArguments(node: estree.CallExpression): [estree.Node, estr
 }
 
 function extractExpectArguments(node: estree.CallExpression): [estree.Node, estree.Node] | null {
-  if (isMethodCall(node) && node.arguments.length > 0) {
-    const {
-      callee: { object, property },
-    } = node;
-    if (object.type === 'MemberExpression') {
-      const { object: object1, property: property1 } = object;
-      if (
-        object1.type === 'CallExpression' &&
-        isFunctionInvocation(object1, 'expect', 1) &&
-        isIdentifier(property1, 'to') &&
-        isIdentifier(property, 'equal', 'eql')
-      ) {
-        return [object1.arguments[0], node.arguments[0]];
-      } else if (object1.type === 'MemberExpression') {
-        const { object: object2, property: property2 } = object1;
-        if (
-          object2.type === 'CallExpression' &&
-          isFunctionInvocation(object2, 'expect', 1) &&
-          isIdentifier(property2, 'to') &&
-          ((isIdentifier(property1, 'not') && isIdentifier(property, 'equal', 'eql')) ||
-            (isIdentifier(property1, 'be') && isIdentifier(property, 'closeTo')))
-        ) {
-          return [object2.arguments[0], node.arguments[0]];
-        }
-      }
-    }
+  if (node.callee.type !== 'MemberExpression') {
+    return null;
+  }
+  let { object, property } = node.callee;
+  if (!isIdentifier(property, 'equal', 'eql', 'closeTo')) {
+    return null;
+  }
+  while (object.type === 'MemberExpression') {
+    object = object.object;
+  }
+  if (object.type === 'CallExpression' && isIdentifier(object.callee, 'expect')) {
+    return [object.arguments[0], node.arguments[0]];
   }
   return null;
 }

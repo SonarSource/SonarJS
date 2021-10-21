@@ -21,6 +21,7 @@ describe("invalid comparisons", function() {
 
     it("uses chai 'expect'", function() {
       expect(42).to.equal(aNumber); // Noncompliant
+      expect(42).to.be.equal(aNumber); // Noncompliant
       expect(42).to.not.equal(aNumber); // Noncompliant
       expect(42).to.eql(aNumber); // Noncompliant
       expect(42).to.not.eql(aNumber); // Noncompliant
