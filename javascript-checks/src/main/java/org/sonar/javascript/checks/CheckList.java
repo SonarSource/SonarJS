@@ -173,6 +173,7 @@ public final class CheckList {
       InstanceofInMisuseCheck.class,
       IntrusivePermissionsCheck.class,
       InvariantReturnCheck.class,
+      InvertedAssertionArgumentsCheck.class,
       IpForwardCheck.class,
       JumpStatementInFinallyCheck.class,
       LabelPlacementCheck.class,
