@@ -1,0 +1,22 @@
+{
+  "title": "Assertions comparing incompatible types should not be made",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "chai"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-5845",
+  "sqKey": "S5845",
+  "scope": "Tests",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

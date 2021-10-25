@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import * as ts from 'typescript';
-import { isRequiredParserServices, getTypeFromTreeNode, toEncodedMessage } from '../utils';
+import { haveDissimilarTypes, isRequiredParserServices, toEncodedMessage } from '../utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -39,50 +38,10 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
-    function isSameSymbol(s: ts.Type, t: ts.Type) {
-      return s.symbol && t.symbol && s.symbol.name === t.symbol.name;
-    }
-
-    function isSubType(s: ts.Type, t: ts.Type): boolean {
-      return (
-        (s.flags & t.flags) !== 0 ||
-        (t.isUnionOrIntersection() && t.types.some(tp => isSubType(s, tp)))
-      );
-    }
-
-    function isAny(type: ts.Type) {
-      return type.flags === ts.TypeFlags.Any;
-    }
-
-    function isUndefinedOrNull(type: ts.Type) {
-      return type.flags === ts.TypeFlags.Null || type.flags === ts.TypeFlags.Undefined;
-    }
-
-    function isThis(node: estree.Node) {
-      return node.type === 'ThisExpression';
-    }
-
-    function haveDissimilarTypes(lhs: estree.Node, rhs: estree.Node) {
-      const { getBaseTypeOfLiteralType } = services.program.getTypeChecker();
-      const lhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
-      const rhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
-      return (
-        !isSameSymbol(lhsType, rhsType) &&
-        !isSubType(lhsType, rhsType) &&
-        !isSubType(rhsType, lhsType) &&
-        !isAny(lhsType) &&
-        !isAny(rhsType) &&
-        !isUndefinedOrNull(lhsType) &&
-        !isUndefinedOrNull(rhsType) &&
-        !isThis(lhs) &&
-        !isThis(rhs)
-      );
-    }
-
     return {
       BinaryExpression: (node: estree.Node) => {
         const { left, operator, right } = node as estree.BinaryExpression;
-        if (['===', '!=='].includes(operator) && haveDissimilarTypes(left, right)) {
+        if (['===', '!=='].includes(operator) && haveDissimilarTypes(left, right, services)) {
           const [actual, expected, outcome] =
             operator === '===' ? ['===', '==', 'false'] : ['!==', '!=', 'true'];
           context.report({

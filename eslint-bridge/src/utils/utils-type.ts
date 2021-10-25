@@ -19,8 +19,8 @@
  */
 import * as estree from 'estree';
 import ts from 'typescript';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { RequiredParserServices } from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+import {TSESTree} from '@typescript-eslint/experimental-utils';
+import {RequiredParserServices} from 'eslint-plugin-sonarjs/lib/utils/parser-services';
 
 export function isArray(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);
@@ -80,5 +80,40 @@ export function getSignatureFromCallee(node: estree.Node, services: RequiredPars
   const checker = services.program.getTypeChecker();
   return checker.getResolvedSignature(
     services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as ts.CallLikeExpression,
+  );
+}
+
+function isSameSymbol(s: ts.Type, t: ts.Type) {
+  return s.symbol && t.symbol && s.symbol.name === t.symbol.name;
+}
+
+function isSubType(s: ts.Type, t: ts.Type): boolean {
+  return (
+    (s.flags & t.flags) !== 0 || (t.isUnionOrIntersection() && t.types.some(tp => isSubType(s, tp)))
+  );
+}
+
+function isThis(node: estree.Node) {
+  return node.type === 'ThisExpression';
+}
+
+export function haveDissimilarTypes(
+  lhs: estree.Node,
+  rhs: estree.Node,
+  services: RequiredParserServices,
+) {
+  const { getBaseTypeOfLiteralType } = services.program.getTypeChecker();
+  const lhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
+  const rhsType = getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
+  return (
+    !isSameSymbol(lhsType, rhsType) &&
+    !isSubType(lhsType, rhsType) &&
+    !isSubType(rhsType, lhsType) &&
+    !isAny(lhsType) &&
+    !isAny(rhsType) &&
+    !isUndefinedOrNull(lhs, services) &&
+    !isUndefinedOrNull(rhs, services) &&
+    !isThis(lhs) &&
+    !isThis(rhs)
   );
 }
