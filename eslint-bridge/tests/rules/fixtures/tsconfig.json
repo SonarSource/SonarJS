@@ -1,0 +1,10 @@
+{
+  "files": [
+    "./no-incompatible-type-assertion.ts"
+  ],
+  "compilerOptions": {
+    "types": [
+      "node"
+    ]
+  }
+}

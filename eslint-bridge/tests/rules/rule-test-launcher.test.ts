@@ -19,14 +19,16 @@
  */
 
 import * as fs from 'fs';
+import {readFileSync} from 'fs';
 import * as path from 'path';
-import { Rule, RuleTester } from 'eslint';
+import {Rule, RuleTester, SourceCode} from 'eslint';
 
-import { rules } from 'rules/main';
-import { readAssertions } from '../testing-framework/assertions';
-import { buildSourceCode } from 'parser';
-import { readFileSync } from 'fs';
-import { FileType } from '../../src/analyzer';
+import {rules} from 'rules/main';
+import {readAssertions} from '../testing-framework/assertions';
+import {buildSourceCode} from 'parser';
+import {FileType} from '../../src/analyzer';
+import * as ts from "typescript";
+import {ParserServices} from "@typescript-eslint/parser";
 
 /**
  * Return test files for specific rule based on rule key
@@ -79,10 +81,42 @@ export function parseForESLint(
   fileType: FileType = 'MAIN',
 ) {
   const { filePath } = options;
-  return buildSourceCode(
-    { filePath, fileContent, fileType },
+  const sourceCode = buildSourceCode(
+    {
+      filePath,
+      fileContent,
+      fileType,
+      tsConfigs: [path.join(__dirname, 'fixtures/tsconfig.json')],
+    },
     filePath.endsWith('.ts') ? 'ts' : 'js',
   );
+  if (sourceCode instanceof SourceCode) {
+    printDiag(sourceCode.parserServices);
+    return {
+      ast: sourceCode.ast,
+      services: sourceCode.parserServices,
+      scopeManager: sourceCode.scopeManager,
+      visitorKeys: sourceCode.visitorKeys,
+    };
+  } else {
+    throw new Error('failed to parse ' + sourceCode);
+  }
+}
+
+function printDiag(services: ParserServices) {
+  let allDiagnostics = ts
+    .getPreEmitDiagnostics(services.program);
+
+  allDiagnostics.forEach(diagnostic => {
+    if (diagnostic.file) {
+      let { line, character } = ts.getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start!);
+      let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
+      console.log(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
+    } else {
+      console.log(ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"));
+    }
+  });
+
 }
 
 const ruleTester = new RuleTester({ parser: __filename });

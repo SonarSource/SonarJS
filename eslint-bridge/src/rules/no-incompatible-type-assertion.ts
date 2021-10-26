@@ -26,7 +26,6 @@ import {
   haveDissimilarTypes,
   isIdentifier,
   isRequiredParserServices,
-  RequiredParserServices,
   toEncodedMessage,
 } from '../utils';
 import * as estree from 'estree';
@@ -43,53 +42,45 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
 
+    function checkAssert(callee: estree.MemberExpression, args: estree.Node[]) {
+      const [arg1, arg2] = args;
+      if (!arg2) {
+        return;
+      }
+
+      const { object, property } = callee;
+      if (!isIdentifier(object, 'assert')) {
+        return;
+      }
+
+      if (isIdentifier(property, 'strictEqual', 'notStrictEqual')) {
+        // non-strict equality
+        const arg1Type = getTypeAsString(arg1, services);
+        const arg2Type = getTypeAsString(arg2, services);
+        // console.log(`${arg1.loc?.start.line}: ${arg1Type} , ${arg2Type}`);
+        if (haveDissimilarTypes(arg1, arg2, services)) {
+          context.report({
+            node: property,
+            message: toEncodedMessage(
+              `Change this assertion to not compare dissimilar types ("${arg1Type}" and "${arg2Type}").`,
+              [],
+            ),
+          });
+        }
+      }
+    }
+
     if (!isRequiredParserServices(services) || !Chai.isImported(context)) {
       return {};
     }
 
     return {
-      CallExpression: (node: estree.Node) => {
+      CallExpression(node: estree.Node) {
         const { callee, arguments: args } = node as estree.CallExpression;
         if (callee.type === 'MemberExpression') {
-          checkAssert(context, services, callee, args);
+          checkAssert(callee, args);
         }
       },
     };
   },
 };
-
-function checkAssert(
-  context: Rule.RuleContext,
-  services: RequiredParserServices,
-  callee: estree.MemberExpression,
-  args: estree.Node[],
-) {
-  const [arg1, arg2] = args;
-  if (!arg2) {
-    return;
-  }
-
-  const { object, property } = callee;
-  if (!isIdentifier(object, 'assert')) {
-    return;
-  }
-
-  if (isIdentifier(property, 'equal', 'notEqual')) {
-    // non-strict equality
-    const arg1Type = getTypeAsString(arg1, services);
-    const arg2Type = getTypeAsString(arg2, services);
-    if (haveDissimilarTypes(arg1, arg2, services)) {
-      context.report({
-        node: arg1,
-        message: toEncodedMessage(
-          `Change this assertion to not compare dissimilar types ("${arg1Type}" and "${arg2Type}").`,
-          [],
-        ),
-      });
-    }
-  }
-
-  if (isIdentifier(property, 'strictEqual', 'notStrictEqual')) {
-    // strict equality
-  }
-}
