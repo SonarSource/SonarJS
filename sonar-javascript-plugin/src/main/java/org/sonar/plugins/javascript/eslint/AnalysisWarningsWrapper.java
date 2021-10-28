@@ -25,7 +25,7 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
-@SonarLintSide
+@SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
 public class AnalysisWarningsWrapper {
 
   private final AnalysisWarnings analysisWarnings;
