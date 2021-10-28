@@ -43,6 +43,7 @@ public class CoverageTest {
       .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
+      .setProperty("sonar.exclusions", "dir/**")
       .setProperty("sonar.javascript.lcov.reportPaths", "coverage.lcov");
     OrchestratorStarter.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
@@ -62,6 +63,7 @@ public class CoverageTest {
       .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
+      .setProperty("sonar.exclusions", "dir/**")
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
     OrchestratorStarter.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
@@ -81,6 +83,7 @@ public class CoverageTest {
       .setProjectName(projectKey)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
+      .setProperty("sonar.exclusions", "dir/**")
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
     OrchestratorStarter.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
@@ -99,6 +102,7 @@ public class CoverageTest {
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1.0")
+      .setProperty("sonar.exclusions", "dir/**")
       .setSourceDirs(".");
 
     OrchestratorStarter.setEmptyProfile(projectKey);
@@ -119,6 +123,7 @@ public class CoverageTest {
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1.0")
+      .setProperty("sonar.exclusions", "dir/**")
       .setSourceDirs(".");
     OrchestratorStarter.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
@@ -163,6 +168,7 @@ public class CoverageTest {
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setDebugLogs(true)
+      .setProperty("sonar.exclusions", "dir/**")
       .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage-wrong-line.lcov").getAbsolutePath());
     OrchestratorStarter.setEmptyProfile(projectKey);
     BuildResult result = orchestrator.executeBuild(build);
@@ -215,5 +221,28 @@ public class CoverageTest {
     assertThat(getMeasureAsInt(projectKey + ":bar/bar.js", "uncovered_lines")).isEqualTo(1);
     assertThat(getMeasureAsInt(projectKey + ":baz/baz.js", "uncovered_lines")).isEqualTo(5);
     assertThat(getMeasureAsInt(projectKey + ":baz/qux/qux.js", "uncovered_lines")).isEqualTo(1);
+  }
+
+  @Test
+  public void LCOV_report_outside_module() {
+    final String projectKey = "LcovReportOutsideModule";
+    SonarScanner build = OrchestratorStarter.createScanner()
+      .setProjectDir(TestUtils.projectDir("lcov"))
+      .setProperty("sonar.modules", "dir")
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
+      .setProjectVersion("1.0")
+      .setSourceDirs(".")
+      .setProperty("sonar.exclusions", "**")
+      .setProperty("dir.sonar.exclusions", "")
+      .setProperty("dir.sonar.projectBaseDir", "dir")
+      .setProperty("dir.sonar.javascript.lcov.reportPaths", "../coverage.lcov");
+    OrchestratorStarter.setEmptyProfile(projectKey);
+    orchestrator.executeBuild(build);
+
+    assertThat(getMeasureAsInt(projectKey, "lines_to_cover")).isEqualTo(7);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_lines")).isEqualTo(1);
+    assertThat(getMeasureAsInt(projectKey, "conditions_to_cover")).isEqualTo(4);
+    assertThat(getMeasureAsInt(projectKey, "uncovered_conditions")).isEqualTo(1);
   }
 }
