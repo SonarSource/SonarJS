@@ -59,6 +59,10 @@ describe("Code is executed after Done", function() {
 //      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     });
 
+    it("should not report twice on previous issue (clean the state)", function() {
+        foo();
+    });
+
     it ("'done' is inside another function", function(done) {
         function foo(){
             done();

@@ -85,6 +85,10 @@ export const rule: Rule.RuleModule = {
           doneCall as TSESTree.Node,
         ]),
       });
+
+      doneSegment = undefined;
+      doneCall = undefined;
+      currentDoneVariable = undefined;
     }
 
     return {
@@ -96,9 +100,6 @@ export const rule: Rule.RuleModule = {
       ExpressionStatement: (node: estree.Node) => {
         if (currentSegment && currentSegment === doneSegment) {
           report(node);
-          doneSegment = undefined;
-          doneCall = undefined;
-          currentDoneVariable = undefined;
         }
 
         if (currentSegment && !segmentFirstStatement.has(currentSegment)) {
