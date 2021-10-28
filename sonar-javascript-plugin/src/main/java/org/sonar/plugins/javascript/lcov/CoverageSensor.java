@@ -68,15 +68,17 @@ public class CoverageSensor implements Sensor {
     List<File> lcovFiles = new ArrayList<>();
     for (String reportPath : reportPaths) {
       LOG.debug("Using '{}' to resolve LCOV files", reportPath);
+
+      File fileByHardcodedPath = getFileByHardcodedPath(baseDir, reportPath);
+      if (fileByHardcodedPath != null) {
+        lcovFiles.add(fileByHardcodedPath);
+        continue;
+      }
+
       FileProvider fileProvider = new FileProvider(baseDir, reportPath);
       List<File> matchingFiles = fileProvider.getMatchingFiles();
       if (matchingFiles.isEmpty()) {
-        File file = new File(reportPath);
-        if (!file.exists()) {
-          LOG.info("No LCOV files were found using {}", reportPath);
-        } else {
-          matchingFiles.add(file);
-        }
+        LOG.info("No LCOV files were found using {}", reportPath);
       }
       lcovFiles.addAll(matchingFiles);
     }
@@ -117,5 +119,16 @@ public class CoverageSensor implements Sensor {
     if (inconsistenciesNumber > 0) {
       LOG.warn("Found {} inconsistencies in coverage report. Re-run analyse in debug mode to see details.", inconsistenciesNumber);
     }
+  }
+
+  private static File getFileByHardcodedPath(File baseDir, String path) {
+    File file = new File(path);
+    if (!file.isAbsolute()) {
+      file = new File(baseDir, path);
+    }
+    if (!file.isFile()) {
+      return null;
+    }
+    return file;
   }
 }

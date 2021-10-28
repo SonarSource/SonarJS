@@ -192,8 +192,8 @@ public class CoverageSensorTest {
   }
 
   @Test
-  public void should_resolve_relative_path() throws Exception {
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "reports/report_relative_path.lcov");
+  public void should_resolve_relative_path_and_outside_base_dir() throws Exception {
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "../report_relative_path.lcov");
     inputFile("deep/nested/dir/js/file1.js", Type.MAIN);
     inputFile("deep/nested/dir/js/file2.js", Type.MAIN);
     coverageSensor.execute(context);
