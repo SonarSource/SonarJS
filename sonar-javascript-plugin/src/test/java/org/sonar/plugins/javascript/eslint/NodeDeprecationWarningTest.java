@@ -42,55 +42,46 @@ public class NodeDeprecationWarningTest {
   @RegisterExtension
   public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
+  static class TestAnalysisWarnings extends AnalysisWarningsWrapper {
+    List<String> warnings = new ArrayList<>();
+
+    @Override
+    public void addUnique(String text) {
+      warnings.add(text);
+    }
+  }
+
+  TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
+  NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(analysisWarnings);
+
   @Test
   public void test() {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(8, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    List<String> warnings = new ArrayList<>();
-    NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime, warnings::add);
     deprecationWarning.logNodeDeprecation(8);
 
-    assertThat(warnings).containsExactly(MSG);
+    assertThat(analysisWarnings.warnings).containsExactly(MSG);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(MSG);
   }
 
   @Test
   public void test_10() {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(8, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    List<String> warnings = new ArrayList<>();
-    NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime, warnings::add);
     deprecationWarning.logNodeDeprecation(10);
 
-    assertThat(warnings).containsExactly(MSG_10);
+    assertThat(analysisWarnings.warnings).containsExactly(MSG_10);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(MSG_10);
   }
 
   @Test
   public void test_good_version() {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(8, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    List<String> warnings = new ArrayList<>();
-    NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime, warnings::add);
     deprecationWarning.logNodeDeprecation(12);
 
-    assertThat(warnings).isEmpty();
+    assertThat(analysisWarnings.warnings).isEmpty();
     assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
-  }
-
-  @Test
-  public void test_sonarcloud() {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(8, 5), SonarQubeSide.SCANNER, SonarEdition.SONARCLOUD);
-    List<String> warnings = new ArrayList<>();
-    NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime, warnings::add);
-    deprecationWarning.logNodeDeprecation(8);
-
-    assertThat(warnings).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(MSG);
   }
 
   @Test
   public void test_no_warnings() {
     // SonarLint doesn't provide AnalysisWarnings API
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(8, 5));
-    NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime);
+    NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(new AnalysisWarningsWrapper());
     deprecationWarning.logNodeDeprecation(8);
 
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(MSG);
@@ -98,12 +89,9 @@ public class NodeDeprecationWarningTest {
 
   @Test
   public void test_unsupported_version() {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(8, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    List<String> warnings = new ArrayList<>();
-    NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime, warnings::add);
     deprecationWarning.logNodeDeprecation(15);
 
-    assertThat(warnings).containsExactly(UNSUPPORTED_MSG);
+    assertThat(analysisWarnings.warnings).containsExactly(UNSUPPORTED_MSG);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(UNSUPPORTED_MSG);
   }
 

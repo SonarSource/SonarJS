@@ -21,11 +21,6 @@ package org.sonar.plugins.javascript.eslint;
 
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nullable;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarProduct;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -39,15 +34,9 @@ public class NodeDeprecationWarning {
   static final int MIN_NODE_VERSION = 10;
   private static final int MIN_RECOMMENDED_NODE_VERSION = 12;
   private static final List<Integer> SUPPORTED_NODE_VERSIONS = Arrays.asList(12, 14, 16);
-  private final SonarRuntime sonarRuntime;
-  private final AnalysisWarnings analysisWarnings;
+  private final AnalysisWarningsWrapper analysisWarnings;
 
-  public NodeDeprecationWarning(SonarRuntime sonarRuntime) {
-    this(sonarRuntime, null);
-  }
-
-  public NodeDeprecationWarning(SonarRuntime sonarRuntime, @Nullable AnalysisWarnings analysisWarnings) {
-    this.sonarRuntime = sonarRuntime;
+  public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {
     this.analysisWarnings = analysisWarnings;
   }
 
@@ -57,22 +46,12 @@ public class NodeDeprecationWarning {
         "Support for this version will be dropped in future release, please upgrade Node.js to more recent version.",
         actualNodeVersion);
       LOG.warn(msg);
-      addWarning(msg);
+      analysisWarnings.addUnique(msg);
     } else if (!SUPPORTED_NODE_VERSIONS.contains(actualNodeVersion)) {
       String msg = String.format("Node.js version %d is not supported, you might experience issues. Please use " +
         "a supported version of Node.js %s", actualNodeVersion, SUPPORTED_NODE_VERSIONS);
       LOG.warn(msg, actualNodeVersion);
-      addWarning(msg);
-    }
-  }
-
-  private void addWarning(String msg) {
-    if (isSonarQube() && analysisWarnings != null) {
       analysisWarnings.addUnique(msg);
     }
-  }
-
-  private boolean isSonarQube() {
-    return sonarRuntime.getProduct() == SonarProduct.SONARQUBE && sonarRuntime.getEdition() != SonarEdition.SONARCLOUD;
   }
 }
