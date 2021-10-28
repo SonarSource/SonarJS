@@ -34,6 +34,7 @@ import { ParserServices, TSESTree } from '@typescript-eslint/experimental-utils'
 import { tokenizeString } from './utils-string-literal';
 import { isString } from './utils-type';
 import { last } from './utils-collection';
+
 /**
  * An alternation is a regexpp node that has an `alternatives` field.
  */
@@ -170,9 +171,17 @@ export function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node):
     // regexpNode positions are 1 - based, we need to -1 to report as 0 - based
     // it's possible for node start to be outside of range, e.g. `a` in new RegExp('//a')
     const startToken = regexpNode.start - 1;
+    if (tokens[startToken] === undefined) {
+      // fallback when something is broken
+      return node.range!;
+    }
     const start = tokens[startToken].range[0];
     // it's possible for node end to be outside of range, e.g. new RegExp('\n(|)')
     const endToken = Math.min(regexpNode.end - 2, tokens.length - 1);
+    if (tokens[endToken] === undefined) {
+      // fallback when something is broken
+      return node.range!;
+    }
     const end = tokens[endToken].range[1];
     // +1 is needed to account for string quotes
     return [start + 1, end + 1];
