@@ -20,8 +20,10 @@
 
 import * as esprima from 'esprima';
 import * as estree from 'estree';
-import { getRegexpRange } from 'utils';
+import { getRegexpLocation, getRegexpRange } from 'utils';
 import * as regexpp from 'regexpp';
+import { Rule, SourceCode } from 'eslint';
+import RuleContext = Rule.RuleContext;
 
 it('should get range for regexp /s*', () => {
   const program = esprima.parse(`'/s*'`);
@@ -49,4 +51,39 @@ it('should get range for \\ns', () => {
   const range = getRegexpRange(literal, quantifier);
   // this fails to compute, so we return range of the whole node
   expect(range).toStrictEqual([0, 5]);
+});
+
+it('should get range for template literal', () => {
+  const program = esprima.parse('`\\ns`', { range: true });
+  const literal: estree.TemplateLiteral = program.body[0].expression;
+  const regexNode = regexpp.parseRegExpLiteral(new RegExp(literal.quasis[0].value.raw as string));
+  const quantifier = regexNode.pattern.alternatives[0].elements[1];
+  const range = getRegexpRange(literal, quantifier);
+  // this fails to compute, so we return range of the whole node
+  expect(range).toStrictEqual([0, 5]);
+});
+
+it('should throw for wrong node', () => {
+  const program = esprima.parse(`'\\ns'`, { range: true });
+  expect(() => {
+    getRegexpRange(program, undefined);
+  }).toThrow('Expected regexp or string literal, got Program');
+});
+
+it('should report correct range when fails to determine real range', () => {
+  let code = `     '\\ns'`;
+  const program = esprima.parse(code, { range: true, tokens: true, comment: true, loc: true });
+  const literal: estree.Literal = program.body[0].expression;
+  const regexNode = regexpp.parseRegExpLiteral(new RegExp(literal.value as string));
+  const quantifier = regexNode.pattern.alternatives[0].elements[1];
+  const context = {
+    getSourceCode() {
+      return new SourceCode(code, program);
+    },
+  };
+  const range = getRegexpLocation(literal, quantifier, context as RuleContext);
+  expect(range).toStrictEqual({
+    start: { column: 5, line: 1 },
+    end: { column: 10, line: 1 },
+  });
 });
