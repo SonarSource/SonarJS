@@ -86,8 +86,7 @@ public class EslintBridgeServerImplTest {
   private final TestBundle testBundle = new TestBundle(START_SERVER_SCRIPT);
 
   private final RulesBundles emptyRulesBundles = new RulesBundles();
-  private final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(8, 5), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-  private final NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(sonarRuntime);
+  private final NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(new AnalysisWarningsWrapper());
 
   @BeforeEach
   public void setUp() throws Exception {
