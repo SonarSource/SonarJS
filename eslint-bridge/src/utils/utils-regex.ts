@@ -173,14 +173,14 @@ export function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node):
     const startToken = regexpNode.start - 1;
     if (tokens[startToken] === undefined) {
       // fallback when something is broken
-      return node.range!;
+      return nodeRange(node);
     }
     const start = tokens[startToken].range[0];
     // it's possible for node end to be outside of range, e.g. new RegExp('\n(|)')
     const endToken = Math.min(regexpNode.end - 2, tokens.length - 1);
     if (tokens[endToken] === undefined) {
       // fallback when something is broken
-      return node.range!;
+      return nodeRange(node);
     }
     const end = tokens[endToken].range[1];
     // +1 is needed to account for string quotes
@@ -188,9 +188,13 @@ export function getRegexpRange(node: estree.Node, regexpNode: regexpp.AST.Node):
   }
   if (node.type === 'TemplateLiteral') {
     // we don't support these properly
-    return node.range!;
+    return nodeRange(node);
   }
   throw new Error(`Expected regexp or string literal, got ${node.type}`);
+}
+
+function nodeRange(node: estree.Node): [number, number] {
+  return [0, node.range![1] - node.range![0]];
 }
 
 function unquote(s: string): string {
