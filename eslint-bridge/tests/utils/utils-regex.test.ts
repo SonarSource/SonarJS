@@ -53,7 +53,7 @@ it('should get range for \\ns', () => {
   expect(range).toStrictEqual([0, 5]);
 });
 
-it('should get range for xxx', () => {
+it('should report correct range when fails to determine real range', () => {
   let code = new Array(1000).join(' ') + `'\\ns'`;
   const program = esprima.parse(code, { range: true, tokens: true, comment: true, loc: true });
   const literal: estree.Literal = program.body[0].expression;
