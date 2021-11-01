@@ -144,7 +144,7 @@ describe('#analyzeJavaScript', () => {
       fileContent: codeToTest,
       fileType: 'MAIN',
     }).highlights;
-    expect(highlights).toHaveLength(10);
+    expect(highlights).toHaveLength(11);
   });
 
   it('should report cpd tokens', () => {
