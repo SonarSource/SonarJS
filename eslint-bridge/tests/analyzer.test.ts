@@ -94,7 +94,7 @@ describe('#analyzeJavaScript', () => {
     expect(result.highlights).toHaveLength(11);
   });
 
-  it.only('should analyze both main and test files', () => {
+  it('should analyze both main and test files', () => {
     initLinter([
       { key: 'no-one-iteration-loop', configurations: [], fileTypeTarget: ['TEST', 'MAIN'] },
       { key: 'no-duplicate-string', configurations: ['2'], fileTypeTarget: ['MAIN'] },
@@ -144,7 +144,7 @@ describe('#analyzeJavaScript', () => {
       fileContent: codeToTest,
       fileType: 'MAIN',
     }).highlights;
-    expect(highlights).toHaveLength(10);
+    expect(highlights).toHaveLength(11);
   });
 
   it('should report cpd tokens', () => {
