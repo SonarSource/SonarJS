@@ -64,7 +64,7 @@ build_task:
       - curl --silent ${SONAR_HOST_URL}/deploy/plugins/index.txt | sort
   build_script:
     - source cirrus-env BUILD
-    - yarn config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
@@ -78,7 +78,7 @@ build_win_task:
     #windows cache is buggy if using ${CIRRUS_WORKING_DIR}
     folder: ~/.m2/repository
   build_script:
-    - yarn config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - mvn.cmd -s /c/buildTools-docker/settings-public.xml test
   cleanup_before_cache_script: cleanup_maven_repository
 

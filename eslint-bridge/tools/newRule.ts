@@ -39,7 +39,7 @@ try {
   process.exit(1);
 }
 
-// example: yarn new-rule S1234 no-something-somewhere
+// example: npm run new-rule S1234 no-something-somewhere
 function run() {
   if (process.argv.length !== 4) {
     throw new Error(`Invalid number of arguments: expected 2, but got ${process.argv.length - 2}`);
