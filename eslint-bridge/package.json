@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "bridge between SonarJS and ESLint",
   "scripts": {
-    "build": "npm install && npm run check-format && npm run clear && npm run compile",
+    "build": "npm ci && npm run check-format && npm run clear && npm run compile",
     "clear": "tsc -b src tests --clean",
     "check-format": "prettier --list-different \"{src,tests}/**/!(*.lint).ts\"",
     "test": "jest",
