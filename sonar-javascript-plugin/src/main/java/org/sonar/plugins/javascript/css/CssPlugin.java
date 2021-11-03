@@ -22,10 +22,7 @@ package org.sonar.plugins.javascript.css;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.plugins.javascript.css.server.NodeDeprecationWarning;
-import org.sonar.plugins.javascript.css.server.bundle.CssAnalyzerBundle;
 import org.sonar.plugins.javascript.css.metrics.MetricSensor;
-import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer;
 
 public class CssPlugin implements Plugin {
 
@@ -48,12 +45,9 @@ public class CssPlugin implements Plugin {
       CssLanguage.class,
       CssProfileDefinition.class,
       CssRulesDefinition.class,
-      CssAnalyzerBundle.class,
-      CssAnalyzerBridgeServer.class,
       CssRuleSensor.class,
       StylelintReportSensor.class,
       MinifiedFilesFilter.class,
-      NodeDeprecationWarning.class,
 
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
         .defaultValue(FILE_SUFFIXES_DEFVALUE)
