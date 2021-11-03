@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin;
+package org.sonar.plugins.javascript.css;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -41,12 +41,12 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.css.plugin.StylelintReport.Issue;
-import org.sonar.css.plugin.StylelintReport.IssuesPerFile;
+import org.sonar.plugins.javascript.css.StylelintReport.Issue;
+import org.sonar.plugins.javascript.css.StylelintReport.IssuesPerFile;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
-import static org.sonar.css.plugin.CssRulesDefinition.RESOURCE_FOLDER;
+import static org.sonar.plugins.javascript.css.CssRulesDefinition.RESOURCE_FOLDER;
 
 public class StylelintReportSensor implements Sensor {
 

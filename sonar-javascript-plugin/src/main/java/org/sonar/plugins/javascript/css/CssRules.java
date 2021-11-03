@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin;
+package org.sonar.plugins.javascript.css;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -35,32 +35,32 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.css.plugin.rules.AtRuleNoUnknown;
-import org.sonar.css.plugin.rules.BlockNoEmpty;
-import org.sonar.css.plugin.rules.ColorNoInvalidHex;
-import org.sonar.css.plugin.rules.CommentNoEmpty;
-import org.sonar.css.plugin.rules.CssRule;
-import org.sonar.css.plugin.rules.DeclarationBlockNoDuplicateProperties;
-import org.sonar.css.plugin.rules.DeclarationBlockNoShorthandPropertyOverrides;
-import org.sonar.css.plugin.rules.FontFamilyNoDuplicateNames;
-import org.sonar.css.plugin.rules.FontFamilyNoMissingGenericFamilyKeyword;
-import org.sonar.css.plugin.rules.FunctionCalcNoInvalid;
-import org.sonar.css.plugin.rules.FunctionCalcNoUnspacedOperator;
-import org.sonar.css.plugin.rules.FunctionLinearGradientNoNonstandardDirection;
-import org.sonar.css.plugin.rules.KeyframeDeclarationNoImportant;
-import org.sonar.css.plugin.rules.MediaFeatureNameNoUnknown;
-import org.sonar.css.plugin.rules.NoDescendingSpecificity;
-import org.sonar.css.plugin.rules.NoDuplicateAtImportRules;
-import org.sonar.css.plugin.rules.NoDuplicateSelectors;
-import org.sonar.css.plugin.rules.NoEmptySource;
-import org.sonar.css.plugin.rules.NoExtraSemicolons;
-import org.sonar.css.plugin.rules.NoInvalidDoubleSlashComments;
-import org.sonar.css.plugin.rules.PropertyNoUnknown;
-import org.sonar.css.plugin.rules.SelectorPseudoClassNoUnknown;
-import org.sonar.css.plugin.rules.SelectorPseudoElementNoUnknown;
-import org.sonar.css.plugin.rules.SelectorTypeNoUnknown;
-import org.sonar.css.plugin.rules.StringNoNewline;
-import org.sonar.css.plugin.rules.UnitNoUnknown;
+import org.sonar.plugins.javascript.css.rules.AtRuleNoUnknown;
+import org.sonar.plugins.javascript.css.rules.BlockNoEmpty;
+import org.sonar.plugins.javascript.css.rules.ColorNoInvalidHex;
+import org.sonar.plugins.javascript.css.rules.CommentNoEmpty;
+import org.sonar.plugins.javascript.css.rules.CssRule;
+import org.sonar.plugins.javascript.css.rules.DeclarationBlockNoDuplicateProperties;
+import org.sonar.plugins.javascript.css.rules.DeclarationBlockNoShorthandPropertyOverrides;
+import org.sonar.plugins.javascript.css.rules.FontFamilyNoDuplicateNames;
+import org.sonar.plugins.javascript.css.rules.FontFamilyNoMissingGenericFamilyKeyword;
+import org.sonar.plugins.javascript.css.rules.FunctionCalcNoInvalid;
+import org.sonar.plugins.javascript.css.rules.FunctionCalcNoUnspacedOperator;
+import org.sonar.plugins.javascript.css.rules.FunctionLinearGradientNoNonstandardDirection;
+import org.sonar.plugins.javascript.css.rules.KeyframeDeclarationNoImportant;
+import org.sonar.plugins.javascript.css.rules.MediaFeatureNameNoUnknown;
+import org.sonar.plugins.javascript.css.rules.NoDescendingSpecificity;
+import org.sonar.plugins.javascript.css.rules.NoDuplicateAtImportRules;
+import org.sonar.plugins.javascript.css.rules.NoDuplicateSelectors;
+import org.sonar.plugins.javascript.css.rules.NoEmptySource;
+import org.sonar.plugins.javascript.css.rules.NoExtraSemicolons;
+import org.sonar.plugins.javascript.css.rules.NoInvalidDoubleSlashComments;
+import org.sonar.plugins.javascript.css.rules.PropertyNoUnknown;
+import org.sonar.plugins.javascript.css.rules.SelectorPseudoClassNoUnknown;
+import org.sonar.plugins.javascript.css.rules.SelectorPseudoElementNoUnknown;
+import org.sonar.plugins.javascript.css.rules.SelectorTypeNoUnknown;
+import org.sonar.plugins.javascript.css.rules.StringNoNewline;
+import org.sonar.plugins.javascript.css.rules.UnitNoUnknown;
 
 public class CssRules {
 

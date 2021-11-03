@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin.rules;
+package org.sonar.plugins.javascript.css.rules;
 
 import org.sonar.check.Rule;
 
@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.RuleProperty;
 
-import static org.sonar.css.plugin.rules.RuleUtils.splitAndTrim;
+import static org.sonar.plugins.javascript.css.rules.RuleUtils.splitAndTrim;
 
 
 @Rule(key = "S4654")

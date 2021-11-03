@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin;
+package org.sonar.plugins.javascript.css;
 
 import org.sonar.api.Plugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.css.plugin.server.NodeDeprecationWarning;
-import org.sonar.css.plugin.server.bundle.CssAnalyzerBundle;
-import org.sonar.css.plugin.metrics.MetricSensor;
-import org.sonar.css.plugin.server.CssAnalyzerBridgeServer;
+import org.sonar.plugins.javascript.css.server.NodeDeprecationWarning;
+import org.sonar.plugins.javascript.css.server.bundle.CssAnalyzerBundle;
+import org.sonar.plugins.javascript.css.metrics.MetricSensor;
+import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer;
 
 public class CssPlugin implements Plugin {
 

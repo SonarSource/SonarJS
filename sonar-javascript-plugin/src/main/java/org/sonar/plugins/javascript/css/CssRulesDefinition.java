@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin;
+package org.sonar.plugins.javascript.css;
 
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
-import static org.sonar.css.plugin.SonarWayProfile.PROFILE_PATH;
+import static org.sonar.plugins.javascript.css.SonarWayProfile.PROFILE_PATH;
 
 public class CssRulesDefinition implements RulesDefinition {
 

@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin.rules;
+package org.sonar.plugins.javascript.css.rules;
 
 import com.google.gson.Gson;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
-import org.sonar.css.plugin.CssRules;
+import org.sonar.plugins.javascript.css.CssRules;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

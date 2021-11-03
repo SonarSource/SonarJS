@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin;
+package org.sonar.plugins.javascript.css;
 
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
-import static org.sonar.css.plugin.CssRulesDefinition.REPOSITORY_KEY;
-import static org.sonar.css.plugin.CssRulesDefinition.RESOURCE_FOLDER;
+import static org.sonar.plugins.javascript.css.CssRulesDefinition.REPOSITORY_KEY;
+import static org.sonar.plugins.javascript.css.CssRulesDefinition.RESOURCE_FOLDER;
 
 public class SonarWayProfile implements BuiltInQualityProfilesDefinition {
 

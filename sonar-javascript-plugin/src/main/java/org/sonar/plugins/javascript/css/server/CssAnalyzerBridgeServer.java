@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin.server;
+package org.sonar.plugins.javascript.css.server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -38,14 +38,14 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.css.plugin.server.bundle.Bundle;
+import org.sonar.plugins.javascript.css.server.bundle.Bundle;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
 
-import static org.sonar.css.plugin.CssRuleSensor.hasCssFiles;
-import static org.sonar.css.plugin.CssRuleSensor.throwFailFast;
+import static org.sonar.plugins.javascript.css.CssRuleSensor.hasCssFiles;
+import static org.sonar.plugins.javascript.css.CssRuleSensor.throwFailFast;
 import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
 
 @ScannerSide

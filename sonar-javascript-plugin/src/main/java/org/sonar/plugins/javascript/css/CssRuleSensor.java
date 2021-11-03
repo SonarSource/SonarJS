@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin;
+package org.sonar.plugins.javascript.css;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -49,10 +49,10 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.css.plugin.CssRules.StylelintConfig;
-import org.sonar.css.plugin.server.CssAnalyzerBridgeServer;
-import org.sonar.css.plugin.server.CssAnalyzerBridgeServer.Issue;
-import org.sonar.css.plugin.server.CssAnalyzerBridgeServer.Request;
+import org.sonar.plugins.javascript.css.CssRules.StylelintConfig;
+import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer;
+import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer.Issue;
+import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer.Request;
 import org.sonarsource.analyzer.commons.ProgressReport;
 
 public class CssRuleSensor implements Sensor {

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin.server;
+package org.sonar.plugins.javascript.css.server;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -39,9 +39,9 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.css.plugin.server.CssAnalyzerBridgeServer.Issue;
-import org.sonar.css.plugin.server.CssAnalyzerBridgeServer.Request;
-import org.sonar.css.plugin.server.bundle.Bundle;
+import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer.Issue;
+import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer.Request;
+import org.sonar.plugins.javascript.css.server.bundle.Bundle;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;

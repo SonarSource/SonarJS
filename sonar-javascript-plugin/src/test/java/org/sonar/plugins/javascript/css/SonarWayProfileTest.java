@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.css.plugin;
+package org.sonar.plugins.javascript.css;
 
 import org.junit.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
@@ -38,7 +38,7 @@ public class SonarWayProfileTest {
     assertThat(profile.language()).isEqualTo(CssLanguage.KEY);
     assertThat(profile.name()).isEqualTo(SonarWayProfile.PROFILE_NAME);
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CssRulesDefinition.REPOSITORY_KEY);
-    // org.sonar.css.plugin.rules.FunctionCalcNoUnspacedOperator is not part of SonarWay
+    // org.sonar.plugins.javascript.css.rules.FunctionCalcNoUnspacedOperator is not part of SonarWay
     assertThat(profile.rules()).extracting("ruleKey").hasSize(CssRules.getRuleClasses().size() - 2);
   }
 
