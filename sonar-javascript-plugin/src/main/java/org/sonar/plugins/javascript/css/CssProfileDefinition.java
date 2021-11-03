@@ -25,7 +25,7 @@ import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 import static org.sonar.plugins.javascript.css.CssRulesDefinition.REPOSITORY_KEY;
 import static org.sonar.plugins.javascript.css.CssRulesDefinition.RESOURCE_FOLDER;
 
-public class SonarWayProfile implements BuiltInQualityProfilesDefinition {
+public class CssProfileDefinition implements BuiltInQualityProfilesDefinition {
 
   public static final String PROFILE_NAME = "Sonar way";
   public static final String PROFILE_PATH = RESOURCE_FOLDER + CssRulesDefinition.REPOSITORY_KEY + "/Sonar_way_profile.json";

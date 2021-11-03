@@ -25,18 +25,18 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.Context;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SonarWayProfileTest {
+public class CssProfileDefinitionTest {
 
   @Test
-  public void should_create_sonar_way_profile() {
-    SonarWayProfile definition = new SonarWayProfile();
+  public void should_create_css_profile() {
+    CssProfileDefinition definition = new CssProfileDefinition();
     Context context = new Context();
     definition.define(context);
 
-    BuiltInQualityProfile profile = context.profile("css", SonarWayProfile.PROFILE_NAME);
+    BuiltInQualityProfile profile = context.profile("css", CssProfileDefinition.PROFILE_NAME);
 
     assertThat(profile.language()).isEqualTo(CssLanguage.KEY);
-    assertThat(profile.name()).isEqualTo(SonarWayProfile.PROFILE_NAME);
+    assertThat(profile.name()).isEqualTo(CssProfileDefinition.PROFILE_NAME);
     assertThat(profile.rules()).extracting("repoKey").containsOnly(CssRulesDefinition.REPOSITORY_KEY);
     // org.sonar.plugins.javascript.css.rules.FunctionCalcNoUnspacedOperator is not part of SonarWay
     assertThat(profile.rules()).extracting("ruleKey").hasSize(CssRules.getRuleClasses().size() - 2);

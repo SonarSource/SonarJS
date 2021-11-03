@@ -46,7 +46,7 @@ public class CssPlugin implements Plugin {
     context.addExtensions(
       MetricSensor.class,
       CssLanguage.class,
-      SonarWayProfile.class,
+      CssProfileDefinition.class,
       CssRulesDefinition.class,
       CssAnalyzerBundle.class,
       CssAnalyzerBridgeServer.class,

@@ -22,7 +22,7 @@ package org.sonar.plugins.javascript.css;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
-import static org.sonar.plugins.javascript.css.SonarWayProfile.PROFILE_PATH;
+import static org.sonar.plugins.javascript.css.CssProfileDefinition.PROFILE_PATH;
 
 public class CssRulesDefinition implements RulesDefinition {
 
