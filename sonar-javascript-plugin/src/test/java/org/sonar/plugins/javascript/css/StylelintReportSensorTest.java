@@ -118,14 +118,14 @@ public class StylelintReportSensorTest {
       "    \"warnings\": [\n" +
       "      {\n" +
       "        \"line\": 1,\n" +
-      "        \"rule\": \"color\\-no\\-invalid-hex\",\n" +
+      "        \"rule\": \"color-no-invalid-hex\",\n" +
       "        \"text\": \"external issue message\"\n" +
       "      }\n" +
       "    ]\n" +
       "  }\n" +
       "]\n";
 
-    File reportFile = tmpDir.resolve("file.js").toFile();
+    File reportFile = tmpDir.resolve("report.json").toFile();
     FileWriter writer = new FileWriter(reportFile);
     writer.write(String.format(report, inputFile.absolutePath()));
     writer.close();
