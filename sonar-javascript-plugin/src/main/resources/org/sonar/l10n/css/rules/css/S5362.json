@@ -1,0 +1,16 @@
+{
+  "title": "Expressions within \"calc\" should be valid",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-5362",
+  "sqKey": "S5362",
+  "scope": "All"
+}

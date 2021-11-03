@@ -1,0 +1,16 @@
+{
+  "title": "Empty blocks should be removed",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4658",
+  "sqKey": "S4658",
+  "scope": "Main"
+}

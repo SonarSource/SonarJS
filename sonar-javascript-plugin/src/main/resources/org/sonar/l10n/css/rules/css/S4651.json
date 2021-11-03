@@ -1,0 +1,16 @@
+{
+  "title": "\"linear-gradient\" directions should be valid",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4651",
+  "sqKey": "S4651",
+  "scope": "Main"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Media features should be valid",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4661",
+  "sqKey": "S4661",
+  "scope": "Main"
+}

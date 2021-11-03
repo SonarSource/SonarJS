@@ -1,0 +1,20 @@
+<p>The W3C specifications define the valid CSS properties. Only the official and browser-specific properties should be used to get the expected impact
+in the final rendering.</p>
+<p>This rule ignores:</p>
+<ul>
+  <li> <code>$sass</code>, <code>@less</code>, and <code>var(--custom-property)</code> variable syntaxes. </li>
+  <li> vendor-prefixed properties (e.g., <code>-moz-align-self</code>, <code>-webkit-align-self</code>). </li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<pre>
+a {
+  colour: blue; /* Noncompliant; colour is not part of the specifications */
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+a {
+  color: blue;
+}
+</pre>
+

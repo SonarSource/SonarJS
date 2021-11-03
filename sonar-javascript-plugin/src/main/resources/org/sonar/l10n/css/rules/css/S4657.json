@@ -1,0 +1,16 @@
+{
+  "title": "Shorthand properties that override related longhand properties should be avoided",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-4657",
+  "sqKey": "S4657",
+  "scope": "Main"
+}

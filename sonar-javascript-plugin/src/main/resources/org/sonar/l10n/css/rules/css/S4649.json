@@ -1,0 +1,16 @@
+{
+  "title": "Font declarations should contain at least one generic font family",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4649",
+  "sqKey": "S4649",
+  "scope": "Main"
+}
