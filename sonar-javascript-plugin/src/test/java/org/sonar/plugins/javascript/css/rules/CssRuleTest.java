@@ -22,7 +22,7 @@ package org.sonar.plugins.javascript.css.rules;
 import com.google.gson.Gson;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.sonar.plugins.javascript.css.CssRules;
 

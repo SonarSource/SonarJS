@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.javascript.css;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 

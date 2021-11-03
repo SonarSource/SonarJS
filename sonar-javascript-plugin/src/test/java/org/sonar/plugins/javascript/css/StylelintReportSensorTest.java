@@ -22,12 +22,13 @@ package org.sonar.plugins.javascript.css;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -42,18 +43,18 @@ import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StylelintReportSensorTest {
 
-  @Rule
-  public TemporaryFolder tmpDir = new TemporaryFolder();
+  @TempDir
+  Path tmpDir;
 
-  @Rule
-  public final LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private static final File BASE_DIR = new File("src/test/resources/stylelint-report/").getAbsoluteFile();
   private static final String CONTENT = ".foo {\n}";
@@ -65,7 +66,7 @@ public class StylelintReportSensorTest {
   private StylelintReportSensor stylelintReportSensor = new StylelintReportSensor(EMPTY_CHECK_FACTORY);
   private DefaultInputFile inputFile = createInputFile(context, CONTENT, "file.css");
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     context.setRuntime(getRuntime(7, 2));
     context.fileSystem().add(inputFile);
@@ -124,7 +125,7 @@ public class StylelintReportSensorTest {
       "  }\n" +
       "]\n";
 
-    File reportFile = tmpDir.newFile();
+    File reportFile = tmpDir.resolve("file.js").toFile();
     FileWriter writer = new FileWriter(reportFile);
     writer.write(String.format(report, inputFile.absolutePath()));
     writer.close();

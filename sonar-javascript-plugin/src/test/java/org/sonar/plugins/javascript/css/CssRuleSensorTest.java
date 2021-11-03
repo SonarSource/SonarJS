@@ -27,12 +27,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -42,7 +41,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer;
 
@@ -58,14 +57,11 @@ import static org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServerTes
 
 public class CssRuleSensorTest {
 
-  @Rule
-  public final LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Rule
-  public TemporaryFolder tmpDir = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  @TempDir
+  Path tmpDir;
 
   private static final CheckFactory CHECK_FACTORY = new CheckFactory(new TestActiveRules("S4647", "S4656", "S4658"));
 
@@ -76,14 +72,14 @@ public class CssRuleSensorTest {
   private CssAnalyzerBridgeServer cssAnalyzerBridgeServer;
   private CssRuleSensor sensor;
 
-  @Before
+  @BeforeEach
   public void setUp() {
-    context.fileSystem().setWorkDir(tmpDir.getRoot().toPath());
+    context.fileSystem().setWorkDir(tmpDir);
     cssAnalyzerBridgeServer = createCssAnalyzerBridgeServer();
     sensor = new CssRuleSensor(CHECK_FACTORY, cssAnalyzerBridgeServer, analysisWarnings);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     if (cssAnalyzerBridgeServer != null) {
       cssAnalyzerBridgeServer.stop();

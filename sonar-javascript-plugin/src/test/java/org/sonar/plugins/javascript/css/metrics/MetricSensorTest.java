@@ -21,10 +21,10 @@ package org.sonar.plugins.javascript.css.metrics;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -33,7 +33,6 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.plugins.javascript.css.metrics.MetricSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,8 +43,8 @@ public class MetricSensorTest {
   private DefaultInputFile inputFile;
   private SensorContextTester sensorContext;
 
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
+  @TempDir
+  Path tempFolder;
 
   @Test
   public void should_describe() {
@@ -186,7 +185,7 @@ public class MetricSensorTest {
   }
 
   private void executeSensor(String content) throws IOException {
-    File file = tempFolder.newFile();
+    File file = tempFolder.resolve("file.js").toFile();
     inputFile = new TestInputFileBuilder("moduleKey", file.getName())
       .setLanguage("css")
       .setContents(content)

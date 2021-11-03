@@ -21,7 +21,7 @@ package org.sonar.plugins.javascript.css.metrics;
 
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
