@@ -61,12 +61,12 @@ import org.sonar.plugins.javascript.eslint.EslintBridgeServer.ParsingErrorCode;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.Rule;
 import org.sonarsource.nodejs.NodeCommandException;
 
-abstract class AbstractEslintSensor implements Sensor {
+public abstract class AbstractEslintSensor implements Sensor {
   private static final Logger LOG = Loggers.get(AbstractEslintSensor.class);
 
   private final NoSonarFilter noSonarFilter;
   private final FileLinesContextFactory fileLinesContextFactory;
-  final EslintBridgeServer eslintBridgeServer;
+  protected final EslintBridgeServer eslintBridgeServer;
   private final AnalysisWarningsWrapper analysisWarnings;
   // Visible for testing
   final List<Rule> rules;
@@ -78,10 +78,10 @@ abstract class AbstractEslintSensor implements Sensor {
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
 
-  SensorContext context;
-  private boolean failFast;
+  protected SensorContext context;
+  protected boolean failFast;
 
-  AbstractEslintSensor(AbstractChecks checks, NoSonarFilter noSonarFilter,
+  protected AbstractEslintSensor(AbstractChecks checks, NoSonarFilter noSonarFilter,
                        FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
                        AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring) {
     this.checks = checks;
@@ -125,7 +125,7 @@ abstract class AbstractEslintSensor implements Sensor {
       LOG.debug("No rules will be executed");
 
     } catch (NodeCommandException | MissingTypeScriptException e) {
-      LOG.error(e.getMessage(), e);
+      logErrorOrWarn(e.getMessage(), e);
       analysisWarnings.addUnique("JavaScript and/or TypeScript rules were not executed. " + e.getMessage());
       if (failFast) {
         throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
@@ -140,7 +140,11 @@ abstract class AbstractEslintSensor implements Sensor {
     }
   }
 
-  abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
+  protected void logErrorOrWarn(String msg, Throwable e) {
+    LOG.error(msg, e);
+  }
+
+  protected abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
 
   protected abstract List<InputFile> getInputFiles();
 

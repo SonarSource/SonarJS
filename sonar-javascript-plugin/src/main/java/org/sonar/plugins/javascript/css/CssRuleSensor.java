@@ -21,6 +21,28 @@ package org.sonar.plugins.javascript.css;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.css.CssRules.StylelintConfig;
+import org.sonar.plugins.javascript.eslint.AbstractEslintSensor;
+import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.eslint.Monitoring;
+import org.sonarsource.analyzer.commons.ProgressReport;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -28,50 +50,37 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
-import org.sonar.api.SonarProduct;
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.javascript.css.CssRules.StylelintConfig;
-import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer;
-import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer.Issue;
-import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer.Request;
-import org.sonarsource.analyzer.commons.ProgressReport;
 
-public class CssRuleSensor implements Sensor {
+public class CssRuleSensor extends AbstractEslintSensor {
 
   private static final Logger LOG = Loggers.get(CssRuleSensor.class);
   private static final String CONFIG_PATH = "css-bundle/stylelintconfig.json";
 
   private final CssRules cssRules;
-  private final CssAnalyzerBridgeServer cssAnalyzerBridgeServer;
-  private final AnalysisWarnings analysisWarnings;
+  private final AnalysisWarningsWrapper analysisWarnings;
 
+  // fixme
+  // "No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped."
 
   public CssRuleSensor(
-    CheckFactory checkFactory,
-    CssAnalyzerBridgeServer cssAnalyzerBridgeServer,
-    @Nullable AnalysisWarnings analysisWarnings
+    JavaScriptChecks checks, NoSonarFilter noSonarFilter,
+    FileLinesContextFactory fileLinesContextFactory, EslintBridgeServer eslintBridgeServer,
+    AnalysisWarningsWrapper analysisWarnings, Monitoring monitoring,
+    CheckFactory checkFactory
   ) {
+    super(checks,
+      noSonarFilter,
+      fileLinesContextFactory,
+      eslintBridgeServer,
+      analysisWarnings,
+      monitoring
+    );
     this.cssRules = new CssRules(checkFactory);
-    this.cssAnalyzerBridgeServer = cssAnalyzerBridgeServer;
     this.analysisWarnings = analysisWarnings;
   }
 
@@ -83,135 +92,72 @@ public class CssRuleSensor implements Sensor {
   }
 
   @Override
-  public void execute(SensorContext context) {
-    reportOldNodeProperty(context);
-
-    List<InputFile> inputFiles = getInputFiles(context);
-    if (inputFiles.isEmpty()) {
-      LOG.info("No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped.");
-      return;
-    }
-
-    File configFile = null;
-    boolean serverRunning = false;
-
-    try {
-      serverRunning = cssAnalyzerBridgeServer.startServerLazily(context);
-      configFile = createLinterConfig(context);
-    } catch (Exception e) {
-      // we can end up here in the following cases: problem during bundle unpacking, or config file creation, or socket creation
-      String msg = "Failure during CSS analysis preparation, " + cssAnalyzerBridgeServer.getCommandInfo();
-      logErrorOrWarn(context, msg, e);
-      throwFailFast(context, e);
-    }
-
-    if (serverRunning && configFile != null) {
-      analyzeFiles(context, inputFiles, configFile);
-    }
-  }
-
-  public static void throwFailFast(SensorContext context, Exception e) {
-    boolean failFast = context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
-    if (failFast) {
-      throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
-    }
-  }
-
-  private void reportOldNodeProperty(SensorContext context) {
-    if (context.config().hasKey(CssPlugin.FORMER_NODE_EXECUTABLE)) {
-      String msg = "Property '" + CssPlugin.FORMER_NODE_EXECUTABLE + "' is ignored, 'sonar.nodejs.executable' should be used instead";
-      LOG.warn(msg);
-      reportAnalysisWarning(msg);
-    }
-  }
-
-  private void analyzeFiles(SensorContext context, List<InputFile> inputFiles, File configFile) {
+  protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    File configFile = createLinterConfig(context);
     ProgressReport progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     boolean success = false;
 
     try {
       progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
       for (InputFile inputFile : inputFiles) {
-        analyzeFileWithContextCheck(inputFile, context, configFile);
+        if (context.isCancelled()) {
+          throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+        }
+        if (!eslintBridgeServer.isAlive()) {
+          throw new IllegalStateException("css-bundle server is not answering");
+        }
+
+        analyzeFile(inputFile, context, configFile);
         progressReport.nextFile();
       }
       success = true;
 
-    } catch (CancellationException e) {
-      // do not propagate the exception
-      LOG.info(e.toString());
-
-    } catch (Exception e) {
-      // we can end up here in the following cases: fail to send file analysis request, fail to parse the response, server is not answering
-      // or some other unpredicted state
-      String msg = "Failure during CSS analysis, " + cssAnalyzerBridgeServer.getCommandInfo();
-      logErrorOrWarn(context, msg, e);
-      throwFailFast(context, e);
     } finally {
-      finishProgressReport(progressReport, success);
+      if (success) {
+        progressReport.stop();
+      } else {
+        progressReport.cancel();
+      }
     }
   }
 
-  private static void finishProgressReport(ProgressReport progressReport, boolean success) {
-    if (success) {
-      progressReport.stop();
-    } else {
-      progressReport.cancel();
-    }
-  }
-
-  void analyzeFileWithContextCheck(InputFile inputFile, SensorContext context, File configFile) {
-    if (context.isCancelled()) {
-      throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
-    }
-    if (!cssAnalyzerBridgeServer.isAlive()) {
-      throw new IllegalStateException("css-bundle server is not answering");
-    }
+  void analyzeFile(InputFile inputFile, SensorContext context, File configFile) throws IOException {
     try {
-      analyzeFile(context, inputFile, configFile);
+      URI uri = inputFile.uri();
+      if (!"file".equalsIgnoreCase(uri.getScheme())) {
+        LOG.debug("Skipping {} as it has not 'file' scheme", uri);
+        return;
+      }
+      String fileContent = shouldSendFileContent(inputFile) ? inputFile.contents() : null;
+      EslintBridgeServer.CssAnalysisRequest request = new EslintBridgeServer.CssAnalysisRequest(new File(uri).getAbsolutePath(), fileContent, configFile.toString());
+      LOG.debug("Analyzing " + request.filePath);
+      EslintBridgeServer.AnalysisResponse analysisResponse = eslintBridgeServer.analyzeCss(request);
+      LOG.debug("Found {} issue(s)", analysisResponse.issues.length);
+      saveIssues(context, inputFile, analysisResponse.issues);
     } catch (IOException | RuntimeException e) {
       throw new IllegalStateException("Failure during analysis of " + inputFile.uri(), e);
     }
   }
 
-  void analyzeFile(SensorContext context, InputFile inputFile, File configFile) throws IOException {
-    URI uri = inputFile.uri();
-    if (!"file".equalsIgnoreCase(uri.getScheme())) {
-      LOG.debug("Skipping {} as it has not 'file' scheme", uri);
-      return;
-    }
-    String fileContent = shouldSendFileContent(context, inputFile) ? inputFile.contents() : null;
-    Request request = new Request(new File(uri).getAbsolutePath(), fileContent, configFile.toString());
-    LOG.debug("Analyzing " + request.filePath);
-    Issue[] issues = cssAnalyzerBridgeServer.analyze(request);
-    LOG.debug("Found {} issue(s)", issues.length);
-    saveIssues(context, inputFile, issues);
-  }
-
-  private static boolean shouldSendFileContent(SensorContext context, InputFile file) {
-    return context.runtime().getProduct() == SonarProduct.SONARLINT
-      || !StandardCharsets.UTF_8.equals(file.charset());
-  }
-
-  private void saveIssues(SensorContext context, InputFile inputFile, Issue[] issues) {
-    for (Issue issue : issues) {
+  private void saveIssues(SensorContext context, InputFile inputFile, EslintBridgeServer.Issue[] issues) {
+    for (EslintBridgeServer.Issue issue : issues) {
       NewIssue sonarIssue = context.newIssue();
 
-      RuleKey ruleKey = cssRules.getActiveSonarKey(issue.rule);
+      RuleKey ruleKey = cssRules.getActiveSonarKey(issue.ruleId);
 
       if (ruleKey == null) {
-        if ("CssSyntaxError".equals(issue.rule)) {
-          String errorMessage = issue.text.replace("(CssSyntaxError)", "").trim();
+        if ("CssSyntaxError".equals(issue.ruleId)) {
+          String errorMessage = issue.message.replace("(CssSyntaxError)", "").trim();
           logErrorOrDebug(inputFile, "Failed to parse {}, line {}, {}", inputFile.uri(), issue.line, errorMessage);
         } else {
-          logErrorOrDebug(inputFile,"Unknown stylelint rule or rule not enabled: '" + issue.rule + "'");
+          logErrorOrDebug(inputFile,"Unknown stylelint rule or rule not enabled: '" + issue.ruleId + "'");
         }
 
       } else {
         NewIssueLocation location = sonarIssue.newLocation()
           .on(inputFile)
           .at(inputFile.selectLine(issue.line))
-          .message(normalizeMessage(issue.text));
+          .message(normalizeMessage(issue.message));
 
         sonarIssue
           .at(location)
@@ -229,7 +175,8 @@ public class CssRuleSensor implements Sensor {
     }
   }
 
-  private static void logErrorOrWarn(SensorContext context, String msg, Throwable e) {
+  @Override
+  protected void logErrorOrWarn(String msg, Throwable e) {
     if (hasCssFiles(context)) {
       LOG.error(msg, e);
     } else {
@@ -237,8 +184,9 @@ public class CssRuleSensor implements Sensor {
     }
   }
 
-  private static List<InputFile> getInputFiles(SensorContext context) {
-    FileSystem fileSystem = context.fileSystem();
+  @Override
+  protected List<InputFile> getInputFiles() {
+    FileSystem fileSystem = this.context.fileSystem();
 
     FilePredicate mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
@@ -282,12 +230,6 @@ public class CssRuleSensor implements Sensor {
       return matcher.group(1);
     } else {
       return message;
-    }
-  }
-
-  private void reportAnalysisWarning(String message) {
-    if (analysisWarnings != null) {
-      analysisWarnings.addUnique(message);
     }
   }
 }

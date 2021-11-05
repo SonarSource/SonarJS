@@ -19,6 +19,31 @@
  */
 package org.sonar.plugins.javascript.css;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.impl.utils.DefaultTempFolder;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -27,32 +52,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServerTest.createCssAnalyzerBridgeServer;
 
 public class CssRuleSensorTest {
@@ -60,20 +64,46 @@ public class CssRuleSensorTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
+  @Mock
+  private EslintBridgeServer eslintBridgeServerMock;
+
+  @Mock
+  private FileLinesContextFactory fileLinesContextFactory;
+
   @TempDir
-  Path tmpDir;
+  Path baseDir;
+
+  @TempDir
+  File tempDir;
+
+  TempFolder tempFolder;
+
+  private SensorContextTester context;
+
+  @TempDir
+  Path workDir;
 
   private static final CheckFactory CHECK_FACTORY = new CheckFactory(new TestActiveRules("S4647", "S4656", "S4658"));
 
   private static final File BASE_DIR = new File("src/test/resources").getAbsoluteFile();
 
-  private SensorContextTester context = SensorContextTester.create(BASE_DIR);
   private AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
-  private CssAnalyzerBridgeServer cssAnalyzerBridgeServer;
   private CssRuleSensor sensor;
 
   @BeforeEach
-  public void setUp() {
+  public void setUp() throws IOException {
+    MockitoAnnotations.initMocks(this);
+    when(eslintBridgeServerMock.isAlive()).thenReturn(true);
+    when(eslintBridgeServerMock.analyzeCss(any())).thenReturn(new EslintBridgeServer.AnalysisResponse());
+    when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
+    context = SensorContextTester.create(baseDir);
+    context.fileSystem().setWorkDir(workDir);
+    tempFolder = new DefaultTempFolder(tempDir, true);
+
+    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+
+
     context.fileSystem().setWorkDir(tmpDir);
     cssAnalyzerBridgeServer = createCssAnalyzerBridgeServer();
     sensor = new CssRuleSensor(CHECK_FACTORY, cssAnalyzerBridgeServer, analysisWarnings);

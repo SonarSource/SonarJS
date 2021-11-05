@@ -21,21 +21,7 @@ package org.sonar.plugins.javascript.eslint;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import java.io.File;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.InetAddress;
-import java.nio.file.Path;
-import java.time.Duration;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.TempFolder;
@@ -45,6 +31,16 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
+
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.InetAddress;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.plugins.javascript.eslint.NetUtils.findOpenPort;
@@ -227,6 +223,12 @@ public class EslintBridgeServerImpl implements EslintBridgeServer {
   public AnalysisResponse analyzeTypeScript(AnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-ts"), request.filePath);
+  }
+
+  @Override
+  public AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException {
+    String json = GSON.toJson(request);
+    return response(request(json, "analyze-css"), request.filePath);
   }
 
   private String request(String json, String endpoint) throws IOException {
