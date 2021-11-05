@@ -25,6 +25,8 @@ import org.sonar.api.resources.AbstractLanguage;
 public class CssLanguage extends AbstractLanguage {
 
   public static final String KEY = "css";
+  public static final String FILE_SUFFIXES_KEY = "sonar.css.file.suffixes";
+  public static final String FILE_SUFFIXES_DEFVALUE = ".css,.less,.scss";
 
   private Configuration configuration;
 
@@ -35,7 +37,7 @@ public class CssLanguage extends AbstractLanguage {
 
   @Override
   public String[] getFileSuffixes() {
-    return configuration.getStringArray(CssPlugin.FILE_SUFFIXES_KEY);
+    return configuration.getStringArray(FILE_SUFFIXES_KEY);
   }
 
 }

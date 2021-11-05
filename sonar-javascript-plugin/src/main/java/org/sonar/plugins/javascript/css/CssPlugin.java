@@ -26,9 +26,6 @@ import org.sonar.plugins.javascript.css.metrics.MetricSensor;
 
 public class CssPlugin implements Plugin {
 
-  static final String FILE_SUFFIXES_KEY = "sonar.css.file.suffixes";
-  public static final String FILE_SUFFIXES_DEFVALUE = ".css,.less,.scss";
-
   public static final String STYLELINT_REPORT_PATHS = "sonar.css.stylelint.reportPaths";
   public static final String STYLELINT_REPORT_PATHS_DEFAULT_VALUE = "";
 
@@ -47,10 +44,9 @@ public class CssPlugin implements Plugin {
       CssRulesDefinition.class,
       CssRuleSensor.class,
       StylelintReportSensor.class,
-      MinifiedFilesFilter.class,
 
-      PropertyDefinition.builder(FILE_SUFFIXES_KEY)
-        .defaultValue(FILE_SUFFIXES_DEFVALUE)
+      PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
+        .defaultValue(CssLanguage.FILE_SUFFIXES_DEFVALUE)
         .name("File Suffixes")
         .description("List of suffixes for files to analyze.")
         .subCategory(GENERAL_SUBCATEGORY)

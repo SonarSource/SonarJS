@@ -25,6 +25,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.css.CssLanguage;
 import org.sonar.plugins.javascript.minify.MinificationAssessor;
 
 import static java.util.Arrays.stream;
@@ -78,20 +79,25 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
     boolean isJsTs =
       JavaScriptLanguage.KEY.equals(inputFile.language()) ||
       TypeScriptLanguage.KEY.equals(inputFile.language());
+    boolean isJsTsCss =
+      isJsTs ||
+      CssLanguage.KEY.equals(inputFile.language());
 
-    // filter only JS/TS files
-    if (!isJsTs) {
+    // filter only JS/TS/CSS files
+    if (!isJsTsCss) {
       return true;
     }
 
-    if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
-      LOG.debug("File {} was excluded because of excessive size", inputFile);
-      return false;
-    }
+    if (isJsTs) {
+      if (SizeAssessor.hasExcessiveSize(inputFile, maxFileSizeKb * 1000)) {
+        LOG.debug("File {} was excluded because of excessive size", inputFile);
+        return false;
+      }
 
-    if (WildcardPattern.match(excludedPatterns, inputFile.relativePath())) {
-      LOG.debug("File {} was excluded by {} or {}", inputFile, JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.TS_EXCLUSIONS_KEY);
-      return false;
+      if (WildcardPattern.match(excludedPatterns, inputFile.relativePath())) {
+        LOG.debug("File {} was excluded by {} or {}", inputFile, JavaScriptPlugin.JS_EXCLUSIONS_KEY, JavaScriptPlugin.TS_EXCLUSIONS_KEY);
+        return false;
+      }
     }
 
     boolean isMinified = new MinificationAssessor().isMinified(inputFile);

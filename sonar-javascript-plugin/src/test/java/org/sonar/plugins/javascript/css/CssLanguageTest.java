@@ -29,7 +29,7 @@ public class CssLanguageTest {
   @Test
   public void test() {
     MapSettings settings = new MapSettings();
-    settings.setProperty(CssPlugin.FILE_SUFFIXES_KEY, CssPlugin.FILE_SUFFIXES_DEFVALUE);
+    settings.setProperty(CssLanguage.FILE_SUFFIXES_KEY, CssLanguage.FILE_SUFFIXES_DEFVALUE);
     CssLanguage language = new CssLanguage(settings.asConfig());
     assertThat(language.getKey()).isEqualTo("css");
     assertThat(language.getName()).isEqualTo("CSS");
