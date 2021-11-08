@@ -41,7 +41,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -126,7 +125,7 @@ public abstract class AbstractEslintSensor implements Sensor {
 
     } catch (NodeCommandException | MissingTypeScriptException e) {
       logErrorOrWarn(e.getMessage(), e);
-      analysisWarnings.addUnique("JavaScript and/or TypeScript rules were not executed. " + e.getMessage());
+      analysisWarnings.addUnique("JavaScript/TypeScript/CSS rules were not executed. " + e.getMessage());
       if (failFast) {
         throw new IllegalStateException("Analysis failed (\"sonar.internal.analysis.failFast\"=true)", e);
       }

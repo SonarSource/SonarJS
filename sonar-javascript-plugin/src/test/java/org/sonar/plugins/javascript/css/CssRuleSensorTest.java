@@ -19,31 +19,7 @@
  */
 package org.sonar.plugins.javascript.css;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.impl.utils.DefaultTempFolder;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServer;
-import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
-
+import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -52,12 +28,44 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.impl.utils.DefaultTempFolder;
+import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.JavaScriptChecks;
+import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
+import org.sonar.plugins.javascript.eslint.Monitoring;
+import org.sonarsource.nodejs.NodeCommandException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.sonar.plugins.javascript.css.server.CssAnalyzerBridgeServerTest.createCssAnalyzerBridgeServer;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CssRuleSensorTest {
 
@@ -76,25 +84,23 @@ public class CssRuleSensorTest {
   @TempDir
   File tempDir;
 
+  @TempDir
+  Path workDir;
+
   TempFolder tempFolder;
 
   private SensorContextTester context;
 
-  @TempDir
-  Path workDir;
-
   private static final CheckFactory CHECK_FACTORY = new CheckFactory(new TestActiveRules("S4647", "S4656", "S4658"));
 
-  private static final File BASE_DIR = new File("src/test/resources").getAbsoluteFile();
-
-  private AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
   private CssRuleSensor sensor;
 
   @BeforeEach
   public void setUp() throws IOException {
     MockitoAnnotations.initMocks(this);
     when(eslintBridgeServerMock.isAlive()).thenReturn(true);
-    when(eslintBridgeServerMock.analyzeCss(any())).thenReturn(new EslintBridgeServer.AnalysisResponse());
+    when(eslintBridgeServerMock.analyzeCss(any()))
+      .thenReturn(response("{ issues: [{\"line\":2,\"ruleId\":\"block-no-empty\",\"message\":\"Unexpected empty block\"}]}"));
     when(eslintBridgeServerMock.getCommandInfo()).thenReturn("eslintBridgeServerMock command info");
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
@@ -103,21 +109,12 @@ public class CssRuleSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
-
-    context.fileSystem().setWorkDir(tmpDir);
-    cssAnalyzerBridgeServer = createCssAnalyzerBridgeServer();
-    sensor = new CssRuleSensor(CHECK_FACTORY, cssAnalyzerBridgeServer, analysisWarnings);
-  }
-
-  @AfterEach
-  public void tearDown() throws Exception {
-    if (cssAnalyzerBridgeServer != null) {
-      cssAnalyzerBridgeServer.stop();
-    }
+    sensor = new CssRuleSensor(new JavaScriptChecks(CHECK_FACTORY), new DefaultNoSonarFilter(), fileLinesContextFactory,
+      eslintBridgeServerMock, new AnalysisWarningsWrapper(), new Monitoring(new MapSettings().asConfig()), CHECK_FACTORY);
   }
 
   @Test
-  public void test_descriptor() {
+  void test_descriptor() {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("CSS Rules");
@@ -127,18 +124,40 @@ public class CssRuleSensorTest {
   }
 
   @Test
-  public void test_execute() throws IOException {
+  void test_execute() throws IOException {
     addInputFile("file.css");
-    addInputFile("file-with-rule-id-message.css");
     sensor.execute(context);
 
-    assertThat(context.allIssues()).hasSize(2);
+    assertThat(context.allIssues()).hasSize(1);
     assertThat(context.allIssues()).extracting("primaryLocation.message")
-      .containsOnly("some message", "Unexpected empty block");
+      .containsOnly("Unexpected empty block");
 
     assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
       .matches("(?s).*Analyzing \\S*file\\.css.*")
       .matches("(?s).*Found 1 issue\\(s\\).*");
+  }
+
+  @Test
+  void should_trim_rule_key_from_message() throws IOException {
+    AnalysisResponse responseIssues = response("{ issues: [{\"line\":2,\"ruleId\":\"color-no-invalid-hex\",\"message\":\"some message (color-no-invalid-hex)\"}]}");
+    when(eslintBridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
+
+    addInputFile("file-with-rule-id-message.css");
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(1);
+    assertThat(context.allIssues()).extracting("primaryLocation.message")
+      .containsOnly("some message");
+
+    assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
+      .matches("(?s).*Analyzing \\S*file-with-rule-id-message\\.css.*")
+      .matches("(?s).*Found 1 issue\\(s\\).*");
+  }
+
+  @Test
+  void test_stylelint_config() throws IOException {
+    addInputFile("file.css");
+    sensor.execute(context);
 
     Path configPath = Paths.get(context.fileSystem().workDir().getAbsolutePath(), "css-bundle", "stylelintconfig.json");
     assertThat(Files.readAllLines(configPath)).containsOnly(
@@ -147,11 +166,10 @@ public class CssRuleSensorTest {
         "\"color-no-invalid-hex\":true," +
         "\"declaration-block-no-duplicate-properties\":[true,{\"ignore\":[\"consecutive-duplicates-with-different-values\"]}]" +
       "}}");
-    verifyZeroInteractions(analysisWarnings);
   }
 
   @Test
-  public void test_non_css_files() {
+  void test_non_css_files() {
     DefaultInputFile fileCss = addInputFile("file.css");
     DefaultInputFile fileHtml = addInputFile("file.web");
     DefaultInputFile filePhp = addInputFile("file.php");
@@ -167,122 +185,74 @@ public class CssRuleSensorTest {
   }
 
   @Test
-  public void test_no_file_to_analyze() throws IOException {
+  void test_no_file_to_analyze() {
     sensor.execute(context);
-    assertThat(context.allIssues()).hasSize(0);
+    assertThat(context.allIssues()).isEmpty();
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped.");
   }
 
   @Test
-  public void should_log_when_bridge_server_receives_invalid_response() {
-    addInputFile("invalid-json-response.css");
-    sensor.execute(context);
-    assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
-      .contains("Failed to parse response");
-    assertThat(String.join("\n", logTester.logs(LoggerLevel.ERROR)))
-      .contains("Failure during CSS analysis");
+  void failed_server_should_log_warn_no_css() throws IOException {
+    context.settings().setProperty("sonar.internal.analysis.failFast", "true");
+    doThrow(new NodeCommandException("Exception Message"))
+      .when(eslintBridgeServerMock)
+      .startServerLazily(any());
+    addInputFile("file.web");
+
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Analysis failed");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Exception Message");
   }
 
   @Test
-  public void should_fail_fast_when_server_fail_to_start() {
-    context.settings().setProperty("sonar.internal.analysis.failFast", "true");
-    CssAnalyzerBridgeServer badServer = createCssAnalyzerBridgeServer("throw.js");
-    sensor = new CssRuleSensor(CHECK_FACTORY, badServer, analysisWarnings);
+  void failed_server_should_log_error_with_css() throws IOException {
+    doThrow(new NodeCommandException("Exception Message"))
+      .when(eslintBridgeServerMock)
+      .startServerLazily(any());
     addInputFile("file.css");
 
-    assertThatThrownBy(() -> sensor.execute(context))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Analysis failed");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("CSS rules were not executed. Failed to start server (1s timeout)");
-  }
-
-  @Test
-  public void should_fail_fast_when_server_fail_to_start_no_css() {
-    context.settings().setProperty("sonar.internal.analysis.failFast", "true");
-    CssAnalyzerBridgeServer badServer = createCssAnalyzerBridgeServer("throw.js");
-    sensor = new CssRuleSensor(CHECK_FACTORY, badServer, analysisWarnings);
-    addInputFile("file.web");
-
-    assertThatThrownBy(() -> sensor.execute(context))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Analysis failed");
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("CSS rules were not executed. Failed to start server (1s timeout)");
-  }
-
-  @Test
-  public void should_not_fail_fast_when_server_fail_to_start_without_property() {
-    context.settings().setProperty("sonar.internal.analysis.failFast", "false");
-    CssAnalyzerBridgeServer badServer = createCssAnalyzerBridgeServer("throw.js");
-    sensor = new CssRuleSensor(CHECK_FACTORY, badServer, analysisWarnings);
-    addInputFile("file.web");
-
     sensor.execute(context);
-    // log as Warning level is there is no CSS files
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("CSS rules were not executed. Failed to start server (1s timeout)");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
   }
 
   @Test
-  public void should_fail_fast_when_bridge_server_receives_invalid_response() {
-    context.settings().setProperty("sonar.internal.analysis.failFast", "true");
-    addInputFile("invalid-json-response.css");
-
-    assertThatThrownBy(() -> sensor.execute(context))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Analysis failed");
-  }
-
-  @Test
-  public void should_not_analyze_files_with_not_file_uri() throws URISyntaxException, IOException {
+  void should_not_analyze_files_with_not_file_uri() throws URISyntaxException, IOException {
     InputFile httpFile = mock(InputFile.class);
     when(httpFile.filename()).thenReturn("file.css");
     when(httpFile.uri()).thenReturn(new URI("http://lost-on-earth.com/file.css"));
-    sensor.analyzeFile(context, httpFile, new File("config.json"));
+    sensor.analyzeFile(httpFile, context, new File("config.json"));
     assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
       .matches("(?s).*Skipping \\S*file.css as it has not 'file' scheme.*")
       .doesNotMatch("(?s).*\nAnalyzing \\S*file.css.*");
   }
 
   @Test
-  public void analysis_stop_when_server_is_not_anymore_alive() {
-    File configFile = new File("config.json");
-    DefaultInputFile inputFile = addInputFile("dir/file.css");
+  void analysis_stop_when_server_is_not_anymore_alive() {
+    addInputFile("file.css");
     sensor.execute(context);
-    cssAnalyzerBridgeServer.setPort(43);
 
-    assertThatThrownBy(() -> sensor.analyzeFileWithContextCheck(inputFile, context, configFile))
+    assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("css-bundle server is not answering");
+      .hasMessageContaining("eslint-bridge server is not answering");
   }
 
   @Test
-  public void should_stop_execution_when_sensor_context_is_cancelled() throws IOException {
+  void should_stop_execution_when_sensor_context_is_cancelled() {
     addInputFile("file.css");
     context.setCancelled(true);
     sensor.execute(context);
     assertThat(context.allIssues()).isEmpty();
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("java.util.concurrent.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
+      .contains("org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state");
   }
 
   @Test
-  public void test_old_property_is_provided() {
-    context.settings().setProperty(CssPlugin.FORMER_NODE_EXECUTABLE, "foo");
-    addInputFile("file.css");
-    sensor.execute(context);
+  void test_syntax_error() throws IOException {
+    AnalysisResponse responseIssues = response("{ issues: [{\"line\":2,\"ruleId\":\"CssSyntaxError\",\"message\":\"Missed semicolon (CssSyntaxError)\"}]}");
+    when(eslintBridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Property 'sonar.css.node' is ignored, 'sonar.nodejs.executable' should be used instead");
-    verify(analysisWarnings).addUnique(eq("Property 'sonar.css.node' is ignored, 'sonar.nodejs.executable' should be used instead"));
-
-    assertThat(context.allIssues()).hasSize(1);
-
-    sensor = new CssRuleSensor(CHECK_FACTORY, cssAnalyzerBridgeServer, null);
-    sensor.execute(context);
-    verifyNoMoreInteractions(analysisWarnings);
-  }
-
-  @Test
-  public void test_syntax_error() {
     InputFile inputFile = addInputFile("syntax-error.css");
     InputFile inputFileNotCss = addInputFile("syntax-error.web");
     sensor.execute(context);
@@ -292,7 +262,10 @@ public class CssRuleSensorTest {
   }
 
   @Test
-  public void test_unknown_rule() {
+  public void test_unknown_rule() throws IOException {
+    AnalysisResponse responseIssues = response("{ issues: [{\"line\":2,\"ruleId\":\"unknown-rule-key\",\"message\":\"Some message\"}]}");
+    when(eslintBridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
+
     addInputFile("unknown-rule.css");
     sensor.execute(context);
 
@@ -310,14 +283,14 @@ public class CssRuleSensorTest {
       .build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
+    ArgumentCaptor<CssAnalysisRequest> capturedRequest = ArgumentCaptor.forClass(CssAnalysisRequest.class);
+    verify(eslintBridgeServerMock).analyzeCss(capturedRequest.capture());
 
-    assertThat(context.allIssues()).hasSize(1);
-    assertThat(context.allIssues()).extracting("primaryLocation.message")
-      .containsOnly("undefined");
+    assertThat(capturedRequest.getValue().fileContent).isNull();
   }
 
   @Test
-  public void should_send_file_content_if_encoding_is_not_utf8() throws IOException {
+  void should_send_file_content_if_encoding_is_not_utf8() throws IOException {
     String filePath = "copy-file-content-into-issue-message.css";
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", filePath)
       .setLanguage(CssLanguage.KEY)
@@ -326,26 +299,21 @@ public class CssRuleSensorTest {
       .build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
+    ArgumentCaptor<CssAnalysisRequest> capturedRequest = ArgumentCaptor.forClass(CssAnalysisRequest.class);
+    verify(eslintBridgeServerMock).analyzeCss(capturedRequest.capture());
 
-    assertThat(context.allIssues()).hasSize(1);
-    assertThat(context.allIssues()).extracting("primaryLocation.message")
-      .containsOnly("css content");
+    assertThat(capturedRequest.getValue().fileContent).isEqualTo("css content");
   }
 
   @Test
-  public void should_send_file_content_if_context_is_sonarlint() throws IOException {
-    String filePath = "copy-file-content-into-issue-message.css";
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", filePath)
-      .setLanguage(CssLanguage.KEY)
-      .setCharset(StandardCharsets.UTF_8)
-      .setContents("css content")
-      .build();
-    context.fileSystem().add(inputFile);
+  void should_send_file_content_if_context_is_sonarlint() throws IOException {
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(7, 9)));
+    addInputFile("file.css");
     sensor.execute(context);
-    assertThat(context.allIssues()).hasSize(1);
-    assertThat(context.allIssues()).extracting("primaryLocation.message")
-      .containsOnly("css content");
+    ArgumentCaptor<CssAnalysisRequest> capturedRequest = ArgumentCaptor.forClass(CssAnalysisRequest.class);
+    verify(eslintBridgeServerMock).analyzeCss(capturedRequest.capture());
+
+    assertThat(capturedRequest.getValue().fileContent).isNotNull();
   }
 
   private DefaultInputFile addInputFile(String relativePath) {
@@ -359,6 +327,10 @@ public class CssRuleSensorTest {
 
     context.fileSystem().add(inputFile);
     return inputFile;
+  }
+
+  private AnalysisResponse response(String json) {
+    return new Gson().fromJson(json, AnalysisResponse.class);
   }
 
 }
