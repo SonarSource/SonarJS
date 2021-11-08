@@ -33,6 +33,7 @@
     "@types/functional-red-black-tree": "1.0.1",
     "@types/jest": "26.0.22",
     "@types/node": "14.14.41",
+    "@types/stylelint": "9.10.1",
     "jest": "26.6.3",
     "jest-sonar-reporter": "1.3.0",
     "mkdirp": "1.0.4",
@@ -59,6 +60,7 @@
     "regexpp": "3.2.0",
     "run-node": "2.0.0",
     "scslre": "0.1.6",
+    "stylelint": "^13.10.0",
     "typescript": "4.4.3",
     "vue-eslint-parser": "7.6.0"
   },
@@ -81,6 +83,7 @@
     "regexpp",
     "run-node",
     "scslre",
+    "stylelint",
     "vue-eslint-parser",
     "typescript"
   ],

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ParseExceptionCode, buildSourceCode } from './parser';
+import { ParseExceptionCode, buildSourceCode, getFileContent } from './parser';
 import getHighlighting, { Highlight } from './runner/highlighter';
 import getMetrics, { EMPTY_METRICS, getNosonarMetric, Metrics } from './runner/metrics';
 import getCpdTokens, { CpdToken } from './runner/cpd';
@@ -26,6 +26,7 @@ import { HighlightedSymbol } from './runner/symbol-highlighter';
 import { LinterWrapper, AdditionalRule } from './linter';
 import { getContext } from './context';
 import { hrtime } from 'process';
+import * as stylelint from 'stylelint';
 
 export const EMPTY_RESPONSE: AnalysisResponse = {
   issues: [],
@@ -41,6 +42,7 @@ export interface AnalysisInput {
   fileContent: string | undefined;
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
+  configFile?: string;
 }
 
 // eslint rule key
@@ -93,12 +95,49 @@ export interface Perf {
   analysisTime: number;
 }
 
-export function analyzeJavaScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(input, 'js');
+export function analyzeJavaScript(input: AnalysisInput): Promise<AnalysisResponse> {
+  return Promise.resolve(analyze(input, 'js'));
 }
 
-export function analyzeTypeScript(input: AnalysisInput): AnalysisResponse {
-  return analyze(input, 'ts');
+export function analyzeTypeScript(input: AnalysisInput): Promise<AnalysisResponse> {
+  return Promise.resolve(analyze(input, 'ts'));
+}
+
+export function analyzeCss(input: AnalysisInput): Promise<AnalysisResponse> {
+  const { filePath, fileContent, configFile } = input;
+  const code = typeof fileContent == 'string' ? fileContent : getFileContent(filePath);
+  const options = {
+    code,
+    codeFilename: filePath,
+    configFile,
+  };
+  return stylelint
+    .lint(options).then(result => ({ issues: toIssues(result.results, filePath) }))
+    .catch(e => {throw Error(e)});
+}
+
+function toIssues(results: stylelint.LintResult[], filePath: string): Issue[] {
+  const analysisResponse: Issue[] = [];
+  // we should have only one element in 'results' as we are analyzing only 1 file
+  results.forEach(result => {
+    // to avoid reporting on "fake" source like <input ccs 1>
+    if (result.source !== filePath) {
+      console.log(
+        `DEBUG For file [${filePath}] received issues with [${result.source}] as a source. They will not be reported.`,
+      );
+      return;
+    }
+    result.warnings.forEach(warning =>
+      analysisResponse.push({
+        line: warning.line,
+        column: warning.column,
+        message: warning.text,
+        ruleId: warning.rule,
+        secondaryLocations: [],
+      }),
+    );
+  });
+  return analysisResponse;
 }
 
 let linter: LinterWrapper;

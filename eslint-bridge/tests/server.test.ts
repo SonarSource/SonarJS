@@ -355,7 +355,7 @@ describe('should send error when failing', () => {
   let close;
 
   beforeEach(async () => {
-    server = await startServer(failAnalysis, failAnalysis);
+    server = await startServer(failAnalysis, failAnalysis, failAnalysis);
     close = promisify(server.close.bind(server));
   });
 
@@ -441,6 +441,130 @@ describe('sonarlint context', () => {
     const parsedResponse = JSON.parse(response);
     delete parsedResponse.perf;
     expect(parsedResponse).toEqual(expectedInSonarLint);
+  });
+
+  describe('css analysis endpoint', () => {
+    const configFile = join(__dirname, 'fixtures', 'css', 'stylelintconfig.json');
+
+    it('should respond to analysis request for css', async () => {
+      const request = JSON.stringify({
+        filePath: join(__dirname, 'fixtures', 'css', 'file.css'),
+        configFile,
+      });
+      const response = await post(request, '/analyze-css');
+      expect(JSON.parse(response)).toEqual({
+        issues: [
+          {
+            column: 3,
+            line: 1,
+            ruleId: 'block-no-empty',
+            message: 'Unexpected empty block (block-no-empty)',
+            secondaryLocations: [],
+          },
+        ],
+      });
+    });
+
+    it('should respond to analysis request for php', async () => {
+      const requestPhp = JSON.stringify({
+        filePath: join(__dirname, 'fixtures', 'css', 'file.php'),
+        configFile,
+      });
+      const responsePhp = await post(requestPhp, '/analyze-css');
+      expect(JSON.parse(responsePhp)).toEqual({
+        issues: [
+          {
+            column: 5,
+            line: 7,
+            ruleId: 'block-no-empty',
+            message: 'Unexpected empty block (block-no-empty)',
+            secondaryLocations: [],
+          },
+        ],
+      });
+    });
+
+    it('should respond to analysis request for html', async () => {
+      const requestHtml = JSON.stringify({
+        filePath: join(__dirname, 'fixtures', 'css', 'file.html'),
+        configFile,
+      });
+      const responseHtml = await post(requestHtml, '/analyze-css');
+      expect(JSON.parse(responseHtml)).toEqual({
+        issues: [
+          {
+            column: 3,
+            line: 6,
+            ruleId: 'block-no-empty',
+            message: 'Unexpected empty block (block-no-empty)',
+            secondaryLocations: [],
+          },
+        ],
+      });
+    });
+
+    it('should cut BOM', async () => {
+      const response = await post(
+        JSON.stringify({
+          filePath: join(__dirname, 'fixtures', 'css', 'file-bom.css'),
+          configFile,
+        }),
+        '/analyze-css',
+      );
+      expect(JSON.parse(response)).toEqual({
+        issues: [
+          {
+            column: 3,
+            line: 1,
+            ruleId: 'block-no-empty',
+            message: 'Unexpected empty block (block-no-empty)',
+            secondaryLocations: [],
+          },
+        ],
+      });
+    });
+
+    it('should respond OK! when started', done => {
+      const req = http.request(
+        {
+          host: 'localhost',
+          port: (<AddressInfo>server.address()).port,
+          path: '/status',
+          method: 'GET',
+        },
+        res => {
+          let data = '';
+          res.on('data', chunk => {
+            data += chunk;
+          });
+          res.on('end', () => {
+            expect(data).toEqual('OK!');
+            done();
+          });
+        },
+      );
+      req.end();
+    });
+
+    it('should use fileContent from the request and not from the filesystem', async () => {
+      const request = JSON.stringify({
+        filePath: join(__dirname, 'fixtures', 'css', 'file.css'),
+        fileContent: '\n\n a { }', // move the issue on line 3
+        configFile,
+      });
+      const response = await post(request, '/analyze-css');
+      expect(JSON.parse(response)).toEqual({
+        issues: [
+          {
+            column: 4,
+            line: 3,
+            ruleId: 'block-no-empty',
+            message: 'Unexpected empty block (block-no-empty)',
+            secondaryLocations: [],
+          },
+        ],
+      });
+    });
   });
 
   function post(data, endpoint) {

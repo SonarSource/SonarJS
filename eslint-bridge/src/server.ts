@@ -21,6 +21,7 @@ import { Server } from 'http';
 import express from 'express';
 import {
   AnalysisInput,
+  analyzeCss,
   analyzeJavaScript,
   analyzeTypeScript,
   EMPTY_RESPONSE,
@@ -40,15 +41,23 @@ export function start(
   host = '127.0.0.1',
   additionalRuleBundles: string[] = [],
 ): Promise<Server> {
-  return startServer(analyzeJavaScript, analyzeTypeScript, port, host, additionalRuleBundles);
+  return startServer(
+    analyzeJavaScript,
+    analyzeTypeScript,
+    analyzeCss,
+    port,
+    host,
+    additionalRuleBundles,
+  );
 }
 
-type AnalysisFunction = (input: AnalysisInput) => AnalysisResponse;
+type AnalysisFunction = (input: AnalysisInput) => Promise<AnalysisResponse>;
 
 // exported for test
 export function startServer(
   analyzeJS: AnalysisFunction,
   analyzeTS: AnalysisFunction,
+  analyzeCss: AnalysisFunction,
   port = 0,
   host = '127.0.0.1',
   additionalRuleBundles: string[] = [],
@@ -74,6 +83,8 @@ export function startServer(
     app.post('/analyze-js', analyze(analyzeJS));
 
     app.post('/analyze-ts', analyze(analyzeTS));
+
+    app.post('/analyze-css', analyze(analyzeCss));
 
     app.post('/new-tsconfig', (_request: express.Request, response: express.Response) => {
       unloadTypeScriptEslint();
@@ -111,11 +122,7 @@ export function startServer(
 
 function analyze(analysisFunction: AnalysisFunction): express.RequestHandler {
   return (request: express.Request, response: express.Response) => {
-    try {
-      const parsedRequest = request.body as AnalysisInput;
-      const analysisResponse = analysisFunction(parsedRequest);
-      response.json(analysisResponse);
-    } catch (e) {
+    function processError(e: any) {
       console.error(e.stack);
       response.json({
         ...EMPTY_RESPONSE,
@@ -124,6 +131,14 @@ function analyze(analysisFunction: AnalysisFunction): express.RequestHandler {
           code: ParseExceptionCode.GeneralError,
         },
       });
+    }
+    try {
+      const parsedRequest = request.body as AnalysisInput;
+      analysisFunction(parsedRequest)
+        .then(analysisResponse => response.json(analysisResponse))
+        .catch(processError);
+    } catch (e) {
+      processError(e);
     }
   };
 }
