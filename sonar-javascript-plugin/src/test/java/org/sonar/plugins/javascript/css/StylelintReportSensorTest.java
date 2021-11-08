@@ -45,6 +45,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -210,7 +211,7 @@ public class StylelintReportSensorTest {
   }
 
   private void setReport(String reportFileName) {
-    context.settings().setProperty(CssPlugin.STYLELINT_REPORT_PATHS, reportFileName);
+    context.settings().setProperty(JavaScriptPlugin.STYLELINT_REPORT_PATHS, reportFileName);
   }
 
   private SonarRuntime getRuntime(int major, int minor) {

@@ -41,6 +41,7 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.css.StylelintReport.Issue;
 import org.sonar.plugins.javascript.css.StylelintReport.IssuesPerFile;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
@@ -67,13 +68,13 @@ public class StylelintReportSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguage(CssLanguage.KEY)
-      .onlyWhenConfiguration(conf -> conf.hasKey(CssPlugin.STYLELINT_REPORT_PATHS))
+      .onlyWhenConfiguration(conf -> conf.hasKey(JavaScriptPlugin.STYLELINT_REPORT_PATHS))
       .name("Import of stylelint issues");
   }
 
   @Override
   public void execute(SensorContext context) {
-    List<File> reportFiles = ExternalReportProvider.getReportFiles(context, CssPlugin.STYLELINT_REPORT_PATHS);
+    List<File> reportFiles = ExternalReportProvider.getReportFiles(context, JavaScriptPlugin.STYLELINT_REPORT_PATHS);
     reportFiles.forEach(report -> importReport(report, context));
   }
 

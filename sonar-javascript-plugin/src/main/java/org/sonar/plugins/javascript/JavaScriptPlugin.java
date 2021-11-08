@@ -24,6 +24,12 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.plugins.javascript.css.CssLanguage;
+import org.sonar.plugins.javascript.css.CssProfileDefinition;
+import org.sonar.plugins.javascript.css.CssRuleSensor;
+import org.sonar.plugins.javascript.css.CssRulesDefinition;
+import org.sonar.plugins.javascript.css.StylelintReportSensor;
+import org.sonar.plugins.javascript.css.metrics.MetricSensor;
 import org.sonar.plugins.javascript.eslint.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.eslint.BundleImpl;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServerImpl;
@@ -51,6 +57,8 @@ public class JavaScriptPlugin implements Plugin {
   private static final String TEST_AND_COVERAGE = "Tests and Coverage";
   private static final String JS_TS_CATEGORY = "JavaScript / TypeScript";
   private static final String TS_SUB_CATEGORY = "TypeScript";
+  private static final String CSS_CATEGORY = "CSS";
+  private static final String LINTER_SUBCATEGORY = "Popular Rule Engines";
 
   // Global JavaScript constants
 
@@ -81,6 +89,9 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String TSCONFIG_PATH = "sonar.typescript.tsconfigPath";
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
+
+  public static final String STYLELINT_REPORT_PATHS = "sonar.css.stylelint.reportPaths";
+  public static final String STYLELINT_REPORT_PATHS_DEFAULT_VALUE = "";
 
   @Override
   public void define(Context context) {
@@ -214,6 +225,36 @@ public class JavaScriptPlugin implements Plugin {
           .onQualifiers(Qualifiers.PROJECT)
           .category(EXTERNAL_ANALYZERS_CATEGORY)
           .subCategory(EXTERNAL_ANALYZERS_SUB_CATEGORY)
+          .multiValues(true)
+          .build());
+
+      context.addExtensions(
+        MetricSensor.class,
+        CssLanguage.class,
+        CssProfileDefinition.class,
+        CssRulesDefinition.class,
+        CssRuleSensor.class,
+        StylelintReportSensor.class,
+
+        PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
+          .defaultValue(CssLanguage.FILE_SUFFIXES_DEFVALUE)
+          .name("File Suffixes")
+          .description("List of suffixes for files to analyze.")
+          .subCategory(GENERAL)
+          .category(CSS_CATEGORY)
+          .onQualifiers(Qualifiers.PROJECT)
+          .multiValues(true)
+          .build()
+      );
+
+      context.addExtension(
+        PropertyDefinition.builder(STYLELINT_REPORT_PATHS)
+          .defaultValue(STYLELINT_REPORT_PATHS_DEFAULT_VALUE)
+          .name("Stylelint Report Files")
+          .description("Paths (absolute or relative) to the JSON files with stylelint issues.")
+          .onQualifiers(Qualifiers.PROJECT)
+          .subCategory(LINTER_SUBCATEGORY)
+          .category(CSS_CATEGORY)
           .multiValues(true)
           .build());
     }
