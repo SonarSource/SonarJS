@@ -27,7 +27,7 @@ import static org.sonar.plugins.javascript.css.CssProfileDefinition.PROFILE_PATH
 public class CssRulesDefinition implements RulesDefinition {
 
   public static final String REPOSITORY_KEY = "css";
-  public static final String RULE_REPOSITORY_NAME = "SonarAnalyzer";
+  public static final String RULE_REPOSITORY_NAME = "SonarQube";
 
   public static final String RESOURCE_FOLDER = "org/sonar/l10n/css/rules/";
 

@@ -41,7 +41,7 @@ public class CssRulesDefinitionTest {
     assertThat(externalRepository.isExternal()).isEqualTo(true);
     assertThat(externalRepository.rules()).hasSize(170);
 
-    assertThat(mainRepository.name()).isEqualTo("SonarAnalyzer");
+    assertThat(mainRepository.name()).isEqualTo("SonarQube");
     assertThat(mainRepository.language()).isEqualTo("css");
     assertThat(mainRepository.isExternal()).isEqualTo(false);
     assertThat(mainRepository.rules()).hasSize(CssRules.getRuleClasses().size());
