@@ -231,11 +231,9 @@ public class CssRuleSensorTest {
   @Test
   void analysis_stop_when_server_is_not_anymore_alive() {
     addInputFile("file.css");
+    when(eslintBridgeServerMock.isAlive()).thenReturn(false);
     sensor.execute(context);
-
-    assertThatThrownBy(() -> sensor.execute(context))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("eslint-bridge server is not answering");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failure during analysis, eslintBridgeServerMock command info");
   }
 
   @Test
