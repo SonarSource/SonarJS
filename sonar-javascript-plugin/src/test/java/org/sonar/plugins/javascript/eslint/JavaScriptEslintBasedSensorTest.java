@@ -421,7 +421,7 @@ public class JavaScriptEslintBasedSensorTest {
     createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
-    assertThat(analysisWarnings.warnings).containsExactly("JavaScript and/or TypeScript rules were not executed. Exception Message");
+    assertThat(analysisWarnings.warnings).containsExactly("JavaScript/TypeScript/CSS rules were not executed. Exception Message");
   }
 
   @Test

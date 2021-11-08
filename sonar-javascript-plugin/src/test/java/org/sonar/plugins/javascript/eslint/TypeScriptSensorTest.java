@@ -341,7 +341,7 @@ public class TypeScriptSensorTest {
     createInputFile(context, "dir/file1.ts");
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Missing TypeScript dependency");
-    assertThat(analysisWarnings.warnings).containsExactly("JavaScript and/or TypeScript rules were not executed. Missing TypeScript dependency");
+    assertThat(analysisWarnings.warnings).containsExactly("JavaScript/TypeScript/CSS rules were not executed. Missing TypeScript dependency");
   }
 
   @Test
