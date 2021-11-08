@@ -75,7 +75,7 @@ public interface EslintBridgeServer extends Startable {
 
   class CssAnalysisRequest {
     public String filePath;
-    String fileContent;
+    public String fileContent;
     String configFile;
 
     public CssAnalysisRequest(String filePath, @Nullable String fileContent, String configFile) {

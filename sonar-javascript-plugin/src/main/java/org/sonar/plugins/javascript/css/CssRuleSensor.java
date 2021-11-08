@@ -127,7 +127,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
     }
   }
 
-  void analyzeFile(InputFile inputFile, SensorContext context, File configFile) throws IOException {
+  void analyzeFile(InputFile inputFile, SensorContext context, File configFile) {
     try {
       URI uri = inputFile.uri();
       if (!"file".equalsIgnoreCase(uri.getScheme())) {
