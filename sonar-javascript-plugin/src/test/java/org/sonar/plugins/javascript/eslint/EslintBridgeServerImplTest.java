@@ -33,9 +33,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -47,6 +44,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.eslint.EslintBridgeServer.AnalysisRequest;
+import org.sonar.plugins.javascript.eslint.EslintBridgeServer.CssAnalysisRequest;
 import org.sonarsource.nodejs.NodeCommand;
 import org.sonarsource.nodejs.NodeCommandBuilder;
 import org.sonarsource.nodejs.NodeCommandException;
@@ -186,6 +184,19 @@ public class EslintBridgeServerImplTest {
     AnalysisRequest request = new AnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), null, true,
       singletonList(tsConfig.absolutePath()));
     assertThat(eslintBridgeServer.analyzeTypeScript(request).issues).isEmpty();
+  }
+
+  @Test
+  public void should_get_answer_from_server_for_css_request() throws Exception {
+    eslintBridgeServer = createEslintBridgeServer(START_SERVER_SCRIPT);
+    eslintBridgeServer.deploy();
+    eslintBridgeServer.startServer(context, emptyList());
+
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.css")
+      .setContents("a { }")
+      .build();
+    CssAnalysisRequest request = new CssAnalysisRequest(inputFile.absolutePath(), inputFile.type().toString(), "config.file");
+    assertThat(eslintBridgeServer.analyzeCss(request).issues).isEmpty();
   }
 
   @Test

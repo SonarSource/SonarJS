@@ -62,10 +62,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
   private static final String CONFIG_PATH = "css-bundle/stylelintconfig.json";
 
   private final CssRules cssRules;
-  private final AnalysisWarningsWrapper analysisWarnings;
-
-  // fixme
-  // "No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped."
 
   public CssRuleSensor(
     JavaScriptChecks checks, NoSonarFilter noSonarFilter,
@@ -81,7 +77,6 @@ public class CssRuleSensor extends AbstractEslintSensor {
       monitoring
     );
     this.cssRules = new CssRules(checkFactory);
-    this.analysisWarnings = analysisWarnings;
   }
 
   @Override
@@ -89,6 +84,17 @@ public class CssRuleSensor extends AbstractEslintSensor {
     descriptor
       .createIssuesForRuleRepository("css")
       .name("CSS Rules");
+  }
+
+  @Override
+  public void execute(SensorContext context) {
+    this.context = context;
+    List<InputFile> inputFiles = getInputFiles();
+    if (inputFiles.isEmpty()) {
+      LOG.info("No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped.");
+      return;
+    }
+    super.execute(context);
   }
 
   @Override
@@ -104,7 +110,7 @@ public class CssRuleSensor extends AbstractEslintSensor {
           throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
         }
         if (!eslintBridgeServer.isAlive()) {
-          throw new IllegalStateException("css-bundle server is not answering");
+          throw new IllegalStateException("eslint-bridge server is not answering");
         }
 
         analyzeFile(inputFile, context, configFile);
