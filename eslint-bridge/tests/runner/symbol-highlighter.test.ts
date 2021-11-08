@@ -197,7 +197,7 @@ async function actual(code: string): Promise<HighlightedSymbol[]> {
   const filePath = join(__dirname, '/../fixtures/ts-project/sample.lint.ts');
   const tsConfig = join(__dirname, '/../fixtures/ts-project/tsconfig.json');
   initLinter([]);
-  const {highlightedSymbols} = await analyzeTypeScript({
+  const { highlightedSymbols } = await analyzeTypeScript({
     filePath,
     fileContent: code,
     tsConfigs: [tsConfig],
