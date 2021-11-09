@@ -46,7 +46,7 @@
             </goals>
             <configuration>
               <executable>npm</executable>
-              <commandlineArgs>run test --coverage --silent</commandlineArgs>
+              <commandlineArgs>run test -- --coverage --silent</commandlineArgs>
               <skip>${skipTests}</skip>
             </configuration>
           </execution>
