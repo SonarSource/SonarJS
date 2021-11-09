@@ -1,0 +1,13 @@
+.myclass, .myotherclass {
+  font-size: 10px;
+ /* < lots more styles > */
+}
+
+/* particular override for myclass */
+.myclass { /* No FP */
+  color: red;
+}
+/* particular override for myotherclass */
+.myotherclass { /* No FP */
+  color: blue;
+}

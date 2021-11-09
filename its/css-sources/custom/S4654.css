@@ -1,0 +1,19 @@
+a {
+  colr: blue; /* Noncompliant */
+  content-visibility: auto; /* No FP */
+  contain-intrinsic-size: 400px; /* No FP */
+}
+
+
+img {
+    -ms-interpolation-mode: bicubic; /* No FP */
+}
+
+table {
+    mso-table-lspace: 0pt; /* No FP */
+    mso-table-rspace: 0pt; /* No FP */
+}
+
+p, a, li, td, blockquote {
+    mso-line-height-rule: exactly; /* No FP */
+}

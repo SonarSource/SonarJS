@@ -1,0 +1,7 @@
+& ::v-deep .q-tab__content {
+    min-width: 0;
+}
+
+ion-select::part(icon) {
+  display: none;
+}
