@@ -1,0 +1,2 @@
+@import "a.css";
+@import "a.css";                                              /* S1128 | no-duplicate-at-import-rules */

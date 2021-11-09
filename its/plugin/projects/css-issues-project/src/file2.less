@@ -1,0 +1,65 @@
+@import "a.css";
+@import "a.css";                                              /* S1128 | no-duplicate-at-import-rules */
+
+b a {
+  color: pink;;                                               /* S1116 | no-extra-semicolons */
+}
+
+a {                                                           /* S4664 | no-descending-specificity */
+  color: red;
+}
+
+a::pseudo {                                                   /* S4660 | selector-pseudo-element-no-unknown */
+  color: red;
+}
+
+a:unknown {                                                   /* S4659 | selector-pseudo-class-no-unknown */
+  background-color: #ffw;                                     /* S4647 | color-no-invalid-hex */
+  /* */                                                       /* S4663 | comment-no-empty */
+  content: "first
+    second";                                                  /* S4652 | string-no-newline */
+  color: pink;
+  color: pink;                                                /* S4656 | declaration-block-no-duplicate-properties */
+  color: orange;                                              /* S4656 | declaration-block-no-duplicate-properties | Not raised because property has a different value */
+  font: 1em/1.3 Times;                                        /* S4649 | font-family-no-missing-generic-family-keyword */
+  font-family: serif, serif;                                  /* S4648 | font-family-no-duplicate-names */
+  heigth: 100%;                                               /* S4654 | property-no-unknown */
+  padding-left: 10px;
+  padding: 20px;                                              /* S4657 | declaration-block-no-shorthand-property-overrides */
+  top: calc(1px+2px);                                         /* S4650 | function-calc-no-unspaced-operator */ /* S4653 | unit-no-unknown */
+  width: calc(100% 80px);                                     /* S5362 | function-calc-no-invalid */
+}
+
+// color: pink;                                               /* S4668 | no-invalid-double-slash-comments | Doesn't raise for LESS */
+
+.class1 {
+  width: 100px;
+  background: linear-gradient(top, #fff, #000);               /* S4651 | function-linear-gradient-no-nonstandard-direction */
+}
+
+.class1 {                                                     /* S4666 | no-duplicate-selectors */
+  padding: 100px;
+}
+
+unknown {                                                     /* S4670 | selector-type-no-unknown */
+  color: black;
+}
+
+@unknown {                                                    /* S4662 | at-rule-no-unknown */
+  width: 1px;
+}
+
+@keyframes important1 {
+  from {
+    margin-top: 50px;
+  }
+  to {
+    margin-top: 100px !important;                             /* S4655 | keyframe-declaration-no-important */
+  }
+}
+
+.class2 { }                                                   /* S4658 | block-no-empty */
+
+@media screen and (unknown) {                                 /* S4661 | media-feature-name-no-unknown */
+  width: 2px;
+}

@@ -1,0 +1,9 @@
+.class1 {
+  background-color: #2d5e8b;
+}
+.class1 .class2 {
+  color: #2d5e8b;
+  foo: "some text";
+}
+
+/* some comment */
