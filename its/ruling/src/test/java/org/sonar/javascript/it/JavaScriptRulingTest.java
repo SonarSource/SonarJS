@@ -119,7 +119,8 @@ class JavaScriptRulingTest {
       .restoreProfile(FileLocation.of(jsProfile))
       .restoreProfile(FileLocation.of(tsProfile))
       .restoreProfile(FileLocation.ofClasspath("/empty-ts-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"));
+      .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"));
 
     instantiateTemplateRule("js", "rules",
       "S124",
@@ -149,6 +150,7 @@ class JavaScriptRulingTest {
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "css", "empty-profile");
 
     File sourcesLocation = FileLocation.of(sources).getFile();
 
