@@ -25,10 +25,10 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.Context;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CssProfileDefinitionTest {
+class CssProfileDefinitionTest {
 
   @Test
-  public void should_create_css_profile() {
+  void should_create_css_profile() {
     CssProfileDefinition definition = new CssProfileDefinition();
     Context context = new Context();
     definition.define(context);

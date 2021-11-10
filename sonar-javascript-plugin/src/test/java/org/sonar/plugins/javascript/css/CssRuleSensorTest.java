@@ -67,7 +67,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class CssRuleSensorTest {
+class CssRuleSensorTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -260,7 +260,7 @@ public class CssRuleSensorTest {
   }
 
   @Test
-  public void test_unknown_rule() throws IOException {
+  void test_unknown_rule() throws IOException {
     AnalysisResponse responseIssues = response("{ issues: [{\"line\":2,\"ruleId\":\"unknown-rule-key\",\"message\":\"Some message\"}]}");
     when(eslintBridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
 
@@ -272,7 +272,7 @@ public class CssRuleSensorTest {
   }
 
   @Test
-  public void should_not_send_file_content_if_encoding_is_utf8_and_context_is_not_sonarlint() throws IOException {
+  void should_not_send_file_content_if_encoding_is_utf8_and_context_is_not_sonarlint() throws IOException {
     String filePath = "copy-file-content-into-issue-message.css";
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", filePath)
       .setLanguage(CssLanguage.KEY)

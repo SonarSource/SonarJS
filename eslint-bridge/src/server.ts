@@ -57,7 +57,7 @@ type AnalysisFunction = (input: AnalysisInput) => Promise<AnalysisResponse>;
 export function startServer(
   analyzeJS: AnalysisFunction,
   analyzeTS: AnalysisFunction,
-  analyzeCss: AnalysisFunction,
+  analyzeCSS: AnalysisFunction,
   port = 0,
   host = '127.0.0.1',
   additionalRuleBundles: string[] = [],
@@ -84,7 +84,7 @@ export function startServer(
 
     app.post('/analyze-ts', analyze(analyzeTS));
 
-    app.post('/analyze-css', analyze(analyzeCss));
+    app.post('/analyze-css', analyze(analyzeCSS));
 
     app.post('/new-tsconfig', (_request: express.Request, response: express.Response) => {
       unloadTypeScriptEslint();

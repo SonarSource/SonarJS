@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class MetricSensorTest {
+class MetricSensorTest {
 
   private DefaultInputFile inputFile;
   private SensorContextTester sensorContext;
@@ -47,7 +47,7 @@ public class MetricSensorTest {
   Path tempFolder;
 
   @Test
-  public void should_describe() {
+  void should_describe() {
     DefaultSensorDescriptor desc = new DefaultSensorDescriptor();
     new MetricSensor(null).describe(desc);
 
@@ -55,14 +55,14 @@ public class MetricSensorTest {
   }
 
   @Test
-  public void empty_input() throws Exception {
+  void empty_input() throws Exception {
     executeSensor("foo");
     assertThat(sensorContext.highlightingTypeAt(inputFile.key(), 1, 0)).isEmpty();
     assertThat(sensorContext.highlightingTypeAt(inputFile.key(), 1, 1)).isEmpty();
   }
 
   @Test
-  public void comment() throws IOException {
+  void comment() throws IOException {
     executeSensor("/* some comment */");
     assertHighlighting(1, 0, 18, TypeOfText.COMMENT);
 
@@ -72,7 +72,7 @@ public class MetricSensorTest {
   }
 
   @Test
-  public void string() throws IOException {
+  void string() throws IOException {
     executeSensor("\"foo\"");
     assertHighlighting(1, 0, 5, TypeOfText.STRING);
 
@@ -82,7 +82,7 @@ public class MetricSensorTest {
   }
 
   @Test
-  public void constant() throws IOException {
+  void constant() throws IOException {
     executeSensor("1");
     assertHighlighting(1, 0, 1, TypeOfText.CONSTANT);
 
@@ -100,7 +100,7 @@ public class MetricSensorTest {
   }
 
   @Test
-  public void annotation() throws IOException {
+  void annotation() throws IOException {
     executeSensor("@bar { }");
     assertHighlighting(1, 0, 4, TypeOfText.ANNOTATION);
 
@@ -115,7 +115,7 @@ public class MetricSensorTest {
   }
 
   @Test
-  public void keyword() throws IOException {
+  void keyword() throws IOException {
     executeSensor("$foo { }");
     assertHighlighting(1, 0, 4, TypeOfText.KEYWORD);
 
@@ -124,7 +124,7 @@ public class MetricSensorTest {
   }
 
   @Test
-  public void keyword_light() throws IOException {
+  void keyword_light() throws IOException {
     executeSensor("bar: foo { }");
     assertHighlighting(1, 0, 3, TypeOfText.KEYWORD_LIGHT);
 
@@ -136,7 +136,7 @@ public class MetricSensorTest {
   }
 
   @Test
-  public void lines_of_code() throws IOException {
+  void lines_of_code() throws IOException {
     executeSensor("bar { }");
     assertLinesOfCode(1);
 
@@ -161,7 +161,7 @@ public class MetricSensorTest {
   }
 
   @Test
-  public void lines_of_comment() throws IOException {
+  void lines_of_comment() throws IOException {
     executeSensor("// inline comment");
     assertLinesOfComment(1);
 

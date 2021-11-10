@@ -239,7 +239,7 @@ public class JavaScriptPlugin implements Plugin {
         PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
           .defaultValue(CssLanguage.FILE_SUFFIXES_DEFVALUE)
           .name("File Suffixes")
-          .description("List of suffixes for files to analyze.")
+          .description(FILE_SUFFIXES_DESCRIPTION)
           .subCategory(GENERAL)
           .category(CSS_CATEGORY)
           .onQualifiers(Qualifiers.PROJECT)

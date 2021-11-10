@@ -25,12 +25,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TokenizerTest {
+class TokenizerTest {
 
   private final static Tokenizer tokenizer = new Tokenizer();
   
   @Test
-  public void identifier() {
+  void identifier() {
     assertToken("bar { }", 0, "bar", CssTokenType.IDENTIFIER);
     assertToken("bar: foo { }", 0, "bar", CssTokenType.IDENTIFIER);
     assertToken("bar: foo-baz { }", 2, "foo-baz", CssTokenType.IDENTIFIER);
@@ -46,35 +46,35 @@ public class TokenizerTest {
   }
 
   @Test
-  public void at_identifier() {
+  void at_identifier() {
     assertToken("@bar { }", 0, "@bar", CssTokenType.AT_IDENTIFIER);
   }
 
   @Test
-  public void hash_identifier() {
+  void hash_identifier() {
     assertToken("#bar { }", 0, "#bar", CssTokenType.HASH_IDENTIFIER);
     assertToken("bar { color: #333; }", 4, "#333", CssTokenType.HASH_IDENTIFIER);
     assertToken("bar { color: #e535ab; }", 4, "#e535ab", CssTokenType.HASH_IDENTIFIER);
   }
 
   @Test
-  public void semi_colon() {
+  void semi_colon() {
     assertToken("bar { foo; }", 3, ";", CssTokenType.PUNCTUATOR);
   }
 
   @Test
-  public void colon() {
+  void colon() {
     assertToken("bar { foo: 2px; }", 3, ":", CssTokenType.PUNCTUATOR);
   }
 
   @Test
-  public void comma() {
+  void comma() {
     assertToken("foo , bar { }", 1, ",", CssTokenType.PUNCTUATOR);
     assertToken("foo, bar { }", 1, ",", CssTokenType.PUNCTUATOR);
   }
 
   @Test
-  public void number() {
+  void number() {
     assertToken("1.15", 0, "1.15", CssTokenType.NUMBER);
     assertToken("1", 0, "1", CssTokenType.NUMBER);
     assertToken(".1", 0, ".1", CssTokenType.NUMBER);
@@ -86,7 +86,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void parenthesis() {
+  void parenthesis() {
     assertToken("bar { foo: (1.15); }", 4, "(", CssTokenType.PUNCTUATOR);
     assertToken("bar { foo: (1.15); }", 6, ")", CssTokenType.PUNCTUATOR);
     assertToken("bar { foo: ( 1.15 ); }", 4, "(", CssTokenType.PUNCTUATOR);
@@ -98,7 +98,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void strings() {
+  void strings() {
     assertToken("bar { foo: \"text\"; }", 4, "\"text\"", CssTokenType.STRING);
     assertToken("bar { foo: \"hello, world\"; }", 4, "\"hello, world\"", CssTokenType.STRING);
     assertToken("bar { foo: \"\"; }", 4, "\"\"", CssTokenType.STRING);
@@ -115,7 +115,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void comment() {
+  void comment() {
     assertToken("/* foo */", 0, "/* foo */", CssTokenType.COMMENT);
     assertToken("foo { a: /* foo */ 42; }", 4, "/* foo */", CssTokenType.COMMENT);
     assertToken("foo { a: /* foo\nbar*/ 42; }", 4, "/* foo\nbar*/", CssTokenType.COMMENT, 1, 9, 2, 5);
@@ -134,7 +134,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void scss_variable() {
+  void scss_variable() {
     assertToken("$font-stack: Helvetica;", 0, "$font-stack", CssTokenType.DOLLAR_IDENTIFIER);
     assertToken("$message-color: blue !default;", 4, "default", CssTokenType.IDENTIFIER);
 
@@ -156,7 +156,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void scss_import() {
+  void scss_import() {
     List<CssToken> tokenList = tokenizer.tokenize("@import 'base';");
 
     assertThat(tokenList.size()).isEqualTo(3);
@@ -166,7 +166,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void scss_role() {
+  void scss_role() {
     List<CssToken> tokenList = tokenizer.tokenize("article[role=\"main\"] { width: 1px; }");
 
     assertThat(tokenList.size()).isEqualTo(12);
@@ -179,7 +179,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void scss_less_operators() {
+  void scss_less_operators() {
     assertToken("foo { width: 300px + 960px; }", 5, "+", CssTokenType.PUNCTUATOR);
     assertToken("foo { width: 300px - 960px; }", 5, "-", CssTokenType.PUNCTUATOR);
     assertToken("foo { width: 300px * 960px; }", 5, "*", CssTokenType.PUNCTUATOR);
@@ -187,32 +187,32 @@ public class TokenizerTest {
   }
 
   @Test
-  public void scss_parent_selector() {
+  void scss_parent_selector() {
     assertToken("a { &:hover { color: red; } }", 2, "&", CssTokenType.PUNCTUATOR);
     assertToken("p { body.no-touch & { display: none; } }", 5, "&", CssTokenType.PUNCTUATOR);
   }
 
   @Test
-  public void scss_control_directives() {
+  void scss_control_directives() {
     assertToken("@if ($debug) { }", 0, "@if", CssTokenType.AT_IDENTIFIER);
     assertToken("@each $name in 'save' 'cancel' { }", 0, "@each", CssTokenType.AT_IDENTIFIER);
   }
 
   @Test
-  public void less_variable() {
+  void less_variable() {
     assertToken("@nice-blue: #5B83AD;", 0, "@nice-blue", CssTokenType.AT_IDENTIFIER);
     assertToken("foo { color: @@color; }", 4, "@@color", CssTokenType.AT_IDENTIFIER);
   }
 
   @Test
-  public void less_comment() {
+  void less_comment() {
     assertToken("// Get in line!", 0, "// Get in line!", CssTokenType.COMMENT);
     assertToken("// body font size = 62.5%\n\n/* some comment */", 0, "// body font size = 62.5%", CssTokenType.COMMENT);
     assertToken("/* One heck of a block\n * style comment! */", 0, "/* One heck of a block\n * style comment! */", CssTokenType.COMMENT);
   }
 
   @Test
-  public void unrecognized() {
+  void unrecognized() {
     assertToken("$$a", 0, "$a", CssTokenType.DOLLAR_IDENTIFIER);
   }
 

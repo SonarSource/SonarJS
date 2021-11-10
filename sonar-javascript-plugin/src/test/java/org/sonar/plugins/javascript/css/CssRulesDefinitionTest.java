@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CssRulesDefinitionTest {
+class CssRulesDefinitionTest {
 
   @Test
   void test_repos() {

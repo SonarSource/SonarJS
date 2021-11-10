@@ -24,10 +24,10 @@ import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CssLanguageTest {
+class CssLanguageTest {
 
   @Test
-  public void test() {
+  void test() {
     MapSettings settings = new MapSettings();
     settings.setProperty(CssLanguage.FILE_SUFFIXES_KEY, CssLanguage.FILE_SUFFIXES_DEFVALUE);
     CssLanguage language = new CssLanguage(settings.asConfig());

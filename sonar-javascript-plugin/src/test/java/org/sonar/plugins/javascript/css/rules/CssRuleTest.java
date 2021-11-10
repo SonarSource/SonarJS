@@ -28,10 +28,10 @@ import org.sonar.plugins.javascript.css.CssRules;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CssRuleTest {
+class CssRuleTest {
 
   @Test
-  public void class_name_should_match_stylelint_key() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+  void class_name_should_match_stylelint_key() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     for (Class ruleClass : CssRules.getRuleClasses()) {
       CssRule rule = (CssRule)ruleClass.getConstructor().newInstance();
       String stylelintRuleKeyWithoutUnderscore = rule.stylelintKey().replace("-", "");
@@ -40,7 +40,7 @@ public class CssRuleTest {
   }
 
   @Test
-  public void rules_default_is_empty() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+  void rules_default_is_empty() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     Set<Class> rulesWithStylelintOptions = Sets.newSet(
       AtRuleNoUnknown.class,
       DeclarationBlockNoDuplicateProperties.class,
@@ -61,7 +61,7 @@ public class CssRuleTest {
   }
 
   @Test
-  public void selector_pseudo_class_options() {
+  void selector_pseudo_class_options() {
     SelectorPseudoClassNoUnknown selectorPseudoClassNoUnknown = new SelectorPseudoClassNoUnknown();
     String optionsAsJson = new Gson().toJson(selectorPseudoClassNoUnknown.stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignorePseudoClasses\":[\"local\",\"global\",\"export\",\"import\"]}]");
@@ -71,19 +71,19 @@ public class CssRuleTest {
   }
 
   @Test
-  public void property_no_unknown_options() {
+  void property_no_unknown_options() {
     String optionsAsJson = new Gson().toJson(new PropertyNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreProperties\":[\"composes\",\"/^mso-/\"],\"ignoreSelectors\":[\"/^:export.*/\",\"/^:import.*/\"]}]");
   }
 
   @Test
-  public void selector_type_no_unknown_default() {
+  void selector_type_no_unknown_default() {
     String optionsAsJson = new Gson().toJson(new SelectorTypeNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreTypes\":[\"/^(mat|md|fa)-/\"],\"ignore\":[\"custom-elements\"]}]");
   }
 
   @Test
-  public void selector_type_no_unknown_custom() {
+  void selector_type_no_unknown_custom() {
     SelectorTypeNoUnknown selectorTypeNoUnknown = new SelectorTypeNoUnknown();
     selectorTypeNoUnknown.ignoreTypes = "/^(mat|md|fa)-/";
     selectorTypeNoUnknown.ignore = "custom-elements, default-namespace";
@@ -92,13 +92,13 @@ public class CssRuleTest {
   }
 
   @Test
-  public void selector_pseudo_element_no_unknown_default() {
+  void selector_pseudo_element_no_unknown_default() {
     String optionsAsJson = new Gson().toJson(new SelectorPseudoElementNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignorePseudoElements\":[\"ng-deep\",\"v-deep\"]}]");
   }
 
   @Test
-  public void selector_pseudo_element_no_unknown_custom() {
+  void selector_pseudo_element_no_unknown_custom() {
     SelectorPseudoElementNoUnknown selectorPseudoElementNoUnknown = new SelectorPseudoElementNoUnknown();
     selectorPseudoElementNoUnknown.ignorePseudoElements =  "ng-deep, /^custom-/";
     String optionsAsJson = new Gson().toJson(selectorPseudoElementNoUnknown.stylelintOptions());
@@ -106,19 +106,19 @@ public class CssRuleTest {
   }
 
   @Test
-  public void units_no_unknown_options() {
+  void units_no_unknown_options() {
     String optionsAsJson = new Gson().toJson(new UnitNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreUnits\":[\"x\"]}]");
   }
 
   @Test
-  public void at_rule_unknown_default() {
+  void at_rule_unknown_default() {
     String optionsAsJson = new Gson().toJson(new AtRuleNoUnknown().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignoreAtRules\":[\"value\",\"at-root\",\"content\",\"debug\",\"each\",\"else\",\"error\",\"for\",\"function\",\"if\",\"include\",\"mixin\",\"return\",\"warn\",\"while\",\"extend\",\"use\",\"/^@.*/\"]}]");
   }
 
   @Test
-  public void at_rule_unknown_custom() {
+  void at_rule_unknown_custom() {
     AtRuleNoUnknown instance = new AtRuleNoUnknown();
     instance.ignoredAtRules = "foo, bar";
     String optionsAsJson = new Gson().toJson(instance.stylelintOptions());
@@ -126,13 +126,13 @@ public class CssRuleTest {
   }
 
   @Test
-  public void declaration_block_no_duplicate_properties_default() {
+  void declaration_block_no_duplicate_properties_default() {
     String optionsAsJson = new Gson().toJson(new DeclarationBlockNoDuplicateProperties().stylelintOptions());
     assertThat(optionsAsJson).isEqualTo("[true,{\"ignore\":[\"consecutive-duplicates-with-different-values\"]}]");
   }
 
   @Test
-  public void declaration_block_no_duplicate_properties_custom() {
+  void declaration_block_no_duplicate_properties_custom() {
     DeclarationBlockNoDuplicateProperties instance = new DeclarationBlockNoDuplicateProperties();
     instance.ignoreFallbacks = false;
     assertThat(instance.stylelintOptions()).isEmpty();

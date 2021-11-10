@@ -49,7 +49,7 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StylelintReportSensorTest {
+class StylelintReportSensorTest {
 
   @TempDir
   Path tmpDir;
@@ -74,7 +74,7 @@ public class StylelintReportSensorTest {
   }
 
   @Test
-  public void should_add_issues_from_report() {
+  void should_add_issues_from_report() {
     setReport("report.json");
     stylelintReportSensor.execute(context);
 
@@ -94,7 +94,7 @@ public class StylelintReportSensorTest {
   }
 
   @Test
-  public void should_read_report_utf8_bom() {
+  void should_read_report_utf8_bom() {
     setReport("report-utf8-bom.json");
     stylelintReportSensor.execute(context);
 
@@ -103,7 +103,7 @@ public class StylelintReportSensorTest {
   }
 
   @Test
-  public void should_read_report_utf16() {
+  void should_read_report_utf16() {
     setReport("report-utf16.json");
     stylelintReportSensor.execute(context);
 
@@ -112,7 +112,7 @@ public class StylelintReportSensorTest {
   }
 
   @Test
-  public void should_support_absolute_file_paths_in_report() throws Exception {
+  void should_support_absolute_file_paths_in_report() throws Exception {
     String report = "[\n" +
       "  {\n" +
       "    \"source\": \"%s\",\n" +
@@ -138,7 +138,7 @@ public class StylelintReportSensorTest {
   }
 
   @Test
-  public void should_skip_duplicates() throws Exception {
+  void should_skip_duplicates() throws Exception {
     // when in SQ CSS profile there is an activated rule matching to an external issue,
     // that external issue is ignored
     setReport("report.json");
@@ -153,7 +153,7 @@ public class StylelintReportSensorTest {
   }
 
   @Test
-  public void should_ignore_report_on_older_sonarqube() throws Exception {
+  void should_ignore_report_on_older_sonarqube() throws Exception {
     context.setRuntime(getRuntime(7, 1));
     setReport("report.json");
     stylelintReportSensor.execute(context);
@@ -163,7 +163,7 @@ public class StylelintReportSensorTest {
   }
 
   @Test
-  public void should_do_nothing_when_no_report() throws Exception {
+  void should_do_nothing_when_no_report() throws Exception {
     setReport("");
     stylelintReportSensor.execute(context);
 
@@ -171,7 +171,7 @@ public class StylelintReportSensorTest {
   }
 
   @Test
-  public void should_log_when_not_existing_report_file() throws Exception {
+  void should_log_when_not_existing_report_file() throws Exception {
     setReport("not-exist.json");
     stylelintReportSensor.execute(context);
 
@@ -180,7 +180,7 @@ public class StylelintReportSensorTest {
   }
 
   @Test
-  public void should_log_when_not_found_input_file() throws Exception {
+  void should_log_when_not_found_input_file() throws Exception {
     setReport("invalid-file.json");
     stylelintReportSensor.execute(context);
 
@@ -189,21 +189,21 @@ public class StylelintReportSensorTest {
   }
 
   @Test
-  public void should_accept_absolute_path_to_report() throws Exception {
+  void should_accept_absolute_path_to_report() throws Exception {
     setReport(new File(BASE_DIR, "report.json").getAbsolutePath());
     stylelintReportSensor.execute(context);
     assertThat(context.allExternalIssues()).hasSize(2);
   }
 
   @Test
-  public void should_accept_several_reports() throws Exception {
+  void should_accept_several_reports() throws Exception {
     setReport("report.json, invalid-file.json");
     stylelintReportSensor.execute(context);
     assertThat(context.allExternalIssues()).hasSize(3);
   }
 
   @Test
-  public void test_descriptor() throws Exception {
+  void test_descriptor() throws Exception {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     stylelintReportSensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("Import of stylelint issues");
