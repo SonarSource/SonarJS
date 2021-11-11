@@ -77,6 +77,30 @@ build_win_task:
     - mvn.cmd -s /c/buildTools-docker/settings-public.xml test
   cleanup_before_cache_script: cleanup_maven_repository
 
+ws_scan_task:
+  depends_on:
+    - build
+  gke_container:
+    dockerfile: .cirrus/nodejs-12.Dockerfile
+    <<: *CONTAINER_DEFINITION
+    cpu: 4
+    memory: 8G
+  # run only on master and long-term branches
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
+  env:
+    WS_APIKEY: ENCRYPTED[!3929c6148b9dfc751a2d17c590b15d755f82cd9c108f2de5f24a5b32f2a0c26144e921fab7e2c959fc2824d6d6d1550d!]
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  whitesource_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - mvn clean install -DskipTests
+    - source ws_scan.sh
+  allow_failures: "true"
+  always:
+    ws_artifacts:
+      path: "whitesource/**/*"
+
 plugin_qa_task:
   depends_on:
     - build
@@ -177,6 +201,7 @@ ruling_task:
 
 promote_task:
   depends_on:
+    - ws_scan
     - build_win
     - plugin_qa
     - plugin_qa_win
